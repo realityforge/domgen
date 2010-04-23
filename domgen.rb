@@ -471,14 +471,14 @@ per_type_mapping = [Domgen::Generator::TemplateMap.new('hibernate_model', '#{obj
 
 per_schema_mapping.each do |template_map|
   schemas.each do |schema|
-    template_map.generate('generated',schema)
+    template_map.generate('target/generated',schema)
   end
 end
 
 per_type_mapping.each do |template_map|
   schemas.each do |schema|
     schema.object_types.each do |object_type|
-      template_map.generate('generated',object_type)
+      template_map.generate('target/generated',object_type)
     end
   end
 end
