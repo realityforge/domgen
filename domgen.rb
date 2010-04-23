@@ -407,7 +407,85 @@ schemas = []
 
 schemas << Domgen::Schema.new("core", :database_schema => 'dbo') do |s|
 
-  s.java.package = 'iris.model.core'
+  s.java.package = 'epwp.model'
+
+  s.define_object_type(:CodeSetValue) do |t|
+    t.integer(:ID, :primary_key => true)
+    t.string(:AttributeName, 255)
+    t.string(:Value, 255)
+    t.string(:ParentAttributeValue, 255)
+  end
+
+  s.define_object_type(:FireDistrict) do |t|
+    t.integer(:ID, :primary_key => true)
+    t.string(:Name, 255)
+  end
+
+  s.define_object_type(:User) do |t|
+    t.integer(:ID, :primary_key => true)
+    t.boolean(:Active)
+    t.string(:Password, 40)
+    t.string(:Salt, 40)
+    t.string(:Email, 255)
+    t.string(:FirstName, 100)
+    t.string(:LastName, 100)
+    t.string(:PreferredName, 100)
+  end
+
+  s.define_object_type(:Submission) do |t|
+    t.integer(:ID, :primary_key => true)
+    t.reference(:User, :immutable => true)
+    t.reference(:Submission, :name => 'PriorSubmission', :immutable => true)
+    t.string(:Name, 255)
+    t.string(:ABN, 255)
+    t.text(:Notes)
+    t.text(:Comment)
+  end
+
+  s.define_object_type(:Location) do |t|
+    t.integer(:ID, :primary_key => true)
+    t.reference(:Submission, :immutable => true)
+    t.boolean(:IsPrimary)
+    t.string(:PostalName, 255)
+    t.string(:Address, 255)
+    t.string(:Town, 100)
+    t.string(:State, 30)
+    t.string(:Postcode, 8)
+    t.string(:Phone, 30)
+    t.string(:DX, 30, :nullable => true)
+  end
+
+  s.define_object_type(:Backhoe) do |t|
+    t.integer(:ID, :primary_key => true)
+    t.string(:Registration, 50)
+    t.integer(:YearOfManufacture)
+    t.string(:BackhoeMake, 100)
+    t.string(:BackhoeModel, 100)
+    t.integer(:Weight)
+    t.integer(:KwRating)
+    t.boolean(:Lights)
+    t.boolean(:ROPS)
+    t.boolean(:OGP)
+    t.text(:Comment)
+    t.reference(:Location, :nullable => true)
+  end
+
+  s.define_object_type(:Resource) do |t|
+    t.integer(:ID, :primary_key => true)
+  end
+
+  s.define_object_type(:Image) do |t|
+    t.integer(:ID, :primary_key => true)
+    t.reference(:Resource, :immutable => true)
+    t.reference(:Image, :name => 'ParentID', :immutable => true)
+    t.string(:ContentType, 20, :immutable => true)
+    t.string(:Filename, 100, :immutable => true)
+    t.string(:Thumbnail, 100, :immutable => true)
+    t.integer(:Size, :immutable => true)
+    t.integer(:Width, :immutable => true)
+    t.integer(:Height, :immutable => true)
+    t.string(:Description, 100, :nullable => true)    
+  end
 
   s.define_object_type(:AttributeType, :table => :tblAttributeType, :metadataThatCanChange => true) do |t|
     t.string(:ID, 50, :primary_key => true)
