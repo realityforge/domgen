@@ -95,60 +95,46 @@ module Domgen
     end
   end
 
-  class Constraint
+  class Constraint < BaseConfigElement
     attr_reader :name
     attr_accessor :sql
 
-    def initialize(name, options = {})
+    def initialize(name, options = {}, &block)
       @name = name
-      @name.freeze
-      options.each_pair do |k, v|
-        self.send "#{k}=", v
-      end
-      yield self if block_given?
+      super(options, &block)
     end
   end
 
-  class AttributeSetConstraint
+  class AttributeSetConstraint < BaseConfigElement
     attr_reader :name
     attr_accessor :attribute_names
 
-    def initialize(name, attribute_names, options)
+    def initialize(name, attribute_names, options, &block)
       @name, @attribute_names = name, attribute_names
-      options.each_pair do |k, v|
-        self.send "#{k}=", v
-      end
-      yield self if block_given?
+      super(options, &block)
     end
   end
 
-  class Validation
+  class Validation < BaseConfigElement
     attr_reader :name
     attr_accessor :sql
 
-    def initialize(name, options = {})
+    def initialize(name, options = {}, &block)
       @name = name
-      @name.freeze
-      options.each_pair do |k, v|
-        self.send "#{k}=", v
-      end
-      yield self if block_given?
+      super(options, &block)
     end
   end
 
-  class Attribute
+  class Attribute < BaseConfigElement
     attr_reader :object_type
     attr_reader :name
     attr_reader :attribute_type
 
-    def initialize(object_type, name, attribute_type, options = {})
+    def initialize(object_type, name, attribute_type, options = {}, &block)
       @object_type = object_type
       @name = name
       @attribute_type = attribute_type
-      options.each_pair do |k, v|
-        self.send "#{k}=", v
-      end
-      yield self if block_given?
+      super(options, &block)
       raise "Invalid type #{attribute_type} for persistent attribute #{name}" if persistent? && !self.class.persistent_types.include?(attribute_type)
       raise "non persistent attributes have no column_name" if !persistent? && !@column_name.nil?
     end
@@ -360,7 +346,7 @@ module Domgen
     end
   end
 
-  class Schema
+  class Schema < BaseConfigElement
     attr_reader :schema_set
     attr_reader :name
     attr_reader :object_types
@@ -369,10 +355,7 @@ module Domgen
       @schema_set = schema_set
       @name = name
       @object_types = []
-      options.each_pair do |k, v|
-        self.send "#{k}=", v
-      end
-      yield self if block_given?
+      super(options, &block)
     end
 
     def schema
@@ -403,15 +386,12 @@ module Domgen
     end
   end
 
-  class SchemaSet
+  class SchemaSet < BaseConfigElement
     attr_reader :schemas
 
     def initialize(options = {}, &block)
       @schemas = []
-      options.each_pair do |k, v|
-        self.send "#{k}=", v
-      end
-      yield self if block_given?
+      super(options, &block)
     end
 
     def schema_set
