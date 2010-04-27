@@ -193,12 +193,11 @@ module Domgen
     attr_writer :query_type
 
     def query_type
-      @query_type = :full if @query_type.nil? 
+      @query_type = :selector if @query_type.nil? 
       @query_type
     end
 
     def query_string
-      query = nil
       if query_type == :full
         query = jpql
       elsif query_type == :selector
@@ -564,10 +563,7 @@ schema_set = Domgen::SchemaSet.new do |ss|
     t.query("ByAttributeName",
             "SELECT C FROM CodeSetValue C WHERE C.AttributeName = :AttributeName",
             :query_type => :full)
-    t.query("ByAttributeNameAndParentAttributeValue",
-            "SELECT C FROM CodeSetValue C WHERE C.AttributeName = :AttributeName AND C.ParentAttributeValue = :ParentAttributeValue",
-            :query_type => :full)
-    t.query("ByAttributeNameAndParentAttributeValue3", <<JPQL, :query_type => :selector)
+    t.query("ByAttributeNameAndParentAttributeValue3", <<JPQL)
 AttributeName = :AttributeName AND
 ParentAttributeValue = :ParentAttributeValue
 JPQL
