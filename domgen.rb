@@ -51,6 +51,8 @@ module Domgen
     class JavaField < JavaElement
       TYPE_MAP = {"string" => "java.lang.String",
                   "integer" => "java.lang.Integer",
+                  "boolean" => "java.lang.Boolean",
+                  "text" => "java.lang.String",
                   "i_enum" => "java.lang.Integer",
                   "List" => "java.util.List"}
       attr_writer :field_name
@@ -65,7 +67,9 @@ module Domgen
       def java_type
         unless @java_type
           if :reference == parent.attribute_type
-            @java_type = parent.object_type.schema.object_type_by_name(parent.name).java.classname
+            other = parent.object_type.schema.object_type_by_name(parent.references)
+            raise "Field #{field_name} references unknown object type #{parent.references}" unless other
+            @java_type = other.java.classname
           else
             @java_type = TYPE_MAP[parent.attribute_type.to_s]
           end
@@ -206,13 +210,20 @@ module Domgen
       @column_name
     end
 
+    attr_reader :references
+
+    def references=(references)
+      raise "references on #{name} is invalid as attribute is not a reference" unless self.attribute_type == :reference
+      @references = references
+    end
+
     def java
       @java = Domgen::Java::JavaField.new(self) unless @java
       @java
     end
 
     def self.persistent_types
-      [:string, :reference, :integer, :i_enum]
+      [:text, :string, :reference, :boolean, :integer, :i_enum]
     end
   end
 
@@ -241,6 +252,14 @@ module Domgen
       self
     end
 
+    def boolean(name, options = {}, &block)
+      attribute(name, :boolean, options, &block)
+    end
+
+    def text(name, options = {}, &block)
+      attribute(name, :text, options, &block)
+    end
+
     def string(name, length, options = {}, &block)
       attribute(name, :string, options.merge({:length => length}), &block)
     end
@@ -249,8 +268,9 @@ module Domgen
       attribute(name, :integer, options, &block)
     end
 
-    def reference(name, options = {}, &block)
-      attribute(name, :reference, options, &block)
+    def reference(other_type, options = {}, &block)
+      name = (options.delete(:name) || other_type).to_s.to_sym 
+      attribute(name, :reference, options.merge({:references => other_type}), &block)
     end
 
     def i_enum(name, values, options = {}, &block)
@@ -319,10 +339,12 @@ module Domgen
   end
 
   class Schema
+    attr_reader :schema_set
     attr_reader :name
     attr_reader :object_types
 
-    def initialize(name, options = {}, &block)
+    def initialize(schema_set, name, options = {}, &block)
+      @schema_set = schema_set
       @name = name
       @object_types = []
       options.each_pair do |k, v|
@@ -358,6 +380,27 @@ module Domgen
       @java
     end
   end
+
+  class SchemaSet
+    attr_reader :schemas
+
+    def initialize(options = {}, &block)
+      @schemas = []
+      options.each_pair do |k, v|
+        self.send "#{k}=", v
+      end
+      yield self if block_given?
+    end
+
+    def schema_set
+      self
+    end
+
+    def define_schema(name, options = {}, &block)
+      @schemas << Domgen::Schema.new(self, name, options, &block)
+    end
+  end
+
 
   module Generator
     class TemplateMap
@@ -403,9 +446,8 @@ end
 # Standard attribute keys
 # :unique, :primary_key, :nullable, :immutable
 
-schemas = []
-
-schemas << Domgen::Schema.new("core", :database_schema => 'dbo') do |s|
+schema_set = Domgen::SchemaSet.new do |ss|
+  ss.define_schema("core", :database_schema => 'dbo') do |s|
 
   s.java.package = 'epwp.model'
 
@@ -487,6 +529,7 @@ schemas << Domgen::Schema.new("core", :database_schema => 'dbo') do |s|
     t.string(:Description, 100, :nullable => true)    
   end
 
+=begin
   s.define_object_type(:AttributeType, :table => :tblAttributeType, :metadataThatCanChange => true) do |t|
     t.string(:ID, 50, :primary_key => true)
     t.string(:DisplayString, 255, :unique => true)
@@ -540,21 +583,28 @@ GROUP BY Other.PositionID
 HAVING COUNT(*) > 0
 SQL
   end
+=end
+  end
 end
 
 require 'erb'
 
+per_schema_set_mapping = [Domgen::Generator::TemplateMap.new('persistence', 'META-INF/persistence.xml', 'resources')]
 per_schema_mapping = [Domgen::Generator::TemplateMap.new('constraints', '#{schema.name}_constraints.sql', 'sql')]
 per_type_mapping = [Domgen::Generator::TemplateMap.new('hibernate_model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java')]
 
+per_schema_set_mapping.each do |template_map|
+  template_map.generate('target/generated', schema_set)
+end
+
 per_schema_mapping.each do |template_map|
-  schemas.each do |schema|
+  schema_set.schemas.each do |schema|
     template_map.generate('target/generated',schema)
   end
 end
 
 per_type_mapping.each do |template_map|
-  schemas.each do |schema|
+  schema_set.schemas.each do |schema|
     schema.object_types.each do |object_type|
       template_map.generate('target/generated',object_type)
     end
