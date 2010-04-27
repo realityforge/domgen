@@ -518,7 +518,7 @@ schema_set = Domgen::SchemaSet.new do |ss|
     t.integer(:ID, :primary_key => true)
     t.string(:AttributeName, 255)
     t.string(:Value, 255)
-    t.string(:ParentAttributeValue, 255)
+    t.string(:ParentAttributeValue, 255, :nullable => true)
   end
 
   s.define_object_type(:FireDistrict) do |t|
