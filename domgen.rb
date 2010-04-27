@@ -83,7 +83,7 @@ module Domgen
         @column_name
       end
 
-      attr_writer :java_type
+      attr_writer :sql_type
 
       def sql_type
         unless @java_type
@@ -95,6 +95,13 @@ module Domgen
           raise "Unknown type #{parent.attribute_type}" unless @java_type
         end
         @java_type
+      end
+
+      attr_writer :identity
+
+      def identity?
+        @identity = parent.primary_key? && parent.attribute_type == :integer unless @identity
+        !!@identity
       end
     end
   end
