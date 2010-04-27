@@ -178,6 +178,38 @@ module Domgen
     end
   end
 
+  class Query < BaseConfigElement
+    attr_reader :object_type
+    attr_reader :name
+    attr_accessor :jpql
+
+    def initialize(object_type, name, jpql, options = {}, &block)
+      @object_type = object_type
+      @name = name
+      @jpql = jpql
+      super(options, &block)
+    end
+
+    attr_writer :query_type
+
+    def query_type
+      @query_type = :full if @query_type.nil? 
+      @query_type
+    end
+
+    def query_string
+      query = nil
+      if query_type == :full
+        query = jpql
+      elsif query_type == :selector
+        query = "SELECT O FROM #{object_type.name} O WHERE #{jpql}"
+      else
+        raise "Unknown query type #{query_type}"
+      end
+      query.gsub("\n",' ')
+    end
+  end
+
   class AttributeSetConstraint < BaseConfigElement
     attr_reader :name
     attr_accessor :attribute_names
@@ -304,6 +336,7 @@ module Domgen
     attr_reader :attributes
     attr_reader :constraints
     attr_reader :validations
+    attr_reader :queries
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
 
@@ -315,6 +348,7 @@ module Domgen
       @validations = []
       @codependent_constraints = []
       @incompatible_constraints = []
+      @queries = []
       yield self if block_given?
     end
 
@@ -379,6 +413,12 @@ module Domgen
       incompatible_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @incompatible_constraints << incompatible_constraint
       incompatible_constraint
+    end
+
+    def query(name, jpql, options = {}, &block)
+      query = Query.new(self, name, jpql, options, &block)
+      @queries << query
+      query
     end
 
     # Assume single column pk
@@ -519,6 +559,17 @@ schema_set = Domgen::SchemaSet.new do |ss|
     t.string(:AttributeName, 255)
     t.string(:Value, 255)
     t.string(:ParentAttributeValue, 255, :nullable => true)
+
+    t.query("ByAttributeName",
+            "SELECT C FROM CodeSetValue C WHERE C.AttributeName = :AttributeName",
+            :query_type => :full)
+    t.query("ByAttributeNameAndParentAttributeValue",
+            "SELECT C FROM CodeSetValue C WHERE C.AttributeName = :AttributeName AND C.ParentAttributeValue = :ParentAttributeValue",
+            :query_type => :full)
+    t.query("ByAttributeNameAndParentAttributeValue3", <<JPQL, :query_type => :selector)
+AttributeName = :AttributeName AND
+ParentAttributeValue = :ParentAttributeValue
+JPQL
   end
 
   s.define_object_type(:FireDistrict) do |t|
