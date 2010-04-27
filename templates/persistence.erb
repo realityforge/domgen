@@ -2,6 +2,7 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0">
+<% schema_set.schemas.each do |schema| %>
   <persistence-unit name="<%= schema.name %>">
     <provider>org.hibernate.ejb.HibernatePersistence</provider><%
      schema.object_types.each do |object_type|
@@ -13,4 +14,5 @@
       <property name="hibernate.dialect" value="org.hibernate.dialect.SQLServerDialect"/>
     </properties>
   </persistence-unit>
+<% end %>
 </persistence>
