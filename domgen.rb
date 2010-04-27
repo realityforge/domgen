@@ -31,6 +31,76 @@ module Domgen
     end
   end
 
+  module Sql
+    class SqlElement < BaseConfigElement
+      attr_reader :parent
+
+      def initialize(parent, options = {}, &block)
+        @parent = parent
+        super(options, &block)
+      end
+    end
+
+    class SqlSchema < SqlElement
+      PREFIX_MAP = {:table => 'tbl', :trigger => 'trg'}
+
+      attr_writer :schema
+
+      def schema
+        @schema = 'dbo' unless @schema
+        @schema
+      end
+
+      def qualify(type, name)
+        "#{q(self.schema)}.#{q("#{PREFIX_MAP[type]}#{name}")}"
+      end
+    end
+
+    class Table < SqlElement
+      attr_writer :table_name
+
+      def table_name
+        @table_name = parent.schema.sql.qualify(:table,parent.name) unless @table_name
+        @table_name
+      end
+    end
+
+    class Column < SqlElement
+      TYPE_MAP = {"string" => "VARCHAR",
+                  "integer" => "INT",
+                  "boolean" => "BIT",
+                  "text" => "TEXT",
+                  "i_enum" => "INT"}
+
+      def column_name
+        if @column_name.nil?
+          if parent.reference?
+            @column_name = "#{parent.name}#{parent.referenced_object.primary_key.sql.column_name}"
+          else
+            @column_name = parent.name
+          end
+        end
+        @column_name
+      end
+
+      attr_writer :java_type
+
+      def java_type
+        unless @java_type
+          if :reference == parent.attribute_type
+            other = parent.object_type.schema.object_type_by_name(parent.references)
+            raise "Field #{field_name} references unknown object type #{parent.references}" unless other
+            @java_type = other.java.classname
+          else
+            @java_type = TYPE_MAP[parent.attribute_type.to_s]
+          end
+          raise "Unknown type #{parent.attribute_type}" unless @java_type
+        end
+        @java_type
+      end
+    end
+  end
+
   module Java
     class JavaElement < BaseConfigElement
       attr_reader :parent
@@ -136,7 +206,6 @@ module Domgen
       @attribute_type = attribute_type
       super(options, &block)
       raise "Invalid type #{attribute_type} for persistent attribute #{name}" if persistent? && !self.class.persistent_types.include?(attribute_type)
-      raise "non persistent attributes have no column_name" if !persistent? && !@column_name.nil?
     end
 
     def reference?
@@ -197,20 +266,6 @@ module Domgen
       @persistent
     end
 
-    attr_writer :column_name
-
-    def column_name
-      raise "non persistent attributes have no column_name" unless persistent?
-      if @column_name.nil?
-        if reference?
-          @column_name = "#{name}#{referenced_object.primary_key.column_name}"
-        else
-          @column_name = name
-        end
-      end
-      @column_name
-    end
-
     attr_reader :references
 
     def references=(references)
@@ -228,6 +283,12 @@ module Domgen
     def java
       @java = Domgen::Java::JavaField.new(self) unless @java
       @java
+    end
+
+    def sql
+      raise "Non persistent attributes should not invoke sql config method" unless persistent?
+      @sql = Domgen::Sql::Column.new(self) unless @sql
+      @sql
     end
 
     def self.persistent_types
@@ -319,10 +380,6 @@ module Domgen
       incompatible_constraint
     end
 
-    def table_name
-      schema.in_namespace("tbl#{name}")
-    end
-
     # Assume single column pk
     def primary_key
       attributes.find {|a| a.primary_key? }
@@ -339,6 +396,11 @@ module Domgen
     def java
       @java = Domgen::Java::JavaClass.new(self) unless @java
       @java
+    end
+
+    def sql
+      @sql = Domgen::Sql::Table.new(self) unless @sql
+      @sql
     end
 
     def attribute_by_name(name)
@@ -362,16 +424,6 @@ module Domgen
       self
     end
 
-    attr_writer :database_schema
-
-    def database_schema
-      @database_schema ||= self.name
-    end
-
-    def in_namespace(element)
-      self.database_schema.nil? ? q(element) : "#{q(self.database_schema)}.#{q(element)}"
-    end
-
     def define_object_type(name, options = {}, &block)
       @object_types << ObjectType.new(self, name, options, &block)
     end
@@ -383,6 +435,11 @@ module Domgen
     def java
       @java = Domgen::Java::JavaPackage.new(self) unless @java
       @java
+    end
+
+    def sql
+      @sql = Domgen::Sql::SqlSchema.new(self) unless @sql
+      @sql
     end
   end
 
@@ -449,9 +506,10 @@ end
 # :unique, :primary_key, :nullable, :immutable
 
 schema_set = Domgen::SchemaSet.new do |ss|
-  ss.define_schema("core", :database_schema => 'dbo') do |s|
+  ss.define_schema("core") do |s|
 
   s.java.package = 'epwp.model'
+  s.sql.schema = 'dbo'
 
   s.define_object_type(:CodeSetValue) do |t|
     t.integer(:ID, :primary_key => true)
