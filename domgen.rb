@@ -190,6 +190,10 @@ module Domgen
       super(options, &block)
     end
 
+    def qualified_name
+      "#{object_type.name}#{name}"
+    end
+
     attr_writer :query_type
 
     def query_type
