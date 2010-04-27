@@ -147,9 +147,12 @@ module Domgen
       raise "non persistent attributes have no column_name" if !persistent? && !@column_name.nil?
     end
 
+    def reference?
+      self.attribute_type == :reference
+    end
 
     def reverse(relationship, options = {})
-      raise "reverse on #{name} is invalid as attribute is not a reference" unless self.attribute_type == :reference
+      raise "reverse on #{name} is invalid as attribute is not a reference" unless reference?
       self
     end
 
@@ -206,15 +209,28 @@ module Domgen
 
     def column_name
       raise "non persistent attributes have no column_name" unless persistent?
-      @column_name = q(name) if @column_name.nil?
+      if @column_name.nil?
+        if reference?
+          @column_name = "#{name}#{referenced_object.primary_key.column_name}"
+        else
+          @column_name = name
+        end
+      end
       @column_name
     end
 
     attr_reader :references
 
     def references=(references)
-      raise "references on #{name} is invalid as attribute is not a reference" unless self.attribute_type == :reference
+      raise "references on #{name} is invalid as attribute is not a reference" unless reference?
       @references = references
+    end
+
+    def referenced_object
+      raise "referenced_object on #{name} is invalid as attribute is not a reference" unless reference?
+      other = self.object_type.schema.object_type_by_name(self.references)
+      raise "Missing referenced_object on #{name}" unless other
+      other
     end
 
     def java
@@ -509,11 +525,12 @@ schema_set = Domgen::SchemaSet.new do |ss|
     t.boolean(:ROPS)
     t.boolean(:OGP)
     t.text(:Comment)
-    t.reference(:Location, :nullable => true)
+    t.reference(:Resource)
   end
 
   s.define_object_type(:Resource) do |t|
     t.integer(:ID, :primary_key => true)
+    t.reference(:Location, :nullable => true)
   end
 
   s.define_object_type(:Image) do |t|
