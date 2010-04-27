@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -28,7 +30,14 @@ public final class <%= object_type.java.classname %>
 %>  @Id
 <%
     end
-%>  @Column( name = "<%= a.column_name %>"<%= a.length.nil? ? '' :", length = #{a.length}"%>, nullable = <%= a.nullable?%> )<% end %>
+    if a.reference?
+%>  @ManyToOne
+  @JoinColumn( name = "<%= q(a.column_name) %>", nullable = <%= a.nullable?%>, updatable = <%= !a.immutable? %> )<%
+    else
+%>  @Column( name = "<%= q(a.column_name) %>"<%= a.length.nil? ? '' :", length = #{a.length}"%>, nullable = <%= a.nullable?%>, updatable = <%= !a.immutable? %> )<%
+    end
+   end
+%>
   private <%= a.java.java_type %> <%= a.java.field_name %>;
 
 <% end
