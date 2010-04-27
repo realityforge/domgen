@@ -249,6 +249,7 @@ module Domgen
 
     def reverse(relationship, options = {})
       raise "reverse on #{name} is invalid as attribute is not a reference" unless reference?
+      raise "Not Implemented!"
       self
     end
 
@@ -427,11 +428,11 @@ module Domgen
     end
 
     def cluster(attribute_names, options = {})
-
+      raise "Not Implemented!"
     end
 
     def index(name, attribute_names, options = {})
-
+      raise "Not Implemented!"
     end
 
     def java
