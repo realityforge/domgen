@@ -22,16 +22,22 @@ def q(string)
 end
 
 module Domgen
+  class BaseConfigElement
+    def initialize(options = {})
+      options.each_pair do |k, v|
+        self.send "#{k}=", v
+      end
+      yield self if block_given?
+    end
+  end
+
   module Java
-    class JavaElement
+    class JavaElement < BaseConfigElement
       attr_reader :parent
 
-      def initialize(parent, options = {})
+      def initialize(parent, options = {}, &block)
         @parent = parent
-        options.each_pair do |k, v|
-          self.send "#{k}=", v
-        end
-        yield self if block_given?
+        super(options, &block)
       end
     end
 
