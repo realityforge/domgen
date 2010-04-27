@@ -85,12 +85,10 @@ module Domgen
 
       attr_writer :java_type
 
-      def java_type
+      def sql_type
         unless @java_type
           if :reference == parent.attribute_type
-            other = parent.object_type.schema.object_type_by_name(parent.references)
-            raise "Field #{field_name} references unknown object type #{parent.references}" unless other
-            @java_type = other.java.classname
+            @java_type = parent.referenced_object.primary_key.sql.sql_type
           else
             @java_type = TYPE_MAP[parent.attribute_type.to_s]
           end
@@ -143,9 +141,7 @@ module Domgen
       def java_type
         unless @java_type
           if :reference == parent.attribute_type
-            other = parent.object_type.schema.object_type_by_name(parent.references)
-            raise "Field #{field_name} references unknown object type #{parent.references}" unless other
-            @java_type = other.java.classname
+            @java_type = parent.referenced_object.java.classname
           else
             @java_type = TYPE_MAP[parent.attribute_type.to_s]
           end
@@ -275,9 +271,7 @@ module Domgen
 
     def referenced_object
       raise "referenced_object on #{name} is invalid as attribute is not a reference" unless reference?
-      other = self.object_type.schema.object_type_by_name(self.references)
-      raise "Missing referenced_object on #{name}" unless other
-      other
+      self.object_type.schema.object_type_by_name(self.references)
     end
 
     def java
@@ -429,7 +423,9 @@ module Domgen
     end
 
     def object_type_by_name(name)
-      @object_types.find{|o|o.name.to_s == name.to_s}
+      object_type = @object_types.find{|o|o.name.to_s == name.to_s}
+      raise "Unable to locate object_type #{name}" unless object_type
+      object_type
     end
 
     def java
@@ -651,7 +647,8 @@ end
 require 'erb'
 
 per_schema_set_mapping = [Domgen::Generator::TemplateMap.new('persistence', 'META-INF/persistence.xml', 'resources')]
-per_schema_mapping = [Domgen::Generator::TemplateMap.new('constraints', '#{schema.name}_constraints.sql', 'sql')]
+per_schema_mapping = [Domgen::Generator::TemplateMap.new('constraints', '#{schema.name}_constraints.sql', 'sql'),
+                      Domgen::Generator::TemplateMap.new('ddl', '#{schema.name}_ddl.sql', 'sql')]
 per_type_mapping = [Domgen::Generator::TemplateMap.new('hibernate_model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java')]
 
 per_schema_set_mapping.each do |template_map|

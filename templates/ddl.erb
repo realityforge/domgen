@@ -1,0 +1,12 @@
+<% schema_set.schemas.each do |schema| %>
+<%= banner("DDL for Schema '#{schema.name}'") %>
+<% schema.object_types.each do |object_type| %>
+CREATE TABLE <%= object_type.sql.table_name %>(
+<% object_type.attributes.each do |a|
+%>  <%= q(a.sql.column_name) %> <%= q(a.sql.sql_type) %><%= a.length.nil? ? '' : "(#{a.length})" %> /* IDENTITY(1,1) */ <%= a.nullable? ? '': 'NOT '%>NULL,
+<% end
+%>  PRIMARY KEY CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
+)
+GO
+<% end %>
+<% end %>
