@@ -521,7 +521,8 @@ module Domgen
       def generate(basedir, context)
         context_binding = context.send :binding
         output_filename = eval("\"#{output_filename_pattern}\"", context_binding)
-        output_filename = File.join(basedir, self.basedir, output_filename)
+        output_dir = eval("\"#{self.basedir}\"", context_binding)
+        output_filename = File.join(basedir, output_dir, output_filename)
         result = template.result(context_binding)
         FileUtils.mkdir_p File.dirname(output_filename)
         File.open(output_filename, 'w') do |f|
@@ -706,8 +707,8 @@ end
 require 'erb'
 
 per_schema_set_mapping = [Domgen::Generator::TemplateMap.new('persistence', 'META-INF/persistence.xml', 'resources')]
-per_schema_mapping = [Domgen::Generator::TemplateMap.new('constraints', '#{schema.name}_constraints.sql', 'sql'),
-                      Domgen::Generator::TemplateMap.new('ddl', '#{schema.name}_ddl.sql', 'sql')]
+per_schema_mapping = [Domgen::Generator::TemplateMap.new('constraints', '#{schema.name}_constraints.sql', 'databases/#{schema.name}'),
+                      Domgen::Generator::TemplateMap.new('ddl', '#{schema.name}.sql', 'databases/#{schema.name}')]
 per_type_mapping = [Domgen::Generator::TemplateMap.new('hibernate_model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java')]
 
 per_schema_set_mapping.each do |template_map|
