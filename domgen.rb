@@ -568,7 +568,7 @@ schema_set = Domgen::SchemaSet.new do |ss|
     t.query("ByAttributeName",
             "SELECT C FROM CodeSetValue C WHERE C.AttributeName = :AttributeName",
             :query_type => :full)
-    t.query("ByAttributeNameAndParentAttributeValue3", <<JPQL)
+    t.query("ByAttributeNameAndParentAttributeValue", <<JPQL)
 AttributeName = :AttributeName AND
 ParentAttributeValue = :ParentAttributeValue
 JPQL
