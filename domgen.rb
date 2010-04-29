@@ -760,12 +760,12 @@ end
 
 require 'erb'
 
-per_schema_set_mapping = [Domgen::Generator::TemplateMap.new('persistence', 'META-INF/persistence.xml', 'resources')]
-per_schema_mapping = [Domgen::Generator::TemplateMap.new('constraints', '#{schema.name}_constraints.sql', 'databases/#{schema.name}'),
-                      Domgen::Generator::TemplateMap.new('ddl', 'schema.sql', 'databases/#{schema.name}'),
-                      Domgen::Generator::TemplateMap.new('jpa_entity_manager', '#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java', 'java')]
-per_type_mapping = [Domgen::Generator::TemplateMap.new('jpa_model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java'),
-                    Domgen::Generator::TemplateMap.new('jpa_dao', '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java', 'java')]
+per_schema_set_mapping = [Domgen::Generator::TemplateMap.new('jpa/persistence', 'META-INF/persistence.xml', 'resources')]
+per_schema_mapping = [Domgen::Generator::TemplateMap.new('sql/constraints', '#{schema.name}_constraints.sql', 'databases/#{schema.name}'),
+                      Domgen::Generator::TemplateMap.new('sql/ddl', 'schema.sql', 'databases/#{schema.name}'),
+                      Domgen::Generator::TemplateMap.new('jpa/entity_manager', '#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java', 'java')]
+per_type_mapping = [Domgen::Generator::TemplateMap.new('jpa/model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java'),
+                    Domgen::Generator::TemplateMap.new('jpa/dao', '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java', 'java')]
 
 per_schema_set_mapping.each do |template_map|
   template_map.generate('target/generated', schema_set)
