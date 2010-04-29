@@ -33,6 +33,20 @@ def underscore(camel_cased_word)
           downcase
 end
 
+def java_accessors(name,type)
+  <<JAVA
+  public #{type} get#{name}()
+  {
+     return #{name};
+  }
+
+  public void set#{name}( final #{type} value )
+  {
+     #{name} = value;
+  }
+JAVA
+end
+
 module Domgen
   class BaseConfigElement
     def initialize(options = {})
