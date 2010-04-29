@@ -754,6 +754,7 @@ JPQL
     t.reference(:Submission,
                 :name => 'PriorSubmission',
                 :immutable => true,
+                :nullable => true,
                 :inverse_relationship_type => :has_one,
                 :inverse_relationship_name => 'NextSubmission')
     t.string(:Name, 255)
