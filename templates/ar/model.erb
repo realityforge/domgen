@@ -41,6 +41,8 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
   end
 %>
 
+  # Make it possible for the users to extend the model by defining an extenion class
+  include <%= object_type.ruby.fully_qualified_name %>Extension rescue NameError
 end
 
 end
