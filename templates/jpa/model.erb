@@ -28,7 +28,7 @@ public final class <%= object_type.java.classname %>
     end
     if a.reference?
 %>  @ManyToOne
-  @JoinColumn( name = "<%= q(a.sql.column_name) %>", nullable = <%= a.nullable?%>, updatable = <%= !a.immutable? %> )<%
+  @JoinColumn( name = "<%= q(a.sql.column_name) %>", nullable = <%= a.nullable? %>, updatable = <%= !a.immutable? %> )<%
     else
 %>  @Column( name = "<%= q(a.sql.column_name) %>"<%= a.length.nil? ? '' :", length = #{a.length}"%>, nullable = <%= a.nullable? %>, updatable = <%= !a.immutable? %> )<%
     end
@@ -39,19 +39,30 @@ public final class <%= object_type.java.classname %>
 <% end %>  private <%= a.java.java_type %> <%= a.java.field_name %>;
 
 <% end
+   object_type.referencing_attributes.each do |attribute|
+     if attribute.inverse_relationship_type == :has_many
+%>  @OneToMany
+  private java.util.Set<<%= attribute.object_type.java.fully_qualified_name %>> <%= pluralize(attribute.inverse_relationship_name) %>;
 
-   object_type.attributes.each do |a|
-%>  public <%= a.java.java_type %> get<%= a.java.field_name %>()
-  {
-     return <%= a.java.field_name %>;
-  }
+<% elsif attribute.inverse_relationship_type == :has_one
+%>  @OneToOne(optional = <%= !attribute.nullable? %>, mappedBy= "<%= attribute.java.field_name %>")
+  private <%= attribute.object_type.java.fully_qualified_name %> <%= attribute.inverse_relationship_name %>;
 
-  public void set<%= a.java.field_name %>( final <%= a.java.java_type %> value )
-  {
-     <%= a.java.field_name %> = value;
-  }
-  
-<% end %>
+<%
+    end
+  end
+%>
+<%= object_type.attributes.collect {|a| java_accessors(a.java.field_name,a.java.java_type) }.join("\n") %>
+<%= object_type.referencing_attributes.collect do |a|
+  if a.inverse_relationship_type == :has_many
+    java_accessors(pluralize(a.inverse_relationship_name),"java.util.Set<#{a.object_type.java.fully_qualified_name}>")
+   elsif a.inverse_relationship_type == :has_one
+    java_accessors(a.inverse_relationship_name,a.object_type.java.fully_qualified_name)
+   else
+    ''
+   end
+end.join("\n")
+%>
   @Override
   public boolean equals( final Object o )
   {
