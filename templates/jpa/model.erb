@@ -3,6 +3,7 @@ package <%= object_type.schema.java.package %>;
 
 import javax.annotation.Generated;
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 @SuppressWarnings( { "UnusedDeclaration" } )
 <% if not object_type.queries.empty? %>@NamedQueries( value = {
@@ -29,11 +30,13 @@ public final class <%= object_type.java.classname %>
 %>  @ManyToOne
   @JoinColumn( name = "<%= q(a.sql.column_name) %>", nullable = <%= a.nullable?%>, updatable = <%= !a.immutable? %> )<%
     else
-%>  @Column( name = "<%= q(a.sql.column_name) %>"<%= a.length.nil? ? '' :", length = #{a.length}"%>, nullable = <%= a.nullable?%>, updatable = <%= !a.immutable? %> )<%
+%>  @Column( name = "<%= q(a.sql.column_name) %>"<%= a.length.nil? ? '' :", length = #{a.length}"%>, nullable = <%= a.nullable? %>, updatable = <%= !a.immutable? %> )<%
     end
    end
 %>
-  private <%= a.java.java_type %> <%= a.java.field_name %>;
+<% if !a.nullable? %>  @NotNull
+<% end %><% if !a.length.nil? %>  @Size(max = <%= a.length %>)
+<% end %>  private <%= a.java.java_type %> <%= a.java.field_name %>;
 
 <% end
 
