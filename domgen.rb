@@ -21,6 +21,11 @@ def q(string)
   "[#{string.to_s}]"
 end
 
+# quote string using database rules
+def pluralize(string)
+  "#{string}s"
+end
+
 module Domgen
   class BaseConfigElement
     def initialize(options = {})
@@ -182,6 +187,7 @@ module Domgen
     attr_reader :object_type
     attr_reader :name
     attr_accessor :jpql
+    attr_accessor :parameter_types
 
     def initialize(object_type, name, jpql, options = {}, &block)
       @object_type = object_type
@@ -190,9 +196,43 @@ module Domgen
       super(options, &block)
     end
 
-    def qualified_name
-      "#{object_type.name}#{name}"
+    def populate_parameters
+      @parameter_types = {} unless @parameter_types
+      parameters.each do |p|
+        if @parameter_types[p].nil?
+          attribute = object_type.attribute_by_name(p)
+          raise "Unknown parameter type for #{p}" unless attribute
+          @parameter_types[p] = attribute.java.java_type
+        end
+      end
     end
+
+    def parameters
+       return [] if jpql.nil?
+       jpql.scan(/:[^\W]+/).collect {|s| s[1..-1]}
+    end
+
+    def fully_qualified_name
+      if singular?
+        type_spec = object_type.name
+      else
+        type_spec = pluralize(object_type.name)
+      end
+      "#{name_prefix}#{type_spec}#{name_suffix}"
+    end
+
+    def local_name
+      "#{name_prefix}#{name_suffix}"
+    end
+
+    def name_prefix
+      "find#{singular? ? '' : 'All'}"
+    end
+
+    def name_suffix
+      jpql.nil? ? '' : "By#{name}"
+    end
+
 
     attr_writer :query_type
 
@@ -201,11 +241,18 @@ module Domgen
       @query_type
     end
 
+    attr_writer :singular
+
+    def singular?
+      @singular = false if @singular.nil? 
+      @singular
+    end
+
     def query_string
       if query_type == :full
         query = jpql
       elsif query_type == :selector
-        query = "SELECT O FROM #{object_type.name} O WHERE #{jpql}"
+        query = "SELECT O FROM #{object_type.name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
       else
         raise "Unknown query type #{query_type}"
       end
@@ -354,6 +401,13 @@ module Domgen
       @incompatible_constraints = []
       @queries = []
       yield self if block_given?
+      self.query('All', nil, :singular => false)
+      self.query(primary_key.name,
+                 "#{primary_key.java.field_name} = :#{primary_key.java.field_name}",
+                 :singular => true)
+      queries.each do |q|
+        q.populate_parameters
+      end
     end
 
     def object_type
@@ -565,10 +619,10 @@ schema_set = Domgen::SchemaSet.new do |ss|
     t.string(:Value, 255)
     t.string(:ParentAttributeValue, 255, :nullable => true)
 
-    t.query("ByAttributeName",
+    t.query("AttributeName",
             "SELECT C FROM CodeSetValue C WHERE C.AttributeName = :AttributeName",
             :query_type => :full)
-    t.query("ByAttributeNameAndParentAttributeValue", <<JPQL)
+    t.query("AttributeNameAndParentAttributeValue", <<JPQL)
 AttributeName = :AttributeName AND
 ParentAttributeValue = :ParentAttributeValue
 JPQL
@@ -709,7 +763,8 @@ require 'erb'
 per_schema_set_mapping = [Domgen::Generator::TemplateMap.new('persistence', 'META-INF/persistence.xml', 'resources')]
 per_schema_mapping = [Domgen::Generator::TemplateMap.new('constraints', '#{schema.name}_constraints.sql', 'databases/#{schema.name}'),
                       Domgen::Generator::TemplateMap.new('ddl', 'schema.sql', 'databases/#{schema.name}')]
-per_type_mapping = [Domgen::Generator::TemplateMap.new('hibernate_model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java')]
+per_type_mapping = [Domgen::Generator::TemplateMap.new('hibernate_model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java'),
+                    Domgen::Generator::TemplateMap.new('jpa_dao', '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java', 'java')]
 
 per_schema_set_mapping.each do |template_map|
   template_map.generate('target/generated', schema_set)

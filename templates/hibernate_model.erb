@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @SuppressWarnings( { "UnusedDeclaration" } )
 <% if not object_type.queries.empty? %>@NamedQueries( value = {
-<%= object_type.queries.collect { |q| "  @NamedQuery( name = \"#{q.qualified_name}\", query = \"#{q.query_string}\" )" }.join(",\n") %>
+<%= object_type.queries.collect { |q| "  @NamedQuery( name = \"#{q.fully_qualified_name}\", query = \"#{q.query_string}\" )" }.join(",\n") %>
 } )<% end %>
 @Generated( "Domgen" )
 @Entity
