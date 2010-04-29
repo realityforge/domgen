@@ -2,7 +2,7 @@ package <%= schema.java.package %>;
 
 import javax.persistence.EntityManager;
 
-public final class UnitEntityManager
+public final class SchemaEntityManager
 {
    private static final ThreadLocal<EntityManager> c_entityManagerThreadLocal =
       new ThreadLocal<EntityManager>();
@@ -11,7 +11,7 @@ public final class UnitEntityManager
    {
       if ( null != c_entityManagerThreadLocal.get() )
       {
-         throw new IllegalStateException( "UnitEntityManager.bind invoked without unbinding previous entity manager" );
+         throw new IllegalStateException( "SchemaEntityManager.bind invoked without unbinding previous entity manager" );
       }
       c_entityManagerThreadLocal.set( entityManager );
    }
@@ -20,11 +20,11 @@ public final class UnitEntityManager
    {
       if ( null == c_entityManagerThreadLocal.get() )
       {
-         throw new IllegalStateException( "UnitEntityManager.unbind invoked with no previous entity manager" );
+         throw new IllegalStateException( "SchemaEntityManager.unbind invoked with no previous entity manager" );
       }
       if ( entityManager != c_entityManagerThreadLocal.get() )
       {
-         throw new IllegalStateException( "UnitEntityManager.unbind invoked with entity manager that differs from bound entity manager" );
+         throw new IllegalStateException( "SchemaEntityManager.unbind invoked with entity manager that differs from bound entity manager" );
       }
       c_entityManagerThreadLocal.set( null );
    }
@@ -34,7 +34,7 @@ public final class UnitEntityManager
       final EntityManager entityManager = c_entityManagerThreadLocal.get();
       if ( null == entityManager )
       {
-         throw new IllegalStateException( "UnitEntityManager.get invoked when no entity manager bound" );
+         throw new IllegalStateException( "SchemaEntityManager.get invoked when no entity manager bound" );
       }
       return entityManager;
    }
