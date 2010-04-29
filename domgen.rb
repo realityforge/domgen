@@ -21,9 +21,16 @@ def q(string)
   "[#{string.to_s}]"
 end
 
-# quote string using database rules
 def pluralize(string)
   "#{string}s"
+end
+
+def underscore(camel_cased_word)
+  camel_cased_word.to_s.gsub(/::/, '/').
+          gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
+          gsub(/([a-z\d])([A-Z])/, '\1_\2').
+          tr("-", "_").
+          downcase
 end
 
 module Domgen
@@ -169,6 +176,62 @@ module Domgen
       def package
         @package = parent.name unless @package
         @package
+      end
+    end
+  end
+
+  module Ruby
+    class RubyElement < BaseConfigElement
+      attr_reader :parent
+
+      def initialize(parent, options = {}, &block)
+        @parent = parent
+        super(options, &block)
+      end
+    end
+
+    class RubyAttribute < RubyElement
+      attr_writer :attribute_name
+
+      def attribute_name
+        @attribute_name = parent.sql.column_name unless @attribute_name
+        @attribute_name
+      end
+
+      attr_writer :relationship_name
+
+      def relationship_name
+        raise "Invoked relationship_name on non reference" unless parent.reference?
+        if @relationship_name.nil?
+          @relationship_name = underscore(parent.name)
+        end
+        @relationship_name
+      end
+    end
+
+    class RubyClass < RubyElement
+      attr_writer :classname
+
+      def classname
+        @classname = parent.name unless @classname
+        @classname
+      end
+
+      def fully_qualified_name
+        "#{parent.schema.ruby.module_name}::#{classname}"
+      end
+
+      def filename
+        underscore(fully_qualified_name)
+      end
+    end
+
+    class RubyModule < RubyElement
+      attr_writer :module_name
+
+      def module_name
+        @module_name = parent.name.capitalize unless @module_name
+        @module_name
       end
     end
   end
@@ -369,6 +432,11 @@ module Domgen
       @java
     end
 
+    def ruby
+      @ruby = Domgen::Ruby::RubyAttribute.new(self) unless @ruby
+      @ruby
+    end    
+
     def sql
       raise "Non persistent attributes should not invoke sql config method" unless persistent?
       @sql = Domgen::Sql::Column.new(self) unless @sql
@@ -497,6 +565,11 @@ module Domgen
       @java
     end
 
+    def ruby
+      @ruby = Domgen::Ruby::RubyClass.new(self) unless @ruby
+      @ruby
+    end
+
     def sql
       @sql = Domgen::Sql::Table.new(self) unless @sql
       @sql
@@ -536,6 +609,11 @@ module Domgen
     def java
       @java = Domgen::Java::JavaPackage.new(self) unless @java
       @java
+    end
+
+    def ruby
+      @ruby = Domgen::Ruby::RubyModule.new(self) unless @ruby
+      @ruby
     end
 
     def sql
@@ -768,7 +846,8 @@ per_schema_mapping = [Domgen::Generator::TemplateMap.new('sql/constraints', '#{s
                       Domgen::Generator::TemplateMap.new('sql/ddl', 'schema.sql', 'databases/#{schema.name}'),
                       Domgen::Generator::TemplateMap.new('jpa/entity_manager', '#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java', 'java')]
 per_type_mapping = [Domgen::Generator::TemplateMap.new('jpa/model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java'),
-                    Domgen::Generator::TemplateMap.new('jpa/dao', '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java', 'java')]
+                    Domgen::Generator::TemplateMap.new('jpa/dao', '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java', 'java'),
+                    Domgen::Generator::TemplateMap.new('ar/model', '#{object_type.ruby.fully_qualified_name.gsub("::","/")}.rb', 'ruby')]
 
 per_schema_set_mapping.each do |template_map|
   template_map.generate('target/generated', schema_set)
