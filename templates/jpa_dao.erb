@@ -8,16 +8,11 @@ import javax.persistence.*;
 @Generated( "Domgen" )
 public final class <%= object_type.java.classname %>DAO
 {
-  protected static EntityManager getEntityManager()
-  {
-     return null;
-  }
-
 <% object_type.queries.each do |query| %>
   public static <%= query.singular? ? '' : 'java.util.List<' %><%= object_type.java.classname %><%= query.singular? ? '' : '>' %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{query.parameter_types[p]} #{p}"}.join(', ') %>)
   {
     final TypedQuery<<%= object_type.java.classname %>> query =
-      getEntityManager().createNamedQuery( "<%= query.fully_qualified_name %>", <%= object_type.java.classname %>.class );
+      UnitEntityManager.get().createNamedQuery( "<%= query.fully_qualified_name %>", <%= object_type.java.classname %>.class );
 <% query.parameters.each do |p| %>
     query.setParameter("<%= p %>", <%= p %>);
 <% end %>
