@@ -724,7 +724,10 @@ JPQL
   s.define_object_type(:CodeSetValue) do |t|
     t.string(:ID, 50, :primary_key => true)
     t.string(:DisplayString, 50)
-    t.integer(:DisplayRank)
+    t.integer(:DisplayRank).validators do |v|
+      v.message = 'V should a year between 1990 and 2000'
+      v.betweeen(1990,2000)
+    end
     t.reference(:AttributeType, :immutable => true).reverse(:has_many, :name => 'PossibleValues')
   end
 
