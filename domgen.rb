@@ -218,11 +218,12 @@ module Domgen
       end
 
       def fully_qualified_name
-        "#{parent.schema.ruby.module_name}::#{classname}"
+        "::#{parent.schema.ruby.module_name}::#{classname}"
       end
 
       def filename
-        underscore(fully_qualified_name)
+        fqn = fully_qualified_name
+        underscore(fqn[2..fqn.length])
       end
     end
 
@@ -847,7 +848,7 @@ per_schema_mapping = [Domgen::Generator::TemplateMap.new('sql/constraints', '#{s
                       Domgen::Generator::TemplateMap.new('jpa/entity_manager', '#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java', 'java')]
 per_type_mapping = [Domgen::Generator::TemplateMap.new('jpa/model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java'),
                     Domgen::Generator::TemplateMap.new('jpa/dao', '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java', 'java'),
-                    Domgen::Generator::TemplateMap.new('ar/model', '#{object_type.ruby.fully_qualified_name.gsub("::","/")}.rb', 'ruby')]
+                    Domgen::Generator::TemplateMap.new('ar/model', '#{object_type.ruby.filename}.rb', 'ruby')]
 
 per_schema_set_mapping.each do |template_map|
   template_map.generate('target/generated', schema_set)
