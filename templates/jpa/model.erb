@@ -34,7 +34,7 @@ public final class <%= object_type.java.classname %>
     end
    end
 %>
-<% if !a.nullable? %>  @NotNull
+<% if !a.nullable? && !a.sql.identity? %>  @NotNull
 <% end %><% if !a.length.nil? %>  @Size(max = <%= a.length %>)
 <% end %>  private <%= a.java.java_type %> <%= a.java.field_name %>;
 
