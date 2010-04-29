@@ -4,39 +4,42 @@ module <%= object_type.schema.ruby.module_name %>
 class <%= object_type.ruby.classname %> < ActiveRecord::Base
   set_table_name "<%= object_type.sql.table_name %>"
   set_primary_key "<%= object_type.primary_key.sql.column_name %>"
-<% object_type.attributes.each do |a|
-     if a.persistent?
+<% object_type.attributes.each do |a| %>
+<%     if a.persistent?
        if !(a.primary_key? && a.sql.identity?)
          if !a.nullable?
-%>  validates_presence_of :<%= a.ruby.attribute_name %>
+%>  validates_presence_of :<%= a.sql.column_name %>
 <%       end
          if a.attribute_type == :integer
-%>  validates_numericality_of :<%= a.ruby.attribute_name %>, :only_integer => true, :allow_nil => true
+%>  validates_numericality_of :<%= a.sql.column_name %>, :only_integer => true, :allow_nil => true
+<%       end
+         if a.attribute_type == :boolean
+%>  validates_boolean :<%= a.sql.column_name %>, :allow_nil => true
 <%       end
          if a.attribute_type == :string
-%>  nillable_attribute :<%= a.ruby.attribute_name %>
-  validates_length_of :<%= a.ruby.attribute_name %>, :maximum => <%= a.length %>, :allow_nil => true
+%>  nillable_attribute :<%= a.sql.column_name %>
+  validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => true
 <%       end
          if a.reference?
-%>  belongs_to :<%= a.ruby.relationship_name %>, :class_name => '<%= a.referenced_object.ruby.fully_qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
-  validates_reference_exists :<%= a.sql.column_name %>, <%= a.referenced_object.ruby.fully_qualified_name %>, :association_name => :<%= a.ruby.relationship_name %>, :allow_nil => true
+%>  belongs_to :<%= underscore(a.name) %>, :class_name => '<%= a.referenced_object.ruby.fully_qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
+  validates_reference_exists :<%= a.sql.column_name %>, <%= a.referenced_object.ruby.fully_qualified_name %>, :association_name => :<%= underscore(a.name) %>, :allow_nil => true
 <%       end
        end
      end
    end %>
-
-=begin
-#foreach ($relationship in $object.relationships)
-#if ( $relationship.attribute.isOneToOne() )
-#set ($rname = $stringutil.toRubyName($relationship.name))
-  has_one :${rname}, :class_name => '${relationship.object.name}', :foreign_key => '${relationship.attribute.name}'
-#else
-#set ($rname = $stringutil.pluralize($stringutil.toRubyName($relationship.name)))
-  has_many :${rname}, :class_name => '${relationship.object.name}', :foreign_key => '${relationship.attribute.name}'
-  has_count_of :${rname}
-#end
-#end
-=end
+<% object_type.referencing_attributes.each do |attribute|
+    if attribute.inverse_relationship_type == :has_many
+%>
+  has_many :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+<%
+    end
+    if attribute.inverse_relationship_type == :has_one
+%>
+  has_one :<%= underscore(attribute.inverse_relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>'
+<%
+    end
+  end
+%>
 
 end
 

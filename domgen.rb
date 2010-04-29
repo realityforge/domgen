@@ -191,22 +191,6 @@ module Domgen
     end
 
     class RubyAttribute < RubyElement
-      attr_writer :attribute_name
-
-      def attribute_name
-        @attribute_name = parent.sql.column_name unless @attribute_name
-        @attribute_name
-      end
-
-      attr_writer :relationship_name
-
-      def relationship_name
-        raise "Invoked relationship_name on non reference" unless parent.reference?
-        if @relationship_name.nil?
-          @relationship_name = underscore(parent.name)
-        end
-        @relationship_name
-      end
     end
 
     class RubyClass < RubyElement
@@ -428,6 +412,22 @@ module Domgen
       self.object_type.schema.object_type_by_name(self.references)
     end
 
+    attr_writer :inverse_relationship_type
+
+    def inverse_relationship_type
+      raise "inverse_relationship_type on #{name} is invalid as attribute is not a reference" unless reference?
+      @inverse_relationship_type = :has_many if @inverse_relationship_type.nil?
+      @inverse_relationship_type
+    end
+
+    attr_writer :inverse_relationship_name
+
+    def inverse_relationship_name
+      raise "inverse_relationship_name on #{name} is invalid as attribute is not a reference" unless reference?
+      @inverse_relationship_name = object_type.name if @inverse_relationship_name.nil?
+      @inverse_relationship_name
+    end
+
     def java
       @java = Domgen::Java::JavaField.new(self) unless @java
       @java
@@ -459,6 +459,7 @@ module Domgen
     attr_reader :queries
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
+    attr_reader :referencing_attributes
 
     def initialize(schema, name, options = {})
       @schema, @name = schema, name
@@ -469,6 +470,7 @@ module Domgen
       @codependent_constraints = []
       @incompatible_constraints = []
       @queries = []
+      @referencing_attributes = []
       yield self if block_given?
       self.query('All', nil, :singular => false)
       self.query(primary_key.name,
@@ -629,6 +631,15 @@ module Domgen
     def initialize(options = {}, &block)
       @schemas = []
       super(options, &block)
+      self.schemas.each do |schema|
+        schema.object_types.each do |object_type|
+          object_type.attributes.each do |attribute|
+            if attribute.reference?
+              attribute.referenced_object.referencing_attributes << attribute 
+            end            
+          end
+        end
+      end
     end
 
     def schema_set
@@ -726,7 +737,11 @@ JPQL
   s.define_object_type(:Submission) do |t|
     t.integer(:ID, :primary_key => true)
     t.reference(:User, :immutable => true)
-    t.reference(:Submission, :name => 'PriorSubmission', :immutable => true)
+    t.reference(:Submission,
+                :name => 'PriorSubmission',
+                :immutable => true,
+                :inverse_relationship_type => :has_one,
+                :inverse_relationship_name => 'NextSubmission')
     t.string(:Name, 255)
     t.string(:ABN, 255)
     t.text(:Notes)
@@ -758,7 +773,8 @@ JPQL
     t.boolean(:ROPS, :nullable => true)
     t.boolean(:OGP, :nullable => true)
     t.text(:Comment)
-    t.reference(:Resource)
+    t.reference(:Submission, :immutable => true)
+    t.reference(:Resource, :immutable => true, :inverse_relationship_type => :none)
   end
 
   s.define_object_type(:Resource) do |t|
@@ -769,7 +785,7 @@ JPQL
   s.define_object_type(:Image) do |t|
     t.integer(:ID, :primary_key => true)
     t.reference(:Resource, :immutable => true)
-    t.reference(:Image, :name => 'ParentID', :immutable => true)
+    t.reference(:Image, :name => 'Parent', :immutable => true, :inverse_relationship_name => 'children')
     t.string(:ContentType, 20, :immutable => true)
     t.string(:Filename, 100, :immutable => true)
     t.string(:Thumbnail, 100, :immutable => true)
