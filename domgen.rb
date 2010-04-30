@@ -365,6 +365,13 @@ module Domgen
       self
     end
 
+    attr_writer :validate
+
+    def validate?
+      @validate = true if @validate.nil?
+      @validate
+    end
+
     attr_writer :primary_key
 
     def primary_key?
@@ -740,7 +747,7 @@ JPQL
   s.define_object_type(:User) do |t|
     t.integer(:ID, :primary_key => true)
     t.boolean(:Active)
-    t.string(:Password, 40)
+    t.string(:Password, 40, :validate => false)
     t.string(:Salt, 40)
     t.string(:Email, 255)
     t.string(:FirstName, 100)
