@@ -359,12 +359,6 @@ module Domgen
       self.attribute_type == :reference
     end
 
-    def reverse(relationship, options = {})
-      raise "reverse on #{name} is invalid as attribute is not a reference" unless reference?
-      raise "Not Implemented!"
-      self
-    end
-
     attr_writer :validate
 
     def validate?
