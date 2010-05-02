@@ -366,6 +366,13 @@ module Domgen
       @validate
     end
 
+    attr_writer :unique
+
+    def unique?
+      @unique = false if @unique.nil?
+      @unique
+    end
+
     attr_writer :primary_key
 
     def primary_key?
@@ -743,7 +750,7 @@ JPQL
     t.boolean(:Active)
     t.string(:Password, 40)
     t.string(:Salt, 40, :validate => false)
-    t.string(:Email, 255)
+    t.string(:Email, 255, :unique => true)
     t.string(:FirstName, 100)
     t.string(:LastName, 100)
     t.string(:PreferredName, 100)

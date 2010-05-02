@@ -11,7 +11,12 @@ import javax.validation.constraints.*;
 } )<% end %>
 @Generated( "Domgen" )
 @Entity
-@Table( name = "<%= object_type.sql.table_name %>" )
+@Table( name = "<%= object_type.sql.table_name %>",
+        uniqueConstraints = {<%=
+  object_type.attributes.select{|a|a.unique?}.collect{|a|
+  "@UniqueConstraint( columnNames = {\"#{q(a.sql.column_name)}\"})"
+  }.join(",\n        ")
+%>})
 public final class <%= object_type.java.classname %>
 {
 <% object_type.attributes.each do |a|
