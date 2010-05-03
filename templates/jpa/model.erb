@@ -95,11 +95,20 @@ end.join("\n")
 <% end %>           "]";
   }
 
+  public String toLabel()
+  {
+<% if !object_type.java.label_attribute.nil?
+%>    return String.valueOf( <%= object_type.attribute_by_name(object_type.java.label_attribute).java.field_name %> );<%
+else
+      pk = object_type.primary_key
+%>    return "<%= object_type.name %>[<%= pk.name %> = " + <%= pk.name %> +"]";<% end %>
+  }
+
   @Override
   public String toString()
   {
 <% if !object_type.java.label_attribute.nil?
-%>    return String.valueOf( <%= object_type.attribute_by_name(object_type.java.label_attribute).java.field_name %> );<% 
+%>    return toLabel();<% 
 else
 %>    return toDebugString();<% end %>
   }
