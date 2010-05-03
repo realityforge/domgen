@@ -166,28 +166,4 @@ SQL
   end
 end
 
-per_schema_set_mapping = [Domgen::Generator::TemplateMap.new('jpa/persistence', 'META-INF/persistence.xml', 'resources')]
-per_schema_mapping = [Domgen::Generator::TemplateMap.new('sql/constraints', '#{schema.name}_constraints.sql', 'databases/#{schema.name}'),
-                      Domgen::Generator::TemplateMap.new('sql/ddl', 'schema.sql', 'databases/#{schema.name}'),
-                      Domgen::Generator::TemplateMap.new('jpa/entity_manager', '#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java', 'java')]
-per_type_mapping = [Domgen::Generator::TemplateMap.new('jpa/model', '#{object_type.java.fully_qualified_name.gsub(".","/")}.java', 'java'),
-                    Domgen::Generator::TemplateMap.new('jpa/dao', '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java', 'java'),
-                    Domgen::Generator::TemplateMap.new('ar/model', '#{object_type.ruby.filename}.rb', 'ruby')]
-
-per_schema_set_mapping.each do |template_map|
-  template_map.generate('target/generated', schema_set)
-end
-
-per_schema_mapping.each do |template_map|
-  schema_set.schemas.each do |schema|
-    template_map.generate('target/generated',schema)
-  end
-end
-
-per_type_mapping.each do |template_map|
-  schema_set.schemas.each do |schema|
-    schema.object_types.each do |object_type|
-      template_map.generate('target/generated',object_type)
-    end
-  end
-end
+Domgen::Generator::TemplateSet.create.generate_artifacts(schema_set, 'target/generated')

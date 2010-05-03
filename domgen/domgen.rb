@@ -738,8 +738,64 @@ module Domgen
     end
   end
 
-
   module Generator
+    class TemplateSet
+      attr_accessor :per_schema_set
+      attr_accessor :per_schema
+      attr_accessor :per_object_type
+
+      def initialize
+        self.per_schema_set = []
+        self.per_schema = []
+        self.per_object_type = []
+      end
+
+      def self.create(elements = nil)
+        elements = [:jpa, :active_record, :sql] unless elements
+        ts = TemplateSet.new
+        if elements.include?(:jpa)
+          ts.per_schema_set << TemplateMap.new('jpa/persistence', 'META-INF/persistence.xml', 'resources')
+          ts.per_schema << TemplateMap.new('jpa/entity_manager',
+                                           '#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java',
+                                           'java')
+          ts.per_object_type << TemplateMap.new('jpa/model',
+                                                '#{object_type.java.fully_qualified_name.gsub(".","/")}.java',
+                                                'java')
+          ts.per_object_type << TemplateMap.new('jpa/dao',
+                                                '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java',
+                                                'java')
+        end
+        if elements.include?(:sql)
+          ts.per_schema << TemplateMap.new('sql/ddl', 'schema.sql', 'databases/#{schema.name}')
+          ts.per_schema << TemplateMap.new('sql/constraints', '#{schema.name}_constraints.sql', 'databases/#{schema.name}')
+        end
+        if elements.include?(:active_record)
+          ts.per_object_type << TemplateMap.new('ar/model', '#{object_type.ruby.filename}.rb', 'ruby')
+        end
+        ts
+      end
+
+      def generate_artifacts(schema_set, directory)
+        self.per_schema_set.each do |template_map|
+          template_map.generate(directory, schema_set)
+        end
+
+        self.per_schema.each do |template_map|
+          schema_set.schemas.each do |schema|
+            template_map.generate(directory, schema)
+          end
+        end
+
+        self.per_object_type.each do |template_map|
+          schema_set.schemas.each do |schema|
+            schema.object_types.each do |object_type|
+              template_map.generate(directory, object_type)
+            end
+          end
+        end
+      end
+    end
+
     class TemplateMap
       attr_reader :template_name
       attr_reader :output_filename_pattern
