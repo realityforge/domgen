@@ -750,7 +750,7 @@ JPQL
     t.boolean(:Active)
     t.string(:Password, 40)
     t.string(:Salt, 40, :validate => false)
-    t.string(:Email, 255, :unique => true)
+    t.string(:Email, 255, :unique => true, :validate => false)
     t.string(:FirstName, 100)
     t.string(:LastName, 100)
     t.string(:PreferredName, 100)
