@@ -14,5 +14,14 @@ CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CL
 )
 GO
 <% end %>
+<% object_type.attributes.each do |a|
+    if a.reference? %>
+ALTER TABLE <%= object_type.sql.table_name %>
+  ADD CONSTRAINT [FK_<%= object_type.name %>_<%= a.sql.column_name %>] FOREIGN KEY (<%= q(a.sql.column_name) %>)
+  REFERENCES <%= a.referenced_object.sql.table_name %> (<%= q(a.referenced_object.primary_key.sql.column_name) %>)
+<%
+    end 
+  end
+%>
 <% end %>
 <% end %>
