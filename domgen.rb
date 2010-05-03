@@ -207,6 +207,7 @@ module Domgen
 
     class JavaClass < JavaElement
       attr_writer :classname
+      attr_accessor :label_attribute
 
       def classname
         @classname = parent.name unless @classname
@@ -216,6 +217,14 @@ module Domgen
       def fully_qualified_name
         "#{parent.schema.java.package}.#{classname}"
       end
+
+      attr_writer :debug_attributes
+
+      def debug_attributes
+        @debug_attributes = parent.attributes.collect{|a|a.name} unless @debug_attributes
+        @debug_attributes
+      end
+
     end
 
     class JavaField < JavaElement
@@ -802,6 +811,7 @@ JPQL
     t.integer(:ID, :primary_key => true)
     t.string(:Name, 255)
     t.sql.index([:Name])
+    t.java.label_attribute = :Name
   end
 
   s.define_object_type(:User) do |t|
@@ -813,21 +823,23 @@ JPQL
     t.string(:FirstName, 100)
     t.string(:LastName, 100)
     t.string(:PreferredName, 100)
+    t.java.label_attribute = :Email
   end
 
   s.define_object_type(:Submission) do |t|
     t.integer(:ID, :primary_key => true)
     t.reference(:User, :immutable => true)
     t.reference(:Submission,
-                :name => 'PriorSubmission',
+                :name => :PriorSubmission,
                 :immutable => true,
                 :nullable => true,
                 :inverse_relationship_type => :has_one,
-                :inverse_relationship_name => 'NextSubmission')
+                :inverse_relationship_name => :NextSubmission)
     t.string(:Name, 255)
     t.string(:ABN, 255)
     t.text(:Notes)
     t.text(:Comment)
+    t.java.debug_attributes = [:Name, :ABN, :User, :PriorSubmission]
   end
 
   s.define_object_type(:Location) do |t|
