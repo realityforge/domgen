@@ -843,22 +843,6 @@ JPQL
     t.string(:DX, 30, :nullable => true)
   end
 
-  s.define_object_type(:Backhoe) do |t|
-    t.integer(:ID, :primary_key => true)
-    t.string(:Registration, 50)
-    t.integer(:YearOfManufacture)
-    t.string(:BackhoeMake, 100)
-    t.string(:BackhoeModel, 100)
-    t.integer(:Weight, :nullable => true)
-    t.integer(:KwRating, :nullable => true)
-    t.boolean(:Lights, :nullable => true)
-    t.boolean(:ROPS, :nullable => true)
-    t.boolean(:OGP, :nullable => true)
-    t.text(:Comment)
-    t.reference(:Submission, :immutable => true)
-    t.reference(:Resource, :immutable => true, :inverse_relationship_type => :none)
-  end
-
   s.define_object_type(:Resource) do |t|
     t.integer(:ID, :primary_key => true)
     t.reference(:Location, :nullable => true)
@@ -875,6 +859,22 @@ JPQL
     t.integer(:Width, :immutable => true)
     t.integer(:Height, :immutable => true)
     t.string(:Description, 100, :nullable => true)    
+  end
+
+  s.define_object_type(:Backhoe) do |t|
+    t.integer(:ID, :primary_key => true)
+    t.string(:Registration, 50)
+    t.integer(:YearOfManufacture)
+    t.string(:BackhoeMake, 100)
+    t.string(:BackhoeModel, 100)
+    t.integer(:Weight, :nullable => true)
+    t.integer(:KwRating, :nullable => true)
+    t.boolean(:Lights, :nullable => true)
+    t.boolean(:ROPS, :nullable => true)
+    t.boolean(:OGP, :nullable => true)
+    t.text(:Comment)
+    t.reference(:Submission, :immutable => true)
+    t.reference(:Resource, :immutable => true, :inverse_relationship_type => :none)
   end
 
 =begin
