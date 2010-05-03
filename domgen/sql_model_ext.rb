@@ -59,6 +59,26 @@ module Domgen
       end
     end
 
+    class Constraint < SqlElement
+      attr_reader :name
+      attr_accessor :sql
+
+      def initialize(parent, name, options = {}, &block)
+        @name = name
+        super(parent, options, &block)
+      end
+    end
+
+    class Validation < SqlElement
+      attr_reader :name
+      attr_accessor :sql
+
+      def initialize(parent, name, options = {}, &block)
+        @name = name
+        super(parent, options, &block)
+      end
+    end
+
     class Table < SqlElement
       attr_writer :table_name
 
@@ -66,6 +86,26 @@ module Domgen
         @table_name = parent.schema.sql.qualify(:table,parent.name) unless @table_name
         @table_name
       end
+
+      def constraints
+        @constraints ||= []
+      end
+
+      def constraint(name, options = {}, &block)
+        constraint = Constraint.new(self, name, options, &block)
+        self.constraints << constraint
+        constraint
+      end
+
+      def validations
+        @validations ||= []
+      end
+
+      def validation(name, options = {}, &block)
+        validation = Validation.new(self, name, options, &block)
+        self.validations << validation
+        validation
+      end      
 
       def cluster(attribute_names, options = {}, &block)
         index(attribute_names, options.merge(:cluster => true), &block)

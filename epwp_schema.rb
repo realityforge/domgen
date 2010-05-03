@@ -123,7 +123,7 @@ JPQL
     t.attribute(:IsAsGoodAsCache, "List", :nullable => true, :persistent => false)
     t.attribute(:SubstituteCache, "List", :nullable => true, :persistent => false)
 
-    t.constraint(:DataType, :sql => "DataType IN (1, 2, 3, 4, 5, 6, 7, 8, 9)")
+    t.sql.constraint(:DataType, :sql => "DataType IN (1, 2, 3, 4, 5, 6, 7, 8, 9)")
   end
 
   s.define_object_type(:CodeSetValue) do |t|
@@ -147,7 +147,7 @@ JPQL
     t.codependent_constraint("value", [:Value, :ValueDesc])
     t.incompatible_constraint("value", [:Value, :CodeSetValue])
 
-    t.validation(:PositionIsUnique, :sql => <<SQL)
+    t.sql.validation(:PositionIsUnique, :sql => <<SQL)
 /*
   Each tblPosition should be associated with 0 or 1 tblActsIn rows.
   Thus each tblPosition is effectively immutable. (Historically this

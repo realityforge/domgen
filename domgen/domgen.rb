@@ -57,16 +57,6 @@ module Domgen
     end
   end
 
-  class Constraint < BaseConfigElement
-    attr_reader :name
-    attr_accessor :sql
-
-    def initialize(name, options = {}, &block)
-      @name = name
-      super(options, &block)
-    end
-  end
-
   class Query < BaseConfigElement
     attr_reader :object_type
     attr_reader :name
@@ -117,7 +107,6 @@ module Domgen
       jpql.nil? ? '' : "By#{name}"
     end
 
-
     attr_writer :query_type
 
     def query_type
@@ -150,16 +139,6 @@ module Domgen
 
     def initialize(name, attribute_names, options, &block)
       @name, @attribute_names = name, attribute_names
-      super(options, &block)
-    end
-  end
-
-  class Validation < BaseConfigElement
-    attr_reader :name
-    attr_accessor :sql
-
-    def initialize(name, options = {}, &block)
-      @name = name
       super(options, &block)
     end
   end
@@ -282,7 +261,6 @@ module Domgen
     attr_reader :name
     attr_reader :options
     attr_reader :attributes
-    attr_reader :constraints
     attr_reader :validations
     attr_reader :queries
     attr_reader :codependent_constraints
@@ -293,7 +271,6 @@ module Domgen
       @schema, @name = schema, name
       @options = options
       @attributes = []
-      @constraints = []
       @validations = []
       @codependent_constraints = []
       @incompatible_constraints = []
@@ -347,18 +324,6 @@ module Domgen
       attribute = Attribute.new(self, name, type, options, &block)
       @attributes << attribute
       attribute
-    end
-
-    def constraint(name, options = {}, &block)
-      constraint = Constraint.new(name, options, &block)
-      @constraints << constraint
-      constraint
-    end
-
-    def validation(name, options = {}, &block)
-      validation = Validation.new(name, options, &block)
-      @validations << validation
-      validation
     end
 
     def codependent_constraint(name, attribute_names, options = {}, &block)
