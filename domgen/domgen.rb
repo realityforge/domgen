@@ -57,256 +57,6 @@ module Domgen
     end
   end
 
-  module Sql
-    class SqlElement < BaseConfigElement
-      attr_reader :parent
-
-      def initialize(parent, options = {}, &block)
-        @parent = parent
-        super(options, &block)
-      end
-    end
-
-    class SqlSchema < SqlElement
-      PREFIX_MAP = {:table => 'tbl', :trigger => 'trg'}
-
-      attr_writer :schema
-
-      def schema
-        @schema = 'dbo' unless @schema
-        @schema
-      end
-
-      def qualify(type, name)
-        "#{q(self.schema)}.#{q("#{PREFIX_MAP[type]}#{name}")}"
-      end
-    end
-
-    class Index < BaseConfigElement
-      attr_reader :table
-      attr_accessor :attribute_names
-
-      def initialize(table, attribute_names, options, &block)
-        @table, @attribute_names = table, attribute_names
-        super(options, &block)
-      end
-
-      attr_writer :name
-
-      def name
-        if @name.nil?
-          prefix = cluster? ? 'CL' : unique? ? 'UQ' : 'IX'
-          suffix = attribute_names.join('_')
-          @name = "#{prefix}_#{table.parent.name}_#{suffix}"
-        end
-        @name
-      end
-
-      attr_writer :cluster
-
-      def cluster?
-        @cluster = false if @cluster.nil?
-        @cluster
-      end
-
-      attr_writer :unique
-
-      def unique?
-        @unique = false if @unique.nil?
-        @unique
-      end
-    end
-
-    class Table < SqlElement
-      attr_writer :table_name
-
-      def table_name
-        @table_name = parent.schema.sql.qualify(:table,parent.name) unless @table_name
-        @table_name
-      end
-
-      def cluster(attribute_names, options = {}, &block)
-        index(attribute_names, options.merge(:cluster => true), &block)
-      end
-
-      def index(attribute_names, options = {}, &block)
-        index = Index.new(self, attribute_names, options, &block)
-        indexes << index
-        index
-      end
-
-      def indexes
-        @indexes ||= []
-      end
-
-      def verify
-        # Add unique indexes on all unique attributes unless covered by existing index
-        parent.attributes.each do |a|
-          if a.unique?
-            existing_index = indexes.find do |i|
-              i.unique? && i.attribute_names.length == 1 && i.attribute_names[0].to_s = a.name.to_s
-            end
-            index([a.name], {:unique => true}) if existing_index.nil?
-          end
-        end
-
-        raise "#{table_name} defines multiple clustering indexes" if indexes.select{|i| i.cluster?}.size > 1
-      end
-    end
-
-    class Column < SqlElement
-      TYPE_MAP = {"string" => "VARCHAR",
-                  "integer" => "INT",
-                  "boolean" => "BIT",
-                  "text" => "TEXT",
-                  "i_enum" => "INT"}
-
-      def column_name
-        if @column_name.nil?
-          if parent.reference?
-            @column_name = "#{parent.name}#{parent.referenced_object.primary_key.sql.column_name}"
-          else
-            @column_name = parent.name
-          end
-        end
-        @column_name
-      end
-
-      attr_writer :sql_type
-
-      def sql_type
-        unless @java_type
-          if :reference == parent.attribute_type
-            @java_type = parent.referenced_object.primary_key.sql.sql_type
-          else
-            @java_type = TYPE_MAP[parent.attribute_type.to_s]
-          end
-          raise "Unknown type #{parent.attribute_type}" unless @java_type
-        end
-        @java_type
-      end
-
-      attr_writer :identity
-
-      def identity?
-        @identity = parent.primary_key? && parent.attribute_type == :integer unless @identity
-        !!@identity
-      end
-    end
-  end
-
-  module Java
-    class JavaElement < BaseConfigElement
-      attr_reader :parent
-
-      def initialize(parent, options = {}, &block)
-        @parent = parent
-        super(options, &block)
-      end
-    end
-
-    class JavaClass < JavaElement
-      attr_writer :classname
-      attr_accessor :label_attribute
-
-      def classname
-        @classname = parent.name unless @classname
-        @classname
-      end
-
-      def fully_qualified_name
-        "#{parent.schema.java.package}.#{classname}"
-      end
-
-      attr_writer :debug_attributes
-
-      def debug_attributes
-        @debug_attributes = parent.attributes.collect{|a|a.name} unless @debug_attributes
-        @debug_attributes
-      end
-
-    end
-
-    class JavaField < JavaElement
-      TYPE_MAP = {"string" => "java.lang.String",
-                  "integer" => "java.lang.Integer",
-                  "boolean" => "java.lang.Boolean",
-                  "text" => "java.lang.String",
-                  "i_enum" => "java.lang.Integer",
-                  "List" => "java.util.List"}
-      attr_writer :field_name
-
-      def field_name
-        @field_name = parent.name unless @field_name
-        @field_name
-      end
-
-      attr_writer :java_type
-
-      def java_type
-        unless @java_type
-          if :reference == parent.attribute_type
-            @java_type = parent.referenced_object.java.classname
-          else
-            @java_type = TYPE_MAP[parent.attribute_type.to_s]
-          end
-          raise "Unknown type #{parent.attribute_type}" unless @java_type
-        end
-        @java_type
-      end
-    end
-
-    class JavaPackage < JavaElement
-      attr_writer :package
-
-      def package
-        @package = parent.name unless @package
-        @package
-      end
-    end
-  end
-
-  module Ruby
-    class RubyElement < BaseConfigElement
-      attr_reader :parent
-
-      def initialize(parent, options = {}, &block)
-        @parent = parent
-        super(options, &block)
-      end
-    end
-
-    class RubyAttribute < RubyElement
-    end
-
-    class RubyClass < RubyElement
-      attr_writer :classname
-
-      def classname
-        @classname = parent.name unless @classname
-        @classname
-      end
-
-      def fully_qualified_name
-        "::#{parent.schema.ruby.module_name}::#{classname}"
-      end
-
-      def filename
-        fqn = fully_qualified_name
-        underscore(fqn[2..fqn.length])
-      end
-    end
-
-    class RubyModule < RubyElement
-      attr_writer :module_name
-
-      def module_name
-        @module_name = parent.name.capitalize unless @module_name
-        @module_name
-      end
-    end
-  end
-
   class Constraint < BaseConfigElement
     attr_reader :name
     attr_accessor :sql
@@ -522,22 +272,6 @@ module Domgen
       @inverse_relationship_name
     end
 
-    def java
-      @java = Domgen::Java::JavaField.new(self) unless @java
-      @java
-    end
-
-    def ruby
-      @ruby = Domgen::Ruby::RubyAttribute.new(self) unless @ruby
-      @ruby
-    end
-
-    def sql
-      raise "Non persistent attributes should not invoke sql config method" unless persistent?
-      @sql = Domgen::Sql::Column.new(self) unless @sql
-      @sql
-    end
-
     def self.persistent_types
       [:text, :string, :reference, :boolean, :integer, :i_enum]
     end
@@ -650,21 +384,6 @@ module Domgen
       attributes.find {|a| a.primary_key? }
     end
 
-    def java
-      @java = Domgen::Java::JavaClass.new(self) unless @java
-      @java
-    end
-
-    def ruby
-      @ruby = Domgen::Ruby::RubyClass.new(self) unless @ruby
-      @ruby
-    end
-
-    def sql
-      @sql = Domgen::Sql::Table.new(self) unless @sql
-      @sql
-    end
-
     def attribute_by_name(name)
       attributes.find{|a| a.name.to_s == name.to_s}
     end
@@ -694,21 +413,6 @@ module Domgen
       object_type = @object_types.find{|o|o.name.to_s == name.to_s}
       raise "Unable to locate object_type #{name}" unless object_type
       object_type
-    end
-
-    def java
-      @java = Domgen::Java::JavaPackage.new(self) unless @java
-      @java
-    end
-
-    def ruby
-      @ruby = Domgen::Ruby::RubyModule.new(self) unless @ruby
-      @ruby
-    end
-
-    def sql
-      @sql = Domgen::Sql::SqlSchema.new(self) unless @sql
-      @sql
     end
   end
 
@@ -829,3 +533,7 @@ module Domgen
     end
   end
 end
+
+require "#{File.dirname(__FILE__)}/java_model_ext.rb"
+require "#{File.dirname(__FILE__)}/ruby_model_ext.rb"
+require "#{File.dirname(__FILE__)}/sql_model_ext.rb"
