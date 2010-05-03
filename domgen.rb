@@ -82,12 +82,75 @@ module Domgen
       end
     end
 
+    class Index < BaseConfigElement
+      attr_reader :table
+      attr_accessor :attribute_names
+
+      def initialize(table, attribute_names, options, &block)
+        @table, @attribute_names = table, attribute_names
+        super(options, &block)
+      end
+
+      attr_writer :name
+
+      def name
+        if @name.nil?
+          prefix = cluster? ? 'CL' : unique? ? 'UQ' : 'IX'
+          suffix = attribute_names.join('_')
+          @name = "#{prefix}_#{table.parent.name}_#{suffix}"
+        end
+        @name
+      end
+
+      attr_writer :cluster
+
+      def cluster?
+        @cluster = false if @cluster.nil?
+        @cluster
+      end
+
+      attr_writer :unique
+
+      def unique?
+        @unique = false if @unique.nil?
+        @unique
+      end
+    end
+
     class Table < SqlElement
       attr_writer :table_name
 
       def table_name
         @table_name = parent.schema.sql.qualify(:table,parent.name) unless @table_name
         @table_name
+      end
+
+      def cluster(attribute_names, options = {}, &block)
+        index(attribute_names, options.merge(:cluster => true), &block)
+      end
+
+      def index(attribute_names, options = {}, &block)
+        index = Index.new(self, attribute_names, options, &block)
+        indexes << index
+        index
+      end
+
+      def indexes
+        @indexes ||= []
+      end
+
+      def verify
+        # Add unique indexes on all unique attributes unless covered by existing index
+        parent.attributes.each do |a|
+          if a.unique?
+            existing_index = indexes.find do |i|
+              i.unique? && i.attribute_names.length == 1 && i.attribute_names[0].to_s = a.name.to_s
+            end
+            index([a.name], {:unique => true}) if existing_index.nil?
+          end
+        end
+
+        raise "#{table_name} defines multiple clustering indexes" if indexes.select{|i| i.cluster?}.size > 1
       end
     end
 
@@ -501,6 +564,7 @@ module Domgen
       queries.each do |q|
         q.populate_parameters
       end
+      sql.verify
     end
 
     def object_type
@@ -575,14 +639,6 @@ module Domgen
     # Assume single column pk
     def primary_key
       attributes.find {|a| a.primary_key? }
-    end
-
-    def cluster(attribute_names, options = {})
-      raise "Not Implemented!"
-    end
-
-    def index(name, attribute_names, options = {})
-      raise "Not Implemented!"
     end
 
     def java
@@ -731,6 +787,8 @@ schema_set = Domgen::SchemaSet.new do |ss|
     t.string(:Value, 255)
     t.string(:ParentAttributeValue, 255, :nullable => true)
 
+    t.sql.cluster([:AttributeName,:ParentAttributeValue])
+    
     t.query("AttributeName",
             "SELECT C FROM CodeSetValue C WHERE C.AttributeName = :AttributeName",
             :query_type => :full)
@@ -743,6 +801,7 @@ JPQL
   s.define_object_type(:FireDistrict) do |t|
     t.integer(:ID, :primary_key => true)
     t.string(:Name, 255)
+    t.sql.index([:Name])
   end
 
   s.define_object_type(:User) do |t|

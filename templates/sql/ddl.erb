@@ -5,8 +5,14 @@ CREATE TABLE <%= object_type.sql.table_name %>(
 <% object_type.attributes.each do |a|
 %>  <%= q(a.sql.column_name) %> <%= q(a.sql.sql_type) %> <%= a.length.nil? ? '' : "(#{a.length}) " %><%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
-%>  PRIMARY KEY CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
+%>  PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
 )
 GO
+<% object_type.sql.indexes.each do |index| %>
+CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX [<%= index.name %>] ON <%= object_type.sql.table_name %>
+(<%= index.attribute_names.collect {|a| "\n  #{q(a)} ASC" }.join(",") %>
+)
+GO
+<% end %>
 <% end %>
 <% end %>
