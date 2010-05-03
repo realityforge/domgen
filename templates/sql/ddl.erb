@@ -5,7 +5,7 @@ CREATE TABLE <%= object_type.sql.table_name %>(
 <% object_type.attributes.each do |a|
 %>  <%= q(a.sql.column_name) %> <%= q(a.sql.sql_type) %> <%= a.length.nil? ? '' : "(#{a.length}) " %><%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
-%>  PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
+%>  CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
 )
 GO
 <% object_type.sql.indexes.each do |index| %>
