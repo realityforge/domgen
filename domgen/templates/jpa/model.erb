@@ -93,17 +93,17 @@ end.join("\n")
     return "<%= object_type.name %>[" +
 <% object_type.java.debug_attributes.each do |a|
     attr = object_type.attribute_by_name(a)
-%>           "<%= attr.name %> =" + get<%= attr.name %>() + 
+%>           "<%= attr.name %> =" + <%= java_getter_name(attr.name) %>() +
 <% end %>           "]";
   }
 
   public String toLabel()
   {
 <% if !object_type.java.label_attribute.nil?
-%>    return String.valueOf( <%= object_type.attribute_by_name(object_type.java.label_attribute).java.field_name %> );<%
+%>    return String.valueOf( <%= java_getter_name(object_type.attribute_by_name(object_type.java.label_attribute).name) %> );<%
 else
       pk = object_type.primary_key
-%>    return "<%= object_type.name %>[<%= pk.name %> = " + <%= pk.name %> +"]";<% end %>
+%>    return "<%= object_type.name %>[<%= pk.name %> = " + <%= java_getter_name(pk.name) %> +"]";<% end %>
   }
 
   @Override
