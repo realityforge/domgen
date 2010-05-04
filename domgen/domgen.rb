@@ -273,7 +273,9 @@ module Domgen
     end
 
     def attribute_by_name(name)
-      attributes.find{|a| a.name.to_s == name.to_s}
+      attribute = attributes.find{|a| a.name.to_s == name.to_s}
+      raise "Unable to find attribute named #{name} on type #{self.name}"
+      attribute
     end
   end
 

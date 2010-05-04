@@ -24,11 +24,7 @@ module Domgen
       def populate_parameters
         @parameter_types = {} unless @parameter_types
         parameters.each do |p|
-          if @parameter_types[p].nil?
-            attribute = parent.parent.attribute_by_name(p)
-            raise "Unknown parameter type for #{p}" unless attribute
-            @parameter_types[p] = attribute.java.java_type
-          end
+          @parameter_types[p] = parent.parent.attribute_by_name(p).java.java_type if @parameter_types[p].nil?
         end
       end
 
