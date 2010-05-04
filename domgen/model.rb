@@ -3,11 +3,19 @@ require "#{File.dirname(__FILE__)}/orderedhash.rb"
 module Domgen
   class BaseConfigElement
     def initialize(options = {})
+      self.options = options
+      yield self if block_given?
+      extension_point(:post_create)
+    end
+
+    def inherited?
+      !!@inherited
+    end
+
+    def options=(options)
       options.each_pair do |k, v|
         self.send "#{k}=", v
       end
-      yield self if block_given?
-      extension_point(:post_create)
     end
 
     @@extensions = {}
@@ -155,6 +163,7 @@ module Domgen
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
     attr_reader :referencing_attributes
+    attr_accessor :extends
 
     def initialize(schema, name, options = {}, &block)
       @schema, @name = schema, name
@@ -211,6 +220,10 @@ module Domgen
         raise "Value #{v} for key #{k} of i_enum #{name} should be an integer" unless v.instance_of?(Fixnum)
       end
       attribute(name, :i_enum, options.merge({:values => values}), &block)
+    end
+
+    def declared_attributes
+      @attributes.values.select{|a|!a.inherited?}
     end
 
     def attributes
@@ -284,7 +297,25 @@ module Domgen
     end
 
     def define_object_type(name, options = {}, &block)
-      @object_types << ObjectType.new(self, name, options, &block)
+      if options[:extends]
+        base_type = object_type_by_name(options[:extends])
+        base_type.instance_variable_set("@schema",nil)
+        object_type = Marshal.load(Marshal.dump(base_type))
+        base_type.instance_variable_set("@schema",self)
+        object_type.instance_variable_set("@schema",self)
+        object_type.instance_variable_set("@name",name)
+        object_type.options = options
+
+        object_type.attributes.each {|a| a.instance_variable_set("@inherited",true)}
+        object_type.unique_constraints.each {|a| a.instance_variable_set("@inherited",true)}
+        object_type.codependent_constraints.each {|a| a.instance_variable_set("@inherited",true)}
+        object_type.incompatible_constraints.each {|a| a.instance_variable_set("@inherited",true)}
+
+        yield object_type if block_given?
+        @object_types << object_type
+      else
+        @object_types << ObjectType.new(self, name, options, &block)
+      end
     end
 
     def object_type_by_name(name)
