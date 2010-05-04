@@ -34,6 +34,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
     if attribute.inverse_relationship_type == :has_many
 %>
   has_many :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_count_of :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>
 <%
     end
     if attribute.inverse_relationship_type == :has_one
