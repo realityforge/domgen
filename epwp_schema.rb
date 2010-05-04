@@ -70,6 +70,14 @@ JPQL
     t.string(:Postcode, 8)
     t.string(:Phone, 30)
     t.string(:DX, 30, :nullable => true)
+    t.sql.validation(:SinglePrimaryLocationPerSubmission, :sql => <<SQL)
+/* Each Submission should be associated 0 or 1 primary Locations. */
+SELECT I.SubmissionID
+FROM inserted I, tblLocation Other
+WHERE I.SubmissionID <> Other.SubmissionID AND I.IsPrimary = 1 AND Other.IsPrimary = 1
+GROUP BY I.SubmissionID
+HAVING COUNT(*) > 0
+SQL
   end
 
   s.define_object_type(:Resource) do |t|
@@ -109,9 +117,6 @@ JPQL
 =begin
   s.define_object_type(:AttributeType, :table => :tblAttributeType, :metadataThatCanChange => true) do |t|
     t.string(:ID, 50, :primary_key => true)
-    t.string(:DisplayString, 255, :unique => true)
-    t.string(:Code, 50, :unique => true)
-    t.string(:UnitOfMeasure, 50, :nullable => true)
     t.i_enum(:DataType, {"STRING" => 1,
                          "TEXT" => 2,
                          "NUMBER" => 3,
@@ -128,19 +133,13 @@ JPQL
   end
 
   s.define_object_type(:CodeSetValue) do |t|
-    t.string(:ID, 50, :primary_key => true)
-    t.string(:DisplayString, 50)
     t.integer(:DisplayRank).validators do |v|
       v.message = 'V should a year between 1990 and 2000'
       v.betweeen(1990,2000)
     end
-    t.reference(:AttributeType, :immutable => true).reverse(:has_many, :name => 'PossibleValues')
   end
 
   s.define_object_type(:Attribute) do |t|
-    t.string(:ID, 50, :primary_key => true)
-    t.integer(:Category)
-    t.reference(:AttributeType, :immutable => true)
     t.reference(:CodeSetValue, :nullable => true)
     t.string(:Value, 50, :nullable => true)
     t.string(:ValueDesc, 50, :nullable => true)
