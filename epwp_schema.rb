@@ -74,7 +74,7 @@ JPQL
 /* Each Submission should be associated 0 or 1 primary Locations. */
 SELECT I.SubmissionID
 FROM inserted I, tblLocation Other
-WHERE I.SubmissionID <> Other.SubmissionID AND I.IsPrimary = 1 AND Other.IsPrimary = 1
+WHERE I.ID <> Other.ID AND I.SubmissionID = Other.SubmissionID AND I.IsPrimary = 1 AND Other.IsPrimary = 1
 GROUP BY I.SubmissionID
 HAVING COUNT(*) > 0
 SQL
