@@ -191,6 +191,11 @@ module Domgen
     attr_reader :incompatible_constraints
     attr_reader :referencing_attributes
 
+    @@extensions = []
+    def self.extensions
+      @@extensions
+    end
+
     def initialize(schema, name, options = {})
       @schema, @name = schema, name
       @options = options
@@ -201,14 +206,13 @@ module Domgen
       @queries = []
       @referencing_attributes = []
       yield self if block_given?
-      self.jpa.query('All', nil, :singular => false)
-      self.jpa.query(primary_key.name,
-                     "#{primary_key.java.field_name} = :#{primary_key.java.field_name}",
-                     :singular => true)
-      self.jpa.queries.each do |q|
-        q.populate_parameters
+
+      self.class.extensions.each do |extension|
+        extension_object = (self.send extension rescue nil)
+        if extension_object && extension_object.respond_to?(:post_create)
+          extension_object.post_create
+        end
       end
-      self.sql.verify
     end
 
     def object_type

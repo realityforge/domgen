@@ -121,7 +121,7 @@ module Domgen
         @indexes ||= []
       end
 
-      def verify
+      def post_create
         # Add unique indexes on all unique attributes unless covered by existing index
         parent.attributes.each do |a|
           if a.unique?
@@ -186,6 +186,7 @@ module Domgen
   end
 
   class ObjectType
+    self.extensions << :sql
     def sql
       @sql = Domgen::Sql::Table.new(self) unless @sql
       @sql
