@@ -343,6 +343,8 @@ module Domgen
         method_name = "define_#{artifact}_templates".to_sym
         if self.respond_to? method_name
           self.send method_name, template_set
+        else
+          raise "Missing define_#{artifact}_templates method"
         end
       end
 
@@ -363,28 +365,6 @@ module Domgen
           end
         end
       end
-    end
-
-    def self.define_jpa_templates(template_set)
-      template_set.per_schema_set << Template.new('jpa/persistence', 'META-INF/persistence.xml', 'resources')
-      template_set.per_schema << Template.new('jpa/entity_manager',
-                                              '#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java',
-                                              'java')
-      template_set.per_object_type << Template.new('jpa/model',
-                                                   '#{object_type.java.fully_qualified_name.gsub(".","/")}.java',
-                                                   'java')
-      template_set.per_object_type << Template.new('jpa/dao',
-                                                   '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java',
-                                                   'java')
-    end
-
-    def self.define_sql_templates(template_set)
-      template_set.per_schema << Template.new('sql/ddl', 'schema.sql', 'databases/#{schema.name}')
-      template_set.per_schema << Template.new('sql/constraints', '#{schema.name}_constraints.sql', 'databases/#{schema.name}')
-    end
-
-    def self.define_active_record_templates(template_set)
-      template_set.per_object_type << Template.new('ar/model', '#{object_type.ruby.filename}.rb', 'ruby')
     end
 
     class TemplateSet
@@ -431,7 +411,13 @@ module Domgen
   end
 end
 
+# Model extensions
 require "#{File.dirname(__FILE__)}/java_model_ext.rb"
 require "#{File.dirname(__FILE__)}/ruby_model_ext.rb"
 require "#{File.dirname(__FILE__)}/sql_model_ext.rb"
 require "#{File.dirname(__FILE__)}/jpa_model_ext.rb"
+
+# Generator extensions
+require "#{File.dirname(__FILE__)}/jpa_generator_ext.rb"
+require "#{File.dirname(__FILE__)}/sql_generator_ext.rb"
+require "#{File.dirname(__FILE__)}/active_record_generator_ext.rb"
