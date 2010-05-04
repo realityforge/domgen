@@ -1,3 +1,5 @@
+require "#{File.dirname(__FILE__)}/orderedhash.rb"
+
 module Domgen
   class BaseConfigElement
     def initialize(options = {})
@@ -149,7 +151,6 @@ module Domgen
   class ObjectType < BaseConfigElement
     attr_reader :schema
     attr_reader :name
-    attr_reader :attributes
     attr_reader :unique_constraints
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
@@ -157,16 +158,30 @@ module Domgen
 
     def initialize(schema, name, options = {}, &block)
       @schema, @name = schema, name
-      @attributes = []
-      @unique_constraints = []
-      @codependent_constraints = []
-      @incompatible_constraints = []
+      @attributes = Domgen::OrderedHash.new
+      @unique_constraints = Domgen::OrderedHash.new
+      @codependent_constraints = Domgen::OrderedHash.new
+      @incompatible_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
       super(options, &block)
     end
 
     def object_type
       self
+    end
+
+    attr_writer :abstract
+
+    def abstract?
+      @abstract = false if @abstract.nil?
+      @abstract
+    end
+
+    attr_writer :final
+
+    def final?
+      @final = !abstract? if @final.nil?
+      @final
     end
 
     def boolean(name, options = {}, &block)
@@ -198,28 +213,45 @@ module Domgen
       attribute(name, :i_enum, options.merge({:values => values}), &block)
     end
 
+    def attributes
+      @attributes.values
+    end
+
     def attribute(name, type, options = {}, &block)
       attribute = Attribute.new(self, name, type, options, &block)
-      @attributes << attribute
+      @attributes[name.to_s] = attribute
       attribute
+    end
+
+    def unique_constraints
+      @unique_constraints.values
     end
 
     def unique_constraint(attribute_names, options = {}, &block)
       raise "Must have at least 1 or more attribute names for uniqueness constraint" if attribute_names.empty?
-      unique_constraint = AttributeSetConstraint.new(attribute_names.join('_'), attribute_names, options, &block)
-      @unique_constraints << unique_constraint
+      name = attribute_names.join('_')
+      unique_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
+      @unique_constraints[name] = unique_constraint
       unique_constraint
+    end
+
+    def codependent_constraints
+      @codependent_constraints.values
     end
 
     def codependent_constraint(name, attribute_names, options = {}, &block)
       codependent_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
-      @codependent_constraints << codependent_constraint
+      @codependent_constraints[name.to_s] = codependent_constraint
       codependent_constraint
+    end
+
+    def incompatible_constraints
+      @incompatible_constraints.values
     end
 
     def incompatible_constraint(name, attribute_names, options = {}, &block)
       incompatible_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
-      @incompatible_constraints << incompatible_constraint
+      @incompatible_constraints[name.to_s] = incompatible_constraint
       incompatible_constraint
     end
 
@@ -229,7 +261,7 @@ module Domgen
     end
 
     def attribute_by_name(name)
-      attribute = attributes.find{|a| a.name.to_s == name.to_s}
+      attribute = @attributes[name.to_s]
       raise "Unable to find attribute named #{name} on type #{self.name}" unless attribute
       attribute
     end
