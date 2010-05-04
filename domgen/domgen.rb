@@ -274,7 +274,7 @@ module Domgen
 
     def attribute_by_name(name)
       attribute = attributes.find{|a| a.name.to_s == name.to_s}
-      raise "Unable to find attribute named #{name} on type #{self.name}"
+      raise "Unable to find attribute named #{name} on type #{self.name}" unless attribute
       attribute
     end
   end
@@ -333,7 +333,61 @@ module Domgen
   end
 
   module Generator
-    class Generator
+    DEFAULT_ARTIFACTS = [:jpa, :active_record, :sql]
+
+    def self.generate(schema_set, directory, artifacts = nil)
+      artifacts = DEFAULT_ARTIFACTS unless artifacts
+      template_set = TemplateSet.new
+
+      artifacts.each do |artifact|
+        method_name = "define_#{artifact}_templates".to_sym
+        if self.respond_to? method_name
+          self.send method_name, template_set
+        end
+      end
+
+      template_set.per_schema_set.each do |template_map|
+        template_map.generate(directory, schema_set)
+      end
+
+      template_set.per_schema.each do |template_map|
+        schema_set.schemas.each do |schema|
+          template_map.generate(directory, schema)
+        end
+      end
+
+      template_set.per_object_type.each do |template_map|
+        schema_set.schemas.each do |schema|
+          schema.object_types.each do |object_type|
+            template_map.generate(directory, object_type)
+          end
+        end
+      end
+    end
+
+    def self.define_jpa_templates(template_set)
+      template_set.per_schema_set << Template.new('jpa/persistence', 'META-INF/persistence.xml', 'resources')
+      template_set.per_schema << Template.new('jpa/entity_manager',
+                                              '#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java',
+                                              'java')
+      template_set.per_object_type << Template.new('jpa/model',
+                                                   '#{object_type.java.fully_qualified_name.gsub(".","/")}.java',
+                                                   'java')
+      template_set.per_object_type << Template.new('jpa/dao',
+                                                   '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java',
+                                                   'java')
+    end
+
+    def self.define_sql_templates(template_set)
+      template_set.per_schema << Template.new('sql/ddl', 'schema.sql', 'databases/#{schema.name}')
+      template_set.per_schema << Template.new('sql/constraints', '#{schema.name}_constraints.sql', 'databases/#{schema.name}')
+    end
+
+    def self.define_active_record_templates(template_set)
+      template_set.per_object_type << Template.new('ar/model', '#{object_type.ruby.filename}.rb', 'ruby')
+    end
+
+    class TemplateSet
       attr_accessor :per_schema_set
       attr_accessor :per_schema
       attr_accessor :per_object_type
@@ -343,54 +397,9 @@ module Domgen
         self.per_schema = []
         self.per_object_type = []
       end
-
-      def self.create(elements = nil)
-        elements = [:jpa, :active_record, :sql] unless elements
-        ts = TemplateSet.new
-        if elements.include?(:jpa)
-          ts.per_schema_set << TemplateMap.new('jpa/persistence', 'META-INF/persistence.xml', 'resources')
-          ts.per_schema << TemplateMap.new('jpa/entity_manager',
-                                           '#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java',
-                                           'java')
-          ts.per_object_type << TemplateMap.new('jpa/model',
-                                                '#{object_type.java.fully_qualified_name.gsub(".","/")}.java',
-                                                'java')
-          ts.per_object_type << TemplateMap.new('jpa/dao',
-                                                '#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java',
-                                                'java')
-        end
-        if elements.include?(:sql)
-          ts.per_schema << TemplateMap.new('sql/ddl', 'schema.sql', 'databases/#{schema.name}')
-          ts.per_schema << TemplateMap.new('sql/constraints', '#{schema.name}_constraints.sql', 'databases/#{schema.name}')
-        end
-        if elements.include?(:active_record)
-          ts.per_object_type << TemplateMap.new('ar/model', '#{object_type.ruby.filename}.rb', 'ruby')
-        end
-        ts
-      end
-
-      def generate_artifacts(schema_set, directory)
-        self.per_schema_set.each do |template_map|
-          template_map.generate(directory, schema_set)
-        end
-
-        self.per_schema.each do |template_map|
-          schema_set.schemas.each do |schema|
-            template_map.generate(directory, schema)
-          end
-        end
-
-        self.per_object_type.each do |template_map|
-          schema_set.schemas.each do |schema|
-            schema.object_types.each do |object_type|
-              template_map.generate(directory, object_type)
-            end
-          end
-        end
-      end
     end
 
-    class TemplateMap
+    class Template
       attr_reader :template_name
       attr_reader :output_filename_pattern
       attr_reader :basedir
@@ -404,16 +413,14 @@ module Domgen
         output_filename = eval("\"#{output_filename_pattern}\"", context_binding)
         output_dir = eval("\"#{self.basedir}\"", context_binding)
         output_filename = File.join(basedir, output_dir, output_filename)
-        result = template.result(context_binding)
+        result = erb_instance.result(context_binding)
         FileUtils.mkdir_p File.dirname(output_filename)
-        File.open(output_filename, 'w') do |f|
-          f.write(result)
-        end
+        File.open(output_filename, 'w') { |f| f.write(result) }
       end
 
       protected
 
-      def template
+      def erb_instance
         unless @template
           filename = "#{File.dirname(__FILE__)}/templates/#{template_name}.erb"
           @template = ERB.new(IO.read(filename))

@@ -166,4 +166,4 @@ SQL
   end
 end
 
-Domgen::Generator::Generator.create.generate_artifacts(schema_set, 'target/generated')
+Domgen::Generator.generate(schema_set, 'target/generated')
