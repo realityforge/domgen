@@ -56,6 +56,13 @@ module Domgen
       raise "Invalid type #{attribute_type} for persistent attribute #{name}" if persistent? && !self.class.persistent_types.include?(attribute_type)
     end
 
+    attr_writer :abstract
+
+    def abstract?
+      @abstract = false if @abstract.nil?
+      @abstract
+    end
+    
     def reference?
       self.attribute_type == :reference
     end
@@ -173,6 +180,13 @@ module Domgen
       @incompatible_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
       super(options, &block)
+      verify
+    end
+
+    def verify
+      attributes.each do |a|
+        raise "Abstract attribute #{a.name} on non abstract object type #{name}" if !abstract? && a.abstract?
+      end
     end
 
     def object_type
@@ -303,6 +317,7 @@ module Domgen
         object_type = Marshal.load(Marshal.dump(base_type))
         base_type.instance_variable_set("@schema",self)
         object_type.instance_variable_set("@abstract",nil)
+        object_type.instance_variable_set("@final",nil)
         object_type.instance_variable_set("@schema",self)
         object_type.instance_variable_set("@name",name)
         object_type.options = options
@@ -313,6 +328,8 @@ module Domgen
         object_type.incompatible_constraints.each {|a| a.instance_variable_set("@inherited",true)}
 
         yield object_type if block_given?
+
+        object_type.verify
         @object_types << object_type
       else
         @object_types << ObjectType.new(self, name, options, &block)
