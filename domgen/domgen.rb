@@ -333,7 +333,7 @@ module Domgen
   end
 
   module Generator
-    class TemplateSet
+    class Generator
       attr_accessor :per_schema_set
       attr_accessor :per_schema
       attr_accessor :per_object_type
