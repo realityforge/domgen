@@ -180,10 +180,9 @@ module Domgen
     end
   end
 
-  class ObjectType
+  class ObjectType < BaseConfigElement
     attr_reader :schema
     attr_reader :name
-    attr_reader :options
     attr_reader :attributes
     attr_reader :validations
     attr_reader :queries
@@ -196,16 +195,15 @@ module Domgen
       @@extensions
     end
 
-    def initialize(schema, name, options = {})
+    def initialize(schema, name, options = {}, &block)
       @schema, @name = schema, name
-      @options = options
       @attributes = []
       @validations = []
       @codependent_constraints = []
       @incompatible_constraints = []
       @queries = []
       @referencing_attributes = []
-      yield self if block_given?
+      super(options, &block)
 
       self.class.extensions.each do |extension|
         extension_object = (self.send extension rescue nil)
