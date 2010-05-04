@@ -54,6 +54,21 @@ module Domgen
         self.send "#{k}=", v
       end
       yield self if block_given?
+      extension_point(:post_create)
+    end
+
+    @@extensions = {}
+    def self.extensions
+      @@extensions[self.name] ||= []
+    end
+
+    def extension_point(action)
+      self.class.extensions.each do |extension|
+        extension_object = (self.send extension rescue nil)
+        if extension_object && extension_object.respond_to?(action)
+          extension_object.send action
+        end
+      end
     end
   end
 
@@ -190,11 +205,6 @@ module Domgen
     attr_reader :incompatible_constraints
     attr_reader :referencing_attributes
 
-    @@extensions = []
-    def self.extensions
-      @@extensions
-    end
-
     def initialize(schema, name, options = {}, &block)
       @schema, @name = schema, name
       @attributes = []
@@ -204,13 +214,6 @@ module Domgen
       @queries = []
       @referencing_attributes = []
       super(options, &block)
-
-      self.class.extensions.each do |extension|
-        extension_object = (self.send extension rescue nil)
-        if extension_object && extension_object.respond_to?(:post_create)
-          extension_object.post_create
-        end
-      end
     end
 
     def object_type
