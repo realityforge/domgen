@@ -10,13 +10,18 @@ module Domgen
     end
 
     class SqlSchema < SqlElement
+      DEFAULT_SCHEMA = 'dbo'
       PREFIX_MAP = {:table => 'tbl', :trigger => 'trg'}
 
       attr_writer :schema
 
       def schema
-        @schema = 'dbo' unless @schema
+        @schema = DEFAULT_SCHEMA unless @schema
         @schema
+      end
+
+      def default_schema?
+        DEFAULT_SCHEMA == schema
       end
 
       def qualify(type, name)
