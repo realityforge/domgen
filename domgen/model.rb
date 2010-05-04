@@ -302,6 +302,7 @@ module Domgen
         base_type.instance_variable_set("@schema",nil)
         object_type = Marshal.load(Marshal.dump(base_type))
         base_type.instance_variable_set("@schema",self)
+        object_type.instance_variable_set("@abstract",nil)
         object_type.instance_variable_set("@schema",self)
         object_type.instance_variable_set("@name",name)
         object_type.options = options
