@@ -150,8 +150,7 @@ module Domgen
     attr_reader :schema
     attr_reader :name
     attr_reader :attributes
-    attr_reader :validations
-    attr_reader :queries
+    attr_reader :unique_constraints
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
     attr_reader :referencing_attributes
@@ -159,10 +158,9 @@ module Domgen
     def initialize(schema, name, options = {}, &block)
       @schema, @name = schema, name
       @attributes = []
-      @validations = []
+      @unique_constraints = []
       @codependent_constraints = []
       @incompatible_constraints = []
-      @queries = []
       @referencing_attributes = []
       super(options, &block)
     end
@@ -204,6 +202,13 @@ module Domgen
       attribute = Attribute.new(self, name, type, options, &block)
       @attributes << attribute
       attribute
+    end
+
+    def unique_constraint(attribute_names, options = {}, &block)
+      raise "Must have at least 1 or more attribute names for uniqueness constraint" if attribute_names.empty?
+      unique_constraint = AttributeSetConstraint.new(attribute_names.join('_'), attribute_names, options, &block)
+      @unique_constraints << unique_constraint
+      unique_constraint
     end
 
     def codependent_constraint(name, attribute_names, options = {}, &block)

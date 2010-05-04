@@ -122,11 +122,15 @@ module Domgen
       end
 
       def post_create
+        parent.unique_constraints.each do |u|
+          index(u.attribute_names, {:unique => true})
+        end
+
         # Add unique indexes on all unique attributes unless covered by existing index
         parent.attributes.each do |a|
           if a.unique?
             existing_index = indexes.find do |i|
-              i.unique? && i.attribute_names.length == 1 && i.attribute_names[0].to_s = a.name.to_s
+              i.unique? && i.attribute_names.length == 1 && i.attribute_names[0].to_s == a.name.to_s
             end
             index([a.name], {:unique => true}) if existing_index.nil?
           end

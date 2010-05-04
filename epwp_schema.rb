@@ -40,6 +40,7 @@ JPQL
     t.string(:LastName, 100)
     t.string(:PreferredName, 100)
     t.java.label_attribute = :Email
+    t.unique_constraint([:Email])
   end
 
   s.define_object_type(:Submission) do |t|
