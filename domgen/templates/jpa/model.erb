@@ -6,8 +6,8 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 @SuppressWarnings( { "UnusedDeclaration" } )
-<% if not object_type.queries.empty? %>@NamedQueries( value = {
-<%= object_type.queries.collect { |q| "  @NamedQuery( name = \"#{q.fully_qualified_name}\", query = \"#{q.query_string}\" )" }.join(",\n") %>
+<% if not object_type.jpa.queries.empty? %>@NamedQueries( value = {
+<%= object_type.jpa.queries.collect { |q| "  @NamedQuery( name = \"#{q.fully_qualified_name}\", query = \"#{q.query_string}\" )" }.join(",\n") %>
 } )<% end %>
 @Generated( "Domgen" )
 @Entity

@@ -57,82 +57,6 @@ module Domgen
     end
   end
 
-  class Query < BaseConfigElement
-    attr_reader :object_type
-    attr_reader :name
-    attr_accessor :jpql
-    attr_accessor :parameter_types
-
-    def initialize(object_type, name, jpql, options = {}, &block)
-      @object_type = object_type
-      @name = name
-      @jpql = jpql
-      super(options, &block)
-    end
-
-    def populate_parameters
-      @parameter_types = {} unless @parameter_types
-      parameters.each do |p|
-        if @parameter_types[p].nil?
-          attribute = object_type.attribute_by_name(p)
-          raise "Unknown parameter type for #{p}" unless attribute
-          @parameter_types[p] = attribute.java.java_type
-        end
-      end
-    end
-
-    def parameters
-       return [] if jpql.nil?
-       jpql.scan(/:[^\W]+/).collect {|s| s[1..-1]}
-    end
-
-    def fully_qualified_name
-      if singular?
-        type_spec = object_type.name
-      else
-        type_spec = pluralize(object_type.name)
-      end
-      "#{name_prefix}#{type_spec}#{name_suffix}"
-    end
-
-    def local_name
-      "#{name_prefix}#{name_suffix}"
-    end
-
-    def name_prefix
-      "find#{singular? ? '' : 'All'}"
-    end
-
-    def name_suffix
-      jpql.nil? ? '' : "By#{name}"
-    end
-
-    attr_writer :query_type
-
-    def query_type
-      @query_type = :selector if @query_type.nil?
-      @query_type
-    end
-
-    attr_writer :singular
-
-    def singular?
-      @singular = false if @singular.nil?
-      @singular
-    end
-
-    def query_string
-      if query_type == :full
-        query = jpql
-      elsif query_type == :selector
-        query = "SELECT O FROM #{object_type.name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
-      else
-        raise "Unknown query type #{query_type}"
-      end
-      query.gsub("\n",' ')
-    end
-  end
-
   class AttributeSetConstraint < BaseConfigElement
     attr_reader :name
     attr_accessor :attribute_names
@@ -277,14 +201,14 @@ module Domgen
       @queries = []
       @referencing_attributes = []
       yield self if block_given?
-      self.query('All', nil, :singular => false)
-      self.query(primary_key.name,
-                 "#{primary_key.java.field_name} = :#{primary_key.java.field_name}",
-                 :singular => true)
-      queries.each do |q|
+      self.jpa.query('All', nil, :singular => false)
+      self.jpa.query(primary_key.name,
+                     "#{primary_key.java.field_name} = :#{primary_key.java.field_name}",
+                     :singular => true)
+      self.jpa.queries.each do |q|
         q.populate_parameters
       end
-      sql.verify
+      self.sql.verify
     end
 
     def object_type
@@ -336,12 +260,6 @@ module Domgen
       incompatible_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @incompatible_constraints << incompatible_constraint
       incompatible_constraint
-    end
-
-    def query(name, jpql, options = {}, &block)
-      query = Query.new(self, name, jpql, options, &block)
-      @queries << query
-      query
     end
 
     # Assume single column pk
@@ -502,3 +420,4 @@ end
 require "#{File.dirname(__FILE__)}/java_model_ext.rb"
 require "#{File.dirname(__FILE__)}/ruby_model_ext.rb"
 require "#{File.dirname(__FILE__)}/sql_model_ext.rb"
+require "#{File.dirname(__FILE__)}/jpa_model_ext.rb"

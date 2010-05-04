@@ -13,11 +13,11 @@ schema_set = Domgen::SchemaSet.new do |ss|
     t.string(:ParentAttributeValue, 255, :nullable => true)
 
     t.sql.cluster([:AttributeName,:ParentAttributeValue])
-    
-    t.query("AttributeName",
-            "SELECT C FROM CodeSetValue C WHERE C.AttributeName = :AttributeName",
-            :query_type => :full)
-    t.query("AttributeNameAndParentAttributeValue", <<JPQL)
+
+    t.jpa.query("AttributeName",
+                "SELECT C FROM CodeSetValue C WHERE C.AttributeName = :AttributeName",
+                :query_type => :full)
+    t.jpa.query("AttributeNameAndParentAttributeValue", <<JPQL)
 AttributeName = :AttributeName AND
 ParentAttributeValue = :ParentAttributeValue
 JPQL

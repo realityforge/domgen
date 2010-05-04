@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Generated( "Domgen" )
 public final class <%= object_type.java.classname %>DAO
 {
-<% object_type.queries.each do |query| %>
+<% object_type.jpa.queries.each do |query| %>
   public static <%= query.singular? ? '' : 'java.util.List<' %><%= object_type.java.classname %><%= query.singular? ? '' : '>' %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{query.parameter_types[p]} #{p}"}.join(', ') %>)
   {
     final TypedQuery<<%= object_type.java.classname %>> query =
