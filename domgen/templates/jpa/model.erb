@@ -18,8 +18,8 @@ import javax.validation.constraints.*;
   }.join(",\n        ")
 %>})<% end %>
 public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' : '' %>class <%= object_type.java.classname %>
-<% if object_type.extends %>    extends <%= object_type.schema.object_type_by_name(object_type.extends).java.classname %><% end %>
-{
+<% if object_type.extends %>    extends <%= object_type.schema.object_type_by_name(object_type.extends).java.classname %>
+<% end %>{
 <% object_type.declared_attributes.each do |a|
   if !a.persistent?
 %>  @Transient
