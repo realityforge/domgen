@@ -194,6 +194,7 @@ module Domgen
     end
 
     def verify
+      raise "ObjectType #{name} must define exactly one primary key" if attributes.select {|a| a.primary_key?}.size != 1
       attributes.each do |a|
         raise "Abstract attribute #{a.name} on non abstract object type #{name}" if !abstract? && a.abstract?
       end
