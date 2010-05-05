@@ -17,7 +17,12 @@ import javax.validation.constraints.*;
   object_type.attributes.select{|a|a.unique?}.collect{|a|
   "@UniqueConstraint( columnNames = {\"#{a.sql.column_name}\"})"
   }.join(",\n        ")
-%>})<% end %>
+%>})<%
+else %>
+@MappedSuperclass
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)<% 
+end
+%>
 @Access( AccessType.FIELD )
 public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' : '' %>class <%= object_type.java.classname %>
 <% if object_type.extends %>    extends <%= object_type.schema.object_type_by_name(object_type.extends).java.classname %>
