@@ -99,7 +99,7 @@ if !object_type.abstract? %>
     return "<%= object_type.name %>[" +
 <% object_type.java.debug_attributes.each do |a|
     attr = object_type.attribute_by_name(a)
-%>           "<%= attr.name %> =" + <%= java_getter_name(attr.name) %>() +
+%>           "<%= attr.name %> = " + <%= java_getter_name(attr.name) %>() +
 <% end %>           "]";
   }
 
