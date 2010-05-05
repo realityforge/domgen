@@ -194,6 +194,16 @@ module Domgen
     end
 
     def verify
+      # Add unique constraints on all unique attributes unless covered by existing constraint
+      self.attributes.each do |a|
+        if a.unique?
+          existing_constraint = unique_constraints.find do |uq|
+            uq.unique? && uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
+          end
+          unique_constraint([a.name]) if existing_constraint.nil?
+        end
+      end
+
       raise "ObjectType #{name} must define exactly one primary key" if attributes.select {|a| a.primary_key?}.size != 1
       attributes.each do |a|
         raise "Abstract attribute #{a.name} on non abstract object type #{name}" if !abstract? && a.abstract?
@@ -269,6 +279,7 @@ module Domgen
     def unique_constraint(attribute_names, options = {}, &block)
       raise "Must have at least 1 or more attribute names for uniqueness constraint" if attribute_names.empty?
       name = attribute_names.join('_')
+      raise "Only 1 unique constraint with name #{name} should be defined" if @unique_constraints[name]
       unique_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @unique_constraints[name] = unique_constraint
       unique_constraint

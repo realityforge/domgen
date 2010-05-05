@@ -126,16 +126,6 @@ module Domgen
           index(u.attribute_names, {:unique => true})
         end
 
-        # Add unique indexes on all unique attributes unless covered by existing index
-        parent.attributes.each do |a|
-          if a.unique?
-            existing_index = indexes.find do |i|
-              i.unique? && i.attribute_names.length == 1 && i.attribute_names[0].to_s == a.name.to_s
-            end
-            index([a.name], {:unique => true}) if existing_index.nil?
-          end
-        end
-
         raise "#{table_name} defines multiple clustering indexes" if indexes.select{|i| i.cluster?}.size > 1
       end
     end
