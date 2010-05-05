@@ -19,7 +19,7 @@ import javax.validation.constraints.*;
   }.join(",\n        ")
 %>})<%
 else %>
-@MappedSuperclass
+@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)<%
 end
 %>
