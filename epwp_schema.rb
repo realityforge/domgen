@@ -51,10 +51,10 @@ JPQL
                 :nullable => true,
                 :inverse_relationship_type => :has_one,
                 :inverse_relationship_name => :NextSubmission)
-    t.string(:Name, 255)
-    t.string(:ABN, 255)
-    t.text(:Notes)
-    t.text(:Comment)
+    t.string(:Name, 255, :nullable => true)
+    t.string(:ABN, 255, :nullable => true)
+    t.text(:Notes, :nullable => true)
+    t.text(:Comment, :nullable => true)
     t.java.debug_attributes = [:Name, :ABN, :User, :PriorSubmission]
   end
 
@@ -108,7 +108,7 @@ SQL
     t.boolean(:Lights, :nullable => true)
     t.boolean(:ROPS, :nullable => true)
     t.boolean(:OGP, :nullable => true)
-    t.text(:Comment)
+    t.text(:Comment, :nullable => true)
     t.reference(:Submission, :immutable => true)
     t.reference(:Resource, :immutable => true, :inverse_relationship_type => :none)
   end
