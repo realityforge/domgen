@@ -6,7 +6,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
   set_primary_key "<%= object_type.primary_key.sql.column_name %>"
 <% object_type.attributes.each do |a| %>
 <%   if a.persistent? && a.validate?
-       if !(a.primary_key? && a.sql.identity?)
+       if !a.generated_value?
          if !a.nullable?
 %>  validates_presence_of :<%= a.sql.column_name %>
 <%       end

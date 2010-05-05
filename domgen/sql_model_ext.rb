@@ -175,8 +175,8 @@ module Domgen
       attr_writer :identity
 
       def identity?
-        @identity = parent.primary_key? && parent.attribute_type == :integer unless @identity
-        !!@identity
+        @identity = parent.generated_value? unless @identity
+        @identity
       end
     end
   end

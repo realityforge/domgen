@@ -81,6 +81,16 @@ module Domgen
       @unique
     end
 
+    attr_writer :generated_value
+
+    def generated_value?
+      if @generated_value.nil?
+        @generated_value =
+                primary_key? && self.attribute_type == :integer && !object_type.abstract? && object_type.final?
+      end
+      @generated_value
+    end
+
     attr_writer :primary_key
 
     def primary_key?
