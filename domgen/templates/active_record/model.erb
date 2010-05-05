@@ -7,7 +7,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <% object_type.attributes.each do |a| %>
 <%   if a.persistent? && a.validate?
        if !a.generated_value?
-         if !a.nullable?
+         if !a.nullable? && a.attribute_type != :boolean
 %>  validates_presence_of :<%= a.sql.column_name %>
 <%       end
          if a.unique?
@@ -17,7 +17,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 %>  validates_numericality_of :<%= a.sql.column_name %>, :only_integer => true, :allow_nil => true
 <%       end
          if a.attribute_type == :boolean
-%>  validates_boolean :<%= a.sql.column_name %>, :allow_nil => true
+%>  validates_boolean :<%= a.sql.column_name %>, :allow_nil => <%= a.nullable? %>
 <%       end
          if a.attribute_type == :string
 %>  nillable_attribute :<%= a.sql.column_name %>
