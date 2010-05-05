@@ -23,3 +23,7 @@ def sql_name(type, name)
   "#{SQL_PREFIX_MAP[type]}#{name}"
 end
 
+def sql_qualify(schema, name)
+  "#{q(schema.sql.schema)}.#{q(name)}"
+end
+

@@ -2,7 +2,7 @@
 module <%= object_type.schema.ruby.module_name %>
 
 class <%= object_type.ruby.classname %> < ActiveRecord::Base
-  set_table_name "<%= object_type.sql.qualified_table_name.gsub('[','').gsub(']','').gsub('dbo.','') %>"
+  set_table_name "<%= sql_qualify(object_type.schema,object_type.sql.table_name).gsub('[','').gsub(']','').gsub('dbo.','') %>"
   set_primary_key "<%= object_type.primary_key.sql.column_name %>"
 <% object_type.attributes.each do |a| %>
 <%   if a.persistent? && a.validate?

@@ -22,10 +22,6 @@ module Domgen
       def default_schema?
         DEFAULT_SCHEMA == schema
       end
-
-      def qualify(name)
-        "#{q(self.schema)}.#{q(name)}"
-      end
     end
 
     class Index < BaseConfigElement
@@ -89,10 +85,6 @@ module Domgen
       def table_name
         @table_name = sql_name(:table,parent.name) unless @table_name
         @table_name
-      end
-
-      def qualified_table_name
-        parent.schema.sql.qualify(table_name)
       end
 
       def constraints
