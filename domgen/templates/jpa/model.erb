@@ -11,7 +11,7 @@ import javax.validation.constraints.*;
 <%= object_type.jpa.queries.collect { |q| "  @NamedQuery( name = \"#{q.fully_qualified_name}\", query = \"#{q.query_string}\" )" }.join(",\n") %>
 } )<% end %>
 @Access( AccessType.FIELD )
-@Entity<% if !object_type.abstract? %>
+@Entity(name = "<%= object_type.name %>")<% if !object_type.abstract? %>
 @Table( name = "<%= object_type.sql.table_name %>",
         schema = "<%= object_type.schema.sql.schema %>",
         uniqueConstraints = {<%=
@@ -53,7 +53,7 @@ public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' :
 <% end
    object_type.referencing_attributes.each do |attribute|
      if attribute.inverse_relationship_type == :has_many
-%>  @OneToMany
+%>  @OneToMany( mappedBy = "<%= attribute.name %>" )
   private java.util.Set<<%= attribute.object_type.java.fully_qualified_name %>> <%= pluralize(attribute.inverse_relationship_name) %>;
 
 <% elsif attribute.inverse_relationship_type == :has_one
@@ -63,61 +63,8 @@ public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' :
 <%
     end
   end
-%><%= object_type.declared_attributes.select{|a|!a.abstract?}.collect {|a| java_accessors(a.java.field_name,a.java.java_type) }.join("\n")
-%><%= object_type.declared_attributes.select{|a|a.abstract?}.collect {|a| "  public abstract #{a.java.java_type} get#{a.java.field_name}();" }.join("\n")
-%><%= object_type.referencing_attributes.collect do |a|
-  if a.inverse_relationship_type == :has_many
-    java_accessors(pluralize(a.inverse_relationship_name),"java.util.Set<#{a.object_type.java.fully_qualified_name}>")
-   elsif a.inverse_relationship_type == :has_one
-    java_accessors(a.inverse_relationship_name,a.object_type.java.fully_qualified_name)
-   else
-    ''
-   end
-end.join("\n")
-%><%
-if !object_type.abstract? %>
-  @Override
-  public boolean equals( final Object o )
-  {
-    if ( this == o )
-    {
-      return true;
-    }
-    else if ( o == null || getClass() != o.getClass() )
-    {
-      return false;
-    }
-    else
-    {
-      final <%= object_type.java.classname %> that = (<%= object_type.java.classname %>) o;
-      return getID() != null && getID().equals( that.getID() );
-    }
-  }
-
-  public String toDebugString()
-  {
-    return "<%= object_type.name %>[" +
-<% object_type.java.debug_attributes.each do |a|
-    attr = object_type.attribute_by_name(a)
-%>           "<%= attr.name %> = " + <%= java_getter_name(attr.name) %>() +
-<% end %>           "]";
-  }
-
-  public String toLabel()
-  {
-<% if !object_type.java.label_attribute.nil?
-%>    return String.valueOf( <%= java_getter_name(object_type.attribute_by_name(object_type.java.label_attribute).name) %>() );<%
-else
-      pk = object_type.primary_key
-%>    return "<%= object_type.name %>[<%= pk.name %> = " + <%= java_getter_name(pk.name) %>() +"]";<% end %>
-  }
-
-  @Override
-  public String toString()
-  {
-<% if !object_type.java.label_attribute.nil?
-%>    return toLabel();<% 
-else
-%>    return toDebugString();<% end %>
-  }
-<% end %>}
+%><%=
+    j_declared_attributes_and_relations(object_type) %><%=
+    j_equals_method(object_type) %><%=
+    j_to_string_methods(object_type) %>
+}
