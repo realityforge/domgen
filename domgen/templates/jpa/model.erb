@@ -23,48 +23,11 @@ else %>
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)<%
 end
 %>
-public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' : '' %>class <%= object_type.java.classname %>
-<% if object_type.extends %>    extends <%= object_type.schema.object_type_by_name(object_type.extends).java.classname %>
-<% end %>{
-<% object_type.declared_attributes.select{|a|!a.abstract?}.each do |a|
-  if !a.persistent?
-%>  @Transient
-<%
-  else
-    if a.primary_key?
-%>  @Id
-<%    if a.generated_value?
-%>  @GeneratedValue( strategy = GenerationType.IDENTITY )
-<%
-      end
-    end
-    if a.reference?
-%>  @ManyToOne
-  @JoinColumn( name = "<%= a.sql.column_name %>", nullable = <%= a.nullable? %>, updatable = <%= !a.immutable? %> )<%
-    else
-%>  @Column( name = "<%= a.sql.column_name %>"<%= a.length.nil? ? '' :", length = #{a.length}"%>, nullable = <%= a.nullable? %>, updatable = <%= !a.immutable? %> )<%
-    end
-   end
-%>
-<% if !a.nullable? && !a.generated_value? %>  @NotNull
-<% end %><% if !a.length.nil? %>  @Size(max = <%= a.length %>)
-<% end %>  private <%= a.java.java_type %> <%= a.java.field_name %>;
-
-<% end
-   object_type.referencing_attributes.each do |attribute|
-     if attribute.inverse_relationship_type == :has_many
-%>  @OneToMany( mappedBy = "<%= attribute.name %>" )
-  private java.util.Set<<%= attribute.object_type.java.fully_qualified_name %>> <%= pluralize(attribute.inverse_relationship_name) %>;
-
-<% elsif attribute.inverse_relationship_type == :has_one
-%>  @OneToOne(optional = <%= !attribute.nullable? %>, mappedBy= "<%= attribute.java.field_name %>")
-  private <%= attribute.object_type.java.fully_qualified_name %> <%= attribute.inverse_relationship_name %>;
-
-<%
-    end
-  end
-%><%=
-    j_declared_attributes_and_relations(object_type) %><%=
-    j_equals_method(object_type) %><%=
-    j_to_string_methods(object_type) %>
+<%= j_class_definition(object_type) %>
+{
+<%= j_declared_fields(object_type) %>
+<%= j_declared_relations(object_type) %>
+<%= j_declared_attribute_and_relation_accessors(object_type) %>
+<%= j_equals_method(object_type) %>
+<%= j_to_string_methods(object_type) %>
 }

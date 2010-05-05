@@ -1,34 +1,66 @@
-def java_getter_name(name)
-  "get#{name}"
+def j_class_definition(object_type)
+  s = "public "
+  s << "final " if object_type.final?
+  s << "abstract " if object_type.abstract?
+  s << "class #{object_type.java.classname}\n"
+  if object_type.extends
+    s << "    extends #{object_type.schema.object_type_by_name(object_type.extends).java.classname}\n"
+  end
+  s
 end
 
-def java_setter_name(name)
-  "set#{name}"
+def j_declared_fields(object_type)
+  object_type.declared_attributes.collect {|a| j_declared_field(a) }.compact.join("\n")
 end
 
-def java_getter(name,type)
-  <<JAVA
-  public #{type} #{java_getter_name(name)}()
-  {
-     return #{name};
-  }
+def j_declared_field(attribute)
+  return nil if attribute.abstract?
+  s = ''
+  if !attribute.persistent?
+    s << "  @Transient\n"
+  else
+    s << "  @Id\n" if attribute.primary_key?
+    s << "  @GeneratedValue( strategy = GenerationType.IDENTITY )\n" if attribute.generated_value?
+
+    if attribute.reference?
+      s << "  @ManyToOne( optional = #{attribute.nullable?} )\n"
+      s << "  @JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
+    else
+      s << "  @Column( name = \"#{attribute.sql.column_name}\""
+      s << ", length = #{attribute.length}" if !attribute.length.nil? 
+      s << ", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
+    end
+  end
+  s << "  @NotNull\n" if !attribute.nullable? && !attribute.generated_value?
+  s << "  @Size( max = #{attribute.length} )\n" if !attribute.length.nil?
+  s << "  private #{attribute.java.java_type} #{attribute.java.field_name};\n"
+  s
+end
+
+def j_declared_relations(object_type)
+  object_type.referencing_attributes.collect {|a| j_declared_relation(a) }.compact.join("\n")
+end
+
+def j_declared_relation(attribute)
+  if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
+    # Ignore abstract relations as will appear in child classes
+    # Ignore inherited relations as appear in parent class
+    # Ignore attributes that have no inverse relationship
+    nil
+  elsif attribute.inverse_relationship_type == :has_many
+    <<JAVA
+  @OneToMany( mappedBy = "#{attribute.name}" )
+  private java.util.Set<#{attribute.object_type.java.fully_qualified_name}> #{pluralize(attribute.inverse_relationship_name)};
 JAVA
-end
-
-def java_setter(name,type)
-  <<JAVA
-  public void #{java_setter_name(name)}( final #{type} value )
-  {
-     #{name} = value;
-  }
+  elsif attribute.inverse_relationship_type == :has_one
+    <<JAVA
+  @OneToOne(mappedBy= "#{attribute.java.field_name}")
+  private #{attribute.object_type.java.fully_qualified_name} #{attribute.inverse_relationship_name};
 JAVA
+  end
 end
 
-def java_accessors(name,type)
-  "#{java_getter(name,type)}\n#{java_setter(name,type)}"
-end
-
-def j_declared_attributes_and_relations(object_type)
+def j_declared_attribute_and_relation_accessors(object_type)
   accessor_methods = object_type.declared_attributes.collect do |attribute|
     if attribute.abstract?
       j_abstract_attribute(attribute)
@@ -45,15 +77,46 @@ def j_declared_attributes_and_relations(object_type)
       # Ignore abstract attributes as will appear in child classes
       # Ignore inherited attributes as appear in parent class
       # Ignore attributes that have no inverse relationship
-      ''
+      nil
     elsif attribute.inverse_relationship_type == :has_many
       j_has_many_attribute(attribute)
     elsif attribute.inverse_relationship_type == :has_one
-      java_accessors(attribute.inverse_relationship_name, attribute.object_type.java.fully_qualified_name)
+      name = attribute.inverse_relationship_name
+      type = attribute.object_type.java.fully_qualified_name
+      <<JAVA
+  public #{type} get#{name}()
+  {
+     return #{name};
+  }
+
+  public void set#{name}( final #{type} value )
+  {
+     #{name} = value;
+  }
+JAVA
+
     end
   end
-  (accessor_methods + relation_methods).join("\n")
+  (accessor_methods + relation_methods).compact.join("\n")
 end
+
+def j_return_if_value_same(name)
+  <<JAVA
+     if( null != #{name} && #{name}.equals( value ) )
+     {
+       return;
+     }
+     else if( null != value && value.equals( #{name} ) )
+     {
+       return;
+     }
+     else if( null == #{name} && null == value )
+     {
+       return;
+     }
+JAVA
+end
+
 
 def j_simple_attribute(attribute)
   name = attribute.java.field_name
@@ -66,9 +129,54 @@ def j_simple_attribute(attribute)
 
   public void set#{name}( final #{type} value )
   {
+#{j_return_if_value_same(name)}
      #{name} = value;
   }
 JAVA
+end
+
+def j_add_to_inverse(attribute)
+  name = attribute.java.field_name
+  inverse_name = attribute.inverse_relationship_name
+  if attribute.inverse_relationship_type == :none
+    ''
+  elsif attribute.inverse_relationship_type == :has_many
+  <<JAVA
+    if( null != #{name} )
+    {
+      #{name}.add#{inverse_name}( this );
+    }
+JAVA
+  else
+    <<JAVA
+    if( null != #{name} )
+    {
+      #{name}.set#{inverse_name}( this );
+    }
+JAVA
+  end
+end
+
+def j_remove_from_inverse(attribute)
+  name = attribute.java.field_name
+  inverse_name = attribute.inverse_relationship_name
+  if attribute.inverse_relationship_type == :none
+    ''
+  elsif attribute.inverse_relationship_type == :has_many
+  <<JAVA
+    if( null != #{name} )
+    {
+      #{name}.remove#{inverse_name}( this );
+    }
+JAVA
+  else
+    <<JAVA
+    if( null != #{name} )
+    {
+      #{name}.set#{inverse_name}( null );
+    }
+JAVA
+  end
 end
 
 def j_reference_attribute(attribute)
@@ -82,7 +190,10 @@ def j_reference_attribute(attribute)
 
   public void set#{name}( final #{type} value )
   {
-     #{name} = value;
+ #{j_return_if_value_same(name)}
+#{j_remove_from_inverse(attribute)}
+    #{name} = value;
+ #{j_add_to_inverse(attribute)}
   }
 JAVA
 end
@@ -154,14 +265,13 @@ def j_to_string_methods(object_type)
   {
     return "#{object_type.name}[" +
 JAVA
-  object_type.java.debug_attributes.each do |a|
+  s += object_type.java.debug_attributes.collect do |a|
     attr = object_type.attribute_by_name(a)
-    s += <<JAVA
-           "#{attr.java.field_name} = " + get#{attr.java.field_name}() +
-JAVA
-  end
-  
+    "           \"#{attr.java.field_name} = \" + get#{attr.java.field_name}()"
+  end.join(" + \", \" +\n")
+
   s += <<JAVA
+ +
            "]";
   }
 JAVA
