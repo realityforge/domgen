@@ -6,11 +6,12 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 
 @Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration" } )<% if !object_type.abstract? %>
+@SuppressWarnings( { "UnusedDeclaration" } )
 <% if not object_type.jpa.queries.empty? %>@NamedQueries( value = {
 <%= object_type.jpa.queries.collect { |q| "  @NamedQuery( name = \"#{q.fully_qualified_name}\", query = \"#{q.query_string}\" )" }.join(",\n") %>
 } )<% end %>
-@Entity
+@Access( AccessType.FIELD )
+@Entity<% if !object_type.abstract? %>
 @Table( name = "<%= object_type.sql.table_name %>",
         schema = "<%= object_type.schema.sql.schema %>",
         uniqueConstraints = {<%=
@@ -19,11 +20,9 @@ import javax.validation.constraints.*;
   }.join(",\n        ")
 %>})<%
 else %>
-@Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)<%
 end
 %>
-@Access( AccessType.FIELD )
 public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' : '' %>class <%= object_type.java.classname %>
 <% if object_type.extends %>    extends <%= object_type.schema.object_type_by_name(object_type.extends).java.classname %>
 <% end %>{

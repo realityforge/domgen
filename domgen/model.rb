@@ -85,8 +85,11 @@ module Domgen
 
     def generated_value?
       if @generated_value.nil?
-        @generated_value =
-                primary_key? && self.attribute_type == :integer && !object_type.abstract? && object_type.final?
+        @generated_value = primary_key? &&
+                self.attribute_type == :integer &&
+                !object_type.abstract? &&
+                object_type.final? &&
+                object_type.extends.nil?
       end
       @generated_value
     end
@@ -377,7 +380,7 @@ module Domgen
       self.schemas.each do |schema|
         schema.object_types.each do |object_type|
           object_type.attributes.each do |attribute|
-            if attribute.reference?
+            if attribute.reference? && !attribute.abstract?
               attribute.referenced_object.referencing_attributes << attribute
             end
           end
