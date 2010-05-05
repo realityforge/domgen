@@ -20,7 +20,7 @@ import javax.validation.constraints.*;
 %>})<%
 else %>
 @MappedSuperclass
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)<% 
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)<%
 end
 %>
 @Access( AccessType.FIELD )
@@ -34,7 +34,7 @@ public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' :
   else
     if a.primary_key?
 %>  @Id
-<%    if a.sql.identity?
+<%    if a.generated_value?
 %>  @GeneratedValue( strategy = GenerationType.IDENTITY )
 <%
       end
@@ -47,7 +47,7 @@ public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' :
     end
    end
 %>
-<% if !a.nullable? && !a.sql.identity? %>  @NotNull
+<% if !a.nullable? && !a.generated_value? %>  @NotNull
 <% end %><% if !a.length.nil? %>  @Size(max = <%= a.length %>)
 <% end %>  private <%= a.java.java_type %> <%= a.java.field_name %>;
 
