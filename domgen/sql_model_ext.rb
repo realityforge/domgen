@@ -11,7 +11,6 @@ module Domgen
 
     class SqlSchema < SqlElement
       DEFAULT_SCHEMA = 'dbo'
-      PREFIX_MAP = {:table => 'tbl', :trigger => 'trg'}
 
       attr_writer :schema
 
@@ -24,8 +23,8 @@ module Domgen
         DEFAULT_SCHEMA == schema
       end
 
-      def qualify(type, name)
-        "#{q(self.schema)}.#{q("#{PREFIX_MAP[type]}#{name}")}"
+      def qualify(name)
+        "#{q(self.schema)}.#{q(name)}"
       end
     end
 
@@ -88,8 +87,12 @@ module Domgen
       attr_writer :table_name
 
       def table_name
-        @table_name = parent.schema.sql.qualify(:table,parent.name) unless @table_name
+        @table_name = sql_name(:table,parent.name) unless @table_name
         @table_name
+      end
+
+      def qualified_table_name
+        parent.schema.sql.qualify(table_name)
       end
 
       def constraints

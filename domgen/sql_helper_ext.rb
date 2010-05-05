@@ -16,3 +16,10 @@ end
 def q(string)
   "[#{string.to_s}]"
 end
+
+SQL_PREFIX_MAP = {:table => 'tbl', :trigger => 'trg'}
+
+def sql_name(type, name)
+  "#{SQL_PREFIX_MAP[type]}#{name}"
+end
+
