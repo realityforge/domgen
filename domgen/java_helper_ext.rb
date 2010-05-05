@@ -3,7 +3,7 @@ def java_getter_name(name)
 end
 
 def java_setter_name(name)
-  "set#{name}()"
+  "set#{name}"
 end
 
 def java_accessors(name,type)
