@@ -380,7 +380,7 @@ module Domgen
       self.schemas.each do |schema|
         schema.object_types.each do |object_type|
           object_type.attributes.each do |attribute|
-            if attribute.reference? && !attribute.abstract?
+            if attribute.reference? && !attribute.abstract? && !attribute.inherited?
               attribute.referenced_object.referencing_attributes << attribute
             end
           end
