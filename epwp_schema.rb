@@ -202,4 +202,4 @@ SQL
   end
 end
 
-Domgen::Generator.generate(schema_set, 'target/generated')
+Domgen::Generator.generate(schema_set, 'target/generated', Domgen::Generator::DEFAULT_ARTIFACTS + [:iris])
