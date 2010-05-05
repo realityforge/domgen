@@ -245,6 +245,7 @@ module Domgen
     end
 
     def attribute(name, type, options = {}, &block)
+      raise "Attempting to override non abstract attribute #{name} on #{self.name}" if @attributes[name.to_s] && !@attributes[name.to_s].abstract? 
       attribute = Attribute.new(self, name, type, options, &block)
       @attributes[name.to_s] = attribute
       attribute
@@ -284,7 +285,9 @@ module Domgen
 
     # Assume single column pk
     def primary_key
-      attributes.find {|a| a.primary_key? }
+      primary_key = attributes.find {|a| a.primary_key? }
+      raise "Unable to locate primary key for #{self.name}, attributes => #{attributes.collect{|a|a.name}}" unless primary_key
+      primary_key
     end
 
     def attribute_by_name(name)
