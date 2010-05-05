@@ -12,11 +12,13 @@ import javax.validation.constraints.*;
 } )<% end %>
 @Entity
 @Table( name = "<%= object_type.sql.table_name %>",
+        schema = "<%= object_type.schema.sql.schema %>",
         uniqueConstraints = {<%=
   object_type.attributes.select{|a|a.unique?}.collect{|a|
-  "@UniqueConstraint( columnNames = {\"#{q(a.sql.column_name)}\"})"
+  "@UniqueConstraint( columnNames = {\"#{a.sql.column_name}\"})"
   }.join(",\n        ")
 %>})<% end %>
+@Access( AccessType.FIELD )
 public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' : '' %>class <%= object_type.java.classname %>
 <% if object_type.extends %>    extends <%= object_type.schema.object_type_by_name(object_type.extends).java.classname %>
 <% end %>{
@@ -34,9 +36,9 @@ public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' :
     end
     if a.reference?
 %>  @ManyToOne
-  @JoinColumn( name = "<%= q(a.sql.column_name) %>", nullable = <%= a.nullable? %>, updatable = <%= !a.immutable? %> )<%
+  @JoinColumn( name = "<%= a.sql.column_name %>", nullable = <%= a.nullable? %>, updatable = <%= !a.immutable? %> )<%
     else
-%>  @Column( name = "<%= q(a.sql.column_name) %>"<%= a.length.nil? ? '' :", length = #{a.length}"%>, nullable = <%= a.nullable? %>, updatable = <%= !a.immutable? %> )<%
+%>  @Column( name = "<%= a.sql.column_name %>"<%= a.length.nil? ? '' :", length = #{a.length}"%>, nullable = <%= a.nullable? %>, updatable = <%= !a.immutable? %> )<%
     end
    end
 %>
@@ -57,10 +59,9 @@ public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' :
 <%
     end
   end
-%>
-<%= object_type.declared_attributes.select{|a|!a.abstract?}.collect {|a| java_accessors(a.java.field_name,a.java.java_type) }.join("\n") %>
-<%= object_type.declared_attributes.select{|a|a.abstract?}.collect {|a| "  public abstract #{a.java.java_type} get#{a.java.field_name}();" }.join("\n") %>
-<%= object_type.referencing_attributes.collect do |a|
+%><%= object_type.declared_attributes.select{|a|!a.abstract?}.collect {|a| java_accessors(a.java.field_name,a.java.java_type) }.join("\n")
+%><%= object_type.declared_attributes.select{|a|a.abstract?}.collect {|a| "  public abstract #{a.java.java_type} get#{a.java.field_name}();" }.join("\n")
+%><%= object_type.referencing_attributes.collect do |a|
   if a.inverse_relationship_type == :has_many
     java_accessors(pluralize(a.inverse_relationship_name),"java.util.Set<#{a.object_type.java.fully_qualified_name}>")
    elsif a.inverse_relationship_type == :has_one
@@ -69,7 +70,8 @@ public <%= object_type.final? ? 'final ' : object_type.abstract? ? 'abstract ' :
     ''
    end
 end.join("\n")
-%>
+%><%
+if !object_type.abstract? %>
   @Override
   public boolean equals( final Object o )
   {
@@ -100,10 +102,10 @@ end.join("\n")
   public String toLabel()
   {
 <% if !object_type.java.label_attribute.nil?
-%>    return String.valueOf( <%= java_getter_name(object_type.attribute_by_name(object_type.java.label_attribute).name) %> );<%
+%>    return String.valueOf( <%= java_getter_name(object_type.attribute_by_name(object_type.java.label_attribute).name) %>() );<%
 else
       pk = object_type.primary_key
-%>    return "<%= object_type.name %>[<%= pk.name %> = " + <%= java_getter_name(pk.name) %> +"]";<% end %>
+%>    return "<%= object_type.name %>[<%= pk.name %> = " + <%= java_getter_name(pk.name) %>() +"]";<% end %>
   }
 
   @Override
@@ -114,4 +116,4 @@ else
 else
 %>    return toDebugString();<% end %>
   }
-}
+<% end %>}
