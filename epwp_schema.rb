@@ -182,15 +182,15 @@ SQL
 
     s.define_object_type(:DeployableUnit, :abstract => true) do |t|
       t.integer(:ID, :primary_key => true)
-      t.integer(:YearOfManufacture)
       t.reference(:DeployableUnitType, :name => :IsOfType, :immutable => true, :abstract => true)
+      t.string(:Name, 50)
+      t.reference(:ManagementProject, :name => :IsMemberOfPool, :inverse_relationship_name => :PoolMember, :nullable => true)
+      t.reference(:ManagementProject, :name => :IsBasedAt, :inverse_relationship_name => :BaseMember)
     end
 
     s.define_object_type(:PhysicalUnit, :extends => :DeployableUnit) do |t|
       t.integer(:Foo)
       t.reference(:PhysicalUnitType, :name => :IsOfType, :immutable => true)
-      t.reference(:ManagementProject, :name => :IsMemberOfPool, :inverse_relationship_name => :PoolMembers, :nullable => true)
-      t.reference(:ManagementProject, :name => :IsBasedAt, :inverse_relationship_name => :BaseMembers)
     end
 
     s.define_object_type(:Crew, :extends => :DeployableUnit) do |t|
