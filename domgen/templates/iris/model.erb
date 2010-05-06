@@ -135,7 +135,7 @@ package <%= object_type.schema.java.package %>;
          }
          catch ( final iris.beans.MissingBeanException mbe )
          {
-<%= iris_warning("Unable to resolve value #{attribute.object_type.name}.#{name} on object") %>
+           printWarning("Unable to resolve value <%= attribute.object_type.name %>.<%= name %> on object");
            setCorrupt( true );
          }
        }
