@@ -4,11 +4,183 @@ package <%= object_type.schema.java.package %>;
 import javax.annotation.Generated;
 
 @Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration" } )
+@SuppressWarnings( { "UnusedDeclaration", "PointlessBitwiseExpression" } )
 <%= j_class_definition(object_type) %>{
-<%= j_declared_fields(object_type) %>
-<%= j_declared_relations(object_type) %>
-<%= j_declared_attribute_and_relation_accessors(object_type) %>
-<%= j_equals_method(object_type) %>
+  public static final String TABLE_NAME = "<%= object_type.sql.table_name %>";
+  /* Column Names */
+<% object_type.declared_attributes.select{|a|!a.abstract? && a.persistent?}.each do |attribute|
+%>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.sql.column_name %>";
+<% end %>
+  static final int MIN_ATTR_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MAX_ATTR_ID << 1"; %>;
+<%
+   last_attribute = "MIN_ATTR_ID"
+   object_type.declared_attributes.select{|a|!a.abstract? && a.persistent?}.each_with_index do |attribute, index|
+     last_attribute = "#{uppercase_constantize(attribute.java.field_name)}_ATTR_ID"
+%>  public static final int <%= last_attribute %> = MIN_ATTR_ID << <%= index %>;
+<% end
+%>  static final int MAX_ATTR_ID = <%= last_attribute %>;
+
+  static final int MIN_RELATION_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MIN_RELATION_ID << 1"; %>;
+<%
+   last_attribute = "MIN_RELATION_ID"
+   object_type.referencing_attributes.select{|a|!a.abstract?}.each_with_index do |attribute, index|
+     constant_name = uppercase_constantize(attribute.inverse_relationship_name)
+     last_attribute = "#{constant_name}_RELATION_ID"
+%>  public static final int <%= last_attribute %> = MIN_RELATION_ID << <%= index %>;
+  public static final String <%= constant_name %>_RELATION_NAME = "<%= attribute.inverse_relationship_name %>";
+<%
+   end
+%>  static final int MAX_RELATION_ID = <%= last_attribute %>;
+
+<% object_type.declared_attributes.select {|a| !a.abstract? }.each do |attribute|
+%>  private <%= j_attribute_type(attribute) %> <%= attribute.java.field_name %>;
+<% end
+   object_type.referencing_attributes.select {|a| !a.abstract? && !a.inherited? && a.inverse_relationship_type != :none }.
+     each do |attribute|
+     if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
+       # Ignore
+     elsif attribute.inverse_relationship_type == :has_many
+       type = j_classname(attribute.object_type.java.fully_qualified_name)
+%>  private java.util.List<<%= type %>> <%= attribute.inverse_relationship_name %>Set;
+  private java.util.List<<%= type %>> <%= attribute.inverse_relationship_name %>ReadOnlySet;
+  private boolean <%= attribute.inverse_relationship_name %>SetNeedsSorting;
+<%
+     elsif attribute.inverse_relationship_type == :has_one
+       type = j_classname(attribute.object_type.java.fully_qualified_name)
+%>  private <%= type %> <%= attribute.inverse_relationship_name %>;
+<%
+    end
+   end
+%>
+
+<% object_type.declared_attributes.each do |attribute|
+    name = attribute.java.field_name
+    type = j_attribute_type(attribute)
+    if attribute.abstract?
+%>
+  public abstract <%= type %> get<%= name %>();
+<%
+   elsif attribute.reference?
+     name = attribute.java.field_name
+     type = j_attribute_type(attribute)
+%>
+  public <%= type %> get<%= name %>()
+  {
+     return <%= name %>;
+  }
+
+  public void set<%= name %>( final <%= type %> value )
+  {
+<%= j_return_if_value_same(name) %>
+<%= j_remove_from_inverse(attribute) %>
+    <%= name %> = value;
+<%= j_add_to_inverse(attribute) %>
+  }
+<%
+  else
+%>
+  public <%= type %> get<%= name %>()
+  {
+     return <%= name %>;
+  }
+
+  public void set<%= name %>( final <%= type %> value )
+  {
+<%= j_return_if_value_same(name) %>
+     <%= name %> = value;
+  }
+<%
+  end
+end
+%>
+
+
+<% object_type.referencing_attributes.each do |attribute|
+  if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
+    # Ignore abstract attributes as will appear in child classes
+    # Ignore inherited attributes as appear in parent class
+    # Ignore attributes that have no inverse relationship
+  elsif attribute.inverse_relationship_type == :has_many
+    name = attribute.inverse_relationship_name
+    type = j_classname(attribute.object_type.java.fully_qualified_name)
+%>
+  public final java.util.List<<%= type %>> get<%= name %>Set()
+  {
+    if( null == <%= name %>ReadOnlySet )
+    {
+      <%= name %>ReadOnlySet = java.util.Collections.unmodifiableList( safeGet<%= name %>Set() );
+    }
+    if( <%= name %>SetNeedsSorting )
+    {
+       //Collections.sort( <%= name %>Set, AllowableAttributeTypeComparator.COMPARATOR );
+       <%= name %>SetNeedsSorting = false;
+    }
+    return <%= name %>ReadOnlySet;
+  }
+
+  protected final void add<%= name %>( final <%= type %> value )
+  {
+    if ( null == value )
+    {
+       throw new NullPointerException( "<%= name %>" );
+    }
+    else if ( value.isCorrupt() )
+    {
+       final String message =
+          "Failed to add <%= name %> (" + value + ") to " + this + " as relation is corrupt." + getContextString();
+       iris.util.debug.IDebug.error( message );
+       //throw new IllegalArgumentException( message );
+       return;
+    }
+    final java.util.List<<%= type %>> set = safeGet<%= name %>Set();
+    if( !set.contains( value ) )
+    {
+       <%= name %>SetNeedsSorting = true;
+       set.add( value );
+       fireRelatedAdded( <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.COLUMN_<%= uppercase_constantize(attribute.name) %>, value );
+    }
+  }
+
+  protected final void remove<%= name %>( final <%= type %> value )
+  {
+    if ( null == value )
+    {
+       throw new NullPointerException( <%= uppercase_constantize(attribute.inverse_relationship_name) %>_RELATION_NAME );
+    }
+    final boolean removed = safeGet<%= name %>Set().remove( value );
+    if( removed )
+    {
+       <%= name %>SetNeedsSorting = true;
+       fireRelatedRemoved( <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.COLUMN_<%= uppercase_constantize(attribute.name) %>, value );
+    }
+  }
+
+  private java.util.List<<%= type %>> safeGet<%= name %>Set()
+  {
+    if( null == <%= name %>Set )
+    {
+      <%= name %>Set = new java.util.LinkedList<<%= type %>>();
+    }
+    return <%= name %>Set;
+  }
+<%
+  elsif attribute.inverse_relationship_type == :has_one
+    name = attribute.inverse_relationship_name
+    type = j_classname(attribute.object_type.java.fully_qualified_name)
+%>
+    public final <%= type %> get<%= name %>()
+    {
+       return <%= name %>;
+    }
+
+    protected final void set<%= name %>( final <%= type %> value )
+    {
+       <%= name %> = value;
+    }
+<%
+  end
+end
+%>
+
 <%= j_to_string_methods(object_type) %>
 }

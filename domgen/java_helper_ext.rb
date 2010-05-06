@@ -25,6 +25,8 @@ def j_class_definition(object_type)
   s << "class #{j_classname(object_type.java.classname)}\n"
   if object_type.extends
     s << "    extends #{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}\n"
+  else
+    s << "    extends iris.beans.AbstractBean\n" if iris? 
   end
   s
 end
@@ -77,7 +79,7 @@ def j_declared_relation(attribute)
     type = j_classname(attribute.object_type.java.fully_qualified_name)
     s = ''
     s << "  @OneToMany( mappedBy = \"#{attribute.name}\" )\n" if !iris?
-    s << "  private java.util.Set<#{type}> #{pluralize(attribute.inverse_relationship_name)};\n"
+    s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse_relationship_name)};\n"
     s
   elsif attribute.inverse_relationship_type == :has_one
     type = j_classname(attribute.object_type.java.fully_qualified_name)
@@ -88,8 +90,8 @@ def j_declared_relation(attribute)
   end
 end
 
-def j_declared_attribute_and_relation_accessors(object_type)
-  accessor_methods = object_type.declared_attributes.collect do |attribute|
+def j_declared_attribute_accessors(object_type)
+  object_type.declared_attributes.collect do |attribute|
     if attribute.abstract?
       j_abstract_attribute(attribute)
     elsif attribute.reference?
@@ -97,9 +99,10 @@ def j_declared_attribute_and_relation_accessors(object_type)
     else
       j_simple_attribute(attribute)
     end
-  end
+  end.compact.join("\n")
+end
 
-  #attribute.reference? && !attribute.abstract? && !attribute.inherited?
+def j_declared_attribute_and_relation_accessors(object_type)
   relation_methods = object_type.referencing_attributes.collect do |attribute|
     if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
       # Ignore abstract attributes as will appear in child classes
@@ -122,10 +125,9 @@ def j_declared_attribute_and_relation_accessors(object_type)
      #{name} = value;
   }
 JAVA
-
     end
   end
-  (accessor_methods + relation_methods).compact.join("\n")
+  j_declared_attribute_accessors(object_type) + relation_methods.compact.join("\n")
 end
 
 def j_return_if_value_same(name)
@@ -237,9 +239,9 @@ def j_has_many_attribute(attribute)
   plural_name = pluralize(name)
   type = j_classname(attribute.object_type.java.fully_qualified_name)
   <<STR
-  public java.util.Set<#{type}> get#{plural_name}()
+  public java.util.List<#{type}> get#{plural_name}()
   {
-    return java.util.Collections.unmodifiableSet( safeGet#{plural_name}() );
+    return java.util.Collections.unmodifiableList( safeGet#{plural_name}() );
   }
 
   protected final void add#{name}( final #{type} value )
@@ -252,11 +254,11 @@ def j_has_many_attribute(attribute)
     safeGet#{plural_name}().remove( value );
   }
 
-  private java.util.Set<#{type}> safeGet#{plural_name}()
+  private java.util.List<#{type}> safeGet#{plural_name}()
   {
     if( null == #{plural_name} )
     {
-      #{plural_name} = new java.util.HashSet<#{type}>();
+      #{plural_name} = new java.util.LinkedList<#{type}>();
     }
     return #{plural_name};
   }
