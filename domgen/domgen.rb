@@ -12,6 +12,7 @@ require "#{File.dirname(__FILE__)}/iris_model_ext.rb"
 # Helper extensions
 require "#{File.dirname(__FILE__)}/java_helper_ext.rb"
 require "#{File.dirname(__FILE__)}/sql_helper_ext.rb"
+require "#{File.dirname(__FILE__)}/iris_helper_ext.rb"
 
 # Generator extensions
 require "#{File.dirname(__FILE__)}/jpa_generator_ext.rb"
