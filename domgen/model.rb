@@ -160,6 +160,12 @@ module Domgen
       self.object_type.schema.object_type_by_name(self.references)
     end
 
+    # The name of the local field appended with PK of foriegn
+    def referencing_link_name
+      raise "referencing_link_name on #{name} is invalid as attribute is not a reference" unless reference?
+      "#{name}#{referenced_object.primary_key.name}"
+    end
+
     attr_writer :inverse_relationship_type
 
     def inverse_relationship_type

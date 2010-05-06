@@ -140,7 +140,7 @@ module Domgen
       def column_name
         if @column_name.nil?
           if parent.reference?
-            @column_name = "#{parent.name}#{parent.referenced_object.primary_key.sql.column_name}"
+            @column_name = parent.referencing_link_name
           else
             @column_name = parent.name
           end
