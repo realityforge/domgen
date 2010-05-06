@@ -7,6 +7,7 @@ require "#{File.dirname(__FILE__)}/java_model_ext.rb"
 require "#{File.dirname(__FILE__)}/ruby_model_ext.rb"
 require "#{File.dirname(__FILE__)}/sql_model_ext.rb"
 require "#{File.dirname(__FILE__)}/jpa_model_ext.rb"
+require "#{File.dirname(__FILE__)}/iris_model_ext.rb"
 
 # Helper extensions
 require "#{File.dirname(__FILE__)}/java_helper_ext.rb"
