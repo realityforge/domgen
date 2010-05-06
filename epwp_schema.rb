@@ -1,5 +1,7 @@
 require "#{File.dirname(__FILE__)}/domgen/domgen.rb"
 
+Domgen::Logger.level = Logger::DEBUG
+
 schema_set = Domgen::SchemaSet.new do |ss|
   ss.define_schema("core") do |s|
 
@@ -197,8 +199,6 @@ SQL
       t.integer(:Bar)
       t.reference(:CrewType, :name => :IsOfType, :immutable => true)
     end
-
-
   end
 end
 
