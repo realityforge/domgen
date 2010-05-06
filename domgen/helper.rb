@@ -9,3 +9,7 @@ def underscore(camel_cased_word)
           tr("-", "_").
           downcase
 end
+
+def uppercase_constantize(word)
+  underscore(word).upcase
+end
