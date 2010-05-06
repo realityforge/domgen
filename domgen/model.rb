@@ -1,6 +1,11 @@
+require "logger"
 require "#{File.dirname(__FILE__)}/orderedhash.rb"
 
 module Domgen
+  Logger = ::Logger.new(STDOUT)
+  Logger.level = ::Logger::WARN
+  Logger.datetime_format = ''
+
   class BaseConfigElement
     def initialize(options = {})
       self.options = options
@@ -331,7 +336,9 @@ module Domgen
       @schema_set = schema_set
       @name = name
       @object_types = []
+      Logger.info "Schema '#{name}' definition started"
       super(options, &block)
+      Logger.info "Schema '#{name}'  definition completed"
     end
 
     def schema
@@ -339,6 +346,7 @@ module Domgen
     end
 
     def define_object_type(name, options = {}, &block)
+      Logger.debug "Object Type '#{name}'  definition started"
       if options[:extends]
         base_type = object_type_by_name(options[:extends])
         base_type.instance_variable_set("@schema",nil)
@@ -362,6 +370,7 @@ module Domgen
       else
         @object_types << ObjectType.new(self, name, options, &block)
       end
+      Logger.debug "Object Type '#{name}'  definition completed"
     end
 
     def object_type_by_name(name)
@@ -376,6 +385,7 @@ module Domgen
 
     def initialize(options = {}, &block)
       @schemas = []
+      Logger.info "SchemaSet definition started"
       super(options, &block)
       self.schemas.each do |schema|
         schema.object_types.each do |object_type|
@@ -386,6 +396,7 @@ module Domgen
           end
         end
       end
+      Logger.info "SchemaSet definition completed"
     end
 
     def schema_set

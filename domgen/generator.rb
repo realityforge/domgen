@@ -7,6 +7,8 @@ module Domgen
 
     def self.generate(schema_set, directory, artifacts = nil)
       artifacts = DEFAULT_ARTIFACTS unless artifacts
+      Logger.info "Generator started: artifacts = #{artifacts.inspect}"
+
       template_set = TemplateSet.new
 
       artifacts.each do |artifact|
@@ -19,11 +21,13 @@ module Domgen
       end
 
       template_set.per_schema_set.each do |template_map|
+        Logger.debug "Generator: #{template_map.template_name} => #{template_map.basedir} for schema set"
         template_map.generate(directory, schema_set)
       end
 
       template_set.per_schema.each do |template_map|
         schema_set.schemas.each do |schema|
+          Logger.debug "Generator: #{template_map.template_name} => #{template_map.basedir} for schema #{schema.name}"
           template_map.generate(directory, schema)
         end
       end
@@ -31,10 +35,12 @@ module Domgen
       template_set.per_object_type.each do |template_map|
         schema_set.schemas.each do |schema|
           schema.object_types.each do |object_type|
+            Logger.debug "Generator: #{template_map.template_name} => #{template_map.basedir} for object_type #{object_type.name} in schema #{schema.name}"
             template_map.generate(directory, object_type)
           end
         end
       end
+      Logger.info "Generator completed"
     end
 
     class TemplateSet
