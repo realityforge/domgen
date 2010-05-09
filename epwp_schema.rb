@@ -186,7 +186,9 @@ SQL
       t.integer(:ID, :primary_key => true)
       t.reference(:DeployableUnitType, :name => :IsOfType, :immutable => true, :abstract => true)
       t.string(:Name, 50)
-      t.reference(:ManagementProject, :name => :IsMemberOfPool, :inverse_relationship_name => :PoolMember, :nullable => true)
+      t.reference(:ManagementProject, :name => :IsMemberOfPool, :inverse_relationship_name => :PoolMember, :nullable => true) do |a|
+        a.iris.inverse_sorter = "epwp.iris.sorter.DeployableUnitSorter"
+      end
       t.reference(:ManagementProject, :name => :IsBasedAt, :inverse_relationship_name => :BaseMember)
     end
 
