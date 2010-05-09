@@ -19,6 +19,9 @@ module Domgen
       template_set.per_schema << Template.new('iris/chain_filter',
                                               '#{schema.java.package.gsub(".","/")}/visitor/ChainFilter.java',
                                               'iris')
+      template_set.per_schema << Template.new('iris/traverser',
+                                              '#{schema.java.package.gsub(".","/")}/visitor/Traverser.java',
+                                              'iris')
     end
   end
 end
