@@ -59,13 +59,15 @@ module Domgen
       attr_reader :template_name
       attr_reader :output_filename_pattern
       attr_reader :basedir
+      attr_reader :guard
 
-      def initialize(template_name, output_filename_pattern, basedir)
-        @template_name, @output_filename_pattern, @basedir = template_name, output_filename_pattern, basedir
+      def initialize(template_name, output_filename_pattern, basedir, guard = nil)
+        @template_name, @output_filename_pattern, @basedir, @guard = template_name, output_filename_pattern, basedir, guard
       end
 
       def generate(basedir, context)
         context_binding = context.send :binding
+        return if !guard.nil? && !eval(guard, context_binding)
         output_filename = eval("\"#{output_filename_pattern}\"", context_binding)
         output_dir = eval("\"#{self.basedir}\"", context_binding)
         output_filename = File.join(basedir, output_dir, output_filename)
