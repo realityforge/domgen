@@ -22,7 +22,21 @@ module Domgen
 
     class IrisClass < IrisElement
       attr_accessor :display_name
-      
+
+      attr_writer :preload
+
+      def preload?
+        @preload = false if @preload.nil?
+        @preload
+      end
+
+      attr_writer :managed
+
+      def managed?
+        @managed = false if @managed.nil?
+        @managed
+      end
+
       attr_writer :metadata_that_can_change
 
       def metadata_that_can_change?
