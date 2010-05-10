@@ -133,7 +133,7 @@ module Domgen
 #{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
-        parent.attributes.select {|a| a.attribute_type == :S_enum }.each do |a|
+        parent.attributes.select {|a| a.attribute_type == :s_enum }.each do |a|
           constraint(a.name, :sql => <<SQL)
 #{a.sql.column_name} IN (#{a.values.values.collect{|v|"'#{v}'"}.join(',')})
 SQL
