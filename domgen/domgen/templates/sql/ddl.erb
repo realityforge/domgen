@@ -9,7 +9,7 @@ GO
 <%= banner("DDL for Schema '#{schema.name}'") %>
 <% schema.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
 CREATE TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>(
-<% object_type.attributes.each do |a|
+<% object_type.attributes.select {|a| a.persistent?}.each do |a|
 %>  <%= q(a.sql.column_name) %> <%= q(a.sql.sql_type) %> <%= a.length.nil? ? '' : "(#{a.length}) " %><%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>  CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
@@ -21,14 +21,12 @@ CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CL
 )
 GO
 <% end %>
-<% object_type.attributes.each do |a|
-    if a.reference? %>
+<% object_type.attributes.select {|a| a.persistent? && a.reference?}.each do |a| %>
 ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
   ADD CONSTRAINT [FK_<%= object_type.name %>_<%= a.sql.column_name %>] FOREIGN KEY (<%= q(a.sql.column_name) %>)
   REFERENCES <%= sql_qualify(a.referenced_object.schema, a.referenced_object.sql.table_name) %> (<%= q(a.referenced_object.primary_key.sql.column_name) %>)
 GO
 <%
-    end
   end
   if object_type.sql.constraints.size > 0 %><%=
     banner("Constraints for #{sql_qualify(object_type.schema, object_type.sql.table_name)}")
@@ -85,7 +83,7 @@ done:
 GO
 <%    end
     end
-   immutable_attributes = object_type.attributes.select {|a| a.immutable? }
+   immutable_attributes = object_type.attributes.select {|a| a.persistent? && a.immutable? }
    if immutable_attributes.size > 0
     pk = object_type.primary_key
 %>
