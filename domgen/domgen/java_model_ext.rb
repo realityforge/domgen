@@ -53,9 +53,8 @@ module Domgen
           if :reference == parent.attribute_type
             @java_type = parent.referenced_object.java.classname
           else
-            @java_type = TYPE_MAP[parent.attribute_type.to_s]
+            @java_type = TYPE_MAP[parent.attribute_type.to_s] || parent.attribute_type.to_s
           end
-          raise "Unknown type #{parent.attribute_type}" unless @java_type
         end
         @java_type
       end
