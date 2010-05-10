@@ -21,8 +21,29 @@ module Domgen
     end
 
     class IrisClass < IrisElement
-      attr_accessor :metadata_that_can_change
       attr_accessor :display_name
+      
+      attr_writer :metadata_that_can_change
+
+      def metadata_that_can_change?
+        @metadata_that_can_change = false if @metadata_that_can_change.nil?
+        @metadata_that_can_change
+      end
+
+      attr_writer :synchronized
+
+      def synchronized?
+        @synchronized = true if @synchronized.nil?
+        @synchronized
+      end
+
+      attr_writer :client_side
+
+      def client_side?
+        @client_side = true if @client_side.nil?
+        @client_side
+      end
+
     end
   end
 
