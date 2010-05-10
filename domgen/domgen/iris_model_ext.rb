@@ -11,9 +11,18 @@ module Domgen
 
     class IrisAttribute < IrisElement
       attr_accessor :inverse_sorter
+
+      attr_writer :traversable
+
+      def traversable?
+        @traversable = false if @traversable.nil?
+        @traversable
+      end
     end
 
     class IrisClass < IrisElement
+      attr_accessor :metadata_that_can_change
+      attr_accessor :display_name
     end
   end
 
