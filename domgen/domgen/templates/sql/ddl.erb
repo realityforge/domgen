@@ -17,7 +17,7 @@ CREATE TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>(
 GO
 <% object_type.sql.indexes.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX [<%= index.name %>] ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
-(<%= index.attribute_names.collect {|a| "\n  #{q(a)} ASC" }.join(",") %>
+(<%= index.attribute_names.collect {|a| "\n  #{q(object_type.attribute_by_name(a).sql.column_name)} ASC" }.join(",") %>
 )
 GO
 <% end %>
