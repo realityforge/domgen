@@ -349,12 +349,11 @@ module Domgen
   class Schema < BaseConfigElement
     attr_reader :schema_set
     attr_reader :name
-    attr_reader :object_types
 
     def initialize(schema_set, name, options = {}, &block)
       @schema_set = schema_set
       @name = name
-      @object_types = []
+      @object_types = Domgen::OrderedHash.new
       Logger.info "Schema '#{name}' definition started"
       super(options, &block)
       Logger.info "Schema '#{name}'  definition completed"
@@ -364,7 +363,12 @@ module Domgen
       self
     end
 
+    def object_types
+      @object_types.values
+    end
+
     def define_object_type(name, options = {}, &block)
+      raise "Attempting to redefine Object Type '#{name}'" if @object_types[name.to_s]
       Logger.debug "Object Type '#{name}'  definition started"
       if options[:extends]
         base_type = object_type_by_name(options[:extends])
@@ -385,15 +389,15 @@ module Domgen
         yield object_type if block_given?
 
         object_type.verify
-        @object_types << object_type
+        @object_types[name.to_s] = object_type
       else
-        @object_types << ObjectType.new(self, name, options, &block)
+        @object_types[name.to_s] = ObjectType.new(self, name, options, &block)
       end
       Logger.debug "Object Type '#{name}'  definition completed"
     end
 
     def object_type_by_name(name)
-      object_type = @object_types.find{|o|o.name.to_s == name.to_s}
+      object_type = @object_types[name.to_s]
       raise "Unable to locate object_type #{name}" unless object_type
       object_type
     end
