@@ -99,6 +99,10 @@ module Domgen
       @generated_value
     end
 
+    def enum?
+      self.attribute_type == :i_enum || self.attribute_type == :s_enum
+    end
+
     attr_writer :primary_key
 
     def primary_key?
@@ -109,7 +113,7 @@ module Domgen
     attr_reader :length
 
     def length=(length)
-      raise "length on #{name} is invalid as attribute is not a string" unless self.attribute_type == :string
+      raise "length on #{name} is invalid as attribute is not a string" unless self.attribute_type == :string || self.attribute_type == :s_enum
       @length = length
     end
 
@@ -130,7 +134,7 @@ module Domgen
     attr_reader :values
 
     def values=(values)
-      raise "values on #{name} is invalid as attribute is not an i_enum" unless self.attribute_type == :i_enum
+      raise "values on #{name} is invalid as attribute is not an i_enum or s_enum" unless enum?
       @values = values
     end
 
@@ -183,7 +187,7 @@ module Domgen
     end
 
     def self.persistent_types
-      [:text, :string, :reference, :boolean, :datetime, :integer, :i_enum]
+      [:text, :string, :reference, :boolean, :datetime, :integer, :i_enum, :s_enum]
     end
   end
 
@@ -282,6 +286,21 @@ module Domgen
       end
 
       attribute(name, :i_enum, options.merge({:values => values}), &block)
+    end
+
+    def s_enum(name, values, options = {}, &block)
+      raise "More than 0 values must be specified for s_enum #{name}" if values.size == 0
+      values.each_pair do |k, v|
+        raise "Key #{k} of s_enum #{name} should be a string" unless k.instance_of?(String)
+        raise "Value #{v} for key #{k} of s_enum #{name} should be a string" unless v.instance_of?(String)
+      end
+      raise "Duplicate keys detected for s_enum #{name}" if values.keys.uniq.size != values.size
+      raise "Duplicate values detected for s_enum #{name}" if values.values.uniq.size != values.size
+      sorted_values = values.values.sort
+
+      length = sorted_values.inject(0) {|max, value| max > value.length ? max : value.length } 
+
+      attribute(name, :s_enum, options.merge({:values => values, :length => length}), &block)
     end
 
     def declared_attributes

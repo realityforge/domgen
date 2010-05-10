@@ -133,7 +133,11 @@ module Domgen
 #{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
-
+        parent.attributes.select {|a| a.attribute_type == :S_enum }.each do |a|
+          constraint(a.name, :sql => <<SQL)
+#{a.sql.column_name} IN (#{a.values.values.collect{|v|"'#{v}'"}.join(',')})
+SQL
+        end
         raise "#{table_name} defines multiple clustering indexes" if indexes.select{|i| i.cluster?}.size > 1
       end
     end
@@ -141,10 +145,11 @@ SQL
     class Column < SqlElement
       TYPE_MAP = {"string" => "VARCHAR",
                   "integer" => "INT",
-                  "datetime" => "datetime",
+                  "datetime" => "DATETIME",
                   "boolean" => "BIT",
                   "text" => "TEXT",
-                  "i_enum" => "INT"}
+                  "i_enum" => "INT",
+                  "s_enum" => "VARCHAR"}
 
       def column_name
         if @column_name.nil?

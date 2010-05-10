@@ -19,7 +19,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
          if a.attribute_type == :boolean
 %>  validates_boolean :<%= a.sql.column_name %>, :allow_nil => <%= a.nullable? %>
 <%       end
-         if a.attribute_type == :string
+         if a.attribute_type == :string || a.attribute_type == :s_enum
 %>  nillable_attribute :<%= a.sql.column_name %>
   validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => true
 <%       end
