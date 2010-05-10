@@ -126,6 +126,14 @@ module Domgen
           index(u.attribute_names, {:unique => true})
         end
 
+        parent.attributes.select {|a| a.attribute_type == :i_enum }.each do |a|
+          sorted_values = a.values.values.sort
+          constraint(a.name, :sql => <<SQL)
+#{a.sql.column_name} >= #{sorted_values[0]} AND
+#{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]} 
+SQL
+        end
+
         raise "#{table_name} defines multiple clustering indexes" if indexes.select{|i| i.cluster?}.size > 1
       end
     end

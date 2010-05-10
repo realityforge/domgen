@@ -268,10 +268,19 @@ module Domgen
     end
 
     def i_enum(name, values, options = {}, &block)
+      raise "More than 0 values must be specified for i_enum #{name}" if values.size == 0
       values.each_pair do |k, v|
         raise "Key #{k} of i_enum #{name} should be a string" unless k.instance_of?(String)
         raise "Value #{v} for key #{k} of i_enum #{name} should be an integer" unless v.instance_of?(Fixnum)
       end
+      raise "Duplicate keys detected for i_enum #{name}" if values.keys.uniq.size != values.size
+      raise "Duplicate values detected for i_enum #{name}" if values.values.uniq.size != values.size
+      sorted_values = values.values.sort
+
+      if (sorted_values[sorted_values.size - 1] - sorted_values[0] + 1) != sorted_values.size
+        raise "Non-continuous values detected for i_enum #{name}" 
+      end
+
       attribute(name, :i_enum, options.merge({:values => values}), &block)
     end
 
