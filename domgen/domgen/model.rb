@@ -212,7 +212,7 @@ module Domgen
       self.attributes.each do |a|
         if a.unique?
           existing_constraint = unique_constraints.find do |uq|
-            uq.unique? && uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
+            uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
           end
           unique_constraint([a.name]) if existing_constraint.nil?
         end
