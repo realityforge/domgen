@@ -183,7 +183,7 @@ module Domgen
     end
 
     def self.persistent_types
-      [:text, :string, :reference, :boolean, :integer, :i_enum]
+      [:text, :string, :reference, :boolean, :datetime, :integer, :i_enum]
     end
   end
 
@@ -256,6 +256,10 @@ module Domgen
 
     def integer(name, options = {}, &block)
       attribute(name, :integer, options, &block)
+    end
+
+    def datetime(name, options = {}, &block)
+      attribute(name, :datetime, options, &block)
     end
 
     def reference(other_type, options = {}, &block)

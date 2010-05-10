@@ -133,6 +133,7 @@ module Domgen
     class Column < SqlElement
       TYPE_MAP = {"string" => "VARCHAR",
                   "integer" => "INT",
+                  "datetime" => "datetime",
                   "boolean" => "BIT",
                   "text" => "TEXT",
                   "i_enum" => "INT"}

@@ -35,6 +35,7 @@ module Domgen
       TYPE_MAP = {"string" => "java.lang.String",
                   "integer" => "java.lang.Integer",
                   "boolean" => "java.lang.Boolean",
+                  "datetime" => "java.sql.Timestamp",
                   "text" => "java.lang.String",
                   "i_enum" => "java.lang.Integer",
                   "List" => "java.util.List"}
