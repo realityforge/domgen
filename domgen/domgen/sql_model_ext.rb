@@ -156,7 +156,7 @@ module Domgen
           if :reference == parent.attribute_type
             @sql_type = parent.referenced_object.primary_key.sql.sql_type
           else
-            @sql_type = TYPE_MAP[parent.attribute_type.to_s]
+            @sql_type = q(TYPE_MAP[parent.attribute_type.to_s]) + (parent.length.nil? ? '' : "(#{parent.length})")
           end
           raise "Unknown type #{parent.attribute_type}" unless @sql_type
         end
