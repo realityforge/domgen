@@ -303,9 +303,17 @@ module Domgen
       @unique_constraints.values
     end
 
+    def candidate_key(attribute_names)
+      unique_constraint(attribute_names)
+      attribute_names.each do |attribute_name|
+        attribute = attribute_by_name(attribute_name)
+        raise "Candidate keys must consist of immutable attributes" unless attribute.immutable?
+      end
+    end
+
     def unique_constraint(attribute_names, options = {}, &block)
       raise "Must have at least 1 or more attribute names for uniqueness constraint" if attribute_names.empty?
-      name = attribute_names.sort.join('_')
+      name = attribute_names.collect{|a|a.to_s}.sort.join('_')
       raise "Only 1 unique constraint with name #{name} should be defined" if @unique_constraints[name]
       unique_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @unique_constraints[name] = unique_constraint
@@ -317,7 +325,7 @@ module Domgen
     end
 
     def codependent_constraint(attribute_names, options = {}, &block)
-      name = attribute_names.sort.join('_')
+      name = attribute_names.collect{|a|a.to_s}.sort.join('_')
       codependent_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @codependent_constraints[name] = codependent_constraint
       codependent_constraint
@@ -328,7 +336,7 @@ module Domgen
     end
 
     def incompatible_constraint(attribute_names, options = {}, &block)
-      name = attribute_names.sort.join('_')
+      name = attribute_names.collect{|a|a.to_s}.sort.join('_')
       incompatible_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @incompatible_constraints[name.to_s] = incompatible_constraint
       incompatible_constraint
