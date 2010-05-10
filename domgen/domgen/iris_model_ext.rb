@@ -58,6 +58,13 @@ module Domgen
         @generate
       end
 
+      attr_writer :metadata
+
+      def metadata?
+        @metadata = false if @metadata.nil?
+        @metadata
+      end
+
       attr_writer :metadata_that_can_change
 
       def metadata_that_can_change?
