@@ -21,7 +21,7 @@ CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CL
 )
 GO
 <% end %>
-<% object_type.attributes.select {|a| a.persistent? && a.reference?}.each do |a| %>
+<% object_type.attributes.select {|a| a.persistent? && a.reference? && !a.referenced_object.abstract?}.each do |a| %>
 ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
   ADD CONSTRAINT [FK_<%= object_type.name %>_<%= a.sql.column_name %>] FOREIGN KEY (<%= q(a.sql.column_name) %>)
   REFERENCES <%= sql_qualify(a.referenced_object.schema, a.referenced_object.sql.table_name) %> (<%= q(a.referenced_object.primary_key.sql.column_name) %>)
