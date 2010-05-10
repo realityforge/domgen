@@ -130,7 +130,7 @@ module Domgen
           sorted_values = a.values.values.sort
           constraint(a.name, :sql => <<SQL)
 #{a.sql.column_name} >= #{sorted_values[0]} AND
-#{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]} 
+#{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
 
