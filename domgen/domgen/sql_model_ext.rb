@@ -82,28 +82,38 @@ module Domgen
     class Table < SqlElement
       attr_writer :table_name
 
+      def initialize(parent, options = {}, &block)
+        @indexes = Domgen::OrderedHash.new
+        @constraints = Domgen::OrderedHash.new
+        @validations = Domgen::OrderedHash.new
+        @foreign_keys = Domgen::OrderedHash.new
+        super(parent, options, &block)
+      end
+
       def table_name
         @table_name = sql_name(:table,parent.name) unless @table_name
         @table_name
       end
 
       def constraints
-        @constraints ||= []
+        @constraints.values
       end
 
       def constraint(name, options = {}, &block)
+        raise "Constraint named #{name} already defined on table #{table_name}" if @constraints[name.to_s]
         constraint = Constraint.new(self, name, options, &block)
-        self.constraints << constraint
+        @constraints[name.to_s] = constraint
         constraint
       end
 
       def validations
-        @validations ||= []
+        @validations.values
       end
 
       def validation(name, options = {}, &block)
+        raise "Validation named #{name} already defined on table #{table_name}" if @validations[name.to_s]
         validation = Validation.new(self, name, options, &block)
-        self.validations << validation
+        @validations[name.to_s] = validation
         validation
       end      
 
@@ -111,14 +121,15 @@ module Domgen
         index(attribute_names, options.merge(:cluster => true), &block)
       end
 
-      def index(attribute_names, options = {}, &block)
-        index = Index.new(self, attribute_names, options, &block)
-        indexes << index
-        index
+      def indexes
+        @indexes.values
       end
 
-      def indexes
-        @indexes ||= []
+      def index(attribute_names, options = {}, &block)
+        index = Index.new(self, attribute_names, options, &block)
+        raise "Index named #{name} already defined on table #{table_name}" if @indexes[index.name]
+        @indexes[index.name] = index
+        index
       end
 
       def post_create
