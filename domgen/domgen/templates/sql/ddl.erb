@@ -21,10 +21,10 @@ CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CL
 )
 GO
 <% end %>
-<% object_type.attributes.select {|a| a.persistent? && a.reference? && !a.referenced_object.abstract?}.each do |a| %>
+<% object_type.sql.foreign_keys.each do |foreign_key| %>
 ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
-  ADD CONSTRAINT [FK_<%= object_type.name %>_<%= a.sql.column_name %>] FOREIGN KEY (<%= q(a.sql.column_name) %>)
-  REFERENCES <%= sql_qualify(a.referenced_object.schema, a.referenced_object.sql.table_name) %> (<%= q(a.referenced_object.primary_key.sql.column_name) %>)
+  ADD CONSTRAINT [FK_<%= object_type.name %>_<%= foreign_key.name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| q(object_type.attribute_by_name(a).sql.column_name)}.join(', ') %>)
+  REFERENCES <%= sql_qualify(foreign_key.referenced_object_type.schema, foreign_key.referenced_object_type.sql.table_name) %> (<%= foreign_key.referenced_attribute_names.collect{|a| q(foreign_key.referenced_object_type.attribute_by_name(a).sql.column_name)}.join(', ')  %>)
 GO
 <%
   end

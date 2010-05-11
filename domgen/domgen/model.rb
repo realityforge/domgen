@@ -10,7 +10,6 @@ module Domgen
     def initialize(options = {})
       self.options = options
       yield self if block_given?
-      extension_point(:post_create)
     end
 
     def inherited?
@@ -208,10 +207,11 @@ module Domgen
       @incompatible_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
       super(options, &block)
-      verify
     end
 
     def verify
+      extension_point(:pre_verify)
+      
       # Add unique constraints on all unique attributes unless covered by existing constraint
       self.attributes.each do |a|
         if a.unique?
@@ -428,12 +428,11 @@ module Domgen
         object_type.incompatible_constraints.each {|a| a.instance_variable_set("@inherited",true)}
 
         yield object_type if block_given?
-
-        object_type.verify
-        @object_types[name.to_s] = object_type
       else
-        @object_types[name.to_s] = ObjectType.new(self, name, options, &block)
+        object_type = ObjectType.new(self, name, options, &block)
       end
+      @object_types[name.to_s] = object_type
+      object_type.verify
       Logger.debug "Object Type '#{name}'  definition completed"
     end
 

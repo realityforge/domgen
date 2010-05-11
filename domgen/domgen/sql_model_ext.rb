@@ -59,6 +59,39 @@ module Domgen
       end
     end
 
+    class ForeignKey < BaseConfigElement
+      attr_reader :table
+      attr_accessor :attribute_names
+      attr_accessor :referenced_object_type_name
+      attr_accessor :referenced_attribute_names
+
+      def initialize(table, attribute_names, referenced_object_type_name, referenced_attribute_names, options, &block)
+        @table, @attribute_names, @referenced_object_type_name, @referenced_attribute_names =
+          table, attribute_names, referenced_object_type_name, referenced_attribute_names
+        super(options, &block)
+        # Ensure that the attributes exist
+        attribute_names.each{|a|table.parent.attribute_by_name(a)}
+        # Ensure that the remote attributes exist on remote type
+        referenced_attribute_names.each{|a|referenced_object_type.attribute_by_name(a)}
+      end
+
+      attr_writer :name
+
+      def name
+        if @name.nil?
+          @name = "#{attribute_names.join('_')}"
+        end
+        @name
+      end
+
+      def referenced_object_type
+        if @referenced_object_type.nil?
+          @referenced_object_type = table.parent.schema.object_type_by_name(referenced_object_type_name)
+        end
+        @referenced_object_type
+      end
+    end
+
     class Constraint < SqlElement
       attr_reader :name
       attr_accessor :sql
@@ -132,23 +165,39 @@ module Domgen
         index
       end
 
-      def post_create
+      def foreign_keys
+        @foreign_keys.values
+      end
+
+      def foreign_key(attribute_names, referrenced_object_type_name, referrenced_attribute_names, options = {}, &block)
+        foreign_key = ForeignKey.new(self, attribute_names, referrenced_object_type_name, referrenced_attribute_names, options, &block)
+        raise "Foreign Key named #{foreign_key.name} already defined on table #{table_name}" if @indexes[foreign_key.name]
+        @foreign_keys[foreign_key.name] = foreign_key
+        foreign_key
+      end
+
+      def pre_verify
         parent.unique_constraints.each do |u|
           index(u.attribute_names, {:unique => true})
         end
 
-        parent.attributes.select {|a| a.attribute_type == :i_enum }.each do |a|
+        parent.declared_attributes.select {|a| a.attribute_type == :i_enum }.each do |a|
           sorted_values = a.values.values.sort
           constraint(a.name, :sql => <<SQL)
 #{a.sql.column_name} >= #{sorted_values[0]} AND
 #{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
-        parent.attributes.select {|a| a.attribute_type == :s_enum }.each do |a|
+        parent.declared_attributes.select {|a| a.attribute_type == :s_enum }.each do |a|
           constraint(a.name, :sql => <<SQL)
 #{a.sql.column_name} IN (#{a.values.values.collect{|v|"'#{v}'"}.join(',')})
 SQL
         end
+
+        parent.declared_attributes.select {|a| a.persistent? && a.reference? && !a.abstract? && a.referenced_object.final? }.each do |a|
+          foreign_key([a.name], a.referenced_object.name, [a.referenced_object.primary_key.name] )
+        end
+
         raise "#{table_name} defines multiple clustering indexes" if indexes.select{|i| i.cluster?}.size > 1
       end
     end
