@@ -26,6 +26,13 @@ module Domgen
         @managed
       end
 
+      attr_writer :resolve_conflict
+
+      def resolve_conflict
+        @resolve_conflict = "new" if @resolve_conflict.nil?
+        @resolve_conflict
+      end
+
       attr_writer :client_side
 
       def client_side?
