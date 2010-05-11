@@ -332,7 +332,7 @@ module Domgen
 
     def unique_constraint(attribute_names, options = {}, &block)
       raise "Must have at least 1 or more attribute names for uniqueness constraint" if attribute_names.empty?
-      name = attribute_names.collect{|a|a.to_s}.sort.join('_')
+      name = attribute_names_to_key(attribute_names)
       raise "Only 1 unique constraint with name #{name} should be defined" if @unique_constraints[name]
       unique_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @unique_constraints[name] = unique_constraint
@@ -344,7 +344,10 @@ module Domgen
     end
 
     def codependent_constraint(attribute_names, options = {}, &block)
-      name = attribute_names.collect{|a|a.to_s}.sort.join('_')
+      name = attribute_names_to_key(attribute_names)
+      attribute_names.collect{|a|attribute_by_name(a)}.each do |a|
+        raise "Codependent constraint #{name} on #{self.name} has an illegal non nullable attribute" if !a.nullable?
+      end
       codependent_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @codependent_constraints[name] = codependent_constraint
       codependent_constraint
@@ -355,7 +358,10 @@ module Domgen
     end
 
     def incompatible_constraint(attribute_names, options = {}, &block)
-      name = attribute_names.collect{|a|a.to_s}.sort.join('_')
+      name = attribute_names_to_key(attribute_names)
+      attribute_names.collect{|a|attribute_by_name(a)}.each do |a|
+        raise "Incompatible constraint #{name} on #{self.name} has an illegal non nullable attribute" if !a.nullable?
+      end
       incompatible_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @incompatible_constraints[name.to_s] = incompatible_constraint
       incompatible_constraint
@@ -372,6 +378,12 @@ module Domgen
       attribute = @attributes[name.to_s]
       raise "Unable to find attribute named #{name} on type #{self.name}" unless attribute
       attribute
+    end
+
+    private
+
+    def attribute_names_to_key(attribute_names)
+      attribute_names.collect{|a|attribute_by_name(a).name.to_s}.sort.join('_')
     end
   end
 
