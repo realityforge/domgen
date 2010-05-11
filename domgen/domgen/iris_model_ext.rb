@@ -61,7 +61,7 @@ module Domgen
       attr_writer :generate
 
       def generate?
-        @generate = true if @generate.nil?
+        @generate = parent.schema.iris.generate? if @generate.nil?
         @generate
       end
 
@@ -93,6 +93,15 @@ module Domgen
         @client_side
       end
     end
+
+    class IrisModule < IrisElement
+      attr_writer :generate
+
+      def generate?
+        @generate = false if @generate.nil?
+        @generate
+      end
+    end
   end
 
   class Attribute
@@ -105,6 +114,13 @@ module Domgen
   class ObjectType
     def iris
       @iris = Domgen::Iris::IrisClass.new(self) unless @iris
+      @iris
+    end
+  end
+
+  class Schema
+    def iris
+      @iris = Domgen::Iris::IrisModule.new(self) unless @iris
       @iris
     end
   end
