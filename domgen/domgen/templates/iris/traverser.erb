@@ -19,7 +19,7 @@ public class Traverser
     {
       //No action
     }
-<% schema.object_types.select{|o|!o.abstract?}.reverse.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.reverse.each do |object_type|
   name = object_type.name
   type = j_classname(object_type.java.fully_qualified_name)
 %>    else if( bean instanceof <%= type %> )
@@ -90,7 +90,7 @@ public class Traverser
       visitor.endDummy( dummy, linkerAttributeID );
     }
   }
-<% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.each do |object_type|
   name = object_type.name
   type = j_classname(object_type.java.fully_qualified_name)
 %>
