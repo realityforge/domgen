@@ -66,7 +66,7 @@ public class Traverser
       {
         if ( iris.model.util.DeployableUnitBeanUtil.isNotDeployed( other ) )
         {
-          doTraverseBean( other, iris.model.DeployableUnitBean.COLUMN_POOL_ID, bean, filter, delegate, visitor );
+          doTraverseBean( other, iris.model.DeployableUnitBean.COLUMN_IS_MEMBER_OF_POOL, bean, filter, delegate, visitor );
         }
       }
     }
@@ -138,11 +138,11 @@ public class Traverser
         {
           switch( strategy.getElementID() )
           {
-<% object_type.referencing_attributes.each do |attribute|
+<% object_type.referencing_attributes.select{|a| a.inverse_relationship_type != :none}.each do |attribute|
   ref_type = j_classname(attribute.object_type.java.fully_qualified_name)
 %>
             case <%= type %>.<%= uppercase_constantize(attribute.inverse_relationship_name) %>_RELATION_ID:
-              doTraverseRelationship<%= name %><%= attribute.java.field_name %>( value, filter, delegate, visitor );
+              doTraverseRelationship<%= name %><%= attribute.inverse_relationship_name %>( value, filter, delegate, visitor );
               break;
 <% end %>
             default:
@@ -157,19 +157,22 @@ public class Traverser
       visitor.end<%= name %>( value, linkerAttributeID );
     }
   }
-<% object_type.referencing_attributes.each do |attribute|
+<% object_type.referencing_attributes.select{|a| a.inverse_relationship_type != :none}.each do |attribute|
   ref_type = j_classname(attribute.object_type.java.fully_qualified_name)
+   is_many = attribute.inverse_relationship_type == :has_many
+   other = is_many ? 'other' : "value.get#{attribute.inverse_relationship_name}()"
 %>
-  protected void doTraverseRelationship<%= name %><%= attribute.java.field_name %>( final <%= type %> value,
+  protected void doTraverseRelationship<%= name %><%= attribute.inverse_relationship_name %>( final <%= type %> value,
                                 final Filter filter,
                                 final FilterDelegate delegate,
                                 final <%= schema.java.package %>.visitor.Visitor visitor )
-  {
+  {<% if is_many
+%>
     for( final <%= ref_type %> other : value.get<%= attribute.inverse_relationship_name %>Set() )
-    {
-      doTraverseBean( other, <%= ref_type %>.COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, value, filter, delegate, visitor );
-    }
-  }
+    {<% end %>
+      doTraverseBean( <%= other %>, <%= ref_type %>.COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, value, filter, delegate, visitor );
+<% if is_many %>    }
+<% end %>  }
    
 <% end %>
 <% end %>
