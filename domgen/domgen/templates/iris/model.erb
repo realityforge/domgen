@@ -323,4 +323,58 @@ end
 end
 %>
 <%= iris_to_string_methods(object_type) %>
+<% if !object_type.abstract? %>
+   public void delink()
+   {
+      if ( !isLinked() )
+      {
+         return;
+      }
+
+      iris.beans.BeanFactory.getListener().deactivate();
+      setUnloading();
+      try
+      {
+<% object_type.referencing_attributes.each do |attribute|
+  if attribute.inverse_relationship_type == :none
+    # Ignore abstract attributes as will appear in child classes
+    # Ignore inherited attributes as appear in parent class
+    # Ignore attributes that have no inverse relationship
+  elsif attribute.inverse_relationship_type == :has_many
+    name = attribute.inverse_relationship_name
+    type = j_classname(attribute.object_type.java.fully_qualified_name)
+%>        {
+          for ( final <%= type %> other : get<%= name %>Set() )
+          {
+            other.delink();
+          }
+        }
+<%
+  elsif attribute.inverse_relationship_type == :has_one
+    name = attribute.inverse_relationship_name
+    type = j_classname(attribute.object_type.java.fully_qualified_name)
+  %>      {
+          final <%= type %> other = get<%= name %>();
+          if( null != other )
+          {
+            other.delink();
+          }
+        }
+<% end
+end %>
+         setLinked( false );
+<% object_type.declared_attributes.select {|a| a.reference?}.each do |attribute| 
+     name = attribute.java.field_name
+     type = j_attribute_type(attribute)
+%>
+        set<%= name %>( null );
+<% end %>
+      }
+      finally
+      {
+         unsetUnloading();
+         iris.beans.BeanFactory.getListener().activate();
+      }
+   }
+<% end %>
 }
