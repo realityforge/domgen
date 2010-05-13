@@ -66,7 +66,14 @@ module Domgen
       @abstract = false if @abstract.nil?
       @abstract
     end
-    
+
+    attr_writer :override
+
+    def override?
+      @override = false if @override.nil?
+      @override
+    end
+
     def reference?
       self.attribute_type == :reference
     end
@@ -313,7 +320,7 @@ module Domgen
 
     def attribute(name, type, options = {}, &block)
       raise "Attempting to override non abstract attribute #{name} on #{self.name}" if @attributes[name.to_s] && !@attributes[name.to_s].abstract? 
-      attribute = Attribute.new(self, name, type, options, &block)
+      attribute = Attribute.new(self, name, type, {:override => !@attributes[name.to_s].nil?}.merge(options), &block)
       @attributes[name.to_s] = attribute
       attribute
     end
