@@ -130,12 +130,23 @@ JAVA
   j_declared_attribute_accessors(object_type) + relation_methods.compact.join("\n")
 end
 
-def j_return_if_value_same(name)
-  <<JAVA
+def j_return_if_value_same(name, primitive, nullable)
+  if primitive
+    <<JAVA
+     if( #{name} == value )
+     {
+       return;
+     }
+JAVA
+  else
+    s = <<JAVA
      if( null != #{name} && #{name}.equals( value ) )
      {
        return;
      }
+JAVA
+    if nullable
+      s << <<JAVA
      else if( null != value && value.equals( #{name} ) )
      {
        return;
@@ -145,8 +156,10 @@ def j_return_if_value_same(name)
        return;
      }
 JAVA
+      s
+    end
+  end
 end
-
 
 def j_simple_attribute(attribute)
   name = attribute.java.field_name
@@ -159,7 +172,7 @@ def j_simple_attribute(attribute)
 
   public void set#{name}( final #{type} value )
   {
-#{j_return_if_value_same(name)}
+#{j_return_if_value_same(name,attribute.java.primitive?,attribute.nullable?)}
      #{name} = value;
   }
 JAVA
@@ -220,7 +233,7 @@ def j_reference_attribute(attribute)
 
   public void set#{name}( final #{type} value )
   {
- #{j_return_if_value_same(name)}
+ #{j_return_if_value_same(name,attribute.referenced_object.primary_key.java.primitive?,attribute.nullable?)}
 #{j_remove_from_inverse(attribute)}
     #{name} = value;
  #{j_add_to_inverse(attribute)}

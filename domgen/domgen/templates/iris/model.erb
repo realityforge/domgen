@@ -113,7 +113,8 @@ package <%= object_type.schema.java.package %>;
 <%
      end
      elsif attribute.reference?
-      ref_type = attribute.referenced_object.primary_key.java.java_type
+      referenced_attribute = attribute.referenced_object.primary_key
+      ref_type = referenced_attribute.java.java_type
       ref_name = attribute.referencing_link_name
 %>
   public <%= type %> get<%= name %>()
@@ -137,8 +138,9 @@ package <%= object_type.schema.java.package %>;
 
   public void set<%= name %>( final <%= type %> value )
   {
-<%= iris_pre_set_checks(attribute) %>
-<%= j_return_if_value_same(name) %>
+<%= iris_immutable_check(attribute.name) if attribute.immutable? %>
+<%= iris_nullable_check(attribute.name) if (!attribute.nullable? && !attribute.java.primitive?) %>
+<%= j_return_if_value_same(name, attribute.java.primitive?,attribute.nullable?) %>
 <%= j_remove_from_inverse(attribute) %>
     verifyValidLinkTarget( value );
     <%= name %> = value;
@@ -147,9 +149,9 @@ package <%= object_type.schema.java.package %>;
     //is that otherwise delinking during deletion will
     //set if to null and null ids will be saved to database
     //which is not desired behaviour
-    if( isLinked() || null != value )
+    if( isLinked() <% if !referenced_attribute.java.primitive? %>|| null != value <% end %>)
     {
-      doSet<%= attribute.referencing_link_name %>( ( null == value ) ? null : value.get<%= attribute.referenced_object.primary_key.java.field_name %>() );
+      doSet<%= attribute.referencing_link_name %>( <% if !referenced_attribute.java.primitive? %>( null == value ) ? null :<% end %> value.get<%= attribute.referenced_object.primary_key.java.field_name %>() );
     }
 <%= j_add_to_inverse(attribute) %>
   }
@@ -161,12 +163,13 @@ package <%= object_type.schema.java.package %>;
 
   public void set<%= ref_name %>( final <%= ref_type %> value )
   {
-<%= iris_pre_set_checks(attribute) %>
-<%= j_return_if_value_same(ref_name) %>
+<%= iris_immutable_check(attribute.name) if attribute.immutable? %>
+<%= iris_nullable_check(attribute.name) if (!attribute.nullable? && !referenced_attribute.java.primitive?) %>
+<%= j_return_if_value_same(ref_name,referenced_attribute.java.primitive?,attribute.nullable?) %>
      if( isLinked() )
      {
        <%= type %> reference = null;
-       if( null != value )
+       <% if !referenced_attribute.java.primitive? %>if( null != value )<% end %>
        {
          try
          {
@@ -188,8 +191,9 @@ package <%= object_type.schema.java.package %>;
 
     private void doSet<%= ref_name %>( final <%= ref_type %> value )
     {
-  <%= iris_pre_set_checks(attribute) %>
-  <%= j_return_if_value_same(ref_name) %>
+<%= iris_immutable_check(attribute.name) if attribute.immutable? %>
+<%= iris_nullable_check(attribute.name) if (!attribute.nullable? && !referenced_attribute.java.primitive?) %>
+<%= j_return_if_value_same(ref_name,referenced_attribute.java.primitive?,attribute.nullable?) %>
       final <%= ref_type %> oldValue = <%= ref_name %>;
       <%= ref_name %> = value;
   <% if attribute.persistent? %>
@@ -212,8 +216,9 @@ package <%= object_type.schema.java.package %>;
 
   private void doSet<%= name %>( final <%= type %> value )
   {
-<%= iris_pre_set_checks(attribute) %>
-<%= j_return_if_value_same(name) %>
+<%= iris_immutable_check(attribute.name) if attribute.immutable? %>
+<%= iris_nullable_check(attribute.name) if (!attribute.nullable? && !attribute.java.primitive?) %>
+<%= j_return_if_value_same(name, attribute.java.primitive?,attribute.nullable?) %>
     final <%= type %> oldValue = <%= name %>;
     <%= name %> = value;
 <% if attribute.persistent? %>
@@ -317,5 +322,5 @@ end
   end
 end
 %>
-<%= j_to_string_methods(object_type) %>
+<%= iris_to_string_methods(object_type) %>
 }
