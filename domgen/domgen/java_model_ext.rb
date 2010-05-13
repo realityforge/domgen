@@ -53,6 +53,8 @@ module Domgen
         unless @java_type
           if :reference == parent.attribute_type
             @java_type = parent.referenced_object.java.classname
+          elsif :i_enum == parent.attribute_type
+            @java_type = "#{field_name}Value"
           else
             @java_type = TYPE_MAP[parent.attribute_type.to_s] || parent.attribute_type.to_s
           end
