@@ -55,11 +55,23 @@ module Domgen
             @java_type = parent.referenced_object.java.classname
           elsif :i_enum == parent.attribute_type
             @java_type = "#{field_name}Value"
+          elsif primitive?
+            @java_type = primitive_java_type
           else
             @java_type = TYPE_MAP[parent.attribute_type.to_s] || parent.attribute_type.to_s
           end
         end
         @java_type
+      end
+
+      def primitive?
+        (parent.attribute_type == :integer || parent.attribute_type == :boolean) && !parent.nullable?
+      end
+
+      def primitive_java_type
+        return "int" if :integer == parent.attribute_type
+        return "boolean" if :boolean == parent.attribute_type
+        raise "primitive_java_type invoked for non primitive method"
       end
     end
 
