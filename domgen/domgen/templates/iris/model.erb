@@ -7,8 +7,11 @@ package <%= object_type.schema.java.package %>;
 <%= j_class_definition(object_type) %>{
   public static final String TABLE_NAME = "<%= object_type.sql.table_name %>";
   /* Column Names */
-<% object_type.declared_attributes.select{|a|!a.abstract? && a.persistent?}.each do |attribute|
+<% object_type.declared_attributes.select{|a|!a.override? && a.persistent?}.each do |attribute|
 %>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.sql.column_name %>";
+<% end %>
+<% object_type.declared_attributes.select{|a|!a.override? && !a.persistent?}.each do |attribute|
+%>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.name %>"; /* Not Persistent */ 
 <% end %>
   static final int MIN_ATTR_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MAX_ATTR_ID << 1"; %>;
 <%
@@ -31,6 +34,36 @@ package <%= object_type.schema.java.package %>;
    end
 %>  static final int MAX_RELATION_ID = <%= last_attribute %>;
 
+<% object_type.declared_attributes.select {|a| a.attribute_type == :i_enum }.each do |attribute| %>
+  @SuppressWarnings( { "PublicInnerClass" } )
+  public static enum <%= attribute.java.field_name %>Value implements iris.beans.EnumValue
+  {
+    <%= attribute.values.collect {|k,v| "#{k}(#{v})" } .join(",\n    ")%>;
+    private final int _value;
+
+    <%= attribute.java.field_name %>Value( final int value )
+    {
+      _value = value;
+    }
+
+    public int getValue()
+    {
+      return _value;
+    }
+
+    public static <%= attribute.java.field_name %>Value toValue( final int value )
+    {
+      for( final <%= attribute.java.field_name %>Value v: <%= attribute.java.field_name %>Value.values() )
+      {
+        if( v.getValue() == value )
+        {
+           return v;
+        }
+      }
+      return null;
+    }
+  }
+<% end %>
   /*
    * Fields for the attributes
    */
