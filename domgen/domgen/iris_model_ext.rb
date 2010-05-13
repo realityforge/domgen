@@ -59,10 +59,6 @@ module Domgen
     end
 
     class IrisClass < IrisElement
-      attr_accessor :display_name
-
-      Domgen::OrderedHash.new
-
       def initialize(parent, options = {}, &block)
         @queries = Domgen::OrderedHash.new
         super(parent, options, &block)
