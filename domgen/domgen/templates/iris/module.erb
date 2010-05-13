@@ -12,7 +12,7 @@ public class <%= schema.name %>Module
   };
 
   /* Type Codes */
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index| %>
-  public static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
+<% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
+%>  public static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
 <% end %>
 }
