@@ -13,6 +13,12 @@ package <%= object_type.schema.java.package %>;
 <% object_type.declared_attributes.select{|a|!a.override? && !a.persistent?}.each do |attribute|
 %>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.name %>"; /* Not Persistent */ 
 <% end %>
+
+<% object_type.iris.queries.each do |query| %>
+  public static final String QUERY_<%= uppercase_constantize(query.name) %> = "<%= query.name %>";
+  public static final String QUERY_<%= uppercase_constantize(query.name) %>_SQL = "<%= query.sql %>";
+  public static final Class<<%= query.java_parameter_type %>> QUERY_<%= uppercase_constantize(query.name) %>_TYPE = <%= query.java_parameter_type %>.class;
+<% end %>
   static final int MIN_ATTR_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MAX_ATTR_ID << 1"; %>;
 <%
    last_attribute = "MIN_ATTR_ID"
