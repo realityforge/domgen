@@ -3,11 +3,11 @@ package <%= object_type.schema.java.package %>;
 <% set_iris_mode %>
 
 @javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "UnnecessarilyQualifiedStaticUsage", "PointlessBitwiseExpression" } )
+@SuppressWarnings( { "NonFinalFieldReferencedInHashCode", "NonFinalFieldReferenceInEquals", "UnusedDeclaration", "UnnecessarilyQualifiedStaticUsage", "PointlessBitwiseExpression" } )
 <%= j_class_definition(object_type) %>{
   public static final String TABLE_NAME = "<%= object_type.sql.table_name %>";
   /* Column Names */
-<% object_type.declared_attributes.select{|a|!a.override? && a.persistent?}.each do |attribute|
+<% object_type.declared_attributes.select{|a|!a.override? && a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
 %>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.sql.column_name %>";
 <% end %>
 <% object_type.declared_attributes.select{|a|!a.override? && !a.persistent?}.each do |attribute|
@@ -22,7 +22,7 @@ package <%= object_type.schema.java.package %>;
   static final int MIN_ATTR_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MAX_ATTR_ID << 1"; %>;
 <%
    last_attribute = "MIN_ATTR_ID"
-   object_type.declared_attributes.select{|a|!a.abstract? && a.persistent?}.each_with_index do |attribute, index|
+   object_type.declared_attributes.select{|a|!a.abstract? && a.persistent? && !a.iris.runtime_managed?}.each_with_index do |attribute, index|
      last_attribute = "#{uppercase_constantize(attribute.java.field_name)}_ATTR_ID"
 %>  public static final int <%= last_attribute %> = MIN_ATTR_ID << <%= index %>;
 <% end
@@ -31,7 +31,7 @@ package <%= object_type.schema.java.package %>;
   static final int MIN_RELATION_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MIN_RELATION_ID << 1"; %>;
 <%
    last_attribute = "MIN_RELATION_ID"
-   object_type.referencing_attributes.select{|a|!a.abstract?}.each_with_index do |attribute, index|
+   object_type.referencing_attributes.select{|a|!a.abstract? && !a.iris.runtime_managed?}.each_with_index do |attribute, index|
      constant_name = uppercase_constantize(attribute.inverse_relationship_name)
      last_attribute = "#{constant_name}_RELATION_ID"
 %>  public static final int <%= last_attribute %> = MIN_RELATION_ID << <%= index %>;
@@ -74,12 +74,12 @@ package <%= object_type.schema.java.package %>;
    * Fields for the attributes
    */
 
-<% object_type.declared_attributes.select {|a| !a.abstract? }.each do |attribute|
+<% object_type.declared_attributes.select {|a| !a.abstract? && !a.iris.runtime_managed? }.each do |attribute|
 %>  private <%= j_attribute_type(attribute) %> <%= attribute.java.field_name %>;
 <%  if attribute.reference? %>  private <%= attribute.referenced_object.primary_key.java.java_type %> <%= attribute.referencing_link_name %>;
 <% end 
    end
-   object_type.referencing_attributes.select {|a| !a.abstract? && !a.inherited? && a.inverse_relationship_type != :none }.
+   object_type.referencing_attributes.select {|a| !a.abstract? && !a.inherited? && a.inverse_relationship_type != :none  && !a.iris.runtime_managed?}.
      each do |attribute|
      if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
        # Ignore
@@ -101,7 +101,7 @@ package <%= object_type.schema.java.package %>;
  * Accessors for the attributes
  */
 
-<% object_type.declared_attributes.each do |attribute|
+<% object_type.declared_attributes.select{|a| !a.iris.runtime_managed?}.each do |attribute|
     name = attribute.java.field_name
     type = j_attribute_type(attribute)
     if attribute.abstract?
@@ -232,7 +232,7 @@ package <%= object_type.schema.java.package %>;
 end
 %>
 
-<% object_type.referencing_attributes.each do |attribute|
+<% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed?}.each do |attribute|
   if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
     # Ignore abstract attributes as will appear in child classes
     # Ignore inherited attributes as appear in parent class
@@ -335,7 +335,7 @@ end
       setUnloading();
       try
       {
-<% object_type.referencing_attributes.each do |attribute|
+<% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed?}.each do |attribute|
   if attribute.inverse_relationship_type == :none
     # Ignore abstract attributes as will appear in child classes
     # Ignore inherited attributes as appear in parent class
@@ -363,7 +363,7 @@ end
 <% end
 end %>
          setLinked( false );
-<% object_type.declared_attributes.select {|a| a.reference?}.each do |attribute| 
+<% object_type.declared_attributes.select {|a| a.reference? && !a.iris.runtime_managed?}.each do |attribute|
      name = attribute.java.field_name
      type = j_attribute_type(attribute)
 %>
@@ -375,6 +375,66 @@ end %>
          unsetUnloading();
          iris.beans.BeanFactory.getListener().activate();
       }
+   }
+
+  public byte getTypeCode()
+  {
+    return <%= schema.name %>Module.<%= uppercase_constantize(object_type.name) %>_TYPE_CODE;
+  }
+
+  public void writeTo( final java.io.ObjectOutput output, final int attributesMask )
+     throws java.io.IOException
+  {
+<% object_type.attributes.select{|a| !a.primary_key? && !a.iris.runtime_managed? && a.persistent? && a.iris.client_side? }.each do |attribute|
+     name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name
+     attr_type = attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
+     is_primitive = attribute.reference? ? attribute.referenced_object.primary_key.java.primitive? : attribute.java.primitive?
+%>
+      if( 0 != (<%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID & attributesMask) )
+      {
+        try
+        {
+<% if is_primitive && attr_type == :integer %>          output.writeInt( get<%= name %>() );
+<% elsif attr_type == :integer %>          output.writeInt( (get<%= name %>() == null) ? 0 : get<%= name %>() );
+<% elsif is_primitive && attr_type == :boolean %>          output.writeBoolean( get<%= name %>() );
+<% elsif attr_type == :boolean %>          output.writeBoolean( (get<%= name %>() == null) ? false : get<%= name %>() );
+<% elsif attr_type == :string %>          output.writeUTF( (get<%= name %>() == null) ? "\0" : get<%= name %>() );
+<% elsif attr_type == :datetime %>          output.writeLong( (get<%= name %>() == null) ? Long.MAX_VALUE : get<%= name %>().getTime() );
+<% else %>          throw new IllegalStateException( "Unknown attribute type transmitted <%= attr_type %>" );<% end %>
+        }
+        catch ( final RuntimeException e )
+        {
+           printWarning("Failed to write attribute <%= name %> of type <%= attr_type %> with value '" + get<%= name %>() + "'" );
+           throw e;
+        }
+      }
+<% end %>
+      output.flush();
+   }
+
+  static void readIntoMap( final java.io.ObjectInput input,
+                           final java.util.Map<String, Object> data,
+                           final int attributesMask )
+      throws java.io.IOException, ClassNotFoundException
+   {
+<% object_type.attributes.select{|a| !a.primary_key? && !a.iris.runtime_managed? && a.persistent? && a.iris.client_side? }.each do |attribute|
+     name = attribute.java.field_name
+     attr_type = attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
+%>
+      if( 0 != (<%= uppercase_constantize(name) %>_ATTR_ID & attributesMask) )
+      {
+        {
+<% if attr_type == :integer %>          final Object value = input.readInt();
+<% elsif attr_type == :boolean %>          final Object value = input.readBoolean();
+<% elsif attr_type == :string %>          final String string = input.readUTF();
+          final Object value = "\0".equals( string ) ? null : string;
+<% elsif attr_type == :datetime %>          final long time = input.readLong();
+          final Object value = ( Long.MAX_VALUE == time ) ? null : new Timestamp( time );
+<% else %>          throw new IllegalStateException( "Unknown attribute type transmitted <%= attr_type %>" );<% end %>
+          data.put( COLUMN_<%= uppercase_constantize(name) %>, value );
+        }
+      }
+<% end %>
    }
 <% end %>
 }

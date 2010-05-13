@@ -12,6 +12,15 @@ module Domgen
     class IrisAttribute < IrisElement
       attr_accessor :inverse_sorter
 
+      # Is this attribute one of the magic ones that should not be handled by generator
+      attr_writer :runtime_managed
+
+      def runtime_managed?
+        @runtime_managed = false if @runtime_managed.nil?
+        @runtime_managed
+      end
+
+
       attr_writer :traversable
 
       def traversable?
@@ -31,13 +40,6 @@ module Domgen
       def client_side?
         @client_side = true if @client_side.nil?
         @client_side
-      end
-
-      attr_writer :generates_changes
-
-      def generates_changes?
-        @generates_changes = parent.persistent? if @generates_changes.nil?
-        @generates_changes
       end
     end
 

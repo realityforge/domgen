@@ -11,8 +11,52 @@ public class <%= schema.name %>Module
     <%= schema.object_types.select{|o|!o.abstract? && o.iris.generate? && (o.iris.metadata? || o.iris.metadata_that_can_change? || o.iris.preload? )}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
   };
 
+  public static final Class<?>[] DOWNLOAD_AT_LOGIN =
+  {
+    <%= schema.object_types.select{|o|!o.abstract? && o.iris.generate? && (o.iris.metadata? || o.iris.metadata_that_can_change? || o.iris.client_side? )}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
+  };
+
   /* Type Codes */
 <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
 %>  public static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
 <% end %>
+
+
+  public static java.util.Map<String, Object> readBean( final java.io.ObjectInput input,
+                                                        int attributesMask,
+                                                        final int metadataMask )
+     throws java.io.IOException, ClassNotFoundException
+  {
+      final java.util.Map<String, Object> data = new java.util.HashMap<String, Object>();
+
+      final int typeCode = input.readByte();
+      data.put( iris.beans.AbstractBean.TYPECODE, typeCode );
+
+      final Object primaryKey = input.readObject();
+      data.put( iris.beans.AbstractBean.PRIMARY_KEY, primaryKey );
+
+      if ( 0 != ( metadataMask & iris.beans.io.BeanCodec.MD_ATTR_MASK ) )
+      {
+         attributesMask = input.readInt();
+      }
+      if ( 0 != ( metadataMask & iris.beans.io.BeanCodec.MD_TO_AND_FROM_DATES ) )
+      {
+         final long to = input.readLong();
+         if ( 0 != to )
+         {
+            data.put( iris.busobj.BusObjEntry.TO_DATE, new java.sql.Timestamp( to ) );
+         }
+      }
+
+    <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
+%>if( <%= uppercase_constantize(object_type.name) %>_TYPE_CODE == typeCode )
+      {
+        <%= j_classname(object_type.java.classname) %>.readIntoMap( input, data, attributesMask );
+      }
+      else <% end %>
+      {
+        throw new IllegalStateException("Unknwon typeCode " + typeCode );
+      }
+      return data;
+   }
 }
