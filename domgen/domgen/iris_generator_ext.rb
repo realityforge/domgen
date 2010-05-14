@@ -1,6 +1,14 @@
 module Domgen
   module Generator
     def self.define_iris_templates(template_set)
+      template_set.per_schema << Template.new('iris/sync',
+                                              '#{schema.java.package.gsub(".","/")}/#{schema.name}Sync.java',
+                                              'java',
+                                              'schema.iris.generate?')
+      template_set.per_schema << Template.new('iris/codec',
+                                              '#{schema.java.package.gsub(".","/")}/#{schema.name}Codec.java',
+                                              'java',
+                                              'schema.iris.generate?')
       template_set.per_schema << Template.new('iris/module',
                                               '#{schema.java.package.gsub(".","/")}/#{schema.name}Module.java',
                                               'java',

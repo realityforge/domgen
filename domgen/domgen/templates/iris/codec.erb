@@ -8,22 +8,49 @@ public class <%= schema.name %>Codec
 {
   /* Type Codes */
 <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
-%>  public static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
+%>  static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
 <% end %>
 
-  public static java.util.Map<String, Object> readBean( final byte[] input,
-                                              final int attributesMask,
-                                              final int metadataMask )
-    throws java.io.IOException, ClassNotFoundException
+  /* Attr Masks */
+<% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
+%>  public static final int <%= uppercase_constantize(object_type.name) %>_CLIENT_TO_SERVER_ATTR_MASK = <%= object_type.attributes.select{|a| a.iris.client_side? && a.persistent? && !a.iris.runtime_managed? }.collect{|a| "#{j_classname(a.object_type.java.classname)}.#{uppercase_constantize(a.java.field_name)}_ATTR_ID" }.join(" | ") %>;
+  static final int <%= uppercase_constantize(object_type.name) %>_SERVER_TO_SERVER_ATTR_MASK = <%= object_type.attributes.select{|a| a.persistent? && !a.iris.runtime_managed? }.collect{|a| "#{j_classname(a.object_type.java.classname)}.#{uppercase_constantize(a.java.field_name)}_ATTR_ID" }.join(" | ") %>;
+<% end %>
+
+  private static final Class<?>[] CLASSES_FOR_TYPE_CODE = {
+    null,
+    <%= schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
+  };
+
+  private static final int[] SERVER_TO_SERVER_ATTR_MASK_FOR_TYPE_CODE = {
+    0,
+    <%= schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.collect{|o|"#{uppercase_constantize(o.name)}_SERVER_TO_SERVER_ATTR_MASK"}.join(",\n    ") %>
+  };
+
+  public static Class<?> getClassForTypeCode( final int typeCode )
   {
-    return readBean( new java.io.ObjectInputStream( new java.io.ByteArrayInputStream( input ) ),
-                     attributesMask,
-                     metadataMask );
+    return CLASSES_FOR_TYPE_CODE[typeCode - 1];
   }
 
-  private static java.util.Map<String, Object> readBean( final java.io.ObjectInput input,
-                                                        int attributesMask,
-                                                        final int metadataMask )
+  public static int getTypeCodeForClass( final Class<?> type )
+  {
+    for( int i = 0; i < CLASSES_FOR_TYPE_CODE.length; i++ )
+    {
+      if( CLASSES_FOR_TYPE_CODE[i] == type )
+      {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  public static java.util.Map<String, Object> readBean( final byte[] input, final int metadataMask )
+    throws java.io.IOException, ClassNotFoundException
+  {
+    return readBean( new java.io.ObjectInputStream( new java.io.ByteArrayInputStream( input ) ), metadataMask );
+  }
+
+  private static java.util.Map<String, Object> readBean( final java.io.ObjectInput input, final int metadataMask )
      throws java.io.IOException, ClassNotFoundException
   {
       final java.util.Map<String, Object> data = new java.util.HashMap<String, Object>();
@@ -34,9 +61,14 @@ public class <%= schema.name %>Codec
       final Object primaryKey = input.readObject();
       data.put( iris.beans.AbstractBean.PRIMARY_KEY, primaryKey );
 
+      final int attributesMask;
       if ( 0 != ( metadataMask & iris.beans.io.BeanCodec.MD_ATTR_MASK ) )
       {
          attributesMask = input.readInt();
+      }
+      else
+      {
+        attributesMask = SERVER_TO_SERVER_ATTR_MASK_FOR_TYPE_CODE[typeCode - 1];
       }
       if ( 0 != ( metadataMask & iris.beans.io.BeanCodec.MD_TO_AND_FROM_DATES ) )
       {

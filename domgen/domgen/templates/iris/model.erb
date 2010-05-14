@@ -13,6 +13,9 @@ package <%= object_type.schema.java.package %>;
 <% object_type.declared_attributes.select{|a|!a.override? && !a.persistent?}.each do |attribute|
 %>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.name %>"; /* Not Persistent */ 
 <% end %>
+<% object_type.declared_attributes.select{|a|!a.override? && !a.length.nil? && !a.iris.runtime_managed?}.each do |attribute|
+%>  public static final int COLUMN_<%= uppercase_constantize(attribute.name) %>_MAX_LENGTH = <%= attribute.length %>;
+<% end %>
 
 <% object_type.iris.queries.each do |query| %>
   public static final String QUERY_<%= uppercase_constantize(query.name) %> = "<%= query.name %>";
@@ -449,7 +452,22 @@ end %>
 
   public byte getTypeCode()
   {
-    return <%= schema.name %>Module.<%= uppercase_constantize(object_type.name) %>_TYPE_CODE;
+    return <%= schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_TYPE_CODE;
+  }
+
+  public int getClientToServerAttributeMask()
+  {
+    return <%= object_type.schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_CLIENT_TO_SERVER_ATTR_MASK;
+  }
+
+  public int getServerToServerAttributeMask()
+  {
+    return <%= object_type.schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_SERVER_TO_SERVER_ATTR_MASK;
+  }
+
+  public int getPersistChangeMask()
+  {
+    return <%= object_type.schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_SERVER_TO_SERVER_ATTR_MASK;
   }
 
   public void writeTo( final java.io.ObjectOutput output, final int attributesMask )
@@ -481,32 +499,6 @@ end %>
       }
 <% end %>
       output.flush();
-   }
-
-  static void readIntoMap( final java.io.ObjectInput input,
-                           final java.util.Map<String, Object> data,
-                           final int attributesMask )
-      throws java.io.IOException, ClassNotFoundException
-   {
-<% object_type.attributes.select{|a| !a.primary_key? && !a.iris.runtime_managed? && a.persistent? && a.iris.client_side? }.each do |attribute|
-     name = attribute.java.field_name
-     attr_type = attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
-%>
-      if( 0 != (<%= uppercase_constantize(name) %>_ATTR_ID & attributesMask) )
-      {
-        {
-<% if attr_type == :integer %>          final Object value = input.readInt();
-<% elsif attr_type == :i_enum %>          final Object value = <%= attribute.java.field_name %>Value.toValue( input.readByte() );
-<% elsif attr_type == :boolean %>          final Object value = input.readBoolean();
-<% elsif attr_type == :string || attr_type == :s_enum %>          final String string = input.readUTF();
-          final Object value = "\0".equals( string ) ? null : string;
-<% elsif attr_type == :datetime %>          final long time = input.readLong();
-          final Object value = ( Long.MAX_VALUE == time ) ? null : new java.sql.Timestamp( time );
-<% else %>          throw new IllegalStateException( "Unknown attribute type transmitted <%= attr_type %>" );<% end %>
-          data.put( COLUMN_<%= uppercase_constantize(name) %>, value );
-        }
-      }
-<% end %>
    }
 <% end %>
 }
