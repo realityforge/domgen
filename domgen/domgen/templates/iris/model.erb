@@ -363,7 +363,7 @@ end
 <% end
 end %>
          setLinked( false );
-<% object_type.declared_attributes.select {|a| a.reference? && !a.iris.runtime_managed?}.each do |attribute|
+<% object_type.attributes.select {|a| a.reference? && !a.iris.runtime_managed?}.each do |attribute|
      name = attribute.java.field_name
      type = j_attribute_type(attribute)
 %>
@@ -376,6 +376,76 @@ end %>
          iris.beans.BeanFactory.getListener().activate();
       }
    }
+
+  public void link( final boolean linkManaged )
+  {
+     if ( isLinked() )
+     {
+       return;
+     }
+     iris.beans.BeanFactory.getListener().deactivate();
+     try
+     {
+       setLinked( true );
+<% object_type.attributes.select {|a| a.reference? && !a.iris.runtime_managed?}.each do |attribute|
+     name = attribute.java.field_name
+     type = j_attribute_type(attribute)
+     referenced_attribute = attribute.referenced_object.primary_key
+     ref_type = referenced_attribute.java.java_type
+     ref_primitive = referenced_attribute.java.primitive?
+     ref_name = attribute.referencing_link_name
+%>
+      {
+        final <%= ref_type %> id = get<%= ref_name %>();
+        <%= type %> value = null;
+        <% if attribute.nullable? %>if( null != id )<% end %>
+        {
+          try
+          {
+             final <%= type %> other = iris.beans.BeanFactory.getManager().getBean( id, <%= type %>.class, false );
+             other.link( linkManaged );
+             value = other;
+          }
+          catch ( final Exception e )
+          {
+             printWarning("Unable to resolve relationship <%= name %> on <%= object_type.name %>[" + this + "] with value " + id );
+             iris.util.debug.IDebug.printException( e );
+             setCorrupt( true );
+          }
+        }
+        set<%= name %>( value );
+      }
+<% end %>
+      if ( !iris.beans.BeanFactory.isClientSide() && linkManaged )
+      {
+<% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed?}.each do |attribute|
+     if object_type.name == :ManagementProject && (
+        (attribute.object_type.name == :ManagementProject && attribute.name == :ParentTask) ||
+        (attribute.object_type.name == :Deployment && attribute.name == :Task) )
+       # Special hack to stop Management Projects loading all the database during startup
+     elsif (attribute.iris.managed? && !attribute.object_type.iris.preload? && !attribute.object_type.iris.metadata? && !attribute.object_type.iris.metadata_that_can_change? )
+%>
+        try
+        {
+          final java.util.HashMap<String, Object> criteria = new java.util.HashMap<String, Object>();
+          criteria.put( <%= j_classname(attribute.object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(attribute.name) %>, get<%= object_type.primary_key.java.field_name %>() );
+          iris.persist.Transaction.restoreSet( <%= j_classname(object_type.java.classname) %>.class, criteria, true );
+        }
+        catch ( final Exception e )
+        {
+          iris.util.debug.IDebug.printException( e );
+          throw new RuntimeException( e.getMessage(), e );
+        }<%
+     end
+   end
+%>      }
+     }
+     finally
+     {
+       iris.beans.BeanFactory.getListener().activate();
+     }
+     fireObjectLinked();
+  }
 
   public byte getTypeCode()
   {
@@ -396,9 +466,10 @@ end %>
         {
 <% if is_primitive && attr_type == :integer %>          output.writeInt( get<%= name %>() );
 <% elsif attr_type == :integer %>          output.writeInt( (get<%= name %>() == null) ? 0 : get<%= name %>() );
+<% elsif attr_type == :i_enum %>          output.writeByte( (get<%= name %>() == null) ? (byte)0 : (byte)get<%= name %>().getValue() );
 <% elsif is_primitive && attr_type == :boolean %>          output.writeBoolean( get<%= name %>() );
 <% elsif attr_type == :boolean %>          output.writeBoolean( (get<%= name %>() == null) ? false : get<%= name %>() );
-<% elsif attr_type == :string %>          output.writeUTF( (get<%= name %>() == null) ? "\0" : get<%= name %>() );
+<% elsif attr_type == :string || attr_type == :s_enum %>          output.writeUTF( (get<%= name %>() == null) ? "\0" : get<%= name %>() );
 <% elsif attr_type == :datetime %>          output.writeLong( (get<%= name %>() == null) ? Long.MAX_VALUE : get<%= name %>().getTime() );
 <% else %>          throw new IllegalStateException( "Unknown attribute type transmitted <%= attr_type %>" );<% end %>
         }
@@ -425,11 +496,12 @@ end %>
       {
         {
 <% if attr_type == :integer %>          final Object value = input.readInt();
+<% elsif attr_type == :i_enum %>          final Object value = <%= attribute.java.field_name %>Value.toValue( input.readByte() );
 <% elsif attr_type == :boolean %>          final Object value = input.readBoolean();
-<% elsif attr_type == :string %>          final String string = input.readUTF();
+<% elsif attr_type == :string || attr_type == :s_enum %>          final String string = input.readUTF();
           final Object value = "\0".equals( string ) ? null : string;
 <% elsif attr_type == :datetime %>          final long time = input.readLong();
-          final Object value = ( Long.MAX_VALUE == time ) ? null : new Timestamp( time );
+          final Object value = ( Long.MAX_VALUE == time ) ? null : new java.sql.Timestamp( time );
 <% else %>          throw new IllegalStateException( "Unknown attribute type transmitted <%= attr_type %>" );<% end %>
           data.put( COLUMN_<%= uppercase_constantize(name) %>, value );
         }
