@@ -133,7 +133,7 @@ module Domgen
     attr_writer :nullable
 
     def nullable?
-      @nullable = !persistent? if @nullable.nil?
+      @nullable = false if @nullable.nil?
       @nullable
     end
 
