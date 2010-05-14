@@ -16,6 +16,11 @@ public class <%= schema.name %>Module
     <%= schema.object_types.select{|o|!o.abstract? && o.iris.generate? && (o.iris.metadata? || o.iris.metadata_that_can_change? || o.iris.client_side? )}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
   };
 
+  public static final Class<?>[] SYNCHRONIZE =
+  {
+    <%= schema.object_types.select{|o|!o.abstract? && !o.non_abstract_superclass? && o.iris.generate? && o.name != :Batch}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
+  };
+
   /* Type Codes */
 <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
 %>  public static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
