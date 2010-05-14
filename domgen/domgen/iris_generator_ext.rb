@@ -5,6 +5,10 @@ module Domgen
                                               '#{schema.java.package.gsub(".","/")}/#{schema.name}Module.java',
                                               'java',
                                               'schema.iris.generate?')
+      template_set.per_schema << Template.new('iris/validator',
+                                              '#{schema.java.package.gsub(".","/")}/#{schema.name}Validator.java',
+                                              'java',
+                                              'schema.iris.generate?')
       template_set.per_object_type << Template.new('iris/model',
                                                    '#{object_type.java.fully_qualified_name.gsub(".","/")}Bean.java',
                                                    'java',
