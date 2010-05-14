@@ -28,11 +28,19 @@ module Domgen
         @traversable
       end
 
-      attr_writer :managed
+      attr_writer :fetch_type
 
-      def managed?
-        @managed = false if @managed.nil?
-        @managed
+      def fetch_type?
+        @fetch_type = :lazy if @fetch_type.nil?
+        @fetch_type
+      end
+
+      def lazy_fetch_type?
+        fetch_type? == :lazy
+      end
+
+      def eager_fetch_type?
+        fetch_type? == :eager
       end
 
       attr_writer :client_side

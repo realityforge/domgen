@@ -423,7 +423,7 @@ end %>
         (attribute.object_type.name == :ManagementProject && attribute.name == :ParentTask) ||
         (attribute.object_type.name == :Deployment && attribute.name == :Task) )
        # Special hack to stop Management Projects loading all the database during startup
-     elsif (attribute.iris.managed? && !attribute.object_type.iris.preload? && !attribute.object_type.iris.metadata? && !attribute.object_type.iris.metadata_that_can_change? )
+     elsif (attribute.iris.eager_fetch_type? && !attribute.object_type.iris.preload? && !attribute.object_type.iris.metadata? && !attribute.object_type.iris.metadata_that_can_change? )
 %>
         try
         {
