@@ -239,6 +239,10 @@ module Domgen
       self
     end
 
+    def non_abstract_superclass?
+      extends.nil? ? false : !schema.object_type_by_name(extends).abstract?
+    end
+
     attr_writer :abstract
 
     def abstract?
