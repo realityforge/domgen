@@ -123,7 +123,7 @@ public class Traverser
         {
           switch( strategy.getElementID() )
           {
-<% object_type.attributes.select{|a|a.reference?}.each do |attribute|
+<% object_type.attributes.select{|a|a.reference? && !a.iris.runtime_managed?}.each do |attribute|
   ref_type = j_classname(attribute.object_type.java.fully_qualified_name)
 %>
             case <%= ref_type %>.<%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID:
