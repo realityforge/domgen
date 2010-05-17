@@ -6,6 +6,11 @@ package <%= schema.java.package %>;
 @SuppressWarnings( { "UnusedDeclaration" } )
 public class <%= schema.name %>Module
 {
+  public static final Class<?>[] MODEL_CLASSES =
+  {
+    <%= schema.object_types.select{|o|o.iris.generate?}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
+  };
+
   public static final Class<?>[] LOAD_AT_STARTUP =
   {
     <%= schema.object_types.select{|o|!o.abstract? && o.iris.generate? && (o.iris.metadata? || o.iris.metadata_that_can_change? || o.iris.preload? )}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
@@ -20,4 +25,32 @@ public class <%= schema.name %>Module
   {
     <%= schema.object_types.select{|o|!o.abstract? && !o.non_abstract_superclass? && o.iris.generate? && o.name != :Batch}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
   };
+
+  public static boolean isClientSide( final Class<?> type )
+  {
+    return !(<%= schema.object_types.select{|o|o.iris.generate? && !o.iris.client_side? }.collect{|o|"type == #{j_classname(o.java.classname)}.class"}.join(" || ") %>);
+  }
+
+  public static boolean isMetaData( final Class<?> type )
+  {
+    return <%= schema.object_types.select{|o|o.iris.generate? && o.iris.metadata? }.collect{|o|"type == #{j_classname(o.java.classname)}.class"}.join(" || ") %>;
+  }
+
+  public static boolean isMetaDataThatCanChange( final Class<?> type )
+  {
+    return <%= schema.object_types.select{|o|o.iris.generate? && o.iris.metadata_that_can_change? }.collect{|o|"type == #{j_classname(o.java.classname)}.class"}.join(" || ") %>;
+  }
+
+  public static String classToModelName( final Class<?> type )
+  {
+    <% schema.object_types.select{|o| o.iris.generate?}.each do |o| %>if( <%= j_classname(o.java.classname) %>.class == type )
+    {
+      return <%= j_classname(o.java.classname) %>.MODEL_NAME;
+    }
+    else <% end %>
+    {
+      throw new IllegalStateException( "Unknown type " + type );
+    }
+  }
+
 }

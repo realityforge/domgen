@@ -3,11 +3,29 @@ package <%= schema.java.package %>.visitor;
 
 import iris.model.visitor.traversers.FilterDelegate;
 import iris.model.visitor.traversers.TraversalEntry;
+import iris.model.visitor.traversers.TraversalStrategy;
 
 @javax.annotation.Generated( "Domgen" )
 public class Traverser
   extends iris.model.visitor.traversers.AbstractTraverser
 {
+  public static Traverser createBaseTraverser()
+  {
+    final Traverser traverser = new Traverser();
+<% schema.object_types.select{|o|o.iris.generate? && !o.abstract? && !o.iris.metadata? && !o.iris.metadata_that_can_change? }.each do |object_type| %>
+    {
+      final TraversalStrategy strategy = new TraversalStrategy( <%= j_classname(object_type.java.fully_qualified_name) %>.class );
+<% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed? && !a.object_type.iris.metadata? && !a.object_type.iris.metadata_that_can_change? && a.iris.client_side?}.each do |attribute|
+%>      strategy.addRelationship( <%= j_classname(object_type.java.fully_qualified_name) %>.<%= uppercase_constantize(attribute.inverse_relationship_name) %>_RELATION_ID );
+<% end %>      traverser.addStrategy( strategy );
+<% object_type.attributes.select{|a| !a.iris.runtime_managed? && a.reference? && !a.referenced_object.iris.metadata? && !a.referenced_object.iris.metadata_that_can_change? && a.iris.client_side?}.each do |attribute|
+%>      strategy.addAttribute( <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.<%= uppercase_constantize(attribute.name) %>_ATTR_ID );
+<% end %>
+    }
+<% end %>
+    return traverser;
+  }
+
   protected void doTraverseBean( final iris.beans.AbstractBean bean,
                        final String linkerAttributeID,
                        final iris.beans.AbstractBean linker,

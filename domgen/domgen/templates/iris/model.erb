@@ -5,6 +5,7 @@ package <%= object_type.schema.java.package %>;
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "NonFinalFieldReferencedInHashCode", "NonFinalFieldReferenceInEquals", "UnusedDeclaration", "UnnecessarilyQualifiedStaticUsage", "PointlessBitwiseExpression" } )
 <%= j_class_definition(object_type) %>{
+  public static final String MODEL_NAME = "<%= object_type.name %>";
   public static final String TABLE_NAME = "<%= object_type.sql.table_name %>";
   /* Column Names */
 <% object_type.declared_attributes.select{|a|!a.override? && a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
@@ -473,7 +474,7 @@ end %>
   public void writeTo( final java.io.ObjectOutput output, final int attributesMask )
      throws java.io.IOException
   {
-<% object_type.attributes.select{|a| !a.primary_key? && !a.iris.runtime_managed? && a.persistent? && a.iris.client_side? }.each do |attribute|
+<% object_type.attributes.select{|a| !a.iris.runtime_managed? && a.persistent? && a.iris.client_side? }.each do |attribute|
      name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name
      attr_type = attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
      is_primitive = attribute.reference? ? attribute.referenced_object.primary_key.java.primitive? : attribute.java.primitive?

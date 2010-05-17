@@ -52,7 +52,6 @@ object_type.attributes.select{|a|a.attribute_type == :string && !a.length.nil? &
       testData.remove( iris.busobj.BusObjEntry.TO_DATE );
       testData.remove( iris.beans.BeanManager.NEW_MARKER );
       testData.remove( iris.beans.AbstractBean.TYPECODE );
-      testData.remove( iris.beans.AbstractBean.PRIMARY_KEY );
 
       <%
       object_type.attributes.select{|a|a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
