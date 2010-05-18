@@ -6,6 +6,22 @@ package <%= schema.java.package %>;
 @SuppressWarnings( { "UnusedDeclaration", "PointlessBooleanExpression", "ConstantConditions" } )
 public class <%= schema.name %>Validator
 {
+  public static void validate( final iris.beans.AbstractBean bean )
+  {
+    <% schema.object_types.reverse.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+   name = object_type.name
+   type = j_classname(object_type.java.fully_qualified_name)
+%>if( <%= type %>.class.isInstance( bean ) )
+    {
+      validate<%= name %>( (<%= type %>)bean );
+    }
+    else <% end %>
+    {
+      final String message = "Unable to validate bean: " + bean;
+      throw new IllegalArgumentException( message );
+    }
+  }
+
   public static void validate( final Class<?> type, final java.util.Map<String, Object> data, final boolean truncate )
   {
     <% schema.object_types.reverse.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
@@ -104,6 +120,55 @@ end %>
           "Data for <%= object_type.name %> contains extra values: " + testData;
         throw new IllegalArgumentException( message );
       }
+  }
+
+  private static void validate<%= name %>( final <%= j_classname(object_type.java.fully_qualified_name) %> bean )
+  {
+      <%
+      object_type.attributes.select{|a|a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
+      %>
+    {
+      final Object value = bean.get<%= attribute.java.field_name %>();
+      if ( <%= attribute.persistent? ? "iris.beans.BeanFactory.isServerSide()" : "false" %> || <%= attribute.iris.client_side? ? "iris.beans.BeanFactory.isClientSide()" : "false" %> )
+      {<%
+  if !attribute.iris.client_side? %>
+        if ( iris.beans.BeanFactory.isClientSide() && null != value )
+        {
+          final String message =
+            "Non-null value for <%= object_type.name %>.<%= attribute.name %> on the clientside when it is not a clientside attribute.";
+          throw new IllegalArgumentException( message );
+        }<%
+  end
+  if !attribute.nullable? %>
+        if ( null == value )
+        {
+          final String message =
+            "Null value for <%= object_type.name %>.<%= attribute.name %> for non nullable attribute.";
+          throw new IllegalArgumentException( message );
+        }<%
+  end
+  if attribute.attribute_type != :i_enum && !attribute.java.primitive?
+   field_type = attribute.reference? ? attribute.referenced_object.primary_key.java.java_type : attribute.java.java_type
+  %>
+        if ( null != value && !<%= field_type %>.class.isInstance( value ) )
+        {
+          final String message =
+            "Value for <%= object_type.name %>.<%= attribute.name %> was not of correct type <%= field_type %>. Value = " + value;
+          throw new IllegalArgumentException( message );
+        }<%
+  end
+  if attribute.attribute_type == :string && !attribute.length.nil? %>
+        if ( value != null && ((String) value).length() > <%= attribute.length %> )
+        {
+          final String message =
+             "Attribute <%= object_type.name %>.<%= attribute.name %> exceeded maximum length of <%= attribute.length %> with value " + value;
+          throw new IllegalArgumentException( message );
+        }<%
+  end %>
+      }
+    }
+<%
+end %>
   }
 <% end %>
 }
