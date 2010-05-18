@@ -28,7 +28,7 @@ public final class <%= object_type.java.classname %>PersistPeer
     return list;
   }
 
-  protected String handleCriterion( final java.util.Map criteria )
+  protected String handleCriterion( final java.util.Map<String,Object> criteria )
   {
     final StringBuilder sb = new StringBuilder();
 <% object_type.attributes.select {|a| a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
@@ -63,7 +63,12 @@ public final class <%= object_type.java.classname %>PersistPeer
 
   protected String handleSelection()
   {
-    final StringBuffer sb = new StringBuffer();
+<%
+  if object_type.abstract?
+%>    throw new UnsupportedOperationException( "getTableName() called on abstract object type <%= object_type.name %>" );
+<%
+  else
+%>    final StringBuffer sb = new StringBuffer();
 
     sb.append( iris.busobj.BusObjEntry.BATCH_ID );
     sb.append( COMMA );
@@ -73,12 +78,17 @@ public final class <%= object_type.java.classname %>PersistPeer
     sb.append( <%= fqn %>.COLUMN_<%= uppercase_constantize(attribute.name) %> );
 <% end %>
     return sb.toString();
-  }
+<% end %>  }
 
   protected String getTableName()
   {
-    return <%= fqn %>.TABLE_NAME;
-  }
+<%
+  if object_type.abstract?
+%>    throw new UnsupportedOperationException( "getTableName() called on abstract object type <%= object_type.name %>" );
+<%
+  else
+%>    return <%= fqn %>.TABLE_NAME;
+<% end %>  }
 
   protected String getRemoveSql( final iris.beans.AbstractBean persistent )
   {
