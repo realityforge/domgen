@@ -16,6 +16,18 @@ public final class <%= object_type.java.classname %>PersistPeer
     return <%= fqn %>.class;
   }
 
+  public java.util.List<java.util.Map<String, Object>> restoreDataSet( final java.util.Map<String,Object> criteria, final Connection connection )
+      throws MissingBeanException
+  {
+    final java.util.List<java.util.Map<String, Object>> list = super.restoreDataSet( criteria, connection );
+    final iris.beans.store.DataStore dataStore = iris.beans.BeanFactory.getManager().getDataStore();
+    for ( final java.util.Map<String, Object> resultData : list )
+    {
+      dataStore.registerObjectData( getPersistentClass(), resultData );
+    }
+    return list;
+  }
+
   protected String handleCriterion( final java.util.Map criteria )
   {
     final StringBuilder sb = new StringBuilder();
