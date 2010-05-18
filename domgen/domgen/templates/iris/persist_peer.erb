@@ -11,13 +11,13 @@ fqn = j_classname(object_type.java.fully_qualified_name)
 public final class <%= object_type.java.classname %>PersistPeer
    extends iris.persist.DatabasePeer
 {
-  protected Class getPersistentClass()
+  protected Class<<%= fqn %>> getPersistentClass()
   {
     return <%= fqn %>.class;
   }
 
-  public java.util.List<java.util.Map<String, Object>> restoreDataSet( final java.util.Map<String,Object> criteria, final Connection connection )
-      throws MissingBeanException
+  public java.util.List<java.util.Map<String, Object>> restoreDataSet( final java.util.Map<String,Object> criteria, final java.sql.Connection connection )
+      throws iris.beans.MissingBeanException
   {
     final java.util.List<java.util.Map<String, Object>> list = super.restoreDataSet( criteria, connection );
     final iris.beans.store.DataStore dataStore = iris.beans.BeanFactory.getManager().getDataStore();
@@ -102,13 +102,6 @@ public final class <%= object_type.java.classname %>PersistPeer
     return sb.toString();
   }
 
-  private void validate( final iris.beans.AbstractBean persistent )
-  {
-    final java.util.Map<String, Object> data = new java.util.HashMap<String, Object>();
-    iris.beans.ModelUtil.toMap( persistent, data );
-    <%= object_type.schema.java.package %>.<%= object_type.schema.name %>Validator.validate( persistent.getClass(), data, false );
-  }
-
   protected String getUpdateSql( final iris.beans.AbstractBean persistent )
   {
 <%
@@ -116,7 +109,7 @@ public final class <%= object_type.java.classname %>PersistPeer
 if mutable_attributes.size == 0
 %>    return null;
 <% else %>
-    validate( persistent );
+    <%= object_type.schema.java.package %>.<%= object_type.schema.name %>Validator.validate( persistent );
     final <%= fqn %> value = (<%= fqn %>)persistent;
 
     final StringBuilder sb = new StringBuilder();
@@ -141,7 +134,7 @@ if mutable_attributes.size == 0
 
   protected String getInsertSql( final iris.beans.AbstractBean persistent )
   {
-    validate( persistent );
+    <%= object_type.schema.java.package %>.<%= object_type.schema.name %>Validator.validate( persistent );
     final <%= fqn %> value = (<%= fqn %>)persistent;
     final iris.busobj.BusObjEntry entry = iris.busobj.BusObjEntry.getEntry( value );
     final StringBuffer sb = new StringBuffer();
