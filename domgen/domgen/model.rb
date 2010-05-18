@@ -432,6 +432,7 @@ module Domgen
         object_type.instance_variable_set("@abstract",nil)
         object_type.instance_variable_set("@final",nil)
         object_type.instance_variable_set("@schema",self)
+        object_type.instance_variable_set("@direct_subtypes",[])
         object_type.instance_variable_set("@name",name)
         object_type.options = options
 
