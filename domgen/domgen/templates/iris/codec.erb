@@ -8,7 +8,7 @@ public class <%= schema.name %>Codec
 {
   /* Type Codes */
 <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
-%>  static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
+%>  public static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
 <% end %>
 
   /* Attr Masks */
