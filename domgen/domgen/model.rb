@@ -393,6 +393,10 @@ module Domgen
       attribute
     end
 
+    def attribute_exists?(name)
+      !!@attributes[name.to_s]
+    end
+
     private
 
     def attribute_names_to_key(attribute_names)
