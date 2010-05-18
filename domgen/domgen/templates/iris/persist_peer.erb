@@ -11,7 +11,13 @@ fqn = j_classname(object_type.java.fully_qualified_name)
 public final class <%= object_type.java.classname %>PersistPeer
    extends iris.persist.DatabasePeer
 {
-  protected Class<<%= fqn %>> getPersistentClass()
+<%  if object_type.abstract?
+%>  public <%= object_type.java.classname %>PersistPeer()
+  {
+    setCached( false );
+  }
+<% end
+%>  protected Class<<%= fqn %>> getPersistentClass()
   {
     return <%= fqn %>.class;
   }
@@ -227,4 +233,63 @@ if mutable_attributes.size == 0
   {
     return <%= (object_type.name == :SpecificTask) ? "SpecificTaskPersistHelper.getDeclarations( criteria )" : "\"\"" %>;
   }
-}
+
+<%  if !object_type.final?
+  concrete_subclasses = []
+  types = [object_type]
+  while !types.empty?
+     ot = types.pop
+     concrete_subclasses << ot unless ot.abstract?
+     ot.direct_subtypes.each do |sc|
+       types << sc
+     end
+  end
+  attributes = {}
+  concrete_subclasses.each do |sc|
+    sc.attributes.select{|a| a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
+      attributes[attribute.name] = attribute unless attributes[attribute.name]    
+    end
+  end
+%>  public String getRestoreSetSql( java.util.Map<String, Object> criteria )
+  {
+    if ( null == criteria )
+    {
+      criteria = new java.util.HashMap<String, Object>();
+    }
+    criteria.put( NO_ORDER_BY, "true" );
+    final String whereClause = getWhereClause( criteria );
+
+    final StringBuffer sb = new StringBuffer( getDeclarations( criteria ) );
+<% concrete_subclasses.each_with_index do |sc,index|
+ if 0 != index %>    sb.append( UNION );
+<% end
+%>    sb.append( SELECT );
+    sb.append( <%= object_type.schema.java.package %>.<%= object_type.schema.name %>Codec.<%= uppercase_constantize(sc.name) %>_TYPE_CODE );
+    sb.append( AS );
+    sb.append( quote( iris.beans.AbstractBean.TYPECODE ) );
+    sb.append( COMMA );
+    sb.append( quote( iris.busobj.BusObjEntry.BATCH_ID ) );
+    sb.append( COMMA );
+    sb.append( quote( iris.busobj.BusObjEntry.TO_DATE ) );
+<% attributes.values.each do |attribute|
+%>    sb.append( COMMA );
+<% if sc.attribute_exists?(attribute.name)
+%>    sb.append( quote( <%= j_classname(sc.java.fully_qualified_name) %>.COLUMN_<%= uppercase_constantize(attribute.name) %> ) );
+<% else
+%>    sb.append( <%= (attribute.attribute_type == :integer) ? 0 : "NULL" %> );
+    sb.append( AS );
+    sb.append( quote( <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.COLUMN_<%= uppercase_constantize(attribute.name) %> ) );
+<%
+   end
+ end
+%>    sb.append( FROM );
+    sb.append( quote( <%= j_classname(sc.java.fully_qualified_name) %>.TABLE_NAME ) );
+    if ( whereClause.length() > 0 )
+    {
+      sb.append( WHERE );
+      sb.append( whereClause );
+    }
+<% end %>    
+    return sb.toString();
+  }
+<% end %>}
