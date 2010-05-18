@@ -205,6 +205,7 @@ module Domgen
     attr_reader :incompatible_constraints
     attr_reader :referencing_attributes
     attr_accessor :extends
+    attr_accessor :direct_subtypes
 
     def initialize(schema, name, options = {}, &block)
       @schema, @name = schema, name
@@ -213,6 +214,7 @@ module Domgen
       @codependent_constraints = Domgen::OrderedHash.new
       @incompatible_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
+      @direct_subtypes = []
       super(options, &block)
     end
 
@@ -437,7 +439,8 @@ module Domgen
         object_type.unique_constraints.each {|a| a.instance_variable_set("@inherited",true)}
         object_type.codependent_constraints.each {|a| a.instance_variable_set("@inherited",true)}
         object_type.incompatible_constraints.each {|a| a.instance_variable_set("@inherited",true)}
-
+        base_type.direct_subtypes << object_type
+        
         yield object_type if block_given?
       else
         object_type = ObjectType.new(self, name, options, &block)
