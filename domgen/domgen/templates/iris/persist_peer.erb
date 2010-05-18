@@ -82,11 +82,16 @@ public final class <%= object_type.java.classname %>PersistPeer
 
   protected String getRemoveSql( final iris.beans.AbstractBean persistent )
   {
-    final <%= fqn %> value = (<%= fqn %>)persistent;
+<%
+  if object_type.abstract?
+%>    throw new UnsupportedOperationException( "Remove of abstract object type <%= object_type.name %> is not supported" );
+<%
+  else
+%>    final <%= fqn %> value = (<%= fqn %>)persistent;
     final iris.busobj.BusObjEntry entry = iris.busobj.BusObjEntry.getEntry( value );
     final StringBuilder sb = new StringBuilder();
     sb.append( UPDATE );
-    sb.append( quote( getTableName() ) );
+    sb.append( quote( <%= fqn %>.TABLE_NAME ) );
     sb.append( SET );
     sb.append( iris.busobj.BusObjEntry.TO_DATE );
     sb.append( EQUALS );
@@ -100,12 +105,16 @@ public final class <%= object_type.java.classname %>PersistPeer
     sb.append( EQUALS );
     sb.append( prepareSQL( value.get<%= object_type.primary_key.java.field_name %>() ) );
     return sb.toString();
-  }
+<% end %>  }
 
   protected String getUpdateSql( final iris.beans.AbstractBean persistent )
   {
 <%
-  mutable_attributes = object_type.attributes.select {|a| !a.primary_key? && !a.immutable? && a.persistent? && !a.iris.runtime_managed?}
+  if object_type.abstract?
+%>    throw new UnsupportedOperationException( "Update of abstract object type <%= object_type.name %> is not supported" );
+<%
+  else
+    mutable_attributes = object_type.attributes.select {|a| !a.primary_key? && !a.immutable? && a.persistent? && !a.iris.runtime_managed?}
 if mutable_attributes.size == 0
 %>    return null;
 <% else %>
@@ -114,7 +123,7 @@ if mutable_attributes.size == 0
 
     final StringBuilder sb = new StringBuilder();
     sb.append( UPDATE );
-    sb.append( getTableName() );
+    sb.append( <%= fqn %>.TABLE_NAME );
     sb.append( SET );
     sb.append( quote( iris.busobj.BusObjEntry.BATCH_ID ) );
     sb.append( EQUALS );
@@ -130,16 +139,24 @@ if mutable_attributes.size == 0
     sb.append( EQUALS );
     sb.append( prepareSQL( value.get<%= object_type.primary_key.java.field_name %>() ) );
     return sb.toString();
-<% end %>  }
+<%
+  end
+ end
+%>  }
 
   protected String getInsertSql( final iris.beans.AbstractBean persistent )
   {
-    <%= object_type.schema.java.package %>.<%= object_type.schema.name %>Validator.validate( persistent );
+<%
+  if object_type.abstract?
+%>    throw new UnsupportedOperationException( "Insert of abstract object type <%= object_type.name %> is not supported" );
+<%
+  else
+%>    <%= object_type.schema.java.package %>.<%= object_type.schema.name %>Validator.validate( persistent );
     final <%= fqn %> value = (<%= fqn %>)persistent;
     final iris.busobj.BusObjEntry entry = iris.busobj.BusObjEntry.getEntry( value );
     final StringBuffer sb = new StringBuffer();
     sb.append( INSERT_INTO );
-    sb.append( getTableName() );
+    sb.append( <%= fqn %>.TABLE_NAME );
     sb.append( " (" );
     sb.append( quote( iris.busobj.BusObjEntry.BATCH_ID ) );
     sb.append( COMMA );
@@ -158,7 +175,7 @@ if mutable_attributes.size == 0
 <% end
 %>    sb.append( ")" );
     return sb.toString();
-  }
+<% end %>  }
 
   protected void prepareQueryTail( final StringBuilder sb, final java.util.Map<String,Object> criteria )
   {
