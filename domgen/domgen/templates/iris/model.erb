@@ -18,10 +18,8 @@ package <%= object_type.schema.java.package %>;
 %>  public static final int COLUMN_<%= uppercase_constantize(attribute.name) %>_MAX_LENGTH = <%= attribute.length %>;
 <% end %>
 
-<% object_type.iris.queries.each do |query| %>
-  public static final String QUERY_<%= uppercase_constantize(query.name) %> = "<%= query.name %>";
-  public static final String QUERY_<%= uppercase_constantize(query.name) %>_SQL = "<%= query.sql %>";
-  public static final Class<<%= query.java_parameter_type %>> QUERY_<%= uppercase_constantize(query.name) %>_TYPE = <%= query.java_parameter_type %>.class;
+<% object_type.iris.criteria.each do |criterion| %>
+  public static final String QUERY_<%= uppercase_constantize(criterion.name) %> = "<%= criterion.name %>";
 <% end %>
   static final int MIN_ATTR_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MAX_ATTR_ID << 1"; %>;
 <%

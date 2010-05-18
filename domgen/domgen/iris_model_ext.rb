@@ -51,7 +51,7 @@ module Domgen
       end
     end
 
-    class Query < IrisElement
+    class Criterion < IrisElement
       attr_reader :name
       attr_accessor :sql
       attr_accessor :parameter_type
@@ -61,27 +61,31 @@ module Domgen
         super(parent, options, & block)
       end
 
+      def code_based?
+        @sql.nil?
+      end
+
       def java_parameter_type
         return "java.lang.String" if parameter_type == :string
         return "java.sql.Timestamp" if parameter_type == :datetime
-        raise "Unknwon parameter type #{parameter_type} for query #{name} on #{parent.parent.name}"
+        return parameter_type 
       end
     end
 
     class IrisClass < IrisElement
       def initialize(parent, options = {}, &block)
-        @queries = Domgen::OrderedHash.new
+        @criteria = Domgen::OrderedHash.new
         super(parent, options, &block)
       end
 
-      def queries
-        @queries.values
+      def criteria
+        @criteria.values
       end
 
-      def query(name, parameter_type, sql, options = {}, &block)
-        raise "Query with name #{name} already exists for object type #{parent.name}" if @queries[name.to_s]
-        query = Query.new(self, name, parameter_type, sql, options, &block)
-        @queries[name.to_s] = query
+      def criterion(name, parameter_type, sql = nil, options = {}, &block)
+        raise "Criterion with name #{name} already exists for object type #{parent.name}" if @criteria[name.to_s]
+        query = Criterion.new(self, name, parameter_type, sql, options, &block)
+        @criteria[name.to_s] = query
         query
       end
 
