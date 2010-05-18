@@ -59,7 +59,7 @@ public class <%= schema.name %>Codec
       data.put( iris.beans.AbstractBean.TYPECODE, typeCode );
 
       final Object primaryKey = input.readObject();
-      data.put( iris.persist.DefaultPersistentPeer.ID, primaryKey );
+      data.put( iris.persist.DatabasePeer.ID, primaryKey );
 
       final int attributesMask;
       if ( 0 != ( metadataMask & iris.beans.io.BeanCodec.MD_ATTR_MASK ) )
