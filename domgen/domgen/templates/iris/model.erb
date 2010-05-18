@@ -6,7 +6,8 @@ package <%= object_type.schema.java.package %>;
 @SuppressWarnings( { "NonFinalFieldReferencedInHashCode", "NonFinalFieldReferenceInEquals", "UnusedDeclaration", "UnnecessarilyQualifiedStaticUsage", "PointlessBitwiseExpression" } )
 <%= j_class_definition(object_type) %>{
   public static final String MODEL_NAME = "<%= object_type.name %>";
-  public static final String TABLE_NAME = "<%= object_type.sql.table_name %>";
+<% if !object_type.abstract? %>  public static final String TABLE_NAME = "<%= object_type.sql.table_name %>";
+<% end %>
   /* Column Names */
 <% object_type.declared_attributes.select{|a|!a.override? && a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
 %>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.sql.column_name %>";
