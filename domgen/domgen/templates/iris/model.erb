@@ -25,7 +25,7 @@ package <%= object_type.schema.java.package %>;
   static final int MIN_ATTR_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MAX_ATTR_ID << 1"; %>;
 <%
    last_attribute = "MIN_ATTR_ID"
-   object_type.declared_attributes.select{|a|!a.abstract? && a.persistent? && !a.iris.runtime_managed?}.each_with_index do |attribute, index|
+   object_type.declared_attributes.select{|a|!a.abstract? && !a.iris.runtime_managed?}.each_with_index do |attribute, index|
      last_attribute = "#{uppercase_constantize(attribute.java.field_name)}_ATTR_ID"
 %>  public static final int <%= last_attribute %> = MIN_ATTR_ID << <%= index %>;
 <% end
@@ -204,9 +204,7 @@ package <%= object_type.schema.java.package %>;
 <%= j_return_if_value_same(ref_name,referenced_attribute.java.primitive?,attribute.nullable?) %>
       final <%= ref_type %> oldValue = <%= ref_name %>;
       <%= ref_name %> = value;
-  <% if attribute.persistent? %>
       setChangeMaskBit( <%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID );
-  <% end %>
       fireAttributeChange( COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, value, oldValue );
     }
 <%
@@ -229,9 +227,7 @@ package <%= object_type.schema.java.package %>;
 <%= j_return_if_value_same(name, attribute.java.primitive?,attribute.nullable?) %>
     final <%= type %> oldValue = <%= name %>;
     <%= name %> = value;
-<% if attribute.persistent? %>
     setChangeMaskBit( <%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID );
-<% end %>
     fireAttributeChange( COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, value, oldValue );
   }
 
