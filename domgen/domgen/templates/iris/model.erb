@@ -13,7 +13,7 @@ package <%= object_type.schema.java.package %>;
 %>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.sql.column_name %>";
 <% end %>
 <% object_type.declared_attributes.select{|a|!a.override? && !a.persistent?}.each do |attribute|
-%>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.name %>"; /* Not Persistent */ 
+%>  public static final String COLUMN_<%= uppercase_constantize(attribute.name) %> = "<%= attribute.name %>"; /* Not Persistent */
 <% end %>
 <% object_type.declared_attributes.select{|a|!a.override? && !a.length.nil? && !a.iris.runtime_managed?}.each do |attribute|
 %>  public static final int COLUMN_<%= uppercase_constantize(attribute.name) %>_MAX_LENGTH = <%= attribute.length %>;
@@ -80,7 +80,7 @@ package <%= object_type.schema.java.package %>;
 <% object_type.declared_attributes.select {|a| !a.abstract? && !a.iris.runtime_managed? }.each do |attribute|
 %>  private <%= j_attribute_type(attribute) %> <%= attribute.java.field_name %>;
 <%  if attribute.reference? %>  private <%= attribute.referenced_object.primary_key.java.java_type %> <%= attribute.referencing_link_name %>;
-<% end 
+<% end
    end
    object_type.referencing_attributes.select {|a| !a.abstract? && !a.inherited? && a.inverse_relationship_type != :none  && !a.iris.runtime_managed?}.
      each do |attribute|
@@ -141,7 +141,12 @@ package <%= object_type.schema.java.package %>;
 
   public void set<%= name %>( final <%= type %> value )
   {
-<%= iris_immutable_check(attribute.name) if attribute.immutable? %>
+<% if attribute.immutable? %>
+    if( isLinked() && !isNew() && !isLoading() )
+    {
+       throw new IllegalStateException( "Attempting to modify immutable attribute <%= attribute.name %> on non-new object" );
+    }
+<% end %>
 <%= iris_nullable_check(attribute.name) if (!attribute.nullable? && !attribute.java.primitive?) %>
 <%= j_return_if_value_same(name, attribute.java.primitive?,attribute.nullable?) %>
 <%= j_remove_from_inverse(attribute) %>
@@ -327,6 +332,7 @@ end
 %>
 <%= iris_to_string_methods(object_type) %>
 <% if !object_type.abstract? %>
+  @Override
    public void delink()
    {
       if ( !isLinked() )
@@ -347,7 +353,8 @@ end
     name = attribute.inverse_relationship_name
     type = j_classname(attribute.object_type.java.fully_qualified_name)
 %>        {
-          for ( final <%= type %> other : get<%= name %>Set() )
+          final java.util.ArrayList<<%= type %>> set = new java.util.ArrayList<<%= type %>>( get<%= name %>Set() );
+          for ( final <%= type %> other : set )
           {
             other.delink();
           }
@@ -380,6 +387,7 @@ end %>
       }
    }
 
+  @Override
   public void link( final boolean linkManaged )
   {
      if ( isLinked() )
@@ -450,29 +458,47 @@ end %>
      fireObjectLinked();
   }
 
-  public byte getTypeCode()
-  {
-    return <%= schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_TYPE_CODE;
-  }
-
+  @Override
   public int getClientToServerAttributeMask()
   {
     return <%= object_type.schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_CLIENT_TO_SERVER_ATTR_MASK;
   }
 
+  @Override
   public int getServerToServerAttributeMask()
   {
     return <%= object_type.schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_SERVER_TO_SERVER_ATTR_MASK;
   }
 
+  @Override
   public int getPersistChangeMask()
   {
     return <%= object_type.schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_SERVER_TO_SERVER_ATTR_MASK;
   }
 
-  public void writeTo( final java.io.ObjectOutput output, final int attributesMask )
+  @Override
+  public void writeTo( final java.io.ObjectOutput output, final boolean includeToDate, final int attributesMask )
      throws java.io.IOException
   {
+    output.writeByte( <%= schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_TYPE_CODE );
+    output.writeObject( get<%= object_type.primary_key.name %>() );
+
+    if ( includeToDate )
+    {
+      final iris.busobj.BusObjEntry entry = iris.busobj.BusObjEntry.getEntry( this );
+      if ( entry.getToDate() == null )
+      {
+        output.writeLong( 0 );
+      }
+      else
+      {
+        output.writeLong( entry.getToDate().getTime() );
+      }
+    }
+    else
+    {
+      output.writeInt( attributesMask );
+    }
 <% object_type.attributes.select{|a| !a.iris.runtime_managed? && a.persistent? && a.iris.client_side? }.each do |attribute|
      name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name
      attr_type = attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
@@ -500,5 +526,27 @@ end %>
 <% end %>
       output.flush();
    }
+
+  @Override
+  protected void fromMap( final java.util.Map<String, Object> data )
+  {
+<% object_type.attributes.select{|a| !a.iris.runtime_managed? && a.persistent? }.each do |attribute|
+     name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name
+     attr = attribute.reference? ? attribute.referenced_object.primary_key : attribute
+     if attr.attribute_type == :i_enum
+       prefix = "#{attr.java.non_primitive_java_type}.toValue"
+       cast = "java.lang.Integer"
+     else
+       prefix = ""
+       cast = attr.java.non_primitive_java_type
+     end
+
+%>
+    if( data.containsKey( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(attribute.name) %> ) )
+    {
+      set<%= name %>( <%= prefix %> ( (<%= cast %>) data.get( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(attribute.name) %> ) ) );
+    }
+<% end %>
+  }
 <% end %>
 }
