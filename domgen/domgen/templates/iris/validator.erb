@@ -93,7 +93,7 @@ object_type.attributes.select{|a|a.attribute_type == :string && !a.length.nil? &
          }<%
   end
   if attribute.attribute_type != :i_enum && !attribute.java.primitive?
-   field_type = attribute.reference? ? attribute.referenced_object.primary_key.java.java_type : attribute.java.java_type
+   field_type = attribute.reference? ? attribute.referenced_object.primary_key.java.non_primitive_java_type : attribute.java.non_primitive_java_type
   %>
          if ( null != value && !<%= field_type %>.class.isInstance( value ) )
          {
