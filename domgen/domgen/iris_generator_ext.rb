@@ -9,6 +9,10 @@ module Domgen
                                                    '#{object_type.schema.java.package.gsub(".","/")}/persist/#{object_type.java.classname}PersistPeer.java',
                                                    'java',
                                                    'object_type.iris.generate? && object_type.name != :Batch')
+      template_set.per_schema << Template.new('iris/xml_generator',
+                                              '#{schema.java.package.gsub(".","/")}/#{schema.name}XMLGenerator.java',
+                                              'java',
+                                              'schema.iris.generate?')
       template_set.per_schema << Template.new('iris/sync',
                                               '#{schema.java.package.gsub(".","/")}/#{schema.name}Sync.java',
                                               'java',
