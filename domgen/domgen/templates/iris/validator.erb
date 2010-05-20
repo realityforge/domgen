@@ -114,12 +114,6 @@ object_type.attributes.select{|a|a.attribute_type == :string && !a.length.nil? &
       }
 <%
 end %>
-      if( testData.size() > 0 )
-      {
-        final String message =
-          "Data for <%= object_type.name %> contains extra values: " + testData;
-        throw new IllegalArgumentException( message );
-      }
   }
 
   private static void validate<%= name %>( final <%= j_classname(object_type.java.fully_qualified_name) %> bean )
