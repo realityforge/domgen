@@ -29,7 +29,7 @@ package <%= object_type.schema.java.package %>;
      last_attribute = "#{uppercase_constantize(attribute.java.field_name)}_ATTR_ID"
 %>  public static final int <%= last_attribute %> = MIN_ATTR_ID << <%= index %>;
 <% end
-%>  static final int MAX_ATTR_ID = <%= last_attribute %>;
+%>  public static final int MAX_ATTR_ID = <%= last_attribute %>; //Needs to be public as accessed via reflection
 
   static final int MIN_RELATION_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MIN_RELATION_ID << 1"; %>;
 <%
@@ -41,7 +41,7 @@ package <%= object_type.schema.java.package %>;
   public static final String <%= constant_name %>_RELATION_NAME = "<%= attribute.inverse_relationship_name %>";
 <%
    end
-%>  static final int MAX_RELATION_ID = <%= last_attribute %>;
+%>  public static final int MAX_RELATION_ID = <%= last_attribute %>; //Needs to be public as accessed via reflection
 
 <% object_type.declared_attributes.select {|a| a.attribute_type == :i_enum }.each do |attribute| %>
   @SuppressWarnings( { "PublicInnerClass" } )
