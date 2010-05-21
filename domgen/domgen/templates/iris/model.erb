@@ -34,7 +34,7 @@ package <%= object_type.schema.java.package %>;
   static final int MIN_RELATION_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MAX_RELATION_ID << 1"; %>;
 <%
    last_attribute = "MIN_RELATION_ID"
-   object_type.referencing_attributes.select{|a|!a.abstract? && !a.iris.runtime_managed?}.each_with_index do |attribute, index|
+   object_type.referencing_attributes.select{|a| a.references == object_type.name && !a.abstract? && !a.iris.runtime_managed?}.each_with_index do |attribute, index|
      constant_name = uppercase_constantize(attribute.inverse_relationship_name)
      last_attribute = "#{constant_name}_RELATION_ID"
 %>  public static final int <%= last_attribute %> = MIN_RELATION_ID << <%= index %>;
@@ -82,7 +82,7 @@ package <%= object_type.schema.java.package %>;
 <%  if attribute.reference? %>  private <%= attribute.referenced_object.primary_key.java.java_type %> <%= attribute.referencing_link_name %>;
 <% end
    end
-   object_type.referencing_attributes.select {|a| !a.abstract? && !a.inherited? && a.inverse_relationship_type != :none  && !a.iris.runtime_managed?}.
+   object_type.referencing_attributes.select {|a| a.references == object_type.name && !a.abstract? && !a.inherited? && a.inverse_relationship_type != :none  && !a.iris.runtime_managed?}.
      each do |attribute|
      if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
        # Ignore
@@ -236,7 +236,7 @@ package <%= object_type.schema.java.package %>;
 end
 %>
 
-<% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed?}.each do |attribute|
+<% object_type.referencing_attributes.select{|a| a.references == object_type.name && !a.iris.runtime_managed?}.each do |attribute|
   if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
     # Ignore abstract attributes as will appear in child classes
     # Ignore inherited attributes as appear in parent class
@@ -340,7 +340,7 @@ end
       setUnloading();
       try
       {
-<% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed?}.each do |attribute|
+<% object_type.referencing_attributes.select{|a| a.references == object_type.name && !a.iris.runtime_managed?}.each do |attribute|
   if attribute.inverse_relationship_type == :none
     # Ignore abstract attributes as will appear in child classes
     # Ignore inherited attributes as appear in parent class
@@ -425,7 +425,7 @@ end %>
 <% end %>
       if ( !iris.beans.BeanFactory.isClientSide() && linkManaged )
       {
-<% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed?}.each do |attribute|
+<% object_type.referencing_attributes.select{|a| a.references == object_type.name && !a.iris.runtime_managed?}.each do |attribute|
      if object_type.name == :ManagementProject && (
         (attribute.object_type.name == :ManagementProject && attribute.name == :ParentTask) ||
         (attribute.object_type.name == :Deployment && attribute.name == :Task) )

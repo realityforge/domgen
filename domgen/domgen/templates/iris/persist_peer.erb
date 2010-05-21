@@ -145,10 +145,12 @@ if mutable_attributes.size == 0
     sb.append( EQUALS );
     sb.append( prepareSQL( iris.busobj.BusObjEntry.getEntry( persistent ).getBatchID() ) );
 <% mutable_attributes.each do |attribute|
+  name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name
+  suffix = (attribute.attribute_type == :i_enum) ? ".getValue()" : ""
 %>    sb.append( COMMA );
     sb.append( quote( <%= fqn %>.COLUMN_<%= uppercase_constantize(attribute.name) %> ) );
     sb.append( EQUALS );
-    sb.append( prepareSQL( value.get<%= attribute.java.field_name %>() ) );
+    sb.append( prepareSQL( value.get<%= name %>()<%= suffix %> ) );
 <% end
 %>    sb.append( WHERE );
     sb.append( ID );
@@ -186,8 +188,10 @@ if mutable_attributes.size == 0
     sb.append( COMMA );
     sb.append( prepareSQL( entry.getToDate() ) );
 <% object_type.attributes.select {|a| a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
+  name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name
+  suffix = (attribute.attribute_type == :i_enum) ? ".getValue()" : ""
 %>    sb.append( COMMA );
-    sb.append( prepareSQL( value.get<%= attribute.java.field_name %>() ) );
+    sb.append( prepareSQL( value.get<%= name %>()<%= suffix %> ) );
 <% end
 %>    sb.append( ")" );
     return sb.toString();

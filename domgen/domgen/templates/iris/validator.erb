@@ -117,12 +117,11 @@ end %>
   }
 
   private static void validate<%= name %>( final <%= j_classname(object_type.java.fully_qualified_name) %> bean )
-  {
-      <%
+  {<%
       object_type.attributes.select{|a|a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
-      %>
-    {
-      final Object value = bean.get<%= attribute.java.field_name %>();
+      name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name
+%>    {
+      final Object value = bean.get<%= name %>();
       if ( <%= attribute.persistent? ? "iris.beans.BeanFactory.isServerSide()" : "false" %> || <%= attribute.iris.client_side? ? "iris.beans.BeanFactory.isClientSide()" : "false" %> )
       {<%
   if !attribute.iris.client_side? %>
@@ -142,8 +141,8 @@ end %>
         }<%
   end
   if attribute.attribute_type != :i_enum && !attribute.java.primitive?
-   field_type = attribute.reference? ? attribute.referenced_object.primary_key.java.java_type : attribute.java.java_type
-  %>
+   field_type = attribute.reference? ? attribute.referenced_object.primary_key.java.non_primitive_java_type : attribute.java.non_primitive_java_type
+%>
         if ( null != value && !<%= field_type %>.class.isInstance( value ) )
         {
           final String message =
