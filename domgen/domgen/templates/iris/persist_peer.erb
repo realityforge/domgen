@@ -270,7 +270,7 @@ if mutable_attributes.size == 0
 %>    sb.append( SELECT );
     sb.append( <%= object_type.schema.java.package %>.<%= object_type.schema.name %>Codec.<%= uppercase_constantize(sc.name) %>_TYPE_CODE );
     sb.append( AS );
-    sb.append( quote( iris.beans.AbstractBean.TYPECODE ) );
+    sb.append( quote( <%= schema.name %>Codec.TYPECODE ) );
     sb.append( COMMA );
     sb.append( quote( iris.busobj.BusObjEntry.BATCH_ID ) );
     sb.append( COMMA );

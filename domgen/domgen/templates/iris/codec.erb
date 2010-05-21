@@ -6,6 +6,8 @@ package <%= schema.java.package %>;
 @SuppressWarnings( { "UnusedDeclaration" } )
 public class <%= schema.name %>Codec
 {
+   public static final String TYPECODE = "OBJECT_TYPECODE";
+
   /* Type Codes */
 <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
 %>  public static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
@@ -26,6 +28,20 @@ public class <%= schema.name %>Codec
     0,
     <%= schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.collect{|o|"#{uppercase_constantize(o.name)}_SERVER_TO_SERVER_ATTR_MASK"}.join(",\n    ") %>
   };
+
+
+  public static <T extends iris.beans.AbstractBean> Class<T> getActualType( final Class<T> clazz, final java.util.Map<String, Object> data )
+  {
+    final Integer typeCode = (Integer) data.get( TYPECODE );
+    if ( null != typeCode )
+    {
+      return StaticLoophole.cast( getClassForTypeCode( typeCode ) );
+    }
+    else
+    {
+      return clazz;
+    }
+  }
 
   public static Class<?> getClassForTypeCode( final int typeCode )
   {
@@ -56,7 +72,7 @@ public class <%= schema.name %>Codec
       final java.util.Map<String, Object> data = new java.util.HashMap<String, Object>();
 
       final int typeCode = input.readByte();
-      data.put( iris.beans.AbstractBean.TYPECODE, typeCode );
+      data.put( TYPECODE, typeCode );
 
       final Object primaryKey = input.readObject();
       data.put( iris.persist.DatabasePeer.ID, primaryKey );
