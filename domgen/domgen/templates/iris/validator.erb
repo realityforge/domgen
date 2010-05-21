@@ -70,7 +70,7 @@ object_type.attributes.select{|a|a.attribute_type == :string && !a.length.nil? &
       testData.remove( iris.beans.AbstractBean.TYPECODE );
 
       <%
-      object_type.attributes.select{|a|a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
+      object_type.attributes.select{|a|a.persistent? && !a.iris.runtime_managed? && !a.primary_key?}.each do |attribute|
       %>
       {
         final Object value = testData.remove( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(attribute.name) %> );
