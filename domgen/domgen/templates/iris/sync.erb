@@ -116,12 +116,17 @@ public class <%= schema.name %>Sync
 %>
       {
         Object value = newData.get( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(name) %> );
-<% if object_type.name == :PhysicalUnit && (attribute.name == :IsMemberOfPool)
+<% if object_type.name == :PhysicalUnit && attribute.name == :IsMemberOfPool
 %>        if ( conflict )
         {
           value = original.get<%= attribute.referencing_link_name %>();
         }<%
-   elsif object_type.name == :PhysicalUnit && (attribute.name == :Notes || attribute.name == :Status)
+   elsif object_type.name == :PhysicalUnit && attribute.name == :Status
+%>        if ( conflict )
+        {
+          value = original.get<%= attribute.name %>().getValue();
+        }<%
+   elsif object_type.name == :PhysicalUnit && attribute.name == :Notes
 %>        if ( conflict )
         {
           value = original.get<%= attribute.name %>();
