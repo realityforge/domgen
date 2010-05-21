@@ -44,13 +44,13 @@ public class <%= schema.name %>Codec
     return -1;
   }
 
-  public static java.util.Map<String, Object> readBean( final byte[] input, final int metadataMask )
+  public static java.util.Map<String, Object> readBean( final byte[] input, final boolean includeToDate )
     throws java.io.IOException, ClassNotFoundException
   {
-    return readBean( new java.io.ObjectInputStream( new java.io.ByteArrayInputStream( input ) ), metadataMask );
+    return readBean( new java.io.ObjectInputStream( new java.io.ByteArrayInputStream( input ) ), includeToDate );
   }
 
-  private static java.util.Map<String, Object> readBean( final java.io.ObjectInput input, final int metadataMask )
+  private static java.util.Map<String, Object> readBean( final java.io.ObjectInput input, final boolean includeToDate )
      throws java.io.IOException, ClassNotFoundException
   {
       final java.util.Map<String, Object> data = new java.util.HashMap<String, Object>();
@@ -62,15 +62,15 @@ public class <%= schema.name %>Codec
       data.put( iris.persist.DatabasePeer.ID, primaryKey );
 
       final int attributesMask;
-      if ( 0 != ( metadataMask & iris.beans.io.BeanCodec.MD_ATTR_MASK ) )
+      if ( includeToDate )
       {
-         attributesMask = input.readInt();
+         attributesMask = SERVER_TO_SERVER_ATTR_MASK_FOR_TYPE_CODE[typeCode];
       }
       else
       {
-        attributesMask = SERVER_TO_SERVER_ATTR_MASK_FOR_TYPE_CODE[typeCode - 1];
+         attributesMask = input.readInt();
       }
-      if ( 0 != ( metadataMask & iris.beans.io.BeanCodec.MD_TO_AND_FROM_DATES ) )
+      if ( includeToDate )
       {
          final long to = input.readLong();
          if ( 0 != to )
@@ -91,6 +91,34 @@ public class <%= schema.name %>Codec
       return data;
    }
 
+  public static byte[] writeBean( final iris.beans.AbstractBean bean, final int attributesMask, final boolean includeToDate )
+    throws java.io.IOException
+  {
+    final java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
+    final java.io.ObjectOutputStream objectOutputStream = new java.io.ObjectOutputStream( output );
+    try
+    {
+      <% schema.object_types.reverse.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+     name = object_type.name
+     type = j_classname(object_type.java.fully_qualified_name)
+  %>if( <%= type %>.class.isInstance( bean ) )
+      {
+        write<%= object_type.name %>To( (<%= type %>)bean, objectOutputStream, includeToDate, attributesMask );
+      }
+      else <% end %>
+      {
+        final String message = "Unable to validate bean: " + bean;
+        throw new IllegalArgumentException( message );
+      }
+    }
+    catch ( final RuntimeException e )
+    {
+      iris.util.debug.IDebug.error( "Failed to write bean: " + bean + " using mask " + attributesMask );
+      throw e;
+    }
+    return output.toByteArray();
+  }
+
 <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
 %>
   private static void read<%= object_type.name %>IntoMap( final java.io.ObjectInput input,
@@ -106,7 +134,7 @@ public class <%= schema.name %>Codec
       {
         {
 <% if attr_type == :integer %>          final Object value = input.readInt();
-<% elsif attr_type == :i_enum %>          final Object value = <%= j_classname(object_type.java.classname) %>.<%= attribute.java.field_name %>Value.toValue( input.readByte() );
+<% elsif attr_type == :i_enum %>          final Object value = ( (int)input.readByte() );
 <% elsif attr_type == :boolean %>          final Object value = input.readBoolean();
 <% elsif attr_type == :string || attr_type == :s_enum %>          final String string = input.readUTF();
           final Object value = "\0".equals( string ) ? null : string;
@@ -117,6 +145,56 @@ public class <%= schema.name %>Codec
         }
       }
 <% end %>
+   }
+
+  private static void write<%= object_type.name %>To( final <%= j_classname(object_type.java.classname) %> bean, final java.io.ObjectOutput output, final boolean includeToDate, final int attributesMask )
+     throws java.io.IOException
+  {
+    output.writeByte( <%= uppercase_constantize(object_type.name) %>_TYPE_CODE );
+    output.writeObject( bean.get<%= object_type.primary_key.name %>() );
+
+    if ( includeToDate )
+    {
+      final iris.busobj.BusObjEntry entry = iris.busobj.BusObjEntry.getEntry( bean );
+      if ( entry.getToDate() == null )
+      {
+        output.writeLong( 0 );
+      }
+      else
+      {
+        output.writeLong( entry.getToDate().getTime() );
+      }
+    }
+    else
+    {
+      output.writeInt( attributesMask );
+    }
+<% object_type.attributes.select{|a| !a.primary_key? && !a.iris.runtime_managed? && a.persistent? && a.iris.client_side? }.each do |attribute|
+     name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name
+     attr_type = attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
+     is_primitive = attribute.reference? ? attribute.referenced_object.primary_key.java.primitive? : attribute.java.primitive?
+%>
+      if( 0 != (<%= j_classname(object_type.java.classname) %>.<%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID & attributesMask) )
+      {
+        try
+        {
+<% if is_primitive && attr_type == :integer %>          output.writeInt( bean.get<%= name %>() );
+<% elsif attr_type == :integer %>          output.writeInt( (bean.get<%= name %>() == null) ? 0 : bean.get<%= name %>() );
+<% elsif attr_type == :i_enum %>          output.writeByte( (bean.get<%= name %>() == null) ? (byte)0 : (byte)bean.get<%= name %>().getValue() );
+<% elsif is_primitive && attr_type == :boolean %>          output.writeBoolean( bean.get<%= name %>() );
+<% elsif attr_type == :boolean %>          output.writeBoolean( (bean.get<%= name %>() == null) ? false : bean.get<%= name %>() );
+<% elsif attr_type == :string || attr_type == :s_enum %>          output.writeUTF( (bean.get<%= name %>() == null) ? "\0" : bean.get<%= name %>() );
+<% elsif attr_type == :datetime %>          output.writeLong( (bean.get<%= name %>() == null) ? Long.MAX_VALUE : bean.get<%= name %>().getTime() );
+<% else %>          throw new IllegalStateException( "Unknown attribute type transmitted <%= attr_type %>" );<% end %>
+        }
+        catch ( final RuntimeException e )
+        {
+           bean.printWarning("Failed to write attribute <%= name %> of type <%= attr_type %> with value '" + bean.get<%= name %>() + "'" );
+           throw e;
+        }
+      }
+<% end %>
+      output.flush();
    }
 <% end %>
 }
