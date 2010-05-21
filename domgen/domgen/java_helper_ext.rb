@@ -132,21 +132,25 @@ end
 
 def j_return_if_value_same(name, primitive, nullable)
   if primitive
-    <<JAVA
+    return <<JAVA
      if( #{name} == value )
      {
        return;
      }
 JAVA
-  else
-    s = <<JAVA
+  elsif !nullable
+    return <<JAVA
      if( null != #{name} && #{name}.equals( value ) )
      {
        return;
      }
 JAVA
-    if nullable
-      s << <<JAVA
+  else
+    return <<JAVA
+     if( null != #{name} && #{name}.equals( value ) )
+     {
+       return;
+     }
      else if( null != value && value.equals( #{name} ) )
      {
        return;
@@ -156,10 +160,9 @@ JAVA
        return;
      }
 JAVA
-      s
-    end
   end
 end
+
 
 def j_simple_attribute(attribute)
   name = attribute.java.field_name
