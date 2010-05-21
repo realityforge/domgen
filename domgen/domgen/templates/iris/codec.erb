@@ -35,7 +35,7 @@ public class <%= schema.name %>Codec
     final Integer typeCode = (Integer) data.get( TYPECODE );
     if ( null != typeCode )
     {
-      return StaticLoophole.cast( getClassForTypeCode( typeCode ) );
+      return iris.util.StaticLoophole.cast( getClassForTypeCode( typeCode ) );
     }
     else
     {
