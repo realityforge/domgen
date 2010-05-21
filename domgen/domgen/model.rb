@@ -1,4 +1,5 @@
 require "logger"
+require "logger"
 require "#{File.dirname(__FILE__)}/orderedhash.rb"
 
 module Domgen
@@ -473,7 +474,12 @@ module Domgen
         schema.object_types.each do |object_type|
           object_type.attributes.each do |attribute|
             if attribute.reference? && !attribute.abstract? && !attribute.inherited?
-              attribute.referenced_object.referencing_attributes << attribute
+              other_object_types = [attribute.referenced_object]
+              while !other_object_types.empty?
+                other_object_type = other_object_types.pop
+                other_object_type.direct_subtypes.each {|st| other_object_types << st }
+                other_object_type.referencing_attributes << attribute
+              end
             end
           end
         end
