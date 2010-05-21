@@ -31,7 +31,7 @@ package <%= object_type.schema.java.package %>;
 <% end
 %>  public static final int MAX_ATTR_ID = <%= last_attribute %>; //Needs to be public as accessed via reflection
 
-  static final int MIN_RELATION_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MIN_RELATION_ID << 1"; %>;
+  static final int MIN_RELATION_ID = <%= object_type.extends.nil? ? '1' : "#{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}.MAX_RELATION_ID << 1"; %>;
 <%
    last_attribute = "MIN_RELATION_ID"
    object_type.referencing_attributes.select{|a|!a.abstract? && !a.iris.runtime_managed?}.each_with_index do |attribute, index|
@@ -120,7 +120,7 @@ package <%= object_type.schema.java.package %>;
       ref_type = referenced_attribute.java.java_type
       ref_name = attribute.referencing_link_name
 %>
-  public <%= type %> get<%= name %>()
+  public final <%= type %> get<%= name %>()
   {
     if( !isLinked() )
     {
@@ -139,7 +139,7 @@ package <%= object_type.schema.java.package %>;
 %>    return <%= name %>;
   }
 
-  public void set<%= name %>( final <%= type %> value )
+  public final void set<%= name %>( final <%= type %> value )
   {
 <% if attribute.immutable? %>
     if( isLinked() && !isNew() && !isLoading() )
@@ -164,12 +164,12 @@ package <%= object_type.schema.java.package %>;
 <%= j_add_to_inverse(attribute) %>
   }
 
-  public <%= ref_type %> get<%= ref_name %>()
+  public final <%= ref_type %> get<%= ref_name %>()
   {
      return <%= ref_name %>;
   }
 
-  public void set<%= ref_name %>( final <%= ref_type %> value )
+  public final void set<%= ref_name %>( final <%= ref_type %> value )
   {
 <%= iris_immutable_check(attribute.name) if attribute.immutable? %>
 <%= iris_nullable_check(attribute.name) if (!attribute.nullable? && !referenced_attribute.java.primitive?) %>
@@ -210,12 +210,12 @@ package <%= object_type.schema.java.package %>;
 <%
    else
 %>
-  public <%= type %> get<%= name %>()
+  public final <%= type %> get<%= name %>()
   {
      return <%= name %>;
   }
 
-  public void set<%= name %>( final <%= type %> value )
+  public final void set<%= name %>( final <%= type %> value )
   {
      doSet<%= name %>( value );
   }
@@ -436,7 +436,7 @@ end %>
         {
           final java.util.HashMap<String, Object> criteria = new java.util.HashMap<String, Object>();
           criteria.put( <%= j_classname(attribute.object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(attribute.name) %>, get<%= object_type.primary_key.java.field_name %>() );
-          iris.persist.Transaction.restoreSet( <%= j_classname(object_type.java.classname) %>.class, criteria, true );
+          iris.persist.Transaction.restoreSet( <%= j_classname(attribute.object_type.java.classname) %>.class, criteria, true );
         }
         catch ( final Exception e )
         {
@@ -471,57 +471,6 @@ end %>
   {
     return <%= object_type.schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_SERVER_TO_SERVER_ATTR_MASK;
   }
-
-  @Override
-  public void writeTo( final java.io.ObjectOutput output, final boolean includeToDate, final int attributesMask )
-     throws java.io.IOException
-  {
-    output.writeByte( <%= schema.name %>Codec.<%= uppercase_constantize(object_type.name) %>_TYPE_CODE );
-    output.writeObject( get<%= object_type.primary_key.name %>() );
-
-    if ( includeToDate )
-    {
-      final iris.busobj.BusObjEntry entry = iris.busobj.BusObjEntry.getEntry( this );
-      if ( entry.getToDate() == null )
-      {
-        output.writeLong( 0 );
-      }
-      else
-      {
-        output.writeLong( entry.getToDate().getTime() );
-      }
-    }
-    else
-    {
-      output.writeInt( attributesMask );
-    }
-<% object_type.attributes.select{|a| !a.iris.runtime_managed? && a.persistent? && a.iris.client_side? }.each do |attribute|
-     name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name
-     attr_type = attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
-     is_primitive = attribute.reference? ? attribute.referenced_object.primary_key.java.primitive? : attribute.java.primitive?
-%>
-      if( 0 != (<%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID & attributesMask) )
-      {
-        try
-        {
-<% if is_primitive && attr_type == :integer %>          output.writeInt( get<%= name %>() );
-<% elsif attr_type == :integer %>          output.writeInt( (get<%= name %>() == null) ? 0 : get<%= name %>() );
-<% elsif attr_type == :i_enum %>          output.writeByte( (get<%= name %>() == null) ? (byte)0 : (byte)get<%= name %>().getValue() );
-<% elsif is_primitive && attr_type == :boolean %>          output.writeBoolean( get<%= name %>() );
-<% elsif attr_type == :boolean %>          output.writeBoolean( (get<%= name %>() == null) ? false : get<%= name %>() );
-<% elsif attr_type == :string || attr_type == :s_enum %>          output.writeUTF( (get<%= name %>() == null) ? "\0" : get<%= name %>() );
-<% elsif attr_type == :datetime %>          output.writeLong( (get<%= name %>() == null) ? Long.MAX_VALUE : get<%= name %>().getTime() );
-<% else %>          throw new IllegalStateException( "Unknown attribute type transmitted <%= attr_type %>" );<% end %>
-        }
-        catch ( final RuntimeException e )
-        {
-           printWarning("Failed to write attribute <%= name %> of type <%= attr_type %> with value '" + get<%= name %>() + "'" );
-           throw e;
-        }
-      }
-<% end %>
-      output.flush();
-   }
 
   @Override
   protected void fromMap( final java.util.Map<String, Object> data )
