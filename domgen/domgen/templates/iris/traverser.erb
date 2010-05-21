@@ -17,10 +17,11 @@ public class Traverser
       final TraversalStrategy strategy = new TraversalStrategy( <%= j_classname(object_type.java.fully_qualified_name) %>.class );
 <% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed? && !a.object_type.iris.metadata? && !a.object_type.iris.metadata_that_can_change? && a.iris.client_side?}.each do |attribute|
 %>      strategy.addRelationship( <%= j_classname(object_type.java.fully_qualified_name) %>.<%= uppercase_constantize(attribute.inverse_relationship_name) %>_RELATION_ID );
-<% end %>      traverser.addStrategy( strategy );
-<% object_type.attributes.select{|a| !a.iris.runtime_managed? && a.reference? && !a.referenced_object.iris.metadata? && !a.referenced_object.iris.metadata_that_can_change? && a.iris.client_side?}.each do |attribute|
+<%
+   end
+   object_type.attributes.select{|a| !a.iris.runtime_managed? && a.reference? && !a.referenced_object.iris.metadata? && !a.referenced_object.iris.metadata_that_can_change? && a.iris.client_side?}.each do |attribute|
 %>      strategy.addAttribute( <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.<%= uppercase_constantize(attribute.name) %>_ATTR_ID );
-<% end %>
+<% end %>      traverser.addStrategy( strategy );
     }
 <% end %>
     return traverser;
@@ -135,36 +136,34 @@ public class Traverser
 
     if ( (filterType & Filter.TRAVERSE_ONLY) == Filter.TRAVERSE_ONLY )
     {
-      for ( final TraversalEntry strategy : getStrategy( value.getClass() ) )
+      for ( final TraversalEntry entry : getStrategy( value.getClass() ) )
       {
-        if( strategy.isAttribute() )
+        if( entry.isAttribute() )
         {
-          switch( strategy.getElementID() )
+          switch( entry.getElementID() )
           {
 <% object_type.attributes.select{|a|a.reference? && !a.iris.runtime_managed?}.each do |attribute|
   ref_type = j_classname(attribute.object_type.java.fully_qualified_name)
-%>
-            case <%= ref_type %>.<%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID:
+%>            case <%= ref_type %>.<%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID:
               doTraverseBean( value.get<%= attribute.java.field_name %>(), <%= ref_type %>.COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, value, filter, delegate, visitor );
               break;
 <% end %>
             default:
-              throw new IllegalStateException( "Unknown relationship " + strategy );
+              throw unknownLink( entry );
           }
         }
         else
         {
-          switch( strategy.getElementID() )
+          switch( entry.getElementID() )
           {
 <% object_type.referencing_attributes.select{|a| a.inverse_relationship_type != :none}.each do |attribute|
   ref_type = j_classname(attribute.object_type.java.fully_qualified_name)
-%>
-            case <%= type %>.<%= uppercase_constantize(attribute.inverse_relationship_name) %>_RELATION_ID:
+%>            case <%= type %>.<%= uppercase_constantize(attribute.inverse_relationship_name) %>_RELATION_ID:
               doTraverseRelationship<%= name %><%= attribute.inverse_relationship_name %>( value, filter, delegate, visitor );
               break;
 <% end %>
             default:
-              throw new IllegalStateException( "Unknown relationship " + strategy );
+              throw unknownLink( entry );
           }
         }
       }
@@ -194,4 +193,9 @@ public class Traverser
    
 <% end %>
 <% end %>
+  private RuntimeException unknownLink( final TraversalEntry entry )
+  {
+    final String message = "Unknown " + ( entry.isAttribute() ? "Attribute" : "Relationship" ) + " :" + entry; 
+    return new IllegalStateException( message );
+  }
 }
