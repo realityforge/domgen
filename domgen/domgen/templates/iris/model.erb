@@ -436,9 +436,9 @@ end %>
 <% end %>
       if ( !iris.beans.BeanFactory.isClientSide() && linkManaged )
       {
-<% object_type.referencing_attributes.select{|a| a.references == object_type.name && !a.iris.runtime_managed?}.each do |attribute|
+<% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed?}.each do |attribute|
      if object_type.name == :ManagementProject && (
-        (attribute.object_type.name == :ManagementProject && attribute.name == :ParentTask) ||
+        (attribute.object_type.name == :SpecificTask && attribute.name == :ParentTask) ||
         (attribute.object_type.name == :Deployment && attribute.name == :Task) )
        # Special hack to stop Management Projects loading all the database during startup
      elsif (attribute.iris.eager_fetch_type? && !attribute.object_type.iris.preload? && !attribute.object_type.iris.metadata? && !attribute.object_type.iris.metadata_that_can_change? )
