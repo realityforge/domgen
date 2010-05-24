@@ -328,6 +328,17 @@ end
 %>
 <%= iris_to_string_methods(object_type) %>
 <% if !object_type.abstract? %>
+
+  public Object getPrimaryKey()
+  {
+    return get<%= object_type.primary_key.java.field_name %>(); 
+  }
+
+  public void setPrimaryKey( final Object primaryKey )
+  {
+    set<%= object_type.primary_key.java.field_name %>( (<%= object_type.primary_key.java.non_primitive_java_type %>) primaryKey );  
+  }
+
   @Override
    public void delink()
    {
