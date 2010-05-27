@@ -48,6 +48,13 @@ ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
 GO
 <%    end
     end
+    object_type.dependency_constraints.each do |c|
+%>
+ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
+  ADD CONSTRAINT CK_<%= s(object_type.name) %>_<%= s(c.name) %>_Dep CHECK ( <%= object_type.attribute_by_name(c.attribute_name).sql.column_name %> IS NULL OR (<%= c.dependent_attribute_names.collect {|name| "#{object_type.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ") %>) )
+GO
+<%
+    end
     if object_type.incompatible_constraints.size > 0 %><%=
       banner("Incompatible attribute constraints for #{sql_qualify(object_type.schema, object_type.sql.table_name)}")
 %><%

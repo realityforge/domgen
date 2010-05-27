@@ -48,6 +48,17 @@ module Domgen
     end
   end
 
+  class DependencyConstraint < BaseConfigElement
+    attr_reader :name
+    attr_accessor :attribute_name
+    attr_accessor :dependent_attribute_names
+
+    def initialize(name, attribute_name, dependent_attribute_names, options, &block)
+      @name, @attribute_name, @dependent_attribute_names = name, attribute_name, dependent_attribute_names
+      super(options, &block)
+    end
+  end
+
   class Attribute < BaseConfigElement
     attr_reader :object_type
     attr_reader :name
@@ -204,6 +215,7 @@ module Domgen
     attr_reader :unique_constraints
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
+    attr_reader :dependency_constraints
     attr_reader :referencing_attributes
     attr_accessor :extends
     attr_accessor :direct_subtypes
@@ -214,6 +226,7 @@ module Domgen
       @unique_constraints = Domgen::OrderedHash.new
       @codependent_constraints = Domgen::OrderedHash.new
       @incompatible_constraints = Domgen::OrderedHash.new
+      @dependency_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
       @direct_subtypes = []
       super(options, &block)
@@ -351,6 +364,21 @@ module Domgen
       unique_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @unique_constraints[name] = unique_constraint
       unique_constraint
+    end
+
+    def dependency_constraints
+      @dependency_constraints.values
+    end
+
+    def dependency_constraint(attribute_name, dependent_attribute_names, options = {}, &block)
+      name = "#{attribute_name}_#{attribute_names_to_key(dependent_attribute_names)}"
+      raise "Dependency constraint #{name} on #{self.name} has an illegal non nullable attribute" if !attribute_by_name(attribute_name).nullable?
+      dependent_attribute_names.collect{|a|attribute_by_name(a)}.each do |a|
+        raise "Dependency constraint #{name} on #{self.name} has an illegal non nullable dependent attribute" if !a.nullable?
+      end
+      dependency_constraint = DependencyConstraint.new(name, attribute_name, dependent_attribute_names, options, &block)
+      @dependency_constraints[name] = dependency_constraint
+      dependency_constraint
     end
 
     def codependent_constraints
