@@ -10,7 +10,12 @@ module Domgen
     end
 
     class IrisAttribute < IrisElement
-      attr_accessor :inverse_sorter
+      attr_writer :inverse_sorter
+
+      def inverse_sorter
+        @inverse_sorter = 'iris.model.sorters.ToStringComparator' if @inverse_sorter.nil?
+        @inverse_sorter
+      end
 
       # Is this attribute one of the magic ones that should not be handled by generator
       attr_writer :runtime_managed
