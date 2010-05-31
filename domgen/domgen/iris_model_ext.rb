@@ -13,7 +13,7 @@ module Domgen
       attr_writer :inverse_sorter
 
       def inverse_sorter
-        @inverse_sorter = 'iris.model.sorters.ToStringComparator' if @inverse_sorter.nil?
+        @inverse_sorter = 'iris.model.sorters.ToLabelComparator' if @inverse_sorter.nil?
         @inverse_sorter
       end
 
