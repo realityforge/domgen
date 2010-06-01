@@ -370,6 +370,7 @@ module Domgen
       @dependency_constraints.values
     end
 
+    # Check that either the attribute is null or the attribute and all the dependents are not null
     def dependency_constraint(attribute_name, dependent_attribute_names, options = {}, &block)
       name = "#{attribute_name}_#{attribute_names_to_key(dependent_attribute_names)}"
       raise "Dependency constraint #{name} on #{self.name} has an illegal non nullable attribute" if !attribute_by_name(attribute_name).nullable?
@@ -385,6 +386,7 @@ module Domgen
       @codependent_constraints.values
     end
 
+    # Check that either all attributes are null or all are not null
     def codependent_constraint(attribute_names, options = {}, &block)
       name = attribute_names_to_key(attribute_names)
       attribute_names.collect{|a|attribute_by_name(a)}.each do |a|
@@ -399,6 +401,7 @@ module Domgen
       @incompatible_constraints.values
     end
 
+    # Check that at most one of the attributes is not null 
     def incompatible_constraint(attribute_names, options = {}, &block)
       name = attribute_names_to_key(attribute_names)
       attribute_names.collect{|a|attribute_by_name(a)}.each do |a|
