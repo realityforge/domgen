@@ -1,4 +1,12 @@
+require 'erb'
+require 'fileutils'
+require 'logger'
+
+require "#{File.dirname(__FILE__)}/orderedhash.rb"
+
+# Core components
 require "#{File.dirname(__FILE__)}/model.rb"
+require "#{File.dirname(__FILE__)}/template.rb"
 require "#{File.dirname(__FILE__)}/generator.rb"
 require "#{File.dirname(__FILE__)}/helper.rb"
 

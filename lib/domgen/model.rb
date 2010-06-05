@@ -1,7 +1,3 @@
-require "logger"
-require "logger"
-require "#{File.dirname(__FILE__)}/orderedhash.rb"
-
 module Domgen
   Logger = ::Logger.new(STDOUT)
   Logger.level = ::Logger::WARN

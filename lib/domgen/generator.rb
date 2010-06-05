@@ -1,6 +1,3 @@
-require 'erb'
-require 'fileutils'
-
 module Domgen
   module Generator
     DEFAULT_ARTIFACTS = [:jpa, :active_record, :sql]
