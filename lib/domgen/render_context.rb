@@ -15,10 +15,11 @@ module Domgen
       end
 
       def context
-        context = Object.new
+        clazz = Class.new
         @helpers.each do |helper|
-          context.include helper
+          clazz.send :include, helper
         end
+        context = clazz.new
         @variables.each_pair do |k, v|
           context.instance_eval "def #{k}; @#{k}; end"
           context.instance_variable_set "@#{k}".to_sym, v
