@@ -21,22 +21,27 @@ module Domgen
       end
 
       templates.each do |template|
-        context = RenderContext.new
-        context.set_local_variable(:schema_set, schema_set)
         if :schema_set == template.scope
-          output_filename = render(directory, template, context)
-          Logger.debug "Generated #{template.template_name} for schema set" if output_filename
+          context = RenderContext.new
+          context.set_local_variable(:schema_set, schema_set)
+          render(directory, template, context) do
+            Logger.debug "Generated #{template.template_name} for schema set"
+          end          
         else
           schema_set.schemas.each do |schema|
-            context.set_local_variable(:schema, schema)
-            if :schema_set == template.scope
-              output_filename = render(directory, template, context)
-              Logger.debug "Generated #{template.template_name} for schema #{schema.name}" if output_filename
+            if :schema == template.scope
+              context = RenderContext.new
+              context.set_local_variable(:schema, schema)
+              render(directory, template, context) do 
+                Logger.debug "Generated #{template.template_name} for schema #{schema.name}"
+              end
             else
               schema.object_types.each do |object_type|
+                context = RenderContext.new
                 context.set_local_variable(:object_type, object_type)
-                output_filename = render(directory, template, context)
-                Logger.debug "Generated #{template.template_name} for object_type #{schema.name}.#{object_type.name}" if output_filename
+                render(directory, template, context) do
+                  Logger.debug "Generated #{template.template_name} for object_type #{schema.name}.#{object_type.name}"
+                end                
               end
             end
           end
@@ -124,7 +129,7 @@ module Domgen
     
     private
 
-    def self.render(target_basedir, template, render_context)
+    def self.render(target_basedir, template, render_context, &block)
       context_binding = render_context.context.send :binding
       return nil if !template.guard.nil? && !eval(template.guard, context_binding)
       output_filename = eval("\"#{template.output_filename_pattern}\"", context_binding)
@@ -132,7 +137,7 @@ module Domgen
       result = template.render_to_string(context_binding)
       FileUtils.mkdir_p File.dirname(output_filename)
       File.open(output_filename, 'w') { |f| f.write(result) }
-      return output_filename
+      yield if output_filename
     end
   end
 end
