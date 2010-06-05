@@ -50,18 +50,6 @@ module Domgen
       Logger.info "Generator completed"
     end
 
-    class TemplateSet
-      attr_accessor :per_schema_set
-      attr_accessor :per_schema
-      attr_accessor :per_object_type
-
-      def initialize
-        self.per_schema_set = []
-        self.per_schema = []
-        self.per_object_type = []
-      end
-    end
-
     class Template
       class << self
         attr_accessor :template_dir
