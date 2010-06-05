@@ -9,40 +9,36 @@ module Domgen
       artifacts = DEFAULT_ARTIFACTS unless artifacts
       Logger.info "Generator started: artifacts = #{artifacts.inspect}"
 
-      template_set = TemplateSet.new
+      templates = []
 
       artifacts.each do |artifact|
         method_name = "define_#{artifact}_templates".to_sym
         if self.respond_to? method_name
-          self.send method_name, template_set
+          templates = templates + self.send(method_name)
         else
           raise "Missing define_#{artifact}_templates method"
         end
       end
 
-      template_set.per_schema_set.each do |template|
+      templates.each do |template|
         context = RenderContext.new
         context.set_local_variable(:schema_set, schema_set)
-        output_filename = render(directory, template, context)
-        Logger.debug "Generated #{template.template_name} for schema set" if output_filename
-      end
-
-      template_set.per_schema.each do |template|
-        context = RenderContext.new
-        schema_set.schemas.each do |schema|
-          context.set_local_variable(:schema, schema)
+        if :schema_set == template.scope
           output_filename = render(directory, template, context)
-          Logger.debug "Generated #{template.template_name} for schema #{schema.name}" if output_filename
-        end
-      end
-
-      template_set.per_object_type.each do |template|
-        context = RenderContext.new
-        schema_set.schemas.each do |schema|
-          schema.object_types.each do |object_type|
-            context.set_local_variable(:object_type, object_type)
-            output_filename = render(directory, template, context)
-            Logger.debug "Generated #{template.template_name} for object_type #{schema.name}.#{object_type.name}" if output_filename
+          Logger.debug "Generated #{template.template_name} for schema set" if output_filename
+        else
+          schema_set.schemas.each do |schema|
+            context.set_local_variable(:schema, schema)
+            if :schema_set == template.scope
+              output_filename = render(directory, template, context)
+              Logger.debug "Generated #{template.template_name} for schema #{schema.name}" if output_filename
+            else
+              schema.object_types.each do |object_type|
+                context.set_local_variable(:object_type, object_type)
+                output_filename = render(directory, template, context)
+                Logger.debug "Generated #{template.template_name} for object_type #{schema.name}.#{object_type.name}" if output_filename
+              end
+            end
           end
         end
       end
@@ -68,21 +64,22 @@ module Domgen
 
       self.template_dir = "#{File.dirname(__FILE__)}/templates"
 
-
       attr_reader :template_name
-      attr_reader :template_type
       attr_reader :output_filename_pattern
-      attr_reader :basedir
       attr_reader :guard
+      attr_reader :helpers
+      attr_reader :scope
 
-      def initialize(template_name, output_filename_pattern, basedir, guard = nil, template_type = :erb)
-        @template_name, @output_filename_pattern, @basedir, @guard, @template_type =
-            template_name, output_filename_pattern, basedir, guard, template_type
+      def initialize(scope, template_name, output_filename_pattern, helpers = [], guard = nil)
+        @scope = scope
+        @template_name = template_name
+        @output_filename_pattern = output_filename_pattern
+        @helpers = helpers
+        @guard = guard
       end
 
       def render_to_string(context_binding)
-        return erb_instance.result(context_binding) if :erb == template_type
-        raise "Unknown template_type #{template_type}"
+        erb_instance.result(context_binding)
       end
 
       protected
@@ -131,8 +128,7 @@ module Domgen
       context_binding = render_context.context.send :binding
       return nil if !template.guard.nil? && !eval(template.guard, context_binding)
       output_filename = eval("\"#{template.output_filename_pattern}\"", context_binding)
-      output_dir = eval("\"#{template.basedir}\"", context_binding)
-      output_filename = File.join(target_basedir, output_dir, output_filename)
+      output_filename = File.join(target_basedir, output_filename)
       result = template.render_to_string(context_binding)
       FileUtils.mkdir_p File.dirname(output_filename)
       File.open(output_filename, 'w') { |f| f.write(result) }
