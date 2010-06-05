@@ -12,7 +12,7 @@ module Domgen
       attr_reader :guard
       attr_reader :helpers
       attr_reader :scope
-      attr_accessor :extension_key
+      attr_accessor :generator_key
 
       def initialize(scope, template_name, output_filename_pattern, helpers = [], guard = nil)
         @scope = scope

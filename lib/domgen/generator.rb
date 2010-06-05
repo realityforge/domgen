@@ -2,11 +2,11 @@ module Domgen
   module Generator
     DEFAULT_ARTIFACTS = [:jpa, :active_record, :sql]
 
-    def self.generate(schema_set, directory, artifacts = nil)
-      artifacts = DEFAULT_ARTIFACTS unless artifacts
-      Logger.info "Generator started: artifacts = #{artifacts.inspect}"
+    def self.generate(schema_set, directory, generator_keys = nil)
+      generator_keys = DEFAULT_ARTIFACTS unless generator_keys
+      Logger.info "Generator started: Generating #{generator_keys.inspect}"
 
-      templates = load_templates
+      templates = load_templates(generator_keys)
 
       templates.each do |template|
         if :schema_set == template.scope
@@ -43,19 +43,19 @@ module Domgen
       context
     end
 
-    def self.load_templates
+    def self.load_templates(generator_keys)
       templates = []
 
-      artifacts.each do |artifact|
-        method_name = "define_#{artifact}_templates".to_sym
+      generator_keys.each do |generator_key|
+        method_name = "define_#{generator_key}_templates".to_sym
         if self.respond_to? method_name
           new_templates = self.send(method_name)
           new_templates.each do |template|
-            template.extension_key = artifact
+            template.generator_key = generator_key
           end
           templates = templates + new_templates
         else
-          raise "Missing define_#{artifact}_templates method"
+          raise "Missing define_#{generator_key}_templates method"
         end
       end
 
