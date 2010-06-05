@@ -9,16 +9,7 @@ module Domgen
       artifacts = DEFAULT_ARTIFACTS unless artifacts
       Logger.info "Generator started: artifacts = #{artifacts.inspect}"
 
-      templates = []
-
-      artifacts.each do |artifact|
-        method_name = "define_#{artifact}_templates".to_sym
-        if self.respond_to? method_name
-          templates = templates + self.send(method_name)
-        else
-          raise "Missing define_#{artifact}_templates method"
-        end
-      end
+      templates = load_templates
 
       templates.each do |template|
         if :schema_set == template.scope
@@ -62,6 +53,7 @@ module Domgen
       attr_reader :guard
       attr_reader :helpers
       attr_reader :scope
+      attr_accessor :extension_key
 
       def initialize(scope, template_name, output_filename_pattern, helpers = [], guard = nil)
         @scope = scope
@@ -116,6 +108,25 @@ module Domgen
     end
     
     private
+
+    def self.load_templates
+      templates = []
+
+      artifacts.each do |artifact|
+        method_name = "define_#{artifact}_templates".to_sym
+        if self.respond_to? method_name
+          new_templates = self.send(method_name)
+          new_templates.each do |template|
+            template.extension_key = artifact
+          end
+          templates = templates + new_templates
+        else
+          raise "Missing define_#{artifact}_templates method"
+        end
+      end
+
+      templates
+    end
 
     def self.render(target_basedir, template, render_context, &block)
       context_binding = render_context.context.send :binding
