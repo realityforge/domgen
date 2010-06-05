@@ -12,18 +12,18 @@ module Domgen
         if :schema_set == template.scope
           render(directory, template, :schema_set, schema_set) do
             Logger.debug "Generated #{template.template_name} for schema set"
-          end          
+          end if schema_set.generate?(template.generator_key)
         else
           schema_set.schemas.each do |schema|
             if :schema == template.scope
               render(directory, template, :schema, schema) do
                 Logger.debug "Generated #{template.template_name} for schema #{schema.name}"
-              end
+              end if schema.generate?(template.generator_key)
             else
               schema.object_types.each do |object_type|
                 render(directory, template, :object_type, object_type) do
                   Logger.debug "Generated #{template.template_name} for object_type #{schema.name}.#{object_type.name}"
-                end                
+                end if object_type.generate?(template.generator_key)                
               end
             end
           end

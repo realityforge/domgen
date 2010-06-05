@@ -34,6 +34,22 @@ module Domgen
     end
   end
 
+  class BaseGeneratableElement < BaseConfigElement
+    def initialize(parent, options, &block)
+      @parent = parent
+      @generator_keys = []
+      super(options, &block)
+    end
+
+    def define_generator(generator_key)
+      @generator_keys << generator_key.to_sym
+    end
+
+    def generate?(generator_key)
+      @generator_keys.include?(generator_key) || (!@parent.nil? && @parent.generate?(generator_key))
+    end
+  end
+
   class AttributeSetConstraint < BaseConfigElement
     attr_reader :name
     attr_accessor :attribute_names
@@ -205,7 +221,7 @@ module Domgen
     end
   end
 
-  class ObjectType < BaseConfigElement
+  class ObjectType < BaseGeneratableElement
     attr_reader :schema
     attr_reader :name
     attr_reader :unique_constraints
@@ -217,7 +233,8 @@ module Domgen
     attr_accessor :direct_subtypes
 
     def initialize(schema, name, options = {}, &block)
-      @schema, @name = schema, name
+      @schema = schema
+      @name = name
       @attributes = Domgen::OrderedHash.new
       @unique_constraints = Domgen::OrderedHash.new
       @codependent_constraints = Domgen::OrderedHash.new
@@ -225,7 +242,7 @@ module Domgen
       @dependency_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
       @direct_subtypes = []
-      super(options, &block)
+      super(schema, options, &block)
     end
 
     def verify
@@ -432,7 +449,7 @@ module Domgen
     end
   end
 
-  class Schema < BaseConfigElement
+  class Schema < BaseGeneratableElement
     attr_reader :schema_set
     attr_reader :name
 
@@ -441,7 +458,7 @@ module Domgen
       @name = name
       @object_types = Domgen::OrderedHash.new
       Logger.info "Schema '#{name}' definition started"
-      super(options, &block)
+      super(schema_set, options, &block)
       Logger.info "Schema '#{name}'  definition completed"
     end
 
@@ -490,13 +507,13 @@ module Domgen
     end
   end
 
-  class SchemaSet < BaseConfigElement
+  class SchemaSet < BaseGeneratableElement
     attr_reader :schemas
 
     def initialize(options = {}, &block)
       @schemas = []
       Logger.info "SchemaSet definition started"
-      super(options, &block)
+      super(nil, options, &block)
       self.schemas.each do |schema|
         schema.object_types.each do |object_type|
           object_type.attributes.each do |attribute|
