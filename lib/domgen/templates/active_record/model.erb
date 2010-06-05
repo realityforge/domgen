@@ -3,7 +3,7 @@ module <%= object_type.schema.ruby.module_name %>
 
 class <%= object_type.ruby.classname %> < ActiveRecord::Base
   # Attributes:
-<% object_type.attributes.each do |a|
+<% object_type.attributes.select{|a| a.persistent?}.each do |a|
 %>  #   <%= a.sql.column_name %>: <%= a.reference? ? a.referenced_object.name : a.attribute_type %>
 <% end %>
   set_table_name "<%= sql_qualify(object_type.schema,object_type.sql.table_name).gsub('[','').gsub(']','').gsub('dbo.','') %>"
