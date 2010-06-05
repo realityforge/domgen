@@ -10,7 +10,7 @@ public class <%= schema.name %>Sync
     throws Exception
   {
       final Class<?> type = bean.getClass();
-      <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.reverse.each do |object_type|
+      <% schema.object_types.select{|o|!o.abstract?}.reverse.each do |object_type|
 %>if( <%= j_classname(object_type.java.classname) %>.class == type )
       {
         verify<%= object_type.name %>( (<%= j_classname(object_type.java.fully_qualified_name) %>)bean );
@@ -20,7 +20,7 @@ public class <%= schema.name %>Sync
         throw new IllegalStateException("Unknown type " + type );
       }
    }
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
 %>
   private static void verify<%= object_type.name %>( final <%= j_classname(object_type.java.fully_qualified_name) %> bean ) throws Exception
   {
@@ -94,7 +94,7 @@ public class <%= schema.name %>Sync
 
   public static java.util.Map<String, Object> processSyncData( final Class<?> type, final iris.beans.AbstractBean original, final java.util.Map newData, final boolean conflict )
   {
-    <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+    <% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
 %>if( <%= j_classname(object_type.java.classname) %>.class == type )
       {
         return process<%= object_type.name %>SyncData( (<%= j_classname(object_type.java.classname) %>)original, newData, conflict );
@@ -105,7 +105,7 @@ public class <%= schema.name %>Sync
       }
    }
 
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
 %>
   private static java.util.Map<String, Object> process<%= object_type.name %>SyncData( final <%= j_classname(object_type.java.classname) %> original, final java.util.Map newData, final boolean conflict )
   {

@@ -88,7 +88,7 @@ public class ChainFilter
       }
       return result;
    }
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
    type = j_classname(object_type.java.fully_qualified_name)
 %>

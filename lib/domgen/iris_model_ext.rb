@@ -101,13 +101,6 @@ module Domgen
         @preload
       end
 
-      attr_writer :generate
-
-      def generate?
-        @generate = parent.schema.iris.generate? if @generate.nil?
-        @generate
-      end
-
       attr_writer :metadata
 
       def metadata?

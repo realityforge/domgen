@@ -12,7 +12,7 @@ public class Traverser
   public static Traverser createBaseTraverser()
   {
     final Traverser traverser = new Traverser();
-<% schema.object_types.select{|o|o.iris.generate? && !o.abstract? && !o.iris.metadata? && !o.iris.metadata_that_can_change? }.each do |object_type| %>
+<% schema.object_types.select{|o|!o.abstract? && !o.iris.metadata? && !o.iris.metadata_that_can_change? }.each do |object_type| %>
     {
       final TraversalStrategy strategy = new TraversalStrategy( <%= j_classname(object_type.java.fully_qualified_name) %>.class );
 <% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed? && !a.object_type.iris.metadata? && !a.object_type.iris.metadata_that_can_change? && a.iris.client_side?}.each do |attribute|
@@ -38,7 +38,7 @@ public class Traverser
     {
       //No action
     }
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.reverse.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract?}.reverse.each do |object_type|
   name = object_type.name
   type = j_classname(object_type.java.fully_qualified_name)
 %>    else if( bean instanceof <%= type %> )
@@ -109,7 +109,7 @@ public class Traverser
       visitor.endDummy( dummy, linkerAttributeID );
     }
   }
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
   name = object_type.name
   type = j_classname(object_type.java.fully_qualified_name)
 %>

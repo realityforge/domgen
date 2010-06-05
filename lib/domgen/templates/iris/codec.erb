@@ -9,24 +9,24 @@ public class <%= schema.name %>Codec
    public static final String TYPECODE = "OBJECT_TYPECODE";
 
   /* Type Codes */
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
+<% schema.object_types.select{|o|!o.abstract?}.each_with_index do |object_type, index|
 %>  public static final byte <%= uppercase_constantize(object_type.name) %>_TYPE_CODE = (byte)<%= index + 1 %>;
 <% end %>
 
   /* Attr Masks */
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
+<% schema.object_types.select{|o|!o.abstract?}.each_with_index do |object_type, index|
 %>  public static final int <%= uppercase_constantize(object_type.name) %>_CLIENT_TO_SERVER_ATTR_MASK = <%= object_type.attributes.select{|a| a.iris.client_side? && a.persistent? && !a.iris.runtime_managed? }.collect{|a| "#{j_classname(a.object_type.java.classname)}.#{uppercase_constantize(a.java.field_name)}_ATTR_ID" }.join(" | ") %>;
   static final int <%= uppercase_constantize(object_type.name) %>_SERVER_TO_SERVER_ATTR_MASK = <%= object_type.attributes.select{|a| a.persistent? && !a.iris.runtime_managed? }.collect{|a| "#{j_classname(a.object_type.java.classname)}.#{uppercase_constantize(a.java.field_name)}_ATTR_ID" }.join(" | ") %>;
 <% end %>
 
   private static final Class<?>[] CLASSES_FOR_TYPE_CODE = {
     null,
-    <%= schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
+    <%= schema.object_types.select{|o|!o.abstract?}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
   };
 
   private static final int[] SERVER_TO_SERVER_ATTR_MASK_FOR_TYPE_CODE = {
     0,
-    <%= schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.collect{|o|"#{uppercase_constantize(o.name)}_SERVER_TO_SERVER_ATTR_MASK"}.join(",\n    ") %>
+    <%= schema.object_types.select{|o|!o.abstract?}.collect{|o|"#{uppercase_constantize(o.name)}_SERVER_TO_SERVER_ATTR_MASK"}.join(",\n    ") %>
   };
 
 
@@ -95,7 +95,7 @@ public class <%= schema.name %>Codec
          }
       }
 
-    <% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each_with_index do |object_type, index|
+    <% schema.object_types.select{|o|!o.abstract?}.each_with_index do |object_type, index|
 %>if( <%= uppercase_constantize(object_type.name) %>_TYPE_CODE == typeCode )
       {
         read<%= object_type.name %>IntoMap( input, data, attributesMask );
@@ -114,7 +114,7 @@ public class <%= schema.name %>Codec
     final java.io.ObjectOutputStream objectOutputStream = new java.io.ObjectOutputStream( output );
     try
     {
-      <% schema.object_types.reverse.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+      <% schema.object_types.reverse.select{|o|!o.abstract?}.each do |object_type|
      name = object_type.name
      type = j_classname(object_type.java.fully_qualified_name)
   %>if( <%= type %>.class.isInstance( bean ) )
@@ -135,7 +135,7 @@ public class <%= schema.name %>Codec
     return output.toByteArray();
   }
 
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
 %>
   private static void read<%= object_type.name %>IntoMap( final java.io.ObjectInput input,
                            final java.util.Map<String, Object> data,

@@ -8,7 +8,7 @@ public class <%= schema.name %>Validator
 {
   public static void validate( final iris.beans.AbstractBean bean )
   {
-    <% schema.object_types.reverse.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+    <% schema.object_types.reverse.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
    type = j_classname(object_type.java.fully_qualified_name)
 %>if( <%= type %>.class.isInstance( bean ) )
@@ -24,7 +24,7 @@ public class <%= schema.name %>Validator
 
   public static void validate( final Class<?> type, final java.util.Map<String, Object> data, final boolean truncate )
   {
-    <% schema.object_types.reverse.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+    <% schema.object_types.reverse.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
    type = j_classname(object_type.java.fully_qualified_name)
 %>if( <%= type %>.class == type )
@@ -38,7 +38,7 @@ public class <%= schema.name %>Validator
     }
   }
 
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate? }.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
    type = j_classname(object_type.java.fully_qualified_name)
 %>

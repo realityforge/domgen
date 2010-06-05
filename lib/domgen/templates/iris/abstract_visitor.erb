@@ -32,7 +32,7 @@ public class AbstractVisitor
    {
       endDummy( value, viaRelationship );
    }
-<% schema.object_types.select{|o|o.iris.generate?}.each do |object_type|
+<% schema.object_types.each do |object_type|
    name = object_type.name
    type = j_classname(object_type.java.fully_qualified_name)
    extends_name = object_type.extends.nil? ? 'Bean' : object_type.extends

@@ -14,7 +14,7 @@ public interface Filter
    int acceptBean( iris.beans.AbstractBean value, FilterDelegate delegate, String linkerAttributeID, iris.beans.AbstractBean linker );
    int acceptNotDeployedNode( iris.beans.NotDeployedNode value, FilterDelegate delegate, String linkerAttributeID, iris.beans.AbstractBean linker );
    int acceptDummy( iris.beans.DummyBean value, FilterDelegate delegate, String linkerAttributeID, iris.beans.AbstractBean linker );
-<% schema.object_types.select{|o|!o.abstract? && o.iris.generate?}.each do |object_type|
+<% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
    type = j_classname(object_type.java.fully_qualified_name)
 %>   int accept<%= name %>( <%= type %> value, FilterDelegate delegate, String linkerAttributeID, iris.beans.AbstractBean linker );
