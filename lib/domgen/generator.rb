@@ -10,24 +10,18 @@ module Domgen
 
       templates.each do |template|
         if :schema_set == template.scope
-          context = RenderContext.new
-          context.set_local_variable(:schema_set, schema_set)
-          render(directory, template, context) do
+          render(directory, template, :schema_set, schema_set) do
             Logger.debug "Generated #{template.template_name} for schema set"
           end          
         else
           schema_set.schemas.each do |schema|
             if :schema == template.scope
-              context = RenderContext.new
-              context.set_local_variable(:schema, schema)
-              render(directory, template, context) do 
+              render(directory, template, :schema, schema) do
                 Logger.debug "Generated #{template.template_name} for schema #{schema.name}"
               end
             else
               schema.object_types.each do |object_type|
-                context = RenderContext.new
-                context.set_local_variable(:object_type, object_type)
-                render(directory, template, context) do
+                render(directory, template, :object_type, object_type) do
                   Logger.debug "Generated #{template.template_name} for object_type #{schema.name}.#{object_type.name}"
                 end                
               end
@@ -39,6 +33,15 @@ module Domgen
     end
     
     private
+
+    def self.create_context(template, key, value)
+      context = RenderContext.new
+      context.set_local_variable(key, value)
+      template.helpers.each do |helper|
+        context.add_helper(helper)
+      end
+      context
+    end
 
     def self.load_templates
       templates = []
@@ -59,7 +62,8 @@ module Domgen
       templates
     end
 
-    def self.render(target_basedir, template, render_context, &block)
+    def self.render(target_basedir, template, key, value, &block)
+      render_context = create_context(template, key, value)
       context_binding = render_context.context.send :binding
       return nil if !template.guard.nil? && !eval(template.guard, context_binding)
       output_filename = eval("\"#{template.output_filename_pattern}\"", context_binding)
