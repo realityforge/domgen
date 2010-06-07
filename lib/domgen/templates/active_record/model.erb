@@ -33,7 +33,6 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 %>  nillable_boolean :<%= a.sql.column_name %>
 <%         end
          end
-<%       end
          if a.attribute_type == :string || a.attribute_type == :s_enum
 %>  nillable_attribute :<%= a.sql.column_name %>
   validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => true
