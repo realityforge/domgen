@@ -29,6 +29,10 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <%       end
          if a.attribute_type == :boolean
 %>  validates_boolean :<%= a.sql.column_name %>, :allow_nil => <%= a.nullable? %>
+<%         if a.nullable?
+%>  nillable_boolean :<%= a.sql.column_name %>
+<%         end
+         end
 <%       end
          if a.attribute_type == :string || a.attribute_type == :s_enum
 %>  nillable_attribute :<%= a.sql.column_name %>
