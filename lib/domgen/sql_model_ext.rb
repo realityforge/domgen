@@ -177,8 +177,28 @@ module Domgen
       end
 
       def pre_verify
-        parent.unique_constraints.each do |u|
-          index(u.attribute_names, {:unique => true})
+        parent.unique_constraints.each do |c|
+          index(c.attribute_names, {:unique => true})
+        end
+        parent.codependent_constraints.each do |c|
+          constraint("#{parent.name}_#{c.name}_CoDep", :sql => <<SQL)
+( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ")} ) OR
+( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NULL" }.join(" AND ") } )
+SQL
+        end
+        parent.dependency_constraints.each do |c|
+          constraint("#{parent.name}_#{c.name}_Dep", :sql => <<SQL)
+#{parent.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR
+( #{c.dependent_attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ") } )
+SQL
+        end
+        parent.incompatible_constraints.each do |c|
+          sql = (0..(c.attribute_names.size)).collect do |i|
+            candidate = c.attribute_names[i]
+            str = c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
+            "(#{str})"
+          end.join(" OR ")
+          constraint("#{parent.name}_#{c.name}_Incompat", :sql => sql)
         end
 
         parent.declared_attributes.select {|a| a.attribute_type == :i_enum }.each do |a|
