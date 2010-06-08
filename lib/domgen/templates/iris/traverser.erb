@@ -14,13 +14,13 @@ public class Traverser
     final Traverser traverser = new Traverser();
 <% schema.object_types.select{|o|!o.abstract? && !o.iris.metadata? && !o.iris.metadata_that_can_change? }.each do |object_type| %>
     {
-      final TraversalStrategy strategy = new TraversalStrategy( <%= j_classname(object_type.java.fully_qualified_name) %>.class );
+      final TraversalStrategy strategy = new TraversalStrategy( <%= object_type.iris.classname %>.class );
 <% object_type.referencing_attributes.select{|a| !a.iris.runtime_managed? && !a.object_type.iris.metadata? && !a.object_type.iris.metadata_that_can_change? && a.iris.client_side?}.each do |attribute|
-%>      strategy.addRelationship( <%= j_classname(object_type.java.fully_qualified_name) %>.<%= uppercase_constantize(attribute.inverse_relationship_name) %>_RELATION_ID );
+%>      strategy.addRelationship( <%= object_type.iris.classname %>.<%= uppercase_constantize(attribute.inverse_relationship_name) %>_RELATION_ID );
 <%
    end
    object_type.attributes.select{|a| !a.iris.runtime_managed? && a.reference? && !a.referenced_object.iris.metadata? && !a.referenced_object.iris.metadata_that_can_change? && a.iris.client_side?}.each do |attribute|
-%>      strategy.addAttribute( <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.<%= uppercase_constantize(attribute.name) %>_ATTR_ID );
+%>      strategy.addAttribute( <%= attribute.object_type.iris.classname %>.<%= uppercase_constantize(attribute.name) %>_ATTR_ID );
 <% end %>      traverser.addStrategy( strategy );
     }
 <% end %>
@@ -40,7 +40,7 @@ public class Traverser
     }
 <% schema.object_types.select{|o|!o.abstract?}.reverse.each do |object_type|
   name = object_type.name
-  type = j_classname(object_type.java.fully_qualified_name)
+  type = object_type.iris.classname
 %>    else if( bean instanceof <%= type %> )
     {
       doTraverse<%= name %>( (<%= type %>)bean, linkerAttributeID, linker, filter, delegate, visitor );
@@ -111,7 +111,7 @@ public class Traverser
   }
 <% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
   name = object_type.name
-  type = j_classname(object_type.java.fully_qualified_name)
+  type = object_type.iris.classname
 %>
 
   @SuppressWarnings( { "LoopStatementThatDoesntLoop" } )
@@ -143,7 +143,7 @@ public class Traverser
           switch( entry.getElementID() )
           {
 <% object_type.attributes.select{|a|a.reference? && !a.iris.runtime_managed?}.each do |attribute|
-  ref_type = j_classname(attribute.object_type.java.fully_qualified_name)
+  ref_type = attribute.object_type.iris.classname
 %>            case <%= ref_type %>.<%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID:
               doTraverseBean( value.get<%= attribute.java.field_name %>(), <%= ref_type %>.COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, value, filter, delegate, visitor );
               break;
@@ -157,7 +157,7 @@ public class Traverser
           switch( entry.getElementID() )
           {
 <% object_type.referencing_attributes.select{|a| a.inverse_relationship_type != :none}.each do |attribute|
-  ref_type = j_classname(attribute.object_type.java.fully_qualified_name)
+  ref_type = attribute.object_type.iris.classname
 %>            case <%= type %>.<%= uppercase_constantize(attribute.inverse_relationship_name) %>_RELATION_ID:
               doTraverseRelationship<%= name %><%= attribute.inverse_relationship_name %>( value, filter, delegate, visitor );
               break;
@@ -175,7 +175,7 @@ public class Traverser
     }
   }
 <% object_type.referencing_attributes.select{|a| a.inverse_relationship_type != :none}.each do |attribute|
-  ref_type = j_classname(attribute.object_type.java.fully_qualified_name)
+  ref_type = attribute.object_type.iris.classname
    is_many = attribute.inverse_relationship_type == :has_many
    other = is_many ? 'other' : "value.get#{attribute.inverse_relationship_name}()"
 %>

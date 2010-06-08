@@ -11,9 +11,9 @@ public class <%= schema.name %>Sync
   {
       final Class<?> type = bean.getClass();
       <% schema.object_types.select{|o|!o.abstract?}.reverse.each do |object_type|
-%>if( <%= j_classname(object_type.java.classname) %>.class == type )
+%>if( <%= object_type.iris.classname %>.class == type )
       {
-        verify<%= object_type.name %>( (<%= j_classname(object_type.java.fully_qualified_name) %>)bean );
+        verify<%= object_type.name %>( (<%= object_type.iris.classname %>)bean );
       }
       else <% end %>
       {
@@ -22,14 +22,14 @@ public class <%= schema.name %>Sync
    }
 <% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
 %>
-  private static void verify<%= object_type.name %>( final <%= j_classname(object_type.java.fully_qualified_name) %> bean ) throws Exception
+  private static void verify<%= object_type.name %>( final <%= object_type.iris.classname %> bean ) throws Exception
   {
       final boolean deleted = bean.isDeleted();
       iris.util.debug.IDebug.syncDebug( "Verifying attributes of " + bean );
 <% object_type.attributes.select{|a| a.persistent? && a.reference? && !a.primary_key? && !a.iris.runtime_managed?}.each do |attribute|
      name = attribute.java.field_name
      type = attribute.java.java_type
-     referrenced_type = j_classname(attribute.referenced_object.java.fully_qualified_name)
+     referrenced_type = attribute.referenced_object.iris.classname
 %>
       {
         final <%= attribute.referenced_object.primary_key.java.java_type %> id = bean.get<%= attribute.referencing_link_name %>();
@@ -66,9 +66,9 @@ public class <%= schema.name %>Sync
 <% object_type.referencing_attributes.select{|a| a.persistent? && !a.iris.runtime_managed?}.each do |attribute| %>
         {
           final java.util.Map<String, Object> criteria = new java.util.HashMap<String, Object>();
-          criteria.put( <%= j_classname(attribute.object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(attribute.name) %>, bean.get<%= object_type.primary_key.java.field_name %>() );
-          final java.util.List<<%= j_classname(attribute.object_type.java.fully_qualified_name) %>> objects = iris.persist.Transaction.restoreSet( <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.class, criteria, false );
-          for ( final <%= j_classname(attribute.object_type.java.fully_qualified_name) %> other : objects )
+          criteria.put( <%= attribute.object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(attribute.name) %>, bean.get<%= object_type.primary_key.java.field_name %>() );
+          final java.util.List<<%= attribute.object_type.iris.classname %>> objects = iris.persist.Transaction.restoreSet( <%= attribute.object_type.iris.classname %>.class, criteria, false );
+          for ( final <%= attribute.object_type.iris.classname %> other : objects )
           {
              if ( !other.isDeleted() )
              {
@@ -95,9 +95,9 @@ public class <%= schema.name %>Sync
   public static java.util.Map<String, Object> processSyncData( final Class<?> type, final iris.beans.AbstractBean original, final java.util.Map newData, final boolean conflict )
   {
     <% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
-%>if( <%= j_classname(object_type.java.classname) %>.class == type )
+%>if( <%= object_type.iris.classname %>.class == type )
       {
-        return process<%= object_type.name %>SyncData( (<%= j_classname(object_type.java.classname) %>)original, newData, conflict );
+        return process<%= object_type.name %>SyncData( (<%= object_type.iris.classname %>)original, newData, conflict );
       }
       else <% end %>
       {
@@ -107,7 +107,7 @@ public class <%= schema.name %>Sync
 
 <% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
 %>
-  private static java.util.Map<String, Object> process<%= object_type.name %>SyncData( final <%= j_classname(object_type.java.classname) %> original, final java.util.Map newData, final boolean conflict )
+  private static java.util.Map<String, Object> process<%= object_type.name %>SyncData( final <%= object_type.iris.classname %> original, final java.util.Map newData, final boolean conflict )
   {
     final java.util.Map<String, Object> data = new java.util.HashMap<String, Object>();
 <% object_type.attributes.select{|a| !a.primary_key? && !a.iris.runtime_managed? && a.persistent? }.each do |attribute|
@@ -115,7 +115,7 @@ public class <%= schema.name %>Sync
      if attribute.persistent?
 %>
       {
-        Object value = newData.get( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(name) %> );
+        Object value = newData.get( <%= object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(name) %> );
 <% if object_type.name == :PhysicalUnit && attribute.name == :IsMemberOfPool
 %>        if ( conflict )
         {
@@ -132,7 +132,7 @@ public class <%= schema.name %>Sync
           value = original.get<%= attribute.name %>();
         }<%
    end
-%>        data.put( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(name) %>, value );
+%>        data.put( <%= object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(name) %>, value );
       }
 <%
      end

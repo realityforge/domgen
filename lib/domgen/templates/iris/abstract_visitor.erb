@@ -34,7 +34,7 @@ public class AbstractVisitor
    }
 <% schema.object_types.each do |object_type|
    name = object_type.name
-   type = j_classname(object_type.java.fully_qualified_name)
+   type = object_type.iris.classname
    extends_name = object_type.extends.nil? ? 'Bean' : object_type.extends
 %>   public void start<%= name %>( final <%= type %> value, final String viaRelationship )
    {

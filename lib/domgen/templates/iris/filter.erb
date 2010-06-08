@@ -16,7 +16,7 @@ public interface Filter
    int acceptDummy( iris.beans.DummyBean value, FilterDelegate delegate, String linkerAttributeID, iris.beans.AbstractBean linker );
 <% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
-   type = j_classname(object_type.java.fully_qualified_name)
+   type = object_type.iris.classname
 %>   int accept<%= name %>( <%= type %> value, FilterDelegate delegate, String linkerAttributeID, iris.beans.AbstractBean linker );
 <% end %>
 

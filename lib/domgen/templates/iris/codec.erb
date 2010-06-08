@@ -15,13 +15,13 @@ public class <%= schema.name %>Codec
 
   /* Attr Masks */
 <% schema.object_types.select{|o|!o.abstract?}.each_with_index do |object_type, index|
-%>  public static final int <%= uppercase_constantize(object_type.name) %>_CLIENT_TO_SERVER_ATTR_MASK = <%= object_type.attributes.select{|a| a.iris.client_side? && a.persistent? && !a.iris.runtime_managed? }.collect{|a| "#{j_classname(a.object_type.java.classname)}.#{uppercase_constantize(a.java.field_name)}_ATTR_ID" }.join(" | ") %>;
-  static final int <%= uppercase_constantize(object_type.name) %>_SERVER_TO_SERVER_ATTR_MASK = <%= object_type.attributes.select{|a| a.persistent? && !a.iris.runtime_managed? }.collect{|a| "#{j_classname(a.object_type.java.classname)}.#{uppercase_constantize(a.java.field_name)}_ATTR_ID" }.join(" | ") %>;
+%>  public static final int <%= uppercase_constantize(object_type.name) %>_CLIENT_TO_SERVER_ATTR_MASK = <%= object_type.attributes.select{|a| a.iris.client_side? && a.persistent? && !a.iris.runtime_managed? }.collect{|a| "#{a.object_type.iris.classname}.#{uppercase_constantize(a.java.field_name)}_ATTR_ID" }.join(" | ") %>;
+  static final int <%= uppercase_constantize(object_type.name) %>_SERVER_TO_SERVER_ATTR_MASK = <%= object_type.attributes.select{|a| a.persistent? && !a.iris.runtime_managed? }.collect{|a| "#{a.object_type.iris.classname}.#{uppercase_constantize(a.java.field_name)}_ATTR_ID" }.join(" | ") %>;
 <% end %>
 
   private static final Class<?>[] CLASSES_FOR_TYPE_CODE = {
     null,
-    <%= schema.object_types.select{|o|!o.abstract?}.collect{|o|"#{j_classname(o.java.classname)}.class"}.join(",\n    ") %>
+    <%= schema.object_types.select{|o|!o.abstract?}.collect{|o|"#{o.iris.classname}.class"}.join(",\n    ") %>
   };
 
   private static final int[] SERVER_TO_SERVER_ATTR_MASK_FOR_TYPE_CODE = {
@@ -116,7 +116,7 @@ public class <%= schema.name %>Codec
     {
       <% schema.object_types.reverse.select{|o|!o.abstract?}.each do |object_type|
      name = object_type.name
-     type = j_classname(object_type.java.fully_qualified_name)
+     type = object_type.iris.classname
   %>if( <%= type %>.class.isInstance( bean ) )
       {
         write<%= object_type.name %>To( (<%= type %>)bean, objectOutputStream, includeToDate, attributesMask );
@@ -146,7 +146,7 @@ public class <%= schema.name %>Codec
      name = attribute.java.field_name
      attr_type = attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
 %>
-      if( 0 != ( <%= j_classname(object_type.java.classname) %>.<%= uppercase_constantize(name) %>_ATTR_ID & attributesMask ) )
+      if( 0 != ( <%= object_type.iris.classname %>.<%= uppercase_constantize(name) %>_ATTR_ID & attributesMask ) )
       {
         {
 <% if attr_type == :integer %>          final Object value = input.readInt();
@@ -157,13 +157,13 @@ public class <%= schema.name %>Codec
 <% elsif attr_type == :datetime %>          final long time = input.readLong();
           final Object value = ( Long.MAX_VALUE == time ) ? null : new java.sql.Timestamp( time );
 <% else %>          throw new IllegalStateException( "Unknown attribute type transmitted <%= attr_type %>" );<% end %>
-          data.put( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(name) %>, value );
+          data.put( <%= object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(name) %>, value );
         }
       }
 <% end %>
    }
 
-  private static void write<%= object_type.name %>To( final <%= j_classname(object_type.java.classname) %> bean, final java.io.ObjectOutput output, final boolean includeToDate, final int attributesMask )
+  private static void write<%= object_type.name %>To( final <%= object_type.iris.classname %> bean, final java.io.ObjectOutput output, final boolean includeToDate, final int attributesMask )
      throws java.io.IOException
   {
     output.writeByte( <%= uppercase_constantize(object_type.name) %>_TYPE_CODE );
@@ -190,7 +190,7 @@ public class <%= schema.name %>Codec
      attr_type = attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
      is_primitive = attribute.reference? ? attribute.referenced_object.primary_key.java.primitive? : attribute.java.primitive?
 %>
-      if( 0 != (<%= j_classname(object_type.java.classname) %>.<%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID & attributesMask) )
+      if( 0 != (<%= object_type.iris.classname %>.<%= uppercase_constantize(attribute.java.field_name) %>_ATTR_ID & attributesMask) )
       {
         try
         {

@@ -3,7 +3,7 @@ package <%= object_type.schema.java.package %>.persist;
 <%
 set_iris_mode
 
-fqn = j_classname(object_type.java.fully_qualified_name)
+fqn = object_type.iris.classname
 %>
 
 @javax.annotation.Generated( "Domgen" )
@@ -278,16 +278,16 @@ if mutable_attributes.size == 0
 <% attributes.values.each do |attribute|
 %>    sb.append( COMMA );
 <% if sc.attribute_exists?(attribute.name)
-%>    sb.append( quote( <%= j_classname(sc.java.fully_qualified_name) %>.COLUMN_<%= uppercase_constantize(attribute.name) %> ) );
+%>    sb.append( quote( <%= sc.iris.classname %>.COLUMN_<%= uppercase_constantize(attribute.name) %> ) );
 <% else
 %>    sb.append( <%= (attribute.attribute_type == :integer) ? 0 : "NULL" %> );
     sb.append( AS );
-    sb.append( quote( <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.COLUMN_<%= uppercase_constantize(attribute.name) %> ) );
+    sb.append( quote( <%= attribute.object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(attribute.name) %> ) );
 <%
    end
  end
 %>    sb.append( FROM );
-    sb.append( quote( <%= j_classname(sc.java.fully_qualified_name) %>.TABLE_NAME ) );
+    sb.append( quote( <%= sc.iris.classname %>.TABLE_NAME ) );
     if ( whereClause.length() > 0 )
     {
       sb.append( WHERE );

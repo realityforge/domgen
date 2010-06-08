@@ -10,7 +10,7 @@ public class <%= schema.name %>Validator
   {
     <% schema.object_types.reverse.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
-   type = j_classname(object_type.java.fully_qualified_name)
+   type = object_type.iris.classname
 %>if( <%= type %>.class.isInstance( bean ) )
     {
       validate<%= name %>( (<%= type %>)bean );
@@ -26,7 +26,7 @@ public class <%= schema.name %>Validator
   {
     <% schema.object_types.reverse.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
-   type = j_classname(object_type.java.fully_qualified_name)
+   type = object_type.iris.classname
 %>if( <%= type %>.class == type )
     {
       validate<%= name %>( data, truncate );
@@ -40,7 +40,7 @@ public class <%= schema.name %>Validator
 
 <% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
-   type = j_classname(object_type.java.fully_qualified_name)
+   type = object_type.iris.classname
 %>
    private static void validate<%= name %>( final java.util.Map<String, Object> data, final boolean truncate )
    {
@@ -49,7 +49,7 @@ public class <%= schema.name %>Validator
 object_type.attributes.select{|a|a.attribute_type == :string && !a.length.nil? && !a.iris.runtime_managed?}.each do |attribute|
 %>
         {
-          final String value = (String) data.get( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(attribute.name) %> );
+          final String value = (String) data.get( <%= object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(attribute.name) %> );
           if ( value != null && value.length() > <%= attribute.length %> )
           {
             if ( iris.util.debug.IDebug.isGeneralEnabled() )
@@ -57,7 +57,7 @@ object_type.attributes.select{|a|a.attribute_type == :string && !a.length.nil? &
               final String message = "Attribute <%= object_type.name %>.<%= attribute.name %> exceeded (and was truncated to) maximum length of <%= attribute.length %> with value " + value;
               iris.util.debug.IDebug.general( message );
             }
-            data.put( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(attribute.name) %>, value.substring( 0, <%= attribute.length %> ) );
+            data.put( <%= object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(attribute.name) %>, value.substring( 0, <%= attribute.length %> ) );
           }
         }
 <% end %>        
@@ -73,7 +73,7 @@ object_type.attributes.select{|a|a.attribute_type == :string && !a.length.nil? &
       object_type.attributes.select{|a|a.persistent? && !a.iris.runtime_managed? && !a.primary_key?}.each do |attribute|
       %>
       {
-        final Object value = testData.remove( <%= j_classname(object_type.java.classname) %>.COLUMN_<%= uppercase_constantize(attribute.name) %> );
+        final Object value = testData.remove( <%= object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(attribute.name) %> );
         if ( <%= attribute.persistent? ? "iris.beans.BeanFactory.isServerSide()" : "false" %> || <%= attribute.iris.client_side? ? "iris.beans.BeanFactory.isClientSide()" : "false" %> )
         {<%
   if !attribute.iris.client_side? %>
@@ -116,7 +116,7 @@ object_type.attributes.select{|a|a.attribute_type == :string && !a.length.nil? &
 end %>
   }
 
-  private static void validate<%= name %>( final <%= j_classname(object_type.java.fully_qualified_name) %> bean )
+  private static void validate<%= name %>( final <%= object_type.iris.classname %> bean )
   {<%
       object_type.attributes.select{|a|a.persistent? && !a.iris.runtime_managed?}.each do |attribute|
       name = attribute.reference? ? attribute.referencing_link_name : attribute.java.field_name

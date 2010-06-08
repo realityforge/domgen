@@ -12,7 +12,7 @@ public class <%= schema.name %>XMLGenerator
   {
     <% schema.object_types.reverse.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
-   type = j_classname(object_type.java.fully_qualified_name)
+   type = object_type.iris.classname
 %>if( <%= type %>.class.isInstance( bean ) )
     {
       return convert<%= name %>ToXmlAttributes( (<%= type %>)bean );
@@ -28,10 +28,10 @@ public class <%= schema.name %>XMLGenerator
   {
     <% schema.object_types.reverse.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
-   type = j_classname(object_type.java.fully_qualified_name)
+   type = object_type.iris.classname
 %>if( <%= type %>.class.isInstance( bean ) )
     {
-      return <%= j_classname(object_type.java.fully_qualified_name) %>.MODEL_NAME;
+      return <%= object_type.iris.classname %>.MODEL_NAME;
     }
     else <% end %>
     {
@@ -42,7 +42,7 @@ public class <%= schema.name %>XMLGenerator
 
 <% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
-   type = j_classname(object_type.java.fully_qualified_name)
+   type = object_type.iris.classname
 %>
   private static AttributesImpl convert<%= name %>ToXmlAttributes( final <%= type %> value )
   {
@@ -50,7 +50,7 @@ public class <%= schema.name %>XMLGenerator
 <% object_type.attributes.select{|a|!a.reference? && a.persistent? && !a.iris.runtime_managed? && a.iris.client_side?}.each do |attribute|
   value_prefix = (attribute.attribute_type == :datetime) ? "iris.util.DateTimeUtilities.formatDateTime" : ""
   value_suffix = (attribute.attribute_type == :i_enum) ? ".name()" : ""
-%>    attributes.addAttribute( "", <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, <%= j_classname(attribute.object_type.java.fully_qualified_name) %>.COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, "CDATA", String.valueOf( <%= value_prefix %>(value.get<%= attribute.java.field_name %>())<%= value_suffix %> ) );
+%>    attributes.addAttribute( "", <%= attribute.object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, <%= attribute.object_type.iris.classname %>.COLUMN_<%= uppercase_constantize(attribute.java.field_name) %>, "CDATA", String.valueOf( <%= value_prefix %>(value.get<%= attribute.java.field_name %>())<%= value_suffix %> ) );
 <% end
 %>
     return attributes;

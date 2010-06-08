@@ -11,7 +11,7 @@ public interface Visitor
    void endDummy( iris.beans.DummyBean value, String viaRelationship );
 <% schema.object_types.select{|o|!o.abstract?}.each do |object_type|
    name = object_type.name
-   type = j_classname(object_type.java.fully_qualified_name)
+   type = object_type.iris.classname
 %>   void start<%= name %>( <%= type %> value, String viaRelationship );
    void end<%= name %>( <%= type %> value, String viaRelationship );
 <% end %>

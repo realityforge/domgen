@@ -83,6 +83,10 @@ module Domgen
         super(parent, options, &block)
       end
 
+      def classname
+        "#{parent.java.fully_qualified_name}Bean"
+      end
+
       def criteria
         @criteria.values
       end

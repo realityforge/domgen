@@ -62,5 +62,86 @@ JAVA
   }
 JAVA
   end
+
+  def iris_attribute_type(attribute)
+    attribute.reference? ? attribute.referenced_object.iris.classname : attribute.java.java_type
+  end
+
+  def iris_add_to_inverse(attribute)
+    name = attribute.java.field_name
+    inverse_name = attribute.inverse_relationship_name
+    if attribute.inverse_relationship_type == :none
+      ''
+    elsif attribute.inverse_relationship_type == :has_many
+    <<JAVA
+      if( null != #{name} )
+      {
+        #{name}.add#{inverse_name}( this );
+      }
+JAVA
+    else
+      <<JAVA
+      if( null != #{name} )
+      {
+        #{name}.set#{inverse_name}( this );
+      }
+JAVA
+    end
+  end
+
+  def iris_remove_from_inverse(attribute)
+    name = attribute.java.field_name
+    inverse_name = attribute.inverse_relationship_name
+    if attribute.inverse_relationship_type == :none
+      ''
+    elsif attribute.inverse_relationship_type == :has_many
+    <<JAVA
+      if( null != #{name} )
+      {
+        #{name}.remove#{inverse_name}( this );
+      }
+JAVA
+    else
+      <<JAVA
+      if( null != #{name} )
+      {
+        #{name}.set#{inverse_name}( null );
+      }
+JAVA
+    end
+  end
+
+  def iris_return_if_value_same(name, primitive, nullable)
+    if primitive
+      return <<JAVA
+       if( #{name} == value )
+       {
+         return;
+       }
+JAVA
+    elsif !nullable
+      return <<JAVA
+       if( null != #{name} && #{name}.equals( value ) )
+       {
+         return;
+       }
+JAVA
+    else
+      return <<JAVA
+       if( null != #{name} && #{name}.equals( value ) )
+       {
+         return;
+       }
+       else if( null != value && value.equals( #{name} ) )
+       {
+         return;
+       }
+       else if( null == #{name} && null == value )
+       {
+         return;
+       }
+JAVA
+    end
+  end
 end
 
