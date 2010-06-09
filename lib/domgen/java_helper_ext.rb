@@ -1,32 +1,10 @@
-def set_iris_mode
-  @iris_mode = true
-end
-
-def set_jpa_mode
-  @iris_mode = false
-end
-
-def iris?
-  !!@iris_mode
-end
-
-def j_classname(classname)
-  iris? ? "#{classname}Bean" : classname
-end
-
-def j_attribute_type(attribute)
-  attribute.reference? ? j_classname(attribute.java.java_type) : attribute.java.java_type
-end
-
 def j_class_definition(object_type)
   s = "public "
   s << "final " if object_type.final?
   s << "abstract " if object_type.abstract?
-  s << "class #{j_classname(object_type.java.classname)}\n"
+  s << "class #{object_type.java.classname}\n"
   if object_type.extends
-    s << "    extends #{j_classname(object_type.schema.object_type_by_name(object_type.extends).java.classname)}\n"
-  else
-    s << "    extends iris.beans.AbstractBean\n" if iris? 
+    s << "    extends #{object_type.schema.object_type_by_name(object_type.extends).java.classname}\n"
   end
   s
 end
@@ -60,8 +38,8 @@ end
 def j_declared_field(attribute)
   return nil if attribute.abstract?
   s = ''
-  s << j_jpa_field_attributes(attribute) if !iris?
-  s << "  private #{j_attribute_type(attribute)} #{attribute.java.field_name};\n"
+  s << j_jpa_field_attributes(attribute)
+  s << "  private #{attribute.java.java_type} #{attribute.java.field_name};\n"
   s
 end
 
@@ -76,15 +54,15 @@ def j_declared_relation(attribute)
     # Ignore attributes that have no inverse relationship
     nil
   elsif attribute.inverse_relationship_type == :has_many
-    type = j_classname(attribute.object_type.java.fully_qualified_name)
+    type = attribute.object_type.java.fully_qualified_name
     s = ''
-    s << "  @OneToMany( mappedBy = \"#{attribute.name}\" )\n" if !iris?
+    s << "  @OneToMany( mappedBy = \"#{attribute.name}\" )\n"
     s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse_relationship_name)};\n"
     s
   elsif attribute.inverse_relationship_type == :has_one
-    type = j_classname(attribute.object_type.java.fully_qualified_name)
+    type = attribute.object_type.java.fully_qualified_name
     s = ''
-    s << "  @OneToOne(mappedBy= \"#{attribute.java.field_name}\")\n" if !iris?
+    s << "  @OneToOne(mappedBy= \"#{attribute.java.field_name}\")\n"
     s << "  private #{type} #{attribute.inverse_relationship_name};\n"
     s
   end
@@ -113,7 +91,7 @@ def j_declared_attribute_and_relation_accessors(object_type)
       j_has_many_attribute(attribute)
     elsif attribute.inverse_relationship_type == :has_one
       name = attribute.inverse_relationship_name
-      type = j_classname(attribute.object_type.java.fully_qualified_name)
+      type = attribute.object_type.java.fully_qualified_name
       <<JAVA
   public #{type} get#{name}()
   {
@@ -166,7 +144,7 @@ end
 
 def j_simple_attribute(attribute)
   name = attribute.java.field_name
-  type = j_attribute_type(attribute)
+  type = attribute.java.java_type
   <<JAVA
   public #{type} get#{name}()
   {
@@ -227,7 +205,7 @@ end
 
 def j_reference_attribute(attribute)
   name = attribute.java.field_name
-  type = j_attribute_type(attribute)
+  type = attribute.java.java_type
   <<JAVA
   public #{type} get#{name}()
   {
@@ -246,14 +224,14 @@ end
 
 def j_abstract_attribute(attribute)
   <<JAVA
-    public abstract #{j_attribute_type(attribute)} get#{attribute.java.field_name}();
+    public abstract #{attribute.java.java_type} get#{attribute.java.field_name}();
 JAVA
 end
 
 def j_has_many_attribute(attribute)
   name = attribute.inverse_relationship_name
   plural_name = pluralize(name)
-  type = j_classname(attribute.object_type.java.fully_qualified_name)
+  type = attribute.object_type.java.fully_qualified_name
   <<STR
   public java.util.List<#{type}> get#{plural_name}()
   {
@@ -297,7 +275,7 @@ def j_equals_method(object_type)
     }
     else
     {
-      final #{j_classname(object_type.java.classname)} that = (#{j_classname(object_type.java.classname)}) o;
+      final #{object_type.java.classname} that = (#{object_type.java.classname}) o;
       return getID() != null && getID().equals( that.getID() );
     }
   }
@@ -347,5 +325,6 @@ JAVA
     return #{!object_type.java.label_attribute.nil? ? 'toLabel' : 'toDebugString'}();
   }
 JAVA
+  return s
 end
 
