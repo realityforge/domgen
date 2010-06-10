@@ -231,6 +231,7 @@ module Domgen
     attr_reader :referencing_attributes
     attr_accessor :extends
     attr_accessor :direct_subtypes
+    attr_accessor :subtypes
 
     def initialize(schema, name, options = {}, &block)
       @schema = schema
@@ -242,6 +243,7 @@ module Domgen
       @dependency_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
       @direct_subtypes = []
+      @subtypes = []
       super(schema, options, &block)
     end
 
@@ -524,6 +526,22 @@ module Domgen
                 other_object_type.direct_subtypes.each {|st| other_object_types << st }
                 other_object_type.referencing_attributes << attribute
               end
+            end
+          end
+        end
+      end
+      self.schemas.each do |schema|
+        schema.object_types.select{|object_type| !object_type.final?}.each do |object_type|
+          subtypes = object_type.subtypes
+          to_process = [object_type]
+          completed = []
+          while to_process.size > 0
+            ot = to_process.pop
+            ot.direct_subtypes.each do |subtype|
+              next if completed.include?(subtype)
+              subtypes << subtype
+              to_process << subtype
+              completed << subtype
             end
           end
         end

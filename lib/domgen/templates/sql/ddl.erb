@@ -44,7 +44,7 @@ GO
       object_type.sql.validations.each do |validation|
 %>
 CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}#{validation.name}Validation")) %> ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
-AFTER INSERT,UPDATE
+AFTER INSERT, UPDATE
 AS
   SET NOCOUNT ON
   DECLARE @violations INT
@@ -83,6 +83,45 @@ done:
    END
 GO
 <%
+    end
+    abstract_relationships = object_type.attributes.select {|a| a.reference? && a.referenced_object.abstract? }
+    if abstract_relationships.size > 0 %>
+<%= banner("Enforcement of psuedo foreign keys to abstract tables for #{sql_qualify(object_type.schema, object_type.sql.table_name)}") %>
+<%
+      abstract_relationships.each do |attribute|
+        concrete_subtypes = {}
+        attribute.referenced_object.subtypes.select{|subtype|!subtype.abstract?}.each_with_index do |subtype, index|
+          concrete_subtypes["C#{index}"] = subtype
+        end
+        names = concrete_subtypes.keys
+%>
+CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}#{attribute.name}ForeignKey")) %> ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
+AFTER INSERT, UPDATE
+AS
+   SET NOCOUNT ON
+   IF UPDATE(<%= q(attribute.referencing_link_name) %>)
+   BEGIN
+      DECLARE @violations INT
+      SELECT @violations = COUNT(*)
+      FROM
+        inserted I
+<% concrete_subtypes.each_pair do |name, subtype|
+%>      LEFT JOIN <%= sql_qualify(subtype.schema, subtype.sql.table_name) %> <%= name %> ON <%= name %>.ID = I.<%= q(attribute.referencing_link_name) %>
+<% end
+%>      WHERE (<%= names.collect{|name| "#{name}.ID IS NULL"}.join(' AND ') %>)<%
+
+(0..(names.size - 2)).each do |index|
+%> OR
+              (<%= names[index] %>.ID IS NOT NULL AND (<%= ((index + 1)..(names.size - 1)).collect {|index| "#{names[index]}.ID IS NOT NULL"}.join(' OR ') %>))
+<% end %>
+      IF (@@error = 0 AND @violations = 0) GOTO done
+      ROLLBACK
+      RAISERROR ('<%= sql_qualify(object_type.schema, object_type.sql.table_name) %>.<%= q(attribute.referencing_link_name) %> should reference a single row in concrete subclasses', 16, 1) WITH SETERROR
+done:
+   END
+GO
+<%
+      end
     end
   end
 %>
