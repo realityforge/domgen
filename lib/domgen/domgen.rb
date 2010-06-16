@@ -11,23 +11,29 @@ require "#{File.dirname(__FILE__)}/render_context.rb"
 require "#{File.dirname(__FILE__)}/generator.rb"
 require "#{File.dirname(__FILE__)}/helper.rb"
 
-# Model extensions
-require "#{File.dirname(__FILE__)}/java/java_model_ext.rb"
-require "#{File.dirname(__FILE__)}/ruby/ruby_model_ext.rb"
-require "#{File.dirname(__FILE__)}/sql/sql_model_ext.rb"
-require "#{File.dirname(__FILE__)}/iris/iris_model_ext.rb"
+# Java
+require "#{File.dirname(__FILE__)}/java/model.rb"
 
-# Helper extensions
-require "#{File.dirname(__FILE__)}/sql/sql_helper_ext.rb"
-require "#{File.dirname(__FILE__)}/iris/iris_helper_ext.rb"
+# Ruby
+require "#{File.dirname(__FILE__)}/ruby/model.rb"
 
-# Generator extensions
-require "#{File.dirname(__FILE__)}/sql/sql_generator_ext.rb"
-require "#{File.dirname(__FILE__)}/active_record/active_record_generator_ext.rb"
-require "#{File.dirname(__FILE__)}/iris/iris_generator_ext.rb"
-require "#{File.dirname(__FILE__)}/iris_sql/iris_sql_generator_ext.rb"
+# SQL
+require "#{File.dirname(__FILE__)}/sql/model.rb"
+require "#{File.dirname(__FILE__)}/sql/helper.rb"
+require "#{File.dirname(__FILE__)}/sql/generator.rb"
 
 # JPA
-require "#{File.dirname(__FILE__)}/jpa/jpa_model_ext.rb"
-require "#{File.dirname(__FILE__)}/jpa/jpa_helper_ext.rb"
-require "#{File.dirname(__FILE__)}/jpa/jpa_generator_ext.rb"
+require "#{File.dirname(__FILE__)}/jpa/model.rb"
+require "#{File.dirname(__FILE__)}/jpa/helper.rb"
+require "#{File.dirname(__FILE__)}/jpa/generator.rb"
+
+# ActiveRecord
+require "#{File.dirname(__FILE__)}/active_record/generator.rb"
+
+# IRIS
+require "#{File.dirname(__FILE__)}/iris/model.rb"
+require "#{File.dirname(__FILE__)}/iris/helper.rb"
+require "#{File.dirname(__FILE__)}/iris/generator.rb"
+
+# IRIS SQL
+require "#{File.dirname(__FILE__)}/iris_sql/generator.rb"
