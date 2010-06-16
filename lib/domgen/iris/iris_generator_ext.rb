@@ -1,7 +1,7 @@
 module Domgen
   module Generator
     def self.define_iris_templates
-      template_dir = "#{File.dirname(__FILE__)}/templates/iris"
+      template_dir = "#{File.dirname(__FILE__)}/templates"
       schema_file_prefix = 'java/#{schema.java.package.gsub(".","/")}/#{schema.name}'
       visitor_pkg_prefix = 'java/#{schema.java.package.gsub(".","/")}/visitor/'
       helpers = [IrisHelper]
