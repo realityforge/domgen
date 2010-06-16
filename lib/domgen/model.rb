@@ -461,7 +461,7 @@ module Domgen
       @object_types = Domgen::OrderedHash.new
       Logger.info "Schema '#{name}' definition started"
       super(schema_set, options, &block)
-      Logger.info "Schema '#{name}'  definition completed"
+      Logger.info "Schema '#{name}' definition completed"
     end
 
     def schema
@@ -499,7 +499,7 @@ module Domgen
       end
       @object_types[name.to_s] = object_type
       object_type.verify
-      Logger.debug "Object Type '#{name}'  definition completed"
+      Logger.debug "Object Type '#{name}' definition completed"
     end
 
     def object_type_by_name(name)
