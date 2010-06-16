@@ -1,9 +1,6 @@
 module Domgen
   module Generator
-    DEFAULT_ARTIFACTS = [:jpa, :active_record, :sql]
-
-    def self.generate(schema_set, directory, generator_keys = nil)
-      generator_keys = DEFAULT_ARTIFACTS unless generator_keys
+    def self.generate(schema_set, directory, generator_keys)
       Logger.info "Generator started: Generating #{generator_keys.inspect}"
 
       templates = load_templates(generator_keys)
