@@ -516,6 +516,22 @@ module Domgen
       @schemas = []
       Logger.info "SchemaSet definition started"
       super(nil, options, &block)
+      post_schema_set_definition
+      Logger.info "SchemaSet definition completed"
+    end
+
+    def schema_set
+      self
+    end
+
+    def define_schema(name, options = {}, &block)
+      @schemas << Domgen::Schema.new(self, name, options, &block)
+    end
+
+    private
+
+    def post_schema_set_definition
+      # Add back links for all references
       self.schemas.each do |schema|
         schema.object_types.each do |object_type|
           object_type.attributes.each do |attribute|
@@ -530,6 +546,7 @@ module Domgen
           end
         end
       end
+      # generate lists of subtypes for object types
       self.schemas.each do |schema|
         schema.object_types.select{|object_type| !object_type.final?}.each do |object_type|
           subtypes = object_type.subtypes
@@ -546,15 +563,7 @@ module Domgen
           end
         end
       end
-      Logger.info "SchemaSet definition completed"
-    end
-
-    def schema_set
-      self
-    end
-
-    def define_schema(name, options = {}, &block)
-      @schemas << Domgen::Schema.new(self, name, options, &block)
+      extension_point(:post_schema_set_definition)
     end
   end
 end
