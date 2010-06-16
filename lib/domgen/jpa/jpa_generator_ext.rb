@@ -1,19 +1,20 @@
 module Domgen
   module Generator
     def self.define_jpa_templates
+      template_dir = "#{File.dirname(__FILE__)}/templates"
       [
           Template.new(:object_type,
-                       'jpa/model',
+                       "#{template_dir}/model.erb",
                        'java/#{object_type.java.fully_qualified_name.gsub(".","/")}.java',
                        [JpaHelper]),
           Template.new(:object_type,
-                       'jpa/dao',
+                       "#{template_dir}/dao.erb",
                        'java/#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java'),
           Template.new(:schema,
-                       'jpa/entity_manager',
+                       "#{template_dir}/entity_manager.erb",
                        'java/#{schema.java.package.gsub(".","/")}/SchemaEntityManager.java'),
           Template.new(:schema_set,
-                       'jpa/persistence',
+                       "#{template_dir}/persistence.erb",
                        'resources/META-INF/persistence.xml'),
       ]
     end

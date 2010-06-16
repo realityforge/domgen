@@ -9,20 +9,21 @@ module Domgen
       templates = load_templates(generator_keys)
 
       templates.each do |template|
+        template_name = File.basename(template.template_filename,'.erb')
         if :schema_set == template.scope
           render(directory, template, :schema_set, schema_set) do
-            Logger.debug "Generated #{template.template_name} for schema set"
+            Logger.debug "Generated #{template_name} for schema set"
           end if schema_set.generate?(template.generator_key)
         else
           schema_set.schemas.each do |schema|
             if :schema == template.scope
               render(directory, template, :schema, schema) do
-                Logger.debug "Generated #{template.template_name} for schema #{schema.name}"
+                Logger.debug "Generated #{template_name} for schema #{schema.name}"
               end if schema.generate?(template.generator_key)
             else
               schema.object_types.each do |object_type|
                 render(directory, template, :object_type, object_type) do
-                  Logger.debug "Generated #{template.template_name} for object_type #{schema.name}.#{object_type.name}"
+                  Logger.debug "Generated #{template_name} for object_type #{schema.name}.#{object_type.name}"
                 end if object_type.generate?(template.generator_key)                
               end
             end
