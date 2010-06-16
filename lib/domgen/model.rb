@@ -266,10 +266,6 @@ module Domgen
       end
     end
 
-    def object_type
-      self
-    end
-
     def non_abstract_superclass?
       extends.nil? ? false : !schema.object_type_by_name(extends).abstract?
     end
@@ -464,10 +460,6 @@ module Domgen
       Logger.info "Schema '#{name}' definition completed"
     end
 
-    def schema
-      self
-    end
-
     def object_types
       @object_types.values
     end
@@ -518,10 +510,6 @@ module Domgen
       super(nil, options, &block)
       post_schema_set_definition
       Logger.info "SchemaSet definition completed"
-    end
-
-    def schema_set
-      self
     end
 
     def define_schema(name, options = {}, &block)
