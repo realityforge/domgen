@@ -6,7 +6,7 @@ module Domgen
           Template.new(:object_type,
                        "#{template_dir}/model.erb",
                        'java/#{object_type.java.fully_qualified_name.gsub(".","/")}.java',
-                       [JpaHelper]),
+                       [Domgen::Jpa::Helper]),
           Template.new(:object_type,
                        "#{template_dir}/dao.erb",
                        'java/#{object_type.java.fully_qualified_name.gsub(".","/")}DAO.java'),

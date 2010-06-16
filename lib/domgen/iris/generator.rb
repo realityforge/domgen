@@ -4,7 +4,7 @@ module Domgen
       template_dir = "#{File.dirname(__FILE__)}/templates"
       schema_file_prefix = 'java/#{schema.java.package.gsub(".","/")}/#{schema.name}'
       visitor_pkg_prefix = 'java/#{schema.java.package.gsub(".","/")}/visitor/'
-      helpers = [IrisHelper]
+      helpers = [Domgen::Iris::Helper]
       [
           Template.new(:object_type,
                        "#{template_dir}/model.erb",
