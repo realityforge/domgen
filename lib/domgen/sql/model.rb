@@ -214,6 +214,47 @@ SQL
 SQL
         end
 
+        parent.scope_constraints.each do |c|
+          target_attribute = parent.attribute_by_name(c.attribute_name)
+          target_object_type = parent.attribute_by_name(c.attribute_name).referenced_object
+          scoping_attribute = target_object_type.attribute_by_name(c.scoping_attribute)
+
+          attribute_name_path = c.attribute_name_path
+          object_path = []
+
+          object_type = parent
+          attribute_name_path.each do |attribute_name_path_element|
+            object_path << object_type
+            other = object_type.attribute_by_name(attribute_name_path_element)
+            object_type = other.referenced_object
+          end
+
+          joins = []
+          next_id = "I.#{target_attribute.sql.column_name}"
+          last_name = "I"
+          attribute_name_path.each_with_index do |attribute_name, index|
+            ot = object_path[index]
+            name = "C#{index}"
+            if index != 0
+              joins << "JOIN #{ot.sql.table_name} #{name} ON #{last_name}.#{object_path[index - 1].attribute_by_name(attribute_name_path[index - 1]).sql.column_name} = #{name}.#{ot.primary_key.sql.column_name}"
+              last_name = name
+            end
+            next_id = "#{last_name}.#{ot.attribute_by_name(attribute_name).sql.column_name}"
+          end
+
+          validation("#{c.name}_Scope", :sql => <<SQL)
+
+SELECT I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
+FROM
+  inserted I
+JOIN #{target_object_type.sql.table_name} C0 ON C0.#{target_object_type.primary_key.sql.column_name} = I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
+#{joins.join("\n")}
+WHERE C0.#{scoping_attribute.sql.column_name} != #{next_id}
+GROUP BY I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
+HAVING COUNT(*) > 0
+SQL
+        end
+
         parent.declared_attributes.select {|a| a.persistent? && a.reference? && !a.abstract? && a.referenced_object.final? }.each do |a|
           foreign_key([a.name], a.referenced_object.name, [a.referenced_object.primary_key.name] )
         end
