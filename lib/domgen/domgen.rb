@@ -29,11 +29,3 @@ require "#{File.dirname(__FILE__)}/jpa/generator.rb"
 
 # ActiveRecord
 require "#{File.dirname(__FILE__)}/active_record/generator.rb"
-
-# IRIS
-require "#{File.dirname(__FILE__)}/iris/model.rb"
-require "#{File.dirname(__FILE__)}/iris/helper.rb"
-require "#{File.dirname(__FILE__)}/iris/generator.rb"
-
-# IRIS SQL
-require "#{File.dirname(__FILE__)}/iris_sql/generator.rb"
