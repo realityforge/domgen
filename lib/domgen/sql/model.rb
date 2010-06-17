@@ -148,7 +148,7 @@ module Domgen
         validation = Validation.new(self, name, options, &block)
         @validations[name.to_s] = validation
         validation
-      end      
+      end
 
       def cluster(attribute_names, options = {}, &block)
         index(attribute_names, options.merge(:cluster => true), &block)
@@ -203,13 +203,13 @@ SQL
 
         parent.declared_attributes.select {|a| a.attribute_type == :i_enum }.each do |a|
           sorted_values = a.values.values.sort
-          constraint(a.name, :sql => <<SQL)
+          constraint("#{a.name}_Enum", :sql => <<SQL)
 #{a.sql.column_name} >= #{sorted_values[0]} AND
 #{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
         parent.declared_attributes.select {|a| a.attribute_type == :s_enum }.each do |a|
-          constraint(a.name, :sql => <<SQL)
+          constraint("#{a.name}_Enum", :sql => <<SQL)
 #{a.sql.column_name} IN (#{a.values.values.collect{|v|"'#{v}'"}.join(',')})
 SQL
         end
