@@ -71,6 +71,24 @@ module Domgen
     end
   end
 
+  class ScopeConstraint < BaseConfigElement
+    attr_reader :name
+    attr_accessor :attribute_name
+    attr_accessor :attribute_name_path
+
+    def initialize(name, attribute_name, attribute_name_path, options, &block)
+      @name, @attribute_name, @attribute_name_path = name, attribute_name, attribute_name_path
+      super(options, &block)
+    end
+
+    # the attribute by which the related attribute is scoped
+    attr_writer :scoping_attribute
+
+    def scoping_attribute
+      @scoping_attribute ||= @attribute_name_path.last
+    end
+  end
+
   class Attribute < BaseConfigElement
     attr_reader :object_type
     attr_reader :name
@@ -228,6 +246,7 @@ module Domgen
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
     attr_reader :dependency_constraints
+    attr_reader :scope_constraints
     attr_reader :referencing_attributes
     attr_accessor :extends
     attr_accessor :direct_subtypes
@@ -241,6 +260,7 @@ module Domgen
       @codependent_constraints = Domgen::OrderedHash.new
       @incompatible_constraints = Domgen::OrderedHash.new
       @dependency_constraints = Domgen::OrderedHash.new
+      @scope_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
       @direct_subtypes = []
       @subtypes = []
@@ -249,7 +269,7 @@ module Domgen
 
     def verify
       extension_point(:pre_verify)
-      
+
       # Add unique constraints on all unique attributes unless covered by existing constraint
       self.attributes.each do |a|
         if a.unique?
@@ -320,7 +340,7 @@ module Domgen
       sorted_values = values.values.sort
 
       if (sorted_values[sorted_values.size - 1] - sorted_values[0] + 1) != sorted_values.size
-        raise "Non-continuous values detected for i_enum #{name}" 
+        raise "Non-continuous values detected for i_enum #{name}"
       end
 
       attribute(name, :i_enum, options.merge({:values => values}), &block)
@@ -336,7 +356,7 @@ module Domgen
       raise "Duplicate values detected for s_enum #{name}" if values.values.uniq.size != values.size
       sorted_values = values.values.sort
 
-      length = sorted_values.inject(0) {|max, value| max > value.length ? max : value.length } 
+      length = sorted_values.inject(0) {|max, value| max > value.length ? max : value.length }
 
       attribute(name, :s_enum, options.merge({:values => values, :length => length}), &block)
     end
@@ -350,7 +370,7 @@ module Domgen
     end
 
     def attribute(name, type, options = {}, &block)
-      raise "Attempting to override non abstract attribute #{name} on #{self.name}" if @attributes[name.to_s] && !@attributes[name.to_s].abstract? 
+      raise "Attempting to override non abstract attribute #{name} on #{self.name}" if @attributes[name.to_s] && !@attributes[name.to_s].abstract?
       attribute = Attribute.new(self, name, type, {:override => !@attributes[name.to_s].nil?}.merge(options), &block)
       @attributes[name.to_s] = attribute
       attribute
@@ -412,7 +432,7 @@ module Domgen
       @incompatible_constraints.values
     end
 
-    # Check that at most one of the attributes is not null 
+    # Check that at most one of the attributes is not null
     def incompatible_constraint(attribute_names, options = {}, &block)
       name = attribute_names_to_key(attribute_names)
       attribute_names.collect{|a|attribute_by_name(a)}.each do |a|
@@ -421,6 +441,33 @@ module Domgen
       incompatible_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @incompatible_constraints[name.to_s] = incompatible_constraint
       incompatible_constraint
+    end
+
+    def scope_constraints
+      @scope_constraints.values
+    end
+
+    # Constraint that ensures that the value of a particular value is within a particular scope
+    def scope_constraint(attribute_name, attribute_name_path, options = {}, &block)
+      raise "Scope constraint must have a path of length 1 or more" if attribute_name_path.empty?
+      name = ([attribute_name] + attribute_name_path).collect{|a|a.to_s}.sort.join('_')
+
+      scope_constraint = ScopeConstraint.new(name, attribute_name, attribute_name_path, options, &block)
+
+      object_type = self
+      attribute_name_path.each do |attribute_name_path_element|
+        other = object_type.attribute_by_name(attribute_name_path_element)
+        raise "Path element #{attribute_name_path_element} is not immutable" if !other.immutable?
+        raise "Path element #{attribute_name_path_element} is not a reference" if !other.reference?
+        object_type = other.referenced_object
+      end
+      local_reference = attribute_by_name(attribute_name)
+      raise "Attribute named #{attribute_name} is not a reference" if !local_reference.reference?
+      scoping_attribute = local_reference.referenced_object.attribute_by_name(scope_constraint.scoping_attribute)
+      raise "Scoping attribute references #{scoping_attribute.referenced_object.name} while last reference in path is #{object_type.name}" if object_type != scoping_attribute.referenced_object
+
+      @scope_constraints[name.to_s] = scope_constraint
+      scope_constraint
     end
 
     # Assume single column pk
@@ -484,7 +531,7 @@ module Domgen
         object_type.codependent_constraints.each {|a| a.instance_variable_set("@inherited",true)}
         object_type.incompatible_constraints.each {|a| a.instance_variable_set("@inherited",true)}
         base_type.direct_subtypes << object_type
-        
+
         yield object_type if block_given?
       else
         object_type = ObjectType.new(self, name, options, &block)
