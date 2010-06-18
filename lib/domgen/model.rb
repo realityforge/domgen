@@ -479,7 +479,7 @@ module Domgen
 
     def attribute_by_name(name)
       attribute = @attributes[name.to_s]
-      raise "Unable to find attribute named #{name} on type #{self.name}" unless attribute
+      raise "Unable to find attribute named #{name} on type #{self.name}. Available attributes = #{attributes.collect{|a|a.name}.join(', ')}" unless attribute
       attribute
     end
 
