@@ -3,6 +3,11 @@ module Domgen
   Logger.level = ::Logger::WARN
   Logger.datetime_format = ''
 
+  class << self
+    attr_accessor :schema_sets
+  end
+  self.schema_sets = []
+
   class BaseConfigElement
     def initialize(options = {})
       self.options = options
@@ -558,6 +563,7 @@ module Domgen
       super(nil, options, &block)
       post_schema_set_definition
       Logger.info "SchemaSet definition completed"
+      Domgen.schema_sets << self
     end
 
     def define_schema(name, options = {}, &block)
