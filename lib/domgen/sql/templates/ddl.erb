@@ -47,8 +47,9 @@ CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}#{va
 AFTER INSERT, UPDATE
 AS
   SET NOCOUNT ON
-  DECLARE @violations INT
-  SELECT @violations = COUNT(*)
+  DECLARE @violations INT;
+<%= validation.common_table_expression
+%>  SELECT @violations = COUNT(*)
   FROM (<%= validation.sql %>) v
   IF (@@error = 0 AND @violations = 0) GOTO done
   ROLLBACK

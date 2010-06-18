@@ -105,6 +105,7 @@ module Domgen
     class Validation < SqlElement
       attr_reader :name
       attr_accessor :sql
+      attr_accessor :common_table_expression
 
       def initialize(parent, name, options = {}, &block)
         @name = name
