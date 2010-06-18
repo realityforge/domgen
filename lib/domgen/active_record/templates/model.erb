@@ -67,7 +67,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
   target_attribute = object_type.attribute_by_name(c.attribute_name)
 %>
   validate do |record|
-    if record.<%= underscore(target_attribute.name) %>.<%= c.scoping_attribute %> != record<%= c.attribute_name_path[0,c.attribute_name_path.length-1].collect{|a|".#{underscore(a)}"}.join('') %>.<%= c.attribute_name_path.last %>
+    if !record.<%= target_attribute.name %>.nil? && record.<%= underscore(target_attribute.name) %>.<%= c.scoping_attribute %> != record<%= c.attribute_name_path[0,c.attribute_name_path.length-1].collect{|a|".#{underscore(a)}"}.join('') %>.<%= c.attribute_name_path.last %>
       record.errors.add(:<%= target_attribute.name %>, 'must be one of the values in scope')
     end
   end
