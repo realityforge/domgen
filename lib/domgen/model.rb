@@ -458,7 +458,7 @@ module Domgen
       attribute_name_path.each do |attribute_name_path_element|
         other = object_type.attribute_by_name(attribute_name_path_element)
         raise "Path element #{attribute_name_path_element} is not immutable" if !other.immutable?
-        raise "Path element #{attribute_name_path_element} is nillable" if other.nillable?
+        raise "Path element #{attribute_name_path_element} is nullable" if other.nullable?
         raise "Path element #{attribute_name_path_element} is not a reference" if !other.reference?
         object_type = other.referenced_object
       end
