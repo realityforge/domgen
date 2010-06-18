@@ -63,6 +63,16 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <% object_type.codependent_constraints.each do |c| %>
   validates_codependent <%= c.attribute_names.collect{|attribute_name|":#{attribute_name}"}.join(', ') %>
 <% end %>
+<% object_type.scope_constraints.each do |c|
+  target_attribute = object_type.attribute_by_name(c.attribute_name)
+%>
+  validate do |record|
+    if record.<%= underscore(target_attribute.name) %>.<%= c.scoping_attribute %> != record<%= c.attribute_name_path[0,c.attribute_name_path.length-1].collect{|a|".#{underscore(a)}"}.join('') %>.<%= c.attribute_name_path.last %>
+      record.errors.add(:<%= target_attribute.name %>, 'must be one of the values in scope')
+    end
+  end
+<% end %>
+
 
   # Make it possible for the users to extend the model by defining an extension class
   include <%= object_type.ruby.fully_qualified_name %>Extension rescue NameError
