@@ -4,9 +4,30 @@ module Domgen
   Logger.datetime_format = ''
 
   class << self
-    attr_accessor :schema_sets
+    def schema_sets
+      schema_set_map.values
+    end
+
+    def define_schema_set(name, options = {}, &block)
+      Domgen::SchemaSet.new(name, options, &block)
+    end
+
+    def schema_set_by_name(name)
+      schema_set = schema_set_map[name.to_s]
+      raise "Unable to locate schema set #{name}" unless schema_set
+      schema_set
+    end
+
+    private
+
+    def register_schema_set(name, schema_set)
+      schema_set_map[name.to_s] = schema_set
+    end
+
+    def schema_set_map
+      @schema_sets ||= Domgen::OrderedHash.new
+    end
   end
-  self.schema_sets = []
 
   class BaseConfigElement
     def initialize(options = {})
@@ -567,8 +588,12 @@ module Domgen
   end
 
   class SchemaSet < BaseGeneratableElement
-    def initialize(options = {}, &block)
+    attr_reader :name
+
+    def initialize(name, options = {}, &block)
+      @name = name
       @schemas = Domgen::OrderedHash.new
+      Domgen.send :register_schema_set, name, self
       Logger.info "SchemaSet definition started"
       super(nil, options, &block)
       post_schema_set_definition
