@@ -25,6 +25,8 @@ GO
 ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
   ADD CONSTRAINT [FK_<%= object_type.name %>_<%= foreign_key.name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| q(object_type.attribute_by_name(a).sql.column_name)}.join(', ') %>)
   REFERENCES <%= sql_qualify(foreign_key.referenced_object_type.schema, foreign_key.referenced_object_type.sql.table_name) %> (<%= foreign_key.referenced_attribute_names.collect{|a| q(foreign_key.referenced_object_type.attribute_by_name(a).sql.column_name)}.join(', ')  %>)
+<% if foreign_key.on_update != :no_action %>  ON UPDATE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_update] %><% end %>
+<% if foreign_key.on_delete != :no_action %>  ON DELETE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_delete] %><% end %>
 GO
 <%
   end

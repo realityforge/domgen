@@ -60,6 +60,15 @@ module Domgen
     end
 
     class ForeignKey < BaseConfigElement
+      ACTION_MAP =
+        {
+          :cascade => "CASCADE",
+          :restrict => "RESTRICT",
+          :set_null => "SET NULL",
+          :set_default => "SET DEFAULT",
+          :no_action => "NO ACTION"
+        }.freeze
+
       attr_reader :table
       attr_accessor :attribute_names
       attr_accessor :referenced_object_type_name
@@ -89,6 +98,24 @@ module Domgen
           @referenced_object_type = table.parent.schema.object_type_by_name(referenced_object_type_name)
         end
         @referenced_object_type
+      end
+
+      def on_update=(on_update)
+        raise "on_update #{on_update} on #{name} is invalid" unless ACTION_MAP.keys.include?(on_update)
+        @on_update = on_update
+      end
+
+      def on_update
+        @on_update ||= :no_action
+      end
+
+      def on_delete=(on_delete)
+        raise "on_delete #{on_delete} on #{name} is invalid" unless ACTION_MAP.keys.include?(on_delete)
+        @on_delete = on_delete
+      end
+
+      def on_delete
+        @on_delete ||= :no_action
       end
     end
 
@@ -257,7 +284,11 @@ SQL
         end
 
         parent.declared_attributes.select {|a| a.persistent? && a.reference? && !a.abstract? && a.referenced_object.final? }.each do |a|
-          foreign_key([a.name], a.referenced_object.qualified_name, [a.referenced_object.primary_key.name] )
+          foreign_key([a.name],
+                      a.referenced_object.qualified_name,
+                      [a.referenced_object.primary_key.name],
+                      :on_update => a.on_update,
+                      :on_delete => a.on_delete )
         end
 
         raise "#{table_name} defines multiple clustering indexes" if indexes.select{|i| i.cluster?}.size > 1
