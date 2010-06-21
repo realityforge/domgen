@@ -15,6 +15,10 @@ CREATE TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>(
 %>  CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
 )
 GO
+<% object_type.attributes.select {|a| a.persistent? && !a.sql.default_value.nil?}.each do |a| %>
+ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %> ADD DEFAULT (<%= quote_value(a.sql.default_value) %>) FOR <%= q(a.sql.column_name) %>
+GO
+<% end %>
 <% object_type.sql.indexes.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX [<%= index.name %>] ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
 (<%= index.attribute_names.collect {|a| "\n  #{q(object_type.attribute_by_name(a).sql.column_name)} ASC" }.join(",") %>

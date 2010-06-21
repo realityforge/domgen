@@ -335,6 +335,8 @@ SQL
         @identity = parent.generated_value? unless @identity
         @identity
       end
+
+      attr_accessor :default_value
     end
   end
 

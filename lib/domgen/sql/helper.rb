@@ -27,3 +27,14 @@ def sql_qualify(schema, name)
   "#{q(schema.sql.schema)}.#{q(name)}"
 end
 
+def quote_value(value)
+  if value.is_a? TrueClass
+    '1'
+  elsif value.is_a? FalseClass
+    '0'
+  elsif value.is_a? String
+    "'#{value}'"
+  elsif value.is_a? Numeric
+    "(#{value})"
+  end
+end
