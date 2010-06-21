@@ -257,7 +257,7 @@ SQL
         end
 
         parent.declared_attributes.select {|a| a.persistent? && a.reference? && !a.abstract? && a.referenced_object.final? }.each do |a|
-          foreign_key([a.name], a.referenced_object.name, [a.referenced_object.primary_key.name] )
+          foreign_key([a.name], a.referenced_object.qualified_name, [a.referenced_object.primary_key.name] )
         end
 
         raise "#{table_name} defines multiple clustering indexes" if indexes.select{|i| i.cluster?}.size > 1

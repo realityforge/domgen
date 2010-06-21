@@ -272,6 +272,10 @@ module Domgen
       super(schema, options, &block)
     end
 
+    def qualified_name
+      "#{schema.name}.#{self.name}"
+    end
+
     def verify
       extension_point(:pre_verify)
 
@@ -506,6 +510,7 @@ module Domgen
 
     def initialize(schema_set, name, options = {}, &block)
       @schema_set = schema_set
+      schema_set.send :register_schema, name, self
       @name = name
       @object_types = Domgen::OrderedHash.new
       Logger.info "Schema '#{name}' definition started"
@@ -548,17 +553,22 @@ module Domgen
     end
 
     def object_type_by_name(name)
+      name_parts = name.to_s.split('.')
+      raise "Name should have 0 or 1 '.' separators" if (name_parts.size != 1 && name_parts.size != 2)
+      name_parts = [self.name] + name_parts if name_parts.size == 1
+      schema_set.schema_by_name(name_parts[0]).local_object_type_by_name(name_parts[1])
+    end
+
+    def local_object_type_by_name(name)
       object_type = @object_types[name.to_s]
-      raise "Unable to locate object_type #{name}" unless object_type
+      raise "Unable to locate local object_type #{name} in #{self.name}" unless object_type
       object_type
     end
   end
 
   class SchemaSet < BaseGeneratableElement
-    attr_reader :schemas
-
     def initialize(options = {}, &block)
-      @schemas = []
+      @schemas = Domgen::OrderedHash.new
       Logger.info "SchemaSet definition started"
       super(nil, options, &block)
       post_schema_set_definition
@@ -567,10 +577,24 @@ module Domgen
     end
 
     def define_schema(name, options = {}, &block)
-      @schemas << Domgen::Schema.new(self, name, options, &block)
+      Domgen::Schema.new(self, name, options, &block)
+    end
+
+    def schemas
+      @schemas.values
+    end
+
+    def schema_by_name(name)
+      schema = @schemas[name.to_s]
+      raise "Unable to locate schema #{name}" unless schema
+      schema
     end
 
     private
+
+    def register_schema(name, schema)
+      @schemas[name.to_s] = schema
+    end
 
     def post_schema_set_definition
       # Add back links for all references
