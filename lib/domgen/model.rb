@@ -582,7 +582,7 @@ module Domgen
 
     def define_object_type(name, options = {}, &block)
       raise "Attempting to redefine Object Type '#{name}'" if @object_types[name.to_s]
-      Logger.debug "Object Type '#{name}'  definition started"
+      Logger.debug "Object Type '#{name}' definition started"
       if options[:extends]
         base_type = object_type_by_name(options[:extends])
         base_type.instance_variable_set("@schema",nil)
