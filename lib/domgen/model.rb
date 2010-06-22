@@ -226,6 +226,14 @@ module Domgen
       @persistent
     end
 
+    attr_writer :polymorphic
+
+    def polymorphic?
+      raise "polymorphic? on #{name} is invalid as attribute is not a reference" unless reference?
+      @polymorphic = !referenced_object.final? if @polymorphic.nil?
+      @polymorphic
+    end
+
     attr_reader :references
 
     def references=(references)

@@ -283,7 +283,7 @@ HAVING COUNT(*) > 0
 SQL
         end
 
-        parent.declared_attributes.select {|a| a.persistent? && a.reference? && !a.abstract? && a.referenced_object.final? }.each do |a|
+        parent.declared_attributes.select {|a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic?}.each do |a|
           foreign_key([a.name],
                       a.referenced_object.qualified_name,
                       [a.referenced_object.primary_key.name],
