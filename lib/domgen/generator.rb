@@ -1,4 +1,10 @@
 module Domgen
+  class << self
+    def generate(schema_set_name, directory, generator_keys)
+      Domgen::Generator.generate(Domgen.schema_set_by_name(schema_set_name), directory, generator_keys)
+    end
+  end
+
   module Generator
     def self.generate(schema_set, directory, generator_keys)
       Logger.info "Generator started: Generating #{generator_keys.inspect}"
