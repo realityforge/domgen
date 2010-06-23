@@ -160,8 +160,12 @@ module Domgen
         @constraints.values
       end
 
+      def constraint_defined?(name)
+        !!@constraints[name.to_s]
+      end
+
       def constraint(name, options = {}, &block)
-        error("Constraint named #{name} already defined on table #{table_name}") if @constraints[name.to_s]
+        error("Constraint named #{name} already defined on table #{table_name}") if constraint_defined?(name)
         constraint = Constraint.new(self, name, options, &block)
         @constraints[name.to_s] = constraint
         constraint
@@ -171,8 +175,12 @@ module Domgen
         @validations.values
       end
 
+      def validation_defined?(name)
+        !!@validations[name.to_s]
+      end
+
       def validation(name, options = {}, &block)
-        error("Validation named #{name} already defined on table #{table_name}") if @validations[name.to_s]
+        error("Validation named #{name} already defined on table #{table_name}") if validation_defined?(name)
         validation = Validation.new(self, name, options, &block)
         @validations[name.to_s] = validation
         validation
@@ -186,9 +194,10 @@ module Domgen
         @indexes.values
       end
 
-      def index(attribute_names, options = {}, &block)
+      def index(attribute_names, options = {}, skip_if_present = false, &block)
         index = Index.new(self, attribute_names, options, &block)
-        error("Index named #{index.name} already defined on table #{table_name}") if @indexes[index.name]
+        return if @indexes[index.name] && skip_if_present
+        error("Index named #{name} already defined on table #{table_name}") if @indexes[index.name]
         @indexes[index.name] = index
         index
       end
@@ -197,8 +206,9 @@ module Domgen
         @foreign_keys.values
       end
 
-      def foreign_key(attribute_names, referrenced_object_type_name, referrenced_attribute_names, options = {}, &block)
+      def foreign_key(attribute_names, referrenced_object_type_name, referrenced_attribute_names, options = {}, skip_if_present = false, &block)
         foreign_key = ForeignKey.new(self, attribute_names, referrenced_object_type_name, referrenced_attribute_names, options, &block)
+        return if @indexes[foreign_key.name] && skip_if_present
         error("Foreign Key named #{foreign_key.name} already defined on table #{table_name}") if @indexes[foreign_key.name]
         @foreign_keys[foreign_key.name] = foreign_key
         foreign_key
@@ -206,16 +216,18 @@ module Domgen
 
       def pre_verify
         parent.unique_constraints.each do |c|
-          index(c.attribute_names, {:unique => true})
+          index(c.attribute_names, {:unique => true}, true)
         end
         parent.codependent_constraints.each do |c|
-          constraint("#{parent.name}_#{c.name}_CoDep", :sql => <<SQL)
+          constraint_name = "#{parent.name}_#{c.name}_CoDep"
+          constraint(constraint_name, :sql => <<SQL) unless constraint_defined?(constraint_name)
 ( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ")} ) OR
 ( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NULL" }.join(" AND ") } )
 SQL
         end
         parent.dependency_constraints.each do |c|
-          constraint("#{parent.name}_#{c.name}_Dep", :sql => <<SQL)
+          constraint_name = "#{parent.name}_#{c.name}_Dep"
+          constraint(constraint_name, :sql => <<SQL) unless constraint_defined?(constraint_name)
 #{parent.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR
 ( #{c.dependent_attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ") } )
 SQL
@@ -226,18 +238,21 @@ SQL
             str = c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
             "(#{str})"
           end.join(" OR ")
-          constraint("#{parent.name}_#{c.name}_Incompat", :sql => sql)
+          constraint_name = "#{parent.name}_#{c.name}_Incompat"
+          constraint(constraint_name, :sql => sql) unless constraint_defined?(constraint_name)
         end
 
         parent.declared_attributes.select {|a| a.attribute_type == :i_enum }.each do |a|
           sorted_values = a.values.values.sort
-          constraint("#{a.name}_Enum", :sql => <<SQL)
+          constraint_name = "#{a.name}_Enum"
+          constraint(constraint_name, :sql => <<SQL) unless constraint_defined?(constraint_name)
 #{a.sql.column_name} >= #{sorted_values[0]} AND
 #{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
         parent.declared_attributes.select {|a| a.attribute_type == :s_enum }.each do |a|
-          constraint("#{a.name}_Enum", :sql => <<SQL)
+          constraint_name = "#{a.name}_Enum"
+          constraint(constraint_name, :sql => <<SQL) unless constraint_defined?(constraint_name)
 #{a.sql.column_name} IN (#{a.values.values.collect{|v|"'#{v}'"}.join(',')})
 SQL
         end
@@ -270,7 +285,8 @@ SQL
             next_id = "#{last_name}.#{ot.attribute_by_name(attribute_name).sql.column_name}"
           end
 
-          validation("#{c.name}_Scope", :sql => <<SQL)
+          validation_name = "#{c.name}_Scope"
+          validation(validation_name, :sql => <<SQL) unless validation_defined?(validation_name)
 
 SELECT I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 FROM
@@ -287,8 +303,8 @@ SQL
           foreign_key([a.name],
                       a.referenced_object.qualified_name,
                       [a.referenced_object.primary_key.name],
-                      :on_update => a.on_update,
-                      :on_delete => a.on_delete )
+                      {:on_update => a.on_update, :on_delete => a.on_delete},
+                      true )
         end
 
         error("#{table_name} defines multiple clustering indexes") if indexes.select{|i| i.cluster?}.size > 1
