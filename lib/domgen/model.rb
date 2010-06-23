@@ -72,6 +72,8 @@ module Domgen
   end
 
   class BaseGeneratableElement < BaseConfigElement
+    attr_accessor :parent
+
     def initialize(parent, options, &block)
       @parent = parent
       @generator_keys = []
@@ -314,7 +316,6 @@ module Domgen
   end
 
   class ObjectType < BaseGeneratableElement
-    attr_reader :schema
     attr_reader :name
     attr_reader :unique_constraints
     attr_reader :codependent_constraints
@@ -327,7 +328,6 @@ module Domgen
     attr_accessor :subtypes
 
     def initialize(schema, name, options = {}, &block)
-      @schema = schema
       @name = name
       @attributes = Domgen::OrderedHash.new
       @unique_constraints = Domgen::OrderedHash.new
@@ -339,6 +339,10 @@ module Domgen
       @direct_subtypes = []
       @subtypes = []
       super(schema, options, &block)
+    end
+
+    def schema
+      self.parent
     end
 
     def qualified_name
@@ -595,12 +599,12 @@ module Domgen
       pre_object_type_create(name)
       if options[:extends]
         base_type = object_type_by_name(options[:extends])
-        base_type.instance_variable_set("@schema",nil)
+        base_type.instance_variable_set("@parent",nil)
         object_type = Marshal.load(Marshal.dump(base_type))
-        base_type.instance_variable_set("@schema",self)
+        base_type.instance_variable_set("@parent",self)
         object_type.instance_variable_set("@abstract",nil)
         object_type.instance_variable_set("@final",nil)
-        object_type.instance_variable_set("@schema",self)
+        object_type.instance_variable_set("@parent",self)
         object_type.instance_variable_set("@direct_subtypes",[])
         object_type.instance_variable_set("@name",name)
         object_type.options = options
