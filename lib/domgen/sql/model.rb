@@ -188,7 +188,7 @@ module Domgen
 
       def index(attribute_names, options = {}, &block)
         index = Index.new(self, attribute_names, options, &block)
-        error("Index named #{name} already defined on table #{table_name}") if @indexes[index.name]
+        error("Index named #{index.name} already defined on table #{table_name}") if @indexes[index.name]
         @indexes[index.name] = index
         index
       end
