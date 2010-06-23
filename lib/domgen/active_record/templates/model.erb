@@ -34,9 +34,11 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 %>  nillable_boolean :<%= a.sql.column_name %>
 <%         end
          end
-         if a.attribute_type == :string || a.attribute_type == :s_enum
+         if a.attribute_type == :string || a.attribute_type == :s_enum || a.attribute_type == :text
 %>  nillable_attribute :<%= a.sql.column_name %>
-  validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => true
+<%       end
+         if a.attribute_type == :string || a.attribute_type == :s_enum
+%>  validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => true
 <%       end
          if a.reference?
 %>  belongs_to :<%= underscore(a.name) %>, :class_name => '<%= a.referenced_object.ruby.fully_qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
