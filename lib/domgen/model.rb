@@ -14,8 +14,13 @@ module Domgen
 
     def schema_set_by_name(name)
       schema_set = schema_set_map[name.to_s]
-      raise "Unable to locate schema set #{name}" unless schema_set
+      error("Unable to locate schema set #{name}") unless schema_set
       schema_set
+    end
+
+    def error(message)
+      Logger.error(message)
+      raise message
     end
 
     private
@@ -57,6 +62,12 @@ module Domgen
           extension_object.send action
         end
       end
+    end
+
+    protected
+
+    def error(message)
+      Domgen.error(message)
     end
   end
 
@@ -125,7 +136,7 @@ module Domgen
       @name = name
       @attribute_type = attribute_type
       super(options, &block)
-      raise "Invalid type #{attribute_type} for persistent attribute #{name}" if persistent? && !self.class.persistent_types.include?(attribute_type)
+      error("Invalid type #{attribute_type} for persistent attribute #{name}") if persistent? && !self.class.persistent_types.include?(attribute_type)
     end
 
     attr_writer :abstract
@@ -187,7 +198,7 @@ module Domgen
     attr_reader :length
 
     def length=(length)
-      raise "length on #{name} is invalid as attribute is not a string" unless self.attribute_type == :string || self.attribute_type == :s_enum
+      error("length on #{name} is invalid as attribute is not a string") unless self.attribute_type == :string || self.attribute_type == :s_enum
       @length = length
     end
 
@@ -208,7 +219,7 @@ module Domgen
     attr_reader :values
 
     def values=(values)
-      raise "values on #{name} is invalid as attribute is not an i_enum or s_enum" unless enum?
+      error("values on #{name} is invalid as attribute is not an i_enum or s_enum") unless enum?
       @values = values
     end
 
@@ -229,7 +240,7 @@ module Domgen
     attr_writer :polymorphic
 
     def polymorphic?
-      raise "polymorphic? on #{name} is invalid as attribute is not a reference" unless reference?
+      error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
       @polymorphic = !referenced_object.final? if @polymorphic.nil?
       @polymorphic
     end
@@ -237,25 +248,25 @@ module Domgen
     attr_reader :references
 
     def references=(references)
-      raise "references on #{name} is invalid as attribute is not a reference" unless reference?
+      error("references on #{name} is invalid as attribute is not a reference") unless reference?
       @references = references
     end
 
     def referenced_object
-      raise "referenced_object on #{name} is invalid as attribute is not a reference" unless reference?
+      error("referenced_object on #{name} is invalid as attribute is not a reference") unless reference?
       self.object_type.schema.object_type_by_name(self.references)
     end
 
     # The name of the local field appended with PK of foreign object
     def referencing_link_name
-      raise "referencing_link_name on #{name} is invalid as attribute is not a reference" unless reference?
+      error("referencing_link_name on #{name} is invalid as attribute is not a reference") unless reference?
       "#{name}#{referenced_object.primary_key.name}"
     end
 
     attr_writer :inverse_relationship_type
 
     def inverse_relationship_type
-      raise "inverse_relationship_type on #{name} is invalid as attribute is not a reference" unless reference?
+      error("inverse_relationship_type on #{name} is invalid as attribute is not a reference") unless reference?
       @inverse_relationship_type = :has_many if @inverse_relationship_type.nil?
       @inverse_relationship_type
     end
@@ -263,31 +274,31 @@ module Domgen
     attr_writer :inverse_relationship_name
 
     def inverse_relationship_name
-      raise "inverse_relationship_name on #{name} is invalid as attribute is not a reference" unless reference?
+      error("inverse_relationship_name on #{name} is invalid as attribute is not a reference") unless reference?
       @inverse_relationship_name = object_type.name if @inverse_relationship_name.nil?
       @inverse_relationship_name
     end
 
     def on_update=(on_update)
-      raise "on_update on #{name} is invalid as attribute is not a reference" unless reference?
-      raise "on_update #{on_update} on #{name} is invalid" unless self.class.change_actions.include?(on_update)
+      error("on_update on #{name} is invalid as attribute is not a reference") unless reference?
+      error("on_update #{on_update} on #{name} is invalid") unless self.class.change_actions.include?(on_update)
       @on_update = on_update
     end
 
     def on_update
-      raise "on_update on #{name} is invalid as attribute is not a reference" unless reference?
+      error("on_update on #{name} is invalid as attribute is not a reference") unless reference?
       @on_update = :no_action if @on_update.nil?
       @on_update
     end
 
     def on_delete=(on_delete)
-      raise "on_delete on #{name} is invalid as attribute is not a reference" unless reference?
-      raise "on_delete #{on_delete} on #{name} is invalid" unless self.class.change_actions.include?(on_delete)
+      error("on_delete on #{name} is invalid as attribute is not a reference") unless reference?
+      error("on_delete #{on_delete} on #{name} is invalid") unless self.class.change_actions.include?(on_delete)
       @on_delete = on_delete
     end
 
     def on_delete
-      raise "on_delete on #{name} is invalid as attribute is not a reference" unless reference?
+      error("on_delete on #{name} is invalid as attribute is not a reference") unless reference?
       @on_delete = :no_action if @on_delete.nil?
       @on_delete
     end
@@ -347,9 +358,9 @@ module Domgen
         end
       end
 
-      raise "ObjectType #{name} must define exactly one primary key" if attributes.select {|a| a.primary_key?}.size != 1
+      error("ObjectType #{name} must define exactly one primary key") if attributes.select {|a| a.primary_key?}.size != 1
       attributes.each do |a|
-        raise "Abstract attribute #{a.name} on non abstract object type #{name}" if !abstract? && a.abstract?
+        error("Abstract attribute #{a.name} on non abstract object type #{name}") if !abstract? && a.abstract?
       end
     end
 
@@ -397,30 +408,30 @@ module Domgen
     end
 
     def i_enum(name, values, options = {}, &block)
-      raise "More than 0 values must be specified for i_enum #{name}" if values.size == 0
+      error("More than 0 values must be specified for i_enum #{name}") if values.size == 0
       values.each_pair do |k, v|
-        raise "Key #{k} of i_enum #{name} should be a string" unless k.instance_of?(String)
-        raise "Value #{v} for key #{k} of i_enum #{name} should be an integer" unless v.instance_of?(Fixnum)
+        error("Key #{k} of i_enum #{name} should be a string") unless k.instance_of?(String)
+        error("Value #{v} for key #{k} of i_enum #{name} should be an integer") unless v.instance_of?(Fixnum)
       end
-      raise "Duplicate keys detected for i_enum #{name}" if values.keys.uniq.size != values.size
-      raise "Duplicate values detected for i_enum #{name}" if values.values.uniq.size != values.size
+      error("Duplicate keys detected for i_enum #{name}") if values.keys.uniq.size != values.size
+      error("Duplicate values detected for i_enum #{name}") if values.values.uniq.size != values.size
       sorted_values = values.values.sort
 
       if (sorted_values[sorted_values.size - 1] - sorted_values[0] + 1) != sorted_values.size
-        raise "Non-continuous values detected for i_enum #{name}"
+        error("Non-continuous values detected for i_enum #{name}")
       end
 
       attribute(name, :i_enum, options.merge({:values => values}), &block)
     end
 
     def s_enum(name, values, options = {}, &block)
-      raise "More than 0 values must be specified for s_enum #{name}" if values.size == 0
+      error("More than 0 values must be specified for s_enum #{name}") if values.size == 0
       values.each_pair do |k, v|
-        raise "Key #{k} of s_enum #{name} should be a string" unless k.instance_of?(String)
-        raise "Value #{v} for key #{k} of s_enum #{name} should be a string" unless v.instance_of?(String)
+        error("Key #{k} of s_enum #{name} should be a string") unless k.instance_of?(String)
+        error("Value #{v} for key #{k} of s_enum #{name} should be a string") unless v.instance_of?(String)
       end
-      raise "Duplicate keys detected for s_enum #{name}" if values.keys.uniq.size != values.size
-      raise "Duplicate values detected for s_enum #{name}" if values.values.uniq.size != values.size
+      error("Duplicate keys detected for s_enum #{name}") if values.keys.uniq.size != values.size
+      error("Duplicate values detected for s_enum #{name}") if values.values.uniq.size != values.size
       sorted_values = values.values.sort
 
       length = sorted_values.inject(0) {|max, value| max > value.length ? max : value.length }
@@ -437,7 +448,7 @@ module Domgen
     end
 
     def attribute(name, type, options = {}, &block)
-      raise "Attempting to override non abstract attribute #{name} on #{self.name}" if @attributes[name.to_s] && !@attributes[name.to_s].abstract?
+      error("Attempting to override non abstract attribute #{name} on #{self.name}") if @attributes[name.to_s] && !@attributes[name.to_s].abstract?
       attribute = Attribute.new(self, name, type, {:override => !@attributes[name.to_s].nil?}.merge(options), &block)
       @attributes[name.to_s] = attribute
       attribute
@@ -450,15 +461,15 @@ module Domgen
     def candidate_key(attribute_names)
       attribute_names.each do |attribute_name|
         attribute = attribute_by_name(attribute_name)
-        raise "Candidate keys must consist of immutable attributes" unless attribute.immutable?
+        error("Candidate keys must consist of immutable attributes") unless attribute.immutable?
       end
       unique_constraint(attribute_names)
     end
 
     def unique_constraint(attribute_names, options = {}, &block)
-      raise "Must have at least 1 or more attribute names for uniqueness constraint" if attribute_names.empty?
+      error("Must have at least 1 or more attribute names for uniqueness constraint") if attribute_names.empty?
       name = attribute_names_to_key(attribute_names)
-      raise "Only 1 unique constraint with name #{name} should be defined" if @unique_constraints[name]
+      error("Only 1 unique constraint with name #{name} should be defined") if @unique_constraints[name]
       unique_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @unique_constraints[name] = unique_constraint
       unique_constraint
@@ -471,9 +482,9 @@ module Domgen
     # Check that either the attribute is null or the attribute and all the dependents are not null
     def dependency_constraint(attribute_name, dependent_attribute_names, options = {}, &block)
       name = "#{attribute_name}_#{attribute_names_to_key(dependent_attribute_names)}"
-      raise "Dependency constraint #{name} on #{self.name} has an illegal non nullable attribute" if !attribute_by_name(attribute_name).nullable?
+      error("Dependency constraint #{name} on #{self.name} has an illegal non nullable attribute") if !attribute_by_name(attribute_name).nullable?
       dependent_attribute_names.collect{|a|attribute_by_name(a)}.each do |a|
-        raise "Dependency constraint #{name} on #{self.name} has an illegal non nullable dependent attribute" if !a.nullable?
+        error("Dependency constraint #{name} on #{self.name} has an illegal non nullable dependent attribute") if !a.nullable?
       end
       dependency_constraint = DependencyConstraint.new(name, attribute_name, dependent_attribute_names, options, &block)
       @dependency_constraints[name] = dependency_constraint
@@ -488,7 +499,7 @@ module Domgen
     def codependent_constraint(attribute_names, options = {}, &block)
       name = attribute_names_to_key(attribute_names)
       attribute_names.collect{|a|attribute_by_name(a)}.each do |a|
-        raise "Codependent constraint #{name} on #{self.name} has an illegal non nullable attribute" if !a.nullable?
+        error("Codependent constraint #{name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
       codependent_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @codependent_constraints[name] = codependent_constraint
@@ -503,7 +514,7 @@ module Domgen
     def incompatible_constraint(attribute_names, options = {}, &block)
       name = attribute_names_to_key(attribute_names)
       attribute_names.collect{|a|attribute_by_name(a)}.each do |a|
-        raise "Incompatible constraint #{name} on #{self.name} has an illegal non nullable attribute" if !a.nullable?
+        error("Incompatible constraint #{name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
       incompatible_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
       @incompatible_constraints[name.to_s] = incompatible_constraint
@@ -516,7 +527,7 @@ module Domgen
 
     # Constraint that ensures that the value of a particular value is within a particular scope
     def scope_constraint(attribute_name, attribute_name_path, options = {}, &block)
-      raise "Scope constraint must have a path of length 1 or more" if attribute_name_path.empty?
+      error("Scope constraint must have a path of length 1 or more") if attribute_name_path.empty?
       name = ([attribute_name] + attribute_name_path).collect{|a|a.to_s}.sort.join('_')
 
       scope_constraint = ScopeConstraint.new(name, attribute_name, attribute_name_path, options, &block)
@@ -524,15 +535,15 @@ module Domgen
       object_type = self
       attribute_name_path.each do |attribute_name_path_element|
         other = object_type.attribute_by_name(attribute_name_path_element)
-        raise "Path element #{attribute_name_path_element} is not immutable" if !other.immutable?
-        raise "Path element #{attribute_name_path_element} is nullable" if other.nullable?
-        raise "Path element #{attribute_name_path_element} is not a reference" if !other.reference?
+        error("Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
+        error("Path element #{attribute_name_path_element} is nullable") if other.nullable?
+        error("Path element #{attribute_name_path_element} is not a reference") if !other.reference?
         object_type = other.referenced_object
       end
       local_reference = attribute_by_name(attribute_name)
-      raise "Attribute named #{attribute_name} is not a reference" if !local_reference.reference?
+      error("Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
       scoping_attribute = local_reference.referenced_object.attribute_by_name(scope_constraint.scoping_attribute)
-      raise "Scoping attribute references #{scoping_attribute.referenced_object.name} while last reference in path is #{object_type.name}" if object_type != scoping_attribute.referenced_object
+      error("Scoping attribute references #{scoping_attribute.referenced_object.name} while last reference in path is #{object_type.name}") if object_type != scoping_attribute.referenced_object
 
       @scope_constraints[name.to_s] = scope_constraint
       scope_constraint
@@ -541,13 +552,13 @@ module Domgen
     # Assume single column pk
     def primary_key
       primary_key = attributes.find {|a| a.primary_key? }
-      raise "Unable to locate primary key for #{self.name}, attributes => #{attributes.collect{|a|a.name}}" unless primary_key
+      error("Unable to locate primary key for #{self.name}, attributes => #{attributes.collect{|a|a.name}}") unless primary_key
       primary_key
     end
 
     def attribute_by_name(name)
       attribute = @attributes[name.to_s]
-      raise "Unable to find attribute named #{name} on type #{self.name}. Available attributes = #{attributes.collect{|a|a.name}.join(', ')}" unless attribute
+      error("Unable to find attribute named #{name} on type #{self.name}. Available attributes = #{attributes.collect{|a|a.name}.join(', ')}") unless attribute
       attribute
     end
 
@@ -581,8 +592,7 @@ module Domgen
     end
 
     def define_object_type(name, options = {}, &block)
-      raise "Attempting to redefine Object Type '#{name}'" if @object_types[name.to_s]
-      Logger.debug "Object Type '#{name}' definition started"
+      pre_object_type_create(name)
       if options[:extends]
         base_type = object_type_by_name(options[:extends])
         base_type.instance_variable_set("@schema",nil)
@@ -605,22 +615,33 @@ module Domgen
       else
         object_type = ObjectType.new(self, name, options, &block)
       end
-      @object_types[name.to_s] = object_type
-      object_type.verify
-      Logger.debug "Object Type '#{name}' definition completed"
+      post_object_type_create(name, object_type)
     end
 
     def object_type_by_name(name)
       name_parts = name.to_s.split('.')
-      raise "Name should have 0 or 1 '.' separators" if (name_parts.size != 1 && name_parts.size != 2)
+      error("Name should have 0 or 1 '.' separators") if (name_parts.size != 1 && name_parts.size != 2)
       name_parts = [self.name] + name_parts if name_parts.size == 1
       schema_set.schema_by_name(name_parts[0]).local_object_type_by_name(name_parts[1])
     end
 
     def local_object_type_by_name(name)
       object_type = @object_types[name.to_s]
-      raise "Unable to locate local object_type #{name} in #{self.name}" unless object_type
+      error("Unable to locate local object_type #{name} in #{self.name}") unless object_type
       object_type
+    end
+
+    private
+
+    def pre_object_type_create(name)
+      error("Attempting to redefine Object Type '#{name}'") if @object_types[name.to_s]
+      Logger.debug "Object Type '#{name}' definition started"
+    end
+
+    def post_object_type_create(name, object_type)
+      @object_types[name.to_s] = object_type
+      object_type.verify
+      Logger.debug "Object Type '#{name}' definition completed"
     end
   end
 
@@ -648,7 +669,7 @@ module Domgen
 
     def schema_by_name(name)
       schema = @schemas[name.to_s]
-      raise "Unable to locate schema #{name}" unless schema
+      error("Unable to locate schema #{name}") unless schema
       schema
     end
 
