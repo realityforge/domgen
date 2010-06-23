@@ -94,10 +94,7 @@ module Domgen
       end
 
       def referenced_object_type
-        if @referenced_object_type.nil?
-          @referenced_object_type = table.parent.schema.object_type_by_name(referenced_object_type_name)
-        end
-        @referenced_object_type
+        table.parent.schema.object_type_by_name(referenced_object_type_name)
       end
 
       def on_update=(on_update)
