@@ -59,7 +59,7 @@ module Domgen
           end
           templates = templates + new_templates
         else
-          raise "Missing define_#{generator_key}_templates method"
+          Domgen.error("Missing define_#{generator_key}_templates method")
         end
       end
 

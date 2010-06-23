@@ -66,7 +66,7 @@ module Domgen
         elsif query_type == :selector
           query = "SELECT O FROM #{parent.parent.name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
         else
-          raise "Unknown query type #{query_type}"
+          error("Unknown query type #{query_type}")
         end
         query.gsub("\n", ' ')
       end

@@ -80,7 +80,7 @@ module Domgen
       def primitive_java_type
         return "int" if :integer == parent.attribute_type
         return "boolean" if :boolean == parent.attribute_type
-        raise "primitive_java_type invoked for non primitive method"
+        error("primitive_java_type invoked for non primitive method")
       end
     end
 

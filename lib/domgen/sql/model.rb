@@ -101,7 +101,7 @@ module Domgen
       end
 
       def on_update=(on_update)
-        raise "on_update #{on_update} on #{name} is invalid" unless ACTION_MAP.keys.include?(on_update)
+        error("on_update #{on_update} on #{name} is invalid") unless ACTION_MAP.keys.include?(on_update)
         @on_update = on_update
       end
 
@@ -110,7 +110,7 @@ module Domgen
       end
 
       def on_delete=(on_delete)
-        raise "on_delete #{on_delete} on #{name} is invalid" unless ACTION_MAP.keys.include?(on_delete)
+        error("on_delete #{on_delete} on #{name} is invalid") unless ACTION_MAP.keys.include?(on_delete)
         @on_delete = on_delete
       end
 
@@ -161,7 +161,7 @@ module Domgen
       end
 
       def constraint(name, options = {}, &block)
-        raise "Constraint named #{name} already defined on table #{table_name}" if @constraints[name.to_s]
+        error("Constraint named #{name} already defined on table #{table_name}") if @constraints[name.to_s]
         constraint = Constraint.new(self, name, options, &block)
         @constraints[name.to_s] = constraint
         constraint
@@ -172,7 +172,7 @@ module Domgen
       end
 
       def validation(name, options = {}, &block)
-        raise "Validation named #{name} already defined on table #{table_name}" if @validations[name.to_s]
+        error("Validation named #{name} already defined on table #{table_name}") if @validations[name.to_s]
         validation = Validation.new(self, name, options, &block)
         @validations[name.to_s] = validation
         validation
@@ -188,7 +188,7 @@ module Domgen
 
       def index(attribute_names, options = {}, &block)
         index = Index.new(self, attribute_names, options, &block)
-        raise "Index named #{name} already defined on table #{table_name}" if @indexes[index.name]
+        error("Index named #{name} already defined on table #{table_name}") if @indexes[index.name]
         @indexes[index.name] = index
         index
       end
@@ -199,7 +199,7 @@ module Domgen
 
       def foreign_key(attribute_names, referrenced_object_type_name, referrenced_attribute_names, options = {}, &block)
         foreign_key = ForeignKey.new(self, attribute_names, referrenced_object_type_name, referrenced_attribute_names, options, &block)
-        raise "Foreign Key named #{foreign_key.name} already defined on table #{table_name}" if @indexes[foreign_key.name]
+        error("Foreign Key named #{foreign_key.name} already defined on table #{table_name}") if @indexes[foreign_key.name]
         @foreign_keys[foreign_key.name] = foreign_key
         foreign_key
       end
@@ -291,7 +291,7 @@ SQL
                       :on_delete => a.on_delete )
         end
 
-        raise "#{table_name} defines multiple clustering indexes" if indexes.select{|i| i.cluster?}.size > 1
+        error("#{table_name} defines multiple clustering indexes") if indexes.select{|i| i.cluster?}.size > 1
       end
     end
 
@@ -324,7 +324,7 @@ SQL
           else
             @sql_type = q(TYPE_MAP[parent.attribute_type.to_s]) + (parent.length.nil? ? '' : "(#{parent.length})")
           end
-          raise "Unknown type #{parent.attribute_type}" unless @sql_type
+          error("Unknown type #{parent.attribute_type} in sql_type") unless @sql_type
         end
         @sql_type
       end
@@ -342,7 +342,7 @@ SQL
 
   class Attribute
     def sql
-      raise "Non persistent attributes should not invoke sql config method" unless persistent?
+      error("Non persistent attributes should not invoke sql config method") unless persistent?
       @sql = Domgen::Sql::Column.new(self) unless @sql
       @sql
     end
