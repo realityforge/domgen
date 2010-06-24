@@ -22,7 +22,7 @@ GO
 <% object_type.sql.indexes.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX [<%= index.name %>] ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
 (<%= index.attribute_names.collect {|a| "\n  #{q(object_type.attribute_by_name(a).sql.column_name)} ASC" }.join(",") %>
-)
+)<% if !index.include_attribute_names.nil? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| q(object_type.attribute_by_name(a).sql.column_name) }.join(",") %> )<% end %>
 GO
 <% end %>
 <% object_type.sql.foreign_keys.each do |foreign_key| %>

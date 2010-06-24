@@ -27,6 +27,7 @@ module Domgen
     class Index < BaseConfigElement
       attr_reader :table
       attr_accessor :attribute_names
+      attr_accessor :include_attribute_names
 
       def initialize(table, attribute_names, options, &block)
         @table, @attribute_names = table, attribute_names
