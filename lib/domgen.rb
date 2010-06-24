@@ -1,0 +1,1 @@
+require "domgen/domgen.rb"
