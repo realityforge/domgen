@@ -338,6 +338,7 @@ module Domgen
       @referencing_attributes = []
       @direct_subtypes = []
       @subtypes = []
+      schema.send :register_object_type, name, self
       super(schema, options, &block)
     end
 
@@ -614,7 +615,7 @@ module Domgen
         object_type.codependent_constraints.each {|a| a.instance_variable_set("@inherited",true)}
         object_type.incompatible_constraints.each {|a| a.instance_variable_set("@inherited",true)}
         base_type.direct_subtypes << object_type
-
+        register_object_type(name, object_type)
         yield object_type if block_given?
       else
         object_type = ObjectType.new(self, name, options, &block)
@@ -643,9 +644,12 @@ module Domgen
     end
 
     def post_object_type_create(name, object_type)
-      @object_types[name.to_s] = object_type
       object_type.verify
       Logger.debug "Object Type '#{name}' definition completed"
+    end
+
+    def register_object_type(name, object_type)
+      @object_types[name.to_s] = object_type
     end
   end
 
