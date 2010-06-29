@@ -29,3 +29,6 @@ require "#{File.dirname(__FILE__)}/jpa/generator.rb"
 
 # ActiveRecord
 require "#{File.dirname(__FILE__)}/active_record/generator.rb"
+
+require "#{File.dirname(__FILE__)}/rake_tasks.rb"
+
