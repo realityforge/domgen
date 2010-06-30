@@ -618,6 +618,7 @@ module Domgen
         object_type.unique_constraints.each {|a| a.mark_as_inherited}
         object_type.codependent_constraints.each {|a| a.mark_as_inherited}
         object_type.incompatible_constraints.each {|a| a.mark_as_inherited}
+        object_type.extension_point(:post_inherited)
         base_type.direct_subtypes << object_type
         register_object_type(name, object_type)
         yield object_type if block_given?
