@@ -169,12 +169,13 @@ module Domgen
         @constraints.values
       end
 
-      def constraint_defined?(name)
-        !!@constraints[name.to_s]
+      def constraint_by_name(name)
+        @constraints[name.to_s]
       end
 
       def constraint(name, options = {}, &block)
-        error("Constraint named #{name} already defined on table #{table_name}") if constraint_defined?(name)
+        existing = constraint_by_name(name)
+        error("Constraint named #{name} already defined on table #{table_name}") if (existing && !existing.inherited?)
         constraint = Constraint.new(self, name, options, &block)
         @constraints[name.to_s] = constraint
         constraint
@@ -184,12 +185,13 @@ module Domgen
         @validations.values
       end
 
-      def validation_defined?(name)
-        !!@validations[name.to_s]
+      def validation_by_name(name)
+        @validations[name.to_s]
       end
 
       def validation(name, options = {}, &block)
-        error("Validation named #{name} already defined on table #{table_name}") if validation_defined?(name)
+        existing = validation_by_name(name)
+        error("Validation named #{name} already defined on table #{table_name}") if (existing && !existing.inherited?)
         validation = Validation.new(self, name, options, &block)
         @validations[name.to_s] = validation
         validation
@@ -199,12 +201,13 @@ module Domgen
         @triggers.values
       end
 
-      def trigger_defined?(name)
-        !!@triggers[name.to_s]
+      def trigger_by_name(name)
+        @triggers[name.to_s]
       end
 
       def trigger(name, options = {}, &block)
-        error("Trigger named #{name} already defined on table #{table_name}") if trigger_defined?(name)
+        existing = trigger_by_name(name)
+        error("Trigger named #{name} already defined on table #{table_name}") if (existing && !existing.inherited?)
         trigger = Trigger.new(self, name, options, &block)
         @triggers[name.to_s] = trigger
         trigger
@@ -244,14 +247,14 @@ module Domgen
         end
         parent.codependent_constraints.each do |c|
           constraint_name = "#{parent.name}_#{c.name}_CoDep"
-          constraint(constraint_name, :sql => <<SQL) unless constraint_defined?(constraint_name)
+          constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
 ( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ")} ) OR
 ( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NULL" }.join(" AND ") } )
 SQL
         end
         parent.dependency_constraints.each do |c|
           constraint_name = "#{parent.name}_#{c.name}_Dep"
-          constraint(constraint_name, :sql => <<SQL) unless constraint_defined?(constraint_name)
+          constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{parent.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR
 ( #{c.dependent_attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ") } )
 SQL
@@ -263,20 +266,20 @@ SQL
             "(#{str})"
           end.join(" OR ")
           constraint_name = "#{parent.name}_#{c.name}_Incompat"
-          constraint(constraint_name, :sql => sql) unless constraint_defined?(constraint_name)
+          constraint(constraint_name, :sql => sql) unless constraint_by_name(constraint_name)
         end
 
         parent.declared_attributes.select {|a| a.attribute_type == :i_enum }.each do |a|
           sorted_values = a.values.values.sort
           constraint_name = "#{a.name}_Enum"
-          constraint(constraint_name, :sql => <<SQL) unless constraint_defined?(constraint_name)
+          constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.column_name} >= #{sorted_values[0]} AND
 #{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
         parent.declared_attributes.select {|a| a.attribute_type == :s_enum }.each do |a|
           constraint_name = "#{a.name}_Enum"
-          constraint(constraint_name, :sql => <<SQL) unless constraint_defined?(constraint_name)
+          constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.column_name} IN (#{a.values.values.collect{|v|"'#{v}'"}.join(',')})
 SQL
         end
@@ -310,7 +313,7 @@ SQL
           end
 
           validation_name = "#{c.name}_Scope"
-          validation(validation_name, :sql => <<SQL) unless validation_defined?(validation_name)
+          validation(validation_name, :sql => <<SQL) unless validation_by_name(validation_name)
 SELECT I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 FROM
   inserted I
@@ -344,6 +347,14 @@ SQL
         end
 
         error("#{table_name} defines multiple clustering indexes") if indexes.select{|i| i.cluster?}.size > 1
+      end
+
+      def post_inherited
+        indexes.each {|a| a.mark_as_inherited}
+        constraints.each {|a| a.mark_as_inherited}
+        validations.each {|a| a.mark_as_inherited}
+        triggers.each {|a| a.mark_as_inherited}
+        foreign_keys.each {|a| a.mark_as_inherited}
       end
     end
 
