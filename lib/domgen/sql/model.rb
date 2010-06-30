@@ -138,6 +138,16 @@ module Domgen
       end
     end
 
+    class Trigger < SqlElement
+      attr_reader :name
+      attr_accessor :sql
+
+      def initialize(parent, name, options = {}, &block)
+        @name = name
+        super(parent, options, &block)
+      end
+    end
+
     class Table < SqlElement
       attr_writer :table_name
 
@@ -145,6 +155,7 @@ module Domgen
         @indexes = Domgen::OrderedHash.new
         @constraints = Domgen::OrderedHash.new
         @validations = Domgen::OrderedHash.new
+        @triggers = Domgen::OrderedHash.new
         @foreign_keys = Domgen::OrderedHash.new
         super(parent, options, &block)
       end
@@ -182,6 +193,21 @@ module Domgen
         validation = Validation.new(self, name, options, &block)
         @validations[name.to_s] = validation
         validation
+      end
+
+      def triggers
+        @triggers.values
+      end
+
+      def trigger_defined?(name)
+        !!@triggers[name.to_s]
+      end
+
+      def trigger(name, options = {}, &block)
+        error("Trigger named #{name} already defined on table #{table_name}") if trigger_defined?(name)
+        trigger = Trigger.new(self, name, options, &block)
+        @triggers[name.to_s] = trigger
+        trigger
       end
 
       def cluster(attribute_names, options = {}, &block)
@@ -285,7 +311,6 @@ SQL
 
           validation_name = "#{c.name}_Scope"
           validation(validation_name, :sql => <<SQL) unless validation_defined?(validation_name)
-
 SELECT I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 FROM
   inserted I
@@ -294,6 +319,19 @@ JOIN #{target_object_type.sql.table_name} C0 ON C0.#{target_object_type.primary_
 WHERE C0.#{scoping_attribute.sql.column_name} != #{next_id}
 GROUP BY I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 HAVING COUNT(*) > 0
+SQL
+        end
+
+        self.validations.each do |validation|
+          trigger("#{validation.name}Validation", :sql => <<SQL)
+  DECLARE @violations INT;
+#{validation.common_table_expression
+}  SELECT @violations = COUNT(*)
+  FROM (#{validation.sql}) v
+  IF (@@error = 0 AND @violations = 0) GOTO done
+  ROLLBACK
+  RAISERROR ('Failed to pass validation check #{validation.name}', 16, 1) WITH SETERROR
+done:
 SQL
         end
 

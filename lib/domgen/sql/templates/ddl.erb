@@ -44,23 +44,16 @@ ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
 GO
 <%    end
     end
-    if object_type.sql.validations.size > 0 %><%=
-    banner("Validations for #{sql_qualify(object_type.schema, object_type.sql.table_name)}")
+    if object_type.sql.triggers.size > 0 %><%=
+    banner("Triggers for #{sql_qualify(object_type.schema, object_type.sql.table_name)}")
 %><%
-      object_type.sql.validations.each do |validation|
+      object_type.sql.triggers.each do |trigger|
 %>
-CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}#{validation.name}Validation")) %> ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
+CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}#{trigger.name}")) %> ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
 AFTER INSERT, UPDATE
 AS
   SET NOCOUNT ON
-  DECLARE @violations INT;
-<%= validation.common_table_expression
-%>  SELECT @violations = COUNT(*)
-  FROM (<%= validation.sql %>) v
-  IF (@@error = 0 AND @violations = 0) GOTO done
-  ROLLBACK
-  RAISERROR ('Failed to pass validation check <%= validation.name %>', 16, 1) WITH SETERROR
-done:
+<%= trigger.sql %>
 GO
 <%    end
     end
