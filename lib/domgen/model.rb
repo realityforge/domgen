@@ -44,6 +44,10 @@ module Domgen
       !!@inherited
     end
 
+    def mark_as_inherited
+      @inherited = true
+    end
+
     def options=(options)
       options.each_pair do |k, v|
         self.send "#{k}=", v
@@ -610,10 +614,10 @@ module Domgen
         object_type.instance_variable_set("@name",name)
         object_type.options = options
 
-        object_type.attributes.each {|a| a.instance_variable_set("@inherited",true)}
-        object_type.unique_constraints.each {|a| a.instance_variable_set("@inherited",true)}
-        object_type.codependent_constraints.each {|a| a.instance_variable_set("@inherited",true)}
-        object_type.incompatible_constraints.each {|a| a.instance_variable_set("@inherited",true)}
+        object_type.attributes.each {|a| a.mark_as_inherited}
+        object_type.unique_constraints.each {|a| a.mark_as_inherited}
+        object_type.codependent_constraints.each {|a| a.mark_as_inherited}
+        object_type.incompatible_constraints.each {|a| a.mark_as_inherited}
         base_type.direct_subtypes << object_type
         register_object_type(name, object_type)
         yield object_type if block_given?
