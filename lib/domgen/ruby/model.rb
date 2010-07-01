@@ -14,6 +14,16 @@ module Domgen
 
     class RubyClass < RubyElement
       attr_writer :classname
+      attr_reader :included_modules
+
+      def initialize(parent)
+        super(parent)
+        @included_modules = []
+      end
+
+      def include_module(module_name)
+        @included_modules << module_name
+      end
 
       def classname
         @classname = parent.name unless @classname

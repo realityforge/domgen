@@ -74,8 +74,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
     end
   end
 <% end %>
-
-
+<%= object_type.ruby.included_modules.collect {|m| "  include #{m}"}.join("\n") %>
   # Make it possible for the users to extend the model by defining an extension class
   include <%= object_type.ruby.fully_qualified_name %>Extension rescue NameError
 end
