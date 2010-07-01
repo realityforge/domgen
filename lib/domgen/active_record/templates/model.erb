@@ -8,8 +8,8 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <% end %>
   set_table_name "<%= sql_qualify(object_type.schema,object_type.sql.table_name).gsub('[','').gsub(']','').gsub('dbo.','') %>"
   set_primary_key "<%= object_type.primary_key.sql.column_name %>"
-<% object_type.attributes.each do |a| %>
-<%   if a.persistent? && a.validate?
+<% object_type.attributes.each do |a|
+   if a.persistent? && a.validate?
        if !a.generated_value?
          if a.attribute_type == :i_enum
            a.values.each do |k,v|
@@ -53,8 +53,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
   has_many :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
   has_count_of :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>
 <%
-    end
-    if attribute.inverse_relationship_type == :has_one
+    elsif attribute.inverse_relationship_type == :has_one
 %>
   has_one :<%= underscore(attribute.inverse_relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
 <%
@@ -62,6 +61,11 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
   end
 %>
 
+<% object_type.unique_constraints.each do |c|
+ attributes = c.attribute_names.collect{|attribute_name| object_type.attribute_by_name(attribute_name)}
+%>
+  validates_uniqueness_of :<%= attributes.shift.sql.column_name %><% if !attributes.empty? %>, :scope => [<%= attributes.collect{|a|":#{a.sql.column_name}"}.join(", ") %>]<% end %>
+<% end %>
 <% object_type.codependent_constraints.each do |c| %>
   validates_codependent <%= c.attribute_names.collect{|attribute_name|":#{attribute_name}"}.join(', ') %>
 <% end %>
