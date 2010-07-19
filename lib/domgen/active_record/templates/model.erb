@@ -11,9 +11,9 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <% object_type.attributes.each do |a|
    if a.persistent? && a.validate?
        if !a.generated_value?
-         if a.attribute_type == :i_enum
+         if a.attribute_type == :i_enum || a.attribute_type == :s_enum
            a.values.each do |k,v|
-%>  <%= a.name %>_<%= k %> = <%= v %>
+%>  <%= a.name %>_<%= k.gsub(/[:\-\/\\]/,'_') %> = <%= v.inspect %>
 <%         end
 %>  <%= a.name %>Values = [<%= a.values.keys.collect{|k| "#{a.name}_#{k}"}.join(', ') %>]
   validates_inclusion_of :<%= a.sql.column_name %>, :in => <%= a.name %>Values<% if a.nullable? %>, :allow_nil => true <% end %>
