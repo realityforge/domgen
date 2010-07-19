@@ -2,33 +2,33 @@ require 'erb'
 require 'fileutils'
 require 'logger'
 
-require "domgen/orderedhash.rb"
+require 'domgen/orderedhash'
 
 # Core components
-require "domgen/model.rb"
-require "domgen/template.rb"
-require "domgen/render_context.rb"
-require "domgen/generator.rb"
-require "domgen/helper.rb"
+require 'domgen/model'
+require 'domgen/template'
+require 'domgen/render_context'
+require 'domgen/generator'
+require 'domgen/helper'
 
 # Java
-require "domgen/java/model.rb"
+require 'domgen/java/model'
 
 # Ruby
-require "domgen/ruby/model.rb"
+require 'domgen/ruby/model'
 
 # SQL
-require "domgen/sql/model.rb"
-require "domgen/sql/helper.rb"
-require "domgen/sql/generator.rb"
+require 'domgen/sql/model'
+require 'domgen/sql/helper'
+require 'domgen/sql/generator'
 
 # JPA
-require "domgen/jpa/model.rb"
-require "domgen/jpa/helper.rb"
-require "domgen/jpa/generator.rb"
+require 'domgen/jpa/model'
+require 'domgen/jpa/helper'
+require 'domgen/jpa/generator'
 
 # ActiveRecord
-require "domgen/active_record/generator.rb"
+require 'domgen/active_record/generator'
 
-require "domgen/rake_tasks.rb"
+require 'domgen/rake_tasks'
 
