@@ -16,6 +16,7 @@ require "#{File.dirname(__FILE__)}/java/model.rb"
 
 # Ruby
 require "#{File.dirname(__FILE__)}/ruby/model.rb"
+require "#{File.dirname(__FILE__)}/ruby/helper.rb"
 
 # SQL
 require "#{File.dirname(__FILE__)}/sql/model.rb"
