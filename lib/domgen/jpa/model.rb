@@ -34,12 +34,7 @@ module Domgen
       end
 
       def fully_qualified_name
-        if singular?
-          type_spec = parent.parent.name
-        else
-          type_spec = pluralize(parent.parent.name)
-        end
-        "#{name_prefix}#{type_spec}#{name_suffix}"
+        "#{parent.parent.name}.#{local_name}"
       end
 
       def local_name
