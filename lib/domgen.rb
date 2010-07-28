@@ -16,6 +16,7 @@ require 'domgen/java/model'
 
 # Ruby
 require 'domgen/ruby/model'
+require 'domgen/ruby/helper'
 
 # SQL
 require 'domgen/sql/model'
