@@ -3,7 +3,6 @@ module Domgen
     module Helper
       def j_class_definition(object_type)
         s = "public "
-        s << "final " if object_type.final?
         s << "abstract " if object_type.abstract?
         s << "class #{object_type.java.classname}\n"
         if object_type.extends
