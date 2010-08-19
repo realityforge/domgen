@@ -177,6 +177,13 @@ module Domgen
       @unique
     end
 
+    attr_writer :set_once
+
+    def set_once?
+      @set_once = false if @set_once.nil?
+      @set_once
+    end
+
     attr_writer :generated_value
 
     def generated_value?

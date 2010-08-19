@@ -284,6 +284,22 @@ SQL
 SQL
         end
 
+        parent.declared_attributes.select {|a| a.set_once? }.each do |a|
+          validation_name = "#{a.name}_SetOnce"
+          validation(validation_name, :sql => <<SQL) unless validation_by_name(validation_name)
+SELECT I.ID
+FROM
+inserted I
+JOIN deleted D ON D.ID = I.ID
+WHERE
+  D.#{a.sql.column_name} IS NOT NULL AND
+  (
+    I.#{a.sql.column_name} IS NULL OR
+    D.#{a.sql.column_name} != I.#{a.sql.column_name}
+  )
+SQL
+        end
+
         parent.scope_constraints.each do |c|
           target_attribute = parent.attribute_by_name(c.attribute_name)
           target_object_type = parent.attribute_by_name(c.attribute_name).referenced_object
