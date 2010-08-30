@@ -44,7 +44,7 @@ module Domgen
       attr_writer :module_name
 
       def module_name
-        @module_name = parent.name.capitalize unless @module_name
+        @module_name = parent.name unless @module_name
         @module_name
       end
     end
