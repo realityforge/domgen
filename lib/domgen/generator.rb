@@ -1,12 +1,12 @@
 module Domgen
   class << self
-    def generate(schema_set_name, directory, generator_keys)
-      Domgen::Generator.generate(Domgen.schema_set_by_name(schema_set_name), directory, generator_keys)
+    def generate(schema_set_name, directory, generator_keys, filter)
+      Domgen::Generator.generate(Domgen.schema_set_by_name(schema_set_name), directory, generator_keys, filter)
     end
   end
 
   module Generator
-    def self.generate(schema_set, directory, generator_keys)
+    def self.generate(schema_set, directory, generator_keys, filter)
       Logger.info "Generator started: Generating #{generator_keys.inspect}"
 
       templates = load_templates(generator_keys)
@@ -14,20 +14,26 @@ module Domgen
       templates.each do |template|
         template_name = File.basename(template.template_filename,'.erb')
         if :schema_set == template.scope
-          render(directory, template, :schema_set, schema_set) do
-            Logger.debug "Generated #{template_name} for schema set"
-          end if schema_set.generate?(template.generator_key)
+          if schema_set.generate?(template.generator_key) && (filter.nil? || filter.call(:schema_set, schema_set))
+            render(directory, template, :schema_set, schema_set) do
+              Logger.debug "Generated #{template_name} for schema set"
+            end
+          end
         else
           schema_set.schemas.each do |schema|
             if :schema == template.scope
-              render(directory, template, :schema, schema) do
-                Logger.debug "Generated #{template_name} for schema #{schema.name}"
-              end if schema.generate?(template.generator_key)
+              if schema.generate?(template.generator_key) && (filter.nil? || filter.call(:schema, schema))
+                render(directory, template, :schema, schema) do
+                  Logger.debug "Generated #{template_name} for schema #{schema.name}"
+                end
+              end
             else
               schema.object_types.each do |object_type|
-                render(directory, template, :object_type, object_type) do
-                  Logger.debug "Generated #{template_name} for object_type #{schema.name}.#{object_type.name}"
-                end if object_type.generate?(template.generator_key)                
+                if object_type.generate?(template.generator_key) && (filter.nil? || filter.call(:object_type, object_type))
+                  render(directory, template, :object_type, object_type) do
+                    Logger.debug "Generated #{template_name} for object_type #{schema.name}.#{object_type.name}"
+                  end
+                end
               end
             end
           end
@@ -35,7 +41,7 @@ module Domgen
       end
       Logger.info "Generator completed"
     end
-    
+
     private
 
     def self.create_context(template, key, value)

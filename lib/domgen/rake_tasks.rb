@@ -3,6 +3,7 @@ module Domgen
     attr_accessor :clobber_dir
     attr_accessor :description
     attr_accessor :namespace_key
+    attr_accessor :filter
 
     attr_reader :schema_set_key
     attr_reader :key
@@ -13,6 +14,7 @@ module Domgen
       @schema_set_key, @key, @generator_keys, @target_dir = schema_set_key, key, generator_keys, target_dir
       @clobber_dir = true
       @namespace_key = :domgen
+      @filter = nil
       yield self if block_given?
       define
     end
@@ -20,13 +22,12 @@ module Domgen
     private
 
     def define
-
       desc self.description || "Generates the #{key} artifacts."
       namespace self.namespace_key do
         task self.key => ["#{self.namespace_key}:load"] do
           begin
             FileUtils.rm_rf(self.target_dir) if self.clobber_dir
-            Domgen.generate(self.schema_set_key, self.target_dir, self.generator_keys)
+            Domgen.generate(self.schema_set_key, self.target_dir, self.generator_keys, self.filter)
           rescue => e
             print "An error occurred invoking the generator\n"
             puts $@
