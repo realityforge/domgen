@@ -377,6 +377,7 @@ SQL
     class Column < SqlElement
       TYPE_MAP = {"string" => "VARCHAR",
                   "integer" => "INT",
+                  "real" => "FLOAT",
                   "datetime" => "DATETIME",
                   "boolean" => "BIT",
                   "text" => "TEXT",

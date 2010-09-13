@@ -322,7 +322,7 @@ module Domgen
     end
 
     def self.persistent_types
-      [:text, :string, :reference, :boolean, :datetime, :integer, :i_enum, :s_enum]
+      [:text, :string, :reference, :boolean, :datetime, :integer, :real, :i_enum, :s_enum]
     end
   end
 
@@ -412,6 +412,10 @@ module Domgen
 
     def integer(name, options = {}, &block)
       attribute(name, :integer, options, &block)
+      end
+
+    def real(name, options = {}, &block)
+      attribute(name, :real, options, &block)
     end
 
     def datetime(name, options = {}, &block)
