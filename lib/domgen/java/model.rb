@@ -74,7 +74,7 @@ module Domgen
       end
 
       def primitive?
-        (parent.attribute_type == :integer || parent.attribute_type == :boolean) && !parent.nullable?
+        (parent.attribute_type == :integer || parent.attribute_type == :boolean) && !parent.nullable? && !parent.primary_key?
       end
 
       def primitive_java_type
