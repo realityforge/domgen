@@ -35,8 +35,12 @@ module Domgen
   end
 
   class BaseConfigElement
+
+    attr_accessor :tags
+
     def initialize(options = {})
       self.options = options
+      @tags = {}
       yield self if block_given?
     end
 
@@ -52,6 +56,14 @@ module Domgen
       options.each_pair do |k, v|
         self.send "#{k}=", v
       end
+    end
+
+    def tag(name, value)
+      @tags[name] = value
+    end
+
+    def description(value)
+      tag(:Description, value)
     end
 
     @@extensions = {}
@@ -322,7 +334,7 @@ module Domgen
     end
 
     def self.persistent_types
-      [:text, :string, :reference, :boolean, :datetime, :integer, :real, :i_enum, :s_enum]
+      [:text, :string, :reference, :boolean, :datetime, :integer, :i_enum, :s_enum]
     end
   end
 
@@ -413,10 +425,6 @@ module Domgen
     def integer(name, options = {}, &block)
       attribute(name, :integer, options, &block)
       end
-
-    def real(name, options = {}, &block)
-      attribute(name, :real, options, &block)
-    end
 
     def datetime(name, options = {}, &block)
       attribute(name, :datetime, options, &block)
