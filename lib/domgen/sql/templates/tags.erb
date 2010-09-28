@@ -1,0 +1,35 @@
+<%= banner("Metadata DDL for Schema '#{schema.name}'") %>
+<% schema.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
+<% object_type.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+@name = N'<%= name %>',
+@value = N'<%= value %>',
+@level0type = N'SCHEMA', @level0name = <%= q(schema.sql.schema) %>,
+@level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>;
+GO
+<% end %>
+<% object_type.attributes.select {|a| a.persistent? && !a.tags.empty?}.each do |a| %>
+<% a.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+@name = N'<%= name %>',
+@value = N'<%= value %>',
+@level0type = N'SCHEMA', @level0name = <%= q(schema.sql.schema) %>,
+@level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>;
+@level2type = N'COLUMN', @level2name = <%= q(a.sql.column_name) %>;
+GO
+<% end %>
+<% end %>
+
+<% object_type.sql.indexes.select{|index| !index.tags.empty?}.each do |index| %>
+<% index.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+@name = N'<%= name %>',
+@value = N'<%= value %>',
+@level0type = N'SCHEMA', @level0name = <%= q(schema.sql.schema) %>,
+@level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
+@level2type = N'INDEX',  @level2name = <%= q(index.name) %>;
+GO
+<% end %>
+<% end %>
+
+<% end %>
