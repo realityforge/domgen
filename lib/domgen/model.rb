@@ -681,16 +681,47 @@ module Domgen
     end
   end
 
+  class ModelCheck < BaseConfigElement
+    attr_reader :schema_set
+    attr_reader :name
+    attr_accessor :check
+
+    def initialize(schema_set, name, options = {}, &block)
+      @schema_set = schema_set
+      schema_set.send :register_model_check, name, self
+      @name = name
+      Logger.info "Model Check '#{name}' definition started"
+      super(options, &block)
+      raise "Model Check '#{name}' defines no check." unless @check
+      Logger.info "Model Check '#{name}' definition completed"
+    end
+
+    def check_model
+      begin
+        @check.call(self.schema_set)
+      rescue
+        Logger.error "Model Check '#{name}' failed."
+        raise
+      end
+    end
+  end
+
   class SchemaSet < BaseGeneratableElement
     attr_reader :name
 
     def initialize(name, options = {}, &block)
       @name = name
       @schemas = Domgen::OrderedHash.new
+      @model_checks = Domgen::OrderedHash.new
       Domgen.send :register_schema_set, name, self
       Logger.info "SchemaSet definition started"
       super(nil, options, &block)
       post_schema_set_definition
+      Logger.info "Model Checking started."
+      @model_checks.values.each do |model_check|
+        model_check.check_model
+      end
+      Logger.info "Model Checking completed."
       Logger.info "SchemaSet definition completed"
       Domgen.schema_sets << self
     end
@@ -709,10 +740,18 @@ module Domgen
       schema
     end
 
+    def define_model_check(name, options = {}, &block)
+      Domgen::ModelCheck.new(self, name, options, &block)
+    end
+
     private
 
     def register_schema(name, schema)
       @schemas[name.to_s] = schema
+    end
+
+    def register_model_check(name, model_check)
+      @model_checks[name.to_s] = model_check
     end
 
     def post_schema_set_definition
