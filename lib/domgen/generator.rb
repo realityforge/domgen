@@ -12,7 +12,7 @@ module Domgen
       templates = load_templates(generator_keys)
 
       templates.each do |template|
-        template_name = File.basename(template.template_filename,'.erb')
+        template_name = File.basename(template.template_filename, '.erb')
         if :schema_set == template.scope
           if schema_set.generate?(template.generator_key) && (filter.nil? || filter.call(:schema_set, schema_set))
             render(directory, template, :schema_set, schema_set) do

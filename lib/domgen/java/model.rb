@@ -25,7 +25,7 @@ module Domgen
       attr_writer :debug_attributes
 
       def debug_attributes
-        @debug_attributes = parent.attributes.collect{|a|a.name} unless @debug_attributes
+        @debug_attributes = parent.attributes.collect { |a| a.name } unless @debug_attributes
         @debug_attributes
       end
     end

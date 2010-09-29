@@ -80,9 +80,9 @@ module Domgen
           table, attribute_names, referenced_object_type_name, referenced_attribute_names
         super(options, &block)
         # Ensure that the attributes exist
-        attribute_names.each{|a|table.parent.attribute_by_name(a)}
+        attribute_names.each { |a| table.parent.attribute_by_name(a) }
         # Ensure that the remote attributes exist on remote type
-        referenced_attribute_names.each{|a|referenced_object_type.attribute_by_name(a)}
+        referenced_attribute_names.each { |a| referenced_object_type.attribute_by_name(a) }
       end
 
       attr_writer :name
@@ -161,7 +161,7 @@ module Domgen
       end
 
       def table_name
-        @table_name = sql_name(:table,parent.name) unless @table_name
+        @table_name = sql_name(:table, parent.name) unless @table_name
         @table_name
       end
 
@@ -269,7 +269,7 @@ SQL
           constraint(constraint_name, :sql => sql) unless constraint_by_name(constraint_name)
         end
 
-        parent.declared_attributes.select {|a| a.attribute_type == :i_enum }.each do |a|
+        parent.declared_attributes.select { |a| a.attribute_type == :i_enum }.each do |a|
           sorted_values = a.values.values.sort
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
@@ -277,14 +277,14 @@ SQL
 #{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
-        parent.declared_attributes.select {|a| a.attribute_type == :s_enum }.each do |a|
+        parent.declared_attributes.select { |a| a.attribute_type == :s_enum }.each do |a|
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-#{a.sql.column_name} IN (#{a.values.values.collect{|v|"'#{v}'"}.join(',')})
+#{a.sql.column_name} IN (#{a.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
 
-        parent.declared_attributes.select {|a| a.set_once? }.each do |a|
+        parent.declared_attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
           validation(validation_name, :sql => <<SQL) unless validation_by_name(validation_name)
 SELECT I.ID
@@ -334,7 +334,7 @@ SELECT I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 FROM
   inserted I
 JOIN #{target_object_type.sql.table_name} C0 ON C0.#{target_object_type.primary_key.sql.column_name} = I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
-#{joins.join("\n")}
+          #{joins.join("\n")}
 WHERE C0.#{scoping_attribute.sql.column_name} != #{next_id}
 GROUP BY I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 HAVING COUNT(*) > 0
@@ -344,8 +344,7 @@ SQL
         self.validations.each do |validation|
           trigger("#{validation.name}Validation", :sql => <<SQL)
   DECLARE @violations INT;
-#{validation.common_table_expression
-}  SELECT @violations = COUNT(*)
+#{validation.common_table_expression}  SELECT @violations = COUNT(*)
   FROM (#{validation.sql}) v
   IF (@@error = 0 AND @violations = 0) GOTO done
   ROLLBACK
@@ -354,23 +353,23 @@ done:
 SQL
         end
 
-        parent.declared_attributes.select {|a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic?}.each do |a|
+        parent.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
           foreign_key([a.name],
                       a.referenced_object.qualified_name,
                       [a.referenced_object.primary_key.name],
                       {:on_update => a.on_update, :on_delete => a.on_delete},
-                      true )
+                      true)
         end
 
-        error("#{table_name} defines multiple clustering indexes") if indexes.select{|i| i.cluster?}.size > 1
+        error("#{table_name} defines multiple clustering indexes") if indexes.select { |i| i.cluster? }.size > 1
       end
 
       def post_inherited
-        indexes.each {|a| a.mark_as_inherited}
-        constraints.each {|a| a.mark_as_inherited}
-        validations.each {|a| a.mark_as_inherited}
-        triggers.each {|a| a.mark_as_inherited}
-        foreign_keys.each {|a| a.mark_as_inherited}
+        indexes.each { |a| a.mark_as_inherited }
+        constraints.each { |a| a.mark_as_inherited }
+        validations.each { |a| a.mark_as_inherited }
+        triggers.each { |a| a.mark_as_inherited }
+        foreign_keys.each { |a| a.mark_as_inherited }
       end
     end
 
@@ -430,6 +429,7 @@ SQL
 
   class ObjectType
     self.extensions << :sql
+
     def sql
       @sql = Domgen::Sql::Table.new(self) unless @sql
       @sql

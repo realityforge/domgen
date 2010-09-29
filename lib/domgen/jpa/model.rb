@@ -102,6 +102,7 @@ module Domgen
 
   class ObjectType
     self.extensions << :jpa
+
     def jpa
       @jpa = Domgen::JPA::JpaClass.new(self) unless @jpa
       @jpa

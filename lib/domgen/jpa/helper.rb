@@ -154,8 +154,8 @@ JAVA
 
   public void set#{name}( final #{type} value )
   {
-#{j_return_if_value_same(name,attribute.java.primitive?,attribute.nullable?)}
-     #{name} = value;
+#{j_return_if_value_same(name, attribute.java.primitive?, attribute.nullable?)}
+        #{name} = value;
   }
 JAVA
       end
@@ -215,9 +215,9 @@ JAVA
 
   public void set#{name}( final #{type} value )
   {
- #{j_return_if_value_same(name,attribute.referenced_object.primary_key.java.primitive?,attribute.nullable?)}
-#{j_remove_from_inverse(attribute)}
-    #{name} = value;
+ #{j_return_if_value_same(name, attribute.referenced_object.primary_key.java.primitive?, attribute.nullable?)}
+        #{j_remove_from_inverse(attribute)}
+        #{name} = value;
  #{j_add_to_inverse(attribute)}
   }
 JAVA
