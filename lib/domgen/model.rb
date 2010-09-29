@@ -39,8 +39,8 @@ module Domgen
     attr_accessor :tags
 
     def initialize(options = {})
-      self.options = options
       @tags = {}
+      self.options = options
       yield self if block_given?
     end
 
