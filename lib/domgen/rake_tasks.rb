@@ -28,8 +28,9 @@ module Domgen
           begin
             FileUtils.rm_rf(self.target_dir) if self.clobber_dir
             Domgen.generate(self.schema_set_key, self.target_dir, self.generator_keys, self.filter)
-          rescue => e
+          rescue Exception => e
             print "An error occurred invoking the generator\n"
+            puts $!
             puts $@
             raise e
           end
@@ -60,8 +61,9 @@ module Domgen
           begin
             #Domgen::Logger.level = Logger::INFO
             require self.filename
-          rescue => e
+          rescue Exception => e
             print "An error occurred loading schema\n"
+            puts $!
             puts $@
             raise e
           end
