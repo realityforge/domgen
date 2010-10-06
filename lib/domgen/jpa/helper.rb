@@ -280,6 +280,16 @@ STR
       return getID() != null && getID().equals( that.getID() );
     }
   }
+
+  @Override
+  public int hashCode()
+  {
+    if( getID() == null )
+    {
+      throw new IllegalStateException( "Do not attempt to use hashcode (e.g. in a set) without persisting first" );
+    }
+    return getID().hashCode();
+  }
 JAVA
       end
 
