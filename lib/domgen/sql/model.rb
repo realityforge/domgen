@@ -379,7 +379,7 @@ SQL
                   "real" => "FLOAT",
                   "datetime" => "DATETIME",
                   "boolean" => "BIT",
-                  "text" => "TEXT",
+                  "text" => "VARCHAR(MAX)",
                   "i_enum" => "INT",
                   "s_enum" => "VARCHAR"}
 
