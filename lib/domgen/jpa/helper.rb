@@ -254,6 +254,9 @@ STR
 
       def j_equals_method(object_type)
         return '' if object_type.abstract?
+        pk = object_type.primary_key
+        pk_getter = "get#{pk.java.field_name}()"
+        pk_type = nullable_annotate(attribute, pk.java.java_type)
         <<JAVA
   @Override
   public boolean equals( final Object o )
@@ -269,18 +272,23 @@ STR
     else
     {
       final #{object_type.java.classname} that = (#{object_type.java.classname}) o;
-      return getID() != null && getID().equals( that.getID() );
+      final #{pk_type} key = #{pk_getter};
+      return null != key && key.equals( that.#{pk_getter} );
     }
   }
 
   @Override
   public int hashCode()
   {
-    if( getID() == null )
+    final #{pk_type} key = #{pk_getter};
+    if( null == key )
     {
-      throw new IllegalStateException( "Do not attempt to use hashcode (e.g. in a set) without persisting first" );
+      throw new IllegalStateException( "Attempted to use hashCode() method prior to persist or refresh." );
     }
-    return getID().hashCode();
+    else
+    {
+      return key.hashCode();
+    }
   }
 JAVA
       end
