@@ -1,16 +1,6 @@
 module Domgen
   module Jpa
     module Helper
-      def j_class_definition(object_type)
-        s = "public "
-        s << "abstract " if object_type.abstract?
-        s << "class #{object_type.java.classname}\n"
-        if object_type.extends
-          s << "    extends #{object_type.schema.object_type_by_name(object_type.extends).java.classname}\n"
-        end
-        s
-      end
-
       def j_declared_fields(object_type)
         object_type.declared_attributes.collect { |a| j_declared_field(a) }.compact.join("\n")
       end

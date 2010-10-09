@@ -23,7 +23,10 @@ else %>
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)<%
 end
 %>
-<%= j_class_definition(object_type) %>{
+public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java.classname%>
+<%= object_type.extends ?
+  "    extends #{object_type.schema.object_type_by_name(object_type.extends).java.classname}\n" :
+  "" %>{
 <%= j_declared_fields(object_type) %>
 <%= j_declared_relations(object_type) %>
 <%= j_declared_attribute_and_relation_accessors(object_type) %>
