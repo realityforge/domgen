@@ -23,6 +23,7 @@ module Domgen
           end
         end
         s << "  @NotNull\n" if !attribute.nullable? && !attribute.generated_value?
+        s << "  #{nullable_annotate(attribute, '')}\n"
         s << "  @Size( max = #{attribute.length} )\n" if !attribute.length.nil?
         s
       end
@@ -83,7 +84,7 @@ module Domgen
             j_has_many_attribute(attribute)
           elsif attribute.inverse_relationship_type == :has_one
             name = attribute.inverse_relationship_name
-            type = attribute.object_type.java.fully_qualified_name
+            type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name)
             <<JAVA
   public #{type} get#{name}()
   {
@@ -135,7 +136,7 @@ JAVA
 
       def j_simple_attribute(attribute)
         name = attribute.java.field_name
-        type = attribute.java.java_type
+        type = nullable_annotate(attribute, attribute.java.java_type)
         return <<JAVA
   public #{type} get#{name}()
   {
@@ -197,6 +198,7 @@ JAVA
       def j_reference_attribute(attribute)
         name = attribute.java.field_name
         type = attribute.java.java_type
+        type = nullable_annotate(attribute, attribute.java.java_type)
         <<JAVA
   public #{type} get#{name}()
   {
@@ -325,7 +327,17 @@ JAVA
     return #{!object_type.java.label_attribute.nil? ? 'toLabel' : 'toDebugString'}();
   }
 JAVA
-        return s
+        s
+      end
+
+      def nullable_annotate(attribute, type)
+        if attribute.java.primitive?
+          type
+        elsif !attribute.nullable? && !attribute.generated_value?
+          "@org.jetbrains.annotations.NotNull #{type}"
+        else
+          "@org.jetbrains.annotations.Nullable #{type}"
+        end
       end
     end
   end
