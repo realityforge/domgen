@@ -1,10 +1,6 @@
 module Domgen
   module Jpa
     module Helper
-      def j_declared_fields(object_type)
-        object_type.declared_attributes.collect { |a| j_declared_field(a) }.compact.join("\n")
-      end
-
       def j_jpa_field_attributes(attribute)
         s = ''
         if !attribute.persistent?
@@ -12,7 +8,6 @@ module Domgen
         else
           s << "  @Id\n" if attribute.primary_key?
           s << "  @GeneratedValue( strategy = GenerationType.IDENTITY )\n" if attribute.generated_value?
-
           if attribute.reference?
             s << "  @ManyToOne( optional = #{attribute.nullable?} )\n"
             s << "  @JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
@@ -28,25 +23,8 @@ module Domgen
         s
       end
 
-      def j_declared_field(attribute)
-        return nil if attribute.abstract?
-        s = ''
-        s << j_jpa_field_attributes(attribute)
-        s << "  private #{attribute.java.java_type} #{attribute.java.field_name};\n"
-        s
-      end
-
-      def j_declared_relations(object_type)
-        object_type.referencing_attributes.collect { |a| j_declared_relation(a) }.compact.join("\n")
-      end
-
       def j_declared_relation(attribute)
-        if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
-          # Ignore abstract relations as will appear in child classes
-          # Ignore inherited relations as appear in parent class
-          # Ignore attributes that have no inverse relationship
-          nil
-        elsif attribute.inverse_relationship_type == :has_many
+        if attribute.inverse_relationship_type == :has_many
           type = attribute.object_type.java.fully_qualified_name
           s = ''
           s << "  @OneToMany( mappedBy = \"#{attribute.name}\" )\n"
@@ -55,7 +33,7 @@ module Domgen
         elsif attribute.inverse_relationship_type == :has_one
           type = attribute.object_type.java.fully_qualified_name
           s = ''
-          s << "  @OneToOne(mappedBy= \"#{attribute.java.field_name}\")\n"
+          s << "  @OneToOne( mappedBy= \"#{attribute.java.field_name}\")\n"
           s << "  private #{type} #{attribute.inverse_relationship_name};\n"
           s
         end
@@ -111,7 +89,13 @@ JAVA
 JAVA
         elsif !nullable
           return <<JAVA
-     if( null != #{name} && #{name}.equals( value ) )
+     //noinspection ConstantConditions
+     if( null == value )
+     {
+       throw new NullPointerException( "#{name} parameter is not nullable" );
+     }
+
+     if( value.equals( #{name} ) )
      {
        return;
      }
@@ -157,19 +141,9 @@ JAVA
         if attribute.inverse_relationship_type == :none
           ''
         elsif attribute.inverse_relationship_type == :has_many
-          <<JAVA
-    if( null != #{name} )
-    {
-      #{name}.add#{inverse_name}( this );
-    }
-JAVA
+          null_guard(attribute.nullable?, name) { "#{name}.add#{inverse_name}( this );" }
         else
-          <<JAVA
-    if( null != #{name} )
-    {
-      #{name}.set#{inverse_name}( this );
-    }
-JAVA
+          null_guard(attribute.nullable?, name) { "#{name}.set#{inverse_name}( this );" }
         end
       end
 
@@ -179,19 +153,9 @@ JAVA
         if attribute.inverse_relationship_type == :none
           ''
         elsif attribute.inverse_relationship_type == :has_many
-          <<JAVA
-    if( null != #{name} )
-    {
-      #{name}.remove#{inverse_name}( this );
-    }
-JAVA
+          null_guard(attribute.nullable?, name) { "#{name}.remove#{inverse_name}( this );" }
         else
-          <<JAVA
-    if( null != #{name} )
-    {
-      #{name}.set#{inverse_name}( null );
-    }
-JAVA
+          null_guard(attribute.nullable?, name) { "#{name}.set#{inverse_name}( null );" }
         end
       end
 
@@ -256,7 +220,7 @@ STR
         return '' if object_type.abstract?
         pk = object_type.primary_key
         pk_getter = "get#{pk.java.field_name}()"
-        pk_type = nullable_annotate(attribute, pk.java.java_type)
+        pk_type = nullable_annotate(pk, pk.java.java_type)
         <<JAVA
   @Override
   public boolean equals( final Object o )
@@ -339,13 +303,32 @@ JAVA
       end
 
       def nullable_annotate(attribute, type)
-        if attribute.java.primitive?
+        # Not sure why PrimaryKeys can not have annotation other than the fact that EclipseLink fails
+        # to find ID if it is
+        if attribute.java.primitive? || attribute.primary_key?
           type
         elsif !attribute.nullable? && !attribute.generated_value?
           "@org.jetbrains.annotations.NotNull #{type}"
         else
           "@org.jetbrains.annotations.Nullable #{type}"
         end
+      end
+
+      def null_guard(nullable, name)
+        s = ''
+        if nullable
+          s += <<JAVA
+  if( null != #{name} )
+  {
+JAVA
+        end
+        s += yield
+        if nullable
+          s += <<JAVA
+  }
+JAVA
+        end
+        s
       end
     end
   end
