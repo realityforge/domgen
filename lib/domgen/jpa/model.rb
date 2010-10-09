@@ -91,7 +91,7 @@ module Domgen
       def pre_verify
         self.query('All', nil, :singular => false)
         self.query(parent.primary_key.name,
-                   "#{parent.primary_key.java.field_name} = :#{parent.primary_key.java.field_name}",
+                   "O.#{parent.primary_key.java.field_name} = :#{parent.primary_key.java.field_name}",
                    :singular => true)
         self.queries.each do |q|
           q.populate_parameters
