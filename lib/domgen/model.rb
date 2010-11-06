@@ -228,6 +228,29 @@ module Domgen
       @length = length
     end
 
+    def min_length
+      if @min_length.nil?
+        @min_length = 0
+      end
+      if @min_length == 0 && ( @allow_blank.nil? || !@allow_blank )
+        @min_length = 1
+      end
+      @min_length
+    end
+
+    def min_length=(length)
+      error("min_length on #{name} is invalid as attribute is not a string") unless self.attribute_type == :string || self.attribute_type == :s_enum
+      @min_length = length
+    end
+
+    attr_writer :allow_blank
+
+    def allow_blank?
+      @allow_blank = true if @allow_blank.nil?
+      @allow_blank = false if self.min_length > 0
+      @allow_blank
+    end
+
     attr_writer :unique
 
     def unique?
@@ -420,7 +443,12 @@ module Domgen
     end
 
     def string(name, length, options = {}, &block)
-      attribute(name, :string, options.merge({:length => length}), &block)
+      if length.class == Range
+        options = options.merge({:min_length => length.first, :length => length.last })
+      else
+        options = options.merge({:length => length})
+      end
+      attribute(name, :string, options, &block)
     end
 
     def integer(name, options = {}, &block)

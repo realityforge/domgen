@@ -19,7 +19,18 @@ module Domgen
         end
         s << "  @NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << "  #{nullable_annotate(attribute, '')}\n"
-        s << "  @Size( max = #{attribute.length} )\n" if !attribute.length.nil?
+        if attribute.attribute_type == :string
+          unless attribute.length.nil? && attribute.min_length.nil?
+            s << "  @Length( "
+            s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
+            s << ", " unless attribute.min_length.nil? || attribute.length.nil?
+            s << "max = #{attribute.length} " unless attribute.length.nil?
+            s << " )\n"
+          end
+          if !attribute.allow_blank?
+            s << "  @NotEmpty\n"
+          end
+        end
         s
       end
 
@@ -286,7 +297,7 @@ JAVA
         else
           pk = object_type.primary_key
           s += <<JAVA
-    return "#{object_type.name}[#{pk.java.field_name} = " + get#{pk.java.field_name}() +"]";    
+    return "#{object_type.name}[#{pk.java.field_name} = " + get#{pk.java.field_name}() +"]";
 JAVA
         end
 

@@ -283,6 +283,11 @@ SQL
 #{a.sql.column_name} IN (#{a.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
+        parent.declared_attributes.select{ |a| (a.attribute_type == :s_enum || a.attribute_type == :string) && a.persistent? && !a.allow_blank? }.each do |a|
+          constraint_name = "#{a.name}_NotEmpty"
+          sql = "LEN( #{a.sql.column_name} ) > 0"
+          constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
+        end
 
         parent.declared_attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
