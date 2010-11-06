@@ -153,7 +153,7 @@ JAVA
         if attribute.inverse_relationship_type == :none
           ''
         elsif attribute.inverse_relationship_type == :has_many
-          null_guard(attribute.nullable?, name) { "#{name}.remove#{inverse_name}( this );" }
+          null_guard(true, name) { "#{name}.remove#{inverse_name}( this );" }
         else
           null_guard(attribute.nullable?, name) { "#{name}.set#{inverse_name}( null );" }
         end
