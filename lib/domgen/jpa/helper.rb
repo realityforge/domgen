@@ -21,7 +21,7 @@ module Domgen
         s << "  #{nullable_annotate(attribute, '')}\n"
         if attribute.attribute_type == :string
           unless attribute.length.nil? && attribute.min_length.nil?
-            s << "  @Length( "
+            s << "  @Size( "
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
             s << ", " unless attribute.min_length.nil? || attribute.length.nil?
             s << "max = #{attribute.length} " unless attribute.length.nil?
