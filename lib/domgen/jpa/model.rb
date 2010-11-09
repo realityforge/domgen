@@ -98,6 +98,16 @@ module Domgen
         end
       end
     end
+
+    class PersistenceUnit < JpaElement
+      attr_accessor :provider
+      attr_writer :transaction_type
+      attr_accessor :data_source_name
+
+      def transaction_type
+        @transaction_type ||= "JTA"
+      end
+    end
   end
 
   class ObjectType
@@ -105,6 +115,13 @@ module Domgen
 
     def jpa
       @jpa = Domgen::JPA::JpaClass.new(self) unless @jpa
+      @jpa
+    end
+  end
+
+  class SchemaSet
+    def jpa
+      @jpa = Domgen::JPA::PersistenceUnit.new(self) unless @jpa
       @jpa
     end
   end
