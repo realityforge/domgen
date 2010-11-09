@@ -91,3 +91,6 @@ h1. Usage
 *TODO*
 
 
+h1. TODO
+
+* Sometimes you want to enable a family of generators with a single define_generator statement. Maybe use patterns ala :jpa* or similar. 
