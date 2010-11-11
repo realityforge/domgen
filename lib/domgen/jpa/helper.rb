@@ -258,7 +258,7 @@ STR
     final #{pk_type} key = #{pk_getter};
     if( null == key )
     {
-      throw new IllegalStateException( "Attempted to use hashCode() method prior to persist or refresh." );
+      return System.identityHashCode( this );
     }
     else
     {
