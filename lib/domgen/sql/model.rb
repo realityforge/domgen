@@ -146,6 +146,15 @@ module Domgen
         @name = name
         super(parent, options, &block)
       end
+
+      def trigger_name
+        @trigger_name = sql_name(:trigger, "#{parent.parent.name}#{self.name}") unless @trigger_name
+        @trigger_name
+      end
+
+      def qualified_trigger_name
+        "#{parent.parent.schema.sql.schema}.#{trigger_name}"
+      end
     end
 
     class Table < SqlElement
@@ -165,6 +174,10 @@ module Domgen
         @table_name
       end
 
+      def qualified_table_name
+        "#{parent.schema.sql.schema}.#{table_name}"
+      end
+
       def constraints
         @constraints.values
       end
@@ -175,7 +188,7 @@ module Domgen
 
       def constraint(name, options = {}, &block)
         existing = constraint_by_name(name)
-        error("Constraint named #{name} already defined on table #{table_name}") if (existing && !existing.inherited?)
+        error("Constraint named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
         constraint = Constraint.new(self, name, options, &block)
         @constraints[name.to_s] = constraint
         constraint
@@ -191,7 +204,7 @@ module Domgen
 
       def validation(name, options = {}, &block)
         existing = validation_by_name(name)
-        error("Validation named #{name} already defined on table #{table_name}") if (existing && !existing.inherited?)
+        error("Validation named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
         validation = Validation.new(self, name, options, &block)
         @validations[name.to_s] = validation
         validation
@@ -207,7 +220,7 @@ module Domgen
 
       def trigger(name, options = {}, &block)
         existing = trigger_by_name(name)
-        error("Trigger named #{name} already defined on table #{table_name}") if (existing && !existing.inherited?)
+        error("Trigger named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
         trigger = Trigger.new(self, name, options, &block)
         @triggers[name.to_s] = trigger
         trigger
@@ -224,7 +237,7 @@ module Domgen
       def index(attribute_names, options = {}, skip_if_present = false, &block)
         index = Index.new(self, attribute_names, options, &block)
         return if @indexes[index.name] && skip_if_present
-        error("Index named #{name} already defined on table #{table_name}") if @indexes[index.name]
+        error("Index named #{name} already defined on table #{qualified_table_name}") if @indexes[index.name]
         @indexes[index.name] = index
         index
       end
@@ -366,7 +379,7 @@ SQL
                       true)
         end
 
-        error("#{table_name} defines multiple clustering indexes") if indexes.select { |i| i.cluster? }.size > 1
+        error("#{qualified_table_name} defines multiple clustering indexes") if indexes.select { |i| i.cluster? }.size > 1
       end
 
       def post_inherited

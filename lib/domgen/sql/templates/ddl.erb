@@ -8,7 +8,7 @@ GO
 <% end %>
 <%= banner("DDL for Schema '#{schema.name}'") %>
 <% schema.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
-CREATE TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>(
+CREATE TABLE <%= object_type.sql.qualified_table_name %>(
 <% object_type.attributes.select {|a| a.persistent?}.each do |a|
 %>  <%= q(a.sql.column_name) %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
@@ -16,40 +16,40 @@ CREATE TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>(
 )
 GO
 <% object_type.attributes.select {|a| a.persistent? && !a.sql.default_value.nil?}.each do |a| %>
-ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %> ADD DEFAULT (<%= quote_value(a.sql.default_value) %>) FOR <%= q(a.sql.column_name) %>
+ALTER TABLE <%= object_type.sql.qualified_table_name %> ADD DEFAULT (<%= quote_value(a.sql.default_value) %>) FOR <%= q(a.sql.column_name) %>
 GO
 <% end %>
 <% object_type.sql.indexes.each do |index| %>
-CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX [<%= index.name %>] ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
+CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX [<%= index.name %>] ON <%= object_type.sql.qualified_table_name %>
 (<%= index.attribute_names.collect {|a| "\n  #{q(object_type.attribute_by_name(a).sql.column_name)} ASC" }.join(",") %>
 )<% if !index.include_attribute_names.nil? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| q(object_type.attribute_by_name(a).sql.column_name) }.join(",") %> )<% end %>
 GO
 <% end %>
 <% object_type.sql.foreign_keys.each do |foreign_key| %>
-ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
+ALTER TABLE <%= object_type.sql.qualified_table_name %>
   ADD CONSTRAINT [FK_<%= object_type.name %>_<%= foreign_key.name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| q(object_type.attribute_by_name(a).sql.column_name)}.join(', ') %>)
-  REFERENCES <%= sql_qualify(foreign_key.referenced_object_type.schema, foreign_key.referenced_object_type.sql.table_name) %> (<%= foreign_key.referenced_attribute_names.collect{|a| q(foreign_key.referenced_object_type.attribute_by_name(a).sql.column_name)}.join(', ')  %>)
+  REFERENCES <%= foreign_key.referenced_object_type.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| q(foreign_key.referenced_object_type.attribute_by_name(a).sql.column_name)}.join(', ')  %>)
 <% if foreign_key.on_update != :no_action %>  ON UPDATE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_update] %><% end %>
 <% if foreign_key.on_delete != :no_action %>  ON DELETE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_delete] %><% end %>
 GO
 <%
   end
   if object_type.sql.constraints.size > 0 %><%=
-    banner("Constraints for #{sql_qualify(object_type.schema, object_type.sql.table_name)}")
+    banner("Constraints for #{object_type.sql.qualified_table_name}")
 %><%
       object_type.sql.constraints.each do |constraint|
 %>
-ALTER TABLE <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
+ALTER TABLE <%= object_type.sql.qualified_table_name %>
   ADD CONSTRAINT CK_<%= s(object_type.name) %>_<%= s(constraint.name) %> CHECK ( <%= s(constraint.sql) %> )
 GO
 <%    end
     end
     if object_type.sql.triggers.size > 0 %><%=
-    banner("Triggers for #{sql_qualify(object_type.schema, object_type.sql.table_name)}")
+    banner("Triggers for #{object_type.sql.qualified_table_name}")
 %><%
       object_type.sql.triggers.each do |trigger|
 %>
-CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}#{trigger.name}")) %> ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
+CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qualified_table_name %>
 AFTER INSERT, UPDATE
 AS
   SET NOCOUNT ON
@@ -61,8 +61,8 @@ GO
    if immutable_attributes.size > 0
     pk = object_type.primary_key
 %>
-<%= banner("Immutability enforcement for #{sql_qualify(object_type.schema, object_type.sql.table_name)}") %>
-CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}Immuter")) %> ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
+<%= banner("Immutability enforcement for #{object_type.sql.qualified_table_name}") %>
+CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}Immuter")) %> ON <%= object_type.sql.qualified_table_name %>
 AFTER UPDATE
 AS
    SET NOCOUNT ON
@@ -78,7 +78,7 @@ AS
         )
       IF (@@error = 0 AND @violations = 0) GOTO done
       ROLLBACK
-      RAISERROR ('Attempted to modify immutable attributes on <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>', 16, 1) WITH SETERROR
+      RAISERROR ('Attempted to modify immutable attributes on <%= object_type.sql.qualified_table_name %>', 16, 1) WITH SETERROR
 done:
    END
 GO
@@ -86,7 +86,7 @@ GO
     end
     abstract_relationships = object_type.attributes.select {|a| a.reference? && a.referenced_object.abstract? }
     if abstract_relationships.size > 0 %>
-<%= banner("Enforcement of psuedo foreign keys to abstract tables for #{sql_qualify(object_type.schema, object_type.sql.table_name)}") %>
+<%= banner("Enforcement of psuedo foreign keys to abstract tables for #{object_type.sql.qualified_table_name}") %>
 <%
       abstract_relationships.each do |attribute|
         concrete_subtypes = {}
@@ -95,7 +95,7 @@ GO
         end
         names = concrete_subtypes.keys
 %>
-CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}#{attribute.name}ForeignKey")) %> ON <%= sql_qualify(object_type.schema, object_type.sql.table_name) %>
+CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}#{attribute.name}ForeignKey")) %> ON <%= object_type.sql.qualified_table_name %>
 AFTER INSERT, UPDATE
 AS
    SET NOCOUNT ON
@@ -106,7 +106,7 @@ AS
       FROM
         inserted I
 <% concrete_subtypes.each_pair do |name, subtype|
-%>      LEFT JOIN <%= sql_qualify(subtype.schema, subtype.sql.table_name) %> <%= name %> ON <%= name %>.ID = I.<%= q(attribute.referencing_link_name) %>
+%>      LEFT JOIN <%= subtype.sql.qualified_table_name %> <%= name %> ON <%= name %>.ID = I.<%= q(attribute.referencing_link_name) %>
 <% end
 %>      WHERE (<%= names.collect{|name| "#{name}.ID IS NULL"}.join(' AND ') %>)<%
 
@@ -116,7 +116,7 @@ AS
 <% end %>
       IF (@@error = 0 AND @violations = 0) GOTO done
       ROLLBACK
-      RAISERROR ('<%= sql_qualify(object_type.schema, object_type.sql.table_name) %>.<%= q(attribute.referencing_link_name) %> should reference a single row in concrete subclasses', 16, 1) WITH SETERROR
+      RAISERROR ('<%= object_type.sql.qualified_table_name %>.<%= q(attribute.referencing_link_name) %> should reference a single row in concrete subclasses', 16, 1) WITH SETERROR
 done:
    END
 GO
