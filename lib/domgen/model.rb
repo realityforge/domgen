@@ -522,6 +522,10 @@ module Domgen
       @unique_constraints.values
     end
 
+    def unique_constraint_map
+      @unique_constraints
+    end
+
     def candidate_key(attribute_names)
       attribute_names.each do |attribute_name|
         attribute = attribute_by_name(attribute_name)
@@ -543,6 +547,10 @@ module Domgen
       @dependency_constraints.values
     end
 
+    def dependency_constraint_map
+      @dependency_constraints
+    end
+
     # Check that either the attribute is null or the attribute and all the dependents are not null
     def dependency_constraint(attribute_name, dependent_attribute_names, options = {}, &block)
       name = "#{attribute_name}_#{attribute_names_to_key(dependent_attribute_names)}"
@@ -557,6 +565,10 @@ module Domgen
 
     def codependent_constraints
       @codependent_constraints.values
+    end
+
+    def codependent_constraint_map
+      @codependent_constraints
     end
 
     # Check that either all attributes are null or all are not null
@@ -574,6 +586,10 @@ module Domgen
       @incompatible_constraints.values
     end
 
+    def incompatible_constraint_map
+      @incompatible_constraints
+    end
+
     # Check that at most one of the attributes is not null
     def incompatible_constraint(attribute_names, options = {}, &block)
       name = attribute_names_to_key(attribute_names)
@@ -587,6 +603,10 @@ module Domgen
 
     def scope_constraints
       @scope_constraints.values
+    end
+
+    def scope_constraint_map
+      @scope_constraints
     end
 
     # Constraint that ensures that the value of a particular value is within a particular scope
