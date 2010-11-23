@@ -50,39 +50,12 @@ GO
       object_type.sql.triggers.each do |trigger|
 %>
 CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qualified_table_name %>
-AFTER INSERT, UPDATE
+<% if trigger.after == :both %>AFTER INSERT, UPDATE<% elsif trigger.after == :insert %>AFTER INSERT<% elsif trigger.after == :update %>AFTER UPDATE<% end %>
 AS
   SET NOCOUNT ON
 <%= trigger.sql %>
 GO
 <%    end
-    end
-   immutable_attributes = object_type.attributes.select {|a| a.persistent? && a.immutable? }
-   if immutable_attributes.size > 0
-    pk = object_type.primary_key
-%>
-<%= banner("Immutability enforcement for #{object_type.sql.qualified_table_name}") %>
-CREATE TRIGGER <%= sql_qualify(schema,sql_name(:trigger,"#{object_type.name}Immuter")) %> ON <%= object_type.sql.qualified_table_name %>
-AFTER UPDATE
-AS
-   SET NOCOUNT ON
-   IF <%= immutable_attributes.collect {|a| "UPDATE(#{a.sql.column_name})" }.join(" OR ") %>
-   BEGIN
-      DECLARE @violations INT
-      SELECT @violations = COUNT(*)
-      FROM inserted I, deleted D
-      WHERE
-        I.<%= pk.sql.column_name %> = D.<%= pk.sql.column_name %> AND
-        (
-          <%= immutable_attributes.collect {|a| "(I.#{a.sql.column_name} != D.#{a.sql.column_name})" }.join(" OR\n") %>
-        )
-      IF (@@error = 0 AND @violations = 0) GOTO done
-      ROLLBACK
-      RAISERROR ('Attempted to modify immutable attributes on <%= object_type.sql.qualified_table_name %>', 16, 1) WITH SETERROR
-done:
-   END
-GO
-<%
     end
     abstract_relationships = object_type.attributes.select {|a| a.reference? && a.referenced_object.abstract? }
     if abstract_relationships.size > 0 %>

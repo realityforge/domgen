@@ -131,20 +131,32 @@ module Domgen
       attr_reader :name
       attr_accessor :sql
       attr_accessor :common_table_expression
+      attr_accessor :guard
+      attr_accessor :after
 
       def initialize(parent, name, options = {}, &block)
         @name = name
+        @after = :both
         super(parent, options, &block)
       end
     end
 
     class Trigger < SqlElement
+      VALID_AFTER = [:insert, :update, :both, nil]
+
       attr_reader :name
       attr_accessor :sql
+      attr_reader :after
 
       def initialize(parent, name, options = {}, &block)
         @name = name
+        @after = :both
         super(parent, options, &block)
+      end
+
+      def after=(after)
+        raise "Unknown after specififier #{after}" unless VALID_AFTER.include?(after)
+        @after = after
       end
 
       def trigger_name
@@ -359,8 +371,28 @@ HAVING COUNT(*) > 0
 SQL
         end
 
+        immutable_attributes = parent.attributes.select { |a| a.persistent? && a.immutable? }
+        if immutable_attributes.size > 0
+          pk = parent.primary_key
+
+          validation_name = "Immuter"
+          unless validation_by_name(validation_name)
+            guard = immutable_attributes.collect { |a| "UPDATE(#{a.sql.column_name})" }.join(" OR ")
+            validation(validation_name, :sql => <<SQL, :after => :update, :guard => guard)
+SELECT I.#{pk.sql.column_name}
+FROM inserted I, deleted D
+WHERE
+  I.#{pk.sql.column_name} = D.#{pk.sql.column_name} AND
+  (
+    #{immutable_attributes.collect {|a| "(I.#{a.sql.column_name} != D.#{a.sql.column_name})" }.join(" OR\n") }
+  )
+SQL
+         end
+        end
+
         self.validations.each do |validation|
-          trigger("#{validation.name}Validation", :sql => <<SQL)
+          trigger("#{validation.name}Validation", :sql => <<SQL, :after => validation.after)
+#{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
   DECLARE @violations INT;
 #{validation.common_table_expression}  SELECT @violations = COUNT(*)
   FROM (#{validation.sql}) v
@@ -368,6 +400,7 @@ SQL
   ROLLBACK
   RAISERROR ('Failed to pass validation check #{validation.name}', 16, 1) WITH SETERROR
 done:
+#{validation.guard.nil? ? '' : "END" }
 SQL
         end
 
