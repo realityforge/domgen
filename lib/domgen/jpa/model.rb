@@ -88,7 +88,7 @@ module Domgen
         query
       end
 
-      def pre_verify
+      def post_verify
         self.query('All', nil, :singular => false)
         self.query(parent.primary_key.name,
                    "O.#{parent.primary_key.java.field_name} = :#{parent.primary_key.java.field_name}",

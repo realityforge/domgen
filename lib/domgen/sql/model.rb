@@ -266,7 +266,7 @@ module Domgen
         foreign_key
       end
 
-      def pre_verify
+      def post_verify
         parent.unique_constraints.each do |c|
           index(c.attribute_names, {:unique => true}, true)
         end
@@ -388,6 +388,34 @@ WHERE
   )
 SQL
          end
+        end
+
+        abstract_relationships = parent.attributes.select { |a| a.reference? && a.referenced_object.abstract? }
+        if abstract_relationships.size > 0
+          abstract_relationships.each do |attribute|
+            concrete_subtypes = {}
+            attribute.referenced_object.subtypes.select { |subtype| !subtype.abstract? }.each_with_index do |subtype, index|
+              concrete_subtypes["C#{index}"] = subtype
+            end
+            names = concrete_subtypes.keys
+            validation_name = "#{attribute.name}ForeignKey"
+            if !validation_by_name(validation_name)
+              guard = "UPDATE(#{q(attribute.referencing_link_name)})"
+              sql = <<SQL
+      SELECT I.#{parent.primary_key.sql.column_name}
+      FROM
+        inserted I
+SQL
+              concrete_subtypes.each_pair do |name, subtype|
+                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.ID = I.#{q(attribute.referencing_link_name)}"
+              end
+              sql << "      WHERE (#{names.collect { |name| "#{name}.ID IS NULL" }.join(' AND ') })"
+              (0..(names.size - 2)).each do |index|
+                sql << " OR\n (#{names[index] }.ID IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index| "#{names[index]}.ID IS NOT NULL" }.join(' OR ') }))"
+              end
+              validation(validation_name, :sql => sql, :guard => guard)
+            end
+          end
         end
 
         self.validations.each do |validation|

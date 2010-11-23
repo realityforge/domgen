@@ -414,6 +414,9 @@ module Domgen
       attributes.each do |a|
         error("Abstract attribute #{a.name} on non abstract object type #{name}") if !abstract? && a.abstract?
       end
+
+      # Post verify is for when you add more things to the model
+      extension_point(:post_verify)
     end
 
     def non_abstract_superclass?
@@ -701,7 +704,6 @@ module Domgen
     end
 
     def post_object_type_create(name, object_type)
-      object_type.verify
       Logger.debug "Object Type '#{name}' definition completed"
     end
 
@@ -814,6 +816,11 @@ module Domgen
               completed << subtype
             end
           end
+        end
+      end
+      self.schemas.each do |schema|
+        schema.object_types.each do |object_type|
+          object_type.verify
         end
       end
       extension_point(:post_schema_set_definition)
