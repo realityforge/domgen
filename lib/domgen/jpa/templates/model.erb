@@ -3,8 +3,8 @@ package <%= object_type.schema.java.package %>;
 
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration" } )
-<% if not object_type.jpa.queries.empty? %>@NamedQueries( value = {
-<%= object_type.jpa.queries.collect { |q| "  @NamedQuery( name = \"#{q.fully_qualified_name}\", query = \"#{q.query_string}\" )" }.join(",\n") %>
+<% if not object_type.jpa.queries.empty? %>@javax.persistence.NamedQueries( value = {
+<%= object_type.jpa.queries.collect { |q| "  @javax.persistence.NamedQuery( name = \"#{q.fully_qualified_name}\", query = \"#{q.query_string}\" )" }.join(",\n") %>
 } )<% end %>
 @javax.persistence.Access( AccessType.FIELD )
 @javax.persistence.Entity(name = "<%= object_type.name %>")<% if !object_type.abstract? %>
@@ -16,7 +16,7 @@ package <%= object_type.schema.java.package %>;
   }.join(",\n        ")
 %>})<%
 else %>
-@javax.persistence.Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)<%
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.TABLE_PER_CLASS)<%
 end
 %>
 public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java.classname%>
