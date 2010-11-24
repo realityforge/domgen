@@ -4,31 +4,31 @@ module Domgen
       def j_jpa_field_attributes(attribute)
         s = ''
         if !attribute.persistent?
-          s << "  @Transient\n"
+          s << "  @javax.persistence.Transient\n"
         else
-          s << "  @Id\n" if attribute.primary_key?
-          s << "  @GeneratedValue( strategy = GenerationType.IDENTITY )\n" if attribute.generated_value?
+          s << "  @javax.persistence.Id\n" if attribute.primary_key?
+          s << "  @javax.persistence.GeneratedValue( strategy = GenerationType.IDENTITY )\n" if attribute.generated_value?
           if attribute.reference?
-            s << "  @ManyToOne( optional = #{attribute.nullable?} )\n"
-            s << "  @JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
+            s << "  @javax.persistence.ManyToOne( optional = #{attribute.nullable?} )\n"
+            s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
           else
-            s << "  @Column( name = \"#{attribute.sql.column_name}\""
+            s << "  @javax.persistence.Column( name = \"#{attribute.sql.column_name}\""
             s << ", length = #{attribute.length}" if !attribute.length.nil?
             s << ", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
           end
         end
-        s << "  @NotNull\n" if !attribute.nullable? && !attribute.generated_value?
+        s << "  @javax.persistence.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << "  #{nullable_annotate(attribute, '')}\n"
         if attribute.attribute_type == :string
           unless attribute.length.nil? && attribute.min_length.nil?
-            s << "  @Size( "
+            s << "  @javax.persistence.constraints.Size( "
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
             s << ", " unless attribute.min_length.nil? || attribute.length.nil?
             s << "max = #{attribute.length} " unless attribute.length.nil?
             s << " )\n"
           end
           if !attribute.allow_blank?
-            s << "  @NotEmpty\n"
+            s << "  @javax.persistence.constraints.NotEmpty\n"
           end
         end
         s
@@ -38,13 +38,13 @@ module Domgen
         if attribute.inverse_relationship_type == :has_many
           type = attribute.object_type.java.fully_qualified_name
           s = ''
-          s << "  @OneToMany( mappedBy = \"#{attribute.name}\" )\n"
+          s << "  @javax.persistence.OneToMany( mappedBy = \"#{attribute.name}\" )\n"
           s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse_relationship_name)};\n"
           s
         elsif attribute.inverse_relationship_type == :has_one
           type = attribute.object_type.java.fully_qualified_name
           s = ''
-          s << "  @OneToOne( mappedBy= \"#{attribute.java.field_name}\")\n"
+          s << "  @javax.persistence.OneToOne( mappedBy= \"#{attribute.java.field_name}\")\n"
           s << "  private #{type} #{attribute.inverse_relationship_name};\n"
           s
         end
