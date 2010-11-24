@@ -17,18 +17,18 @@ module Domgen
             s << ", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
           end
         end
-        s << "  @javax.persistence.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
+        s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << "  #{nullable_annotate(attribute, '')}\n"
         if attribute.attribute_type == :string
           unless attribute.length.nil? && attribute.min_length.nil?
-            s << "  @javax.persistence.constraints.Size( "
+            s << "  @javax.validation.constraints.Size( "
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
             s << ", " unless attribute.min_length.nil? || attribute.length.nil?
             s << "max = #{attribute.length} " unless attribute.length.nil?
             s << " )\n"
           end
           if !attribute.allow_blank?
-            s << "  @javax.persistence.constraints.NotEmpty\n"
+            s << "  @org.hibernate.validator.NotEmpty\n"
           end
         end
         s
