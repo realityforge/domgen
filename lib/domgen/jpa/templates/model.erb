@@ -23,6 +23,13 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
 <%= object_type.extends ?
   "    extends #{object_type.schema.object_type_by_name(object_type.extends).java.classname}\n" :
   "" %>{
+<% object_type.declared_attributes.select {|a| a.attribute_type == :i_enum || a.attribute_type == :s_enum }.each do |attribute| %>
+  @SuppressWarnings( { "PublicInnerClass" } )
+  public static enum <%= attribute.java.field_name %>Value
+  {
+    <%= attribute.values.collect {|k,v| "#{k}" } .join(",\n    ")%>
+  }
+<% end %>
 <% object_type.declared_attributes.select { |a| !a.abstract? }.each do |attribute| %>
 <%= j_jpa_field_attributes(attribute) %>
   private <%= attribute.java.java_type %> <%= attribute.java.field_name %>;

@@ -101,12 +101,8 @@ module Domgen
 
     class PersistenceUnit < JpaElement
       attr_accessor :provider
-      attr_writer :transaction_type
+      attr_accessor :transaction_type
       attr_accessor :data_source_name
-
-      def transaction_type
-        @transaction_type ||= "JTA"
-      end
     end
   end
 
