@@ -467,8 +467,16 @@ module Domgen
     end
 
     def reference(other_type, options = {}, &block)
-      name = (options.delete(:name) || other_type).to_s.to_sym
-      attribute(name, :reference, options.merge({:references => other_type}), &block)
+      name = options.delete(:name)
+      if name.nil?
+        if other_type.to_s.include? "."
+          name = other_type.to_s.sub(/.+\./,'').to_sym
+        else
+          name = other_type
+        end
+      end
+
+      attribute(name.to_s.to_sym, :reference, options.merge({:references => other_type}), &block)
     end
 
     def i_enum(name, values, options = {}, &block)
