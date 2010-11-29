@@ -28,6 +28,7 @@ module Domgen
       attr_reader :table
       attr_accessor :attribute_names
       attr_accessor :include_attribute_names
+      attr_accessor :filter
 
       def initialize(table, attribute_names, options, &block)
         @table, @attribute_names = table, attribute_names
