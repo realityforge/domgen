@@ -10,7 +10,7 @@ GO
 <% schema.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
 CREATE TABLE <%= object_type.sql.qualified_table_name %>(
 <% object_type.attributes.select {|a| a.persistent?}.each do |a|
-%>  <%= q(a.sql.column_name) %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
+%>  <%= q(a.sql.column_name) %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>  CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
 )

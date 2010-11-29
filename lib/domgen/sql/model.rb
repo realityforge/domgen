@@ -496,6 +496,13 @@ SQL
         @identity
       end
 
+      attr_writer :sparse
+
+      def sparse?
+        @sparse = false unless @sparse
+        @sparse
+      end
+
       attr_accessor :default_value
     end
   end
