@@ -19,6 +19,9 @@ GO
 ALTER TABLE <%= object_type.sql.qualified_table_name %> ADD DEFAULT (<%= quote_value(a.sql.default_value) %>) FOR <%= q(a.sql.column_name) %>
 GO
 <% end %>
+-- Set NUMERIC_ROUNDABORT so filtered indexes can be created 
+SET NUMERIC_ROUNDABORT OFF
+GO
 <% object_type.sql.indexes.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX [<%= index.name %>] ON <%= object_type.sql.qualified_table_name %>
 (<%= index.attribute_names.collect {|a| "\n  #{q(object_type.attribute_by_name(a).sql.column_name)} ASC" }.join(",") %>
