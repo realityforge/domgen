@@ -5,6 +5,13 @@ IF EXISTS ( SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '<%= s
 GO
 CREATE SCHEMA <%= q(schema.sql.schema) %>
 GO
+<% schema.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= value %>',
+  @level0type = N'SCHEMA', @level0name = <%= q(schema.sql.schema) %>
+GO
+<% end %>
 <% end %>
 <%= banner("DDL for Schema '#{schema.name}'") %>
 <% schema.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
@@ -15,6 +22,25 @@ CREATE TABLE <%= object_type.sql.qualified_table_name %>(
 %>  CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
 )
 GO
+<% object_type.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= value %>',
+  @level0type = N'SCHEMA', @level0name = <%= q(schema.sql.schema) %>,
+  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>;
+GO
+<% end %>
+<% object_type.attributes.select {|a| a.persistent? && !a.tags.empty?}.each do |a| %>
+<% a.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= value %>',
+  @level0type = N'SCHEMA', @level0name = <%= q(schema.sql.schema) %>,
+  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
+  @level2type = N'COLUMN', @level2name = <%= q(a.sql.column_name) %>;
+GO
+<% end %>
+<% end %>    
 <% object_type.attributes.select {|a| a.persistent? && !a.sql.default_value.nil?}.each do |a| %>
 ALTER TABLE <%= object_type.sql.qualified_table_name %> ADD DEFAULT (<%= quote_value(a.sql.default_value) %>) FOR <%= q(a.sql.column_name) %>
 GO
@@ -28,6 +54,18 @@ CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CL
 )<% if !index.include_attribute_names.nil? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| q(object_type.attribute_by_name(a).sql.column_name) }.join(",") %> )<% end %>
 <% if index.filter %>WHERE <%= index.filter %><% end %>
 GO
+<% if !index.tags.empty? %>
+<% index.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= value %>',
+  @level0type = N'SCHEMA', @level0name = <%= q(schema.sql.schema) %>,
+  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
+  @level2type = N'INDEX',  @level2name = <%= q(index.name) %>;
+GO
+<% end %>
+<% end %>
+
 <% end %>
 <% object_type.sql.foreign_keys.each do |foreign_key| %>
 ALTER TABLE <%= object_type.sql.qualified_table_name %>

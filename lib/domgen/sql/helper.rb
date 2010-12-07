@@ -38,3 +38,7 @@ def quote_value(value)
     "(#{value})"
   end
 end
+
+def sql_extended_property_key(name)
+  (name.to_s == 'Description') ? 'MS_Description' : name
+end
