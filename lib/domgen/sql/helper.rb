@@ -39,6 +39,8 @@ def quote_value(value)
   end
 end
 
+# Change tags named Description to MS_Description when making into an extended property as
+# that is the MS standard for documentation properties
 def sql_extended_property_key(name)
   (name.to_s == 'Description') ? 'MS_Description' : name
 end
