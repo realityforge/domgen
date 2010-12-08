@@ -5,13 +5,13 @@ module Domgen
     attr_accessor :namespace_key
     attr_accessor :filter
 
-    attr_reader :schema_set_key
+    attr_reader :repository_key
     attr_reader :key
     attr_reader :generator_keys
     attr_reader :target_dir
 
-    def initialize(schema_set_key, key, generator_keys, target_dir)
-      @schema_set_key, @key, @generator_keys, @target_dir = schema_set_key, key, generator_keys, target_dir
+    def initialize(repository_key, key, generator_keys, target_dir)
+      @repository_key, @key, @generator_keys, @target_dir = repository_key, key, generator_keys, target_dir
       @clobber_dir = true
       @namespace_key = :domgen
       @filter = nil
@@ -27,7 +27,7 @@ module Domgen
         task self.key => ["#{self.namespace_key}:load"] do
           begin
             FileUtils.rm_rf(self.target_dir) if self.clobber_dir
-            Domgen.generate(self.schema_set_key, self.target_dir, self.generator_keys, self.filter)
+            Domgen.generate(self.repository_key, self.target_dir, self.generator_keys, self.filter)
           rescue Exception => e
             print "An error occurred invoking the generator\n"
             puts $!
@@ -62,7 +62,7 @@ module Domgen
             #Domgen::Logger.level = Logger::INFO
             require self.filename
           rescue Exception => e
-            print "An error occurred loading schema\n"
+            print "An error occurred loading respository\n"
             puts $!
             puts $@
             raise e

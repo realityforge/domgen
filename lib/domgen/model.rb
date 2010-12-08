@@ -4,18 +4,18 @@ module Domgen
   Logger.datetime_format = ''
 
   class << self
-    def schema_sets
-      schema_set_map.values
+    def repositorys
+      repository_map.values
     end
 
-    def define_schema_set(name, options = {}, &block)
-      Domgen::SchemaSet.new(name, options, &block)
+    def define_repository(name, options = {}, &block)
+      Domgen::Repository.new(name, options, &block)
     end
 
-    def schema_set_by_name(name)
-      schema_set = schema_set_map[name.to_s]
-      error("Unable to locate schema set #{name}") unless schema_set
-      schema_set
+    def repository_by_name(name)
+      repository = repository_map[name.to_s]
+      error("Unable to locate respository #{name}") unless repository
+      repository
     end
 
     def error(message)
@@ -25,12 +25,12 @@ module Domgen
 
     private
 
-    def register_schema_set(name, schema_set)
-      schema_set_map[name.to_s] = schema_set
+    def register_repository(name, repository)
+      repository_map[name.to_s] = repository
     end
 
-    def schema_set_map
-      @schema_sets ||= Domgen::OrderedHash.new
+    def repository_map
+      @repositorys ||= Domgen::OrderedHash.new
     end
   end
 
@@ -666,16 +666,16 @@ module Domgen
   end
 
   class DataModule < BaseGeneratableElement
-    attr_reader :schema_set
+    attr_reader :repository
     attr_reader :name
 
-    def initialize(schema_set, name, options = {}, &block)
-      @schema_set = schema_set
-      schema_set.send :register_data_module, name, self
+    def initialize(repository, name, options = {}, &block)
+      @repository = repository
+      repository.send :register_data_module, name, self
       @name = name
       @object_types = Domgen::OrderedHash.new
       Logger.info "DataModule '#{name}' definition started"
-      super(schema_set, options, &block)
+      super(repository, options, &block)
       Logger.info "DataModule '#{name}' definition completed"
     end
 
@@ -715,7 +715,7 @@ module Domgen
       name_parts = name.to_s.split('.')
       error("Name should have 0 or 1 '.' separators") if (name_parts.size != 1 && name_parts.size != 2)
       name_parts = [self.name] + name_parts if name_parts.size == 1
-      schema_set.data_module_by_name(name_parts[0]).local_object_type_by_name(name_parts[1])
+      repository.data_module_by_name(name_parts[0]).local_object_type_by_name(name_parts[1])
     end
 
     def local_object_type_by_name(name)
@@ -741,13 +741,13 @@ module Domgen
   end
 
   class ModelCheck < BaseConfigElement
-    attr_reader :schema_set
+    attr_reader :repository
     attr_reader :name
     attr_accessor :check
 
-    def initialize(schema_set, name, options = {}, &block)
-      @schema_set = schema_set
-      schema_set.send :register_model_check, name, self
+    def initialize(repository, name, options = {}, &block)
+      @repository = repository
+      repository.send :register_model_check, name, self
       @name = name
       Logger.info "Model Check '#{name}' definition started"
       super(options, &block)
@@ -757,7 +757,7 @@ module Domgen
 
     def check_model
       begin
-        @check.call(self.schema_set)
+        @check.call(self.repository)
       rescue
         Logger.error "Model Check '#{name}' failed."
         raise
@@ -765,24 +765,24 @@ module Domgen
     end
   end
 
-  class SchemaSet < BaseGeneratableElement
+  class Repository < BaseGeneratableElement
     attr_reader :name
 
     def initialize(name, options = {}, &block)
       @name = name
       @data_modules = Domgen::OrderedHash.new
       @model_checks = Domgen::OrderedHash.new
-      Domgen.send :register_schema_set, name, self
-      Logger.info "SchemaSet definition started"
+      Domgen.send :register_repository, name, self
+      Logger.info "Repository definition started"
       super(nil, options, &block)
-      post_schema_set_definition
+      post_repository_definition
       Logger.info "Model Checking started."
       @model_checks.values.each do |model_check|
         model_check.check_model
       end
       Logger.info "Model Checking completed."
-      Logger.info "SchemaSet definition completed"
-      Domgen.schema_sets << self
+      Logger.info "Repository definition completed"
+      Domgen.repositorys << self
     end
 
     def define_data_module(name, options = {}, &block)
@@ -813,7 +813,7 @@ module Domgen
       @model_checks[name.to_s] = model_check
     end
 
-    def post_schema_set_definition
+    def post_repository_definition
       # Add back links for all references
       self.data_modules.each do |data_module|
         data_module.object_types.each do |object_type|
@@ -851,7 +851,7 @@ module Domgen
           object_type.verify
         end
       end
-      extension_point(:post_schema_set_definition)
+      extension_point(:post_repository_definition)
     end
   end
 end

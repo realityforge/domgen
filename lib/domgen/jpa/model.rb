@@ -115,7 +115,7 @@ module Domgen
     end
   end
 
-  class SchemaSet
+  class Repository
     def jpa
       @jpa = Domgen::JPA::PersistenceUnit.new(self) unless @jpa
       @jpa

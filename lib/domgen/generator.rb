@@ -1,26 +1,26 @@
 module Domgen
   class << self
-    def generate(schema_set_name, directory, generator_keys, filter)
-      Domgen::Generator.generate(Domgen.schema_set_by_name(schema_set_name), directory, generator_keys, filter)
+    def generate(repository_name, directory, generator_keys, filter)
+      Domgen::Generator.generate(Domgen.repository_by_name(repository_name), directory, generator_keys, filter)
     end
   end
 
   module Generator
-    def self.generate(schema_set, directory, generator_keys, filter)
+    def self.generate(repository, directory, generator_keys, filter)
       Logger.info "Generator started: Generating #{generator_keys.inspect}"
 
       templates = load_templates(generator_keys)
 
       templates.each do |template|
         template_name = File.basename(template.template_filename, '.erb')
-        if :schema_set == template.scope
-          if schema_set.generate?(template.generator_key) && (filter.nil? || filter.call(:schema_set, schema_set))
-            render(directory, template, :schema_set, schema_set) do
-              Logger.debug "Generated #{template_name} for schema set"
+        if :repository == template.scope
+          if repository.generate?(template.generator_key) && (filter.nil? || filter.call(:repository, repository))
+            render(directory, template, :repository, repository) do
+              Logger.debug "Generated #{template_name} for respository"
             end
           end
         else
-          schema_set.data_modules.each do |data_module|
+          repository.data_modules.each do |data_module|
             if :data_module == template.scope
               if data_module.generate?(template.generator_key) && (filter.nil? || filter.call(:data_module, data_module))
                 render(directory, template, :data_module, data_module) do

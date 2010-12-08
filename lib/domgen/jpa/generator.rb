@@ -25,7 +25,7 @@ module Domgen
     end
 
     def self.define_jpa_jta_persistence_templates
-      [Template.new(:schema_set, "#{Jpa::TEMPLATE_DIRECTORY}/persistence.erb", 'resources/META-INF/persistence.xml')]
+      [Template.new(:repository, "#{Jpa::TEMPLATE_DIRECTORY}/persistence.erb", 'resources/META-INF/persistence.xml')]
     end
   end
 end

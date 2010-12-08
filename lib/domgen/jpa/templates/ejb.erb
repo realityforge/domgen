@@ -6,7 +6,7 @@ package <%= object_type.data_module.java.package %>;
 @javax.ejb.Stateless
 public class <%= object_type.java.classname %>EJB
 {
-  @javax.persistence.PersistenceContext(unitName = "<%= object_type.data_module.schema_set.name %>")
+  @javax.persistence.PersistenceContext(unitName = "<%= object_type.data_module.repository.name %>")
   private javax.persistence.EntityManager em;
 
 <% object_type.jpa.queries.each do |query| %>
