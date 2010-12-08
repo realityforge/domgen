@@ -15,7 +15,7 @@ module Domgen
       attr_writer :schema
 
       def schema
-        @schema = DEFAULT_SCHEMA unless @schema
+        @schema = table.parent.name unless @schema
         @schema
       end
 
