@@ -31,7 +31,7 @@ module Domgen
       end
 
       def fully_qualified_name
-        "::#{parent.schema.ruby.module_name}::#{classname}"
+        "::#{parent.data_module.ruby.module_name}::#{classname}"
       end
 
       def filename
@@ -64,7 +64,7 @@ module Domgen
     end
   end
 
-  class Schema
+  class DataModule
     def ruby
       @ruby = Domgen::Ruby::RubyModule.new(self) unless @ruby
       @ruby

@@ -19,7 +19,7 @@ module Domgen
       end
 
       def fully_qualified_name
-        "#{parent.schema.java.package}.#{classname}"
+        "#{parent.data_module.java.package}.#{classname}"
       end
 
       attr_writer :debug_attributes
@@ -108,7 +108,7 @@ module Domgen
     end
   end
 
-  class Schema
+  class DataModule
     def java
       @java = Domgen::Java::JavaPackage.new(self) unless @java
       @java

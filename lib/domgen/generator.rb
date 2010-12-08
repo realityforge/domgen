@@ -20,18 +20,18 @@ module Domgen
             end
           end
         else
-          schema_set.schemas.each do |schema|
-            if :schema == template.scope
-              if schema.generate?(template.generator_key) && (filter.nil? || filter.call(:schema, schema))
-                render(directory, template, :schema, schema) do
-                  Logger.debug "Generated #{template_name} for schema #{schema.name}"
+          schema_set.data_modules.each do |data_module|
+            if :data_module == template.scope
+              if data_module.generate?(template.generator_key) && (filter.nil? || filter.call(:data_module, data_module))
+                render(directory, template, :data_module, data_module) do
+                  Logger.debug "Generated #{template_name} for data_module #{data_module.name}"
                 end
               end
             else
-              schema.object_types.each do |object_type|
+              data_module.object_types.each do |object_type|
                 if object_type.generate?(template.generator_key) && (filter.nil? || filter.call(:object_type, object_type))
                   render(directory, template, :object_type, object_type) do
-                    Logger.debug "Generated #{template_name} for object_type #{schema.name}.#{object_type.name}"
+                    Logger.debug "Generated #{template_name} for object_type #{data_module.name}.#{object_type.name}"
                   end
                 end
               end

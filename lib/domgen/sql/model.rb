@@ -96,7 +96,7 @@ module Domgen
       end
 
       def referenced_object_type
-        table.parent.schema.object_type_by_name(referenced_object_type_name)
+        table.parent.data_module.object_type_by_name(referenced_object_type_name)
       end
 
       def on_update=(on_update)
@@ -166,7 +166,7 @@ module Domgen
       end
 
       def qualified_trigger_name
-        "#{parent.parent.schema.sql.schema}.#{trigger_name}"
+        "#{parent.parent.data_module.sql.schema}.#{trigger_name}"
       end
     end
 
@@ -188,7 +188,7 @@ module Domgen
       end
 
       def qualified_table_name
-        "#{parent.schema.sql.schema}.#{table_name}"
+        "#{parent.data_module.sql.schema}.#{table_name}"
       end
 
       def constraints
@@ -524,7 +524,7 @@ SQL
     end
   end
 
-  class Schema
+  class DataModule
     def sql
       @sql = Domgen::Sql::SqlSchema.new(self) unless @sql
       @sql

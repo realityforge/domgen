@@ -303,7 +303,7 @@ module Domgen
 
     def referenced_object
       error("referenced_object on #{name} is invalid as attribute is not a reference") unless reference?
-      self.object_type.schema.object_type_by_name(self.references)
+      self.object_type.data_module.object_type_by_name(self.references)
     end
 
     # The name of the local field appended with PK of foreign object
@@ -374,7 +374,7 @@ module Domgen
     attr_accessor :direct_subtypes
     attr_accessor :subtypes
 
-    def initialize(schema, name, options = {}, &block)
+    def initialize(data_module, name, options = {}, &block)
       @name = name
       @attributes = Domgen::OrderedHash.new
       @unique_constraints = Domgen::OrderedHash.new
@@ -385,16 +385,16 @@ module Domgen
       @referencing_attributes = []
       @direct_subtypes = []
       @subtypes = []
-      schema.send :register_object_type, name, self
-      super(schema, options, &block)
+      data_module.send :register_object_type, name, self
+      super(data_module, options, &block)
     end
 
-    def schema
+    def data_module
       self.parent
     end
 
     def qualified_name
-      "#{schema.name}.#{self.name}"
+      "#{data_module.name}.#{self.name}"
     end
 
     def verify
@@ -420,7 +420,7 @@ module Domgen
     end
 
     def non_abstract_superclass?
-      extends.nil? ? false : !schema.object_type_by_name(extends).abstract?
+      extends.nil? ? false : !data_module.object_type_by_name(extends).abstract?
     end
 
     attr_writer :abstract
@@ -665,18 +665,18 @@ module Domgen
     end
   end
 
-  class Schema < BaseGeneratableElement
+  class DataModule < BaseGeneratableElement
     attr_reader :schema_set
     attr_reader :name
 
     def initialize(schema_set, name, options = {}, &block)
       @schema_set = schema_set
-      schema_set.send :register_schema, name, self
+      schema_set.send :register_data_module, name, self
       @name = name
       @object_types = Domgen::OrderedHash.new
-      Logger.info "Schema '#{name}' definition started"
+      Logger.info "DataModule '#{name}' definition started"
       super(schema_set, options, &block)
-      Logger.info "Schema '#{name}' definition completed"
+      Logger.info "DataModule '#{name}' definition completed"
     end
 
     def object_types
@@ -715,7 +715,7 @@ module Domgen
       name_parts = name.to_s.split('.')
       error("Name should have 0 or 1 '.' separators") if (name_parts.size != 1 && name_parts.size != 2)
       name_parts = [self.name] + name_parts if name_parts.size == 1
-      schema_set.schema_by_name(name_parts[0]).local_object_type_by_name(name_parts[1])
+      schema_set.data_module_by_name(name_parts[0]).local_object_type_by_name(name_parts[1])
     end
 
     def local_object_type_by_name(name)
@@ -770,7 +770,7 @@ module Domgen
 
     def initialize(name, options = {}, &block)
       @name = name
-      @schemas = Domgen::OrderedHash.new
+      @data_modules = Domgen::OrderedHash.new
       @model_checks = Domgen::OrderedHash.new
       Domgen.send :register_schema_set, name, self
       Logger.info "SchemaSet definition started"
@@ -785,18 +785,18 @@ module Domgen
       Domgen.schema_sets << self
     end
 
-    def define_schema(name, options = {}, &block)
-      Domgen::Schema.new(self, name, options, &block)
+    def define_data_module(name, options = {}, &block)
+      Domgen::DataModule.new(self, name, options, &block)
     end
 
-    def schemas
-      @schemas.values
+    def data_modules
+      @data_modules.values
     end
 
-    def schema_by_name(name)
-      schema = @schemas[name.to_s]
-      error("Unable to locate schema #{name}") unless schema
-      schema
+    def data_module_by_name(name)
+      data_module = @data_modules[name.to_s]
+      error("Unable to locate data_module #{name}") unless data_module
+      data_module
     end
 
     def define_model_check(name, options = {}, &block)
@@ -805,8 +805,8 @@ module Domgen
 
     private
 
-    def register_schema(name, schema)
-      @schemas[name.to_s] = schema
+    def register_data_module(name, data_module)
+      @data_modules[name.to_s] = data_module
     end
 
     def register_model_check(name, model_check)
@@ -815,8 +815,8 @@ module Domgen
 
     def post_schema_set_definition
       # Add back links for all references
-      self.schemas.each do |schema|
-        schema.object_types.each do |object_type|
+      self.data_modules.each do |data_module|
+        data_module.object_types.each do |object_type|
           object_type.attributes.each do |attribute|
             if attribute.reference? && !attribute.abstract? && !attribute.inherited?
               other_object_types = [attribute.referenced_object]
@@ -830,8 +830,8 @@ module Domgen
         end
       end
       # generate lists of subtypes for object types
-      self.schemas.each do |schema|
-        schema.object_types.select { |object_type| !object_type.final? }.each do |object_type|
+      self.data_modules.each do |data_module|
+        data_module.object_types.select { |object_type| !object_type.final? }.each do |object_type|
           subtypes = object_type.subtypes
           to_process = [object_type]
           completed = []
@@ -846,8 +846,8 @@ module Domgen
           end
         end
       end
-      self.schemas.each do |schema|
-        schema.object_types.each do |object_type|
+      self.data_modules.each do |data_module|
+        data_module.object_types.each do |object_type|
           object_type.verify
         end
       end

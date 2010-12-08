@@ -3,7 +3,7 @@ module Domgen
     module Jpa
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       JAVA_CLASS_PREFIX = 'java/#{object_type.java.fully_qualified_name.gsub(".","/")}'
-      JAVA_PACKAGE_PREFIX = 'java/#{schema.java.package.gsub(".","/")}'
+      JAVA_PACKAGE_PREFIX = 'java/#{data_module.java.package.gsub(".","/")}'
     end
 
     def self.define_jpa_model_templates
@@ -20,7 +20,7 @@ module Domgen
     def self.define_jpa_dao_templates
       [
         Template.new(:object_type, "#{Jpa::TEMPLATE_DIRECTORY}/dao.erb", "#{Jpa::JAVA_CLASS_PREFIX}DAO.java"),
-        Template.new(:schema, "#{Jpa::TEMPLATE_DIRECTORY}/entity_manager.erb", "#{Jpa::JAVA_PACKAGE_PREFIX}/SchemaEntityManager.java"),
+        Template.new(:data_module, "#{Jpa::TEMPLATE_DIRECTORY}/entity_manager.erb", "#{Jpa::JAVA_PACKAGE_PREFIX}/SchemaEntityManager.java"),
       ]
     end
 

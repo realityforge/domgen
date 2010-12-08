@@ -6,7 +6,7 @@
   <persistence-unit name="<%= schema_set.name %>"<%= schema_set.jpa.transaction_type.nil? ? '' : " transaction-type=\"#{schema_set.jpa.transaction_type}\"" %>>
 <% if schema_set.jpa.transaction_type == "JTA" %>    <jta-data-source><%= schema_set.jpa.data_source_name || "jdbc/#{schema_set.name}" %></jta-data-source><% end %>
     <%
-    schema_set.schemas.each do |schema|
+    schema_set.data_modules.each do |schema|
      schema.object_types.each do |object_type|
 %>
     <class><%= object_type.java.fully_qualified_name %></class><% end %>
