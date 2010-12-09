@@ -1,0 +1,5 @@
+* Make it possible to define a model check that defines the dependency requirements
+  between schemas. i.e. Entity can not be referenced by anyone. Template can reference
+  Entity but not Overtimes etc.
+* Sometimes you want to enable a family of generators with a single define_generator
+  statement. Maybe use patterns ala :jpa* or similar.
