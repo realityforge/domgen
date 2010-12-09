@@ -103,6 +103,13 @@ module Domgen
       attr_accessor :provider
       attr_accessor :transaction_type
       attr_accessor :data_source_name
+
+      attr_writer :name
+
+      def name
+        @name || parent.name
+      end
+
     end
   end
 
