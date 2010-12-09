@@ -158,6 +158,10 @@ module Domgen
       error("Invalid type #{attribute_type} for persistent attribute #{name}") if persistent? && !self.class.persistent_types.include?(attribute_type)
     end
 
+    def qualified_name
+      "#{object_type.qualified_name}.#{self.name}"
+    end
+
     attr_writer :abstract
 
     def abstract?
