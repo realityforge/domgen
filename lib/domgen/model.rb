@@ -127,7 +127,7 @@ module Domgen
     end
   end
 
-  class ScopeConstraint < BaseConfigElement
+  class CycleConstraint < BaseConfigElement
     attr_reader :name
     attr_accessor :attribute_name
     attr_accessor :attribute_name_path
@@ -137,11 +137,11 @@ module Domgen
       super(options, &block)
     end
 
-    # the attribute by which the related attribute is scoped
+    # the attribute on the Entity at the end of the path that must link to the same entity
     attr_writer :scoping_attribute
 
     def scoping_attribute
-      @scoping_attribute ||= @attribute_name_path.last
+      @scoping_attribute || @attribute_name_path.last
     end
   end
 
@@ -626,13 +626,12 @@ module Domgen
       error("Cycle constraint must have a path of length 1 or more") if attribute_name_path.empty?
       name = ([attribute_name] + attribute_name_path).collect { |a| a.to_s }.sort.join('_')
 
-      cycle_constraint = ScopeConstraint.new(name, attribute_name, attribute_name_path, options, &block)
+      cycle_constraint = CycleConstraint.new(name, attribute_name, attribute_name_path, options, &block)
 
       object_type = self
-      attribute_name_path.each do |attribute_name_path_element|
+      attribute_name_path.each_with_index do |attribute_name_path_element, index|
         other = object_type.attribute_by_name(attribute_name_path_element)
         error("Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
-        error("Path element #{attribute_name_path_element} is nullable") if other.nullable?
         error("Path element #{attribute_name_path_element} is not a reference") if !other.reference?
         object_type = other.referenced_object
       end

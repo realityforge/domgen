@@ -359,14 +359,18 @@ SQL
             next_id = "#{last_name}.#{ot.attribute_by_name(attribute_name).sql.column_name}"
           end
 
+          comparison_id = "C0.#{scoping_attribute.sql.column_name}"
+
           validation_name = "#{c.name}_Scope"
           validation(validation_name, :sql => <<SQL) unless validation_by_name(validation_name)
 SELECT I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 FROM
   inserted I
-JOIN #{target_object_type.sql.table_name} C0 ON C0.#{target_object_type.primary_key.sql.column_name} = I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
+LEFT JOIN #{target_object_type.sql.table_name} C0 ON C0.#{target_object_type.primary_key.sql.column_name} = I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
           #{joins.join("\n")}
-WHERE C0.#{scoping_attribute.sql.column_name} != #{next_id}
+WHERE
+  (#{comparison_id} IS NOT NULL AND #{comparison_id} != #{next_id}) OR
+  (#{comparison_id} IS NULL AND #{next_id} IS NOT NULL) 
 GROUP BY I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 HAVING COUNT(*) > 0
 SQL
