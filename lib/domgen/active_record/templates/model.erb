@@ -73,7 +73,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <% object_type.codependent_constraints.each do |c| %>
   validates_codependent <%= c.attribute_names.collect{|attribute_name|":#{attribute_name}"}.join(', ') %>
 <% end %>
-<% object_type.scope_constraints.each do |c|
+<% object_type.cycle_constraints.each do |c|
   target_attribute = object_type.attribute_by_name(c.attribute_name)
 %>
   validate do |record|

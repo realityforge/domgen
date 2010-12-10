@@ -372,7 +372,7 @@ module Domgen
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
     attr_reader :dependency_constraints
-    attr_reader :scope_constraints
+    attr_reader :cycle_constraints
     attr_reader :referencing_attributes
     attr_accessor :extends
     attr_accessor :direct_subtypes
@@ -385,7 +385,7 @@ module Domgen
       @codependent_constraints = Domgen::OrderedHash.new
       @incompatible_constraints = Domgen::OrderedHash.new
       @dependency_constraints = Domgen::OrderedHash.new
-      @scope_constraints = Domgen::OrderedHash.new
+      @cycle_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
       @direct_subtypes = []
       @subtypes = []
@@ -613,20 +613,20 @@ module Domgen
       incompatible_constraint
     end
 
-    def scope_constraints
-      @scope_constraints.values
+    def cycle_constraints
+      @cycle_constraints.values
     end
 
-    def scope_constraint_map
-      @scope_constraints
+    def cycle_constraint_map
+      @cycle_constraints
     end
 
     # Constraint that ensures that the value of a particular value is within a particular scope
-    def scope_constraint(attribute_name, attribute_name_path, options = {}, &block)
-      error("Scope constraint must have a path of length 1 or more") if attribute_name_path.empty?
+    def cycle_constraint(attribute_name, attribute_name_path, options = {}, &block)
+      error("Cycle constraint must have a path of length 1 or more") if attribute_name_path.empty?
       name = ([attribute_name] + attribute_name_path).collect { |a| a.to_s }.sort.join('_')
 
-      scope_constraint = ScopeConstraint.new(name, attribute_name, attribute_name_path, options, &block)
+      cycle_constraint = ScopeConstraint.new(name, attribute_name, attribute_name_path, options, &block)
 
       object_type = self
       attribute_name_path.each do |attribute_name_path_element|
@@ -638,11 +638,11 @@ module Domgen
       end
       local_reference = attribute_by_name(attribute_name)
       error("Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
-      scoping_attribute = local_reference.referenced_object.attribute_by_name(scope_constraint.scoping_attribute)
-      error("Scoping attribute references #{scoping_attribute.referenced_object.name} while last reference in path is #{object_type.name}") if object_type != scoping_attribute.referenced_object
+      scoping_attribute = local_reference.referenced_object.attribute_by_name(cycle_constraint.scoping_attribute)
+      error("Attribute in cycle references #{scoping_attribute.referenced_object.name} while last reference in path is #{object_type.name}") if object_type != scoping_attribute.referenced_object
 
-      @scope_constraints[name.to_s] = scope_constraint
-      scope_constraint
+      @cycle_constraints[name.to_s] = cycle_constraint
+      cycle_constraint
     end
 
     # Assume single column pk

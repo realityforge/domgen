@@ -331,7 +331,7 @@ WHERE
 SQL
         end
 
-        parent.scope_constraints.each do |c|
+        parent.cycle_constraints.each do |c|
           target_attribute = parent.attribute_by_name(c.attribute_name)
           target_object_type = parent.attribute_by_name(c.attribute_name).referenced_object
           scoping_attribute = target_object_type.attribute_by_name(c.scoping_attribute)
