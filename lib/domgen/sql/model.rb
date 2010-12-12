@@ -426,7 +426,10 @@ SQL
         self.validations.each do |validation|
           trigger("#{validation.name}Validation", :sql => <<SQL, :after => validation.after)
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
-#{validation.common_table_expression}  IF NOT EXISTS ( SELECT * FROM (#{validation.sql}) v ) GOTO done
+  DECLARE @ViolationCount INT;
+#{validation.common_table_expression}  SELECT @ViolationCount = COUNT(*)
+  FROM (SELECT TOP 1 * FROM (#{validation.sql}) v ) t1
+  IF (@@ERROR = 0 AND @ViolationCount = 0) GOTO done
   ROLLBACK
   RAISERROR ('Failed to pass validation check #{validation.name}', 16, 1) WITH SETERROR
 done:
