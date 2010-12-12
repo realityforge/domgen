@@ -99,8 +99,8 @@ AS
   --no need to continue on if no rows affected
   IF @RowsAffected = 0 RETURN
 
-  SET NOCOUNT ON; --to avoid the rowcount messages
-  SET ROWCOUNT 0; --in case the client has modified the rowcount
+  SET NOCOUNT ON; -- to avoid the rowcount messages
+  SET ROWCOUNT 0; -- in case the client has modified the rowcount
 <%= trigger.sql %>
 GO
 <%    end
