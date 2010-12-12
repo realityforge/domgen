@@ -28,7 +28,7 @@ module Domgen
             s << " )\n"
           end
           if !attribute.allow_blank?
-            s << "  @org.hibernate.validator.NotEmpty\n"
+            s << "  @org.hibernate.validator.constraints.NotEmpty\n"
           end
         end
         s
