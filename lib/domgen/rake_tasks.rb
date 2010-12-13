@@ -10,6 +10,8 @@ module Domgen
     attr_reader :generator_keys
     attr_reader :target_dir
 
+    attr_reader :task_name
+
     def initialize(repository_key, key, generator_keys, target_dir)
       @repository_key, @key, @generator_keys, @target_dir = repository_key, key, generator_keys, target_dir
       @clobber_dir = true
@@ -24,7 +26,7 @@ module Domgen
     def define
       desc self.description || "Generates the #{key} artifacts."
       namespace self.namespace_key do
-        task self.key => ["#{self.namespace_key}:load"] do
+        t = task self.key => ["#{self.namespace_key}:load"] do
           begin
             FileUtils.rm_rf(self.target_dir) if self.clobber_dir
             Domgen.generate(self.repository_key, self.target_dir, self.generator_keys, self.filter)
@@ -35,6 +37,7 @@ module Domgen
             raise e
           end
         end
+        @task_name = t.name
       end
     end
   end
