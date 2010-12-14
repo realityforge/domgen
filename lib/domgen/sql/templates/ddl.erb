@@ -15,12 +15,33 @@ GO
 <% end %>
 <%= banner("DDL for Data Module '#{data_module.name}'") %>
 <% data_module.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
+<% if object_type.sql.partition_scheme %>
+IF CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Enterprise Edition%'
+BEGIN
+
+CREATE TABLE <%= object_type.sql.qualified_table_name %>(
+<% object_type.attributes.select {|a| a.persistent?}.each do |a|
+%>  <%= q(a.sql.column_name) %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
+<% end
+%>
+    CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC) ON [PRIMARY]
+) ON <%= object_type.sql.partition_scheme %>
+
+END
+ELSE
+BEGIN
+<% end %>
+
 CREATE TABLE <%= object_type.sql.qualified_table_name %>(
 <% object_type.attributes.select {|a| a.persistent?}.each do |a|
 %>  <%= q(a.sql.column_name) %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>  CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
 )
+
+<% if object_type.sql.partition_scheme %>
+END
+<% end %>
 GO
 <% object_type.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
@@ -53,6 +74,7 @@ CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CL
 (<%= index.attribute_names.collect {|a| "\n  #{q(object_type.attribute_by_name(a).sql.column_name)} ASC" }.join(",") %>
 )<% if !index.include_attribute_names.nil? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| q(object_type.attribute_by_name(a).sql.column_name) }.join(",") %> )<% end %>
 <% if index.filter %>WHERE <%= index.filter %><% end %>
+<%= index.unique? ? 'ON [PRIMARY]' : '' %>
 GO
 <% if !index.tags.empty? %>
 <% index.tags.each_pair do |name, value| %>

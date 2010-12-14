@@ -172,6 +172,7 @@ module Domgen
 
     class Table < SqlElement
       attr_writer :table_name
+      attr_accessor :partition_scheme
 
       def initialize(parent, options = {}, &block)
         @indexes = Domgen::OrderedHash.new
