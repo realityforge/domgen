@@ -269,6 +269,10 @@ module Domgen
       end
 
       def post_verify
+        if self.partition_scheme && indexes.select{|index|index.cluster?}.empty?
+          raise "Must specify a clustered index if using a partition scheme"
+        end
+
         parent.unique_constraints.each do |c|
           index(c.attribute_names, {:unique => true}, true)
         end
