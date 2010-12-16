@@ -8,7 +8,7 @@ GO
 <% data_module.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value %>',
+  @value = N'<%= value.strip %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>
 GO
 <% end %>
@@ -46,7 +46,7 @@ GO
 <% object_type.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value %>',
+  @value = N'<%= value.strip %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>;
 GO
@@ -55,18 +55,18 @@ GO
 <% a.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value %>',
+  @value = N'<%= value.strip %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
   @level2type = N'COLUMN', @level2name = <%= q(a.sql.column_name) %>;
 GO
 <% end %>
-<% end %>    
+<% end %>
 <% object_type.attributes.select {|a| a.persistent? && !a.sql.default_value.nil?}.each do |a| %>
 ALTER TABLE <%= object_type.sql.qualified_table_name %> ADD DEFAULT (<%= quote_value(a.sql.default_value) %>) FOR <%= q(a.sql.column_name) %>
 GO
 <% end %>
--- Set NUMERIC_ROUNDABORT so filtered indexes can be created 
+-- Set NUMERIC_ROUNDABORT so filtered indexes can be created
 SET NUMERIC_ROUNDABORT OFF
 GO
 <% object_type.sql.indexes.each do |index| %>
@@ -80,7 +80,7 @@ GO
 <% index.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value %>',
+  @value = N'<%= value.strip %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
   @level2type = N'INDEX',  @level2name = <%= q(index.name) %>;
