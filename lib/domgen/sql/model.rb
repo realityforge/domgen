@@ -174,6 +174,12 @@ module Domgen
       attr_writer :table_name
       attr_accessor :partition_scheme
 
+      #+force_overflow_for_large_objects+ if set to true will force the native *VARCHAR(max) and XML datatypes (i.e.
+      # text attributes to always be stored in overflow page by database engine. Otherwise they will be stored inline
+      # as long as the data fits into a 8,060 byte row. It is a performance hit to access the overflow table so this
+      # should be set to false unless the data columns are infrequently accessed relative to the other columns
+      attr_accessor :force_overflow_for_large_objects
+
       def initialize(parent, options = {}, &block)
         @indexes = Domgen::OrderedHash.new
         @constraints = Domgen::OrderedHash.new
