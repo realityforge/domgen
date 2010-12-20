@@ -79,7 +79,6 @@ CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CL
 <% if index.filter %>WHERE <%= index.filter %><% end %>
 <%= index.unique? ? 'ON [PRIMARY]' : '' %>
 GO
-<% if !index.tags.empty? %>
 <% index.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
@@ -88,7 +87,6 @@ EXEC sys.sp_addextendedproperty
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
   @level2type = N'INDEX',  @level2name = <%= q(index.name) %>;
 GO
-<% end %>
 <% end %>
 
 <% end %>
@@ -107,8 +105,17 @@ GO
       object_type.sql.constraints.each do |constraint|
 %>
 ALTER TABLE <%= object_type.sql.qualified_table_name %>
-  ADD CONSTRAINT CK_<%= s(object_type.name) %>_<%= s(constraint.name) %> CHECK ( <%= s(constraint.sql) %> )
+  ADD CONSTRAINT <%= constraint.constraint_name %> CHECK ( <%= s(constraint.sql) %> )
 GO
+<% constraint.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= value.strip %>',
+  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
+  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
+  @level2type = N'CONSTRAINT',  @level2name = <%= q(constraint.constraint_name) %>;
+GO
+<% end %>
 <%    end
    end
    if object_type.sql.function_constraints.size > 0 %><%=
@@ -135,11 +142,28 @@ BEGIN
   RETURN @Result
 END
 GO
+<% constraint.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= value.strip %>',
+  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
+  @level1type = N'FUNCTION',  @level1name = [<%= s(object_type.name) %>_<%= s(constraint.name) %>];
+GO
+<% end %>
 ALTER TABLE <%= object_type.sql.qualified_table_name %>
   WITH CHECK ADD CONSTRAINT
-  CK_<%= s(object_type.name) %>_<%= s(constraint.name) %>
+  <%= constraint.constraint_name %>
   CHECK (<%= q(data_module.sql.schema) %>.<%= s(object_type.name) %>_<%= s(constraint.name) %>(<%= constraint.parameters.collect{|parameter_name| a = object_type.attribute_by_name(parameter_name); "  #{a.sql.column_name}"}.join(",") %>) = 1)
 GO
+<% constraint.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= value.strip %>',
+  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
+  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
+  @level2type = N'CONSTRAINT',  @level2name = <%= q(constraint.constraint_name) %>;
+GO
+<% end %>
     <%
     end
    end
@@ -160,6 +184,15 @@ AS
   SET ROWCOUNT 0; -- in case the client has modified the rowcount
 <%= trigger.sql %>
 GO
+<% trigger.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= value.strip %>',
+  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
+  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
+  @level2type = N'TRIGGER',  @level2name = <%= q(trigger.trigger_name) %>;
+GO
+<% end %>
 <%    end
     end
   end

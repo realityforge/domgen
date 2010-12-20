@@ -126,6 +126,10 @@ module Domgen
         @name = name
         super(parent, options, &block)
       end
+
+      def constraint_name
+        "CK_#{s(parent.parent.name)}_#{s(name)}"
+      end
     end
 
     class FunctionConstraint < SqlElement
@@ -144,6 +148,10 @@ module Domgen
       # Return true if this constraint should always be true, not just on insert or update. 
       def invariant?
         @invariant.nil? ? false : @invariant
+      end
+
+      def constraint_name
+        "CK_#{s(parent.parent.name)}_#{s(name)}"
       end
     end
 
@@ -324,6 +332,7 @@ module Domgen
 ( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ")} ) OR
 ( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NULL" }.join(" AND ") } )
 SQL
+          copy_tags(c, constraint_by_name(constraint_name))
         end
         parent.dependency_constraints.each do |c|
           constraint_name = "#{parent.name}_#{c.name}_Dep"
@@ -331,6 +340,7 @@ SQL
 #{parent.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR
 ( #{c.dependent_attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ") } )
 SQL
+          copy_tags(c, constraint_by_name(constraint_name))
         end
         parent.incompatible_constraints.each do |c|
           sql = (0..(c.attribute_names.size)).collect do |i|
@@ -340,6 +350,7 @@ SQL
           end.join(" OR ")
           constraint_name = "#{parent.name}_#{c.name}_Incompat"
           constraint(constraint_name, :sql => sql) unless constraint_by_name(constraint_name)
+          copy_tags(c, constraint_by_name(constraint_name))
         end
 
         parent.declared_attributes.select { |a| a.attribute_type == :i_enum }.each do |a|
@@ -421,6 +432,7 @@ WHERE
 GROUP BY I.#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 HAVING COUNT(*) > 0
 SQL
+          copy_tags(c, validation_by_name(validation_name))
         end
 
         immutable_attributes = parent.attributes.select { |a| a.persistent? && a.immutable? }
@@ -465,13 +477,14 @@ SQL
               (0..(names.size - 2)).each do |index|
                 sql << " OR\n (#{names[index] }.ID IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index| "#{names[index]}.ID IS NOT NULL" }.join(' OR ') }))"
               end
-              validation(validation_name, :sql => sql, :guard => guard)
+              validation(validation_name, :sql => sql, :guard => guard) unless validation_by_name(validation_name)
             end
           end
         end
 
         self.validations.each do |validation|
-          trigger("#{validation.name}Validation", :sql => <<SQL, :after => validation.after)
+          trigger_name = "#{validation.name}Validation"
+          trigger(trigger_name, :sql => <<SQL, :after => validation.after) unless trigger_by_name(trigger_name)
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
   DECLARE @ViolationCount INT;
 #{validation.common_table_expression}  SELECT @ViolationCount = COUNT(*)
@@ -482,6 +495,7 @@ SQL
 done:
 #{validation.guard.nil? ? '' : "END" }
 SQL
+          copy_tags(validation, trigger_by_name(trigger_name))
         end
 
         parent.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
@@ -495,9 +509,16 @@ SQL
         error("#{qualified_table_name} defines multiple clustering indexes") if indexes.select { |i| i.cluster? }.size > 1
       end
 
+      def copy_tags(from, to)
+        from.tags.each_pair do |k, v|
+          to.tags[k] = v
+        end
+      end
+
       def post_inherited
         indexes.each { |a| a.mark_as_inherited }
         constraints.each { |a| a.mark_as_inherited }
+        function_constraints.each { |a| a.mark_as_inherited }
         validations.each { |a| a.mark_as_inherited }
         triggers.each { |a| a.mark_as_inherited }
         foreign_keys.each { |a| a.mark_as_inherited }
