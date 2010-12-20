@@ -128,6 +128,25 @@ module Domgen
       end
     end
 
+    class FunctionConstraint < SqlElement
+      attr_reader :name
+      attr_accessor :positive_sql
+      attr_accessor :parameters
+
+      def initialize(parent, name, parameters, options = {}, & block)
+        @name = name
+        @parameters = parameters
+        super(parent, options, & block)
+      end
+
+      attr_writer :invariant
+
+      # Return true if this constraint should always be true, not just on insert or update. 
+      def invariant?
+        @invariant.nil? ? false : @invariant
+      end
+    end
+
     class Validation < SqlElement
       attr_reader :name
       attr_accessor :sql
@@ -183,6 +202,7 @@ module Domgen
       def initialize(parent, options = {}, &block)
         @indexes = Domgen::OrderedHash.new
         @constraints = Domgen::OrderedHash.new
+        @function_constraints = Domgen::OrderedHash.new
         @validations = Domgen::OrderedHash.new
         @triggers = Domgen::OrderedHash.new
         @foreign_keys = Domgen::OrderedHash.new
@@ -212,6 +232,22 @@ module Domgen
         constraint = Constraint.new(self, name, options, &block)
         @constraints[name.to_s] = constraint
         constraint
+      end
+
+      def function_constraints
+        @function_constraints.values
+      end
+
+      def function_constraint_by_name(name)
+        @function_constraints[name.to_s]
+      end
+
+      def function_constraint(name, parameters, options = {}, &block)
+        existing = function_constraint_by_name(name)
+        error("Function Constraint named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
+        function_constraint = FunctionConstraint.new(self, name, parameters, options, &block)
+        @function_constraints[name.to_s] = function_constraint
+        function_constraint
       end
 
       def validations

@@ -110,8 +110,40 @@ ALTER TABLE <%= object_type.sql.qualified_table_name %>
   ADD CONSTRAINT CK_<%= s(object_type.name) %>_<%= s(constraint.name) %> CHECK ( <%= s(constraint.sql) %> )
 GO
 <%    end
+   end
+   if object_type.sql.function_constraints.size > 0 %><%=
+    banner("Function Constraints for #{object_type.sql.qualified_table_name}")
+%><%
+    object_type.sql.function_constraints.each do |constraint|
+%>
+CREATE FUNCTION <%= data_module.sql.schema %>.<%= s(object_type.name) %>_<%= s(constraint.name) %>
+(
+<%= constraint.parameters.collect{|parameter_name| a = object_type.attribute_by_name(parameter_name); "  @#{a.sql.column_name} #{a.sql.sql_type}"}.join(",\n") %>
+)
+RETURNS BIT
+AS
+BEGIN
+  DECLARE @Result BIT
+  IF EXISTS (<%= constraint.positive_sql %>)
+  BEGIN
+    SET @Result = 1
+  END
+  ELSE
+  BEGIN
+    SET @Result = 0
+  END
+  RETURN @Result
+END
+GO
+ALTER TABLE <%= object_type.sql.qualified_table_name %>
+  WITH CHECK ADD CONSTRAINT
+  CK_<%= s(object_type.name) %>_<%= s(constraint.name) %>
+  CHECK (<%= q(data_module.sql.schema) %>.<%= s(object_type.name) %>_<%= s(constraint.name) %>(<%= constraint.parameters.collect{|parameter_name| a = object_type.attribute_by_name(parameter_name); "  #{a.sql.column_name}"}.join(",") %>) = 1)
+GO
+    <%
     end
-    if object_type.sql.triggers.size > 0 %><%=
+   end
+   if object_type.sql.triggers.size > 0 %><%=
     banner("Triggers for #{object_type.sql.qualified_table_name}")
 %><%
       object_type.sql.triggers.each do |trigger|
