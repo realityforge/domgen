@@ -127,6 +127,13 @@ module Domgen
         super(parent, options, &block)
       end
 
+      attr_writer :invariant
+
+      # Return true if this constraint should always be true, not just on insert or update.
+      def invariant?
+        @invariant.nil? ? true : @invariant
+      end
+
       def constraint_name
         "CK_#{s(parent.parent.name)}_#{s(name)}"
       end
@@ -147,7 +154,7 @@ module Domgen
 
       # Return true if this constraint should always be true, not just on insert or update. 
       def invariant?
-        @invariant.nil? ? false : @invariant
+        @invariant.nil? ? true : @invariant
       end
 
       def constraint_name
