@@ -101,7 +101,7 @@ CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qual
 <% if trigger.after == :both %>AFTER INSERT, UPDATE<% elsif trigger.after == :insert %>AFTER INSERT<% elsif trigger.after == :update %>AFTER UPDATE<% end %>
 AS
   DECLARE @RowsAffected INT
-  SET @RowsAffected = @@rowcount
+  SET @RowsAffected = @@ROWCOUNT
   --no need to continue on if no rows affected
   IF @RowsAffected = 0 RETURN
 
@@ -118,6 +118,10 @@ EXEC sys.sp_addextendedproperty
   @level2type = N'TRIGGER',  @level2name = <%= q(trigger.trigger_name) %>;
 GO
 <% end %>
+DISABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qualified_table_name %>
+GO    
+ENABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qualified_table_name %>
+GO
 <%    end
     end
   end
