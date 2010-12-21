@@ -126,7 +126,7 @@ module Domgen
         @name = name
         super(parent, options, &block)
       end
-
+      
       attr_writer :invariant
 
       # Return true if this constraint should always be true, not just on insert or update.
@@ -143,6 +143,7 @@ module Domgen
       attr_reader :name
       attr_accessor :positive_sql
       attr_accessor :parameters
+      attr_accessor :common_table_expression
 
       def initialize(parent, name, parameters, options = {}, & block)
         @name = name

@@ -130,15 +130,9 @@ CREATE FUNCTION <%= data_module.sql.schema %>.<%= s(object_type.name) %>_<%= s(c
 RETURNS BIT
 AS
 BEGIN
-  DECLARE @Result BIT
-  IF EXISTS (<%= constraint.positive_sql %>)
-  BEGIN
-    SET @Result = 1
-  END
-  ELSE
-  BEGIN
-    SET @Result = 0
-  END
+  DECLARE @Result BIT;
+  <%= constraint.common_table_expression %>
+  SELECT @Result = CONVERT(BIT,(SELECT COUNT(*) FROM (<%= constraint.positive_sql %>) F))
   RETURN @Result
 END
 GO
