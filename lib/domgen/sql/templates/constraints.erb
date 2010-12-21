@@ -11,8 +11,6 @@ ALTER TABLE <%= object_type.sql.qualified_table_name %>
 <% if foreign_key.on_update != :no_action %>  ON UPDATE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_update] %><% end %>
 <% if foreign_key.on_delete != :no_action %>  ON DELETE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_delete] %><% end %>
 GO
-ALTER TABLE <%= object_type.sql.qualified_table_name %> CHECK CONSTRAINT [<%= foreign_key.foreign_key_name %>]
-GO
 <%
   end
   if object_type.sql.constraints.size > 0 %><%=
@@ -25,8 +23,6 @@ IF  EXISTS (SELECT * FROM sys.check_constraints WHERE object_id = OBJECT_ID(N'<%
 GO
 ALTER TABLE <%= object_type.sql.qualified_table_name %>
   WITH NOCHECK ADD CONSTRAINT <%= constraint.constraint_name %> CHECK ( <%= s(constraint.sql) %> )
-GO
-ALTER TABLE <%= object_type.sql.qualified_table_name %> CHECK CONSTRAINT [<%= constraint.constraint_name %>]
 GO
 <% constraint.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
@@ -76,7 +72,6 @@ ALTER TABLE <%= object_type.sql.qualified_table_name %>
   <%= constraint.constraint_name %>
   CHECK (<%= q(data_module.sql.schema) %>.<%= s(object_type.name) %>_<%= s(constraint.name) %>(<%= constraint.parameters.collect{|parameter_name| a = object_type.attribute_by_name(parameter_name); "  #{a.sql.column_name}"}.join(",") %>) = 1)
 GO
-ALTER TABLE <%= object_type.sql.qualified_table_name %> CHECK CONSTRAINT [<%= constraint.constraint_name %>]
 <% constraint.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
@@ -120,8 +115,6 @@ GO
 <% end %>
 DISABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qualified_table_name %>
 GO    
-ENABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qualified_table_name %>
-GO
 <%    end
     end
   end
