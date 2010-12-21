@@ -116,6 +116,14 @@ module Domgen
       def on_delete
         @on_delete ||= :no_action
       end
+
+      def foreign_key_name
+        "FK_#{s(table.parent.name)}_#{s(name)}"
+      end
+
+      def qualified_foreign_key_name
+        "#{table.parent.data_module.sql.schema}.#{foreign_key_name}"
+      end
     end
 
     class Constraint < SqlElement
@@ -136,6 +144,10 @@ module Domgen
 
       def constraint_name
         "CK_#{s(parent.parent.name)}_#{s(name)}"
+      end
+
+      def qualified_constraint_name
+        "#{parent.parent.data_module.sql.schema}.#{constraint_name}"
       end
     end
 
@@ -160,6 +172,10 @@ module Domgen
 
       def constraint_name
         "CK_#{s(parent.parent.name)}_#{s(name)}"
+      end
+
+      def qualified_constraint_name
+        "#{parent.parent.data_module.sql.schema}.#{constraint_name}"
       end
     end
 
