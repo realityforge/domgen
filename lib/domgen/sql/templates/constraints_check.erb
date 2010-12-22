@@ -1,18 +1,19 @@
 <% data_module.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
 <% object_type.sql.foreign_keys.each do |foreign_key| %>
-ALTER TABLE <%= object_type.sql.qualified_table_name %> CHECK CONSTRAINT [<%= foreign_key.foreign_key_name %>]
+ALTER TABLE <%= object_type.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT [<%= foreign_key.foreign_key_name %>]
 GO
 <%
    end
    object_type.sql.constraints.each do |constraint|
 %>
-ALTER TABLE <%= object_type.sql.qualified_table_name %> CHECK CONSTRAINT [<%= constraint.constraint_name %>]
+ALTER TABLE <%= object_type.sql.qualified_table_name %> WITH <%= constraint.invariant? ? '' : 'NO' %>CHECK CHECK CONSTRAINT [<%= constraint.constraint_name %>]
 GO
 <%
    end
   object_type.sql.function_constraints.each do |constraint|
 %>
-ALTER TABLE <%= object_type.sql.qualified_table_name %> CHECK CONSTRAINT [<%= constraint.constraint_name %>]
+ALTER TABLE <%= object_type.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT [<%= constraint.constraint_name %>]
+GO
 <%
    end
    object_type.sql.triggers.each do |trigger|
