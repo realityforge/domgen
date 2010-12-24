@@ -31,7 +31,9 @@ module Domgen
       attr_accessor :filter
 
       def initialize(table, attribute_names, options, &block)
-        @table, @attribute_names = table, attribute_names
+        @table = table
+        @attribute_names = attribute_names
+        @include_attribute_names = []
         super(options, &block)
       end
 
