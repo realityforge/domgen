@@ -232,6 +232,10 @@ module Domgen
       @length = length
     end
 
+    def has_non_max_length?
+      !@length.nil? && @length != :max 
+    end
+
     def min_length
       if @min_length.nil?
         @min_length = 0

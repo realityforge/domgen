@@ -13,7 +13,7 @@ module Domgen
             s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
           else
             s << "  @javax.persistence.Column( name = \"#{attribute.sql.column_name}\""
-            s << ", length = #{attribute.length}" if !attribute.length.nil?
+            s << ", length = #{attribute.length}" if attribute.has_non_max_length?
             s << ", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
           end
         end
@@ -23,8 +23,8 @@ module Domgen
           unless attribute.length.nil? && attribute.min_length.nil?
             s << "  @javax.validation.constraints.Size( "
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
-            s << ", " unless attribute.min_length.nil? || attribute.length.nil?
-            s << "max = #{attribute.length} " unless attribute.length.nil?
+            s << ", " unless attribute.min_length.nil? || !attribute.has_non_max_length?
+            s << "max = #{attribute.length} " if attribute.has_non_max_length?
             s << " )\n"
           end
           if !attribute.allow_blank?
