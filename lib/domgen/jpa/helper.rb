@@ -132,7 +132,17 @@ JAVA
       def j_simple_attribute(attribute)
         name = attribute.java.field_name
         type = nullable_annotate(attribute, attribute.java.java_type)
-        return <<JAVA
+        #TODO use 'is' for boolean/Booleans, i.e. JavaBean spec
+        description = attribute.tags[:Description]
+        java = ''
+        unless description.nil?
+          java << <<JAVADOC
+  /**
+   * #{description}
+   */
+JAVADOC
+        end
+        java<< <<JAVA
   public #{type} get#{name}()
   {
      return #{name};
@@ -144,6 +154,7 @@ JAVA
         #{name} = value;
   }
 JAVA
+      java
       end
 
       def j_add_to_inverse(attribute)
