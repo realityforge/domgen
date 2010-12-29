@@ -142,8 +142,11 @@ JAVA
    */
 JAVADOC
         end
+        #booleans to use 'is' as per JavaBean spec
+        java << "  " << ((attribute.attribute_type == :boolean ) ?
+          "public #{type} is#{name}()" :
+          "public #{type} get#{name}()")
         java<< <<JAVA
-  public #{type} get#{name}()
   {
      return #{name};
   }
