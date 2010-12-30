@@ -126,6 +126,14 @@ module Domgen
       def qualified_foreign_key_name
         "#{table.parent.data_module.sql.schema}.#{foreign_key_name}"
       end
+
+      def invariant?
+        true
+      end
+
+      def constraint_name
+        foreign_key_name
+      end
     end
 
     class Constraint < SqlElement
