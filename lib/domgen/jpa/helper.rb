@@ -64,6 +64,7 @@ module Domgen
 
       def j_declared_attribute_and_relation_accessors(object_type)
         relation_methods = object_type.referencing_attributes.collect do |attribute|
+
           if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
@@ -74,8 +75,11 @@ module Domgen
           elsif attribute.inverse_relationship_type == :has_one
             name = attribute.inverse_relationship_name
             type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name)
-            <<JAVA
-  public #{type} get#{name}()
+
+            description = attribute.tags[:Description]
+            java = description_javadoc_for attribute
+            java << <<JAVA
+  public #{type} #{getter_for(attribute)}
   {
      return #{name};
   }
@@ -85,6 +89,7 @@ module Domgen
      #{name} = value;
   }
 JAVA
+            java
           end
         end
         j_declared_attribute_accessors(object_type) + relation_methods.compact.join("\n")
@@ -132,8 +137,10 @@ JAVA
       def j_simple_attribute(attribute)
         name = attribute.java.field_name
         type = nullable_annotate(attribute, attribute.java.java_type)
-        return <<JAVA
-  public #{type} get#{name}()
+        description = attribute.tags[:Description]
+        java = description_javadoc_for attribute
+        java<< <<JAVA
+  public #{type} #{getter_for(attribute)}
   {
      return #{name};
   }
@@ -144,6 +151,7 @@ JAVA
         #{name} = value;
   }
 JAVA
+      java
       end
 
       def j_add_to_inverse(attribute)
@@ -174,8 +182,10 @@ JAVA
         name = attribute.java.field_name
         type = attribute.java.java_type
         type = nullable_annotate(attribute, attribute.java.java_type)
-        <<JAVA
-  public #{type} get#{name}()
+        description = attribute.tags[:Description]
+        java = description_javadoc_for attribute
+        java << <<JAVA
+  public #{type} #{getter_for(attribute)}
   {
      return #{name};
   }
@@ -192,7 +202,7 @@ JAVA
 
       def j_abstract_attribute(attribute)
         <<JAVA
-    public abstract #{attribute.java.java_type} get#{attribute.java.field_name}();
+    public abstract #{attribute.java.java_type} #{getter_for(attribute)};
 JAVA
       end
 
@@ -200,7 +210,9 @@ JAVA
         name = attribute.inverse_relationship_name
         plural_name = pluralize(name)
         type = attribute.object_type.java.fully_qualified_name
-        <<STR
+        description = attribute.tags[:Description]
+        java = description_javadoc_for attribute
+        java << <<STR
   public java.util.List<#{type}> get#{plural_name}()
   {
     return java.util.Collections.unmodifiableList( safeGet#{plural_name}() );
@@ -225,12 +237,13 @@ JAVA
     return #{plural_name};
   }
 STR
+        java
       end
 
       def j_equals_method(object_type)
         return '' if object_type.abstract?
         pk = object_type.primary_key
-        pk_getter = "get#{pk.java.field_name}()"
+        pk_getter = getter_for(pk)
         pk_type = nullable_annotate(pk, pk.java.java_type)
         <<JAVA
   @Override
@@ -277,7 +290,7 @@ JAVA
 JAVA
         s += object_type.java.debug_attributes.collect do |a|
           attr = object_type.attribute_by_name(a)
-          "           \"#{attr.java.field_name} = \" + get#{attr.java.field_name}()"
+          "           \"#{attr.java.field_name} = \" + " + getter_for(attr)
         end.join(" + \", \" +\n")
 
         s += <<JAVA
@@ -292,12 +305,12 @@ JAVA
         if !object_type.java.label_attribute.nil?
           label = object_type.attribute_by_name(object_type.java.label_attribute)
           s += <<JAVA
-    return String.valueOf( get#{label.java.field_name}() );
+    return String.valueOf( #{getter_for(label)} );
 JAVA
         else
           pk = object_type.primary_key
           s += <<JAVA
-    return "#{object_type.name}[#{pk.java.field_name} = " + get#{pk.java.field_name}() +"]";
+    return "#{object_type.name}[#{pk.java.field_name} = " + #{getter_for(pk)} +"]";
 JAVA
         end
 
@@ -341,6 +354,25 @@ JAVA
         end
         s
       end
+
+
+      def description_javadoc_for(attribute)
+        description = attribute.tags[:Description]
+        java = ''
+        unless description.nil?
+          java << <<JAVADOC
+  /**
+   * #{description}
+   */
+JAVADOC
+        end
+        java
+      end
+
+      def getter_for( attr )
+        (attr.attribute_type == :boolean ? "is#{attr.java.field_name}()" : "get#{attr.java.field_name}()")
+      end
+
     end
   end
 end
