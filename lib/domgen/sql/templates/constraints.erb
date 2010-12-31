@@ -135,6 +135,8 @@ GO
 CREATE PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints
 AS
 BEGIN
+  SET NOCOUNT ON;
+
   DECLARE @FailedConstraintChecks TABLE
 (
     SchemaName VARCHAR(500),
