@@ -132,7 +132,7 @@ IF EXISTS
   DROP PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints
 GO
 
-CREATE PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints()
+CREATE PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints
 AS
 BEGIN
   DECLARE @FailedConstraintChecks TABLE
