@@ -18,7 +18,7 @@ module Domgen
           end
         end
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
-        s << "  #{nullable_annotate(attribute, '')}\n"
+        s << nullable_annotate(attribute, '')
         if attribute.attribute_type == :string
           unless attribute.length.nil? && attribute.min_length.nil?
             s << "  @javax.validation.constraints.Size( "
@@ -332,9 +332,9 @@ JAVA
         if attribute.java.primitive? || attribute.primary_key?
           type
         elsif !attribute.nullable? && !attribute.generated_value?
-          "@org.jetbrains.annotations.NotNull #{type}"
+          "  @org.jetbrains.annotations.NotNull #{type}\n"
         else
-          "@org.jetbrains.annotations.Nullable #{type}"
+          "  @org.jetbrains.annotations.Nullable #{type}\n"
         end
       end
 

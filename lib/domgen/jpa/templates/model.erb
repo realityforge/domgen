@@ -4,7 +4,7 @@ package <%= object_type.data_module.java.package %>;
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration" } )
 <% if not object_type.jpa.queries.empty? %>@javax.persistence.NamedQueries( value = {
-<%= object_type.jpa.queries.collect { |q| "  @javax.persistence.NamedQuery( name = \"#{q.fully_qualified_name}\", query = \"#{q.query_string}\" )" }.join(",\n") %>
+<%= object_type.jpa.queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{object_type.java.classname}.#{q.local_name}, query = \"#{q.query_string}\" )" }.join(",\n") %>
 } )<% end %>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity(name = "<%= object_type.name %>")<% if !object_type.abstract? %>
@@ -23,16 +23,20 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
 <%= object_type.extends ?
   "    extends #{object_type.data_module.object_type_by_name(object_type.extends).java.classname}\n" :
   "" %>{
-<% object_type.declared_attributes.select {|a| a.attribute_type == :i_enum || a.attribute_type == :s_enum }.each do |attribute| %>
+<% object_type.jpa.queries.each do |query| %>  public static final String <%= query.local_name %> = "<%= query.fully_qualified_name %>";
+<%
+  end
+  object_type.declared_attributes.select {|a| a.attribute_type == :i_enum || a.attribute_type == :s_enum }.each do |attribute|
+  raise "JPA requires i_enum #{attribute.name} be 0 based" if attribute.attribute_type == :i_enum && 0 != attribute.values.values.sort.first
+%>
   @SuppressWarnings( { "PublicInnerClass" } )
   public static enum <%= attribute.java.field_name %>Value
   {
     <%= attribute.values.collect {|k,v| "#{k}" } .join(",\n    ")%>
   }
-<% end %>
-<% object_type.declared_attributes.select { |a| !a.abstract? }.each do |attribute| %>
-<%= j_jpa_field_attributes(attribute) %>
-  private <%= attribute.java.java_type %> <%= attribute.java.field_name %>;
+<% end
+   object_type.declared_attributes.select { |a| !a.abstract? }.each do |attribute| %>
+<%= j_jpa_field_attributes(attribute) %>  private <%= attribute.java.java_type %> <%= attribute.java.field_name %>;
 <% end %>
 <% object_type.referencing_attributes.
   select { |attribute| !(attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none) }.
