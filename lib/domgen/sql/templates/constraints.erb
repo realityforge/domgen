@@ -148,6 +148,7 @@ BEGIN
    constraints = object_type.sql.foreign_keys + object_type.sql.constraints + object_type.sql.function_constraints
    constraints.select{|constraint| constraint.invariant?}.each do |constraint| %>
   BEGIN TRY
+    -- Consider using DBCC CHECKCONSTRAINTS here instead?
     ALTER TABLE <%= object_type.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT [<%= constraint.constraint_name %>]
   END TRY
   BEGIN CATCH
