@@ -23,7 +23,7 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
 <%= object_type.extends ?
   "    extends #{object_type.data_module.object_type_by_name(object_type.extends).java.classname}\n" :
   "" %>{
-<% object_type.jpa.queries.each do |query| %>  public static final String <%= query.local_name %> = "<%= query.fully_qualified_name %>";
+<% object_type.jpa.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= query.local_name %> = "<%= query.fully_qualified_name %>";
 <%
   end
   object_type.declared_attributes.select {|a| a.attribute_type == :i_enum || a.attribute_type == :s_enum }.each do |attribute|
