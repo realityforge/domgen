@@ -8,7 +8,7 @@ package <%= object_type.data_module.java.package %>;
 } )<% end %>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity(name = "<%= object_type.name %>")<% if !object_type.abstract? %>
-@javax.persistence.Table( name = "<%= object_type.sql.table_name %>",
+@javax.persistence.Table( name = "<%= object_type.jpa.table_name %>",
         schema = "<%= object_type.data_module.sql.schema %>",
         uniqueConstraints = {<%=
   object_type.attributes.select{|a|a.unique?}.collect{|a|
@@ -35,7 +35,7 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
     <%= attribute.values.collect {|k,v| "#{k}" } .join(",\n    ")%>
   }
 <% end
-   object_type.declared_attributes.select { |a| !a.abstract? }.each do |attribute| %>
+   object_type.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
 <%= j_jpa_field_attributes(attribute) %>  private <%= attribute.java.java_type %> <%= attribute.java.field_name %>;
 <% end %>
 <% object_type.referencing_attributes.

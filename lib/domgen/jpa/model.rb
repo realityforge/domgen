@@ -77,7 +77,22 @@ module Domgen
       end
     end
 
+    class JpaField < JpaElement
+      attr_writer :persistent
+
+      def persistent?
+        @persistent = (!parent.abstract? && parent.persistent?) if @persistent.nil?
+        @persistent
+      end
+    end
+
     class JpaClass < JpaElement
+      attr_writer :table_name
+
+      def table_name
+        @table_name || parent.sql.table_name
+      end
+
       def queries
         @queries ||= []
       end
@@ -118,6 +133,13 @@ module Domgen
 
     def jpa
       @jpa = Domgen::JPA::JpaClass.new(self) unless @jpa
+      @jpa
+    end
+  end
+
+  class Attribute
+    def jpa
+      @jpa = Domgen::JPA::JpaField.new(self) unless @jpa
       @jpa
     end
   end

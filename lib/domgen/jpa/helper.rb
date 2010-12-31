@@ -51,7 +51,7 @@ module Domgen
       end
 
       def j_declared_attribute_accessors(object_type)
-        object_type.declared_attributes.collect do |attribute|
+        object_type.declared_attributes.select{|attribute| attribute.jpa.persistent? }.collect do |attribute|
           if attribute.abstract?
             j_abstract_attribute(attribute)
           elsif attribute.reference?
@@ -65,7 +65,7 @@ module Domgen
       def j_declared_attribute_and_relation_accessors(object_type)
         relation_methods = object_type.referencing_attributes.collect do |attribute|
 
-          if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none
+          if attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none || !attribute.jpa.persistent?
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
             # Ignore attributes that have no inverse relationship
@@ -283,9 +283,12 @@ JAVA
   {
     return "#{object_type.name}[" +
 JAVA
-        s += object_type.java.debug_attributes.collect do |a|
-          attr = object_type.attribute_by_name(a)
-          "           \"#{attr.java.field_name} = \" + " + getter_for(attr)
+
+        debug_attributes =
+          object_type.java.debug_attributes.collect {|a| object_type.attribute_by_name(a)}.select{|a| a.jpa.persistent?}
+
+        s += debug_attributes.collect do |a|
+          "           \"#{a.java.field_name} = \" + " + getter_for(a)
         end.join(" + \", \" +\n")
 
         s += <<JAVA
