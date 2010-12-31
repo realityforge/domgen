@@ -30,7 +30,7 @@ module Domgen
 
       def parameters
         return [] if jpql.nil?
-        jpql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
+        jpql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
       end
 
       def fully_qualified_name
