@@ -3,4 +3,3 @@
   Entity but not Overtimes etc.
 * Sometimes you want to enable a family of generators with a single define_generator
   statement. Maybe use patterns ala :jpa* or similar.
-* Move to inverse_relationship_type = none as the default????

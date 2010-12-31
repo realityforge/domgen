@@ -324,7 +324,7 @@ module Domgen
 
     def inverse_relationship_type
       error("inverse_relationship_type on #{name} is invalid as attribute is not a reference") unless reference?
-      @inverse_relationship_type = :has_many if @inverse_relationship_type.nil?
+      @inverse_relationship_type = :none if @inverse_relationship_type.nil?
       @inverse_relationship_type
     end
 
