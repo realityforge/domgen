@@ -320,7 +320,11 @@ module Domgen
       "#{name}#{referenced_object.primary_key.name}"
     end
 
-    attr_writer :inverse_relationship_type
+    def inverse_relationship_type=(inverse_relationship_type)
+      error("inverse_relationship_type on #{name} is invalid as attribute is not a reference") unless reference?
+      error("inverse_relationship_type #{inverse_relationship_type} on #{name} is invalid") unless self.class.inverse_relationship_types.include?(inverse_relationship_type)
+      @inverse_relationship_type = inverse_relationship_type
+    end
 
     def inverse_relationship_type
       error("inverse_relationship_type on #{name} is invalid as attribute is not a reference") unless reference?
@@ -358,6 +362,10 @@ module Domgen
       error("on_delete on #{name} is invalid as attribute is not a reference") unless reference?
       @on_delete = :no_action if @on_delete.nil?
       @on_delete
+    end
+
+    def self.inverse_relationship_types
+      [:none, :has_one, :has_many]
     end
 
     def self.change_actions
