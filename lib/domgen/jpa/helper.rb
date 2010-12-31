@@ -18,7 +18,7 @@ module Domgen
           end
         end
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
-        s << nullable_annotate(attribute, '')
+        s << nullable_annotate(attribute, '', true)
         if attribute.attribute_type == :string
           unless attribute.length.nil? && attribute.min_length.nil?
             s << "  @javax.validation.constraints.Size( "
@@ -74,7 +74,7 @@ module Domgen
             j_has_many_attribute(attribute)
           elsif attribute.inverse_relationship_type == :has_one
             name = attribute.inverse_relationship_name
-            type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name)
+            type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name, false)
 
             java = description_javadoc_for attribute
             java << <<JAVA
@@ -135,7 +135,7 @@ JAVA
 
       def j_simple_attribute(attribute)
         name = attribute.java.field_name
-        type = nullable_annotate(attribute, attribute.java.java_type)
+        type = nullable_annotate(attribute, attribute.java.java_type, false)
         java = description_javadoc_for attribute
         java<< <<JAVA
   public #{type} #{getter_for(attribute)}
@@ -178,7 +178,7 @@ JAVA
 
       def j_reference_attribute(attribute)
         name = attribute.java.field_name
-        type = nullable_annotate(attribute, attribute.java.java_type)
+        type = nullable_annotate(attribute, attribute.java.java_type, false)
         java = description_javadoc_for attribute
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
@@ -239,7 +239,7 @@ STR
         return '' if object_type.abstract?
         pk = object_type.primary_key
         pk_getter = getter_for(pk)
-        pk_type = nullable_annotate(pk, pk.java.java_type)
+        pk_type = nullable_annotate(pk, pk.java.java_type, false)
         <<JAVA
   @Override
   public boolean equals( final Object o )
@@ -321,15 +321,20 @@ JAVA
         s
       end
 
-      def nullable_annotate(attribute, type)
+      def nullable_annotate(attribute, type, is_field_annotation)
         # Not sure why PrimaryKeys can not have annotation other than the fact that EclipseLink fails
         # to find ID if it is
         if attribute.java.primitive? || attribute.primary_key?
-          type
+          return type
         elsif !attribute.nullable? && !attribute.generated_value?
-          "  @org.jetbrains.annotations.NotNull #{type}\n"
+          annotation = "@org.jetbrains.annotations.NotNull #{type}"
         else
-          "  @org.jetbrains.annotations.Nullable #{type}\n"
+          annotation = "@org.jetbrains.annotations.Nullable #{type}"
+        end
+        if is_field_annotation
+          "  #{annotation}\n"
+        else
+          annotation
         end
       end
 

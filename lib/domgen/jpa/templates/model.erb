@@ -40,8 +40,7 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
 <% end %>
 <% object_type.referencing_attributes.
   select { |attribute| !(attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none) }.
-  each do |attribute| %>
-<%= j_declared_relation(attribute) %>
+  each do |attribute| %><%= j_declared_relation(attribute) %>
 <% end %>
 <%= j_declared_attribute_and_relation_accessors(object_type) %>
 <%= j_equals_method(object_type) %>
