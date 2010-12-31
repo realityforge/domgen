@@ -76,7 +76,6 @@ module Domgen
             name = attribute.inverse_relationship_name
             type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name)
 
-            description = attribute.tags[:Description]
             java = description_javadoc_for attribute
             java << <<JAVA
   public #{type} #{getter_for(attribute)}
@@ -137,7 +136,6 @@ JAVA
       def j_simple_attribute(attribute)
         name = attribute.java.field_name
         type = nullable_annotate(attribute, attribute.java.java_type)
-        description = attribute.tags[:Description]
         java = description_javadoc_for attribute
         java<< <<JAVA
   public #{type} #{getter_for(attribute)}
@@ -180,9 +178,7 @@ JAVA
 
       def j_reference_attribute(attribute)
         name = attribute.java.field_name
-        type = attribute.java.java_type
         type = nullable_annotate(attribute, attribute.java.java_type)
-        description = attribute.tags[:Description]
         java = description_javadoc_for attribute
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
@@ -210,7 +206,6 @@ JAVA
         name = attribute.inverse_relationship_name
         plural_name = pluralize(name)
         type = attribute.object_type.java.fully_qualified_name
-        description = attribute.tags[:Description]
         java = description_javadoc_for attribute
         java << <<STR
   public java.util.List<#{type}> get#{plural_name}()
