@@ -530,7 +530,7 @@ SQL
               end
               sql << "      WHERE (#{names.collect { |name| "#{name}.ID IS NULL" }.join(' AND ') })"
               (0..(names.size - 2)).each do |index|
-                sql << " OR\n (#{names[index] }.ID IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index| "#{names[index]}.ID IS NOT NULL" }.join(' OR ') }))"
+                sql << " OR\n (#{names[index] }.ID IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.ID IS NOT NULL" }.join(' OR ') }))"
               end
               validation(validation_name, :negative_sql => sql, :guard => guard) unless validation_by_name(validation_name)
             end
