@@ -52,12 +52,12 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
      end
    end %>
 <% object_type.referencing_attributes.each do |attribute|
-    if attribute.inverse_relationship_type == :has_many
+    if attribute.inverse_multiplicity == :many
 %>
   has_many :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
   has_count_of :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>
 <%
-    elsif attribute.inverse_relationship_type == :has_one
+    elsif attribute.inverse_multiplicity == :one
 %>
   has_one :<%= underscore(attribute.inverse_relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
 <%

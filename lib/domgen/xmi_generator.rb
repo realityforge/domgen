@@ -142,11 +142,11 @@ module Domgen
                                                       attribute.nullable? ? 0 : 1,
                                                       1,
                                                       end2,
-                                                      attribute.inverse_relationship_type == :none ? false : true,
+                                                      attribute.inverse_traversable?,
                                                       AggregationKind::NONE_LITERAL,
                                                       "",
                                                       0,
-                                                      attribute.inverse_relationship_type == :has_many ? LiteralUnlimitedNatural::UNLIMITED : 1)
+                                                      attribute.inverse_multiplicity == :many ? LiteralUnlimitedNatural::UNLIMITED : 1)
             emf_association.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
         end

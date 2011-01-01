@@ -319,24 +319,37 @@ module Domgen
       "#{name}#{referenced_object.primary_key.name}"
     end
 
-    def inverse_relationship_type=(inverse_relationship_type)
-      error("inverse_relationship_type on #{name} is invalid as attribute is not a reference") unless reference?
-      error("inverse_relationship_type #{inverse_relationship_type} on #{name} is invalid") unless self.class.inverse_relationship_types.include?(inverse_relationship_type)
-      @inverse_relationship_type = inverse_relationship_type
+    def inverse_multiplicity=(inverse_multiplicity)
+      error("inverse_multiplicity on #{name} is invalid as attribute is not a reference") unless reference?
+      error("inverse_multiplicity #{inverse_multiplicity} on #{name} is invalid") unless self.class.inverse_multiplicity_types.include?(inverse_multiplicity)
+      @inverse_multiplicity = inverse_multiplicity
     end
 
-    def inverse_relationship_type
-      error("inverse_relationship_type on #{name} is invalid as attribute is not a reference") unless reference?
-      @inverse_relationship_type = :none if @inverse_relationship_type.nil?
-      @inverse_relationship_type
+    def inverse_multiplicity
+      error("inverse_multiplicity on #{name} is invalid as attribute is not a reference") unless reference?
+      @inverse_multiplicity || :many
     end
 
-    attr_writer :inverse_relationship_name
+    def inverse_traversable=(inverse_traversable)
+      error("inverse_multiplicity on #{name} is invalid as attribute is not a reference") unless reference?
+      error("inverse_multiplicity #{inverse_traversable} on #{name} is invalid") unless self.class.inverse_traversable_types.include?(inverse_traversable)
+      @inverse_traversable = inverse_traversable
+    end
+
+    def inverse_traversable?
+      error("inverse_traversable on #{name} is invalid as attribute is not a reference") unless reference?
+      @inverse_traversable.nil? ? false : @inverse_traversable
+    end
+
+    def inverse_relationship_name=(inverse_relationship_name)
+      error("inverse_relationship_name on #{name} is invalid as attribute is not a reference") unless reference?
+      @inverse_relationship_name = inverse_relationship_name
+      self.inverse_traversable = true
+    end
 
     def inverse_relationship_name
       error("inverse_relationship_name on #{name} is invalid as attribute is not a reference") unless reference?
-      @inverse_relationship_name = object_type.name if @inverse_relationship_name.nil?
-      @inverse_relationship_name
+      @inverse_relationship_name || object_type.name
     end
 
     def on_update=(on_update)
@@ -363,8 +376,12 @@ module Domgen
       @on_delete
     end
 
-    def self.inverse_relationship_types
-      [:none, :has_one, :has_many]
+    def self.inverse_traversable_types
+      [true, false]
+    end
+
+    def self.inverse_multiplicity_types
+      [:one, :many]
     end
 
     def self.change_actions

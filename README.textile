@@ -36,7 +36,7 @@ bc..
 17.
 18.       s.define_object_type(:Post) do |t|
 19.         t.integer(:ID, :primary_key => true)
-20.         t.reference(:User, :name => :PostedBy, :inverse_relationship_type => :none)
+20.         t.reference(:User, :name => :PostedBy, :inverse_traversable => false)
 21.         t.string(:Subject, 1..50, :allow_blank => false)
 22.         t.datetime(:PostedAt)
 23.         t.boolean(:StickyPost)
@@ -47,8 +47,8 @@ bc..
 28.    
 29.       s.define_object_type(:Comment) do |t|
 30.         t.integer(:ID, :primary_key => true)
-31.         t.reference(:Post, :immutable => true, :inverse_relationship_type => :has_many)
-32.         t.reference(:User, :name => :PostedBy, :inverse_relationship_type => :none)
+31.         t.reference(:Post, :immutable => true, :inverse_multiplicity => :one)
+32.         t.reference(:User, :name => :PostedBy, :inverse_traversable => false)
 33.         t.text(:Content, :allow_nil => true)
 34.      end
 35.
@@ -79,8 +79,8 @@ h3. Example Explanation
 
 -  @t.string(:Nickname, 1..30, :unique => true)@  (Line 14) := Another string column. The @1..30@ defines the minimum and maximum lengths. A minumum of more than zero implies @:allow_blank => false@.
 
--  @t.reference(:User, :name => :PostedBy, :inverse_relationship_type => :none)@  (Line 20) := A reference to another object, in this case, back to @User@. The @:inverse_relationship => :none@ indicated that the inverse relationship _back_ to @Post@ will _not_ be created on the @User@ class. @:name => :PostedBy@ gives a custom name to both the model field and the database column.
+-  @t.reference(:User, :name => :PostedBy, :inverse_traversable => false)@  (Line 20) := A reference to another object, in this case, back to @User@. The @:inverse_traversable => false@ indicated that the inverse relationship _back_ to @Post@ will _not_ be created on the @User@ class. @:name => :PostedBy@ gives a custom name to both the model field and the database column.
 
 - @t.sql.index[:PostedAt]@ (Line 26) := Creates an SQL index on that column.
 
-- @t.reference(:Post, :immutable => true, :inverse_relationship_type => :has_many)@ (Line 31) := A relationship from @Comment@ to @Post@. The @:inverse_relationship => :has_many@ creates a collection model association from @Post@ to @Comment@, i.e _Posts have many comments_ .
+- @t.reference(:Post, :immutable => true, :inverse_multiplicity => :many)@ (Line 31) := A relationship from @Comment@ to @Post@. The @:inverse_relationship => :has_many@ creates a collection model association from @Post@ to @Comment@, i.e _Posts have many comments_ .

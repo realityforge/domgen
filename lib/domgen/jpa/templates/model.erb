@@ -40,7 +40,7 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
 <%= j_jpa_field_attributes(attribute) %>  private <%= attribute.java.java_type %> <%= attribute.java.field_name %>;
 <% end %>
 <% object_type.referencing_attributes.
-  select { |attribute| !(attribute.abstract? || attribute.inherited? || attribute.inverse_relationship_type == :none) }.
+  select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse_traversable? }.
   each do |attribute| %><%= j_declared_relation(attribute) %>
 <% end %>
 <%= j_declared_attribute_and_relation_accessors(object_type) %>
