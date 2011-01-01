@@ -9,7 +9,11 @@ module Domgen
           s << "  @javax.persistence.Id\n" if attribute.primary_key?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.generated_value?
           if attribute.reference?
-            s << "  @javax.persistence.ManyToOne( optional = #{attribute.nullable?} )\n"
+            if attribute.inverse_relationship_type == :has_one
+              s << "  @javax.persistence.OneToOne( optional = #{attribute.nullable?} )\n"
+            else #Assume attribute.inverse_relationship_type == :has_many
+              s << "  @javax.persistence.ManyToOne( optional = #{attribute.nullable?} )\n"
+            end
             s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
           else
             s << "  @javax.persistence.Column( name = \"#{attribute.sql.column_name}\""
