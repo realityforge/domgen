@@ -523,8 +523,7 @@ SQL
           trigger(trigger_name, :sql => <<SQL, :after => validation.after) unless trigger_by_name(trigger_name)
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
   DECLARE @ViolationCount INT;
-#{validation.common_table_expression}  SELECT @ViolationCount = COUNT(*)
-  FROM (SELECT TOP 1 * FROM (#{validation.negative_sql}) v ) t1
+#{validation.common_table_expression} SELECT @ViolationCount = 1 WHERE EXISTS (#{validation.negative_sql})
   IF (@@ERROR = 0 AND @ViolationCount = 0) GOTO done
   ROLLBACK
   RAISERROR ('Failed to pass validation check #{validation.name}', 16, 1) WITH SETERROR
