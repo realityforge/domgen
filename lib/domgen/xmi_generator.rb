@@ -64,7 +64,7 @@ module Domgen
 
       model = Java.org.eclipse.uml2.uml.UMLFactory.eINSTANCE.createModel()
       model.set_name(model_name.to_s)
-      #model.createOwnedComment().setBody(description(repository)) if description(repository)
+      model.createOwnedComment().setBody(description(repository)) if description(repository)
 
       output_uri = Java.org.eclipse.emf.common.util.URI.createFileURI(output_file)
       puts "Creating XMI for repository #{repository_key} at #{output_file}"
