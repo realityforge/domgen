@@ -646,7 +646,7 @@ module Domgen
       cycle_constraint = CycleConstraint.new(name, attribute_name, attribute_name_path, options, &block)
 
       object_type = self
-      attribute_name_path.each_with_index do |attribute_name_path_element, index|
+      attribute_name_path.each do |attribute_name_path_element|
         other = object_type.attribute_by_name(attribute_name_path_element)
         error("Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
         error("Path element #{attribute_name_path_element} is not a reference") if !other.reference?
