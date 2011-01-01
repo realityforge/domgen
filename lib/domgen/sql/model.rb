@@ -537,6 +537,20 @@ SQL
           end
         end
 
+        if parent.read_only?
+          trigger_name = "#{parent.name}ReadOnlyCheck"
+          unless trigger_by_name(trigger_name)
+            trigger(trigger_name) do |trigger|
+              trigger.description("Ensure that #{parent.name} is read only.")
+              trigger.after = []
+              trigger.instead_of = [:insert, :update, :delete]
+              trigger.sql = <<SQL
+RAISERROR ('#{parent.name} is read only', 16, 1) WITH SETERROR
+SQL
+            end
+          end
+        end
+
         self.validations.each do |validation|
           trigger_name = "#{validation.name}Validation"
           next if trigger_by_name(trigger_name)

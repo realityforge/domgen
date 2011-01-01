@@ -446,6 +446,12 @@ module Domgen
       @abstract
     end
 
+    attr_writer :read_only
+
+    def read_only?
+      @read_only.nil? ? false : @read_only
+    end
+
     attr_writer :final
 
     def final?
