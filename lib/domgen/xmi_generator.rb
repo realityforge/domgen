@@ -83,12 +83,6 @@ module Domgen
       # A map from fully qualified class names to EMF classes
       name_class_map = {}
 
-      # Some object types have attributes that are references to other object types. Besides, each object type is
-      # converted to an EMF class. reference_map is a map between an EMF class to all the references to other
-      # object_types it has. This map will be used in the association generation phase to create associations between
-      # EMF classes in the model
-      reference_map = {}
-
       repository = Domgen.repository_by_name(repository_key)
 
       # Phase 1: Package, primitive type, and enumeration type discovery.
@@ -110,9 +104,8 @@ module Domgen
                 enum.create_owned_literal(enum_literal)
               end
               enumerations[enum_key] ||= enum
-            else
-              attr_type =
-                attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
+            elsif !attribute.reference?
+              attr_type = attribute.attribute_type
               primitive_types[attr_type.to_s] ||= model.create_owned_primitive_type(attr_type.to_s)
             end
           end
@@ -120,32 +113,20 @@ module Domgen
       end
 
       # Phase 2: Class and association discovery. In this phase, we process the schema set and create a class
-      # per each schema. We also populate the reference_map in this phase. The reference_map will be used in
-      # the next phase to build associations
+      # per each schema.
       repository.data_modules.each do |data_module|
         data_module.object_types.each do |object_type|
           package = packages[data_module.name]
           clazz = package.create_owned_class(object_type.name, false)
           name_class_map[object_type.qualified_name] ||= clazz
 
-          # Creating EMF attributes corresponding to persistent, non-enum, non-reference attributes
-          object_type.attributes.select { |attr| attr.persistent? && !attr.enum? && !attr.reference? }.each do |attr|
+          # Creating EMF attributes corresponding to persistent, non-enum attributes
+          object_type.attributes.select { |attr| attr.persistent? && !attr.enum? }.each do |attr|
             prim_type = primitive_types[attr.attribute_type.to_s]
             clazz.create_owned_attribute(attr.name.to_s, prim_type, 0, 1)
           end
 
-          # Creating EMF attributes corresponding to persistent, reference, non-enum attributes
-          object_type.attributes.select { |attr| attr.persistent? && !attr.enum? && attr.reference? }.each do |attr|
-            prim_type = primitive_types[attr.referenced_object.primary_key.attribute_type.to_s]
-            clazz.create_owned_attribute(attr.referencing_link_name.to_s, prim_type, 0, 1)
-            if (reference_map[clazz])
-              reference_map[clazz] << attr
-            else
-              reference_map[clazz] = [attr]
-            end
-          end
-
-          # Creating EMF attributes corresponding to persistent, enum, non-reference attributes
+          # Creating EMF attributes corresponding to persistent enum attributes
           object_type.attributes.select { |attr| attr.persistent? && attr.enum? && !attr.reference? }.each do |attr|
             enum_type = enumerations[create_enum_key(data_module, object_type, attr)]
             clazz.create_owned_attribute(attr.name.to_s, enum_type, 0, 1)
@@ -155,22 +136,24 @@ module Domgen
 
       # Phase 3: Association building. In this phase, we process the schema set and create EMF associations
       # corresponding to the references defined in it.
-      reference_map.each do |end1, references|
-        references.each do |ref|
-          end2 = name_class_map[ref.referenced_object.qualified_name]
-          end1.create_association(
-            true,
-            AggregationKind::NONE_LITERAL,
-            "",
-            ref.nullable? ? 0 : 1,
-            1,
-            end2,
-            ref.inverse_relationship_type == :none ? false : true,
-            AggregationKind::NONE_LITERAL,
-            "",
-            0,
-            ref.inverse_relationship_type == :has_many ? LiteralUnlimitedNatural::UNLIMITED : 1
-          )
+      repository.data_modules.each do |data_module|
+        data_module.object_types.each do |object_type|
+          object_type.attributes.select { |attribute| attribute.persistent? && attribute.reference? }.each do |attribute|
+            end1 = name_class_map[attribute.object_type.qualified_name]
+            end2 = name_class_map[attribute.referenced_object.qualified_name]
+            name = attribute.name == attribute.referenced_object.name ? "" : attribute.name.to_s
+            end1.create_association(true,
+                                    AggregationKind::NONE_LITERAL,
+                                    name,
+                                    attribute.nullable? ? 0 : 1,
+                                    1,
+                                    end2,
+                                    attribute.inverse_relationship_type == :none ? false : true,
+                                    AggregationKind::NONE_LITERAL,
+                                    "",
+                                    0,
+                                    attribute.inverse_relationship_type == :has_many ? LiteralUnlimitedNatural::UNLIMITED : 1)
+          end
         end
       end
 
