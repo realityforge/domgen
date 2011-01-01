@@ -163,13 +163,16 @@ module Domgen
 
     class FunctionConstraint < SqlElement
       attr_reader :name
+      # The SQL that is part of function invoked
       attr_accessor :positive_sql
       attr_accessor :parameters
       attr_accessor :common_table_expression
+      attr_accessor :or_conditions
 
       def initialize(parent, name, parameters, options = {}, & block)
         @name = name
         @parameters = parameters
+        @or_conditions = []
         super(parent, options, & block)
       end
 
@@ -186,6 +189,13 @@ module Domgen
 
       def qualified_constraint_name
         "#{parent.parent.data_module.sql.schema}.#{constraint_name}"
+      end
+
+      # The SQL generated in constraint
+      def constraint_sql
+        parameter_string = parameters.collect{|parameter_name| "  #{parent.parent.attribute_by_name(parameter_name).sql.column_name}"}.join(",")
+        function_call = "#{parent.parent.data_module.sql.schema}.#{parent.parent.name}_#{name}(#{parameter_string}) = 1"
+        (self.or_conditions + [function_call]).join(" OR ")
       end
     end
 

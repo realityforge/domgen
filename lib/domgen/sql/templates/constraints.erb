@@ -75,7 +75,7 @@ GO
 ALTER TABLE <%= object_type.sql.qualified_table_name %>
   WITH NOCHECK ADD CONSTRAINT
   <%= constraint.constraint_name %>
-  CHECK (<%= q(data_module.sql.schema) %>.<%= s(object_type.name) %>_<%= s(constraint.name) %>(<%= constraint.parameters.collect{|parameter_name| a = object_type.attribute_by_name(parameter_name); "  #{a.sql.column_name}"}.join(",") %>) = 1)
+  CHECK (<%= constraint.constraint_sql %>)
 GO
 ALTER TABLE <%= object_type.sql.qualified_table_name %> NOCHECK CONSTRAINT [<%= constraint.constraint_name %>]
 <% constraint.tags.each_pair do |name, value| %>
