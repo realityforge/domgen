@@ -283,8 +283,7 @@ module Domgen
     attr_writer :immutable
 
     def immutable?
-      @immutable = false if @immutable.nil?
-      @immutable
+      @immutable.nil? ? primary_key? : @immutable
     end
 
     attr_writer :persistent

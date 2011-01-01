@@ -499,7 +499,7 @@ SQL
           end
         end
 
-        immutable_attributes = parent.attributes.select { |a| a.persistent? && a.immutable? }
+        immutable_attributes = parent.attributes.select { |a| a.persistent? && a.immutable? && !a.primary_key? }
         if immutable_attributes.size > 0
           pk = parent.primary_key
 
