@@ -12,6 +12,7 @@ module Domgen
       attr_reader :task_name
 
       def initialize(repository_key, key, filename)
+        Domgen::Xmi.init_emf
         @repository_key, @key, @filename = repository_key, key, filename
         @namespace_key = :domgen
         yield self if block_given?
@@ -22,23 +23,8 @@ module Domgen
 
       def define
         namespace self.namespace_key do
-          unless Rake::Task.task_defined?("init_emf")
-            task "init_emf" do
-              require 'buildr'
-              require 'java'
-
-              ::Java.classpath << Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150')
-              ::Java.load
-
-              java_import org.eclipse.emf.ecore.resource.Resource
-              java_import org.eclipse.uml2.uml.resource.UMLResource
-              java_import org.eclipse.uml2.uml.AggregationKind
-              java_import org.eclipse.uml2.uml.LiteralUnlimitedNatural
-            end
-          end
-
           desc self.description || "Generates the #{key} xmi artifacts."
-          t = task self.key => ["#{self.namespace_key}:load", "#{self.namespace_key}:init_emf"] do
+          t = task self.key => ["#{self.namespace_key}:load"] do
             begin
               FileUtils.mkdir_p File.dirname(filename)
               Domgen::Xmi.generate_xmi(self.repository_key, self.model_name || self.repository_key, self.filename)
@@ -170,6 +156,22 @@ module Domgen
     end
 
     private
+
+    @@init_emf = false
+
+    def self.init_emf
+      return if @@init_emf == true
+      @@init_emf = true
+      require 'buildr'
+      require 'java'
+      ::Java.classpath << Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150')
+      ::Java.load
+
+      java_import org.eclipse.emf.ecore.resource.Resource
+      java_import org.eclipse.uml2.uml.resource.UMLResource
+      java_import org.eclipse.uml2.uml.AggregationKind
+      java_import org.eclipse.uml2.uml.LiteralUnlimitedNatural
+    end
 
     def self.description(element)
       element.tags[:Description]
