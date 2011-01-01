@@ -103,6 +103,10 @@ CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qual
 %>  AFTER <%= trigger.after.collect{|a| a.to_s.upcase }.join(", ") %>
 <%
   end
+  if trigger.instead_of && !trigger.instead_of.empty?
+%>  INSTEAD OF <%= trigger.instead_of.collect{|a| a.to_s.upcase }.join(", ") %>
+<%
+  end
 %>AS
   DECLARE @RowsAffected INT
   SET @RowsAffected = @@ROWCOUNT
@@ -149,7 +153,7 @@ BEGIN
   )
 <% data_module.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
 <%
-   constraints = object_type.sql.foreign_keys + object_type.sql.constraints + object_type.sql.function_constraints
+   constraints = object_type.sql.constraints + object_type.sql.function_constraints
    constraints.select{|constraint| constraint.invariant?}.each do |constraint| %>
   BEGIN TRY
     -- Consider using DBCC CHECKCONSTRAINTS here instead?

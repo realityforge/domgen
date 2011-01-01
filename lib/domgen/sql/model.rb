@@ -195,6 +195,7 @@ module Domgen
       attr_accessor :common_table_expression
       attr_accessor :guard
       attr_accessor :after
+      attr_accessor :instead_of
 
       def initialize(parent, name, options = {}, &block)
         @name = name
@@ -208,23 +209,21 @@ module Domgen
       attr_reader :name
       attr_accessor :sql
       attr_reader :after
+      attr_reader :instead_of
 
       def initialize(parent, name, options = {}, &block)
         @name = name
         @after = [:insert, :update]
+        @instead_of = []
         super(parent, options, &block)
       end
 
       def after=(after)
-        if after.nil?
-          after = []
-        elsif !after.is_a?(Array)
-          after = [after]
-        end
-        after.each do |a|
-          raise "Unknown after specififier #{a}" unless VALID_AFTER.include?(a)
-        end
-        @after = after
+        @after = scope("after", after)
+      end
+
+      def instead_of=(instead_of)
+        @instead_of = scope("instead_of", instead_of)
       end
 
       def trigger_name
@@ -234,6 +233,20 @@ module Domgen
 
       def qualified_trigger_name
         "#{parent.parent.data_module.sql.schema}.#{trigger_name}"
+      end
+
+      private
+
+      def scope(label, scope)
+        if scope.nil?
+          scope = []
+        elsif !scope.is_a?(Array)
+          scope = [scope]
+        end
+        scope.each do |a|
+          raise "Unknown #{label} specififier #{a}" unless VALID_AFTER.include?(a)
+        end
+        scope
       end
     end
 
