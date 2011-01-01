@@ -31,5 +31,9 @@ require 'domgen/jpa/generator'
 # ActiveRecord
 require 'domgen/active_record/generator'
 
+# Rake Tasks
 require 'domgen/rake_tasks'
+
+# Rake Task for generating XMI
+require 'domgen/xmi_generator'
 
