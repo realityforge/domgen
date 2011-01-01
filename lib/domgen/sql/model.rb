@@ -191,7 +191,7 @@ module Domgen
 
     class Validation < SqlElement
       attr_reader :name
-      attr_accessor :sql
+      attr_accessor :negative_sql
       attr_accessor :common_table_expression
       attr_accessor :guard
       attr_accessor :after
@@ -477,7 +477,7 @@ SQL
           validation_name = "Immuter"
           unless validation_by_name(validation_name)
             guard = immutable_attributes.collect { |a| "UPDATE(#{a.sql.column_name})" }.join(" OR ")
-            validation(validation_name, :sql => <<SQL, :after => :update, :guard => guard)
+            validation(validation_name, :negative_sql => <<SQL, :after => :update, :guard => guard)
 SELECT I.#{pk.sql.column_name}
 FROM inserted I, deleted D
 WHERE
@@ -513,7 +513,7 @@ SQL
               (0..(names.size - 2)).each do |index|
                 sql << " OR\n (#{names[index] }.ID IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index| "#{names[index]}.ID IS NOT NULL" }.join(' OR ') }))"
               end
-              validation(validation_name, :sql => sql, :guard => guard) unless validation_by_name(validation_name)
+              validation(validation_name, :negative_sql => sql, :guard => guard) unless validation_by_name(validation_name)
             end
           end
         end
