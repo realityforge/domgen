@@ -198,13 +198,12 @@ module Domgen
 
       def initialize(parent, name, options = {}, &block)
         @name = name
-        @after = :both
         super(parent, options, &block)
       end
     end
 
     class Trigger < SqlElement
-      VALID_AFTER = [:insert, :update, :both, nil]
+      VALID_AFTER = [:insert, :update, :delete]
 
       attr_reader :name
       attr_accessor :sql
@@ -212,12 +211,19 @@ module Domgen
 
       def initialize(parent, name, options = {}, &block)
         @name = name
-        @after = :both
+        @after = [:insert, :update]
         super(parent, options, &block)
       end
 
       def after=(after)
-        raise "Unknown after specififier #{after}" unless VALID_AFTER.include?(after)
+        if after.nil?
+          after = []
+        elsif !after.is_a?(Array)
+          after = [after]
+        end
+        after.each do |a|
+          raise "Unknown after specififier #{a}" unless VALID_AFTER.include?(a)
+        end
         @after = after
       end
 
@@ -520,7 +526,8 @@ SQL
 
         self.validations.each do |validation|
           trigger_name = "#{validation.name}Validation"
-          trigger(trigger_name, :sql => <<SQL, :after => validation.after) unless trigger_by_name(trigger_name)
+          next if trigger_by_name(trigger_name)
+          trigger = trigger(trigger_name, :sql => <<SQL)
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
   DECLARE @ViolationCount INT;
 #{validation.common_table_expression} SELECT @ViolationCount = 1 WHERE EXISTS (#{validation.negative_sql})
@@ -530,7 +537,8 @@ SQL
 done:
 #{validation.guard.nil? ? '' : "END" }
 SQL
-          copy_tags(validation, trigger_by_name(trigger_name))
+          trigger.after = validation.after if validation.after
+          copy_tags(validation, trigger)
         end
 
         parent.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|

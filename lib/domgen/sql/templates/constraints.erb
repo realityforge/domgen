@@ -98,8 +98,12 @@ IF  EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'<%= trigger
   DROP TRIGGER <%= trigger.qualified_trigger_name %>
 GO
 CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qualified_table_name %>
-<% if trigger.after == :both %>AFTER INSERT, UPDATE<% elsif trigger.after == :insert %>AFTER INSERT<% elsif trigger.after == :update %>AFTER UPDATE<% end %>
-AS
+<%
+  if trigger.after && !trigger.after.empty?
+%>  AFTER <%= trigger.after.collect{|a| a.to_s.upcase }.join(", ") %>
+<%
+  end
+%>AS
   DECLARE @RowsAffected INT
   SET @RowsAffected = @@ROWCOUNT
   --no need to continue on if no rows affected
