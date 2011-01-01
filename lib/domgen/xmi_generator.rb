@@ -55,6 +55,8 @@ module Domgen
     end
 
     def self.generate_xmi(repository_key, model_name, filename)
+      repository = Domgen.repository_by_name(repository_key)
+
       output_file = Java.java.io.File.new(filename).get_absolute_path
 
       Resource::Factory::Registry::INSTANCE.getExtensionToFactoryMap().
@@ -62,6 +64,7 @@ module Domgen
 
       model = Java.org.eclipse.uml2.uml.UMLFactory.eINSTANCE.createModel()
       model.set_name(model_name.to_s)
+      #model.createOwnedComment().setBody(description(repository)) if description(repository)
 
       output_uri = Java.org.eclipse.emf.common.util.URI.createFileURI(output_file)
       puts "Creating XMI for repository #{repository_key} at #{output_file}"
@@ -83,8 +86,6 @@ module Domgen
       # A map from fully qualified class names to EMF classes
       name_class_map = {}
 
-      repository = Domgen.repository_by_name(repository_key)
-
       # Phase 1: Package, primitive type, and enumeration type discovery.
       # Primitive types will be added to the top-level model but enumeration types
       # will be added to the package they belong to.
@@ -92,6 +93,7 @@ module Domgen
       # Only persistent and attributes will be processed.
       repository.data_modules.each do |data_module|
         package = model.create_nested_package(data_module.name.to_s)
+        package.createOwnedComment().setBody(description(data_module)) if description(data_module)
         packages[data_module.name] = package
 
         data_module.object_types.each do |object_type|
@@ -118,18 +120,23 @@ module Domgen
         data_module.object_types.each do |object_type|
           package = packages[data_module.name]
           clazz = package.create_owned_class(object_type.name, false)
+          clazz.createOwnedComment().setBody(description(object_type)) if description(object_type)
           name_class_map[object_type.qualified_name] ||= clazz
 
           # Creating EMF attributes corresponding to persistent, non-enum attributes
-          object_type.attributes.select { |attr| attr.persistent? && !attr.enum? }.each do |attr|
-            prim_type = primitive_types[attr.attribute_type.to_s]
-            clazz.create_owned_attribute(attr.name.to_s, prim_type, 0, 1)
+          object_type.attributes.select { |attr| attr.persistent? && !attr.enum? }.each do |attribute|
+            attribute_type =
+              attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
+            prim_type = primitive_types[attribute_type.to_s]
+            emf_attr = clazz.create_owned_attribute(attribute.name.to_s, prim_type, 0, 1)
+            emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
 
           # Creating EMF attributes corresponding to persistent enum attributes
-          object_type.attributes.select { |attr| attr.persistent? && attr.enum? && !attr.reference? }.each do |attr|
-            enum_type = enumerations[create_enum_key(data_module, object_type, attr)]
-            clazz.create_owned_attribute(attr.name.to_s, enum_type, 0, 1)
+          object_type.attributes.select { |attr| attr.persistent? && attr.enum? && !attr.reference? }.each do |attribute|
+            enum_type = enumerations[create_enum_key(data_module, object_type, attribute)]
+            emf_attr = clazz.create_owned_attribute(attribute.name.to_s, enum_type, 0, 1)
+            emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
         end
       end
@@ -142,17 +149,18 @@ module Domgen
             end1 = name_class_map[attribute.object_type.qualified_name]
             end2 = name_class_map[attribute.referenced_object.qualified_name]
             name = attribute.name == attribute.referenced_object.name ? "" : attribute.name.to_s
-            end1.create_association(true,
-                                    AggregationKind::NONE_LITERAL,
-                                    name,
-                                    attribute.nullable? ? 0 : 1,
-                                    1,
-                                    end2,
-                                    attribute.inverse_relationship_type == :none ? false : true,
-                                    AggregationKind::NONE_LITERAL,
-                                    "",
-                                    0,
-                                    attribute.inverse_relationship_type == :has_many ? LiteralUnlimitedNatural::UNLIMITED : 1)
+            emf_association = end1.create_association(true,
+                                                      AggregationKind::NONE_LITERAL,
+                                                      name,
+                                                      attribute.nullable? ? 0 : 1,
+                                                      1,
+                                                      end2,
+                                                      attribute.inverse_relationship_type == :none ? false : true,
+                                                      AggregationKind::NONE_LITERAL,
+                                                      "",
+                                                      0,
+                                                      attribute.inverse_relationship_type == :has_many ? LiteralUnlimitedNatural::UNLIMITED : 1)
+            emf_association.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
         end
       end
@@ -162,6 +170,10 @@ module Domgen
     end
 
     private
+
+    def self.description(element)
+      element.tags[:Description]
+    end
 
     def self.create_enum_key(schema, object_type, attr)
       "#{schema.name}.#{object_type.name}.#{attr.name}"
