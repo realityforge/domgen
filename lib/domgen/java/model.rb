@@ -88,8 +88,15 @@ module Domgen
       attr_writer :package
 
       def package
-        @package = parent.name unless @package
-        @package
+        @package || "#{parent.repository.java.package}.#{parent.name}"
+      end
+    end
+
+    class JavaModule < JavaElement
+      attr_writer :package
+
+      def package
+        @package || parent.name
       end
     end
   end
@@ -111,6 +118,13 @@ module Domgen
   class DataModule
     def java
       @java = Domgen::Java::JavaPackage.new(self) unless @java
+      @java
+    end
+  end
+
+  class Repository
+    def java
+      @java = Domgen::Java::JavaModule.new(self) unless @java
       @java
     end
   end
