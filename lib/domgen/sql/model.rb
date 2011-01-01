@@ -409,7 +409,7 @@ SQL
 
         parent.declared_attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
-          validation(validation_name, :sql => <<SQL) unless validation_by_name(validation_name)
+          validation(validation_name, :negative_sql => <<SQL) unless validation_by_name(validation_name)
 SELECT I.ID
 FROM
 inserted I
@@ -524,7 +524,7 @@ SQL
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
   DECLARE @ViolationCount INT;
 #{validation.common_table_expression}  SELECT @ViolationCount = COUNT(*)
-  FROM (SELECT TOP 1 * FROM (#{validation.sql}) v ) t1
+  FROM (SELECT TOP 1 * FROM (#{validation.negative_sql}) v ) t1
   IF (@@ERROR = 0 AND @ViolationCount = 0) GOTO done
   ROLLBACK
   RAISERROR ('Failed to pass validation check #{validation.name}', 16, 1) WITH SETERROR
