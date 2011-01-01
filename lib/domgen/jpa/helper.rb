@@ -7,7 +7,7 @@ module Domgen
           s << "  @javax.persistence.Transient\n"
         else
           s << "  @javax.persistence.Id\n" if attribute.primary_key?
-          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.generated_value?
+          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
           if attribute.reference?
             if attribute.inverse_relationship_type == :has_one
               s << "  @javax.persistence.OneToOne( optional = #{attribute.nullable?} )\n"

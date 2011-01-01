@@ -644,8 +644,7 @@ SQL
       attr_writer :identity
 
       def identity?
-        @identity = parent.generated_value? unless @identity
-        @identity
+        @identity.nil? ? parent.generated_value? && parent.primary_key?  : @identity
       end
 
       attr_writer :sparse
