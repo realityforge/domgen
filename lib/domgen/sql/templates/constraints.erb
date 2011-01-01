@@ -58,8 +58,9 @@ RETURNS BIT
 AS
 BEGIN
   DECLARE @Result BIT;
+  SET @Result = 0;
   <%= constraint.common_table_expression %>
-  SELECT @Result = CONVERT(BIT,(SELECT COUNT(*) FROM (<%= constraint.positive_sql %>) F))
+  SELECT @Result = 1 WHERE EXISTS (<%= constraint.positive_sql %>)
   RETURN @Result
 END
 GO
