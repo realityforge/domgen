@@ -114,7 +114,8 @@ module Domgen
             attribute_type =
               attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
             prim_type = primitive_types[attribute_type.to_s]
-            emf_attr = clazz.create_owned_attribute(attribute.name.to_s, prim_type, 0, 1)
+            name = attribute.reference? ? attribute.referencing_link_name : attribute.name.to_s
+            emf_attr = clazz.create_owned_attribute(name, prim_type, 0, 1)
             emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
 
