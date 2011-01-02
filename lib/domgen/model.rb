@@ -187,13 +187,6 @@ module Domgen
       @validate
     end
 
-    attr_writer :unique
-
-    def unique?
-      @unique = false if @unique.nil?
-      @unique
-    end
-
     attr_writer :set_once
 
     def set_once?
