@@ -2,6 +2,7 @@ module Domgen
   module Generator
     module Jpa
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
+      JAVA_CLASSNAME = '#{object_type.java.classname}'
       JAVA_CLASS_PREFIX = 'java/#{object_type.java.fully_qualified_name.gsub(".","/")}'
       JAVA_PACKAGE_PREFIX = 'java/#{data_module.java.package.gsub(".","/")}'
     end
@@ -14,7 +15,11 @@ module Domgen
     end
 
     def self.define_jpa_ejb_templates
-      [Template.new(:object_type, "#{Jpa::TEMPLATE_DIRECTORY}/ejb.erb", "#{Jpa::JAVA_CLASS_PREFIX}EJB.java"),]
+      [
+        Template.new(:object_type,
+                     "#{Jpa::TEMPLATE_DIRECTORY}/ejb.erb",
+                     'java/#{object_type.data_module.java.package.gsub(".","/")}/ejb/#{object_type.java.classname}EJB.java')
+      ]
     end
 
     def self.define_jpa_dao_templates
