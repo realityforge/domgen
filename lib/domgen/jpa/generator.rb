@@ -2,15 +2,12 @@ module Domgen
   module Generator
     module Jpa
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      JAVA_CLASSNAME = '#{object_type.java.classname}'
-      JAVA_CLASS_PREFIX = 'java/#{object_type.java.fully_qualified_name.gsub(".","/")}'
-      JAVA_PACKAGE_PREFIX = 'java/#{data_module.java.package.gsub(".","/")}'
     end
 
     def self.define_jpa_model_templates
       [Template.new(:object_type,
                     "#{Jpa::TEMPLATE_DIRECTORY}/model.erb",
-                    "#{Jpa::JAVA_CLASS_PREFIX}.java",
+                    'java/#{object_type.java.fully_qualified_name.gsub(".","/")}.java',
                     [Domgen::Jpa::Helper])]
     end
 
@@ -24,8 +21,12 @@ module Domgen
 
     def self.define_jpa_dao_templates
       [
-        Template.new(:object_type, "#{Jpa::TEMPLATE_DIRECTORY}/dao.erb", "#{Jpa::JAVA_CLASS_PREFIX}DAO.java"),
-        Template.new(:data_module, "#{Jpa::TEMPLATE_DIRECTORY}/entity_manager.erb", "#{Jpa::JAVA_PACKAGE_PREFIX}/SchemaEntityManager.java"),
+        Template.new(:object_type,
+                     "#{Jpa::TEMPLATE_DIRECTORY}/dao.erb",
+                     'java/#{object_type.data_module.java.package.gsub(".","/")}/dao/#{object_type.java.classname}DAO.java'),
+        Template.new(:data_module,
+                     "#{Jpa::TEMPLATE_DIRECTORY}/entity_manager.erb",
+                     'java/#{data_module.java.package.gsub(".","/")}/dao/SchemaEntityManager.java'),
       ]
     end
 
