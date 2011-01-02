@@ -19,7 +19,7 @@ else %>
 @javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.TABLE_PER_CLASS)<%
 end
 %>
-public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java.classname%>
+public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java.classname %>
 <%= object_type.extends ?
   "    extends #{object_type.data_module.object_type_by_name(object_type.extends).java.classname}\n" :
   "" %>    implements java.io.Serializable
