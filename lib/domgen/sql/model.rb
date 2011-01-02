@@ -629,7 +629,12 @@ SQL
 
       def sql_type
         unless @sql_type
-          if :reference == parent.attribute_type
+          if @calculation
+            @sql_type = "AS #{@calculation}"
+            if persistent_calculation?
+              @sql_type += " PERSISTED"
+            end
+          elsif :reference == parent.attribute_type
             @sql_type = parent.referenced_object.primary_key.sql.sql_type
           elsif parent.attribute_type.to_s == 'text'
             @sql_type = "VARCHAR(MAX)"
@@ -652,6 +657,18 @@ SQL
       def sparse?
         @sparse = false unless @sparse
         @sparse
+      end
+
+      # The calculation to create column
+      attr_accessor :calculation
+
+      def persistent_calculation=(persistent_calculation)
+        raise "Non calculated column can not be persistent" unless @calculation
+        @persistent_calculation = persistent_calculation
+      end
+
+      def persistent_calculation?
+        @persistent_calculation.nil? ? false : @persistent_calculation
       end
 
       attr_accessor :default_value
