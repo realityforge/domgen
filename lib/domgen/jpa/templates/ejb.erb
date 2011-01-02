@@ -23,6 +23,12 @@ public class <%= object_type.java.classname %>EJB
   }
 <% end %>
 
+  /** Remove the given  <%= object_type.java.classname %> from the persistence context, causing a managed entity to become detached. */
+  public void detach( final <%= object_type.java.classname %> entity )
+  {
+    em.detach( entity );
+  }
+
   /** Merge the state of the given <%= object_type.java.classname %> into the current persistence context. */
   public <%= object_type.java.classname %> merge( final <%= object_type.java.classname %> entity )
   {

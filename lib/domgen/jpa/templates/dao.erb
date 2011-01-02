@@ -19,6 +19,12 @@ public final class <%= object_type.java.classname %>DAO
   }
 <% end %>
 
+  /** Remove the given  <%= object_type.java.classname %> from the persistence context, causing a managed entity to become detached. */
+  public static void detach( final <%= object_type.java.classname %> entity )
+  {
+    SchemaEntityManager.get().detach( entity );
+  }
+
   /** Merge the state of the given <%= object_type.java.classname %> into the current persistence context. */
   public static <%= object_type.java.classname %> merge( final <%= object_type.java.classname %> entity )
   {
