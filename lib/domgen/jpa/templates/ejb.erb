@@ -20,4 +20,28 @@ public class <%= object_type.java.classname %>EJB
     return query.<%= query.singular? ? 'getSingleResult' : 'getResultList' %>();
   }
 <% end %>
+
+  /** Merge the state of the given <%= object_type.java.classname %> into the current persistence context. */
+  public <%= object_type.java.classname %> merge( final <%= object_type.java.classname %> entity )
+  {
+    return em.merge( entity );
+  }
+
+  /** Make an <%= object_type.java.classname %> instance managed and persistent. */
+  public void persist( final <%= object_type.java.classname %> entity )
+  {
+    em.persist( entity );
+  }
+
+  /** Refresh the state of the <%= object_type.java.classname %> instance from the database, overwriting changes made to the entity, if any. */
+  public void refresh( final <%= object_type.java.classname %> entity )
+  {
+    em.refresh( entity );
+  }
+
+  /** Remove the <%= object_type.java.classname %> instance. */
+  public void remove( final <%= object_type.java.classname %> entity )
+  {
+    em.remove( entity );
+  }
 }
