@@ -14,11 +14,11 @@ module Domgen
             else # attribute.inverse_multiplicity == :many
               s << "  @javax.persistence.ManyToOne( optional = #{attribute.nullable?} )\n"
             end
-            s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
+            s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{!attribute.updatable?} )\n"
           else
             s << "  @javax.persistence.Column( name = \"#{attribute.sql.column_name}\""
             s << ", length = #{attribute.length}" if attribute.has_non_max_length?
-            s << ", nullable = #{attribute.nullable?}, updatable = #{!attribute.immutable?} )\n"
+            s << ", nullable = #{attribute.nullable?}, updatable = #{!attribute.updatable?} )\n"
           end
         end
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
@@ -54,6 +54,24 @@ module Domgen
         end
       end
 
+      def j_constructors(object_type)
+        immutable_attributes = object_type.attributes.select{|a| a.immutable? && !a.generated_value? }
+        return '' if immutable_attributes.empty?
+        java = <<JAVA
+  protected #{object_type.java.classname}()
+  {
+  }
+
+  @SuppressWarnings( { "ConstantConditions" } )
+  public #{object_type.java.classname}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.java.java_type, false)} #{a.java.field_name}"}.join(", ")})
+  {
+#{immutable_attributes.select{|a|!a.nullable? && !a.java.primitive?}.collect{|a| "    if( null == #{a.java.field_name} )\n    {\n      throw new NullPointerException( \"#{a.java.field_name} is not nullable\" );\n    }"}.join("\n")}
+#{immutable_attributes.collect{|a| "    this.#{a.java.field_name} = #{a.java.field_name};"}.join("\n")}
+  }
+JAVA
+        java
+      end
+
       def j_declared_attribute_accessors(object_type)
         object_type.declared_attributes.select{|attribute| attribute.jpa.persistent? }.collect do |attribute|
           if attribute.abstract?
@@ -87,7 +105,7 @@ module Domgen
      return #{name};
   }
 JAVA
-            if !attribute.immutable?
+            if attribute.updatable?
               java << <<JAVA
   public void set#{name}( final #{type} value )
   {
@@ -150,7 +168,7 @@ JAVA
      return #{name};
   }
 JAVA
-        if !attribute.immutable?
+        if attribute.updatable?
           java << <<JAVA
   public void set#{name}( final #{type} value )
   {
@@ -196,7 +214,7 @@ JAVA
      return #{name};
   }
 JAVA
-        if !attribute.immutable?
+        if attribute.updatable?
           java << <<JAVA
   public void set#{name}( final #{type} value )
   {

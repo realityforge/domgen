@@ -43,6 +43,7 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
   select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse_traversable? }.
   each do |attribute| %><%= j_declared_relation(attribute) %>
 <% end %>
+<%= j_constructors(object_type) %>
 <%= j_declared_attribute_and_relation_accessors(object_type) %>
 <%= j_equals_method(object_type) %>
 <%= j_to_string_methods(object_type) %>}

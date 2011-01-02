@@ -279,6 +279,10 @@ module Domgen
       @immutable.nil? ? primary_key? : @immutable
     end
 
+    def updatable?
+      !immutable? && !generated_value?
+    end
+
     attr_writer :persistent
 
     def persistent?
