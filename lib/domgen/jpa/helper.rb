@@ -86,12 +86,15 @@ module Domgen
   {
      return #{name};
   }
-
+JAVA
+            if !attribute.immutable?
+              java << <<JAVA
   public void set#{name}( final #{type} value )
   {
      #{name} = value;
   }
 JAVA
+            end
             java
           end
         end
@@ -141,19 +144,22 @@ JAVA
         name = attribute.java.field_name
         type = nullable_annotate(attribute, attribute.java.java_type, false)
         java = description_javadoc_for attribute
-        java<< <<JAVA
+        java << <<JAVA
   public #{type} #{getter_for(attribute)}
   {
      return #{name};
   }
-
+JAVA
+        if !attribute.immutable?
+          java << <<JAVA
   public void set#{name}( final #{type} value )
   {
 #{j_return_if_value_same(name, attribute.java.primitive?, attribute.nullable?)}
         #{name} = value;
   }
 JAVA
-      java
+        end
+        java
       end
 
       def j_add_to_inverse(attribute)
@@ -189,7 +195,9 @@ JAVA
   {
      return #{name};
   }
-
+JAVA
+        if !attribute.immutable?
+          java << <<JAVA
   public void set#{name}( final #{type} value )
   {
  #{j_return_if_value_same(name, attribute.referenced_object.primary_key.java.primitive?, attribute.nullable?)}
@@ -198,6 +206,8 @@ JAVA
  #{j_add_to_inverse(attribute)}
   }
 JAVA
+        end
+        java
       end
 
       def j_abstract_attribute(attribute)
