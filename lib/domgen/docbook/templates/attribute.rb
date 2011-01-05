@@ -1,17 +1,12 @@
 module Domgen::Docbook
   module Templates
   module Attribute
-    def self.generate_xml(root)
-      #doc =
-      #root.to_xml(doc)
-      #doc.target!
+    def generate
+      @doc = Builder::XmlMarkup.new(:indent => 2)
+      visit_data_module(@data_module)
     end
 
     attr_reader :doc
-
-    def initialize()
-      @doc = Builder::XmlMarkup.new(:indent => 2)
-    end
 
     def visit_data_module(dm)
       doc.tag!("data-module", :name => dm.name) do

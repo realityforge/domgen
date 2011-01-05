@@ -1,6 +1,6 @@
 module Domgen
   module Docbook
-    class Helper
+    module Helper
       def to_tag_name(name)
         name.to_s.gsub(/_/, '-').gsub(/\?/, '')
       end

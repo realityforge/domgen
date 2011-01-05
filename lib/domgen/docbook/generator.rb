@@ -1,7 +1,7 @@
 module Domgen
   module Generator
     def self.define_docbook_templates
-      [InlineTemplate.new(:data_module, 'Domgen::Docbook.generate_xml(data_module)', '#{data_module.name}.doc.xml')]
+      [XmlTemplate.new(:data_module, Domgen::Docbook::Templates::Attribute, '#{data_module.name}.doc.xml', [Domgen::Docbook::Helper])]
     end
   end
 end

@@ -30,14 +30,13 @@ module Domgen
       end
     end
 
-    class InlineTemplate < Template
-      def initialize(scope, render_method, output_filename_pattern, helpers = [], guard = nil)
-        super(scope, "inline", output_filename_pattern, helpers, guard)
-        @render_method = render_method
+    class XmlTemplate < Template
+      def initialize(scope, render_class, output_filename_pattern, helpers = [], guard = nil)
+        super(scope, render_class.name, output_filename_pattern, helpers + [render_class], guard)
       end
 
       def render_to_string(context_binding)
-        eval(@render_method, context_binding)
+        context_binding.eval('generate')
       end
     end
   end
