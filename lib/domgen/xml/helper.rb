@@ -5,9 +5,12 @@ module Domgen::Xml
     end
 
     def tag_each(target, name)
-      doc.tag!(to_tag_name(name)) do
-        target.send(name).each do |item|
-          yield item
+      values = target.send(name)
+      unless values.nil? || values.empty?
+        doc.tag!(to_tag_name(name)) do
+          values.each do |item|
+            yield item
+          end
         end
       end
     end

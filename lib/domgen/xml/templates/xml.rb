@@ -11,13 +11,58 @@ module Domgen::Xml
     def visit_data_module(dm)
       doc.tag!("data-module", :name => dm.name) do
         dm.object_types.each do |object_type|
-          doc.tag!("object-type", :name => object_type.name) do
-            tag_each(object_type, :attributes) do |attribute|
-              visit_attribute(attribute)
+          visit_object_type(object_type)
+        end
+      end
+    end
+
+    def visit_object_type(object_type)
+      doc.tag!("object-type", :name => object_type.name) do
+        tag_each(object_type, :attributes) do |attribute|
+          visit_attribute(attribute)
+        end
+
+        %w(unique codependent incompatible).each do |constraint_type|
+          tag_each(object_type, "#{constraint_type}_constraints".to_sym) do |constraint|
+            doc.tag!("#{constraint_type}-constraint") do
+              constraint.attribute_names.each do |name|
+                attribute_ref(object_type, name)
+              end
             end
-            add_tags(object_type)
           end
         end
+
+        tag_each(object_type, :dependency_constraints) do |constraint|
+          doc.tag!("dependency-constraint") do
+            attribute_ref(object_type, constraint.attribute_name)
+            doc.tag!("dependent-attributes") do
+              constraint.dependent_attribute_names.each do |name|
+                attribute_ref(object_type, name)
+              end
+            end
+          end
+        end
+
+        tag_each(object_type, :cycle_constraints) do |constraint|
+          doc.tag!("cycle-constraint") do
+            attribute_ref(object_type, constraint.attribute_name)
+            puts "#{object_type.name}.#{constraint.attribute_name}, #{constraint.attribute_name_path.inspect}"
+            doc.tag!("path") do
+              #initial_object_type = object_type.attribute_by_name(constraint.attribute_name).referenced_object
+              constraint.attribute_name_path.reduce object_type do |path_object_type, attribute_name|
+                attribute_ref(path_object_type, attribute_name)
+                path_object_type.attribute_by_name(attribute_name).referenced_object
+              end
+            end
+            doc.tag!("scoping-attribute") do
+              attribute_ref(object_type, constraint.scoping_attribute)
+            end
+          end
+        end
+
+        visit_table(object_type.sql)
+
+        add_tags(object_type)
       end
     end
 
@@ -30,8 +75,8 @@ module Domgen::Xml
 
         unless attribute.values.nil?
           doc.values do
-            attribute.values.each do |value|
-              doc.value { doc.text! value }
+            attribute.values.each_pair do |name, value|
+              doc.value(:code => name, :value => value)
             end
           end
         end
@@ -46,6 +91,71 @@ module Domgen::Xml
                         "inverse-relationship" => attribute.inverse_relationship_name.to_s)
         end
 
+        if attribute.persistent?
+          doc.persistent(collect_attributes(attribute.sql, %w(column_name sql_type identity? sparse?
+                                                              calculation)))
+        end
+
+      end
+    end
+
+    def visit_table(table)
+      table_attributes = %w(table_name qualified_table_name)
+      doc.table(collect_attributes(table, table_attributes)) do
+        constraint_attributes = %w(name constraint_name qualified_constraint_name invariant?)
+        tag_each(table, :constraints) do |constraint|
+          doc.tag!("sql-constraint", collect_attributes(constraint, constraint_attributes))
+        end
+
+        tag_each(table, :function_constraints) do |constraint|
+          doc.tag!("function-constraint",
+                   collect_attributes(constraint, constraint_attributes)) do
+            tag_each(constraint, :parameters) do |parameter|
+              doc.parameter(:name => parameter)
+            end
+          end
+        end
+
+        tag_each(table, :validations) do |validation|
+          doc.validation(:name => validation.name)
+        end
+
+        tag_each(table, :triggers) do |trigger|
+          doc.trigger(collect_attributes(trigger, %w(name qualified_trigger_name))) do
+            tag_each(trigger, :after) do |after|
+              doc.after(:condition => after)
+            end
+            tag_each(trigger, :instead_of) do |instead_of|
+              doc.tag!("instead-of", :condition => instead_of)
+            end
+          end
+        end
+
+        index_attributes = %w(filter name cluster? unique?)
+        tag_each(table, :indexes) do |index|
+          doc.index(collect_attributes(index, index_attributes)) do
+            tag_each(index, :attribute_names) do |attribute|
+              doc.column(:name => attribute)
+            end
+
+            tag_each(index, :include_attribute_names) do |attribute|
+              doc.column(:name => attribute)
+            end
+          end
+        end
+
+        key_attributes = %w(name referenced_object_type_name on_update on_delete
+                            invariant? constraint_name)
+        tag_each(table, :foreign_keys) do |key|
+          doc.tag!("foreign-key", {:table => table.table_name}, collect_attributes(key, key_attributes)) do
+            doc.tag!("referencing-columns") do
+              key.attribute_names.zip(key.referenced_attribute_names) do |attribute, referenced|
+                doc.column(:from => attribute, :to => referenced)
+              end
+            end
+          end
+        end
+        
       end
     end
 
@@ -57,6 +167,10 @@ module Domgen::Xml
           end
         end
       end
+    end
+
+    def attribute_ref(object_type, name)
+      doc.attribute(:class => object_type.qualified_name, :attribute => name)
     end
 
   end
