@@ -1,6 +1,6 @@
 module Domgen::Xml
   module Templates
-  module Attribute
+  module Xml
     def generate
       @doc = Builder::XmlMarkup.new(:indent => 2)
       visit_data_module(@data_module)

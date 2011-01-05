@@ -33,7 +33,7 @@ require 'domgen/active_record/generator'
 
 # Docbook
 require 'domgen/xml/generator'
-require 'domgen/xml/templates/attribute'
+require 'domgen/xml/templates/xml'
 require 'domgen/xml/helper'
 
 # Rake Tasks
