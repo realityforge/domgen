@@ -31,6 +31,12 @@ require 'domgen/jpa/generator'
 # ActiveRecord
 require 'domgen/active_record/generator'
 
+# Docbook
+require 'domgen/docbook/generator'
+require 'domgen/docbook/templates/attribute'
+require 'domgen/docbook/helper'
+require 'domgen/docbook/model'
+
 # Rake Tasks
 require 'domgen/rake_tasks'
 

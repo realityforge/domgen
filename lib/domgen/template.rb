@@ -29,5 +29,16 @@ module Domgen
         @template
       end
     end
+
+    class InlineTemplate < Template
+      def initialize(scope, render_method, output_filename_pattern, helpers = [], guard = nil)
+        super(scope, "inline", output_filename_pattern, helpers, guard)
+        @render_method = render_method
+      end
+
+      def render_to_string(context_binding)
+        eval(@render_method, context_binding)
+      end
+    end
   end
 end
