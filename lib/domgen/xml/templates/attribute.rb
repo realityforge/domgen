@@ -1,4 +1,4 @@
-module Domgen::Docbook
+module Domgen::Xml
   module Templates
   module Attribute
     def generate
