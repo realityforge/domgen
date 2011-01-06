@@ -17,7 +17,7 @@ module Domgen::Xml
     end
 
     def visit_object_type(object_type)
-      doc.tag!("object-type", :name => object_type.name) do
+      doc.tag!("object-type", collect_attributes(object_type, %w(name qualified_name))) do
         tag_each(object_type, :attributes) do |attribute|
           visit_attribute(attribute)
         end
@@ -46,9 +46,7 @@ module Domgen::Xml
         tag_each(object_type, :cycle_constraints) do |constraint|
           doc.tag!("cycle-constraint") do
             attribute_ref(object_type, constraint.attribute_name)
-            puts "#{object_type.name}.#{constraint.attribute_name}, #{constraint.attribute_name_path.inspect}"
             doc.tag!("path") do
-              #initial_object_type = object_type.attribute_by_name(constraint.attribute_name).referenced_object
               constraint.attribute_name_path.reduce object_type do |path_object_type, attribute_name|
                 attribute_ref(path_object_type, attribute_name)
                 path_object_type.attribute_by_name(attribute_name).referenced_object
@@ -69,8 +67,9 @@ module Domgen::Xml
     def visit_attribute(attribute)
       attribute_names = %w(abstract? override? reference? validate? set_once? generated_value?
                            enum? primary_key? allow_blank? unique? nullable? immutable? persistent?
-                           updatable? allow_blank? qualified_name length min_length)
-      doc.attribute(collect_attributes(attribute, attribute_names)) do
+                           updatable? allow_blank? qualified_name length min_length name)
+      doc.attribute({"object-type" => attribute.object_type.qualified_name},
+                    collect_attributes(attribute, attribute_names)) do
         add_tags(attribute)
 
         unless attribute.values.nil?
