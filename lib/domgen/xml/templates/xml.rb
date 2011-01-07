@@ -13,6 +13,7 @@ module Domgen::Xml
         dm.object_types.each do |object_type|
           visit_object_type(object_type)
         end
+        add_tags(dm)
       end
     end
 
@@ -162,7 +163,7 @@ module Domgen::Xml
       unless item.tags.empty?
         doc.tag!("tags") do
           item.tags.each_pair do |tag, value|
-            doc.tag!(tag) { doc.text! value }
+            doc.tag!(tag) { format_text(value) }
           end
         end
       end

@@ -10,8 +10,11 @@
   </xsl:template>
 
   <xsl:template match="object-type">
-    <table frame="all">
+    <section>
       <title><xsl:value-of select="@name"/></title>
+      <xsl:apply-templates select="tags"/>
+    <table frame="all">
+      <title>Attributes</title>
       <tgroup cols="8" align="left" colsep="1" rowsep="1">
         <colspec colname="attribute" colwidth="1.6in"/>
         <colspec colname="description"/>
@@ -38,12 +41,13 @@
         </tbody>
       </tgroup>
     </table>
+    </section>
   </xsl:template>
 
   <xsl:template match="attribute">
     <row>
       <entry><xsl:value-of select="@name"/></entry>
-      <entry><xsl:value-of select="tags/Description/text()"/></entry>
+      <entry><xsl:apply-templates select="tags"/></entry>
       <entry><xsl:value-of select="persistent/@sql-type"/></entry>
       <entry><xsl:value-of select="@generated"/></entry>
       <entry><xsl:value-of select="@immutable"/></entry>
@@ -51,5 +55,11 @@
       <entry><xsl:value-of select="@nullable"/></entry>
       <entry><xsl:value-of select="@unique"/></entry>
     </row>
+  </xsl:template>
+
+  <xsl:template match="tags">
+    <xsl:for-each select="Description/*">
+      <xsl:copy-of select="."/>
+    </xsl:for-each>
   </xsl:template>
 </xsl:stylesheet>
