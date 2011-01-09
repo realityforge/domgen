@@ -144,8 +144,7 @@ module Domgen::Xml
           end
         end
 
-        key_attributes = %w(name referenced_object_type_name on_update on_delete
-                            invariant? constraint_name)
+        key_attributes = %w(name referenced_object_type_name on_update on_delete constraint_name)
         tag_each(table, :foreign_keys) do |key|
           doc.tag!("foreign-key", {:table => table.table_name}, collect_attributes(key, key_attributes)) do
             doc.tag!("referencing-columns") do
