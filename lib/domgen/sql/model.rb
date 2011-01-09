@@ -470,7 +470,7 @@ SQL
             ot = object_path[index]
             name = "C#{index}"
             if index != 0
-              joins << "LEFT JOIN #{ot.sql.table_name} #{name} ON #{last_name}#{object_path[index - 1].attribute_by_name(attribute_name_path[index - 1]).sql.column_name} = #{name}.#{ot.primary_key.sql.column_name}"
+              joins << "LEFT JOIN #{ot.sql.qualified_table_name} #{name} ON #{last_name}#{object_path[index - 1].attribute_by_name(attribute_name_path[index - 1]).sql.column_name} = #{name}.#{ot.primary_key.sql.column_name}"
               last_name = "#{name}."
             end
             next_id = "#{last_name}#{ot.attribute_by_name(attribute_name).sql.column_name}"
@@ -486,7 +486,7 @@ SQL
 SELECT 1 AS Result
 FROM
   (SELECT '1' AS IgnoreMe) I
-LEFT JOIN #{target_object_type.sql.table_name} C0 ON C0.#{target_object_type.primary_key.sql.column_name} = @#{parent.attribute_by_name(c.attribute_name).sql.column_name}
+LEFT JOIN #{target_object_type.sql.qualified_table_name} C0 ON C0.#{target_object_type.primary_key.sql.column_name} = @#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 #{joins.join("\n")}
 WHERE @#{parent.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR #{comparison_id} = #{next_id}
 SQL
