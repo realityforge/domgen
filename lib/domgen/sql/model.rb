@@ -508,7 +508,7 @@ FROM inserted I, deleted D
 WHERE
   I.#{pk.sql.column_name} = D.#{pk.sql.column_name} AND
   (
-    #{immutable_attributes.collect {|a| "(I.#{a.sql.column_name} != D.#{a.sql.column_name})" }.join(" OR\n") }
+#{immutable_attributes.collect {|a| "    (I.#{a.sql.column_name} != D.#{a.sql.column_name})" }.join(" OR\n") }
   )
 SQL
          end
