@@ -31,14 +31,14 @@ module Domgen
         end
 
         def visit_object_type(object_type)
-          doc.tag!("object-type", collect_attributes(object_type, %w(  name qualified_name  ))) do
+          doc.tag!("object-type", collect_attributes(object_type, %w(name qualified_name))) do
             add_tags(object_type)
 
             tag_each(object_type, :attributes) do |attribute|
               visit_attribute(attribute)
             end
 
-            %w(  unique codependent incompatible  ).each do |constraint_type|
+            %w(unique codependent incompatible).each do |constraint_type|
               tag_each(object_type, "#{constraint_type}_constraints".to_sym) do |constraint|
                 doc.tag!("#{constraint_type}-constraint") do
                   constraint.attribute_names.each do |name|
@@ -79,9 +79,9 @@ module Domgen
         end
 
         def visit_attribute(attribute)
-          attribute_names = %w(  abstract? override? reference? validate? set_once? generated_value?
+          attribute_names = %w(abstract? override? reference? validate? set_once? generated_value?
                            enum? primary_key? allow_blank? unique? nullable? immutable? persistent?
-                           updatable? allow_blank? qualified_name length min_length name  )
+                           updatable? allow_blank? qualified_name length min_length name)
           doc.attribute({"object-type" => attribute.object_type.qualified_name},
                         collect_attributes(attribute, attribute_names)) do
             add_tags(attribute)
@@ -105,17 +105,16 @@ module Domgen
             end
 
             if attribute.persistent?
-              doc.persistent(collect_attributes(attribute.sql, %w(  column_name sql_type identity? sparse?
-                                                              calculation  )))
+              doc.persistent(collect_attributes(attribute.sql, %w(column_name sql_type identity? sparse? calculation)))
             end
 
           end
         end
 
         def visit_table(table)
-          table_attributes = %w(  table_name qualified_table_name  )
+          table_attributes = %w(table_name qualified_table_name)
           doc.table(collect_attributes(table, table_attributes)) do
-            constraint_attributes = %w(  name constraint_name qualified_constraint_name invariant?  )
+            constraint_attributes = %w(name constraint_name qualified_constraint_name invariant?)
             tag_each(table, :constraints) do |constraint|
               doc.tag!("sql-constraint", collect_attributes(constraint, constraint_attributes))
             end
@@ -134,7 +133,7 @@ module Domgen
             end
 
             tag_each(table, :triggers) do |trigger|
-              doc.trigger(collect_attributes(trigger, %w(  name qualified_trigger_name  ))) do
+              doc.trigger(collect_attributes(trigger, %w(name qualified_trigger_name))) do
                 tag_each(trigger, :after) do |after|
                   doc.after(:condition => after)
                 end
@@ -144,7 +143,7 @@ module Domgen
               end
             end
 
-            index_attributes = %w(  filter name cluster? unique?  )
+            index_attributes = %w(filter name cluster? unique?)
             tag_each(table, :indexes) do |index|
               doc.index(collect_attributes(index, index_attributes)) do
                 tag_each(index, :attribute_names) do |attribute|
@@ -157,7 +156,7 @@ module Domgen
               end
             end
 
-            key_attributes = %w(  name referenced_object_type_name on_update on_delete constraint_name  )
+            key_attributes = %w(name referenced_object_type_name on_update on_delete constraint_name)
             tag_each(table, :foreign_keys) do |key|
               doc.tag!("foreign-key", {:table => table.table_name}, collect_attributes(key, key_attributes)) do
                 doc.tag!("referencing-columns") do
