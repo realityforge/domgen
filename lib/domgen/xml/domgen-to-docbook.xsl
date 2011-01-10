@@ -73,7 +73,7 @@
   <xsl:template match="attribute">
     <row>
       <entry>
-        <xsl:value-of select="@name"/>
+        <xsl:value-of select="persistent/@column-name"/>
       </entry>
       <entry>
         <xsl:apply-templates select="tags"/>
