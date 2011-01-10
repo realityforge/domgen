@@ -633,7 +633,7 @@ SQL
           elsif :reference == parent.attribute_type
             @sql_type = parent.referenced_object.primary_key.sql.sql_type
           elsif parent.attribute_type.to_s == 'text'
-            @sql_type = "VARCHAR(MAX)"
+            @sql_type = "[VARCHAR](MAX)"
           else
             @sql_type = q(TYPE_MAP[parent.attribute_type.to_s]) + (parent.length.nil? ? '' : "(#{parent.length})")
           end
