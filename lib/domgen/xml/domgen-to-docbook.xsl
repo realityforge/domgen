@@ -45,21 +45,11 @@
               <entry>Attribute</entry>
               <entry>Description</entry>
               <entry>Sql Type</entry>
-              <entry>
-                <superscript>Generated</superscript>
-              </entry>
-              <entry>
-                <superscript>Immutable</superscript>
-              </entry>
-              <entry>
-                <superscript>Allow Blank</superscript>
-              </entry>
-              <entry>
-                <superscript>Nullable</superscript>
-              </entry>
-              <entry>
-                <superscript>Unique</superscript>
-              </entry>
+              <entry>Generated</entry>
+              <entry>Immutable</entry>
+              <entry>Allow Blank</entry>
+              <entry>Nullable</entry>
+              <entry>Unique</entry>
             </row>
           </thead>
           <tbody>
