@@ -3,22 +3,36 @@ module Domgen::Xml
   module Xml
     def generate
       @doc = Builder::XmlMarkup.new(:indent => 2)
-      visit_data_module(@data_module)
+
+      visit_repository(@repository)
     end
 
+    private
+    
     attr_reader :doc
 
-    def visit_data_module(dm)
-      doc.tag!("data-module", :name => dm.name) do
-        dm.object_types.each do |object_type|
+    def visit_repository(repository)
+      doc.tag!("repository", :name => repository.name) do
+        add_tags(repository)
+        repository.data_modules.each do |data_module|
+          visit_data_module(data_module)
+        end
+      end
+    end
+
+    def visit_data_module(data_module)
+      doc.tag!("data-module", :name => data_module.name) do
+        add_tags(data_module)
+        data_module.object_types.each do |object_type|
           visit_object_type(object_type)
         end
-        add_tags(dm)
       end
     end
 
     def visit_object_type(object_type)
       doc.tag!("object-type", collect_attributes(object_type, %w(name qualified_name))) do
+        add_tags(object_type)
+
         tag_each(object_type, :attributes) do |attribute|
           visit_attribute(attribute)
         end
@@ -60,8 +74,6 @@ module Domgen::Xml
         end
 
         visit_table(object_type.sql)
-
-        add_tags(object_type)
       end
     end
 
