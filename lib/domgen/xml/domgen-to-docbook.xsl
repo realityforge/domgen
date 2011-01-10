@@ -13,7 +13,6 @@
     </article>
   </xsl:template>
 
-
   <xsl:template match="data-module">
     <section>
       <title>
@@ -23,6 +22,15 @@
     </section>
   </xsl:template>
 
+  <xsl:template name="rotate-cell">
+    <xsl:processing-instruction name="dbfo">
+      <xsl:text>orientation="90"</xsl:text>
+    </xsl:processing-instruction>
+    <xsl:processing-instruction name="dbfo">
+      <xsl:text>rotated-width="1in"</xsl:text>
+    </xsl:processing-instruction>
+  </xsl:template>
+
   <xsl:template match="object-type">
     <section>
       <title>
@@ -30,8 +38,11 @@
       </title>
       <xsl:apply-templates select="tags"/>
       <table frame="all">
+        <xsl:processing-instruction name="dbfo">
+          <xsl:text>keep-together="always"</xsl:text>
+        </xsl:processing-instruction>
         <title>Attributes</title>
-        <tgroup cols="8" align="left" colsep="1" rowsep="1">
+        <tgroup cols="7" align="left" colsep="1" rowsep="1">
           <colspec colname="attribute" colwidth="1.6in"/>
           <colspec colname="description"/>
           <colspec colname="sql-type" colwidth="1.2in"/>
@@ -39,17 +50,25 @@
           <colspec colname="immutable" colwidth="0.4in"/>
           <colspec colname="blank" colwidth="0.4in"/>
           <colspec colname="nullable" colwidth="0.4in"/>
-          <colspec colname="unique" colwidth="0.4in"/>
           <thead>
             <row>
               <entry>Attribute</entry>
               <entry>Description</entry>
-              <entry>Sql Type</entry>
-              <entry>Generated</entry>
-              <entry>Immutable</entry>
-              <entry>Allow Blank</entry>
-              <entry>Nullable</entry>
-              <entry>Unique</entry>
+              <entry>
+                <xsl:call-template name="rotate-cell"/>Column Type
+              </entry>
+              <entry>
+                <xsl:call-template name="rotate-cell"/>Generated?
+              </entry>
+              <entry>
+                <xsl:call-template name="rotate-cell"/>Immutable?
+              </entry>
+              <entry>
+                <xsl:call-template name="rotate-cell"/>Allow Blank?
+              </entry>
+              <entry>
+                <xsl:call-template name="rotate-cell"/>Nullable?
+              </entry>
             </row>
           </thead>
           <tbody>
@@ -82,9 +101,6 @@
       </entry>
       <entry>
         <xsl:value-of select="@nullable"/>
-      </entry>
-      <entry>
-        <xsl:value-of select="@unique"/>
       </entry>
     </row>
   </xsl:template>
