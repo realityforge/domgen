@@ -41,6 +41,14 @@ public class <%= object_type.java.classname %>EJB
     em.persist( entity );
   }
 
+  /** Save a <%= object_type.java.classname %> instance, merging it into the persistent context if required. */
+  public <%= object_type.java.classname %> save( final <%= object_type.java.classname %> entity )
+  {
+    final <%= object_type.java.classname %> e = merge( entity );
+    em.persist( e );
+    return e;
+  }
+
   /** Refresh the state of the <%= object_type.java.classname %> instance from the database, overwriting changes made to the entity, if any. */
   public void refresh( final <%= object_type.java.classname %> entity )
   {
