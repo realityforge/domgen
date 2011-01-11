@@ -105,7 +105,9 @@ module Domgen
             end
 
             if attribute.persistent?
-              doc.persistent(collect_attributes(attribute.sql, %w(column_name sql_type identity? sparse? calculation)))
+              attributes = collect_attributes(attribute.sql, %w(column_name identity? sparse? calculation))
+              attributes['sql-type'] = attribute.sql.sql_type.gsub('[','').gsub(']','')
+              doc.persistent(attributes)
             end
 
           end
