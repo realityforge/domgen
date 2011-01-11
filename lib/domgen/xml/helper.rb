@@ -36,9 +36,9 @@ module Domgen
       end
 
       class Pushdown
-        ITEM = "listitem"
-        LIST = "itemizedlist"
-        PARA = "para"
+        ITEM = "li"
+        LIST = "ul"
+        PARA = "p"
 
         def initialize
           @levels = [[]]
