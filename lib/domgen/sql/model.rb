@@ -388,23 +388,23 @@ module Domgen
         parent.codependent_constraints.each do |c|
           constraint_name = "#{parent.name}_#{c.name}_CoDep"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ")} ) OR
-( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NULL" }.join(" AND ") } )
+( #{c.attribute_names.collect { |name| "#{q(parent.attribute_by_name(name).sql.column_name)} IS NOT NULL" }.join(" AND ")} ) OR
+( #{c.attribute_names.collect { |name| "#{q(parent.attribute_by_name(name).sql.column_name)} IS NULL" }.join(" AND ") } )
 SQL
           copy_tags(c, constraint_by_name(constraint_name))
         end
         parent.dependency_constraints.each do |c|
           constraint_name = "#{parent.name}_#{c.name}_Dep"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-#{parent.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR
-( #{c.dependent_attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS NOT NULL" }.join(" AND ") } )
+#{q(parent.attribute_by_name(c.attribute_name).sql.column_name)} IS NULL OR
+( #{c.dependent_attribute_names.collect { |name| "#{q(parent.attribute_by_name(name).sql.column_name)} IS NOT NULL" }.join(" AND ") } )
 SQL
           copy_tags(c, constraint_by_name(constraint_name))
         end
         parent.incompatible_constraints.each do |c|
           sql = (0..(c.attribute_names.size)).collect do |i|
             candidate = c.attribute_names[i]
-            str = c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.column_name} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
+            str = c.attribute_names.collect { |name| "#{q(parent.attribute_by_name(name).sql.column_name)} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
             "(#{str})"
           end.join(" OR ")
           constraint_name = "#{parent.name}_#{c.name}_Incompat"
@@ -416,19 +416,19 @@ SQL
           sorted_values = a.values.values.sort
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-#{a.sql.column_name} >= #{sorted_values[0]} AND
-#{a.sql.column_name} <= #{sorted_values[sorted_values.size - 1]}
+#{q(a.sql.column_name)} >= #{sorted_values[0]} AND
+#{q(a.sql.column_name)} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
         parent.declared_attributes.select { |a| a.attribute_type == :s_enum }.each do |a|
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-#{a.sql.column_name} IN (#{a.values.values.collect { |v| "'#{v}'" }.join(',')})
+#{q(a.sql.column_name)} IN (#{a.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
         parent.declared_attributes.select{ |a| (a.attribute_type == :s_enum || a.attribute_type == :string) && a.persistent? && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
-          sql = "LEN( #{a.sql.column_name} ) > 0"
+          sql = "LEN( #{q(a.sql.column_name)} ) > 0"
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
         end
 
@@ -440,10 +440,10 @@ FROM
 inserted I
 JOIN deleted D ON D.ID = I.ID
 WHERE
-  D.#{a.sql.column_name} IS NOT NULL AND
+  D.#{q(a.sql.column_name)} IS NOT NULL AND
   (
-    I.#{a.sql.column_name} IS NULL OR
-    D.#{a.sql.column_name} != I.#{a.sql.column_name}
+    I.#{q(a.sql.column_name)} IS NULL OR
+    D.#{q(a.sql.column_name)} != I.#{q(a.sql.column_name)}
   )
 SQL
         end
@@ -486,7 +486,7 @@ SQL
 SELECT 1 AS Result
 FROM
   (SELECT '1' AS IgnoreMe) I
-LEFT JOIN #{target_object_type.sql.qualified_table_name} C0 ON C0.#{target_object_type.primary_key.sql.column_name} = @#{parent.attribute_by_name(c.attribute_name).sql.column_name}
+LEFT JOIN #{target_object_type.sql.qualified_table_name} C0 ON C0.#{q(target_object_type.primary_key.sql.column_name)} = @#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 #{joins.join("\n")}
 WHERE @#{parent.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR #{comparison_id} = #{next_id}
 SQL
@@ -506,9 +506,9 @@ SQL
 SELECT I.#{pk.sql.column_name}
 FROM inserted I, deleted D
 WHERE
-  I.#{pk.sql.column_name} = D.#{pk.sql.column_name} AND
+  I.#{q(pk.sql.column_name)} = D.#{q(pk.sql.column_name)} AND
   (
-#{immutable_attributes.collect {|a| "    (I.#{a.sql.column_name} != D.#{a.sql.column_name})" }.join(" OR\n") }
+#{immutable_attributes.collect {|a| "    (I.#{q(a.sql.column_name)} != D.#{q(a.sql.column_name)})" }.join(" OR\n") }
   )
 SQL
          end
