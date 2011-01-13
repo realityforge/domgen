@@ -56,6 +56,7 @@ module Domgen
       puts "Creating XMI for repository #{repository_key} at #{output_file}"
       resource = Java.org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.new.create_resource(output_uri)
       resource.get_contents().add(model)
+      resource.setID( model, model_name.to_s )
 
       # As we process the schema set, we put all the packages that we discover inside this array
       # This is a map between package names and EMF package classes
@@ -79,6 +80,7 @@ module Domgen
       # Only persistent and attributes will be processed.
       repository.data_modules.each do |data_module|
         package = model.create_nested_package(data_module.name.to_s)
+        resource.setID( package, data_module.name.to_s )
         package.createOwnedComment().setBody(description(data_module)) if description(data_module)
         packages[data_module.name] = package
 
@@ -88,13 +90,19 @@ module Domgen
               enum_key = create_enum_key(data_module, object_type, attribute)
               enum_name = create_enum_name(object_type, attribute)
               enum = package.create_owned_enumeration(enum_name)
+              resource.setID( enum, "#{attribute.qualified_name}Enum" )
               attribute.values.each do |enum_literal, enum_index|
-                enum.create_owned_literal(enum_literal)
+                literal = enum.create_owned_literal(enum_literal)
+                resource.setID( literal, "#{attribute.qualified_name}Enum.#{enum_literal}" );
               end
               enumerations[enum_key] ||= enum
             elsif !attribute.reference?
-              attr_type = attribute.attribute_type
-              primitive_types[attr_type.to_s] ||= model.create_owned_primitive_type(attr_type.to_s)
+              pn = primitive_name(attribute.attribute_type)
+              if !primitive_types[pn]
+                primitive_type = model.create_owned_primitive_type(pn)
+                resource.setID(primitive_type, pn)
+                primitive_types[pn] = primitive_type
+              end
             end
           end
         end
@@ -106,6 +114,7 @@ module Domgen
         data_module.object_types.each do |object_type|
           package = packages[data_module.name]
           clazz = package.create_owned_class(object_type.name, false)
+          resource.setID( clazz, object_type.qualified_name.to_s )
           clazz.createOwnedComment().setBody(description(object_type)) if description(object_type)
           name_class_map[object_type.qualified_name] ||= clazz
 
@@ -113,9 +122,10 @@ module Domgen
           object_type.attributes.select { |attr| attr.persistent? && !attr.enum? }.each do |attribute|
             attribute_type =
               attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
-            prim_type = primitive_types[attribute_type.to_s]
+            prim_type = primitive_types[primitive_name(attribute_type)]
             name = attribute.reference? ? attribute.referencing_link_name : attribute.name.to_s
             emf_attr = clazz.create_owned_attribute(name, prim_type, 0, 1)
+            resource.setID( emf_attr, attribute.qualified_name.to_s )
             emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
 
@@ -123,6 +133,7 @@ module Domgen
           object_type.attributes.select { |attr| attr.persistent? && attr.enum? && !attr.reference? }.each do |attribute|
             enum_type = enumerations[create_enum_key(data_module, object_type, attribute)]
             emf_attr = clazz.create_owned_attribute(attribute.name.to_s, enum_type, 0, 1)
+            resource.setID(emf_attr, attribute.qualified_name.to_s)
             emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
         end
@@ -147,6 +158,7 @@ module Domgen
                                                       "",
                                                       0,
                                                       attribute.inverse_multiplicity == :many ? LiteralUnlimitedNatural::UNLIMITED : 1)
+            resource.setID(emf_association, attribute.qualified_name.to_s + ".Assoc")
             emf_association.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
         end
@@ -176,6 +188,12 @@ module Domgen
 
     def self.description(element)
       element.tags[:Description]
+    end
+
+    def self.primitive_name(attribute_type)
+      return "string" if attribute_type == :text
+      return "int" if attribute_type == :integer
+      return attribute_type.to_s
     end
 
     def self.create_enum_key(schema, object_type, attr)
