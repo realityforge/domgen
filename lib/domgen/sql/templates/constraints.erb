@@ -31,7 +31,7 @@ GO
 <% constraint.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value.strip %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
   @level2type = N'CONSTRAINT',  @level2name = <%= q(constraint.constraint_name) %>;
@@ -67,7 +67,7 @@ GO
 <% constraint.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value.strip %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'FUNCTION',  @level1name = [<%= s(object_type.name) %>_<%= s(constraint.name) %>];
 GO
@@ -81,7 +81,7 @@ ALTER TABLE <%= object_type.sql.qualified_table_name %> NOCHECK CONSTRAINT [<%= 
 <% constraint.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value.strip %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
   @level2type = N'CONSTRAINT',  @level2name = <%= q(constraint.constraint_name) %>;
@@ -121,7 +121,7 @@ GO
 <% trigger.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value.strip %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
   @level2type = N'TRIGGER',  @level2name = <%= q(trigger.trigger_name) %>;

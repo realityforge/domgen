@@ -44,3 +44,7 @@ end
 def sql_extended_property_key(name)
   (name.to_s == 'Description') ? 'MS_Description' : name
 end
+
+def sql_extended_property_value(value)
+  value.to_s.gsub("'","''").strip
+end

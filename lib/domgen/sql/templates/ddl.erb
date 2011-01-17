@@ -8,7 +8,7 @@ GO
 <% data_module.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value.strip %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>
 GO
 <% end %>
@@ -46,7 +46,7 @@ GO
 <% object_type.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value.strip %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>;
 GO
@@ -55,7 +55,7 @@ GO
 <% a.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value.strip %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
   @level2type = N'COLUMN', @level2name = <%= q(a.sql.column_name) %>;
@@ -79,7 +79,7 @@ GO
 <% index.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= value.strip %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
   @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
   @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
   @level2type = N'INDEX',  @level2name = <%= q(index.name) %>;
