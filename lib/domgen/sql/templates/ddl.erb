@@ -66,7 +66,7 @@ GO
 EXEC sp_tableoption '<%= object_type.sql.qualified_table_name %>', 'large value types out of row', <%= object_type.sql.force_overflow_for_large_objects ? '1' : '0' %>
 <% end %>
 <% object_type.attributes.select {|a| a.persistent? && !a.sql.default_value.nil?}.each do |a| %>
-ALTER TABLE <%= object_type.sql.qualified_table_name %> ADD DEFAULT (<%= quote_value(a.sql.default_value) %>) FOR <%= q(a.sql.column_name) %>
+ALTER TABLE <%= object_type.sql.qualified_table_name %> ADD CONSTRAINT [DF_<%= object_type.name %>_<%= a.name %>] DEFAULT (<%= a.sql.default_value %>) FOR <%= q(a.sql.column_name) %>
 GO
 <% end %>
 <% object_type.sql.indexes.each do |index| %>
