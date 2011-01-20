@@ -244,6 +244,17 @@ module Domgen
       end
     end
 
+    class Action < SequencedSqlElement
+      attr_accessor :sql
+      attr_accessor :guard
+      attr_accessor :priority
+
+      def initialize(parent, name, options = {}, &block)
+        @priority = 1
+        super(parent, name, options, &block)
+      end
+    end
+
     class Trigger < SequencedSqlElement
       attr_accessor :sql
 
@@ -276,6 +287,7 @@ module Domgen
         @constraints = Domgen::OrderedHash.new
         @function_constraints = Domgen::OrderedHash.new
         @validations = Domgen::OrderedHash.new
+        @actions = Domgen::OrderedHash.new
         @triggers = Domgen::OrderedHash.new
         @foreign_keys = Domgen::OrderedHash.new
         super(parent, options, &block)
@@ -336,6 +348,22 @@ module Domgen
         validation = Validation.new(self, name, options, &block)
         @validations[name.to_s] = validation
         validation
+      end
+
+      def actions
+        @actions.values
+      end
+
+      def action_by_name(name)
+        @actions[name.to_s]
+      end
+
+      def action(name, options = {}, &block)
+        existing = action_by_name(name)
+        error("Action named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
+        action = Action.new(self, name, options, &block)
+        @actions[name.to_s] = action
+        action
       end
 
       def triggers
@@ -566,7 +594,8 @@ SQL
           desc = "Trigger after #{after} on #{parent.name}\n\n"
           sql = ""
           validations = self.validations.select {|v| v.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
-          if !validations.empty?
+          actions = self.actions.select {|a| a.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
+          if !validations.empty? || !actions.empty?
             trigger_name = "#{parent.name}After#{after.to_s.capitalize}"
             trigger(trigger_name) do |trigger|
 
@@ -574,6 +603,7 @@ SQL
                 desc += "Enforce following validations:\n"
                 validations.each do |validation|
                   sql += <<SQL
+
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
 #{validation.common_table_expression} SELECT 1 WHERE EXISTS (#{validation.negative_sql})
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
@@ -587,6 +617,14 @@ SQL
                   desc += "* #{validation.name}#{validation.tags[:Description] ? ": " : ""}#{validation.tags[:Description]}\n"
                 end
                 desc += "\n"
+              end
+
+              if !actions.empty?
+                desc += "Performing the following actions:\n"
+                actions.each do |action|
+                  sql += "\n#{action.sql};\n"
+                  desc += "* #{action.name}#{action.tags[:Description] ? ": " : ""}#{action.tags[:Description]}\n"
+                end
               end
 
               trigger.description(desc)
