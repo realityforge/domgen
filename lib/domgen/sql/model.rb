@@ -467,7 +467,7 @@ SQL
 
         parent.declared_attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
-          validation(validation_name, :negative_sql => <<SQL) unless validation_by_name(validation_name)
+          validation(validation_name, :negative_sql => <<SQL, :after => :update) unless validation_by_name(validation_name)
 SELECT I.ID
 FROM
 inserted I
