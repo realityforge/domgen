@@ -583,9 +583,7 @@ SQL
               trigger.description("Ensure that #{parent.name} is read only.")
               trigger.after = []
               trigger.instead_of = [:insert, :update, :delete]
-              trigger.sql = <<SQL
-RAISERROR ('#{parent.name} is read only', 16, 1) WITH SETERROR
-SQL
+              trigger.sql = parent.parent.repository.sql.emit_error("#{parent.name} is read only")
             end
           end
         end
@@ -609,7 +607,7 @@ SQL
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
     ROLLBACK
-    RAISERROR ('Failed to pass validation check #{validation.name}', 16, 1) WITH SETERROR
+    #{parent.parent.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
     RETURN
   END
 #{validation.guard.nil? ? '' : "END" }
@@ -729,6 +727,23 @@ SQL
 
       attr_accessor :default_value
     end
+
+    class Database < SqlElement
+      def initialize(parent, options = {}, &block)
+        @error_handler = Proc.new do |error_message|
+          "RAISERROR ('#{error_message}', 16, 1) WITH SETERROR"
+        end
+        super(parent, options, & block)
+      end
+
+      def define_error_handler(&block)
+        @error_handler = block
+      end
+
+      def emit_error(error_message)
+        @error_handler.call(error_message)
+      end
+    end
   end
 
   class Attribute
@@ -751,6 +766,13 @@ SQL
   class DataModule
     def sql
       @sql = Domgen::Sql::SqlSchema.new(self) unless @sql
+      @sql
+    end
+  end
+
+  class Repository
+    def sql
+      @sql = Domgen::Sql::Database.new(self) unless @sql
       @sql
     end
   end
