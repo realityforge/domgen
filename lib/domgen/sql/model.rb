@@ -195,33 +195,18 @@ module Domgen
       end
     end
 
-    class Validation < SqlElement
-      attr_reader :name
-      attr_accessor :negative_sql
-      attr_accessor :common_table_expression
-      attr_accessor :guard
-      attr_accessor :after
-      attr_accessor :instead_of
-
-      def initialize(parent, name, options = {}, &block)
-        @name = name
-        super(parent, options, &block)
-      end
-    end
-
-    class Trigger < SqlElement
+    class SequencedSqlElement < SqlElement
       VALID_AFTER = [:insert, :update, :delete]
 
       attr_reader :name
-      attr_accessor :sql
       attr_reader :after
       attr_reader :instead_of
 
-      def initialize(parent, name, options = {}, &block)
+      def initialize(parent, name, options = {}, & block)
         @name = name
         @after = [:insert, :update]
         @instead_of = []
-        super(parent, options, &block)
+        super(parent, options, & block)
       end
 
       def after=(after)
@@ -230,15 +215,6 @@ module Domgen
 
       def instead_of=(instead_of)
         @instead_of = scope("instead_of", instead_of)
-      end
-
-      def trigger_name
-        @trigger_name = sql_name(:trigger, "#{parent.parent.name}#{self.name}") unless @trigger_name
-        @trigger_name
-      end
-
-      def qualified_trigger_name
-        "#{parent.parent.data_module.sql.schema}.#{trigger_name}"
       end
 
       private
@@ -253,6 +229,35 @@ module Domgen
           raise "Unknown #{label} specififier #{a}" unless VALID_AFTER.include?(a)
         end
         scope
+      end
+    end
+
+    class Validation < SequencedSqlElement
+      attr_accessor :negative_sql
+      attr_accessor :common_table_expression
+      attr_accessor :guard
+      attr_accessor :priority
+
+      def initialize(parent, name, options = {}, &block)
+        @priority = 1
+        super(parent, name, options, &block)
+      end
+    end
+
+    class Trigger < SequencedSqlElement
+      attr_accessor :sql
+
+      def initialize(parent, name, options = {}, &block)
+        super(parent, name, options, &block)
+      end
+
+      def trigger_name
+        @trigger_name = sql_name(:trigger, "#{parent.parent.name}#{self.name}") unless @trigger_name
+        @trigger_name
+      end
+
+      def qualified_trigger_name
+        "#{parent.parent.data_module.sql.schema}.#{trigger_name}"
       end
     end
 
@@ -557,21 +562,38 @@ SQL
           end
         end
 
-        self.validations.each do |validation|
-          trigger_name = "#{validation.name}Validation"
-          next if trigger_by_name(trigger_name)
-          trigger = trigger(trigger_name, :sql => <<SQL)
+        Trigger::VALID_AFTER.each do |after|
+          desc = "Trigger after #{after} on #{parent.name}\n\n"
+          sql = ""
+          validations = self.validations.select {|v| v.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
+          if !validations.empty?
+            trigger_name = "#{parent.name}After#{after.to_s.capitalize}"
+            trigger(trigger_name) do |trigger|
+
+              if !validations.empty?
+                desc += "Enforce following validations:\n"
+                validations.each do |validation|
+                  sql += <<SQL
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
-  DECLARE @FailedValidation BIT;
-#{validation.common_table_expression} SELECT @FailedValidation = 1 WHERE EXISTS (#{validation.negative_sql})
-  IF (@@ERROR = 0 AND @FailedValidation = 0) GOTO done
-  ROLLBACK
-  RAISERROR ('Failed to pass validation check #{validation.name}', 16, 1) WITH SETERROR
-done:
+#{validation.common_table_expression} SELECT 1 WHERE EXISTS (#{validation.negative_sql})
+  IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
+  BEGIN
+    ROLLBACK
+    RAISERROR ('Failed to pass validation check #{validation.name}', 16, 1) WITH SETERROR
+    RETURN
+  END
 #{validation.guard.nil? ? '' : "END" }
 SQL
-          trigger.after = validation.after if validation.after
-          copy_tags(validation, trigger)
+                  desc += "* #{validation.name}#{validation.tags[:Description] ? ": " : ""}#{validation.tags[:Description]}\n"
+                end
+                desc += "\n"
+              end
+
+              trigger.description(desc)
+              trigger.sql = sql
+              trigger.after = after
+            end
+          end
         end
 
         parent.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
