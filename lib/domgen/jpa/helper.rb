@@ -55,7 +55,7 @@ module Domgen
       end
 
       def j_constructors(object_type)
-        immutable_attributes = object_type.attributes.select{|a| a.immutable? && !a.generated_value? }
+        immutable_attributes = object_type.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa.persistent? }
         return '' if immutable_attributes.empty?
         java = <<JAVA
   protected #{object_type.java.classname}()
