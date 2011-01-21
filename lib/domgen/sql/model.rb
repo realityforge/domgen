@@ -599,11 +599,12 @@ SQL
 
               if !validations.empty?
                 desc += "Enforce following validations:\n"
+                sql += "DECLARE @Ignored INT\n"
                 validations.each do |validation|
                   sql += <<SQL
 
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
-#{validation.common_table_expression} SELECT 1 WHERE EXISTS (#{validation.negative_sql})
+#{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
     ROLLBACK
