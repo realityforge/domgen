@@ -242,6 +242,13 @@ module Domgen
         @priority = 1
         super(parent, name, options, &block)
       end
+
+      attr_writer :invariant
+
+      # Return true if this validation should always be true, not just at trigger execution time.
+      def invariant?
+        @invariant.nil? ? false : @invariant
+      end
     end
 
     class Action < SequencedSqlElement

@@ -145,13 +145,14 @@ CREATE PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints
 AS
 BEGIN
   SET NOCOUNT ON;
+  DECLARE @Ignored INT
 
   DECLARE @FailedConstraintChecks TABLE
-(
+  (
     SchemaName VARCHAR(500),
     TableName VARCHAR(500),
     ConstraintName VARCHAR(500)
-  )
+  );
 <% data_module.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
 <%
    constraints = object_type.sql.constraints + object_type.sql.function_constraints
@@ -163,6 +164,16 @@ BEGIN
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName)
       VALUES ('<%= data_module.sql.schema %>','<%= object_type.sql.table_name %>','<%= constraint.constraint_name %>')
   END CATCH
+<%
+   end
+%>
+<% object_type.sql.validations.select{|validation| validation.invariant?}.each do |validation| %>
+  <%= validation.common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.negative_sql %>)
+  IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
+  BEGIN
+    INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName)
+      VALUES ('<%= data_module.sql.schema %>','<%= object_type.sql.table_name %>','V_<%= validation.validation_name %>')
+  END
 <%
    end
   end
