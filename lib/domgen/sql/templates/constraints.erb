@@ -157,8 +157,7 @@ BEGIN
    constraints = object_type.sql.constraints + object_type.sql.function_constraints
    constraints.select{|constraint| constraint.invariant?}.each do |constraint| %>
   BEGIN TRY
-    -- Consider using DBCC CHECKCONSTRAINTS here instead?
-    ALTER TABLE <%= object_type.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT [<%= constraint.constraint_name %>]
+    DBCC CHECKCONSTRAINTS('<%= object_type.data_module.sql.schema %>.<%= constraint.constraint_name %>') WITH ALL_ERRORMSGS, NO_INFOMSGS
   END TRY
   BEGIN CATCH
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName)
