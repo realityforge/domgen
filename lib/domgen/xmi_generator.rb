@@ -187,7 +187,13 @@ module Domgen
     end
 
     def self.description(element)
-      element.tags[:Description]
+      if element.tags[:Description]
+        doc = Builder::XmlMarkup.new(:indent => 2)
+        Pushdown.format_text(doc, element.tags[:Description])
+        doc.to_s
+      else
+        nil
+      end      
     end
 
     def self.primitive_name(attribute_type)

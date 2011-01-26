@@ -176,7 +176,7 @@ module Domgen
           unless item.tags.empty?
             doc.tag!("tags") do
               item.tags.each_pair do |tag, value|
-                doc.tag!(tag) { format_text(value) }
+                doc.tag!(tag) { Pushdown.format_text(doc, value) }
               end
             end
           end
