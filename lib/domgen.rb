@@ -11,9 +11,6 @@ require 'domgen/render_context'
 require 'domgen/generator'
 require 'domgen/helper'
 
-# Utils shared by multiple components
-require 'domgen/util/pushdown'
-
 # Java
 require 'domgen/java/model'
 

@@ -175,8 +175,14 @@ module Domgen
         def add_tags(item)
           unless item.tags.empty?
             doc.tag!("tags") do
-              item.tags.each_pair do |tag, value|
-                doc.tag!(tag) { Pushdown.format_text(doc, value) }
+              item.tags.each_pair do |key, value|
+                doc.tag!(key) do |v|
+                  if [:Description].include?(key)
+                    v << item.tag_as_html(key)
+                  else
+                    v << value
+                  end
+                end
               end
             end
           end
