@@ -178,7 +178,11 @@ module Domgen
               item.tags.each_pair do |key, value|
                 doc.tag!(key) do |v|
                   if [:Description].include?(key)
-                    v << item.tag_as_html(key)
+                    text = item.tag_as_html(key)
+                    ENTITY_EXPANDSION_MAP.each_pair do |k,v|
+                      text = text.gsub("&#{k};","&#{v};")
+                    end
+                    v << text
                   else
                     v << value
                   end
@@ -192,6 +196,10 @@ module Domgen
           doc.attribute(:class => object_type.qualified_name, :attribute => name)
         end
 
+        ENTITY_EXPANDSION_MAP =
+          {
+            "ldquo" => "#8220",
+          }
       end
     end
   end
