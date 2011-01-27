@@ -234,6 +234,7 @@ module Domgen
 
     class Validation < SequencedSqlElement
       attr_accessor :negative_sql
+      attr_accessor :invariant_negative_sql
       attr_accessor :common_table_expression
       attr_accessor :guard
       attr_accessor :priority
@@ -241,13 +242,6 @@ module Domgen
       def initialize(parent, name, options = {}, &block)
         @priority = 1
         super(parent, name, options, &block)
-      end
-
-      attr_writer :invariant
-
-      # Return true if this validation should always be true, not just at trigger execution time.
-      def invariant?
-        @invariant.nil? ? false : @invariant
       end
     end
 
@@ -609,7 +603,7 @@ SQL
                 sql += "DECLARE @Ignored INT\n"
                 validations.each do |validation|
                   sql += <<SQL
-
+;
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
 #{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
