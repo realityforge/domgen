@@ -142,9 +142,6 @@ IF EXISTS
 GO
 
 CREATE PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints
-(
-  @PrintConstraintsOnError BIT = 0
-)
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -154,7 +151,8 @@ BEGIN
   (
     SchemaName VARCHAR(500),
     TableName VARCHAR(500),
-    ConstraintName VARCHAR(500)
+    ConstraintName VARCHAR(500),
+    ViewSQL VARCHAR(MAX) NULL
   );
 <% data_module.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
 <%
@@ -164,9 +162,8 @@ BEGIN
     ALTER TABLE <%= object_type.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT [<%= constraint.constraint_name %>]
   END TRY
   BEGIN CATCH
-    INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName)
-      VALUES ('<%= data_module.sql.schema %>','<%= object_type.sql.table_name %>','<%= constraint.constraint_name %>')
-    IF @PrintConstraintsOnError = 1 DBCC CHECKCONSTRAINTS('<%= object_type.data_module.sql.schema %>.<%= constraint.constraint_name %>') WITH ALL_ERRORMSGS, NO_INFOMSGS
+    INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
+      VALUES ('<%= data_module.sql.schema %>','<%= object_type.sql.table_name %>','<%= constraint.constraint_name %>','DBCC CHECKCONSTRAINTS(''<%= object_type.data_module.sql.schema %>.<%= constraint.constraint_name %>'') WITH ALL_ERRORMSGS, NO_INFOMSGS')
   END CATCH
 <%
    end
@@ -175,8 +172,8 @@ BEGIN
   ;<%= validation.common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.invariant_negative_sql %>)
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
-    INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName)
-      VALUES ('<%= data_module.sql.schema %>','<%= object_type.sql.table_name %>','V_<%= validation.name %>')
+    INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
+      VALUES ('<%= data_module.sql.schema %>','<%= object_type.sql.table_name %>','V_<%= validation.name %>','<%= "#{validation.common_table_expression}#{validation.invariant_negative_sql}".gsub("'","''") %>')
   END
 <%
    end
