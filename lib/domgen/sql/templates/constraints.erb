@@ -142,6 +142,9 @@ IF EXISTS
 GO
 
 CREATE PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints
+(
+  @PrintConstraintsOnError BIT = 0
+)
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -163,7 +166,7 @@ BEGIN
   BEGIN CATCH
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName)
       VALUES ('<%= data_module.sql.schema %>','<%= object_type.sql.table_name %>','<%= constraint.constraint_name %>')
-    DBCC CHECKCONSTRAINTS('<%= object_type.data_module.sql.schema %>.<%= constraint.constraint_name %>') WITH ALL_ERRORMSGS, NO_INFOMSGS
+    IF @PrintConstraintsOnError = 1 DBCC CHECKCONSTRAINTS('<%= object_type.data_module.sql.schema %>.<%= constraint.constraint_name %>') WITH ALL_ERRORMSGS, NO_INFOMSGS
   END CATCH
 <%
    end
