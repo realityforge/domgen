@@ -93,6 +93,12 @@ module Domgen
         @table_name || parent.sql.table_name
       end
 
+      attr_writer :persistent
+
+      def persistent?
+        @persistent.nil? ? true : @persistent
+      end
+
       def queries
         @queries ||= []
       end

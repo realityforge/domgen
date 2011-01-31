@@ -7,7 +7,7 @@
 <% if repository.jpa.transaction_type == "JTA" %>    <jta-data-source><%= repository.jpa.data_source_name || "jdbc/#{repository.name}" %></jta-data-source><% end %>
     <%
     repository.data_modules.each do |data_module|
-     data_module.object_types.each do |object_type|
+     data_module.object_types.select{|object_type| object_type.jpa.persistent?}.each do |object_type|
 %>
     <class><%= object_type.java.fully_qualified_name %></class><% end %>
 <% end %>
