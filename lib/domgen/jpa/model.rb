@@ -84,6 +84,27 @@ module Domgen
         @persistent = (!parent.abstract? && parent.persistent?) if @persistent.nil?
         @persistent
       end
+
+      attr_writer :orphan_removal
+
+      def orphan_removal?
+        !!@orphan_removal
+      end
+
+      attr_reader :cascade
+
+      def cascade=(value)
+        value = value.is_a?(Array) ? value : [value]
+        invalid_cascades = value.select {|v| !self.class.cascade_types.include?(v)}
+        unless invalid_cascades.empty?
+          error("cascade_type must be one of #{cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
+        end
+        @cascade = value
+      end
+
+      def self.cascade_types
+        [:all, :persist, :merge, :remove, :refresh, :detach]
+      end
     end
 
     class JpaClass < JpaElement

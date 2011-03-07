@@ -42,7 +42,15 @@ module Domgen
         if attribute.inverse_multiplicity == :many
           type = attribute.object_type.java.fully_qualified_name
           s = ''
-          s << "  @javax.persistence.OneToMany( mappedBy = \"#{attribute.name}\" )\n"
+          parameters = ["mappedBy = \"#{attribute.name}\""]
+
+          cascade = attribute.jpa.cascade
+          unless cascade.nil? || cascade.empty?
+            parameters << "cascade = { #{cascade.map { |c| "javax.persistence.CascadeType.#{c.to_s.upcase}" }.join(", ")} }"
+          end
+
+          parameters << "orphanRemoval = true" if attribute.jpa.orphan_removal?
+          s << "  @javax.persistence.OneToMany( #{parameters.join(", ")} )\n"
           s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse_relationship_name)};\n"
           s
         else # attribute.inverse_multiplicity == :one
