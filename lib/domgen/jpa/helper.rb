@@ -9,7 +9,7 @@ module Domgen
           s << "  @javax.persistence.Id\n" if attribute.primary_key?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
           if attribute.reference?
-            if attribute.inverse_multiplicity == :one
+            if attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
               s << "  @javax.persistence.OneToOne( optional = #{attribute.nullable?} )\n"
             else # attribute.inverse_multiplicity == :many
               s << "  @javax.persistence.ManyToOne( optional = #{attribute.nullable?} )\n"
@@ -53,10 +53,11 @@ module Domgen
           s << "  @javax.persistence.OneToMany( #{parameters.join(", ")} )\n"
           s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse_relationship_name)};\n"
           s
-        else # attribute.inverse_multiplicity == :one
+        else # attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
           type = attribute.object_type.java.fully_qualified_name
           s = ''
-          s << "  @javax.persistence.OneToOne( mappedBy= \"#{attribute.java.field_name}\")\n"
+          optional = (attribute.inverse_multiplicity == :zero_or_one) ? '' : ', optional = true'
+          s << "  @javax.persistence.OneToOne( mappedBy= \"#{attribute.java.field_name}\"#{optional} )\n"
           s << "  private #{type} #{attribute.inverse_relationship_name};\n"
           s
         end
@@ -102,9 +103,9 @@ JAVA
             nil
           elsif attribute.inverse_multiplicity == :many
             j_has_many_attribute(attribute)
-          elsif attribute.inverse_multiplicity == :one
+          elsif attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
             name = attribute.inverse_relationship_name
-            type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name, false)
+            type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name, true)
 
             java = description_javadoc_for attribute
             java << <<JAVA
@@ -364,12 +365,14 @@ JAVA
         s
       end
 
-      def nullable_annotate(attribute, type, is_field_annotation)
+      def nullable_annotate(attribute, type, is_field_annotation, inverse_side = false)
         # Not sure why PrimaryKeys can not have annotation other than the fact that EclipseLink fails
         # to find ID if it is
         if attribute.java.primitive? || attribute.primary_key?
           return type
-        elsif !attribute.nullable? && !attribute.generated_value?
+        elsif !attribute.nullable? &&
+          !attribute.generated_value? &&
+          !(attribute.reference? && attribute.inverse_multiplicity == :zero_or_one && inverse_side)
           annotation = "@org.jetbrains.annotations.NotNull #{type}"
         else
           annotation = "@org.jetbrains.annotations.Nullable #{type}"

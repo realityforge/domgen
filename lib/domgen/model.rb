@@ -384,7 +384,7 @@ module Domgen
     end
 
     def self.inverse_multiplicity_types
-      [:one, :many]
+      [:one, :many, :zero_or_one]
     end
 
     def self.change_actions
