@@ -24,7 +24,7 @@ module Domgen
 
       def erb_instance
         unless @template
-          @template = ERB.new(IO.read(template_filename))
+          @template = ERB.new(IO.read(template_filename), nil, '-')
         end
         @template
       end
