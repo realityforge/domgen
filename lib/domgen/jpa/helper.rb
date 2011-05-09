@@ -103,13 +103,13 @@ JAVA
             nil
           elsif attribute.inverse_multiplicity == :many
             j_has_many_attribute(attribute)
-          elsif attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
+          else #attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
             name = attribute.inverse_relationship_name
-            type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name, true)
+            type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name, false, true)
 
             java = description_javadoc_for attribute
             java << <<JAVA
-  public #{type} #{getter_for(attribute)}
+  public #{type} #{getter_for(attribute, name)}
   {
      return #{name};
   }
@@ -259,7 +259,7 @@ JAVA
     safeGet#{plural_name}().add( value );
   }
 
-  protected final void remove#{name}( final #{type} value )
+  public final void remove#{name}( final #{type} value )
   {
     safeGet#{plural_name}().remove( value );
   }
@@ -412,8 +412,9 @@ JAVA
 JAVADOC
       end
 
-      def getter_for( attr )
-        (attr.attribute_type == :boolean ? "is#{attr.java.field_name}()" : "get#{attr.java.field_name}()")
+      def getter_for( attribute, field_name = nil )
+        field_name = attribute.java.field_name unless field_name
+        (attribute.attribute_type == :boolean ? "is#{field_name}()" : "get#{field_name}()")
       end
 
     end
