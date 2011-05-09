@@ -52,8 +52,8 @@ module Domgen
         unless @java_type
           if :reference == parent.attribute_type
             @java_type = parent.referenced_object.java.fully_qualified_name
-          elsif :i_enum == parent.attribute_type
-            @java_type = "#{field_name}Value"
+          elsif parent.enum?
+            return "#{field_name}Value"
           elsif primitive?
             @java_type = primitive_java_type
           else
@@ -66,7 +66,7 @@ module Domgen
       def non_primitive_java_type
         if :reference == parent.attribute_type
           return parent.referenced_object.java.fully_qualified_name
-        elsif :i_enum == parent.attribute_type
+        elsif parent.enum?
           return "#{field_name}Value"
         else
           return TYPE_MAP[parent.attribute_type.to_s] || parent.attribute_type.to_s
