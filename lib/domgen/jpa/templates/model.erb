@@ -27,7 +27,7 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
 <% object_type.jpa.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= query.local_name %> = "<%= query.fully_qualified_name %>";
 <%
   end
-  object_type.declared_attributes.select {|a| a.attribute_type == :i_enum || a.attribute_type == :s_enum }.each do |attribute|
+  object_type.declared_attributes.select {|a| a.enum? }.each do |attribute|
   raise "JPA requires i_enum #{attribute.name} be 0 based" if attribute.attribute_type == :i_enum && 0 != attribute.values.values.sort.first
 %>
   @SuppressWarnings( { "PublicInnerClass" } )
