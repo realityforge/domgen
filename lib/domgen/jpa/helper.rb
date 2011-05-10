@@ -75,7 +75,8 @@ module Domgen
   public #{object_type.java.classname}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.java.java_type, false)} #{a.java.field_name}"}.join(", ")})
   {
 #{immutable_attributes.select{|a|!a.nullable? && !a.java.primitive?}.collect{|a| "    if( null == #{a.java.field_name} )\n    {\n      throw new NullPointerException( \"#{a.java.field_name} is not nullable\" );\n    }"}.join("\n")}
-#{immutable_attributes.collect{|a| "    this.#{a.java.field_name} = #{a.java.field_name};"}.join("\n")}
+#{immutable_attributes.collect { |a| "    this.#{a.java.field_name} = #{a.java.field_name};" }.join("\n")}
+#{immutable_attributes.select{|a|a.reference?}.collect { |a| "    " + j_add_to_inverse(a) }.join("\n")}
   }
 JAVA
         java
