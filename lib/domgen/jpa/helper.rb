@@ -195,9 +195,9 @@ JAVA
         if !attribute.inverse_traversable?
           ''
         elsif attribute.inverse_multiplicity == :many
-          null_guard(attribute.nullable?, name) { "#{name}.add#{inverse_name}( this );" }
+          null_guard(attribute.nullable?, name) { "this.#{name}.add#{inverse_name}( this );" }
         else
-          null_guard(attribute.nullable?, name) { "#{name}.set#{inverse_name}( this );" }
+          null_guard(attribute.nullable?, name) { "this.#{name}.set#{inverse_name}( this );" }
         end
       end
 
