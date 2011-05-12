@@ -1,5 +1,15 @@
 def pluralize(string)
-  "#{string}s"
+   case last(string)
+    when 'y'
+      plural = "#{string.chop}ies" unless last(string.chop) =~ /[aeiou]/
+     when 'o' 
+       plural = "#{string}es" if last(string.chop) =~ /[aeiou]/
+     when 's'
+       plural = "#{string}es" if last(string, 2) == 'ss'
+     else
+      plural = "#{string}s"
+  end
+  plural
 end
 
 def underscore(camel_cased_word)
@@ -12,4 +22,11 @@ end
 
 def uppercase_constantize(word)
   underscore(word).upcase
+end
+
+private
+
+def last(s, limit = 1)
+  return s if limit > s.to_s.size
+  s.to_s[-limit, limit]
 end
