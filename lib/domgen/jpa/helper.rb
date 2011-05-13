@@ -14,11 +14,11 @@ module Domgen
             else # attribute.inverse_multiplicity == :many
               s << "  @javax.persistence.ManyToOne( optional = #{attribute.nullable?} )\n"
             end
-            s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{!attribute.updatable?} )\n"
+            s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{attribute.updatable?} )\n"
           else
             s << "  @javax.persistence.Column( name = \"#{attribute.sql.column_name}\""
             s << ", length = #{attribute.length}" if attribute.has_non_max_length?
-            s << ", nullable = #{attribute.nullable?}, updatable = #{!attribute.updatable?} )\n"
+            s << ", nullable = #{attribute.nullable?}, updatable = #{attribute.updatable?} )\n"
           end
         end
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
