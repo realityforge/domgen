@@ -49,8 +49,14 @@ module Domgen
             parameters << "cascade = { #{cascade.map { |c| "javax.persistence.CascadeType.#{c.to_s.upcase}" }.join(", ")} }"
           end
 
+          parameters << "fetch = javax.persistence.FetchType.#{attribute.jpa.fetch_type.to_s.upcase}"
+
           parameters << "orphanRemoval = true" if attribute.jpa.orphan_removal?
           s << "  @javax.persistence.OneToMany( #{parameters.join(", ")} )\n"
+          fetch_mode = attribute.jpa.fetch_mode
+          if fetch_mode
+            s << "  @org.hibernate.annotations.Fetch( org.hibernate.annotations.FetchMode.#{fetch_mode.to_s.upcase} )\n"
+          end
           s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse_relationship_name)};\n"
           s
         else # attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one

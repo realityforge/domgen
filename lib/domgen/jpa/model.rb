@@ -91,9 +91,13 @@ module Domgen
         !!@orphan_removal
       end
 
-      attr_reader :cascade
+      def cascade
+        error("cascade on #{name} is invalid as attribute is not a reference") unless parent.reference?
+        @cascade || []
+      end
 
       def cascade=(value)
+        error("cascade on #{name} is invalid as attribute is not a reference") unless parent.reference?
         value = value.is_a?(Array) ? value : [value]
         invalid_cascades = value.select {|v| !self.class.cascade_types.include?(v)}
         unless invalid_cascades.empty?
@@ -104,6 +108,34 @@ module Domgen
 
       def self.cascade_types
         [:all, :persist, :merge, :remove, :refresh, :detach]
+      end
+
+      def fetch_type
+        error("fetch_type on #{name} is invalid as attribute is not a reference") unless parent.reference?
+        @fetch_type || :lazy
+      end
+
+      def fetch_type=(fetch_type)
+        error("fetch_type #{fetch_type} is not recorgnized") unless self.class.fetch_types.include?(fetch_type)
+        @fetch_type = fetch_type
+      end
+
+      def self.fetch_types
+        [:eager, :lazy]
+      end
+
+      def fetch_mode
+        error("fetch_mode on #{name} is invalid as attribute is not a reference") unless parent.reference?
+        @fetch_mode
+      end
+
+      def fetch_mode=(fetch_mode)
+        error("fetch_mode #{fetch_mode} is not recorgnized") unless self.class.fetch_modes.include?(fetch_mode)
+        @fetch_mode = fetch_mode
+      end
+
+      def self.fetch_modes
+        [:select, :join, :subselect]
       end
     end
 
