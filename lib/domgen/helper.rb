@@ -6,9 +6,8 @@ def pluralize(string)
        plural = "#{string}es" if last(string.chop) =~ /[aeiou]/
      when 's'
        plural = "#{string}es" if last(string, 2) == 'ss'
-     else
-      plural = "#{string}s"
   end
+  plural = "#{string}s" unless defined? plural
   plural
 end
 
