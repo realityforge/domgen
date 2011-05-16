@@ -1,13 +1,14 @@
 def pluralize(string)
-   case last(string)
+  plural = nil
+  case last(string)
     when 'y'
       plural = "#{string.chop}ies" unless last(string.chop) =~ /[aeiou]/
-     when 'o' 
-       plural = "#{string}es" if last(string.chop) =~ /[aeiou]/
-     when 's'
-       plural = "#{string}es" if last(string, 2) == 'ss'
+    when 'o'
+      plural = "#{string}es" if last(string.chop) =~ /[aeiou]/
+    when 's'
+      plural = "#{string}es" if last(string, 2) == 'ss'
   end
-  plural = "#{string}s" unless defined? plural
+  plural = "#{string}s" if plural.nil?
   plural
 end
 
