@@ -57,12 +57,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
   has_many :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
   has_count_of :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>
 <%
-    elsif attribute.inverse_multiplicity == :one
-%>
-  has_one :<%= underscore(attribute.inverse_relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
-  validates_presence_of :<%= underscore(attribute.inverse_relationship_name) %>
-<%
-    elsif attribute.inverse_multiplicity == :zero_or_one
+    elsif [:one, :zero_or_one].include? attribute.inverse_multiplicity
 %>
   has_one :<%= underscore(attribute.inverse_relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
 <%
