@@ -73,11 +73,12 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <% object_type.codependent_constraints.each do |c| %>
   validates_codependent <%= c.attribute_names.collect{|attribute_name|":#{object_type.attribute_by_name(attribute_name).sql.column_name}"}.join(', ') %>
 <% end %>
-
 <% object_type.dependency_constraints.each do |c| %>
   validates_dependent <%= ":#{object_type.attribute_by_name(c.attribute_name).sql.column_name}, [#{c.dependent_attribute_names.collect { |attribute_name| ":#{object_type.attribute_by_name(attribute_name).sql.column_name}" }.join(', ')}]" %>
 <% end %>
-
+<% object_type.incompatible_constraints.each do |c| %>
+  validates_incompatible <%= c.attribute_names.collect { |attribute_name| ":#{object_type.attribute_by_name(attribute_name).sql.column_name}" }.join(', ') %>
+<% end %>
 <% object_type.cycle_constraints.each do |c|
   target_attribute = object_type.attribute_by_name(c.attribute_name)
 %>
