@@ -18,7 +18,7 @@ module Domgen
         @classname
       end
 
-      def fully_qualified_name
+      def qualified_name
         "#{parent.data_module.java.package}.#{classname}"
       end
 
@@ -51,7 +51,7 @@ module Domgen
       def java_type
         unless @java_type
           if :reference == parent.attribute_type
-            @java_type = parent.referenced_object.java.fully_qualified_name
+            @java_type = parent.referenced_object.java.qualified_name
           elsif parent.enum?
             return "#{field_name}Value"
           elsif primitive?
@@ -65,7 +65,7 @@ module Domgen
 
       def non_primitive_java_type
         if :reference == parent.attribute_type
-          return parent.referenced_object.java.fully_qualified_name
+          return parent.referenced_object.java.qualified_name
         elsif parent.enum?
           return "#{field_name}Value"
         else

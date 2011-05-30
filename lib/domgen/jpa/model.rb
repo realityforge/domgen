@@ -33,8 +33,8 @@ module Domgen
         jpql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
       end
 
-      def fully_qualified_name
-        "#{parent.parent.name}.#{local_name}"
+      def qualified_name
+        "#{parent.parent.qualified_name}.#{local_name}"
       end
 
       def local_name

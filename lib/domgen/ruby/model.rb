@@ -30,12 +30,12 @@ module Domgen
         @classname
       end
 
-      def fully_qualified_name
+      def qualified_name
         "::#{parent.data_module.ruby.module_name}::#{classname}"
       end
 
       def filename
-        fqn = fully_qualified_name
+        fqn = qualified_name
         underscore(fqn[2..fqn.length])
       end
     end

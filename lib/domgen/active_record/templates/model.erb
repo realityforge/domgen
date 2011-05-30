@@ -45,8 +45,8 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
   validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => <%= a.nullable? %>, :allow_blank => <%= a.allow_blank? %>
 <%       end
          if a.reference?
-%>  belongs_to :<%= underscore(a.name) %>, :class_name => '<%= a.referenced_object.ruby.fully_qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
-  validates_reference_exists :<%= a.sql.column_name %>, <%= a.referenced_object.ruby.fully_qualified_name %>, :association_name => :<%= underscore(a.name) %>, :allow_nil => true
+%>  belongs_to :<%= underscore(a.name) %>, :class_name => '<%= a.referenced_object.ruby.qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
+  validates_reference_exists :<%= a.sql.column_name %>, <%= a.referenced_object.ruby.qualified_name %>, :association_name => :<%= underscore(a.name) %>, :allow_nil => true
 <%       end
        end
      end
@@ -54,12 +54,12 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <% object_type.referencing_attributes.each do |attribute|
     if attribute.inverse_multiplicity == :many
 %>
-  has_many :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_many :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
   has_count_of :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>
 <%
     elsif [:one, :zero_or_one].include? attribute.inverse_multiplicity
 %>
-  has_one :<%= underscore(attribute.inverse_relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.fully_qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_one :<%= underscore(attribute.inverse_relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
 <%
     end
   end
@@ -90,7 +90,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <% end %>
 <%= object_type.ruby.included_modules.collect {|m| "  include #{m}"}.join("\n") %>
   # Make it possible for the users to extend the model by defining an extension class
-  include <%= object_type.ruby.fully_qualified_name %>Extension rescue NameError
+  include <%= object_type.ruby.qualified_name %>Extension rescue NameError
 end
 
 end

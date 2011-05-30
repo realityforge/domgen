@@ -40,7 +40,7 @@ module Domgen
 
       def j_declared_relation(attribute)
         if attribute.inverse_multiplicity == :many
-          type = attribute.object_type.java.fully_qualified_name
+          type = attribute.object_type.java.qualified_name
           s = ''
           parameters = ["mappedBy = \"#{attribute.name}\""]
 
@@ -60,7 +60,7 @@ module Domgen
           s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse_relationship_name)};\n"
           s
         else # attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
-          type = attribute.object_type.java.fully_qualified_name
+          type = attribute.object_type.java.qualified_name
           s = ''
           optional = (attribute.inverse_multiplicity == :zero_or_one) ? '' : ', optional = true'
           s << "  @javax.persistence.OneToOne( mappedBy= \"#{attribute.java.field_name}\"#{optional} )\n"
@@ -112,7 +112,7 @@ JAVA
             j_has_many_attribute(attribute)
           else #attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
             name = attribute.inverse_relationship_name
-            type = nullable_annotate(attribute, attribute.object_type.java.fully_qualified_name, false, true)
+            type = nullable_annotate(attribute, attribute.object_type.java.qualified_name, false, true)
 
             java = description_javadoc_for attribute
             java << <<JAVA
@@ -253,7 +253,7 @@ JAVA
       def j_has_many_attribute(attribute)
         name = attribute.inverse_relationship_name
         plural_name = pluralize(name)
-        type = attribute.object_type.java.fully_qualified_name
+        type = attribute.object_type.java.qualified_name
         java = description_javadoc_for attribute
         java << <<STR
   public java.util.List<#{type}> get#{plural_name}()

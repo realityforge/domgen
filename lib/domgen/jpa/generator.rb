@@ -7,7 +7,7 @@ module Domgen
     def self.define_jpa_model_templates
       [Template.new(:object_type,
                     "#{Jpa::TEMPLATE_DIRECTORY}/model.erb",
-                    'java/#{object_type.java.fully_qualified_name.gsub(".","/")}.java',
+                    'java/#{object_type.java.qualified_name.gsub(".","/")}.java',
                     [Domgen::Jpa::Helper],
                     'object_type.jpa.persistent?')]
     end
