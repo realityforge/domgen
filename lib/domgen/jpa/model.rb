@@ -59,7 +59,7 @@ module Domgen
         if query_type == :full
           query = jpql
         elsif query_type == :selector
-          query = "SELECT O FROM #{parent.parent.name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
+          query = "SELECT O FROM #{parent.parent.qualified_name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
         else
           error("Unknown query type #{query_type}")
         end
