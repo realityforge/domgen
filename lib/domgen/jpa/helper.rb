@@ -10,9 +10,14 @@ module Domgen
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
           if attribute.reference?
             if attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
-              s << "  @javax.persistence.OneToOne( optional = #{attribute.nullable?} )\n"
+              parameters = ["optional = #{attribute.nullable?}"]
+              j_relation_parameters(attribute, parameters)
+              s << "  @javax.persistence.ManyToOne( #{parameters.join(", ")} )\n"
+              s << "  @javax.persistence.OneToOne( #{parameters.join(", ")} )\n"
             else # attribute.inverse_multiplicity == :many
-              s << "  @javax.persistence.ManyToOne( optional = #{attribute.nullable?} )\n"
+              parameters = ["optional = #{attribute.nullable?}"]
+              j_relation_parameters(attribute, parameters)
+              s << "  @javax.persistence.ManyToOne( #{parameters.join(", ")} )\n"
             end
             s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{attribute.updatable?} )\n"
           else
@@ -38,18 +43,22 @@ module Domgen
         s
       end
 
+      def j_relation_parameters(attribute, parameters)
+        cascade = attribute.jpa.cascade
+        unless cascade.nil? || cascade.empty?
+          parameters << "cascade = { #{cascade.map { |c| "javax.persistence.CascadeType.#{c.to_s.upcase}" }.join(", ")} }"
+        end
+
+        parameters << "fetch = javax.persistence.FetchType.#{attribute.jpa.fetch_type.to_s.upcase}"
+      end
+
       def j_declared_relation(attribute)
         if attribute.inverse_multiplicity == :many
           type = attribute.object_type.java.qualified_name
           s = ''
           parameters = ["mappedBy = \"#{attribute.name}\""]
 
-          cascade = attribute.jpa.cascade
-          unless cascade.nil? || cascade.empty?
-            parameters << "cascade = { #{cascade.map { |c| "javax.persistence.CascadeType.#{c.to_s.upcase}" }.join(", ")} }"
-          end
-
-          parameters << "fetch = javax.persistence.FetchType.#{attribute.jpa.fetch_type.to_s.upcase}"
+          j_relation_parameters(attribute, parameters)
 
           parameters << "orphanRemoval = true" if attribute.jpa.orphan_removal?
           s << "  @javax.persistence.OneToMany( #{parameters.join(", ")} )\n"
