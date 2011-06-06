@@ -305,7 +305,7 @@ STR
     {
       return true;
     }
-    else if ( o == null || getClass() != o.getClass() )
+    else if ( o == null || !#{object_type.java.classname}.class.isInstance( o ) )
     {
       return false;
     }
