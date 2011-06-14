@@ -16,7 +16,7 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 %>  <%= a.name %>_<%= ruby_name(k) %> = <%= v.inspect %>
   <%= a.name %>_<%= ruby_name(k) %>_Description = '<%= k %>'
 <%         end
-%>  <%= a.name %>Names = [<%= a.values.keys.collect{|k| "#{a.name}_#{ruby_name(k)}_Description"}.join(', ') %>]
+%>  <%= a.name %>Names = {<%= a.values.keys.collect{|k| "#{a.name}_#{ruby_name(k)} => #{a.name}_#{ruby_name(k)}_Description"}.join(', ') %>}
   <%= a.name %>Values = [<%= a.values.keys.collect{|k| "#{a.name}_#{ruby_name(k)}"}.join(', ') %>]
   validates_inclusion_of :<%= a.sql.column_name %>, :in => <%= a.name %>Values<% if a.nullable? %>, :allow_nil => true <% end %>
 <%
