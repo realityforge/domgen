@@ -43,8 +43,8 @@ module Domgen
         s
       end
 
-      def j_relation_parameters(attribute, parameters)
-        cascade = attribute.jpa.cascade
+      def j_relation_parameters(attribute, parameters, declaring_relationship=true)
+        cascade = declaring_relationship ? attribute.jpa.cascade : attribute.jpa.inverse_cascade
         unless cascade.nil? || cascade.empty?
           parameters << "cascade = { #{cascade.map { |c| "javax.persistence.CascadeType.#{c.to_s.upcase}" }.join(", ")} }"
         end
@@ -58,7 +58,7 @@ module Domgen
           s = ''
           parameters = ["mappedBy = \"#{attribute.name}\""]
 
-          j_relation_parameters(attribute, parameters)
+          j_relation_parameters(attribute, parameters, false)
 
           parameters << "orphanRemoval = true" if attribute.jpa.orphan_removal?
           s << "  @javax.persistence.OneToMany( #{parameters.join(", ")} )\n"

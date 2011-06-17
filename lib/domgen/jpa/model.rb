@@ -106,6 +106,21 @@ module Domgen
         @cascade = value
       end
 
+      def inverse_cascade
+        error("inverse_cascade on #{name} is invalid as attribute is not a reference") unless parent.reference?
+        @inverse_cascade || []
+      end
+
+      def inverse_cascade=(value)
+        error("inverse_cascade on #{name} is invalid as attribute is not a reference") unless parent.reference?
+        value = value.is_a?(Array) ? value : [value]
+        invalid_cascades = value.select {|v| !self.class.cascade_types.include?(v)}
+        unless invalid_cascades.empty?
+          error("cascade_type must be one of #{self.class.cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
+        end
+        @inverse_cascade = value
+      end
+
       def self.cascade_types
         [:all, :persist, :merge, :remove, :refresh, :detach]
       end
