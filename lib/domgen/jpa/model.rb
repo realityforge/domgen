@@ -34,7 +34,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{parent.parent.qualified_name}.#{local_name}"
+        "#{parent.parent.java.qualified_name}.#{local_name}"
       end
 
       def local_name
