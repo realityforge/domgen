@@ -21,7 +21,7 @@ end
 %>
 public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java.classname %>
 <%= object_type.extends ?
-  "    extends #{object_type.data_module.object_type_by_name(object_type.extends).java.classname}\n" :
+  "    extends #{object_type.data_module.object_type_by_name(object_type.extends).java.qualified_name}\n" :
   "" %>    implements java.io.Serializable
 {
 <% object_type.jpa.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= query.local_name %> = "<%= query.qualified_name %>";
