@@ -1,3 +1,4 @@
+/* DO NOT EDIT: File is auto-generated */
 <%= banner("Data Module '#{data_module.name}'") %>
 <% data_module.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
 <%= banner("Foreign Keys for #{object_type.sql.qualified_table_name}") %>
