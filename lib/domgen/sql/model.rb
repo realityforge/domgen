@@ -1,5 +1,73 @@
 module Domgen
   module Sql
+    class PgDialect
+      def quote(column_name)
+        "\"#{column_name}\""
+      end
+
+      TYPE_MAP = {"string" => "varchar",
+                  "integer" => "integer",
+                  "real" => "double precision",
+                  "datetime" => "timestamp",
+                  "boolean" => "bit",
+                  "i_enum" => "integer",
+                  "s_enum" => "varchar"}
+
+
+      def column_type(column)
+        if column.calculation
+          raise "Unsupported column type - calculation"
+        elsif :reference == column.parent.attribute_type
+          return column.parent.referenced_object.primary_key.sql.sql_type
+        elsif column.parent.attribute_type.to_s == 'text'
+          return "text"
+        else
+          return TYPE_MAP[column.parent.attribute_type.to_s] + (column.parent.length.nil? ? '' : "(#{column.parent.length})")
+        end
+      end
+
+    end
+
+    class MssqlDialect
+      def quote(column_name)
+        "[#{column_name}]"
+      end
+
+      TYPE_MAP = {"string" => "VARCHAR",
+                  "integer" => "INT",
+                  "real" => "FLOAT",
+                  "datetime" => "DATETIME",
+                  "boolean" => "BIT",
+                  "i_enum" => "INT",
+                  "s_enum" => "VARCHAR"}
+
+      def column_type(column)
+        if column.calculation
+          sql_type = "AS #{@calculation}"
+          if persistent_calculation?
+            sql_type += " PERSISTED"
+          end
+          return sql_type
+        elsif :reference == parent.attribute_type
+          return column.parent.referenced_object.primary_key.sql.sql_type
+        elsif column.parent.attribute_type.to_s == 'text'
+          return "[VARCHAR](MAX)"
+        else
+          return quote(TYPE_MAP[column.parent.attribute_type.to_s]) + (column.parent.length.nil? ? '' : "(#{column.parent.length})")
+        end
+      end
+    end
+
+    @@dialect = nil
+
+    def self.dialect
+      @@dialect ||= MssqlDialect.new
+    end
+
+    def self.dialect=(dialect)
+      @@dialect = dialect.new
+    end
+
     class SqlElement < BaseConfigElement
       attr_reader :parent
 
@@ -46,6 +114,10 @@ module Domgen
           @name = "#{prefix}_#{table.parent.name}_#{suffix}"
         end
         @name
+      end
+
+      def quoted_name
+        Domgen::Sql.dialect.quote(self.name)
       end
 
       attr_writer :cluster
@@ -124,7 +196,7 @@ module Domgen
       end
 
       def qualified_foreign_key_name
-        "#{table.parent.data_module.sql.schema}.#{foreign_key_name}"
+        "#{Domgen::Sql.dialect.quote(table.parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(foreign_key_name)}"
       end
 
       def constraint_name
@@ -153,7 +225,7 @@ module Domgen
       end
 
       def qualified_constraint_name
-        "#{parent.parent.data_module.sql.schema}.#{constraint_name}"
+        "#{Domgen::Sql.dialect.quote(parent.parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(constraint_name)}"
       end
     end
 
@@ -184,7 +256,7 @@ module Domgen
       end
 
       def qualified_constraint_name
-        "#{parent.parent.data_module.sql.schema}.#{constraint_name}"
+        "#{Domgen::Sql.dialect.quote(parent.parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(constraint_name)}"
       end
 
       # The SQL generated in constraint
@@ -269,7 +341,7 @@ module Domgen
       end
 
       def qualified_trigger_name
-        "#{parent.parent.data_module.sql.schema}.#{trigger_name}"
+        "#{Domgen::Sql.dialect.quote(parent.parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(trigger_name)}"
       end
     end
 
@@ -281,6 +353,7 @@ module Domgen
       # text attributes to always be stored in overflow page by database engine. Otherwise they will be stored inline
       # as long as the data fits into a 8,060 byte row. It is a performance hit to access the overflow table so this
       # should be set to false unless the data columns are infrequently accessed relative to the other columns
+      # TODO: MSSQL Specific
       attr_accessor :force_overflow_for_large_objects
 
       def initialize(parent, options = {}, &block)
@@ -300,7 +373,7 @@ module Domgen
       end
 
       def qualified_table_name
-        "#{parent.data_module.sql.schema}.#{table_name}"
+        "#{Domgen::Sql.dialect.quote(parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(table_name)}"
       end
 
       def constraints
@@ -662,14 +735,6 @@ SQL
     end
 
     class Column < SqlElement
-      TYPE_MAP = {"string" => "VARCHAR",
-                  "integer" => "INT",
-                  "real" => "FLOAT",
-                  "datetime" => "DATETIME",
-                  "boolean" => "BIT",
-                  "i_enum" => "INT",
-                  "s_enum" => "VARCHAR"}
-
       def column_name
         if @column_name.nil?
           if parent.reference?
@@ -681,25 +746,14 @@ SQL
         @column_name
       end
 
+      def quoted_column_name
+        Domgen::Sql.dialect.quote(self.column_name)
+      end
+
       attr_writer :sql_type
 
       def sql_type
-        unless @sql_type
-          if @calculation
-            @sql_type = "AS #{@calculation}"
-            if persistent_calculation?
-              @sql_type += " PERSISTED"
-            end
-          elsif :reference == parent.attribute_type
-            @sql_type = parent.referenced_object.primary_key.sql.sql_type
-          elsif parent.attribute_type.to_s == 'text'
-            @sql_type = "[VARCHAR](MAX)"
-          else
-            @sql_type = q(TYPE_MAP[parent.attribute_type.to_s]) + (parent.length.nil? ? '' : "(#{parent.length})")
-          end
-          error("Unknown type #{parent.attribute_type} in sql_type") unless @sql_type
-        end
-        @sql_type
+        @sql_type ||= Domgen::Sql.dialect.column_type(self)
       end
 
       attr_writer :identity
@@ -708,6 +762,7 @@ SQL
         @identity.nil? ? parent.generated_value? && parent.primary_key?  : @identity
       end
 
+      # TODO: MSSQL Specific
       attr_writer :sparse
 
       def sparse?
