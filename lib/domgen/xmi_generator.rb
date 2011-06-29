@@ -12,7 +12,6 @@ module Domgen
       attr_reader :task_name
 
       def initialize(repository_key, key, filename)
-        Domgen::Xmi.init_emf
         @repository_key, @key, @filename = repository_key, key, filename
         @namespace_key = :domgen
         yield self if block_given?
@@ -25,6 +24,7 @@ module Domgen
         namespace self.namespace_key do
           desc self.description || "Generates the #{key} xmi artifacts."
           t = task self.key => ["#{self.namespace_key}:load"] do
+            Domgen::Xmi.init_emf
             begin
               FileUtils.mkdir_p File.dirname(filename)
               Domgen::Xmi.generate_xmi(self.repository_key, self.model_name || self.repository_key, self.filename)
