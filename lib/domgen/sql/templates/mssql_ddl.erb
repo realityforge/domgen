@@ -1,18 +1,4 @@
 /* DO NOT EDIT: File is auto-generated */
-<% if !data_module.sql.default_schema? %>
-IF EXISTS ( SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '<%= data_module.sql.schema %>')
-  DROP SCHEMA <%= q(data_module.sql.schema) %>
-GO
-CREATE SCHEMA <%= q(data_module.sql.schema) %>
-GO
-<% data_module.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
-  @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
-  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>
-GO
-<% end %>
-<% end %>
 <%= banner("DDL for Data Module '#{data_module.name}'") %>
 <% data_module.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
 <% if object_type.sql.partition_scheme %>
