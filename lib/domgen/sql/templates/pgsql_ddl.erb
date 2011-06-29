@@ -1,102 +1,40 @@
 /* DO NOT EDIT: File is auto-generated */
-<% if !data_module.sql.default_schema? %>
-IF EXISTS ( SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '<%= data_module.sql.schema %>')
-  DROP SCHEMA <%= q(data_module.sql.schema) %>
-GO
-CREATE SCHEMA <%= q(data_module.sql.schema) %>
-GO
-<% data_module.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
-  @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
-  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>
-GO
-<% end %>
-<% end %>
 <%= banner("DDL for Data Module '#{data_module.name}'") %>
 <% data_module.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
-<% if object_type.sql.partition_scheme %>
-IF CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Enterprise Edition%'
-BEGIN
 
-CREATE TABLE <%= object_type.sql.qualified_table_name %>(
-<% object_type.attributes.select {|a| a.persistent?}.each do |a|
-%>  <%= q(a.sql.column_name) %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
-<% end
-%>
-    CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC) ON [PRIMARY]
-) ON <%= object_type.sql.partition_scheme %>
-
-END
-ELSE
-BEGIN
+<% object_type.attributes.select {|a| a.persistent? && a.sql.identity?}.each do |a| %>CREATE SEQUENCE <%= Domgen::Sql.dialect.quote(object_type.data_module.sql.schema) %>.<%= Domgen::Sql.dialect.quote(object_type.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") %> start 0 increment 1 maxvalue 2147483647 minvalue 0 cache 1;
 <% end %>
 
 CREATE TABLE <%= object_type.sql.qualified_table_name %>(
 <% object_type.attributes.select {|a| a.persistent?}.each do |a|
-%>  <%= q(a.sql.column_name) %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{Domgen::Sql.dialect.quote(object_type.data_module.sql.schema) + "." + Domgen::Sql.dialect.quote(object_type.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") }'::text)" : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
-%>  CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY <%= (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= q(object_type.primary_key.sql.column_name) %> ASC)
+%>  CONSTRAINT PK_<%= object_type.name %> PRIMARY KEY (<%= object_type.primary_key.sql.quoted_column_name %>)
 )
 
-<% if object_type.sql.partition_scheme %>
-END
-<% end %>
 GO
-<% object_type.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
-  @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
-  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
-  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>;
+  -- COMMENT ON DATABASE "booktown" IS 'The Book Town Database.';
 GO
-<% end %>
-<% object_type.attributes.select {|a| a.persistent? && !a.tags.empty?}.each do |a| %>
-<% a.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
-  @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
-  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
-  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
-  @level2type = N'COLUMN', @level2name = <%= q(a.sql.column_name) %>;
-GO
-<% end %>
-<% end %>
-<% if !object_type.sql.force_overflow_for_large_objects.nil? %>
-EXEC sp_tableoption '<%= object_type.sql.qualified_table_name %>', 'large value types out of row', <%= object_type.sql.force_overflow_for_large_objects ? '1' : '0' %>
-<% end %>
 <% object_type.attributes.select {|a| a.persistent? && !a.sql.default_value.nil?}.each do |a| %>
-ALTER TABLE <%= object_type.sql.qualified_table_name %> ADD CONSTRAINT [DF_<%= object_type.name %>_<%= a.name %>] DEFAULT (<%= a.sql.default_value %>) FOR <%= q(a.sql.column_name) %>
+ALTER TABLE <%= object_type.sql.qualified_table_name %> ADD CONSTRAINT "DF_<%= object_type.name %>_<%= a.name %>" DEFAULT (<%= a.sql.default_value %>) FOR <%= a.sql.quoted_column_name %>
 GO
 <% end %>
 <% object_type.sql.indexes.each do |index| %>
-CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX [<%= index.name %>] ON <%= object_type.sql.qualified_table_name %>
-(<%= index.attribute_names.collect {|a| "\n  #{q(object_type.attribute_by_name(a).sql.column_name)} ASC" }.join(",") %>
-)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| q(object_type.attribute_by_name(a).sql.column_name) }.join(",") %> )<% end %>
+CREATE <%= index.unique? ? 'UNIQUE ' : '' %>INDEX <%= index.quoted_name %> ON <%= object_type.sql.qualified_table_name %>
+(<%= index.attribute_names.collect {|a| "\n  #{object_type.attribute_by_name(a).sql.quoted_column_name} ASC" }.join(",") %>
+)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| object_type.attribute_by_name(a).sql.quoted_column_name }.join(",") %> )<% end %>
 <% if index.filter %>WHERE <%= index.filter %><% end %>
 <%= index.unique? ? 'ON [PRIMARY]' : '' %>
 GO
-<% index.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
-  @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
-  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
-  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
-  @level2type = N'INDEX',  @level2name = <%= q(index.name) %>;
-GO
-<% end %>
 
 <% end
 %>
 
 <%= banner("Foreign Keys for #{object_type.sql.qualified_table_name}") %>
 <% object_type.sql.foreign_keys.each do |foreign_key| %>
-IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'<%= foreign_key.qualified_foreign_key_name %>') AND parent_object_id = OBJECT_ID(N'<%= object_type.sql.qualified_table_name %>'))
-  ALTER TABLE <%= object_type.sql.qualified_table_name %> DROP CONSTRAINT [<%= foreign_key.foreign_key_name %>]
-GO
 ALTER TABLE <%= object_type.sql.qualified_table_name %>
-  WITH NOCHECK ADD CONSTRAINT [<%= foreign_key.foreign_key_name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| q(object_type.attribute_by_name(a).sql.column_name)}.join(', ') %>)
-  REFERENCES <%= foreign_key.referenced_object_type.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| q(foreign_key.referenced_object_type.attribute_by_name(a).sql.column_name)}.join(', ')  %>)
+  WITH NOCHECK ADD CONSTRAINT [<%= foreign_key.foreign_key_name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| object_type.attribute_by_name(a).sql.quoted_column_name}.join(', ') %>)
+  REFERENCES <%= foreign_key.referenced_object_type.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| foreign_key.referenced_object_type.attribute_by_name(a).sql.quoted_column_name}.join(', ')  %>)
 <% if foreign_key.on_update != :no_action %>  ON UPDATE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_update] %><% end %>
 <% if foreign_key.on_delete != :no_action %>  ON DELETE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_delete] %><% end %>
 GO
@@ -109,23 +47,12 @@ GO
 %><%
       object_type.sql.constraints.each do |constraint|
 %>
-IF  EXISTS (SELECT * FROM sys.check_constraints WHERE object_id = OBJECT_ID(N'<%= constraint.qualified_constraint_name %>') AND parent_object_id = OBJECT_ID(N'<%= object_type.sql.qualified_table_name %>'))
-  ALTER TABLE <%= object_type.sql.qualified_table_name %> DROP CONSTRAINT <%= constraint.constraint_name %>
-GO
 ALTER TABLE <%= object_type.sql.qualified_table_name %>
   WITH NOCHECK ADD CONSTRAINT <%= constraint.constraint_name %> CHECK ( <%= s(constraint.sql) %> )
 GO
 ALTER TABLE <%= object_type.sql.qualified_table_name %> NOCHECK CONSTRAINT [<%= constraint.constraint_name %>]
 GO
-<% constraint.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
-  @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
-  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
-  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
-  @level2type = N'CONSTRAINT',  @level2name = <%= q(constraint.constraint_name) %>;
-GO
-<% end %>
+
 <%    end
    end
    if object_type.sql.function_constraints.size > 0 %><%=
@@ -133,12 +60,6 @@ GO
 %><%
     object_type.sql.function_constraints.each do |constraint|
 %>
-IF  EXISTS (SELECT * FROM sys.check_constraints WHERE object_id = OBJECT_ID(N'<%= constraint.qualified_constraint_name %>') AND parent_object_id = OBJECT_ID(N'<%= object_type.sql.qualified_table_name %>'))
-  ALTER TABLE <%= object_type.sql.qualified_table_name %> DROP CONSTRAINT <%= constraint.constraint_name %>
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'<%= data_module.sql.schema %>.<%= s(object_type.name) %>_<%= s(constraint.name) %>') AND type in (N'FN', N'IF', N'TF', N'FS', N'FT'))
-  DROP FUNCTION <%= data_module.sql.schema %>.<%= s(object_type.name) %>_<%= s(constraint.name) %>
-GO
 CREATE FUNCTION <%= data_module.sql.schema %>.<%= s(object_type.name) %>_<%= s(constraint.name) %>
 (
 <%= constraint.parameters.collect{|parameter_name| a = object_type.attribute_by_name(parameter_name); "  @#{a.sql.column_name} #{a.sql.sql_type}"}.join(",\n") %>
@@ -153,29 +74,12 @@ BEGIN
   RETURN @Result
 END
 GO
-<% constraint.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
-  @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
-  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
-  @level1type = N'FUNCTION',  @level1name = [<%= s(object_type.name) %>_<%= s(constraint.name) %>];
-GO
-<% end %>
 ALTER TABLE <%= object_type.sql.qualified_table_name %>
   WITH NOCHECK ADD CONSTRAINT
   <%= constraint.constraint_name %>
   CHECK (<%= constraint.constraint_sql %>)
 GO
 ALTER TABLE <%= object_type.sql.qualified_table_name %> NOCHECK CONSTRAINT [<%= constraint.constraint_name %>]
-<% constraint.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
-  @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
-  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
-  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
-  @level2type = N'CONSTRAINT',  @level2name = <%= q(constraint.constraint_name) %>;
-GO
-<% end %>
     <%
     end
    end
@@ -184,9 +88,6 @@ GO
 %><%
       object_type.sql.triggers.each do |trigger|
 %>
-IF  EXISTS (SELECT * FROM sys.triggers WHERE object_id = OBJECT_ID(N'<%= trigger.qualified_trigger_name %>'))
-  DROP TRIGGER <%= trigger.qualified_trigger_name %>
-GO
 CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qualified_table_name %>
 <%
   if trigger.after && !trigger.after.empty?
@@ -207,28 +108,12 @@ CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qual
   SET ROWCOUNT 0; -- in case the client has modified the rowcount
 <%= trigger.sql %>
 GO
-<% trigger.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
-  @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
-  @level0type = N'SCHEMA', @level0name = <%= q(data_module.sql.schema) %>,
-  @level1type = N'TABLE',  @level1name = <%= q(object_type.sql.table_name) %>,
-  @level2type = N'TRIGGER',  @level2name = <%= q(trigger.trigger_name) %>;
-GO
-<% end %>
 DISABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= object_type.sql.qualified_table_name %>
 GO
 <%    end
     end
   end
 %>
-
-IF EXISTS
-  ( SELECT *
-    FROM dbo.sysobjects
-    WHERE id = OBJECT_ID(N'<%= data_module.sql.schema %>.spCheckConstraints') AND OBJECTPROPERTY(id, N'IsProcedure') = 1)
-  DROP PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints
-GO
 
 CREATE PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints
 AS

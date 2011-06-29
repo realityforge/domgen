@@ -7,5 +7,12 @@ module Domgen
         Template.new(:data_module, "#{template_dir}/mssql_finalize.erb", '#{data_module.name}/finalize/schema_finalize.sql'),
       ]
     end
+
+    def self.define_pgsql_templates
+      template_dir = "#{File.dirname(__FILE__)}/templates"
+      [
+        Template.new(:data_module, "#{template_dir}/pgsql_ddl.erb", '#{data_module.name}/schema.sql')
+      ]
+    end
   end
 end
