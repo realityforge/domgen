@@ -525,7 +525,13 @@ module Domgen
         end
 
         self.indexes.each do |index|
-          error("Must not specify a partial clustered index. Index = #{index.qualified_index_name}") if index.cluster? && index.partial?
+          if index.cluster? && index.partial?
+            error("Must not specify a partial clustered index. Index = #{index.qualified_index_name}")
+          end
+        end
+
+        if indexes.select { |i| i.cluster? }.size > 1
+          error("#{qualified_table_name} defines multiple clustering indexes")
         end
 
         parent.unique_constraints.each do |c|
@@ -753,8 +759,6 @@ SQL
                       {:on_update => a.on_update, :on_delete => a.on_delete},
                       true)
         end
-
-        error("#{qualified_table_name} defines multiple clustering indexes") if indexes.select { |i| i.cluster? }.size > 1
       end
 
       def copy_tags(from, to)
