@@ -12,19 +12,10 @@ def s(string)
   string.to_s.gsub('[].:', '')
 end
 
-# quote string using database rules
-def q(string)
-  "[#{string.to_s}]"
-end
-
 SQL_PREFIX_MAP = {:table => 'tbl', :trigger => 'trg'}
 
 def sql_name(type, name)
   "#{SQL_PREFIX_MAP[type]}#{name}"
-end
-
-def sql_qualify(data_module, name)
-  "#{q(data_module.sql.schema)}.#{q(name)}"
 end
 
 def quote_value(value)
@@ -46,5 +37,5 @@ def sql_extended_property_key(name)
 end
 
 def sql_extended_property_value(value)
-  value.to_s.gsub("'","''").strip
+  Domgen::Sql.dialect.quote_string(value).strip
 end

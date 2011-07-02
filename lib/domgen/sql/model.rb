@@ -87,8 +87,6 @@ module Domgen
     end
 
     class SqlSchema < SqlElement
-      DEFAULT_SCHEMA = 'dbo'
-
       attr_writer :schema
 
       def schema
@@ -96,8 +94,8 @@ module Domgen
         @schema
       end
 
-      def default_schema?
-        DEFAULT_SCHEMA == schema
+      def quoted_schema
+        Domgen::Sql.dialect.quote(self.schema)
       end
     end
 
@@ -114,19 +112,23 @@ module Domgen
         super(options, &block)
       end
 
-      attr_writer :name
+      attr_writer :index_name
 
-      def name
-        if @name.nil?
+      def index_name
+        if @index_name.nil?
           prefix = cluster? ? 'CL' : unique? ? 'UQ' : 'IX'
           suffix = attribute_names.join('_')
-          @name = "#{prefix}_#{table.parent.name}_#{suffix}"
+          @index_name = "#{prefix}_#{table.parent.name}_#{suffix}"
         end
-        @name
+        @index_name
       end
 
-      def quoted_name
-        Domgen::Sql.dialect.quote(self.name)
+      def quoted_index_name
+        Domgen::Sql.dialect.quote(self.index_name)
+      end
+
+      def qualified_index_name
+        "#{Domgen::Sql.dialect.quote(table.parent.data_module.sql.schema)}.#{quoted_index_name}"
       end
 
       attr_writer :cluster
@@ -401,8 +403,12 @@ module Domgen
         @table_name
       end
 
+      def quoted_table_name
+        Domgen::Sql.dialect.quote(table_name)
+      end
+
       def qualified_table_name
-        "#{Domgen::Sql.dialect.quote(parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(table_name)}"
+        "#{Domgen::Sql.dialect.quote(parent.data_module.sql.schema)}.#{quoted_table_name}"
       end
 
       def constraints
@@ -495,9 +501,9 @@ module Domgen
 
       def index(attribute_names, options = {}, skip_if_present = false, &block)
         index = Index.new(self, attribute_names, options, &block)
-        return if @indexes[index.name] && skip_if_present
-        error("Index named #{index.name} already defined on table #{qualified_table_name}") if @indexes[index.name]
-        @indexes[index.name] = index
+        return if @indexes[index.index_name] && skip_if_present
+        error("Index named #{index.index_name} already defined on table #{qualified_table_name}") if @indexes[index.index_name]
+        @indexes[index.index_name] = index
         index
       end
 
@@ -528,23 +534,23 @@ module Domgen
         parent.codependent_constraints.each do |c|
           constraint_name = "#{parent.name}_#{c.name}_CoDep"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-( #{c.attribute_names.collect { |name| "#{q(parent.attribute_by_name(name).sql.column_name)} IS NOT NULL" }.join(" AND ")} ) OR
-( #{c.attribute_names.collect { |name| "#{q(parent.attribute_by_name(name).sql.column_name)} IS NULL" }.join(" AND ") } )
+( #{c.attribute_names.collect { |name| "#{Domgen::Sql.dialect.quote(parent.attribute_by_name(name).sql.column_name)} IS NOT NULL" }.join(" AND ")} ) OR
+( #{c.attribute_names.collect { |name| "#{Domgen::Sql.dialect.quote(parent.attribute_by_name(name).sql.column_name)} IS NULL" }.join(" AND ") } )
 SQL
           copy_tags(c, constraint_by_name(constraint_name))
         end
         parent.dependency_constraints.each do |c|
           constraint_name = "#{parent.name}_#{c.name}_Dep"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-#{q(parent.attribute_by_name(c.attribute_name).sql.column_name)} IS NULL OR
-( #{c.dependent_attribute_names.collect { |name| "#{q(parent.attribute_by_name(name).sql.column_name)} IS NOT NULL" }.join(" AND ") } )
+#{Domgen::Sql.dialect.quote(parent.attribute_by_name(c.attribute_name).sql.column_name)} IS NULL OR
+( #{c.dependent_attribute_names.collect { |name| "#{Domgen::Sql.dialect.quote(parent.attribute_by_name(name).sql.column_name)} IS NOT NULL" }.join(" AND ") } )
 SQL
           copy_tags(c, constraint_by_name(constraint_name))
         end
         parent.incompatible_constraints.each do |c|
           sql = (0..(c.attribute_names.size)).collect do |i|
             candidate = c.attribute_names[i]
-            str = c.attribute_names.collect { |name| "#{q(parent.attribute_by_name(name).sql.column_name)} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
+            str = c.attribute_names.collect { |name| "#{Domgen::Sql.dialect.quote(parent.attribute_by_name(name).sql.column_name)} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
             "(#{str})"
           end.join(" OR ")
           constraint_name = "#{parent.name}_#{c.name}_Incompat"
@@ -556,34 +562,34 @@ SQL
           sorted_values = a.values.values.sort
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-#{q(a.sql.column_name)} >= #{sorted_values[0]} AND
-#{q(a.sql.column_name)} <= #{sorted_values[sorted_values.size - 1]}
+#{Domgen::Sql.dialect.quote(a.sql.column_name)} >= #{sorted_values[0]} AND
+#{Domgen::Sql.dialect.quote(a.sql.column_name)} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
         parent.declared_attributes.select { |a| a.attribute_type == :s_enum }.each do |a|
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-#{q(a.sql.column_name)} IN (#{a.values.values.collect { |v| "'#{v}'" }.join(',')})
+#{Domgen::Sql.dialect.quote(a.sql.column_name)} IN (#{a.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
         parent.declared_attributes.select{ |a| (a.attribute_type == :s_enum || a.attribute_type == :string) && a.persistent? && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
-          sql = "LEN( #{q(a.sql.column_name)} ) > 0"
+          sql = "LEN( #{Domgen::Sql.dialect.quote(a.sql.column_name)} ) > 0"
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
         end
 
         parent.declared_attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
           validation(validation_name, :negative_sql => <<SQL, :after => :update) unless validation_by_name(validation_name)
-SELECT I.ID
+SELECT I.#{Domgen::Sql.dialect.quote("ID")}
 FROM
 inserted I
-JOIN deleted D ON D.ID = I.ID
+JOIN deleted D ON D.#{Domgen::Sql.dialect.quote("ID")} = I.#{Domgen::Sql.dialect.quote("ID")}
 WHERE
-  D.#{q(a.sql.column_name)} IS NOT NULL AND
+  D.#{Domgen::Sql.dialect.quote(a.sql.column_name)} IS NOT NULL AND
   (
-    I.#{q(a.sql.column_name)} IS NULL OR
-    D.#{q(a.sql.column_name)} != I.#{q(a.sql.column_name)}
+    I.#{Domgen::Sql.dialect.quote(a.sql.column_name)} IS NULL OR
+    D.#{Domgen::Sql.dialect.quote(a.sql.column_name)} != I.#{Domgen::Sql.dialect.quote(a.sql.column_name)}
   )
 SQL
         end
@@ -626,7 +632,7 @@ SQL
 SELECT 1 AS Result
 FROM
   (SELECT '1' AS IgnoreMe) I
-LEFT JOIN #{target_object_type.sql.qualified_table_name} C0 ON C0.#{q(target_object_type.primary_key.sql.column_name)} = @#{parent.attribute_by_name(c.attribute_name).sql.column_name}
+LEFT JOIN #{target_object_type.sql.qualified_table_name} C0 ON C0.#{Domgen::Sql.dialect.quote(target_object_type.primary_key.sql.column_name)} = @#{parent.attribute_by_name(c.attribute_name).sql.column_name}
 #{joins.join("\n")}
 WHERE @#{parent.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR #{comparison_id} = #{next_id}
 SQL
@@ -646,9 +652,9 @@ SQL
 SELECT I.#{pk.sql.column_name}
 FROM inserted I, deleted D
 WHERE
-  I.#{q(pk.sql.column_name)} = D.#{q(pk.sql.column_name)} AND
+  I.#{Domgen::Sql.dialect.quote(pk.sql.column_name)} = D.#{Domgen::Sql.dialect.quote(pk.sql.column_name)} AND
   (
-#{immutable_attributes.collect {|a| "    (I.#{q(a.sql.column_name)} != D.#{q(a.sql.column_name)})" }.join(" OR\n") }
+#{immutable_attributes.collect {|a| "    (I.#{Domgen::Sql.dialect.quote(a.sql.column_name)} != D.#{Domgen::Sql.dialect.quote(a.sql.column_name)})" }.join(" OR\n") }
   )
 SQL
          end
@@ -665,18 +671,18 @@ SQL
             validation_name = "#{attribute.name}ForeignKey"
             #TODO: Turn this into a functional validation
             if !validation_by_name(validation_name)
-              guard = "UPDATE(#{q(attribute.referencing_link_name)})"
+              guard = "UPDATE(#{Domgen::Sql.dialect.quote(attribute.referencing_link_name)})"
               sql = <<SQL
       SELECT I.#{parent.primary_key.sql.column_name}
       FROM
         inserted I
 SQL
               concrete_subtypes.each_pair do |name, subtype|
-                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.ID = I.#{q(attribute.referencing_link_name)}"
+                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{Domgen::Sql.dialect.quote("ID")} = I.#{Domgen::Sql.dialect.quote(attribute.referencing_link_name)}"
               end
-              sql << "      WHERE (#{names.collect { |name| "#{name}.ID IS NULL" }.join(' AND ') })"
+              sql << "      WHERE (#{names.collect { |name| "#{name}.#{Domgen::Sql.dialect.quote("ID")} IS NULL" }.join(' AND ') })"
               (0..(names.size - 2)).each do |index|
-                sql << " OR\n (#{names[index] }.ID IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.ID IS NOT NULL" }.join(' OR ') }))"
+                sql << " OR\n (#{names[index] }.#{Domgen::Sql.dialect.quote("ID")} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{Domgen::Sql.dialect.quote("ID")} IS NOT NULL" }.join(' OR ') }))"
               end
               validation(validation_name, :negative_sql => sql, :guard => guard) unless validation_by_name(validation_name)
             end
