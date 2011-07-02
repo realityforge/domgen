@@ -515,7 +515,11 @@ module Domgen
 
       def post_verify
         if self.partition_scheme && indexes.select{|index|index.cluster?}.empty?
-          raise "Must specify a clustered index if using a partition scheme"
+          error("Must specify a clustered index if using a partition scheme")
+        end
+
+        self.indexes.each do |index|
+          error("Must not specify a partial clustered index. Index = #{index.qualified_index_name}") if index.cluster? && index.partial?
         end
 
         parent.unique_constraints.each do |c|
