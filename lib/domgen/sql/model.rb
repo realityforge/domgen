@@ -1,8 +1,13 @@
 module Domgen
   module Sql
     class PgDialect
+      # Quote identifier
       def quote(column_name)
         "\"#{column_name}\""
+      end
+
+      def quote_string(string)
+        string.gsub("\'","''")
       end
 
       TYPE_MAP = {"string" => "varchar",
@@ -31,6 +36,10 @@ module Domgen
     class MssqlDialect
       def quote(column_name)
         "[#{column_name}]"
+      end
+
+      def quote_string(string)
+        string.gsub("\'","''")
       end
 
       TYPE_MAP = {"string" => "VARCHAR",
@@ -195,12 +204,20 @@ module Domgen
         "FK_#{s(table.parent.name)}_#{s(name)}"
       end
 
+      def quoted_foreign_key_name
+        Domgen::Sql.dialect.quote(self.foreign_key_name)
+      end
+
       def qualified_foreign_key_name
-        "#{Domgen::Sql.dialect.quote(table.parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(foreign_key_name)}"
+        "#{Domgen::Sql.dialect.quote(table.parent.data_module.sql.schema)}.#{quoted_foreign_key_name}"
       end
 
       def constraint_name
         foreign_key_name
+      end
+
+      def quoted_constraint_name
+        quoted_foreign_key_name
       end
     end
 
@@ -222,6 +239,10 @@ module Domgen
 
       def constraint_name
         "CK_#{s(parent.parent.name)}_#{s(name)}"
+      end
+
+      def quoted_constraint_name
+        Domgen::Sql.dialect.quote(self.constraint_name)
       end
 
       def qualified_constraint_name
@@ -253,6 +274,10 @@ module Domgen
 
       def constraint_name
         "CK_#{s(parent.parent.name)}_#{s(name)}"
+      end
+
+      def quoted_constraint_name
+        Domgen::Sql.dialect.quote(self.constraint_name)
       end
 
       def qualified_constraint_name
@@ -340,8 +365,12 @@ module Domgen
         @trigger_name
       end
 
+      def quoted_trigger_name
+        Domgen::Sql.dialect.quote(self.trigger_name)
+      end
+
       def qualified_trigger_name
-        "#{Domgen::Sql.dialect.quote(parent.parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(trigger_name)}"
+        "#{Domgen::Sql.dialect.quote(parent.parent.data_module.sql.schema)}.#{self.quoted_trigger_name}"
       end
     end
 
