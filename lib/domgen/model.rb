@@ -133,6 +133,37 @@ module Domgen
     end
   end
 
+  class RelationshipConstraint < BaseConfigElement
+    attr_reader :name
+    attr_reader :lhs_operand
+    attr_reader :rhs_operand
+    attr_reader :operator
+
+    def initialize(name, operator, lhs_operand, rhs_operand, options, &block)
+      @name, @lhs_operand, @rhs_operand, @operator = name, lhs_operand, rhs_operand, operator
+      raise "Unknwon operator #{operator} for relationship constraint #{name}" unless self.class.operators.keys.include?(operator)
+      super(options, &block)
+    end
+
+    def self.operators
+      {:eq => '=', :neq => '!=', :lte => '<=', :lt => '<', :gte => '>=', :gt => '>'}
+    end
+
+    def self.numeric_operator_descriptions
+      {:eq => 'equal', :neq => 'not equal', :lte => 'less than or equal', :lt => 'less than', :gte => 'greater than or equal', :gt => 'greater than'}
+    end
+
+    def self.temporal_operator_descriptions
+      {:eq => 'equal', :neq => 'not equal', :lte => 'before or at the same time', :lt => 'before', :gte => 'at the same time or after', :gt => 'after'}
+    end
+
+    def self.comparable_attribute_types
+      [:integer, :i_enum, :datetime, :real]
+    end
+
+    #TODO: Allow equality tests for [:text, :string, :reference, :boolean, :s_enum]
+  end
+
   class CycleConstraint < BaseConfigElement
     attr_reader :name
     attr_accessor :attribute_name
@@ -416,6 +447,7 @@ module Domgen
       @codependent_constraints = Domgen::OrderedHash.new
       @incompatible_constraints = Domgen::OrderedHash.new
       @dependency_constraints = Domgen::OrderedHash.new
+      @relationship_constraints = Domgen::OrderedHash.new
       @cycle_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
       @direct_subtypes = []
@@ -604,12 +636,28 @@ module Domgen
       dependency_constraint
     end
 
-    def codependent_constraints
-      @codependent_constraints.values
+    def relationship_constraints
+      @relationship_constraints.values
     end
 
-    def codependent_constraint_map
-      @codependent_constraints
+    # Check that either the attribute is null or the attribute and all the dependents are not null
+    def relationship_constraint(operator, lhs_operand, rhs_operand, options = {}, &block)
+      name = "#{lhs_operand}_#{operator}_#{rhs_operand}"
+      lhs = attribute_by_name(lhs_operand)
+      rhs = attribute_by_name(rhs_operand)
+      if !RelationshipConstraint.comparable_attribute_types.include?(lhs.attribute_type)
+        raise "Relationship constraint #{name} can not compare attribute type #{lhs.attribute_type} on LHS"
+      end
+      if !RelationshipConstraint.comparable_attribute_types.include?(rhs.attribute_type)
+        raise "Relationship constraint #{name} can not compare attribute type #{rhs.attribute_type} on RHS"
+      end
+      relationship_constraint = RelationshipConstraint.new(name, operator, lhs_operand, rhs_operand, options, &block)
+      @relationship_constraints[name] = relationship_constraint
+      relationship_constraint
+    end
+
+    def codependent_constraints
+      @codependent_constraints.values
     end
 
     # Check that either all attributes are null or all are not null
@@ -726,6 +774,7 @@ module Domgen
         object_type.codependent_constraints.each { |a| a.mark_as_inherited }
         object_type.incompatible_constraints.each { |a| a.mark_as_inherited }
         object_type.dependency_constraints.each { |a| a.mark_as_inherited }
+        object_type.relationship_constraints.each { |a| a.mark_as_inherited }
         object_type.extension_point(:post_inherited)
         base_type.direct_subtypes << object_type
         register_object_type(name, object_type)

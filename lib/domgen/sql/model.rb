@@ -537,6 +537,20 @@ module Domgen
         parent.unique_constraints.each do |c|
           index(c.attribute_names, {:unique => true}, true)
         end
+
+        parent.relationship_constraints.each do |c|
+          constraint_name = "#{parent.name}_#{c.name}"
+          lhs = parent.attribute_by_name(c.lhs_operand)
+          rhs = parent.attribute_by_name(c.rhs_operand)
+          op = c.class.operators[c.operator]
+          constraint_sql = []
+          constraint_sql << "#{lhs.sql.quoted_column_name} IS NULL" if lhs.nullable?
+          constraint_sql << "#{rhs.sql.quoted_column_name} IS NULL" if rhs.nullable?
+          constraint_sql << "#{lhs.sql.quoted_column_name} #{op} #{rhs.sql.quoted_column_name}"
+          constraint(constraint_name, :sql => constraint_sql.join(" OR ")) unless constraint_by_name(constraint_name)
+          copy_tags(c, constraint_by_name(constraint_name))
+        end
+
         parent.codependent_constraints.each do |c|
           constraint_name = "#{parent.name}_#{c.name}_CoDep"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
