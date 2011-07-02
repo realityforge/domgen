@@ -57,7 +57,7 @@ module Domgen
             sql_type += " PERSISTED"
           end
           return sql_type
-        elsif :reference == parent.attribute_type
+        elsif :reference == column.parent.attribute_type
           return column.parent.referenced_object.primary_key.sql.sql_type
         elsif column.parent.attribute_type.to_s == 'text'
           return "[VARCHAR](MAX)"
