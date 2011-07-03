@@ -39,7 +39,7 @@ public final class <%= object_type.java.qualified_name %>DAO
   public <%= object_type.java.qualified_name %> save( final <%= object_type.java.qualified_name %> entity )
   {
     final <%= object_type.java.qualified_name %> e = merge( entity );
-    em.persist( e );
+    SchemaEntityManager.get().persist( e );
     return e;
   }
 
