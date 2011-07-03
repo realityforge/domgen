@@ -18,18 +18,6 @@ def sql_name(type, name)
   "#{SQL_PREFIX_MAP[type]}#{name}"
 end
 
-def quote_value(value)
-  if value.is_a? TrueClass
-    '1'
-  elsif value.is_a? FalseClass
-    '0'
-  elsif value.is_a? String
-    "'#{value}'"
-  elsif value.is_a? Numeric
-    "(#{value})"
-  end
-end
-
 module Domgen
   module Ruby
     module MssqlHelper
