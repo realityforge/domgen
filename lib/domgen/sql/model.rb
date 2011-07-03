@@ -138,7 +138,7 @@ module Domgen
       end
 
       def qualified_index_name
-        "#{Domgen::Sql.dialect.quote(table.parent.data_module.sql.schema)}.#{quoted_index_name}"
+        "#{table.parent.data_module.sql.quoted_schema}.#{quoted_index_name}"
       end
 
       attr_writer :cluster
@@ -219,7 +219,7 @@ module Domgen
       end
 
       def qualified_foreign_key_name
-        "#{Domgen::Sql.dialect.quote(table.parent.data_module.sql.schema)}.#{quoted_foreign_key_name}"
+        "#{table.parent.data_module.sql.quoted_schema}.#{quoted_foreign_key_name}"
       end
 
       def constraint_name
@@ -256,7 +256,7 @@ module Domgen
       end
 
       def qualified_constraint_name
-        "#{Domgen::Sql.dialect.quote(parent.parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(constraint_name)}"
+        "#{parent.parent.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
       end
     end
 
@@ -291,7 +291,7 @@ module Domgen
       end
 
       def qualified_constraint_name
-        "#{Domgen::Sql.dialect.quote(parent.parent.data_module.sql.schema)}.#{Domgen::Sql.dialect.quote(constraint_name)}"
+        "#{parent.parent.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
       end
 
       # The SQL generated in constraint
@@ -379,7 +379,7 @@ module Domgen
       end
 
       def qualified_trigger_name
-        "#{Domgen::Sql.dialect.quote(parent.parent.data_module.sql.schema)}.#{self.quoted_trigger_name}"
+        "#{parent.parent.data_module.sql.quoted_schema}.#{self.quoted_trigger_name}"
       end
     end
 
@@ -414,7 +414,7 @@ module Domgen
       end
 
       def qualified_table_name
-        "#{Domgen::Sql.dialect.quote(parent.data_module.sql.schema)}.#{quoted_table_name}"
+        "#{parent.data_module.sql.quoted_schema}.#{quoted_table_name}"
       end
 
       def constraints
