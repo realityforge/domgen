@@ -1,0 +1,16 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= object_type.data_module.java.package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.persistence.metamodel.StaticMetamodel(<%= object_type.java.classname %>.class)
+public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java.classname %>_
+<%= object_type.extends ?
+  "    extends #{object_type.data_module.object_type_by_name(object_type.extends).java.qualified_name}_\n" :
+  "" %>{<%
+   object_type.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
+  public static volatile javax.persistence.metamodel.SingularAttribute<<%= object_type.java.classname %>, <%= attribute.java.non_primitive_java_type %>> <%= attribute.java.field_name %>;<%
+   end
+  object_type.referencing_attributes.select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse_traversable? }.each do |attribute| %>
+  public static volatile javax.persistence.metamodel.ListAttribute<<%= object_type.java.classname %>, <%= attribute.object_type.java.qualified_name %>> items;<% end %>
+}

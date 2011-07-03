@@ -5,11 +5,18 @@ module Domgen
     end
 
     def self.define_jpa_model_templates
-      [Template.new(:object_type,
+      [
+        Template.new(:object_type,
                     "#{Jpa::TEMPLATE_DIRECTORY}/model.erb",
                     'java/#{object_type.java.qualified_name.gsub(".","/")}.java',
                     [Domgen::Jpa::Helper],
-                    'object_type.jpa.persistent?')]
+                    'object_type.jpa.persistent?'),
+      Template.new(:object_type,
+                    "#{Jpa::TEMPLATE_DIRECTORY}/metamodel.erb",
+                    'java/#{object_type.java.qualified_name.gsub(".","/")}_.java',
+                    [Domgen::Jpa::Helper],
+                    'object_type.jpa.persistent?'),
+      ]
     end
 
     def self.define_jpa_ejb_templates
