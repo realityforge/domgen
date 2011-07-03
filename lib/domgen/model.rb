@@ -236,15 +236,13 @@ module Domgen
     attr_writer :abstract
 
     def abstract?
-      @abstract = false if @abstract.nil?
-      @abstract
+      @abstract.nil? ? false : @abstract
     end
 
     attr_writer :override
 
     def override?
-      @override = false if @override.nil?
-      @override
+      @override.nil? ? false : @override
     end
 
     def reference?
@@ -254,15 +252,13 @@ module Domgen
     attr_writer :validate
 
     def validate?
-      @validate = true if @validate.nil?
-      @validate
+      @validate.nil? ? true : @validate
     end
 
     attr_writer :set_once
 
     def set_once?
-      @set_once = false if @set_once.nil?
-      @set_once
+      @set_once.nil? ? false : @set_once
     end
 
     attr_writer :generated_value
@@ -285,8 +281,7 @@ module Domgen
     attr_writer :primary_key
 
     def primary_key?
-      @primary_key = false if @primary_key.nil?
-      @primary_key
+      @primary_key.nil? ? false : @primary_key
     end
 
     attr_reader :length
@@ -318,23 +313,27 @@ module Domgen
     attr_writer :allow_blank
 
     def allow_blank?
-      @allow_blank = true if @allow_blank.nil?
-      @allow_blank = false if self.min_length > 0
-      @allow_blank
+      if @allow_blank.nil?
+        if self.min_length > 0
+          false
+        else
+          true
+        end
+      else
+        @allow_blank
+      end
     end
 
     attr_writer :unique
 
     def unique?
-      @unique = false if @unique.nil?
-      @unique
+      @unique.nil? ? false : @unique
     end
 
     attr_writer :nullable
 
     def nullable?
-      @nullable = false if @nullable.nil?
-      @nullable
+      @nullable.nil? ? false : @nullable
     end
 
     attr_reader :values
