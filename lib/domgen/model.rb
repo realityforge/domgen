@@ -112,37 +112,70 @@ module Domgen
     end
   end
 
-  class AttributeSetConstraint < BaseConfigElement
-    attr_reader :name
-    attr_accessor :attribute_names
+  class ModelConstraint < BaseConfigElement
+    attr_reader :object_type
 
-    def initialize(name, attribute_names, options, &block)
-      @name, @attribute_names = name, attribute_names
+    def initialize(object_type, options, &block)
+      @object_type = object_type
       super(options, &block)
+    end
+
+    def attribute_names_to_key(object_type, attribute_names)
+      attribute_names.collect { |a| object_type.attribute_by_name(a).name.to_s }.sort.join('_')
     end
   end
 
-  class DependencyConstraint < BaseConfigElement
+  class AttributeSetConstraint < ModelConstraint
+    attr_reader :name
+    attr_accessor :attribute_names
+
+    def initialize(object_type, name, attribute_names, options, &block)
+      super(object_type, options, &block)
+      @name, @attribute_names = name, attribute_names
+    end
+  end
+
+  class UniqueConstraint < AttributeSetConstraint
+    def initialize(object_type, attribute_names, options, &block)
+      super(object_type, attribute_names_to_key(object_type, attribute_names), attribute_names, options, &block)
+    end
+  end
+
+  class CodependentConstraint < AttributeSetConstraint
+    def initialize(object_type, attribute_names, options, &block)
+      super(object_type, "#{attribute_names_to_key(object_type, attribute_names)}_CoDep", attribute_names, options, &block)
+    end
+  end
+
+  class IncompatibleConstraint < AttributeSetConstraint
+    def initialize(object_type, attribute_names, options, &block)
+      super(object_type, "#{attribute_names_to_key(object_type, attribute_names)}_Incompat", attribute_names, options, &block)
+    end
+  end
+
+  class DependencyConstraint < ModelConstraint
     attr_reader :name
     attr_accessor :attribute_name
     attr_accessor :dependent_attribute_names
 
-    def initialize(name, attribute_name, dependent_attribute_names, options, &block)
-      @name, @attribute_name, @dependent_attribute_names = name, attribute_name, dependent_attribute_names
-      super(options, &block)
+    def initialize(object_type, attribute_name, dependent_attribute_names, options, &block)
+      @name = "#{attribute_name}_#{attribute_names_to_key(object_type, dependent_attribute_names)}_Dep"
+      @attribute_name, @dependent_attribute_names = attribute_name, dependent_attribute_names
+      super(object_type, options, &block)
     end
   end
 
-  class RelationshipConstraint < BaseConfigElement
+  class RelationshipConstraint < ModelConstraint
     attr_reader :name
     attr_reader :lhs_operand
     attr_reader :rhs_operand
     attr_reader :operator
 
-    def initialize(name, operator, lhs_operand, rhs_operand, options, &block)
-      @name, @lhs_operand, @rhs_operand, @operator = name, lhs_operand, rhs_operand, operator
-      raise "Unknwon operator #{operator} for relationship constraint #{name}" unless self.class.operators.keys.include?(operator)
-      super(options, &block)
+    def initialize(object_type, operator, lhs_operand, rhs_operand, options, &block)
+      @name = "#{lhs_operand}_#{operator}_#{rhs_operand}"
+      @lhs_operand, @rhs_operand, @operator = lhs_operand, rhs_operand, operator
+      raise "Unknwon operator #{operator} for relationship constraint #{@name}" unless self.class.operators.keys.include?(operator)
+      super(object_type, options, &block)
     end
 
     def self.operators
@@ -164,14 +197,15 @@ module Domgen
     #TODO: Allow equality tests for [:text, :string, :reference, :boolean, :s_enum]
   end
 
-  class CycleConstraint < BaseConfigElement
+  class CycleConstraint < ModelConstraint
     attr_reader :name
     attr_accessor :attribute_name
     attr_accessor :attribute_name_path
 
-    def initialize(name, attribute_name, attribute_name_path, options, &block)
-      @name, @attribute_name, @attribute_name_path = name, attribute_name, attribute_name_path
-      super(options, &block)
+    def initialize(object_type, attribute_name, attribute_name_path, options, &block)
+      @name = ([attribute_name] + attribute_name_path).collect { |a| a.to_s }.sort.join('_')
+      @attribute_name, @attribute_name_path = attribute_name, attribute_name_path
+      super(object_type, options, &block)
     end
 
     # the attribute on the Entity at the end of the path that must link to the same entity
@@ -493,8 +527,7 @@ module Domgen
     attr_writer :abstract
 
     def abstract?
-      @abstract = false if @abstract.nil?
-      @abstract
+      @abstract.nil? ? false : @abstract
     end
 
     attr_writer :read_only
@@ -506,8 +539,7 @@ module Domgen
     attr_writer :final
 
     def final?
-      @final = !abstract? if @final.nil?
-      @final
+      @final.nil? ? !abstract? : @final
     end
 
     def boolean(name, options = {}, &block)
@@ -613,11 +645,8 @@ module Domgen
 
     def unique_constraint(attribute_names, options = {}, &block)
       error("Must have at least 1 or more attribute names for uniqueness constraint") if attribute_names.empty?
-      name = attribute_names_to_key(attribute_names)
-      error("Only 1 unique constraint with name #{name} should be defined") if @unique_constraints[name]
-      unique_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
-      @unique_constraints[name] = unique_constraint
-      unique_constraint
+      constraint = UniqueConstraint.new(self, attribute_names, options, &block)
+      add_unique_to_set("unique", constraint, @unique_constraints)
     end
 
     def dependency_constraints
@@ -626,14 +655,12 @@ module Domgen
 
     # Check that either the attribute is null or the attribute and all the dependents are not null
     def dependency_constraint(attribute_name, dependent_attribute_names, options = {}, &block)
-      name = "#{attribute_name}_#{attribute_names_to_key(dependent_attribute_names)}"
-      error("Dependency constraint #{name} on #{self.name} has an illegal non nullable attribute") if !attribute_by_name(attribute_name).nullable?
+      constraint = DependencyConstraint.new(self, attribute_name, dependent_attribute_names, options, &block)
+      error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !attribute_by_name(attribute_name).nullable?
       dependent_attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
-        error("Dependency constraint #{name} on #{self.name} has an illegal non nullable dependent attribute") if !a.nullable?
+        error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable dependent attribute") if !a.nullable?
       end
-      dependency_constraint = DependencyConstraint.new(name, attribute_name, dependent_attribute_names, options, &block)
-      @dependency_constraints[name] = dependency_constraint
-      dependency_constraint
+      add_unique_to_set("dependency", constraint, @dependency_constraints)
     end
 
     def relationship_constraints
@@ -642,18 +669,16 @@ module Domgen
 
     # Check that either the attribute is null or the attribute and all the dependents are not null
     def relationship_constraint(operator, lhs_operand, rhs_operand, options = {}, &block)
-      name = "#{lhs_operand}_#{operator}_#{rhs_operand}"
+      constraint = RelationshipConstraint.new(self, operator, lhs_operand, rhs_operand, options, &block)
       lhs = attribute_by_name(lhs_operand)
       rhs = attribute_by_name(rhs_operand)
       if !RelationshipConstraint.comparable_attribute_types.include?(lhs.attribute_type)
-        raise "Relationship constraint #{name} can not compare attribute type #{lhs.attribute_type} on LHS"
+        raise "Relationship constraint #{constraint.name} can not compare attribute type #{lhs.attribute_type} on LHS"
       end
       if !RelationshipConstraint.comparable_attribute_types.include?(rhs.attribute_type)
-        raise "Relationship constraint #{name} can not compare attribute type #{rhs.attribute_type} on RHS"
+        raise "Relationship constraint #{constraint.name} can not compare attribute type #{rhs.attribute_type} on RHS"
       end
-      relationship_constraint = RelationshipConstraint.new(name, operator, lhs_operand, rhs_operand, options, &block)
-      @relationship_constraints[name] = relationship_constraint
-      relationship_constraint
+      add_unique_to_set("relationship", constraint, @relationship_constraints)
     end
 
     def codependent_constraints
@@ -662,13 +687,11 @@ module Domgen
 
     # Check that either all attributes are null or all are not null
     def codependent_constraint(attribute_names, options = {}, &block)
-      name = attribute_names_to_key(attribute_names)
+      constraint = CodependentConstraint.new(self, attribute_names, options, &block)
       attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
-        error("Codependent constraint #{name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
+        error("Codependent constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
-      codependent_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
-      @codependent_constraints[name] = codependent_constraint
-      codependent_constraint
+      add_unique_to_set("codependent", constraint, @codependent_constraints)
     end
 
     def incompatible_constraints
@@ -677,13 +700,11 @@ module Domgen
 
     # Check that at most one of the attributes is not null
     def incompatible_constraint(attribute_names, options = {}, &block)
-      name = attribute_names_to_key(attribute_names)
+      constraint = IncompatibleConstraint.new(self, attribute_names, options, &block)
       attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
-        error("Incompatible constraint #{name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
+        error("Incompatible constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
-      incompatible_constraint = AttributeSetConstraint.new(name, attribute_names, options, &block)
-      @incompatible_constraints[name.to_s] = incompatible_constraint
-      incompatible_constraint
+      add_unique_to_set("incompatible", constraint, @incompatible_constraints)
     end
 
     def cycle_constraints
@@ -693,9 +714,8 @@ module Domgen
     # Constraint that ensures that the value of a particular value is within a particular scope
     def cycle_constraint(attribute_name, attribute_name_path, options = {}, &block)
       error("Cycle constraint must have a path of length 1 or more") if attribute_name_path.empty?
-      name = ([attribute_name] + attribute_name_path).collect { |a| a.to_s }.sort.join('_')
 
-      cycle_constraint = CycleConstraint.new(name, attribute_name, attribute_name_path, options, &block)
+      constraint = CycleConstraint.new(self, attribute_name, attribute_name_path, options, &block)
 
       object_type = self
       attribute_name_path.each do |attribute_name_path_element|
@@ -706,11 +726,10 @@ module Domgen
       end
       local_reference = attribute_by_name(attribute_name)
       error("Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
-      scoping_attribute = local_reference.referenced_object.attribute_by_name(cycle_constraint.scoping_attribute)
+      scoping_attribute = local_reference.referenced_object.attribute_by_name(constraint.scoping_attribute)
       error("Attribute in cycle references #{scoping_attribute.referenced_object.name} while last reference in path is #{object_type.name}") if object_type != scoping_attribute.referenced_object
 
-      @cycle_constraints[name.to_s] = cycle_constraint
-      cycle_constraint
+      add_unique_to_set("cycle", constraint, @cycle_constraints)
     end
 
     # Assume single column pk
@@ -732,8 +751,10 @@ module Domgen
 
     private
 
-    def attribute_names_to_key(attribute_names)
-      attribute_names.collect { |a| attribute_by_name(a).name.to_s }.sort.join('_')
+    def add_unique_to_set(type, constraint, set)
+      error("Only 1 #{type} constraint with name #{constraint.name} should be defined") if set[constraint.name]
+      set[constraint.name] = constraint
+      constraint
     end
   end
 
