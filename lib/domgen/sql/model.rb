@@ -101,8 +101,7 @@ module Domgen
       attr_writer :schema
 
       def schema
-        @schema = parent.name unless @schema
-        @schema
+        @schema || parent.name
       end
 
       def quoted_schema
@@ -145,15 +144,13 @@ module Domgen
       attr_writer :cluster
 
       def cluster?
-        @cluster = false if @cluster.nil?
-        @cluster
+        @cluster.nil? ? false : @cluster
       end
 
       attr_writer :unique
 
       def unique?
-        @unique = false if @unique.nil?
-        @unique
+        @unique.nil? ? false : @unique
       end
     end
 
@@ -201,7 +198,7 @@ module Domgen
       end
 
       def on_update
-        @on_update ||= :no_action
+        @on_update || :no_action
       end
 
       def on_delete=(on_delete)
@@ -210,7 +207,7 @@ module Domgen
       end
 
       def on_delete
-        @on_delete ||= :no_action
+        @on_delete || :no_action
       end
 
       def foreign_key_name
@@ -374,8 +371,7 @@ module Domgen
       end
 
       def trigger_name
-        @trigger_name = sql_name(:trigger, "#{parent.parent.name}#{self.name}") unless @trigger_name
-        @trigger_name
+        @trigger_name ||= sql_name(:trigger, "#{parent.parent.name}#{self.name}")
       end
 
       def quoted_trigger_name
@@ -410,8 +406,7 @@ module Domgen
       end
 
       def table_name
-        @table_name = sql_name(:table, parent.name) unless @table_name
-        @table_name
+        @table_name ||= sql_name(:table, parent.name)
       end
 
       def quoted_table_name
@@ -834,8 +829,7 @@ SQL
       attr_writer :sparse
 
       def sparse?
-        @sparse = false unless @sparse
-        @sparse
+        @sparse.nil? ? false : @sparse
       end
 
       # The calculation to create column
