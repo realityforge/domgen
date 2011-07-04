@@ -795,6 +795,7 @@ module Domgen
         object_type.incompatible_constraints.each { |a| a.mark_as_inherited }
         object_type.dependency_constraints.each { |a| a.mark_as_inherited }
         object_type.relationship_constraints.each { |a| a.mark_as_inherited }
+        object_type.cycle_constraints.each { |a| a.mark_as_inherited }
         object_type.extension_point(:post_inherited)
         base_type.direct_subtypes << object_type
         register_object_type(name, object_type)
