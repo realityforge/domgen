@@ -227,7 +227,7 @@ module Domgen
     end
 
     def multiplicity
-      @inverse_multiplicity || :many
+      @multiplicity || :many
     end
 
     def multiplicity=(multiplicity)
