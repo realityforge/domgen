@@ -33,7 +33,7 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
   @SuppressWarnings( { "PublicInnerClass" } )
   public static enum <%= attribute.java.field_name %>Value
   {
-    <%= attribute.values.collect {|k,v| "#{k}" } .join(",\n    ")%>
+    <%= attribute.values.keys.collect {|k| "#{k}" } .join(",\n    ")%>
   }
 <% end
    object_type.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
