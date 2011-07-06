@@ -8,14 +8,8 @@ module Domgen
         else
           s << "  @javax.persistence.Id\n" if attribute.primary_key?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
-          if attribute.reference?
-            s << gen_relation_annotation(attribute, true)
-            s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{attribute.updatable?} )\n"
-          else
-            s << "  @javax.persistence.Column( name = \"#{attribute.sql.column_name}\""
-            s << ", length = #{attribute.length}" if attribute.has_non_max_length?
-            s << ", nullable = #{attribute.nullable?}, updatable = #{attribute.updatable?} )\n"
-          end
+          s << gen_relation_annotation(attribute, true) if attribute.reference?
+          s << gen_column_annotation(attribute)
         end
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
@@ -44,6 +38,22 @@ module Domgen
           s << "  private #{attribute.object_type.java.qualified_name} #{attribute.inverse.relationship_name};\n"
         end
         s
+      end
+
+      def gen_column_annotation(attribute)
+        parameters = []
+        parameters << "name = \"#{attribute.sql.column_name}\""
+        parameters << "nullable = #{attribute.nullable?}"
+        parameters << "updatable = #{attribute.updatable?}"
+        parameters << "unique = #{attribute.unique?}"
+        parameters << "insertable = #{!attribute.generated_value?}"
+
+        if !attribute.reference? && attribute.has_non_max_length?
+          parameters << "length = #{attribute.length}"
+        end
+
+        annotation = attribute.reference? ? "JoinColumn" : "Column"
+        "  @javax.persistence.#{annotation}( #{parameters.join(', ')} )\n"
       end
 
       def gen_relation_annotation(attribute, declaring_relationship)
