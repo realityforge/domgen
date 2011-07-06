@@ -720,7 +720,7 @@ SQL
         end
 
         if parent.read_only?
-          trigger_name = "#{parent.name}ReadOnlyCheck"
+          trigger_name = "ReadOnlyCheck"
           unless trigger_by_name(trigger_name)
             trigger(trigger_name) do |trigger|
               trigger.description("Ensure that #{parent.name} is read only.")
@@ -737,7 +737,7 @@ SQL
           validations = self.validations.select {|v| v.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
           actions = self.actions.select {|a| a.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
           if !validations.empty? || !actions.empty?
-            trigger_name = "#{parent.name}After#{after.to_s.capitalize}"
+            trigger_name = "After#{after.to_s.capitalize}"
             trigger(trigger_name) do |trigger|
 
               if !validations.empty?
