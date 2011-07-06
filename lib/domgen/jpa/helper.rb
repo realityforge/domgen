@@ -129,15 +129,25 @@ JAVA
   {
      return #{name};
   }
-JAVA
-            if attribute.updatable?
-              java << <<JAVA
-  public void set#{name}( final #{type} value )
+
+  protected final void add#{name}( final #{type} value )
   {
-     #{name} = value;
+    if( null != #{name}  )
+    {
+      throw new IllegalStateException("Attempted to add value when non null value exists.");
+    }
+    #{name} = value;
+  }
+
+  public final void remove#{name}( final #{type} value )
+  {
+    if( null != #{name} && value != #{name} )
+    {
+      throw new IllegalStateException("Attempted to remove value that was not the same.");
+    }
+    #{name} = null;
   }
 JAVA
-            end
             java
           end
         end
@@ -210,10 +220,8 @@ JAVA
         inverse_name = attribute.inverse.relationship_name
         if !attribute.inverse.traversable?
           ''
-        elsif attribute.inverse.multiplicity == :many
-          null_guard(attribute.nullable?, name) { "this.#{name}.add#{inverse_name}( this );" }
         else
-          null_guard(attribute.nullable?, name) { "this.#{name}.set#{inverse_name}( this );" }
+          null_guard(attribute.nullable?, name) { "this.#{name}.add#{inverse_name}( this );" }
         end
       end
 
@@ -222,10 +230,8 @@ JAVA
         inverse_name = attribute.inverse.relationship_name
         if !attribute.inverse.traversable?
           ''
-        elsif attribute.inverse.multiplicity == :many
-          null_guard(true, name) { "#{name}.remove#{inverse_name}( this );" }
         else
-          null_guard(attribute.nullable?, name) { "#{name}.set#{inverse_name}( null );" }
+          null_guard(true, name) { "#{name}.remove#{inverse_name}( this );" }
         end
       end
 
