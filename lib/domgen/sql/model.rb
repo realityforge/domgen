@@ -603,10 +603,10 @@ SQL
         parent.declared_attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
           validation(validation_name, :negative_sql => <<SQL, :after => :update) unless validation_by_name(validation_name)
-SELECT I.#{Domgen::Sql.dialect.quote("ID")}
+SELECT I.#{a.object_type.primary_key.sql.quoted_column_name}
 FROM
 inserted I
-JOIN deleted D ON D.#{Domgen::Sql.dialect.quote("ID")} = I.#{Domgen::Sql.dialect.quote("ID")}
+JOIN deleted D ON D.#{a.object_type.primary_key.sql.quoted_column_name} = I.#{a.object_type.primary_key.sql.quoted_column_name}
 WHERE
   D.#{a.sql.quoted_column_name} IS NOT NULL AND
   (
@@ -693,14 +693,14 @@ SQL
             validation_name = "#{attribute.name}ForeignKey"
             #TODO: Turn this into a functional validation
             if !validation_by_name(validation_name)
-              guard = "UPDATE(#{Domgen::Sql.dialect.quote(attribute.referencing_link_name)})"
+              guard = "UPDATE(#{attribute.sql.quoted_column_name})"
               sql = <<SQL
       SELECT I.#{parent.primary_key.sql.column_name}
       FROM
         inserted I
 SQL
               concrete_subtypes.each_pair do |name, subtype|
-                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{Domgen::Sql.dialect.quote("ID")} = I.#{Domgen::Sql.dialect.quote(attribute.referencing_link_name)}"
+                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{Domgen::Sql.dialect.quote("ID")} = I.#{attribute.sql.quoted_column_name}"
               end
               sql << "      WHERE (#{names.collect { |name| "#{name}.#{Domgen::Sql.dialect.quote("ID")} IS NULL" }.join(' AND ') })"
               (0..(names.size - 2)).each do |index|
