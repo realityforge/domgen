@@ -99,9 +99,9 @@ module Domgen
                             "referenced-object" => attribute.referenced_object.qualified_name,
                             "polymorphic" => attribute.polymorphic?.to_s,
                             "link-name" => attribute.referencing_link_name,
-                            "inverse-multiplicity" => attribute.inverse_multiplicity.to_s,
-                            "inverse-traversable" => attribute.inverse_traversable?.to_s,
-                            "inverse-relationship" => attribute.inverse_relationship_name.to_s)
+                            "inverse-multiplicity" => attribute.inverse.multiplicity.to_s,
+                            "inverse-traversable" => attribute.inverse.traversable?.to_s,
+                            "inverse-relationship" => attribute.inverse.relationship_name.to_s)
             end
 
             if attribute.persistent?

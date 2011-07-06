@@ -153,11 +153,11 @@ module Domgen
                                                       attribute.nullable? ? 0 : 1,
                                                       1,
                                                       end2,
-                                                      attribute.inverse_traversable?,
+                                                      attribute.inverse.traversable?,
                                                       AggregationKind::NONE_LITERAL,
                                                       "",
                                                       0,
-                                                      attribute.inverse_multiplicity == :many ? LiteralUnlimitedNatural::UNLIMITED : 1)
+                                                      attribute.inverse.multiplicity == :many ? LiteralUnlimitedNatural::UNLIMITED : 1)
             resource.setID(emf_association, attribute.qualified_name.to_s + ".Assoc")
             emf_association.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end

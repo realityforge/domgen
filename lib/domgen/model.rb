@@ -216,6 +216,52 @@ module Domgen
     end
   end
 
+  class InverseElement < BaseGeneratableElement
+
+    def initialize(attribute, options, &block)
+      super(attribute, options, &block)
+    end
+
+    def attribute
+      self.parent
+    end
+
+    def multiplicity
+      @inverse_multiplicity || :many
+    end
+
+    def multiplicity=(multiplicity)
+      error("multiplicity #{multiplicity} is invalid") unless self.class.inverse_multiplicity_types.include?(multiplicity)
+      @multiplicity = multiplicity
+    end
+
+    def traversable=(traversable)
+      error("traversable #{traversable} is invalid") unless self.class.inverse_traversable_types.include?(traversable)
+      @traversable = traversable
+    end
+
+    def traversable?
+      @traversable.nil? ? false : @traversable
+    end
+
+    def relationship_name=(relationship_name)
+      @relationship_name = relationship_name
+      self.traversable = true
+    end
+
+    def relationship_name
+      @relationship_name || attribute.object_type.name
+    end
+
+    def self.inverse_multiplicity_types
+      [:one, :many, :zero_or_one]
+    end
+
+    def self.inverse_traversable_types
+      [true, false]
+    end
+  end
+
   class Attribute < BaseConfigElement
     attr_reader :object_type
     attr_reader :name
@@ -356,16 +402,19 @@ module Domgen
     attr_writer :persistent
 
     def persistent?
-      @persistent = true if @persistent.nil?
-      @persistent
+      @persistent.nil? ? true : @persistent
     end
 
     attr_writer :polymorphic
 
     def polymorphic?
       error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
-      @polymorphic = !referenced_object.final? if @polymorphic.nil?
-      @polymorphic
+      @polymorphic.nil? ? !referenced_object.final? : @polymorphic
+    end
+
+    def inverse
+      error("inverse called on #{name} is invalid as attribute is not a reference") unless reference?
+      @inverse ||= InverseElement.new(self, {})
     end
 
     attr_reader :references
@@ -384,39 +433,6 @@ module Domgen
     def referencing_link_name
       error("referencing_link_name on #{name} is invalid as attribute is not a reference") unless reference?
       "#{name}#{referenced_object.primary_key.name}"
-    end
-
-    def inverse_multiplicity=(inverse_multiplicity)
-      error("inverse_multiplicity on #{name} is invalid as attribute is not a reference") unless reference?
-      error("inverse_multiplicity #{inverse_multiplicity} on #{name} is invalid") unless self.class.inverse_multiplicity_types.include?(inverse_multiplicity)
-      @inverse_multiplicity = inverse_multiplicity
-    end
-
-    def inverse_multiplicity
-      error("inverse_multiplicity on #{name} is invalid as attribute is not a reference") unless reference?
-      @inverse_multiplicity || :many
-    end
-
-    def inverse_traversable=(inverse_traversable)
-      error("inverse_multiplicity on #{name} is invalid as attribute is not a reference") unless reference?
-      error("inverse_multiplicity #{inverse_traversable} on #{name} is invalid") unless self.class.inverse_traversable_types.include?(inverse_traversable)
-      @inverse_traversable = inverse_traversable
-    end
-
-    def inverse_traversable?
-      error("inverse_traversable on #{name} is invalid as attribute is not a reference") unless reference?
-      @inverse_traversable.nil? ? false : @inverse_traversable
-    end
-
-    def inverse_relationship_name=(inverse_relationship_name)
-      error("inverse_relationship_name on #{name} is invalid as attribute is not a reference") unless reference?
-      @inverse_relationship_name = inverse_relationship_name
-      self.inverse_traversable = true
-    end
-
-    def inverse_relationship_name
-      error("inverse_relationship_name on #{name} is invalid as attribute is not a reference") unless reference?
-      @inverse_relationship_name || object_type.name
     end
 
     def on_update=(on_update)
@@ -441,14 +457,6 @@ module Domgen
       error("on_delete on #{name} is invalid as attribute is not a reference") unless reference?
       @on_delete = :no_action if @on_delete.nil?
       @on_delete
-    end
-
-    def self.inverse_traversable_types
-      [true, false]
-    end
-
-    def self.inverse_multiplicity_types
-      [:one, :many, :zero_or_one]
     end
 
     def self.change_actions

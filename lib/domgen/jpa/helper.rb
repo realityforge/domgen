@@ -9,12 +9,12 @@ module Domgen
           s << "  @javax.persistence.Id\n" if attribute.primary_key?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
           if attribute.reference?
-            if attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
+            if attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
               parameters = ["optional = #{attribute.nullable?}"]
               j_relation_parameters(attribute, parameters)
               s << "  @javax.persistence.ManyToOne( #{parameters.join(", ")} )\n"
               s << "  @javax.persistence.OneToOne( #{parameters.join(", ")} )\n"
-            else # attribute.inverse_multiplicity == :many
+            else # attribute.inverse.multiplicity == :many
               parameters = ["optional = #{attribute.nullable?}"]
               j_relation_parameters(attribute, parameters)
               s << "  @javax.persistence.ManyToOne( #{parameters.join(", ")} )\n"
@@ -53,7 +53,7 @@ module Domgen
       end
 
       def j_declared_relation(attribute)
-        if attribute.inverse_multiplicity == :many
+        if attribute.inverse.multiplicity == :many
           type = attribute.object_type.java.qualified_name
           s = ''
           parameters = ["mappedBy = \"#{attribute.name}\""]
@@ -66,14 +66,14 @@ module Domgen
           if fetch_mode
             s << "  @org.hibernate.annotations.Fetch( org.hibernate.annotations.FetchMode.#{fetch_mode.to_s.upcase} )\n"
           end
-          s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse_relationship_name)};\n"
+          s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse.relationship_name)};\n"
           s
-        else # attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
+        else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
           type = attribute.object_type.java.qualified_name
           s = ''
-          optional = (attribute.inverse_multiplicity == :zero_or_one) ? '' : ', optional = true'
+          optional = (attribute.inverse.multiplicity == :zero_or_one) ? '' : ', optional = true'
           s << "  @javax.persistence.OneToOne( mappedBy= \"#{attribute.java.field_name}\"#{optional} )\n"
-          s << "  private #{type} #{attribute.inverse_relationship_name};\n"
+          s << "  private #{type} #{attribute.inverse.relationship_name};\n"
           s
         end
       end
@@ -112,15 +112,15 @@ JAVA
       def j_declared_attribute_and_relation_accessors(object_type)
         relation_methods = object_type.referencing_attributes.collect do |attribute|
 
-          if attribute.abstract? || attribute.inherited? || !attribute.inverse_traversable? || !attribute.jpa.persistent?
+          if attribute.abstract? || attribute.inherited? || !attribute.inverse.traversable? || !attribute.jpa.persistent?
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
             # Ignore attributes that have no inverse relationship
             nil
-          elsif attribute.inverse_multiplicity == :many
+          elsif attribute.inverse.multiplicity == :many
             j_has_many_attribute(attribute)
-          else #attribute.inverse_multiplicity == :one || attribute.inverse_multiplicity == :zero_or_one
-            name = attribute.inverse_relationship_name
+          else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
+            name = attribute.inverse.relationship_name
             type = nullable_annotate(attribute, attribute.object_type.java.qualified_name, false, true)
 
             java = description_javadoc_for attribute
@@ -207,10 +207,10 @@ JAVA
 
       def j_add_to_inverse(attribute)
         name = attribute.java.field_name
-        inverse_name = attribute.inverse_relationship_name
-        if !attribute.inverse_traversable?
+        inverse_name = attribute.inverse.relationship_name
+        if !attribute.inverse.traversable?
           ''
-        elsif attribute.inverse_multiplicity == :many
+        elsif attribute.inverse.multiplicity == :many
           null_guard(attribute.nullable?, name) { "this.#{name}.add#{inverse_name}( this );" }
         else
           null_guard(attribute.nullable?, name) { "this.#{name}.set#{inverse_name}( this );" }
@@ -219,10 +219,10 @@ JAVA
 
       def j_remove_from_inverse(attribute)
         name = attribute.java.field_name
-        inverse_name = attribute.inverse_relationship_name
-        if !attribute.inverse_traversable?
+        inverse_name = attribute.inverse.relationship_name
+        if !attribute.inverse.traversable?
           ''
-        elsif attribute.inverse_multiplicity == :many
+        elsif attribute.inverse.multiplicity == :many
           null_guard(true, name) { "#{name}.remove#{inverse_name}( this );" }
         else
           null_guard(attribute.nullable?, name) { "#{name}.set#{inverse_name}( null );" }
@@ -260,7 +260,7 @@ JAVA
       end
 
       def j_has_many_attribute(attribute)
-        name = attribute.inverse_relationship_name
+        name = attribute.inverse.relationship_name
         plural_name = pluralize(name)
         type = attribute.object_type.java.qualified_name
         java = description_javadoc_for attribute
@@ -388,7 +388,7 @@ JAVA
           return type
         elsif !attribute.nullable? &&
           !attribute.generated_value? &&
-          !(attribute.reference? && attribute.inverse_multiplicity == :zero_or_one && inverse_side)
+          !(attribute.reference? && attribute.inverse.multiplicity == :zero_or_one && inverse_side)
           annotation = "@org.jetbrains.annotations.NotNull #{type}"
         else
           annotation = "@org.jetbrains.annotations.Nullable #{type}"

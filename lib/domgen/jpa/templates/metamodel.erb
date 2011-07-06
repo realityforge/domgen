@@ -11,6 +11,6 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
    object_type.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
   public static volatile javax.persistence.metamodel.SingularAttribute<<%= object_type.java.classname %>, <%= attribute.java.non_primitive_java_type %>> <%= attribute.java.field_name %>;<%
    end
-  object_type.referencing_attributes.select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse_traversable? }.each do |attribute| %>
+  object_type.referencing_attributes.select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.traversable? }.each do |attribute| %>
   public static volatile javax.persistence.metamodel.ListAttribute<<%= object_type.java.classname %>, <%= attribute.object_type.java.qualified_name %>> items;<% end %>
 }

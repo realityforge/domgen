@@ -54,14 +54,14 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
      end
    end %>
 <% object_type.referencing_attributes.each do |attribute|
-    if attribute.inverse_multiplicity == :many
+    if attribute.inverse.multiplicity == :many
 %>
-  has_many :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
-  has_count_of :<%= pluralize(underscore(attribute.inverse_relationship_name)) %>
+  has_many :<%= pluralize(underscore(attribute.inverse.relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_count_of :<%= pluralize(underscore(attribute.inverse.relationship_name)) %>
 <%
-    elsif [:one, :zero_or_one].include? attribute.inverse_multiplicity
+    elsif [:one, :zero_or_one].include? attribute.inverse.multiplicity
 %>
-  has_one :<%= underscore(attribute.inverse_relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_one :<%= underscore(attribute.inverse.relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
 <%
     end
   end
