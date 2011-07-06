@@ -10,6 +10,10 @@ module Domgen
         string.gsub("\'","''")
       end
 
+      def disallow_blank_constraint(column_name)
+        "char_length(trim(both from #{quote(column_name)} )) > 0"
+      end
+
       TYPE_MAP = {"string" => "varchar",
                   "integer" => "integer",
                   "real" => "double precision",
@@ -51,6 +55,10 @@ module Domgen
 
       def quote_string(string)
         string.gsub("\'","''")
+      end
+
+      def disallow_blank_constraint(column_name)
+        "LEN( #{quote(column_name)} ) > 0"
       end
 
       TYPE_MAP = {"string" => "VARCHAR",
@@ -596,7 +604,7 @@ SQL
         end
         parent.declared_attributes.select{ |a| (a.attribute_type == :s_enum || a.attribute_type == :string) && a.persistent? && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
-          sql = "LEN( #{a.sql.quoted_column_name} ) > 0"
+          sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
         end
 
