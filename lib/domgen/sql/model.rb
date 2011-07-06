@@ -160,6 +160,10 @@ module Domgen
       def unique?
         @unique.nil? ? false : @unique
       end
+
+      def partial?
+        !self.filter.nil?
+      end
     end
 
     class ForeignKey < BaseConfigElement
