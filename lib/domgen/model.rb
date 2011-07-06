@@ -342,13 +342,8 @@ module Domgen
     end
 
     def min_length
-      if @min_length.nil?
-        @min_length = 0
-      end
-      if @min_length == 0 && ( @allow_blank.nil? || !@allow_blank )
-        @min_length = 1
-      end
-      @min_length
+      return @min_length if @min_length
+      allow_blank? ? 0 : 1
     end
 
     def min_length=(length)
@@ -359,15 +354,7 @@ module Domgen
     attr_writer :allow_blank
 
     def allow_blank?
-      if @allow_blank.nil?
-        if self.min_length > 0
-          false
-        else
-          true
-        end
-      else
-        @allow_blank
-      end
+      @allow_blank.nil? ? true : @allow_blank
     end
 
     attr_writer :unique

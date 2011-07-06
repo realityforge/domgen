@@ -21,9 +21,7 @@ module Domgen
             s << "max = #{attribute.length} " if attribute.has_non_max_length?
             s << " )\n"
           end
-          if !attribute.allow_blank?
-            s << "  @org.hibernate.validator.constraints.NotEmpty\n"
-          end
+          s << "  @org.hibernate.validator.constraints.NotEmpty\n" if !attribute.allow_blank?
         end
         s
       end
