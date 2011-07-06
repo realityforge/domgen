@@ -77,27 +77,12 @@ module Domgen
       end
     end
 
-    class JpaField < JpaElement
-      attr_writer :persistent
-
-      def persistent?
-        @persistent = (!parent.abstract? && parent.persistent?) if @persistent.nil?
-        @persistent
-      end
-
-      attr_writer :orphan_removal
-
-      def orphan_removal?
-        !!@orphan_removal
-      end
-
+    class BaseJpaField < JpaElement
       def cascade
-        error("cascade on #{name} is invalid as attribute is not a reference") unless parent.reference?
         @cascade || []
       end
 
       def cascade=(value)
-        error("cascade on #{name} is invalid as attribute is not a reference") unless parent.reference?
         value = value.is_a?(Array) ? value : [value]
         invalid_cascades = value.select {|v| !self.class.cascade_types.include?(v)}
         unless invalid_cascades.empty?
@@ -106,27 +91,11 @@ module Domgen
         @cascade = value
       end
 
-      def inverse_cascade
-        error("inverse_cascade on #{name} is invalid as attribute is not a reference") unless parent.reference?
-        @inverse_cascade || []
-      end
-
-      def inverse_cascade=(value)
-        error("inverse_cascade on #{name} is invalid as attribute is not a reference") unless parent.reference?
-        value = value.is_a?(Array) ? value : [value]
-        invalid_cascades = value.select {|v| !self.class.cascade_types.include?(v)}
-        unless invalid_cascades.empty?
-          error("cascade_type must be one of #{self.class.cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
-        end
-        @inverse_cascade = value
-      end
-
       def self.cascade_types
         [:all, :persist, :merge, :remove, :refresh, :detach]
       end
 
       def fetch_type
-        error("fetch_type on #{name} is invalid as attribute is not a reference") unless parent.reference?
         @fetch_type || :lazy
       end
 
@@ -139,10 +108,7 @@ module Domgen
         [:eager, :lazy]
       end
 
-      def fetch_mode
-        error("fetch_mode on #{name} is invalid as attribute is not a reference") unless parent.reference?
-        @fetch_mode
-      end
+      attr_reader :fetch_mode
 
       def fetch_mode=(fetch_mode)
         error("fetch_mode #{fetch_mode} is not recorgnized") unless self.class.fetch_modes.include?(fetch_mode)
@@ -151,6 +117,22 @@ module Domgen
 
       def self.fetch_modes
         [:select, :join, :subselect]
+      end
+    end
+
+    class JpaFieldInverse < BaseJpaField
+      attr_writer :orphan_removal
+
+      def orphan_removal?
+        !!@orphan_removal
+      end
+    end
+
+    class JpaField < BaseJpaField
+      attr_writer :persistent
+
+      def persistent?
+        @persistent.nil? ? (!parent.abstract? && parent.persistent?) : @persistent
       end
     end
 
@@ -207,6 +189,13 @@ module Domgen
 
     def jpa
       @jpa = Domgen::JPA::JpaClass.new(self) unless @jpa
+      @jpa
+    end
+  end
+
+  class InverseElement
+    def jpa
+      @jpa = Domgen::JPA::JpaFieldInverse.new(self) unless @jpa
       @jpa
     end
   end

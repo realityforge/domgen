@@ -9,16 +9,7 @@ module Domgen
           s << "  @javax.persistence.Id\n" if attribute.primary_key?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
           if attribute.reference?
-            if attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-              parameters = ["optional = #{attribute.nullable?}"]
-              j_relation_parameters(attribute, parameters)
-              s << "  @javax.persistence.ManyToOne( #{parameters.join(", ")} )\n"
-              s << "  @javax.persistence.OneToOne( #{parameters.join(", ")} )\n"
-            else # attribute.inverse.multiplicity == :many
-              parameters = ["optional = #{attribute.nullable?}"]
-              j_relation_parameters(attribute, parameters)
-              s << "  @javax.persistence.ManyToOne( #{parameters.join(", ")} )\n"
-            end
+            s << gen_relation_annotation(attribute, true)
             s << "  @javax.persistence.JoinColumn( name = \"#{attribute.sql.column_name}\", nullable = #{attribute.nullable?}, updatable = #{attribute.updatable?} )\n"
           else
             s << "  @javax.persistence.Column( name = \"#{attribute.sql.column_name}\""
@@ -43,38 +34,56 @@ module Domgen
         s
       end
 
-      def j_relation_parameters(attribute, parameters, declaring_relationship=true)
-        cascade = declaring_relationship ? attribute.jpa.cascade : attribute.jpa.inverse_cascade
+      def j_declared_relation(attribute)
+        s = ''
+        s << gen_relation_annotation(attribute, false)
+        s << gen_fetch_mode_if_specified(attribute)
+        if attribute.inverse.multiplicity == :many
+          s << "  private java.util.List<#{attribute.object_type.java.qualified_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
+        else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
+          s << "  private #{attribute.object_type.java.qualified_name} #{attribute.inverse.relationship_name};\n"
+        end
+        s
+      end
+
+      def gen_relation_annotation(attribute, declaring_relationship)
+        parameters = []
+        cascade = declaring_relationship ? attribute.jpa.cascade : attribute.inverse.jpa.cascade
         unless cascade.nil? || cascade.empty?
           parameters << "cascade = { #{cascade.map { |c| "javax.persistence.CascadeType.#{c.to_s.upcase}" }.join(", ")} }"
         end
 
-        parameters << "fetch = javax.persistence.FetchType.#{attribute.jpa.fetch_type.to_s.upcase}"
+        fetch_type = declaring_relationship ? attribute.jpa.fetch_type : attribute.inverse.jpa.fetch_type
+        parameters << "fetch = javax.persistence.FetchType.#{fetch_type.to_s.upcase}"
+
+        if declaring_relationship
+          parameters << "optional = #{attribute.nullable?}"
+        end
+
+        if !declaring_relationship
+          parameters << "orphanRemoval = #{attribute.inverse.jpa.orphan_removal?}"
+          parameters << "mappedBy = \"#{attribute.java.field_name}\""
+        end
+
+        #noinspection RubyUnusedLocalVariable
+        annotation = nil
+        if attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
+          annotation = "OneToOne"
+        elsif declaring_relationship
+          annotation = "ManyToOne"
+        else
+          annotation = "OneToMany"
+        end
+
+        "  @javax.persistence.#{annotation}( #{parameters.join(", ")} )\n"
       end
 
-      def j_declared_relation(attribute)
-        if attribute.inverse.multiplicity == :many
-          type = attribute.object_type.java.qualified_name
-          s = ''
-          parameters = ["mappedBy = \"#{attribute.name}\""]
-
-          j_relation_parameters(attribute, parameters, false)
-
-          parameters << "orphanRemoval = true" if attribute.jpa.orphan_removal?
-          s << "  @javax.persistence.OneToMany( #{parameters.join(", ")} )\n"
-          fetch_mode = attribute.jpa.fetch_mode
-          if fetch_mode
-            s << "  @org.hibernate.annotations.Fetch( org.hibernate.annotations.FetchMode.#{fetch_mode.to_s.upcase} )\n"
-          end
-          s << "  private java.util.List<#{type}> #{pluralize(attribute.inverse.relationship_name)};\n"
-          s
-        else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          type = attribute.object_type.java.qualified_name
-          s = ''
-          optional = (attribute.inverse.multiplicity == :zero_or_one) ? '' : ', optional = true'
-          s << "  @javax.persistence.OneToOne( mappedBy= \"#{attribute.java.field_name}\"#{optional} )\n"
-          s << "  private #{type} #{attribute.inverse.relationship_name};\n"
-          s
+      def gen_fetch_mode_if_specified(attribute)
+        fetch_mode = attribute.inverse.jpa.fetch_mode
+        if fetch_mode
+          "  @org.hibernate.annotations.Fetch( org.hibernate.annotations.FetchMode.#{fetch_mode.to_s.upcase} )\n"
+        else
+          ''
         end
       end
 
