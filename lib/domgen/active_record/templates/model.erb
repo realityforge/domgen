@@ -91,8 +91,8 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
   end
 <% end %>
 <% object_type.relationship_constraints.each do |c|
-  lhs = parent.attribute_by_name(c.lhs_operand)
-  rhs = parent.attribute_by_name(c.rhs_operand)
+  lhs = object_type.attribute_by_name(c.lhs_operand)
+  rhs = object_type.attribute_by_name(c.rhs_operand)
   op = c.class.operators[c.operator]
   op = '==' if '=' == op
   description = (lhs.attribute_type == :datetime) ? c.class.numeric_operator_descriptions[c.operator] : c.class.temporal_operator_descriptions[c.operator]
