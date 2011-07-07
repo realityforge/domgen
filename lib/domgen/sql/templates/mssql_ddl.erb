@@ -193,9 +193,10 @@ GO
 <%    end
     end
   end
+  if data_module.sql.owned?
 %>
 
-CREATE PROCEDURE <%= data_module.sql.schema %>.spCheckConstraints
+CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.spCheckConstraints
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -237,3 +238,4 @@ BEGIN
 END
 GO
 
+<% end %>
