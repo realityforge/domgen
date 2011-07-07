@@ -103,7 +103,7 @@ module Domgen
   {
   }
 
-  @SuppressWarnings( { "ConstantConditions" } )
+  @SuppressWarnings( { "ConstantConditions", "deprecation" } )
   public #{object_type.java.classname}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.java.java_type, false)} #{a.java.field_name}"}.join(", ")})
   {
 #{immutable_attributes.select{|a|!a.nullable? && !a.java.primitive?}.collect{|a| "    if( null == #{a.java.field_name} )\n    {\n      throw new NullPointerException( \"#{a.java.field_name} is not nullable\" );\n    }"}.join("\n")}
@@ -268,6 +268,7 @@ JAVA
 JAVA
         if attribute.updatable?
           java << <<JAVA
+  @SuppressWarnings( { "deprecation" } )
   public void set#{name}( final #{type} value )
   {
  #{j_return_if_value_same(name, attribute.referenced_object.primary_key.java.primitive?, attribute.nullable?)}
