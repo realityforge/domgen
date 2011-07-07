@@ -174,7 +174,7 @@ module Domgen
     def initialize(object_type, operator, lhs_operand, rhs_operand, options, &block)
       @name = "#{lhs_operand}_#{operator}_#{rhs_operand}"
       @lhs_operand, @rhs_operand, @operator = lhs_operand, rhs_operand, operator
-      raise "Unknwon operator #{operator} for relationship constraint #{@name}" unless self.class.operators.keys.include?(operator)
+      raise "Unknown operator #{operator} for relationship constraint #{@name}" unless self.class.operators.keys.include?(operator)
       super(object_type, options, &block)
     end
 
