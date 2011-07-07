@@ -15,6 +15,7 @@ module Domgen
         template_name = File.basename(template.template_filename, '.erb')
         if :repository == template.scope
           if repository.generate?(template.generator_key) && (filter.nil? || filter.call(:repository, repository))
+            Logger.debug "Generating #{template_name} for respository"
             render(directory, template, :repository, repository) do
               Logger.debug "Generated #{template_name} for respository"
             end
@@ -23,6 +24,7 @@ module Domgen
           repository.data_modules.each do |data_module|
             if :data_module == template.scope
               if data_module.generate?(template.generator_key) && (filter.nil? || filter.call(:data_module, data_module))
+                Logger.debug "Generating #{template_name} for data_module #{data_module.name}"
                 render(directory, template, :data_module, data_module) do
                   Logger.debug "Generated #{template_name} for data_module #{data_module.name}"
                 end
@@ -30,8 +32,9 @@ module Domgen
             else
               data_module.object_types.each do |object_type|
                 if object_type.generate?(template.generator_key) && (filter.nil? || filter.call(:object_type, object_type))
+                  Logger.debug "Generating #{template_name} for object_type #{object_type.qualified_name}"
                   render(directory, template, :object_type, object_type) do
-                    Logger.debug "Generated #{template_name} for object_type #{data_module.name}.#{object_type.name}"
+                    Logger.debug "Generated #{template_name} for object_type #{object_type.qualified_name}"
                   end
                 end
               end
