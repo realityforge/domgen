@@ -21,10 +21,11 @@ module Domgen
       private
 
       def define
+        # Need to init emf now otherwise Buildr will not have jars loaded into classpath
+        Domgen::Xmi.init_emf
         namespace self.namespace_key do
           desc self.description || "Generates the #{key} xmi artifacts."
           t = task self.key => ["#{self.namespace_key}:load"] do
-            Domgen::Xmi.init_emf
             begin
               FileUtils.mkdir_p File.dirname(filename)
               Domgen::Xmi.generate_xmi(self.repository_key, self.model_name || self.repository_key, self.filename)
