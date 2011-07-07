@@ -297,7 +297,11 @@ JAVA
     return java.util.Collections.unmodifiableList( safeGet#{plural_name}() );
   }
 
-  protected final void add#{name}( final #{type} value )
+  /**
+   * This method should not be called directly. It is called from the constructor of #{type}.
+   */
+  @Deprecated
+  public final void add#{name}( final #{type} value )
   {
     safeGet#{plural_name}().add( value );
   }
