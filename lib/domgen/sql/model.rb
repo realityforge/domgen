@@ -323,7 +323,7 @@ module Domgen
       end
 
       def qualified_function_name
-        "#{parent.parent.data_module.sql.quoted_schema}.#{self.qualified_function_name}"
+        "#{parent.parent.data_module.sql.quoted_schema}.#{self.quoted_function_name}"
       end
 
       # The SQL generated in constraint
