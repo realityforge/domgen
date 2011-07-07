@@ -147,7 +147,11 @@ JAVA
      return #{name};
   }
 
-  protected final void add#{name}( final #{type} value )
+  /**
+   * This method should not be called directly. It is called from the constructor of #{type}.
+   */
+  @Deprecated
+  public final void add#{name}( final #{type} value )
   {
     if( null != #{name}  )
     {
