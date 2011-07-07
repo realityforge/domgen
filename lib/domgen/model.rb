@@ -841,7 +841,7 @@ module Domgen
       @name = name
       Logger.info "Model Check '#{name}' definition started"
       super(options, &block)
-      raise "Model Check '#{name}' defines no check." unless @check
+      error("Model Check '#{name}' defines no check.") unless @check
       Logger.info "Model Check '#{name}' definition completed"
     end
 
