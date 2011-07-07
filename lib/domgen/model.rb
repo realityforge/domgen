@@ -174,12 +174,30 @@ module Domgen
     def initialize(object_type, operator, lhs_operand, rhs_operand, options, &block)
       @name = "#{lhs_operand}_#{operator}_#{rhs_operand}"
       @lhs_operand, @rhs_operand, @operator = lhs_operand, rhs_operand, operator
-      raise "Unknown operator #{operator} for relationship constraint #{@name}" unless self.class.operators.keys.include?(operator)
       super(object_type, options, &block)
+
+      lhs = object_type.attribute_by_name(lhs_operand)
+      rhs = object_type.attribute_by_name(rhs_operand)
+
+      if lhs.attribute_type != rhs.attribute_type
+        error("Relationship constraint #{self.name} between attributes of different types LHS: #{lhs.name}:#{lhs.attribute_type}, RHS: #{rhs.name}:#{rhs.attribute_type}")
+      end
+
+      if self.class.comparable_attribute_types.include?(lhs.attribute_type)
+        error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.operators.keys.include?(operator)
+      elsif self.class.equality_attribute_types.include?(lhs.attribute_type)
+        error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.equality_operators.keys.include?(operator)
+      else
+        error("Unsupported attribute type #{lhs.attribute_type} for relationship constraint #{self.name}")
+      end
     end
 
     def self.operators
-      {:eq => '=', :neq => '!=', :lte => '<=', :lt => '<', :gte => '>=', :gt => '>'}
+      self.equality_operators.merge(:lte => '<=', :lt => '<', :gte => '>=', :gt => '>')
+    end
+
+    def self.equality_operators
+      {:eq => '=', :neq => '!='}
     end
 
     def self.numeric_operator_descriptions
@@ -194,7 +212,9 @@ module Domgen
       [:integer, :i_enum, :datetime, :real]
     end
 
-    #TODO: Allow equality tests for [:text, :string, :reference, :boolean, :s_enum]
+    def self.equality_attribute_types
+      [:string, :reference, :boolean, :s_enum]
+    end
   end
 
   class CycleConstraint < ModelConstraint
@@ -338,7 +358,7 @@ module Domgen
     end
 
     def has_non_max_length?
-      !@length.nil? && @length != :max 
+      !@length.nil? && @length != :max
     end
 
     def min_length
@@ -664,14 +684,6 @@ module Domgen
     # Check that either the attribute is null or the attribute and all the dependents are not null
     def relationship_constraint(operator, lhs_operand, rhs_operand, options = {}, &block)
       constraint = RelationshipConstraint.new(self, operator, lhs_operand, rhs_operand, options, &block)
-      lhs = attribute_by_name(lhs_operand)
-      rhs = attribute_by_name(rhs_operand)
-      if !RelationshipConstraint.comparable_attribute_types.include?(lhs.attribute_type)
-        raise "Relationship constraint #{constraint.name} can not compare attribute type #{lhs.attribute_type} on LHS"
-      end
-      if !RelationshipConstraint.comparable_attribute_types.include?(rhs.attribute_type)
-        raise "Relationship constraint #{constraint.name} can not compare attribute type #{rhs.attribute_type} on RHS"
-      end
       add_unique_to_set("relationship", constraint, @relationship_constraints)
     end
 
