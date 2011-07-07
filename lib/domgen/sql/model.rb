@@ -306,10 +306,22 @@ module Domgen
         "#{parent.parent.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
       end
 
+      def function_name
+        "#{parent.parent.name}_#{name}"
+      end
+
+      def quoted_function_name
+        Domgen::Sql.dialect.quote(self.function_name)
+      end
+
+      def qualified_function_name
+        "#{parent.parent.data_module.sql.quoted_schema}.#{self.qualified_function_name}"
+      end
+
       # The SQL generated in constraint
       def constraint_sql
         parameter_string = parameters.collect{|parameter_name| "  #{parent.parent.attribute_by_name(parameter_name).sql.column_name}"}.join(",")
-        function_call = "#{parent.parent.data_module.sql.schema}.#{parent.parent.name}_#{name}(#{parameter_string}) = 1"
+        function_call = "#{self.qualified_function_name}(#{parameter_string}) = 1"
         (self.or_conditions + [function_call]).join(" OR ")
       end
     end

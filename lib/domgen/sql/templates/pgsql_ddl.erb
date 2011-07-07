@@ -61,7 +61,7 @@ GO
     object_type.sql.function_constraints.each do |constraint|
 %>
 /*
-CREATE FUNCTION <%= data_module.sql.schema %>.<%= s(object_type.name) %>_<%= s(constraint.name) %>
+CREATE FUNCTION <%= constraint.qualified_function_name %>
 (
 <%= constraint.parameters.collect{|parameter_name| a = object_type.attribute_by_name(parameter_name); "  @#{a.sql.column_name} #{a.sql.sql_type}"}.join(",\n") %>
 )
