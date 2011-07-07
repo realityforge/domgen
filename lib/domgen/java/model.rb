@@ -67,7 +67,7 @@ module Domgen
         if :reference == parent.attribute_type
           return parent.referenced_object.java.qualified_name
         elsif parent.enum?
-          return "#{field_name}Value"
+          return "#{parent.object_type.java.qualified_name}.#{field_name}Value"
         else
           return TYPE_MAP[parent.attribute_type.to_s] || parent.attribute_type.to_s
         end
