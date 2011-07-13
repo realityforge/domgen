@@ -102,6 +102,8 @@ module Domgen
   end
 
   class Attribute
+    self.extensions << :java
+
     def java
       @java = Domgen::Java::JavaField.new(self) unless @java
       @java
@@ -109,6 +111,8 @@ module Domgen
   end
 
   class ObjectType
+    self.extensions << :java
+
     def java
       @java = Domgen::Java::JavaClass.new(self) unless @java
       @java
@@ -116,6 +120,8 @@ module Domgen
   end
 
   class DataModule
+    self.extensions << :java
+
     def java
       @java = Domgen::Java::JavaPackage.new(self) unless @java
       @java
@@ -123,6 +129,8 @@ module Domgen
   end
 
   class Repository
+    self.extensions << :java
+
     def java
       @java = Domgen::Java::JavaModule.new(self) unless @java
       @java

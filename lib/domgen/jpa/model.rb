@@ -194,6 +194,8 @@ module Domgen
   end
 
   class InverseElement
+    self.extensions << :jpa
+
     def jpa
       @jpa = Domgen::JPA::JpaFieldInverse.new(self) unless @jpa
       @jpa
@@ -201,6 +203,8 @@ module Domgen
   end
 
   class Attribute
+    self.extensions << :jpa
+
     def jpa
       @jpa = Domgen::JPA::JpaField.new(self) unless @jpa
       @jpa
@@ -208,6 +212,8 @@ module Domgen
   end
 
   class Repository
+    self.extensions << :jpa
+
     def jpa
       @jpa = Domgen::JPA::PersistenceUnit.new(self) unless @jpa
       @jpa

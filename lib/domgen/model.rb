@@ -826,6 +826,14 @@ module Domgen
       object_type
     end
 
+    def verify
+      extension_point(:pre_verify)
+      self.object_types.each do |object_type|
+        object_type.verify
+      end
+      extension_point(:post_verify)
+    end
+
     private
 
     def pre_object_type_create(name)
@@ -905,6 +913,14 @@ module Domgen
       Domgen::ModelCheck.new(self, name, options, &block)
     end
 
+    def verify
+      extension_point(:pre_verify)
+      self.data_modules.each do |data_module|
+        data_module.verify
+      end
+      extension_point(:post_verify)
+    end
+
     private
 
     def register_data_module(name, data_module)
@@ -948,12 +964,7 @@ module Domgen
           end
         end
       end
-      self.data_modules.each do |data_module|
-        data_module.object_types.each do |object_type|
-          object_type.verify
-        end
-      end
-      extension_point(:post_repository_definition)
+      self.verify
     end
   end
 end

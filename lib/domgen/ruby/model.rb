@@ -51,6 +51,8 @@ module Domgen
   end
 
   class Attribute
+    self.extensions << :ruby
+
     def ruby
       @ruby = Domgen::Ruby::RubyAttribute.new(self) unless @ruby
       @ruby
@@ -58,6 +60,8 @@ module Domgen
   end
 
   class ObjectType
+    self.extensions << :ruby
+
     def ruby
       @ruby = Domgen::Ruby::RubyClass.new(self) unless @ruby
       @ruby
@@ -65,6 +69,8 @@ module Domgen
   end
 
   class DataModule
+    self.extensions << :ruby
+
     def ruby
       @ruby = Domgen::Ruby::RubyModule.new(self) unless @ruby
       @ruby

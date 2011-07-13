@@ -903,6 +903,8 @@ SQL
   end
 
   class DataModule
+    self.extensions << :sql
+
     def sql
       @sql = Domgen::Sql::SqlSchema.new(self) unless @sql
       @sql
@@ -910,6 +912,8 @@ SQL
   end
 
   class Repository
+    self.extensions << :sql
+
     def sql
       @sql = Domgen::Sql::Database.new(self) unless @sql
       @sql
