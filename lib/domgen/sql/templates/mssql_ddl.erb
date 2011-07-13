@@ -193,7 +193,6 @@ GO
 <%    end
     end
   end
-  if data_module.sql.owned?
 %>
 
 CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.spCheckConstraints
@@ -237,5 +236,3 @@ BEGIN
   SELECT * FROM @FailedConstraintChecks
 END
 GO
-
-<% end %>

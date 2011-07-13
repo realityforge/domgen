@@ -115,14 +115,6 @@ module Domgen
       def quoted_schema
         Domgen::Sql.dialect.quote(self.schema)
       end
-
-      attr_writer :owned
-
-      # Return true if this module "owns" the schema
-      # TODO: Should go away and we should enforce a 1-to-1 mapping between module and and schema
-      def owned?
-        @owned.nil? ? true : @owned
-      end
     end
 
     class Index < BaseConfigElement
