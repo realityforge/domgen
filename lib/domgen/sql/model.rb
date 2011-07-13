@@ -930,8 +930,7 @@ SQL
   class Attribute
     def sql
       error("Non persistent attributes should not invoke sql config method") unless persistent?
-      @sql = Domgen::Sql::Column.new(self) unless @sql
-      @sql
+      @sql ||= Domgen::Sql::Column.new(self)
     end
   end
 
@@ -939,8 +938,7 @@ SQL
     self.extensions << :sql
 
     def sql
-      @sql = Domgen::Sql::Table.new(self) unless @sql
-      @sql
+      @sql ||= Domgen::Sql::Table.new(self)
     end
   end
 
@@ -957,8 +955,7 @@ SQL
     self.extensions << :sql
 
     def sql
-      @sql = Domgen::Sql::Database.new(self) unless @sql
-      @sql
+      @sql ||= Domgen::Sql::Database.new(self)
     end
   end
 end

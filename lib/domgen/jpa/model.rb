@@ -212,8 +212,7 @@ module Domgen
     self.extensions << :jpa
 
     def jpa
-      @jpa = Domgen::JPA::JpaFieldInverse.new(self) unless @jpa
-      @jpa
+      @jpa ||= Domgen::JPA::JpaFieldInverse.new(self)
     end
   end
 
@@ -221,8 +220,7 @@ module Domgen
     self.extensions << :jpa
 
     def jpa
-      @jpa = Domgen::JPA::JpaField.new(self) unless @jpa
-      @jpa
+      @jpa ||= Domgen::JPA::JpaField.new(self)
     end
   end
 
@@ -230,8 +228,7 @@ module Domgen
     self.extensions << :jpa
 
     def jpa
-      @jpa = Domgen::JPA::PersistenceUnit.new(self) unless @jpa
-      @jpa
+      @jpa ||= Domgen::JPA::PersistenceUnit.new(self)
     end
   end
 end

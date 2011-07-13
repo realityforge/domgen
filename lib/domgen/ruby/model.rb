@@ -60,8 +60,7 @@ module Domgen
     self.extensions << :ruby
 
     def ruby
-      @ruby = Domgen::Ruby::RubyAttribute.new(self) unless @ruby
-      @ruby
+      @ruby ||= Domgen::Ruby::RubyAttribute.new(self)
     end
   end
 
@@ -69,8 +68,7 @@ module Domgen
     self.extensions << :ruby
 
     def ruby
-      @ruby = Domgen::Ruby::RubyClass.new(self) unless @ruby
-      @ruby
+      @ruby ||= Domgen::Ruby::RubyClass.new(self)
     end
   end
 
@@ -78,8 +76,7 @@ module Domgen
     self.extensions << :ruby
 
     def ruby
-      @ruby = Domgen::Ruby::RubyModule.new(self) unless @ruby
-      @ruby
+      @ruby ||= Domgen::Ruby::RubyModule.new(self)
     end
   end
 end

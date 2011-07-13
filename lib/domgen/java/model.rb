@@ -120,8 +120,7 @@ module Domgen
     self.extensions << :java
 
     def java
-      @java = Domgen::Java::JavaClass.new(self) unless @java
-      @java
+      @java ||= Domgen::Java::JavaClass.new(self)
     end
   end
 
@@ -129,8 +128,7 @@ module Domgen
     self.extensions << :java
 
     def java
-      @java = Domgen::Java::JavaPackage.new(self) unless @java
-      @java
+      @java ||= Domgen::Java::JavaPackage.new(self)
     end
   end
 
@@ -138,8 +136,7 @@ module Domgen
     self.extensions << :java
 
     def java
-      @java = Domgen::Java::JavaModule.new(self) unless @java
-      @java
+      @java ||= Domgen::Java::JavaModule.new(self)
     end
   end
 end
