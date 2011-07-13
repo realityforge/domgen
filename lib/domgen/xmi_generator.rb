@@ -148,8 +148,13 @@ module Domgen
             end1 = name_class_map[attribute.object_type.qualified_name]
             end2 = name_class_map[attribute.referenced_object.qualified_name]
             name = attribute.name == attribute.referenced_object.name ? "" : attribute.name.to_s
+
+            aggregation_kind = AggregationKind::NONE_LITERAL
+            aggregation_kind = AggregationKind::SHARED_LITERAL if attribute.relationship_kind == :aggregation
+            aggregation_kind = AggregationKind::COMPOSITE_LITERAL if attribute.relationship_kind == :composition
+
             emf_association = end1.create_association(true,
-                                                      AggregationKind::NONE_LITERAL,
+                                                      aggregation_kind,
                                                       name,
                                                       attribute.nullable? ? 0 : 1,
                                                       1,

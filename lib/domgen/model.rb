@@ -273,6 +273,19 @@ module Domgen
       @relationship_name || attribute.object_type.name
     end
 
+    def relationship_kind
+      @relationship_kind || :association
+    end
+
+    def relationship_kind=(relationship_kind)
+      error("relationship_kind #{relationship_kind} is invalid") unless self.class.relationship_kind_types.include?(relationship_kind)
+      @relationship_kind = relationship_kind
+    end
+
+    def self.relationship_kind_types
+      [:association, :aggregation, :composition]
+    end
+
     def self.inverse_multiplicity_types
       [:one, :many, :zero_or_one]
     end
