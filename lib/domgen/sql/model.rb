@@ -26,12 +26,12 @@ module Domgen
       def column_type(column)
         if column.calculation
           raise "Unsupported column type - calculation"
-        elsif :reference == column.parent.attribute_type
-          return column.parent.referenced_object.primary_key.sql.sql_type
-        elsif column.parent.attribute_type.to_s == 'text'
+        elsif :reference == column.attribute.attribute_type
+          return column.attribute.referenced_object.primary_key.sql.sql_type
+        elsif column.attribute.attribute_type.to_s == 'text'
           return "text"
         else
-          return TYPE_MAP[column.parent.attribute_type.to_s] + (column.parent.length.nil? ? '' : "(#{column.parent.length})")
+          return TYPE_MAP[column.attribute.attribute_type.to_s] + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
         end
       end
 
@@ -76,12 +76,12 @@ module Domgen
             sql_type += " PERSISTED"
           end
           return sql_type
-        elsif :reference == column.parent.attribute_type
-          return column.parent.referenced_object.primary_key.sql.sql_type
-        elsif column.parent.attribute_type.to_s == 'text'
+        elsif :reference == column.attribute.attribute_type
+          return column.attribute.referenced_object.primary_key.sql.sql_type
+        elsif column.attribute.attribute_type.to_s == 'text'
           return "[VARCHAR](MAX)"
         else
-          return quote(TYPE_MAP[column.parent.attribute_type.to_s]) + (column.parent.length.nil? ? '' : "(#{column.parent.length})")
+          return quote(TYPE_MAP[column.attribute.attribute_type.to_s]) + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
         end
       end
     end
@@ -109,7 +109,11 @@ module Domgen
       attr_writer :schema
 
       def schema
-        @schema || parent.name
+        @schema || data_module.name
+      end
+
+      def data_module
+        self.parent
       end
 
       def quoted_schema
@@ -136,7 +140,7 @@ module Domgen
         if @index_name.nil?
           prefix = cluster? ? 'CL' : unique? ? 'UQ' : 'IX'
           suffix = attribute_names.join('_')
-          @index_name = "#{prefix}_#{table.parent.name}_#{suffix}"
+          @index_name = "#{prefix}_#{table.object_type.name}_#{suffix}"
         end
         @index_name
       end
@@ -146,7 +150,7 @@ module Domgen
       end
 
       def qualified_index_name
-        "#{table.parent.data_module.sql.quoted_schema}.#{quoted_index_name}"
+        "#{table.object_type.data_module.sql.quoted_schema}.#{quoted_index_name}"
       end
 
       attr_writer :cluster
@@ -186,7 +190,7 @@ module Domgen
           table, attribute_names, referenced_object_type_name, referenced_attribute_names
         super(options, &block)
         # Ensure that the attributes exist
-        attribute_names.each { |a| table.parent.attribute_by_name(a) }
+        attribute_names.each { |a| table.object_type.attribute_by_name(a) }
         # Ensure that the remote attributes exist on remote type
         referenced_attribute_names.each { |a| referenced_object_type.attribute_by_name(a) }
       end
@@ -201,7 +205,7 @@ module Domgen
       end
 
       def referenced_object_type
-        table.parent.data_module.object_type_by_name(referenced_object_type_name)
+        table.object_type.data_module.object_type_by_name(referenced_object_type_name)
       end
 
       def on_update=(on_update)
@@ -223,7 +227,7 @@ module Domgen
       end
 
       def foreign_key_name
-        "FK_#{s(table.parent.name)}_#{s(name)}"
+        "FK_#{s(table.object_type.name)}_#{s(name)}"
       end
 
       def quoted_foreign_key_name
@@ -231,7 +235,7 @@ module Domgen
       end
 
       def qualified_foreign_key_name
-        "#{table.parent.data_module.sql.quoted_schema}.#{quoted_foreign_key_name}"
+        "#{table.object_type.data_module.sql.quoted_schema}.#{quoted_foreign_key_name}"
       end
 
       def constraint_name
@@ -252,6 +256,10 @@ module Domgen
         super(parent, options, &block)
       end
 
+      def table
+        self.parent
+      end
+
       attr_writer :invariant
 
       # Return true if this constraint should always be true, not just on insert or update.
@@ -260,7 +268,7 @@ module Domgen
       end
 
       def constraint_name
-        "CK_#{s(parent.parent.name)}_#{s(name)}"
+        "CK_#{s(table.object_type.name)}_#{s(name)}"
       end
 
       def quoted_constraint_name
@@ -268,7 +276,7 @@ module Domgen
       end
 
       def qualified_constraint_name
-        "#{parent.parent.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
+        "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
       end
     end
 
@@ -287,6 +295,10 @@ module Domgen
         super(parent, options, & block)
       end
 
+      def table
+        self.parent
+      end
+
       attr_writer :invariant
 
       # Return true if this constraint should always be true, not just on insert or update.
@@ -295,7 +307,7 @@ module Domgen
       end
 
       def constraint_name
-        "CK_#{s(parent.parent.name)}_#{s(name)}"
+        "CK_#{s(table.object_type.name)}_#{s(name)}"
       end
 
       def quoted_constraint_name
@@ -303,11 +315,11 @@ module Domgen
       end
 
       def qualified_constraint_name
-        "#{parent.parent.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
+        "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
       end
 
       def function_name
-        "#{parent.parent.name}_#{name}"
+        "#{table.object_type.name}_#{name}"
       end
 
       def quoted_function_name
@@ -315,12 +327,12 @@ module Domgen
       end
 
       def qualified_function_name
-        "#{parent.parent.data_module.sql.quoted_schema}.#{self.quoted_function_name}"
+        "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_function_name}"
       end
 
       # The SQL generated in constraint
       def constraint_sql
-        parameter_string = parameters.collect{|parameter_name| "  #{parent.parent.attribute_by_name(parameter_name).sql.column_name}"}.join(",")
+        parameter_string = parameters.collect{|parameter_name| "  #{table.object_type.attribute_by_name(parameter_name).sql.column_name}"}.join(",")
         function_call = "#{self.qualified_function_name}(#{parameter_string}) = 1"
         (self.or_conditions + [function_call]).join(" OR ")
       end
@@ -374,6 +386,10 @@ module Domgen
         @priority = 1
         super(parent, name, options, &block)
       end
+
+      def table
+        self.parent
+      end
     end
 
     class Action < SequencedSqlElement
@@ -394,8 +410,12 @@ module Domgen
         super(parent, name, options, &block)
       end
 
+      def table
+        self.parent
+      end
+
       def trigger_name
-        @trigger_name ||= sql_name(:trigger, "#{parent.parent.name}#{self.name}")
+        @trigger_name ||= sql_name(:trigger, "#{table.object_type.name}#{self.name}")
       end
 
       def quoted_trigger_name
@@ -403,7 +423,7 @@ module Domgen
       end
 
       def qualified_trigger_name
-        "#{parent.parent.data_module.sql.quoted_schema}.#{self.quoted_trigger_name}"
+        "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_trigger_name}"
       end
     end
 
@@ -429,8 +449,12 @@ module Domgen
         super(parent, options, &block)
       end
 
+      def object_type
+        self.parent
+      end
+
       def table_name
-        @table_name ||= sql_name(:table, parent.name)
+        @table_name ||= sql_name(:table, object_type.name)
       end
 
       def quoted_table_name
@@ -438,7 +462,7 @@ module Domgen
       end
 
       def qualified_table_name
-        "#{parent.data_module.sql.quoted_schema}.#{quoted_table_name}"
+        "#{object_type.data_module.sql.quoted_schema}.#{quoted_table_name}"
       end
 
       def constraints
@@ -564,13 +588,13 @@ module Domgen
           error("#{qualified_table_name} defines multiple clustering indexes")
         end
 
-        parent.unique_constraints.each do |c|
+        object_type.unique_constraints.each do |c|
           index(c.attribute_names, {:unique => true}, true)
         end
 
-        parent.relationship_constraints.each do |c|
-          lhs = parent.attribute_by_name(c.lhs_operand)
-          rhs = parent.attribute_by_name(c.rhs_operand)
+        object_type.relationship_constraints.each do |c|
+          lhs = object_type.attribute_by_name(c.lhs_operand)
+          rhs = object_type.attribute_by_name(c.rhs_operand)
           op = c.class.operators[c.operator]
           constraint_sql = []
           constraint_sql << "#{lhs.sql.quoted_column_name} IS NULL" if lhs.nullable?
@@ -580,31 +604,31 @@ module Domgen
           copy_tags(c, constraint_by_name(c.name))
         end
 
-        parent.codependent_constraints.each do |c|
+        object_type.codependent_constraints.each do |c|
           constraint(c.name, :sql => <<SQL) unless constraint_by_name(c.name)
-( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ")} ) OR
-( #{c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.quoted_column_name} IS NULL" }.join(" AND ") } )
+( #{c.attribute_names.collect { |name| "#{object_type.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ")} ) OR
+( #{c.attribute_names.collect { |name| "#{object_type.attribute_by_name(name).sql.quoted_column_name} IS NULL" }.join(" AND ") } )
 SQL
           copy_tags(c, constraint_by_name(c.name))
         end
-        parent.dependency_constraints.each do |c|
+        object_type.dependency_constraints.each do |c|
           constraint(c.name, :sql => <<SQL) unless constraint_by_name(c.name)
-#{parent.attribute_by_name(c.attribute_name).sql.quoted_column_name} IS NULL OR
-( #{c.dependent_attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ") } )
+#{object_type.attribute_by_name(c.attribute_name).sql.quoted_column_name} IS NULL OR
+( #{c.dependent_attribute_names.collect { |name| "#{object_type.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ") } )
 SQL
           copy_tags(c, constraint_by_name(c.name))
         end
-        parent.incompatible_constraints.each do |c|
+        object_type.incompatible_constraints.each do |c|
           sql = (0..(c.attribute_names.size)).collect do |i|
             candidate = c.attribute_names[i]
-            str = c.attribute_names.collect { |name| "#{parent.attribute_by_name(name).sql.quoted_column_name} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
+            str = c.attribute_names.collect { |name| "#{object_type.attribute_by_name(name).sql.quoted_column_name} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
             "(#{str})"
           end.join(" OR ")
           constraint(c.name, :sql => sql) unless constraint_by_name(c.name)
           copy_tags(c, constraint_by_name(c.name))
         end
 
-        parent.declared_attributes.select { |a| a.attribute_type == :i_enum }.each do |a|
+        object_type.declared_attributes.select { |a| a.attribute_type == :i_enum }.each do |a|
           sorted_values = a.values.values.sort
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
@@ -612,19 +636,19 @@ SQL
 #{a.sql.quoted_column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
-        parent.declared_attributes.select { |a| a.attribute_type == :s_enum }.each do |a|
+        object_type.declared_attributes.select { |a| a.attribute_type == :s_enum }.each do |a|
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.quoted_column_name} IN (#{a.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
-        parent.declared_attributes.select{ |a| (a.attribute_type == :s_enum || a.attribute_type == :string) && a.persistent? && !a.allow_blank? }.each do |a|
+        object_type.declared_attributes.select{ |a| (a.attribute_type == :s_enum || a.attribute_type == :string) && a.persistent? && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
           sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
         end
 
-        parent.declared_attributes.select { |a| a.set_once? }.each do |a|
+        object_type.declared_attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
           validation(validation_name, :negative_sql => <<SQL, :after => :update) unless validation_by_name(validation_name)
 SELECT I.#{a.object_type.primary_key.sql.quoted_column_name}
@@ -640,9 +664,9 @@ WHERE
 SQL
         end
 
-        parent.cycle_constraints.each do |c|
-          target_attribute = parent.attribute_by_name(c.attribute_name)
-          target_object_type = parent.attribute_by_name(c.attribute_name).referenced_object
+        object_type.cycle_constraints.each do |c|
+          target_attribute = object_type.attribute_by_name(c.attribute_name)
+          target_object_type = object_type.attribute_by_name(c.attribute_name).referenced_object
           scoping_attribute = target_object_type.attribute_by_name(c.scoping_attribute)
 
           attribute_name_path = c.attribute_name_path
@@ -678,18 +702,18 @@ SQL
 SELECT 1 AS Result
 FROM
   (SELECT '1' AS IgnoreMe) I
-LEFT JOIN #{target_object_type.sql.qualified_table_name} C0 ON C0.#{target_object_type.primary_key.sql.quoted_column_name} = @#{parent.attribute_by_name(c.attribute_name).sql.column_name}
+LEFT JOIN #{target_object_type.sql.qualified_table_name} C0 ON C0.#{target_object_type.primary_key.sql.quoted_column_name} = @#{self.object_type.attribute_by_name(c.attribute_name).sql.column_name}
 #{joins.join("\n")}
-WHERE @#{parent.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR #{comparison_id} = #{next_id}
+WHERE @#{self.object_type.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR #{comparison_id} = #{next_id}
 SQL
             end
             copy_tags(c, function_constraint_by_name(functional_constraint_name))
           end
         end
 
-        immutable_attributes = parent.attributes.select { |a| a.persistent? && a.immutable? && !a.primary_key? }
+        immutable_attributes = self.object_type.attributes.select { |a| a.persistent? && a.immutable? && !a.primary_key? }
         if immutable_attributes.size > 0
-          pk = parent.primary_key
+          pk = self.object_type.primary_key
 
           validation_name = "Immuter"
           unless validation_by_name(validation_name)
@@ -706,7 +730,7 @@ SQL
          end
         end
 
-        abstract_relationships = parent.attributes.select { |a| a.reference? && a.referenced_object.abstract? }
+        abstract_relationships = self.object_type.attributes.select { |a| a.reference? && a.referenced_object.abstract? }
         if abstract_relationships.size > 0
           abstract_relationships.each do |attribute|
             concrete_subtypes = {}
@@ -719,7 +743,7 @@ SQL
             if !validation_by_name(validation_name)
               guard = "UPDATE(#{attribute.sql.quoted_column_name})"
               sql = <<SQL
-      SELECT I.#{parent.primary_key.sql.column_name}
+      SELECT I.#{self.object_type.primary_key.sql.column_name}
       FROM
         inserted I
 SQL
@@ -735,20 +759,20 @@ SQL
           end
         end
 
-        if parent.read_only?
+        if self.object_type.read_only?
           trigger_name = "ReadOnlyCheck"
           unless trigger_by_name(trigger_name)
             trigger(trigger_name) do |trigger|
-              trigger.description("Ensure that #{parent.name} is read only.")
+              trigger.description("Ensure that #{self.object_type.name} is read only.")
               trigger.after = []
               trigger.instead_of = [:insert, :update, :delete]
-              trigger.sql = parent.parent.repository.sql.emit_error("#{parent.name} is read only")
+              trigger.sql = self.object_type.data_module.repository.sql.emit_error("#{self.object_type.name} is read only")
             end
           end
         end
 
         Trigger::VALID_AFTER.each do |after|
-          desc = "Trigger after #{after} on #{parent.name}\n\n"
+          desc = "Trigger after #{after} on #{self.object_type.name}\n\n"
           sql = ""
           validations = self.validations.select {|v| v.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
           actions = self.actions.select {|a| a.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
@@ -767,7 +791,7 @@ SQL
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
     ROLLBACK
-    #{parent.parent.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
+    #{self.object_type.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
     RETURN
   END
 #{validation.guard.nil? ? '' : "END" }
@@ -792,7 +816,7 @@ SQL
           end
         end
 
-        parent.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
+        self.object_type.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
           foreign_key([a.name],
                       a.referenced_object.qualified_name,
                       [a.referenced_object.primary_key.name],
@@ -818,12 +842,16 @@ SQL
     end
 
     class Column < SqlElement
+      def attribute
+        self.parent
+      end
+
       def column_name
         if @column_name.nil?
-          if parent.reference?
-            @column_name = parent.referencing_link_name
+          if attribute.reference?
+            @column_name = attribute.referencing_link_name
           else
-            @column_name = parent.name
+            @column_name = attribute.name
           end
         end
         @column_name
@@ -842,7 +870,7 @@ SQL
       attr_writer :identity
 
       def identity?
-        @identity.nil? ? parent.generated_value? && parent.primary_key?  : @identity
+        @identity.nil? ? attribute.generated_value? && attribute.primary_key?  : @identity
       end
 
       # TODO: MSSQL Specific

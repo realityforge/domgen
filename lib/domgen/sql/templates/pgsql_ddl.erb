@@ -87,7 +87,7 @@ ALTER TABLE <%= object_type.sql.qualified_table_name %>
     banner("Triggers for #{object_type.sql.qualified_table_name}")
 %><%
       object_type.sql.triggers.each do |trigger|
-   function_name = "#{trigger.parent.parent.data_module.sql.quoted_schema}.#{Domgen::Sql.dialect.quote(trigger.trigger_name + "Function")}"
+   function_name = "#{trigger.table.object_type.data_module.sql.quoted_schema}.#{Domgen::Sql.dialect.quote(trigger.trigger_name + "Function")}"
 %>
 CREATE OR REPLACE FUNCTION <%= function_name %>() RETURNS
 TRIGGER AS '

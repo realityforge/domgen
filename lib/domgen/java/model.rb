@@ -13,19 +13,22 @@ module Domgen
       attr_writer :classname
       attr_accessor :label_attribute
 
+      def object_type
+        self.parent
+      end
+
       def classname
-        @classname = parent.name unless @classname
-        @classname
+        @classname || object_type.name
       end
 
       def qualified_name
-        "#{parent.data_module.java.package}.#{classname}"
+        "#{object_type.data_module.java.package}.#{self.classname}"
       end
 
       attr_writer :debug_attributes
 
       def debug_attributes
-        @debug_attributes = parent.attributes.collect { |a| a.name } unless @debug_attributes
+        @debug_attributes = object_type.attributes.collect { |a| a.name } unless @debug_attributes
         @debug_attributes
       end
     end
@@ -39,47 +42,42 @@ module Domgen
                   "i_enum" => "java.lang.Integer",
                   "s_enum" => "java.lang.String",
                   "List" => "java.util.List"}
+
+      def attribute
+        self.parent
+      end
+
       attr_writer :field_name
 
       def field_name
-        @field_name = parent.name unless @field_name
-        @field_name
+        @field_name || attribute.name
       end
 
       attr_writer :java_type
 
       def java_type
-        unless @java_type
-          if :reference == parent.attribute_type
-            @java_type = parent.referenced_object.java.qualified_name
-          elsif parent.enum?
-            return "#{field_name}Value"
-          elsif primitive?
-            @java_type = primitive_java_type
-          else
-            @java_type = TYPE_MAP[parent.attribute_type.to_s] || parent.attribute_type.to_s
-          end
-        end
-        @java_type
+        return @java_type if @java_type
+        return primitive_java_type if primitive?
+        non_primitive_java_type
       end
 
       def non_primitive_java_type
-        if :reference == parent.attribute_type
-          return parent.referenced_object.java.qualified_name
-        elsif parent.enum?
-          return "#{parent.object_type.java.qualified_name}.#{field_name}Value"
+        if :reference == attribute.attribute_type
+          attribute.referenced_object.java.qualified_name
+        elsif attribute.enum?
+          return "#{attribute.object_type.java.qualified_name}.#{field_name}Value"
         else
-          return TYPE_MAP[parent.attribute_type.to_s] || parent.attribute_type.to_s
+          TYPE_MAP[attribute.attribute_type.to_s] || attribute.attribute_type.to_s
         end
       end
 
       def primitive?
-        (parent.attribute_type == :integer || parent.attribute_type == :boolean) && !parent.nullable? && !parent.generated_value?
+        (attribute.attribute_type == :integer || attribute.attribute_type == :boolean) && !attribute.nullable? && !attribute.generated_value?
       end
 
       def primitive_java_type
-        return "int" if :integer == parent.attribute_type
-        return "boolean" if :boolean == parent.attribute_type
+        return "int" if :integer == attribute.attribute_type
+        return "boolean" if :boolean == attribute.attribute_type
         error("primitive_java_type invoked for non primitive method")
       end
     end
@@ -88,7 +86,11 @@ module Domgen
       attr_writer :package
 
       def package
-        @package || "#{parent.repository.java.package}.#{parent.name}"
+        @package || "#{data_module.repository.java.package}.#{data_module.name}"
+      end
+
+      def data_module
+        self.parent
       end
     end
 
@@ -96,7 +98,11 @@ module Domgen
       attr_writer :package
 
       def package
-        @package || parent.name
+        @package || repository.name
+      end
+
+      def repository
+        self.parent
       end
     end
   end

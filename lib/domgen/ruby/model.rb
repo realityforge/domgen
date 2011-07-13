@@ -21,17 +21,20 @@ module Domgen
         @included_modules = []
       end
 
+      def object_type
+        self.parent
+      end
+
       def include_module(module_name)
         @included_modules << module_name
       end
 
       def classname
-        @classname = parent.name unless @classname
-        @classname
+        @classname || object_type.name
       end
 
       def qualified_name
-        "::#{parent.data_module.ruby.module_name}::#{classname}"
+        "::#{object_type.data_module.ruby.module_name}::#{classname}"
       end
 
       def filename
@@ -44,8 +47,11 @@ module Domgen
       attr_writer :module_name
 
       def module_name
-        @module_name = parent.name unless @module_name
-        @module_name
+        @module_name || data_module.name
+      end
+
+      def data_module
+        self.parent
       end
     end
   end

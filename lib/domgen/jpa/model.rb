@@ -21,10 +21,14 @@ module Domgen
         super(parent, options, & block)
       end
 
+      def jpa_class
+        self.parent
+      end
+
       def populate_parameters
         @parameter_types = {} unless @parameter_types
         parameters.each do |p|
-          @parameter_types[p] = parent.parent.attribute_by_name(p).java.java_type if @parameter_types[p].nil?
+          @parameter_types[p] = jpa_class.object_type.attribute_by_name(p).java.java_type if @parameter_types[p].nil?
         end
       end
 
@@ -34,7 +38,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{parent.parent.java.qualified_name}.#{local_name}"
+        "#{jpa_class.object_type.java.qualified_name}.#{local_name}"
       end
 
       def local_name
@@ -59,7 +63,7 @@ module Domgen
         if query_type == :full
           query = jpql
         elsif query_type == :selector
-          query = "SELECT O FROM #{parent.parent.qualified_name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
+          query = "SELECT O FROM #{jpa_class.object_type.qualified_name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
         else
           error("Unknown query type #{query_type}")
         end
@@ -132,7 +136,11 @@ module Domgen
       attr_writer :persistent
 
       def persistent?
-        @persistent.nil? ? (!parent.abstract? && parent.persistent?) : @persistent
+        @persistent.nil? ? (!attribute.abstract? && attribute.persistent?) : @persistent
+      end
+
+      def attribute
+        self.parent
       end
     end
 
@@ -140,7 +148,11 @@ module Domgen
       attr_writer :table_name
 
       def table_name
-        @table_name || parent.sql.table_name
+        @table_name || object_type.sql.table_name
+      end
+
+      def object_type
+        self.parent
       end
 
       attr_writer :persistent
@@ -161,8 +173,8 @@ module Domgen
 
       def post_verify
         self.query('All', nil, :singular => false)
-        self.query(parent.primary_key.name,
-                   "O.#{parent.primary_key.java.field_name} = :#{parent.primary_key.java.field_name}",
+        self.query(object_type.primary_key.name,
+                   "O.#{object_type.primary_key.java.field_name} = :#{object_type.primary_key.java.field_name}",
                    :singular => true)
         self.queries.each do |q|
           q.populate_parameters
@@ -178,9 +190,12 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || parent.name
+        @name || repository.name
       end
 
+      def repository
+        self.parent
+      end
     end
   end
 
