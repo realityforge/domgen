@@ -875,12 +875,26 @@ SQL
         super(parent, options, & block)
       end
 
+      def repository
+        self.parent
+      end
+
       def define_error_handler(&block)
         @error_handler = block
       end
 
       def emit_error(error_message)
         @error_handler.call(error_message)
+      end
+
+      def pre_verify
+        self.repository.data_modules.each do |dm|
+          self.repository.data_modules.each do |other|
+            if dm != other && dm.sql.schema.to_s == other.sql.schema.to_s
+              raise "Multiple data modules (#{dm.name} && #{other.name}) are mapped to the same schema #{other.sql.schema}"
+            end
+          end
+        end
       end
     end
   end
