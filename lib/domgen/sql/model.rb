@@ -251,7 +251,7 @@ module Domgen
         @name = name
         super(parent, options, &block)
       end
-      
+
       attr_writer :invariant
 
       # Return true if this constraint should always be true, not just on insert or update.
@@ -289,7 +289,7 @@ module Domgen
 
       attr_writer :invariant
 
-      # Return true if this constraint should always be true, not just on insert or update. 
+      # Return true if this constraint should always be true, not just on insert or update.
       def invariant?
         @invariant.nil? ? true : @invariant
       end
