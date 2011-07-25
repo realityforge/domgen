@@ -150,8 +150,8 @@ module Domgen
             name = attribute.name == attribute.referenced_object.name ? "" : attribute.name.to_s
 
             aggregation_kind = AggregationKind::NONE_LITERAL
-            aggregation_kind = AggregationKind::SHARED_LITERAL if attribute.relationship_kind == :aggregation
-            aggregation_kind = AggregationKind::COMPOSITE_LITERAL if attribute.relationship_kind == :composition
+            aggregation_kind = AggregationKind::SHARED_LITERAL if attribute.inverse.relationship_kind == :aggregation
+            aggregation_kind = AggregationKind::COMPOSITE_LITERAL if attribute.inverse.relationship_kind == :composition
 
             emf_association = end1.create_association(true,
                                                       aggregation_kind,
