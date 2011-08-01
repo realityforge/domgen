@@ -329,7 +329,8 @@ STR
         pk = object_type.primary_key
         pk_getter = getter_for(pk)
         pk_type = nullable_annotate(pk, pk.java.java_type, false)
-        <<JAVA
+        equality_comparison = (!pk.java.primitive?) ? "null != key && key.equals( that.#{pk_getter} )" : "key == that.#{pk_getter}"
+        s = <<JAVA
   @Override
   public boolean equals( final Object o )
   {
@@ -345,14 +346,22 @@ STR
     {
       final #{object_type.java.classname} that = (#{object_type.java.classname}) o;
       final #{pk_type} key = #{pk_getter};
-      return null != key && key.equals( that.#{pk_getter} );
+      return #{equality_comparison};
     }
   }
-
+JAVA
+        s += <<JAVA
   @Override
   public int hashCode()
   {
     final #{pk_type} key = #{pk_getter};
+JAVA
+        if pk.java.primitive?
+          s += <<JAVA
+    return key;
+JAVA
+        else
+          s += <<JAVA
     if( null == key )
     {
       return System.identityHashCode( this );
@@ -361,8 +370,12 @@ STR
     {
       return key.hashCode();
     }
+JAVA
+        end
+        s += <<JAVA
   }
 JAVA
+        s
       end
 
       def j_to_string_methods(object_type)
