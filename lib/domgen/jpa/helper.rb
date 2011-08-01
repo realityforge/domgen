@@ -97,6 +97,9 @@ module Domgen
 
       def j_constructors(object_type)
         immutable_attributes = object_type.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa.persistent? }
+        declared_attribute_names = object_type.declared_attributes.collect{|a| a.name}
+        declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
+        undeclared_immutable_attributes = immutable_attributes.select{ |a| !declared_attribute_names.include?(a.name) }
         return '' if immutable_attributes.empty?
         java = <<JAVA
   protected #{object_type.java.classname}()
@@ -106,9 +109,10 @@ module Domgen
   @SuppressWarnings( { "ConstantConditions", "deprecation" } )
   public #{object_type.java.classname}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.java.java_type, false)} #{a.java.field_name}"}.join(", ")})
   {
-#{immutable_attributes.select{|a|!a.nullable? && !a.java.primitive?}.collect{|a| "    if( null == #{a.java.field_name} )\n    {\n      throw new NullPointerException( \"#{a.java.field_name} is not nullable\" );\n    }"}.join("\n")}
-#{immutable_attributes.collect { |a| "    this.#{a.java.field_name} = #{a.java.field_name};" }.join("\n")}
-#{immutable_attributes.select{|a|a.reference?}.collect { |a| "    " + j_add_to_inverse(a) }.join("\n")}
+#{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.java.field_name}.join(", ")});\n"}
+#{declared_immutable_attributes.select{|a|!a.nullable? && !a.java.primitive?}.collect{|a| "    if( null == #{a.java.field_name} )\n    {\n      throw new NullPointerException( \"#{a.java.field_name} is not nullable\" );\n    }"}.join("\n")}
+#{declared_immutable_attributes.collect { |a| "    this.#{a.java.field_name} = #{a.java.field_name};" }.join("\n")}
+#{declared_immutable_attributes.select{|a|a.reference?}.collect { |a| "    " + j_add_to_inverse(a) }.join("\n")}
   }
 JAVA
         java
