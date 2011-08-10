@@ -3,6 +3,7 @@ require 'fileutils'
 require 'logger'
 
 require 'domgen/orderedhash'
+require 'domgen/naming'
 
 # Core components
 require 'domgen/model'
@@ -13,6 +14,7 @@ require 'domgen/helper'
 
 # Java
 require 'domgen/java/model'
+require 'domgen/java/helper'
 
 # Ruby
 require 'domgen/ruby/model'
@@ -42,3 +44,6 @@ require 'domgen/rake_tasks'
 # Rake Task for generating XMI
 require 'domgen/xmi_generator'
 
+# EJB
+require 'domgen/ejb/model'
+require 'domgen/ejb/generator'

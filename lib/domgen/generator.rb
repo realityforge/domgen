@@ -30,11 +30,24 @@ module Domgen
                 end
               end
             else
-              data_module.object_types.each do |object_type|
-                if object_type.generate?(template.generator_key) && (filter.nil? || filter.call(:object_type, object_type))
-                  Logger.debug "Generating #{template_name} for object_type #{object_type.qualified_name}"
-                  render(directory, template, :object_type, object_type) do
-                    Logger.debug "Generated #{template_name} for object_type #{object_type.qualified_name}"
+              if :object_type == template.scope
+                data_module.object_types.each do |object_type|
+                  if object_type.generate?(template.generator_key) && (filter.nil? || filter.call(:object_type, object_type))
+                    Logger.debug "Generating #{template_name} for object_type #{object_type.qualified_name}"
+                    render(directory, template, :object_type, object_type) do
+                      Logger.debug "Generated #{template_name} for object_type #{object_type.qualified_name}"
+                    end
+                  end
+                end
+              end
+
+              if :service == template.scope
+                data_module.services.each do |service|
+                  if service.generate?(template.generator_key) && (filter.nil? || filter.call(:service, service))
+                    Logger.debug "Generating #{template_name} for service #{service.qualified_name}"
+                    render(directory, template, :service, service) do
+                      Logger.debug "Generated #{template_name} for service #{service.qualified_name}"
+                    end
                   end
                 end
               end

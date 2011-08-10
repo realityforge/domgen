@@ -94,13 +94,19 @@ module Domgen
     end
   end
 
-  class BaseGeneratableElement < BaseConfigElement
+  class BaseParentedElement < BaseConfigElement
     attr_accessor :parent
 
     def initialize(parent, options, &block)
       @parent = parent
-      @generator_keys = []
       super(options, &block)
+    end
+  end
+
+  class BaseGeneratableElement < BaseParentedElement
+    def initialize(parent, options, &block)
+      @generator_keys = []
+      super(parent, options, &block)
     end
 
     def define_generator(generator_key)
@@ -236,7 +242,7 @@ module Domgen
     end
   end
 
-  class InverseElement < BaseGeneratableElement
+  class InverseElement < BaseParentedElement
 
     def initialize(attribute, options, &block)
       super(attribute, options, &block)
@@ -777,6 +783,196 @@ module Domgen
     end
   end
 
+  class Exception < BaseParentedElement
+    attr_reader :name
+
+    def initialize(method, name, parameter_type, options = {}, &block)
+      @name = name
+      super(method, options, &block)
+    end
+
+    def method
+      self.parent
+    end
+
+    def qualified_name
+      "#{method.qualified_name}!#{self.name}"
+    end
+
+    def verify
+      extension_point(:pre_verify)
+
+      # Post verify is for when you add more things to the model
+      extension_point(:post_verify)
+    end
+  end
+
+  class Parameter < BaseParentedElement
+    attr_reader :name
+    attr_reader :parameter_type
+
+    def initialize(method, name, parameter_type, options = {}, &block)
+      @name = name
+      @parameter_type = parameter_type
+      super(method, options, &block)
+    end
+
+    def method
+      self.parent
+    end
+
+    def qualified_name
+      "#{method.qualified_name}$#{self.name}"
+    end
+
+    attr_writer :nullable
+
+    def nullable?
+      @nullable.nil? ? false : @nullable
+    end
+
+    def verify
+      extension_point(:pre_verify)
+
+      # Post verify is for when you add more things to the model
+      extension_point(:post_verify)
+    end
+  end
+
+  class Result < BaseParentedElement
+    attr_reader :return_type
+
+    def initialize(method, return_type, options = {}, &block)
+      @return_type = return_type
+      super(method, options, &block)
+    end
+
+    def method
+      self.parent
+    end
+
+    def qualified_name
+      "#{method.qualified_name}$Return"
+    end
+
+    attr_writer :nullable
+
+    def nullable?
+      @nullable.nil? ? false : @nullable
+    end
+
+    def verify
+      extension_point(:pre_verify)
+
+      # Post verify is for when you add more things to the model
+      extension_point(:post_verify)
+    end
+  end
+
+  class Method < BaseParentedElement
+    attr_reader :name
+
+    def initialize(service, name, options = {}, &block)
+      @name = name
+      @parameters = Domgen::OrderedHash.new
+      @exceptions = Domgen::OrderedHash.new
+      super(service, options, &block)
+    end
+
+    def service
+      self.parent
+    end
+
+    def qualified_name
+      "#{service.qualified_name}##{self.name}"
+    end
+
+    def parameters
+      @parameters.values
+    end
+
+    def parameter(name, parameter_type, options = {}, &block)
+      error("Attempting to override parameter #{name} on #{self.qualified_name}") if @parameters[name.to_s]
+      parameter = Parameter.new(self, name, parameter_type, options, &block)
+      @parameters[name.to_s] = parameter
+      parameter
+    end
+
+    def returns(parameter_type, options = {}, &block)
+      error("Attempting to redefine return type #{name} on #{self.qualified_name}") if @return_type
+      @return_type = Result.new(self, parameter_type, options, &block)
+      @return_type
+    end
+
+    def return_value
+      @return_type ||= Result.new(self, :void)
+    end
+
+    def exceptions
+      @exceptions.values
+    end
+
+    def exception(name, options = {}, &block)
+      error("Attempting to redefine exception #{name} on #{self.qualified_name}") if @exceptions[name.to_s]
+      exception = Exception.new(self, name, options, &block)
+      @exceptions[name.to_s] = exception
+      exception
+    end
+
+    def verify
+      extension_point(:pre_verify)
+
+      parameters.each do |p|
+        p.verify
+      end
+
+      # Post verify is for when you add more things to the model
+      extension_point(:post_verify)
+    end
+  end
+
+  class Service < BaseGeneratableElement
+    attr_reader :name
+    attr_reader :methods
+
+    def initialize(data_module, name, options = {}, &block)
+      @name = name
+      @methods = Domgen::OrderedHash.new
+      data_module.send :register_service, name, self
+      super(data_module, options, &block)
+    end
+
+    def data_module
+      self.parent
+    end
+
+    def qualified_name
+      "#{data_module.name}.#{self.name}"
+    end
+
+    def methods
+      @methods.values
+    end
+
+    def method(name, options = {}, &block)
+      error("Attempting to override method #{name} on #{self.name}") if @methods[name.to_s]
+      method = Method.new(self, name, options, &block)
+      @methods[name.to_s] = method
+      method
+    end
+
+    def verify
+      extension_point(:pre_verify)
+
+      methods.each do |m|
+        m.verify
+      end
+
+      # Post verify is for when you add more things to the model
+      extension_point(:post_verify)
+    end
+  end
+
   class DataModule < BaseGeneratableElement
     attr_reader :repository
     attr_reader :name
@@ -785,6 +981,7 @@ module Domgen
       @repository = repository
       repository.send :register_data_module, name, self
       @name = name
+      @services = Domgen::OrderedHash.new
       @object_types = Domgen::OrderedHash.new
       Logger.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
@@ -821,15 +1018,23 @@ module Domgen
         register_object_type(name, object_type)
         yield object_type if block_given?
       else
-        object_type = ObjectType.new(self, name, options, &block)
+        ObjectType.new(self, name, options, &block)
       end
-      post_object_type_create(name, object_type)
+      post_object_type_create(name)
+    end
+
+    def services
+      @services.values
+    end
+
+    def define_service(name, options = {}, &block)
+      pre_service_create(name)
+      Service.new(self, name, options, &block)
+      post_service_create(name)
     end
 
     def object_type_by_name(name)
-      name_parts = name.to_s.split('.')
-      error("Name should have 0 or 1 '.' separators") if (name_parts.size != 1 && name_parts.size != 2)
-      name_parts = [self.name] + name_parts if name_parts.size == 1
+      name_parts = split_name(name)
       repository.data_module_by_name(name_parts[0]).local_object_type_by_name(name_parts[1])
     end
 
@@ -839,27 +1044,61 @@ module Domgen
       object_type
     end
 
+    def service_by_name(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1])
+    end
+
+    def local_service_by_name(name)
+      service = @services[name.to_s]
+      error("Unable to locate local service #{name} in #{self.name}") unless service
+      service
+    end
+
     def verify
       extension_point(:pre_verify)
       self.object_types.each do |object_type|
         object_type.verify
+      end
+      self.services.each do |service|
+        service.verify
       end
       extension_point(:post_verify)
     end
 
     private
 
+    def split_name(name)
+      name_parts = name.to_s.split('.')
+      error("Name should have 0 or 1 '.' separators") if (name_parts.size != 1 && name_parts.size != 2)
+      name_parts = [self.name] + name_parts if name_parts.size == 1
+      name_parts
+    end
+
     def pre_object_type_create(name)
       error("Attempting to redefine Object Type '#{name}'") if @object_types[name.to_s]
       Logger.debug "Object Type '#{name}' definition started"
     end
 
-    def post_object_type_create(name, object_type)
+    def post_object_type_create(name)
       Logger.debug "Object Type '#{name}' definition completed"
     end
 
     def register_object_type(name, object_type)
       @object_types[name.to_s] = object_type
+    end
+
+    def pre_service_create(name)
+      error("Attempting to redefine Service '#{name}'") if @services[name.to_s]
+      Logger.debug "Service '#{name}' definition started"
+    end
+
+    def post_service_create(name)
+      Logger.debug "Service '#{name}' definition completed"
+    end
+
+    def register_service(name, service)
+      @services[name.to_s] = service
     end
   end
 

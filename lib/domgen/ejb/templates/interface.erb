@@ -1,0 +1,22 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= service.data_module.java.package %>;
+
+<%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.ejb.<%= service.ejb.local? ? "Local" : "Remove" %>
+public interface <%= service.java.classname %>
+{
+<% service.methods.each do |method|
+%><%= description_javadoc_for(method)
+%>  <%= method.return_value.java.java_type %> <%= method.java.name %>(<%= method.parameters.collect{|p| "#{p.java.java_type} #{p.java.name}" }.join(', ') %>)<%=
+    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.java.name}.join(', ')}"
+%>;
+
+<% end %><% service.methods.collect{|method| method.exceptions.collect{|exception| exception.java.name} }.flatten.sort.uniq.each do |exception_name| %>
+  class <%= exception_name %> extends Exception
+  {
+    public <%= exception_name %>() {}
+    public <%= exception_name %>( final String message ) { super( message ); }
+    public <%= exception_name %>( final String message, final Throwable cause ) { super( message, cause ); }
+  }
+<% end %>}

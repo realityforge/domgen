@@ -9,12 +9,12 @@ module Domgen
         Template.new(:object_type,
                     "#{Jpa::TEMPLATE_DIRECTORY}/model.erb",
                     'java/#{object_type.java.qualified_name.gsub(".","/")}.java',
-                    [Domgen::Jpa::Helper],
+                    [Domgen::Jpa::Helper,Domgen::Java::Helper],
                     'object_type.jpa.persistent?'),
       Template.new(:object_type,
                     "#{Jpa::TEMPLATE_DIRECTORY}/metamodel.erb",
                     'java/#{object_type.java.qualified_name.gsub(".","/")}_.java',
-                    [Domgen::Jpa::Helper],
+                    [Domgen::Jpa::Helper,Domgen::Java::Helper],
                     'object_type.jpa.persistent?'),
       ]
     end
