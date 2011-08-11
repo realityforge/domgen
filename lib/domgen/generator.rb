@@ -51,6 +51,17 @@ module Domgen
                   end
                 end
               end
+
+              if :method == template.scope
+                data_module.services.each do |service|
+                  service.methods.each do |method|
+                    Logger.debug "Generating #{template_name} for method #{method.qualified_name}"
+                    render(directory, template, :method, method) do
+                      Logger.debug "Generated #{template_name} for method #{method.qualified_name}"
+                    end
+                  end
+                end
+              end
             end
           end
         end
