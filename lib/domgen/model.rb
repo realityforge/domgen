@@ -97,7 +97,7 @@ module Domgen
   class BaseParentedElement < BaseConfigElement
     attr_accessor :parent
 
-    def initialize(parent, options, &block)
+    def initialize(parent, options = {}, &block)
       @parent = parent
       super(options, &block)
     end
