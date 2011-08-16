@@ -105,12 +105,12 @@ module Domgen
     end
 
     class JavaParameter < JavaElement
-      def method
+      def parameter
         self.parent
       end
 
       def name
-        Domgen::Naming.camelize(method.name.to_s)
+        Domgen::Naming.camelize(parameter.name.to_s)
       end
 
       attr_writer :java_type
@@ -122,16 +122,16 @@ module Domgen
       end
 
       def non_primitive_java_type
-        TYPE_MAP[method.parameter_type.to_s] || method.parameter_type.to_s
+        TYPE_MAP[parameter.parameter_type.to_s] || parameter.parameter_type.to_s
       end
 
       def primitive?
-        (method.parameter_type == :integer || method.parameter_type == :boolean) && !method.nullable?
+        (parameter.parameter_type == :integer || parameter.parameter_type == :boolean) && !parameter.nullable?
       end
 
       def primitive_java_type
-        return "int" if :integer == method.parameter_type
-        return "boolean" if :boolean == method.parameter_type
+        return "int" if :integer == parameter.parameter_type
+        return "boolean" if :boolean == parameter.parameter_type
         error("primitive_java_type invoked for non primitive parameter")
       end
     end
@@ -170,7 +170,7 @@ module Domgen
       end
 
       def name
-        "#{exception.name}Exception"
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
       end
     end
 
