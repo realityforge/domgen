@@ -869,7 +869,7 @@ module Domgen
     end
   end
 
-  class Method < BaseParentedElement
+  class Method < BaseGeneratableElement
     attr_reader :name
 
     def initialize(service, name, options = {}, &block)
