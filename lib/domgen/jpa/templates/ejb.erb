@@ -3,7 +3,7 @@ package <%= object_type.data_module.java.package %>.ejb;
 
 @SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
-@javax.ejb.Stateless( name = "<%= object_type.java.qualified_name %>EJB" )
+@javax.ejb.Stateless( name = "<%= object_type.qualified_name %>EJB" )
 public class <%= object_type.java.classname %>EJB
 {
   @javax.persistence.PersistenceContext(unitName = "<%= object_type.data_module.repository.name %>")
