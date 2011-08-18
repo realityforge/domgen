@@ -96,11 +96,6 @@ module Domgen
       RUBY
     end
 
-
-    def ruby
-      @ruby ||= Domgen::Ruby::RubyAttribute.new(self)
-    end
-
     protected
 
     def error(message)
