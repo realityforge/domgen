@@ -1,8 +1,5 @@
 module Domgen
   module Ruby
-    class RubyAttribute < BaseParentedElement
-    end
-
     class RubyClass < Domgen.ParentedElement(:object_type)
       attr_writer :classname
       attr_reader :included_modules
@@ -34,7 +31,6 @@ module Domgen
     end
   end
 
-  Attribute.add_extension(:ruby, Domgen::Ruby::RubyAttribute)
   ObjectType.add_extension(:ruby, Domgen::Ruby::RubyClass)
   DataModule.add_extension(:ruby, Domgen::Ruby::RubyModule)
 end
