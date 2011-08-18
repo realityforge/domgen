@@ -1,15 +1,6 @@
 module Domgen
   module EJB
-    class EjbElement < BaseConfigElement
-      attr_reader :parent
-
-      def initialize(parent, options = {}, &block)
-        @parent = parent
-        super(options, &block)
-      end
-    end
-
-    class EjbClass < EjbElement
+    class EjbClass < BaseParentedElement
       def service
         self.parent
       end

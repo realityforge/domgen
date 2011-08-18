@@ -96,16 +96,7 @@ module Domgen
       @@dialect = dialect.new
     end
 
-    class SqlElement < BaseConfigElement
-      attr_reader :parent
-
-      def initialize(parent, options = {}, &block)
-        @parent = parent
-        super(options, &block)
-      end
-    end
-
-    class SqlSchema < SqlElement
+    class SqlSchema < BaseParentedElement
       attr_writer :schema
 
       def schema
@@ -247,7 +238,7 @@ module Domgen
       end
     end
 
-    class Constraint < SqlElement
+    class Constraint < BaseParentedElement
       attr_reader :name
       attr_accessor :sql
 
@@ -280,7 +271,7 @@ module Domgen
       end
     end
 
-    class FunctionConstraint < SqlElement
+    class FunctionConstraint < BaseParentedElement
       attr_reader :name
       # The SQL that is part of function invoked
       attr_accessor :positive_sql
@@ -338,7 +329,7 @@ module Domgen
       end
     end
 
-    class SequencedSqlElement < SqlElement
+    class SequencedSqlElement < BaseParentedElement
       VALID_AFTER = [:insert, :update, :delete]
 
       attr_reader :name
@@ -427,7 +418,7 @@ module Domgen
       end
     end
 
-    class Table < SqlElement
+    class Table < BaseParentedElement
       attr_writer :table_name
       attr_accessor :partition_scheme
 
@@ -841,7 +832,7 @@ SQL
       end
     end
 
-    class Column < SqlElement
+    class Column < BaseParentedElement
       def attribute
         self.parent
       end
@@ -895,7 +886,7 @@ SQL
       attr_accessor :default_value
     end
 
-    class Database < SqlElement
+    class Database < BaseParentedElement
       def initialize(parent, options = {}, &block)
         @error_handler = Proc.new do |error_message|
           "RAISERROR ('#{error_message}', 16, 1) WITH SETERROR"

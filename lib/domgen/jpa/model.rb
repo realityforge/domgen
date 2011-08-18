@@ -1,15 +1,6 @@
 module Domgen
   module JPA
-    class JpaElement < BaseConfigElement
-      attr_reader :parent
-
-      def initialize(parent, options = {}, &block)
-        @parent = parent
-        super(options, &block)
-      end
-    end
-
-    class Query < JpaElement
+    class Query < BaseParentedElement
       attr_reader :name
       attr_accessor :jpql
       attr_accessor :parameter_types
@@ -81,7 +72,7 @@ module Domgen
       end
     end
 
-    class BaseJpaField < JpaElement
+    class BaseJpaField < BaseParentedElement
       def cascade
         @cascade || []
       end
@@ -144,7 +135,7 @@ module Domgen
       end
     end
 
-    class JpaClass < JpaElement
+    class JpaClass < BaseParentedElement
       attr_writer :table_name
 
       def table_name
@@ -182,7 +173,7 @@ module Domgen
       end
     end
 
-    class PersistenceUnit < JpaElement
+    class PersistenceUnit < BaseParentedElement
       attr_accessor :provider
       attr_accessor :transaction_type
       attr_accessor :data_source_name

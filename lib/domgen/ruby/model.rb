@@ -1,18 +1,9 @@
 module Domgen
   module Ruby
-    class RubyElement < BaseConfigElement
-      attr_reader :parent
-
-      def initialize(parent, options = {}, &block)
-        @parent = parent
-        super(options, &block)
-      end
+    class RubyAttribute < BaseParentedElement
     end
 
-    class RubyAttribute < RubyElement
-    end
-
-    class RubyClass < RubyElement
+    class RubyClass < BaseParentedElement
       attr_writer :classname
       attr_reader :included_modules
 
@@ -43,7 +34,7 @@ module Domgen
       end
     end
 
-    class RubyModule < RubyElement
+    class RubyModule < BaseParentedElement
       attr_writer :module_name
 
       def module_name

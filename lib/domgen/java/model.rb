@@ -9,16 +9,7 @@ module Domgen
                 "s_enum" => "java.lang.String",
                 "List" => "java.util.List"}
 
-    class JavaElement < BaseConfigElement
-      attr_reader :parent
-
-      def initialize(parent, options = {}, &block)
-        @parent = parent
-        super(options, &block)
-      end
-    end
-
-    class JavaClass < JavaElement
+    class JavaClass < BaseParentedElement
       attr_writer :classname
       attr_accessor :label_attribute
 
@@ -48,7 +39,7 @@ module Domgen
       end
     end
 
-    class JavaField < JavaElement
+    class JavaField < BaseParentedElement
       def attribute
         self.parent
       end
@@ -94,7 +85,7 @@ module Domgen
       end
     end
 
-    class JavaMethod < JavaElement
+    class JavaMethod < BaseParentedElement
       def service
         self.parent
       end
@@ -104,7 +95,7 @@ module Domgen
       end
     end
 
-    class JavaParameter < JavaElement
+    class JavaParameter < BaseParentedElement
       def parameter
         self.parent
       end
@@ -136,7 +127,7 @@ module Domgen
       end
     end
 
-    class JavaReturn < JavaElement
+    class JavaReturn < BaseParentedElement
       def result
         self.parent
       end
@@ -164,7 +155,7 @@ module Domgen
       end
     end
 
-    class JavaException < JavaElement
+    class JavaException < BaseParentedElement
       def exception
         self.parent
       end
@@ -174,7 +165,7 @@ module Domgen
       end
     end
 
-    class JavaPackage < JavaElement
+    class JavaPackage < BaseParentedElement
       attr_writer :package
 
       def package
@@ -186,7 +177,7 @@ module Domgen
       end
     end
 
-    class JavaModule < JavaElement
+    class JavaModule < BaseParentedElement
       attr_writer :package
 
       def package
