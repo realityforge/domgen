@@ -96,15 +96,11 @@ module Domgen
       @@dialect = dialect.new
     end
 
-    class SqlSchema < BaseParentedElement
+    class SqlSchema < Domgen.ParentedElement(:data_module)
       attr_writer :schema
 
       def schema
         @schema || data_module.name
-      end
-
-      def data_module
-        self.parent
       end
 
       def quoted_schema
@@ -238,17 +234,13 @@ module Domgen
       end
     end
 
-    class Constraint < BaseParentedElement
+    class Constraint < Domgen.ParentedElement(:table)
       attr_reader :name
       attr_accessor :sql
 
-      def initialize(parent, name, options = {}, &block)
+      def initialize(table, name, options = {}, &block)
         @name = name
-        super(parent, options, &block)
-      end
-
-      def table
-        self.parent
+        super(table, options, &block)
       end
 
       attr_writer :invariant
@@ -271,7 +263,7 @@ module Domgen
       end
     end
 
-    class FunctionConstraint < BaseParentedElement
+    class FunctionConstraint < Domgen.ParentedElement(:table)
       attr_reader :name
       # The SQL that is part of function invoked
       attr_accessor :positive_sql
@@ -279,15 +271,11 @@ module Domgen
       attr_accessor :common_table_expression
       attr_accessor :or_conditions
 
-      def initialize(parent, name, parameters, options = {}, & block)
+      def initialize(table, name, parameters, options = {}, & block)
         @name = name
         @parameters = parameters
         @or_conditions = []
-        super(parent, options, & block)
-      end
-
-      def table
-        self.parent
+        super(table, options, & block)
       end
 
       attr_writer :invariant
@@ -329,18 +317,18 @@ module Domgen
       end
     end
 
-    class SequencedSqlElement < BaseParentedElement
+    class SequencedSqlElement < Domgen.ParentedElement(:table)
       VALID_AFTER = [:insert, :update, :delete]
 
       attr_reader :name
       attr_reader :after
       attr_reader :instead_of
 
-      def initialize(parent, name, options = {}, & block)
+      def initialize(table, name, options = {}, & block)
         @name = name
         @after = [:insert, :update]
         @instead_of = []
-        super(parent, options, & block)
+        super(table, options, & block)
       end
 
       def after=(after)
@@ -371,39 +359,25 @@ module Domgen
       attr_accessor :invariant_negative_sql
       attr_accessor :common_table_expression
       attr_accessor :guard
-      attr_accessor :priority
+      attr_writer :priority
 
-      def initialize(parent, name, options = {}, &block)
-        @priority = 1
-        super(parent, name, options, &block)
-      end
-
-      def table
-        self.parent
+      def priority
+        @priority || 1
       end
     end
 
     class Action < SequencedSqlElement
       attr_accessor :sql
       attr_accessor :guard
-      attr_accessor :priority
+      attr_writer :priority
 
-      def initialize(parent, name, options = {}, &block)
-        @priority = 1
-        super(parent, name, options, &block)
+      def priority
+        @priority || 1
       end
     end
 
     class Trigger < SequencedSqlElement
       attr_accessor :sql
-
-      def initialize(parent, name, options = {}, &block)
-        super(parent, name, options, &block)
-      end
-
-      def table
-        self.parent
-      end
 
       def trigger_name
         @trigger_name ||= sql_name(:trigger, "#{table.object_type.name}#{self.name}")
@@ -418,7 +392,7 @@ module Domgen
       end
     end
 
-    class Table < BaseParentedElement
+    class Table < Domgen.ParentedElement(:object_type)
       attr_writer :table_name
       attr_accessor :partition_scheme
 
@@ -429,7 +403,7 @@ module Domgen
       # TODO: MSSQL Specific
       attr_accessor :force_overflow_for_large_objects
 
-      def initialize(parent, options = {}, &block)
+      def initialize(object_type, options = {}, &block)
         @indexes = Domgen::OrderedHash.new
         @constraints = Domgen::OrderedHash.new
         @function_constraints = Domgen::OrderedHash.new
@@ -437,11 +411,7 @@ module Domgen
         @actions = Domgen::OrderedHash.new
         @triggers = Domgen::OrderedHash.new
         @foreign_keys = Domgen::OrderedHash.new
-        super(parent, options, &block)
-      end
-
-      def object_type
-        self.parent
+        super(object_type, options, &block)
       end
 
       def table_name
@@ -663,7 +633,7 @@ SQL
           attribute_name_path = c.attribute_name_path
           object_path = []
 
-          object_type = parent
+          object_type = self.object_type
           attribute_name_path.each do |attribute_name_path_element|
             object_path << object_type
             other = object_type.attribute_by_name(attribute_name_path_element)
@@ -832,11 +802,7 @@ SQL
       end
     end
 
-    class Column < BaseParentedElement
-      def attribute
-        self.parent
-      end
-
+    class Column < Domgen.ParentedElement(:attribute)
       def column_name
         if @column_name.nil?
           if attribute.reference?
@@ -886,16 +852,12 @@ SQL
       attr_accessor :default_value
     end
 
-    class Database < BaseParentedElement
-      def initialize(parent, options = {}, &block)
+    class Database < Domgen.ParentedElement(:repository)
+      def initialize(repository, options = {}, &block)
         @error_handler = Proc.new do |error_message|
           "RAISERROR ('#{error_message}', 16, 1) WITH SETERROR"
         end
-        super(parent, options, & block)
-      end
-
-      def repository
-        self.parent
+        super(repository, options, & block)
       end
 
       def define_error_handler(&block)

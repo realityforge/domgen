@@ -9,13 +9,9 @@ module Domgen
                 "s_enum" => "java.lang.String",
                 "List" => "java.util.List"}
 
-    class JavaClass < BaseParentedElement
+    class JavaClass < Domgen.ParentedElement(:object_type)
       attr_writer :classname
       attr_accessor :label_attribute
-
-      def object_type
-        self.parent
-      end
 
       def classname
         @classname || object_type.name
@@ -27,10 +23,6 @@ module Domgen
     end
 
     class JavaEntity < JavaClass
-      def object_type
-        self.parent
-      end
-
       attr_writer :debug_attributes
 
       def debug_attributes
@@ -39,11 +31,7 @@ module Domgen
       end
     end
 
-    class JavaField < BaseParentedElement
-      def attribute
-        self.parent
-      end
-
+    class JavaField < Domgen.ParentedElement(:attribute)
       attr_writer :field_name
 
       def field_name
@@ -80,26 +68,15 @@ module Domgen
     end
 
     class JavaService < JavaClass
-      def service
-        self.parent
-      end
     end
 
-    class JavaMethod < BaseParentedElement
-      def service
-        self.parent
-      end
-
+    class JavaMethod < Domgen.ParentedElement(:service)
       def name
         Domgen::Naming.camelize(service.name.to_s)
       end
     end
 
-    class JavaParameter < BaseParentedElement
-      def parameter
-        self.parent
-      end
-
+    class JavaParameter < Domgen.ParentedElement(:parameter)
       def name
         Domgen::Naming.camelize(parameter.name.to_s)
       end
@@ -127,10 +104,7 @@ module Domgen
       end
     end
 
-    class JavaReturn < BaseParentedElement
-      def result
-        self.parent
-      end
+    class JavaReturn < Domgen.ParentedElement(:result)
 
       attr_writer :java_type
 
@@ -155,37 +129,25 @@ module Domgen
       end
     end
 
-    class JavaException < BaseParentedElement
-      def exception
-        self.parent
-      end
-
+    class JavaException < Domgen.ParentedElement(:exception)
       def name
         exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
       end
     end
 
-    class JavaPackage < BaseParentedElement
+    class JavaPackage < Domgen.ParentedElement(:data_module)
       attr_writer :package
 
       def package
         @package || "#{data_module.repository.java.package}.#{data_module.name}"
       end
-
-      def data_module
-        self.parent
-      end
     end
 
-    class JavaModule < BaseParentedElement
+    class JavaModule < Domgen.ParentedElement(:repository)
       attr_writer :package
 
       def package
         @package || repository.name
-      end
-
-      def repository
-        self.parent
       end
     end
   end

@@ -3,21 +3,12 @@ module Domgen
     class RubyAttribute < BaseParentedElement
     end
 
-    class RubyClass < BaseParentedElement
+    class RubyClass < Domgen.ParentedElement(:object_type)
       attr_writer :classname
       attr_reader :included_modules
 
-      def initialize(parent)
-        super(parent)
-        @included_modules = []
-      end
-
-      def object_type
-        self.parent
-      end
-
       def include_module(module_name)
-        @included_modules << module_name
+        (@included_modules ||= []) << module_name
       end
 
       def classname
@@ -34,15 +25,11 @@ module Domgen
       end
     end
 
-    class RubyModule < BaseParentedElement
+    class RubyModule < Domgen.ParentedElement(:data_module)
       attr_writer :module_name
 
       def module_name
         @module_name || data_module.name
-      end
-
-      def data_module
-        self.parent
       end
     end
   end

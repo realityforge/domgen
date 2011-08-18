@@ -117,18 +117,31 @@ module Domgen
     end
   end
 
-  class BaseGeneratableElement < BaseParentedElement
-    def initialize(parent, options, &block)
-      @generator_keys = []
-      super(parent, options, &block)
-    end
+  def self.ParentedElement(param)
+    type = Class.new(BaseConfigElement)
+    code = <<-RUBY
+    attr_accessor :#{param}
 
+    def initialize(#{param}, options = {}, &block)
+      @#{param} = #{param}
+      super(options, &block)
+    end
+    RUBY
+    type.class_eval(code)
+    type
+  end
+
+  class BaseGeneratableElement < BaseParentedElement
     def define_generator(generator_key)
-      @generator_keys << generator_key.to_sym
+      self.generator_keys << generator_key.to_sym
     end
 
     def generate?(generator_key)
-      @generator_keys.include?(generator_key) || (!@parent.nil? && @parent.generate?(generator_key))
+      self.generator_keys.include?(generator_key) || (!self.parent.nil? && self.parent.generate?(generator_key))
+    end
+
+    def generator_keys
+      @generator_keys ||= []
     end
   end
 
@@ -256,14 +269,10 @@ module Domgen
     end
   end
 
-  class InverseElement < BaseParentedElement
+  class InverseElement < Domgen.ParentedElement(:attribute)
 
     def initialize(attribute, options, &block)
       super(attribute, options, &block)
-    end
-
-    def attribute
-      self.parent
     end
 
     def multiplicity
@@ -797,16 +806,12 @@ module Domgen
     end
   end
 
-  class Exception < BaseParentedElement
+  class Exception < Domgen.ParentedElement(:method)
     attr_reader :name
 
-    def initialize(method, name, parameter_type, options = {}, &block)
+    def initialize(method, name, options = {}, &block)
       @name = name
       super(method, options, &block)
-    end
-
-    def method
-      self.parent
     end
 
     def qualified_name
@@ -821,7 +826,7 @@ module Domgen
     end
   end
 
-  class Parameter < BaseParentedElement
+  class Parameter < Domgen.ParentedElement(:method)
     attr_reader :name
     attr_reader :parameter_type
 
@@ -829,10 +834,6 @@ module Domgen
       @name = name
       @parameter_type = parameter_type
       super(method, options, &block)
-    end
-
-    def method
-      self.parent
     end
 
     def qualified_name
@@ -853,16 +854,12 @@ module Domgen
     end
   end
 
-  class Result < BaseParentedElement
+  class Result < Domgen.ParentedElement(:method)
     attr_reader :return_type
 
     def initialize(method, return_type, options = {}, &block)
       @return_type = return_type
       super(method, options, &block)
-    end
-
-    def method
-      self.parent
     end
 
     def qualified_name

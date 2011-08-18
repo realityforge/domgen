@@ -1,19 +1,14 @@
 module Domgen
   module JPA
-    class Query < BaseParentedElement
+    class Query < Domgen.ParentedElement(:jpa_class)
       attr_reader :name
       attr_accessor :jpql
       attr_accessor :parameter_types
 
-      def initialize(parent, name, jpql, options = {}, & block)
-        @parent = parent
+      def initialize(jpa_class, name, jpql, options = {}, & block)
         @name = name
         @jpql = jpql
-        super(parent, options, & block)
-      end
-
-      def jpa_class
-        self.parent
+        super(jpa_class, options, & block)
       end
 
       def populate_parameters
@@ -39,21 +34,19 @@ module Domgen
       attr_writer :query_type
 
       def query_type
-        @query_type = :selector if @query_type.nil?
-        @query_type
+        @query_type || :selector
       end
 
       attr_writer :singular
 
       def singular?
-        @singular = false if @singular.nil?
-        @singular
+        @singular.nil? ? false : @singular
       end
 
       def query_string
-        if query_type == :full
-          query = jpql
-        elsif query_type == :selector
+        if self.query_type == :full
+          query = self.jpql
+        elsif self.query_type == :selector
           query = "SELECT O FROM #{jpa_class.object_type.qualified_name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
         else
           error("Unknown query type #{query_type}")
@@ -72,7 +65,7 @@ module Domgen
       end
     end
 
-    class BaseJpaField < BaseParentedElement
+    class BaseJpaField < Domgen.ParentedElement(:parent)
       def cascade
         @cascade || []
       end
@@ -135,15 +128,11 @@ module Domgen
       end
     end
 
-    class JpaClass < BaseParentedElement
+    class JpaClass < Domgen.ParentedElement(:object_type)
       attr_writer :table_name
 
       def table_name
         @table_name || object_type.sql.table_name
-      end
-
-      def object_type
-        self.parent
       end
 
       attr_writer :persistent
@@ -173,7 +162,7 @@ module Domgen
       end
     end
 
-    class PersistenceUnit < BaseParentedElement
+    class PersistenceUnit < Domgen.ParentedElement(:repository)
       attr_accessor :provider
       attr_accessor :transaction_type
       attr_accessor :data_source_name
@@ -182,10 +171,6 @@ module Domgen
 
       def name
         @name || repository.name
-      end
-
-      def repository
-        self.parent
       end
     end
   end

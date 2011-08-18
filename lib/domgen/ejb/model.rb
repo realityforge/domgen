@@ -1,10 +1,6 @@
 module Domgen
   module EJB
-    class EjbClass < BaseParentedElement
-      def service
-        self.parent
-      end
-
+    class EjbClass < Domgen.ParentedElement(:service)
       attr_writer :local
 
       def local?
