@@ -26,11 +26,5 @@ module Domgen
     end
   end
 
-  class Service
-    self.extensions << :ejb
-
-    def ejb
-      @ejb ||= Domgen::EJB::EjbClass.new(self)
-    end
-  end
+  Service.add_extension(:ejb, Domgen::EJB::EjbClass)
 end

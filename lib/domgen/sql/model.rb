@@ -927,35 +927,8 @@ SQL
     end
   end
 
-  class Attribute
-    def sql
-      error("Non persistent attributes should not invoke sql config method") unless persistent?
-      @sql ||= Domgen::Sql::Column.new(self)
-    end
-  end
-
-  class ObjectType
-    self.extensions << :sql
-
-    def sql
-      @sql ||= Domgen::Sql::Table.new(self)
-    end
-  end
-
-  class DataModule
-    self.extensions << :sql
-
-    def sql
-      @sql = Domgen::Sql::SqlSchema.new(self) unless @sql
-      @sql
-    end
-  end
-
-  class Repository
-    self.extensions << :sql
-
-    def sql
-      @sql ||= Domgen::Sql::Database.new(self)
-    end
-  end
+  Attribute.add_extension(:sql, Domgen::Sql::Column)
+  ObjectType.add_extension(:sql, Domgen::Sql::Table)
+  DataModule.add_extension(:sql, Domgen::Sql::SqlSchema)
+  Repository.add_extension(:sql, Domgen::Sql::Database)
 end

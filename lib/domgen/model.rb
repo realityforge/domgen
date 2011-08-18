@@ -87,6 +87,20 @@ module Domgen
       end
     end
 
+    def self.add_extension(key, extension_class)
+      self.extensions << key
+      self.module_eval(<<-RUBY)
+    def #{key}
+      @#{key} ||= #{extension_class.name}.new(self)
+    end
+      RUBY
+    end
+
+
+    def ruby
+      @ruby ||= Domgen::Ruby::RubyAttribute.new(self)
+    end
+
     protected
 
     def error(message)

@@ -199,76 +199,13 @@ module Domgen
     end
   end
 
-  class Attribute
-    self.extensions << :java
-
-    def java
-      @java = Domgen::Java::JavaField.new(self) unless @java
-      @java
-    end
-  end
-
-  class ObjectType
-    self.extensions << :java
-
-    def java
-      @java ||= Domgen::Java::JavaEntity.new(self)
-    end
-  end
-
-  class Service
-    self.extensions << :java
-
-    def java
-      @java ||= Domgen::Java::JavaService.new(self)
-    end
-  end
-
-  class Method
-    self.extensions << :java
-
-    def java
-      @java ||= Domgen::Java::JavaMethod.new(self)
-    end
-  end
-
-  class Parameter
-    self.extensions << :java
-
-    def java
-      @java ||= Domgen::Java::JavaParameter.new(self)
-    end
-  end
-
-  class Exception
-    self.extensions << :java
-
-    def java
-      @java ||= Domgen::Java::JavaException.new(self)
-    end
-  end
-
-  class Result
-    self.extensions << :java
-
-    def java
-      @java ||= Domgen::Java::JavaReturn.new(self)
-    end
-  end
-
-  class DataModule
-    self.extensions << :java
-
-    def java
-      @java ||= Domgen::Java::JavaPackage.new(self)
-    end
-  end
-
-  class Repository
-    self.extensions << :java
-
-    def java
-      @java ||= Domgen::Java::JavaModule.new(self)
-    end
-  end
+  Attribute.add_extension(:java, Domgen::Java::JavaField)
+  ObjectType.add_extension(:java, Domgen::Java::JavaEntity)
+  Service.add_extension(:java, Domgen::Java::JavaService)
+  Method.add_extension(:java, Domgen::Java::JavaMethod)
+  Parameter.add_extension(:java, Domgen::Java::JavaParameter)
+  Exception.add_extension(:java, Domgen::Java::JavaException)
+  Result.add_extension(:java, Domgen::Java::JavaReturn)
+  DataModule.add_extension(:java, Domgen::Java::JavaPackage)
+  Repository.add_extension(:java, Domgen::Java::JavaModule)
 end

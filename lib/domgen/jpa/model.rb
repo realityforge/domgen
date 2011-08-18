@@ -199,36 +199,8 @@ module Domgen
     end
   end
 
-  class ObjectType
-    self.extensions << :jpa
-
-    def jpa
-      @jpa = Domgen::JPA::JpaClass.new(self) unless @jpa
-      @jpa
-    end
-  end
-
-  class InverseElement
-    self.extensions << :jpa
-
-    def jpa
-      @jpa ||= Domgen::JPA::JpaFieldInverse.new(self)
-    end
-  end
-
-  class Attribute
-    self.extensions << :jpa
-
-    def jpa
-      @jpa ||= Domgen::JPA::JpaField.new(self)
-    end
-  end
-
-  class Repository
-    self.extensions << :jpa
-
-    def jpa
-      @jpa ||= Domgen::JPA::PersistenceUnit.new(self)
-    end
-  end
+  Attribute.add_extension(:jpa, Domgen::JPA::JpaField)
+  InverseElement.add_extension(:jpa, Domgen::JPA::JpaFieldInverse)
+  ObjectType.add_extension(:jpa, Domgen::JPA::JpaClass)
+  Repository.add_extension(:jpa, Domgen::JPA::PersistenceUnit)
 end

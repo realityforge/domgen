@@ -56,27 +56,7 @@ module Domgen
     end
   end
 
-  class Attribute
-    self.extensions << :ruby
-
-    def ruby
-      @ruby ||= Domgen::Ruby::RubyAttribute.new(self)
-    end
-  end
-
-  class ObjectType
-    self.extensions << :ruby
-
-    def ruby
-      @ruby ||= Domgen::Ruby::RubyClass.new(self)
-    end
-  end
-
-  class DataModule
-    self.extensions << :ruby
-
-    def ruby
-      @ruby ||= Domgen::Ruby::RubyModule.new(self)
-    end
-  end
+  Attribute.add_extension(:ruby, Domgen::Ruby::RubyAttribute)
+  ObjectType.add_extension(:ruby, Domgen::Ruby::RubyClass)
+  DataModule.add_extension(:ruby, Domgen::Ruby::RubyModule)
 end
