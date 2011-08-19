@@ -79,8 +79,61 @@ module Domgen
     end
       RUBY
     end
+  end
 
+  class Facet
+    attr_reader :key
+    attr_reader :extension_map
 
+    def initialize(key, extension_map)
+      extension_map.each_pair do |source_class, extension_class|
+        raise "Facet #{key}: Unknown source class supplied in map '#{source_class.name}'" unless FacetManager.valid_source_classes.include?(source_class)
+        raise "Facet #{key}: Extension class is not a class. '#{extension_class}'" unless extension_class.is_a?(Class)
+      end
+      @key = key
+      @extension_map = extension_map
+    end
+
+    def enable
+      self.extension_map.each_pair do |source_class, extension_class|
+        source_class.module_eval(<<-RUBY)
+def #{self.key}
+  @#{self.key} ||= #{extension_class.name}.new(self)
+end
+        RUBY
+        Logger.debug "Facet '#{key}' enabled for #{source_class} by adding extension #{extension_class}"
+      end
+      Logger.info "Facet '#{key}' enabled"
+    end
+  end
+
+  class FacetManager
+    class << self
+      def define_facet(key, extension_map)
+        raise "Attempting to redefine facet #{key}" if facet_map[key.to_s]
+        facet_map[key.to_s] = Facet.new(key, extension_map)
+      end
+
+      def facet_by_name(key)
+        facet = facet_map[key.to_s]
+        raise "Unknown facet '#{key}'" unless facet
+        facet
+      end
+
+      private
+
+      def valid_source_classes
+        [
+          Domgen::Attribute, Domgen::InverseElement, Domgen::ObjectType,
+          Domgen::Service, Domgen::Method, Domgen::Parameter, Domgen::Exception, Domgen::Result,
+          Domgen::DataModule, Domgen::Repository
+        ]
+      end
+
+      # Map a facet key to a map. The map maps types to extension classes
+      def facet_map
+        @facets ||= Domgen::OrderedHash.new
+      end
     end
   end
 
