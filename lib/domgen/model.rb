@@ -966,9 +966,9 @@ module Domgen
       pre_object_type_create(name)
       if options[:extends]
         base_type = object_type_by_name(options[:extends])
-        base_type.instance_variable_set("@parent", nil)
+        base_type.instance_variable_set("@data_module", nil)
         object_type = Marshal.load(Marshal.dump(base_type))
-        base_type.instance_variable_set("@parent", self)
+        base_type.instance_variable_set("@data_module", self)
         object_type.instance_variable_set("@abstract", nil)
         object_type.instance_variable_set("@final", nil)
         object_type.instance_variable_set("@parent", self)
