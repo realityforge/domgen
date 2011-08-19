@@ -175,8 +175,9 @@ module Domgen
     end
   end
 
-  Attribute.add_extension(:jpa, Domgen::JPA::JpaField)
-  InverseElement.add_extension(:jpa, Domgen::JPA::JpaFieldInverse)
-  ObjectType.add_extension(:jpa, Domgen::JPA::JpaClass)
-  Repository.add_extension(:jpa, Domgen::JPA::PersistenceUnit)
+  FacetManager.define_facet(:jpa,
+                            Attribute => Domgen::JPA::JpaField,
+                            InverseElement => Domgen::JPA::JpaFieldInverse,
+                            ObjectType => Domgen::JPA::JpaClass,
+                            Repository => Domgen::JPA::PersistenceUnit)
 end

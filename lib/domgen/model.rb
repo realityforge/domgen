@@ -26,20 +26,18 @@ module Domgen
   end
 
   class BaseConfigElement < BaseElement
-
-    attr_accessor :tags
-
-    def initialize(options = {})
-      @tags = {}
-      super(options)
-    end
-
     def inherited?
       !!@inherited
     end
 
     def mark_as_inherited
       @inherited = true
+    end
+
+    attr_writer :tags
+
+    def tags
+      @tags ||= {}
     end
 
     def description(value)
@@ -54,30 +52,6 @@ module Domgen
       else
         nil
       end
-    end
-
-    @@extensions = {}
-
-    def self.extensions
-      @@extensions[self.name] ||= []
-    end
-
-    def extension_point(action)
-      self.class.extensions.each do |extension|
-        extension_object = (self.send extension rescue nil)
-        if extension_object && extension_object.respond_to?(action)
-          extension_object.send action
-        end
-      end
-    end
-
-    def self.add_extension(key, extension_class)
-      self.extensions << key
-      self.module_eval(<<-RUBY)
-    def #{key}
-      @#{key} ||= #{extension_class.name}.new(self)
-    end
-      RUBY
     end
   end
 
@@ -94,16 +68,19 @@ module Domgen
       @extension_map = extension_map
     end
 
-    def enable
-      self.extension_map.each_pair do |source_class, extension_class|
-        source_class.module_eval(<<-RUBY)
-def #{self.key}
-  @#{self.key} ||= #{extension_class.name}.new(self)
-end
-        RUBY
-        Logger.debug "Facet '#{key}' enabled for #{source_class} by adding extension #{extension_class}"
-      end
-      Logger.info "Facet '#{key}' enabled"
+    def enable_on(object)
+      extension_class = self.extension_map[object.class]
+      return unless extension_class
+      object.instance_eval("def #{self.key}; @#{self.key} ||= #{extension_class.name}.new(self); end")
+      Logger.debug "Facet '#{key}' enabled for #{object.class} by adding extension #{extension_class}"
+    end
+
+    def disable_on(object)
+      extension_class = self.extension_map[object.class]
+      return unless extension_class
+      object.instance_eval("def #{self.key}; raise \"Facet #{self.key} has been disabled\"; end")
+      object.remove_instance_variable(:"@#{self.key}")
+      Logger.debug "Facet '#{key}' disabled for #{object.class} by removing extension #{extension_class}"
     end
   end
 
@@ -120,8 +97,6 @@ end
         facet
       end
 
-      private
-
       def valid_source_classes
         [
           Domgen::Attribute, Domgen::InverseElement, Domgen::ObjectType,
@@ -130,47 +105,12 @@ end
         ]
       end
 
+      private
+
       # Map a facet key to a map. The map maps types to extension classes
       def facet_map
         @facets ||= Domgen::OrderedHash.new
       end
-    end
-  end
-
-  class BaseParentedElement < BaseConfigElement
-    attr_accessor :parent
-
-    def initialize(parent, options = {}, &block)
-      @parent = parent
-      super(options, &block)
-    end
-  end
-
-  def self.ParentedElement(param)
-    type = Class.new(BaseConfigElement)
-    code = <<-RUBY
-    attr_accessor :#{param}
-
-    def initialize(#{param}, options = {}, &block)
-      @#{param} = #{param}
-      super(options, &block)
-    end
-    RUBY
-    type.class_eval(code)
-    type
-  end
-
-  class BaseGeneratableElement < BaseParentedElement
-    def define_generator(generator_key)
-      self.generator_keys << generator_key.to_sym
-    end
-
-    def generate?(generator_key)
-      self.generator_keys.include?(generator_key) || (!self.parent.nil? && self.parent.generate?(generator_key))
-    end
-
-    def generator_keys
-      @generator_keys ||= []
     end
   end
 
@@ -298,7 +238,7 @@ end
     end
   end
 
-  class InverseElement < Domgen.ParentedElement(:attribute)
+  class InverseElement < Domgen.FacetedElement(:attribute)
 
     def initialize(attribute, options, &block)
       super(attribute, options, &block)
@@ -353,16 +293,14 @@ end
     end
   end
 
-  class Attribute < BaseConfigElement
-    attr_reader :object_type
+  class Attribute < self.FacetedElement(:object_type)
     attr_reader :name
     attr_reader :attribute_type
 
     def initialize(object_type, name, attribute_type, options = {}, &block)
-      @object_type = object_type
       @name = name
       @attribute_type = attribute_type
-      super(options, &block)
+      super(object_type, options, &block)
       error("Invalid type #{attribute_type} for persistent attribute #{name}") if persistent? && !self.class.persistent_types.include?(attribute_type)
     end
 
@@ -547,7 +485,7 @@ end
     end
   end
 
-  class ObjectType < BaseGeneratableElement
+  class ObjectType < self.FacetedElement(:data_module)
     attr_reader :name
     attr_reader :unique_constraints
     attr_reader :codependent_constraints
@@ -558,6 +496,8 @@ end
     attr_accessor :extends
     attr_accessor :direct_subtypes
     attr_accessor :subtypes
+
+    include GenerateFacet
 
     def initialize(data_module, name, options = {}, &block)
       @name = name
@@ -573,10 +513,6 @@ end
       @subtypes = []
       data_module.send :register_object_type, name, self
       super(data_module, options, &block)
-    end
-
-    def data_module
-      self.parent
     end
 
     def qualified_name
@@ -835,7 +771,7 @@ end
     end
   end
 
-  class Exception < Domgen.ParentedElement(:method)
+  class Exception < Domgen.FacetedElement(:method)
     attr_reader :name
 
     def initialize(method, name, options = {}, &block)
@@ -855,7 +791,7 @@ end
     end
   end
 
-  class Parameter < Domgen.ParentedElement(:method)
+  class Parameter < Domgen.FacetedElement(:method)
     attr_reader :name
     attr_reader :parameter_type
 
@@ -883,7 +819,7 @@ end
     end
   end
 
-  class Result < Domgen.ParentedElement(:method)
+  class Result < Domgen.FacetedElement(:method)
     attr_reader :return_type
 
     def initialize(method, return_type, options = {}, &block)
@@ -909,7 +845,7 @@ end
     end
   end
 
-  class Method < BaseGeneratableElement
+  class Method <  self.FacetedElement(:service)
     attr_reader :name
 
     def initialize(service, name, options = {}, &block)
@@ -917,10 +853,6 @@ end
       @parameters = Domgen::OrderedHash.new
       @exceptions = Domgen::OrderedHash.new
       super(service, options, &block)
-    end
-
-    def service
-      self.parent
     end
 
     def qualified_name
@@ -971,19 +903,17 @@ end
     end
   end
 
-  class Service < BaseGeneratableElement
+  class Service <  self.FacetedElement(:data_module)
     attr_reader :name
     attr_reader :methods
+
+    include GenerateFacet
 
     def initialize(data_module, name, options = {}, &block)
       @name = name
       @methods = Domgen::OrderedHash.new
       data_module.send :register_service, name, self
       super(data_module, options, &block)
-    end
-
-    def data_module
-      self.parent
     end
 
     def qualified_name
@@ -1013,12 +943,12 @@ end
     end
   end
 
-  class DataModule < BaseGeneratableElement
-    attr_reader :repository
+  class DataModule <  self.FacetedElement(:repository)
     attr_reader :name
 
+    include GenerateFacet
+
     def initialize(repository, name, options = {}, &block)
-      @repository = repository
       repository.send :register_data_module, name, self
       @name = name
       @services = Domgen::OrderedHash.new
@@ -1167,7 +1097,7 @@ end
     end
   end
 
-  class Repository < BaseGeneratableElement
+  class Repository <  BaseConfigElement
     attr_reader :name
 
     def initialize(name, options = {}, &block)
@@ -1176,7 +1106,8 @@ end
       @model_checks = Domgen::OrderedHash.new
       Domgen.send :register_repository, name, self
       Logger.info "Repository definition started"
-      super(nil, options, &block)
+      self.activate_facets
+      super(options, &block)
       post_repository_definition
       Logger.info "Model Checking started."
       @model_checks.values.each do |model_check|
@@ -1212,6 +1143,9 @@ end
       end
       extension_point(:post_verify)
     end
+
+    include GenerateFacet
+    include Faceted
 
     private
 

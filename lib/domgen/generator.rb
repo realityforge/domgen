@@ -12,42 +12,29 @@ module Domgen
       templates = load_templates(generator_keys)
 
       templates.each do |template|
-        template_name = File.basename(template.template_filename, '.erb')
         if :repository == template.scope
-          if repository.generate?(template.generator_key) && (filter.nil? || filter.call(:repository, repository))
-            Logger.debug "Generating #{template_name} for respository"
-            render(directory, template, :repository, repository) do
-              Logger.debug "Generated #{template_name} for respository"
-            end
+          if template.applicable?(repository) && (filter.nil? || filter.call(:repository, repository))
+            render(directory, template, :repository, repository)
           end
         else
           repository.data_modules.each do |data_module|
             if :data_module == template.scope
-              if data_module.generate?(template.generator_key) && (filter.nil? || filter.call(:data_module, data_module))
-                Logger.debug "Generating #{template_name} for data_module #{data_module.name}"
-                render(directory, template, :data_module, data_module) do
-                  Logger.debug "Generated #{template_name} for data_module #{data_module.name}"
-                end
+              if template.applicable?(data_module) && (filter.nil? || filter.call(:data_module, data_module))
+                render(directory, template, :data_module, data_module)
               end
             else
               if :object_type == template.scope
                 data_module.object_types.each do |object_type|
-                  if object_type.generate?(template.generator_key) && (filter.nil? || filter.call(:object_type, object_type))
-                    Logger.debug "Generating #{template_name} for object_type #{object_type.qualified_name}"
-                    render(directory, template, :object_type, object_type) do
-                      Logger.debug "Generated #{template_name} for object_type #{object_type.qualified_name}"
-                    end
+                  if template.applicable?(object_type) && (filter.nil? || filter.call(:object_type, object_type))
+                    render(directory, template, :object_type, object_type)
                   end
                 end
               end
 
               if :service == template.scope
                 data_module.services.each do |service|
-                  if service.generate?(template.generator_key) && (filter.nil? || filter.call(:service, service))
-                    Logger.debug "Generating #{template_name} for service #{service.qualified_name}"
-                    render(directory, template, :service, service) do
-                      Logger.debug "Generated #{template_name} for service #{service.qualified_name}"
-                    end
+                  if template.applicable?(service) && (filter.nil? || filter.call(:service, service))
+                    render(directory, template, :service, service)
                   end
                 end
               end
@@ -55,11 +42,8 @@ module Domgen
               if :method == template.scope
                 data_module.services.each do |service|
                   service.methods.each do |method|
-                    Logger.debug "Generating #{template_name} for method #{method.qualified_name}"
-                    if method.generate?(template.generator_key) && (filter.nil? || filter.call(:method, method))
-                      render(directory, template, :method, method) do
-                        Logger.debug "Generated #{template_name} for method #{method.qualified_name}"
-                      end
+                    if template.applicable?(method) && (filter.nil? || filter.call(:method, method))
+                      render(directory, template, :method, method)
                     end
                   end
                 end
@@ -102,6 +86,9 @@ module Domgen
     end
 
     def self.render(target_basedir, template, key, value, &block)
+      object_name = value.respond_to?(:qualified_name) ? value.qualified_name : value.name
+      Logger.debug "Generating #{template.template_name} for #{key} #{object_name}"
+
       render_context = create_context(template, key, value)
       context_binding = render_context.context.send :binding
       return nil if !template.guard.nil? && !eval(template.guard, context_binding)
@@ -110,7 +97,7 @@ module Domgen
       result = template.render_to_string(context_binding)
       FileUtils.mkdir_p File.dirname(output_filename)
       File.open(output_filename, 'w') { |f| f.write(result) }
-      yield if output_filename
+      Logger.debug "Generated #{template.template_name} for #{key} #{object_name}"
     end
   end
 end

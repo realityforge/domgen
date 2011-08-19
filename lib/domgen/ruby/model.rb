@@ -31,6 +31,7 @@ module Domgen
     end
   end
 
-  ObjectType.add_extension(:ruby, Domgen::Ruby::RubyClass)
-  DataModule.add_extension(:ruby, Domgen::Ruby::RubyModule)
+  FacetManager.define_facet(:ruby,
+                            ObjectType => Domgen::Ruby::RubyClass,
+                            DataModule => Domgen::Ruby::RubyModule )
 end

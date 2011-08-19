@@ -880,8 +880,9 @@ SQL
     end
   end
 
-  Attribute.add_extension(:sql, Domgen::Sql::Column)
-  ObjectType.add_extension(:sql, Domgen::Sql::Table)
-  DataModule.add_extension(:sql, Domgen::Sql::SqlSchema)
-  Repository.add_extension(:sql, Domgen::Sql::Database)
+  FacetManager.define_facet(:sql,
+                            Attribute => Domgen::Sql::Column,
+                            ObjectType => Domgen::Sql::Table,
+                            DataModule => Domgen::Sql::SqlSchema,
+                            Repository => Domgen::Sql::Database)
 end

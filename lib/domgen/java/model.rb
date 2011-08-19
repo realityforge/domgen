@@ -152,13 +152,14 @@ module Domgen
     end
   end
 
-  Attribute.add_extension(:java, Domgen::Java::JavaField)
-  ObjectType.add_extension(:java, Domgen::Java::JavaEntity)
-  Service.add_extension(:java, Domgen::Java::JavaService)
-  Method.add_extension(:java, Domgen::Java::JavaMethod)
-  Parameter.add_extension(:java, Domgen::Java::JavaParameter)
-  Exception.add_extension(:java, Domgen::Java::JavaException)
-  Result.add_extension(:java, Domgen::Java::JavaReturn)
-  DataModule.add_extension(:java, Domgen::Java::JavaPackage)
-  Repository.add_extension(:java, Domgen::Java::JavaModule)
+  FacetManager.define_facet(:java,
+                            Attribute => Domgen::Java::JavaField,
+                            ObjectType => Domgen::Java::JavaEntity,
+                            Service => Domgen::Java::JavaService,
+                            Method => Domgen::Java::JavaMethod,
+                            Parameter => Domgen::Java::JavaParameter,
+                            Exception => Domgen::Java::JavaException,
+                            Result => Domgen::Java::JavaReturn,
+                            DataModule => Domgen::Java::JavaPackage,
+                            Repository => Domgen::Java::JavaModule)
 end

@@ -1,5 +1,5 @@
 module Domgen
-  module Jpa
+  module JPA
     module Helper
       def j_jpa_field_attributes(attribute)
         s = ''

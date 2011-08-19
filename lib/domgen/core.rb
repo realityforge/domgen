@@ -26,4 +26,19 @@ module Domgen
       Domgen.error(message)
     end
   end
+
+  def self.ParentedElement(parent_key, pre_config_code = '')
+    type = Class.new(BaseConfigElement)
+    code = <<-RUBY
+    attr_accessor :#{parent_key}
+
+    def initialize(#{parent_key}, options = {}, &block)
+      @#{parent_key} = #{parent_key}
+    #{pre_config_code}
+      super(options, &block)
+    end
+    RUBY
+    type.class_eval(code)
+    type
+  end
 end

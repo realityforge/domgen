@@ -13,5 +13,6 @@ module Domgen
     end
   end
 
-  Service.add_extension(:ejb, Domgen::EJB::EjbClass)
+  FacetManager.define_facet(:ejb,
+                            Service => Domgen::EJB::EjbClass)
 end
