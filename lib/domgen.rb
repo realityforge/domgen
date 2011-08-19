@@ -6,6 +6,7 @@ require 'domgen/orderedhash'
 require 'domgen/naming'
 
 # Core components
+require 'domgen/core'
 require 'domgen/model'
 require 'domgen/template'
 require 'domgen/render_context'

@@ -1,8 +1,4 @@
 module Domgen
-  Logger = ::Logger.new(STDOUT)
-  Logger.level = ::Logger::WARN
-  Logger.datetime_format = ''
-
   class << self
     def repositorys
       repository_map.values
@@ -18,11 +14,6 @@ module Domgen
       repository
     end
 
-    def error(message)
-      Logger.error(message)
-      raise message
-    end
-
     private
 
     def register_repository(name, repository)
@@ -34,14 +25,13 @@ module Domgen
     end
   end
 
-  class BaseConfigElement
+  class BaseConfigElement < BaseElement
 
     attr_accessor :tags
 
     def initialize(options = {})
       @tags = {}
-      self.options = options
-      yield self if block_given?
+      super(options)
     end
 
     def inherited?
@@ -50,12 +40,6 @@ module Domgen
 
     def mark_as_inherited
       @inherited = true
-    end
-
-    def options=(options)
-      options.each_pair do |k, v|
-        self.send "#{k}=", v
-      end
     end
 
     def description(value)
@@ -96,10 +80,7 @@ module Domgen
       RUBY
     end
 
-    protected
 
-    def error(message)
-      Domgen.error(message)
     end
   end
 
