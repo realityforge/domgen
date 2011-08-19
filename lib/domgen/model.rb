@@ -965,6 +965,9 @@ module Domgen
     def define_object_type(name, options = {}, &block)
       pre_object_type_create(name)
       if options[:extends]
+
+        # TODO: Rewrite this code to work now that we have singleton classes. Use cloning and initialize_copy overriding?
+
         base_type = object_type_by_name(options[:extends])
         base_type.instance_variable_set("@data_module", nil)
         object_type = Marshal.load(Marshal.dump(base_type))
