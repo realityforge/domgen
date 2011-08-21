@@ -436,7 +436,7 @@ module Domgen
 
       def constraint(name, options = {}, &block)
         existing = constraint_by_name(name)
-        error("Constraint named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
+        error("Constraint named #{name} already defined on table #{qualified_table_name}") if existing
         constraint = Constraint.new(self, name, options, &block)
         @constraints[name.to_s] = constraint
         constraint
@@ -452,7 +452,7 @@ module Domgen
 
       def function_constraint(name, parameters, options = {}, &block)
         existing = function_constraint_by_name(name)
-        error("Function Constraint named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
+        error("Function Constraint named #{name} already defined on table #{qualified_table_name}") if existing
         function_constraint = FunctionConstraint.new(self, name, parameters, options, &block)
         @function_constraints[name.to_s] = function_constraint
         function_constraint
@@ -468,7 +468,7 @@ module Domgen
 
       def validation(name, options = {}, &block)
         existing = validation_by_name(name)
-        error("Validation named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
+        error("Validation named #{name} already defined on table #{qualified_table_name}") if existing
         validation = Validation.new(self, name, options, &block)
         @validations[name.to_s] = validation
         validation
@@ -484,7 +484,7 @@ module Domgen
 
       def action(name, options = {}, &block)
         existing = action_by_name(name)
-        error("Action named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
+        error("Action named #{name} already defined on table #{qualified_table_name}") if existing
         action = Action.new(self, name, options, &block)
         @actions[name.to_s] = action
         action
@@ -500,7 +500,7 @@ module Domgen
 
       def trigger(name, options = {}, &block)
         existing = trigger_by_name(name)
-        error("Trigger named #{name} already defined on table #{qualified_table_name}") if (existing && !existing.inherited?)
+        error("Trigger named #{name} already defined on table #{qualified_table_name}") if existing
         trigger = Trigger.new(self, name, options, &block)
         @triggers[name.to_s] = trigger
         trigger
