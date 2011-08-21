@@ -506,6 +506,13 @@ module Domgen
       @direct_subtypes = []
       @subtypes = []
       data_module.send :register_object_type, name, self
+
+      if options[:extends]
+        base_type = data_module.object_type_by_name(options[:extends])
+        Domgen.error("ObjectType #{name} attempting to extend final object_type #{options[:extends]}") if base_type.final?
+        base_type.direct_subtypes << self
+        extend_from(base_type)
+      end
       super(data_module, options, &block)
     end
 
@@ -758,6 +765,14 @@ module Domgen
 
     private
 
+    def extend_from(base_type)
+      base_type.attributes.collect { |a| a.clone }.each do |attribute|
+        attribute.instance_variable_set("@object_type", self)
+        attribute.mark_as_inherited
+        @attributes[attribute.name.to_s] = attribute
+      end
+    end
+
     def add_unique_to_set(type, constraint, set)
       error("Only 1 #{type} constraint with name #{constraint.name} should be defined") if set[constraint.name]
       set[constraint.name] = constraint
@@ -958,35 +973,7 @@ module Domgen
 
     def define_object_type(name, options = {}, &block)
       pre_object_type_create(name)
-      if options[:extends]
-
-        # TODO: Rewrite this code to work now that we have singleton classes. Use cloning and initialize_copy overriding?
-
-        base_type = object_type_by_name(options[:extends])
-        base_type.instance_variable_set("@data_module", nil)
-        object_type = Marshal.load(Marshal.dump(base_type))
-        base_type.instance_variable_set("@data_module", self)
-        object_type.instance_variable_set("@abstract", nil)
-        object_type.instance_variable_set("@final", nil)
-        object_type.instance_variable_set("@parent", self)
-        object_type.instance_variable_set("@direct_subtypes", [])
-        object_type.instance_variable_set("@name", name)
-        object_type.options = options
-
-        object_type.attributes.each { |a| a.mark_as_inherited }
-        object_type.unique_constraints.each { |a| a.mark_as_inherited }
-        object_type.codependent_constraints.each { |a| a.mark_as_inherited }
-        object_type.incompatible_constraints.each { |a| a.mark_as_inherited }
-        object_type.dependency_constraints.each { |a| a.mark_as_inherited }
-        object_type.relationship_constraints.each { |a| a.mark_as_inherited }
-        object_type.cycle_constraints.each { |a| a.mark_as_inherited }
-        object_type.extension_point(:post_inherited)
-        base_type.direct_subtypes << object_type
-        register_object_type(name, object_type)
-        yield object_type if block_given?
-      else
-        ObjectType.new(self, name, options, &block)
-      end
+      ObjectType.new(self, name, options, &block)
       post_object_type_create(name)
     end
 
