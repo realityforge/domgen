@@ -44,18 +44,18 @@ module Domgen
     def self.generate_xmi(repository_key, model_name, filename)
       repository = Domgen.repository_by_name(repository_key)
 
-      output_file = Java.java.io.File.new(filename).get_absolute_path
+      output_file = ::Java.java.io.File.new(filename).getAbsolutePath()
 
-      Resource::Factory::Registry::INSTANCE.getExtensionToFactoryMap().
-        put( File.extname(output_file).gsub('.',''), UMLResource::Factory::INSTANCE )
+      ::Java.org.eclipse.emf.ecore.resource.Resource::Factory::Registry::INSTANCE.getExtensionToFactoryMap().
+        put( File.extname(output_file).gsub('.',''), Java.org.eclipse.uml2.uml.resource.UMLResource::Factory::INSTANCE )
 
-      model = Java.org.eclipse.uml2.uml.UMLFactory.eINSTANCE.createModel()
+      model = ::Java.org.eclipse.uml2.uml.UMLFactory.eINSTANCE.createModel()
       model.set_name(model_name.to_s)
       model.createOwnedComment().setBody(description(repository)) if description(repository)
 
-      output_uri = Java.org.eclipse.emf.common.util.URI.createFileURI(output_file)
+      output_uri = ::Java.org.eclipse.emf.common.util.URI.createFileURI(output_file)
       puts "Creating XMI for repository #{repository_key} at #{output_file}"
-      resource = Java.org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.new.create_resource(output_uri)
+      resource = ::Java.org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.new.create_resource(output_uri)
       resource.get_contents().add(model)
       resource.setID( model, model_name.to_s )
 
@@ -149,9 +149,9 @@ module Domgen
             end2 = name_class_map[attribute.referenced_object.qualified_name]
             name = attribute.name == attribute.referenced_object.name ? "" : attribute.name.to_s
 
-            aggregation_kind = AggregationKind::NONE_LITERAL
-            aggregation_kind = AggregationKind::SHARED_LITERAL if attribute.inverse.relationship_kind == :aggregation
-            aggregation_kind = AggregationKind::COMPOSITE_LITERAL if attribute.inverse.relationship_kind == :composition
+            aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::NONE_LITERAL
+            aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::SHARED_LITERAL if attribute.inverse.relationship_kind == :aggregation
+            aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::COMPOSITE_LITERAL if attribute.inverse.relationship_kind == :composition
 
             emf_association = end1.create_association(true,
                                                       aggregation_kind,
@@ -160,10 +160,10 @@ module Domgen
                                                       1,
                                                       end2,
                                                       attribute.inverse.traversable?,
-                                                      AggregationKind::NONE_LITERAL,
+                                                      Java.org.eclipse.uml2.uml.AggregationKind::NONE_LITERAL,
                                                       "",
                                                       0,
-                                                      attribute.inverse.multiplicity == :many ? LiteralUnlimitedNatural::UNLIMITED : 1)
+                                                      attribute.inverse.multiplicity == :many ? Java.org.eclipse.uml2.uml.LiteralUnlimitedNatural::UNLIMITED : 1)
             resource.setID(emf_association, attribute.qualified_name.to_s + ".Assoc")
             emf_association.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
@@ -181,15 +181,8 @@ module Domgen
     def self.init_emf
       return if @@init_emf == true
       @@init_emf = true
-      require 'buildr'
-      require 'java'
       ::Java.classpath << Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150')
       ::Java.load
-
-      java_import org.eclipse.emf.ecore.resource.Resource
-      java_import org.eclipse.uml2.uml.resource.UMLResource
-      java_import org.eclipse.uml2.uml.AggregationKind
-      java_import org.eclipse.uml2.uml.LiteralUnlimitedNatural
     end
 
     def self.description(element)
