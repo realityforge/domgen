@@ -339,14 +339,8 @@ module Domgen
     attr_writer :generated_value
 
     def generated_value?
-      if @generated_value.nil?
-        @generated_value = primary_key? &&
-          self.attribute_type == :integer &&
-          !object_type.abstract? &&
-          object_type.final? &&
-          object_type.extends.nil?
-      end
-      @generated_value
+      return @generated_value unless @generated_value.nil?
+      return self.primary_key? && self.attribute_type == :integer && !object_type.abstract? && object_type.final? && object_type.extends.nil?
     end
 
     def enum?
