@@ -10,8 +10,8 @@ module Domgen
       attr_accessor :generator_key
 
       def initialize(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil)
-        raise "Unexpected facets" unless facets.is_a?(Array) && facets.all? {|a| a.is_a?(Symbol)}
-        raise "Unknown scope for template #{scope}" unless valid_scopes.include?(scope)
+        Domgen.error("Unexpected facets") unless facets.is_a?(Array) && facets.all? {|a| a.is_a?(Symbol)}
+        Domgen.error("Unknown scope for template #{scope}") unless valid_scopes.include?(scope)
         @facets = facets
         @scope = scope
         @template_filename = template_filename

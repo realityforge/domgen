@@ -47,13 +47,13 @@ module Domgen
 
   module GenerateFacet
     def enable_facet(key)
-      raise "Facet #{key} already enabled." if self.enabled_facets.include?(key)
+      Domgen.error("Facet #{key} already enabled.") if self.enabled_facets.include?(key)
       self.enabled_facets << key
       self.activate_facet(key)
     end
 
     def disable_facet(key)
-      raise "Facet #{key} already disabled." if self.disabled_facets.include?(key)
+      Domgen.error("Facet #{key} already disabled.") if self.disabled_facets.include?(key)
       self.disabled_facets << key
       self.deactivate_facet(key)
     end

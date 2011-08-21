@@ -106,7 +106,7 @@ FOR EACH ROW EXECUTE PROCEDURE <%= function_name %>();
 ALTER TABLE <%= object_type.sql.qualified_table_name %> DISABLE TRIGGER <%= trigger.quoted_trigger_name %>;
 GO
 
-<% raise "Postgres does not support instead of triggers. Maybe need to impplement as rules?" unless trigger.instead_of.empty? %>
+<% Domgen.error("Postgres does not support instead of triggers. Maybe need to impplement as rules?") unless trigger.instead_of.empty? %>
 <%    end
     end
   end

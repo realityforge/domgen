@@ -28,7 +28,7 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.java
 <%
   end
   object_type.declared_attributes.select {|a| a.enum? }.each do |attribute|
-  raise "JPA requires i_enum #{attribute.name} be 0 based" if attribute.attribute_type == :i_enum && 0 != attribute.values.values.sort.first
+  Domgen.error("JPA requires i_enum #{attribute.name} be 0 based") if attribute.attribute_type == :i_enum && 0 != attribute.values.values.sort.first
 %>
   @SuppressWarnings( { "PublicInnerClass" } )
   public static enum <%= attribute.java.field_name %>Value

@@ -61,8 +61,8 @@ module Domgen
 
     def initialize(key, extension_map)
       extension_map.each_pair do |source_class, extension_class|
-        raise "Facet #{key}: Unknown source class supplied in map '#{source_class.name}'" unless FacetManager.valid_source_classes.include?(source_class)
-        raise "Facet #{key}: Extension class is not a class. '#{extension_class}'" unless extension_class.is_a?(Class)
+        Domgen.error("Facet #{key}: Unknown source class supplied in map '#{source_class.name}'") unless FacetManager.valid_source_classes.include?(source_class)
+        Domgen.error("Facet #{key}: Extension class is not a class. '#{extension_class}'") unless extension_class.is_a?(Class)
       end
       @key = key
       @extension_map = extension_map
@@ -78,7 +78,7 @@ module Domgen
     def disable_on(object)
       extension_class = self.extension_map[object.class]
       return unless extension_class
-      object.instance_eval("def #{self.key}; raise \"Facet #{self.key} has been disabled\"; end")
+      object.instance_eval("def #{self.key}; Domgen.error(\"Facet #{self.key} has been disabled\"); end")
       object.remove_instance_variable(:"@#{self.key}")
       Logger.debug "Facet '#{key}' disabled for #{object.class} by removing extension #{extension_class}"
     end
@@ -87,13 +87,13 @@ module Domgen
   class FacetManager
     class << self
       def define_facet(key, extension_map)
-        raise "Attempting to redefine facet #{key}" if facet_map[key.to_s]
+        Domgen.error("Attempting to redefine facet #{key}") if facet_map[key.to_s]
         facet_map[key.to_s] = Facet.new(key, extension_map)
       end
 
       def facet_by_name(key)
         facet = facet_map[key.to_s]
-        raise "Unknown facet '#{key}'" unless facet
+        Domgen.error("Unknown facet '#{key}'") unless facet
         facet
       end
 

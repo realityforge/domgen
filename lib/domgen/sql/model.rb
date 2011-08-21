@@ -25,7 +25,7 @@ module Domgen
 
       def column_type(column)
         if column.calculation
-          raise "Unsupported column type - calculation"
+          Domgen.error("Unsupported column type - calculation")
         elsif :reference == column.attribute.attribute_type
           return column.attribute.referenced_object.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
@@ -348,7 +348,7 @@ module Domgen
           scope = [scope]
         end
         scope.each do |a|
-          raise "Unknown #{label} specififier #{a}" unless VALID_AFTER.include?(a)
+          Domgen.error("Unknown #{label} specififier #{a}") unless VALID_AFTER.include?(a)
         end
         scope
       end
@@ -841,7 +841,7 @@ SQL
       attr_accessor :calculation
 
       def persistent_calculation=(persistent_calculation)
-        raise "Non calculated column can not be persistent" unless @calculation
+        Domgen.error("Non calculated column can not be persistent") unless @calculation
         @persistent_calculation = persistent_calculation
       end
 
@@ -872,7 +872,7 @@ SQL
         self.repository.data_modules.each do |dm|
           self.repository.data_modules.each do |other|
             if dm != other && dm.sql.schema.to_s == other.sql.schema.to_s
-              raise "Multiple data modules (#{dm.name} && #{other.name}) are mapped to the same schema #{other.sql.schema}"
+              Domgen.error("Multiple data modules (#{dm.name} && #{other.name}) are mapped to the same schema #{other.sql.schema}")
             end
           end
         end
