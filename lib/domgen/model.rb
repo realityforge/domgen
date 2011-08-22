@@ -1121,6 +1121,7 @@ module Domgen
     end
 
     def verify
+      Logger.debug "Repository #{name}: Verifying"
       extension_point(:pre_verify)
       self.data_modules.each do |data_module|
         data_module.verify
@@ -1143,6 +1144,7 @@ module Domgen
 
     def post_repository_definition
       # Add back links for all references
+      Logger.debug "Repository #{name}: Adding back links for all references"
       self.data_modules.each do |data_module|
         data_module.object_types.each do |object_type|
           object_type.attributes.each do |attribute|
@@ -1158,6 +1160,7 @@ module Domgen
         end
       end
       # generate lists of subtypes for object types
+      Logger.debug "Repository #{name}: Generate lists of subtypes for object types"
       self.data_modules.each do |data_module|
         data_module.object_types.select { |object_type| !object_type.final? }.each do |object_type|
           subtypes = object_type.subtypes
