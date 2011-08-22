@@ -41,6 +41,7 @@ module Domgen
       def erb_instance
         unless @template
           @template = ERB.new(IO.read(template_filename), nil, '-')
+          @template.filename = template_filename
         end
         @template
       end
