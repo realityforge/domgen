@@ -25,29 +25,7 @@ module Domgen
     end
   end
 
-  class BaseConfigElement < BaseElement
-    attr_writer :tags
-
-    def tags
-      @tags ||= {}
-    end
-
-    def description(value)
-      tags[:Description] = value
-    end
-
-    def tag_as_html(key)
-      value = tags[key]
-      if value
-        require 'maruku' unless defined?(::Maruku)
-        ::Maruku.new(value).to_html
-      else
-        nil
-      end
-    end
-  end
-
-  class ModelConstraint < BaseConfigElement
+  class ModelConstraint < BaseTaggableElement
     attr_reader :object_type
 
     def initialize(object_type, options, &block)
@@ -1029,7 +1007,7 @@ module Domgen
     end
   end
 
-  class ModelCheck < BaseConfigElement
+  class ModelCheck < BaseTaggableElement
     attr_reader :repository
     attr_reader :name
     attr_accessor :check
@@ -1058,7 +1036,7 @@ module Domgen
     end
   end
 
-  class Repository <  BaseConfigElement
+  class Repository <  BaseTaggableElement
     attr_reader :name
 
     def initialize(name, options = {}, &block)

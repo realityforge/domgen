@@ -27,8 +27,30 @@ module Domgen
     end
   end
 
+  class BaseTaggableElement < BaseElement
+    attr_writer :tags
+
+    def tags
+      @tags ||= {}
+    end
+
+    def description(value)
+      tags[:Description] = value
+    end
+
+    def tag_as_html(key)
+      value = tags[key]
+      if value
+        require 'maruku' unless defined?(::Maruku)
+        ::Maruku.new(value).to_html
+      else
+        nil
+      end
+    end
+  end
+
   def self.ParentedElement(parent_key, pre_config_code = '')
-    type = Class.new(BaseConfigElement)
+    type = Class.new(BaseTaggableElement)
     code = <<-RUBY
     attr_accessor :#{parent_key}
 
