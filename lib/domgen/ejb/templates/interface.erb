@@ -6,6 +6,8 @@ package <%= service.data_module.java.package %>;
 @javax.ejb.<%= service.ejb.local? ? "Local" : "Remove" %>
 public interface <%= service.java.classname %>
 {
+  String EJB_NAME = "<%= service.ejb.name %>";
+
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)
 %>  <%= method.return_value.java.java_type %> <%= method.java.name %>(<%= method.parameters.collect{|p| "#{p.java.java_type} #{p.java.name}" }.join(', ') %>)<%=

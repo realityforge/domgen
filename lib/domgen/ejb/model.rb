@@ -1,6 +1,12 @@
 module Domgen
   module EJB
     class EjbClass < Domgen.ParentedElement(:service)
+      attr_writer :name
+
+      def name
+        @name || service.qualified_name
+      end
+
       attr_writer :local
 
       def local?
