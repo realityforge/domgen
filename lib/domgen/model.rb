@@ -26,14 +26,6 @@ module Domgen
   end
 
   class BaseConfigElement < BaseElement
-    def inherited?
-      !!@inherited
-    end
-
-    def mark_as_inherited
-      @inherited = true
-    end
-
     attr_writer :tags
 
     def tags
@@ -251,6 +243,14 @@ module Domgen
 
     def qualified_name
       "#{object_type.qualified_name}.#{self.name}"
+    end
+
+    def inherited?
+      !!@inherited
+    end
+
+    def mark_as_inherited
+      @inherited = true
     end
 
     attr_writer :abstract
