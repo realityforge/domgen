@@ -2,10 +2,13 @@ module Domgen
   module Ruby
     class RubyClass < Domgen.ParentedElement(:object_type)
       attr_writer :classname
-      attr_reader :included_modules
+
+      def included_modules
+        @included_modules ||= []
+      end
 
       def include_module(module_name)
-        (@included_modules ||= []) << module_name
+        self.included_modules << module_name
       end
 
       def classname
