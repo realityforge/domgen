@@ -244,6 +244,10 @@ module Domgen
       super(attribute, options, &block)
     end
 
+    def to_s
+      "InverseElement[#{self.attribute.qualified_name}]"
+    end
+
     def multiplicity
       @multiplicity || :many
     end
@@ -763,6 +767,10 @@ module Domgen
       !!@attributes[name.to_s]
     end
 
+    def to_s
+      "ObjectType[#{self.qualified_name}]"
+    end
+
     private
 
     def extend_from(base_type)
@@ -790,6 +798,10 @@ module Domgen
 
     def qualified_name
       "#{method.qualified_name}!#{self.name}"
+    end
+
+    def to_s
+      "Exception[#{self.qualified_name}]"
     end
 
     def verify
@@ -820,6 +832,10 @@ module Domgen
       @nullable.nil? ? false : @nullable
     end
 
+    def to_s
+      "Parameter[#{self.qualified_name}]"
+    end
+
     def verify
       extension_point(:pre_verify)
 
@@ -838,6 +854,10 @@ module Domgen
 
     def qualified_name
       "#{method.qualified_name}$Return"
+    end
+
+    def to_s
+      "Result[#{self.qualified_name}]"
     end
 
     attr_writer :nullable
@@ -866,6 +886,10 @@ module Domgen
 
     def qualified_name
       "#{service.qualified_name}##{self.name}"
+    end
+
+    def to_s
+      "Method[#{self.qualified_name}]"
     end
 
     def parameters
@@ -929,6 +953,10 @@ module Domgen
       "#{data_module.name}.#{self.name}"
     end
 
+    def to_s
+      "Service[#{self.qualified_name}]"
+    end
+
     def methods
       @methods.values
     end
@@ -965,6 +993,10 @@ module Domgen
       Logger.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
       Logger.info "DataModule '#{name}' definition completed"
+    end
+
+    def to_s
+      "DataModule[#{self.name}]"
     end
 
     def object_types
@@ -1071,6 +1103,10 @@ module Domgen
       Logger.info "Model Check '#{name}' definition completed"
     end
 
+    def to_s
+      "ModelCheck[#{self.name}]"
+    end
+
     def check_model
       begin
         @check.call(self.repository)
@@ -1100,6 +1136,10 @@ module Domgen
       Logger.info "Model Checking completed."
       Logger.info "Repository definition completed"
       Domgen.repositorys << self
+    end
+
+    def to_s
+      "Repository[#{self.name}]"
     end
 
     def define_data_module(name, options = {}, &block)
