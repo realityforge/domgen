@@ -97,7 +97,7 @@ module Domgen
       result = template.render_to_string(context_binding)
       FileUtils.mkdir_p File.dirname(output_filename)
       File.open(output_filename, 'w') { |f| f.write(result) }
-      Logger.debug "Generated #{template.template_name} for #{key} #{object_name}"
+      Logger.debug "Generated #{template.template_name} for #{key} #{object_name} to #{output_filename}"
     end
   end
 end
