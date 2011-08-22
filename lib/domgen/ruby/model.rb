@@ -4,11 +4,11 @@ module Domgen
       attr_writer :classname
 
       def included_modules
-        @included_modules ||= []
+        @included_modules || []
       end
 
       def include_module(module_name)
-        self.included_modules << module_name
+        (@included_modules ||= []) << module_name
       end
 
       def classname
