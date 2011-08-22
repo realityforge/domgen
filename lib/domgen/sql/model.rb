@@ -108,17 +108,15 @@ module Domgen
       end
     end
 
-    class Index < BaseConfigElement
-      attr_reader :table
+    class Index < Domgen.ParentedElement(:table)
       attr_accessor :attribute_names
       attr_accessor :include_attribute_names
       attr_accessor :filter
 
       def initialize(table, attribute_names, options, &block)
-        @table = table
         @attribute_names = attribute_names
         @include_attribute_names = []
-        super(options, &block)
+        super(table, options, &block)
       end
 
       attr_writer :index_name
@@ -157,7 +155,7 @@ module Domgen
       end
     end
 
-    class ForeignKey < BaseConfigElement
+    class ForeignKey < Domgen.ParentedElement(:table)
       ACTION_MAP =
         {
           :cascade => "CASCADE",
@@ -167,15 +165,14 @@ module Domgen
           :no_action => "NO ACTION"
         }.freeze
 
-      attr_reader :table
       attr_accessor :attribute_names
       attr_accessor :referenced_object_type_name
       attr_accessor :referenced_attribute_names
 
       def initialize(table, attribute_names, referenced_object_type_name, referenced_attribute_names, options, &block)
-        @table, @attribute_names, @referenced_object_type_name, @referenced_attribute_names =
-          table, attribute_names, referenced_object_type_name, referenced_attribute_names
-        super(options, &block)
+        @attribute_names, @referenced_object_type_name, @referenced_attribute_names =
+          attribute_names, referenced_object_type_name, referenced_attribute_names
+        super(table, options, &block)
         # Ensure that the attributes exist
         attribute_names.each { |a| table.object_type.attribute_by_name(a) }
         # Ensure that the remote attributes exist on remote type
