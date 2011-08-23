@@ -1,5 +1,27 @@
 module Domgen
   module GWT
+    class GwtEvent < Domgen.ParentedElement(:message)
+      attr_writer :event_name
+
+      def event_name
+        @event_name || "#{message.name}Event"
+      end
+
+      def qualified_event_name
+        "#{message.data_module.repository.gwt.event_package}.#{event_name}"
+      end
+
+      attr_writer :event_handler_name
+
+      def event_handler_name
+        @event_handler_name || "#{event_name}Handler"
+      end
+
+      def qualified_event_handler_name
+        "#{message.data_module.repository.gwt.event_package}.#{event_handler_name}"
+      end
+    end
+
     class GwtService < Domgen.ParentedElement(:service)
       attr_writer :xsrf_protected
 
@@ -67,6 +89,12 @@ module Domgen
         @client_package || "#{package}.client"
       end
 
+      attr_writer :event_package
+
+      def event_package
+        @event_package || "#{client_package}.event"
+      end
+
       attr_writer :server_package
 
       def server_package
@@ -88,5 +116,6 @@ module Domgen
   FacetManager.define_facet(:gwt,
                             Service => Domgen::GWT::GwtService,
                             Method => Domgen::GWT::GwtMethod,
+                            Message => Domgen::GWT::GwtEvent,
                             Repository => Domgen::GWT::GwtModule)
 end

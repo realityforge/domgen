@@ -27,6 +27,16 @@ module Domgen
                      "#{GWT::TEMPLATE_DIRECTORY}/gin_module.erb",
                      'java/#{repository.gwt.qualified_gin_module_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper]),
+        Template.new(GWT::FACETS,
+                     :message,
+                     "#{GWT::TEMPLATE_DIRECTORY}/event.erb",
+                     'java/#{message.gwt.qualified_event_name.gsub(".","/")}.java',
+                     [Domgen::Java::Helper]),
+        Template.new(GWT::FACETS,
+                     :message,
+                     "#{GWT::TEMPLATE_DIRECTORY}/event_handler.erb",
+                     'java/#{message.gwt.qualified_event_handler_name.gsub(".","/")}.java',
+                     [Domgen::Java::Helper]),
       ]
     end
 
