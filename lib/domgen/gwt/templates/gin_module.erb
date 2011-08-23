@@ -1,0 +1,41 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.gwt.client_package %>;
+
+<%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.gwt.gin_module_name %>
+  extends com.google.gwt.inject.client.AbstractGinModule
+{
+  private static com.google.gwt.user.client.rpc.XsrfToken _xsrfToken;
+
+  public static com.google.gwt.user.client.rpc.XsrfToken getXsrfToken()
+  {
+    return _xsrfToken;
+  }
+
+  public static void setXsrfToken( final com.google.gwt.user.client.rpc.XsrfToken xsrfToken )
+  {
+    _xsrfToken = xsrfToken;
+  }
+
+  @Override
+  protected void configure()
+  {
+  }
+
+<%
+   repository.data_modules.each do |data_module|
+     data_module.services.each do |service|
+%>
+  @com.google.inject.Provides
+  @javax.inject.Singleton
+  public <%= service.gwt.qualified_async_service_name %> getContactsService()
+  {
+    final <%= service.gwt.qualified_async_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt.qualified_service_name %>.class );
+    ( (com.google.gwt.user.client.rpc.HasRpcToken) service ).setRpcToken( getXsrfToken() );
+    return service;
+  }
+<%
+    end
+  end
+%>}

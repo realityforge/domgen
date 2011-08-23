@@ -20,6 +20,16 @@ module Domgen
       ]
     end
 
+    def self.define_gwt_client_service_templates
+      [
+        Template.new(GWT::FACETS,
+                     :repository,
+                     "#{GWT::TEMPLATE_DIRECTORY}/gin_module.erb",
+                     'java/#{repository.gwt.qualified_gin_module_name.gsub(".","/")}.java',
+                     [Domgen::Java::Helper]),
+      ]
+    end
+
     def self.define_gwt_server_service_templates
       [
         Template.new(GWT::FACETS,
