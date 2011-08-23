@@ -23,7 +23,7 @@ public final class <%= message.gwt.event_name %>
   }
 
 <% message.parameters.select{|p| !p.nullable?}.each do |parameter|
-%>  public <%= parameter.java.java_type %> get<%= parameter.java.name %>()
+%>  public <%= parameter.java.java_type %> get<%= parameter.name %>()
   {
     return <%= parameter.java.name %>;
   }
