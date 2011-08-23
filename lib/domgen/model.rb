@@ -25,12 +25,9 @@ module Domgen
     end
   end
 
-  class ModelConstraint < BaseTaggableElement
-    attr_reader :object_type
-
+  class ModelConstraint < self.ParentedElement(:object_type)
     def initialize(object_type, options, &block)
-      @object_type = object_type
-      super(options, &block)
+      super(object_type, options, &block)
     end
 
     def attribute_names_to_key(object_type, attribute_names)
@@ -78,7 +75,7 @@ module Domgen
     end
   end
 
-  class RelationshipConstraint < ModelConstraint
+  class RelationshipConstraint < self.ParentedElement(:object_type)
     attr_reader :name
     attr_reader :lhs_operand
     attr_reader :rhs_operand
@@ -130,7 +127,7 @@ module Domgen
     end
   end
 
-  class CycleConstraint < ModelConstraint
+  class CycleConstraint < self.ParentedElement(:object_type)
     attr_reader :name
     attr_accessor :attribute_name
     attr_accessor :attribute_name_path
