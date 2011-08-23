@@ -181,15 +181,7 @@ module Domgen
     end
 
     class PersistenceUnit < Domgen.ParentedElement(:repository)
-      attr_accessor :provider
-      attr_accessor :transaction_type
-      attr_accessor :data_source_name
-
-      attr_writer :name
-
-      def name
-        @name || repository.name
-      end
+      attr_accessor :unit_name
     end
   end
 

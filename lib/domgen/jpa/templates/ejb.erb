@@ -8,7 +8,7 @@ public class <%= object_type.jpa.dao_name %>
 {
   public static final String NAME = "<%= object_type.data_module.name %>.<%= object_type.jpa.dao_name %>";
 
-  @javax.persistence.PersistenceContext(unitName = "<%= object_type.data_module.repository.name %>")
+  @javax.persistence.PersistenceContext<%= object_type.data_module.repository.jpa.unit_name.nil? ? "" : "(unitName = \"#{object_type.data_module.repository.jpa.unit_name}\")" %>
   private javax.persistence.EntityManager em;
 
 <% object_type.jpa.queries.each do |query| %>
