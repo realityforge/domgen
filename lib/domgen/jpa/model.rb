@@ -72,7 +72,7 @@ module Domgen
 
       def cascade=(value)
         value = value.is_a?(Array) ? value : [value]
-        invalid_cascades = value.select {|v| !self.class.cascade_types.include?(v)}
+        invalid_cascades = value.select { |v| !self.class.cascade_types.include?(v) }
         unless invalid_cascades.empty?
           error("cascade_type must be one of #{self.class.cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
         end
