@@ -24,7 +24,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{jpa_class.object_type.java.qualified_name}.#{local_name}"
+        "#{jpa_class.object_type.qualified_name}.#{local_name}"
       end
 
       def local_name
@@ -135,6 +135,25 @@ module Domgen
         @table_name || object_type.sql.table_name
       end
 
+      attr_writer :model_name
+
+      def model_name
+        @model_name || object_type.name
+      end
+
+      def qualified_model_name
+        "#{object_type.data_module.jpa.model_package}.#{model_name}"
+      end
+
+      def metamodel_name
+        "#{model_name}_"
+      end
+
+      def qualified_metamodel_name
+        "#{object_type.data_module.jpa.model_package}.#{metamodel_name}"
+      end
+
+
       attr_writer :dao_name
 
       def dao_name
@@ -173,10 +192,22 @@ module Domgen
     end
 
     class JpaPackage < Domgen.ParentedElement(:data_module)
+      attr_writer :package
+
+      def package
+        @package || data_module.java.package
+      end
+
+      attr_writer :model_package
+
+      def model_package
+        @model_package || "#{package}.model"
+      end
+
       attr_writer :dao_package
 
       def dao_package
-        @dao_package || "#{data_module.java.package}.dao"
+        @dao_package || "#{model_package}.dao"
       end
     end
 
