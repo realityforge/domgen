@@ -35,7 +35,7 @@ module Domgen
       protected
 
       def valid_scopes
-        [:method, :service, :object_type, :data_module, :repository]
+        [:message, :method, :service, :object_type, :data_module, :repository]
       end
 
       def erb_instance

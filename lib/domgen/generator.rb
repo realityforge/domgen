@@ -48,6 +48,14 @@ module Domgen
                   end
                 end
               end
+
+              if :message == template.scope
+                data_module.messages.each do |service|
+                  if template.applicable?(service) && (filter.nil? || filter.call(:message, service))
+                    render(directory, template, :message, service)
+                  end
+                end
+              end
             end
           end
         end

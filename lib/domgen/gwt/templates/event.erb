@@ -1,0 +1,43 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= message.data_module.repository.gwt.event_package %>;
+
+public final class <%= message.gwt.event_name %>
+  extends com.google.gwt.event.shared.GwtEvent<<%= message.gwt.event_handler_name %>>
+{
+  public static final Type<<%= message.gwt.event_handler_name %>> TYPE = new Type<<%= message.gwt.event_handler_name %>>();
+<% message.parameters.each do |parameter|
+%>  private final <%= parameter.java.java_type %> <%= parameter.java.name %>;
+<% end %>
+
+  public <%= message.gwt.event_name %>(<%= message.parameters.collect{|p| "final #{p.java.java_type} #{p.java.name}"}.join(", ") %>)
+  {
+<% message.parameters.select{|p| !p.nullable?}.each do |parameter|
+%>    if( null == <%= parameter.java.name %> )
+    {
+      throw new IllegalArgumentException("<%= parameter.java.name %> is null");
+    }
+<% end %>
+<% message.parameters.each do |parameter|
+%>  this.<%= parameter.java.name %> = <%= parameter.java.name %>;
+<% end %>
+  }
+
+<% message.parameters.select{|p| !p.nullable?}.each do |parameter|
+%>  public <%= parameter.java.java_type %> get<%= parameter.java.name %>()
+  {
+    return <%= parameter.java.name %>;
+  }
+<% end %>
+
+  @Override
+  public Type<<%= message.gwt.event_handler_name %>> getAssociatedType()
+  {
+    return TYPE;
+  }
+
+  @Override
+  protected void dispatch( final <%= message.gwt.event_handler_name %> handler )
+  {
+    handler.on<%= message.name %>( this );
+  }
+}

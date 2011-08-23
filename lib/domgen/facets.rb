@@ -135,6 +135,7 @@ module Domgen
         [
           Domgen::Attribute, Domgen::InverseElement, Domgen::ObjectType,
           Domgen::Service, Domgen::Method, Domgen::Parameter, Domgen::Exception, Domgen::Result,
+          Domgen::Message, Domgen::MessageParameter,
           Domgen::DataModule, Domgen::Repository
         ]
       end

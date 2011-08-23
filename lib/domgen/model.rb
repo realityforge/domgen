@@ -776,6 +776,77 @@ module Domgen
     end
   end
 
+  class MessageParameter < Domgen.FacetedElement(:method)
+    include Characteristic
+
+    attr_reader :parameter_type
+
+    def initialize(method, name, parameter_type, options = {}, &block)
+      @name = name
+      @parameter_type = parameter_type
+      super(method, options, &block)
+    end
+
+    def qualified_name
+      "#{method.qualified_name}$#{self.name}"
+    end
+
+    def to_s
+      "MessageParameter[#{self.qualified_name}]"
+    end
+
+    protected
+
+    def characteristic_type
+      parameter_type
+    end
+
+    def characteristic_kind
+       "parameter"
+    end
+  end
+
+  class Message < self.FacetedElement(:data_module)
+    include GenerateFacet
+    include CharacteristicContainer
+
+    def initialize(data_module, name, options = { }, &block)
+      @name = name
+      data_module.send :register_message, name, self
+      super(data_module, options, &block)
+    end
+
+    def qualified_name
+      "#{data_module.name}.#{self.name}"
+    end
+
+    def parameters
+      characteristics
+    end
+
+    def parameter(name, type, options = { }, &block)
+      characteristic(name, type, options = { }, &block)
+    end
+
+    def to_s
+      "Message[#{self.qualified_name}]"
+    end
+
+    protected
+
+    def characteristic_kind
+       raise "parameter"
+    end
+
+    def new_characteristic(name, type, options = {}, &block)
+      MessageParameter.new(self, name, type, options, &block)
+    end
+
+    def perform_verify
+      verify_characteristics
+    end
+  end
+
   class Exception < Domgen.FacetedElement(:method)
     attr_reader :name
 
@@ -949,6 +1020,7 @@ module Domgen
       @name = name
       @services = Domgen::OrderedHash.new
       @object_types = Domgen::OrderedHash.new
+      @messages = Domgen::OrderedHash.new
       Logger.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
       Logger.info "DataModule '#{name}' definition completed"
@@ -1000,11 +1072,33 @@ module Domgen
       service
     end
 
+    def messages
+      @messages.values
+    end
+
+    def define_message(name, options = {}, &block)
+      pre_message_create(name)
+      Message.new(self, name, options, &block)
+      post_message_create(name)
+    end
+
+    def message_by_name(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1])
+    end
+
+    def local_message_by_name(name)
+      message = @messages[name.to_s]
+      error("Unable to locate local message #{name} in #{self.name}") unless message
+      message
+    end
+
     protected
 
     def perform_verify
       object_types.each { |p| p.verify }
       services.each { |p| p.verify }
+      messages.each { |p| p.verify }
     end
 
     private
@@ -1040,6 +1134,19 @@ module Domgen
 
     def register_service(name, service)
       @services[name.to_s] = service
+    end
+
+    def pre_message_create(name)
+      error("Attempting to redefine Message '#{name}'") if @messages[name.to_s]
+      Logger.debug "Message '#{name}' definition started"
+    end
+
+    def post_message_create(name)
+      Logger.debug "Message '#{name}' definition completed"
+    end
+
+    def register_message(name, message)
+      @messages[name.to_s] = message
     end
   end
 

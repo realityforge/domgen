@@ -104,6 +104,12 @@ module Domgen
       end
     end
 
+    class JavaMethodParameter < JavaParameter
+    end
+
+    class JavaMessageParameter < JavaParameter
+    end
+
     class JavaReturn < Domgen.ParentedElement(:result)
 
       attr_writer :java_type
@@ -155,9 +161,10 @@ module Domgen
   FacetManager.define_facet(:java,
                             Attribute => Domgen::Java::JavaField,
                             ObjectType => Domgen::Java::JavaEntity,
+                            MessageParameter => Domgen::Java::JavaMessageParameter,
                             Service => Domgen::Java::JavaService,
                             Method => Domgen::Java::JavaMethod,
-                            Parameter => Domgen::Java::JavaParameter,
+                            Parameter => Domgen::Java::JavaMethodParameter,
                             Exception => Domgen::Java::JavaException,
                             Result => Domgen::Java::JavaReturn,
                             DataModule => Domgen::Java::JavaPackage,
