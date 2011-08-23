@@ -95,6 +95,12 @@ module Domgen
         @event_package || "#{client_package}.event"
       end
 
+      attr_writer :gin_package
+
+      def gin_package
+        @gin_package || "#{client_package}.gin"
+      end
+
       attr_writer :server_package
 
       def server_package
@@ -108,7 +114,7 @@ module Domgen
       end
 
       def qualified_gin_module_name
-        "#{client_package}.#{gin_module_name}"
+        "#{gin_package}.#{gin_module_name}"
       end
     end
   end
