@@ -1,0 +1,22 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= service.data_module.gwt.server_package %>;
+
+<%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.servlet.annotation.WebServlet( urlPatterns = { "/<%= service.data_module.repository.gwt.module_name %>/" + <%= service.gwt.qualified_service_name %>.PATH } )
+public class <%= service.gwt.servlet_name %>
+  extends com.google.gwt.user.server.rpc.<%= service.gwt.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
+  implements <%= service.gwt.qualified_service_name %>
+{
+  @javax.inject.Inject
+  private <%= service.java.qualified_name %> _service;
+
+<% service.methods.each do |method|
+%><%= description_javadoc_for(method)
+%>  public <%= method.return_value.java.java_type %> <%= method.java.name %>(<%= method.parameters.collect{|p| "#{p.java.java_type} #{p.java.name}" }.join(', ') %>)<%=
+    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.java.name}.join(', ')}"
+%>
+  {
+    <%= method.return_value.return_type != :void ? "return ": "" %>_service.<%= method.java.name %>(<%= method.parameters.collect{|p| "#{p.java.name}" }.join(', ') %>);
+  }
+<% end %>}

@@ -55,10 +55,19 @@ module Domgen
         @server_package || "#{data_module.java.package}.server"
       end
     end
+
+    class GwtModule < Domgen.ParentedElement(:repository)
+      attr_writer :module_name
+
+      def module_name
+        @module_name || repository.name
+      end
+    end
   end
 
   FacetManager.define_facet(:gwt,
                             Service => Domgen::GWT::GwtService,
                             Method => Domgen::GWT::GwtMethod,
-                            DataModule => Domgen::GWT::GwtPackage)
+                            DataModule => Domgen::GWT::GwtPackage,
+                            Repository => Domgen::GWT::GwtModule)
 end

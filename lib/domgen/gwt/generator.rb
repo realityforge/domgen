@@ -19,5 +19,15 @@ module Domgen
                    [Domgen::Java::Helper])
       ]
     end
+
+    def self.define_gwt_server_service_templates
+      [
+        Template.new(GWT::FACETS,
+                     :service,
+                     "#{GWT::TEMPLATE_DIRECTORY}/servlet.erb",
+                     'java/#{service.gwt.qualified_servlet_name.gsub(".","/")}.java',
+                     [Domgen::Java::Helper]),
+      ]
+    end
   end
 end
