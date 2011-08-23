@@ -27,7 +27,7 @@ module Domgen
         Template.new(JPA::FACETS,
                      :object_type,
                      "#{JPA::TEMPLATE_DIRECTORY}/ejb.erb",
-                     'java/#{object_type.data_module.java.package.gsub(".","/")}/ejb/#{object_type.java.classname}EJB.java',
+                     'java/#{object_type.jpa.qualified_dao_name.gsub(".","/")}.java',
                      [],
                      'object_type.jpa.persistent?')
       ]
@@ -38,7 +38,7 @@ module Domgen
         Template.new(JPA::FACETS,
                      :object_type,
                      "#{JPA::TEMPLATE_DIRECTORY}/dao.erb",
-                     'java/#{object_type.data_module.java.package.gsub(".","/")}/dao/#{object_type.java.classname}DAO.java',
+                     'java/#{object_type.jpa.qualified_dao_name.gsub(".","/")}.java',
                      [],
                      'object_type.jpa.persistent?'),
         Template.new(JPA::FACETS,

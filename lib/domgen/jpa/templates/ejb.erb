@@ -1,11 +1,13 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= object_type.data_module.java.package %>.ejb;
+package <%= object_type.data_module.jpa.dao_package %>;
 
 @SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
-@javax.ejb.Stateless( name = "<%= object_type.qualified_name %>EJB" )
-public class <%= object_type.java.classname %>EJB
+@javax.ejb.Stateless( name = <%= object_type.jpa.dao_name %>.NAME )
+public class <%= object_type.jpa.dao_name %>
 {
+  private static final String NAME = "<%= object_type.data_module.name %>.<%= object_type.jpa.dao_name %>";
+
   @javax.persistence.PersistenceContext(unitName = "<%= object_type.data_module.repository.name %>")
   private javax.persistence.EntityManager em;
 

@@ -135,6 +135,16 @@ module Domgen
         @table_name || object_type.sql.table_name
       end
 
+      attr_writer :dao_name
+
+      def dao_name
+        @dao_name || "#{object_type.name}DAO"
+      end
+
+      def qualified_dao_name
+        "#{object_type.data_module.jpa.dao_package}.#{dao_name}"
+      end
+
       attr_writer :persistent
 
       def persistent?
@@ -162,6 +172,14 @@ module Domgen
       end
     end
 
+    class JpaPackage < Domgen.ParentedElement(:data_module)
+      attr_writer :dao_package
+
+      def dao_package
+        @dao_package || "#{data_module.java.package}.dao"
+      end
+    end
+
     class PersistenceUnit < Domgen.ParentedElement(:repository)
       attr_accessor :provider
       attr_accessor :transaction_type
@@ -179,5 +197,6 @@ module Domgen
                             Attribute => Domgen::JPA::JpaField,
                             InverseElement => Domgen::JPA::JpaFieldInverse,
                             ObjectType => Domgen::JPA::JpaClass,
+                            DataModule => Domgen::JPA::JpaPackage,
                             Repository => Domgen::JPA::PersistenceUnit)
 end
