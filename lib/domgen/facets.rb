@@ -6,7 +6,16 @@ module Domgen
       all_enabled_facets.include?(facet)
     end
 
+    def verify
+      extension_point(:pre_verify)
+      perform_verify
+      extension_point(:post_verify)
+    end
+
     protected
+
+    def perform_verify
+    end
 
     def activate_facets
       self.all_enabled_facets.each do |facet_key|

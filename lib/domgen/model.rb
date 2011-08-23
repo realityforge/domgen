@@ -205,8 +205,67 @@ module Domgen
     end
   end
 
-  class Attribute < self.FacetedElement(:object_type)
+  module Characteristic
     attr_reader :name
+
+    def enum?
+      characteristic_type == :i_enum || characteristic_type == :s_enum
+    end
+
+    attr_reader :length
+
+    def length=(length)
+      error("length on #{name} is invalid as #{characteristic_kind} is not a string") unless characteristic_type == :string || characteristic_type == :s_enum
+      @length = length
+    end
+
+    def has_non_max_length?
+      !@length.nil? && @length != :max
+    end
+
+    def min_length
+      return @min_length if @min_length
+      allow_blank? ? 0 : 1
+    end
+
+    def min_length=(length)
+      error("min_length on #{name} is invalid as #{characteristic_kind} is not a string") unless characteristic_type == :string || characteristic_type == :s_enum
+      @min_length = length
+    end
+
+    attr_writer :allow_blank
+
+    def allow_blank?
+      @allow_blank.nil? ? true : @allow_blank
+    end
+
+    attr_writer :nullable
+
+    def nullable?
+      @nullable.nil? ? false : @nullable
+    end
+
+    attr_reader :values
+
+    def values=(values)
+      error("values on #{name} is invalid as #{characteristic_kind} is not an i_enum or s_enum") unless enum?
+      @values = values
+    end
+
+    protected
+
+    def characteristic_type
+      raise "characteristic_type not implemented"
+    end
+
+    def characteristic_kind
+       raise "characteristic_kind not implemented"
+    end
+  end
+
+  class Attribute < self.FacetedElement(:object_type)
+    include Characteristic
+
     attr_reader :attribute_type
 
     def initialize(object_type, name, attribute_type, options = {}, &block)
@@ -263,60 +322,16 @@ module Domgen
       return self.primary_key? && self.attribute_type == :integer && !object_type.abstract? && object_type.final? && object_type.extends.nil?
     end
 
-    def enum?
-      self.attribute_type == :i_enum || self.attribute_type == :s_enum
-    end
-
     attr_writer :primary_key
 
     def primary_key?
       @primary_key.nil? ? false : @primary_key
     end
 
-    attr_reader :length
-
-    def length=(length)
-      error("length on #{name} is invalid as attribute is not a string") unless self.attribute_type == :string || self.attribute_type == :s_enum
-      @length = length
-    end
-
-    def has_non_max_length?
-      !@length.nil? && @length != :max
-    end
-
-    def min_length
-      return @min_length if @min_length
-      allow_blank? ? 0 : 1
-    end
-
-    def min_length=(length)
-      error("min_length on #{name} is invalid as attribute is not a string") unless self.attribute_type == :string || self.attribute_type == :s_enum
-      @min_length = length
-    end
-
-    attr_writer :allow_blank
-
-    def allow_blank?
-      @allow_blank.nil? ? true : @allow_blank
-    end
-
     attr_writer :unique
 
     def unique?
       @unique.nil? ? false : @unique
-    end
-
-    attr_writer :nullable
-
-    def nullable?
-      @nullable.nil? ? false : @nullable
-    end
-
-    attr_reader :values
-
-    def values=(values)
-      error("values on #{name} is invalid as attribute is not an i_enum or s_enum") unless enum?
-      @values = values
     end
 
     attr_writer :immutable
@@ -397,10 +412,125 @@ module Domgen
     def self.persistent_types
       [:text, :string, :reference, :boolean, :datetime, :integer, :real, :i_enum, :s_enum]
     end
+
+    private
+
+    def characteristic_type
+      attribute_type
+    end
+
+    def characteristic_kind
+       "attribute"
+    end
+  end
+
+  module CharacteristicContainer
+    attr_reader :name
+
+    def boolean(name, options = {}, &block)
+      characteristic(name, :boolean, options, &block)
+    end
+
+    def text(name, options = {}, &block)
+      characteristic(name, :text, options, &block)
+    end
+
+    def string(name, length, options = {}, &block)
+      if length.class == Range
+        options = options.merge({:min_length => length.first, :length => length.last })
+      else
+        options = options.merge({:length => length})
+      end
+      characteristic(name, :string, options, &block)
+    end
+
+    def integer(name, options = {}, &block)
+      characteristic(name, :integer, options, &block)
+    end
+
+    def real(name, options = {}, &block)
+      characteristic(name, :real, options, &block)
+    end
+
+    def datetime(name, options = {}, &block)
+      characteristic(name, :datetime, options, &block)
+    end
+
+    def i_enum(name, values, options = {}, &block)
+      error("More than 0 values must be specified for i_enum #{name}") if values.size == 0
+      values.each_pair do |k, v|
+        error("Key #{k} of i_enum #{name} should be a string") unless k.instance_of?(String)
+        error("Value #{v} for key #{k} of i_enum #{name} should be an integer") unless v.instance_of?(Fixnum)
+      end
+      error("Duplicate keys detected for i_enum #{name}") if values.keys.uniq.size != values.size
+      error("Duplicate values detected for i_enum #{name}") if values.values.uniq.size != values.size
+      sorted_values = values.values.sort
+
+      if (sorted_values[sorted_values.size - 1] - sorted_values[0] + 1) != sorted_values.size
+        error("Non-continuous values detected for i_enum #{name}")
+      end
+
+      characteristic(name, :i_enum, options.merge({:values => values}), &block)
+    end
+
+    def s_enum(name, values, options = {}, &block)
+      error("More than 0 values must be specified for s_enum #{name}") if values.size == 0
+      values.each_pair do |k, v|
+        error("Key #{k} of s_enum #{name} should be a string") unless k.instance_of?(String)
+        error("Value #{v} for key #{k} of s_enum #{name} should be a string") unless v.instance_of?(String)
+      end
+      error("Duplicate keys detected for s_enum #{name}") if values.keys.uniq.size != values.size
+      error("Duplicate values detected for s_enum #{name}") if values.values.uniq.size != values.size
+      sorted_values = values.values.sort
+
+      length = sorted_values.inject(0) { |max, value| max > value.length ? max : value.length }
+
+      characteristic(name, :s_enum, options.merge({:values => values, :length => length}), &block)
+    end
+
+    protected
+
+    def characteristic_by_name(name)
+      characteristic = characteristic_map[name.to_s]
+      error("Unable to find #{characteristic_kind} named #{name} on type #{self.name}. Available #{characteristic_kind} set = #{attributes.collect { |a| a.name }.join(', ')}") unless characteristic
+      characteristic
+    end
+
+    def characteristic_exists?(name)
+      !!characteristic_map[name.to_s]
+    end
+
+    def characteristic(name, type, options = {}, &block)
+      error("Attempting to override #{characteristic_kind} #{name} on #{self.name}") if characteristic_map[name.to_s]
+      characteristic = new_characteristic(name, type, options, &block)
+      characteristic_map[name.to_s] = characteristic
+      characteristic
+    end
+
+    def characteristics
+      characteristic_map.values
+    end
+
+     def verify_characteristics
+      self.characteristics.each do |c|
+        c.verify
+      end
+    end
+
+    def characteristic_map
+      @characteristics ||= Domgen::OrderedHash.new
+    end
+
+    def new_characteristic(name, type, options = {}, &block)
+       raise "new_characteristic not implemented"
+    end
+
+    def characteristic_kind
+       raise "characteristic_kind not implemented"
+    end
   end
 
   class ObjectType < self.FacetedElement(:data_module)
-    attr_reader :name
     attr_reader :unique_constraints
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
@@ -412,10 +542,10 @@ module Domgen
     attr_accessor :subtypes
 
     include GenerateFacet
+    include CharacteristicContainer
 
     def initialize(data_module, name, options = {}, &block)
       @name = name
-      @attributes = Domgen::OrderedHash.new
       @unique_constraints = Domgen::OrderedHash.new
       @codependent_constraints = Domgen::OrderedHash.new
       @incompatible_constraints = Domgen::OrderedHash.new
@@ -440,28 +570,6 @@ module Domgen
       "#{data_module.name}.#{self.name}"
     end
 
-    def verify
-      extension_point(:pre_verify)
-
-      # Add unique constraints on all unique attributes unless covered by existing constraint
-      self.attributes.each do |a|
-        if a.unique?
-          existing_constraint = unique_constraints.find do |uq|
-            uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
-          end
-          unique_constraint([a.name]) if existing_constraint.nil?
-        end
-      end
-
-      error("ObjectType #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
-      attributes.each do |a|
-        error("Abstract attribute #{a.name} on non abstract object type #{name}") if !abstract? && a.abstract?
-      end
-
-      # Post verify is for when you add more things to the model
-      extension_point(:post_verify)
-    end
-
     def non_abstract_superclass?
       extends.nil? ? false : !data_module.object_type_by_name(extends).abstract?
     end
@@ -484,35 +592,6 @@ module Domgen
       @final.nil? ? !abstract? : @final
     end
 
-    def boolean(name, options = {}, &block)
-      attribute(name, :boolean, options, &block)
-    end
-
-    def text(name, options = {}, &block)
-      attribute(name, :text, options, &block)
-    end
-
-    def string(name, length, options = {}, &block)
-      if length.class == Range
-        options = options.merge({:min_length => length.first, :length => length.last })
-      else
-        options = options.merge({:length => length})
-      end
-      attribute(name, :string, options, &block)
-    end
-
-    def integer(name, options = {}, &block)
-      attribute(name, :integer, options, &block)
-    end
-
-    def real(name, options = {}, &block)
-      attribute(name, :real, options, &block)
-    end
-
-    def datetime(name, options = {}, &block)
-      attribute(name, :datetime, options, &block)
-    end
-
     def reference(other_type, options = {}, &block)
       name = options.delete(:name)
       if name.nil?
@@ -526,51 +605,16 @@ module Domgen
       attribute(name.to_s.to_sym, :reference, options.merge({:references => other_type}), &block)
     end
 
-    def i_enum(name, values, options = {}, &block)
-      error("More than 0 values must be specified for i_enum #{name}") if values.size == 0
-      values.each_pair do |k, v|
-        error("Key #{k} of i_enum #{name} should be a string") unless k.instance_of?(String)
-        error("Value #{v} for key #{k} of i_enum #{name} should be an integer") unless v.instance_of?(Fixnum)
-      end
-      error("Duplicate keys detected for i_enum #{name}") if values.keys.uniq.size != values.size
-      error("Duplicate values detected for i_enum #{name}") if values.values.uniq.size != values.size
-      sorted_values = values.values.sort
-
-      if (sorted_values[sorted_values.size - 1] - sorted_values[0] + 1) != sorted_values.size
-        error("Non-continuous values detected for i_enum #{name}")
-      end
-
-      attribute(name, :i_enum, options.merge({:values => values}), &block)
-    end
-
-    def s_enum(name, values, options = {}, &block)
-      error("More than 0 values must be specified for s_enum #{name}") if values.size == 0
-      values.each_pair do |k, v|
-        error("Key #{k} of s_enum #{name} should be a string") unless k.instance_of?(String)
-        error("Value #{v} for key #{k} of s_enum #{name} should be a string") unless v.instance_of?(String)
-      end
-      error("Duplicate keys detected for s_enum #{name}") if values.keys.uniq.size != values.size
-      error("Duplicate values detected for s_enum #{name}") if values.values.uniq.size != values.size
-      sorted_values = values.values.sort
-
-      length = sorted_values.inject(0) { |max, value| max > value.length ? max : value.length }
-
-      attribute(name, :s_enum, options.merge({:values => values, :length => length}), &block)
-    end
-
     def declared_attributes
-      @attributes.values.select { |a| !a.inherited? }
+      attributes.select { |a| !a.inherited? }
     end
 
     def attributes
-      @attributes.values
+      characteristics
     end
 
     def attribute(name, type, options = {}, &block)
-      error("Attempting to override non abstract attribute #{name} on #{self.name}") if @attributes[name.to_s] && !@attributes[name.to_s].abstract?
-      attribute = Attribute.new(self, name, type, {:override => !@attributes[name.to_s].nil?}.merge(options), &block)
-      @attributes[name.to_s] = attribute
-      attribute
+      characteristic(name, type, options = {}, &block)
     end
 
     def unique_constraints
@@ -674,17 +718,45 @@ module Domgen
     end
 
     def attribute_by_name(name)
-      attribute = @attributes[name.to_s]
-      error("Unable to find attribute named #{name} on type #{self.name}. Available attributes = #{attributes.collect { |a| a.name }.join(', ')}") unless attribute
-      attribute
+      characteristic_by_name(name)
     end
 
     def attribute_exists?(name)
-      !!@attributes[name.to_s]
+      characteristic_exists?(name)
     end
 
     def to_s
       "ObjectType[#{self.qualified_name}]"
+    end
+
+    protected
+
+    def characteristic_kind
+       raise "attribute"
+    end
+
+    def new_characteristic(name, type, options = {}, &block)
+      error("Attempting to override non abstract attribute #{name} on #{self.name}") if characteristic_map[name.to_s] && !characteristic_map[name.to_s].abstract?
+      Attribute.new(self, name, type, {:override => !characteristic_map[name.to_s].nil?}.merge(options), &block)
+    end
+
+    def perform_verify
+      verify_characteristics
+
+      # Add unique constraints on all unique attributes unless covered by existing constraint
+      self.attributes.each do |a|
+        if a.unique?
+          existing_constraint = unique_constraints.find do |uq|
+            uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
+          end
+          unique_constraint([a.name]) if existing_constraint.nil?
+        end
+      end
+
+      error("ObjectType #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
+      attributes.each do |a|
+        error("Abstract attribute #{a.name} on non abstract object type #{name}") if !abstract? && a.abstract?
+      end
     end
 
     private
@@ -693,7 +765,7 @@ module Domgen
       base_type.attributes.collect { |a| a.clone }.each do |attribute|
         attribute.instance_variable_set("@object_type", self)
         attribute.mark_as_inherited
-        @attributes[attribute.name.to_s] = attribute
+        characteristic_map[attribute.name.to_s] = attribute
       end
     end
 
@@ -718,13 +790,6 @@ module Domgen
 
     def to_s
       "Exception[#{self.qualified_name}]"
-    end
-
-    def verify
-      extension_point(:pre_verify)
-
-      # Post verify is for when you add more things to the model
-      extension_point(:post_verify)
     end
   end
 
@@ -751,13 +816,6 @@ module Domgen
     def to_s
       "Parameter[#{self.qualified_name}]"
     end
-
-    def verify
-      extension_point(:pre_verify)
-
-      # Post verify is for when you add more things to the model
-      extension_point(:post_verify)
-    end
   end
 
   class Result < Domgen.FacetedElement(:method)
@@ -780,13 +838,6 @@ module Domgen
 
     def nullable?
       @nullable.nil? ? false : @nullable
-    end
-
-    def verify
-      extension_point(:pre_verify)
-
-      # Post verify is for when you add more things to the model
-      extension_point(:post_verify)
     end
   end
 
@@ -840,15 +891,12 @@ module Domgen
       exception
     end
 
-    def verify
-      extension_point(:pre_verify)
+    protected
 
-      parameters.each do |p|
-        p.verify
-      end
-
-      # Post verify is for when you add more things to the model
-      extension_point(:post_verify)
+    def perform_verify
+      parameters.each { |p| p.verify }
+      exceptions.each { |p| p.verify }
+      return_value.verify
     end
   end
 
@@ -884,15 +932,10 @@ module Domgen
       method
     end
 
-    def verify
-      extension_point(:pre_verify)
+    protected
 
-      methods.each do |m|
-        m.verify
-      end
-
-      # Post verify is for when you add more things to the model
-      extension_point(:post_verify)
+    def perform_verify
+      methods.each { |p| p.verify }
     end
   end
 
@@ -957,15 +1000,11 @@ module Domgen
       service
     end
 
-    def verify
-      extension_point(:pre_verify)
-      self.object_types.each do |object_type|
-        object_type.verify
-      end
-      self.services.each do |service|
-        service.verify
-      end
-      extension_point(:post_verify)
+    protected
+
+    def perform_verify
+      object_types.each { |p| p.verify }
+      services.each { |p| p.verify }
     end
 
     private
@@ -1076,17 +1115,14 @@ module Domgen
       Domgen::ModelCheck.new(self, name, options, &block)
     end
 
-    def verify
-      Logger.debug "Repository #{name}: Verifying"
-      extension_point(:pre_verify)
-      self.data_modules.each do |data_module|
-        data_module.verify
-      end
-      extension_point(:post_verify)
-    end
-
     include GenerateFacet
     include Faceted
+
+    protected
+
+    def perform_verify
+      data_modules.each { |p| p.verify }
+    end
 
     private
 
