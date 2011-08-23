@@ -5,3 +5,5 @@
   Entity but not Overtimes etc.
 * In JPA Models: If inverse is not traversable think about maybe persisting on create if inverse is persisted
 * Support constants in relationship_constraints
+* Mixin Characteristic into parameters and results and make method a characteristic container
+* Make exceptions into characteristic containers?
