@@ -521,12 +521,12 @@ module Domgen
       @characteristics ||= Domgen::OrderedHash.new
     end
 
-    def new_characteristic(name, type, options = {}, &block)
-       raise "new_characteristic not implemented"
+    def new_characteristic(name, type, options = { }, &block)
+      raise "new_characteristic not implemented"
     end
 
     def characteristic_kind
-       raise "characteristic_kind not implemented"
+      raise "characteristic_kind not implemented"
     end
   end
 
