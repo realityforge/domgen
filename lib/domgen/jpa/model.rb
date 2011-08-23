@@ -24,7 +24,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{jpa_class.object_type.java.qualified_name}.#{local_name}"
+        "#{jpa_class.object_type.qualified_name}.#{local_name}"
       end
 
       def local_name
@@ -72,7 +72,7 @@ module Domgen
 
       def cascade=(value)
         value = value.is_a?(Array) ? value : [value]
-        invalid_cascades = value.select {|v| !self.class.cascade_types.include?(v)}
+        invalid_cascades = value.select { |v| !self.class.cascade_types.include?(v) }
         unless invalid_cascades.empty?
           error("cascade_type must be one of #{self.class.cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
         end
@@ -135,6 +135,35 @@ module Domgen
         @table_name || object_type.sql.table_name
       end
 
+      attr_writer :model_name
+
+      def model_name
+        @model_name || object_type.name
+      end
+
+      def qualified_model_name
+        "#{object_type.data_module.jpa.model_package}.#{model_name}"
+      end
+
+      def metamodel_name
+        "#{model_name}_"
+      end
+
+      def qualified_metamodel_name
+        "#{object_type.data_module.jpa.model_package}.#{metamodel_name}"
+      end
+
+
+      attr_writer :dao_name
+
+      def dao_name
+        @dao_name || "#{object_type.name}DAO"
+      end
+
+      def qualified_dao_name
+        "#{object_type.data_module.jpa.dao_package}.#{dao_name}"
+      end
+
       attr_writer :persistent
 
       def persistent?
@@ -162,16 +191,28 @@ module Domgen
       end
     end
 
-    class PersistenceUnit < Domgen.ParentedElement(:repository)
-      attr_accessor :provider
-      attr_accessor :transaction_type
-      attr_accessor :data_source_name
+    class JpaPackage < Domgen.ParentedElement(:data_module)
+      attr_writer :package
 
-      attr_writer :name
-
-      def name
-        @name || repository.name
+      def package
+        @package || data_module.java.package
       end
+
+      attr_writer :model_package
+
+      def model_package
+        @model_package || "#{package}.model"
+      end
+
+      attr_writer :dao_package
+
+      def dao_package
+        @dao_package || "#{model_package}.dao"
+      end
+    end
+
+    class PersistenceUnit < Domgen.ParentedElement(:repository)
+      attr_accessor :unit_name
     end
   end
 
@@ -179,5 +220,6 @@ module Domgen
                             Attribute => Domgen::JPA::JpaField,
                             InverseElement => Domgen::JPA::JpaFieldInverse,
                             ObjectType => Domgen::JPA::JpaClass,
+                            DataModule => Domgen::JPA::JpaPackage,
                             Repository => Domgen::JPA::PersistenceUnit)
 end

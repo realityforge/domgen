@@ -49,3 +49,7 @@ require 'domgen/xmi_generator'
 # EJB
 require 'domgen/ejb/model'
 require 'domgen/ejb/generator'
+
+# GWT
+require 'domgen/gwt/model'
+require 'domgen/gwt/generator'
