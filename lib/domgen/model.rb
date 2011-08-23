@@ -1018,8 +1018,8 @@ module Domgen
     def initialize(repository, name, options = {}, &block)
       repository.send :register_data_module, name, self
       @name = name
-      @services = Domgen::OrderedHash.new
       @object_types = Domgen::OrderedHash.new
+      @services = Domgen::OrderedHash.new
       @messages = Domgen::OrderedHash.new
       Logger.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
@@ -1040,16 +1040,6 @@ module Domgen
       post_object_type_create(name)
     end
 
-    def services
-      @services.values
-    end
-
-    def define_service(name, options = {}, &block)
-      pre_service_create(name)
-      Service.new(self, name, options, &block)
-      post_service_create(name)
-    end
-
     def object_type_by_name(name)
       name_parts = split_name(name)
       repository.data_module_by_name(name_parts[0]).local_object_type_by_name(name_parts[1])
@@ -1059,6 +1049,16 @@ module Domgen
       object_type = @object_types[name.to_s]
       error("Unable to locate local object_type #{name} in #{self.name}") unless object_type
       object_type
+    end
+
+    def services
+      @services.values
+    end
+
+    def define_service(name, options = {}, &block)
+      pre_service_create(name)
+      Service.new(self, name, options, &block)
+      post_service_create(name)
     end
 
     def service_by_name(name)
