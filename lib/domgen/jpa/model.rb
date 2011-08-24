@@ -47,7 +47,7 @@ module Domgen
         if self.query_type == :full
           query = self.jpql
         elsif self.query_type == :selector
-          query = "SELECT O FROM #{jpa_class.object_type.qualified_name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
+          query = "SELECT O FROM #{jpa_class.object_type.jpa.jpql_name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
         else
           error("Unknown query type #{query_type}")
         end
@@ -149,6 +149,12 @@ module Domgen
 
       def table_name
         @table_name || object_type.sql.table_name
+      end
+
+      attr_writer :jpql_name
+
+      def jpql_name
+        @jpql_name || object_type.qualified_name.gsub('.','_')
       end
 
       attr_writer :entity_name

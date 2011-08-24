@@ -7,7 +7,7 @@ package <%= object_type.data_module.jpa.entity_package %>;
 <%= object_type.jpa.queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{object_type.jpa.entity_name}.#{q.local_name}, query = \"#{q.query_string}\" )" }.join(",\n") %>
 } )<% end %>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
-@javax.persistence.Entity( name = "<%= object_type.qualified_name %>" )<% if !object_type.abstract? %>
+@javax.persistence.Entity( name = "<%= object_type.jpa.jpql_name %>" )<% if !object_type.abstract? %>
 @javax.persistence.Table( name = "<%= object_type.jpa.table_name %>",
         schema = "<%= object_type.data_module.sql.schema %>",
         uniqueConstraints = {<%=
