@@ -126,6 +126,18 @@ module Domgen
       def attribute
         self.parent
       end
+
+      include Domgen::Java::JavaCharacteristic
+
+      protected
+
+      def characteristic
+        attribtue
+      end
+
+      def object_type_to_classname(object_type)
+        object_type.jpa.qualified_name
+      end
     end
 
     class JpaClass < Domgen.ParentedElement(:object_type)
