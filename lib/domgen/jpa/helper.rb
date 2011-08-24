@@ -31,9 +31,9 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.object_type.java.qualified_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
+          s << "  private java.util.List<#{attribute.object_type.jpa.qualified_entity_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          s << "  private #{attribute.object_type.java.qualified_name} #{attribute.inverse.relationship_name};\n"
+          s << "  private #{attribute.object_type.jpa.qualified_entity_name} #{attribute.inverse.relationship_name};\n"
         end
         s
       end
@@ -142,7 +142,7 @@ JAVA
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
             name = attribute.inverse.relationship_name
-            type = nullable_annotate(attribute, attribute.object_type.java.qualified_name, false, true)
+            type = nullable_annotate(attribute, attribute.object_type.jpa.qualified_entity_name, false, true)
 
             java = description_javadoc_for attribute
             java << <<JAVA
@@ -294,7 +294,7 @@ JAVA
       def j_has_many_attribute(attribute)
         name = attribute.inverse.relationship_name
         plural_name = pluralize(name)
-        type = attribute.object_type.java.qualified_name
+        type = attribute.object_type.jpa.qualified_entity_name
         java = description_javadoc_for attribute
         java << <<STR
   public java.util.List<#{type}> get#{plural_name}()
