@@ -132,7 +132,7 @@ module Domgen
       protected
 
       def characteristic
-        attribtue
+        attribute
       end
 
       def object_type_to_classname(object_type)
