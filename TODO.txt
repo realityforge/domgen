@@ -7,3 +7,5 @@
 * Support constants in relationship_constraints
 * Mixin Characteristic into parameters and results and make method a characteristic container
 * Make exceptions into characteristic containers?
+* Make enums into freestanding elements.
+* Make the jpa facet not reach into java facet except via wrappers. Otherwise excessive setting of packages - particularly when generating enums.
