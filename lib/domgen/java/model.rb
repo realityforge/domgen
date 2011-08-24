@@ -33,13 +33,7 @@ module Domgen
       end
     end
 
-    class JavaField < Domgen.ParentedElement(:attribute)
-      attr_writer :field_name
-
-      def field_name
-        @field_name || attribute.name
-      end
-
+    module JavaCharacteristic
       attr_writer :java_type
 
       def java_type
@@ -49,23 +43,61 @@ module Domgen
       end
 
       def non_primitive_java_type
-        if :reference == attribute.attribute_type
-          attribute.referenced_object.java.qualified_name
-        elsif attribute.enum?
-          return "#{attribute.object_type.java.qualified_name}.#{field_name}Value"
+        if :reference == characteristic.characteristic_type
+          object_type_to_classname(characteristic.referenced_object)
+        elsif characteristic.enum?
+          return "#{object_type_to_classname(characteristic.object_type)}.#{characteristic.name}Value"
         else
-          TYPE_MAP[attribute.attribute_type.to_s] || attribute.attribute_type.to_s
+          Domgen::Java::TYPE_MAP[characteristic.characteristic_type.to_s] || characteristic.characteristic_type.to_s
         end
       end
 
       def primitive?
-        (attribute.attribute_type == :integer || attribute.attribute_type == :boolean) && !attribute.nullable? && !attribute.generated_value?
+        (characteristic.characteristic_type == :integer || characteristic.characteristic_type == :boolean) && !characteristic.nullable? && primitive_hook?
       end
 
       def primitive_java_type
-        return "int" if :integer == attribute.attribute_type
-        return "boolean" if :boolean == attribute.attribute_type
+        return "int" if :integer == characteristic_type
+        return "boolean" if :boolean == characteristic_type
         error("primitive_java_type invoked for non primitive method")
+      end
+
+      protected
+
+      def primitive_hook?
+        true
+      end
+
+      def characteristic
+        raise "characteristic unimplemented"
+      end
+
+      def object_type_to_classname(object_type)
+        raise "object_type_to_classname unimplemented"
+      end
+    end
+
+    class JavaField < Domgen.ParentedElement(:attribute)
+      attr_writer :field_name
+
+      def field_name
+        @field_name || attribute.name
+      end
+
+      include JavaCharacteristic
+
+      protected
+
+      def primitive_hook?
+        !attribute.generated_value?
+      end
+
+      def characteristic
+        attribute
+      end
+
+      def object_type_to_classname(object_type)
+        object_type.java.qualified_name
       end
     end
 
@@ -86,26 +118,16 @@ module Domgen
         Domgen::Naming.camelize(parameter.name.to_s)
       end
 
-      attr_writer :java_type
+      include JavaCharacteristic
 
-      def java_type
-        return @java_type if @java_type
-        return primitive_java_type if primitive?
-        non_primitive_java_type
+      protected
+
+      def characteristic
+        parameter
       end
 
-      def non_primitive_java_type
-        TYPE_MAP[parameter.parameter_type.to_s] || parameter.parameter_type.to_s
-      end
-
-      def primitive?
-        (parameter.parameter_type == :integer || parameter.parameter_type == :boolean) && !parameter.nullable?
-      end
-
-      def primitive_java_type
-        return "int" if :integer == parameter.parameter_type
-        return "boolean" if :boolean == parameter.parameter_type
-        error("primitive_java_type invoked for non primitive parameter")
+      def object_type_to_classname(object_type)
+        object_type.java.qualified_name
       end
     end
 
@@ -117,26 +139,16 @@ module Domgen
 
     class JavaReturn < Domgen.ParentedElement(:result)
 
-      attr_writer :java_type
+      include JavaCharacteristic
 
-      def java_type
-        return @java_type if @java_type
-        return primitive_java_type if primitive?
-        non_primitive_java_type
+      protected
+
+      def characteristic
+        result
       end
 
-      def non_primitive_java_type
-        TYPE_MAP[result.return_type.to_s] || result.return_type.to_s
-      end
-
-      def primitive?
-        (result.return_type == :integer || result.return_type == :boolean) && !result.nullable?
-      end
-
-      def primitive_java_type
-        return "int" if :integer == result.return_type
-        return "boolean" if :boolean == result.return_type
-        error("primitive_java_type invoked for non primitive result")
+      def object_type_to_classname(object_type)
+        object_type.java.qualified_name
       end
     end
 
