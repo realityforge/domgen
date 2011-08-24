@@ -113,7 +113,7 @@ module Domgen
       extension_class = self.extension_map[object.class]
       return unless extension_class
       object.instance_eval("def #{self.key}; Domgen.error(\"Facet #{self.key} has been disabled\"); end")
-      object.remove_instance_variable(:"@#{self.key}")
+      object.send(:remove_instance_variable, :"@#{self.key}") rescue
       Logger.debug "Facet '#{key}' disabled for #{object.class} by removing extension #{extension_class}"
     end
   end
