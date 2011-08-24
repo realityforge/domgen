@@ -438,9 +438,9 @@ JAVA
         elsif !attribute.nullable? &&
           !attribute.generated_value? &&
           !(attribute.reference? && attribute.inverse.multiplicity == :zero_or_one && inverse_side)
-          annotation = "@org.jetbrains.annotations.NotNull #{type}"
+          annotation = "@javax.annotation.Nonnull #{type}"
         else
-          annotation = "@org.jetbrains.annotations.Nullable #{type}"
+          annotation = "@javax.annotation.Nullable #{type}"
         end
         if is_field_annotation
           "  #{annotation}\n"
