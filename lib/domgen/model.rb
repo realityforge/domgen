@@ -413,6 +413,10 @@ module Domgen
       [:text, :string, :reference, :boolean, :datetime, :integer, :real, :i_enum, :s_enum]
     end
 
+    def to_s
+      "Attribute[#{self.qualified_name}]"
+    end
+
     private
 
     def characteristic_type
