@@ -28,7 +28,7 @@ public class <%= data_module.gwt.gin_module_name %>
 %>
   @com.google.inject.Provides
   @javax.inject.Singleton
-  public <%= service.gwt.qualified_async_service_name %> getContactsService()
+  public <%= service.gwt.qualified_async_service_name %> get<%= service.name %>()
   {
     final <%= service.gwt.qualified_async_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt.qualified_service_name %>.class );
 <% if service.gwt.xsrf_protected? %>
