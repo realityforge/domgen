@@ -7,7 +7,7 @@ module Domgen
           s << "  @javax.persistence.Transient\n"
         else
           s << "  @javax.persistence.Id\n" if attribute.primary_key?
-          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
+          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.AUTO )\n" if attribute.sql.identity?
           s << gen_relation_annotation(attribute, true) if attribute.reference?
           s << gen_column_annotation(attribute)
         end
