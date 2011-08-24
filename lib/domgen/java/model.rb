@@ -150,7 +150,7 @@ module Domgen
       attr_writer :package
 
       def package
-        @package || "#{data_module.repository.java.package}.#{data_module.name}"
+        @package || "#{data_module.repository.java.package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
       def package_defined?
