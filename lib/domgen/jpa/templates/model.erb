@@ -1,10 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= object_type.data_module.jpa.model_package %>;
+package <%= object_type.data_module.jpa.entity_package %>;
 
 <%= description_javadoc_for(object_type, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% if not object_type.jpa.queries.empty? %>@javax.persistence.NamedQueries( value = {
-<%= object_type.jpa.queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{object_type.jpa.model_name}.#{q.local_name}, query = \"#{q.query_string}\" )" }.join(",\n") %>
+<%= object_type.jpa.queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{object_type.jpa.entity_name}.#{q.local_name}, query = \"#{q.query_string}\" )" }.join(",\n") %>
 } )<% end %>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity( name = "<%= object_type.qualified_name %>" )<% if !object_type.abstract? %>
@@ -19,9 +19,9 @@ else %>
 @javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.TABLE_PER_CLASS)<%
 end
 %>
-public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.jpa.model_name %>
+public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.jpa.entity_name %>
 <%= object_type.extends ?
-  "    extends #{object_type.data_module.object_type_by_name(object_type.extends).jpa.qualified_model_name}\n" :
+  "    extends #{object_type.data_module.object_type_by_name(object_type.extends).jpa.qualified_entity_name}\n" :
   "" %>    implements java.io.Serializable
 {
 <% object_type.jpa.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= query.local_name %> = "<%= query.qualified_name %>";

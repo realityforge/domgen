@@ -10,7 +10,7 @@ module Domgen
         Template.new(JPA::FACETS,
                      :object_type,
                      "#{JPA::TEMPLATE_DIRECTORY}/model.erb",
-                     'java/#{object_type.jpa.qualified_model_name.gsub(".","/")}.java',
+                     'java/#{object_type.jpa.qualified_entity_name.gsub(".","/")}.java',
                      [Domgen::JPA::Helper, Domgen::Java::Helper],
                      'object_type.jpa.persistent?'),
         Template.new(JPA::FACETS,

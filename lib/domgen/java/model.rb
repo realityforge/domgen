@@ -1,5 +1,8 @@
 module Domgen
   module Java
+    DEFAULT_ENTITY_PACKAGE_SUFFIX = "model"
+    DEFAULT_SERVICE_PACKAGE_SUFFIX = "services"
+
     TYPE_MAP = {"string" => "java.lang.String",
                 "integer" => "java.lang.Integer",
                 "boolean" => "java.lang.Boolean",
@@ -16,18 +19,17 @@ module Domgen
       def classname
         @classname || object_type.name
       end
-
-      def qualified_name
-        "#{object_type.data_module.java.package}.#{self.classname}"
-      end
     end
 
     class JavaEntity < JavaClass
       attr_writer :debug_attributes
 
       def debug_attributes
-        @debug_attributes = object_type.attributes.collect { |a| a.name } unless @debug_attributes
-        @debug_attributes
+        @debug_attributes || object_type.attributes.collect { |a| a.name }
+      end
+
+      def qualified_name
+        "#{object_type.data_module.java.entity_package}.#{self.classname}"
       end
     end
 
@@ -68,6 +70,9 @@ module Domgen
     end
 
     class JavaService < JavaClass
+      def qualified_name
+        "#{object_type.data_module.java.service_package}.#{self.classname}"
+      end
     end
 
     class JavaMethod < Domgen.ParentedElement(:service)
@@ -147,13 +152,45 @@ module Domgen
       def package
         @package || "#{data_module.repository.java.package}.#{data_module.name}"
       end
+
+      def package_defined?
+        !@package.nil?
+      end
+
+      attr_writer :entity_package
+
+      def entity_package
+        return @entity_package if @entity_package
+        return "#{package}.#{DEFAULT_ENTITY_PACKAGE_SUFFIX}" if package_defined?
+        "#{data_module.repository.java.entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
+      attr_writer :service_package
+
+      def service_package
+        return @service_package if @service_package
+        return "#{package}.#{DEFAULT_SERVICE_PACKAGE_SUFFIX}" if package_defined?
+        "#{data_module.repository.java.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
     end
 
     class JavaModule < Domgen.ParentedElement(:repository)
       attr_writer :package
 
       def package
-        @package || repository.name
+        @package || Domgen::Naming.underscore(repository.name)
+      end
+
+      attr_writer :entity_package
+
+      def entity_package
+        @entity_package || "#{package}.#{DEFAULT_ENTITY_PACKAGE_SUFFIX}"
+      end
+
+      attr_writer :service_package
+
+      def service_package
+        @service_package || "#{package}.#{DEFAULT_SERVICE_PACKAGE_SUFFIX}"
       end
     end
   end

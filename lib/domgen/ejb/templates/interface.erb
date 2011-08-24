@@ -1,10 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= service.data_module.java.package %>;
+package <%= service.data_module.ejb.service_package %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.<%= service.ejb.local? ? "Local" : "Remove" %>
-public interface <%= service.java.classname %>
+public interface <%= service.ejb.service_name %>
 {
   String EJB_NAME = "<%= service.ejb.name %>";
 

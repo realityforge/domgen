@@ -10,7 +10,7 @@ module Domgen
         Template.new(EJB::FACETS,
                      :service,
                      "#{EJB::TEMPLATE_DIRECTORY}/interface.erb",
-                     'java/#{service.java.qualified_name.gsub(".","/")}.java',
+                     'java/#{service.ejb.qualified_service_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper])
       ]
     end
