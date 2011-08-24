@@ -1,9 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= repository.gwt.gin_package %>;
+package <%= data_module.gwt.gin_package %>;
 
-<%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
+<%= description_javadoc_for(data_module, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= repository.gwt.gin_module_name %>
+public class <%= data_module.gwt.gin_module_name %>
   extends com.google.gwt.inject.client.AbstractGinModule
 {
   private static com.google.gwt.user.client.rpc.XsrfToken _xsrfToken;
@@ -24,8 +24,7 @@ public class <%= repository.gwt.gin_module_name %>
   }
 
 <%
-   repository.data_modules.each do |data_module|
-     data_module.services.each do |service|
+   data_module.services.each do |service|
 %>
   @com.google.inject.Provides
   @javax.inject.Singleton
@@ -38,6 +37,5 @@ public class <%= repository.gwt.gin_module_name %>
     return service;
   }
 <%
-    end
   end
 %>}

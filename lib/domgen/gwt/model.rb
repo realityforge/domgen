@@ -8,7 +8,7 @@ module Domgen
       end
 
       def qualified_event_name
-        "#{message.data_module.repository.gwt.event_package}.#{event_name}"
+        "#{message.data_module.gwt.event_package}.#{event_name}"
       end
 
       attr_writer :event_handler_name
@@ -18,7 +18,7 @@ module Domgen
       end
 
       def qualified_event_handler_name
-        "#{message.data_module.repository.gwt.event_package}.#{event_handler_name}"
+        "#{message.data_module.gwt.event_package}.#{event_handler_name}"
       end
     end
 
@@ -36,7 +36,7 @@ module Domgen
       end
 
       def qualified_service_name
-        "#{service.data_module.repository.gwt.shared_package}.#{service_name}"
+        "#{service.data_module.gwt.shared_package}.#{service_name}"
       end
 
       def async_service_name
@@ -44,7 +44,7 @@ module Domgen
       end
 
       def qualified_async_service_name
-        "#{service.data_module.repository.gwt.shared_package}.#{async_service_name}"
+        "#{service.data_module.gwt.shared_package}.#{async_service_name}"
       end
 
       def servlet_name
@@ -52,7 +52,7 @@ module Domgen
       end
 
       def qualified_servlet_name
-        "#{service.data_module.repository.gwt.server_package}.#{servlet_name}"
+        "#{service.data_module.gwt.server_package}.#{servlet_name}"
       end
     end
 
@@ -64,17 +64,17 @@ module Domgen
       end
     end
 
-    class GwtModule < Domgen.ParentedElement(:repository)
+    class GwtModule < Domgen.ParentedElement(:data_module)
       attr_writer :module_name
 
       def module_name
-        @module_name || repository.name
+        @module_name || data_module.name
       end
 
       attr_writer :package
 
       def package
-        @package || repository.java.package
+        @package || data_module.java.package
       end
 
       attr_writer :shared_package
@@ -123,5 +123,5 @@ module Domgen
                             Service => Domgen::GWT::GwtService,
                             Method => Domgen::GWT::GwtMethod,
                             Message => Domgen::GWT::GwtEvent,
-                            Repository => Domgen::GWT::GwtModule)
+                            DataModule => Domgen::GWT::GwtModule)
 end

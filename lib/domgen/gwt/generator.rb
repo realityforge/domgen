@@ -23,9 +23,9 @@ module Domgen
     def self.define_gwt_client_service_templates
       [
         Template.new(GWT::FACETS,
-                     :repository,
+                     :data_module,
                      "#{GWT::TEMPLATE_DIRECTORY}/gin_module.erb",
-                     'java/#{repository.gwt.qualified_gin_module_name.gsub(".","/")}.java',
+                     'java/#{data_module.gwt.qualified_gin_module_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper]),
         Template.new(GWT::FACETS,
                      :message,
