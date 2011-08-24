@@ -14,7 +14,7 @@ module Domgen
       def populate_parameters
         @parameter_types = {} unless @parameter_types
         parameters.each do |p|
-          @parameter_types[p] = jpa_class.object_type.attribute_by_name(p).java.java_type if @parameter_types[p].nil?
+          @parameter_types[p] = jpa_class.object_type.attribute_by_name(p).jpa.java_type if @parameter_types[p].nil?
         end
       end
 
@@ -123,6 +123,10 @@ module Domgen
         @persistent.nil? ? (!attribute.abstract? && attribute.persistent?) : @persistent
       end
 
+      def name
+        attribute.name
+      end
+
       def attribute
         self.parent
       end
@@ -136,7 +140,7 @@ module Domgen
       end
 
       def object_type_to_classname(object_type)
-        object_type.jpa.qualified_name
+        object_type.jpa.qualified_entity_name
       end
     end
 
@@ -194,7 +198,7 @@ module Domgen
       def post_verify
         self.query('All', nil, :singular => false)
         self.query(object_type.primary_key.name,
-                   "O.#{object_type.primary_key.java.field_name} = :#{object_type.primary_key.java.field_name}",
+                   "O.#{object_type.primary_key.jpa.name} = :#{object_type.primary_key.jpa.name}",
                    :singular => true)
         self.queries.each do |q|
           q.populate_parameters
