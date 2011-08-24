@@ -505,8 +505,8 @@ module Domgen
     end
 
     def characteristic(name, type, options, &block)
-      error("Attempting to override #{characteristic_kind} #{name} on #{self.name}") if characteristic_map[name.to_s]
       characteristic = new_characteristic(name, type, options, &block)
+      error("Attempting to override #{characteristic_kind} #{name} on #{self.name}") if characteristic_map[name.to_s]
       characteristic_map[name.to_s] = characteristic
       characteristic
     end
@@ -736,11 +736,15 @@ module Domgen
     protected
 
     def characteristic_kind
-       raise "attribute"
+       "attribute"
     end
 
     def new_characteristic(name, type, options, &block)
-      error("Attempting to override non abstract attribute #{name} on #{self.name}") if characteristic_map[name.to_s] && !characteristic_map[name.to_s].abstract?
+      if characteristic_map[name.to_s]
+        error("Attempting to override non abstract attribute #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
+        # nil out atribute so the characteristic container will not complain about it overriding an existing value
+        characteristic_map[name.to_s] = nil
+      end
       Attribute.new(self, name, type, {:override => !characteristic_map[name.to_s].nil?}.merge(options), &block)
     end
 
