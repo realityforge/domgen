@@ -57,8 +57,8 @@ module Domgen
       end
 
       def primitive_java_type
-        return "int" if :integer == characteristic_type
-        return "boolean" if :boolean == characteristic_type
+        return "int" if :integer == characteristic.characteristic_type
+        return "boolean" if :boolean == characteristic.characteristic_type
         error("primitive_java_type invoked for non primitive method")
       end
 
