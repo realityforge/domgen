@@ -153,7 +153,6 @@ module Domgen
         "#{object_type.data_module.jpa.model_package}.#{metamodel_name}"
       end
 
-
       attr_writer :dao_name
 
       def dao_name
