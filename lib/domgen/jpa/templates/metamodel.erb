@@ -6,7 +6,7 @@ package <%= object_type.data_module.jpa.model_package %>;
 @javax.persistence.metamodel.StaticMetamodel(<%= object_type.jpa.model_name %>.class)
 public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.jpa.metamodel_name %>
 <%= object_type.extends ?
-  "    extends #{object_type.data_module.object_type_by_name(object_type.extends).jpa.qualified_metamodel_name}_\n" :
+  "    extends #{object_type.data_module.object_type_by_name(object_type.extends).jpa.qualified_metamodel_name}\n" :
   "" %>{<%
    object_type.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
   public static volatile javax.persistence.metamodel.SingularAttribute<<%= object_type.jpa.model_name %>, <%= attribute.java.non_primitive_java_type %>> <%= attribute.java.field_name %>;<%
