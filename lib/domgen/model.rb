@@ -876,6 +876,8 @@ module Domgen
     attr_reader :name
     attr_reader :parameter_type
 
+    include Characteristic
+
     def initialize(method, name, parameter_type, options, &block)
       @name = name
       @parameter_type = parameter_type
@@ -895,37 +897,56 @@ module Domgen
     def to_s
       "Parameter[#{self.qualified_name}]"
     end
+
+    def characteristic_type
+      parameter_type
+    end
+
+    protected
+
+    def characteristic_kind
+       "parameter"
+    end
   end
 
   class Result < Domgen.FacetedElement(:method)
     attr_reader :return_type
+
+    include Characteristic
 
     def initialize(method, return_type, options, &block)
       @return_type = return_type
       super(method, options, &block)
     end
 
+    def name
+      "Return"
+    end
+
     def qualified_name
-      "#{method.qualified_name}$Return"
+      "#{method.qualified_name}$#{name}"
     end
 
     def to_s
       "Result[#{self.qualified_name}]"
     end
 
-    attr_writer :nullable
+    def characteristic_type
+      return_type
+    end
 
-    def nullable?
-      @nullable.nil? ? false : @nullable
+    protected
+
+    def characteristic_kind
+       "return"
     end
   end
 
   class Method <  self.FacetedElement(:service)
-    attr_reader :name
+    include CharacteristicContainer
 
     def initialize(service, name, options, &block)
       @name = name
-      @parameters = Domgen::OrderedHash.new
       @exceptions = Domgen::OrderedHash.new
       super(service, options, &block)
     end
@@ -939,14 +960,11 @@ module Domgen
     end
 
     def parameters
-      @parameters.values
+      characteristic_map.values
     end
 
-    def parameter(name, parameter_type, options = {}, &block)
-      error("Attempting to override parameter #{name} on #{self.qualified_name}") if @parameters[name.to_s]
-      parameter = Parameter.new(self, name, parameter_type, options, &block)
-      @parameters[name.to_s] = parameter
-      parameter
+    def parameter(name, type, options = {}, &block)
+      characteristic(name, type, options, &block)
     end
 
     def returns(parameter_type, options = {}, &block)
@@ -972,8 +990,16 @@ module Domgen
 
     protected
 
+    def new_characteristic(name, type, options, &block)
+      Parameter.new(self, name, type, options, &block)
+    end
+
+    def characteristic_kind
+      "parameter"
+    end
+
     def perform_verify
-      parameters.each { |p| p.verify }
+      verify_characteristics
       exceptions.each { |p| p.verify }
       return_value.verify
     end
