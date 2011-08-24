@@ -44,7 +44,7 @@ module Domgen
         parameters << "nullable = #{attribute.nullable?}"
         parameters << "updatable = #{attribute.updatable?}"
         parameters << "unique = #{attribute.unique?}"
-        parameters << "insertable = #{!attribute.generated_value?}"
+        parameters << "insertable = #{!attribute.generated_value? || attribute.primary_key?}"
 
         if !attribute.reference? && attribute.has_non_max_length?
           parameters << "length = #{attribute.length}"
