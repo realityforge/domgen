@@ -119,6 +119,10 @@ module Domgen
         super(table, options, &block)
       end
 
+      def to_s
+        "Index[#{self.qualified_index_name}]"
+      end
+
       attr_writer :index_name
 
       def index_name
@@ -229,6 +233,10 @@ module Domgen
       def quoted_constraint_name
         quoted_foreign_key_name
       end
+
+      def to_s
+        "ForeignKey[#{self.qualified_foreign_key_name}]"
+      end
     end
 
     class Constraint < Domgen.ParentedElement(:table)
@@ -257,6 +265,10 @@ module Domgen
 
       def qualified_constraint_name
         "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
+      end
+
+      def to_s
+        "Constraint[#{self.qualified_constraint_name}]"
       end
     end
 
@@ -312,6 +324,10 @@ module Domgen
         function_call = "#{self.qualified_function_name}(#{parameter_string}) = 1"
         (self.or_conditions + [function_call]).join(" OR ")
       end
+
+      def to_s
+        "FunctionConstraint[#{self.qualified_constraint_name}]"
+      end
     end
 
     class SequencedSqlElement < Domgen.ParentedElement(:table)
@@ -361,6 +377,10 @@ module Domgen
       def priority
         @priority || 1
       end
+
+      def to_s
+        "Validation[#{self.name}]"
+      end
     end
 
     class Action < SequencedSqlElement
@@ -370,6 +390,10 @@ module Domgen
 
       def priority
         @priority || 1
+      end
+
+      def to_s
+        "Action[#{self.name}]"
       end
     end
 
@@ -386,6 +410,10 @@ module Domgen
 
       def qualified_trigger_name
         "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_trigger_name}"
+      end
+
+      def to_s
+        "Action[#{self.qualified_trigger_name}]"
       end
     end
 
@@ -789,13 +817,8 @@ SQL
         end
       end
 
-      def post_inherited
-        indexes.each { |a| a.mark_as_inherited }
-        constraints.each { |a| a.mark_as_inherited }
-        function_constraints.each { |a| a.mark_as_inherited }
-        validations.each { |a| a.mark_as_inherited }
-        triggers.each { |a| a.mark_as_inherited }
-        foreign_keys.each { |a| a.mark_as_inherited }
+      def to_s
+        "Table[#{self.qualified_table_name}]"
       end
     end
 
@@ -847,6 +870,10 @@ SQL
       end
 
       attr_accessor :default_value
+
+      def to_s
+        "Column[#{self.quoted_column_name}]"
+      end
     end
 
     class Database < Domgen.ParentedElement(:repository)
@@ -873,6 +900,10 @@ SQL
             end
           end
         end
+      end
+
+      def to_s
+        "Database[#{self.repository.name}]"
       end
     end
   end
