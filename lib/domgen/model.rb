@@ -956,7 +956,7 @@ module Domgen
     end
 
     def return_value
-      @return_type ||= Result.new(self, :void)
+      @return_type ||= Result.new(self, :void, {})
     end
 
     def exceptions
