@@ -504,7 +504,7 @@ module Domgen
       !!characteristic_map[name.to_s]
     end
 
-    def characteristic(name, type, options = {}, &block)
+    def characteristic(name, type, options, &block)
       error("Attempting to override #{characteristic_kind} #{name} on #{self.name}") if characteristic_map[name.to_s]
       characteristic = new_characteristic(name, type, options, &block)
       characteristic_map[name.to_s] = characteristic
@@ -525,7 +525,7 @@ module Domgen
       @characteristics ||= Domgen::OrderedHash.new
     end
 
-    def new_characteristic(name, type, options = { }, &block)
+    def new_characteristic(name, type, options, &block)
       raise "new_characteristic not implemented"
     end
 
@@ -548,7 +548,7 @@ module Domgen
     include GenerateFacet
     include CharacteristicContainer
 
-    def initialize(data_module, name, options = {}, &block)
+    def initialize(data_module, name, options, &block)
       @name = name
       @unique_constraints = Domgen::OrderedHash.new
       @codependent_constraints = Domgen::OrderedHash.new
@@ -618,7 +618,7 @@ module Domgen
     end
 
     def attribute(name, type, options = {}, &block)
-      characteristic(name, type, options = {}, &block)
+      characteristic(name, type, options, &block)
     end
 
     def unique_constraints
@@ -739,7 +739,7 @@ module Domgen
        raise "attribute"
     end
 
-    def new_characteristic(name, type, options = {}, &block)
+    def new_characteristic(name, type, options, &block)
       error("Attempting to override non abstract attribute #{name} on #{self.name}") if characteristic_map[name.to_s] && !characteristic_map[name.to_s].abstract?
       Attribute.new(self, name, type, {:override => !characteristic_map[name.to_s].nil?}.merge(options), &block)
     end
@@ -785,7 +785,7 @@ module Domgen
 
     attr_reader :parameter_type
 
-    def initialize(method, name, parameter_type, options = {}, &block)
+    def initialize(method, name, parameter_type, options, &block)
       @name = name
       @parameter_type = parameter_type
       super(method, options, &block)
@@ -814,7 +814,7 @@ module Domgen
     include GenerateFacet
     include CharacteristicContainer
 
-    def initialize(data_module, name, options = { }, &block)
+    def initialize(data_module, name, options, &block)
       @name = name
       data_module.send :register_message, name, self
       super(data_module, options, &block)
@@ -828,8 +828,8 @@ module Domgen
       characteristics
     end
 
-    def parameter(name, type, options = { }, &block)
-      characteristic(name, type, options = { }, &block)
+    def parameter(name, type, options = {}, &block)
+      characteristic(name, type, options, &block)
     end
 
     def to_s
@@ -842,7 +842,7 @@ module Domgen
        raise "parameter"
     end
 
-    def new_characteristic(name, type, options = {}, &block)
+    def new_characteristic(name, type, options, &block)
       MessageParameter.new(self, name, type, options, &block)
     end
 
@@ -854,7 +854,7 @@ module Domgen
   class Exception < Domgen.FacetedElement(:method)
     attr_reader :name
 
-    def initialize(method, name, options = {}, &block)
+    def initialize(method, name, options, &block)
       @name = name
       super(method, options, &block)
     end
@@ -872,7 +872,7 @@ module Domgen
     attr_reader :name
     attr_reader :parameter_type
 
-    def initialize(method, name, parameter_type, options = {}, &block)
+    def initialize(method, name, parameter_type, options, &block)
       @name = name
       @parameter_type = parameter_type
       super(method, options, &block)
@@ -896,7 +896,7 @@ module Domgen
   class Result < Domgen.FacetedElement(:method)
     attr_reader :return_type
 
-    def initialize(method, return_type, options = {}, &block)
+    def initialize(method, return_type, options, &block)
       @return_type = return_type
       super(method, options, &block)
     end
@@ -919,7 +919,7 @@ module Domgen
   class Method <  self.FacetedElement(:service)
     attr_reader :name
 
-    def initialize(service, name, options = {}, &block)
+    def initialize(service, name, options, &block)
       @name = name
       @parameters = Domgen::OrderedHash.new
       @exceptions = Domgen::OrderedHash.new
@@ -981,7 +981,7 @@ module Domgen
 
     include GenerateFacet
 
-    def initialize(data_module, name, options = {}, &block)
+    def initialize(data_module, name, options, &block)
       @name = name
       @methods = Domgen::OrderedHash.new
       data_module.send :register_service, name, self
@@ -1019,7 +1019,7 @@ module Domgen
 
     include GenerateFacet
 
-    def initialize(repository, name, options = {}, &block)
+    def initialize(repository, name, options, &block)
       repository.send :register_data_module, name, self
       @name = name
       @object_types = Domgen::OrderedHash.new
@@ -1159,7 +1159,7 @@ module Domgen
     attr_reader :name
     attr_accessor :check
 
-    def initialize(repository, name, options = {}, &block)
+    def initialize(repository, name, options, &block)
       @repository = repository
       repository.send :register_model_check, name, self
       @name = name
@@ -1186,7 +1186,7 @@ module Domgen
   class Repository <  BaseTaggableElement
     attr_reader :name
 
-    def initialize(name, options = {}, &block)
+    def initialize(name, options, &block)
       @name = name
       @data_modules = Domgen::OrderedHash.new
       @model_checks = Domgen::OrderedHash.new
