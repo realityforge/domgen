@@ -252,11 +252,11 @@ module Domgen
       @values = values
     end
 
-    protected
-
     def characteristic_type
       raise "characteristic_type not implemented"
     end
+
+    protected
 
     def characteristic_kind
        raise "characteristic_kind not implemented"
@@ -417,11 +417,11 @@ module Domgen
       "Attribute[#{self.qualified_name}]"
     end
 
-    private
-
     def characteristic_type
       attribute_type
     end
+
+    private
 
     def characteristic_kind
        "attribute"
@@ -803,11 +803,11 @@ module Domgen
       "MessageParameter[#{self.qualified_name}]"
     end
 
-    protected
-
     def characteristic_type
       parameter_type
     end
+
+    protected
 
     def characteristic_kind
        "parameter"
