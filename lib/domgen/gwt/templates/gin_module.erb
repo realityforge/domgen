@@ -25,9 +25,9 @@ public class <%= data_module.gwt.gin_module_name %>
   @Override
   protected void configure()
   {
-    if( !GWT.getModuleName().equals( "<%= data_module.gwt.module_name %>" ) )
+    if( !com.google.gwt.core.client.GWT.getModuleName().equals( "<%= data_module.gwt.module_name %>" ) )
     {
-      throw new IllegalStateException( "Actual GWT module name '" + GWT.getModuleName() + "' does not match module name '<%= data_module.gwt.module_name %>' used during compilation." );
+      throw new IllegalStateException( "Actual GWT module name '" + com.google.gwt.core.client.GWT.getModuleName() + "' does not match module name '<%= data_module.gwt.module_name %>' used during compilation." );
     }
   }
 
