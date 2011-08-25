@@ -1,7 +1,7 @@
 module Domgen
   module Java
-    DEFAULT_ENTITY_PACKAGE_SUFFIX = "model"
-    DEFAULT_SERVICE_PACKAGE_SUFFIX = "services"
+    DEFAULT_ENTITY_PACKAGE_SUFFIX = "entity"
+    DEFAULT_SERVICE_PACKAGE_SUFFIX = "service"
 
     TYPE_MAP = {"string" => "java.lang.String",
                 "integer" => "java.lang.Integer",
