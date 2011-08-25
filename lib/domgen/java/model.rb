@@ -53,7 +53,7 @@ module Domgen
       end
 
       def primitive?
-        (characteristic.characteristic_type == :integer || characteristic.characteristic_type == :boolean) && !characteristic.nullable? && primitive_hook?
+        (characteristic.characteristic_type == :integer || characteristic.characteristic_type == :boolean) && !characteristic.nullable? && (!characteristic.respond_to?(:generated_value?) || !characteristic.generated_value?)
       end
 
       def primitive_java_type
@@ -63,10 +63,6 @@ module Domgen
       end
 
       protected
-
-      def primitive_hook?
-        true
-      end
 
       def characteristic
         raise "characteristic unimplemented"
@@ -87,10 +83,6 @@ module Domgen
       include JavaCharacteristic
 
       protected
-
-      def primitive_hook?
-        !attribute.generated_value?
-      end
 
       def characteristic
         attribute
