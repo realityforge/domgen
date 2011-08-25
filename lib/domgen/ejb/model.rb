@@ -80,8 +80,6 @@ module Domgen
         exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
       end
     end
-
-
   end
 
   FacetManager.define_facet(:ejb,
