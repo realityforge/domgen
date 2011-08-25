@@ -28,6 +28,30 @@ module Domgen
       end
     end
 
+    class EjbParameter < Domgen.ParentedElement(:parameter)
+      def name
+        Domgen::Naming.camelize(parameter.name.to_s)
+      end
+
+      include Domgen::Java::JavaCharacteristic
+
+      protected
+
+      def characteristic
+        parameter
+      end
+
+      def object_type_to_classname(object_type)
+        object_type.ejb.qualified_service_name
+      end
+    end
+
+    class EjbMethod < Domgen.ParentedElement(:service)
+      def name
+        Domgen::Naming.camelize(service.name.to_s)
+      end
+    end
+
     class EjbPackage < Domgen.ParentedElement(:data_module)
       attr_writer :service_package
 
@@ -35,9 +59,36 @@ module Domgen
         @service_package || data_module.java.service_package
       end
     end
+
+    class EjbReturn < Domgen.ParentedElement(:result)
+
+      include Domgen::Java::JavaCharacteristic
+
+      protected
+
+      def characteristic
+        result
+      end
+
+      def object_type_to_classname(object_type)
+        object_type.ejb.qualified_name
+      end
+    end
+
+    class EjbException < Domgen.ParentedElement(:exception)
+      def name
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+      end
+    end
+
+
   end
 
   FacetManager.define_facet(:ejb,
                             Service => Domgen::EJB::EjbClass,
+                            Method => Domgen::EJB::EjbMethod,
+                            Parameter => Domgen::EJB::EjbParameter,
+                            Exception => Domgen::EJB::EjbException,
+                            Result => Domgen::EJB::EjbReturn,
                             DataModule => Domgen::EJB::EjbPackage)
 end
