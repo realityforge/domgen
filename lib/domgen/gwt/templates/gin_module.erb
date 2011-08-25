@@ -8,8 +8,12 @@ public class <%= data_module.gwt.gin_module_name %>
 {
   private static com.google.gwt.user.client.rpc.XsrfToken _xsrfToken;
 
-  public static com.google.gwt.user.client.rpc.XsrfToken getXsrfToken()
+  private static com.google.gwt.user.client.rpc.XsrfToken getXsrfToken()
   {
+    if( null == _xsrfToken )
+    {
+      throw new IllegalStateException( "Attempting to construct service requiring XsrfToken without specifying toke." );
+    }
     return _xsrfToken;
   }
 
