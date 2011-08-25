@@ -7,5 +7,5 @@ public interface <%= service.gwt.async_service_name %>
 {
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)
-%>  <%= method.gwt.cancelable? ? "com.google.gwt.http.client.Request" : "void" %> <%= method.java.name %>(<%= method.parameters.collect{|p| "#{p.java.java_type} #{p.java.name}" }.join(', ') %><%= method.parameters.empty? ? '' : ", " %>com.google.gwt.user.client.rpc.AsyncCallback<<%= method.return_value.return_type == :void ? "Void" : method.return_value.java.java_type %>> callback );
+%>  <%= method.gwt.cancelable? ? "com.google.gwt.http.client.Request" : "void" %> <%= method.gwt.name %>(<%= method.parameters.collect{|p| "#{p.gwt.java_type} #{p.gwt.name}" }.join(', ') %><%= method.parameters.empty? ? '' : ", " %>com.google.gwt.user.client.rpc.AsyncCallback<<%= method.return_value.return_type == :void ? "Void" : method.return_value.gwt.java_type %>> callback );
 <% end %>}

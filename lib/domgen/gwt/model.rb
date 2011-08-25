@@ -22,6 +22,24 @@ module Domgen
       end
     end
 
+    class GwtEventParameter < Domgen.ParentedElement(:parameter)
+      def name
+        Domgen::Naming.camelize(parameter.name.to_s)
+      end
+
+      include Domgen::Java::JavaCharacteristic
+
+      protected
+
+      def characteristic
+        parameter
+      end
+
+      def object_type_to_classname(object_type)
+        object_type.gwt.qualified_name
+      end
+    end
+
     class GwtService < Domgen.ParentedElement(:service)
       attr_writer :xsrf_protected
 
@@ -57,6 +75,10 @@ module Domgen
     end
 
     class GwtMethod < Domgen.ParentedElement(:method)
+      def name
+        Domgen::Naming.camelize(method.name.to_s)
+      end
+
       attr_writer :cancelable
 
       def cancelable?
@@ -117,11 +139,55 @@ module Domgen
         "#{gin_package}.#{gin_module_name}"
       end
     end
+
+    class GwtReturn < Domgen.ParentedElement(:result)
+
+      include Domgen::Java::JavaCharacteristic
+
+      protected
+
+      def characteristic
+        result
+      end
+
+      def object_type_to_classname(object_type)
+        object_type.gwt.qualified_name
+      end
+    end
+
+    class GwtParameter < Domgen.ParentedElement(:parameter)
+      def name
+        Domgen::Naming.camelize(parameter.name.to_s)
+      end
+
+      include Domgen::Java::JavaCharacteristic
+
+      protected
+
+      def characteristic
+        parameter
+      end
+
+      def object_type_to_classname(object_type)
+        object_type.gwt.qualified_name
+      end
+    end
+
+    class GwtException < Domgen.ParentedElement(:exception)
+      def name
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+      end
+    end
   end
 
   FacetManager.define_facet(:gwt,
                             Service => Domgen::GWT::GwtService,
                             Method => Domgen::GWT::GwtMethod,
+                            Parameter => Domgen::GWT::GwtParameter,
+                            Exception => Domgen::GWT::GwtException,
                             Message => Domgen::GWT::GwtEvent,
+                            MessageParameter => Domgen::GWT::GwtEventParameter,
+                            Exception => Domgen::GWT::GwtException,
+                            Result => Domgen::GWT::GwtReturn,
                             DataModule => Domgen::GWT::GwtModule)
 end
