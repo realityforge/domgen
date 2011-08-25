@@ -385,46 +385,17 @@ JAVA
       def j_to_string_methods(object_type)
         return '' if object_type.abstract?
         s = <<JAVA
-  public String toDebugString()
-  {
-    return "#{object_type.name}[" +
-JAVA
-
-        debug_attributes =
-          object_type.java.debug_attributes.collect {|a| object_type.attribute_by_name(a)}.select{|a| a.jpa.persistent?}
-
-        s += debug_attributes.collect do |a|
-          "           \"#{a.jpa.name} = \" + " + getter_for(a)
-        end.join(" + \", \" +\n")
-
-        s += <<JAVA
- +
-           "]";
-  }
-JAVA
-        s += <<JAVA
-  public String toLabel()
-  {
-JAVA
-        if !object_type.java.label_attribute.nil?
-          label = object_type.attribute_by_name(object_type.java.label_attribute)
-          s += <<JAVA
-    return String.valueOf( #{getter_for(label)} );
-JAVA
-        else
-          pk = object_type.primary_key
-          s += <<JAVA
-    return "#{object_type.name}[#{pk.jpa.name} = " + #{getter_for(pk)} +"]";
-JAVA
-        end
-
-        s += <<JAVA
-  }
-
   @Override
   public String toString()
   {
-    return #{!object_type.java.label_attribute.nil? ? 'toLabel' : 'toDebugString'}();
+    return "#{object_type.name}[" +
+JAVA
+        s += object_type.attributes.select{|a| a.jpa.persistent?}.collect do |a|
+          "           \"#{a.jpa.name} = \" + " + getter_for(a)
+        end.join(" + \", \" +\n")
+        s += <<JAVA
+ +
+           "]";
   }
 JAVA
         s
