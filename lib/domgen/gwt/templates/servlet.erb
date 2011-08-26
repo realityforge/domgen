@@ -8,8 +8,8 @@ public class <%= service.gwt.servlet_name %>
   extends com.google.gwt.user.server.rpc.<%= service.gwt.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
   implements <%= service.gwt.qualified_service_name %>
 {
-  @javax.inject.Inject
-  private <%= service.java.qualified_name %> _service;
+  @javax.ejb.EJB
+  private <%= service.ejb.qualified_service_name %> _service;
 
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)

@@ -42,7 +42,7 @@ module Domgen
 
     def self.define_gwt_server_service_templates
       [
-        Template.new(GWT::FACETS,
+        Template.new(GWT::FACETS + [:ejb],
                      :service,
                      "#{GWT::TEMPLATE_DIRECTORY}/servlet.erb",
                      'java/#{service.gwt.qualified_servlet_name.gsub(".","/")}.java',
