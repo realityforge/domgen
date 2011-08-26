@@ -6,29 +6,36 @@ package <%= data_module.gwt.gin_package %>;
 public class <%= data_module.gwt.gin_module_name %>
   extends com.google.gwt.inject.client.AbstractGinModule
 {
-  private static com.google.gwt.user.client.rpc.XsrfToken _xsrfToken;
+  private static com.google.gwt.user.client.rpc.XsrfToken c_xsrfToken;
+  private static boolean c_initialized;
 
   private static com.google.gwt.user.client.rpc.XsrfToken getXsrfToken()
   {
-    if( null == _xsrfToken )
+    if( null == c_xsrfToken )
     {
       throw new IllegalStateException( "Attempting to construct service requiring XsrfToken without specifying toke." );
     }
-    return _xsrfToken;
+    return c_xsrfToken;
   }
 
-  public static void setXsrfToken( final com.google.gwt.user.client.rpc.XsrfToken xsrfToken )
+  public static void initialize( final String moduleName, final com.google.gwt.user.client.rpc.XsrfToken xsrfToken )
   {
-    _xsrfToken = xsrfToken;
+    initialize( moduleName );
+    c_xsrfToken = xsrfToken;
+  }
+
+  public static void initialize( final String moduleName )
+  {
+    if( !c_initialized && !moduleName.equals( "<%= data_module.gwt.module_name %>" ) )
+    {
+      throw new IllegalStateException( "Actual GWT module name '" + com.google.gwt.core.client.GWT.getModuleName() + "' does not match module name '<%= data_module.gwt.module_name %>' used during compilation." );
+    }
+    c_initialized = true;
   }
 
   @Override
   protected void configure()
   {
-    if( !com.google.gwt.core.client.GWT.getModuleName().equals( "<%= data_module.gwt.module_name %>" ) )
-    {
-      throw new IllegalStateException( "Actual GWT module name '" + com.google.gwt.core.client.GWT.getModuleName() + "' does not match module name '<%= data_module.gwt.module_name %>' used during compilation." );
-    }
   }
 
 <%
@@ -38,6 +45,7 @@ public class <%= data_module.gwt.gin_module_name %>
   @javax.inject.Singleton
   public <%= service.gwt.qualified_async_service_name %> get<%= service.name %>()
   {
+    if( !c_initialized ) throw new IllegalStateException();
     final <%= service.gwt.qualified_async_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt.qualified_service_name %>.class );
 <% if service.gwt.xsrf_protected? %>
     ( (com.google.gwt.user.client.rpc.HasRpcToken) service ).setRpcToken( getXsrfToken() );
