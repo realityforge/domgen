@@ -170,6 +170,32 @@ module Domgen
         end
       end
 
+      # Phase 4: Service creation. In this phase, we process the repository and create a class or each service.
+      repository.data_modules.each do |data_module|
+        data_module.services.each do |service|
+          package = packages[data_module.name]
+          clazz = package.create_owned_class(service.name, false)
+          resource.setID( clazz, service.qualified_name.to_s )
+          clazz.createOwnedComment().setBody(description(service)) if description(service)
+          name_class_map[service.qualified_name] ||= clazz
+
+          service.methods.each do |method|
+            package = packages[data_module.name]
+            names = Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
+            types = Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
+            #TODO: Add name/parameter types
+            operation = if method.return_value.return_type != :void
+              #TODO: Set method.return_value.return_type as 4th parameter
+              clazz.createOwnedOperation(method.name.to_s, names, types)
+            else
+              clazz.createOwnedOperation(method.name.to_s, names, types)
+            end
+            resource.setID( operation, method.qualified_name.to_s )
+            operation.createOwnedComment().setBody(description(method)) if description(method)
+          end
+        end
+      end
+
       resource.save(nil)
 
     end
