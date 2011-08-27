@@ -1,5 +1,7 @@
 module Domgen
   module JPA
+    DEFAULT_ENTITY_PACKAGE_SUFFIX = "entity"
+
     class Query < Domgen.ParentedElement(:jpa_class)
       attr_reader :name
       attr_accessor :jpql
@@ -216,7 +218,7 @@ module Domgen
       attr_writer :entity_package
 
       def entity_package
-        @entity_package || data_module.java.entity_package
+        @entity_package || "#{data_module.repository.jpa.entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
       attr_writer :dao_package
@@ -228,6 +230,12 @@ module Domgen
 
     class PersistenceUnit < Domgen.ParentedElement(:repository)
       attr_accessor :unit_name
+
+      attr_writer :entity_package
+
+      def entity_package
+        @entity_package || "#{Domgen::Naming.underscore(repository.name)}.#{DEFAULT_ENTITY_PACKAGE_SUFFIX}"
+      end
     end
   end
 

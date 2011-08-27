@@ -2,7 +2,7 @@ module Domgen
   module Generator
     module JPA
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:jpa, :java, :sql]
+      FACETS = [:jpa, :sql]
     end
 
     def self.define_jpa_model_templates
