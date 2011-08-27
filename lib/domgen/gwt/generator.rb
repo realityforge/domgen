@@ -2,7 +2,7 @@ module Domgen
   module Generator
     module GWT
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:gwt, :java]
+      FACETS = [:gwt]
     end
 
     def self.define_gwt_shared_service_templates

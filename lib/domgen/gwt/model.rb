@@ -96,7 +96,7 @@ module Domgen
       attr_writer :package
 
       def package
-        @package || data_module.java.package
+        @package || "#{data_module.repository.gwt.package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
       attr_writer :shared_package
@@ -178,6 +178,14 @@ module Domgen
         exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
       end
     end
+
+    class GwtApplication < Domgen.ParentedElement(:repository)
+      attr_writer :package
+
+      def package
+        @package || Domgen::Naming.underscore(repository.name)
+      end
+    end
   end
 
   FacetManager.define_facet(:gwt,
@@ -189,5 +197,6 @@ module Domgen
                             MessageParameter => Domgen::GWT::GwtEventParameter,
                             Exception => Domgen::GWT::GwtException,
                             Result => Domgen::GWT::GwtReturn,
-                            DataModule => Domgen::GWT::GwtModule)
+                            DataModule => Domgen::GWT::GwtModule,
+                            Repository => Domgen::GWT::GwtApplication)
 end
