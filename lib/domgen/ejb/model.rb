@@ -1,5 +1,7 @@
 module Domgen
   module EJB
+    DEFAULT_SERVICE_PACKAGE_SUFFIX = "service"
+
     class EjbClass < Domgen.ParentedElement(:service)
       attr_writer :name
 
@@ -56,7 +58,15 @@ module Domgen
       attr_writer :service_package
 
       def service_package
-        @service_package || data_module.java.service_package
+        @service_package || "#{data_module.repository.ejb.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+    end
+
+    class EjbApplication < Domgen.ParentedElement(:repository)
+      attr_writer :service_package
+
+      def service_package
+        @service_package || "#{Domgen::Naming.underscore(repository.name)}.#{DEFAULT_SERVICE_PACKAGE_SUFFIX}"
       end
     end
 
@@ -88,5 +98,6 @@ module Domgen
                             Parameter => Domgen::EJB::EjbParameter,
                             Exception => Domgen::EJB::EjbException,
                             Result => Domgen::EJB::EjbReturn,
-                            DataModule => Domgen::EJB::EjbPackage)
+                            DataModule => Domgen::EJB::EjbPackage,
+                            Repository => Domgen::EJB::EjbApplication)
 end

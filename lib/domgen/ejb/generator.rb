@@ -2,7 +2,7 @@ module Domgen
   module Generator
     module EJB
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:ejb, :java]
+      FACETS = [:ejb]
     end
 
     def self.define_ejb_templates
