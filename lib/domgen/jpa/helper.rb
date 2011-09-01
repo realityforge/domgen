@@ -420,6 +420,12 @@ JAVA
         end
       end
 
+      def query_return_type(query)
+        entity_name = query.jpa_class.object_type.jpa.qualified_entity_name
+        return "#{nullability_annotation(false)} java.util.List<#{entity_name}>" if query.multiplicity == :many
+        "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{entity_name}"
+      end
+
       def null_guard(nullable, name)
         s = ''
         if nullable

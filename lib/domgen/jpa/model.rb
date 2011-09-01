@@ -59,11 +59,6 @@ module Domgen
         query.gsub("\n", ' ')
       end
 
-      def return_type
-        entity_name = jpa_class.object_type.jpa.qualified_entity_name
-        (self.multiplicity == :many) ? "java.util.List<#{entity_name}>" : entity_name
-      end
-
       private
 
       def name_prefix
