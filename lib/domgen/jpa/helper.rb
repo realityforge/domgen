@@ -411,7 +411,7 @@ JAVA
           !(attribute.reference? && attribute.inverse.multiplicity == :zero_or_one && inverse_side)
           annotation = "#{nullability_annotation(false)} #{type}"
         else
-          annotation = "#{nullability_annotation(false)} #{type}"
+          annotation = "#{nullability_annotation(true)} #{type}"
         end
         if is_field_annotation
           "  #{annotation}\n"

@@ -9,10 +9,8 @@ module Domgen
         extension = characteristic.send characteristic_key
         if extension.primitive? || extension.java_type.to_s == 'void'
           return extension.java_type
-        elsif !characteristic.nullable?
-          return "#{nullability_annotation(false)} #{extension.java_type}"
         else
-          return "#{nullability_annotation(false)} #{extension.java_type}"
+          return "#{nullability_annotation(characteristic.nullable?)} #{extension.java_type}"
         end
       end
 
