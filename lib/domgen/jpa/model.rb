@@ -39,10 +39,13 @@ module Domgen
         @query_type || :selector
       end
 
-      attr_writer :singular
+      def multiplicity
+        @multiplicity || :many
+      end
 
-      def singular?
-        @singular.nil? ? false : @singular
+      def multiplicity=(multiplicity)
+        error("multiplicity #{multiplicity} is invalid") unless Domgen::InverseElement.inverse_multiplicity_types.include?(multiplicity)
+        @multiplicity = multiplicity
       end
 
       def query_string
@@ -56,10 +59,21 @@ module Domgen
         query.gsub("\n", ' ')
       end
 
+      def return_type
+        entity_name = jpa_class.object_type.jpa.qualified_entity_name
+        (self.multiplicity == :many) ? "java.util.List<#{entity_name}>" : entity_name
+      end
+
       private
 
       def name_prefix
-        "find#{singular? ? '' : 'All'}"
+        if self.multiplicity == :many
+          "findAll"
+        elsif self.multiplicity == :zero_or_one
+          "find"
+        else
+          "get"
+        end
       end
 
       def name_suffix
@@ -204,10 +218,13 @@ module Domgen
       end
 
       def post_verify
-        self.query('All', nil, :singular => false)
+        self.query('All', nil, :multiplicity => :many)
         self.query(object_type.primary_key.name,
                    "O.#{object_type.primary_key.jpa.name} = :#{object_type.primary_key.jpa.name}",
-                   :singular => true)
+                   :multiplicity => :one)
+        self.query(object_type.primary_key.name,
+                   "O.#{object_type.primary_key.jpa.name} = :#{object_type.primary_key.jpa.name}",
+                   :multiplicity => :zero_or_one)
         self.queries.each do |q|
           q.populate_parameters
         end

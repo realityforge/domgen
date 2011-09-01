@@ -13,14 +13,27 @@ public class <%= object_type.jpa.dao_name %>
   private javax.persistence.EntityManager em;
 
 <% object_type.jpa.queries.each do |query| %>
-  public <%= query.singular? ? '' : 'java.util.List<' %><%= object_type.jpa.qualified_entity_name %><%= query.singular? ? '' : '>' %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{query.parameter_types[p]} #{p}"}.join(', ') %>)
+  public <%= query.return_type %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{query.parameter_types[p]} #{p}"}.join(', ') %>)
   {
     final javax.persistence.TypedQuery<<%= object_type.jpa.qualified_entity_name %>> query =
       em.createNamedQuery( <%= object_type.jpa.qualified_entity_name %>.<%= query.local_name %>, <%= object_type.jpa.qualified_entity_name %>.class );
 <% query.parameters.each do |p| %>
     query.setParameter("<%= p %>", <%= p %>);
 <% end %>
-    return query.<%= query.singular? ? 'getSingleResult' : 'getResultList' %>();
+<% if query.multiplicity == :many %>
+    return query.getResultList();
+<% elsif query.multiplicity == :one %>
+    return query.getSingleResult();
+<% else %>
+    try
+    {
+      return query.getSingleResult();
+    }
+    catch( final javax.persistence.NoResultException nre )
+    {
+      return null;
+    }
+<% end %>
   }
 <% end %>
 
