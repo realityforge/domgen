@@ -4,6 +4,7 @@ package <%= object_type.data_module.jpa.dao_package %>;
 @SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 @javax.ejb.Stateless( name = <%= object_type.jpa.dao_name %>.NAME )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
 public class <%= object_type.jpa.dao_name %>
 {
   public static final String NAME = "<%= object_type.data_module.name %>.<%= object_type.jpa.dao_name %>";
