@@ -22,7 +22,7 @@ public final class <%= message.gwt.event_name %>
 <% end %>
   }
 
-<% message.parameters.select{|p| !p.nullable?}.each do |parameter|
+<% message.parameters.each do |parameter|
 %>  public <%= annotated_type(parameter, :gwt) %> get<%= parameter.name %>()
   {
     return <%= parameter.gwt.name %>;
