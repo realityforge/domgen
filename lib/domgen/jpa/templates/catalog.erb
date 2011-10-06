@@ -1,0 +1,10 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= data_module.jpa.entity_package %>;
+
+public final class <%= data_module.jpa.catalog_name %>
+{
+  public static final Class[] MODELS =
+  {
+<%= data_module.object_types.select {|object_type| object_type.jpa.persistent? }.collect {|object_type| "    #{object_type.jpa.qualified_entity_name}.class" }.join(",\n") %>
+  };
+}

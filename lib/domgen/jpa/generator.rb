@@ -23,6 +23,15 @@ module Domgen
       ]
     end
 
+    def self.define_jpa_model_catalog_templates
+      [
+        Template.new(JPA::FACETS,
+                     :data_module,
+                     "#{JPA::TEMPLATE_DIRECTORY}/catalog.erb",
+                     'java/#{data_module.jpa.qualified_catalog_name.gsub(".","/")}.java'),
+      ]
+    end
+
     def self.define_jpa_ejb_templates
       [
         Template.new(JPA::FACETS,

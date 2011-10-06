@@ -233,6 +233,16 @@ module Domgen
         @entity_package || "#{data_module.repository.jpa.entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
+      attr_writer :catalog_name
+
+      def catalog_name
+        @catalog_name || "#{data_module.name}Catalog"
+      end
+
+      def qualified_catalog_name
+        "#{entity_package}.#{catalog_name}"
+      end
+
       attr_writer :dao_package
 
       def dao_package
