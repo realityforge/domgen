@@ -53,13 +53,14 @@ public class <%= object_type.jpa.dao_name %>
   public void persist( final <%= object_type.jpa.qualified_entity_name %> entity )
   {
     em.persist( entity );
+    em.flush();
   }
 
   /** Save a <%= object_type.jpa.qualified_entity_name %> instance, merging it into the persistent context if required. */
   public <%= object_type.jpa.qualified_entity_name %> save( final <%= object_type.jpa.qualified_entity_name %> entity )
   {
     final <%= object_type.jpa.qualified_entity_name %> e = merge( entity );
-    em.persist( e );
+    persist( e );
     return e;
   }
 
