@@ -225,8 +225,25 @@ JAVA
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
   {
-     return #{name};
+JAVA
+        if attribute.generated_value? && !attribute.nullable?
+          java << <<JAVA
+      if( null == #{name} )
+      {
+        throw new IllegalStateException("Attempting to access generated value #{name} before it has been flushed to the database.");
+      }
+JAVA
+
+        end
+        java << <<JAVA
+     return doGet#{attribute.jpa.name}();
   }
+
+  protected #{type} doGet#{attribute.jpa.name}()
+  {
+    return #{name};
+  }
+
 JAVA
         if attribute.updatable?
           java << <<JAVA
@@ -267,8 +284,14 @@ JAVA
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
   {
-     return #{name};
+     return doGet#{attribute.jpa.name}();
   }
+
+  protected #{type} doGet#{attribute.jpa.name}()
+  {
+    return #{name};
+  }
+
 JAVA
         if attribute.updatable?
           java << <<JAVA
@@ -331,7 +354,7 @@ STR
       def j_equals_method(object_type)
         return '' if object_type.abstract?
         pk = object_type.primary_key
-        pk_getter = getter_for(pk)
+        pk_getter = "doGet#{object_type.primary_key.jpa.name}()"
         pk_type = nullable_annotate(pk, pk.jpa.java_type, false)
         equality_comparison = (!pk.jpa.primitive?) ? "null != key && key.equals( that.#{pk_getter} )" : "key == that.#{pk_getter}"
         s = <<JAVA
