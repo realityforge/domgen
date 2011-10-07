@@ -4,13 +4,46 @@ module Domgen
 
     class Query < Domgen.ParentedElement(:jpa_class)
       attr_reader :name
-      attr_accessor :jpql
       attr_accessor :parameter_types
 
-      def initialize(jpa_class, name, jpql, options = {}, & block)
+      def initialize(jpa_class, name, ql, options = {}, & block)
         @name = name
-        @jpql = jpql
+        @ql = ql
         super(jpa_class, options, & block)
+      end
+
+      attr_writer :native
+
+      def native?
+        @native.nil? ? false : @native
+      end
+
+      def ql
+        @ql
+      end
+
+      def ql_defined?
+        !@ql.nil?
+      end
+
+      def jpql=(ql)
+        @native = false
+        @ql = ql
+      end
+
+      def jpql
+        raise "Called jpql for native query" if self.native?
+        @ql
+      end
+
+      def sql=(ql)
+        @native = false
+        @ql = ql
+      end
+
+      def sql
+        raise "Called sql for non-native query" unless self.native?
+        @ql
       end
 
       def populate_parameters
@@ -21,8 +54,8 @@ module Domgen
       end
 
       def parameters
-        return [] if jpql.nil?
-        jpql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
+        return [] if self.ql.nil?
+        self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
       end
 
       def qualified_name
@@ -50,9 +83,13 @@ module Domgen
 
       def query_string
         if self.query_type == :full
-          query = self.jpql
+          query = self.ql
         elsif self.query_type == :selector
-          query = "SELECT O FROM #{jpa_class.object_type.jpa.jpql_name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
+          if self.native?
+            query = "SELECT O.* FROM #{jpa_class.object_type.sql.table_name} O #{ql_defined? ? '' : "WHERE "}#{sql}"
+          else
+            query = "SELECT O FROM #{jpa_class.object_type.jpa.jpql_name} O #{ql_defined? ? '' : "WHERE "}#{jpql}"
+          end
         else
           error("Unknown query type #{query_type}")
         end
@@ -72,7 +109,7 @@ module Domgen
       end
 
       def name_suffix
-        jpql.nil? ? '' : "By#{name}"
+        !ql_defined? ? '' : "By#{name}"
       end
     end
 

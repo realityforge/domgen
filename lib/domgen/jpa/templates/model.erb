@@ -3,8 +3,15 @@ package <%= object_type.data_module.jpa.entity_package %>;
 
 <%= description_javadoc_for(object_type, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-<% if not object_type.jpa.queries.empty? %>@javax.persistence.NamedQueries( value = {
-<%= object_type.jpa.queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{object_type.jpa.entity_name}.#{q.local_name}, query = \"#{q.query_string}\" )" }.join(",\n") %>
+<%
+   jpa_queries = object_type.jpa.queries.select {|q| !q.native? }
+   if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
+<%= jpa_queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{object_type.jpa.entity_name}.#{q.local_name}, query = \"#{q.query_string}\" )" }.join(",\n") %>
+} )<% end %>
+<%
+   native_queries = object_type.jpa.queries.select {|q| q.native? }
+   if !native_queries.empty? %>@javax.persistence.NamedNativeQueries( value = {
+<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{object_type.jpa.entity_name}.#{q.local_name}, query = \"#{q.query_string}\" )" }.join(",\n") %>
 } )<% end %>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity( name = "<%= object_type.jpa.jpql_name %>" )<% if !object_type.abstract? %>
