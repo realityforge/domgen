@@ -22,8 +22,8 @@ module Domgen
         @ql
       end
 
-      def ql_defined?
-        !@ql.nil?
+      def no_ql?
+        @ql.nil?
       end
 
       def jpql=(ql)
@@ -86,9 +86,9 @@ module Domgen
           query = self.ql
         elsif self.query_type == :selector
           if self.native?
-            query = "SELECT O.* FROM #{jpa_class.object_type.sql.table_name} O #{ql_defined? ? '' : "WHERE "}#{sql}"
+            query = "SELECT O.* FROM #{jpa_class.object_type.sql.table_name} O #{no_ql? ? '' : "WHERE "}#{sql}"
           else
-            query = "SELECT O FROM #{jpa_class.object_type.jpa.jpql_name} O #{ql_defined? ? '' : "WHERE "}#{jpql}"
+            query = "SELECT O FROM #{jpa_class.object_type.jpa.jpql_name} O #{no_ql? ? '' : "WHERE "}#{jpql}"
           end
         else
           error("Unknown query type #{query_type}")
@@ -109,7 +109,7 @@ module Domgen
       end
 
       def name_suffix
-        !ql_defined? ? '' : "By#{name}"
+        no_ql? ? '' : "By#{name}"
       end
     end
 
