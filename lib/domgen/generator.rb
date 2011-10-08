@@ -31,6 +31,14 @@ module Domgen
                 end
               end
 
+              if :enumeration == template.scope
+                data_module.enumerations.each do |object_type|
+                  if template.applicable?(object_type) && (filter.nil? || filter.call(:enumeration, object_type))
+                    render(directory, template, :enumeration, object_type)
+                  end
+                end
+              end
+
               if :service == template.scope
                 data_module.services.each do |service|
                   if template.applicable?(service) && (filter.nil? || filter.call(:service, service))
