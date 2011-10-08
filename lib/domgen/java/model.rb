@@ -20,7 +20,7 @@ module Domgen
         if :reference == characteristic.characteristic_type
           object_type_to_classname(characteristic.referenced_object)
         elsif characteristic.enum?
-          return "#{object_type_to_classname(characteristic.object_type)}.#{characteristic.name}Value"
+          return enumeration_to_classname(characteristic.enumeration)
         else
           Domgen::Java::TYPE_MAP[characteristic.characteristic_type.to_s] || characteristic.characteristic_type.to_s
         end
@@ -44,6 +44,10 @@ module Domgen
 
       def object_type_to_classname(object_type)
         raise "object_type_to_classname unimplemented"
+      end
+
+      def enumeration_to_classname(enumeration)
+        raise "enumeration_to_classname unimplemented"
       end
     end
   end

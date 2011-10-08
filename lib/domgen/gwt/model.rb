@@ -38,6 +38,10 @@ module Domgen
       def object_type_to_classname(object_type)
         object_type.gwt.qualified_name
       end
+
+      def enumeration_to_classname(enumeration)
+        enumeration.gwt.qualified_name
+      end
     end
 
     class GwtService < Domgen.ParentedElement(:service)
@@ -153,6 +157,10 @@ module Domgen
       def object_type_to_classname(object_type)
         object_type.gwt.qualified_name
       end
+
+      def enumeration_to_classname(enumeration)
+        enumeration.gwt.qualified_name
+      end
     end
 
     class GwtParameter < Domgen.ParentedElement(:parameter)
@@ -170,6 +178,10 @@ module Domgen
 
       def object_type_to_classname(object_type)
         object_type.gwt.qualified_name
+      end
+
+      def enumeration_to_classname(enumeration)
+        enumeration.gwt.qualified_name
       end
     end
 

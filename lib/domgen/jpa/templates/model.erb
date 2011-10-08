@@ -34,15 +34,6 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.jpa.
 <% object_type.jpa.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= query.local_name %> = "<%= query.qualified_name %>";
 <%
   end
-  object_type.declared_attributes.select {|a| a.enum? }.each do |attribute|
-  Domgen.error("JPA requires numeric enumerations #{attribute.name} be 0 based") if attribute.enum? && attribute.enumeration.numeric_values? && 0 != attribute.enumeration.values.values.sort.first
-%>
-  @SuppressWarnings( { "PublicInnerClass" } )
-  public static enum <%= attribute.jpa.name %>Value
-  {
-    <%= attribute.enumeration.values.keys.collect {|k| "#{k}" } .join(",\n    ")%>
-  }
-<% end
    object_type.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
 <%= j_jpa_field_attributes(attribute) -%>  private <%= attribute.jpa.java_type %> <%= attribute.jpa.name %>;
 <% end %>

@@ -9,6 +9,11 @@ module Domgen
     def self.define_jpa_model_templates
       [
         Template.new(JPA::FACETS,
+                     :enumeration,
+                     "#{JPA::TEMPLATE_DIRECTORY}/enum.erb",
+                     'java/#{enumeration.jpa.qualified_enumeration_name.gsub(".","/")}.java',
+                     JPA::HELPERS),
+        Template.new(JPA::FACETS,
                      :object_type,
                      "#{JPA::TEMPLATE_DIRECTORY}/model.erb",
                      'java/#{object_type.jpa.qualified_entity_name.gsub(".","/")}.java',

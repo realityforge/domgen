@@ -190,6 +190,20 @@ module Domgen
       def object_type_to_classname(object_type)
         object_type.jpa.qualified_entity_name
       end
+
+      def enumeration_to_classname(enumeration)
+        enumeration.jpa.qualified_enumeration_name
+      end
+    end
+
+    class JpaEnumeration < Domgen.ParentedElement(:enumeration)
+      def enumeration_name
+        "#{enumeration.name}"
+      end
+
+      def qualified_enumeration_name
+        "#{enumeration.data_module.jpa.entity_package}.#{enumeration.name}"
+      end
     end
 
     class JpaClass < Domgen.ParentedElement(:object_type)
@@ -299,6 +313,7 @@ module Domgen
   end
 
   FacetManager.define_facet(:jpa,
+                            EnumerationSet => Domgen::JPA::JpaEnumeration,
                             Attribute => Domgen::JPA::JpaField,
                             InverseElement => Domgen::JPA::JpaFieldInverse,
                             ObjectType => Domgen::JPA::JpaClass,

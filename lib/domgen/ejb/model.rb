@@ -46,6 +46,10 @@ module Domgen
       def object_type_to_classname(object_type)
         object_type.ejb.qualified_service_name
       end
+
+      def enumeration_to_classname(enumeration)
+        enumeration.ejb.qualified_name
+      end
     end
 
     class EjbMethod < Domgen.ParentedElement(:service)
@@ -82,6 +86,10 @@ module Domgen
 
       def object_type_to_classname(object_type)
         object_type.ejb.qualified_name
+      end
+
+      def enumeration_to_classname(enumeration)
+        enumeration.ejb.qualified_name
       end
     end
 
