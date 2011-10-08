@@ -86,9 +86,9 @@ module Domgen
                         collect_attributes(attribute, attribute_names)) do
             add_tags(attribute)
 
-            unless attribute.values.nil?
+            unless attribute.enumeration.values.nil?
               doc.values do
-                attribute.values.each_pair do |name, value|
+                attribute.enumeration.values.each_pair do |name, value|
                   doc.value(:code => name, :value => value)
                 end
               end

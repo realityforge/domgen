@@ -92,7 +92,7 @@ module Domgen
               enum_name = create_enum_name(object_type, attribute)
               enum = package.create_owned_enumeration(enum_name)
               resource.setID( enum, "#{attribute.qualified_name}Enum" )
-              attribute.values.each do |enum_literal, enum_index|
+              attribute.enumeration.values.each do |enum_literal, enum_index|
                 literal = enum.create_owned_literal(enum_literal)
                 resource.setID( literal, "#{attribute.qualified_name}Enum.#{enum_literal}" );
               end

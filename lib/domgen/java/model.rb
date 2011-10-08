@@ -5,8 +5,6 @@ module Domgen
                 "boolean" => "java.lang.Boolean",
                 "datetime" => "java.sql.Timestamp",
                 "text" => "java.lang.String",
-                "i_enum" => "java.lang.Integer",
-                "s_enum" => "java.lang.String",
                 "List" => "java.util.List"}
 
     module JavaCharacteristic

@@ -93,9 +93,9 @@ module Domgen
         error("Relationship constraint #{self.name} between attributes of different types LHS: #{lhs.name}:#{lhs.attribute_type}, RHS: #{rhs.name}:#{rhs.attribute_type}")
       end
 
-      if self.class.comparable_attribute_types.include?(lhs.attribute_type)
+      if self.class.comparable_attribute_types.include?(lhs.attribute_type) || (lhs.enum? && lhs.enumeration.numeric_values?)
         error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.operators.keys.include?(operator)
-      elsif self.class.equality_attribute_types.include?(lhs.attribute_type)
+      elsif self.class.equality_attribute_types.include?(lhs.attribute_type) || (lhs.enum? && lhs.enumeration.textual_values?)
         error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.equality_operators.keys.include?(operator)
       else
         error("Unsupported attribute type #{lhs.attribute_type} for relationship constraint #{self.name}")
@@ -119,11 +119,11 @@ module Domgen
     end
 
     def self.comparable_attribute_types
-      [:integer, :i_enum, :datetime, :real]
+      [:integer, :datetime, :real]
     end
 
     def self.equality_attribute_types
-      [:string, :reference, :boolean, :s_enum]
+      [:string, :reference, :boolean]
     end
   end
 
@@ -205,17 +205,77 @@ module Domgen
     end
   end
 
+  class EnumerationSet < self.FacetedElement(:data_module)
+    attr_reader :name
+    attr_reader :enumeration_type
+
+    def initialize(data_module, name, enumeration_type, options = {}, &block)
+      raise "Unknown enumeration type #{enumeration_type}" if !self.class.enumeration_types.include?(enumeration_type)
+      @name = name
+      @enumeration_type = enumeration_type
+      data_module.send :register_enumeration, name, self
+      super(data_module, options, &block)
+    end
+
+    def numeric_values?
+      self.enumeration_type == :integer
+    end
+
+    def textual_values?
+      self.enumeration_type == :string
+    end
+
+    attr_reader :values
+
+    def values=(values)
+      error("More than 0 values must be specified for enumeration #{name}") if values.size == 0
+      values.each_pair do |k, v|
+        error("Key #{k} of enumeration #{name} should be a string") unless k.instance_of?(String)
+        if numeric_values?
+          error("Value #{v} for key #{k} of enumeration #{name} should be an integer") unless v.instance_of?(Fixnum)
+        else
+          error("Value #{v} for key #{k} of enumeration #{name} should be a string") unless v.instance_of?(String)
+        end
+      end
+      error("Duplicate keys detected for enumeration #{name}") if values.keys.uniq.size != values.size
+      error("Duplicate values detected for enumeration #{name}") if values.values.uniq.size != values.size
+      if numeric_values?
+        sorted_values = values.values.sort
+
+        if (sorted_values[sorted_values.size - 1] - sorted_values[0] + 1) != sorted_values.size
+          error("Non-continuous values detected for enumeration #{name}")
+        end
+      end
+
+      @values = values
+    end
+
+    def max_value_length
+      error("max_value_length invoked on numeric enumeration") if numeric_values?
+      values.inject(0) { |max, value| max > value.length ? max : value.length }
+    end
+
+    def self.enumeration_types
+      [:integer, :string]
+    end
+
+  end
+
   module Characteristic
     attr_reader :name
 
     def enum?
-      characteristic_type == :i_enum || characteristic_type == :s_enum
+      characteristic_type == :enumeration
+    end
+
+    def has_length?
+      characteristic_type == :string || (characteristic_type == :enumeration && enumeration.textual_values?)
     end
 
     attr_reader :length
 
     def length=(length)
-      error("length on #{name} is invalid as #{characteristic_kind} is not a string") unless characteristic_type == :string || characteristic_type == :s_enum
+      error("length on #{name} is invalid as #{characteristic_kind} is not a string") unless has_length?
       @length = length
     end
 
@@ -229,7 +289,7 @@ module Domgen
     end
 
     def min_length=(length)
-      error("min_length on #{name} is invalid as #{characteristic_kind} is not a string") unless characteristic_type == :string || characteristic_type == :s_enum
+      error("min_length on #{name} is invalid as #{characteristic_kind} is not a string") unless has_length?
       @min_length = length
     end
 
@@ -245,11 +305,11 @@ module Domgen
       @nullable.nil? ? false : @nullable
     end
 
-    attr_reader :values
+    attr_reader :enumeration
 
-    def values=(values)
-      error("values on #{name} is invalid as #{characteristic_kind} is not an i_enum or s_enum") unless enum?
-      @values = values
+    def enumeration=(enumeration)
+      error("enumeration on #{name} is invalid as #{characteristic_kind} is not an enumeration") unless enum?
+      @enumeration = enumeration
     end
 
     def characteristic_type
@@ -410,7 +470,7 @@ module Domgen
     end
 
     def self.persistent_types
-      [:text, :string, :reference, :boolean, :datetime, :integer, :real, :i_enum, :s_enum]
+      [:text, :string, :reference, :boolean, :datetime, :integer, :real, :enumeration]
     end
 
     def to_s
@@ -461,35 +521,30 @@ module Domgen
     end
 
     def i_enum(name, values, options = {}, &block)
-      error("More than 0 values must be specified for i_enum #{name}") if values.size == 0
-      values.each_pair do |k, v|
-        error("Key #{k} of i_enum #{name} should be a string") unless k.instance_of?(String)
-        error("Value #{v} for key #{k} of i_enum #{name} should be an integer") unless v.instance_of?(Fixnum)
-      end
-      error("Duplicate keys detected for i_enum #{name}") if values.keys.uniq.size != values.size
-      error("Duplicate values detected for i_enum #{name}") if values.values.uniq.size != values.size
-      sorted_values = values.values.sort
-
-      if (sorted_values[sorted_values.size - 1] - sorted_values[0] + 1) != sorted_values.size
-        error("Non-continuous values detected for i_enum #{name}")
-      end
-
-      characteristic(name, :i_enum, options.merge({:values => values}), &block)
+      enumeration_name = "#{self.name}#{name}"
+      enum_manager.define_enumeration(enumeration_name,
+                                      :integer,
+                                      {:values => values}.merge(options))
+      enumeration(name, enumeration_name, options, &block)
     end
 
     def s_enum(name, values, options = {}, &block)
-      error("More than 0 values must be specified for s_enum #{name}") if values.size == 0
-      values.each_pair do |k, v|
-        error("Key #{k} of s_enum #{name} should be a string") unless k.instance_of?(String)
-        error("Value #{v} for key #{k} of s_enum #{name} should be a string") unless v.instance_of?(String)
+      enumeration_name = "#{self.name}#{name}"
+      enum_manager.define_enumeration(enumeration_name,
+                                      :string,
+                                      {:values => values}.merge(options))
+      enumeration(name, enumeration_name, options, &block)
+    end
+
+    def enumeration(name, enumeration_key, options = {}, &block)
+      enumeration = enum_manager.enumeration_by_name(enumeration_key)
+      params = options.dup
+      params[:enumeration] = enumeration
+      c = characteristic(name, :enumeration, params, &block)
+      if enumeration.textual_values? && c.length.nil?
+        c.length = enumeration.values.inject(0) { |max, value| max > value.length ? max : value.length }
       end
-      error("Duplicate keys detected for s_enum #{name}") if values.keys.uniq.size != values.size
-      error("Duplicate values detected for s_enum #{name}") if values.values.uniq.size != values.size
-      sorted_values = values.values.sort
-
-      length = sorted_values.inject(0) { |max, value| max > value.length ? max : value.length }
-
-      characteristic(name, :s_enum, options.merge({:values => values, :length => length}), &block)
+      c
     end
 
     protected
@@ -531,6 +586,10 @@ module Domgen
 
     def characteristic_kind
       raise "characteristic_kind not implemented"
+    end
+
+    def enum_manager
+      raise "enum_manager not implemented"
     end
   end
 
@@ -739,6 +798,10 @@ module Domgen
        "attribute"
     end
 
+    def enum_manager
+      data_module
+    end
+
     def new_characteristic(name, type, options, &block)
       if characteristic_map[name.to_s]
         error("Attempting to override non abstract attribute #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
@@ -784,19 +847,19 @@ module Domgen
     end
   end
 
-  class MessageParameter < Domgen.FacetedElement(:method)
+  class MessageParameter < Domgen.FacetedElement(:message)
     include Characteristic
 
     attr_reader :parameter_type
 
-    def initialize(method, name, parameter_type, options, &block)
+    def initialize(message, name, parameter_type, options, &block)
       @name = name
       @parameter_type = parameter_type
-      super(method, options, &block)
+      super(message, options, &block)
     end
 
     def qualified_name
-      "#{method.qualified_name}$#{self.name}"
+      "#{message.qualified_name}$#{self.name}"
     end
 
     def to_s
@@ -844,6 +907,10 @@ module Domgen
 
     def characteristic_kind
        raise "parameter"
+    end
+
+    def enum_manager
+      data_module
     end
 
     def new_characteristic(name, type, options, &block)
@@ -998,6 +1065,10 @@ module Domgen
       "parameter"
     end
 
+    def enum_manager
+      method.service.data_module
+    end
+
     def perform_verify
       verify_characteristics
       exceptions.each { |p| p.verify }
@@ -1055,6 +1126,7 @@ module Domgen
       @object_types = Domgen::OrderedHash.new
       @services = Domgen::OrderedHash.new
       @messages = Domgen::OrderedHash.new
+      @enumerations = Domgen::OrderedHash.new
       Logger.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
       Logger.info "DataModule '#{name}' definition completed"
@@ -1062,6 +1134,27 @@ module Domgen
 
     def to_s
       "DataModule[#{self.name}]"
+    end
+
+    def enumerations
+      @enumerations.values
+    end
+
+    def define_enumeration(name, enumeration_type, options = {}, &block)
+      pre_enumeration_create(name)
+      EnumerationSet.new(self, name, enumeration_type, options, &block)
+      post_object_type_create(name)
+    end
+
+    def enumeration_by_name(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1])
+    end
+
+    def local_enumeration_by_name(name)
+      enumeration = @enumerations[name.to_s]
+      error("Unable to locate local enumeration #{name} in #{self.name}") unless enumeration
+      enumeration
     end
 
     def object_types
@@ -1142,6 +1235,19 @@ module Domgen
       error("Name should have 0 or 1 '.' separators") if (name_parts.size != 1 && name_parts.size != 2)
       name_parts = [self.name] + name_parts if name_parts.size == 1
       name_parts
+    end
+
+    def pre_enumeration_create(name)
+      error("Attempting to redefine Enumeration '#{name}'") if @enumerations[name.to_s]
+      Logger.debug "Enumeration '#{name}' definition started"
+    end
+
+    def post_enumeration_create(name)
+      Logger.debug "Enumeration '#{name}' definition completed"
+    end
+
+    def register_enumeration(name, enumeration)
+      @enumerations[name.to_s] = enumeration
     end
 
     def pre_object_type_create(name)

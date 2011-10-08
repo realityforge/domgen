@@ -11,13 +11,13 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 <% object_type.attributes.each do |a|
    if a.persistent? && a.validate?
        if !a.generated_value?
-         if a.attribute_type == :i_enum || a.attribute_type == :s_enum
-           a.values.each do |k,v|
+         if a.enum?
+           a.enumeration.values.each do |k,v|
 %>  <%= a.name %>_<%= ruby_name(k) %> = <%= v.inspect %>
   <%= a.name %>_<%= ruby_name(k) %>_Description = '<%= k %>'
 <%         end
-%>  <%= a.name %>Names = {<%= a.values.keys.collect{|k| "#{a.name}_#{ruby_name(k)} => #{a.name}_#{ruby_name(k)}_Description"}.join(', ') %>}
-  <%= a.name %>Values = [<%= a.values.keys.collect{|k| "#{a.name}_#{ruby_name(k)}"}.join(', ') %>]
+%>  <%= a.name %>Names = {<%= a.enumeration.values.keys.collect{|k| "#{a.name}_#{ruby_name(k)} => #{a.name}_#{ruby_name(k)}_Description"}.join(', ') %>}
+  <%= a.name %>Values = [<%= a.enumeration.values.keys.collect{|k| "#{a.name}_#{ruby_name(k)}"}.join(', ') %>]
   validates_inclusion_of :<%= a.sql.column_name %>, :in => <%= a.name %>Values<% if a.nullable? %>, :allow_nil => true <% end %>
 <%
          end
@@ -39,10 +39,10 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
 %>  nillable_boolean :<%= a.sql.column_name %>
 <%         end
          end
-         if a.attribute_type == :string || a.attribute_type == :s_enum || a.attribute_type == :text
+         if a.attribute_type == :string|| a.attribute_type == :text || (a.enum? && a.enumeration.textual_values?)
 %>  nillable_attribute :<%= a.sql.column_name %>
 <%       end
-         if a.attribute_type == :string || a.attribute_type == :s_enum
+         if a.has_length?
 %>  validates_length_of :<%= a.sql.column_name %>, :minimum => <%= a.min_length %>, :allow_nil => <%= a.nullable? %>, :allow_blank => <%= a.allow_blank? %>
   validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => <%= a.nullable? %>, :allow_blank => <%= a.allow_blank? %>
 <%       end

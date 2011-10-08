@@ -28,12 +28,12 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.jpa.
 <%
   end
   object_type.declared_attributes.select {|a| a.enum? }.each do |attribute|
-  Domgen.error("JPA requires i_enum #{attribute.name} be 0 based") if attribute.attribute_type == :i_enum && 0 != attribute.values.values.sort.first
+  Domgen.error("JPA requires numeric enumerations #{attribute.name} be 0 based") if attribute.enum? && attribute.enumeration.numeric_values? && 0 != attribute.enumeration.values.values.sort.first
 %>
   @SuppressWarnings( { "PublicInnerClass" } )
   public static enum <%= attribute.jpa.name %>Value
   {
-    <%= attribute.values.keys.collect {|k| "#{k}" } .join(",\n    ")%>
+    <%= attribute.enumeration.values.keys.collect {|k| "#{k}" } .join(",\n    ")%>
   }
 <% end
    object_type.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>

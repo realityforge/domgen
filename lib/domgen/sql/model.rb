@@ -18,9 +18,7 @@ module Domgen
                   "integer" => "integer",
                   "real" => "double precision",
                   "datetime" => "timestamp",
-                  "boolean" => "bit",
-                  "i_enum" => "integer",
-                  "s_enum" => "varchar"}
+                  "boolean" => "bit"}
 
 
       def column_type(column)
@@ -30,6 +28,8 @@ module Domgen
           return column.attribute.referenced_object.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
           return "text"
+        elsif column.attribute.enum?
+          column.attribute.enumeration.textual_values? ? "varchar" : "integer"
         else
           return TYPE_MAP[column.attribute.attribute_type.to_s] + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
         end
@@ -65,9 +65,7 @@ module Domgen
                   "integer" => "INT",
                   "real" => "FLOAT",
                   "datetime" => "DATETIME",
-                  "boolean" => "BIT",
-                  "i_enum" => "INT",
-                  "s_enum" => "VARCHAR"}
+                  "boolean" => "BIT"}
 
       def column_type(column)
         if column.calculation
@@ -80,6 +78,8 @@ module Domgen
           return column.attribute.referenced_object.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
           return "[VARCHAR](MAX)"
+        elsif column.attribute.enum?
+          column.attribute.enumeration.textual_values? ? "VARCHAR" : "INT"
         else
           return quote(TYPE_MAP[column.attribute.attribute_type.to_s]) + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
         end
@@ -614,21 +614,21 @@ SQL
           copy_tags(c, constraint_by_name(c.name))
         end
 
-        object_type.declared_attributes.select { |a| a.attribute_type == :i_enum }.each do |a|
-          sorted_values = a.values.values.sort
+        object_type.declared_attributes.select { |a| a.enum? && a.enumeration.numeric_values? }.each do |a|
+          sorted_values = a.enumeration.values.values.sort
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.quoted_column_name} >= #{sorted_values[0]} AND
 #{a.sql.quoted_column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
-        object_type.declared_attributes.select { |a| a.attribute_type == :s_enum }.each do |a|
+        object_type.declared_attributes.select { |a| a.attribute_type == :enumeration && a.enumeration.textual_values? }.each do |a|
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-#{a.sql.quoted_column_name} IN (#{a.values.values.collect { |v| "'#{v}'" }.join(',')})
+#{a.sql.quoted_column_name} IN (#{a.enumeration.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
-        object_type.declared_attributes.select{ |a| (a.attribute_type == :s_enum || a.attribute_type == :string) && a.persistent? && !a.allow_blank? }.each do |a|
+        object_type.declared_attributes.select{ |a| (a.has_length?) && a.persistent? && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
           sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
