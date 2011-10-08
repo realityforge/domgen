@@ -25,13 +25,13 @@ module Domgen
     end
   end
 
-  class ModelConstraint < self.ParentedElement(:object_type)
-    def initialize(object_type, options, &block)
-      super(object_type, options, &block)
+  class ModelConstraint < self.ParentedElement(:entity)
+    def initialize(entity, options, &block)
+      super(entity, options, &block)
     end
 
-    def attribute_names_to_key(object_type, attribute_names)
-      attribute_names.collect { |a| object_type.attribute_by_name(a).name.to_s }.sort.join('_')
+    def attribute_names_to_key(entity, attribute_names)
+      attribute_names.collect { |a| entity.attribute_by_name(a).name.to_s }.sort.join('_')
     end
   end
 
@@ -39,27 +39,27 @@ module Domgen
     attr_reader :name
     attr_accessor :attribute_names
 
-    def initialize(object_type, name, attribute_names, options, &block)
-      super(object_type, options, &block)
+    def initialize(entity, name, attribute_names, options, &block)
+      super(entity, options, &block)
       @name, @attribute_names = name, attribute_names
     end
   end
 
   class UniqueConstraint < AttributeSetConstraint
-    def initialize(object_type, attribute_names, options, &block)
-      super(object_type, attribute_names_to_key(object_type, attribute_names), attribute_names, options, &block)
+    def initialize(entity, attribute_names, options, &block)
+      super(entity, attribute_names_to_key(entity, attribute_names), attribute_names, options, &block)
     end
   end
 
   class CodependentConstraint < AttributeSetConstraint
-    def initialize(object_type, attribute_names, options, &block)
-      super(object_type, "#{attribute_names_to_key(object_type, attribute_names)}_CoDep", attribute_names, options, &block)
+    def initialize(entity, attribute_names, options, &block)
+      super(entity, "#{attribute_names_to_key(entity, attribute_names)}_CoDep", attribute_names, options, &block)
     end
   end
 
   class IncompatibleConstraint < AttributeSetConstraint
-    def initialize(object_type, attribute_names, options, &block)
-      super(object_type, "#{attribute_names_to_key(object_type, attribute_names)}_Incompat", attribute_names, options, &block)
+    def initialize(entity, attribute_names, options, &block)
+      super(entity, "#{attribute_names_to_key(entity, attribute_names)}_Incompat", attribute_names, options, &block)
     end
   end
 
@@ -68,26 +68,26 @@ module Domgen
     attr_accessor :attribute_name
     attr_accessor :dependent_attribute_names
 
-    def initialize(object_type, attribute_name, dependent_attribute_names, options, &block)
-      @name = "#{attribute_name}_#{attribute_names_to_key(object_type, dependent_attribute_names)}_Dep"
+    def initialize(entity, attribute_name, dependent_attribute_names, options, &block)
+      @name = "#{attribute_name}_#{attribute_names_to_key(entity, dependent_attribute_names)}_Dep"
       @attribute_name, @dependent_attribute_names = attribute_name, dependent_attribute_names
-      super(object_type, options, &block)
+      super(entity, options, &block)
     end
   end
 
-  class RelationshipConstraint < self.ParentedElement(:object_type)
+  class RelationshipConstraint < self.ParentedElement(:entity)
     attr_reader :name
     attr_reader :lhs_operand
     attr_reader :rhs_operand
     attr_reader :operator
 
-    def initialize(object_type, operator, lhs_operand, rhs_operand, options, &block)
+    def initialize(entity, operator, lhs_operand, rhs_operand, options, &block)
       @name = "#{lhs_operand}_#{operator}_#{rhs_operand}"
       @lhs_operand, @rhs_operand, @operator = lhs_operand, rhs_operand, operator
-      super(object_type, options, &block)
+      super(entity, options, &block)
 
-      lhs = object_type.attribute_by_name(lhs_operand)
-      rhs = object_type.attribute_by_name(rhs_operand)
+      lhs = entity.attribute_by_name(lhs_operand)
+      rhs = entity.attribute_by_name(rhs_operand)
 
       if lhs.attribute_type != rhs.attribute_type
         error("Relationship constraint #{self.name} between attributes of different types LHS: #{lhs.name}:#{lhs.attribute_type}, RHS: #{rhs.name}:#{rhs.attribute_type}")
@@ -127,15 +127,15 @@ module Domgen
     end
   end
 
-  class CycleConstraint < self.ParentedElement(:object_type)
+  class CycleConstraint < self.ParentedElement(:entity)
     attr_reader :name
     attr_accessor :attribute_name
     attr_accessor :attribute_name_path
 
-    def initialize(object_type, attribute_name, attribute_name_path, options, &block)
+    def initialize(entity, attribute_name, attribute_name_path, options, &block)
       @name = ([attribute_name] + attribute_name_path).collect { |a| a.to_s }.sort.join('_')
       @attribute_name, @attribute_name_path = attribute_name, attribute_name_path
-      super(object_type, options, &block)
+      super(entity, options, &block)
     end
 
     # the attribute on the Entity at the end of the path that must link to the same entity
@@ -180,7 +180,7 @@ module Domgen
     end
 
     def relationship_name
-      @relationship_name || attribute.object_type.name
+      @relationship_name || attribute.entity.name
     end
 
     def relationship_kind
@@ -323,20 +323,20 @@ module Domgen
     end
   end
 
-  class Attribute < self.FacetedElement(:object_type)
+  class Attribute < self.FacetedElement(:entity)
     include Characteristic
 
     attr_reader :attribute_type
 
-    def initialize(object_type, name, attribute_type, options = {}, &block)
+    def initialize(entity, name, attribute_type, options = {}, &block)
       @name = name
       @attribute_type = attribute_type
-      super(object_type, options, &block)
+      super(entity, options, &block)
       error("Invalid type #{attribute_type} for persistent attribute #{name}") if persistent? && !self.class.persistent_types.include?(attribute_type)
     end
 
     def qualified_name
-      "#{object_type.qualified_name}.#{self.name}"
+      "#{entity.qualified_name}.#{self.name}"
     end
 
     def inherited?
@@ -379,7 +379,7 @@ module Domgen
 
     def generated_value?
       return @generated_value unless @generated_value.nil?
-      return self.primary_key? && self.attribute_type == :integer && !object_type.abstract? && object_type.final? && object_type.extends.nil?
+      return self.primary_key? && self.attribute_type == :integer && !entity.abstract? && entity.final? && entity.extends.nil?
     end
 
     attr_writer :primary_key
@@ -414,7 +414,7 @@ module Domgen
 
     def polymorphic?
       error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
-      @polymorphic.nil? ? !referenced_object.final? : @polymorphic
+      @polymorphic.nil? ? !referenced_entity.final? : @polymorphic
     end
 
     def inverse
@@ -429,15 +429,15 @@ module Domgen
       @references = references
     end
 
-    def referenced_object
-      error("referenced_object on #{name} is invalid as attribute is not a reference") unless reference?
-      self.object_type.data_module.object_type_by_name(self.references)
+    def referenced_entity
+      error("referenced_entity on #{name} is invalid as attribute is not a reference") unless reference?
+      self.entity.data_module.entity_by_name(self.references)
     end
 
-    # The name of the local field appended with PK of foreign object
+    # The name of the local field appended with PK of foreign entity
     def referencing_link_name
       error("referencing_link_name on #{name} is invalid as attribute is not a reference") unless reference?
-      "#{name}#{referenced_object.primary_key.name}"
+      "#{name}#{referenced_entity.primary_key.name}"
     end
 
     def on_update=(on_update)
@@ -589,7 +589,7 @@ module Domgen
     end
   end
 
-  class ObjectType < self.FacetedElement(:data_module)
+  class Entity < self.FacetedElement(:data_module)
     attr_reader :unique_constraints
     attr_reader :codependent_constraints
     attr_reader :incompatible_constraints
@@ -614,11 +614,11 @@ module Domgen
       @referencing_attributes = []
       @direct_subtypes = []
       @subtypes = []
-      data_module.send :register_object_type, name, self
+      data_module.send :register_entity, name, self
 
       if options[:extends]
-        base_type = data_module.object_type_by_name(options[:extends])
-        Domgen.error("ObjectType #{name} attempting to extend final object_type #{options[:extends]}") if base_type.final?
+        base_type = data_module.entity_by_name(options[:extends])
+        Domgen.error("Entity #{name} attempting to extend final entity #{options[:extends]}") if base_type.final?
         base_type.direct_subtypes << self
         extend_from(base_type)
       end
@@ -630,7 +630,7 @@ module Domgen
     end
 
     def non_abstract_superclass?
-      extends.nil? ? false : !data_module.object_type_by_name(extends).abstract?
+      extends.nil? ? false : !data_module.entity_by_name(extends).abstract?
     end
 
     attr_writer :abstract
@@ -754,17 +754,17 @@ module Domgen
 
       constraint = CycleConstraint.new(self, attribute_name, attribute_name_path, options, &block)
 
-      object_type = self
+      entity = self
       attribute_name_path.each do |attribute_name_path_element|
-        other = object_type.attribute_by_name(attribute_name_path_element)
+        other = entity.attribute_by_name(attribute_name_path_element)
         error("Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
         error("Path element #{attribute_name_path_element} is not a reference") if !other.reference?
-        object_type = other.referenced_object
+        entity = other.referenced_entity
       end
       local_reference = attribute_by_name(attribute_name)
       error("Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
-      scoping_attribute = local_reference.referenced_object.attribute_by_name(constraint.scoping_attribute)
-      error("Attribute in cycle references #{scoping_attribute.referenced_object.name} while last reference in path is #{object_type.name}") if object_type != scoping_attribute.referenced_object
+      scoping_attribute = local_reference.referenced_entity.attribute_by_name(constraint.scoping_attribute)
+      error("Attribute in cycle references #{scoping_attribute.referenced_entity.name} while last reference in path is #{entity.name}") if entity != scoping_attribute.referenced_entity
 
       add_unique_to_set("cycle", constraint, @cycle_constraints)
     end
@@ -785,7 +785,7 @@ module Domgen
     end
 
     def to_s
-      "ObjectType[#{self.qualified_name}]"
+      "Entity[#{self.qualified_name}]"
     end
 
     protected
@@ -820,7 +820,7 @@ module Domgen
         end
       end
 
-      error("ObjectType #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
+      error("Entity #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
       attributes.each do |a|
         error("Abstract attribute #{a.name} on non abstract object type #{name}") if !abstract? && a.abstract?
       end
@@ -830,7 +830,7 @@ module Domgen
 
     def extend_from(base_type)
       base_type.attributes.collect { |a| a.clone }.each do |attribute|
-        attribute.instance_variable_set("@object_type", self)
+        attribute.instance_variable_set("@entity", self)
         attribute.mark_as_inherited
         characteristic_map[attribute.name.to_s] = attribute
       end
@@ -1121,7 +1121,7 @@ module Domgen
     def initialize(repository, name, options, &block)
       repository.send :register_data_module, name, self
       @name = name
-      @object_types = Domgen::OrderedHash.new
+      @entities = Domgen::OrderedHash.new
       @services = Domgen::OrderedHash.new
       @messages = Domgen::OrderedHash.new
       @enumerations = Domgen::OrderedHash.new
@@ -1179,26 +1179,26 @@ module Domgen
       exception
     end
 
-    def object_types
-      @object_types.values
+    def entities
+      @entities.values
     end
 
-    def object_type(name, options = {}, &block)
-      pre_object_type_create(name)
-      object_type = ObjectType.new(self, name, options, &block)
-      post_object_type_create(name)
-      object_type
+    def entity(name, options = {}, &block)
+      pre_entity_create(name)
+      entity = Entity.new(self, name, options, &block)
+      post_entity_create(name)
+      entity
     end
 
-    def object_type_by_name(name, optional = false)
+    def entity_by_name(name, optional = false)
       name_parts = split_name(name)
-      repository.data_module_by_name(name_parts[0]).local_object_type_by_name(name_parts[1], optional)
+      repository.data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional)
     end
 
-    def local_object_type_by_name(name, optional = false)
-      object_type = @object_types[name.to_s]
-      error("Unable to locate local object_type #{name} in #{self.name}") if !object_type && !optional
-      object_type
+    def local_entity_by_name(name, optional = false)
+      entity = @entities[name.to_s]
+      error("Unable to locate local entity #{name} in #{self.name}") if !entity && !optional
+      entity
     end
 
     def services
@@ -1248,7 +1248,7 @@ module Domgen
     protected
 
     def perform_verify
-      object_types.each { |p| p.verify }
+      entities.each { |p| p.verify }
       services.each { |p| p.verify }
       messages.each { |p| p.verify }
       enumerations.each { |p| p.verify }
@@ -1290,17 +1290,17 @@ module Domgen
       @exceptions[name.to_s] = exception
     end
 
-    def pre_object_type_create(name)
-      error("Attempting to redefine Object Type '#{name}'") if @object_types[name.to_s]
-      Logger.debug "Object Type '#{name}' definition started"
+    def pre_entity_create(name)
+      error("Attempting to redefine Entity '#{name}'") if @entities[name.to_s]
+      Logger.debug "Entity '#{name}' definition started"
     end
 
-    def post_object_type_create(name)
-      Logger.debug "Object Type '#{name}' definition completed"
+    def post_entity_create(name)
+      Logger.debug "Entity '#{name}' definition completed"
     end
 
-    def register_object_type(name, object_type)
-      @object_types[name.to_s] = object_type
+    def register_entity(name, entity)
+      @entities[name.to_s] = entity
     end
 
     def pre_service_create(name)
@@ -1425,25 +1425,25 @@ module Domgen
       # Add back links for all references
       Logger.debug "Repository #{name}: Adding back links for all references"
       self.data_modules.each do |data_module|
-        data_module.object_types.each do |object_type|
-          object_type.attributes.each do |attribute|
+        data_module.entities.each do |entity|
+          entity.attributes.each do |attribute|
             if attribute.reference? && !attribute.abstract? && !attribute.inherited?
-              other_object_types = [attribute.referenced_object]
-              while !other_object_types.empty?
-                other_object_type = other_object_types.pop
-                other_object_type.direct_subtypes.each { |st| other_object_types << st }
-                other_object_type.referencing_attributes << attribute
+              other_entities = [attribute.referenced_entity]
+              while !other_entities.empty?
+                other_entity = other_entities.pop
+                other_entity.direct_subtypes.each { |st| other_entities << st }
+                other_entity.referencing_attributes << attribute
               end
             end
           end
         end
       end
-      # generate lists of subtypes for object types
-      Logger.debug "Repository #{name}: Generate lists of subtypes for object types"
+      # generate lists of subtypes for entity types
+      Logger.debug "Repository #{name}: Generate lists of subtypes for entities"
       self.data_modules.each do |data_module|
-        data_module.object_types.select { |object_type| !object_type.final? }.each do |object_type|
-          subtypes = object_type.subtypes
-          to_process = [object_type]
+        data_module.entities.select { |entity| !entity.final? }.each do |entity|
+          subtypes = entity.subtypes
+          to_process = [entity]
           completed = []
           while to_process.size > 0
             ot = to_process.pop

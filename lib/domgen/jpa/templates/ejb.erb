@@ -1,22 +1,22 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= object_type.data_module.jpa.dao_package %>;
+package <%= entity.data_module.jpa.dao_package %>;
 
 @SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
-@javax.ejb.Stateless( name = <%= object_type.jpa.dao_name %>.NAME )
+@javax.ejb.Stateless( name = <%= entity.jpa.dao_name %>.NAME )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
-public class <%= object_type.jpa.dao_name %>
+public class <%= entity.jpa.dao_name %>
 {
-  public static final String NAME = "<%= object_type.data_module.name %>.<%= object_type.jpa.dao_name %>";
+  public static final String NAME = "<%= entity.data_module.name %>.<%= entity.jpa.dao_name %>";
 
-  @javax.persistence.PersistenceContext<%= object_type.data_module.repository.jpa.unit_name.nil? ? "" : "(unitName = \"#{object_type.data_module.repository.jpa.unit_name}\")" %>
+  @javax.persistence.PersistenceContext<%= entity.data_module.repository.jpa.unit_name.nil? ? "" : "(unitName = \"#{entity.data_module.repository.jpa.unit_name}\")" %>
   private javax.persistence.EntityManager em;
 
-<% object_type.jpa.queries.each do |query| %>
+<% entity.jpa.queries.each do |query| %>
   public <%= query_return_type(query) %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{query.parameter_types[p]} #{p}"}.join(', ') %>)
   {
-    final javax.persistence.TypedQuery<<%= object_type.jpa.qualified_entity_name %>> query =
-      em.createNamedQuery( <%= object_type.jpa.qualified_entity_name %>.<%= query.local_name %>, <%= object_type.jpa.qualified_entity_name %>.class );
+    final javax.persistence.TypedQuery<<%= entity.jpa.qualified_entity_name %>> query =
+      em.createNamedQuery( <%= entity.jpa.qualified_entity_name %>.<%= query.local_name %>, <%= entity.jpa.qualified_entity_name %>.class );
 <% query.parameters.each do |p| %>
     query.setParameter("<%= p %>", <%= p %>);
 <% end %>
@@ -37,41 +37,41 @@ public class <%= object_type.jpa.dao_name %>
   }
 <% end %>
 
-  /** Remove the given  <%= object_type.jpa.qualified_entity_name %> from the persistence context, causing a managed entity to become detached. */
-  public void detach( final <%= object_type.jpa.qualified_entity_name %> entity )
+  /** Remove the given  <%= entity.jpa.qualified_entity_name %> from the persistence context, causing a managed entity to become detached. */
+  public void detach( final <%= entity.jpa.qualified_entity_name %> entity )
   {
     em.detach( entity );
   }
 
-  /** Merge the state of the given <%= object_type.jpa.qualified_entity_name %> into the current persistence context. */
-  public <%= object_type.jpa.qualified_entity_name %> merge( final <%= object_type.jpa.qualified_entity_name %> entity )
+  /** Merge the state of the given <%= entity.jpa.qualified_entity_name %> into the current persistence context. */
+  public <%= entity.jpa.qualified_entity_name %> merge( final <%= entity.jpa.qualified_entity_name %> entity )
   {
     return em.merge( entity );
   }
 
-  /** Make an <%= object_type.jpa.qualified_entity_name %> instance managed and persistent. */
-  public void persist( final <%= object_type.jpa.qualified_entity_name %> entity )
+  /** Make an <%= entity.jpa.qualified_entity_name %> instance managed and persistent. */
+  public void persist( final <%= entity.jpa.qualified_entity_name %> entity )
   {
     em.persist( entity );
     em.flush();
   }
 
-  /** Save a <%= object_type.jpa.qualified_entity_name %> instance, merging it into the persistent context if required. */
-  public <%= object_type.jpa.qualified_entity_name %> save( final <%= object_type.jpa.qualified_entity_name %> entity )
+  /** Save a <%= entity.jpa.qualified_entity_name %> instance, merging it into the persistent context if required. */
+  public <%= entity.jpa.qualified_entity_name %> save( final <%= entity.jpa.qualified_entity_name %> entity )
   {
-    final <%= object_type.jpa.qualified_entity_name %> e = merge( entity );
+    final <%= entity.jpa.qualified_entity_name %> e = merge( entity );
     persist( e );
     return e;
   }
 
-  /** Refresh the state of the <%= object_type.jpa.qualified_entity_name %> instance from the database, overwriting changes made to the entity, if any. */
-  public void refresh( final <%= object_type.jpa.qualified_entity_name %> entity )
+  /** Refresh the state of the <%= entity.jpa.qualified_entity_name %> instance from the database, overwriting changes made to the entity, if any. */
+  public void refresh( final <%= entity.jpa.qualified_entity_name %> entity )
   {
     em.refresh( entity );
   }
 
-  /** Remove the <%= object_type.jpa.qualified_entity_name %> instance. */
-  public void remove( final <%= object_type.jpa.qualified_entity_name %> entity )
+  /** Remove the <%= entity.jpa.qualified_entity_name %> instance. */
+  public void remove( final <%= entity.jpa.qualified_entity_name %> entity )
   {
     em.remove( entity );
   }

@@ -1,69 +1,69 @@
 /* DO NOT EDIT: File is auto-generated */
 <%= banner("DDL for Data Module '#{data_module.name}'") %>
-<% data_module.object_types.select{|object_type| !object_type.abstract?}.each do |object_type| %>
+<% data_module.entities.select{|entity| !entity.abstract?}.each do |entity| %>
 
-<% object_type.attributes.select {|a| a.persistent? && a.sql.identity?}.each do |a| %>CREATE SEQUENCE <%= object_type.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote(object_type.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") %> start 0 increment 1 maxvalue 2147483647 minvalue 0 cache 1;
+<% entity.attributes.select {|a| a.persistent? && a.sql.identity?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") %> start 0 increment 1 maxvalue 2147483647 minvalue 0 cache 1;
 <% end %>
 
-CREATE TABLE <%= object_type.sql.qualified_table_name %>(
-<% object_type.attributes.select {|a| a.persistent?}.each do |a|
-%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{object_type.data_module.sql.quoted_schema + "." + Domgen::Sql.dialect.quote(object_type.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") }'::text) " : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
+CREATE TABLE <%= entity.sql.qualified_table_name %>(
+<% entity.attributes.select {|a| a.persistent?}.each do |a|
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema + "." + Domgen::Sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") }'::text) " : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
-%>  CONSTRAINT <%= Domgen::Sql.dialect.quote("PK_#{object_type.name}") %> PRIMARY KEY (<%= object_type.primary_key.sql.quoted_column_name %>)
+%>  CONSTRAINT <%= Domgen::Sql.dialect.quote("PK_#{entity.name}") %> PRIMARY KEY (<%= entity.primary_key.sql.quoted_column_name %>)
 );
-<% if (object_type.sql.indexes.select{|i| i.cluster?}.size == 0) %>
-CLUSTER <%= object_type.sql.qualified_table_name %> USING <%= Domgen::Sql.dialect.quote("PK_#{object_type.name}") %>;
+<% if (entity.sql.indexes.select{|i| i.cluster?}.size == 0) %>
+CLUSTER <%= entity.sql.qualified_table_name %> USING <%= Domgen::Sql.dialect.quote("PK_#{entity.name}") %>;
 <% end %>
 GO
 
 -- TODO: Insert "Comments" for artifacts that == Description attribute.
 GO
-<% object_type.attributes.select {|a| a.persistent? && !a.sql.default_value.nil?}.each do |a| %>
-ALTER TABLE <%= object_type.sql.qualified_table_name %> ADD CONSTRAINT "DF_<%= object_type.name %>_<%= a.name %>" DEFAULT (<%= a.sql.default_value %>) FOR <%= a.sql.quoted_column_name %>
+<% entity.attributes.select {|a| a.persistent? && !a.sql.default_value.nil?}.each do |a| %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> ADD CONSTRAINT "DF_<%= entity.name %>_<%= a.name %>" DEFAULT (<%= a.sql.default_value %>) FOR <%= a.sql.quoted_column_name %>
 GO
 <% end %>
-<% object_type.sql.indexes.each do |index| %>
-CREATE <%= index.unique? ? 'UNIQUE ' : '' %>INDEX <%= index.quoted_index_name %> ON <%= object_type.sql.qualified_table_name %>
-(<%= index.attribute_names.collect {|a| "\n  #{object_type.attribute_by_name(a).sql.quoted_column_name} ASC" }.join(",") %>
-)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| object_type.attribute_by_name(a).sql.quoted_column_name }.join(",") %> )<% end %>
+<% entity.sql.indexes.each do |index| %>
+CREATE <%= index.unique? ? 'UNIQUE ' : '' %>INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %>
+(<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} ASC" }.join(",") %>
+)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(",") %> )<% end %>
 <% if index.filter %>WHERE <%= index.filter %><% end %>;
 
 <% if index.cluster? %>
-CLUSTER <%= object_type.sql.qualified_table_name %> USING <%= index.quoted_index_name %>;
+CLUSTER <%= entity.sql.qualified_table_name %> USING <%= index.quoted_index_name %>;
 <% end %>
 <% end
 %>
 
-<%= banner("Foreign Keys for #{object_type.sql.qualified_table_name}") %>
-<% object_type.sql.foreign_keys.each do |foreign_key| %>
-ALTER TABLE <%= object_type.sql.qualified_table_name %>
-  ADD CONSTRAINT <%= foreign_key.quoted_foreign_key_name %> FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| object_type.attribute_by_name(a).sql.quoted_column_name}.join(', ') %>)
-  REFERENCES <%= foreign_key.referenced_object_type.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| foreign_key.referenced_object_type.attribute_by_name(a).sql.quoted_column_name}.join(', ')  %>)
+<%= banner("Foreign Keys for #{entity.sql.qualified_table_name}") %>
+<% entity.sql.foreign_keys.each do |foreign_key| %>
+ALTER TABLE <%= entity.sql.qualified_table_name %>
+  ADD CONSTRAINT <%= foreign_key.quoted_foreign_key_name %> FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| entity.attribute_by_name(a).sql.quoted_column_name}.join(', ') %>)
+  REFERENCES <%= foreign_key.referenced_entity.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| foreign_key.referenced_entity.attribute_by_name(a).sql.quoted_column_name}.join(', ')  %>)
 <% if foreign_key.on_update != :no_action %>  ON UPDATE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_update] %><% end %>
 <% if foreign_key.on_delete != :no_action %>  ON DELETE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_delete] %><% end %>
 GO
 <%
   end
-  if object_type.sql.constraints.size > 0 %><%=
-    banner("Constraints for #{object_type.sql.qualified_table_name}")
+  if entity.sql.constraints.size > 0 %><%=
+    banner("Constraints for #{entity.sql.qualified_table_name}")
 %><%
-      object_type.sql.constraints.each do |constraint|
+      entity.sql.constraints.each do |constraint|
 %>
-ALTER TABLE <%= object_type.sql.qualified_table_name %>
+ALTER TABLE <%= entity.sql.qualified_table_name %>
   ADD CONSTRAINT <%= constraint.quoted_constraint_name %> CHECK ( <%= s(constraint.sql) %> )
 GO
 
 <%    end
    end
-   if object_type.sql.function_constraints.size > 0 %><%=
-    banner("Function Constraints for #{object_type.sql.qualified_table_name}")
+   if entity.sql.function_constraints.size > 0 %><%=
+    banner("Function Constraints for #{entity.sql.qualified_table_name}")
 %><%
-    object_type.sql.function_constraints.each do |constraint|
+    entity.sql.function_constraints.each do |constraint|
 %>
 /*
 CREATE FUNCTION <%= constraint.qualified_function_name %>
 (
-<%= constraint.parameters.collect{|parameter_name| a = object_type.attribute_by_name(parameter_name); "  @#{a.sql.column_name} #{a.sql.sql_type}"}.join(",\n") %>
+<%= constraint.parameters.collect{|parameter_name| a = entity.attribute_by_name(parameter_name); "  @#{a.sql.column_name} #{a.sql.sql_type}"}.join(",\n") %>
 )
 RETURNS BIT
 AS
@@ -75,7 +75,7 @@ BEGIN
   RETURN @Result
 END
 
-ALTER TABLE <%= object_type.sql.qualified_table_name %>
+ALTER TABLE <%= entity.sql.qualified_table_name %>
   ADD CONSTRAINT
   <%= constraint.quoted_constraint_name %>
   CHECK (<%= constraint.constraint_sql %>)
@@ -83,11 +83,11 @@ ALTER TABLE <%= object_type.sql.qualified_table_name %>
     <%
     end
    end
-   if object_type.sql.triggers.size > 0 %><%=
-    banner("Triggers for #{object_type.sql.qualified_table_name}")
+   if entity.sql.triggers.size > 0 %><%=
+    banner("Triggers for #{entity.sql.qualified_table_name}")
 %><%
-      object_type.sql.triggers.each do |trigger|
-   function_name = "#{trigger.table.object_type.data_module.sql.quoted_schema}.#{Domgen::Sql.dialect.quote(trigger.trigger_name + "Function")}"
+      entity.sql.triggers.each do |trigger|
+   function_name = "#{trigger.table.entity.data_module.sql.quoted_schema}.#{Domgen::Sql.dialect.quote(trigger.trigger_name + "Function")}"
 %>
 CREATE OR REPLACE FUNCTION <%= function_name %>() RETURNS
 TRIGGER AS '
@@ -100,10 +100,10 @@ TRIGGER AS '
 ' LANGUAGE plpgsql;
 
 CREATE TRIGGER <%= trigger.quoted_trigger_name %>
-AFTER <%= trigger.after.collect{|a| a.to_s.upcase }.join(", ") %> ON <%= object_type.sql.qualified_table_name %>
+AFTER <%= trigger.after.collect{|a| a.to_s.upcase }.join(", ") %> ON <%= entity.sql.qualified_table_name %>
 FOR EACH ROW EXECUTE PROCEDURE <%= function_name %>();
 
-ALTER TABLE <%= object_type.sql.qualified_table_name %> DISABLE TRIGGER <%= trigger.quoted_trigger_name %>;
+ALTER TABLE <%= entity.sql.qualified_table_name %> DISABLE TRIGGER <%= trigger.quoted_trigger_name %>;
 GO
 
 <% Domgen.error("Postgres does not support instead of triggers. Maybe need to impplement as rules?") unless trigger.instead_of.empty? %>

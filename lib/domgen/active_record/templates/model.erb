@@ -1,14 +1,14 @@
 # DO NOT EDIT: File is auto-generated
-module <%= object_type.data_module.ruby.module_name %>
+module <%= entity.data_module.ruby.module_name %>
 
-class <%= object_type.ruby.classname %> < ActiveRecord::Base
+class <%= entity.ruby.classname %> < ActiveRecord::Base
   # Attributes:
-<% object_type.attributes.select{|a| a.persistent?}.each do |a|
-%>  #   <%= a.sql.column_name %>: <%= a.reference? ? a.referenced_object.name : a.attribute_type %>
+<% entity.attributes.select{|a| a.persistent?}.each do |a|
+%>  #   <%= a.sql.column_name %>: <%= a.reference? ? a.referenced_entity.name : a.attribute_type %>
 <% end %>
-  set_table_name "<%= object_type.sql.qualified_table_name.gsub('dbo.','') %>"
-  set_primary_key "<%= object_type.primary_key.sql.column_name %>"
-<% object_type.attributes.each do |a|
+  set_table_name "<%= entity.sql.qualified_table_name.gsub('dbo.','') %>"
+  set_primary_key "<%= entity.primary_key.sql.column_name %>"
+<% entity.attributes.each do |a|
    if a.persistent? && a.validate?
        if !a.generated_value?
          if a.enum?
@@ -47,42 +47,42 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
   validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => <%= a.nullable? %>, :allow_blank => <%= a.allow_blank? %>
 <%       end
          if a.reference?
-%>  belongs_to :<%= underscore(a.name) %>, :class_name => '<%= a.referenced_object.ruby.qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
-  validates_reference_exists :<%= a.sql.column_name %>, <%= a.referenced_object.ruby.qualified_name %>, :association_name => :<%= underscore(a.name) %>, :allow_nil => true
+%>  belongs_to :<%= underscore(a.name) %>, :class_name => '<%= a.referenced_entity.ruby.qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
+  validates_reference_exists :<%= a.sql.column_name %>, <%= a.referenced_entity.ruby.qualified_name %>, :association_name => :<%= underscore(a.name) %>, :allow_nil => true
 <%       end
        end
      end
    end %>
-<% object_type.referencing_attributes.each do |attribute|
+<% entity.referencing_attributes.each do |attribute|
     if attribute.inverse.multiplicity == :many
 %>
-  has_many :<%= pluralize(underscore(attribute.inverse.relationship_name)) %>, :class_name => '<%= attribute.object_type.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_many :<%= pluralize(underscore(attribute.inverse.relationship_name)) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
   has_count_of :<%= pluralize(underscore(attribute.inverse.relationship_name)) %>
 <%
     elsif [:one, :zero_or_one].include? attribute.inverse.multiplicity
 %>
-  has_one :<%= underscore(attribute.inverse.relationship_name) %>, :class_name => '<%= attribute.object_type.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_one :<%= underscore(attribute.inverse.relationship_name) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
 <%
     end
   end
 %>
 
-<% object_type.unique_constraints.each do |c|
- attributes = c.attribute_names.collect{|attribute_name| object_type.attribute_by_name(attribute_name)}
+<% entity.unique_constraints.each do |c|
+ attributes = c.attribute_names.collect{|attribute_name| entity.attribute_by_name(attribute_name)}
 %>
   validates_uniqueness_of :<%= attributes.shift.sql.column_name %><% if !attributes.empty? %>, :scope => [<%= attributes.collect{|a|":#{a.sql.column_name}"}.join(", ") %>]<% end %>
 <% end %>
-<% object_type.codependent_constraints.each do |c| %>
-  validates_codependent <%= c.attribute_names.collect{|attribute_name|":#{object_type.attribute_by_name(attribute_name).sql.column_name}"}.join(', ') %>
+<% entity.codependent_constraints.each do |c| %>
+  validates_codependent <%= c.attribute_names.collect{|attribute_name|":#{entity.attribute_by_name(attribute_name).sql.column_name}"}.join(', ') %>
 <% end %>
-<% object_type.dependency_constraints.each do |c| %>
-  validates_dependent <%= ":#{object_type.attribute_by_name(c.attribute_name).sql.column_name}, [#{c.dependent_attribute_names.collect { |attribute_name| ":#{object_type.attribute_by_name(attribute_name).sql.column_name}" }.join(', ')}]" %>
+<% entity.dependency_constraints.each do |c| %>
+  validates_dependent <%= ":#{entity.attribute_by_name(c.attribute_name).sql.column_name}, [#{c.dependent_attribute_names.collect { |attribute_name| ":#{entity.attribute_by_name(attribute_name).sql.column_name}" }.join(', ')}]" %>
 <% end %>
-<% object_type.incompatible_constraints.each do |c| %>
-  validates_incompatible <%= c.attribute_names.collect { |attribute_name| ":#{object_type.attribute_by_name(attribute_name).sql.column_name}" }.join(', ') %>
+<% entity.incompatible_constraints.each do |c| %>
+  validates_incompatible <%= c.attribute_names.collect { |attribute_name| ":#{entity.attribute_by_name(attribute_name).sql.column_name}" }.join(', ') %>
 <% end %>
-<% object_type.cycle_constraints.each do |c|
-  target_attribute = object_type.attribute_by_name(c.attribute_name)
+<% entity.cycle_constraints.each do |c|
+  target_attribute = entity.attribute_by_name(c.attribute_name)
 %>
   validate do |record|
     if !record.<%= target_attribute.name %>.nil? && record.<%= underscore(target_attribute.name) %>.<%= c.scoping_attribute %> != record<%= c.attribute_name_path[0,c.attribute_name_path.length-1].collect{|a|".#{underscore(a)}"}.join('') %>.<%= c.attribute_name_path.last %>
@@ -90,9 +90,9 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
     end
   end
 <% end %>
-<% object_type.relationship_constraints.each do |c|
-  lhs = object_type.attribute_by_name(c.lhs_operand)
-  rhs = object_type.attribute_by_name(c.rhs_operand)
+<% entity.relationship_constraints.each do |c|
+  lhs = entity.attribute_by_name(c.lhs_operand)
+  rhs = entity.attribute_by_name(c.rhs_operand)
   op = c.class.operators[c.operator]
   op = '==' if '=' == op
   description = (lhs.attribute_type == :datetime) ? c.class.numeric_operator_descriptions[c.operator] : c.class.temporal_operator_descriptions[c.operator]
@@ -103,9 +103,9 @@ class <%= object_type.ruby.classname %> < ActiveRecord::Base
     end
   end
 <% end %>
-<%= object_type.ruby.included_modules.collect {|m| "  include #{m}"}.join("\n") %>
+<%= entity.ruby.included_modules.collect {|m| "  include #{m}"}.join("\n") %>
   # Make it possible for the users to extend the model by defining an extension class
-  include <%= object_type.ruby.qualified_name %>Extension rescue NameError
+  include <%= entity.ruby.qualified_name %>Extension rescue NameError
 end
 
 end

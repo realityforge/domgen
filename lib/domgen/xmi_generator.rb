@@ -85,11 +85,11 @@ module Domgen
         package.createOwnedComment().setBody(description(data_module)) if description(data_module)
         packages[data_module.name] = package
 
-        data_module.object_types.each do |object_type|
-          object_type.attributes.select { |attr| attr.persistent? }.each do |attribute|
+        data_module.entities.each do |entity|
+          entity.attributes.select { |attr| attr.persistent? }.each do |attribute|
             if attribute.enum?
-              enum_key = create_enum_key(data_module, object_type, attribute)
-              enum_name = create_enum_name(object_type, attribute)
+              enum_key = create_enum_key(data_module, entity, attribute)
+              enum_name = create_enum_name(entity, attribute)
               enum = package.create_owned_enumeration(enum_name)
               resource.setID( enum, "#{attribute.qualified_name}Enum" )
               attribute.enumeration.values.each do |enum_literal, enum_index|
@@ -112,17 +112,17 @@ module Domgen
       # Phase 2: Class and association discovery. In this phase, we process the schema set and create a class
       # per each schema.
       repository.data_modules.each do |data_module|
-        data_module.object_types.each do |object_type|
+        data_module.entities.each do |entity|
           package = packages[data_module.name]
-          clazz = package.create_owned_class(object_type.name, false)
-          resource.setID( clazz, object_type.qualified_name.to_s )
-          clazz.createOwnedComment().setBody(description(object_type)) if description(object_type)
-          name_class_map[object_type.qualified_name] ||= clazz
+          clazz = package.create_owned_class(entity.name, false)
+          resource.setID( clazz, entity.qualified_name.to_s )
+          clazz.createOwnedComment().setBody(description(entity)) if description(entity)
+          name_class_map[entity.qualified_name] ||= clazz
 
           # Creating EMF attributes corresponding to persistent, non-enum attributes
-          object_type.attributes.select { |attr| attr.persistent? && !attr.enum? }.each do |attribute|
+          entity.attributes.select { |attr| attr.persistent? && !attr.enum? }.each do |attribute|
             attribute_type =
-              attribute.reference? ? attribute.referenced_object.primary_key.attribute_type : attribute.attribute_type
+              attribute.reference? ? attribute.referenced_entity.primary_key.attribute_type : attribute.attribute_type
             prim_type = primitive_types[primitive_name(attribute_type)]
             name = attribute.reference? ? attribute.referencing_link_name : attribute.name.to_s
             emf_attr = clazz.create_owned_attribute(name, prim_type, 0, 1)
@@ -131,8 +131,8 @@ module Domgen
           end
 
           # Creating EMF attributes corresponding to persistent enum attributes
-          object_type.attributes.select { |attr| attr.persistent? && attr.enum? && !attr.reference? }.each do |attribute|
-            enum_type = enumerations[create_enum_key(data_module, object_type, attribute)]
+          entity.attributes.select { |attr| attr.persistent? && attr.enum? && !attr.reference? }.each do |attribute|
+            enum_type = enumerations[create_enum_key(data_module, entity, attribute)]
             emf_attr = clazz.create_owned_attribute(attribute.name.to_s, enum_type, 0, 1)
             resource.setID(emf_attr, attribute.qualified_name.to_s)
             emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
@@ -143,11 +143,11 @@ module Domgen
       # Phase 3: Association building. In this phase, we process the schema set and create EMF associations
       # corresponding to the references defined in it.
       repository.data_modules.each do |data_module|
-        data_module.object_types.each do |object_type|
-          object_type.attributes.select { |attribute| attribute.persistent? && attribute.reference? }.each do |attribute|
-            end1 = name_class_map[attribute.object_type.qualified_name]
-            end2 = name_class_map[attribute.referenced_object.qualified_name]
-            name = attribute.name == attribute.referenced_object.name ? "" : attribute.name.to_s
+        data_module.entities.each do |entity|
+          entity.attributes.select { |attribute| attribute.persistent? && attribute.reference? }.each do |attribute|
+            end1 = name_class_map[attribute.entity.qualified_name]
+            end2 = name_class_map[attribute.referenced_entity.qualified_name]
+            name = attribute.name == attribute.referenced_entity.name ? "" : attribute.name.to_s
 
             aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::NONE_LITERAL
             aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::SHARED_LITERAL if attribute.inverse.relationship_kind == :aggregation
@@ -221,12 +221,12 @@ module Domgen
       return attribute_type.to_s
     end
 
-    def self.create_enum_key(schema, object_type, attr)
-      "#{schema.name}.#{object_type.name}.#{attr.name}"
+    def self.create_enum_key(schema, entity, attr)
+      "#{schema.name}.#{entity.name}.#{attr.name}"
     end
 
-    def self.create_enum_name(object_type, attr)
-      "#{object_type.name}#{attr.name}Enum"
+    def self.create_enum_name(entity, attr)
+      "#{entity.name}#{attr.name}Enum"
     end
   end
 end

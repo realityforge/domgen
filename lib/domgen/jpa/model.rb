@@ -49,7 +49,7 @@ module Domgen
       def populate_parameters
         @parameter_types = {} unless @parameter_types
         parameters.each do |p|
-          @parameter_types[p] = jpa_class.object_type.attribute_by_name(p).jpa.java_type if @parameter_types[p].nil?
+          @parameter_types[p] = jpa_class.entity.attribute_by_name(p).jpa.java_type if @parameter_types[p].nil?
         end
       end
 
@@ -59,7 +59,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{jpa_class.object_type.qualified_name}.#{local_name}"
+        "#{jpa_class.entity.qualified_name}.#{local_name}"
       end
 
       def local_name
@@ -86,9 +86,9 @@ module Domgen
           query = self.ql
         elsif self.query_type == :selector
           if self.native?
-            query = "SELECT O.* FROM #{jpa_class.object_type.sql.table_name} O #{no_ql? ? '' : "WHERE "}#{sql}"
+            query = "SELECT O.* FROM #{jpa_class.entity.sql.table_name} O #{no_ql? ? '' : "WHERE "}#{sql}"
           else
-            query = "SELECT O FROM #{jpa_class.object_type.jpa.jpql_name} O #{no_ql? ? '' : "WHERE "}#{jpql}"
+            query = "SELECT O FROM #{jpa_class.entity.jpa.jpql_name} O #{no_ql? ? '' : "WHERE "}#{jpql}"
           end
         else
           error("Unknown query type #{query_type}")
@@ -187,8 +187,8 @@ module Domgen
         attribute
       end
 
-      def object_type_to_classname(object_type)
-        object_type.jpa.qualified_entity_name
+      def entity_to_classname(entity)
+        entity.jpa.qualified_entity_name
       end
 
       def enumeration_to_classname(enumeration)
@@ -206,27 +206,27 @@ module Domgen
       end
     end
 
-    class JpaClass < Domgen.ParentedElement(:object_type)
+    class JpaClass < Domgen.ParentedElement(:entity)
       attr_writer :table_name
 
       def table_name
-        @table_name || object_type.sql.table_name
+        @table_name || entity.sql.table_name
       end
 
       attr_writer :jpql_name
 
       def jpql_name
-        @jpql_name || object_type.qualified_name.gsub('.','_')
+        @jpql_name || entity.qualified_name.gsub('.','_')
       end
 
       attr_writer :entity_name
 
       def entity_name
-        @entity_name || object_type.name
+        @entity_name || entity.name
       end
 
       def qualified_entity_name
-        "#{object_type.data_module.jpa.entity_package}.#{entity_name}"
+        "#{entity.data_module.jpa.entity_package}.#{entity_name}"
       end
 
       def metamodel_name
@@ -234,17 +234,17 @@ module Domgen
       end
 
       def qualified_metamodel_name
-        "#{object_type.data_module.jpa.entity_package}.#{metamodel_name}"
+        "#{entity.data_module.jpa.entity_package}.#{metamodel_name}"
       end
 
       attr_writer :dao_name
 
       def dao_name
-        @dao_name || "#{object_type.name}DAO"
+        @dao_name || "#{entity.name}DAO"
       end
 
       def qualified_dao_name
-        "#{object_type.data_module.jpa.dao_package}.#{dao_name}"
+        "#{entity.data_module.jpa.dao_package}.#{dao_name}"
       end
 
       attr_writer :persistent
@@ -265,11 +265,11 @@ module Domgen
 
       def post_verify
         self.query('All', nil, :multiplicity => :many)
-        self.query(object_type.primary_key.name,
-                   "O.#{object_type.primary_key.jpa.name} = :#{object_type.primary_key.jpa.name}",
+        self.query(entity.primary_key.name,
+                   "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
                    :multiplicity => :one)
-        self.query(object_type.primary_key.name,
-                   "O.#{object_type.primary_key.jpa.name} = :#{object_type.primary_key.jpa.name}",
+        self.query(entity.primary_key.name,
+                   "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
                    :multiplicity => :zero_or_one)
         self.queries.each do |q|
           q.populate_parameters
@@ -322,7 +322,7 @@ module Domgen
                             EnumerationSet => Domgen::JPA::JpaEnumeration,
                             Attribute => Domgen::JPA::JpaField,
                             InverseElement => Domgen::JPA::JpaFieldInverse,
-                            ObjectType => Domgen::JPA::JpaClass,
+                            Entity => Domgen::JPA::JpaClass,
                             DataModule => Domgen::JPA::JpaPackage,
                             Repository => Domgen::JPA::PersistenceUnit)
 end

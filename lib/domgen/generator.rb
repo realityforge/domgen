@@ -23,26 +23,26 @@ module Domgen
                 render(directory, template, :data_module, data_module)
               end
             else
-              if :object_type == template.scope
-                data_module.object_types.each do |object_type|
-                  if template.applicable?(object_type) && (filter.nil? || filter.call(:object_type, object_type))
-                    render(directory, template, :object_type, object_type)
+              if :entity == template.scope
+                data_module.entities.each do |entity|
+                  if template.applicable?(entity) && (filter.nil? || filter.call(:entity, entity))
+                    render(directory, template, :entity, entity)
                   end
                 end
               end
 
               if :enumeration == template.scope
-                data_module.enumerations.each do |object_type|
-                  if template.applicable?(object_type) && (filter.nil? || filter.call(:enumeration, object_type))
-                    render(directory, template, :enumeration, object_type)
+                data_module.enumerations.each do |entity|
+                  if template.applicable?(entity) && (filter.nil? || filter.call(:enumeration, entity))
+                    render(directory, template, :enumeration, entity)
                   end
                 end
               end
 
               if :exception == template.scope
-                data_module.exceptions.each do |object_type|
-                  if template.applicable?(object_type) && (filter.nil? || filter.call(:exception, object_type))
-                    render(directory, template, :exception, object_type)
+                data_module.exceptions.each do |entity|
+                  if template.applicable?(entity) && (filter.nil? || filter.call(:exception, entity))
+                    render(directory, template, :exception, entity)
                   end
                 end
               end

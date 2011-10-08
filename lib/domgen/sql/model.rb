@@ -25,7 +25,7 @@ module Domgen
         if column.calculation
           Domgen.error("Unsupported column type - calculation")
         elsif :reference == column.attribute.attribute_type
-          return column.attribute.referenced_object.primary_key.sql.sql_type
+          return column.attribute.referenced_entity.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
           return "text"
         elsif column.attribute.enum?
@@ -75,7 +75,7 @@ module Domgen
           end
           return sql_type
         elsif :reference == column.attribute.attribute_type
-          return column.attribute.referenced_object.primary_key.sql.sql_type
+          return column.attribute.referenced_entity.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
           return "[VARCHAR](MAX)"
         elsif column.attribute.enum?
@@ -129,7 +129,7 @@ module Domgen
         if @index_name.nil?
           prefix = cluster? ? 'CL' : unique? ? 'UQ' : 'IX'
           suffix = attribute_names.join('_')
-          @index_name = "#{prefix}_#{table.object_type.name}_#{suffix}"
+          @index_name = "#{prefix}_#{table.entity.name}_#{suffix}"
         end
         @index_name
       end
@@ -139,7 +139,7 @@ module Domgen
       end
 
       def qualified_index_name
-        "#{table.object_type.data_module.sql.quoted_schema}.#{quoted_index_name}"
+        "#{table.entity.data_module.sql.quoted_schema}.#{quoted_index_name}"
       end
 
       attr_writer :cluster
@@ -170,17 +170,17 @@ module Domgen
         }.freeze
 
       attr_accessor :attribute_names
-      attr_accessor :referenced_object_type_name
+      attr_accessor :referenced_entity_name
       attr_accessor :referenced_attribute_names
 
-      def initialize(table, attribute_names, referenced_object_type_name, referenced_attribute_names, options, &block)
-        @attribute_names, @referenced_object_type_name, @referenced_attribute_names =
-          attribute_names, referenced_object_type_name, referenced_attribute_names
+      def initialize(table, attribute_names, referenced_entity_name, referenced_attribute_names, options, &block)
+        @attribute_names, @referenced_entity_name, @referenced_attribute_names =
+          attribute_names, referenced_entity_name, referenced_attribute_names
         super(table, options, &block)
         # Ensure that the attributes exist
-        attribute_names.each { |a| table.object_type.attribute_by_name(a) }
+        attribute_names.each { |a| table.entity.attribute_by_name(a) }
         # Ensure that the remote attributes exist on remote type
-        referenced_attribute_names.each { |a| referenced_object_type.attribute_by_name(a) }
+        referenced_attribute_names.each { |a| referenced_entity.attribute_by_name(a) }
       end
 
       attr_writer :name
@@ -192,8 +192,8 @@ module Domgen
         @name
       end
 
-      def referenced_object_type
-        table.object_type.data_module.object_type_by_name(referenced_object_type_name)
+      def referenced_entity
+        table.entity.data_module.entity_by_name(referenced_entity_name)
       end
 
       def on_update=(on_update)
@@ -215,7 +215,7 @@ module Domgen
       end
 
       def foreign_key_name
-        "FK_#{s(table.object_type.name)}_#{s(name)}"
+        "FK_#{s(table.entity.name)}_#{s(name)}"
       end
 
       def quoted_foreign_key_name
@@ -223,7 +223,7 @@ module Domgen
       end
 
       def qualified_foreign_key_name
-        "#{table.object_type.data_module.sql.quoted_schema}.#{quoted_foreign_key_name}"
+        "#{table.entity.data_module.sql.quoted_schema}.#{quoted_foreign_key_name}"
       end
 
       def constraint_name
@@ -256,7 +256,7 @@ module Domgen
       end
 
       def constraint_name
-        "CK_#{s(table.object_type.name)}_#{s(name)}"
+        "CK_#{s(table.entity.name)}_#{s(name)}"
       end
 
       def quoted_constraint_name
@@ -264,7 +264,7 @@ module Domgen
       end
 
       def qualified_constraint_name
-        "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
+        "#{table.entity.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
       end
 
       def to_s
@@ -295,7 +295,7 @@ module Domgen
       end
 
       def constraint_name
-        "CK_#{s(table.object_type.name)}_#{s(name)}"
+        "CK_#{s(table.entity.name)}_#{s(name)}"
       end
 
       def quoted_constraint_name
@@ -303,11 +303,11 @@ module Domgen
       end
 
       def qualified_constraint_name
-        "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
+        "#{table.entity.data_module.sql.quoted_schema}.#{self.quoted_constraint_name}"
       end
 
       def function_name
-        "#{table.object_type.name}_#{name}"
+        "#{table.entity.name}_#{name}"
       end
 
       def quoted_function_name
@@ -315,12 +315,12 @@ module Domgen
       end
 
       def qualified_function_name
-        "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_function_name}"
+        "#{table.entity.data_module.sql.quoted_schema}.#{self.quoted_function_name}"
       end
 
       # The SQL generated in constraint
       def constraint_sql
-        parameter_string = parameters.collect{|parameter_name| "  #{table.object_type.attribute_by_name(parameter_name).sql.column_name}"}.join(",")
+        parameter_string = parameters.collect{|parameter_name| "  #{table.entity.attribute_by_name(parameter_name).sql.column_name}"}.join(",")
         function_call = "#{self.qualified_function_name}(#{parameter_string}) = 1"
         (self.or_conditions + [function_call]).join(" OR ")
       end
@@ -401,7 +401,7 @@ module Domgen
       attr_accessor :sql
 
       def trigger_name
-        @trigger_name ||= sql_name(:trigger, "#{table.object_type.name}#{self.name}")
+        @trigger_name ||= sql_name(:trigger, "#{table.entity.name}#{self.name}")
       end
 
       def quoted_trigger_name
@@ -409,7 +409,7 @@ module Domgen
       end
 
       def qualified_trigger_name
-        "#{table.object_type.data_module.sql.quoted_schema}.#{self.quoted_trigger_name}"
+        "#{table.entity.data_module.sql.quoted_schema}.#{self.quoted_trigger_name}"
       end
 
       def to_s
@@ -417,7 +417,7 @@ module Domgen
       end
     end
 
-    class Table < Domgen.ParentedElement(:object_type)
+    class Table < Domgen.ParentedElement(:entity)
       attr_writer :table_name
       attr_accessor :partition_scheme
 
@@ -428,7 +428,7 @@ module Domgen
       # TODO: MSSQL Specific
       attr_accessor :force_overflow_for_large_objects
 
-      def initialize(object_type, options = {}, &block)
+      def initialize(entity, options = {}, &block)
         @indexes = Domgen::OrderedHash.new
         @constraints = Domgen::OrderedHash.new
         @function_constraints = Domgen::OrderedHash.new
@@ -436,11 +436,11 @@ module Domgen
         @actions = Domgen::OrderedHash.new
         @triggers = Domgen::OrderedHash.new
         @foreign_keys = Domgen::OrderedHash.new
-        super(object_type, options, &block)
+        super(entity, options, &block)
       end
 
       def table_name
-        @table_name ||= sql_name(:table, object_type.name)
+        @table_name ||= sql_name(:table, entity.name)
       end
 
       def quoted_table_name
@@ -448,7 +448,7 @@ module Domgen
       end
 
       def qualified_table_name
-        "#{object_type.data_module.sql.quoted_schema}.#{quoted_table_name}"
+        "#{entity.data_module.sql.quoted_schema}.#{quoted_table_name}"
       end
 
       def constraints
@@ -551,8 +551,8 @@ module Domgen
         @foreign_keys.values
       end
 
-      def foreign_key(attribute_names, referrenced_object_type_name, referrenced_attribute_names, options = {}, skip_if_present = false, &block)
-        foreign_key = ForeignKey.new(self, attribute_names, referrenced_object_type_name, referrenced_attribute_names, options, &block)
+      def foreign_key(attribute_names, referrenced_entity_name, referrenced_attribute_names, options = {}, skip_if_present = false, &block)
+        foreign_key = ForeignKey.new(self, attribute_names, referrenced_entity_name, referrenced_attribute_names, options, &block)
         return if @indexes[foreign_key.name] && skip_if_present
         error("Foreign Key named #{foreign_key.name} already defined on table #{table_name}") if @indexes[foreign_key.name]
         @foreign_keys[foreign_key.name] = foreign_key
@@ -574,13 +574,13 @@ module Domgen
           error("#{qualified_table_name} defines multiple clustering indexes")
         end
 
-        object_type.unique_constraints.each do |c|
+        entity.unique_constraints.each do |c|
           index(c.attribute_names, {:unique => true}, true)
         end
 
-        object_type.relationship_constraints.each do |c|
-          lhs = object_type.attribute_by_name(c.lhs_operand)
-          rhs = object_type.attribute_by_name(c.rhs_operand)
+        entity.relationship_constraints.each do |c|
+          lhs = entity.attribute_by_name(c.lhs_operand)
+          rhs = entity.attribute_by_name(c.rhs_operand)
           op = c.class.operators[c.operator]
           constraint_sql = []
           constraint_sql << "#{lhs.sql.quoted_column_name} IS NULL" if lhs.nullable?
@@ -590,31 +590,31 @@ module Domgen
           copy_tags(c, constraint_by_name(c.name))
         end
 
-        object_type.codependent_constraints.each do |c|
+        entity.codependent_constraints.each do |c|
           constraint(c.name, :sql => <<SQL) unless constraint_by_name(c.name)
-( #{c.attribute_names.collect { |name| "#{object_type.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ")} ) OR
-( #{c.attribute_names.collect { |name| "#{object_type.attribute_by_name(name).sql.quoted_column_name} IS NULL" }.join(" AND ") } )
+( #{c.attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ")} ) OR
+( #{c.attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NULL" }.join(" AND ") } )
 SQL
           copy_tags(c, constraint_by_name(c.name))
         end
-        object_type.dependency_constraints.each do |c|
+        entity.dependency_constraints.each do |c|
           constraint(c.name, :sql => <<SQL) unless constraint_by_name(c.name)
-#{object_type.attribute_by_name(c.attribute_name).sql.quoted_column_name} IS NULL OR
-( #{c.dependent_attribute_names.collect { |name| "#{object_type.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ") } )
+#{entity.attribute_by_name(c.attribute_name).sql.quoted_column_name} IS NULL OR
+( #{c.dependent_attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ") } )
 SQL
           copy_tags(c, constraint_by_name(c.name))
         end
-        object_type.incompatible_constraints.each do |c|
+        entity.incompatible_constraints.each do |c|
           sql = (0..(c.attribute_names.size)).collect do |i|
             candidate = c.attribute_names[i]
-            str = c.attribute_names.collect { |name| "#{object_type.attribute_by_name(name).sql.quoted_column_name} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
+            str = c.attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
             "(#{str})"
           end.join(" OR ")
           constraint(c.name, :sql => sql) unless constraint_by_name(c.name)
           copy_tags(c, constraint_by_name(c.name))
         end
 
-        object_type.declared_attributes.select { |a| a.enum? && a.enumeration.numeric_values? }.each do |a|
+        entity.declared_attributes.select { |a| a.enum? && a.enumeration.numeric_values? }.each do |a|
           sorted_values = a.enumeration.values.values.sort
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
@@ -622,25 +622,25 @@ SQL
 #{a.sql.quoted_column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
-        object_type.declared_attributes.select { |a| a.attribute_type == :enumeration && a.enumeration.textual_values? }.each do |a|
+        entity.declared_attributes.select { |a| a.attribute_type == :enumeration && a.enumeration.textual_values? }.each do |a|
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.quoted_column_name} IN (#{a.enumeration.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
-        object_type.declared_attributes.select{ |a| (a.has_length?) && a.persistent? && !a.allow_blank? }.each do |a|
+        entity.declared_attributes.select{ |a| (a.has_length?) && a.persistent? && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
           sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
         end
 
-        object_type.declared_attributes.select { |a| a.set_once? }.each do |a|
+        entity.declared_attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
           validation(validation_name, :negative_sql => <<SQL, :after => :update) unless validation_by_name(validation_name)
-SELECT I.#{a.object_type.primary_key.sql.quoted_column_name}
+SELECT I.#{a.entity.primary_key.sql.quoted_column_name}
 FROM
 inserted I
-JOIN deleted D ON D.#{a.object_type.primary_key.sql.quoted_column_name} = I.#{a.object_type.primary_key.sql.quoted_column_name}
+JOIN deleted D ON D.#{a.entity.primary_key.sql.quoted_column_name} = I.#{a.entity.primary_key.sql.quoted_column_name}
 WHERE
   D.#{a.sql.quoted_column_name} IS NOT NULL AND
   (
@@ -650,19 +650,19 @@ WHERE
 SQL
         end
 
-        object_type.cycle_constraints.each do |c|
-          target_attribute = object_type.attribute_by_name(c.attribute_name)
-          target_object_type = object_type.attribute_by_name(c.attribute_name).referenced_object
-          scoping_attribute = target_object_type.attribute_by_name(c.scoping_attribute)
+        entity.cycle_constraints.each do |c|
+          target_attribute = entity.attribute_by_name(c.attribute_name)
+          target_entity = entity.attribute_by_name(c.attribute_name).referenced_entity
+          scoping_attribute = target_entity.attribute_by_name(c.scoping_attribute)
 
           attribute_name_path = c.attribute_name_path
           object_path = []
 
-          object_type = self.object_type
+          entity = self.entity
           attribute_name_path.each do |attribute_name_path_element|
-            object_path << object_type
-            other = object_type.attribute_by_name(attribute_name_path_element)
-            object_type = other.referenced_object
+            object_path << entity
+            other = entity.attribute_by_name(attribute_name_path_element)
+            entity = other.referenced_entity
           end
 
           joins = []
@@ -688,18 +688,18 @@ SQL
 SELECT 1 AS Result
 FROM
   (SELECT '1' AS IgnoreMe) I
-LEFT JOIN #{target_object_type.sql.qualified_table_name} C0 ON C0.#{target_object_type.primary_key.sql.quoted_column_name} = @#{self.object_type.attribute_by_name(c.attribute_name).sql.column_name}
+LEFT JOIN #{target_entity.sql.qualified_table_name} C0 ON C0.#{target_entity.primary_key.sql.quoted_column_name} = @#{self.entity.attribute_by_name(c.attribute_name).sql.column_name}
 #{joins.join("\n")}
-WHERE @#{self.object_type.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR #{comparison_id} = #{next_id}
+WHERE @#{self.entity.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR #{comparison_id} = #{next_id}
 SQL
             end
             copy_tags(c, function_constraint_by_name(functional_constraint_name))
           end
         end
 
-        immutable_attributes = self.object_type.attributes.select { |a| a.persistent? && a.immutable? && !a.primary_key? }
+        immutable_attributes = self.entity.attributes.select { |a| a.persistent? && a.immutable? && !a.primary_key? }
         if immutable_attributes.size > 0
-          pk = self.object_type.primary_key
+          pk = self.entity.primary_key
 
           validation_name = "Immuter"
           unless validation_by_name(validation_name)
@@ -716,11 +716,11 @@ SQL
          end
         end
 
-        abstract_relationships = self.object_type.attributes.select { |a| a.reference? && a.referenced_object.abstract? }
+        abstract_relationships = self.entity.attributes.select { |a| a.reference? && a.referenced_entity.abstract? }
         if abstract_relationships.size > 0
           abstract_relationships.each do |attribute|
             concrete_subtypes = {}
-            attribute.referenced_object.subtypes.select { |subtype| !subtype.abstract? }.each_with_index do |subtype, index|
+            attribute.referenced_entity.subtypes.select { |subtype| !subtype.abstract? }.each_with_index do |subtype, index|
               concrete_subtypes["C#{index}"] = subtype
             end
             names = concrete_subtypes.keys
@@ -729,7 +729,7 @@ SQL
             if !validation_by_name(validation_name)
               guard = "UPDATE(#{attribute.sql.quoted_column_name})"
               sql = <<SQL
-      SELECT I.#{self.object_type.primary_key.sql.column_name}
+      SELECT I.#{self.entity.primary_key.sql.column_name}
       FROM
         inserted I
 SQL
@@ -745,20 +745,20 @@ SQL
           end
         end
 
-        if self.object_type.read_only?
+        if self.entity.read_only?
           trigger_name = "ReadOnlyCheck"
           unless trigger_by_name(trigger_name)
             trigger(trigger_name) do |trigger|
-              trigger.description("Ensure that #{self.object_type.name} is read only.")
+              trigger.description("Ensure that #{self.entity.name} is read only.")
               trigger.after = []
               trigger.instead_of = [:insert, :update, :delete]
-              trigger.sql = self.object_type.data_module.repository.sql.emit_error("#{self.object_type.name} is read only")
+              trigger.sql = self.entity.data_module.repository.sql.emit_error("#{self.entity.name} is read only")
             end
           end
         end
 
         Trigger::VALID_AFTER.each do |after|
-          desc = "Trigger after #{after} on #{self.object_type.name}\n\n"
+          desc = "Trigger after #{after} on #{self.entity.name}\n\n"
           sql = ""
           validations = self.validations.select {|v| v.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
           actions = self.actions.select {|a| a.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
@@ -777,7 +777,7 @@ SQL
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
     ROLLBACK
-    #{self.object_type.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
+    #{self.entity.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
     RETURN
   END
 #{validation.guard.nil? ? '' : "END" }
@@ -802,10 +802,10 @@ SQL
           end
         end
 
-        self.object_type.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
+        self.entity.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
           foreign_key([a.name],
-                      a.referenced_object.qualified_name,
-                      [a.referenced_object.primary_key.name],
+                      a.referenced_entity.qualified_name,
+                      [a.referenced_entity.primary_key.name],
                       {:on_update => a.on_update, :on_delete => a.on_delete},
                       true)
         end
@@ -910,7 +910,7 @@ SQL
 
   FacetManager.define_facet(:sql,
                             Attribute => Domgen::Sql::Column,
-                            ObjectType => Domgen::Sql::Table,
+                            Entity => Domgen::Sql::Table,
                             DataModule => Domgen::Sql::SqlSchema,
                             Repository => Domgen::Sql::Database)
 end

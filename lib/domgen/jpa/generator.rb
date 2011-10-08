@@ -14,17 +14,17 @@ module Domgen
                      'java/#{enumeration.jpa.qualified_enumeration_name.gsub(".","/")}.java',
                      JPA::HELPERS),
         Template.new(JPA::FACETS,
-                     :object_type,
+                     :entity,
                      "#{JPA::TEMPLATE_DIRECTORY}/model.erb",
-                     'java/#{object_type.jpa.qualified_entity_name.gsub(".","/")}.java',
+                     'java/#{entity.jpa.qualified_entity_name.gsub(".","/")}.java',
                      JPA::HELPERS,
-                     'object_type.jpa.persistent?'),
+                     'entity.jpa.persistent?'),
         Template.new(JPA::FACETS,
-                     :object_type,
+                     :entity,
                      "#{JPA::TEMPLATE_DIRECTORY}/metamodel.erb",
-                     'java/#{object_type.jpa.qualified_metamodel_name.gsub(".","/")}.java',
+                     'java/#{entity.jpa.qualified_metamodel_name.gsub(".","/")}.java',
                      JPA::HELPERS,
-                     'object_type.jpa.persistent?'),
+                     'entity.jpa.persistent?'),
       ]
     end
 
@@ -40,11 +40,11 @@ module Domgen
     def self.define_jpa_ejb_templates
       [
         Template.new(JPA::FACETS,
-                     :object_type,
+                     :entity,
                      "#{JPA::TEMPLATE_DIRECTORY}/ejb.erb",
-                     'java/#{object_type.jpa.qualified_dao_name.gsub(".","/")}.java',
+                     'java/#{entity.jpa.qualified_dao_name.gsub(".","/")}.java',
                      JPA::HELPERS,
-                     'object_type.jpa.persistent?')
+                     'entity.jpa.persistent?')
       ]
     end
   end

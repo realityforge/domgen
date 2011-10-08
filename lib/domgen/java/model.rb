@@ -18,7 +18,7 @@ module Domgen
 
       def non_primitive_java_type
         if :reference == characteristic.characteristic_type
-          object_type_to_classname(characteristic.referenced_object)
+          entity_to_classname(characteristic.referenced_entity)
         elsif characteristic.enum?
           return enumeration_to_classname(characteristic.enumeration)
         else
@@ -42,8 +42,8 @@ module Domgen
         raise "characteristic unimplemented"
       end
 
-      def object_type_to_classname(object_type)
-        raise "object_type_to_classname unimplemented"
+      def entity_to_classname(entity)
+        raise "entity_to_classname unimplemented"
       end
 
       def enumeration_to_classname(enumeration)

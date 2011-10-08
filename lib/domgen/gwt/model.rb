@@ -35,8 +35,8 @@ module Domgen
         parameter
       end
 
-      def object_type_to_classname(object_type)
-        object_type.gwt.qualified_name
+      def entity_to_classname(entity)
+        entity.gwt.qualified_name
       end
 
       def enumeration_to_classname(enumeration)
@@ -154,8 +154,8 @@ module Domgen
         result
       end
 
-      def object_type_to_classname(object_type)
-        object_type.gwt.qualified_name
+      def entity_to_classname(entity)
+        entity.gwt.qualified_name
       end
 
       def enumeration_to_classname(enumeration)
@@ -176,8 +176,8 @@ module Domgen
         parameter
       end
 
-      def object_type_to_classname(object_type)
-        object_type.gwt.qualified_name
+      def entity_to_classname(entity)
+        entity.gwt.qualified_name
       end
 
       def enumeration_to_classname(enumeration)

@@ -1,6 +1,6 @@
 module Domgen
   module Ruby
-    class RubyClass < Domgen.ParentedElement(:object_type)
+    class RubyClass < Domgen.ParentedElement(:entity)
       attr_writer :classname
 
       def included_modules
@@ -12,11 +12,11 @@ module Domgen
       end
 
       def classname
-        @classname || object_type.name
+        @classname || entity.name
       end
 
       def qualified_name
-        "::#{object_type.data_module.ruby.module_name}::#{classname}"
+        "::#{entity.data_module.ruby.module_name}::#{classname}"
       end
 
       def filename
@@ -35,6 +35,6 @@ module Domgen
   end
 
   FacetManager.define_facet(:ruby,
-                            ObjectType => Domgen::Ruby::RubyClass,
+                            Entity => Domgen::Ruby::RubyClass,
                             DataModule => Domgen::Ruby::RubyModule )
 end

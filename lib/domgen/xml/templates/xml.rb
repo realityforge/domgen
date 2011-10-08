@@ -24,57 +24,57 @@ module Domgen
         def visit_data_module(data_module)
           doc.tag!("data-module", :name => data_module.name) do
             add_tags(data_module)
-            data_module.object_types.each do |object_type|
-              visit_object_type(object_type)
+            data_module.entities.each do |entity|
+              visit_entity(entity)
             end
           end
         end
 
-        def visit_object_type(object_type)
-          doc.tag!("object-type", collect_attributes(object_type, %w(name qualified_name))) do
-            add_tags(object_type)
+        def visit_entity(entity)
+          doc.tag!("entity", collect_attributes(entity, %w(name qualified_name))) do
+            add_tags(entity)
 
-            tag_each(object_type, :attributes) do |attribute|
+            tag_each(entity, :attributes) do |attribute|
               visit_attribute(attribute)
             end
 
             %w(unique codependent incompatible).each do |constraint_type|
-              tag_each(object_type, "#{constraint_type}_constraints".to_sym) do |constraint|
+              tag_each(entity, "#{constraint_type}_constraints".to_sym) do |constraint|
                 doc.tag!("#{constraint_type}-constraint") do
                   constraint.attribute_names.each do |name|
-                    attribute_ref(object_type, name)
+                    attribute_ref(entity, name)
                   end
                 end
               end
             end
 
-            tag_each(object_type, :dependency_constraints) do |constraint|
+            tag_each(entity, :dependency_constraints) do |constraint|
               doc.tag!("dependency-constraint") do
-                attribute_ref(object_type, constraint.attribute_name)
+                attribute_ref(entity, constraint.attribute_name)
                 doc.tag!("dependent-attributes") do
                   constraint.dependent_attribute_names.each do |name|
-                    attribute_ref(object_type, name)
+                    attribute_ref(entity, name)
                   end
                 end
               end
             end
 
-            tag_each(object_type, :cycle_constraints) do |constraint|
+            tag_each(entity, :cycle_constraints) do |constraint|
               doc.tag!("cycle-constraint") do
-                attribute_ref(object_type, constraint.attribute_name)
+                attribute_ref(entity, constraint.attribute_name)
                 doc.tag!("path") do
-                  constraint.attribute_name_path.reduce object_type do |path_object_type, attribute_name|
-                    attribute_ref(path_object_type, attribute_name)
-                    path_object_type.attribute_by_name(attribute_name).referenced_object
+                  constraint.attribute_name_path.reduce entity do |path_entity, attribute_name|
+                    attribute_ref(path_entity, attribute_name)
+                    path_entity.attribute_by_name(attribute_name).referenced_entity
                   end
                 end
                 doc.tag!("scoping-attribute") do
-                  attribute_ref(object_type, constraint.scoping_attribute)
+                  attribute_ref(entity, constraint.scoping_attribute)
                 end
               end
             end
 
-            visit_table(object_type.sql)
+            visit_table(entity.sql)
           end
         end
 
@@ -82,7 +82,7 @@ module Domgen
           attribute_names = %w(abstract? override? reference? validate? set_once? generated_value?
                            enum? primary_key? allow_blank? unique? nullable? immutable? persistent?
                            updatable? allow_blank? qualified_name length min_length name)
-          doc.attribute({"object-type" => attribute.object_type.qualified_name},
+          doc.attribute({"entity" => attribute.entity.qualified_name},
                         collect_attributes(attribute, attribute_names)) do
             add_tags(attribute)
 
@@ -96,7 +96,7 @@ module Domgen
 
             if attribute.reference?
               doc.reference("references" => attribute.references,
-                            "referenced-object" => attribute.referenced_object.qualified_name,
+                            "referenced-entity" => attribute.referenced_entity.qualified_name,
                             "polymorphic" => attribute.polymorphic?.to_s,
                             "link-name" => attribute.referencing_link_name,
                             "inverse-multiplicity" => attribute.inverse.multiplicity.to_s,
@@ -158,7 +158,7 @@ module Domgen
               end
             end
 
-            key_attributes = %w(name referenced_object_type_name on_update on_delete constraint_name)
+            key_attributes = %w(name referenced_entity_name on_update on_delete constraint_name)
             tag_each(table, :foreign_keys) do |key|
               doc.tag!("foreign-key", {:table => table.table_name}, collect_attributes(key, key_attributes)) do
                 doc.tag!("referencing-columns") do
@@ -192,8 +192,8 @@ module Domgen
           end
         end
 
-        def attribute_ref(object_type, name)
-          doc.attribute(:class => object_type.qualified_name, :attribute => name)
+        def attribute_ref(entity, name)
+          doc.attribute(:class => entity.qualified_name, :attribute => name)
         end
 
         ENTITY_EXPANDSION_MAP =

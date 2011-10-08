@@ -43,8 +43,8 @@ module Domgen
         parameter
       end
 
-      def object_type_to_classname(object_type)
-        object_type.ejb.qualified_service_name
+      def entity_to_classname(entity)
+        entity.ejb.qualified_service_name
       end
 
       def enumeration_to_classname(enumeration)
@@ -90,8 +90,8 @@ module Domgen
         result
       end
 
-      def object_type_to_classname(object_type)
-        object_type.ejb.qualified_name
+      def entity_to_classname(entity)
+        entity.ejb.qualified_name
       end
 
       def enumeration_to_classname(enumeration)

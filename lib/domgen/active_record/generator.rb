@@ -7,7 +7,7 @@ module Domgen
 
     def self.define_active_record_templates
       [
-        Template.new(ActiveRecord::FACETS, :object_type, "#{ActiveRecord::TEMPLATE_DIRECTORY}/model.erb", 'ruby/#{object_type.ruby.filename}.rb', [Domgen::Ruby::Helper])
+        Template.new(ActiveRecord::FACETS, :entity, "#{ActiveRecord::TEMPLATE_DIRECTORY}/model.erb", 'ruby/#{entity.ruby.filename}.rb', [Domgen::Ruby::Helper])
       ]
     end
   end

@@ -31,9 +31,9 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.object_type.jpa.qualified_entity_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_entity_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          s << "  private #{attribute.object_type.jpa.qualified_entity_name} #{attribute.inverse.relationship_name};\n"
+          s << "  private #{attribute.entity.jpa.qualified_entity_name} #{attribute.inverse.relationship_name};\n"
         end
         s
       end
@@ -95,19 +95,19 @@ module Domgen
         end
       end
 
-      def j_constructors(object_type)
-        immutable_attributes = object_type.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa.persistent? }
-        declared_attribute_names = object_type.declared_attributes.collect{|a| a.name}
+      def j_constructors(entity)
+        immutable_attributes = entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa.persistent? }
+        declared_attribute_names = entity.declared_attributes.collect{|a| a.name}
         declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
         undeclared_immutable_attributes = immutable_attributes.select{ |a| !declared_attribute_names.include?(a.name) }
         return '' if immutable_attributes.empty?
         java = <<JAVA
-  protected #{object_type.jpa.entity_name}()
+  protected #{entity.jpa.entity_name}()
   {
   }
 
   @SuppressWarnings( { "ConstantConditions", "deprecation" } )
-  public #{object_type.jpa.entity_name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.name}"}.join(", ")})
+  public #{entity.jpa.entity_name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.name}"}.join(", ")})
   {
 #{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(", ")});\n"}
 #{declared_immutable_attributes.select{|a|!a.nullable? && !a.jpa.primitive?}.collect{|a| "    if( null == #{a.jpa.name} )\n    {\n      throw new NullPointerException( \"#{a.jpa.name} is not nullable\" );\n    }"}.join("\n")}
@@ -118,8 +118,8 @@ JAVA
         java
       end
 
-      def j_declared_attribute_accessors(object_type)
-        object_type.declared_attributes.select{|attribute| attribute.jpa.persistent? }.collect do |attribute|
+      def j_declared_attribute_accessors(entity)
+        entity.declared_attributes.select{|attribute| attribute.jpa.persistent? }.collect do |attribute|
           if attribute.abstract?
             j_abstract_attribute(attribute)
           elsif attribute.reference?
@@ -130,10 +130,10 @@ JAVA
         end.compact.join("\n")
       end
 
-      def j_declared_attribute_and_relation_accessors(object_type)
-        relation_methods = object_type.referencing_attributes.collect do |attribute|
+      def j_declared_attribute_and_relation_accessors(entity)
+        relation_methods = entity.referencing_attributes.collect do |attribute|
 
-          if attribute.abstract? || attribute.inherited? || !attribute.inverse.traversable? || !attribute.jpa.persistent? || attribute.referenced_object != object_type
+          if attribute.abstract? || attribute.inherited? || !attribute.inverse.traversable? || !attribute.jpa.persistent? || attribute.referenced_entity != entity
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
             # Ignore attributes that have no inverse relationship
@@ -142,7 +142,7 @@ JAVA
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
             name = attribute.inverse.relationship_name
-            type = nullable_annotate(attribute, attribute.object_type.jpa.qualified_entity_name, false, true)
+            type = nullable_annotate(attribute, attribute.entity.jpa.qualified_entity_name, false, true)
 
             java = description_javadoc_for attribute
             java << <<JAVA
@@ -176,7 +176,7 @@ JAVA
             java
           end
         end
-        j_declared_attribute_accessors(object_type) + relation_methods.compact.join("\n")
+        j_declared_attribute_accessors(entity) + relation_methods.compact.join("\n")
       end
 
       def j_return_if_value_same(name, primitive, nullable)
@@ -298,7 +298,7 @@ JAVA
   @SuppressWarnings( { "deprecation" } )
   public void set#{name}( final #{type} value )
   {
- #{j_return_if_value_same(name, attribute.referenced_object.primary_key.jpa.primitive?, attribute.nullable?)}
+ #{j_return_if_value_same(name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
         #{j_remove_from_inverse(attribute)}
         #{name} = value;
  #{j_add_to_inverse(attribute)}
@@ -317,7 +317,7 @@ JAVA
       def j_has_many_attribute(attribute)
         name = attribute.inverse.relationship_name
         plural_name = pluralize(name)
-        type = attribute.object_type.jpa.qualified_entity_name
+        type = attribute.entity.jpa.qualified_entity_name
         java = description_javadoc_for attribute
         java << <<STR
   public java.util.List<#{type}> get#{plural_name}()
@@ -351,10 +351,10 @@ STR
         java
       end
 
-      def j_equals_method(object_type)
-        return '' if object_type.abstract?
-        pk = object_type.primary_key
-        pk_getter = "doGet#{object_type.primary_key.jpa.name}()"
+      def j_equals_method(entity)
+        return '' if entity.abstract?
+        pk = entity.primary_key
+        pk_getter = "doGet#{entity.primary_key.jpa.name}()"
         pk_type = nullable_annotate(pk, pk.jpa.java_type, false)
         equality_comparison = (!pk.jpa.primitive?) ? "null != key && key.equals( that.#{pk_getter} )" : "key == that.#{pk_getter}"
         s = <<JAVA
@@ -365,13 +365,13 @@ STR
     {
       return true;
     }
-    else if ( o == null || !#{object_type.jpa.entity_name}.class.isInstance( o ) )
+    else if ( o == null || !#{entity.jpa.entity_name}.class.isInstance( o ) )
     {
       return false;
     }
     else
     {
-      final #{object_type.jpa.entity_name} that = (#{object_type.jpa.entity_name}) o;
+      final #{entity.jpa.entity_name} that = (#{entity.jpa.entity_name}) o;
       final #{pk_type} key = #{pk_getter};
       return #{equality_comparison};
     }
@@ -405,15 +405,15 @@ JAVA
         s
       end
 
-      def j_to_string_methods(object_type)
-        return '' if object_type.abstract?
+      def j_to_string_methods(entity)
+        return '' if entity.abstract?
         s = <<JAVA
   @Override
   public String toString()
   {
-    return "#{object_type.name}[" +
+    return "#{entity.name}[" +
 JAVA
-        s += object_type.attributes.select{|a| a.jpa.persistent?}.collect do |a|
+        s += entity.attributes.select{|a| a.jpa.persistent?}.collect do |a|
           "           \"#{a.jpa.name} = \" + " + getter_for(a)
         end.join(" + \", \" +\n")
         s += <<JAVA
@@ -444,7 +444,7 @@ JAVA
       end
 
       def query_return_type(query)
-        entity_name = query.jpa_class.object_type.jpa.qualified_entity_name
+        entity_name = query.jpa_class.entity.jpa.qualified_entity_name
         return "#{nullability_annotation(false)} java.util.List<#{entity_name}>" if query.multiplicity == :many
         "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{entity_name}"
       end
