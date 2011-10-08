@@ -12,6 +12,11 @@ module Domgen
                      :service,
                      "#{EJB::TEMPLATE_DIRECTORY}/interface.erb",
                      'java/#{service.ejb.qualified_service_name.gsub(".","/")}.java',
+                     EJB::HELPERS),
+        Template.new(EJB::FACETS,
+                     :exception,
+                     "#{EJB::TEMPLATE_DIRECTORY}/exception.erb",
+                     'java/#{exception.ejb.qualified_name.gsub(".","/")}.java',
                      EJB::HELPERS)
       ]
     end

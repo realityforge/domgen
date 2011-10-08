@@ -97,6 +97,10 @@ module Domgen
       def name
         exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
       end
+
+      def qualified_name
+        "#{exception.data_module.ejb.service_package}.#{name}"
+      end
     end
   end
 

@@ -11,14 +11,7 @@ public interface <%= service.ejb.service_name %>
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)
 %>  <%= annotated_type(method.return_value, :ejb) %> <%= method.ejb.name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{p.ejb.name}" }.join(', ') %>)<%=
-    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ejb.name}.join(', ')}"
+    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ejb.qualified_name}.join(', ')}"
 %>;
 
-<% end %><% service.methods.collect{|method| method.exceptions.collect{|exception| exception.ejb.name} }.flatten.sort.uniq.each do |exception_name| %>
-  class <%= exception_name %> extends Exception
-  {
-    public <%= exception_name %>() {}
-    public <%= exception_name %>( final String message ) { super( message ); }
-    public <%= exception_name %>( final String message, final Throwable cause ) { super( message, cause ); }
-  }
 <% end %>}
