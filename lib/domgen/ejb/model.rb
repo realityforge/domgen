@@ -64,6 +64,12 @@ module Domgen
       def service_package
         @service_package || "#{data_module.repository.ejb.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
+
+      attr_writer :data_type_package
+
+      def data_type_package
+        @data_type_package || service_package
+      end
     end
 
     class EjbApplication < Domgen.ParentedElement(:repository)
@@ -99,7 +105,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.ejb.service_package}.#{name}"
+        "#{exception.data_module.ejb.data_type_package}.#{name}"
       end
     end
   end

@@ -202,7 +202,7 @@ module Domgen
       end
 
       def qualified_enumeration_name
-        "#{enumeration.data_module.jpa.entity_package}.#{enumeration.name}"
+        "#{enumeration.data_module.jpa.data_type_package}.#{enumeration.name}"
       end
     end
 
@@ -282,6 +282,12 @@ module Domgen
 
       def entity_package
         @entity_package || "#{data_module.repository.jpa.entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
+      attr_writer :data_type_package
+
+      def data_type_package
+        @data_type_package || entity_package
       end
 
       attr_writer :catalog_name
