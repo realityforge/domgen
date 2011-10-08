@@ -1146,18 +1146,19 @@ module Domgen
 
     def define_enumeration(name, enumeration_type, options = {}, &block)
       pre_enumeration_create(name)
-      EnumerationSet.new(self, name, enumeration_type, options, &block)
+      enumeration = EnumerationSet.new(self, name, enumeration_type, options, &block)
       post_enumeration_create(name)
+      enumeration
     end
 
-    def enumeration_by_name(name)
+    def enumeration_by_name(name, optional = false)
       name_parts = split_name(name)
-      repository.data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1])
+      repository.data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional)
     end
 
-    def local_enumeration_by_name(name)
+    def local_enumeration_by_name(name, optional = false)
       enumeration = @enumerations[name.to_s]
-      error("Unable to locate local enumeration #{name} in #{self.name}") unless enumeration
+      error("Unable to locate local enumeration #{name} in #{self.name}") if !enumeration && !optional
       enumeration
     end
 
@@ -1167,18 +1168,19 @@ module Domgen
 
     def define_exception(name, options = {}, &block)
       pre_exception_create(name)
-      Exception.new(self, name, options, &block)
+      exception = Exception.new(self, name, options, &block)
       post_exception_create(name)
+      exception
     end
 
-    def exception_by_name(name)
+    def exception_by_name(name, optional = false)
       name_parts = split_name(name)
-      repository.data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1])
+      repository.data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional)
     end
 
-    def local_exception_by_name(name)
+    def local_exception_by_name(name, optional = false)
       exception = @exceptions[name.to_s]
-      error("Unable to locate local exception #{name} in #{self.name}") unless exception
+      error("Unable to locate local exception #{name} in #{self.name}") if !exception && !optional
       exception
     end
 
@@ -1188,18 +1190,19 @@ module Domgen
 
     def define_object_type(name, options = {}, &block)
       pre_object_type_create(name)
-      ObjectType.new(self, name, options, &block)
+      object_type = ObjectType.new(self, name, options, &block)
       post_object_type_create(name)
+      object_type
     end
 
-    def object_type_by_name(name)
+    def object_type_by_name(name, optional = false)
       name_parts = split_name(name)
-      repository.data_module_by_name(name_parts[0]).local_object_type_by_name(name_parts[1])
+      repository.data_module_by_name(name_parts[0]).local_object_type_by_name(name_parts[1], optional)
     end
 
-    def local_object_type_by_name(name)
+    def local_object_type_by_name(name, optional = false)
       object_type = @object_types[name.to_s]
-      error("Unable to locate local object_type #{name} in #{self.name}") unless object_type
+      error("Unable to locate local object_type #{name} in #{self.name}") if !object_type && !optional
       object_type
     end
 
@@ -1209,18 +1212,19 @@ module Domgen
 
     def define_service(name, options = {}, &block)
       pre_service_create(name)
-      Service.new(self, name, options, &block)
+      service = Service.new(self, name, options, &block)
       post_service_create(name)
+      service
     end
 
-    def service_by_name(name)
+    def service_by_name(name, optional = false)
       name_parts = split_name(name)
-      repository.data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1])
+      repository.data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional)
     end
 
-    def local_service_by_name(name)
+    def local_service_by_name(name, optional = false)
       service = @services[name.to_s]
-      error("Unable to locate local service #{name} in #{self.name}") unless service
+      error("Unable to locate local service #{name} in #{self.name}") if !service && !optional
       service
     end
 
@@ -1230,18 +1234,19 @@ module Domgen
 
     def define_message(name, options = {}, &block)
       pre_message_create(name)
-      Message.new(self, name, options, &block)
+      message = Message.new(self, name, options, &block)
       post_message_create(name)
+      message
     end
 
-    def message_by_name(name)
+    def message_by_name(name, optional = false)
       name_parts = split_name(name)
-      repository.data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1])
+      repository.data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1], optional)
     end
 
-    def local_message_by_name(name)
+    def local_message_by_name(name, optional = false)
       message = @messages[name.to_s]
-      error("Unable to locate local message #{name} in #{self.name}") unless message
+      error("Unable to locate local message #{name} in #{self.name}") if !message && !optional
       message
     end
 
