@@ -4,7 +4,7 @@ module Domgen
       repository_map.values
     end
 
-    def define_repository(name, options = {}, &block)
+    def repository(name, options = {}, &block)
       Domgen::Repository.new(name, options, &block)
     end
 
@@ -522,17 +522,13 @@ module Domgen
 
     def i_enum(name, values, options = {}, &block)
       enumeration_name = "#{self.name}#{name}"
-      enum_manager.define_enumeration(enumeration_name,
-                                      :integer,
-                                      {:values => values}.merge(options))
+      enum_manager.enumeration(enumeration_name, :integer, { :values => values }.merge(options))
       enumeration(name, enumeration_name, options, &block)
     end
 
     def s_enum(name, values, options = {}, &block)
       enumeration_name = "#{self.name}#{name}"
-      enum_manager.define_enumeration(enumeration_name,
-                                      :string,
-                                      {:values => values}.merge(options))
+      enum_manager.enumeration(enumeration_name, :string, { :values => values }.merge(options))
       enumeration(name, enumeration_name, options, &block)
     end
 
@@ -1053,7 +1049,7 @@ module Domgen
       error("Attempting to redefine exception #{name} on #{self.qualified_name}") if @exceptions[name.to_s]
       exception = service.data_module.exception_by_name(name, true)
       if exception.nil?
-        exception = service.data_module.define_exception(name, options)
+        exception = service.data_module.exception(name, options)
       end
       @exceptions[name.to_s] = exception
     end
@@ -1143,7 +1139,7 @@ module Domgen
       @enumerations.values
     end
 
-    def define_enumeration(name, enumeration_type, options = {}, &block)
+    def enumeration(name, enumeration_type, options = {}, &block)
       pre_enumeration_create(name)
       enumeration = EnumerationSet.new(self, name, enumeration_type, options, &block)
       post_enumeration_create(name)
@@ -1165,7 +1161,7 @@ module Domgen
       @exceptions.values
     end
 
-    def define_exception(name, options = {}, &block)
+    def exception(name, options = {}, &block)
       pre_exception_create(name)
       exception = Exception.new(self, name, options, &block)
       post_exception_create(name)
@@ -1187,7 +1183,7 @@ module Domgen
       @object_types.values
     end
 
-    def define_object_type(name, options = {}, &block)
+    def object_type(name, options = {}, &block)
       pre_object_type_create(name)
       object_type = ObjectType.new(self, name, options, &block)
       post_object_type_create(name)
@@ -1209,7 +1205,7 @@ module Domgen
       @services.values
     end
 
-    def define_service(name, options = {}, &block)
+    def service(name, options = {}, &block)
       pre_service_create(name)
       service = Service.new(self, name, options, &block)
       post_service_create(name)
@@ -1231,7 +1227,7 @@ module Domgen
       @messages.values
     end
 
-    def define_message(name, options = {}, &block)
+    def message(name, options = {}, &block)
       pre_message_create(name)
       message = Message.new(self, name, options, &block)
       post_message_create(name)
@@ -1388,7 +1384,7 @@ module Domgen
       "Repository[#{self.name}]"
     end
 
-    def define_data_module(name, options = {}, &block)
+    def data_module(name, options = {}, &block)
       Domgen::DataModule.new(self, name, options, &block)
     end
 
@@ -1402,7 +1398,7 @@ module Domgen
       data_module
     end
 
-    def define_model_check(name, options = {}, &block)
+    def model_check(name, options = {}, &block)
       Domgen::ModelCheck.new(self, name, options, &block)
     end
 
