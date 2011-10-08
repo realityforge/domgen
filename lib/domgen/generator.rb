@@ -39,6 +39,14 @@ module Domgen
                 end
               end
 
+              if :exception == template.scope
+                data_module.exceptions.each do |object_type|
+                  if template.applicable?(object_type) && (filter.nil? || filter.call(:exception, object_type))
+                    render(directory, template, :exception, object_type)
+                  end
+                end
+              end
+
               if :service == template.scope
                 data_module.services.each do |service|
                   if template.applicable?(service) && (filter.nil? || filter.call(:service, service))

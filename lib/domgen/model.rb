@@ -922,16 +922,17 @@ module Domgen
     end
   end
 
-  class Exception < Domgen.FacetedElement(:method)
+  class Exception < Domgen.FacetedElement(:data_module)
     attr_reader :name
 
-    def initialize(method, name, options, &block)
+    def initialize(data_module, name, options, &block)
       @name = name
-      super(method, options, &block)
+      data_module.send :register_exception, name, self
+      super(data_module, options, &block)
     end
 
     def qualified_name
-      "#{method.qualified_name}!#{self.name}"
+      "#{data_module.name}.#{self.name}!"
     end
 
     def to_s
@@ -1050,9 +1051,12 @@ module Domgen
 
     def exception(name, options = {}, &block)
       error("Attempting to redefine exception #{name} on #{self.qualified_name}") if @exceptions[name.to_s]
-      exception = Exception.new(self, name, options, &block)
-      @exceptions[name.to_s] = exception
-      exception
+      begin
+        service.data_module.exception_by_name(name)
+      rescue
+        service.data_module.define_exception(name)
+      end
+      @exceptions[name.to_s] = service.data_module.exception_by_name(name)
     end
 
     protected
@@ -1071,7 +1075,6 @@ module Domgen
 
     def perform_verify
       verify_characteristics
-      exceptions.each { |p| p.verify }
       return_value.verify
     end
   end
@@ -1127,6 +1130,7 @@ module Domgen
       @services = Domgen::OrderedHash.new
       @messages = Domgen::OrderedHash.new
       @enumerations = Domgen::OrderedHash.new
+      @exceptions = Domgen::OrderedHash.new
       Logger.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
       Logger.info "DataModule '#{name}' definition completed"
@@ -1143,7 +1147,7 @@ module Domgen
     def define_enumeration(name, enumeration_type, options = {}, &block)
       pre_enumeration_create(name)
       EnumerationSet.new(self, name, enumeration_type, options, &block)
-      post_object_type_create(name)
+      post_enumeration_create(name)
     end
 
     def enumeration_by_name(name)
@@ -1155,6 +1159,27 @@ module Domgen
       enumeration = @enumerations[name.to_s]
       error("Unable to locate local enumeration #{name} in #{self.name}") unless enumeration
       enumeration
+    end
+
+    def exceptions
+      @exceptions.values
+    end
+
+    def define_exception(name, options = {}, &block)
+      pre_exception_create(name)
+      Exception.new(self, name, options, &block)
+      post_exception_create(name)
+    end
+
+    def exception_by_name(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1])
+    end
+
+    def local_exception_by_name(name)
+      exception = @exceptions[name.to_s]
+      error("Unable to locate local exception #{name} in #{self.name}") unless exception
+      exception
     end
 
     def object_types
@@ -1226,6 +1251,8 @@ module Domgen
       object_types.each { |p| p.verify }
       services.each { |p| p.verify }
       messages.each { |p| p.verify }
+      enumerations.each { |p| p.verify }
+      exceptions.each { |p| p.verify }
     end
 
     private
@@ -1248,6 +1275,19 @@ module Domgen
 
     def register_enumeration(name, enumeration)
       @enumerations[name.to_s] = enumeration
+    end
+
+    def pre_exception_create(name)
+      error("Attempting to redefine Exception '#{name}'") if @exceptions[name.to_s]
+      Logger.debug "Exception '#{name}' definition started"
+    end
+
+    def post_exception_create(name)
+      Logger.debug "Exception '#{name}' definition completed"
+    end
+
+    def register_exception(name, exception)
+      @exceptions[name.to_s] = exception
     end
 
     def pre_object_type_create(name)
