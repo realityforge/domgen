@@ -3,6 +3,7 @@ module Domgen
     module EJB
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       FACETS = [:ejb]
+      HELPERS = [Domgen::Java::Helper]
     end
 
     def self.define_ejb_templates
@@ -11,7 +12,7 @@ module Domgen
                      :service,
                      "#{EJB::TEMPLATE_DIRECTORY}/interface.erb",
                      'java/#{service.ejb.qualified_service_name.gsub(".","/")}.java',
-                     [Domgen::Java::Helper])
+                     EJB::HELPERS)
       ]
     end
   end

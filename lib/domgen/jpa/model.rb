@@ -4,13 +4,46 @@ module Domgen
 
     class Query < Domgen.ParentedElement(:jpa_class)
       attr_reader :name
-      attr_accessor :jpql
       attr_accessor :parameter_types
 
-      def initialize(jpa_class, name, jpql, options = {}, & block)
+      def initialize(jpa_class, name, ql, options = {}, & block)
         @name = name
-        @jpql = jpql
+        @ql = ql
         super(jpa_class, options, & block)
+      end
+
+      attr_writer :native
+
+      def native?
+        @native.nil? ? false : @native
+      end
+
+      def ql
+        @ql
+      end
+
+      def no_ql?
+        @ql.nil?
+      end
+
+      def jpql=(ql)
+        @native = false
+        @ql = ql
+      end
+
+      def jpql
+        raise "Called jpql for native query" if self.native?
+        @ql
+      end
+
+      def sql=(ql)
+        @native = false
+        @ql = ql
+      end
+
+      def sql
+        raise "Called sql for non-native query" unless self.native?
+        @ql
       end
 
       def populate_parameters
@@ -21,8 +54,8 @@ module Domgen
       end
 
       def parameters
-        return [] if jpql.nil?
-        jpql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
+        return [] if self.ql.nil?
+        self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
       end
 
       def qualified_name
@@ -39,17 +72,24 @@ module Domgen
         @query_type || :selector
       end
 
-      attr_writer :singular
+      def multiplicity
+        @multiplicity || :many
+      end
 
-      def singular?
-        @singular.nil? ? false : @singular
+      def multiplicity=(multiplicity)
+        error("multiplicity #{multiplicity} is invalid") unless Domgen::InverseElement.inverse_multiplicity_types.include?(multiplicity)
+        @multiplicity = multiplicity
       end
 
       def query_string
         if self.query_type == :full
-          query = self.jpql
+          query = self.ql
         elsif self.query_type == :selector
-          query = "SELECT O FROM #{jpa_class.object_type.jpa.jpql_name} O #{jpql.nil? ? '' : "WHERE "}#{jpql}"
+          if self.native?
+            query = "SELECT O.* FROM #{jpa_class.object_type.sql.table_name} O #{no_ql? ? '' : "WHERE "}#{sql}"
+          else
+            query = "SELECT O FROM #{jpa_class.object_type.jpa.jpql_name} O #{no_ql? ? '' : "WHERE "}#{jpql}"
+          end
         else
           error("Unknown query type #{query_type}")
         end
@@ -59,11 +99,17 @@ module Domgen
       private
 
       def name_prefix
-        "find#{singular? ? '' : 'All'}"
+        if self.multiplicity == :many
+          "findAll"
+        elsif self.multiplicity == :zero_or_one
+          "find"
+        else
+          "get"
+        end
       end
 
       def name_suffix
-        jpql.nil? ? '' : "By#{name}"
+        no_ql? ? '' : "By#{name}"
       end
     end
 
@@ -204,10 +250,13 @@ module Domgen
       end
 
       def post_verify
-        self.query('All', nil, :singular => false)
+        self.query('All', nil, :multiplicity => :many)
         self.query(object_type.primary_key.name,
                    "O.#{object_type.primary_key.jpa.name} = :#{object_type.primary_key.jpa.name}",
-                   :singular => true)
+                   :multiplicity => :one)
+        self.query(object_type.primary_key.name,
+                   "O.#{object_type.primary_key.jpa.name} = :#{object_type.primary_key.jpa.name}",
+                   :multiplicity => :zero_or_one)
         self.queries.each do |q|
           q.populate_parameters
         end
@@ -219,6 +268,16 @@ module Domgen
 
       def entity_package
         @entity_package || "#{data_module.repository.jpa.entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
+      attr_writer :catalog_name
+
+      def catalog_name
+        @catalog_name || "#{data_module.name}Catalog"
+      end
+
+      def qualified_catalog_name
+        "#{entity_package}.#{catalog_name}"
       end
 
       attr_writer :dao_package

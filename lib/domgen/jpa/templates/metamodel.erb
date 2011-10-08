@@ -12,5 +12,5 @@ public <%= object_type.abstract? ? "abstract " : "" %>class <%= object_type.jpa.
   public static volatile javax.persistence.metamodel.SingularAttribute<<%= object_type.jpa.entity_name %>, <%= attribute.jpa.non_primitive_java_type %>> <%= attribute.jpa.name %>;<%
    end
   object_type.referencing_attributes.select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.traversable? }.each do |attribute| %>
-  public static volatile javax.persistence.metamodel.ListAttribute<<%= object_type.jpa.entity_name %>, <%= attribute.object_type.jpa.qualified_entity_name %>> <%= attribute.inverse.multiplicity == :many ? pluralize(attribute.inverse.relationship_name) : attribute.inverse.relationship_name %>;<% end %>
+  public static volatile javax.persistence.metamodel.<%= attribute.inverse.multiplicity == :many ? "List" : "Singular" %>Attribute<<%= object_type.jpa.entity_name %>, <%= attribute.object_type.jpa.qualified_entity_name %>> <%= attribute.inverse.multiplicity == :many ? pluralize(attribute.inverse.relationship_name) : attribute.inverse.relationship_name %>;<% end %>
 }

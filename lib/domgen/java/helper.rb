@@ -1,6 +1,19 @@
 module Domgen
   module Java
     module Helper
+      def nullability_annotation(is_nullable)
+        is_nullable ? "@javax.annotation.Nullable" : "@javax.annotation.Nonnull"
+      end
+
+      def annotated_type(characteristic, characteristic_key)
+        extension = characteristic.send characteristic_key
+        if extension.primitive? || extension.java_type.to_s == 'void'
+          return extension.java_type
+        else
+          return "#{nullability_annotation(characteristic.nullable?)} #{extension.java_type}"
+        end
+      end
+
       def description_javadoc_for(element, depth = "  ")
         description = element.tags[:Description]
         return '' unless description

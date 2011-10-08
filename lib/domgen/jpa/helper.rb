@@ -7,7 +7,7 @@ module Domgen
           s << "  @javax.persistence.Transient\n"
         else
           s << "  @javax.persistence.Id\n" if attribute.primary_key?
-          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.AUTO )\n" if attribute.sql.identity?
+          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
           s << gen_relation_annotation(attribute, true) if attribute.reference?
           s << gen_column_annotation(attribute)
         end
@@ -225,8 +225,25 @@ JAVA
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
   {
-     return #{name};
+JAVA
+        if attribute.generated_value? && !attribute.nullable?
+          java << <<JAVA
+      if( null == #{name} )
+      {
+        throw new IllegalStateException("Attempting to access generated value #{name} before it has been flushed to the database.");
+      }
+JAVA
+
+        end
+        java << <<JAVA
+     return doGet#{attribute.jpa.name}();
   }
+
+  protected #{type} doGet#{attribute.jpa.name}()
+  {
+    return #{name};
+  }
+
 JAVA
         if attribute.updatable?
           java << <<JAVA
@@ -267,8 +284,14 @@ JAVA
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
   {
-     return #{name};
+     return doGet#{attribute.jpa.name}();
   }
+
+  protected #{type} doGet#{attribute.jpa.name}()
+  {
+    return #{name};
+  }
+
 JAVA
         if attribute.updatable?
           java << <<JAVA
@@ -331,7 +354,7 @@ STR
       def j_equals_method(object_type)
         return '' if object_type.abstract?
         pk = object_type.primary_key
-        pk_getter = getter_for(pk)
+        pk_getter = "doGet#{object_type.primary_key.jpa.name}()"
         pk_type = nullable_annotate(pk, pk.jpa.java_type, false)
         equality_comparison = (!pk.jpa.primitive?) ? "null != key && key.equals( that.#{pk_getter} )" : "key == that.#{pk_getter}"
         s = <<JAVA
@@ -409,15 +432,21 @@ JAVA
         elsif !attribute.nullable? &&
           !attribute.generated_value? &&
           !(attribute.reference? && attribute.inverse.multiplicity == :zero_or_one && inverse_side)
-          annotation = "@javax.annotation.Nonnull #{type}"
+          annotation = "#{nullability_annotation(false)} #{type}"
         else
-          annotation = "@javax.annotation.Nullable #{type}"
+          annotation = "#{nullability_annotation(true)} #{type}"
         end
         if is_field_annotation
           "  #{annotation}\n"
         else
           annotation
         end
+      end
+
+      def query_return_type(query)
+        entity_name = query.jpa_class.object_type.jpa.qualified_entity_name
+        return "#{nullability_annotation(false)} java.util.List<#{entity_name}>" if query.multiplicity == :many
+        "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{entity_name}"
       end
 
       def null_guard(nullable, name)
