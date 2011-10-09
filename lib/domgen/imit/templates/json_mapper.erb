@@ -22,35 +22,32 @@ public class <%= data_module.imit.json_mapper_name %>
   void update<%= entity.name %>( final <%= entity.name %> entity, final org.json.JSONObject object, final boolean fullUpdate )
       throws org.json.JSONException
   {
+<% if entity.extends
+   other = entity.data_module.entity_by_name(entity.extends)
+%>    update<%= other.name %>( entity, object, fullUpdate );
+<% end %>
 <% entity.declared_attributes.select{|attribute| !attribute.primary_key? && attribute.imit.client_side? }.each do |attribute|
-    attribute_name = attribute.imit.field_name
-    attribute_type = attribute.attribute_type
-
-    if attribute.attribute_type == :reference
-      attribute_name = attribute.referencing_link_name
-      attribute_type = attribute.referenced_entity.primary_key.attribute_type
-    end
     value_converter =
-        if attribute_type == :datetime
+        if attribute.imit.transport_attribute_type == :datetime
           "new java.sql.Timestamp( object.getLong( #{entity.name}.#{uppercase_constantize(attribute.name)} ) )"
-        elsif attribute_type == :integer
+        elsif attribute.imit.transport_attribute_type == :integer
           "object.getInt( #{entity.name}.#{uppercase_constantize(attribute.name)} )"
-        elsif attribute_type == :real
+        elsif attribute.imit.transport_attribute_type == :real
           "object.getDouble( #{entity.name}.#{uppercase_constantize(attribute.name)} )"
-        elsif attribute_type == :boolean
+        elsif attribute.imit.transport_attribute_type == :boolean
           "object.getBoolean( #{entity.name}.#{uppercase_constantize(attribute.name)} )"
-        elsif attribute_type == :string || attribute.attribute_type == :text
+        elsif attribute.imit.transport_attribute_type == :string || attribute.imit.transport_attribute_type == :text
           "object.getString( #{entity.name}.#{uppercase_constantize(attribute.name)} )"
-        elsif attribute_type == :enumeration && attribute.enumeration.textual_values?
+        elsif attribute.imit.transport_attribute_type == :enumeration && attribute.enumeration.textual_values?
           "#{attribute.enumeration.imit.qualified_enumeration_name}.valueOf( object.getString( #{entity.name}.#{uppercase_constantize(attribute.name)} ) )"
-        elsif attribute_type == :enumeration && attribute.enumeration.numeric_values?
+        elsif attribute.imit.transport_attribute_type == :enumeration && attribute.enumeration.numeric_values?
           "#{attribute.enumeration.imit.qualified_enumeration_name}.values()[ object.getInt( #{entity.name}.#{uppercase_constantize(attribute.name)} ) ]"
         else
-          raise "Unable to convert data type #{attribute_type} on #{attribute.qualified_name}"
+          raise "Unable to convert data type #{attribute.imit.transport_attribute_type} on #{attribute.qualified_name}"
         end
 %>    if( fullUpdate || object.has( <%= entity.name %>.<%= uppercase_constantize( attribute.name ) %> ) )
     {
-      _<%= data_module.name %>Updater.set<%= attribute_name %>_On_<%= entity.name %>( entity, <%= value_converter %> );
+      _<%= data_module.name %>Updater.set<%= attribute.imit.transport_name %>_On_<%= entity.name %>( entity, <%= value_converter %> );
     }
 <% end %>
   }

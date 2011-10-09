@@ -16,8 +16,8 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 <%= entity.extends.nil? ? "  protected final EntityRepository _repository;\n" : ""
 %><% entity.declared_attributes.select{ |a| !a.abstract? && a.imit.client_side? }.each do |attribute| %>
   private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.field_name %>;
-<% if attribute.attribute_type == :reference
-%>  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.referenced_entity.primary_key.imit.java_type}" %> _<%= attribute.referencing_link_name %>;
+<% if attribute.reference?
+%>  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.transport_java_type}" %> _<%= attribute.imit.transport_name %>;
 <%
    end
    end
@@ -29,14 +29,6 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
   }
 
 <% entity.declared_attributes.each do |attribute|
-
-    attribute_writer_name = attribute.imit.field_name
-    attribute_writer_type = annotated_type(attribute, :imit)
-
-    if attribute.attribute_type == :reference
-      attribute_writer_name = attribute.referencing_link_name
-      attribute_writer_type = "#{nullability_annotation(attribute.nullable?)} #{attribute.referenced_entity.primary_key.imit.java_type}"
-    end
 %>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.field_name %>()
   {
 <% if attribute.attribute_type == :reference
@@ -48,12 +40,12 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 %>    return _<%= attribute.imit.field_name %>;
   }
 <% if attribute.attribute_type == :reference
-%>  <%= attribute_writer_type %> get<%= attribute_writer_name %>()
+%>  <%= attribute.imit.transport_java_type %> get<%= attribute.imit.transport_name %>()
   {
     return _<%= attribute.referencing_link_name %>;
   }
 <% end %>
-  void set<%= attribute_writer_name %>( final <%= attribute_writer_type %> value )
+  void set<%= attribute.imit.transport_name %>( final <%= attribute.imit.transport_java_type %> value )
   {
 <% if attribute.attribute_type == :reference
 %>    _<%= attribute.imit.field_name %> = null;

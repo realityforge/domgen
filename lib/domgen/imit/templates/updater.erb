@@ -22,20 +22,11 @@ class <%= data_module.imit.updater_name %>
 
 <% data_module.entities.each do |entity| %>
 
-<% entity.declared_attributes.select{|attribute| attribute.imit.client_side?}.each do |attribute|
-    attribute_name = attribute.imit.field_name
-    attribute_type = attribute.imit.java_type
-
-    if attribute.attribute_type == :reference
-      attribute_name = attribute.referencing_link_name
-      attribute_type = attribute.referenced_entity.primary_key.imit.java_type
-    end
-
-%>
-  void set<%= attribute_name %>_On_<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final <%= attribute_type %> value )
+<% entity.declared_attributes.select{|attribute| attribute.imit.client_side?}.each do |attribute| %>
+  void set<%= attribute.imit.transport_name %>_On_<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final <%= attribute.imit.transport_java_type %> value )
   {
 <%
-   getter_text = "entity.get#{attribute_name}()"
+   getter_text = "entity.get#{attribute.imit.transport_name}()"
    equal_check =
        if attribute.primary_key?
          "false"
@@ -49,7 +40,7 @@ class <%= data_module.imit.updater_name %>
 %>
     if( !( <%= equal_check %> ) )
     {
-      entity.set<%= attribute_name %>( value );
+      entity.set<%= attribute.imit.transport_name %>( value );
       _broker.attributeChanged( new EntityChangeEvent( EntityChangeEvent.Type.ATTRIBUTE_CHANGED, entity, <%= entity.imit.imitation_name %>.<%= uppercase_constantize( attribute.name ) %>, value ) );
     }
   }
