@@ -13,7 +13,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 <% entity.declared_attributes.select{ |a| !a.abstract? && a.imit.client_side? }.each do |attribute|
 %>  public static final String <%= uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end %>
-<%= entity.extends.nil? ? "  protected final EntityRepository _repository;\n" : ""
+<%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
 %><% entity.declared_attributes.select{ |a| !a.abstract? && a.imit.client_side? }.each do |attribute| %>
   private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.field_name %>;
 <% if attribute.reference?
@@ -31,6 +31,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 <% entity.declared_attributes.each do |attribute|
 %>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.field_name %>()
   {
+    checkValidity();
 <% if attribute.attribute_type == :reference
 %>    if( null == _<%= attribute.imit.field_name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
     {
@@ -47,6 +48,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 <% end %>
   void set<%= attribute.imit.transport_name %>( final <%= attribute.imit.transport_java_type %> value )
   {
+    checkValidity();
 <% if attribute.attribute_type == :reference
 %>    _<%= attribute.imit.field_name %> = null;
     _<%= attribute.referencing_link_name %> = value;
@@ -54,5 +56,18 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 %>    _<%= attribute.imit.field_name %> = value;
 <% end %>  }
 
+<% end %>
+  protected void invalidate()
+  {
+    <%= entity.extends.nil? ? "_repository = null" : "super.invalidate()" %>;
+  }
+<% if entity.extends.nil? %>
+  protected final void checkValidity()
+  {
+    if( null == _repository )
+    {
+      throw new IllegalStateException( "Method invoked on invalid imitation" );
+    }
+  }
 <% end %>
 }

@@ -42,7 +42,9 @@ public class <%= data_module.imit.json_mapper_name %>
 
   void delete<%= entity.name %>( final Object id )
   {
-    _repository.deregisterEntity( <%= entity.imit.imitation_name %>.class, id );
+    final <%= entity.imit.imitation_name %> entity =
+      _repository.deregisterEntity( <%= entity.imit.imitation_name %>.class, id );
+    entity.invalidate();
   }
 
   void update<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final org.json.JSONObject object, final boolean fullUpdate )
