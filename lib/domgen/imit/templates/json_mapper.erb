@@ -3,7 +3,11 @@ package <%= data_module.imit.imitation_package %>;
 
 import footprints.javancss.imit.EntityChangeBroker;
 
-<%= description_javadoc_for(data_module, "") %>@javax.annotation.Generated( "Domgen" )
+/**
+ * Utility class that decodes JSON payloads and applies the changes to the entities
+ * in the associated entity repository for the data module "<%= data_module.name %>".
+ */
+@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= data_module.imit.json_mapper_name %>
 {

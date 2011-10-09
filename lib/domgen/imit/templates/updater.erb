@@ -4,7 +4,12 @@ package <%= data_module.imit.imitation_package %>;
 import footprints.javancss.imit.EntityChangeBroker;
 import footprints.javancss.imit.EntityChangeEvent;
 
-<%= description_javadoc_for(data_module, "") %>@javax.annotation.Generated( "Domgen" )
+/**
+ * Utility class that manages updates of imitations in the "<%= data_module.name %>"
+ * data module. The updater ensures that the correct sequence of events are sent
+ * through the broker.
+ */
+@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 class <%= data_module.imit.updater_name %>
 {
