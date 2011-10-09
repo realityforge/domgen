@@ -2,6 +2,7 @@
 package <%= data_module.imit.imitation_package %>;
 
 import footprints.javancss.imit.EntityChangeBroker;
+import footprints.javancss.imit.EntityRepository;
 
 /**
  * Utility class that decodes JSON payloads and applies the changes to the entities
@@ -11,22 +12,47 @@ import footprints.javancss.imit.EntityChangeBroker;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= data_module.imit.json_mapper_name %>
 {
-  private final @javax.annotation.Nonnull <%= data_module.imit.updater_name %> _<%= data_module.name %>Updater;
+  private final EntityRepository _repository;
+  private final EntityChangeBroker _broker;
+  private final <%= data_module.imit.updater_name %> _<%= data_module.name %>Updater;
 
-  public <%= data_module.imit.json_mapper_name %>( final @javax.annotation.Nonnull EntityChangeBroker broker )
+  public <%= data_module.imit.json_mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
   {
+    _repository = repository;
+    _broker = broker;
     _<%= data_module.name %>Updater = new <%= data_module.imit.updater_name %>( broker );
   }
 
 <% data_module.entities.each do |entity| %>
-  void update<%= entity.name %>( final <%= entity.name %> entity, final org.json.JSONObject object, final boolean fullUpdate )
+  void create<%= entity.name %>( final Object id, final org.json.JSONObject object )
+      throws org.json.JSONException
+  {
+    final <%= entity.imit.imitation_name %> entity = new <%= entity.imit.imitation_name %>( _repository );
+    _broker.deactivate();
+    try
+    {
+      _repository.registerEntity( <%= entity.imit.imitation_name %>.class, id, entity );
+      update<%= entity.name %>( entity, object, true );
+    }
+    finally
+    {
+      _broker.activate();
+    }
+  }
+
+  void delete<%= entity.name %>( final Object id )
+  {
+    _repository.deregisterEntity( <%= entity.imit.imitation_name %>.class, id );
+  }
+
+  void update<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final org.json.JSONObject object, final boolean fullUpdate )
       throws org.json.JSONException
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends)
 %>    update<%= other.name %>( entity, object, fullUpdate );
 <% end %>
-<% entity.declared_attributes.select{|attribute| !attribute.primary_key? && attribute.imit.client_side? }.each do |attribute|
+<% entity.declared_attributes.select{|attribute| attribute.imit.client_side? }.each do |attribute|
     value_converter =
         if attribute.imit.transport_attribute_type == :datetime
           "new java.sql.Timestamp( object.getLong( #{entity.name}.#{uppercase_constantize(attribute.name)} ) )"
@@ -45,7 +71,7 @@ public class <%= data_module.imit.json_mapper_name %>
         else
           raise "Unable to convert data type #{attribute.imit.transport_attribute_type} on #{attribute.qualified_name}"
         end
-%>    if( fullUpdate || object.has( <%= entity.name %>.<%= uppercase_constantize( attribute.name ) %> ) )
+%>    if( fullUpdate <% if !attribute.primary_key? %>|| object.has( <%= entity.name %>.<%= uppercase_constantize( attribute.name ) %> )<% end %> )
     {
       _<%= data_module.name %>Updater.set<%= attribute.imit.transport_name %>_On_<%= entity.name %>( entity, <%= value_converter %> );
     }
