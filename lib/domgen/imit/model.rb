@@ -73,11 +73,11 @@ module Domgen
       attr_writer :imitation_package
 
       def imitation_package
-        @imitation_package || "#{Domgen::Naming.underscore(data_module.repository.name)}.#{Domgen::Naming.underscore(data_module.name)}"
+        @imitation_package || "#{data_module.repository.imit.imitation_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
       def json_mapper_name
-        "#{data_module.name}JSONMapper"
+        "#{data_module.name}JsonMapper"
       end
 
       def qualified_json_mapper_name
@@ -91,6 +91,28 @@ module Domgen
       def qualified_updater_name
         "#{imitation_package}.#{updater_name}"
       end
+
+      attr_writer :client_side
+
+      def client_side?
+        @client_side.nil? ? true : @client_side
+      end
+    end
+
+    class ImitationApplication < Domgen.ParentedElement(:repository)
+      attr_writer :imitation_package
+
+      def imitation_package
+        @imitation_package || Domgen::Naming.underscore(repository.name)
+      end
+
+      def json_mapper_name
+        "#{repository.name}JsonMapper"
+      end
+
+      def qualified_json_mapper_name
+        "#{imitation_package}.#{json_mapper_name}"
+      end
     end
   end
 
@@ -98,5 +120,6 @@ module Domgen
                             EnumerationSet => Domgen::Imit::ImitationEnumeration,
                             Attribute => Domgen::Imit::ImitationAttribute,
                             Entity => Domgen::Imit::ImitationClass,
-                            DataModule => Domgen::Imit::ImitationModule)
+                            DataModule => Domgen::Imit::ImitationModule,
+                            Repository => Domgen::Imit::ImitationApplication)
 end

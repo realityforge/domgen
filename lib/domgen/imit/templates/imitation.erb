@@ -10,6 +10,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
   "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_imitation_name}\n" :
   "" %>
 {
+  public static final String TYPE_KEY = "<%= entity.qualified_name %>";
 <% entity.declared_attributes.select{ |a| !a.abstract? && a.imit.client_side? }.each do |attribute|
 %>  public static final String <%= uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end %>

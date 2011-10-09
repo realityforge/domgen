@@ -3,6 +3,7 @@ package <%= data_module.imit.imitation_package %>;
 
 import footprints.javancss.imit.EntityChangeBroker;
 import footprints.javancss.imit.EntityRepository;
+import footprints.javancss.imit.JsonMapper;
 
 /**
  * Utility class that decodes JSON payloads and applies the changes to the entities
@@ -11,7 +12,10 @@ import footprints.javancss.imit.EntityRepository;
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= data_module.imit.json_mapper_name %>
+  implements JsonMapper
 {
+  public static final String TYPE_PREFIX = "<%= data_module.name %>";
+
   private final EntityRepository _repository;
   private final EntityChangeBroker _broker;
   private final <%= data_module.imit.updater_name %> _<%= data_module.name %>Updater;
@@ -21,6 +25,51 @@ public class <%= data_module.imit.json_mapper_name %>
     _repository = repository;
     _broker = broker;
     _<%= data_module.name %>Updater = new <%= data_module.imit.updater_name %>( broker );
+  }
+
+  public void create( final Object id, final String typeName, final org.json.JSONObject object )
+      throws org.json.JSONException
+  {
+    <% data_module.entities.each do |entity|
+%>if( <%= entity.imit.imitation_name %>.TYPE_KEY.equals( typeName ) )
+    {
+      create<%= entity.name %>( id, object );
+    }
+    else <%
+end %>
+    {
+      throw new IllegalStateException("Unknown type specified " + typeName );
+    }
+  }
+
+  public void update( final Object id, final String typeName, final org.json.JSONObject object )
+      throws org.json.JSONException
+  {
+    <% data_module.entities.each do |entity|
+%>if( <%= entity.imit.imitation_name %>.TYPE_KEY.equals( typeName ) )
+    {
+      final <%= entity.imit.imitation_name %> entity = _repository.getByID( <%= entity.imit.imitation_name %>.class, id );
+      update<%= entity.name %>( entity, object, false );
+    }
+    else <%
+end %>
+    {
+      throw new IllegalStateException("Unknown type specified " + typeName );
+    }
+  }
+
+  public void delete( final Object id, final String typeName )
+  {
+    <% data_module.entities.each do |entity|
+%>if( <%= entity.imit.imitation_name %>.TYPE_KEY.equals( typeName ) )
+    {
+      delete<%= entity.name %>( id );
+    }
+    else <%
+end %>
+    {
+      throw new IllegalStateException("Unknown type specified " + typeName );
+    }
   }
 
 <% data_module.entities.each do |entity| %>
