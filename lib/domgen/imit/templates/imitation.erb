@@ -1,31 +1,66 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= entity.data_module.imit.imitation_package %>;
 
+import footprints.javancss.imit.EntityRepository;
+
 <%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation_name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_imitation_name}\n" :
-  "" %>    implements java.io.Serializable
+  "" %>
 {
-<% entity.declared_attributes.select{ |a| !a.abstract? && a.imit.client_side? }.each do |attribute| %>
-  private <%= annotated_type(attribute, :imit) %> <%= attribute.imit.field_name %>;
+<% entity.declared_attributes.select{ |a| !a.abstract? && a.imit.client_side? }.each do |attribute|
+%>  public static final String <%= uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end %>
+<%= entity.extends.nil? ? "  protected final EntityRepository _repository;\n" : ""
+%><% entity.declared_attributes.select{ |a| !a.abstract? && a.imit.client_side? }.each do |attribute| %>
+  private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.field_name %>;
+<% if attribute.attribute_type == :reference
+%>  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.referenced_entity.primary_key.imit.java_type}" %> _<%= attribute.referencing_link_name %>;
+<%
+   end
+   end
+%>
 
-  protected <%= entity.imit.imitation_name %>()
+  protected <%= entity.imit.imitation_name %>( final EntityRepository repository )
   {
+    <%= entity.extends.nil? ? "_repository = repository" : "super( repository )" %>;
   }
 
 <% entity.declared_attributes.each do |attribute|
+
+    attribute_writer_name = attribute.imit.field_name
+    attribute_writer_type = annotated_type(attribute, :imit)
+
+    if attribute.attribute_type == :reference
+      attribute_writer_name = attribute.referencing_link_name
+      attribute_writer_type = "#{nullability_annotation(attribute.nullable?)} #{attribute.referenced_entity.primary_key.imit.java_type}"
+    end
 %>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.field_name %>()
   {
-    return <%= attribute.imit.field_name %>;
+<% if attribute.attribute_type == :reference
+%>    if( null == _<%= attribute.imit.field_name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
+    {
+      _<%= attribute.imit.field_name %> = _repository.findByID( <%= attribute.referenced_entity.imit.qualified_imitation_name %>.class, _<%= attribute.referencing_link_name %> );
+    }
+  <% end
+%>    return _<%= attribute.imit.field_name %>;
   }
-
-  protected void set<%= attribute.imit.field_name %>( final <%= annotated_type(attribute, :imit) %> value )
+<% if attribute.attribute_type == :reference
+%>  <%= attribute_writer_type %> get<%= attribute_writer_name %>()
   {
-    <%= attribute.imit.field_name %> = value;
+    return _<%= attribute.referencing_link_name %>;
   }
+<% end %>
+  void set<%= attribute_writer_name %>( final <%= attribute_writer_type %> value )
+  {
+<% if attribute.attribute_type == :reference
+%>    _<%= attribute.imit.field_name %> = null;
+    _<%= attribute.referencing_link_name %> = value;
+<% else
+%>    _<%= attribute.imit.field_name %> = value;
+<% end %>  }
 
 <% end %>
 }

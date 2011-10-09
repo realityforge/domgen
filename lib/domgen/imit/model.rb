@@ -61,7 +61,23 @@ module Domgen
       attr_writer :imitation_package
 
       def imitation_package
-        @imitation_package || "#{Domgen::Naming.underscore(data_module.repository.name)}.#{Domgen::Naming.underscore(data_module.repository.name)}"
+        @imitation_package || "#{Domgen::Naming.underscore(data_module.repository.name)}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
+      def json_mapper_name
+        "#{data_module.name}JSONMapper"
+      end
+
+      def qualified_json_mapper_name
+        "#{imitation_package}.#{json_mapper_name}"
+      end
+
+      def updater_name
+        "#{data_module.name}Updater"
+      end
+
+      def qualified_updater_name
+        "#{imitation_package}.#{updater_name}"
       end
     end
   end
