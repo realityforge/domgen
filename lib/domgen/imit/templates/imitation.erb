@@ -35,7 +35,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 <% if attribute.attribute_type == :reference
 %>    if( null == _<%= attribute.imit.field_name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
     {
-      _<%= attribute.imit.field_name %> = _repository.findByID( <%= attribute.referenced_entity.imit.qualified_imitation_name %>.class, _<%= attribute.referencing_link_name %> );
+      _<%= attribute.imit.field_name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_imitation_name %>.class, _<%= attribute.referencing_link_name %> );
     }
   <% end
 %>    return _<%= attribute.imit.field_name %>;
