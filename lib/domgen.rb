@@ -53,3 +53,7 @@ require 'domgen/ejb/generator'
 # GWT
 require 'domgen/gwt/model'
 require 'domgen/gwt/generator'
+
+# Imit
+require 'domgen/imit/model'
+require 'domgen/imit/generator'
