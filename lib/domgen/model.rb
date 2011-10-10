@@ -926,6 +926,7 @@ module Domgen
 
   class Exception < Domgen.FacetedElement(:data_module)
     attr_reader :name
+    attr_accessor :extends
 
     def initialize(data_module, name, options, &block)
       @name = name
