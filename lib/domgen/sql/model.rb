@@ -625,7 +625,7 @@ SQL
         entity.declared_attributes.select { |a| a.attribute_type == :enumeration && a.enumeration.textual_values? }.each do |a|
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
-#{a.sql.quoted_column_name} IN (#{a.enumeration.values.collect { |v| "'#{v}'" }.join(',')})
+#{a.sql.quoted_column_name} IN (#{a.enumeration.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
         entity.declared_attributes.select{ |a| (a.has_length?) && a.persistent? && !a.allow_blank? }.each do |a|
