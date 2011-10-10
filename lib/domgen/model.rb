@@ -541,9 +541,7 @@ module Domgen
       params = options.dup
       params[:enumeration] = enumeration
       c = characteristic(name, :enumeration, params, &block)
-      if enumeration.textual_values? && c.length.nil?
-        c.length = enumeration.values.inject(0) { |max, value| max > value.length ? max : value.length }
-      end
+      c.length = enumeration.max_value_length if enumeration.textual_values?
       c
     end
 
