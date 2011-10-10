@@ -29,7 +29,7 @@ module Domgen
         elsif column.attribute.attribute_type.to_s == 'text'
           return "text"
         elsif column.attribute.enum?
-          column.attribute.enumeration.textual_values? ? "varchar" : "integer"
+          column.attribute.enumeration.textual_values? ? "varchar(#{column.attribute.length})" : "integer"
         else
           return TYPE_MAP[column.attribute.attribute_type.to_s] + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
         end
@@ -79,7 +79,7 @@ module Domgen
         elsif column.attribute.attribute_type.to_s == 'text'
           return "[VARCHAR](MAX)"
         elsif column.attribute.enum?
-          column.attribute.enumeration.textual_values? ? "VARCHAR" : "INT"
+          column.attribute.enumeration.textual_values? ? "VARCHAR(#{column.attribute.length})" : "INT"
         else
           return quote(TYPE_MAP[column.attribute.attribute_type.to_s]) + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
         end
