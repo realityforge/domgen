@@ -245,6 +245,10 @@ module Domgen
         if (sorted_values[sorted_values.size - 1] - sorted_values[0] + 1) != sorted_values.size
           error("Non-continuous values detected for enumeration #{name}")
         end
+
+        if 0 != sorted_values.first
+          error("Non-zero based numeric enumeration #{enumeration.name}")
+        end
       end
 
       @values = values
