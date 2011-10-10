@@ -202,7 +202,7 @@ module Domgen
       end
 
       def qualified_enumeration_name
-        "#{enumeration.data_module.jpa.data_type_package}.#{enumeration.name}"
+        "#{enumeration.data_module.jpa.data_type_package}.#{enumeration_name}"
       end
     end
 
