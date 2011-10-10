@@ -256,7 +256,7 @@ module Domgen
 
     def max_value_length
       error("max_value_length invoked on numeric enumeration") if numeric_values?
-      values.inject(0) { |max, value| max > value.length ? max : value.length }
+      values.values.inject(0) { |max, value| max > value.length ? max : value.length }
     end
 
     def self.enumeration_types
