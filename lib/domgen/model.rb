@@ -803,12 +803,14 @@ module Domgen
     end
 
     def new_characteristic(name, type, options, &block)
+      override = false
       if characteristic_map[name.to_s]
         error("Attempting to override non abstract attribute #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
         # nil out atribute so the characteristic container will not complain about it overriding an existing value
         characteristic_map[name.to_s] = nil
+        override = true
       end
-      Attribute.new(self, name, type, {:override => !characteristic_map[name.to_s].nil?}.merge(options), &block)
+      Attribute.new(self, name, type, {:override => override}.merge(options), &block)
     end
 
     def perform_verify
