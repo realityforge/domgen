@@ -522,13 +522,13 @@ module Domgen
 
     def i_enum(name, values, options = {}, &block)
       enumeration_name = "#{self.name}#{name}"
-      enum_manager.enumeration(enumeration_name, :integer, { :values => values }.merge(options))
+      enum_manager.enumeration(enumeration_name, :integer, { :values => values })
       enumeration(name, enumeration_name, options, &block)
     end
 
     def s_enum(name, values, options = {}, &block)
       enumeration_name = "#{self.name}#{name}"
-      enum_manager.enumeration(enumeration_name, :string, { :values => values }.merge(options))
+      enum_manager.enumeration(enumeration_name, :string, { :values => values })
       enumeration(name, enumeration_name, options, &block)
     end
 
