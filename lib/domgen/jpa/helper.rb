@@ -414,7 +414,7 @@ JAVA
     return "#{entity.name}[" +
 JAVA
         s += entity.attributes.select{|a| a.jpa.persistent?}.collect do |a|
-          "           \"#{a.jpa.name} = \" + " + getter_for(a)
+          "           \"#{a.jpa.name} = \" + doGet#{a.jpa.name}()"
         end.join(" + \", \" +\n")
         s += <<JAVA
  +
