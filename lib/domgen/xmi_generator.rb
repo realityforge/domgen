@@ -47,7 +47,7 @@ module Domgen
       output_file = ::Java.java.io.File.new(filename).getAbsolutePath()
 
       ::Java.org.eclipse.emf.ecore.resource.Resource::Factory::Registry::INSTANCE.getExtensionToFactoryMap().
-        put( File.extname(output_file).gsub('.',''), Java.org.eclipse.uml2.uml.resource.UMLResource::Factory::INSTANCE )
+        put(File.extname(output_file).gsub('.', ''), Java.org.eclipse.uml2.uml.resource.UMLResource::Factory::INSTANCE)
 
       model = ::Java.org.eclipse.uml2.uml.UMLFactory.eINSTANCE.createModel()
       model.set_name(model_name.to_s)
@@ -81,7 +81,7 @@ module Domgen
       # Only persistent and attributes will be processed.
       repository.data_modules.each do |data_module|
         package = model.create_nested_package(data_module.name.to_s)
-        resource.setID( package, data_module.name.to_s )
+        resource.setID(package, data_module.name.to_s)
         package.createOwnedComment().setBody(description(data_module)) if description(data_module)
         packages[data_module.name] = package
 
@@ -91,10 +91,10 @@ module Domgen
               enum_key = create_enum_key(data_module, entity, attribute)
               enum_name = create_enum_name(entity, attribute)
               enum = package.create_owned_enumeration(enum_name)
-              resource.setID( enum, "#{attribute.qualified_name}Enum" )
+              resource.setID(enum, "#{attribute.qualified_name}Enum")
               attribute.enumeration.values.each do |enum_literal, enum_index|
                 literal = enum.create_owned_literal(enum_literal)
-                resource.setID( literal, "#{attribute.qualified_name}Enum.#{enum_literal}" );
+                resource.setID(literal, "#{attribute.qualified_name}Enum.#{enum_literal}");
               end
               enumerations[enum_key] ||= enum
             elsif !attribute.reference?
@@ -115,7 +115,7 @@ module Domgen
         data_module.entities.each do |entity|
           package = packages[data_module.name]
           clazz = package.create_owned_class(entity.name, false)
-          resource.setID( clazz, entity.qualified_name.to_s )
+          resource.setID(clazz, entity.qualified_name.to_s)
           clazz.createOwnedComment().setBody(description(entity)) if description(entity)
           name_class_map[entity.qualified_name] ||= clazz
 
@@ -126,7 +126,7 @@ module Domgen
             prim_type = primitive_types[primitive_name(attribute_type)]
             name = attribute.reference? ? attribute.referencing_link_name : attribute.name.to_s
             emf_attr = clazz.create_owned_attribute(name, prim_type, 0, 1)
-            resource.setID( emf_attr, attribute.qualified_name.to_s )
+            resource.setID(emf_attr, attribute.qualified_name.to_s)
             emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
 
@@ -175,7 +175,7 @@ module Domgen
         data_module.services.each do |service|
           package = packages[data_module.name]
           clazz = package.create_owned_class(service.name, false)
-          resource.setID( clazz, service.qualified_name.to_s )
+          resource.setID(clazz, service.qualified_name.to_s)
           clazz.createOwnedComment().setBody(description(service)) if description(service)
           name_class_map[service.qualified_name] ||= clazz
 
@@ -183,10 +183,28 @@ module Domgen
             package = packages[data_module.name]
             names = Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
             types = Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
-            #TODO: Add name/parameter types
+
+            method.parameters.each do |p|
+              p_type_str = p.parameter_type.to_s
+              param_type = if (name_class_map.has_key?(p_type_str))
+                name_class_map[p_type_str]
+              else
+                name_class_map[p_type_str] = package.create_owned_class(p_type_str, false)
+                name_class_map[p_type_str]
+              end
+              types.add(param_type)
+              names.add(p.name.to_s)
+            end
+
             operation = if method.return_value.return_type != :void
-              #TODO: Set method.return_value.return_type as 4th parameter
-              clazz.createOwnedOperation(method.name.to_s, names, types)
+              return_type_str = method.return_value.return_type.to_s
+              return_type = if (name_class_map.has_key?(return_type_str))
+                name_class_map[return_type_str]
+              else
+                name_class_map[return_type_str] = package.create_owned_class(return_type_str, false)
+                name_class_map[return_type_str]
+              end
+              clazz.createOwnedOperation(method.name.to_s, names, types, return_type)
             else
               clazz.createOwnedOperation(method.name.to_s, names, types)
             end
@@ -212,21 +230,7 @@ module Domgen
         end
       end
 
-      # Phase 6: Enumeration creation.
-      repository.data_modules.each do |data_module|
-        package = packages[data_module.name]
-        data_module.enumerations.each do |enum|
-          fqn = package.name + "." + enum.name
-          enumeration = package.create_owned_enumeration(enum.name)
-          resource.setID(enumeration, fqn)
-          enum.values.keys.each do |key|
-            literal = enumeration.create_owned_literal(key)
-            resource.setID(literal, fqn + "_" + key)
-          end
-        end
-      end
-
-      # Phase 7: Exception creation.
+      # Phase 6: Exception creation.
       repository.data_modules.each do |data_module|
         package = packages[data_module.name]
         data_module.exceptions.each do |exception|
@@ -269,6 +273,34 @@ module Domgen
 
     def self.create_enum_name(entity, attr)
       "#{entity.name}#{attr.name}Enum"
+    end
+
+    def self.create_accessors(clazz, param, resource)
+      create_getter(clazz, param, resource)
+      create_setter(clazz, param, resource)
+    end
+
+    def self.create_getter(clazz, param, resource)
+      getter = "get#{create_property_name(param.name)}"
+      getter_names = Java.org.eclipse.emf.common.util.BasicEList.new(0)
+      getter_types = Java.org.eclipse.emf.common.util.BasicEList.new(0)
+      ##TODO: Add name/parameter types
+      operation = clazz.createOwnedOperation(getter, getter_names, getter_types)
+      resource.setID(operation, param.qualified_name + "get")
+    end
+
+    def self.create_setter(clazz, param, resource)
+      setter = "set#{create_property_name(param.name)}"
+      setter_names = Java.org.eclipse.emf.common.util.BasicEList.new(0)
+      setter_types = Java.org.eclipse.emf.common.util.BasicEList.new(0)
+      ##TODO: Add name/parameter types
+      operation = clazz.createOwnedOperation(setter, setter_names, setter_types)
+      resource.setID(operation, param.qualified_name + "set")
+    end
+
+    def self.create_property_name(name)
+      n = name.to_s
+      "#{n[0, 1].upcase}#{n[1, n.length]}"
     end
   end
 end
