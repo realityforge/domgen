@@ -38,7 +38,7 @@ public class <%= data_module.imit.rpc_mapper_name %>
       {
         // It is not in the local repository so we need to delete it
         _repository.deregisterEntity( <%= entity.imit.imitation_name %>.class, id );
-        entity.invalidate();
+         _<%= data_module.name %>Updater.delete<%= entity.name %>( entity );
       }
     }
     else
