@@ -1,9 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= data_module.imit.imitation_package %>;
 
-import footprints.javancss.imit.EntityChangeBroker;
-import footprints.javancss.imit.EntityRepository;
-import footprints.javancss.imit.JsonMapper;
+import org.realityforge.imit.EntityChangeBroker;
+import org.realityforge.imit.EntityRepository;
 
 /**
  * Utility class that decodes JSON payloads and applies the changes to the entities
@@ -12,7 +11,6 @@ import footprints.javancss.imit.JsonMapper;
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= data_module.imit.json_mapper_name %>
-  implements JsonMapper
 {
   public static final String TYPE_PREFIX = "<%= data_module.name %>";
 
@@ -30,7 +28,7 @@ public class <%= data_module.imit.json_mapper_name %>
   public void create( final Object id, final String typeName, final org.json.JSONObject object )
       throws org.json.JSONException
   {
-    <% data_module.entities.each do |entity|
+    <% data_module.entities.select{|entity| !entity.abstract?}.each do |entity|
 %>if( <%= entity.imit.imitation_name %>.TYPE_KEY.equals( typeName ) )
     {
       create<%= entity.name %>( id, object );
@@ -45,7 +43,7 @@ end %>
   public void update( final Object id, final String typeName, final org.json.JSONObject object )
       throws org.json.JSONException
   {
-    <% data_module.entities.each do |entity|
+    <% data_module.entities.select{|entity| !entity.abstract?}.each do |entity|
 %>if( <%= entity.imit.imitation_name %>.TYPE_KEY.equals( typeName ) )
     {
       final <%= entity.imit.imitation_name %> entity = _repository.getByID( <%= entity.imit.imitation_name %>.class, id );
@@ -60,7 +58,7 @@ end %>
 
   public void delete( final Object id, final String typeName )
   {
-    <% data_module.entities.each do |entity|
+    <% data_module.entities.select{|entity| !entity.abstract?}.each do |entity|
 %>if( <%= entity.imit.imitation_name %>.TYPE_KEY.equals( typeName ) )
     {
       delete<%= entity.name %>( id );
@@ -73,6 +71,7 @@ end %>
   }
 
 <% data_module.entities.each do |entity| %>
+<% if !entity.abstract? %>
   void create<%= entity.name %>( final Object id, final org.json.JSONObject object )
       throws org.json.JSONException
   {
@@ -95,7 +94,7 @@ end %>
       _repository.deregisterEntity( <%= entity.imit.imitation_name %>.class, id );
     entity.invalidate();
   }
-
+<% end %>
   void update<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final org.json.JSONObject object, final boolean fullUpdate )
       throws org.json.JSONException
   {

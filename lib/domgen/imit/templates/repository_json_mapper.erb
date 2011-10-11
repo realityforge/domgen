@@ -1,9 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= repository.imit.imitation_package %>;
 
-import footprints.javancss.imit.EntityChangeBroker;
-import footprints.javancss.imit.EntityRepository;
-import footprints.javancss.imit.JsonMapper;
+import org.realityforge.imit.EntityChangeBroker;
+import org.realityforge.imit.EntityRepository;
 
 /**
  * Utility class that decodes JSON payloads and applies the changes to the entities
@@ -12,10 +11,9 @@ import footprints.javancss.imit.JsonMapper;
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.json_mapper_name %>
-  implements JsonMapper
 {
 <% repository.data_modules.select{|data_module| data_module.imit.client_side? }.each do |data_module|
-%>  private final JsonMapper _<%= data_module.name %>;
+%>  private final <%= data_module.imit.qualified_json_mapper_name %> _<%= data_module.name %>;
 <% end %>
   public <%= repository.imit.json_mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
   {

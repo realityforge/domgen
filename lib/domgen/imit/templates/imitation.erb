@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= entity.data_module.imit.imitation_package %>;
 
-import footprints.javancss.imit.EntityRepository;
+import org.realityforge.imit.EntityRepository;
 
 <%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
@@ -11,11 +11,11 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
   "" %>
 {
   public static final String TYPE_KEY = "<%= entity.qualified_name %>";
-<% entity.declared_attributes.select{ |a| !a.abstract? && a.imit.client_side? }.each do |attribute|
+<% entity.declared_attributes.select{ |attribute| attribute.imit.client_side? }.each do |attribute|
 %>  public static final String <%= uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end %>
 <%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
-%><% entity.declared_attributes.select{ |a| !a.abstract? && a.imit.client_side? }.each do |attribute| %>
+%><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit.client_side? }.each do |attribute| %>
   private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.field_name %>;
 <% if attribute.reference?
 %>  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.transport_java_type}" %> _<%= attribute.imit.transport_name %>;
@@ -28,8 +28,14 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
   {
     <%= entity.extends.nil? ? "_repository = repository" : "super( repository )" %>;
   }
-
-<% entity.declared_attributes.each do |attribute|
+<% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit.client_side?}.each do |attribute|
+%>  public abstract <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.field_name %>();
+<% if attribute.attribute_type == :reference
+  %>  abstract <%= attribute.imit.transport_java_type %> get<%= attribute.imit.transport_name %>();
+<% end %>
+    abstract void set<%= attribute.imit.transport_name %>( <%= attribute.imit.transport_java_type %> value );
+<% end %>
+<% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit.client_side?}.each do |attribute|
 %>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.field_name %>()
   {
     checkValidity();
