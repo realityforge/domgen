@@ -3,7 +3,7 @@ package <%= data_module.imit.imitation_package %>;
 
 import org.realityforge.imit.EntityChangeBroker;
 import org.realityforge.imit.EntityChangeEvent;
-import org.realityforge.imit.EventChangeType;
+import org.realityforge.imit.EntityChangeType;
 
 /**
  * Utility class that manages updates of imitations in the "<%= data_module.name %>"
@@ -42,7 +42,7 @@ class <%= data_module.imit.updater_name %>
     if( !( <%= equal_check %> ) )
     {
       entity.set<%= attribute.imit.transport_name %>( value );
-      _broker.attributeChanged( new EntityChangeEvent( EventChangeType.ATTRIBUTE_CHANGED, entity, <%= entity.imit.imitation_name %>.<%= uppercase_constantize( attribute.name ) %>, value ) );
+      _broker.attributeChanged( new EntityChangeEvent( EntityChangeType.ATTRIBUTE_CHANGED, entity, <%= entity.imit.imitation_name %>.<%= uppercase_constantize( attribute.name ) %>, value ) );
     }
   }
 <% end %>
