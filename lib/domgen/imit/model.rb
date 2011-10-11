@@ -26,7 +26,7 @@ module Domgen
       attr_writer :client_side
 
       def client_side?
-        @client_side.nil? ? true : @client_side
+        @client_side.nil? ? attribute.entity.imit.client_side? : @client_side
       end
 
       include Domgen::Java::JavaCharacteristic
@@ -59,7 +59,7 @@ module Domgen
       attr_writer :client_side
 
       def client_side?
-        @client_side.nil? ? true : @client_side
+        @client_side.nil? ? entity.data_module.imit.client_side? : @client_side
       end
     end
 
@@ -99,7 +99,7 @@ module Domgen
       attr_writer :client_side
 
       def client_side?
-        @client_side.nil? ? true : @client_side
+        @client_side.nil? ? !@imitation_package.nil? : @client_side
       end
     end
 
