@@ -30,7 +30,7 @@ class <%= data_module.imit.updater_name %>
    equal_check =
        if attribute.primary_key?
          "false"
-       elsif attribute.imit.primitive?
+       elsif attribute.imit.transport_primitive?
          "#{getter_text} == value"
        elsif !attribute.nullable?
          "#{getter_text}.equals( value )"

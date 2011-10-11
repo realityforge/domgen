@@ -7,6 +7,10 @@ module Domgen
         attribute.name
       end
 
+      def transport_primitive?
+        attribute.reference? ? (!attribute.nullable? && (attribute.referenced_entity.primary_key.attribute_type == :integer || attribute.referenced_entity.primary_key.attribute_type == :boolean)) : primitive?
+      end
+
       def transport_name
         attribute.reference? ? attribute.referencing_link_name : field_name
       end
