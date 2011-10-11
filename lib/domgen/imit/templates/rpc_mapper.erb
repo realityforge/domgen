@@ -43,12 +43,14 @@ public class <%= data_module.imit.rpc_mapper_name %>
     }
     else
     {
+      boolean fullUpdate = false;
       if( null == entity )
       {
         entity = new <%= entity.imit.imitation_name %>( _repository );
         _repository.registerEntity( <%= entity.imit.imitation_name %>.class, id, entity );
+        fullUpdate = true;
       }
-      updateAttributes<%= entity.name %>( entity, change.getAttributeValues(), true );
+      updateAttributes<%= entity.name %>( entity, change.getAttributeValues(), fullUpdate );
     }
   }
 
