@@ -207,7 +207,7 @@ module Domgen
           name_class_map[message.qualified_name] ||= clazz
 
           message.parameters.each do |param|
-            create_accessors(clazz, param, resource)
+            #TODO: create_accessors(clazz, param, resource)
           end
         end
       end
