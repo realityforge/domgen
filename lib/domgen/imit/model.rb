@@ -48,6 +48,8 @@ module Domgen
 
     class ImitationClass < Domgen.ParentedElement(:entity)
 
+      attr_accessor :transport_id
+
       def imitation_name
         entity.name
       end
@@ -88,6 +90,14 @@ module Domgen
         "#{imitation_package}.#{json_mapper_name}"
       end
 
+      def rpc_mapper_name
+        "#{data_module.name}RpcMapper"
+      end
+
+      def qualified_rpc_mapper_name
+        "#{imitation_package}.#{rpc_mapper_name}"
+      end
+
       def updater_name
         "#{data_module.name}Updater"
       end
@@ -100,6 +110,10 @@ module Domgen
 
       def client_side?
         @client_side.nil? ? !@imitation_package.nil? : @client_side
+      end
+
+      def client_side_entities
+        data_module.entities.select { |entity| entity.imit.client_side?  }
       end
     end
 
@@ -116,6 +130,30 @@ module Domgen
 
       def qualified_json_mapper_name
         "#{imitation_package}.#{json_mapper_name}"
+      end
+
+      def rpc_mapper_name
+        "#{repository.name}RpcMapper"
+      end
+
+      def qualified_rpc_mapper_name
+        "#{imitation_package}.#{rpc_mapper_name}"
+      end
+
+      def client_side_data_modules
+        repository.data_modules.select{|data_module| data_module.imit.client_side? }
+      end
+
+      def client_side_entities
+        client_side_data_modules.collect{ |data_module| data_module.imit.client_side_entities }.flatten
+      end
+
+      def concrete_client_side_entities
+        client_side_entities.select{|entity| !entity.abstract?}
+      end
+
+      def post_verify
+        concrete_client_side_entities.each_with_index {|entity, index| entity.imit.transport_id = index}
       end
     end
   end

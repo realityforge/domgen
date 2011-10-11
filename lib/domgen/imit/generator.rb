@@ -44,5 +44,21 @@ module Domgen
                      Imit::HELPERS),
       ]
     end
+
+    def self.define_imit_rpc_templates
+      [
+        Template.new(Imit::FACETS,
+                     :data_module,
+                     "#{Imit::TEMPLATE_DIRECTORY}/rpc_mapper.erb",
+                     'java/#{data_module.imit.qualified_rpc_mapper_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'data_module.imit.client_side?'),
+        Template.new(Imit::FACETS,
+                     :repository,
+                     "#{Imit::TEMPLATE_DIRECTORY}/repository_rpc_mapper.erb",
+                     'java/#{repository.imit.qualified_rpc_mapper_name.gsub(".","/")}.java',
+                     Imit::HELPERS),
+      ]
+    end
   end
 end

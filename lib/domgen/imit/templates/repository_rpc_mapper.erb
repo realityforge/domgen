@@ -1,0 +1,46 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.imitation_package %>;
+
+import org.realityforge.imit.EntityChangeBroker;
+import org.realityforge.imit.EntityRepository;
+import org.realityforge.imit.transport.rpc.Change;
+
+/**
+ * Utility class that decodes RPC payloads and applies the changes to the entities
+ * in the associated entity repository for the repository "<%= repository.name %>".
+ */
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.imit.rpc_mapper_name %>
+{
+<% repository.imit.client_side_data_modules.each do |data_module|
+%>  private final <%= data_module.imit.qualified_rpc_mapper_name %> _<%= data_module.name %>;
+<% end %>
+  @javax.inject.Inject
+  public <%= repository.imit.rpc_mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
+  {
+<% repository.imit.client_side_data_modules.each do |data_module|
+%>    _<%= data_module.name %> = new <%= data_module.imit.qualified_rpc_mapper_name %>( repository, broker );
+<% end %>
+  }
+
+  public void apply( final Change[] changes )
+  {
+    for( final Change change : changes )
+    {
+      apply( change );
+    }
+  }
+
+  private void apply( final Change change )
+  {
+    final int typeID = change.getTypeID();
+    switch( typeID )
+    {
+<% repository.imit.concrete_client_side_entities.each do |entity|
+%>      case <%= entity.imit.qualified_imitation_name %>.TRANSPORT_ID: _<%= entity.data_module.name %>.applyChangeTo<%= entity.name %>( change ); break;
+<% end %>
+      default: throw new IllegalArgumentException("Unknown typeID = " + typeID);
+    }
+  }
+}

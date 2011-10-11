@@ -11,6 +11,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
   "" %>
 {
   public static final String TYPE_KEY = "<%= entity.qualified_name %>";
+<% if !entity.abstract? %>
+  public static final int TRANSPORT_ID = <%= entity.imit.transport_id %>;
+<% end %>
 <% entity.declared_attributes.select{ |attribute| attribute.imit.client_side? }.each do |attribute|
 %>  public static final String <%= uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end %>
