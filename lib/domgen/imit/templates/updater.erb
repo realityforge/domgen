@@ -1,8 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= data_module.imit.imitation_package %>;
 
-import footprints.javancss.imit.EntityChangeBroker;
-import footprints.javancss.imit.EntityChangeEvent;
+import org.realityforge.imit.EntityChangeBroker;
+import org.realityforge.imit.EntityChangeEvent;
+import org.realityforge.imit.EventChangeType;
 
 /**
  * Utility class that manages updates of imitations in the "<%= data_module.name %>"
@@ -41,7 +42,7 @@ class <%= data_module.imit.updater_name %>
     if( !( <%= equal_check %> ) )
     {
       entity.set<%= attribute.imit.transport_name %>( value );
-      _broker.attributeChanged( new EntityChangeEvent( EntityChangeEvent.Type.ATTRIBUTE_CHANGED, entity, <%= entity.imit.imitation_name %>.<%= uppercase_constantize( attribute.name ) %>, value ) );
+      _broker.attributeChanged( new EntityChangeEvent( EventChangeType.ATTRIBUTE_CHANGED, entity, <%= entity.imit.imitation_name %>.<%= uppercase_constantize( attribute.name ) %>, value ) );
     }
   }
 <% end %>
