@@ -4,6 +4,7 @@ package <%= repository.imit.imitation_package %>;
 import org.realityforge.imit.EntityChangeBroker;
 import org.realityforge.imit.EntityRepository;
 import org.realityforge.imit.transport.rpc.Change;
+import org.realityforge.imit.transport.rpc.ChangeSet;
 
 /**
  * Utility class that decodes RPC payloads and applies the changes to the entities
@@ -13,22 +14,32 @@ import org.realityforge.imit.transport.rpc.Change;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.rpc_mapper_name %>
 {
+  private final EntityChangeBroker _broker;
 <% repository.imit.client_side_data_modules.each do |data_module|
 %>  private final <%= data_module.imit.qualified_rpc_mapper_name %> _<%= data_module.name %>;
 <% end %>
   @javax.inject.Inject
   public <%= repository.imit.rpc_mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
   {
+    _broker = broker;
 <% repository.imit.client_side_data_modules.each do |data_module|
 %>    _<%= data_module.name %> = new <%= data_module.imit.qualified_rpc_mapper_name %>( repository, broker );
 <% end %>
   }
 
-  public void apply( final Change[] changes )
+  public void apply( final ChangeSet changeSet )
   {
-    for( final Change change : changes )
+    _broker.deactivate();
+    try
     {
-      apply( change );
+      for( final Change change : changeSet.getChanges() )
+      {
+        apply( change );
+      }
+    }
+    finally
+    {
+      _broker.activate();
     }
   }
 
