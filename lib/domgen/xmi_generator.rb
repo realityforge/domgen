@@ -196,6 +196,48 @@ module Domgen
         end
       end
 
+      # Phase 5: Message creation.
+      repository.data_modules.each do |data_module|
+        data_module.messages.each do |message|
+          class_name = "#{message.name}Message"
+          package = packages[data_module.name]
+          clazz = package.create_owned_class(class_name, false)
+          resource.setID(clazz, message.qualified_name.to_s)
+          clazz.createOwnedComment().setBody(description(message)) if description(message)
+          name_class_map[message.qualified_name] ||= clazz
+
+          message.parameters.each do |param|
+            create_accessors(clazz, param, resource)
+          end
+        end
+      end
+
+      # Phase 6: Enumeration creation.
+      repository.data_modules.each do |data_module|
+        package = packages[data_module.name]
+        data_module.enumerations.each do |enum|
+          fqn = package.name + "." + enum.name
+          enumeration = package.create_owned_enumeration(enum.name)
+          resource.setID(enumeration, fqn)
+          enum.values.keys.each do |key|
+            literal = enumeration.create_owned_literal(key)
+            resource.setID(literal, fqn + "_" + key)
+          end
+        end
+      end
+
+      # Phase 7: Exception creation.
+      repository.data_modules.each do |data_module|
+        package = packages[data_module.name]
+        data_module.exceptions.each do |exception|
+          class_name = "#{exception.name}Exception"
+          clazz = package.create_owned_class(class_name, false)
+          resource.setID(clazz, exception.qualified_name.to_s)
+          clazz.createOwnedComment().setBody(description(exception)) if description(exception)
+          name_class_map[exception.qualified_name] ||= clazz
+        end
+      end
+
       resource.save(nil)
 
     end
