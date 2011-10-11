@@ -30,16 +30,14 @@ class <%= data_module.imit.updater_name %>
    getter_text = "entity.get#{attribute.imit.transport_name}()"
    equal_check =
        if attribute.primary_key?
-         "false"
+         "true"
        elsif attribute.imit.transport_primitive?
-         "#{getter_text} == value"
-       elsif !attribute.nullable?
-         "#{getter_text}.equals( value )"
+         "#{getter_text} != value"
        else
-         "(null == value && null == #{getter_text}) || #{getter_text}.equals( value )"
+         "!( (null == value && null == #{getter_text}) || (null != #{getter_text} && null != value && #{getter_text}.equals( value ) ) )"
        end
 %>
-    if( !( <%= equal_check %> ) )
+    if( <%= equal_check %> )
     {
       entity.set<%= attribute.imit.transport_name %>( value );
       _broker.attributeChanged( new EntityChangeEvent( EntityChangeType.ATTRIBUTE_CHANGED, entity, <%= entity.imit.imitation_name %>.<%= uppercase_constantize( attribute.name ) %>, value ) );
