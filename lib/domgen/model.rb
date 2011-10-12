@@ -1123,6 +1123,7 @@ module Domgen
       @messages = Domgen::OrderedHash.new
       @enumerations = Domgen::OrderedHash.new
       @exceptions = Domgen::OrderedHash.new
+      @elements = Domgen::OrderedHash.new
       Logger.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
       Logger.info "DataModule '#{name}' definition completed"
@@ -1261,6 +1262,11 @@ module Domgen
       name_parts
     end
 
+    def register_type_name(key, type_name, element)
+      raise "Attempting to redefine #{key} of type #{@elements[key].class.name} as an #{type_name}" if @elements[key]
+      @elements[key] = element
+    end
+
     def pre_enumeration_create(name)
       error("Attempting to redefine Enumeration '#{name}'") if @enumerations[name.to_s]
       Logger.debug "Enumeration '#{name}' definition started"
@@ -1271,6 +1277,7 @@ module Domgen
     end
 
     def register_enumeration(name, enumeration)
+      register_type_name(name.to_s, "enumeration", enumeration)
       @enumerations[name.to_s] = enumeration
     end
 
@@ -1284,6 +1291,7 @@ module Domgen
     end
 
     def register_exception(name, exception)
+      register_type_name(name.to_s, "exception", exception)
       @exceptions[name.to_s] = exception
     end
 
@@ -1297,6 +1305,7 @@ module Domgen
     end
 
     def register_entity(name, entity)
+      register_type_name(name.to_s, "entity", entity)
       @entities[name.to_s] = entity
     end
 
@@ -1310,6 +1319,7 @@ module Domgen
     end
 
     def register_service(name, service)
+      register_type_name(name.to_s, "service", service)
       @services[name.to_s] = service
     end
 
@@ -1323,6 +1333,7 @@ module Domgen
     end
 
     def register_message(name, message)
+      register_type_name(name.to_s, "message", message)
       @messages[name.to_s] = message
     end
   end
