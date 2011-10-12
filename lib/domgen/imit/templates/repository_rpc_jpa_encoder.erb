@@ -11,6 +11,9 @@ import org.realityforge.imit.transport.rpc.ChangeSet;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.rpc_jpa_encoder_name %>
 {
+  @javax.annotation.Resource
+  private javax.transaction.TransactionSynchronizationRegistry _registry;
+
   @javax.persistence.PostUpdate
   @javax.persistence.PostPersist
   public void postUpdate( final Object object )
@@ -46,8 +49,37 @@ public class <%= repository.imit.rpc_jpa_encoder_name %>
     }
   }
 
+  @SuppressWarnings( { "unchecked" } )
   private void addChange( final Change change )
   {
-    //Insert magic here
+    final javax.transaction.TransactionSynchronizationRegistry registry = getRegistry();
+    java.util.LinkedList<Change> changes = (java.util.LinkedList<Change>) registry.getResource( ChangeSet.KEY );
+    if ( null == changes )
+    {
+      changes = new java.util.LinkedList<Change>();
+      registry.putResource( ChangeSet.KEY, changes );
+    }
+    changes.add( change );
+  }
+
+  /**
+   * Access registry via JNDI. Can not use @javax.annotation.Resource as JPA 2.0 does not
+   * support it. However our Guice based test infrastructure uses it.
+   */
+  private javax.transaction.TransactionSynchronizationRegistry getRegistry()
+  {
+    if ( null == _registry )
+    {
+      try
+      {
+        _registry = (javax.transaction.TransactionSynchronizationRegistry)
+          new javax.naming.InitialContext().lookup( "java:comp/TransactionSynchronizationRegistry" );
+      }
+      catch ( final javax.naming.NamingException ne )
+      {
+        throw new IllegalStateException( "Unable to locate TransactionSynchronizationRegistry due to " + ne, ne );
+      }
+    }
+    return _registry;
   }
 }
