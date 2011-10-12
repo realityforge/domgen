@@ -82,6 +82,12 @@ module Domgen
         @imitation_package || "#{data_module.repository.imit.imitation_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
+      attr_writer :encoder_package
+
+      def encoder_package
+        @encoder_package || "#{data_module.repository.imit.encoder_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
       def json_mapper_name
         "#{data_module.name}JsonMapper"
       end
@@ -96,6 +102,14 @@ module Domgen
 
       def qualified_rpc_mapper_name
         "#{imitation_package}.#{rpc_mapper_name}"
+      end
+
+      def rpc_jpa_encoder_name
+        "#{data_module.name}RpcJpaEncoder"
+      end
+
+      def qualified_rpc_jpa_encoder_name
+        "#{encoder_package}.#{rpc_jpa_encoder_name}"
       end
 
       def updater_name
@@ -115,6 +129,10 @@ module Domgen
       def client_side_entities
         data_module.entities.select { |entity| entity.imit.client_side?  }
       end
+
+      def concrete_client_side_entities
+        client_side_entities.select{|entity| !entity.abstract?}
+      end
     end
 
     class ImitationApplication < Domgen.ParentedElement(:repository)
@@ -122,6 +140,12 @@ module Domgen
 
       def imitation_package
         @imitation_package || Domgen::Naming.underscore(repository.name)
+      end
+
+      attr_writer :encoder_package
+
+      def encoder_package
+        @encoder_package || Domgen::Naming.underscore(repository.name)
       end
 
       def json_mapper_name
@@ -138,6 +162,14 @@ module Domgen
 
       def qualified_rpc_mapper_name
         "#{imitation_package}.#{rpc_mapper_name}"
+      end
+
+      def rpc_jpa_encoder_name
+        "#{repository.name}ImitEntityListener"
+      end
+
+      def qualified_rpc_jpa_encoder_name
+        "#{encoder_package}.#{rpc_jpa_encoder_name}"
       end
 
       def client_side_data_modules

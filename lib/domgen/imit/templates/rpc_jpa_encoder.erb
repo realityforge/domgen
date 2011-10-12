@@ -1,0 +1,66 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= data_module.imit.encoder_package %>;
+
+import org.realityforge.imit.transport.rpc.Change;
+
+/**
+ * Utility class that encodes RPC payloads from JPA entities for the data module "<%= data_module.name %>".
+ */
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= data_module.imit.rpc_jpa_encoder_name %>
+{
+  private <%= data_module.imit.rpc_jpa_encoder_name %>()
+  {
+  }
+
+<% data_module.imit.client_side_entities.each do |entity| %>
+<% if !entity.abstract? %>
+  public static Change encode<%= entity.name %>( final <%= entity.jpa.qualified_entity_name %> entity )
+  {
+    final @javax.annotation.Nonnull Object id = entity.<%= getter_for(entity.primary_key) %>;
+    final java.util.HashMap<String, Object> attributes = new java.util.HashMap<String, Object>();
+    encodeAttributesAttributes<%= entity.name %>( entity, attributes );
+    return new Change( id, <%= entity.imit.transport_id %>, attributes );
+  }
+
+  public static Change encode<%= entity.name %>Remove( final <%= entity.jpa.qualified_entity_name %> entity )
+  {
+    final @javax.annotation.Nonnull Object id = entity.<%= getter_for(entity.primary_key) %>;
+    return new Change( id, <%= entity.imit.transport_id %>, null );
+  }
+<% end %>
+
+  private static void encodeAttributesAttributes<%= entity.name %>( final <%= entity.jpa.qualified_entity_name %> entity, final java.util.HashMap<String, Object> attributes )
+  {
+<% if entity.extends
+   other = entity.data_module.entity_by_name(entity.extends)
+%>    encodeAttributesAttributes<%= other.name %>( entity, attributes );
+<% end %>
+<% entity.declared_attributes.select{|attribute| attribute.imit.client_side? && !attribute.abstract? }.each do |attribute|
+    value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": "")
+    value_converter =
+        if attribute.imit.transport_attribute_type == :datetime
+          "( ( null == value ) ? null : value.getTime() )"
+        elsif [:integer, :real, :boolean, :string, :text].include?(attribute.imit.transport_attribute_type)
+          if attribute.nullable?
+            "( ( null == value ) ? null : value#{value_suffix} )"
+          else
+            "value#{value_suffix}"
+          end
+        elsif attribute.imit.transport_attribute_type == :enumeration && attribute.enumeration.textual_values?
+          "( ( null == value ) ? null : value.name() )"
+        elsif attribute.imit.transport_attribute_type == :enumeration && attribute.enumeration.numeric_values?
+          "( ( null == value ) ? null : value.ordinal() )"
+        else
+          raise "Unable to convert data type #{attribute.imit.transport_attribute_type} on #{attribute.qualified_name}"
+        end
+%>
+    {
+      final <%= nullable_annotate(attribute, attribute.jpa.java_type, false) %> value = entity.<%= getter_for(attribute) %>;
+      attributes.put( "<%= attribute.name %>", <%= "#{value_converter}" %> );
+    }
+<% end %>
+  }
+<% end %>
+}

@@ -60,5 +60,23 @@ module Domgen
                      Imit::HELPERS),
       ]
     end
+
+    def self.define_imit_rpc_jpa_templates
+      facets = Imit::FACETS + [:jpa]
+      helpers = Imit::HELPERS + [Domgen::JPA::Helper, Domgen::Java::Helper]
+      [
+        Template.new(facets,
+                     :data_module,
+                     "#{Imit::TEMPLATE_DIRECTORY}/rpc_jpa_encoder.erb",
+                     'java/#{data_module.imit.qualified_rpc_jpa_encoder_name.gsub(".","/")}.java',
+                     helpers,
+                     'data_module.imit.client_side?'),
+        Template.new(facets,
+                     :repository,
+                     "#{Imit::TEMPLATE_DIRECTORY}/repository_rpc_jpa_encoder.erb",
+                     'java/#{repository.imit.qualified_rpc_jpa_encoder_name.gsub(".","/")}.java',
+                     helpers),
+      ]
+    end
   end
 end
