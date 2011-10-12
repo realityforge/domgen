@@ -682,14 +682,6 @@ module Domgen
       @unique_constraints.values
     end
 
-    def candidate_key(attribute_names)
-      attribute_names.each do |attribute_name|
-        attribute = attribute_by_name(attribute_name)
-        error("Candidate keys must consist of immutable attributes") unless attribute.immutable?
-      end
-      unique_constraint(attribute_names)
-    end
-
     def unique_constraint(attribute_names, options = {}, &block)
       error("Must have at least 1 or more attribute names for uniqueness constraint") if attribute_names.empty?
       constraint = UniqueConstraint.new(self, attribute_names, options, &block)
