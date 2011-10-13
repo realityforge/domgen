@@ -1,8 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= repository.imit.encoder_package %>;
 
-import org.realityforge.imit.transport.rpc.Change;
-import org.realityforge.imit.transport.rpc.ChangeSet;
+import org.realityforge.imit.server.EntityMessage;
 
 /**
  * * Utility class that encodes RPC payloads from JPA entities for the repository "<%= repository.name %>".
@@ -13,6 +12,10 @@ public class <%= repository.imit.rpc_jpa_encoder_name %>
 {
   @javax.annotation.Resource
   private javax.transaction.TransactionSynchronizationRegistry _registry;
+<% repository.imit.client_side_data_modules.each do |data_module| %>
+  private final <%= data_module.imit.qualified_router_interface_name %> _<%= data_module.name %>Router = new <%= data_module.imit.qualified_router_interface_name %>Impl();
+<% end %>
+
 
   @javax.persistence.PostUpdate
   @javax.persistence.PostPersist
@@ -21,7 +24,12 @@ public class <%= repository.imit.rpc_jpa_encoder_name %>
     <% repository.imit.concrete_client_side_entities.each do |entity|
 %>if( <%= entity.jpa.qualified_entity_name %>.class.isInstance( object ) )
     {
-      final Change change = <%= entity.data_module.imit.qualified_rpc_jpa_encoder_name %>.encode<%= entity.name %>( <%= entity.jpa.qualified_entity_name %>.class.cast( object ) );
+      final <%= entity.jpa.qualified_entity_name %> entity = <%= entity.jpa.qualified_entity_name %>.class.cast( object );
+      final @javax.annotation.Nonnull java.io.Serializable id = entity.<%= getter_for(entity.primary_key) %>;
+      final @javax.annotation.Nonnull java.util.HashMap<String, java.io.Serializable> attributes = <%= entity.data_module.imit.qualified_rpc_jpa_encoder_name %>.encode<%= entity.name %>( entity );
+      final int transportID = <%= entity.imit.transport_id %>;
+      final @javax.annotation.Nonnull java.util.HashMap<String, java.io.Serializable> routingKeys = _<%= entity.data_module.name %>Router.route<%= entity.name %>( entity );
+      final EntityMessage change = new EntityMessage( id, transportID, routingKeys, attributes );
       addChange( change );
     }
     else <%
@@ -38,7 +46,11 @@ public class <%= repository.imit.rpc_jpa_encoder_name %>
 <% repository.imit.concrete_client_side_entities.each do |entity|
 %>if( <%= entity.jpa.qualified_entity_name %>.class.isInstance( object ) )
     {
-      final Change change = <%= entity.data_module.imit.qualified_rpc_jpa_encoder_name %>.encode<%= entity.name %>Remove( <%= entity.jpa.qualified_entity_name %>.class.cast( object ) );
+      final <%= entity.jpa.qualified_entity_name %> entity = <%= entity.jpa.qualified_entity_name %>.class.cast( object );
+      final @javax.annotation.Nonnull java.io.Serializable id = entity.<%= getter_for(entity.primary_key) %>;
+      final int transportID = <%= entity.imit.transport_id %>;
+      final @javax.annotation.Nonnull java.util.HashMap<String, java.io.Serializable> routingKeys = _<%= entity.data_module.name %>Router.route<%= entity.name %>( entity );
+      final EntityMessage change = new EntityMessage( id, transportID, routingKeys, null );
       addChange( change );
     }
     else <%
@@ -50,14 +62,14 @@ public class <%= repository.imit.rpc_jpa_encoder_name %>
   }
 
   @SuppressWarnings( { "unchecked" } )
-  private void addChange( final Change change )
+  private void addChange( final EntityMessage change )
   {
     final javax.transaction.TransactionSynchronizationRegistry registry = getRegistry();
-    java.util.LinkedList<Change> changes = (java.util.LinkedList<Change>) registry.getResource( ChangeSet.KEY );
+    java.util.LinkedList<EntityMessage> changes = (java.util.LinkedList<EntityMessage>) registry.getResource( EntityMessage.KEY );
     if ( null == changes )
     {
-      changes = new java.util.LinkedList<Change>();
-      registry.putResource( ChangeSet.KEY, changes );
+      changes = new java.util.LinkedList<EntityMessage>();
+      registry.putResource( EntityMessage.KEY, changes );
     }
     changes.add( change );
   }
