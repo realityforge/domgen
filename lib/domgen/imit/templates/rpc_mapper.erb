@@ -1,9 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= data_module.imit.imitation_package %>;
 
-import org.realityforge.imit.EntityChangeBroker;
-import org.realityforge.imit.EntityRepository;
-import org.realityforge.imit.transport.rpc.Change;
+import org.realityforge.imit.client.EntityChangeBroker;
+import org.realityforge.imit.client.EntityRepository;
+import org.realityforge.imit.shared.rpc.Change;
 
 /**
  * Utility class that decodes RPC payloads and applies the changes to the entities
@@ -55,7 +55,7 @@ public class <%= data_module.imit.rpc_mapper_name %>
   }
 
 <% end %>
-  private void updateAttributes<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final java.util.HashMap<String, Object> attributes, final boolean fullUpdate )
+  private void updateAttributes<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final java.util.HashMap<String, java.io.Serializable> attributes, final boolean fullUpdate )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends)

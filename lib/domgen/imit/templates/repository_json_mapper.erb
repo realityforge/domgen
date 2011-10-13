@@ -1,8 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= repository.imit.imitation_package %>;
 
-import org.realityforge.imit.EntityChangeBroker;
-import org.realityforge.imit.EntityRepository;
+import org.realityforge.imit.client.EntityChangeBroker;
+import org.realityforge.imit.client.EntityRepository;
 
 /**
  * Utility class that decodes JSON payloads and applies the changes to the entities
@@ -22,7 +22,7 @@ public class <%= repository.imit.json_mapper_name %>
 <% end %>
   }
 
-  public void create( final Object id, final String typeName, final org.json.JSONObject object )
+  public void create( final java.io.Serializable id, final String typeName, final org.json.JSONObject object )
       throws org.json.JSONException
   {
     <% repository.data_modules.select{|data_module| data_module.imit.client_side? }.each do |data_module|
@@ -37,7 +37,7 @@ public class <%= repository.imit.json_mapper_name %>
     }
   }
 
-  public void update( final Object id, final String typeName, final org.json.JSONObject object )
+  public void update( final java.io.Serializable id, final String typeName, final org.json.JSONObject object )
       throws org.json.JSONException
   {
     <% repository.data_modules.select{|data_module| data_module.imit.client_side? }.each do |data_module|
@@ -52,7 +52,7 @@ public class <%= repository.imit.json_mapper_name %>
     }
   }
 
-  public void delete( final Object id, final String typeName )
+  public void delete( final java.io.Serializable id, final String typeName )
   {
     <% repository.data_modules.select{|data_module| data_module.imit.client_side? }.each do |data_module|
 %>if( typeName.startsWith( <%= data_module.imit.qualified_json_mapper_name %>.TYPE_PREFIX ) )
