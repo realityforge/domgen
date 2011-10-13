@@ -112,6 +112,14 @@ module Domgen
         "#{encoder_package}.#{rpc_jpa_encoder_name}"
       end
 
+      def router_interface_name
+        "#{data_module.name}Router"
+      end
+
+      def qualified_router_interface_name
+        "#{encoder_package}.#{router_interface_name}"
+      end
+
       def updater_name
         "#{data_module.name}Updater"
       end
