@@ -57,7 +57,7 @@ module Domgen
       puts "Creating XMI for repository #{repository_key} at #{output_file}"
       resource = ::Java.org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.new.create_resource(output_uri)
       resource.get_contents().add(model)
-      resource.setID( model, model_name.to_s )
+      resource.setID(model, model_name.to_s)
 
       # As we process the schema set, we put all the packages that we discover inside this array
       # This is a map between package names and EMF package classes
@@ -186,6 +186,8 @@ module Domgen
 
             method.parameters.each do |p|
               p_type_str = p.parameter_type.to_s
+              p_type_str.gsub!(/</, "[")
+              p_type_str.gsub!(/>/, "]")
               param_type = if (name_class_map.has_key?(p_type_str))
                 name_class_map[p_type_str]
               else
@@ -198,6 +200,8 @@ module Domgen
 
             operation = if method.return_value.return_type != :void
               return_type_str = method.return_value.return_type.to_s
+              return_type_str.gsub!(/</, "[")
+              return_type_str.gsub!(/>/, "]")
               return_type = if (name_class_map.has_key?(return_type_str))
                 name_class_map[return_type_str]
               else
@@ -216,16 +220,27 @@ module Domgen
 
       # Phase 5: Message creation.
       repository.data_modules.each do |data_module|
+        package = packages[data_module.name]
         data_module.messages.each do |message|
-          class_name = "#{message.name}Message"
-          package = packages[data_module.name]
-          clazz = package.create_owned_class(class_name, false)
-          resource.setID(clazz, message.qualified_name.to_s)
-          clazz.createOwnedComment().setBody(description(message)) if description(message)
-          name_class_map[message.qualified_name] ||= clazz
+          msg_class_name = "#{message.name}Message"
+          msg_class = package.create_owned_class(msg_class_name, false)
+          msg_qualified_name = message.qualified_name.to_s
+          resource.setID(msg_class, msg_qualified_name)
+          msg_class.createOwnedComment().setBody(description(message)) if description(message)
+          name_class_map[msg_qualified_name] ||= msg_class
 
           message.parameters.each do |param|
-            #TODO: create_accessors(clazz, param, resource)
+            param_name = param.name.to_s
+            param_type_str = param.parameter_type.to_s
+            param_type_str.gsub!(/</, "[")
+            param_type_str.gsub!(/>/, "]")
+            param_type = name_class_map[param_type_str]
+            if param_type.nil?
+              param_type = package.create_owned_class(param_type_str, false)
+              resource.setID( param_type, param_type_str )
+              name_class_map[param_type_str] = param_type
+            end
+            msg_class.create_owned_attribute(param_name, param_type, 0, 1)
           end
         end
       end
@@ -275,32 +290,10 @@ module Domgen
       "#{entity.name}#{attr.name}Enum"
     end
 
-    def self.create_accessors(clazz, param, resource)
-      create_getter(clazz, param, resource)
-      create_setter(clazz, param, resource)
-    end
-
-    def self.create_getter(clazz, param, resource)
-      getter = "get#{create_property_name(param.name)}"
-      getter_names = Java.org.eclipse.emf.common.util.BasicEList.new(0)
-      getter_types = Java.org.eclipse.emf.common.util.BasicEList.new(0)
-      ##TODO: Add name/parameter types
-      operation = clazz.createOwnedOperation(getter, getter_names, getter_types)
-      resource.setID(operation, param.qualified_name + "get")
-    end
-
-    def self.create_setter(clazz, param, resource)
-      setter = "set#{create_property_name(param.name)}"
-      setter_names = Java.org.eclipse.emf.common.util.BasicEList.new(0)
-      setter_types = Java.org.eclipse.emf.common.util.BasicEList.new(0)
-      ##TODO: Add name/parameter types
-      operation = clazz.createOwnedOperation(setter, setter_names, setter_types)
-      resource.setID(operation, param.qualified_name + "set")
-    end
-
     def self.create_property_name(name)
       n = name.to_s
       "#{n[0, 1].upcase}#{n[1, n.length]}"
     end
+
   end
 end
