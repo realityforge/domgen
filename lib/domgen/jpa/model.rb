@@ -93,6 +93,7 @@ module Domgen
         else
           error("Unknown query type #{query_type}")
         end
+        query = query.gsub(/:[^\W]+/,'?') if self.native?
         query.gsub("\n", ' ')
       end
 
