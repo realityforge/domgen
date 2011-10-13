@@ -1,9 +1,7 @@
 * Make it possible to define a model check that defines the dependency requirements
   between schemas. i.e. Entity can not be referenced by anyone. Template can reference
   Entity but not Overtimes etc.
-* In JPA Models: If inverse is not traversable think about maybe persisting on create if inverse is persisted
 * Support constants in relationship_constraints
 * Make exceptions into characteristic containers?
 * Fix xmi generation: fix existing enumeration/service generation, add message generation
 * Add DTOs as a first class elements in DSL (things without an identity that form trees)
-* Unify the namespace of all elements in data_module so that an entity and a dto / exception / service / eumeration /message can ot be named the same name
