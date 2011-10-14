@@ -55,7 +55,7 @@ module Domgen
       ]
     end
 
-    def self.define_imit_rpc_jpa_templates
+    def self.define_imit_jpa_templates
       facets = Imit::FACETS + [:jpa]
       helpers = Imit::HELPERS + [Domgen::JPA::Helper, Domgen::Java::Helper]
       [
