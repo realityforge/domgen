@@ -41,23 +41,51 @@ module Domgen
       end
     end
 
-    def self.generate_xmi(repository_key, model_name, filename)
+    def self.generate_xmi(repository_key, model_name, filename, profile_name = "Profile")
+      resource_set = ::Java.org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.new
+
       repository = Domgen.repository_by_name(repository_key)
 
       output_file = ::Java.java.io.File.new(filename).getAbsolutePath()
 
+      ::Java.org.eclipse.uml2.uml.UMLPackage.eINSTANCE.getName()
+      register_extensions(resource_set)
+      puts "Register"
+
+      register_pathmaps
+      puts "Pathmaps"
+
+
+
       ::Java.org.eclipse.emf.ecore.resource.Resource::Factory::Registry::INSTANCE.getExtensionToFactoryMap().
         put(File.extname(output_file).gsub('.', ''), Java.org.eclipse.uml2.uml.resource.UMLResource::Factory::INSTANCE)
+
+      profile = ::Java.org.eclipse.uml2.uml.UMLFactory.eINSTANCE.createProfile()
+      profile.set_name(profile_name)
 
       model = ::Java.org.eclipse.uml2.uml.UMLFactory.eINSTANCE.createModel()
       model.set_name(model_name.to_s)
       model.createOwnedComment().setBody(description(repository)) if description(repository)
 
-      output_uri = ::Java.org.eclipse.emf.common.util.URI.createFileURI(output_file)
+      emfUri = ::Java.org.eclipse.emf.common.util.URI
+      output_uri = emfUri::createFileURI(output_file)
       puts "Creating XMI for repository #{repository_key} at #{output_file}"
-      resource = ::Java.org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.new.create_resource(output_uri)
+
+      resource = resource_set.create_resource(output_uri)
+
       resource.get_contents().add(model)
-      resource.setID(model, model_name.to_s)
+      resource.get_contents().add(profile)
+
+      resource.setID(model, "M_" + model_name.to_s)
+      resource.setID(profile, "P_" + profile_name)
+
+      message_stereotype = create_stereotype(profile, resource, "Message")
+
+      umlMetaModel = load_package(resource_set, ::Java.org.eclipse.uml2.uml.resource.XMI2UMLResource.UML_METAMODEL_2_1_URI)
+
+      extend_meta_class(umlMetaModel, profile, resource, "Class", ::Java.org.eclipse.uml2.uml.UMLPackage.Literals.CLASS.getName(), message_stereotype)
+      profilePackage = profile.define
+      resource.setID( profilePackage, "P_PKG_" + profile.getName())
 
       # As we process the schema set, we put all the packages that we discover inside this array
       # This is a map between package names and EMF package classes
@@ -245,7 +273,7 @@ module Domgen
         end
       end
 
-      # Phase 6: Exception creation.
+      # Phase 7: Exception creation.
       repository.data_modules.each do |data_module|
         package = packages[data_module.name]
         data_module.exceptions.each do |exception|
@@ -268,7 +296,37 @@ module Domgen
     def self.init_emf
       return if @@init_emf == true
       @@init_emf = true
-      ::Java.classpath << Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150')
+
+      class_loader = JRuby.runtime.jruby_class_loader
+
+      uml2_direct_dependencies = [
+        'org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150',
+        'org.eclipse.uml2:org.eclipse.uml2.uml.resources:jar:3.1.0.v201005031530',
+        'org.eclipse.uml2:org.eclipse.uml2.common:jar:1.5.0.v201005031530',
+        'org.eclipse.emf:org.eclipse.emf.ecore:jar:2.6.0.v20100614-1136',
+        'org.eclipse.emf:org.eclipse.emf.common:jar:2.6.0.v20100614-1136',
+        'org.eclipse.emf:org.eclipse.emf.mapping.ecore2xml:jar:2.5.0.v20100521-1847',
+        'org.eclipse.emf:org.eclipse.emf.ecore.xmi:jar:2.5.0.v20100521-1846',
+      ]
+
+      uml_2_all_dependencies = []
+      uml2_direct_dependencies.each do |d|
+        Buildr.transitive(d).each do |td|
+          uml_2_all_dependencies.push td
+        end
+      end
+
+      Buildr.artifact('org.eclipse.core:runtime:jar:3.3.100-v20070530').invoke
+
+      uml_2_all_dependencies.uniq!
+      uml_2_all_dependencies.each do |e|
+        class_loader.add_url(::Java.java.io.File.new(e.to_s).to_url)
+        ::Java.classpath << e.to_s
+      end
+
+      ::Java.classpath << Buildr.artifact('org.eclipse.core:runtime:jar:3.3.100-v20070530').to_s
+      class_loader.add_url(::Java.java.io.File.new(Buildr.artifact('org.eclipse.core:runtime:jar:3.3.100-v20070530').to_s).to_url)
+
       ::Java.load
     end
 
@@ -290,10 +348,84 @@ module Domgen
       "#{entity.name}#{attr.name}Enum"
     end
 
+    def self.create_accessors(clazz, param, resource)
+      create_getter(clazz, param, resource)
+      create_setter(clazz, param, resource)
+    end
+
+    def self.create_getter(clazz, param, resource)
+      getter = "get#{create_property_name(param.name)}"
+      getter_names = Java.org.eclipse.emf.common.util.BasicEList.new(0)
+      getter_types = Java.org.eclipse.emf.common.util.BasicEList.new(0)
+      ##TODO: Add name/parameter types
+      operation = clazz.createOwnedOperation(getter, getter_names, getter_types)
+      resource.setID(operation, param.qualified_name + "get")
+    end
+
+    def self.create_setter(clazz, param, resource)
+      setter = "set#{create_property_name(param.name)}"
+      setter_names = Java.org.eclipse.emf.common.util.BasicEList.new(0)
+      setter_types = Java.org.eclipse.emf.common.util.BasicEList.new(0)
+      ##TODO: Add name/parameter types
+      operation = clazz.createOwnedOperation(setter, setter_names, setter_types)
+      resource.setID(operation, param.qualified_name + "set")
+    end
+
     def self.create_property_name(name)
       n = name.to_s
       "#{n[0, 1].upcase}#{n[1, n.length]}"
     end
 
+    def self.create_stereotype(profile, resource, stereotype_name)
+      stereotype = profile.createOwnedStereotype( stereotype_name, false )
+      resource.setID( stereotype, "STEREOTYPE_" + stereotype.getName() )
+      stereotype
+    end
+
+    def self.load_package(resource_set, uri)
+      res = resource_set.getResource( ::Java.org.eclipse.emf.common.util.URI.createURI(uri), true )
+      ::Java.org.eclipse.emf.ecore.util.EcoreUtil.resolveAll( res )
+      ::Java.org.eclipse.emf.ecore.util.EcoreUtil.getObjectByType( res.getContents(), Literals.PACKAGE )
+    end
+
+    def self.extend_meta_class(umlMetaModel, profile, resource, key, name, stereotype)
+      appliedStereotype = stereotype.createExtension( reference_meta_class(umlMetaModel, profile, resource, name), false);
+      resource.setID(appliedStereotype, "STEREO_" + stereotype.getName() + "_" + key)
+    end
+
+    def self.reference_meta_class(umlMetaModel, profile, resource, name)
+      metaClass = umlMetaModel.getOwnedType( name )
+      if (!profile.getReferenceMetaClasses().contains(metaClass))
+        reference = profile.createMetaClassReference(metaClass)
+        resource.setID( reference, "MC_REF_" + metaClass.getName() + "_" + name)
+      end
+    end
+
+    def self.register_extensions(resource_set)
+      ext2Factory = ::Java.org.eclipse.emf.ecore.resource.Resource::Factory::Registry::INSTANCE.getExtensionToFactoryMap
+      ext2Factory.put( ::Java.org.eclipse.uml2.uml.resource.XMI2UMLResource::FILE_EXTENSION, ::Java.org.eclipse.uml2.uml.resource.UMLResource::Factory::INSTANCE)
+      ext2Factory.put( ::Java.org.eclipse.uml2.uml.resource.UMLResource.FILE_EXTENSION, ::Java.org.eclipse.uml2.uml.resource.UMLResource::Factory::INSTANCE)
+      ext2Factory.put( "xml", ::Java.org.eclipse.uml2.uml.resource.UMLResource::Factory::INSTANCE)
+      resource_set.getPackageRegistry().put( ::Java.org.eclipse.uml2.uml.UMLPackage::eNS_URI, ::Java.org.eclipse.uml2.uml.UMLPackage::eINSTANCE )
+    end
+
+    def self.register_pathmaps
+      uriClass = ::Java.org.eclipse.emf.common.util.URI
+      umlResourceClass = ::Java.org.eclipse.uml2.uml.resource.UMLResource
+      class_loader = JRuby.runtime.jruby_class_loader
+
+      umlProfile = "metamodels/UML.metamodel.uml"
+      class_loader = ::Java.java.lang.Thread::currentThread.getContextClassLoader
+      url = class_loader.getResource(umlProfile) # TODO: This is not working
+      baseUrl = url.toString[0, url.toString.length - umlProfile.length]
+      baseUri = uriClass.createURI( baseUrl )
+
+      uriMap = ::Java.org.eclipse.emf.ecore.resource.URIConverter::URI_MAP
+      uriMap.put( uriClass.createURI( umlResourceClass::LIBRARIES_PATHMAP ),  baseUri.appendSegment("libraries").appendSegment(""))
+      uriMap.put( uriClass.createURI( umlResourceClass::METAMODELS_PATHMAP ), baseUri.appendSegment("metamodels").appendSegment(""))
+      uriMap.put( uriClass.createURI( umlResourceClass::PROFILES_PATHMAP ),   baseUri.appendSegment("profiles").appendSegment(""))
+      uriMap.put( uriClass.createURI( ::Java.org.eclipse.uml2.uml.resource.XMI2UMLResource.UML_METAMODEL_2_1_URI ),
+                  uriClass.createURI( url.toString ))
+    end
   end
 end
