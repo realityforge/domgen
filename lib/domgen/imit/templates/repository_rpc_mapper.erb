@@ -16,14 +16,14 @@ public class <%= repository.imit.rpc_mapper_name %>
 {
   private final EntityChangeBroker _broker;
 <% repository.imit.client_side_data_modules.each do |data_module|
-%>  private final <%= data_module.imit.qualified_rpc_mapper_name %> _<%= data_module.name %>;
+%>  private final <%= data_module.imit.qualified_mapper_name %> _<%= data_module.name %>;
 <% end %>
   @javax.inject.Inject
   public <%= repository.imit.rpc_mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
   {
     _broker = broker;
 <% repository.imit.client_side_data_modules.each do |data_module|
-%>    _<%= data_module.name %> = new <%= data_module.imit.qualified_rpc_mapper_name %>( repository, broker );
+%>    _<%= data_module.name %> = new <%= data_module.imit.qualified_mapper_name %>( repository, broker );
 <% end %>
   }
 
@@ -49,7 +49,7 @@ public class <%= repository.imit.rpc_mapper_name %>
     switch( typeID )
     {
 <% repository.imit.concrete_client_side_entities.each do |entity|
-%>      case <%= entity.imit.qualified_imitation_name %>.TRANSPORT_ID: _<%= entity.data_module.name %>.applyChangeTo<%= entity.name %>( change ); break;
+%>      case <%= entity.imit.qualified_imitation_name %>.TRANSPORT_ID: _<%= entity.data_module.name %>.applyChangeTo<%= entity.name %>( change.getID(), change.getAttributeValues() ); break;
 <% end %>
       default: throw new IllegalArgumentException("Unknown typeID = " + typeID);
     }

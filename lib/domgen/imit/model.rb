@@ -96,20 +96,20 @@ module Domgen
         "#{imitation_package}.#{json_mapper_name}"
       end
 
-      def rpc_mapper_name
-        "#{data_module.name}RpcMapper"
+      def mapper_name
+        "#{data_module.name}Mapper"
       end
 
-      def qualified_rpc_mapper_name
-        "#{imitation_package}.#{rpc_mapper_name}"
+      def qualified_mapper_name
+        "#{imitation_package}.#{mapper_name}"
       end
 
-      def rpc_jpa_encoder_name
-        "#{data_module.name}RpcJpaEncoder"
+      def jpa_encoder_name
+        "#{data_module.name}JpaEncoder"
       end
 
-      def qualified_rpc_jpa_encoder_name
-        "#{encoder_package}.#{rpc_jpa_encoder_name}"
+      def qualified_jpa_encoder_name
+        "#{encoder_package}.#{jpa_encoder_name}"
       end
 
       def router_interface_name
@@ -172,12 +172,12 @@ module Domgen
         "#{imitation_package}.#{rpc_mapper_name}"
       end
 
-      def rpc_jpa_encoder_name
-        "#{repository.name}ImitEntityListener"
+      def jpa_change_recorder_name
+        "#{repository.name}ChangeRecorder"
       end
 
-      def qualified_rpc_jpa_encoder_name
-        "#{encoder_package}.#{rpc_jpa_encoder_name}"
+      def qualified_jpa_change_recorder_name
+        "#{encoder_package}.#{jpa_change_recorder_name}"
       end
 
       def client_side_data_modules

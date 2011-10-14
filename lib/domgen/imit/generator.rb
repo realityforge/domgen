@@ -49,8 +49,8 @@ module Domgen
       [
         Template.new(Imit::FACETS,
                      :data_module,
-                     "#{Imit::TEMPLATE_DIRECTORY}/rpc_mapper.erb",
-                     'java/#{data_module.imit.qualified_rpc_mapper_name.gsub(".","/")}.java',
+                     "#{Imit::TEMPLATE_DIRECTORY}/mapper.erb",
+                     'java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java',
                      Imit::HELPERS,
                      'data_module.imit.client_side?'),
         Template.new(Imit::FACETS,
@@ -67,8 +67,8 @@ module Domgen
       [
         Template.new(facets,
                      :data_module,
-                     "#{Imit::TEMPLATE_DIRECTORY}/rpc_jpa_encoder.erb",
-                     'java/#{data_module.imit.qualified_rpc_jpa_encoder_name.gsub(".","/")}.java',
+                     "#{Imit::TEMPLATE_DIRECTORY}/jpa_encoder.erb",
+                     'java/#{data_module.imit.qualified_jpa_encoder_name.gsub(".","/")}.java',
                      helpers,
                      'data_module.imit.client_side?'),
         Template.new(facets,
@@ -80,7 +80,7 @@ module Domgen
         Template.new(facets,
                      :repository,
                      "#{Imit::TEMPLATE_DIRECTORY}/repository_rpc_jpa_encoder.erb",
-                     'java/#{repository.imit.qualified_rpc_jpa_encoder_name.gsub(".","/")}.java',
+                     'java/#{repository.imit.qualified_jpa_change_recorder_name.gsub(".","/")}.java',
                      helpers),
       ]
     end

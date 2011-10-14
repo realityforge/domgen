@@ -3,7 +3,6 @@ package <%= data_module.imit.imitation_package %>;
 
 import org.realityforge.imit.client.EntityChangeBroker;
 import org.realityforge.imit.client.EntityRepository;
-import org.realityforge.imit.shared.rpc.Change;
 
 /**
  * Utility class that decodes RPC payloads and applies the changes to the entities
@@ -11,7 +10,7 @@ import org.realityforge.imit.shared.rpc.Change;
  */
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= data_module.imit.rpc_mapper_name %>
+public class <%= data_module.imit.mapper_name %>
 {
   public static final String TYPE_PREFIX = "<%= data_module.name %>";
 
@@ -19,7 +18,7 @@ public class <%= data_module.imit.rpc_mapper_name %>
   private final EntityChangeBroker _broker;
   private final <%= data_module.imit.updater_name %> _<%= data_module.name %>Updater;
 
-  public <%= data_module.imit.rpc_mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
+  public <%= data_module.imit.mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
   {
     _repository = repository;
     _broker = broker;
@@ -28,11 +27,11 @@ public class <%= data_module.imit.rpc_mapper_name %>
 
 <% data_module.imit.client_side_entities.each do |entity| %>
 <% if !entity.abstract? %>
-  public void applyChangeTo<%= entity.name %>( final Change change )
+  public void applyChangeTo<%= entity.name %>( final Object id, final java.util.Map<String, java.io.Serializable> attributes )
   {
-    final Object id = change.getID();
     <%= entity.imit.imitation_name %> entity = _repository.findByID( <%= entity.imit.imitation_name %>.class, id );
-    if( change.isDelete() )
+    // If change is a delete...
+    if( null == attributes )
     {
       if( null != entity )
       {
@@ -50,12 +49,12 @@ public class <%= data_module.imit.rpc_mapper_name %>
         _repository.registerEntity( <%= entity.imit.imitation_name %>.class, id, entity );
         fullUpdate = true;
       }
-      updateAttributes<%= entity.name %>( entity, change.getAttributeValues(), fullUpdate );
+      updateAttributes<%= entity.name %>( entity, attributes, fullUpdate );
     }
   }
 
 <% end %>
-  private void updateAttributes<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final java.util.HashMap<String, java.io.Serializable> attributes, final boolean fullUpdate )
+  private void updateAttributes<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final java.util.Map<String, java.io.Serializable> attributes, final boolean fullUpdate )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends)

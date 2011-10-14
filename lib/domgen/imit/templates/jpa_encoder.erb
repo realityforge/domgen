@@ -2,27 +2,27 @@
 package <%= data_module.imit.encoder_package %>;
 
 /**
- * Utility class that encodes RPC payloads from JPA entities for the data module "<%= data_module.name %>".
+ * Utility class that encodes payloads from JPA entities for the data module "<%= data_module.name %>".
  */
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= data_module.imit.rpc_jpa_encoder_name %>
+public class <%= data_module.imit.jpa_encoder_name %>
 {
-  private <%= data_module.imit.rpc_jpa_encoder_name %>()
+  private <%= data_module.imit.jpa_encoder_name %>()
   {
   }
 
 <% data_module.imit.client_side_entities.each do |entity| %>
 <% if !entity.abstract? %>
-  public static java.util.HashMap<String, java.io.Serializable> encode<%= entity.name %>( final <%= entity.jpa.qualified_entity_name %> entity )
+  public static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( final <%= entity.jpa.qualified_entity_name %> entity )
   {
-    final java.util.HashMap<String, java.io.Serializable> attributes = new java.util.HashMap<String, java.io.Serializable>();
+    final java.util.Map<String, java.io.Serializable> attributes = new java.util.HashMap<String, java.io.Serializable>();
     encodeAttributesAttributes<%= entity.name %>( entity, attributes );
     return attributes;
   }
 <% end %>
 
-  private static void encodeAttributesAttributes<%= entity.name %>( final <%= entity.jpa.qualified_entity_name %> entity, final java.util.HashMap<String, java.io.Serializable> attributes )
+  private static void encodeAttributesAttributes<%= entity.name %>( final <%= entity.jpa.qualified_entity_name %> entity, final java.util.Map<String, java.io.Serializable> attributes )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends)
