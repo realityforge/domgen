@@ -5,6 +5,7 @@ import org.realityforge.imit.client.EntityChangeBroker;
 import org.realityforge.imit.client.EntityRepository;
 import org.realityforge.imit.shared.rpc.Change;
 import org.realityforge.imit.shared.rpc.ChangeSet;
+import org.realityforge.imit.shared.rpc.RpcChangeMapper;
 
 /**
  * Utility class that decodes RPC payloads and applies the changes to the entities
@@ -13,6 +14,7 @@ import org.realityforge.imit.shared.rpc.ChangeSet;
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.rpc_mapper_name %>
+  implements RpcChangeMapper
 {
   private final EntityChangeBroker _broker;
 <% repository.imit.client_side_data_modules.each do |data_module|
