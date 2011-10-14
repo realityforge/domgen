@@ -32,12 +32,6 @@ module Domgen
     def self.define_imit_json_templates
       [
         Template.new(Imit::FACETS,
-                     :data_module,
-                     "#{Imit::TEMPLATE_DIRECTORY}/json_mapper.erb",
-                     'java/#{data_module.imit.qualified_json_mapper_name.gsub(".","/")}.java',
-                     Imit::HELPERS,
-                     'data_module.imit.client_side?'),
-        Template.new(Imit::FACETS,
                      :repository,
                      "#{Imit::TEMPLATE_DIRECTORY}/repository_json_mapper.erb",
                      'java/#{repository.imit.qualified_json_mapper_name.gsub(".","/")}.java',
