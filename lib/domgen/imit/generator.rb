@@ -79,7 +79,7 @@ module Domgen
                      'data_module.imit.client_side?'),
         Template.new(facets,
                      :repository,
-                     "#{Imit::TEMPLATE_DIRECTORY}/repository_rpc_jpa_encoder.erb",
+                     "#{Imit::TEMPLATE_DIRECTORY}/jpa_change_recorder.erb",
                      'java/#{repository.imit.qualified_jpa_change_recorder_name.gsub(".","/")}.java',
                      helpers),
       ]
