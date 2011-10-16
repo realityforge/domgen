@@ -123,7 +123,7 @@ module Domgen
     end
 
     def self.equality_attribute_types
-      [:string, :reference, :boolean]
+      [:text, :reference, :boolean]
     end
   end
 
@@ -222,7 +222,7 @@ module Domgen
     end
 
     def textual_values?
-      self.enumeration_type == :string
+      self.enumeration_type == :text
     end
 
     attr_reader :values
@@ -260,7 +260,7 @@ module Domgen
     end
 
     def self.enumeration_types
-      [:integer, :string]
+      [:integer, :text]
     end
 
   end
@@ -273,7 +273,7 @@ module Domgen
     end
 
     def has_length?
-      characteristic_type == :string || (characteristic_type == :enumeration && enumeration.textual_values?)
+      characteristic_type == :text || (characteristic_type == :enumeration && enumeration.textual_values?)
     end
 
     attr_reader :length
@@ -474,7 +474,7 @@ module Domgen
     end
 
     def self.persistent_types
-      [:text, :string, :reference, :boolean, :datetime, :integer, :real, :enumeration]
+      [:text, :reference, :boolean, :datetime, :integer, :real, :enumeration]
     end
 
     def to_s
@@ -509,7 +509,7 @@ module Domgen
       else
         options = options.merge({:length => length})
       end
-      characteristic(name, :string, options, &block)
+      characteristic(name, :text, options, &block)
     end
 
     def integer(name, options = {}, &block)
@@ -532,7 +532,7 @@ module Domgen
 
     def s_enum(name, values, options = {}, &block)
       enumeration_name = "#{self.name}#{name}"
-      enum_manager.enumeration(enumeration_name, :string, { :values => values })
+      enum_manager.enumeration(enumeration_name, :text, { :values => values })
       enumeration(name, enumeration_name, options, &block)
     end
 

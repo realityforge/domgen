@@ -1,7 +1,6 @@
 module Domgen
   module Java
-    TYPE_MAP = {"string" => "java.lang.String",
-                "integer" => "java.lang.Integer",
+    TYPE_MAP = {"integer" => "java.lang.Integer",
                 "boolean" => "java.lang.Boolean",
                 "datetime" => "java.sql.Timestamp",
                 "text" => "java.lang.String",

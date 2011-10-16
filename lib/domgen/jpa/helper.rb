@@ -13,7 +13,7 @@ module Domgen
         end
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
-        if attribute.attribute_type == :string
+        if attribute.attribute_type == :text
           unless attribute.length.nil? && attribute.min_length.nil?
             s << "  @javax.validation.constraints.Size( "
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?

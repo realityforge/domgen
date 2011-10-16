@@ -70,7 +70,7 @@ public class <%= data_module.imit.mapper_name %>
           "( (Double) value ).doubleValue()"
         elsif attribute.imit.transport_attribute_type == :boolean
           "( (Boolean) value ).booleanValue()"
-        elsif attribute.imit.transport_attribute_type == :string || attribute.imit.transport_attribute_type == :text
+        elsif attribute.imit.transport_attribute_type == :text
           "( (String) value )"
         elsif attribute.imit.transport_attribute_type == :enumeration && attribute.enumeration.textual_values?
           "#{attribute.enumeration.imit.qualified_enumeration_name}.valueOf( (String) value )"

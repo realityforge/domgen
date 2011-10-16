@@ -14,8 +14,7 @@ module Domgen
         "char_length(trim(both from #{quote(column_name)} )) > 0"
       end
 
-      TYPE_MAP = {"string" => "varchar",
-                  "integer" => "integer",
+      TYPE_MAP = {"integer" => "integer",
                   "real" => "double precision",
                   "datetime" => "timestamp",
                   "boolean" => "bit"}
@@ -27,11 +26,15 @@ module Domgen
         elsif :reference == column.attribute.attribute_type
           return column.attribute.referenced_entity.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
-          return "text"
+          if column.attribute.length.nil?
+            return "text"
+          else
+            return "varchar(#{column.attribute.length})"
+          end
         elsif column.attribute.enum?
           column.attribute.enumeration.textual_values? ? "varchar(#{column.attribute.length})" : "integer"
         else
-          return TYPE_MAP[column.attribute.attribute_type.to_s] + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
+          return TYPE_MAP[column.attribute.attribute_type.to_s]
         end
       end
 
@@ -61,8 +64,7 @@ module Domgen
         "LEN( #{quote(column_name)} ) > 0"
       end
 
-      TYPE_MAP = {"string" => "VARCHAR",
-                  "integer" => "INT",
+      TYPE_MAP = {"integer" => "INT",
                   "real" => "FLOAT",
                   "datetime" => "DATETIME",
                   "boolean" => "BIT"}
@@ -77,11 +79,15 @@ module Domgen
         elsif :reference == column.attribute.attribute_type
           return column.attribute.referenced_entity.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
-          return "[VARCHAR](MAX)"
+                    if column.attribute.length.nil?
+            return "[VARCHAR](MAX)"
+          else
+            return "[VARCHAR](#{column.attribute.length})"
+          end
         elsif column.attribute.enum?
           column.attribute.enumeration.textual_values? ? "VARCHAR(#{column.attribute.length})" : "INT"
         else
-          return quote(TYPE_MAP[column.attribute.attribute_type.to_s]) + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
+          return quote(TYPE_MAP[column.attribute.attribute_type.to_s])
         end
       end
     end

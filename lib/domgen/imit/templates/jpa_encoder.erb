@@ -33,7 +33,7 @@ public class <%= data_module.imit.jpa_encoder_name %>
     value_converter =
         if attribute.imit.transport_attribute_type == :datetime
           "( ( null == value ) ? null : value.getTime() )"
-        elsif [:integer, :real, :boolean, :string, :text].include?(attribute.imit.transport_attribute_type)
+        elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_attribute_type)
           if attribute.nullable?
             "( ( null == value ) ? null : value#{value_suffix} )"
           else
