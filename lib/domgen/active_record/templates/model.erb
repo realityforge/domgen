@@ -42,7 +42,7 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
          if a.attribute_type == :text || (a.enum? && a.enumeration.textual_values?)
 %>  nillable_attribute :<%= a.sql.column_name %>
 <%       end
-         if a.length.nil?
+         if !a.length.nil?
 %>  validates_length_of :<%= a.sql.column_name %>, :minimum => <%= a.min_length %>, :allow_nil => <%= a.nullable? %>, :allow_blank => <%= a.allow_blank? %>
   validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => <%= a.nullable? %>, :allow_blank => <%= a.allow_blank? %>
 <%       end
