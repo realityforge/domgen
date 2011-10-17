@@ -18,6 +18,7 @@ public class <%= data_module.imit.mapper_name %>
   private final EntityChangeBroker _broker;
   private final <%= data_module.imit.updater_name %> _<%= data_module.name %>Updater;
 
+  @javax.inject.Inject
   public <%= data_module.imit.mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
   {
     _repository = repository;
