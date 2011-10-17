@@ -32,10 +32,6 @@ public class <%= repository.imit.json_mapper_name %>
     final com.google.gwt.json.client.JSONArray array =
       TransportUtil.toArray( TransportUtil.toObject( changeSet, "changeset" ).get( TransportUtil.CHANGES ),
                              TransportUtil.CHANGES );
-    if ( null == array )
-    {
-      throw new IllegalStateException( TransportUtil.CHANGES + " is not an array" );
-    }
     final int size = array.size();
     for ( int i = 0; i < size; i++ )
     {
