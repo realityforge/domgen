@@ -634,7 +634,7 @@ SQL
 #{a.sql.quoted_column_name} IN (#{a.enumeration.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
-        entity.declared_attributes.select{ |a| (a.has_length?) && a.persistent? && !a.allow_blank? }.each do |a|
+        entity.declared_attributes.select{ |a| (a.allows_length?) && a.persistent? && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
           sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)

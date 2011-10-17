@@ -272,14 +272,14 @@ module Domgen
       characteristic_type == :enumeration
     end
 
-    def has_length?
+    def allows_length?
       characteristic_type == :text || (characteristic_type == :enumeration && enumeration.textual_values?)
     end
 
     attr_reader :length
 
     def length=(length)
-      error("length on #{name} is invalid as #{characteristic_kind} is not a string") unless has_length?
+      error("length on #{name} is invalid as #{characteristic_kind} is not a string") unless allows_length?
       @length = length
     end
 
@@ -293,7 +293,7 @@ module Domgen
     end
 
     def min_length=(length)
-      error("min_length on #{name} is invalid as #{characteristic_kind} is not a string") unless has_length?
+      error("min_length on #{name} is invalid as #{characteristic_kind} is not a string") unless allows_length?
       @min_length = length
     end
 
