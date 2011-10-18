@@ -64,7 +64,7 @@ public class <%= data_module.imit.mapper_name %>
 <% entity.declared_attributes.select{|attribute| attribute.imit.client_side? }.each do |attribute|
     value_converter =
         if attribute.imit.transport_attribute_type == :datetime
-          "new java.sql.Timestamp( ((Number) value).longValue() )"
+          "new java.sql.Timestamp( ( (Number) value ).longValue() )"
         elsif attribute.imit.transport_attribute_type == :integer
           "( (Number) value ).intValue()"
         elsif attribute.imit.transport_attribute_type == :real
