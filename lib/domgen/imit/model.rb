@@ -173,7 +173,7 @@ module Domgen
       end
 
       def jpa_change_recorder_name
-        "#{repository.name}ChangeRecorder"
+        "#{repository.name}EntityMessageGenerator"
       end
 
       def qualified_jpa_change_recorder_name
