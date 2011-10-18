@@ -83,7 +83,7 @@ public class <%= data_module.imit.mapper_name %>
 %>    if( fullUpdate <% if !attribute.primary_key? %>|| attributes.containsKey( <%= entity.name %>.<%= uppercase_constantize( attribute.name ) %> )<% end %> )
     {
       final Object value = attributes.get( <%= entity.name %>.<%= uppercase_constantize(attribute.name) %> );
-      _<%= data_module.name %>Updater.set<%= attribute.imit.transport_name %>_On_<%= entity.name %>( entity, <%= value_converter %> );
+      _<%= data_module.name %>Updater.set<%= attribute.imit.transport_name %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( null != value ? #{value_converter} : null )" : value_converter %> );
     }
 <% end %>
   }
