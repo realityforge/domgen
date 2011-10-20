@@ -1,6 +1,17 @@
 module Domgen
   module Imit
 
+    class ImitationAttributeInverse < Domgen.ParentedElement(:inverse)
+      def traversable=(traversable)
+        error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
+        @traversable = traversable
+      end
+
+      def traversable?
+        @traversable.nil? ? self.inverse.traversable? : @traversable
+      end
+    end
+
     class ImitationAttribute < Domgen.ParentedElement(:attribute)
 
       def field_name
@@ -201,6 +212,7 @@ module Domgen
   FacetManager.define_facet(:imit,
                             EnumerationSet => Domgen::Imit::ImitationEnumeration,
                             Attribute => Domgen::Imit::ImitationAttribute,
+                            InverseElement => Domgen::Imit::ImitationAttributeInverse,
                             Entity => Domgen::Imit::ImitationClass,
                             DataModule => Domgen::Imit::ImitationModule,
                             Repository => Domgen::Imit::ImitationApplication)
