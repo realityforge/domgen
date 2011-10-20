@@ -15,20 +15,6 @@ public class <%= entity.jpa.dao_name %>
 <% entity.jpa.queries.each do |query| %>
   public <%= query_return_type(query) %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{query.parameter_types[p]} #{p}"}.join(', ') %>)
   {
-<% if !query.transaction_isolation_level.nil?
-%>    final java.sql.Connection connection = em.unwrap( java.sql.Connection.class );
-    final int isolation;
-    try
-    {
-      isolation = connection.getTransactionIsolation();
-      connection.setTransactionIsolation( java.sql.Connection.<%= Domgen::JPA::Query.transaction_isolation_level_map[query.transaction_isolation_level] %> );
-    }
-    catch ( final java.sql.SQLException sqle )
-    {
-      throw new javax.persistence.PersistenceException( sqle.getMessage(), sqle );
-    }
-    try
-    {
 <% end
 %>    final javax.persistence.TypedQuery<<%= entity.jpa.qualified_entity_name %>> query =
       em.createNamedQuery( <%= entity.jpa.qualified_entity_name %>.<%= query.local_name %>, <%= entity.jpa.qualified_entity_name %>.class );
@@ -49,21 +35,7 @@ public class <%= entity.jpa.dao_name %>
       return null;
     }
 <% end %>
-<% if !query.transaction_isolation_level.nil?
-%>    }
-    finally
-    {
-      try
-      {
-        connection.setTransactionIsolation( isolation );
-      }
-      catch ( final java.sql.SQLException sqle )
-      {
-        throw new javax.persistence.PersistenceException( sqle.getMessage(), sqle );
-      }
-    }
-<% end
-%>  }
+  }
 <% end %>
 
   /** Remove the given  <%= entity.jpa.qualified_entity_name %> from the persistence context, causing a managed entity to become detached. */
