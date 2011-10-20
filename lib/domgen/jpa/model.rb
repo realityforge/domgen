@@ -12,6 +12,13 @@ module Domgen
         super(jpa_class, options, & block)
       end
 
+      attr_reader :transaction_isolation_level
+
+      def transaction_isolation_level=(transaction_isolation_level)
+        raise "Unknown transaction isolation level #{transaction_isolation_level}" unless self.class.transaction_isolation_level_map.keys.include?(transaction_isolation_level)
+        @transaction_isolation_level = transaction_isolation_level
+      end
+
       attr_writer :native
 
       def native?
@@ -95,6 +102,15 @@ module Domgen
         end
         query = query.gsub(/:[^\W]+/,'?') if self.native?
         query.gsub("\n", ' ')
+      end
+
+      def self.transaction_isolation_level_map
+        {
+          :read_uncommitted => "TRANSACTION_READ_UNCOMMITTED",
+          :read_committed => "TRANSACTION_READ_COMMITTED",
+          :repeatable_read => "TRANSACTION_REPEATABLE_READ",
+          :serializable => "TRANSACTION_SERIALIZABLE"
+        }
       end
 
       private
