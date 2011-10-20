@@ -8,7 +8,7 @@ import org.realityforge.imit.client.EntityRepository;
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation_name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_imitation_name}\n" :
-  "" %>
+  "    implements org.realityforge.imit.client.Linkable" %>
 {
   public static final String TYPE_KEY = "<%= entity.qualified_name %>";
 <% if !entity.abstract? %>
@@ -26,7 +26,19 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
    end
    end
 %>
-
+<% entity.referencing_attributes.
+  select { |attribute| attribute.inverse.imit.traversable? && entity == attribute.referenced_entity }.
+  each do |attribute| %><%= if attribute.inverse.multiplicity == :many
+          "  private java.util.List<#{attribute.entity.imit.qualified_imitation_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
+        else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
+          "  private #{attribute.entity.imit.qualified_imitation_name} #{attribute.inverse.relationship_name};\n"
+        end %>
+<% end %>
+<% if entity.extends.nil? %>
+  private boolean _linking;
+  private boolean _delinking;
+  private boolean _linked;
+<% end %>
   protected <%= entity.imit.imitation_name %>( final EntityRepository repository )
   {
     <%= entity.extends.nil? ? "_repository = repository" : "super( repository )" %>;
@@ -41,14 +53,8 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit.client_side?}.each do |attribute|
 %>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.field_name %>()
   {
-    checkValidity();
-<% if attribute.attribute_type == :reference
-%>    if( null == _<%= attribute.imit.field_name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
-    {
-      _<%= attribute.imit.field_name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_imitation_name %>.class, _<%= attribute.referencing_link_name %> );
-    }
-  <% end
-%>    return _<%= attribute.imit.field_name %>;
+    check<%= attribute.reference? ? "Linked" : "Validity" %>();
+    return _<%= attribute.imit.field_name %>;
   }
 <% if attribute.attribute_type == :reference
 %>  <%= attribute.imit.transport_java_type %> get<%= attribute.imit.transport_name %>()
@@ -60,23 +66,171 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
   {
     checkValidity();
 <% if attribute.attribute_type == :reference
-%>    _<%= attribute.imit.field_name %> = null;
+%>
+    _<%= attribute.imit.field_name %> = null;
     _<%= attribute.referencing_link_name %> = value;
 <% else
 %>    _<%= attribute.imit.field_name %> = value;
 <% end %>  }
 
 <% end %>
+<% entity.referencing_attributes.
+  select { |attribute| attribute.inverse.imit.traversable? && entity == attribute.referenced_entity }.
+  each do |attribute|
+        name = attribute.inverse.relationship_name
+        type = attribute.entity.imit.qualified_imitation_name
+        if attribute.inverse.multiplicity == :many
+          plural_name = pluralize(name)
+%>
+  <%= description_javadoc_for(attribute) %>
+  public final java.util.List<<%= type %>> get<%= plural_name %>()
+  {
+    return java.util.Collections.unmodifiableList( safeGet<%= plural_name %>() );
+  }
+
+  /**
+   * This method should not be called directly. It is called when linking <%= type %>.
+   *
+   * @deprecated
+   */
+  @Deprecated
+  public final void add<%= name %>( final <%= type %> value )
+  {
+    safeGet<%= plural_name %>().add( value );
+  }
+
+  /**
+   * This method should not be called directly. It is called when delinking or relinking <%= type %>.
+   *
+   * @deprecated
+   */
+  @Deprecated
+  public final void remove<%= name %>( final <%= type %> value )
+  {
+    safeGet<%= plural_name %>().remove( value );
+  }
+
+  private java.util.List<<%= type %>> safeGet<%= plural_name %>()
+  {
+    if( null == <%= plural_name %> )
+    {
+      <%= plural_name %> = new java.util.LinkedList<<%= type %>>();
+    }
+    return <%= plural_name %>;
+  }
+<% else %>
+  public final <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> get<%= name %>()
+  {
+    return <%= name %>;
+  }
+
+  /**
+   * This method should not be called directly. It is called when delinking or relinking <%= type %>.
+   *
+   * @deprecated
+   */
+  @Deprecated
+  protected final void set<%= name %>( final <%= type %> value )
+  {
+    <%= name %> = value;
+  }
+<% end %>
+<% end %>
   protected void invalidate()
   {
     <%= entity.extends.nil? ? "_repository = null" : "super.invalidate()" %>;
+    delink();
   }
+
+<%
+   linkable_attributes = entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.reference? && attribute.imit.client_side?}
+%>
+
+  protected void performLink()
+  {
+    <%= entity.extends.nil? ? "if( !_linking ) throw new IllegalStateException( \"performLink invoked from outside link\" )" : "super.performLink()" %>;
+<% linkable_attributes.each do |attribute|
+%>      link<%= attribute.imit.field_name %>();
+<% end %>
+  }
+
+  protected void performDelink()
+  {
+    <%= entity.extends.nil? ? "if( !_delinking ) throw new IllegalStateException( \"performDelink invoked from outside delink\" )" : "super.performDelink()" %>;
+<% linkable_attributes.each do |attribute|
+%>      delink<%= attribute.imit.field_name %>();
+<% end %>
+  }
+
+<% linkable_attributes.each do |attribute|
+%>
+    @SuppressWarnings( "deprecation" )
+    private void delink<%= attribute.imit.field_name %>()
+    {
+      if( null != _<%= attribute.imit.field_name %> )
+      {
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.field_name %>.remove<%= attribute.inverse.relationship_name %>( this );<% end %>
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.field_name %>.set<%= attribute.inverse.relationship_name %>( null );<% end %>
+        _<%= attribute.imit.field_name %> = null;
+      }
+    }
+
+    @SuppressWarnings( "deprecation" )
+    private void link<%= attribute.imit.field_name %>()
+    {
+      if( null == _<%= attribute.imit.field_name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
+      {
+        _<%= attribute.imit.field_name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_imitation_name %>.class, _<%= attribute.referencing_link_name %> );
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.field_name %>.add<%= attribute.inverse.relationship_name %>( this );<% end %>
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.field_name %>.set<%= attribute.inverse.relationship_name %>( this );<% end %>
+      }
+    }
+<% end %>
+
+
 <% if entity.extends.nil? %>
   protected final void checkValidity()
   {
     if( null == _repository )
     {
       throw new IllegalStateException( "Method invoked on invalid imitation" );
+    }
+  }
+
+  protected final void checkLinked()
+  {
+    checkValidity();
+    if( !_linked )
+    {
+      throw new IllegalStateException( "Method invoked on unlinked imitation" );
+    }
+  }
+
+  public final void link()
+  {
+    _linking = true;
+    try
+    {
+      performLink();
+      _linked = true;
+    }
+    finally
+    {
+      _linking = false;
+    }
+  }
+
+  public final void delink()
+  {
+   _delinking = true;
+    try
+    {
+      performDelink();
+      _linked = false;
+    }
+    finally
+    {
+      _delinking = false;
     }
   }
 <% end %>
