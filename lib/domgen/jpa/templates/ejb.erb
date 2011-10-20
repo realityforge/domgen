@@ -15,8 +15,7 @@ public class <%= entity.jpa.dao_name %>
 <% entity.jpa.queries.each do |query| %>
   public <%= query_return_type(query) %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{query.parameter_types[p]} #{p}"}.join(', ') %>)
   {
-<% end
-%>    final javax.persistence.TypedQuery<<%= entity.jpa.qualified_entity_name %>> query =
+    final javax.persistence.TypedQuery<<%= entity.jpa.qualified_entity_name %>> query =
       em.createNamedQuery( <%= entity.jpa.qualified_entity_name %>.<%= query.local_name %>, <%= entity.jpa.qualified_entity_name %>.class );
 <% query.parameters.each_with_index do |p, index| %>
     query.setParameter(<%= query.native? ? (index + 1) : "\"#{p}\"" %>, <%= p %>);
