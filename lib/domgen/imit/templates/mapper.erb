@@ -28,7 +28,7 @@ public class <%= data_module.imit.mapper_name %>
 
 <% data_module.imit.client_side_entities.each do |entity| %>
 <% if !entity.abstract? %>
-  public void applyChangeTo<%= entity.name %>( final Object id, final java.util.Map<String, java.io.Serializable> attributes )
+  public Object applyChangeTo<%= entity.name %>( final Object id, final java.util.Map<String, java.io.Serializable> attributes )
   {
     <%= entity.imit.imitation_name %> entity = _repository.findByID( <%= entity.imit.imitation_name %>.class, id );
     // If change is a delete...
@@ -52,6 +52,7 @@ public class <%= data_module.imit.mapper_name %>
       }
       updateAttributes<%= entity.name %>( entity, attributes, fullUpdate );
     }
+    return entity;
   }
 
 <% end %>
