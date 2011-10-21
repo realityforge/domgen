@@ -57,7 +57,7 @@ module Domgen
         @ql = ql
         super(jpa_class, options, & block)
 
-        expected_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
+        expected_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq.sort
 
         expected_parameters.each do |parameter_name|
           if !characteristic_exists?(parameter_name) && jpa_class.entity.attribute_exists?(parameter_name)
