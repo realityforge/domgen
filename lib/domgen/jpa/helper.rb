@@ -444,6 +444,7 @@ JAVA
       end
 
       def query_return_type(query)
+        return "int" if query.query_type != :select
         entity_name = query.jpa_class.entity.jpa.qualified_entity_name
         return "#{nullability_annotation(false)} java.util.List<#{entity_name}>" if query.multiplicity == :many
         "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{entity_name}"

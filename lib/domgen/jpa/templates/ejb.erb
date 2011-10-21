@@ -20,6 +20,7 @@ public class <%= entity.jpa.dao_name %>
 <% query.parameters.each_with_index do |p, index| %>
     query.setParameter(<%= query.native? ? (index + 1) : "\"#{p}\"" %>, <%= p %>);
 <% end %>
+<% if query.query_type == :select %>
 <% if query.multiplicity == :many %>
     return query.getResultList();
 <% elsif query.multiplicity == :one %>
@@ -33,6 +34,9 @@ public class <%= entity.jpa.dao_name %>
     {
       return null;
     }
+<% end
+   else %>
+    return query.executeUpdate();
 <% end %>
   }
 <% end %>

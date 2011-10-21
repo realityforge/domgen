@@ -63,13 +63,38 @@ module Domgen
       end
 
       def local_name
-        "#{name_prefix}#{name_suffix}"
+        if self.query_type == :select
+          suffix = no_ql? ? '' : "By#{name}"
+          if self.multiplicity == :many
+            "findAll#{suffix}"
+          elsif self.multiplicity == :zero_or_one
+            "find#{suffix}"
+          else
+            "get#{suffix}"
+          end
+        elsif self.query_type == :update
+          "update#{name}"
+        elsif self.query_type == :delete
+          "delete#{name}"
+        end
       end
 
-      attr_writer :query_type
+      def query_type=(query_type)
+        error("query_type #{query_type} is invalid") unless self.class.valid_query_types.include?(query_type)
+        @query_type = query_type
+      end
 
       def query_type
-        @query_type || :selector
+        @query_type || :select
+      end
+
+      def query_spec=(query_spec)
+        error("query_spec #{query_spec} is invalid") unless self.class.valid_query_specs.include?(query_spec)
+        @query_spec = query_spec
+      end
+
+      def query_spec
+        @query_spec || (ql =~ /\sFROM\s/ix) ? :statement : :criteria
       end
 
       def multiplicity
@@ -82,35 +107,41 @@ module Domgen
       end
 
       def query_string
-        if self.query_type == :full
+        table_name = self.native? ? jpa_class.entity.sql.table_name : jpa_class.entity.jpa.jpql_name
+        criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
+        if self.query_spec == :statement
           query = self.ql
-        elsif self.query_type == :selector
-          if self.native?
-            query = "SELECT O.* FROM #{jpa_class.entity.sql.table_name} O #{no_ql? ? '' : "WHERE "}#{sql}"
+        elsif self.query_spec == :criteria
+          if self.query_type == :select
+            if self.native?
+              query = "SELECT O.* FROM #{table_name} O #{criteria_clause}"
+            else
+              query = "SELECT O FROM #{table_name} O #{criteria_clause}"
+            end
+          elsif self.query_type == :update
+            raise "The combination of query_type == :update and query_spec == :criteria is not supported"
+          elsif self.query_type == :delete
+            if self.native?
+              query = "DELETE FROM #{table_name} FROM #{table_name} O #{criteria_clause}"
+            else
+              query = "DELETE FROM #{table_name} O #{criteria_clause}"
+            end
           else
-            query = "SELECT O FROM #{jpa_class.entity.jpa.jpql_name} O #{no_ql? ? '' : "WHERE "}#{jpql}"
+            error("Unknown query type #{query_type}")
           end
         else
-          error("Unknown query type #{query_type}")
+          error("Unknown query spec #{query_spec}")
         end
         query = query.gsub(/:[^\W]+/,'?') if self.native?
         query.gsub("\n", ' ')
       end
 
-      private
-
-      def name_prefix
-        if self.multiplicity == :many
-          "findAll"
-        elsif self.multiplicity == :zero_or_one
-          "find"
-        else
-          "get"
-        end
+      def self.valid_query_specs
+        [:statement, :criteria]
       end
 
-      def name_suffix
-        no_ql? ? '' : "By#{name}"
+      def self.valid_query_types
+        [:select, :update, :delete]
       end
     end
 
