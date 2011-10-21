@@ -2,14 +2,78 @@ module Domgen
   module JPA
     DEFAULT_ENTITY_PACKAGE_SUFFIX = "entity"
 
+    class QueryParameter < Domgen.ParentedElement(:query)
+      include Characteristic
+
+      attr_reader :parameter_type
+
+      def initialize(message, name, parameter_type, options, &block)
+        @name = name
+        @parameter_type = parameter_type
+        super(message, options, &block)
+      end
+
+      def qualified_name
+        "#{query.qualified_name}$#{self.name}"
+      end
+
+      def to_s
+        "QueryParameter[#{self.qualified_name}]"
+      end
+
+      def characteristic_type
+        parameter_type
+      end
+
+      include Domgen::Java::JavaCharacteristic
+
+      protected
+
+      def characteristic
+        self
+      end
+
+      def entity_to_classname(entity)
+        entity.jpa.qualified_entity_name
+      end
+
+      def enumeration_to_classname(enumeration)
+        enumeration.jpa.qualified_enumeration_name
+      end
+
+
+      def characteristic_kind
+        "parameter"
+      end
+    end
+
     class Query < Domgen.ParentedElement(:jpa_class)
+      include Domgen::CharacteristicContainer
+
       attr_reader :name
-      attr_accessor :parameter_types
 
       def initialize(jpa_class, name, ql, options = {}, & block)
         @name = name
         @ql = ql
         super(jpa_class, options, & block)
+
+        expected_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
+
+        expected_parameters.each do |parameter_name|
+          if !characteristic_exists?(parameter_name) && jpa_class.entity.attribute_exists?(parameter_name)
+            attribute = jpa_class.entity.attribute_by_name(parameter_name)
+            characteristic_options = {}
+            if attribute.attribute_type == :enumeration
+              characteristic_options[:enumeration] = attribute.enumeration
+            end
+            characteristic(attribute.name, attribute.attribute_type, characteristic_options)
+          end
+        end
+
+        actual_parameters = parameters.collect{|p|p.name.to_s}.sort
+        if expected_parameters != actual_parameters
+          raise "Actual parameters for query #{self.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}"
+        end
       end
 
       attr_writer :native
@@ -46,16 +110,8 @@ module Domgen
         @ql
       end
 
-      def populate_parameters
-        @parameter_types = {} unless @parameter_types
-        parameters.each do |p|
-          @parameter_types[p] = jpa_class.entity.attribute_by_name(p).jpa.java_type if @parameter_types[p].nil?
-        end
-      end
-
       def parameters
-        return [] if self.ql.nil?
-        self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
+        characteristics
       end
 
       def qualified_name
@@ -142,6 +198,28 @@ module Domgen
 
       def self.valid_query_types
         [:select, :update, :delete]
+      end
+
+      def to_s
+        "Query[#{self.qualified_name}]"
+      end
+
+      protected
+
+      def characteristic_kind
+        raise "parameter"
+      end
+
+      def enum_manager
+        jpa_class.entity.data_module
+      end
+
+      def new_characteristic(name, type, options, &block)
+        QueryParameter.new(self, name, type, options, &block)
+      end
+
+      def perform_verify
+        verify_characteristics
       end
     end
 
@@ -303,9 +381,6 @@ module Domgen
         self.query(entity.primary_key.name,
                    "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
                    :multiplicity => :zero_or_one)
-        self.queries.each do |q|
-          q.populate_parameters
-        end
       end
     end
 
