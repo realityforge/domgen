@@ -1,20 +1,20 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= repository.imit.encoder_package %>;
 
-import org.realityforge.imit.server.EntityMessage;
+import org.realityforge.replicant.server.EntityMessage;
 
 /**
  * * Utility class that encodes RPC payloads from JPA entities for the repository "<%= repository.name %>".
  */
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= repository.imit.jpa_change_recorder_name %>
+public class <%= repository.imit.message_generator_name %>
 {
 <% repository.imit.client_side_data_modules.each do |data_module| %>
   private final <%= data_module.imit.qualified_router_interface_name %> _<%= data_module.name %>Router;
 <% end %>
 
-  public <%= repository.imit.jpa_change_recorder_name %>( <%= repository.imit.client_side_data_modules.collect { |data_module| "final #{data_module.imit.qualified_router_interface_name} #{data_module.name}Router" }.join(", ") %> )
+  public <%= repository.imit.message_generator_name %>( <%= repository.imit.client_side_data_modules.collect { |data_module| "final #{data_module.imit.qualified_router_interface_name} #{data_module.name}Router" }.join(", ") %> )
   {
 <% repository.imit.client_side_data_modules.each do |data_module| %>
     _<%= data_module.name %>Router = <%= data_module.name %>Router;

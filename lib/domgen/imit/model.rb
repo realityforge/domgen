@@ -99,14 +99,6 @@ module Domgen
         @encoder_package || "#{data_module.repository.imit.encoder_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
-      def json_mapper_name
-        "#{data_module.name}JsonMapper"
-      end
-
-      def qualified_json_mapper_name
-        "#{imitation_package}.#{json_mapper_name}"
-      end
-
       def mapper_name
         "#{data_module.name}Mapper"
       end
@@ -167,28 +159,20 @@ module Domgen
         @encoder_package || Domgen::Naming.underscore(repository.name)
       end
 
-      def json_mapper_name
-        "#{repository.name}JsonMapper"
+      def change_mapper_name
+        "#{repository.name}ChangeMapper"
       end
 
-      def qualified_json_mapper_name
-        "#{imitation_package}.#{json_mapper_name}"
+      def qualified_change_mapper_name
+        "#{imitation_package}.#{change_mapper_name}"
       end
 
-      def rpc_mapper_name
-        "#{repository.name}RpcMapper"
-      end
-
-      def qualified_rpc_mapper_name
-        "#{imitation_package}.#{rpc_mapper_name}"
-      end
-
-      def jpa_change_recorder_name
+      def message_generator_name
         "#{repository.name}EntityMessageGenerator"
       end
 
-      def qualified_jpa_change_recorder_name
-        "#{encoder_package}.#{jpa_change_recorder_name}"
+      def qualified_message_generator_name
+        "#{encoder_package}.#{message_generator_name}"
       end
 
       def client_side_data_modules

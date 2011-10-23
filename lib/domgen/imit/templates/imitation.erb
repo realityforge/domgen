@@ -1,14 +1,14 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= entity.data_module.imit.imitation_package %>;
 
-import org.realityforge.imit.client.EntityRepository;
+import org.realityforge.replicant.client.EntityRepository;
 
 <%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation_name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_imitation_name}\n" :
-  "    implements org.realityforge.imit.client.Linkable" %>
+  "    implements org.realityforge.replicant.client.Linkable" %>
 {
   public static final String TYPE_KEY = "<%= entity.qualified_name %>";
 <% if !entity.abstract? %>

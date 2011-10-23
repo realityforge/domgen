@@ -39,18 +39,8 @@ module Domgen
       [
         Template.new(Imit::FACETS,
                      :repository,
-                     "#{Imit::TEMPLATE_DIRECTORY}/repository_json_mapper.erb",
-                     'java/#{repository.imit.qualified_json_mapper_name.gsub(".","/")}.java',
-                     Imit::HELPERS),
-      ]
-    end
-
-    def self.define_imit_rpc_templates
-      [
-        Template.new(Imit::FACETS,
-                     :repository,
-                     "#{Imit::TEMPLATE_DIRECTORY}/repository_rpc_mapper.erb",
-                     'java/#{repository.imit.qualified_rpc_mapper_name.gsub(".","/")}.java',
+                     "#{Imit::TEMPLATE_DIRECTORY}/change_mapper_name.erb",
+                     'java/#{repository.imit.qualified_change_mapper_name.gsub(".","/")}.java',
                      Imit::HELPERS),
       ]
     end
@@ -73,8 +63,8 @@ module Domgen
                      'data_module.imit.client_side?'),
         Template.new(facets,
                      :repository,
-                     "#{Imit::TEMPLATE_DIRECTORY}/jpa_change_recorder.erb",
-                     'java/#{repository.imit.qualified_jpa_change_recorder_name.gsub(".","/")}.java',
+                     "#{Imit::TEMPLATE_DIRECTORY}/message_generator.erb",
+                     'java/#{repository.imit.qualified_message_generator_name.gsub(".","/")}.java',
                      helpers),
       ]
     end

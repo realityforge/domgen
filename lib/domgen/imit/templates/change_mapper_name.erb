@@ -7,14 +7,14 @@ package <%= repository.imit.imitation_package %>;
  */
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public final class <%= repository.imit.json_mapper_name %>
-  extends org.realityforge.imit.shared.gwt_json.AbstractJsonGwtChangeMapper
+public final class <%= repository.imit.change_mapper_name %>
+  implements org.realityforge.replicant.client.ChangeMapper
 {
 <% repository.imit.client_side_data_modules.each do |data_module|
 %>  private final <%= data_module.imit.qualified_mapper_name %> _<%= data_module.name %>;
 <% end %>
   @javax.inject.Inject
-  public <%= repository.imit.json_mapper_name %>( <%= repository.imit.client_side_data_modules.collect { |data_module| "final #{data_module.imit.qualified_mapper_name} #{data_module.name}" }.join(", ") %>
+  public <%= repository.imit.change_mapper_name%>( <%= repository.imit.client_side_data_modules.collect { |data_module| "final #{data_module.imit.qualified_mapper_name} #{data_module.name}" }.join(", ") %>
 )
   {
 <% repository.imit.client_side_data_modules.each do |data_module|
@@ -22,7 +22,7 @@ public final class <%= repository.imit.json_mapper_name %>
 <% end %>
   }
 
-  protected Object applyChange( final int typeID, final Object id, final java.util.Map<String, java.io.Serializable> data )
+  public Object applyChange( final int typeID, final Object id, final java.util.Map<String, java.io.Serializable> data )
   {
     switch( typeID )
     {
