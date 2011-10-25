@@ -363,7 +363,7 @@ module Domgen
         @persistent.nil? ? true : @persistent
       end
 
-      attr_writer :cache_config
+      attr_writer :cacheable
 
       def cacheable?
         @cacheable.nil? ? false : @cacheable
