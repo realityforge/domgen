@@ -9,7 +9,7 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
   set_table_name "<%= entity.sql.qualified_table_name.gsub('dbo.','') %>"
   set_primary_key "<%= entity.primary_key.sql.column_name %>"
 <% entity.attributes.each do |a|
-   if a.validate?
+   if a.ruby.validate?
        if !a.generated_value?
          if a.enum?
            a.enumeration.values.each do |k,v|
