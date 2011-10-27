@@ -634,7 +634,7 @@ SQL
 #{a.sql.quoted_column_name} IN (#{a.enumeration.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
-        entity.declared_attributes.select{ |a| (a.allows_length?) && a.persistent? && !a.allow_blank? }.each do |a|
+        entity.declared_attributes.select{ |a| (a.allows_length?) && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
           sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
@@ -703,7 +703,7 @@ SQL
           end
         end
 
-        immutable_attributes = self.entity.attributes.select { |a| a.persistent? && a.immutable? && !a.primary_key? }
+        immutable_attributes = self.entity.attributes.select { |a| a.immutable? && !a.primary_key? }
         if immutable_attributes.size > 0
           pk = self.entity.primary_key
 
@@ -808,7 +808,7 @@ SQL
           end
         end
 
-        self.entity.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
+        self.entity.declared_attributes.select { |a| a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
           foreign_key([a.name],
                       a.referenced_entity.qualified_name,
                       [a.referenced_entity.primary_key.name],

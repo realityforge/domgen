@@ -78,7 +78,6 @@ module Domgen
       # Primitive types will be added to the top-level model but enumeration types
       # will be added to the package they belong to.
       #
-      # Only persistent and attributes will be processed.
       repository.data_modules.each do |data_module|
         package = model.create_nested_package(data_module.name.to_s)
         resource.setID(package, data_module.name.to_s)
@@ -86,7 +85,7 @@ module Domgen
         packages[data_module.name] = package
 
         data_module.entities.each do |entity|
-          entity.attributes.select { |attr| attr.persistent? }.each do |attribute|
+          entity.attributes.each do |attribute|
             if attribute.enum?
               enum_key = create_enum_key(data_module, entity, attribute)
               enum_name = create_enum_name(entity, attribute)
@@ -119,8 +118,8 @@ module Domgen
           clazz.createOwnedComment().setBody(description(entity)) if description(entity)
           name_class_map[entity.qualified_name] ||= clazz
 
-          # Creating EMF attributes corresponding to persistent, non-enum attributes
-          entity.attributes.select { |attr| attr.persistent? && !attr.enum? }.each do |attribute|
+          # Creating EMF attributes corresponding to non-enum attributes
+          entity.attributes.select { |attr| !attr.enum? }.each do |attribute|
             attribute_type =
               attribute.reference? ? attribute.referenced_entity.primary_key.attribute_type : attribute.attribute_type
             prim_type = primitive_types[primitive_name(attribute_type)]
@@ -130,8 +129,8 @@ module Domgen
             emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
 
-          # Creating EMF attributes corresponding to persistent enum attributes
-          entity.attributes.select { |attr| attr.persistent? && attr.enum? && !attr.reference? }.each do |attribute|
+          # Creating EMF attributes corresponding to enum attributes
+          entity.attributes.select { |attr| attr.enum? && !attr.reference? }.each do |attribute|
             enum_type = enumerations[create_enum_key(data_module, entity, attribute)]
             emf_attr = clazz.create_owned_attribute(attribute.name.to_s, enum_type, 0, 1)
             resource.setID(emf_attr, attribute.qualified_name.to_s)
@@ -144,7 +143,7 @@ module Domgen
       # corresponding to the references defined in it.
       repository.data_modules.each do |data_module|
         data_module.entities.each do |entity|
-          entity.attributes.select { |attribute| attribute.persistent? && attribute.reference? }.each do |attribute|
+          entity.attributes.select { |attribute| attribute.reference? }.each do |attribute|
             end1 = name_class_map[attribute.entity.qualified_name]
             end2 = name_class_map[attribute.referenced_entity.qualified_name]
             name = attribute.name == attribute.referenced_entity.name ? "" : attribute.name.to_s

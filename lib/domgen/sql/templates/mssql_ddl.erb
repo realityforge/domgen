@@ -6,7 +6,7 @@ IF CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Enterprise Edition%'
 BEGIN
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
-<% entity.attributes.select {|a| a.persistent?}.each do |a|
+<% entity.attributes.each do |a|
 %>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>
@@ -19,7 +19,7 @@ BEGIN
 <% end %>
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
-<% entity.attributes.select {|a| a.persistent?}.each do |a|
+<% entity.attributes.each do |a|
 %>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>  CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC)
@@ -37,7 +37,7 @@ EXEC sys.sp_addextendedproperty
   @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>;
 GO
 <% end %>
-<% entity.attributes.select {|a| a.persistent? && !a.tags.empty?}.each do |a| %>
+<% entity.attributes.select {|a| !a.tags.empty?}.each do |a| %>
 <% a.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
@@ -51,7 +51,7 @@ GO
 <% if !entity.sql.force_overflow_for_large_objects.nil? %>
 EXEC sp_tableoption '<%= entity.sql.qualified_table_name %>', 'large value types out of row', <%= entity.sql.force_overflow_for_large_objects ? '1' : '0' %>
 <% end %>
-<% entity.attributes.select {|a| a.persistent? && !a.sql.default_value.nil?}.each do |a| %>
+<% entity.attributes.select {|a| !a.sql.default_value.nil?}.each do |a| %>
 ALTER TABLE <%= entity.sql.qualified_table_name %> ADD CONSTRAINT [DF_<%= entity.name %>_<%= a.name %>] DEFAULT (<%= a.sql.default_value %>) FOR <%= a.sql.quoted_column_name %>
 GO
 <% end %>

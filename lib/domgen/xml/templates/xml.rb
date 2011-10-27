@@ -80,7 +80,7 @@ module Domgen
 
         def visit_attribute(attribute)
           attribute_names = %w(abstract? override? reference? validate? set_once? generated_value?
-                           enum? primary_key? allow_blank? unique? nullable? immutable? persistent?
+                           enum? primary_key? allow_blank? unique? nullable? immutable?
                            updatable? allow_blank? qualified_name length min_length name)
           doc.attribute({"entity" => attribute.entity.qualified_name},
                         collect_attributes(attribute, attribute_names)) do
@@ -104,11 +104,9 @@ module Domgen
                             "inverse-relationship" => attribute.inverse.relationship_name.to_s)
             end
 
-            if attribute.persistent?
-              attributes = collect_attributes(attribute.sql, %w(column_name identity? sparse? calculation))
-              attributes['sql-type'] = attribute.sql.sql_type.gsub('[','').gsub(']','')
-              doc.persistent(attributes)
-            end
+            attributes = collect_attributes(attribute.sql, %w(column_name identity? sparse? calculation))
+            attributes['sql-type'] = attribute.sql.sql_type.gsub('[','').gsub(']','')
+            doc.persistent(attributes)
 
           end
         end

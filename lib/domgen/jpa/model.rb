@@ -278,7 +278,7 @@ module Domgen
       attr_writer :persistent
 
       def persistent?
-        @persistent.nil? ? (!attribute.abstract? && attribute.persistent?) : @persistent
+        @persistent.nil? ? !attribute.abstract? : @persistent
       end
 
       def name

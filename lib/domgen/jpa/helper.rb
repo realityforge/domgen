@@ -3,14 +3,10 @@ module Domgen
     module Helper
       def j_jpa_field_attributes(attribute)
         s = ''
-        if !attribute.persistent?
-          s << "  @javax.persistence.Transient\n"
-        else
-          s << "  @javax.persistence.Id\n" if attribute.primary_key?
-          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
-          s << gen_relation_annotation(attribute, true) if attribute.reference?
-          s << gen_column_annotation(attribute)
-        end
+        s << "  @javax.persistence.Id\n" if attribute.primary_key?
+        s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
+        s << gen_relation_annotation(attribute, true) if attribute.reference?
+        s << gen_column_annotation(attribute)
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
         if attribute.attribute_type == :text
