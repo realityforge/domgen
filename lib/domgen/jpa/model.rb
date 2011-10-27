@@ -272,6 +272,15 @@ module Domgen
       def orphan_removal?
         !!@orphan_removal
       end
+
+      def traversable=(traversable)
+        error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
+        @traversable = traversable
+      end
+
+      def traversable?
+        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.jpa.persistent?) : @traversable
+      end
     end
 
     class JpaField < BaseJpaField

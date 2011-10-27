@@ -129,7 +129,7 @@ JAVA
       def j_declared_attribute_and_relation_accessors(entity)
         relation_methods = entity.referencing_attributes.collect do |attribute|
 
-          if attribute.abstract? || attribute.inherited? || !attribute.inverse.traversable? || !attribute.jpa.persistent? || attribute.referenced_entity != entity
+          if attribute.abstract? || attribute.inherited? || !attribute.inverse.jpa.traversable? || !attribute.jpa.persistent? || attribute.referenced_entity != entity
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
             # Ignore attributes that have no inverse relationship
@@ -256,7 +256,7 @@ JAVA
       def j_add_to_inverse(attribute)
         name = attribute.jpa.name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.traversable?
+        if !attribute.inverse.jpa.traversable?
           ''
         else
           null_guard(attribute.nullable?, name) { "this.#{name}.add#{inverse_name}( this );" }
@@ -266,7 +266,7 @@ JAVA
       def j_remove_from_inverse(attribute)
         name = attribute.jpa.name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.traversable?
+        if !attribute.inverse.jpa.traversable?
           ''
         else
           null_guard(true, name) { "#{name}.remove#{inverse_name}( this );" }
