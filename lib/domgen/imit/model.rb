@@ -8,7 +8,7 @@ module Domgen
       end
 
       def traversable?
-        @traversable.nil? ? self.inverse.traversable? : @traversable
+        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.imit.client_side?) : @traversable
       end
     end
 
@@ -37,7 +37,7 @@ module Domgen
       attr_writer :client_side
 
       def client_side?
-        @client_side.nil? ? attribute.entity.imit.client_side? : @client_side
+        @client_side.nil? ? (attribute.entity.imit.client_side? && (!attribute.reference? || attribute.referenced_entity.imit.client_side?) ) : @client_side
       end
 
       include Domgen::Java::JavaCharacteristic
@@ -73,6 +73,15 @@ module Domgen
 
       def client_side?
         @client_side.nil? ? entity.data_module.imit.client_side? : @client_side
+      end
+
+      def referencing_client_side_attributes
+        entity.referencing_attributes.select do |attribute|
+          attribute.inverse.imit.traversable? &&
+            entity == attribute.referenced_entity &&
+            attribute.imit.client_side? &&
+            attribute.referenced_entity.imit.client_side?
+        end
       end
     end
 

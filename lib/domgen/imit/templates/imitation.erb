@@ -26,9 +26,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
    end
    end
 %>
-<% entity.referencing_attributes.
-  select { |attribute| attribute.inverse.imit.traversable? && entity == attribute.referenced_entity && attribute.imit.client_side? }.
-  each do |attribute| %><%= if attribute.inverse.multiplicity == :many
+<% entity.imit.referencing_client_side_attributes.each do |attribute| %><%= if attribute.inverse.multiplicity == :many
           "  private java.util.List<#{attribute.entity.imit.qualified_imitation_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
           "  private #{attribute.entity.imit.qualified_imitation_name} #{attribute.inverse.relationship_name};\n"
@@ -74,9 +72,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 <% end %>  }
 
 <% end %>
-<% entity.referencing_attributes.
-  select { |attribute| attribute.inverse.imit.traversable? && entity == attribute.referenced_entity && attribute.imit.client_side? }.
-  each do |attribute|
+<% entity.imit.referencing_client_side_attributes.each do |attribute|
         name = attribute.inverse.relationship_name
         type = attribute.entity.imit.qualified_imitation_name
         if attribute.inverse.multiplicity == :many

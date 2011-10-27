@@ -19,7 +19,7 @@ class <%= data_module.imit.updater_name %>
     _broker = broker;
   }
 
-<% data_module.entities.each do |entity| %>
+<% data_module.entities.select{|entity| entity.imit.client_side?}.each do |entity| %>
   void delete<%= entity.name %>( final <%= entity.imit.imitation_name %> entity )
   {
     entity.invalidate();
