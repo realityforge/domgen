@@ -79,7 +79,7 @@ module Domgen
         end
 
         def visit_attribute(attribute)
-          attribute_names = %w(abstract? override? reference? validate? set_once? generated_value?
+          attribute_names = %w(abstract? override? reference? set_once? generated_value?
                            enum? primary_key? allow_blank? unique? nullable? immutable?
                            updatable? allow_blank? qualified_name length min_length name)
           doc.attribute({"entity" => attribute.entity.qualified_name},
