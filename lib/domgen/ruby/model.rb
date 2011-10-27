@@ -1,5 +1,13 @@
 module Domgen
   module Ruby
+    class RubyAttribute < Domgen.ParentedElement(:attribute)
+      attr_writer :validate
+
+      def validate?
+        @validate.nil? ? true : @validate
+      end
+    end
+
     class RubyClass < Domgen.ParentedElement(:entity)
       attr_writer :classname
 
@@ -36,5 +44,6 @@ module Domgen
 
   FacetManager.define_facet(:ruby,
                             Entity => Domgen::Ruby::RubyClass,
+                            Attribute => Domgen::Ruby::RubyAttribute,
                             DataModule => Domgen::Ruby::RubyModule )
 end

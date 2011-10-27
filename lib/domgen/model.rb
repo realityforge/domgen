@@ -367,12 +367,6 @@ module Domgen
       self.attribute_type == :reference
     end
 
-    attr_writer :validate
-
-    def validate?
-      @validate.nil? ? true : @validate
-    end
-
     attr_writer :set_once
 
     def set_once?
