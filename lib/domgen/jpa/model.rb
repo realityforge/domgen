@@ -273,6 +273,10 @@ module Domgen
         !!@orphan_removal
       end
 
+      def inverse
+        self.parent
+      end
+
       def traversable=(traversable)
         error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
         @traversable = traversable
