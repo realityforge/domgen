@@ -39,7 +39,7 @@ module Domgen
       [
         Template.new(Imit::FACETS,
                      :repository,
-                     "#{Imit::TEMPLATE_DIRECTORY}/change_mapper_name.erb",
+                     "#{Imit::TEMPLATE_DIRECTORY}/change_mapper.erb",
                      'java/#{repository.imit.qualified_change_mapper_name.gsub(".","/")}.java',
                      Imit::HELPERS),
       ]

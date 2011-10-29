@@ -3,14 +3,10 @@ module Domgen
     module Helper
       def j_jpa_field_attributes(attribute)
         s = ''
-        if !attribute.persistent?
-          s << "  @javax.persistence.Transient\n"
-        else
-          s << "  @javax.persistence.Id\n" if attribute.primary_key?
-          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
-          s << gen_relation_annotation(attribute, true) if attribute.reference?
-          s << gen_column_annotation(attribute)
-        end
+        s << "  @javax.persistence.Id\n" if attribute.primary_key?
+        s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
+        s << gen_relation_annotation(attribute, true) if attribute.reference?
+        s << gen_column_annotation(attribute)
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
         if attribute.attribute_type == :text
@@ -133,7 +129,7 @@ JAVA
       def j_declared_attribute_and_relation_accessors(entity)
         relation_methods = entity.referencing_attributes.collect do |attribute|
 
-          if attribute.abstract? || attribute.inherited? || !attribute.inverse.traversable? || !attribute.jpa.persistent? || attribute.referenced_entity != entity
+          if attribute.abstract? || attribute.inherited? || !attribute.inverse.jpa.traversable? || !attribute.jpa.persistent? || attribute.referenced_entity != entity
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
             # Ignore attributes that have no inverse relationship
@@ -260,7 +256,7 @@ JAVA
       def j_add_to_inverse(attribute)
         name = attribute.jpa.name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.traversable?
+        if !attribute.inverse.jpa.traversable?
           ''
         else
           null_guard(attribute.nullable?, name) { "this.#{name}.add#{inverse_name}( this );" }
@@ -270,7 +266,7 @@ JAVA
       def j_remove_from_inverse(attribute)
         name = attribute.jpa.name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.traversable?
+        if !attribute.inverse.jpa.traversable?
           ''
         else
           null_guard(true, name) { "#{name}.remove#{inverse_name}( this );" }

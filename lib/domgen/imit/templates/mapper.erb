@@ -5,14 +5,13 @@ import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 
 /**
- * Utility class that decodes RPC payloads and applies the changes to the entities
- * in the associated entity repository for the data module "<%= data_module.name %>".
+ * Utility class to map a change to an entity ensuring that the repository is updated as required.
  */
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= data_module.imit.mapper_name %>
 {
-  public static final String TYPE_PREFIX = "<%= data_module.name %>";
+  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= data_module.imit.mapper_name %>.class.getName() );
 
   private final EntityRepository _repository;
   private final EntityChangeBroker _broker;
@@ -36,7 +35,11 @@ public class <%= data_module.imit.mapper_name %>
     {
       if( null != entity )
       {
-        // It is not in the local repository so we need to delete it
+        if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
+        {
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + id + "') is deleting local entity" );
+        }
+        // It is in the local repository so we need to delete it
         _repository.deregisterEntity( <%= entity.imit.imitation_name %>.class, id );
          _<%= data_module.name %>Updater.delete<%= entity.name %>( entity );
       }
@@ -49,6 +52,17 @@ public class <%= data_module.imit.mapper_name %>
         entity = new <%= entity.imit.imitation_name %>( _repository );
         _repository.registerEntity( <%= entity.imit.imitation_name %>.class, id, entity );
         fullUpdate = true;
+        if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
+        {
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + id + "') is creating local entity" );
+        }
+      }
+      else
+      {
+        if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
+        {
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + id + "') is updating local entity" );
+        }
       }
       updateAttributes<%= entity.name %>( entity, attributes, fullUpdate );
     }

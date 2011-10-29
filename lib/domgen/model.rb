@@ -336,7 +336,7 @@ module Domgen
       @name = name
       @attribute_type = attribute_type
       super(entity, options, &block)
-      error("Invalid type #{attribute_type} for persistent attribute #{name}") if persistent? && !self.class.persistent_types.include?(attribute_type)
+      error("Invalid type #{attribute_type} for persistent attribute #{name}") if !self.class.persistent_types.include?(attribute_type)
     end
 
     def qualified_name
@@ -365,12 +365,6 @@ module Domgen
 
     def reference?
       self.attribute_type == :reference
-    end
-
-    attr_writer :validate
-
-    def validate?
-      @validate.nil? ? true : @validate
     end
 
     attr_writer :set_once
@@ -406,12 +400,6 @@ module Domgen
 
     def updatable?
       !immutable? && !generated_value?
-    end
-
-    attr_writer :persistent
-
-    def persistent?
-      @persistent.nil? ? true : @persistent
     end
 
     attr_writer :polymorphic

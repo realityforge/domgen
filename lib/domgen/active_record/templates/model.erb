@@ -3,13 +3,13 @@ module <%= entity.data_module.ruby.module_name %>
 
 class <%= entity.ruby.classname %> < ActiveRecord::Base
   # Attributes:
-<% entity.attributes.select{|a| a.persistent?}.each do |a|
+<% entity.attributes.each do |a|
 %>  #   <%= a.sql.column_name %>: <%= a.reference? ? a.referenced_entity.name : a.attribute_type %>
 <% end %>
   set_table_name "<%= entity.sql.qualified_table_name.gsub('dbo.','') %>"
   set_primary_key "<%= entity.primary_key.sql.column_name %>"
 <% entity.attributes.each do |a|
-   if a.persistent? && a.validate?
+   if a.ruby.validate?
        if !a.generated_value?
          if a.enum?
            a.enumeration.values.each do |k,v|

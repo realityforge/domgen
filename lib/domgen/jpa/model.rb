@@ -272,13 +272,26 @@ module Domgen
       def orphan_removal?
         !!@orphan_removal
       end
+
+      def inverse
+        self.parent
+      end
+
+      def traversable=(traversable)
+        error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
+        @traversable = traversable
+      end
+
+      def traversable?
+        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.jpa.persistent?) : @traversable
+      end
     end
 
     class JpaField < BaseJpaField
       attr_writer :persistent
 
       def persistent?
-        @persistent.nil? ? (!attribute.abstract? && attribute.persistent?) : @persistent
+        @persistent.nil? ? !attribute.abstract? : @persistent
       end
 
       def name
@@ -361,6 +374,12 @@ module Domgen
 
       def persistent?
         @persistent.nil? ? true : @persistent
+      end
+
+      attr_writer :cacheable
+
+      def cacheable?
+        @cacheable.nil? ? false : @cacheable
       end
 
       def queries
