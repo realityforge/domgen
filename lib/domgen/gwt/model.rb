@@ -91,56 +91,48 @@ module Domgen
     end
 
     class GwtModule < Domgen.ParentedElement(:data_module)
-      attr_writer :module_name
-
-      def module_name
-        @module_name || data_module.name
-      end
-
-      attr_writer :package
-
-      def package
-        @package || "#{data_module.repository.gwt.package}.#{Domgen::Naming.underscore(data_module.name)}"
-      end
-
       attr_writer :shared_package
 
       def shared_package
-        @shared_package || "#{package}.shared"
-      end
-
-      attr_writer :client_package
-
-      def client_package
-        @client_package || "#{package}.client"
+        @shared_package || "#{parent_gwt.shared_package}.#{package_key}"
       end
 
       attr_writer :event_package
 
       def event_package
-        @event_package || "#{client_package}.event"
+        @event_package || "#{parent_gwt.event_package}.#{package_key}"
       end
 
       attr_writer :gin_package
 
       def gin_package
-        @gin_package || "#{client_package}.gin"
+        @gin_package || "#{parent_gwt.gin_package}"
       end
 
       attr_writer :server_package
 
       def server_package
-        @server_package || "#{package}.server"
+        @server_package || "#{parent_gwt.server_package}.#{package_key}"
       end
 
       attr_writer :gin_module_name
 
       def gin_module_name
-        @gin_module_name || "#{data_module.name}ServicesGinModule"
+        @gin_module_name || "#{data_module.name}GinModule"
       end
 
       def qualified_gin_module_name
-        "#{gin_package}.#{gin_module_name}"
+        "#{parent_gwt.gin_package}.#{gin_module_name}"
+      end
+
+      protected
+
+      def parent_gwt
+        data_module.repository.gwt
+      end
+
+      def package_key
+        Domgen::Naming.underscore(data_module.name)
       end
     end
 
@@ -192,10 +184,56 @@ module Domgen
     end
 
     class GwtApplication < Domgen.ParentedElement(:repository)
+      attr_writer :module_name
+
+      def module_name
+        @module_name || repository.name
+      end
+
       attr_writer :package
 
       def package
         @package || Domgen::Naming.underscore(repository.name)
+      end
+
+      attr_writer :shared_package
+
+      def shared_package
+        @shared_package || "#{package}.shared"
+      end
+
+      attr_writer :client_package
+
+      def client_package
+        @client_package || "#{package}.client"
+      end
+
+      attr_writer :event_package
+
+      def event_package
+        @event_package || "#{client_package}.event"
+      end
+
+      attr_writer :gin_package
+
+      def gin_package
+        @gin_package || "#{client_package}.gin"
+      end
+
+      attr_writer :server_package
+
+      def server_package
+        @server_package || "#{package}.server"
+      end
+
+      attr_writer :gin_module_name
+
+      def gin_module_name
+        @gin_module_name || "#{repository.name}ServicesGinModule"
+      end
+
+      def qualified_gin_module_name
+        "#{gin_package}.#{gin_module_name}"
       end
     end
   end

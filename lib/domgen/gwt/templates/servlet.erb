@@ -3,7 +3,7 @@ package <%= service.data_module.gwt.server_package %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt.servlet_name %>", urlPatterns = { "/<%= service.data_module.gwt.module_name %>/" + <%= service.gwt.qualified_service_name %>.PATH } )
+@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt.module_name %>/" + <%= service.gwt.qualified_service_name %>.PATH } )
 public class <%= service.gwt.servlet_name %>
   extends com.google.gwt.user.server.rpc.<%= service.gwt.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
   implements <%= service.gwt.qualified_service_name %>
