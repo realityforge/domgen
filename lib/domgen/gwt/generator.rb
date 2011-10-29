@@ -12,11 +12,11 @@ module Domgen
                      "#{GWT::TEMPLATE_DIRECTORY}/service.erb",
                      'java/#{service.gwt.qualified_service_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper]),
-      Template.new(GWT::FACETS,
-                   :service,
-                   "#{GWT::TEMPLATE_DIRECTORY}/async_service.erb",
-                   'java/#{service.gwt.qualified_async_service_name.gsub(".","/")}.java',
-                   [Domgen::Java::Helper])
+        Template.new(GWT::FACETS,
+                     :service,
+                     "#{GWT::TEMPLATE_DIRECTORY}/async_service.erb",
+                     'java/#{service.gwt.qualified_async_service_name.gsub(".","/")}.java',
+                     [Domgen::Java::Helper])
       ]
     end
 
