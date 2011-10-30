@@ -26,7 +26,7 @@ module Domgen
       [
         Template.new(GWT::FACETS,
                      :repository,
-                     "#{GWT::TEMPLATE_DIRECTORY}/repository_gin_module.erb",
+                     "#{GWT::TEMPLATE_DIRECTORY}/gin_module.erb",
                      'java/#{repository.gwt.qualified_gin_module_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper]),
         Template.new(GWT::FACETS,
