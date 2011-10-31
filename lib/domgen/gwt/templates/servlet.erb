@@ -14,9 +14,22 @@ public class <%= service.gwt.servlet_name %>
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)
 %>  public <%= annotated_type(method.return_value, :gwt) %> <%= method.gwt.name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :gwt)} #{p.gwt.name}" }.join(', ') %>)<%=
-    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt.name}.join(', ')}"
+    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt.qualified_name}.join(', ')}"
 %>
   {
+<% if !method.exceptions.empty?
+%>    try
+    {
+<% end %>
     <%= method.return_value.return_type != :void ? "return ": "" %>_service.<%= method.gwt.name %>(<%= method.parameters.collect{|p| "#{p.gwt.name}" }.join(', ') %>);
+<% if !method.exceptions.empty?
+%>    }
+<% method.exceptions.each do |exception| %>
+    catch ( final <%= exception.ejb.qualified_name %> ignored )
+    {
+        throw new <%= exception.gwt.qualified_name %>();
+    }
+<% end %>
+<% end %>
   }
 <% end %>}
