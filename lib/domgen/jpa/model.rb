@@ -189,7 +189,7 @@ module Domgen
           error("Unknown query spec #{query_spec}")
         end
         query = query.gsub(/:[^\W]+/,'?') if self.native?
-        query.gsub("\n", ' ')
+        query.gsub(/[\s]+/, ' ').strip
       end
 
       def self.valid_query_specs
