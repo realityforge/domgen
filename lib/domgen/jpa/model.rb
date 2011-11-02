@@ -25,22 +25,13 @@ module Domgen
         parameter_type
       end
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::EEJavaCharacteristic
 
       protected
 
       def characteristic
         self
       end
-
-      def entity_to_classname(entity)
-        entity.jpa.qualified_entity_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.jpa.qualified_enumeration_name
-      end
-
 
       def characteristic_kind
         "parameter"
@@ -302,20 +293,12 @@ module Domgen
         self.parent
       end
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::EEJavaCharacteristic
 
       protected
 
       def characteristic
         attribute
-      end
-
-      def entity_to_classname(entity)
-        entity.jpa.qualified_entity_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.jpa.qualified_enumeration_name
       end
     end
 

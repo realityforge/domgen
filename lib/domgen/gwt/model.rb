@@ -27,20 +27,12 @@ module Domgen
         Domgen::Naming.camelize(parameter.name.to_s)
       end
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::ImitJavaCharacteristic
 
       protected
 
       def characteristic
         parameter
-      end
-
-      def entity_to_classname(entity)
-        entity.gwt.qualified_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.gwt.qualified_name
       end
     end
 
@@ -128,20 +120,12 @@ module Domgen
 
     class GwtReturn < Domgen.ParentedElement(:result)
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::ImitJavaCharacteristic
 
       protected
 
       def characteristic
         result
-      end
-
-      def entity_to_classname(entity)
-        entity.gwt.qualified_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.gwt.qualified_name
       end
     end
 
@@ -150,20 +134,12 @@ module Domgen
         Domgen::Naming.camelize(parameter.name.to_s)
       end
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::ImitJavaCharacteristic
 
       protected
 
       def characteristic
         parameter
-      end
-
-      def entity_to_classname(entity)
-        entity.gwt.qualified_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.gwt.qualified_name
       end
     end
 

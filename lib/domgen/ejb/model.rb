@@ -59,20 +59,12 @@ module Domgen
         Domgen::Naming.camelize(parameter.name.to_s)
       end
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::EEJavaCharacteristic
 
       protected
 
       def characteristic
         parameter
-      end
-
-      def entity_to_classname(entity)
-        entity.jpa.qualified_entity_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.ejb.qualified_name
       end
     end
 
@@ -106,20 +98,12 @@ module Domgen
 
     class EjbReturn < Domgen.ParentedElement(:result)
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::EEJavaCharacteristic
 
       protected
 
       def characteristic
         result
-      end
-
-      def entity_to_classname(entity)
-        entity.ejb.qualified_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.ejb.qualified_name
       end
     end
 

@@ -48,5 +48,33 @@ module Domgen
         raise "enumeration_to_classname unimplemented"
       end
     end
+
+    module EEJavaCharacteristic
+      include JavaCharacteristic
+
+      protected
+
+      def entity_to_classname(entity)
+        entity.jpa.qualified_entity_name
+      end
+
+      def enumeration_to_classname(enumeration)
+        enumeration.jpa.qualified_enumeration_name
+      end
+    end
+
+    module ImitJavaCharacteristic
+      include JavaCharacteristic
+
+      protected
+
+      def entity_to_classname(entity)
+        entity.imit.qualified_imitation_name
+      end
+
+      def enumeration_to_classname(enumeration)
+        enumeration.imit.qualified_name
+      end
+    end
   end
 end

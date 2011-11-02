@@ -40,20 +40,12 @@ module Domgen
         @client_side.nil? ? (attribute.entity.imit.client_side? && (!attribute.reference? || attribute.referenced_entity.imit.client_side?) ) : @client_side
       end
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::ImitJavaCharacteristic
 
       protected
 
       def characteristic
         attribute
-      end
-
-      def entity_to_classname(entity)
-        entity.imit.qualified_imitation_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.imit.qualified_enumeration_name
       end
     end
 
