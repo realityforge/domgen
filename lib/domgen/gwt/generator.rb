@@ -50,6 +50,16 @@ module Domgen
       ]
     end
 
+    def self.define_gwt_client_service_test_templates
+      [
+          Template.new(GWT::FACETS,
+                       :repository,
+                       "#{GWT::TEMPLATE_DIRECTORY}/mock_services_module.erb",
+                       'test/#{repository.gwt.qualified_mock_services_module_name.gsub(".","/")}.java',
+                       [Domgen::Java::Helper]),
+      ]
+    end
+
     def self.define_gwt_server_service_templates
       [
         Template.new(GWT::FACETS + [:ejb],
