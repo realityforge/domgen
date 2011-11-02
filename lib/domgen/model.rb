@@ -937,12 +937,6 @@ module Domgen
       "#{method.qualified_name}$#{self.name}"
     end
 
-    attr_writer :nullable
-
-    def nullable?
-      @nullable.nil? ? false : @nullable
-    end
-
     def to_s
       "Parameter[#{self.qualified_name}]"
     end
