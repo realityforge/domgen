@@ -3,8 +3,7 @@ module Domgen
     TYPE_MAP = {"integer" => "java.lang.Integer",
                 "boolean" => "java.lang.Boolean",
                 "datetime" => "java.sql.Timestamp",
-                "text" => "java.lang.String",
-                "List" => "java.util.List"}
+                "text" => "java.lang.String"}
 
     module JavaCharacteristic
       attr_writer :java_type
