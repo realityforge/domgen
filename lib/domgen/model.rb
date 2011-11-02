@@ -279,7 +279,7 @@ module Domgen
     attr_reader :length
 
     def length=(length)
-      error("length on #{name} is invalid as #{characteristic_kind} is not a string") unless allows_length?
+      error("length on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a string") unless allows_length?
       @length = length
     end
 
@@ -293,7 +293,7 @@ module Domgen
     end
 
     def min_length=(length)
-      error("min_length on #{name} is invalid as #{characteristic_kind} is not a string") unless allows_length?
+      error("min_length on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a string") unless allows_length?
       @min_length = length
     end
 
@@ -312,8 +312,34 @@ module Domgen
     attr_reader :enumeration
 
     def enumeration=(enumeration)
-      error("enumeration on #{name} is invalid as #{characteristic_kind} is not an enumeration") unless enum?
+      error("enumeration on #{name} is invalid as #{characteristic_container.characteristic_kind} is not an enumeration") unless enum?
       @enumeration = enumeration
+    end
+
+        def characteristic_type
+      parameter_type
+    end
+
+    def reference?
+      self.characteristic_type == :reference
+    end
+
+    attr_reader :references
+
+    def references=(references)
+      error("references on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      @references = references
+    end
+
+    def referenced_entity
+      error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      self.characteristic_container.data_module.entity_by_name(self.references)
+    end
+
+    # The name of the local field appended with PK of foreign entity
+    def referencing_link_name
+      error("referencing_link_name on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      "#{name}#{referenced_entity.primary_key.name}"
     end
 
     def characteristic_type
@@ -322,8 +348,8 @@ module Domgen
 
     protected
 
-    def characteristic_kind
-       raise "characteristic_kind not implemented"
+    def characteristic_container
+      raise "characteristic_container not implemented"
     end
   end
 
@@ -414,24 +440,6 @@ module Domgen
       @inverse ||= InverseElement.new(self, {})
     end
 
-    attr_reader :references
-
-    def references=(references)
-      error("references on #{name} is invalid as attribute is not a reference") unless reference?
-      @references = references
-    end
-
-    def referenced_entity
-      error("referenced_entity on #{name} is invalid as attribute is not a reference") unless reference?
-      self.entity.data_module.entity_by_name(self.references)
-    end
-
-    # The name of the local field appended with PK of foreign entity
-    def referencing_link_name
-      error("referencing_link_name on #{name} is invalid as attribute is not a reference") unless reference?
-      "#{name}#{referenced_entity.primary_key.name}"
-    end
-
     def on_update=(on_update)
       error("on_update on #{name} is invalid as attribute is not a reference") unless reference?
       error("on_update #{on_update} on #{name} is invalid") unless self.class.change_actions.include?(on_update)
@@ -473,10 +481,8 @@ module Domgen
       attribute_type
     end
 
-    private
-
-    def characteristic_kind
-       "attribute"
+    def characteristic_container
+      entity
     end
   end
 
@@ -514,18 +520,18 @@ module Domgen
 
     def i_enum(name, values, options = {}, &block)
       enumeration_name = "#{self.name}#{name}"
-      enum_manager.enumeration(enumeration_name, :integer, { :values => values })
+      data_module.enumeration(enumeration_name, :integer, { :values => values })
       enumeration(name, enumeration_name, options, &block)
     end
 
     def s_enum(name, values, options = {}, &block)
       enumeration_name = "#{self.name}#{name}"
-      enum_manager.enumeration(enumeration_name, :text, { :values => values })
+      data_module.enumeration(enumeration_name, :text, { :values => values })
       enumeration(name, enumeration_name, options, &block)
     end
 
     def enumeration(name, enumeration_key, options = {}, &block)
-      enumeration = enum_manager.enumeration_by_name(enumeration_key)
+      enumeration = data_module.enumeration_by_name(enumeration_key)
       params = options.dup
       params[:enumeration] = enumeration
       c = characteristic(name, :enumeration, params, &block)
@@ -574,9 +580,7 @@ module Domgen
       raise "characteristic_kind not implemented"
     end
 
-    def enum_manager
-      raise "enum_manager not implemented"
-    end
+    # Also need to define data_module
   end
 
   class Entity < self.FacetedElement(:data_module)
@@ -776,10 +780,6 @@ module Domgen
        "attribute"
     end
 
-    def enum_manager
-      data_module
-    end
-
     def new_characteristic(name, type, options, &block)
       override = false
       if characteristic_map[name.to_s]
@@ -850,10 +850,8 @@ module Domgen
       parameter_type
     end
 
-    protected
-
-    def characteristic_kind
-       "parameter"
+    def characteristic_container
+      message
     end
   end
 
@@ -887,10 +885,6 @@ module Domgen
 
     def characteristic_kind
        raise "parameter"
-    end
-
-    def enum_manager
-      data_module
     end
 
     def new_characteristic(name, type, options, &block)
@@ -945,10 +939,8 @@ module Domgen
       parameter_type
     end
 
-    protected
-
-    def characteristic_kind
-       "parameter"
+    def characteristic_container
+      method
     end
   end
 
@@ -978,10 +970,8 @@ module Domgen
       return_type
     end
 
-    protected
-
-    def characteristic_kind
-       "return"
+    def characteristic_container
+      method
     end
   end
 
@@ -1010,6 +1000,19 @@ module Domgen
       characteristic(name, type, options, &block)
     end
 
+    def reference(other_type, options = {}, &block)
+      name = options.delete(:name)
+      if name.nil?
+        if other_type.to_s.include? "."
+          name = other_type.to_s.sub(/.+\./,'').to_sym
+        else
+          name = other_type
+        end
+      end
+
+      characteristic(name.to_s.to_sym, :reference, options.merge({:references => other_type}), &block)
+    end
+
     def returns(parameter_type, options = {}, &block)
       error("Attempting to redefine return type #{name} on #{self.qualified_name}") if @return_type
       @return_type = Result.new(self, parameter_type, options, &block)
@@ -1033,6 +1036,10 @@ module Domgen
       @exceptions[name.to_s] = exception
     end
 
+    def data_module
+      self.service.data_module
+    end
+
     protected
 
     def new_characteristic(name, type, options, &block)
@@ -1041,10 +1048,6 @@ module Domgen
 
     def characteristic_kind
       "parameter"
-    end
-
-    def enum_manager
-      method.service.data_module
     end
 
     def perform_verify
