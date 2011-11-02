@@ -20,5 +20,16 @@ module Domgen
                      EJB::HELPERS)
       ]
     end
+
+    def self.define_ejb_facades_templates
+      [
+        Template.new(EJB::FACETS,
+                     :service,
+                     "#{EJB::TEMPLATE_DIRECTORY}/facade_interface.erb",
+                     'java/#{service.ejb.qualified_facade_interface_name.gsub(".","/")}.java',
+                     EJB::HELPERS,
+                     'service.ejb.generate_facade?'),
+      ]
+    end
   end
 end

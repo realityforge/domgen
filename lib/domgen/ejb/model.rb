@@ -9,6 +9,10 @@ module Domgen
         @name || service.qualified_name
       end
 
+      def facade_name
+        "#{name}Facade"
+      end
+
       attr_writer :service_name
 
       def service_name
@@ -19,6 +23,22 @@ module Domgen
         "#{service.data_module.ejb.service_package}.#{service_name}"
       end
 
+      def facade_interface_name
+        "#{service_name}Facade"
+      end
+
+      def qualified_facade_interface_name
+        "#{service.data_module.ejb.service_package}.#{facade_interface_name}"
+      end
+
+      def facade_implementation_name
+        "#{service_name}FacadeImpl"
+      end
+
+      def qualified_facade_implementation_name
+        "#{service.data_module.ejb.service_package}.#{facade_implementation_name}"
+      end
+
       attr_writer :local
 
       def local?
@@ -27,6 +47,10 @@ module Domgen
 
       def remote?
         !local?
+      end
+
+      def generate_facade?
+        service.methods.any?{|method| method.parameters.any?{|parameter|parameter.reference?}}
       end
     end
 
@@ -44,7 +68,7 @@ module Domgen
       end
 
       def entity_to_classname(entity)
-        entity.ejb.qualified_service_name
+        entity.jpa.qualified_entity_name
       end
 
       def enumeration_to_classname(enumeration)
