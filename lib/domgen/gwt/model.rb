@@ -94,7 +94,7 @@ module Domgen
       attr_writer :enabled
 
       def enabled?
-        @enabled.nil? ? (!@shared_package.nil? || !@event_package.nil? || !@gin_package.nil? || !@server_package.nil?) : @enabled
+        @enabled.nil? ? (!@shared_package.nil? || !@event_package.nil? || !@server_package.nil?) : @enabled
       end
 
       attr_writer :shared_package
@@ -109,26 +109,10 @@ module Domgen
         @event_package || "#{parent_gwt.event_package}.#{package_key}"
       end
 
-      attr_writer :gin_package
-
-      def gin_package
-        @gin_package || "#{parent_gwt.gin_package}"
-      end
-
       attr_writer :server_package
 
       def server_package
         @server_package || "#{parent_gwt.server_package}.#{package_key}"
-      end
-
-      attr_writer :gin_module_name
-
-      def gin_module_name
-        @gin_module_name || "#{data_module.name}GinModule"
-      end
-
-      def qualified_gin_module_name
-        "#{parent_gwt.gin_package}.#{gin_module_name}"
       end
 
       protected
