@@ -285,6 +285,10 @@ module Domgen
         @persistent.nil? ? !attribute.abstract? : @persistent
       end
 
+      def field_name
+        attribute.name
+      end
+
       def name
         attribute.name
       end
@@ -303,12 +307,12 @@ module Domgen
     end
 
     class JpaEnumeration < Domgen.ParentedElement(:enumeration)
-      def enumeration_name
+      def name
         "#{enumeration.name}"
       end
 
-      def qualified_enumeration_name
-        "#{enumeration.data_module.jpa.data_type_package}.#{enumeration_name}"
+      def qualified_name
+        "#{enumeration.data_module.jpa.data_type_package}.#{name}"
       end
     end
 
@@ -325,18 +329,18 @@ module Domgen
         @jpql_name || entity.qualified_name.gsub('.','_')
       end
 
-      attr_writer :entity_name
+      attr_writer :name
 
-      def entity_name
-        @entity_name || entity.name
+      def name
+        @name || entity.name
       end
 
-      def qualified_entity_name
-        "#{entity.data_module.jpa.entity_package}.#{entity_name}"
+      def qualified_name
+        "#{entity.data_module.jpa.entity_package}.#{name}"
       end
 
       def metamodel_name
-        "#{entity_name}_"
+        "#{name}_"
       end
 
       def qualified_metamodel_name
@@ -378,10 +382,10 @@ module Domgen
       def post_verify
         self.query('All', nil, :multiplicity => :many)
         self.query(entity.primary_key.name,
-                   "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
+                   "O.#{entity.primary_key.jpa.field_name} = :#{entity.primary_key.jpa.field_name}",
                    :multiplicity => :one)
         self.query(entity.primary_key.name,
-                   "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
+                   "O.#{entity.primary_key.jpa.field_name} = :#{entity.primary_key.jpa.field_name}",
                    :multiplicity => :zero_or_one)
       end
     end
