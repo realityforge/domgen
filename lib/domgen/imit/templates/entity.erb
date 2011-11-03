@@ -75,7 +75,19 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     _<%= attribute.referencing_link_name %> = value;
 <% elsif attribute.enumeration?
 %>
+<% if !attribute.imit.primitive?(:transport)
+%>    if( null != value )
+    {
+<% end %>
     _<%= attribute.imit.name %> = <%= attribute.imit.java_type %>.values()[value];
+<% if !attribute.imit.primitive?(:transport)
+%>    }
+    else
+    {
+      _<%= attribute.imit.name %> = null;
+    }
+<% end %>
+    if( _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= uppercase_constantize( attribute.name ) %>, value );
 <% else
 %>    _<%= attribute.imit.name %> = value;
     if( _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= uppercase_constantize( attribute.name ) %>, value );
