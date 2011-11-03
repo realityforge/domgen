@@ -6,21 +6,44 @@ module Domgen
                 "text" => "java.lang.String"}
 
     module JavaCharacteristic
+      def name(modality = :default)
+        if :default == modality
+          return characteristic.name
+        elsif :transport == modality
+          return characteristic.referencing_link_name if characteristic.reference?
+          return characteristic.name
+        else
+          error("unknown modality #{modality}")
+        end
+      end
+
       attr_writer :java_type
 
       def java_type(modality = :default)
         return @java_type if @java_type
-        return primitive_java_type if primitive?(modality)
+        return primitive_java_type(modality) if primitive?(modality)
         non_primitive_java_type(modality)
       end
 
       def non_primitive_java_type(modality = :default)
         if characteristic.reference?
-          entity_to_classname(characteristic.referenced_entity)
+          if :default == modality
+            return characteristic.referenced_entity.send(facet_key).qualified_name
+          elsif :transport == modality
+            return characteristic.referenced_entity.primary_key.send(facet_key).java_type(modality)
+          else
+            error("unknown modality #{modality}")
+          end
         elsif characteristic.enum?
-          return enumeration_to_classname(characteristic.enumeration)
+          if :default == modality
+            return characteristic.enumeration.send(facet_key).qualified_name
+          elsif :transport == modality
+            return "int"
+          else
+            error("unknown modality #{modality}")
+          end
         else
-          Domgen::Java::TYPE_MAP[characteristic.characteristic_type.to_s] || characteristic.characteristic_type.to_s
+          return Domgen::Java::TYPE_MAP[characteristic.characteristic_type.to_s] || characteristic.characteristic_type.to_s
         end
       end
 
@@ -39,21 +62,26 @@ module Domgen
         end
       end
 
-      def primitive_java_type
+      def primitive_java_type(modality = :default)
         return "int" if characteristic.integer?
         return "boolean" if characteristic.boolean?
+        if :transport == modality && characteristic.reference?
+          return characteristic.referenced_entity.primary_key.send(facet_key).primitive_java_type
+        end
         error("primitive_java_type invoked for non primitive method")
       end
 
+      def characteristic_type(modality = :default)
+        if :default == modality
+          return characteristic.characteristic_type
+        elsif :transport == modality
+          return characteristic.reference? ? characteristic.referenced_entity.primary_key.send(facet_key).characteristic_type : characteristic.characteristic_type
+        else
+          error("unknown modality #{modality}")
+        end
+      end
+
       protected
-
-      def entity_to_classname(entity)
-        entity.send(facet_key).qualified_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.send(facet_key).qualified_name
-      end
 
       def characteristic
         raise "characteristic unimplemented"
