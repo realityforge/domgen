@@ -36,7 +36,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%
   end
    entity.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
-<%= j_jpa_field_attributes(attribute) -%>  private <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>;
+<%= j_jpa_field_attributes(attribute) -%>  private <%= attribute.jpa.java_type %> <%= attribute.jpa.name %>;
 <% end %>
 <% entity.referencing_attributes.
   select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.traversable? }.

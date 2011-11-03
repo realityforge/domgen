@@ -4,8 +4,10 @@ module Domgen
 
     class QueryParameter < Domgen.ParentedElement(:query)
       include Characteristic
+      include Domgen::Java::EEJavaCharacteristic
 
       attr_reader :parameter_type
+      attr_reader :name
 
       def initialize(message, name, parameter_type, options, &block)
         @name = name
@@ -24,10 +26,6 @@ module Domgen
       def characteristic_type
         parameter_type
       end
-
-      include Domgen::Java::EEJavaCharacteristic
-
-      protected
 
       def characteristic
         self
@@ -285,14 +283,6 @@ module Domgen
         @persistent.nil? ? !attribute.abstract? : @persistent
       end
 
-      def field_name
-        attribute.name
-      end
-
-      def name
-        attribute.name
-      end
-
       def attribute
         self.parent
       end
@@ -382,10 +372,10 @@ module Domgen
       def post_verify
         self.query('All', nil, :multiplicity => :many)
         self.query(entity.primary_key.name,
-                   "O.#{entity.primary_key.jpa.field_name} = :#{entity.primary_key.jpa.field_name}",
+                   "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
                    :multiplicity => :one)
         self.query(entity.primary_key.name,
-                   "O.#{entity.primary_key.jpa.field_name} = :#{entity.primary_key.jpa.field_name}",
+                   "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
                    :multiplicity => :zero_or_one)
       end
     end

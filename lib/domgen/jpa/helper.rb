@@ -66,7 +66,7 @@ module Domgen
 
         if !declaring_relationship
           parameters << "orphanRemoval = #{attribute.inverse.jpa.orphan_removal?}"
-          parameters << "mappedBy = \"#{attribute.jpa.field_name}\""
+          parameters << "mappedBy = \"#{attribute.jpa.name}\""
         end
 
         #noinspection RubyUnusedLocalVariable
@@ -103,11 +103,11 @@ module Domgen
   }
 
   @SuppressWarnings( { "ConstantConditions", "deprecation" } )
-  public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.field_name}"}.join(", ")})
+  public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.name}"}.join(", ")})
   {
-#{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.field_name}.join(", ")});\n"}
-#{declared_immutable_attributes.select{|a|!a.nullable? && !a.jpa.primitive?}.collect{|a| "    if( null == #{a.jpa.field_name} )\n    {\n      throw new NullPointerException( \"#{a.jpa.field_name} is not nullable\" );\n    }"}.join("\n")}
-#{declared_immutable_attributes.collect { |a| "    this.#{a.jpa.field_name} = #{a.jpa.field_name};" }.join("\n")}
+#{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(", ")});\n"}
+#{declared_immutable_attributes.select{|a|!a.nullable? && !a.jpa.primitive?}.collect{|a| "    if( null == #{a.jpa.name} )\n    {\n      throw new NullPointerException( \"#{a.jpa.name} is not nullable\" );\n    }"}.join("\n")}
+#{declared_immutable_attributes.collect { |a| "    this.#{a.jpa.name} = #{a.jpa.name};" }.join("\n")}
 #{declared_immutable_attributes.select{|a|a.reference?}.collect { |a| "    " + j_add_to_inverse(a) }.join("\n")}
   }
 JAVA
@@ -215,7 +215,7 @@ JAVA
       end
 
       def j_simple_attribute(attribute)
-        name = attribute.jpa.field_name
+        name = attribute.jpa.name
         type = nullable_annotate(attribute, attribute.jpa.java_type, false)
         java = description_javadoc_for attribute
         java << <<JAVA
@@ -232,10 +232,10 @@ JAVA
 
         end
         java << <<JAVA
-     return doGet#{attribute.jpa.field_name}();
+     return doGet#{attribute.jpa.name}();
   }
 
-  protected #{type} doGet#{attribute.jpa.field_name}()
+  protected #{type} doGet#{attribute.jpa.name}()
   {
     return #{name};
   }
@@ -254,7 +254,7 @@ JAVA
       end
 
       def j_add_to_inverse(attribute)
-        name = attribute.jpa.field_name
+        name = attribute.jpa.name
         inverse_name = attribute.inverse.relationship_name
         if !attribute.inverse.jpa.traversable?
           ''
@@ -264,7 +264,7 @@ JAVA
       end
 
       def j_remove_from_inverse(attribute)
-        name = attribute.jpa.field_name
+        name = attribute.jpa.name
         inverse_name = attribute.inverse.relationship_name
         if !attribute.inverse.jpa.traversable?
           ''
@@ -274,16 +274,16 @@ JAVA
       end
 
       def j_reference_attribute(attribute)
-        name = attribute.jpa.field_name
+        name = attribute.jpa.name
         type = nullable_annotate(attribute, attribute.jpa.java_type, false)
         java = description_javadoc_for attribute
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
   {
-     return doGet#{attribute.jpa.field_name}();
+     return doGet#{attribute.jpa.name}();
   }
 
-  protected #{type} doGet#{attribute.jpa.field_name}()
+  protected #{type} doGet#{attribute.jpa.name}()
   {
     return #{name};
   }
@@ -350,7 +350,7 @@ STR
       def j_equals_method(entity)
         return '' if entity.abstract?
         pk = entity.primary_key
-        pk_getter = "doGet#{entity.primary_key.jpa.field_name}()"
+        pk_getter = "doGet#{entity.primary_key.jpa.name}()"
         pk_type = nullable_annotate(pk, pk.jpa.java_type, false)
         equality_comparison = (!pk.jpa.primitive?) ? "null != key && key.equals( that.#{pk_getter} )" : "key == that.#{pk_getter}"
         s = <<JAVA
@@ -410,7 +410,7 @@ JAVA
     return "#{entity.name}[" +
 JAVA
         s += entity.attributes.select{|a| a.jpa.persistent?}.collect do |a|
-          "           \"#{a.jpa.field_name} = \" + doGet#{a.jpa.field_name}()"
+          "           \"#{a.jpa.name} = \" + doGet#{a.jpa.name}()"
         end.join(" + \", \" +\n")
         s += <<JAVA
  +
@@ -474,9 +474,9 @@ JAVA
 JAVADOC
       end
 
-      def getter_for( attribute, field_name = nil )
-        field_name = attribute.jpa.field_name unless field_name
-        (attribute.boolean? ? "is#{field_name}()" : "get#{field_name}()")
+      def getter_for( attribute, name = nil )
+        name = attribute.jpa.name unless name
+        (attribute.boolean? ? "is#{name}()" : "get#{name}()")
       end
 
     end
