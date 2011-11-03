@@ -5,12 +5,12 @@ module Domgen
         is_nullable ? "@javax.annotation.Nullable" : "@javax.annotation.Nonnull"
       end
 
-      def annotated_type(characteristic, characteristic_key)
+      def annotated_type(characteristic, characteristic_key, modality = :default)
         extension = characteristic.send characteristic_key
-        if extension.primitive? || extension.java_type.to_s == 'void'
-          return extension.java_type
+        if extension.primitive?(modality) || extension.java_type(modality).to_s == 'void'
+          return extension.java_type(modality)
         else
-          return "#{nullability_annotation(characteristic.nullable?)} #{extension.java_type}"
+          return "#{nullability_annotation(characteristic.nullable?)} #{extension.java_type(modality)}"
         end
       end
 
