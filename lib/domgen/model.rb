@@ -350,8 +350,6 @@ module Domgen
       raise "characteristic_type not implemented"
     end
 
-    protected
-
     def characteristic_container
       raise "characteristic_container not implemented"
     end
@@ -774,11 +772,11 @@ module Domgen
       "Entity[#{self.qualified_name}]"
     end
 
-    protected
-
     def characteristic_kind
        "attribute"
     end
+
+    protected
 
     def new_characteristic(name, type, options, &block)
       override = false
@@ -881,11 +879,11 @@ module Domgen
       "Message[#{self.qualified_name}]"
     end
 
-    protected
-
     def characteristic_kind
        raise "parameter"
     end
+
+    protected
 
     def new_characteristic(name, type, options, &block)
       MessageParameter.new(self, name, type, options, &block)
@@ -1040,14 +1038,14 @@ module Domgen
       self.service.data_module
     end
 
+    def characteristic_kind
+      "parameter"
+    end
+
     protected
 
     def new_characteristic(name, type, options, &block)
       Parameter.new(self, name, type, options, &block)
-    end
-
-    def characteristic_kind
-      "parameter"
     end
 
     def perform_verify
