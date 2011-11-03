@@ -316,10 +316,6 @@ module Domgen
       @enumeration = enumeration
     end
 
-        def characteristic_type
-      parameter_type
-    end
-
     def reference?
       self.characteristic_type == :reference
     end
