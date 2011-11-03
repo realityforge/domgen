@@ -25,13 +25,28 @@ public class <%= service.ejb.facade_implementation_name %>
        return_prefix = "return "
      else
        return_prefix = "#{annotated_type(method.return_value, :ejb)} value = "
-       transform = "return value;\n"
+       transform = "value"
+       if method.return_value.return_type == :enumeration && method.return_value.enumeration.numeric_values?
+         transform = "value.ordinal()"
+       elsif method.return_value.return_type == :reference
+         transform = "value.get#{method.return_value.referenced_entity.primary_key.jpa.name}()"
+       end
+       if method.return_value.nullable?
+         transform = "null == value ? null : #{transform}"
+       end
+       transform = "return #{transform};"
      end
    end
 %>
   {
-    <%= return_prefix  %>_service.<%= method.ejb.name %>(<%= method.parameters.collect{|p| "#{p.ejb.name}" }.join(', ') %>);
-  <%= transform %>;
+<% method.parameters.select{|parameter| parameter.reference?}.each do |parameter|
+%>    final <%= annotated_type(parameter, :ejb) %> $<%= parameter.ejb.name %> = <%= parameter.nullable? ? "null == #{parameter.ejb.name} ? null : " : "" %> _<%= parameter.referenced_entity.qualified_name.gsub('.','') %>DAO.getByID( <%= parameter.ejb.name %> );
+<% end %>
+<% method.parameters.select{|parameter| parameter.enumeration?}.each do |parameter|
+%>    final <%= annotated_type(parameter, :ejb) %> $<%= parameter.ejb.name %> = <%= parameter.nullable? ? "null == #{parameter.ejb.name} ? null : " : "" %> <%= parameter.ejb.java_type %>.values()[ <%= parameter.ejb.name %> ];
+<% end %>
+  <%= return_prefix  %>_service.<%= method.ejb.name %>(<%= method.parameters.collect{|parameter| "#{(parameter.reference? || parameter.enumeration?) ? '$' : ''}#{parameter.ejb.name}" }.join(', ') %>);
+  <%= transform %>
   }
 
 <% end %>}
