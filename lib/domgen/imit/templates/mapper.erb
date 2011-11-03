@@ -15,14 +15,12 @@ public class <%= data_module.imit.mapper_name %>
 
   private final EntityRepository _repository;
   private final EntityChangeBroker _broker;
-  private final <%= data_module.imit.updater_name %> _<%= data_module.name %>Updater;
 
   @javax.inject.Inject
   public <%= data_module.imit.mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
   {
     _repository = repository;
     _broker = broker;
-    _<%= data_module.name %>Updater = new <%= data_module.imit.updater_name %>( broker );
   }
 
 <% data_module.imit.client_side_entities.each do |entity| %>
@@ -41,7 +39,7 @@ public class <%= data_module.imit.mapper_name %>
         }
         // It is in the local repository so we need to delete it
         _repository.deregisterEntity( <%= entity.imit.name %>.class, id );
-         _<%= data_module.name %>Updater.delete<%= entity.name %>( entity );
+         delete<%= entity.name %>( entity );
       }
     }
     else
@@ -49,7 +47,7 @@ public class <%= data_module.imit.mapper_name %>
       boolean fullUpdate = false;
       if( null == entity )
       {
-        entity = new <%= entity.imit.name %>( _repository );
+        entity = new <%= entity.imit.name %>( _repository, _broker );
         _repository.registerEntity( <%= entity.imit.name %>.class, id, entity );
         fullUpdate = true;
         if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
@@ -98,9 +96,39 @@ public class <%= data_module.imit.mapper_name %>
 %>    if( fullUpdate <% if !attribute.primary_key? %>|| attributes.containsKey( <%= entity.name %>.<%= uppercase_constantize( attribute.name ) %> )<% end %> )
     {
       final Object value = attributes.get( <%= entity.name %>.<%= uppercase_constantize(attribute.name) %> );
-      _<%= data_module.name %>Updater.set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( null != value ? #{value_converter} : null )" : value_converter %> );
+      set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( null != value ? #{value_converter} : null )" : value_converter %> );
     }
 <% end %>
   }
+<% end %>
+
+<% data_module.entities.select{|entity| entity.imit.client_side?}.each do |entity| %>
+  private void delete<%= entity.name %>( final <%= entity.imit.name %> entity )
+  {
+    entity.invalidate();
+  }
+
+<% entity.declared_attributes.select{|attribute| attribute.imit.client_side?}.each do |attribute| %>
+  private void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( final <%= entity.imit.name %> entity, final <%= attribute.imit.java_type(:transport) %> value )
+  {
+<%
+   getter_text = "entity.get#{attribute.imit.name(:transport)}()"
+   equal_check =
+       if attribute.primary_key?
+         "true"
+       elsif attribute.enumeration? && attribute.enumeration.numeric_values?
+         "#{getter_text}.ordinal() != value"
+       elsif attribute.imit.primitive?(:transport)
+         "#{getter_text} != value"
+       else
+         "!( (null == value && null == #{getter_text}) || (null != #{getter_text} && null != value && #{getter_text}.equals( value ) ) )"
+       end
+%>
+    if( <%= equal_check %> )
+    {
+      entity.set<%= attribute.imit.name(:transport) %>( value );
+    }
+  }
+<% end %>
 <% end %>
 }
