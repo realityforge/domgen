@@ -146,8 +146,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   protected void invalidate()
   {
 <% if entity.extends.nil?
-%>    _repository = null;
-    _broker = null;
+%>
 <%    entity.declared_attributes.select{|attribute| attribute.imit.client_side? && attribute.reference? && attribute.inverse.imit.traversable?}.each do |attribute|
 %>    {
       if( null != _<%= attribute.imit.name %> )
@@ -157,6 +156,8 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     }
 <% end
 %>    _broker.entityRemoved( this );
+    _repository = null;
+    _broker = null;
 <% else
 %>    super.invalidate();
 <% end
