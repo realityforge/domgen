@@ -27,10 +27,10 @@ class <%= data_module.imit.updater_name %>
   }
 
 <% entity.declared_attributes.select{|attribute| attribute.imit.client_side?}.each do |attribute| %>
-  void set<%= attribute.imit.transport_name %>_On_<%= entity.name %>( final <%= entity.imit.name %> entity, final <%= attribute.imit.transport_java_type %> value )
+  void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( final <%= entity.imit.name %> entity, final <%= attribute.imit.java_type(:transport) %> value )
   {
 <%
-   getter_text = "entity.get#{attribute.imit.transport_name}()"
+   getter_text = "entity.get#{attribute.imit.name(:transport)}()"
    equal_check =
        if attribute.primary_key?
          "true"
@@ -42,7 +42,7 @@ class <%= data_module.imit.updater_name %>
 %>
     if( <%= equal_check %> )
     {
-      entity.set<%= attribute.imit.transport_name %>( value );
+      entity.set<%= attribute.imit.name(:transport) %>( value );
       _broker.attributeChanged( entity, <%= entity.imit.name %>.<%= uppercase_constantize( attribute.name ) %>, value );
     }
   }

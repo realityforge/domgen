@@ -19,9 +19,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% end %>
 <%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
 %><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit.client_side? }.each do |attribute| %>
-  private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.field_name %>;
+  private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.name %>;
 <% if attribute.reference?
-%>  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.transport_java_type}" %> _<%= attribute.imit.transport_name %>;
+%>  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.java_type(:transport)}" %> _<%= attribute.imit.name(:transport) %>;
 <%
    end
    end
@@ -42,33 +42,33 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     <%= entity.extends.nil? ? "_repository = repository" : "super( repository )" %>;
   }
 <% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit.client_side?}.each do |attribute|
-%>  public abstract <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.field_name %>();
+%>  public abstract <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>();
 <% if attribute.attribute_type == :reference
-  %>  abstract <%= attribute.imit.transport_java_type %> get<%= attribute.imit.transport_name %>();
+  %>  abstract <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>();
 <% end %>
-    abstract void set<%= attribute.imit.transport_name %>( <%= attribute.imit.transport_java_type %> value );
+    abstract void set<%= attribute.imit.name(:transport) %>( <%= attribute.imit.java_type(:transport) %> value );
 <% end %>
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit.client_side?}.each do |attribute|
-%>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.field_name %>()
+%>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>()
   {
     check<%= attribute.reference? ? "Linked" : "Validity" %>();
-    return _<%= attribute.imit.field_name %>;
+    return _<%= attribute.imit.name %>;
   }
 <% if attribute.attribute_type == :reference
-%>  <%= attribute.imit.transport_java_type %> get<%= attribute.imit.transport_name %>()
+%>  <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>()
   {
     return _<%= attribute.referencing_link_name %>;
   }
 <% end %>
-  void set<%= attribute.imit.transport_name %>( final <%= attribute.imit.transport_java_type %> value )
+  void set<%= attribute.imit.name(:transport) %>( final <%= attribute.imit.java_type(:transport) %> value )
   {
     checkValidity();
 <% if attribute.attribute_type == :reference
 %>
-    _<%= attribute.imit.field_name %> = null;
+    _<%= attribute.imit.name %> = null;
     _<%= attribute.referencing_link_name %> = value;
 <% else
-%>    _<%= attribute.imit.field_name %> = value;
+%>    _<%= attribute.imit.name %> = value;
 <% end %>  }
 
 <% end %>
@@ -146,7 +146,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   {
     <%= entity.extends.nil? ? "if( !_linking ) throw new IllegalStateException( \"performLink invoked from outside link\" )" : "super.performLink()" %>;
 <% linkable_attributes.each do |attribute|
-%>      link<%= attribute.imit.field_name %>();
+%>      link<%= attribute.imit.name %>();
 <% end %>
   }
 
@@ -154,31 +154,31 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   {
     <%= entity.extends.nil? ? "if( !_delinking ) throw new IllegalStateException( \"performDelink invoked from outside delink\" )" : "super.performDelink()" %>;
 <% linkable_attributes.each do |attribute|
-%>      delink<%= attribute.imit.field_name %>();
+%>      delink<%= attribute.imit.name %>();
 <% end %>
   }
 
 <% linkable_attributes.each do |attribute|
 %>
     @SuppressWarnings( "deprecation" )
-    private void delink<%= attribute.imit.field_name %>()
+    private void delink<%= attribute.imit.name %>()
     {
-      if( null != _<%= attribute.imit.field_name %> )
+      if( null != _<%= attribute.imit.name %> )
       {
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.field_name %>.remove<%= attribute.inverse.relationship_name %>( this );<% end %>
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.field_name %>.set<%= attribute.inverse.relationship_name %>( null );<% end %>
-        _<%= attribute.imit.field_name %> = null;
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.remove<%= attribute.inverse.relationship_name %>( this );<% end %>
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.relationship_name %>( null );<% end %>
+        _<%= attribute.imit.name %> = null;
       }
     }
 
     @SuppressWarnings( "deprecation" )
-    private void link<%= attribute.imit.field_name %>()
+    private void link<%= attribute.imit.name %>()
     {
-      if( null == _<%= attribute.imit.field_name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
+      if( null == _<%= attribute.imit.name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
       {
-        _<%= attribute.imit.field_name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= attribute.referencing_link_name %> );
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.field_name %>.add<%= attribute.inverse.relationship_name %>( this );<% end %>
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.field_name %>.set<%= attribute.inverse.relationship_name %>( this );<% end %>
+        _<%= attribute.imit.name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= attribute.referencing_link_name %> );
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.add<%= attribute.inverse.relationship_name %>( this );<% end %>
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.relationship_name %>( this );<% end %>
       }
     }
 <% end %>

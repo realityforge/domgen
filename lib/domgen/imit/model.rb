@@ -14,22 +14,6 @@ module Domgen
 
     class ImitationAttribute < Domgen.ParentedElement(:attribute)
 
-      def field_name
-        attribute.name
-      end
-
-      def transport_name
-        attribute.reference? ? attribute.referencing_link_name : field_name
-      end
-
-      def transport_java_type
-        attribute.reference? ? attribute.referenced_entity.primary_key.imit.java_type : attribute.imit.java_type
-      end
-
-      def transport_attribute_type
-        attribute.reference? ? attribute.referenced_entity.primary_key.attribute_type : attribute.attribute_type
-      end
-
       attr_writer :client_side
 
       def client_side?

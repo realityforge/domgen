@@ -78,27 +78,27 @@ public class <%= data_module.imit.mapper_name %>
 <% end %>
 <% entity.declared_attributes.select{|attribute| attribute.imit.client_side? }.each do |attribute|
     value_converter =
-        if attribute.imit.transport_attribute_type == :datetime
+        if attribute.imit.characteristic_type(:transport) == :datetime
           "new java.sql.Timestamp( ( (Number) value ).longValue() )"
-        elsif attribute.imit.transport_attribute_type == :integer
+        elsif attribute.imit.characteristic_type(:transport) == :integer
           "( (Number) value ).intValue()"
-        elsif attribute.imit.transport_attribute_type == :real
+        elsif attribute.imit.characteristic_type(:transport) == :real
           "( (Double) value ).doubleValue()"
-        elsif attribute.imit.transport_attribute_type == :boolean
+        elsif attribute.imit.characteristic_type(:transport) == :boolean
           "( (Boolean) value ).booleanValue()"
-        elsif attribute.imit.transport_attribute_type == :text
+        elsif attribute.imit.characteristic_type(:transport) == :text
           "( (String) value )"
-        elsif attribute.imit.transport_attribute_type == :enumeration && attribute.enumeration.textual_values?
+        elsif attribute.imit.characteristic_type(:transport) == :enumeration && attribute.enumeration.textual_values?
           "#{attribute.enumeration.imit.qualified_name}.valueOf( (String) value )"
-        elsif attribute.imit.transport_attribute_type == :enumeration && attribute.enumeration.numeric_values?
+        elsif attribute.imit.characteristic_type(:transport) == :enumeration && attribute.enumeration.numeric_values?
           "#{attribute.enumeration.imit.qualified_name}.values()[ ( (Number) value ).intValue() ]"
         else
-          raise "Unable to convert data type #{attribute.imit.transport_attribute_type} on #{attribute.qualified_name}"
+          raise "Unable to convert data type #{attribute.imit.characteristic_type(:transport)} on #{attribute.qualified_name}"
         end
 %>    if( fullUpdate <% if !attribute.primary_key? %>|| attributes.containsKey( <%= entity.name %>.<%= uppercase_constantize( attribute.name ) %> )<% end %> )
     {
       final Object value = attributes.get( <%= entity.name %>.<%= uppercase_constantize(attribute.name) %> );
-      _<%= data_module.name %>Updater.set<%= attribute.imit.transport_name %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( null != value ? #{value_converter} : null )" : value_converter %> );
+      _<%= data_module.name %>Updater.set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( null != value ? #{value_converter} : null )" : value_converter %> );
     }
 <% end %>
   }
