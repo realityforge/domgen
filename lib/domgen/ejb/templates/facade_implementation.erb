@@ -5,6 +5,7 @@ package <%= service.data_module.ejb.service_package %>;
 @javax.ejb.Stateless( name = <%= service.ejb.facade_interface_name %>.EJB_NAME )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
 public class <%= service.ejb.facade_implementation_name %>
+<%= service.ejb.facade_extends ? "  extends #{service.ejb.facade_extends}" : "" %>
   implements <%= service.ejb.facade_interface_name %>
 {
 <% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort.uniq.each do |entity| %>

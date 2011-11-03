@@ -39,6 +39,8 @@ module Domgen
         "#{service.data_module.ejb.service_package}.#{facade_implementation_name}"
       end
 
+      attr_accessor :facade_extends
+
       attr_writer :local
 
       def local?
