@@ -17,6 +17,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% entity.declared_attributes.select{ |attribute| attribute.imit.client_side? }.each do |attribute|
 %>  public static final String <%= uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end %>
+<% entity.referencing_attributes.select{ |attribute| attribute.imit.client_side? && !attribute.abstract? && attribute.inverse.imit.traversable?}.each do |attribute|
+%>  public static final String <%= uppercase_constantize(attribute.inverse.relationship_name) %> = "<%= attribute.inverse.relationship_name %>";
+<% end %>
 <%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
 %><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit.client_side? }.each do |attribute| %>
   private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.name %>;
@@ -55,12 +58,13 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     return _<%= attribute.imit.name %>;
   }
 <% if attribute.attribute_type == :reference
-%>  <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>()
+%>
+  final <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>()
   {
     return _<%= attribute.referencing_link_name %>;
   }
 <% end %>
-  void set<%= attribute.imit.name(:transport) %>( final <%= attribute.imit.java_type(:transport) %> value )
+  final void set<%= attribute.imit.name(:transport) %>( final <%= annotated_type(attribute, :imit, :transport) %> value )
   {
     checkValidity();
 <% if attribute.reference?
@@ -73,7 +77,13 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% else
 %>    _<%= attribute.imit.name %> = value;
 <% end %>  }
-
+<% if attribute.reference?
+%>
+  final <%= annotated_type(attribute, :imit) %> $get<%= attribute.imit.name %>()
+  {
+    return _<%= attribute.imit.name %>;
+  }
+<% end %>
 <% end %>
 <% entity.imit.referencing_client_side_attributes.each do |attribute|
         name = attribute.inverse.relationship_name

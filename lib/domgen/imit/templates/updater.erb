@@ -44,9 +44,20 @@ class <%= data_module.imit.updater_name %>
 %>
     if( <%= equal_check %> )
     {
-      entity.set<%= attribute.imit.name(:transport) %>( value );
+<% if attribute.reference?  && attribute.imit.client_side? && attribute.inverse.imit.traversable?
+%>
+      final Object other = entity.$get<%= attribute.imit.name %>();
+      if( null != other )
+      {
+        _broker.relatedRemoved( value, <%= attribute.referenced_entity.imit.qualified_name %>.<%= uppercase_constantize( attribute.inverse.relationship_name ) %>, other );
+      }
+<% end
+%>      entity.set<%= attribute.imit.name(:transport) %>( value );
       _broker.attributeChanged( entity, <%= entity.imit.name %>.<%= uppercase_constantize( attribute.name ) %>, value );
-    }
+<% if attribute.reference?  && attribute.imit.client_side? && attribute.inverse.imit.traversable?
+%>      _broker.relatedAdded( value, <%= attribute.referenced_entity.imit.qualified_name %>.<%= uppercase_constantize( attribute.inverse.relationship_name ) %>, entity );
+<% end
+%>    }
   }
 <% end %>
 <% end %>
