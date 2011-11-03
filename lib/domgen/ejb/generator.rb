@@ -10,7 +10,7 @@ module Domgen
       [
         Template.new(EJB::FACETS,
                      :service,
-                     "#{EJB::TEMPLATE_DIRECTORY}/interface.erb",
+                     "#{EJB::TEMPLATE_DIRECTORY}/service.erb",
                      'java/#{service.ejb.qualified_service_name.gsub(".","/")}.java',
                      EJB::HELPERS),
         Template.new(EJB::FACETS,
@@ -25,7 +25,7 @@ module Domgen
       [
         Template.new(EJB::FACETS,
                      :service,
-                     "#{EJB::TEMPLATE_DIRECTORY}/facade_interface.erb",
+                     "#{EJB::TEMPLATE_DIRECTORY}/facade_service.erb",
                      'java/#{service.ejb.qualified_facade_interface_name.gsub(".","/")}.java',
                      EJB::HELPERS,
                      'service.ejb.generate_facade?'),
