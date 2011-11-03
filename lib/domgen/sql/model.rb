@@ -557,8 +557,8 @@ module Domgen
         @foreign_keys.values
       end
 
-      def foreign_key(attribute_names, referrenced_entity_name, referrenced_attribute_names, options = {}, skip_if_present = false, &block)
-        foreign_key = ForeignKey.new(self, attribute_names, referrenced_entity_name, referrenced_attribute_names, options, &block)
+      def foreign_key(attribute_names, referenced_entity_name, referenced_attribute_names, options = {}, skip_if_present = false, &block)
+        foreign_key = ForeignKey.new(self, attribute_names, referenced_entity_name, referenced_attribute_names, options, &block)
         return if @indexes[foreign_key.name] && skip_if_present
         error("Foreign Key named #{foreign_key.name} already defined on table #{table_name}") if @indexes[foreign_key.name]
         @foreign_keys[foreign_key.name] = foreign_key
