@@ -10,7 +10,7 @@ module Domgen
       [
         Template.new(Imit::FACETS,
                      :enumeration,
-                     "#{Imit::TEMPLATE_DIRECTORY}/enum.erb",
+                     "#{Imit::TEMPLATE_DIRECTORY}/enumeration.erb",
                      'java/#{enumeration.imit.qualified_name.gsub(".","/")}.java',
                      Imit::HELPERS,
                      'enumeration.data_module.imit.client_side?'),
@@ -22,7 +22,7 @@ module Domgen
                      'data_module.imit.client_side?'),
         Template.new(Imit::FACETS,
                      :entity,
-                     "#{Imit::TEMPLATE_DIRECTORY}/imitation.erb",
+                     "#{Imit::TEMPLATE_DIRECTORY}/entity.erb",
                      'java/#{entity.imit.qualified_name.gsub(".","/")}.java',
                      Imit::HELPERS,
                      'entity.imit.client_side?'),
