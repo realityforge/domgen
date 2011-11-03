@@ -11,7 +11,7 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
 <% entity.attributes.each do |a|
    if a.ruby.validate?
        if !a.generated_value?
-         if a.enum?
+         if a.enumeration?
            a.enumeration.values.each do |k,v|
 %>  <%= a.name %>_<%= ruby_name(k) %> = <%= v.inspect %>
   <%= a.name %>_<%= ruby_name(k) %>_Description = '<%= k %>'
@@ -39,7 +39,7 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
 %>  nillable_boolean :<%= a.sql.column_name %>
 <%         end
          end
-         if a.attribute_type == :text || (a.enum? && a.enumeration.textual_values?)
+         if a.attribute_type == :text || (a.enumeration? && a.enumeration.textual_values?)
 %>  nillable_attribute :<%= a.sql.column_name %>
 <%       end
          if !a.length.nil?

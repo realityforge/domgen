@@ -67,7 +67,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 %>
     _<%= attribute.imit.name %> = null;
     _<%= attribute.referencing_link_name %> = value;
-<% elsif attribute.enum?
+<% elsif attribute.enumeration?
 %>
     _<%= attribute.imit.name %> = <%= attribute.imit.java_type %>.values()[value];
 <% else

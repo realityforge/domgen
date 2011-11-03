@@ -31,7 +31,7 @@ module Domgen
           else
             return "varchar(#{column.attribute.length})"
           end
-        elsif column.attribute.enum?
+        elsif column.attribute.enumeration?
           column.attribute.enumeration.textual_values? ? "varchar(#{column.attribute.length})" : "integer"
         else
           return TYPE_MAP[column.attribute.attribute_type.to_s]
@@ -84,7 +84,7 @@ module Domgen
           else
             return "[VARCHAR](#{column.attribute.length})"
           end
-        elsif column.attribute.enum?
+        elsif column.attribute.enumeration?
           column.attribute.enumeration.textual_values? ? "VARCHAR(#{column.attribute.length})" : "INT"
         else
           return quote(TYPE_MAP[column.attribute.attribute_type.to_s])
@@ -620,7 +620,7 @@ SQL
           copy_tags(c, constraint_by_name(c.name))
         end
 
-        entity.declared_attributes.select { |a| a.enum? && a.enumeration.numeric_values? }.each do |a|
+        entity.declared_attributes.select { |a| a.enumeration? && a.enumeration.numeric_values? }.each do |a|
           sorted_values = a.enumeration.values.values.sort
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)

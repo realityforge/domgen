@@ -93,9 +93,9 @@ module Domgen
         error("Relationship constraint #{self.name} between attributes of different types LHS: #{lhs.name}:#{lhs.attribute_type}, RHS: #{rhs.name}:#{rhs.attribute_type}")
       end
 
-      if self.class.comparable_attribute_types.include?(lhs.attribute_type) || (lhs.enum? && lhs.enumeration.numeric_values?)
+      if self.class.comparable_attribute_types.include?(lhs.attribute_type) || (lhs.enumeration? && lhs.enumeration.numeric_values?)
         error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.operators.keys.include?(operator)
-      elsif self.class.equality_attribute_types.include?(lhs.attribute_type) || (lhs.enum? && lhs.enumeration.textual_values?)
+      elsif self.class.equality_attribute_types.include?(lhs.attribute_type) || (lhs.enumeration? && lhs.enumeration.textual_values?)
         error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.equality_operators.keys.include?(operator)
       else
         error("Unsupported attribute type #{lhs.attribute_type} for relationship constraint #{self.name}")
@@ -268,7 +268,7 @@ module Domgen
   module Characteristic
     attr_reader :name
 
-    def enum?
+    def enumeration?
       characteristic_type == :enumeration
     end
 
@@ -312,7 +312,7 @@ module Domgen
     attr_reader :enumeration
 
     def enumeration=(enumeration)
-      error("enumeration on #{name} is invalid as #{characteristic_container.characteristic_kind} is not an enumeration") unless enum?
+      error("enumeration on #{name} is invalid as #{characteristic_container.characteristic_kind} is not an enumeration") unless enumeration?
       @enumeration = enumeration
     end
 

@@ -34,7 +34,7 @@ module Domgen
           else
             error("unknown modality #{modality}")
           end
-        elsif characteristic.enum?
+        elsif characteristic.enumeration?
           if :default == modality
             return characteristic.enumeration.send(facet_key).qualified_name
           elsif :transport == modality
@@ -51,7 +51,7 @@ module Domgen
         return false if characteristic.nullable?
         return false if (characteristic.respond_to?(:generated_value?) && characteristic.generated_value?)
         return true if characteristic.integer? || characteristic.boolean?
-        return true if :transport == modality && characteristic.enum? && characteristic.enumeration.numeric_values?
+        return true if :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
 
         if :default == modality
           return false
@@ -69,7 +69,7 @@ module Domgen
         if :transport == modality
           if characteristic.reference?
             return characteristic.referenced_entity.primary_key.send(facet_key).primitive_java_type
-          elsif characteristic.enum? && characteristic.enumeration.numeric_values?
+          elsif characteristic.enumeration? && characteristic.enumeration.numeric_values?
             return "int"
           end
         end

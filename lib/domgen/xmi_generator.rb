@@ -86,7 +86,7 @@ module Domgen
 
         data_module.entities.each do |entity|
           entity.attributes.each do |attribute|
-            if attribute.enum?
+            if attribute.enumeration?
               enum_key = create_enum_key(data_module, entity, attribute)
               enum_name = create_enum_name(entity, attribute)
               enum = package.create_owned_enumeration(enum_name)
@@ -119,7 +119,7 @@ module Domgen
           name_class_map[entity.qualified_name] ||= clazz
 
           # Creating EMF attributes corresponding to non-enum attributes
-          entity.attributes.select { |attr| !attr.enum? }.each do |attribute|
+          entity.attributes.select { |attr| !attr.enumeration? }.each do |attribute|
             attribute_type =
               attribute.reference? ? attribute.referenced_entity.primary_key.attribute_type : attribute.attribute_type
             prim_type = primitive_types[primitive_name(attribute_type)]
@@ -130,7 +130,7 @@ module Domgen
           end
 
           # Creating EMF attributes corresponding to enum attributes
-          entity.attributes.select { |attr| attr.enum? && !attr.reference? }.each do |attribute|
+          entity.attributes.select { |attr| attr.enumeration? && !attr.reference? }.each do |attribute|
             enum_type = enumerations[create_enum_key(data_module, entity, attribute)]
             emf_attr = clazz.create_owned_attribute(attribute.name.to_s, enum_type, 0, 1)
             resource.setID(emf_attr, attribute.qualified_name.to_s)
