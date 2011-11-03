@@ -517,15 +517,13 @@ module Domgen
     end
 
     def i_enum(name, values, options = {}, &block)
-      name = "#{self.name}#{name}"
-      data_module.enumeration(name, :integer, { :values => values })
-      enumeration(name, name, options, &block)
+      enumeration = data_module.enumeration("#{self.name}#{name}", :integer, { :values => values })
+      enumeration(name, enumeration.name, options, &block)
     end
 
     def s_enum(name, values, options = {}, &block)
-      name = "#{self.name}#{name}"
-      data_module.enumeration(name, :text, { :values => values })
-      enumeration(name, name, options, &block)
+      enumeration = data_module.enumeration("#{self.name}#{name}", :text, { :values => values })
+      enumeration(name, enumeration.name, options, &block)
     end
 
     def enumeration(name, enumeration_key, options = {}, &block)
