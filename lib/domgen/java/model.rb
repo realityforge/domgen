@@ -56,7 +56,7 @@ module Domgen
         if :default == modality
           return false
         elsif :transport == modality
-          return false unless attribute.reference?
+          return false unless characteristic.reference?
           return characteristic.referenced_entity.primary_key.integer? || characteristic.referenced_entity.primary_key.boolean?
         else
           error("unknown modality #{modality}")
