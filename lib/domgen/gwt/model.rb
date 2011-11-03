@@ -23,10 +23,6 @@ module Domgen
     end
 
     class GwtEventParameter < Domgen.ParentedElement(:parameter)
-      def name
-        Domgen::Naming.camelize(parameter.name.to_s)
-      end
-
       include Domgen::Java::ImitJavaCharacteristic
 
       protected
@@ -130,10 +126,6 @@ module Domgen
     end
 
     class GwtParameter < Domgen.ParentedElement(:parameter)
-      def name
-        Domgen::Naming.camelize(parameter.name.to_s)
-      end
-
       include Domgen::Java::ImitJavaCharacteristic
 
       protected
