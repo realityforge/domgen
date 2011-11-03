@@ -3,6 +3,7 @@ package <%= service.data_module.ejb.service_package %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.Stateless( name = <%= service.ejb.facade_interface_name %>.EJB_NAME )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
 public class <%= service.ejb.facade_implementation_name %>
   implements <%= service.ejb.facade_interface_name %>
 {
