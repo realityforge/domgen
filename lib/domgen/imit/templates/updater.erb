@@ -34,6 +34,8 @@ class <%= data_module.imit.updater_name %>
    equal_check =
        if attribute.primary_key?
          "true"
+       elsif attribute.enum? && attribute.enumeration.numeric_values?
+         "#{getter_text}.ordinal() != value"
        elsif attribute.imit.primitive?(:transport)
          "#{getter_text} != value"
        else
