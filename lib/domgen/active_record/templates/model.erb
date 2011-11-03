@@ -27,13 +27,13 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
          if a.unique?
 %>  validates_uniqueness_of :<%= a.sql.column_name %>
 <%       end
-         if a.attribute_type == :integer
+         if a.integer?
 %>  validates_numericality_of :<%= a.sql.column_name %>, :only_integer => true, :allow_nil => true
 <%       end
          if a.attribute_type == :real
 %>  validates_numericality_of :<%= a.sql.column_name %>, :only_integer => false, :allow_nil => true
 <%       end
-         if a.attribute_type == :boolean
+         if a.boolean?
 %>  validates_boolean :<%= a.sql.column_name %>, :allow_nil => <%= a.nullable? %>
 <%         if a.nullable?
 %>  nillable_boolean :<%= a.sql.column_name %>

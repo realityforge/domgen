@@ -320,6 +320,14 @@ module Domgen
       self.characteristic_type == :reference
     end
 
+    def integer?
+      self.characteristic_type == :integer
+    end
+
+    def boolean?
+      self.characteristic_type == :boolean
+    end
+
     attr_reader :references
 
     def references=(references)
@@ -385,10 +393,6 @@ module Domgen
       @override.nil? ? false : @override
     end
 
-    def reference?
-      self.attribute_type == :reference
-    end
-
     attr_writer :set_once
 
     def set_once?
@@ -399,7 +403,7 @@ module Domgen
 
     def generated_value?
       return @generated_value unless @generated_value.nil?
-      return self.primary_key? && self.attribute_type == :integer && !entity.abstract? && entity.final? && entity.extends.nil?
+      return self.primary_key? && self.integer? && !entity.abstract? && entity.final? && entity.extends.nil?
     end
 
     attr_writer :primary_key
