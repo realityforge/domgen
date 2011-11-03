@@ -51,6 +51,7 @@ module Domgen
         return false if characteristic.nullable?
         return false if (characteristic.respond_to?(:generated_value?) && characteristic.generated_value?)
         return true if characteristic.integer? || characteristic.boolean?
+        return true if :transport == modality && characteristic.enum? && characteristic.enumeration.numeric_values?
 
         if :default == modality
           return false
@@ -65,8 +66,12 @@ module Domgen
       def primitive_java_type(modality = :default)
         return "int" if characteristic.integer?
         return "boolean" if characteristic.boolean?
-        if :transport == modality && characteristic.reference?
-          return characteristic.referenced_entity.primary_key.send(facet_key).primitive_java_type
+        if :transport == modality
+          if characteristic.reference?
+            return characteristic.referenced_entity.primary_key.send(facet_key).primitive_java_type
+          elsif characteristic.enum? && characteristic.enumeration.numeric_values?
+            return "int"
+          end
         end
         error("primitive_java_type invoked for non primitive method")
       end
