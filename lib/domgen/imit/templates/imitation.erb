@@ -63,10 +63,13 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   void set<%= attribute.imit.name(:transport) %>( final <%= attribute.imit.java_type(:transport) %> value )
   {
     checkValidity();
-<% if attribute.attribute_type == :reference
+<% if attribute.reference?
 %>
     _<%= attribute.imit.name %> = null;
     _<%= attribute.referencing_link_name %> = value;
+<% elsif attribute.enum?
+%>
+    _<%= attribute.imit.name %> = <%= attribute.imit.java_type %>.values()[value];
 <% else
 %>    _<%= attribute.imit.name %> = value;
 <% end %>  }
