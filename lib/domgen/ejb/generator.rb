@@ -29,6 +29,12 @@ module Domgen
                      'java/#{service.ejb.qualified_facade_interface_name.gsub(".","/")}.java',
                      EJB::HELPERS,
                      'service.ejb.generate_facade?'),
+        Template.new(EJB::FACETS,
+                     :service,
+                     "#{EJB::TEMPLATE_DIRECTORY}/facade_implementation.erb",
+                     'java/#{service.ejb.qualified_facade_implementation_name.gsub(".","/")}.java',
+                     EJB::HELPERS,
+                     'service.ejb.generate_facade?'),
       ]
     end
   end

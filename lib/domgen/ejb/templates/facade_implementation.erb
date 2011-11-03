@@ -1,0 +1,32 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= service.data_module.ejb.service_package %>;
+
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.ejb.Stateless( name = <%= service.ejb.facade_interface_name %>.EJB_NAME )
+public class <%= service.ejb.facade_implementation_name %>
+  implements <%= service.ejb.facade_interface_name %>
+{
+  @javax.ejb.EJB
+  private <%= service.ejb.service_name %> _service;
+
+<% service.methods.each do |method|
+%>  public <%= annotated_type(method.return_value, :ejb, :transport) %> <%= method.ejb.name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :transport)} #{p.ejb.name}" }.join(', ') %>)<%=
+    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ejb.qualified_name}.join(', ')}"
+%><%
+   return_prefix = ''
+   transform = ''
+   if method.return_value.return_type != :void
+     if method.return_value.ejb.java_type == method.return_value.ejb.java_type(:transport)
+       return_prefix = "return "
+     else
+       return_prefix = "#{annotated_type(method.return_value, :ejb)} value = "
+       transform = "return value;\n"
+     end
+   end
+%>
+  {
+    <%= return_prefix  %>_service.<%= method.ejb.name %>(<%= method.parameters.collect{|p| "#{p.ejb.name}" }.join(', ') %>);
+  <%= transform%>
+  }
+
+<% end %>}
