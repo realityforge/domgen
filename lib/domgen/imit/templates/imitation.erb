@@ -5,9 +5,9 @@ import org.realityforge.replicant.client.EntityRepository;
 
 <%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation_name %>
+public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <%= entity.extends ?
-  "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_imitation_name}\n" :
+  "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_name}\n" :
   "    implements org.realityforge.replicant.client.Linkable" %>
 {
   public static final String TYPE_KEY = "<%= entity.qualified_name %>";
@@ -27,9 +27,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
    end
 %>
 <% entity.imit.referencing_client_side_attributes.each do |attribute| %><%= if attribute.inverse.multiplicity == :many
-          "  private java.util.List<#{attribute.entity.imit.qualified_imitation_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
+          "  private java.util.List<#{attribute.entity.imit.qualified_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          "  private #{attribute.entity.imit.qualified_imitation_name} #{attribute.inverse.relationship_name};\n"
+          "  private #{attribute.entity.imit.qualified_name} #{attribute.inverse.relationship_name};\n"
         end %>
 <% end %>
 <% if entity.extends.nil? %>
@@ -37,7 +37,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
   private boolean _delinking;
   private boolean _linked;
 <% end %>
-  protected <%= entity.imit.imitation_name %>( final EntityRepository repository )
+  protected <%= entity.imit.name %>( final EntityRepository repository )
   {
     <%= entity.extends.nil? ? "_repository = repository" : "super( repository )" %>;
   }
@@ -74,7 +74,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
 <% end %>
 <% entity.imit.referencing_client_side_attributes.each do |attribute|
         name = attribute.inverse.relationship_name
-        type = attribute.entity.imit.qualified_imitation_name
+        type = attribute.entity.imit.qualified_name
         if attribute.inverse.multiplicity == :many
           plural_name = pluralize(name)
 %>
@@ -176,7 +176,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.imitation
     {
       if( null == _<%= attribute.imit.field_name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
       {
-        _<%= attribute.imit.field_name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_imitation_name %>.class, _<%= attribute.referencing_link_name %> );
+        _<%= attribute.imit.field_name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= attribute.referencing_link_name %> );
 <% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.field_name %>.add<%= attribute.inverse.relationship_name %>( this );<% end %>
 <% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.field_name %>.set<%= attribute.inverse.relationship_name %>( this );<% end %>
       }

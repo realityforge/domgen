@@ -20,14 +20,14 @@ class <%= data_module.imit.updater_name %>
   }
 
 <% data_module.entities.select{|entity| entity.imit.client_side?}.each do |entity| %>
-  void delete<%= entity.name %>( final <%= entity.imit.imitation_name %> entity )
+  void delete<%= entity.name %>( final <%= entity.imit.name %> entity )
   {
     entity.invalidate();
     _broker.entityRemoved( entity );
   }
 
 <% entity.declared_attributes.select{|attribute| attribute.imit.client_side?}.each do |attribute| %>
-  void set<%= attribute.imit.transport_name %>_On_<%= entity.name %>( final <%= entity.imit.imitation_name %> entity, final <%= attribute.imit.transport_java_type %> value )
+  void set<%= attribute.imit.transport_name %>_On_<%= entity.name %>( final <%= entity.imit.name %> entity, final <%= attribute.imit.transport_java_type %> value )
   {
 <%
    getter_text = "entity.get#{attribute.imit.transport_name}()"
@@ -43,7 +43,7 @@ class <%= data_module.imit.updater_name %>
     if( <%= equal_check %> )
     {
       entity.set<%= attribute.imit.transport_name %>( value );
-      _broker.attributeChanged( entity, <%= entity.imit.imitation_name %>.<%= uppercase_constantize( attribute.name ) %>, value );
+      _broker.attributeChanged( entity, <%= entity.imit.name %>.<%= uppercase_constantize( attribute.name ) %>, value );
     }
   }
 <% end %>

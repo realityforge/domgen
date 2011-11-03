@@ -53,12 +53,12 @@ module Domgen
 
       attr_accessor :transport_id
 
-      def imitation_name
+      def name
         entity.name
       end
 
-      def qualified_imitation_name
-        "#{entity.data_module.imit.imitation_package}.#{imitation_name}"
+      def qualified_name
+        "#{entity.data_module.imit.imitation_package}.#{name}"
       end
 
       attr_writer :client_side
@@ -78,11 +78,11 @@ module Domgen
     end
 
     class ImitationEnumeration < Domgen.ParentedElement(:enumeration)
-      def enumeration_name
+      def name
         "#{enumeration.name}"
       end
 
-      def qualified_enumeration_name
+      def qualified_name
         "#{enumeration.data_module.imit.imitation_package}.#{enumeration.name}"
       end
     end

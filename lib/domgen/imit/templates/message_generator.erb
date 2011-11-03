@@ -24,9 +24,9 @@ public class <%= repository.imit.message_generator_name %>
   public EntityMessage convertToEntityMessage( final Object object, final boolean isUpdate )
   {
     <% repository.imit.concrete_client_side_entities.each do |entity|
-%>if( <%= entity.jpa.qualified_entity_name %>.class.isInstance( object ) )
+%>if( <%= entity.jpa.qualified_name %>.class.isInstance( object ) )
     {
-      final <%= entity.jpa.qualified_entity_name %> entity = <%= entity.jpa.qualified_entity_name %>.class.cast( object );
+      final <%= entity.jpa.qualified_name %> entity = <%= entity.jpa.qualified_name %>.class.cast( object );
       final @javax.annotation.Nonnull java.io.Serializable id = entity.<%= getter_for(entity.primary_key) %>;
       final @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> attributes = isUpdate ? <%= entity.data_module.imit.qualified_jpa_encoder_name %>.encode<%= entity.name %>( entity ) : null;
       final int transportID = <%= entity.imit.transport_id %>;

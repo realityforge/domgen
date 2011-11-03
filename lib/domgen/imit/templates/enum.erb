@@ -3,7 +3,7 @@ package <%= enumeration.data_module.imit.imitation_package %>;
 
 <%= description_javadoc_for(enumeration, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public enum <%= enumeration.imit.enumeration_name %>
+public enum <%= enumeration.imit.name %>
   implements java.io.Serializable
 {
   <%= enumeration.values.keys.collect {|k| "#{k}" } .join(",\n    ")%>
