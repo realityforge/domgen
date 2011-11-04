@@ -8,7 +8,7 @@ public class <%= service.ejb.facade_implementation_name %>
 <%= service.ejb.facade_extends ? "  extends #{service.ejb.facade_extends}" : "" %>
   implements <%= service.ejb.facade_interface_name %>
 {
-<% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort.uniq.each do |entity| %>
+<% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| %>
   @javax.ejb.EJB
   private <%= entity.jpa.qualified_dao_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
 <% end %>
@@ -16,7 +16,7 @@ public class <%= service.ejb.facade_implementation_name %>
   private <%= service.ejb.service_name %> _service;
 
 <% service.methods.each do |method|
-%>  public <%= annotated_type(method.return_value, :ejb, :transport) %> <%= method.ejb.name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :transport)} #{p.ejb.name}" }.join(', ') %>)<%=
+%>  public <%= annotated_type(method.return_value, :ejb, :transport) %> <%= method.ejb.name %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :ejb, :transport)} #{p.ejb.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ejb.qualified_name}.join(', ')}"
 %><%
    return_prefix = ''
