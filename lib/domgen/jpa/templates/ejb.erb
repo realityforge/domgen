@@ -60,14 +60,6 @@ public class <%= entity.jpa.dao_name %>
     em.flush();
   }
 
-  /** Save a <%= entity.jpa.qualified_name %> instance, merging it into the persistent context if required. */
-  public <%= entity.jpa.qualified_name %> save( final <%= entity.jpa.qualified_name %> entity )
-  {
-    final <%= entity.jpa.qualified_name %> e = merge( entity );
-    persist( e );
-    return e;
-  }
-
   /** Refresh the state of the <%= entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
   public void refresh( final <%= entity.jpa.qualified_name %> entity )
   {
