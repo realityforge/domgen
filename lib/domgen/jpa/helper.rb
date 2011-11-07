@@ -149,11 +149,7 @@ JAVA
      return #{name};
   }
 
-  /**
-   * This method should not be called directly. It is called from the constructor of #{type}.
-   */
-  @Deprecated
-  public final void add#{name}( final #{type} value )
+  #{j_deprecation_warning(attribute)}final void add#{name}( final #{type} value )
   {
     if( null != #{name}  )
     {
@@ -312,6 +308,20 @@ JAVA
 JAVA
       end
 
+      def j_deprecation_warning(attribute)
+        if attribute.entity.data_module.name != entity.data_module.name
+          <<STR
+  /**
+   * This method should not be called directly. It is called from the constructor of #{attribute.entity.jpa.qualified_name}.
+   * @deprecated
+   */
+  @Deprecated public
+STR
+        else
+          ''
+        end
+      end
+
       def j_has_many_attribute(attribute)
         name = attribute.inverse.relationship_name
         plural_name = pluralize(name)
@@ -323,11 +333,7 @@ JAVA
     return java.util.Collections.unmodifiableList( safeGet#{plural_name}() );
   }
 
-  /**
-   * This method should not be called directly. It is called from the constructor of #{type}.
-   */
-  @Deprecated
-  public final void add#{name}( final #{type} value )
+  #{j_deprecation_warning(attribute)} final void add#{name}( final #{type} value )
   {
     safeGet#{plural_name}().add( value );
   }
