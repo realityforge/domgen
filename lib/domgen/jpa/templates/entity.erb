@@ -45,4 +45,14 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= j_constructors(entity) %>
 <%= j_declared_attribute_and_relation_accessors(entity) %>
 <%= j_equals_method(entity) %>
-<%= j_to_string_methods(entity) %>}
+<%= j_to_string_methods(entity) %>
+
+  @javax.persistence.PostRemove
+  private void onRemove()
+  {
+<% entity.declared_attributes.
+  select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.traversable? && attribute.inverse.jpa.traversable? }.
+  each do |attribute|
+%>    <%= attribute.jpa.name %>.remove<%= attribute.inverse.relationship_name %>( this );
+<% end %>  }
+}
