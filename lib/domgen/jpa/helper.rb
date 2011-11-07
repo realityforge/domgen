@@ -7,6 +7,7 @@ module Domgen
         s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
         s << gen_relation_annotation(attribute, true) if attribute.reference?
         s << gen_column_annotation(attribute)
+        s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? "ORDINAL" : "STRING"} )\n" if attribute.enumeration?
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
         if attribute.attribute_type == :text
