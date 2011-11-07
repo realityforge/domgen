@@ -51,8 +51,10 @@ module Domgen
         !local?
       end
 
+      attr_accessor :generate_facade
+
       def generate_facade?
-        service.methods.any?{|method| method.parameters.any?{|parameter|parameter.reference?}}
+        @generate_facade.nil? ? service.methods.any?{|method| method.parameters.any?{|parameter|parameter.reference?}} : @generate_facade
       end
     end
 
