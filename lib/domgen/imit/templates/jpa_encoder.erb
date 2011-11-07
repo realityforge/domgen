@@ -31,7 +31,7 @@ public class <%= data_module.imit.jpa_encoder_name %>
 <% entity.declared_attributes.select{|attribute| attribute.imit.client_side? && !attribute.abstract? }.each do |attribute|
     value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": "")
     value_converter =
-        if attribute.imit.characteristic_type(:transport) == :datetime
+        if attribute.imit.characteristic_type(:transport) == :datetime || attribute.imit.characteristic_type(:transport) == :date
           "( ( null == value ) ? null : value.getTime() )"
         elsif [:integer, :real, :boolean, :text].include?(attribute.imit.characteristic_type(:transport))
           if attribute.nullable?

@@ -17,6 +17,7 @@ module Domgen
       TYPE_MAP = {"integer" => "integer",
                   "real" => "double precision",
                   "datetime" => "timestamp",
+                  "date" => "date",
                   "boolean" => "bit"}
 
 
@@ -67,6 +68,7 @@ module Domgen
       TYPE_MAP = {"integer" => "INT",
                   "real" => "FLOAT",
                   "datetime" => "DATETIME",
+                  "date" => "DATE",
                   "boolean" => "BIT"}
 
       def column_type(column)

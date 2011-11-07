@@ -9,7 +9,7 @@ module Domgen
         s << gen_column_annotation(attribute)
         s << "  @javax.persistence.Basic( optional = #{attribute.nullable?}, fetch = javax.persistence.FetchType.EAGER )\n" unless attribute.reference?
         s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? "ORDINAL" : "STRING"} )\n" if attribute.enumeration?
-        s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.TIMESTAMP )\n" if attribute.datetime?
+        s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? "TIMESTAMP" : "DATE"} )\n" if attribute.datetime? || attribute.date?
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
         if attribute.attribute_type == :text

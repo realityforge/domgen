@@ -119,7 +119,7 @@ module Domgen
     end
 
     def self.comparable_attribute_types
-      [:integer, :datetime, :real]
+      [:integer, :date, :datetime, :real]
     end
 
     def self.equality_attribute_types
@@ -332,6 +332,10 @@ module Domgen
       self.characteristic_type == :datetime
     end
 
+    def date?
+      self.characteristic_type == :date
+    end
+
     attr_reader :references
 
     def references=(references)
@@ -472,7 +476,7 @@ module Domgen
     end
 
     def self.persistent_types
-      [:text, :reference, :boolean, :datetime, :integer, :real, :enumeration]
+      [:text, :reference, :boolean, :datetime, :date, :integer, :real, :enumeration]
     end
 
     def to_s
@@ -518,6 +522,10 @@ module Domgen
 
     def datetime(name, options = {}, &block)
       characteristic(name, :datetime, options, &block)
+    end
+
+    def date(name, options = {}, &block)
+      characteristic(name, :date, options, &block)
     end
 
     def i_enum(name, values, options = {}, &block)
