@@ -328,6 +328,10 @@ module Domgen
       self.characteristic_type == :boolean
     end
 
+    def datetime?
+      self.characteristic_type == :datetime
+    end
+
     attr_reader :references
 
     def references=(references)
