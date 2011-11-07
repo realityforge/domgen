@@ -87,7 +87,7 @@ public class <%= data_module.imit.mapper_name %>
         elsif attribute.imit.characteristic_type(:transport) == :text
           "( (String) value )"
         elsif attribute.imit.characteristic_type(:transport) == :enumeration && attribute.enumeration.textual_values?
-          "#{attribute.enumeration.imit.qualified_name}.valueOf( (String) value )"
+          "( (String) value )"
         elsif attribute.imit.characteristic_type == :enumeration && attribute.enumeration.numeric_values?
           "( null == value ? null : ( (Number) value ).intValue() )"
         else
@@ -118,6 +118,9 @@ public class <%= data_module.imit.mapper_name %>
          "true"
        elsif attribute.enumeration? && attribute.enumeration.numeric_values?
          "(null == #{getter_text} || #{getter_text}.ordinal() != value)"
+       elsif attribute.enumeration? && attribute.enumeration.numeric_values?
+         "(null == #{getter_text} || !#{getter_text}.name().equals( value ) )"
+         #"#{attribute.enumeration.imit.qualified_name}.valueOf( (String) value )"
        elsif attribute.imit.primitive?(:transport)
          "#{getter_text} != value"
        else

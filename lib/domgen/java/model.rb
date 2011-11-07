@@ -38,7 +38,11 @@ module Domgen
           if :default == modality
             return characteristic.enumeration.send(facet_key).qualified_name
           elsif :transport == modality
-            return "java.lang.Integer"
+            if characteristic.enumeration.textual_values?
+              return "java.lang.String"
+            else
+              return "java.lang.Integer"
+            end
           else
             error("unknown modality #{modality}")
           end
