@@ -359,6 +359,12 @@ module Domgen
         @cacheable.nil? ? false : @cacheable
       end
 
+      attr_writer :detachable
+
+      def detachable?
+        @detachable.nil? ? false : @detachable
+      end
+
       def queries
         @queries ||= []
       end

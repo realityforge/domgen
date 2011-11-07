@@ -41,6 +41,7 @@ public class <%= entity.jpa.dao_name %>
   }
 <% end %>
 
+<% if entity.jpa.detachable? %>
   /** Remove the given  <%= entity.jpa.qualified_name %> from the persistence context, causing a managed entity to become detached. */
   public void detach( final <%= entity.jpa.qualified_name %> entity )
   {
@@ -52,7 +53,7 @@ public class <%= entity.jpa.dao_name %>
   {
     return em.merge( entity );
   }
-
+<% end %>
   /** Make an <%= entity.jpa.qualified_name %> instance managed and persistent. */
   public void persist( final <%= entity.jpa.qualified_name %> entity )
   {
