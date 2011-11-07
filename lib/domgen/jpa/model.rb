@@ -199,7 +199,7 @@ module Domgen
         raise "parameter"
       end
 
-      def enum_manager
+      def data_module
         jpa_class.entity.data_module
       end
 
