@@ -2,8 +2,8 @@ module Domgen
   module Java
     TYPE_MAP = {"integer" => "java.lang.Integer",
                 "boolean" => "java.lang.Boolean",
-                "datetime" => "java.sql.Timestamp",
-                "date" => "java.sql.Timestamp",
+                "datetime" => "java.util.Date",
+                "date" => "java.util.Date",
                 "text" => "java.lang.String"}
 
     module JavaCharacteristic
