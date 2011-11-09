@@ -39,7 +39,7 @@ public class <%= data_module.imit.mapper_name %>
         }
         // It is in the local repository so we need to delete it
         _repository.deregisterEntity( <%= entity.imit.name %>.class, id );
-         delete<%= entity.name %>( entity );
+         entity.invalidate();
       }
     }
     else
@@ -95,7 +95,8 @@ public class <%= data_module.imit.mapper_name %>
         end
 %>    if( fullUpdate <% if !attribute.primary_key? %>|| attributes.containsKey( <%= entity.name %>.<%= uppercase_constantize( attribute.name ) %> )<% end %> )
     {
-      final Object value = attributes.get( <%= entity.name %>.<%= uppercase_constantize(attribute.name) %> );
+      @javax.annotation.Nonnull final Object value = attributes.get( <%= entity.name %>.<%= uppercase_constantize(attribute.name) %> );
+      assert null != value;
       set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( null != value ? #{value_converter} : null )" : value_converter %> );
     }
 <% end %>
@@ -103,13 +104,8 @@ public class <%= data_module.imit.mapper_name %>
 <% end %>
 
 <% data_module.entities.select{|entity| entity.imit.client_side?}.each do |entity| %>
-  private void delete<%= entity.name %>( final <%= entity.imit.name %> entity )
-  {
-    entity.invalidate();
-  }
-
 <% entity.declared_attributes.select{|attribute| attribute.imit.client_side?}.each do |attribute| %>
-  private void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( final <%= entity.imit.name %> entity, final <%= attribute.imit.java_type(:transport) %> value )
+  private void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.name %> entity, @javax.annotation.Nonnull final <%= attribute.imit.java_type(:transport) %> value )
   {
 <%
    getter_text = "entity.get#{attribute.imit.name(:transport)}()"
