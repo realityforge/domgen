@@ -547,6 +547,19 @@ module Domgen
       c
     end
 
+    def reference(other_type, options = {}, &block)
+      name = options.delete(:name)
+      if name.nil?
+        if other_type.to_s.include? "."
+          name = other_type.to_s.sub(/.+\./, '').to_sym
+        else
+          name = other_type
+        end
+      end
+
+      characteristic(name.to_s.to_sym, :reference, options.merge({:references => other_type}), &block)
+    end
+
     protected
 
     def characteristic_by_name(name)
@@ -651,19 +664,6 @@ module Domgen
 
     def final?
       @final.nil? ? !abstract? : @final
-    end
-
-    def reference(other_type, options = {}, &block)
-      name = options.delete(:name)
-      if name.nil?
-        if other_type.to_s.include? "."
-          name = other_type.to_s.sub(/.+\./,'').to_sym
-        else
-          name = other_type
-        end
-      end
-
-      attribute(name.to_s.to_sym, :reference, options.merge({:references => other_type}), &block)
     end
 
     def declared_attributes
@@ -1006,19 +1006,6 @@ module Domgen
 
     def parameter(name, type, options = {}, &block)
       characteristic(name, type, options, &block)
-    end
-
-    def reference(other_type, options = {}, &block)
-      name = options.delete(:name)
-      if name.nil?
-        if other_type.to_s.include? "."
-          name = other_type.to_s.sub(/.+\./,'').to_sym
-        else
-          name = other_type
-        end
-      end
-
-      characteristic(name.to_s.to_sym, :reference, options.merge({:references => other_type}), &block)
     end
 
     def returns(parameter_type, options = {}, &block)
