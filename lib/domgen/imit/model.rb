@@ -29,7 +29,7 @@ module Domgen
       end
     end
 
-    class ImitationClass < Domgen.ParentedElement(:entity)
+    class ImitationEntity < Domgen.ParentedElement(:entity)
 
       attr_accessor :transport_id
 
@@ -178,7 +178,7 @@ module Domgen
                             EnumerationSet => Domgen::Imit::ImitationEnumeration,
                             Attribute => Domgen::Imit::ImitationAttribute,
                             InverseElement => Domgen::Imit::ImitationAttributeInverse,
-                            Entity => Domgen::Imit::ImitationClass,
+                            Entity => Domgen::Imit::ImitationEntity,
                             DataModule => Domgen::Imit::ImitationModule,
                             Repository => Domgen::Imit::ImitationApplication)
 end
