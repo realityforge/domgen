@@ -38,7 +38,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{entity.data_module.imit.imitation_package}.#{name}"
+        "#{entity.data_module.imit.entity_package}.#{name}"
       end
 
       attr_writer :client_side
@@ -63,15 +63,15 @@ module Domgen
       end
 
       def qualified_name
-        "#{enumeration.data_module.imit.imitation_package}.#{enumeration.name}"
+        "#{enumeration.data_module.imit.entity_package}.#{enumeration.name}"
       end
     end
 
     class ImitationModule < Domgen.ParentedElement(:data_module)
-      attr_writer :imitation_package
+      attr_writer :entity_package
 
-      def imitation_package
-        @imitation_package || "#{data_module.repository.imit.imitation_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      def entity_package
+        @entity_package || "#{data_module.repository.imit.entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
       attr_writer :encoder_package
@@ -85,7 +85,7 @@ module Domgen
       end
 
       def qualified_mapper_name
-        "#{imitation_package}.#{mapper_name}"
+        "#{entity_package}.#{mapper_name}"
       end
 
       def jpa_encoder_name
@@ -109,13 +109,13 @@ module Domgen
       end
 
       def qualified_updater_name
-        "#{imitation_package}.#{updater_name}"
+        "#{entity_package}.#{updater_name}"
       end
 
       attr_writer :client_side
 
       def client_side?
-        @client_side.nil? ? !@imitation_package.nil? : @client_side
+        @client_side.nil? ? !@entity_package.nil? : @client_side
       end
 
       def client_side_entities
@@ -128,10 +128,10 @@ module Domgen
     end
 
     class ImitationApplication < Domgen.ParentedElement(:repository)
-      attr_writer :imitation_package
+      attr_writer :entity_package
 
-      def imitation_package
-        @imitation_package || Domgen::Naming.underscore(repository.name)
+      def entity_package
+        @entity_package || Domgen::Naming.underscore(repository.name)
       end
 
       attr_writer :encoder_package
@@ -145,7 +145,7 @@ module Domgen
       end
 
       def qualified_change_mapper_name
-        "#{imitation_package}.#{change_mapper_name}"
+        "#{entity_package}.#{change_mapper_name}"
       end
 
       def message_generator_name
