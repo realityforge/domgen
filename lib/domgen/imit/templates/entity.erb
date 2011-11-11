@@ -103,6 +103,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
           plural_name = pluralize(name)
 %>
   <%= description_javadoc_for(attribute) %>
+  @javax.annotation.Nonnull
   public final java.util.List<<%= type %>> get<%= plural_name %>()
   {
     return java.util.Collections.unmodifiableList( safeGet<%= plural_name %>() );
