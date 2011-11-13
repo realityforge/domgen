@@ -64,9 +64,9 @@ module Domgen
 
     def self.define_imit_gwt_proxy_service_test_templates
       [
-          Template.new(GWT::FACETS,
+          Template.new(Imit::FACETS + [:gwt],
                        :repository,
-                       "#{GWT::TEMPLATE_DIRECTORY}/mock_services_module.erb",
+                       "#{Imit::TEMPLATE_DIRECTORY}/mock_services_module.erb",
                        'test/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
                        [Domgen::Java::Helper]),
       ]
