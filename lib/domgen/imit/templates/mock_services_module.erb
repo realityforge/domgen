@@ -11,7 +11,7 @@ public class <%= repository.imit.mock_services_module_name %>
   {
 <%
   repository.data_modules.select{|data_module| data_module.gwt.enabled?}.each do |data_module|
-    data_module.services.each do |service|
+    data_module.services.select{|service| service.imit.client_side?}.each do |service|
 %>
     bind( <%= service.imit.qualified_name %>.class ).toInstance( org.mockito.Mockito.mock( <%= service.imit.qualified_proxy_name %>.class ) );
 <%
