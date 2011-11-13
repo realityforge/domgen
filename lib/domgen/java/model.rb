@@ -4,7 +4,8 @@ module Domgen
                 "boolean" => "java.lang.Boolean",
                 "datetime" => "java.sql.Timestamp",
                 "date" => "java.sql.Timestamp",
-                "text" => "java.lang.String"}
+                "text" => "java.lang.String",
+                "void" => "java.lang.Void"}
 
     module JavaCharacteristic
       def name(modality = :default)
@@ -22,6 +23,7 @@ module Domgen
 
       def java_type(modality = :default)
         return @java_type if @java_type
+        return "void" if :void == characteristic.characteristic_type
         return primitive_java_type(modality) if primitive?(modality)
         non_primitive_java_type(modality)
       end
@@ -31,7 +33,7 @@ module Domgen
           if :default == modality
             return characteristic.referenced_entity.send(facet_key).qualified_name
           elsif :transport == modality
-            return characteristic.referenced_entity.primary_key.send(facet_key).java_type(modality)
+            return characteristic.referenced_entity.primary_key.send(facet_key).non_primitive_java_type(modality)
           else
             error("unknown modality #{modality}")
           end
