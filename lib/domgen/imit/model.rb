@@ -29,6 +29,71 @@ module Domgen
       end
     end
 
+    class ImitationResult < Domgen.ParentedElement(:result)
+
+      include Domgen::Java::ImitJavaCharacteristic
+
+      protected
+
+      def characteristic
+        result
+      end
+    end
+
+    class ImitationParameter < Domgen.ParentedElement(:parameter)
+      include Domgen::Java::ImitJavaCharacteristic
+
+      protected
+
+      def characteristic
+        parameter
+      end
+    end
+
+    class ImitationService < Domgen.ParentedElement(:service)
+      attr_writer :client_side
+
+      def client_side?
+        @client_side.nil? ? service.data_module.imit.client_side? : @client_side
+      end
+
+      attr_writer :name
+
+      def name
+        @name || service.name
+      end
+
+      def qualified_name
+        "#{service.data_module.imit.service_package}.#{name}"
+      end
+
+      attr_writer :proxy_name
+
+      def proxy_name
+        @proxy_name || "#{name}Proxy"
+      end
+
+      def qualified_proxy_name
+        "#{service.data_module.imit.service_package}.#{proxy_name}"
+      end
+    end
+
+    class ImitationMethod < Domgen.ParentedElement(:method)
+      def name
+        method.name
+      end
+    end
+
+    class ImitationException < Domgen.ParentedElement(:exception)
+      def name
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+      end
+
+      def qualified_name
+        "#{exception.data_module.imit.service_package}.#{name}"
+      end
+    end
+
     class ImitationEntity < Domgen.ParentedElement(:entity)
 
       attr_accessor :transport_id
@@ -68,6 +133,12 @@ module Domgen
     end
 
     class ImitationModule < Domgen.ParentedElement(:data_module)
+      attr_writer :service_package
+
+      def service_package
+        @service_package || "#{data_module.repository.imit.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
       attr_writer :entity_package
 
       def entity_package
@@ -128,6 +199,12 @@ module Domgen
     end
 
     class ImitationApplication < Domgen.ParentedElement(:repository)
+      attr_writer :service_package
+
+      def service_package
+        @service_package || Domgen::Naming.underscore(repository.name)
+      end
+
       attr_writer :entity_package
 
       def entity_package
@@ -179,6 +256,11 @@ module Domgen
                             Attribute => Domgen::Imit::ImitationAttribute,
                             InverseElement => Domgen::Imit::ImitationAttributeInverse,
                             Entity => Domgen::Imit::ImitationEntity,
+                            Method => Domgen::Imit::ImitationMethod,
+                            Result => Domgen::Imit::ImitationResult,
+                            Parameter => Domgen::Imit::ImitationParameter,
+                            Exception => Domgen::Imit::ImitationException,
+                            Service => Domgen::Imit::ImitationService,
                             DataModule => Domgen::Imit::ImitationModule,
                             Repository => Domgen::Imit::ImitationApplication)
 end

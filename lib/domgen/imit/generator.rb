@@ -39,6 +39,30 @@ module Domgen
       ]
     end
 
+
+    def self.define_imit_gwt_proxy_templates
+      [
+        Template.new(Imit::FACETS,
+                     :service,
+                     "#{Imit::TEMPLATE_DIRECTORY}/service.erb",
+                     'java/#{service.imit.qualified_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'service.imit.client_side? && service.data_module.gwt.enabled?'),
+        Template.new(Imit::FACETS + [:gwt],
+                     :service,
+                     "#{Imit::TEMPLATE_DIRECTORY}/proxy.erb",
+                     'java/#{service.imit.qualified_proxy_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'service.imit.client_side? && service.data_module.gwt.enabled?'),
+        Template.new(Imit::FACETS,
+                     :exception,
+                     "#{Imit::TEMPLATE_DIRECTORY}/exception.erb",
+                     'java/#{exception.imit.qualified_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'exception.data_module.gwt.enabled?'),
+      ]
+    end
+
     def self.define_imit_jpa_templates
       facets = Imit::FACETS + [:jpa]
       helpers = Imit::HELPERS + [Domgen::JPA::Helper, Domgen::Java::Helper]
