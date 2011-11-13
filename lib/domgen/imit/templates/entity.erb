@@ -23,10 +23,13 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% end %>
 <%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
 %><%= entity.extends.nil? ? "  protected EntityChangeBroker _broker;\n" : ""
-%><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit.client_side? }.each do |attribute| %>
+%><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit.client_side? }.each do |attribute|
+  if !attribute.reference?
+%>
   private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.name %>;
-<% if attribute.reference?
-%>  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.java_type(:transport)}" %> _<%= attribute.imit.name(:transport) %>;
+<% else
+%>  private <%= attribute.imit.java_type %> _<%= attribute.imit.name %>;
+  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.java_type(:transport)}" %> _<%= attribute.imit.name(:transport) %>;
 <%
    end
    end
@@ -100,6 +103,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
           plural_name = pluralize(name)
 %>
   <%= description_javadoc_for(attribute) %>
+  @javax.annotation.Nonnull
   public final java.util.List<<%= type %>> get<%= plural_name %>()
   {
     return java.util.Collections.unmodifiableList( safeGet<%= plural_name %>() );

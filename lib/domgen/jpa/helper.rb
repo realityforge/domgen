@@ -370,7 +370,7 @@ STR
     {
       return true;
     }
-    else if ( o == null || !#{entity.jpa.name}.class.isInstance( o ) )
+    else if ( o == null || !(o instanceof #{entity.jpa.name}) )
     {
       return false;
     }
