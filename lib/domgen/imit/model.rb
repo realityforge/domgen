@@ -233,6 +233,16 @@ module Domgen
         "#{encoder_package}.#{message_generator_name}"
       end
 
+      attr_writer :mock_services_module_name
+
+      def mock_services_module_name
+        @mock_services_module_name || "#{repository.name}MockServicesModule"
+      end
+
+      def qualified_mock_services_module_name
+        "#{service_package}.#{mock_services_module_name}"
+      end
+
       def client_side_data_modules
         repository.data_modules.select{|data_module| data_module.imit.client_side? }
       end
