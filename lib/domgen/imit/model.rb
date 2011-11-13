@@ -233,6 +233,16 @@ module Domgen
         "#{encoder_package}.#{message_generator_name}"
       end
 
+      attr_writer :services_module_name
+
+      def services_module_name
+        @services_module_name || "#{repository.name}ServicesModule"
+      end
+
+      def qualified_services_module_name
+        "#{service_package}.#{services_module_name}"
+      end
+
       attr_writer :mock_services_module_name
 
       def mock_services_module_name
