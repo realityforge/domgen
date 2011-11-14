@@ -97,8 +97,8 @@ public class <%= data_module.imit.mapper_name %>
     {
       <% if attribute.primary_key? %>if( fullUpdate )
       {<% end %>
-      @javax.annotation.Nonnull final Object value = attributes.get( <%= entity.name %>.<%= uppercase_constantize(attribute.name) %> );
-      assert null != value;
+      <%= nullability_annotation(attribute.nullable?) %> final Object value = attributes.get( <%= entity.name %>.<%= uppercase_constantize(attribute.name) %> );
+      <% if !attribute.nullable? %>assert null != value;<% end %>
       set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( null != value ? #{value_converter} : null )" : value_converter %> );
       <% if attribute.primary_key? %>
       }<% end %>
