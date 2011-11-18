@@ -814,7 +814,7 @@ SQL
           foreign_key([a.name],
                       a.referenced_entity.qualified_name,
                       [a.referenced_entity.primary_key.name],
-                      {:on_update => a.on_update, :on_delete => a.on_delete},
+                      {:on_update => a.sql.on_update, :on_delete => a.sql.on_delete},
                       true)
         end
       end
@@ -875,6 +875,33 @@ SQL
 
       def persistent_calculation?
         @persistent_calculation.nil? ? false : @persistent_calculation
+      end
+
+      def on_update=(on_update)
+        error("on_update on #{name} is invalid as attribute is not a reference") unless attribute.reference?
+        error("on_update #{on_update} on #{name} is invalid") unless self.class.change_actions.include?(on_update)
+        @on_update = on_update
+      end
+
+      def on_update
+        error("on_update on #{name} is invalid as attribute is not a reference") unless attribute.reference?
+        @on_update.nil? ? :no_action : @on_update
+      end
+
+      def on_delete=(on_delete)
+        error("on_delete on #{name} is invalid as attribute is not a reference") unless attribute.reference?
+        error("on_delete #{on_delete} on #{name} is invalid") unless self.class.change_actions.include?(on_delete)
+        @on_delete = on_delete
+      end
+
+      def on_delete
+        error("on_delete on #{name} is invalid as attribute is not a reference") unless attribute.reference?
+        @on_delete.nil? ? :no_action : @on_delete
+      end
+
+      def self.change_actions
+        #{ :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
+        [:cascade, :restrict, :set_null, :set_default, :no_action]
       end
 
       attr_accessor :default_value

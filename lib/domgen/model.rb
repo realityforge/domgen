@@ -446,35 +446,6 @@ module Domgen
       @inverse ||= InverseElement.new(self, {})
     end
 
-    def on_update=(on_update)
-      error("on_update on #{name} is invalid as attribute is not a reference") unless reference?
-      error("on_update #{on_update} on #{name} is invalid") unless self.class.change_actions.include?(on_update)
-      @on_update = on_update
-    end
-
-    def on_update
-      error("on_update on #{name} is invalid as attribute is not a reference") unless reference?
-      @on_update = :no_action if @on_update.nil?
-      @on_update
-    end
-
-    def on_delete=(on_delete)
-      error("on_delete on #{name} is invalid as attribute is not a reference") unless reference?
-      error("on_delete #{on_delete} on #{name} is invalid") unless self.class.change_actions.include?(on_delete)
-      @on_delete = on_delete
-    end
-
-    def on_delete
-      error("on_delete on #{name} is invalid as attribute is not a reference") unless reference?
-      @on_delete = :no_action if @on_delete.nil?
-      @on_delete
-    end
-
-    def self.change_actions
-      #{ :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
-      [:cascade, :restrict, :set_null, :set_default, :no_action]
-    end
-
     def self.persistent_types
       [:text, :reference, :boolean, :datetime, :date, :integer, :real, :enumeration]
     end
