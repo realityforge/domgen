@@ -207,7 +207,7 @@ module Domgen
       attr_writer :mock_services_module_name
 
       def mock_services_module_name
-        @mock_services_module_name || "#{repository.name}MockServicesModule"
+        @mock_services_module_name || "#{repository.name}MockGwtServicesModule"
       end
 
       def qualified_mock_services_module_name

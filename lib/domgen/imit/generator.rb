@@ -39,7 +39,6 @@ module Domgen
       ]
     end
 
-
     def self.define_imit_gwt_proxy_templates
       [
         Template.new(Imit::FACETS,
@@ -54,12 +53,27 @@ module Domgen
                      'java/#{service.imit.qualified_proxy_name.gsub(".","/")}.java',
                      Imit::HELPERS,
                      'service.imit.client_side? && service.data_module.gwt.enabled?'),
+          Template.new(Imit::FACETS + [:gwt],
+                       :repository,
+                       "#{Imit::TEMPLATE_DIRECTORY}/services_module.erb",
+                       'java/#{repository.imit.qualified_services_module_name.gsub(".","/")}.java',
+                       [Domgen::Java::Helper]),
         Template.new(Imit::FACETS,
                      :exception,
                      "#{Imit::TEMPLATE_DIRECTORY}/exception.erb",
                      'java/#{exception.imit.qualified_name.gsub(".","/")}.java',
                      Imit::HELPERS,
                      'exception.data_module.gwt.enabled?'),
+      ]
+    end
+
+    def self.define_imit_gwt_proxy_service_test_templates
+      [
+          Template.new(Imit::FACETS + [:gwt],
+                       :repository,
+                       "#{Imit::TEMPLATE_DIRECTORY}/mock_services_module.erb",
+                       'test/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
+                       [Domgen::Java::Helper]),
       ]
     end
 
