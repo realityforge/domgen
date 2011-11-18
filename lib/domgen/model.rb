@@ -354,6 +354,13 @@ module Domgen
       "#{name}#{referenced_entity.primary_key.name}"
     end
 
+    attr_writer :polymorphic
+
+    def polymorphic?
+      error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
+      @polymorphic.nil? ? !referenced_entity.final? : @polymorphic
+    end
+
     def characteristic_type
       raise "characteristic_type not implemented"
     end
@@ -432,13 +439,6 @@ module Domgen
 
     def updatable?
       !immutable? && !generated_value?
-    end
-
-    attr_writer :polymorphic
-
-    def polymorphic?
-      error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
-      @polymorphic.nil? ? !referenced_entity.final? : @polymorphic
     end
 
     def inverse
