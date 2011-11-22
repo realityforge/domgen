@@ -31,6 +31,14 @@ module Domgen
                 end
               end
 
+              if :struct == template.scope
+                data_module.structs.each do |struct|
+                  if template.applicable?(struct) && (filter.nil? || filter.call(:struct, struct))
+                    render(directory, template, :struct, struct)
+                  end
+                end
+              end
+
               if :enumeration == template.scope
                 data_module.enumerations.each do |entity|
                   if template.applicable?(entity) && (filter.nil? || filter.call(:enumeration, entity))
