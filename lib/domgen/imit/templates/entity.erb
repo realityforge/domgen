@@ -155,7 +155,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   @Deprecated
   protected <% end %>final void set<%= name %>( final <%= type %> value )
   {
+    if( null != <%= name %> && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
     <%= name %> = value;
+    if( null != <%= name %> && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
   }
 <% end %>
 <% end %>
