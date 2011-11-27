@@ -1,0 +1,28 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= struct.data_module.jaxb.package %>;
+
+<%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.xml.bind.annotation.XmlRootElement( name = "<%= struct.jaxb.xml_name %>"<%= namespace_annotation_parameter(struct.jaxb) %> )
+@javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
+public class <%= struct.jaxb.name %>
+{
+<% struct.fields.each do |field| %>
+  <%= jaxb_field_annotation(field) %>
+  private final <%= annotated_type(field, :jaxb) %> <%= field.jaxb.name %>;
+<% end %>
+
+  public <%= struct.jaxb.name %>( <%= struct.fields.collect {|field| "final #{annotated_type(field, :jaxb) } #{field.jaxb.name}" }.join(", ") %> )
+  {
+<% struct.fields.each do |field|
+%>    this.<%= field.jaxb.name %> = <%= field.jaxb.name %>;
+<% end
+%>  }
+<% struct.fields.each do |field|
+%>
+  public <%= annotated_type(field, :jaxb) %> <%= getter_prefix(field) %><%= field.name %>()
+  {
+    return <%= field.jaxb.name %>;
+  }
+<% end
+%>}

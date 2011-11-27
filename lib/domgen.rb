@@ -32,6 +32,11 @@ require 'domgen/jpa/model'
 require 'domgen/jpa/helper'
 require 'domgen/jpa/generator'
 
+# JAXB
+require 'domgen/jaxb/model'
+require 'domgen/jaxb/helper'
+require 'domgen/jaxb/generator'
+
 # ActiveRecord
 require 'domgen/active_record/generator'
 

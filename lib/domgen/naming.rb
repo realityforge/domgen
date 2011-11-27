@@ -17,5 +17,9 @@ module Domgen
       word.downcase!
       word
     end
+
+    def self.xmlize(camel_cased_word)
+      underscore(camel_cased_word).tr("_", "-")
+    end
   end
 end
