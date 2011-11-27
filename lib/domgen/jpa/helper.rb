@@ -485,7 +485,7 @@ JAVADOC
 
       def getter_for( attribute, name = nil )
         name = attribute.jpa.name unless name
-        (attribute.boolean? ? "is#{name}()" : "get#{name}()")
+        "#{getter_prefix(attribute)}#{name}()"
       end
 
     end

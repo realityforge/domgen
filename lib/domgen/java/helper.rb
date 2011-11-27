@@ -14,6 +14,10 @@ module Domgen
         end
       end
 
+      def getter_prefix(attribute)
+        attribute.boolean? ? "is" : "get"
+      end
+
       def description_javadoc_for(element, depth = "  ")
         description = element.tags[:Description]
         return '' unless description
