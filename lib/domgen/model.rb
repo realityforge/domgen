@@ -817,6 +817,10 @@ module Domgen
       super(struct, options, &block)
     end
 
+    def struct?
+      self.characteristic_type == :struct
+    end
+
     def qualified_name
       "#{struct.qualified_name}$#{self.name}"
     end
@@ -846,6 +850,18 @@ module Domgen
 
     def qualified_name
       "#{data_module.name}.#{self.name}"
+    end
+
+    def substruct(name, options = {}, &block)
+      struct = data_module.struct("#{self.name}#{name}", {}, &block)
+      struct(name, struct.name, options)
+    end
+
+    def struct(name, struct_key, options = {}, &block)
+      struct = data_module.struct_by_name(struct_key)
+      params = options.dup
+      params[:struct] = struct
+      characteristic(name, :struct, params, &block)
     end
 
     def fields
