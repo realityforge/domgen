@@ -49,6 +49,8 @@ module Domgen
           else
             error("unknown modality #{modality}")
           end
+        elsif characteristic.characteristic_type == :struct
+          return characteristic.struct.send(struct_key).qualified_name
         else
           return Domgen::Java::TYPE_MAP[characteristic.characteristic_type.to_s] || characteristic.characteristic_type.to_s
         end
@@ -111,6 +113,10 @@ module Domgen
 
       def facet_key
         :jpa
+      end
+
+      def struct_key
+        :jaxb
       end
     end
 
