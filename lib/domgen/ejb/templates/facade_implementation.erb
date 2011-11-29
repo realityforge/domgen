@@ -43,8 +43,8 @@ public class <%= service.ejb.facade_implementation_name %>
 <% method.parameters.select{|parameter| parameter.reference?}.each do |parameter|
 %>    final <%= annotated_type(parameter, :ejb) %> $<%= parameter.ejb.name %> = <%= parameter.nullable? ? "null == #{parameter.ejb.name} ? null : " : "" %> _<%= parameter.referenced_entity.qualified_name.gsub('.','') %>DAO.getByID( <%= parameter.ejb.name %> );
 <% end %>
-<% method.parameters.select{|parameter| parameter.enumeration?}.each do |parameter|
-%>    final <%= annotated_type(parameter, :ejb) %> $<%= parameter.ejb.name %> = <%= parameter.nullable? ? "null == #{parameter.ejb.name} ? null : " : "" %> <%= parameter.ejb.java_type %>.values()[ <%= parameter.ejb.name %> ];
+<% method.parameters.select{|parameter| parameter.enumeration? }.each do |parameter|
+%>    final <%= annotated_type(parameter, :ejb) %> $<%= parameter.ejb.name %> = <%= parameter.nullable? ? "null == #{parameter.ejb.name} ? null : " : "" %> <%= parameter.ejb.java_type %><%= parameter.enumeration.numeric_values? ? ".values()[" :".valueOf("%> <%= parameter.ejb.name %><%= parameter.enumeration.numeric_values? ? "]" :")"%> ;
 <% end %>
   <%= return_prefix  %>_service.<%= method.ejb.name %>(<%= method.parameters.collect{|parameter| "#{(parameter.reference? || parameter.enumeration?) ? '$' : ''}#{parameter.ejb.name}" }.join(', ') %>);
   <%= transform %>
