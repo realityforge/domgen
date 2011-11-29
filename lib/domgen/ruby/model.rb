@@ -29,7 +29,7 @@ module Domgen
 
       def filename
         fqn = qualified_name
-        underscore(fqn[2..fqn.length])
+        Domgen::Naming.underscore(fqn[2..fqn.length])
       end
     end
 

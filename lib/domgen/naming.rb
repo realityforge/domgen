@@ -18,8 +18,34 @@ module Domgen
       word
     end
 
+    def self.uppercase_constantize(camel_cased_word)
+      underscore(camel_cased_word).upcase
+    end
+
     def self.xmlize(camel_cased_word)
       underscore(camel_cased_word).tr("_", "-")
+    end
+
+    def self.pluralize(string)
+      plural = nil
+      #in case someone passes in a Symbol instead
+      singular = string.to_s
+      case last(singular)
+        when 'y'
+          plural = "#{singular.chop}ies" unless last(singular.chop) =~ /[aeiou]/
+        when 'o'
+          plural = "#{singular}es" if last(singular.chop) =~ /[aeiou]/
+        when 's'
+          plural = "#{singular}es" if last(singular, 2) == 'ss'
+      end
+      plural || "#{singular}s"
+    end
+
+    private
+
+    def self.last(s, limit = 1)
+      return s if limit > s.to_s.size
+      s.to_s[-limit, limit]
     end
   end
 end

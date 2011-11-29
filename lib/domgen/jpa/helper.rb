@@ -30,7 +30,7 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{pluralize(attribute.inverse.relationship_name)};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.inverse.relationship_name)};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
           s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.inverse.relationship_name};\n"
         end
@@ -325,7 +325,7 @@ STR
 
       def j_has_many_attribute(attribute)
         name = attribute.inverse.relationship_name
-        plural_name = pluralize(name)
+        plural_name = Domgen::Naming.pluralize(name)
         type = attribute.entity.jpa.qualified_name
         java = description_javadoc_for attribute
         java << <<STR
