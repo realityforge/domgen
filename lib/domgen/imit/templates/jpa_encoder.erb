@@ -34,7 +34,7 @@ public class <%= data_module.imit.jpa_encoder_name %>
         if attribute.imit.characteristic_type(:transport) == :datetime
           "( ( null == value ) ? null : value.getTime() )"
         elsif attribute.imit.characteristic_type(:transport) == :date
-          "( ( null == value ) ? null : org.realityforge.replicant.client.RDate.fromDate( value ).toString()"
+          "( ( null == value ) ? null : org.realityforge.replicant.client.RDate.fromDate( value ).toString() )"
         elsif [:integer, :real, :boolean, :text].include?(attribute.imit.characteristic_type(:transport))
           if attribute.nullable?
             "( ( null == value ) ? null : value#{value_suffix} )"
