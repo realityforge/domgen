@@ -51,6 +51,8 @@ module Domgen
           end
         elsif characteristic.characteristic_type == :struct
           return characteristic.struct.send(struct_key).qualified_name
+        elsif characteristic.characteristic_type == :date
+          return date_java_type
         else
           return Domgen::Java::TYPE_MAP[characteristic.characteristic_type.to_s] || characteristic.characteristic_type.to_s
         end
@@ -118,6 +120,10 @@ module Domgen
       def struct_key
         :jaxb
       end
+
+      def date_java_type
+        "java.util.Date"
+      end
     end
 
     module ImitJavaCharacteristic
@@ -127,6 +133,10 @@ module Domgen
 
       def facet_key
         :imit
+      end
+
+      def date_java_type
+        "org.realityforge.replicant.client.RDate"
       end
     end
   end

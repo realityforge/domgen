@@ -76,8 +76,10 @@ public class <%= data_module.imit.mapper_name %>
 <% end %>
 <% entity.declared_attributes.select{|attribute| attribute.imit.client_side? }.each do |attribute|
     value_converter =
-        if attribute.imit.characteristic_type(:transport) == :datetime || attribute.imit.characteristic_type(:transport) == :date
+        if attribute.imit.characteristic_type(:transport) == :datetime
           "new java.util.Date( ( (Number) value ).longValue() )"
+        elsif attribute.imit.characteristic_type(:transport) == :date
+          "org.realityforge.replicant.client.RDate.parse( ( (String) value ) )"
         elsif attribute.imit.characteristic_type(:transport) == :integer
           "( (Number) value ).intValue()"
         elsif attribute.imit.characteristic_type(:transport) == :real
