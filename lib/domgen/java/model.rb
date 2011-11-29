@@ -28,6 +28,14 @@ module Domgen
         non_primitive_java_type(modality)
       end
 
+      def java_component_type(modality = :default)
+        if characteristic.characteristic_type == :struct && :none != characteristic.collection_type
+          return characteristic.struct.send(struct_key).qualified_name
+        else
+          java_type(modality)
+        end
+      end
+
       def non_primitive_java_type(modality = :default)
         if characteristic.reference?
           if :default == modality
@@ -50,7 +58,13 @@ module Domgen
             error("unknown modality #{modality}")
           end
         elsif characteristic.characteristic_type == :struct
-          return characteristic.struct.send(struct_key).qualified_name
+          if :none == characteristic.collection_type
+            return characteristic.struct.send(struct_key).qualified_name
+          elsif :sequence == characteristic.collection_type
+            return "java.util.List<#{characteristic.struct.send(struct_key).qualified_name}>"
+          else
+            error("unknown collection_type #{characteristic.collection_type}")
+          end
         elsif characteristic.characteristic_type == :date
           return date_java_type
         else
@@ -106,6 +120,10 @@ module Domgen
       def facet_key
         raise "facet_key unimplemented"
       end
+
+      def struct_key
+        raise "struct_key unimplemented"
+      end
     end
 
     module EEJavaCharacteristic
@@ -133,6 +151,10 @@ module Domgen
 
       def facet_key
         :imit
+      end
+
+      def struct_key
+        :jaxb
       end
 
       def date_java_type

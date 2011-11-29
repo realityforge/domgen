@@ -825,6 +825,17 @@ module Domgen
       "#{struct.qualified_name}$#{self.name}"
     end
 
+    def collection_type
+      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      @collection_type || :none
+    end
+
+    def collection_type=(collection_type)
+      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      error("collection_type #{collection_type} is invalid") unless self.class.valid_collection_types.include?(collection_type)
+      @collection_type = collection_type
+    end
+
     def to_s
       "StructField[#{self.qualified_name}]"
     end
@@ -835,6 +846,10 @@ module Domgen
 
     def characteristic_container
       struct
+    end
+
+    def self.valid_collection_types
+      [:none, :sequence]
     end
   end
 

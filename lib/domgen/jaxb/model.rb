@@ -6,7 +6,7 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || field.name
+        @name || (field.struct? && field.collection_type != :none ? Domgen::Naming.pluralize(field.name) : field.name)
       end
 
       attr_writer :xml_name
