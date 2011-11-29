@@ -42,10 +42,9 @@ public class <%= repository.gwt.gin_module_name %>
   @javax.inject.Singleton
   public <%= service.gwt.qualified_async_service_name %> get<%= service.name %>()
   {
-    final com.google.gwt.user.client.rpc.XsrfToken xsrfToken = <%= data_module.repository.gwt.qualified_gin_module_name %>.getXsrfToken();
     final <%= service.gwt.qualified_async_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt.qualified_service_name %>.class );
 <% if service.gwt.xsrf_protected? %>
-    ( (com.google.gwt.user.client.rpc.HasRpcToken) service ).setRpcToken( xsrfToken );
+    ( (com.google.gwt.user.client.rpc.HasRpcToken) service ).setRpcToken( getXsrfToken() );
 <% end %>
     return service;
   }
