@@ -878,8 +878,8 @@ SQL
       end
 
       def on_update=(on_update)
-        error("on_update on #{name} is invalid as attribute is not a reference") unless attribute.reference?
-        error("on_update #{on_update} on #{name} is invalid") unless self.class.change_actions.include?(on_update)
+        error("on_update on #{column_name} is invalid as attribute is not a reference") unless attribute.reference?
+        error("on_update #{on_update} on #{column_name} is invalid") unless self.class.change_actions.include?(on_update)
         @on_update = on_update
       end
 
@@ -889,8 +889,8 @@ SQL
       end
 
       def on_delete=(on_delete)
-        error("on_delete on #{name} is invalid as attribute is not a reference") unless attribute.reference?
-        error("on_delete #{on_delete} on #{name} is invalid") unless self.class.change_actions.include?(on_delete)
+        error("on_delete on #{column_name} is invalid as attribute is not a reference") unless attribute.reference?
+        error("on_delete #{on_delete} on #{column_name} is invalid") unless self.class.change_actions.include?(on_delete)
         @on_delete = on_delete
       end
 
