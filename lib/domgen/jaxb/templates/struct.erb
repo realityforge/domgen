@@ -5,6 +5,7 @@ package <%= struct.data_module.jaxb.package %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.xml.bind.annotation.XmlRootElement( name = "<%= struct.jaxb.xml_name %>"<%= namespace_annotation_parameter(struct.jaxb) %> )
 @javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
+@javax.xml.bind.annotation.XmlType( name = "<%= struct.jaxb.name %>Type" )
 public class <%= struct.jaxb.name %>
 {
 <% struct.fields.each do |field| %>
