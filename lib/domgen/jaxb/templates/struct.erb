@@ -7,6 +7,7 @@ package <%= struct.data_module.jaxb.package %>;
 @javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
 @javax.xml.bind.annotation.XmlType( name = "<%= struct.jaxb.name %>Type" )
 public class <%= struct.jaxb.name %>
+  implements java.io.Serializable
 {
 <% struct.fields.each do |field| %>
   <%= jaxb_field_annotation(field) %>
