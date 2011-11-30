@@ -821,6 +821,10 @@ module Domgen
       self.characteristic_type == :struct
     end
 
+    def collection?
+      self.struct? && self.collection_type != :none
+    end
+
     def qualified_name
       "#{struct.qualified_name}$#{self.name}"
     end

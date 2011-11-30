@@ -6,7 +6,7 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || (field.struct? && field.collection_type != :none ? Domgen::Naming.pluralize(field.name) : field.name)
+        @name || (field.collection? ? Domgen::Naming.pluralize(field.name) : field.name)
       end
 
       attr_writer :xml_name
@@ -23,8 +23,9 @@ module Domgen
 
       attr_writer :element
 
+      # default to false for non-collection attributes and true for collection attributes
       def element?
-        @element.nil? ? false : @element
+        @element.nil? ? field.collection? : @element
       end
 
       attr_accessor :namespace
