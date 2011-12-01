@@ -3,9 +3,7 @@ package <%= struct.data_module.jaxb.package %>;
 
 <%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.xml.bind.annotation.XmlRootElement( name = "<%= struct.jaxb.xml_name %>"<%= namespace_annotation_parameter(struct.jaxb) %> )
-@javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
-@javax.xml.bind.annotation.XmlType( name = "<%= struct.jaxb.name %>Type" )
+<%= jaxb_class_annotations(struct) %>
 public class <%= struct.jaxb.name %>
   implements java.io.Serializable
 {
