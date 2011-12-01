@@ -16,7 +16,12 @@ module Domgen
 
     def options=(options)
       options.each_pair do |k, v|
-        self.send "#{k}=", v
+        keys = k.to_s.split('.')
+        target = self
+        keys[0, keys.length - 1].each do |target_accessor_key|
+          target = target.send target_accessor_key.to_sym
+        end
+        target.send "#{keys.last}=", v
       end
     end
 
