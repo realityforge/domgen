@@ -217,6 +217,12 @@ module Domgen
       super(data_module, options, &block)
     end
 
+    attr_writer :top_level
+
+    def top_level?
+      @top_level.nil? ? true : @top_level
+    end
+
     def numeric_values?
       self.enumeration_type == :integer
     end
@@ -500,12 +506,12 @@ module Domgen
     end
 
     def i_enum(name, values, options = {}, &block)
-      enumeration = data_module.enumeration("#{self.name}#{name}", :integer, { :values => values })
+      enumeration = data_module.enumeration("#{self.name}#{name}", :integer, {:top_level => false, :values => values})
       enumeration(name, enumeration.name, options, &block)
     end
 
     def s_enum(name, values, options = {}, &block)
-      enumeration = data_module.enumeration("#{self.name}#{name}", :text, { :values => values })
+      enumeration = data_module.enumeration("#{self.name}#{name}", :text, {:top_level => false, :values => values})
       enumeration(name, enumeration.name, options, &block)
     end
 
@@ -871,8 +877,14 @@ module Domgen
       "#{data_module.name}.#{self.name}"
     end
 
+    attr_writer :top_level
+
+    def top_level?
+      @top_level.nil? ? true : @top_level
+    end
+
     def substruct(name, options = {}, &block)
-      struct = data_module.struct("#{self.name}#{name}", {}, &block)
+      struct = data_module.struct("#{self.name}#{name}", {:top_level => false}, &block)
       struct(name, struct.name, options)
     end
 
