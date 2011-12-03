@@ -6,5 +6,5 @@ package <%= enumeration.data_module.jpa.entity_package %>;
 public enum <%= enumeration.jpa.name %>
   implements java.io.Serializable
 {
-  <%= enumeration.values.keys.collect {|k| "#{k}" } .join(",\n    ")%>
+  <%= enumeration.values.keys.collect {|k| "#{k}" } .join(",\n  ") %>
 }
