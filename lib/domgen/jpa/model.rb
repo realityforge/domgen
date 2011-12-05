@@ -272,7 +272,7 @@ module Domgen
       end
 
       def traversable?
-        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.jpa.persistent?) : @traversable
+        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.jpa?) : @traversable
       end
     end
 
@@ -345,12 +345,6 @@ module Domgen
 
       def qualified_dao_name
         "#{entity.data_module.jpa.dao_package}.#{dao_name}"
-      end
-
-      attr_writer :persistent
-
-      def persistent?
-        @persistent.nil? ? true : @persistent
       end
 
       attr_writer :cacheable

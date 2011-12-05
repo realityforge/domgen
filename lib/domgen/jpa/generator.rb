@@ -18,13 +18,13 @@ module Domgen
                      "#{JPA::TEMPLATE_DIRECTORY}/entity.erb",
                      'java/#{entity.jpa.qualified_name.gsub(".","/")}.java',
                      JPA::HELPERS,
-                     'entity.jpa.persistent?'),
+                     'entity.jpa?'),
         Template.new(JPA::FACETS,
                      :entity,
                      "#{JPA::TEMPLATE_DIRECTORY}/metamodel.erb",
                      'java/#{entity.jpa.qualified_metamodel_name.gsub(".","/")}.java',
                      JPA::HELPERS,
-                     'entity.jpa.persistent?'),
+                     'entity.jpa?'),
       ]
     end
 
@@ -44,7 +44,7 @@ module Domgen
                      "#{JPA::TEMPLATE_DIRECTORY}/ejb.erb",
                      'java/#{entity.jpa.qualified_dao_name.gsub(".","/")}.java',
                      JPA::HELPERS,
-                     'entity.jpa.persistent?')
+                     'entity.jpa?')
       ]
     end
 
