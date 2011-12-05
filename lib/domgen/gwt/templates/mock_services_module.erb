@@ -10,7 +10,7 @@ public class <%= repository.gwt.mock_services_module_name %>
   protected void configure()
   {
 <%
-  repository.data_modules.select{|data_module| data_module.gwt.enabled?}.each do |data_module|
+  repository.data_modules.select{|data_module| data_module.gwt?}.each do |data_module|
     data_module.services.each do |service|
 %>
     bind( <%= service.gwt.qualified_async_service_name %>.class ).toInstance( org.mockito.Mockito.mock( <%= service.gwt.qualified_async_service_name %>.class ) );

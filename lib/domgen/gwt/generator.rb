@@ -12,19 +12,19 @@ module Domgen
                      "#{GWT::TEMPLATE_DIRECTORY}/service.erb",
                      'java/#{service.gwt.qualified_service_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'service.data_module.gwt.enabled?'),
+                     'service.data_module.gwt?'),
         Template.new(GWT::FACETS,
                      :exception,
                      "#{GWT::TEMPLATE_DIRECTORY}/exception.erb",
                      'java/#{exception.gwt.qualified_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'exception.data_module.gwt.enabled?'),
+                     'exception.data_module.gwt?'),
         Template.new(GWT::FACETS,
                      :service,
                      "#{GWT::TEMPLATE_DIRECTORY}/async_service.erb",
                      'java/#{service.gwt.qualified_async_service_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'service.data_module.gwt.enabled?')
+                     'service.data_module.gwt?')
       ]
     end
 
@@ -40,13 +40,13 @@ module Domgen
                      "#{GWT::TEMPLATE_DIRECTORY}/event.erb",
                      'java/#{message.gwt.qualified_event_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'message.data_module.gwt.enabled?'),
+                     'message.data_module.gwt?'),
         Template.new(GWT::FACETS,
                      :message,
                      "#{GWT::TEMPLATE_DIRECTORY}/event_handler.erb",
                      'java/#{message.gwt.qualified_event_handler_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'message.data_module.gwt.enabled?'),
+                     'message.data_module.gwt?'),
       ]
     end
 
@@ -67,7 +67,7 @@ module Domgen
                      "#{GWT::TEMPLATE_DIRECTORY}/servlet.erb",
                      'java/#{service.gwt.qualified_servlet_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'service.data_module.gwt.enabled?'),
+                     'service.data_module.gwt?'),
       ]
     end
   end

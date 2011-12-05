@@ -79,12 +79,6 @@ module Domgen
     end
 
     class GwtModule < Domgen.ParentedElement(:data_module)
-      attr_writer :enabled
-
-      def enabled?
-        @enabled.nil? ? (!@shared_package.nil? || !@event_package.nil? || !@server_package.nil?) : @enabled
-      end
-
       attr_writer :shared_package
 
       def shared_package

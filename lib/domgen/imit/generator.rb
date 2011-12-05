@@ -46,13 +46,13 @@ module Domgen
                      "#{Imit::TEMPLATE_DIRECTORY}/service.erb",
                      'java/#{service.imit.qualified_name.gsub(".","/")}.java',
                      Imit::HELPERS,
-                     'service.imit.client_side? && service.data_module.gwt.enabled?'),
+                     'service.imit.client_side? && service.data_module.gwt?'),
         Template.new(Imit::FACETS + [:gwt],
                      :service,
                      "#{Imit::TEMPLATE_DIRECTORY}/proxy.erb",
                      'java/#{service.imit.qualified_proxy_name.gsub(".","/")}.java',
                      Imit::HELPERS,
-                     'service.imit.client_side? && service.data_module.gwt.enabled?'),
+                     'service.imit.client_side? && service.data_module.gwt?'),
           Template.new(Imit::FACETS + [:gwt],
                        :repository,
                        "#{Imit::TEMPLATE_DIRECTORY}/services_module.erb",
@@ -63,7 +63,7 @@ module Domgen
                      "#{Imit::TEMPLATE_DIRECTORY}/exception.erb",
                      'java/#{exception.imit.qualified_name.gsub(".","/")}.java',
                      Imit::HELPERS,
-                     'exception.data_module.gwt.enabled?'),
+                     'exception.data_module.gwt?'),
       ]
     end
 
