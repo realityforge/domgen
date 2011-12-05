@@ -10,8 +10,8 @@
     <jta-data-source><%= repository.jpa.data_source %></jta-data-source>
 
 <%
-repository.data_modules.each do |data_module|
-  data_module.entities.each do |entity|
+repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
+  data_module.entities.select{|entity| entity.jpa?}.each do |entity|
 %>    <class><%= entity.jpa.qualified_name %></class>
 <%
   end
