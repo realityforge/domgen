@@ -47,5 +47,14 @@ module Domgen
                      'entity.jpa.persistent?')
       ]
     end
+
+    def self.define_jpa_persistence_templates
+      [
+        Template.new(JPA::FACETS,
+                     :repository,
+                     "#{JPA::TEMPLATE_DIRECTORY}/persistence.xml.erb",
+                     'resource/META-INF/persistence.xml')
+      ]
+    end
   end
 end

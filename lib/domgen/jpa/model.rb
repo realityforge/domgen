@@ -424,6 +424,23 @@ module Domgen
       def entity_package
         @entity_package || "#{Domgen::Naming.underscore(repository.name)}.#{DEFAULT_ENTITY_PACKAGE_SUFFIX}"
       end
+
+      attr_writer :data_source
+
+      def data_source
+        @data_source || "jdbc/#{repository.name}DS"
+      end
+
+      attr_accessor :provider
+
+      def provider_class
+        return "org.eclipse.persistence.jpa.PersistenceProvider" if provider == :eclipselink
+        return "org.hibernate.ejb.HibernatePersistence" if provider == :hibernate
+        return nil if provider.nil?
+
+      end
+
+
     end
   end
 
