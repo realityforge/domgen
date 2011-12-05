@@ -71,5 +71,6 @@ public class <%= entity.jpa.dao_name %>
   public void remove( final <%= entity.jpa.qualified_name %> entity )
   {
     em.remove( entity );
+    em.flush();
   }
 }

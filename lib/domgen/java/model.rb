@@ -3,7 +3,6 @@ module Domgen
     TYPE_MAP = {"integer" => "java.lang.Integer",
                 "boolean" => "java.lang.Boolean",
                 "datetime" => "java.util.Date",
-                "date" => "java.util.Date",
                 "text" => "java.lang.String",
                 "void" => "java.lang.Void" }
 
