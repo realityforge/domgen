@@ -9,6 +9,10 @@ public class <%= service.imit.proxy_name %>
   private <%= service.gwt.qualified_async_service_name %> _service;
   @javax.inject.Inject
   private org.realityforge.replicant.client.EntityRepository _repository;
+  @javax.inject.Named("GLOBAL")
+  @javax.inject.Inject
+  @javax.annotation.Nullable
+  private com.google.gwt.user.client.rpc.AsyncCallback _callback;
 
 <% service.methods.each do |method|
    method_name = Domgen::Naming.camelize(method.imit.name.to_s)
@@ -43,6 +47,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %>new com.google.gwt.u
     public void onFailure( final Throwable caught )
     {
       if( null != callback ) callback.onFailure( caught );
+      if( null != _callback ) _callback.onFailure( caught );
     }
 
     public void onSuccess( final <%= method.return_value.imit.non_primitive_java_type(:transport) %> result )
@@ -61,6 +66,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %>new com.google.gwt.u
     end
 %>
       if( null != callback ) callback.onSuccess( <%= result_string %> );
+      if( null != _callback ) _callback.onSuccess( result );
     }
   });
   }
