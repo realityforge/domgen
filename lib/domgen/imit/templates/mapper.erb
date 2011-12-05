@@ -74,7 +74,7 @@ public class <%= data_module.imit.mapper_name %>
    other = entity.data_module.entity_by_name(entity.extends)
 %>    updateAttributes<%= other.name %>( entity, attributes, fullUpdate );
 <% end %>
-<% entity.declared_attributes.select{|attribute| attribute.imit.client_side? }.each do |attribute|
+<% entity.declared_attributes.select{|attribute| attribute.imit? }.each do |attribute|
     value_converter =
         if attribute.imit.characteristic_type(:transport) == :datetime
           "new java.util.Date( ( (Number) value ).longValue() )"
@@ -109,8 +109,8 @@ public class <%= data_module.imit.mapper_name %>
   }
 <% end %>
 
-<% data_module.entities.select{|entity| entity.imit.client_side?}.each do |entity| %>
-<% entity.declared_attributes.select{|attribute| attribute.imit.client_side?}.each do |attribute| %>
+<% data_module.entities.select{|entity| entity.imit?}.each do |entity| %>
+<% entity.declared_attributes.select{|attribute| attribute.imit?}.each do |attribute| %>
   private void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.name %> entity, <%= nullability_annotation(attribute.nullable?) %> final <%= attribute.imit.java_type(:transport) %> value )
   {
 <%
