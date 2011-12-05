@@ -10,7 +10,7 @@ public class <%= service.imit.proxy_name %>
   @javax.inject.Inject
   private org.realityforge.replicant.client.EntityRepository _repository;
   @javax.inject.Named("GLOBAL")
-  @javax.inject.Inject
+  @com.google.inject.Inject( optional = true )
   @javax.annotation.Nullable
   private com.google.gwt.user.client.rpc.AsyncCallback _callback;
 
