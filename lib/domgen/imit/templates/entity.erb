@@ -18,7 +18,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% entity.declared_attributes.select{ |attribute| attribute.imit? }.each do |attribute|
 %>  public static final String <%= Domgen::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end %>
-<% entity.referencing_attributes.select{ |attribute| attribute.imit? && !attribute.abstract? && attribute.inverse.imit.traversable?}.each do |attribute|
+<% entity.referencing_attributes.select{ |attribute| attribute.entity.imit? && !attribute.abstract? && attribute.inverse.imit.traversable?}.each do |attribute|
 %>  public static final String <%= Domgen::Naming.uppercase_constantize(attribute.inverse.relationship_name) %> = "<%= attribute.inverse.relationship_name %>";
 <% end %>
 <%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""

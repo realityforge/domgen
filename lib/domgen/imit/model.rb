@@ -114,7 +114,8 @@ module Domgen
 
       def referencing_client_side_attributes
         entity.referencing_attributes.select do |attribute|
-          attribute.inverse.imit.traversable? &&
+          attribute.entity.imit? &&
+            attribute.inverse.imit.traversable? &&
             entity == attribute.referenced_entity &&
             attribute.imit? &&
             attribute.referenced_entity.imit?
