@@ -17,14 +17,14 @@ public class <%= service.imit.proxy_name %>
 <% service.methods.each do |method|
    method_name = Domgen::Naming.camelize(method.imit.name.to_s)
 %>
-  public void <%= method_name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }.join(', ') %>)<%=
+  public void <%= method_name %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.imit.qualified_name}.join(', ')}"
 %>
   {
     <%= method_name %>(<%= (method.parameters.collect{|p| Domgen::Naming.camelize(p.imit.name) } + ["null"]).join(', ') %>);
   }
 
-  public void <%= method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" } + ["final @javax.annotation.Nullable com.google.gwt.user.client.rpc.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)<%=
+  public void <%= method_name %>(<%= (method.parameters.collect{|p| "final #{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" } + ["final @javax.annotation.Nullable com.google.gwt.user.client.rpc.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.imit.qualified_name}.join(', ')}"
 %>
   {
