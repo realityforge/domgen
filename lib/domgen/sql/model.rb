@@ -928,8 +928,8 @@ SQL
       end
 
       def pre_verify
-        self.repository.data_modules.each do |dm|
-          self.repository.data_modules.each do |other|
+        self.repository.data_modules.select{|data_module| data_module.sql?}.each do |dm|
+          self.repository.data_modules.select{|data_module| data_module.sql?}.each do |other|
             if dm != other && dm.sql.schema.to_s == other.sql.schema.to_s
               Domgen.error("Multiple data modules (#{dm.name} && #{other.name}) are mapped to the same schema #{other.sql.schema}")
             end
