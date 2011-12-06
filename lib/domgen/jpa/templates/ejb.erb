@@ -36,6 +36,7 @@ public class <%= entity.jpa.dao_name %>
     }
 <% end
    else %>
+<% if query.query_type == :insert || query.query_type == :update %>    query.setHint( "eclipselink.query-type", "org.eclipse.persistence.queries.DataModifyQuery" );<% end %>
     return query.executeUpdate();
 <% end %>
   }
