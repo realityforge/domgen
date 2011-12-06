@@ -121,6 +121,8 @@ module Domgen
           "update#{name}"
         elsif self.query_type == :delete
           "delete#{name}"
+        elsif self.query_type == :insert
+          "insert#{name}"
         end
       end
 
@@ -165,6 +167,8 @@ module Domgen
             end
           elsif self.query_type == :update
             raise "The combination of query_type == :update and query_spec == :criteria is not supported"
+          elsif self.query_type == :insert
+            raise "The combination of query_type == :insert and query_spec == :criteria is not supported"
           elsif self.query_type == :delete
             if self.native?
               query = "DELETE FROM #{table_name} FROM #{table_name} O #{criteria_clause}"
@@ -186,7 +190,7 @@ module Domgen
       end
 
       def self.valid_query_types
-        [:select, :update, :delete]
+        [:select, :update, :delete, :insert]
       end
 
       def to_s
