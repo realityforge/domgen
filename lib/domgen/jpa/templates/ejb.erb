@@ -17,9 +17,16 @@ public class <%= entity.jpa.dao_name %>
   {
     final javax.persistence.TypedQuery<<%= entity.jpa.qualified_name %>> query =
       em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= query.local_name %>, <%= entity.jpa.qualified_name %>.class );
-<% query.parameters.each_with_index do |p, index| %>
-    query.setParameter(<%= query.native? ? (index + 1) : "\"#{p.name}\"" %>, <%= p.name %>);
-<% end %>
+<%
+   if !query.native?
+    query.parameters.each_with_index do |p, index|
+%>    query.setParameter(<%= "\"#{p.name}\"" %>, <%= p.name %>);
+<%  end
+   else %>
+<%  query.query_ordered_parameters.each_with_index do |p, index| %>
+    query.setParameter(<%= index + 1 %>, <%= p.name %>);
+<%  end
+   end %>
 <% if query.query_type == :select %>
 <% if query.multiplicity == :many %>
     return query.getResultList();

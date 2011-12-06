@@ -46,7 +46,9 @@ module Domgen
         @ql = ql
         super(jpa_class, options, & block)
 
-        expected_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq.sort
+        query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
+
+        expected_parameters = query_parameters.uniq.sort
 
         expected_parameters.each do |parameter_name|
           if !characteristic_exists?(parameter_name) && jpa_class.entity.attribute_exists?(parameter_name)
@@ -62,6 +64,11 @@ module Domgen
         actual_parameters = parameters.collect{|p|p.name.to_s}.sort
         if expected_parameters != actual_parameters
           raise "Actual parameters for query #{self.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}"
+        end
+
+        @query_ordered_parameters = []
+        query_parameters.each do |query_parameter|
+          @query_ordered_parameters << characteristic_by_name(query_parameter)
         end
       end
 
@@ -97,6 +104,11 @@ module Domgen
       def sql
         raise "Called sql for non-native query" unless self.native?
         @ql
+      end
+
+      # An array of parameters ordered as they appear in query and with possible duplicates
+      def query_ordered_parameters
+        @query_ordered_parameters
       end
 
       def parameters
