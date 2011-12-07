@@ -27,7 +27,7 @@ public class <%= data_module.imit.mapper_name %>
 <% if !entity.abstract? %>
   public Object applyChangeTo<%= entity.name %>( final Object id, final java.util.Map<String, java.io.Serializable> attributes )
   {
-    <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, id );
+    <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, id, false );
     // If change is a delete...
     if( null == attributes )
     {
