@@ -36,7 +36,7 @@ public class <%= repository.gwt.gin_module_name %>
   }
 <%
   repository.data_modules.select{|data_module| data_module.gwt?}.each do |data_module|
-    data_module.services.each do |service|
+    data_module.services.select{|service| service.gwt?}.each do |service|
 %>
   @com.google.inject.Provides
   @javax.inject.Singleton

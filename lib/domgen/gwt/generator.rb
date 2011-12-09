@@ -12,7 +12,7 @@ module Domgen
                      "#{GWT::TEMPLATE_DIRECTORY}/service.erb",
                      'java/#{service.gwt.qualified_service_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'service.data_module.gwt?'),
+                     'service.gwt?'),
         Template.new(GWT::FACETS,
                      :exception,
                      "#{GWT::TEMPLATE_DIRECTORY}/exception.erb",
@@ -24,7 +24,7 @@ module Domgen
                      "#{GWT::TEMPLATE_DIRECTORY}/async_service.erb",
                      'java/#{service.gwt.qualified_async_service_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'service.data_module.gwt?')
+                     'service.gwt?')
       ]
     end
 
@@ -40,13 +40,13 @@ module Domgen
                      "#{GWT::TEMPLATE_DIRECTORY}/event.erb",
                      'java/#{message.gwt.qualified_event_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'message.data_module.gwt?'),
+                     'message.gwt?'),
         Template.new(GWT::FACETS,
                      :message,
                      "#{GWT::TEMPLATE_DIRECTORY}/event_handler.erb",
                      'java/#{message.gwt.qualified_event_handler_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'message.data_module.gwt?'),
+                     'message.gwt?'),
       ]
     end
 
@@ -67,7 +67,7 @@ module Domgen
                      "#{GWT::TEMPLATE_DIRECTORY}/servlet.erb",
                      'java/#{service.gwt.qualified_servlet_name.gsub(".","/")}.java',
                      [Domgen::Java::Helper],
-                     'service.data_module.gwt?'),
+                     'service.gwt?'),
       ]
     end
   end
