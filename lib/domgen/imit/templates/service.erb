@@ -9,12 +9,11 @@ public interface <%= service.imit.name %>
 
   method_name = Domgen::Naming.camelize(method.imit.name.to_s)
   parameters = method.parameters.collect{|p| "#{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }
-  exception_string = method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.imit.qualified_name}.join(', ')}"
 
 %><%= description_javadoc_for(method)
-%>  void <%= method_name %>(<%= (parameters + ["@javax.annotation.Nullable com.google.gwt.user.client.rpc.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)<%= exception_string %>;
+%>  void <%= method_name %>(<%= (parameters + ["@javax.annotation.Nullable com.google.gwt.user.client.rpc.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>);
 
 <%= description_javadoc_for(method)
-%>  void <%= method_name %>(<%= parameters.join(', ') %>)<%= exception_string %>;
+%>  void <%= method_name %>(<%= parameters.join(', ') %>);
 
 <% end %>}
