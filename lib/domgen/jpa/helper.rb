@@ -341,7 +341,11 @@ STR
 
   public final void remove#{name}( final #{type} value )
   {
-    safeGet#{plural_name}().remove( value );
+    final java.util.List<#{type}> #{plural_name} = safeGet#{plural_name}();
+    if ( #{plural_name}.contains( value ) )
+    {
+      #{plural_name}.remove( value );
+    }
   }
 
   private java.util.List<#{type}> safeGet#{plural_name}()
