@@ -80,5 +80,8 @@ public class <%= entity.jpa.dao_name %>
   {
     em.remove( entity );
     em.flush();
+    // Ugly hack to get eclipselink working when entity can be
+    // added to context through multiple paths
+    em.refresh( entity );
   }
 }
