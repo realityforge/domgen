@@ -32,6 +32,10 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
   "" %>    implements java.io.Serializable
 {
+<% if !entity.extends %>
+  @javax.persistence.Transient
+  private boolean _removed;
+<% end %>
 <% entity.jpa.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= query.local_name %> = "<%= query.qualified_name %>";
 <%
   end
@@ -39,7 +43,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= j_jpa_field_attributes(attribute) -%>  private <%= attribute.jpa.java_type %> <%= attribute.jpa.name %>;
 <% end %>
 <% entity.referencing_attributes.
-  select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.entity.jpa? && attribute.inverse.jpa.traversable? }.
+  select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.traversable? }.
   each do |attribute| %><%= j_declared_relation(attribute) %>
 <% end %>
 <%= j_constructors(entity) %>
@@ -47,12 +51,41 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= j_equals_method(entity) %>
 <%= j_to_string_methods(entity) %>
 
-  @javax.persistence.PostRemove
-  private void onRemove()
+<% if !entity.extends %>
+  protected final boolean removed()
   {
+    return _removed;
+  }
+
+  protected final void verifyUnRemoved()
+  {
+    if( removed() )
+    {
+      throw new IllegalStateException( "Attempting to remove already removed entity" );
+    }
+  }
+<% end %>
+
+  @javax.persistence.PostRemove
+  protected void onRemove()
+  {
+    if( removed() )
+    {
+      throw new IllegalStateException( "Attempting to remove already removed entity" );
+    }
+<% if entity.extends %>
+    super.onRemove();
+<% else %>
+    _removed = true;
+<% end %>
+
 <% entity.declared_attributes.
   select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.traversable? && attribute.inverse.jpa.traversable? }.
   each do |attribute|
-%>    if ( null != <%= attribute.jpa.name %> ) <%= attribute.jpa.name %>.remove<%= attribute.inverse.relationship_name %>( this );
+%>    if ( null != <%= attribute.jpa.name %> )
+      {
+        <%= attribute.jpa.name %>.remove<%= attribute.inverse.relationship_name %>( this );
+        <%= attribute.jpa.name %> = null;
+      }
 <% end %>  }
 }

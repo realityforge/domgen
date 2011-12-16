@@ -147,11 +147,13 @@ JAVA
             java << <<JAVA
   public #{type} #{getter_for(attribute, name)}
   {
+     #{attribute.primary_key? ? "":"verifyUnRemoved();"}
      return #{name};
   }
 
   #{j_deprecation_warning(attribute)}final void add#{name}( final #{type} value )
   {
+     #{attribute.primary_key? ? "":"verifyUnRemoved();"}
     if( null != #{name}  )
     {
       throw new IllegalStateException("Attempted to add value when non null value exists.");
@@ -161,6 +163,7 @@ JAVA
 
   public final void remove#{name}( final #{type} value )
   {
+     #{attribute.primary_key? ? "":"verifyUnRemoved();"}
     if( null != #{name} && value != #{name} )
     {
       throw new IllegalStateException("Attempted to remove value that was not the same.");
@@ -220,6 +223,7 @@ JAVA
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
   {
+     #{attribute.primary_key? ? "":"verifyUnRemoved();"}
 JAVA
         if attribute.generated_value? && !attribute.nullable?
           java << <<JAVA
@@ -279,6 +283,7 @@ JAVA
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
   {
+     #{attribute.primary_key? ? "":"verifyUnRemoved();"}
      return doGet#{attribute.jpa.name}();
   }
 
