@@ -85,7 +85,6 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 %>    if ( null != <%= attribute.jpa.name %> )
       {
         <%= attribute.jpa.name %>.remove<%= attribute.inverse.relationship_name %>( this );
-        <%= attribute.jpa.name %> = null;
       }
 <% end %>  }
 }
