@@ -21,7 +21,13 @@ public class <%= service.gwt.servlet_name %>
 %>    try
     {
 <% end %>
-    <%= method.return_value.return_type != :void ? "return ": "" %>_service.<%= method.gwt.name %>(<%= method.parameters.collect{|p| "#{p.gwt.name}" }.join(', ') %>);
+    <%= method.return_value.return_type != :void ? "return ": "" %>_service.<%= method.gwt.name %>(<%= method.parameters.collect do |p|
+  if p.date?
+    "org.realityforge.replicant.client.RDate.toDate( #{p.gwt.name} )"
+  else
+    "#{p.gwt.name}"
+  end
+end.join(', ') %>);
 <% if !method.exceptions.empty?
 %>    }
 <% method.exceptions.each do |exception| %>
