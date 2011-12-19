@@ -90,10 +90,10 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
       _<%= attribute.imit.name %> = null;
     }
 <% end %>
-    if( _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
+    if( null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
 <% else
 %>    _<%= attribute.imit.name %> = value;
-    if( _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
+    if( null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
 <% end %>  }
 <% end %>
 <% entity.imit.referencing_client_side_attributes.each do |attribute|
@@ -118,7 +118,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   public <% end %>final void add<%= name %>( final <%= type %> value )
   {
     safeGet<%= plural_name %>().add( value );
-    if( _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, value );
+    if( null != _broker && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, value );
   }
 
   <% if attribute.entity.data_module.name != entity.data_module.name %>/**
@@ -129,7 +129,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   @Deprecated
   public <% end %>final void remove<%= name %>( final <%= type %> value )
   {
-    if( _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, value );
+    if( null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, value );
     safeGet<%= plural_name %>().remove( value );
   }
 
@@ -155,9 +155,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   @Deprecated
   protected <% end %>final void set<%= name %>( final <%= type %> value )
   {
-    if( null != <%= name %> && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
+    if( null != <%= name %> && null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
     <%= name %> = value;
-    if( null != <%= name %> && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
+    if( null != <%= name %> && null != _broker && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
   }
 <% end %>
 <% end %>
@@ -222,7 +222,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
       if( null == _<%= attribute.imit.name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
       {
         _<%= attribute.imit.name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= attribute.referencing_link_name %> );
-        if( _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, _<%= attribute.imit.name %> );
+        if( null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, _<%= attribute.imit.name %> );
 <% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.add<%= attribute.inverse.relationship_name %>( this );<% end %>
 <% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.relationship_name %>( this );<% end %>
       }
