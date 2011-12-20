@@ -51,7 +51,11 @@ module Domgen
       attr_writer :xml_name
 
       def xml_name
-        @xml_name || Domgen::Naming.xmlize(struct.name)
+        return @xml_name if @xml_name
+        candidate = Domgen::Naming.xmlize(struct.name)
+        return candidate[0,candidate.size-4] if candidate =~ /-dto$/
+        return candidate[0,candidate.size-3] if candidate =~ /-vo$/
+        candidate
       end
 
       attr_accessor :namespace
