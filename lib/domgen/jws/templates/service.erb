@@ -9,7 +9,7 @@ public interface <%= service.jws.service_name %>
 {
   String SERVICE_NAME = "<%= service.jws.qualified_service_name %>";
 
-<% service.methods.each do |method|
+<% service.methods.select{|method| method.jws?}.each do |method|
 %><%= description_javadoc_for(method)
 %>  @javax.jws.WebMethod( operationName = "<%= method.name %>" )
   <%= annotated_type(method.return_value, :jws) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "@javax.jws.WebParam( name = \"#{p.name}\", mode = javax.jws.WebParam.Mode.IN, header = false ) #{annotated_type(p, :jws)} #{Domgen::Naming.camelize(p.name)}" }.join(",\n      ") %>)<%=
