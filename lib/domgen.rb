@@ -54,6 +54,10 @@ require 'domgen/xmi_generator'
 require 'domgen/ejb/model'
 require 'domgen/ejb/generator'
 
+# JWS
+require 'domgen/jws/model'
+require 'domgen/jws/generator'
+
 # GWT
 require 'domgen/gwt/model'
 require 'domgen/gwt/generator'
