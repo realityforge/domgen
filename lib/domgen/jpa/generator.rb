@@ -53,7 +53,7 @@ module Domgen
         Template.new(JPA::FACETS,
                      :repository,
                      "#{JPA::TEMPLATE_DIRECTORY}/persistence.xml.erb",
-                     'resource/META-INF/persistence.xml')
+                     'resources/META-INF/persistence.xml')
       ]
     end
   end
