@@ -16,7 +16,7 @@ public class <%= service.ejb.facade_implementation_name %>
   private <%= service.ejb.service_name %> _service;
 
 <% service.methods.each do |method|
-%>  public <%= annotated_type(method.return_value, :ejb, :transport) %> <%= method.ejb.name %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :ejb, :transport)} #{p.ejb.name}" }.join(', ') %>)<%=
+%>  public <%= annotated_type(method.return_value, :ejb, :transport) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :ejb, :transport)} #{p.ejb.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ejb.qualified_name}.join(', ')}"
 %><%
    return_prefix = ''
@@ -46,7 +46,7 @@ public class <%= service.ejb.facade_implementation_name %>
 <% method.parameters.select{|parameter| parameter.enumeration? }.each do |parameter|
 %>    final <%= annotated_type(parameter, :ejb) %> $<%= parameter.ejb.name %> = <%= parameter.nullable? ? "null == #{parameter.ejb.name} ? null : " : "" %> <%= parameter.ejb.java_type %><%= parameter.enumeration.numeric_values? ? ".values()[" :".valueOf("%> <%= parameter.ejb.name %><%= parameter.enumeration.numeric_values? ? "]" :")"%> ;
 <% end %>
-  <%= return_prefix  %>_service.<%= method.ejb.name %>(<%= method.parameters.collect{|parameter| "#{(parameter.reference? || parameter.enumeration?) ? '$' : ''}#{parameter.ejb.name}" }.join(', ') %>);
+  <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{(parameter.reference? || parameter.enumeration?) ? '$' : ''}#{parameter.ejb.name}" }.join(', ') %>);
   <%= transform %>
   }
 

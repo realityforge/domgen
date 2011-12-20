@@ -59,22 +59,12 @@ module Domgen
     end
 
     class EjbParameter < Domgen.ParentedElement(:parameter)
-      def name
-        Domgen::Naming.camelize(parameter.name.to_s)
-      end
-
       include Domgen::Java::EEJavaCharacteristic
 
       protected
 
       def characteristic
         parameter
-      end
-    end
-
-    class EjbMethod < Domgen.ParentedElement(:service)
-      def name
-        Domgen::Naming.camelize(service.name.to_s)
       end
     end
 
@@ -124,7 +114,6 @@ module Domgen
 
   FacetManager.define_facet(:ejb,
                             Service => Domgen::EJB::EjbClass,
-                            Method => Domgen::EJB::EjbMethod,
                             Parameter => Domgen::EJB::EjbParameter,
                             Exception => Domgen::EJB::EjbException,
                             Result => Domgen::EJB::EjbReturn,
