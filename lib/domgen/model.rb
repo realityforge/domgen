@@ -357,7 +357,7 @@ module Domgen
 
     def collection_type=(collection_type)
       error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
-      error("collection_type #{collection_type} is invalid") unless self.class.valid_collection_types.include?(collection_type)
+      error("collection_type #{collection_type} is invalid") unless [:none, :sequence].include?(collection_type)
       @collection_type = collection_type
     end
 
@@ -870,10 +870,6 @@ module Domgen
 
     def characteristic_container
       struct
-    end
-
-    def self.valid_collection_types
-      [:none, :sequence]
     end
   end
 
