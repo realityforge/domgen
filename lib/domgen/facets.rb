@@ -92,6 +92,7 @@ module Domgen
       extension_map.each_pair do |source_class, extension_class|
         Domgen.error("Facet #{key}: Unknown source class supplied in map '#{source_class.name}'") unless FacetManager.valid_source_classes.include?(source_class)
         Domgen.error("Facet #{key}: Extension class is not a class. '#{extension_class}'") unless extension_class.is_a?(Class)
+        source_class.class_eval("def #{key}?; false; end")
       end
       @key = key
       @extension_map = extension_map
