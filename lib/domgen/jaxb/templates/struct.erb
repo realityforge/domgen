@@ -12,8 +12,8 @@ public class <%= struct.jaxb.name %>
   private <%= annotated_type(field, :jaxb) %> <%= field.jaxb.name %>;
 <% end %>
 
-<% if struct.fields.size > 0 %>
-  private <%= struct.jaxb.name %>()
+<% if struct.fields.size != 0 %>
+  public <%= struct.jaxb.name %>()
   {
   }
 <% end %>
