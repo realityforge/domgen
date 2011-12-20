@@ -3,11 +3,11 @@ package <%= service.data_module.jws.service_package %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.jws.WebService
+@javax.jws.WebService( name = "<%= service.jws.service_name %>" )
 public interface <%= service.jws.service_name %>
   extends java.rmi.Remote
 {
-  String WS_NAME = "<%= service.jws.qualified_service_name %>";
+  String SERVICE_NAME = "<%= service.jws.qualified_service_name %>";
 
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)
