@@ -342,6 +342,32 @@ module Domgen
       self.characteristic_type == :date
     end
 
+    def struct?
+      self.characteristic_type == :struct
+    end
+
+    def collection?
+      self.struct? && self.collection_type != :none
+    end
+
+    def collection_type
+      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      @collection_type || :none
+    end
+
+    def collection_type=(collection_type)
+      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      error("collection_type #{collection_type} is invalid") unless self.class.valid_collection_types.include?(collection_type)
+      @collection_type = collection_type
+    end
+
+    attr_reader :struct
+
+    def struct=(struct)
+      error("struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      @struct = struct
+    end
+
     attr_reader :references
 
     def references=(references)
@@ -535,6 +561,13 @@ module Domgen
       end
 
       characteristic(name.to_s.to_sym, :reference, options.merge({:references => other_type}), &block)
+    end
+
+    def struct(name, struct_key, options = {}, &block)
+      struct = data_module.struct_by_name(struct_key)
+      params = options.dup
+      params[:struct] = struct
+      characteristic(name, :struct, params, &block)
     end
 
     protected
@@ -823,27 +856,8 @@ module Domgen
       super(struct, options, &block)
     end
 
-    def struct?
-      self.characteristic_type == :struct
-    end
-
-    def collection?
-      self.struct? && self.collection_type != :none
-    end
-
     def qualified_name
       "#{struct.qualified_name}$#{self.name}"
-    end
-
-    def collection_type
-      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
-      @collection_type || :none
-    end
-
-    def collection_type=(collection_type)
-      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
-      error("collection_type #{collection_type} is invalid") unless self.class.valid_collection_types.include?(collection_type)
-      @collection_type = collection_type
     end
 
     def to_s
@@ -886,13 +900,6 @@ module Domgen
     def substruct(name, options = {}, &block)
       struct = data_module.struct("#{self.name}#{name}", {:top_level => false}, &block)
       struct(name, struct.name, options)
-    end
-
-    def struct(name, struct_key, options = {}, &block)
-      struct = data_module.struct_by_name(struct_key)
-      params = options.dup
-      params[:struct] = struct
-      characteristic(name, :struct, params, &block)
     end
 
     def fields
