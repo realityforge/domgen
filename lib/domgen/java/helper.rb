@@ -6,7 +6,7 @@ module Domgen
       end
 
       def annotated_type(characteristic, characteristic_key, modality = :default)
-        extension = characteristic.send characteristic_key
+        extension = characteristic.send(characteristic_key)
         if extension.primitive?(modality) || extension.java_type(modality).to_s == 'void'
           return extension.java_type(modality)
         else
