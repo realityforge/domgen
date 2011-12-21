@@ -1,7 +1,5 @@
 module Domgen
   module EJB
-    DEFAULT_SERVICE_PACKAGE_SUFFIX = "service"
-
     class EjbClass < Domgen.ParentedElement(:service)
       attr_writer :name
 
@@ -86,7 +84,7 @@ module Domgen
       attr_writer :service_package
 
       def service_package
-        @service_package || "#{Domgen::Naming.underscore(repository.name)}.#{DEFAULT_SERVICE_PACKAGE_SUFFIX}"
+        @service_package || "#{Domgen::Naming.underscore(repository.name)}.server.service"
       end
     end
 

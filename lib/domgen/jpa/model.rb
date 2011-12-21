@@ -1,7 +1,5 @@
 module Domgen
   module JPA
-    DEFAULT_ENTITY_PACKAGE_SUFFIX = "entity"
-
     class QueryParameter < Domgen.ParentedElement(:query)
       include Characteristic
       include Domgen::Java::EEJavaCharacteristic
@@ -406,7 +404,7 @@ module Domgen
       attr_writer :data_type_package
 
       def data_type_package
-        @data_type_package || entity_package
+        @data_type_package || "#{data_module.repository.jpa.data_type_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
       attr_writer :catalog_name
@@ -429,10 +427,16 @@ module Domgen
     class PersistenceUnit < Domgen.ParentedElement(:repository)
       attr_accessor :unit_name
 
+      attr_writer :data_type_package
+
+      def data_type_package
+        @data_type_package || "#{Domgen::Naming.underscore(repository.name)}.server.data_type"
+      end
+
       attr_writer :entity_package
 
       def entity_package
-        @entity_package || "#{Domgen::Naming.underscore(repository.name)}.#{DEFAULT_ENTITY_PACKAGE_SUFFIX}"
+        @entity_package || "#{Domgen::Naming.underscore(repository.name)}.server.entity"
       end
 
       attr_writer :data_source

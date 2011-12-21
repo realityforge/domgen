@@ -73,7 +73,7 @@ module Domgen
       attr_writer :package
 
       def package
-        @package || Domgen::Naming.underscore(repository.name)
+        @package || "#{Domgen::Naming.underscore(repository.name)}.server.data_type"
       end
     end
   end

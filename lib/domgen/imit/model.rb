@@ -200,22 +200,28 @@ module Domgen
     end
 
     class ImitationApplication < Domgen.ParentedElement(:repository)
+      attr_writer :package
+
+      def package
+        @package || "#{Domgen::Naming.underscore(repository.name)}.client"
+      end
+
       attr_writer :service_package
 
       def service_package
-        @service_package || Domgen::Naming.underscore(repository.name)
+        @service_package || "#{package}.service"
       end
 
       attr_writer :entity_package
 
       def entity_package
-        @entity_package || Domgen::Naming.underscore(repository.name)
+        @entity_package || "#{package}.entity"
       end
 
       attr_writer :encoder_package
 
       def encoder_package
-        @encoder_package || Domgen::Naming.underscore(repository.name)
+        @encoder_package || "#{package}.entity"
       end
 
       def change_mapper_name

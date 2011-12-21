@@ -185,7 +185,7 @@ module Domgen
       attr_writer :server_package
 
       def server_package
-        @server_package || "#{package}.server"
+        @server_package || "#{package}.server.servlet"
       end
 
       attr_writer :gin_module_name
