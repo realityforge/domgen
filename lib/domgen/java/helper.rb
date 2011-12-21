@@ -27,6 +27,48 @@ module Domgen
 #{depth} */
 JAVADOC
       end
+
+      def modality_default_to_transport(variable_name, characteristic, characteristic_key)
+        extension = characteristic.send(characteristic_key)
+
+        return variable_name if extension.java_type == extension.java_type(:transport)
+
+        transform = variable_name
+        if characteristic.characteristic_type == :enumeration
+          if characteristic.enumeration.numeric_values?
+            transform = "#{variable_name}.ordinal()"
+          else
+            transform = "#{variable_name}.name()"
+          end
+        elsif characteristic.characteristic_type == :reference
+          transform = "#{variable_name}.get#{characteristic.referenced_entity.primary_key.name}()"
+        end
+        if characteristic.nullable?
+          transform = "null == #{variable_name} ? null : #{transform}"
+        end
+        transform
+      end
+
+      def modality_transport_to_default(variable_name, characteristic, characteristic_key)
+        extension = characteristic.send(characteristic_key)
+
+        return variable_name if extension.java_type == extension.java_type(:transport)
+
+        transform = variable_name
+        if characteristic.characteristic_type == :enumeration
+          if characteristic.enumeration.numeric_values?
+            transform = "#{extension.java_type}.values()[#{variable_name}]"
+          else
+            transform = "#{extension.java_type}.valueOf( #{variable_name} )"
+          end
+        elsif characteristic.characteristic_type == :reference
+          transform = "_#{characteristic.referenced_entity.qualified_name.gsub('.','')}DAO.getByID( #{variable_name} )"
+        end
+        if characteristic.nullable?
+          transform = "null == #{variable_name} ? null : #{transform}"
+        end
+        transform
+      end
     end
   end
 end
