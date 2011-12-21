@@ -16,7 +16,7 @@ module Domgen
       end
 
       def qualified_service_name
-        "#{service.data_module.ejb.service_package}.#{service_name}"
+        "#{service.data_module.jws.service_package}.#{service_name}"
       end
     end
 
@@ -44,7 +44,7 @@ module Domgen
       attr_writer :service_package
 
       def service_package
-        @service_package || "#{data_module.repository.ejb.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
+        @service_package || "#{data_module.repository.jws.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
       attr_writer :data_type_package
@@ -79,7 +79,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.ejb.data_type_package}.#{name}"
+        "#{exception.data_module.jws.data_type_package}.#{name}"
       end
     end
   end
