@@ -1,11 +1,11 @@
 module Domgen
   module Naming
-    def self.camelize(lower_case_and_underscored_word, first_letter_in_uppercase = false)
-      if first_letter_in_uppercase
-        lower_case_and_underscored_word.to_s.gsub(/\/(.?)/) { "::#{$1.upcase}" }.gsub(/(?:^|_)(.)/) { $1.upcase }
-      else
-        lower_case_and_underscored_word.to_s[0].chr.downcase + camelize(lower_case_and_underscored_word, true)[1..-1]
-      end
+    def self.camelize(camel_cased_word)
+      word_parts = split_into_words(camel_cased_word).collect{|part| part[0...1].upcase + part[1..-1]}
+      return word_parts[0].downcase if (word_parts.size == 1 && word_parts[0] == word_parts[0].upcase)
+      word = word_parts.join('')
+      word = word[0...1].downcase + word[1..-1]
+      word
     end
 
     def self.underscore(camel_cased_word)
