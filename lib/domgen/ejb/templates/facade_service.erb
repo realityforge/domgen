@@ -3,7 +3,7 @@ package <%= service.data_module.ejb.service_package %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.ejb.<%= service.ejb.local? ? "Local" : "Remove" %>
+@javax.ejb.<%= service.ejb.local? ? "Local" : "Remote" %>
 public interface <%= service.ejb.facade_interface_name %>
 {
   String EJB_NAME = "<%= service.ejb.facade_name %>";
