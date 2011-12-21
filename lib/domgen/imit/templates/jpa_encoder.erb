@@ -31,22 +31,22 @@ public class <%= data_module.imit.jpa_encoder_name %>
 <% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.abstract? }.each do |attribute|
     value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": "")
     value_converter =
-        if attribute.imit.characteristic_type(:transport) == :datetime
+        if attribute.imit.characteristic_type(:boundary) == :datetime
           "( ( null == value ) ? null : value.getTime() )"
-        elsif attribute.imit.characteristic_type(:transport) == :date
+        elsif attribute.imit.characteristic_type(:boundary) == :date
           "( ( null == value ) ? null : org.realityforge.replicant.client.RDate.fromDate( value ).toString() )"
-        elsif [:integer, :real, :boolean, :text].include?(attribute.imit.characteristic_type(:transport))
+        elsif [:integer, :real, :boolean, :text].include?(attribute.imit.characteristic_type(:boundary))
           if attribute.nullable?
             "( ( null == value ) ? null : value#{value_suffix} )"
           else
             "value#{value_suffix}"
           end
-        elsif attribute.imit.characteristic_type(:transport) == :enumeration && attribute.enumeration.textual_values?
+        elsif attribute.imit.characteristic_type(:boundary) == :enumeration && attribute.enumeration.textual_values?
           "( ( null == value ) ? null : value.name() )"
-        elsif attribute.imit.characteristic_type(:transport) == :enumeration && attribute.enumeration.numeric_values?
+        elsif attribute.imit.characteristic_type(:boundary) == :enumeration && attribute.enumeration.numeric_values?
           "( ( null == value ) ? null : value.ordinal() )"
         else
-          raise "Unable to convert data type #{attribute.imit.characteristic_type(:transport)} on #{attribute.qualified_name}"
+          raise "Unable to convert data type #{attribute.imit.characteristic_type(:boundary)} on #{attribute.qualified_name}"
         end
 %>
     {

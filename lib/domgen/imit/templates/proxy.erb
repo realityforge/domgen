@@ -37,7 +37,7 @@ public class <%= service.imit.proxy_name %>
     param_value = "null == #{param_name} ? null : #{param_value}"
   end
   param_value
-end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %>new com.google.gwt.user.client.rpc.AsyncCallback<<%= method.return_value.imit.non_primitive_java_type(:transport) %>>()
+end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %>new com.google.gwt.user.client.rpc.AsyncCallback<<%= method.return_value.imit.non_primitive_java_type(:boundary) %>>()
     {
     public void onFailure( final Throwable caught )
     {
@@ -45,7 +45,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %>new com.google.gwt.u
       _callback.onFailure( caught );
     }
 
-    public void onSuccess( final <%= method.return_value.imit.non_primitive_java_type(:transport) %> result )
+    public void onSuccess( final <%= method.return_value.imit.non_primitive_java_type(:boundary) %> result )
     {
 <%
     result_string = "result"

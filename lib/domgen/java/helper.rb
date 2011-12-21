@@ -31,7 +31,7 @@ JAVADOC
       def modality_default_to_transport(variable_name, characteristic, characteristic_key)
         extension = characteristic.send(characteristic_key)
 
-        return variable_name if extension.java_type == extension.java_type(:transport)
+        return variable_name if extension.java_type == extension.java_type(:boundary)
 
         transform = variable_name
         if characteristic.characteristic_type == :enumeration
@@ -49,10 +49,10 @@ JAVADOC
         transform
       end
 
-      def modality_transport_to_default(variable_name, characteristic, characteristic_key)
+      def modality_boundary_to_default(variable_name, characteristic, characteristic_key)
         extension = characteristic.send(characteristic_key)
 
-        return variable_name if extension.java_type == extension.java_type(:transport)
+        return variable_name if extension.java_type == extension.java_type(:boundary)
 
         transform = variable_name
         if characteristic.characteristic_type == :enumeration
