@@ -7,7 +7,7 @@ package <%= service.data_module.ejb.service_package %>;
 <% if service.jws? %>@javax.jws.WebService( endpointInterface = <%= service.jws.qualified_service_name %>.SERVICE_NAME, serviceName = "<%= service.data_module.repository.jws.service_name %>", name = "<%= service.jws.name %>" )<% end %>
 public class <%= service.ejb.facade_implementation_name %>
 <%= service.ejb.facade_extends ? "  extends #{service.ejb.facade_extends}" : "" %>
-  implements <%= service.ejb.facade_interface_name %><% if service.jws? %>, <%= service.jws.qualified_service_name %><% end %>
+  implements <%= service.ejb.facade_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jws? %>, <%= service.jws.qualified_service_name %><% end %>
 {
 <% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| %>
   @javax.ejb.EJB

@@ -29,6 +29,14 @@ module Domgen
         "#{service.data_module.ejb.service_package}.#{facade_interface_name}"
       end
 
+      def remote_service_name
+        "Remote#{service_name}"
+      end
+
+      def qualified_remote_service_name
+        "#{service.data_module.ejb.service_package}.#{remote_service_name}"
+      end
+
       def facade_implementation_name
         "#{service_name}FacadeImpl"
       end
