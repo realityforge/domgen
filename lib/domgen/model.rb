@@ -1075,6 +1075,7 @@ module Domgen
 
   class Method <  self.FacetedElement(:service)
     include CharacteristicContainer
+    include GenerateFacet
 
     def initialize(service, name, options, &block)
       @name = name
