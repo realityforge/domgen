@@ -9,7 +9,7 @@ public class <%= service.gwt.servlet_name %>
   implements <%= service.gwt.qualified_service_name %>
 {
   @javax.ejb.EJB
-  private <%= service.ejb.generate_facade? ? service.ejb.qualified_facade_interface_name : service.ejb.qualified_service_name %> _service;
+  private <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)

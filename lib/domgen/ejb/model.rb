@@ -7,8 +7,8 @@ module Domgen
         @name || service.qualified_name
       end
 
-      def facade_name
-        "#{name}Facade"
+      def boundary_name
+        "#{name}Boundary"
       end
 
       attr_writer :service_name
@@ -21,12 +21,12 @@ module Domgen
         "#{service.data_module.ejb.service_package}.#{service_name}"
       end
 
-      def facade_interface_name
-        "#{service_name}Facade"
+      def boundary_interface_name
+        "Local#{service_name}Boundary"
       end
 
-      def qualified_facade_interface_name
-        "#{service.data_module.ejb.service_package}.#{facade_interface_name}"
+      def qualified_boundary_interface_name
+        "#{service.data_module.ejb.service_package}.#{boundary_interface_name}"
       end
 
       def remote_service_name
@@ -37,15 +37,15 @@ module Domgen
         "#{service.data_module.ejb.service_package}.#{remote_service_name}"
       end
 
-      def facade_implementation_name
-        "#{service_name}FacadeImpl"
+      def boundary_implementation_name
+        "#{service_name}BoundaryEJB"
       end
 
-      def qualified_facade_implementation_name
-        "#{service.data_module.ejb.service_package}.#{facade_implementation_name}"
+      def qualified_boundary_implementation_name
+        "#{service.data_module.ejb.service_package}.#{boundary_implementation_name}"
       end
 
-      attr_accessor :facade_extends
+      attr_accessor :boundary_extends
 
       attr_writer :local
 
@@ -61,10 +61,10 @@ module Domgen
         !local?
       end
 
-      attr_accessor :generate_facade
+      attr_accessor :generate_boundary
 
-      def generate_facade?
-        @generate_facade.nil? ? service.methods.any?{|method| method.parameters.any?{|parameter|parameter.reference?}} : @generate_facade
+      def generate_boundary?
+        @generate_boundary.nil? ? service.methods.any?{|method| method.parameters.any?{|parameter|parameter.reference?}} : @generate_boundary
       end
     end
 
