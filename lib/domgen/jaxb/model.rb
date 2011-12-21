@@ -81,6 +81,6 @@ module Domgen
   FacetManager.define_facet(:jaxb,
                             Struct => Domgen::JAXB::JaxbStruct,
                             StructField => Domgen::JAXB::JaxbStructField,
-                            DataModule => Domgen::JAXB::JaxbPackage,
+                            DataModule => Domgen::JAXB::JaxbDataModule,
                             Repository => Domgen::JAXB::JaxbPackage)
 end
