@@ -9,13 +9,17 @@ module Domgen
     end
 
     def self.underscore(camel_cased_word)
+      word = split_into_words(camel_cased_word).join("_")
+      word.downcase!
+      word
+    end
+
+    def self.split_into_words(camel_cased_word)
       word = camel_cased_word.to_s.dup
-      word.gsub!(/::/, '/')
       word.gsub!(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
       word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
       word.tr!("-", "_")
-      word.downcase!
-      word
+      word.split("_")
     end
 
     def self.uppercase_constantize(camel_cased_word)
