@@ -6,7 +6,7 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || service.qualified_name
+        @name || service.qualified_name.to_s.gsub('.','/')
       end
 
       attr_writer :service_name
@@ -59,6 +59,13 @@ module Domgen
 
       def service_package
         @service_package || "#{Domgen::Naming.underscore(repository.name)}.#{DEFAULT_SERVICE_PACKAGE_SUFFIX}"
+      end
+
+      attr_writer :service_name
+
+      # The name of the service under which web services will be anchored
+      def service_name
+        @service_name || repository.name
       end
     end
 

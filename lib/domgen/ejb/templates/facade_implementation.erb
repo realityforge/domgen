@@ -4,7 +4,7 @@ package <%= service.data_module.ejb.service_package %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.Stateless( name = <%= service.ejb.facade_interface_name %>.EJB_NAME )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
-<% if service.jws? %>@javax.jws.WebService( endpointInterface = <%= service.jws.qualified_service_name %>.SERVICE_NAME )<% end %>
+<% if service.jws? %>@javax.jws.WebService( endpointInterface = <%= service.jws.qualified_service_name %>.SERVICE_NAME, serviceName = "<%= service.data_module.repository.jws.service_name %>", name = "<%= service.jws.name %>" )<% end %>
 public class <%= service.ejb.facade_implementation_name %>
 <%= service.ejb.facade_extends ? "  extends #{service.ejb.facade_extends}" : "" %>
   implements <%= service.ejb.facade_interface_name %><% if service.jws? %>, <%= service.jws.qualified_service_name %><% end %>
