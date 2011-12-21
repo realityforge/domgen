@@ -19,7 +19,7 @@ public class <%= entity.jpa.dao_name %>
       em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= query.local_name %>, <%= entity.jpa.qualified_name %>.class );
 <%
    if !query.native?
-    query.parameters.each_with_index do |p, index|
+    query.parameters.each do |p|
 %>    query.setParameter(<%= "\"#{p.name}\"" %>, <%= p.name %>);
 <%  end
    else %>
