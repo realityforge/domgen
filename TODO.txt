@@ -4,7 +4,3 @@
 * Support constants in relationship_constraints
 * Make exceptions into characteristic containers?
 * Fix xmi generation: fix existing enumeration/service generation, add message generation
-* Add DTOs as a first class elements in DSL (things without an identity that form trees)
-  - http://blog.adamsbros.org/2010/02/07/jaxb-example-code/
-  - http://download.oracle.com/javaee/5/tutorial/doc/bnbah.html
-  - http://www.vogella.de/articles/JAXB/article.html
