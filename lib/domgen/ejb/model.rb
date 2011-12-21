@@ -45,6 +45,10 @@ module Domgen
         @local.nil? ? true : @local
       end
 
+      def remote=(remote)
+        self.local = !remote
+      end
+
       def remote?
         !local?
       end
