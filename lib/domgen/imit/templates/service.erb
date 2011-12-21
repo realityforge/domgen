@@ -7,7 +7,7 @@ public interface <%= service.imit.name %>
 {
 <% service.methods.each do |method|
 
-  method_name = Domgen::Naming.camelize(method.imit.name.to_s)
+  method_name = Domgen::Naming.camelize(method.imit.name)
   parameters = method.parameters.collect{|p| "#{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }
 
 %><%= description_javadoc_for(method)

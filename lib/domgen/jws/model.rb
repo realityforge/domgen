@@ -20,7 +20,7 @@ module Domgen
 
     class JwsParameter < Domgen.ParentedElement(:parameter)
       def name
-        Domgen::Naming.camelize(parameter.name.to_s)
+        Domgen::Naming.camelize(parameter.name)
       end
 
       include Domgen::Java::EEJavaCharacteristic
@@ -34,7 +34,7 @@ module Domgen
 
     class JwsMethod < Domgen.ParentedElement(:service)
       def name
-        Domgen::Naming.camelize(service.name.to_s)
+        Domgen::Naming.camelize(service.name)
       end
     end
 

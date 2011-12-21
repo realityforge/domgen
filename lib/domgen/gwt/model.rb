@@ -68,7 +68,7 @@ module Domgen
 
     class GwtMethod < Domgen.ParentedElement(:method)
       def name
-        Domgen::Naming.camelize(method.name.to_s)
+        Domgen::Naming.camelize(method.name)
       end
 
       attr_writer :cancelable
