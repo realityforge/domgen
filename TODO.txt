@@ -4,3 +4,5 @@
 * Support constants in relationship_constraints
 * Make exceptions into characteristic containers?
 * Fix xmi generation: fix existing enumeration/service generation, add message generation
+* Add WebFault and jaxb annotations to exceptions
+* Add jaxb annotations to enumerations
