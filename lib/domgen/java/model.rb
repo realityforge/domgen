@@ -4,7 +4,7 @@ module Domgen
                 "boolean" => "java.lang.Boolean",
                 "datetime" => "java.util.Date",
                 "text" => "java.lang.String",
-                "void" => "java.lang.Void" }
+                "void" => "java.lang.Void"}
 
     module JavaCharacteristic
       def name(modality = :default)
@@ -158,6 +158,82 @@ module Domgen
 
       def date_java_type
         "org.realityforge.replicant.client.RDate"
+      end
+    end
+
+    module JavaPackage
+      attr_writer :entity_package
+
+      def entity_package
+        @entity_package || "#{data_module.repository.send(facet_key).entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
+      attr_writer :service_package
+
+      def service_package
+        @service_package || "#{data_module.repository.send(facet_key).service_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
+      attr_writer :data_type_package
+
+      def data_type_package
+        @data_type_package || "#{data_module.repository.send(facet_key).data_type_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
+      protected
+
+      def facet_key
+        raise "facet_key unimplemented"
+      end
+    end
+
+    module JavaApplication
+      attr_writer :package
+
+      def package
+        @package || "#{Domgen::Naming.underscore(repository.name)}.#{default_package_root}"
+      end
+
+      attr_writer :entity_package
+
+      def entity_package
+        @entity_package || "#{package}.entity"
+      end
+
+      attr_writer :service_package
+
+      def service_package
+        @service_package || "#{package}.service"
+      end
+
+      attr_writer :data_type_package
+
+      def data_type_package
+        @data_type_package || "#{package}.data_type"
+      end
+
+      def default_package_root
+        raise "default_package_root unimplemented"
+      end
+    end
+
+    module ServerJavaApplication
+      include JavaApplication
+
+      protected
+
+      def default_package_root
+        "server"
+      end
+    end
+
+    module ClientJavaApplication
+      include JavaApplication
+
+      protected
+
+      def default_package_root
+        "server"
       end
     end
   end

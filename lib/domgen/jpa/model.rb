@@ -395,17 +395,7 @@ module Domgen
     end
 
     class JpaPackage < Domgen.ParentedElement(:data_module)
-      attr_writer :entity_package
-
-      def entity_package
-        @entity_package || "#{data_module.repository.jpa.entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
-      end
-
-      attr_writer :data_type_package
-
-      def data_type_package
-        @data_type_package || "#{data_module.repository.jpa.data_type_package}.#{Domgen::Naming.underscore(data_module.name)}"
-      end
+      include Domgen::Java::JavaPackage
 
       attr_writer :catalog_name
 
@@ -422,22 +412,18 @@ module Domgen
       def dao_package
         @dao_package || "#{entity_package}.dao"
       end
+
+      protected
+
+      def facet_key
+        :jaxb
+      end
     end
 
     class PersistenceUnit < Domgen.ParentedElement(:repository)
       attr_accessor :unit_name
 
-      attr_writer :data_type_package
-
-      def data_type_package
-        @data_type_package || "#{Domgen::Naming.underscore(repository.name)}.server.data_type"
-      end
-
-      attr_writer :entity_package
-
-      def entity_package
-        @entity_package || "#{Domgen::Naming.underscore(repository.name)}.server.entity"
-      end
+      include Domgen::Java::ServerJavaApplication
 
       attr_writer :data_source
 
@@ -453,8 +439,6 @@ module Domgen
         return nil if provider.nil?
 
       end
-
-
     end
   end
 

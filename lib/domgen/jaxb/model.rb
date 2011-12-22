@@ -45,7 +45,7 @@ module Domgen
       end
 
     def qualified_name
-      "#{struct.data_module.jaxb.package}.#{self.name}"
+      "#{struct.data_module.jaxb.data_type_package}.#{self.name}"
     end
 
       attr_writer :xml_name
@@ -62,19 +62,17 @@ module Domgen
     end
 
     class JaxbDataModule < Domgen.ParentedElement(:data_module)
-      attr_writer :package
+      include Domgen::Java::JavaPackage
 
-      def package
-        @package || "#{data_module.repository.jaxb.package}.#{Domgen::Naming.underscore(data_module.name)}"
+      protected
+
+      def facet_key
+        :jaxb
       end
     end
 
     class JaxbPackage < Domgen.ParentedElement(:repository)
-      attr_writer :package
-
-      def package
-        @package || "#{Domgen::Naming.underscore(repository.name)}.server.data_type"
-      end
+      include Domgen::Java::ServerJavaApplication
     end
   end
 

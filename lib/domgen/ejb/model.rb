@@ -95,30 +95,22 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.ejb.data_type_package}.#{name}"
+        "#{exception.data_module.ejb.service_package}.#{name}"
       end
     end
 
     class EjbPackage < Domgen.ParentedElement(:data_module)
-      attr_writer :service_package
+      include Domgen::Java::JavaPackage
 
-      def service_package
-        @service_package || "#{data_module.repository.ejb.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
-      end
+      protected
 
-      attr_writer :data_type_package
-
-      def data_type_package
-        @data_type_package || service_package
+      def facet_key
+        :ejb
       end
     end
 
     class EjbApplication < Domgen.ParentedElement(:repository)
-      attr_writer :service_package
-
-      def service_package
-        @service_package || "#{Domgen::Naming.underscore(repository.name)}.server.service"
-      end
+      include Domgen::Java::ServerJavaApplication
     end
   end
 
