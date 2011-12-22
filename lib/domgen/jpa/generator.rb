@@ -3,7 +3,7 @@ module Domgen
     module JPA
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       FACETS = [:jpa, :sql]
-      HELPERS = [Domgen::JPA::Helper, Domgen::Java::Helper]
+      HELPERS = [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::JAXB::Helper]
     end
 
     def self.define_jpa_model_templates

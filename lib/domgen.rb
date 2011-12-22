@@ -26,15 +26,15 @@ require 'domgen/sql/model'
 require 'domgen/sql/helper'
 require 'domgen/sql/generator'
 
-# JPA
-require 'domgen/jpa/model'
-require 'domgen/jpa/helper'
-require 'domgen/jpa/generator'
-
 # JAXB
 require 'domgen/jaxb/model'
 require 'domgen/jaxb/helper'
 require 'domgen/jaxb/generator'
+
+# JPA
+require 'domgen/jpa/model'
+require 'domgen/jpa/helper'
+require 'domgen/jpa/generator'
 
 # ActiveRecord
 require 'domgen/active_record/generator'
