@@ -61,6 +61,16 @@ module Domgen
       attr_accessor :namespace
     end
 
+    class JaxbEnumeration < Domgen.ParentedElement(:enumeration)
+      attr_writer :xml_name
+
+      def xml_name
+        @xml_name || Domgen::Naming.xmlize(enumeration.name)
+      end
+
+      attr_accessor :namespace
+    end
+
     class JaxbDataModule < Domgen.ParentedElement(:data_module)
       include Domgen::Java::JavaPackage
 
@@ -79,6 +89,7 @@ module Domgen
   FacetManager.define_facet(:jaxb,
                             Struct => Domgen::JAXB::JaxbStruct,
                             StructField => Domgen::JAXB::JaxbStructField,
+                            EnumerationSet => Domgen::JAXB::JaxbEnumeration,
                             DataModule => Domgen::JAXB::JaxbDataModule,
                             Repository => Domgen::JAXB::JaxbPackage)
 end
