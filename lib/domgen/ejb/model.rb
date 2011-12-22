@@ -78,6 +78,27 @@ module Domgen
       end
     end
 
+    class EjbReturn < Domgen.ParentedElement(:result)
+
+      include Domgen::Java::EEJavaCharacteristic
+
+      protected
+
+      def characteristic
+        result
+      end
+    end
+
+    class EjbException < Domgen.ParentedElement(:exception)
+      def name
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+      end
+
+      def qualified_name
+        "#{exception.data_module.ejb.data_type_package}.#{name}"
+      end
+    end
+
     class EjbPackage < Domgen.ParentedElement(:data_module)
       attr_writer :service_package
 
@@ -97,27 +118,6 @@ module Domgen
 
       def service_package
         @service_package || "#{Domgen::Naming.underscore(repository.name)}.server.service"
-      end
-    end
-
-    class EjbReturn < Domgen.ParentedElement(:result)
-
-      include Domgen::Java::EEJavaCharacteristic
-
-      protected
-
-      def characteristic
-        result
-      end
-    end
-
-    class EjbException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
-
-      def qualified_name
-        "#{exception.data_module.ejb.data_type_package}.#{name}"
       end
     end
   end
