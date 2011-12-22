@@ -3,6 +3,7 @@ package <%= enumeration.data_module.jpa.data_type_package %>;
 
 <%= description_javadoc_for(enumeration, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<% if enumeration.jaxb? %>@javax.xml.bind.annotation.XmlType( name = "<%= enumeration.name %>Type"<%= namespace_annotation_parameter(enumeration.jaxb) %> )<% end %>
 public enum <%= enumeration.jpa.name %>
   implements java.io.Serializable
 {
