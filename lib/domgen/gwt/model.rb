@@ -204,10 +204,10 @@ module Domgen
         @event_package || "#{client_package}.event"
       end
 
-      attr_writer :gin_package
+      attr_writer :ioc_package
 
-      def gin_package
-        @gin_package || "#{client_package}.gin"
+      def ioc_package
+        @ioc_package || "#{client_package}.ioc"
       end
 
       attr_writer :server_package
@@ -223,7 +223,7 @@ module Domgen
       end
 
       def qualified_gin_module_name
-        "#{gin_package}.#{gin_module_name}"
+        "#{ioc_package}.#{gin_module_name}"
       end
 
       attr_writer :mock_services_module_name
