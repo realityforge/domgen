@@ -219,7 +219,7 @@ module Domgen
       attr_writer :gin_module_name
 
       def gin_module_name
-        @gin_module_name || "#{repository.name}ServicesGinModule"
+        @gin_module_name || "#{repository.name}GwtServicesModule"
       end
 
       def qualified_gin_module_name
