@@ -192,12 +192,6 @@ module Domgen
         @client_package || "#{package}.client"
       end
 
-      attr_writer :client_services_package
-
-      def client_services_package
-        @client_services_package || "#{client_package}.service"
-      end
-
       attr_writer :event_package
 
       def event_package
@@ -233,7 +227,7 @@ module Domgen
       end
 
       def qualified_mock_services_module_name
-        "#{client_services_package}.#{mock_services_module_name}"
+        "#{ioc_package}.#{mock_services_module_name}"
       end
     end
   end
