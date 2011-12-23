@@ -86,18 +86,20 @@ module Domgen
         packages[data_module.name] = package
 
         data_module.entities.each do |entity|
+          # Creating EMF attributes corresponding to enum attributes
+          data_module.enumerations.each do |enumeration|
+            enum = package.create_owned_enumeration(enumeration.qualified_name.to_s)
+            resource.setID(enum, enumeration.qualified_name)
+            enumeration.values.each do |enum_literal, enum_index|
+              literal = enum.create_owned_literal(enum_literal)
+              resource.setID(literal, "#{enumeration.qualified_name}.#{enum_literal}");
+            end
+            enum.createOwnedComment().setBody(description(enumeration)) if description(enumeration)
+            enumerations[enumeration.qualified_name] = enum
+          end
+
           entity.attributes.each do |attribute|
-            if attribute.enumeration?
-              enum_key = create_enum_key(data_module, entity, attribute)
-              enum_name = create_enum_name(entity, attribute)
-              enum = package.create_owned_enumeration(enum_name)
-              resource.setID(enum, "#{attribute.qualified_name}Enum")
-              attribute.enumeration.values.each do |enum_literal, enum_index|
-                literal = enum.create_owned_literal(enum_literal)
-                resource.setID(literal, "#{attribute.qualified_name}Enum.#{enum_literal}");
-              end
-              enumerations[enum_key] ||= enum
-            elsif !attribute.reference?
+            if !attribute.reference?
               pn = primitive_name(attribute.attribute_type)
               if !primitive_types[pn]
                 primitive_type = model.create_owned_primitive_type(pn)
@@ -131,8 +133,8 @@ module Domgen
           end
 
           # Creating EMF attributes corresponding to enum attributes
-          entity.attributes.select { |attr| attr.enumeration? && !attr.reference? }.each do |attribute|
-            enum_type = enumerations[create_enum_key(data_module, entity, attribute)]
+          entity.attributes.select { |attr| attr.enumeration? }.each do |attribute|
+            enum_type = enumerations[attribute.enumeration.qualified_name]
             emf_attr = clazz.create_owned_attribute(attribute.name.to_s, enum_type, 0, 1)
             resource.setID(emf_attr, attribute.qualified_name.to_s)
             emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
