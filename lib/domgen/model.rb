@@ -1205,6 +1205,10 @@ module Domgen
       Logger.info "DataModule '#{name}' definition completed"
     end
 
+    def qualified_name
+      self.name
+    end
+
     def to_s
       "DataModule[#{self.name}]"
     end
@@ -1499,6 +1503,10 @@ module Domgen
       Logger.info "Model Checking completed."
       Logger.info "Repository definition completed"
       Domgen.repositorys << self
+    end
+
+    def qualified_name
+      self.name
     end
 
     def to_s
