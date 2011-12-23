@@ -55,17 +55,11 @@ JAVADOC
         return variable_name if extension.java_type == extension.java_type(:boundary)
 
         transform = variable_name
-        if characteristic.characteristic_type == :enumeration
-          if characteristic.enumeration.numeric_values?
-            transform = "#{extension.java_type}.values()[#{variable_name}]"
-          else
-            transform = "#{extension.java_type}.valueOf( #{variable_name} )"
-          end
-        elsif characteristic.characteristic_type == :reference
+        if characteristic.characteristic_type == :reference
           transform = "_#{characteristic.referenced_entity.qualified_name.gsub('.','')}DAO.getByID( #{variable_name} )"
         end
-        if characteristic.nullable?
-          transform = "null == #{variable_name} ? null : #{transform}"
+        if characteristic.nullable? && transform != variable_name
+          transform = "(null == #{variable_name} ? null : #{transform})"
         end
         transform
       end

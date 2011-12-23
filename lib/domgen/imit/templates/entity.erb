@@ -29,7 +29,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.name %>;
 <% else
 %>  private <%= attribute.imit.java_type %> _<%= attribute.imit.name %>;
-  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.java_type(:boundary)}" %> _<%= attribute.imit.name(:boundary) %>;
+  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.java_type(:transport)}" %> _<%= attribute.imit.name(:transport) %>;
 <%
    end
    end
@@ -52,9 +52,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit?}.each do |attribute|
 %>  public abstract <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>();
 <% if attribute.attribute_type == :reference
-  %>  abstract <%= attribute.imit.java_type(:boundary) %> get<%= attribute.imit.name(:boundary) %>();
+  %>  abstract <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>();
 <% end %>
-    abstract void set<%= attribute.imit.name(:boundary) %>( <%= attribute.imit.java_type(:boundary) %> value );
+    abstract void set<%= attribute.imit.name(:transport) %>( <%= attribute.imit.java_type(:transport) %> value );
 <% end %>
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit?}.each do |attribute|
 %>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>()
@@ -64,12 +64,12 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   }
 <% if attribute.attribute_type == :reference
 %>
-  final <%= attribute.imit.java_type(:boundary) %> get<%= attribute.imit.name(:boundary) %>()
+  final <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>()
   {
     return _<%= attribute.referencing_link_name %>;
   }
 <% end %>
-  final void set<%= attribute.imit.name(:boundary) %>( final <%= annotated_type(attribute, :imit, :boundary) %> value )
+  final void set<%= attribute.imit.name(:transport) %>( final <%= annotated_type(attribute, :imit, :transport) %> value )
   {
     checkValidity();
 <% if attribute.reference?
@@ -78,12 +78,12 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     _<%= attribute.referencing_link_name %> = value;
 <% elsif attribute.enumeration?
 %>
-<% if !attribute.imit.primitive?(:boundary)
+<% if !attribute.imit.primitive?(:transport)
 %>    if( null != value )
     {
 <% end %>
     _<%= attribute.imit.name %> = <%= attribute.imit.java_type %>.<%= attribute.enumeration.textual_values? ? "valueOf( value )" : "values()[value]" %>;
-<% if !attribute.imit.primitive?(:boundary)
+<% if !attribute.imit.primitive?(:transport)
 %>    }
     else
     {

@@ -10,7 +10,7 @@ module Domgen
       def name(modality = :default)
         if :default == modality
           return characteristic.name
-        elsif :boundary == modality
+        elsif :boundary == modality || :transport == modality
           return characteristic.referencing_link_name if characteristic.reference?
           return characteristic.name
         else
@@ -39,15 +39,15 @@ module Domgen
         if characteristic.reference?
           if :default == modality
             return characteristic.referenced_entity.send(facet_key).qualified_name
-          elsif :boundary == modality
+          elsif :boundary == modality || :transport == modality
             return characteristic.referenced_entity.primary_key.send(facet_key).non_primitive_java_type(modality)
           else
             error("unknown modality #{modality}")
           end
         elsif characteristic.enumeration?
-          if :default == modality
+          if :default == modality || :boundary == modality
             return characteristic.enumeration.send(facet_key).qualified_name
-          elsif :boundary == modality
+          elsif :transport == modality
             if characteristic.enumeration.textual_values?
               return "java.lang.String"
             else
@@ -75,11 +75,11 @@ module Domgen
         return false if characteristic.nullable?
         return false if (characteristic.respond_to?(:generated_value?) && characteristic.generated_value?)
         return true if characteristic.integer? || characteristic.boolean?
-        return true if :boundary == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
+        return true if :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
 
         if :default == modality
           return false
-        elsif :boundary == modality
+        elsif :boundary == modality || :transport == modality
           return false unless characteristic.reference?
           return characteristic.referenced_entity.primary_key.integer? || characteristic.referenced_entity.primary_key.boolean?
         else
@@ -90,12 +90,10 @@ module Domgen
       def primitive_java_type(modality = :default)
         return "int" if characteristic.integer?
         return "boolean" if characteristic.boolean?
-        if :boundary == modality
-          if characteristic.reference?
-            return characteristic.referenced_entity.primary_key.send(facet_key).primitive_java_type
-          elsif characteristic.enumeration? && characteristic.enumeration.numeric_values?
-            return "int"
-          end
+        if (:boundary == modality || :transport == modality) && characteristic.reference?
+          return characteristic.referenced_entity.primary_key.send(facet_key).primitive_java_type
+        elsif :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
+          return "int"
         end
         error("primitive_java_type invoked for non primitive method")
       end
@@ -103,7 +101,7 @@ module Domgen
       def characteristic_type(modality = :default)
         if :default == modality
           return characteristic.characteristic_type
-        elsif :boundary == modality
+        elsif :boundary == modality || :transport == modality
           return characteristic.reference? ? characteristic.referenced_entity.primary_key.send(facet_key).characteristic_type : characteristic.characteristic_type
         else
           error("unknown modality #{modality}")

@@ -32,7 +32,7 @@ public class <%= service.ejb.boundary_implementation_name %>
    end
 %>
   {
-  <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "(#{modality_boundary_to_default(parameter.name, parameter, :ejb)})" }.join(', ') %>);
+  <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
   <%= transform %>
   }
 
