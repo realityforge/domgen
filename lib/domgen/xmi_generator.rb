@@ -268,11 +268,21 @@ module Domgen
     def self.init_emf
       return if @@init_emf == true
       @@init_emf = true
-      Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150').each do |artifact|
+      Buildr.artifacts(self.dependencies).each do |artifact|
         $CLASSPATH << artifact.to_s
       end
-      #::Java.classpath << Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150')
-      #::Java.load
+    end
+
+    def self.dependencies
+      [
+        'org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150',
+        'org.eclipse.uml2:org.eclipse.uml2.uml.resources:jar:3.1.0.v201005031530',
+        'org.eclipse.uml2:org.eclipse.uml2.common:jar:1.5.0.v201005031530',
+        'org.eclipse.emf:org.eclipse.emf.ecore:jar:2.6.0.v20100614-1136',
+        'org.eclipse.emf:org.eclipse.emf.common:jar:2.6.0.v20100614-1136',
+        'org.eclipse.emf:org.eclipse.emf.mapping.ecore2xml:jar:2.5.0.v20100521-1847',
+        'org.eclipse.emf:org.eclipse.emf.ecore.xmi:jar:2.5.0.v20100521-1846',
+      ]
     end
 
     def self.description(element)
