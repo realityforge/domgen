@@ -5,7 +5,6 @@
 * Make exceptions into characteristic containers?
 * Fix xmi generation: fix existing enumeration/service generation, add message generation
 * Introduce the "uses" metadata for service that can refer to entities (a.k.a DAOs) and other services. Use this to generate abstract service with required dependencies and update the uml generated.
-* Start to generate "environment" parameter for gwt method parameters that indicate parameter is retrieved from servlet environment
 * Use  javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
 * For both JPA and JWS we want to use vendor specific extensions. In JPA you want to define the Indexes and other
   database artifacts while in JWS you want to indicate that a service should be validated for compliance with SOAP

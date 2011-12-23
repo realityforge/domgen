@@ -8,7 +8,7 @@ public interface <%= service.imit.name %>
 <% service.methods.each do |method|
 
   method_name = Domgen::Naming.camelize(method.imit.name)
-  parameters = method.parameters.collect{|p| "#{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }
+  parameters = method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "#{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }
 
 %><%= description_javadoc_for(method)
 %>  void <%= method_name %>(<%= (parameters + ["@javax.annotation.Nullable com.google.gwt.user.client.rpc.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>);

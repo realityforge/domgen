@@ -122,6 +122,34 @@ module Domgen
     class GwtParameter < Domgen.ParentedElement(:parameter)
       include Domgen::Java::ImitJavaCharacteristic
 
+      # Does the parameter come from the environment?
+      def environmental?
+        !!@environment_key
+      end
+
+      attr_reader :environment_key
+
+      def environment_key=(environment_key)
+        raise "Unknown environment_key #{environment_key}" unless self.class.environment_key_set.include?(environment_key)
+        @environment_key = environment_key
+      end
+
+      def environment_value
+        raise "environment_value invoked for non-environmental value" unless environmental?
+        self.class.environment_key_set[environment_key]
+      end
+
+      def self.environment_key_set
+        {
+          "request:session:id" => 'getThreadLocalRequest().getSession(true).getId()',
+          "request:permutation-strong-name" => 'getPermutationStrongName()',
+          "request:locale" => 'getThreadLocalRequest().getLocale().toString()',
+          "request:remote-host" => 'getThreadLocalRequest().getRemoteHost()',
+          "request:remote-address" => 'getThreadLocalRequest().getRemoteAddr()',
+          "request:remote-port" => 'getThreadLocalRequest().getRemotePort()',
+          "request:remote-user" => 'getThreadLocalRequest().getRemoteUser()',
+        }
+      end
       protected
 
       def characteristic

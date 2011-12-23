@@ -43,6 +43,10 @@ module Domgen
     class ImitationParameter < Domgen.ParentedElement(:parameter)
       include Domgen::Java::ImitJavaCharacteristic
 
+      def environmental?
+        parameter.gwt.environmental?
+      end
+
       protected
 
       def characteristic
