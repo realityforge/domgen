@@ -133,7 +133,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{enumeration.data_module.imit.entity_package}.#{enumeration.name}"
+        "#{enumeration.data_module.imit.data_type_package}.#{enumeration.name}"
       end
     end
 
