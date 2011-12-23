@@ -138,17 +138,7 @@ module Domgen
     end
 
     class ImitationModule < Domgen.ParentedElement(:data_module)
-      attr_writer :service_package
-
-      def service_package
-        @service_package || "#{data_module.repository.imit.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
-      end
-
-      attr_writer :entity_package
-
-      def entity_package
-        @entity_package || "#{data_module.repository.imit.entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
-      end
+      include Domgen::Java::JavaPackage
 
       attr_writer :encoder_package
 
@@ -201,25 +191,17 @@ module Domgen
       def concrete_client_side_entities
         client_side_entities.select{|entity| !entity.abstract?}
       end
+
+      def facet_key
+        :imit
+      end
     end
 
     class ImitationApplication < Domgen.ParentedElement(:repository)
-      attr_writer :package
+      include Domgen::Java::ClientJavaApplication
 
-      def package
-        @package || "#{Domgen::Naming.underscore(repository.name)}.client"
-      end
-
-      attr_writer :service_package
-
-      def service_package
-        @service_package || "#{package}.service"
-      end
-
-      attr_writer :entity_package
-
-      def entity_package
-        @entity_package || "#{package}.entity"
+      def ioc_package
+        repository.gwt.ioc_package
       end
 
       attr_writer :encoder_package
@@ -247,11 +229,11 @@ module Domgen
       attr_writer :services_module_name
 
       def services_module_name
-        @services_module_name || "#{repository.name}ServicesModule"
+        @services_module_name || "#{repository.name}ImitServicesModule"
       end
 
       def qualified_services_module_name
-        "#{service_package}.#{services_module_name}"
+        "#{ioc_package}.#{services_module_name}"
       end
 
       attr_writer :mock_services_module_name
@@ -261,7 +243,7 @@ module Domgen
       end
 
       def qualified_mock_services_module_name
-        "#{service_package}.#{mock_services_module_name}"
+        "#{ioc_package}.#{mock_services_module_name}"
       end
 
       def client_side_data_modules
