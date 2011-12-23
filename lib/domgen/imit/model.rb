@@ -225,7 +225,7 @@ module Domgen
       attr_writer :encoder_package
 
       def encoder_package
-        @encoder_package || "#{package}.entity"
+        @encoder_package || repository.jpa.entity_package
       end
 
       def change_mapper_name
