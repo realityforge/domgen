@@ -22,11 +22,12 @@ module Domgen
 
       def define
         # Need to init emf now otherwise Buildr will not have jars loaded into classpath
-        Domgen::Xmi.init_emf
         namespace self.namespace_key do
           desc self.description || "Generates the #{key} xmi artifacts."
           t = task self.key => ["#{self.namespace_key}:load"] do
             begin
+              Domgen::Xmi.init_emf
+
               FileUtils.mkdir_p File.dirname(filename)
               Domgen::Xmi.generate_xmi(self.repository_key, self.model_name || self.repository_key, self.filename)
             rescue Exception => e
@@ -267,8 +268,11 @@ module Domgen
     def self.init_emf
       return if @@init_emf == true
       @@init_emf = true
-      ::Java.classpath << Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150')
-      ::Java.load
+      Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150').each do |artifact|
+        $CLASSPATH << artifact.to_s
+      end
+      #::Java.classpath << Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150')
+      #::Java.load
     end
 
     def self.description(element)
