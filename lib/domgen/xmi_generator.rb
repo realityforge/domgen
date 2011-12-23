@@ -1,7 +1,6 @@
 module Domgen
   module Xmi
     class GenerateXMITask
-      attr_accessor :model_name
       attr_accessor :description
       attr_accessor :namespace_key
 
@@ -29,7 +28,7 @@ module Domgen
               Domgen::Xmi.init_emf
 
               FileUtils.mkdir_p File.dirname(filename)
-              Domgen::Xmi.generate_xmi(self.repository_key, self.model_name || self.repository_key, self.filename)
+              Domgen::Xmi.generate_xmi(self.repository_key, self.filename)
             rescue Exception => e
               print "An error occurred generating the xmi\n"
               puts $!
@@ -42,7 +41,7 @@ module Domgen
       end
     end
 
-    def self.generate_xmi(repository_key, model_name, filename)
+    def self.generate_xmi(repository_key, filename)
       repository = Domgen.repository_by_name(repository_key)
 
       output_file = ::Java.java.io.File.new(filename).getAbsolutePath()
@@ -51,14 +50,14 @@ module Domgen
         put(File.extname(output_file).gsub('.', ''), Java.org.eclipse.uml2.uml.resource.UMLResource::Factory::INSTANCE)
 
       model = ::Java.org.eclipse.uml2.uml.UMLFactory.eINSTANCE.createModel()
-      model.set_name(model_name.to_s)
-      model.createOwnedComment().setBody(description(repository)) if description(repository)
+      model.set_name(repository.name.to_s)
 
       output_uri = ::Java.org.eclipse.emf.common.util.URI.createFileURI(output_file)
       puts "Creating XMI for repository #{repository_key} at #{output_file}"
       resource = ::Java.org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.new.create_resource(output_uri)
       resource.get_contents().add(model)
-      resource.setID(model, model_name.to_s)
+      name(resource, model, repository)
+      describe(model, repository)
 
       # As we process the schema set, we put all the packages that we discover inside this array
       # This is a map between package names and EMF package classes
@@ -81,22 +80,23 @@ module Domgen
       #
       repository.data_modules.each do |data_module|
         package = model.create_nested_package(data_module.name.to_s)
-        resource.setID(package, data_module.name.to_s)
-        package.createOwnedComment().setBody(description(data_module)) if description(data_module)
+        name(resource, package, data_module)
+        describe(package, data_module)
+
         packages[data_module.name] = package
 
-        data_module.entities.each do |entity|
-          # Creating EMF attributes corresponding to enum attributes
-          data_module.enumerations.each do |enumeration|
-            enum = package.create_owned_enumeration(enumeration.qualified_name.to_s)
-            resource.setID(enum, enumeration.qualified_name)
-            enumeration.values.each do |enum_literal, enum_index|
-              literal = enum.create_owned_literal(enum_literal)
-              resource.setID(literal, "#{enumeration.qualified_name}.#{enum_literal}");
-            end
-            enum.createOwnedComment().setBody(description(enumeration)) if description(enumeration)
-            enumerations[enumeration.qualified_name] = enum
+        data_module.enumerations.each do |enumeration|
+          enum = package.create_owned_enumeration(enumeration.qualified_name.to_s)
+          enumeration.values.each do |enum_literal, enum_index|
+            literal = enum.create_owned_literal(enum_literal)
+            resource.setID(literal, "#{enumeration.qualified_name}.#{enum_literal}");
           end
+          name(resource, enum, enumeration)
+          describe(enum, enumeration)
+          enumerations[enumeration.qualified_name] = enum
+        end
+
+        data_module.entities.each do |entity|
 
           entity.attributes.each do |attribute|
             if !attribute.reference?
@@ -117,8 +117,8 @@ module Domgen
         data_module.entities.each do |entity|
           package = packages[data_module.name]
           clazz = package.create_owned_class(entity.name, false)
-          resource.setID(clazz, entity.qualified_name.to_s)
-          clazz.createOwnedComment().setBody(description(entity)) if description(entity)
+          name(resource, clazz, entity)
+          describe(clazz, entity)
           name_class_map[entity.qualified_name] ||= clazz
 
           # Creating EMF attributes corresponding to non-enum attributes
@@ -128,16 +128,16 @@ module Domgen
             prim_type = primitive_types[primitive_name(attribute_type)]
             name = attribute.reference? ? attribute.referencing_link_name : attribute.name.to_s
             emf_attr = clazz.create_owned_attribute(name, prim_type, 0, 1)
-            resource.setID(emf_attr, attribute.qualified_name.to_s)
-            emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
+            name(resource, emf_attr, attribute)
+            describe(emf_attr, attribute)
           end
 
           # Creating EMF attributes corresponding to enum attributes
           entity.attributes.select { |attr| attr.enumeration? }.each do |attribute|
             enum_type = enumerations[attribute.enumeration.qualified_name]
             emf_attr = clazz.create_owned_attribute(attribute.name.to_s, enum_type, 0, 1)
-            resource.setID(emf_attr, attribute.qualified_name.to_s)
-            emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
+            name(resource, emf_attr, attribute)
+            describe(emf_attr, attribute)
           end
         end
       end
@@ -167,7 +167,7 @@ module Domgen
                                                       0,
                                                       attribute.inverse.multiplicity == :many ? Java.org.eclipse.uml2.uml.LiteralUnlimitedNatural::UNLIMITED : 1)
             resource.setID(emf_association, attribute.qualified_name.to_s + ".Assoc")
-            emf_association.createOwnedComment().setBody(description(attribute)) if description(attribute)
+            describe(emf_association, attribute)
           end
         end
       end
@@ -177,8 +177,8 @@ module Domgen
         data_module.services.each do |service|
           package = packages[data_module.name]
           clazz = package.create_owned_class(service.name, false)
-          resource.setID(clazz, service.qualified_name.to_s)
-          clazz.createOwnedComment().setBody(description(service)) if description(service)
+          name(resource, clazz, service)
+          describe(clazz, service)
           name_class_map[service.qualified_name] ||= clazz
 
           service.methods.each do |method|
@@ -214,8 +214,8 @@ module Domgen
             else
               clazz.createOwnedOperation(method.name.to_s, names, types)
             end
-            resource.setID( operation, method.qualified_name.to_s )
-            operation.createOwnedComment().setBody(description(method)) if description(method)
+            name(resource, operation, method)
+            describe(operation, method)
           end
         end
       end
@@ -226,10 +226,9 @@ module Domgen
         data_module.messages.each do |message|
           msg_class_name = "#{message.name}Message"
           msg_class = package.create_owned_class(msg_class_name, false)
-          msg_qualified_name = message.qualified_name.to_s
-          resource.setID(msg_class, msg_qualified_name)
-          msg_class.createOwnedComment().setBody(description(message)) if description(message)
-          name_class_map[msg_qualified_name] ||= msg_class
+          name(resource, msg_class, message)
+          describe(msg_class, message)
+          name_class_map[message.qualified_name.to_s] ||= msg_class
 
           message.parameters.each do |param|
             param_name = param.name.to_s
@@ -253,8 +252,8 @@ module Domgen
         data_module.exceptions.each do |exception|
           class_name = "#{exception.name}Exception"
           clazz = package.create_owned_class(class_name, false)
-          resource.setID(clazz, exception.qualified_name.to_s)
-          clazz.createOwnedComment().setBody(description(exception)) if description(exception)
+          name(resource, clazz, exception)
+          describe(clazz, exception)
           name_class_map[exception.qualified_name] ||= clazz
         end
       end
@@ -287,28 +286,21 @@ module Domgen
       ]
     end
 
-    def self.description(element)
-      element.tag_as_html(:Description)
-    end
-
     def self.primitive_name(attribute_type)
       return "string" if attribute_type == :text
       return "int" if attribute_type == :integer
       return attribute_type.to_s
     end
 
-    def self.create_enum_key(schema, entity, attr)
-      "#{schema.name}.#{entity.name}.#{attr.name}"
+    def self.name(resource, emf_element, domgen_element)
+      resource.setID(emf_element, domgen_element.qualified_name.to_s)
     end
 
-    def self.create_enum_name(entity, attr)
-      "#{entity.name}#{attr.name}Enum"
+    def self.describe(emf_element, domgen_element)
+      description = domgen_element.tag_as_html(:Description)
+      if description
+        emf_element.createOwnedComment().setBody(description)
+      end
     end
-
-    def self.create_property_name(name)
-      n = name.to_s
-      "#{n[0, 1].upcase}#{n[1, n.length]}"
-    end
-
   end
 end
