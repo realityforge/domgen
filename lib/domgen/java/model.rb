@@ -231,7 +231,7 @@ module Domgen
       protected
 
       def default_package_root
-        "server"
+        "client"
       end
     end
   end
