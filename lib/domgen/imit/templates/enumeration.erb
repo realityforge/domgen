@@ -1,10 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= enumeration.data_module.imit.entity_package %>;
+package <%= enumeration.data_module.imit.data_type_package %>;
 
 <%= description_javadoc_for(enumeration, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public enum <%= enumeration.imit.name %>
   implements java.io.Serializable
 {
-  <%= enumeration.values.keys.collect {|k| "#{k}" } .join(",\n    ")%>
+  <%= enumeration.values.keys.collect {|k| "#{k}" } .join(",\n  ")%>
 }
