@@ -5,7 +5,8 @@
 * Make exceptions into characteristic containers?
 * Fix xmi generation: fix existing enumeration/service generation, add message generation
 * Introduce the "uses" metadata for service that can refer to entities (a.k.a DAOs) and other services. Use this to generate abstract service with required dependencies and update the uml generated.
-* Use  javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
+* Use javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
+* Have generator not recreate files if they have not changed but maybe delete files if they are no longer created.
 * For both JPA and JWS we want to use vendor specific extensions. In JPA you want to define the Indexes and other
   database artifacts while in JWS you want to indicate that a service should be validated for compliance with SOAP
   xsd and also you want to use vendor specific extensions to annotate methods/services with wsdl documentation. Domgen
