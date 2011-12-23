@@ -217,6 +217,10 @@ module Domgen
       super(data_module, options, &block)
     end
 
+    def qualified_name
+      "#{data_module.name}.#{self.name}"
+    end
+
     attr_writer :top_level
 
     def top_level?
