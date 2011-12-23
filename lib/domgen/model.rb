@@ -93,9 +93,9 @@ module Domgen
         error("Relationship constraint #{self.name} between attributes of different types LHS: #{lhs.name}:#{lhs.attribute_type}, RHS: #{rhs.name}:#{rhs.attribute_type}")
       end
 
-      if self.class.comparable_attribute_types.include?(lhs.attribute_type) || (lhs.enum? && lhs.enumeration.numeric_values?)
+      if self.class.comparable_attribute_types.include?(lhs.attribute_type) || (lhs.enumeration? && lhs.enumeration.numeric_values?)
         error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.operators.keys.include?(operator)
-      elsif self.class.equality_attribute_types.include?(lhs.attribute_type) || (lhs.enum? && lhs.enumeration.textual_values?)
+      elsif self.class.equality_attribute_types.include?(lhs.attribute_type) || (lhs.enumeration? && lhs.enumeration.textual_values?)
         error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.equality_operators.keys.include?(operator)
       else
         error("Unsupported attribute type #{lhs.attribute_type} for relationship constraint #{self.name}")
@@ -119,11 +119,11 @@ module Domgen
     end
 
     def self.comparable_attribute_types
-      [:integer, :datetime, :real]
+      [:integer, :date, :datetime, :real]
     end
 
     def self.equality_attribute_types
-      [:string, :reference, :boolean]
+      [:text, :reference, :boolean]
     end
   end
 
@@ -217,12 +217,18 @@ module Domgen
       super(data_module, options, &block)
     end
 
+    attr_writer :top_level
+
+    def top_level?
+      @top_level.nil? ? true : @top_level
+    end
+
     def numeric_values?
       self.enumeration_type == :integer
     end
 
     def textual_values?
-      self.enumeration_type == :string
+      self.enumeration_type == :text
     end
 
     attr_reader :values
@@ -260,7 +266,7 @@ module Domgen
     end
 
     def self.enumeration_types
-      [:integer, :string]
+      [:integer, :text]
     end
 
   end
@@ -268,18 +274,18 @@ module Domgen
   module Characteristic
     attr_reader :name
 
-    def enum?
+    def enumeration?
       characteristic_type == :enumeration
     end
 
-    def has_length?
-      characteristic_type == :string || (characteristic_type == :enumeration && enumeration.textual_values?)
+    def allows_length?
+      characteristic_type == :text || (characteristic_type == :enumeration && enumeration.textual_values?)
     end
 
     attr_reader :length
 
     def length=(length)
-      error("length on #{name} is invalid as #{characteristic_kind} is not a string") unless has_length?
+      error("length on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a string") unless allows_length?
       @length = length
     end
 
@@ -293,7 +299,7 @@ module Domgen
     end
 
     def min_length=(length)
-      error("min_length on #{name} is invalid as #{characteristic_kind} is not a string") unless has_length?
+      error("min_length on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a string") unless allows_length?
       @min_length = length
     end
 
@@ -312,18 +318,87 @@ module Domgen
     attr_reader :enumeration
 
     def enumeration=(enumeration)
-      error("enumeration on #{name} is invalid as #{characteristic_kind} is not an enumeration") unless enum?
+      error("enumeration on #{name} is invalid as #{characteristic_container.characteristic_kind} is not an enumeration") unless enumeration?
       @enumeration = enumeration
+    end
+
+    def reference?
+      self.characteristic_type == :reference
+    end
+
+    def integer?
+      self.characteristic_type == :integer
+    end
+
+    def boolean?
+      self.characteristic_type == :boolean
+    end
+
+    def datetime?
+      self.characteristic_type == :datetime
+    end
+
+    def date?
+      self.characteristic_type == :date
+    end
+
+    def struct?
+      self.characteristic_type == :struct
+    end
+
+    def collection?
+      self.struct? && self.collection_type != :none
+    end
+
+    def collection_type
+      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      @collection_type || :none
+    end
+
+    def collection_type=(collection_type)
+      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      error("collection_type #{collection_type} is invalid") unless [:none, :sequence].include?(collection_type)
+      @collection_type = collection_type
+    end
+
+    attr_reader :struct
+
+    def struct=(struct)
+      error("struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      @struct = struct
+    end
+
+    attr_reader :references
+
+    def references=(references)
+      error("references on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      @references = references
+    end
+
+    def referenced_entity
+      error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      self.characteristic_container.data_module.entity_by_name(self.references)
+    end
+
+    # The name of the local field appended with PK of foreign entity
+    def referencing_link_name
+      error("referencing_link_name on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      "#{name}#{referenced_entity.primary_key.name}"
+    end
+
+    attr_writer :polymorphic
+
+    def polymorphic?
+      error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
+      @polymorphic.nil? ? !referenced_entity.final? : @polymorphic
     end
 
     def characteristic_type
       raise "characteristic_type not implemented"
     end
 
-    protected
-
-    def characteristic_kind
-       raise "characteristic_kind not implemented"
+    def characteristic_container
+      raise "characteristic_container not implemented"
     end
   end
 
@@ -336,7 +411,7 @@ module Domgen
       @name = name
       @attribute_type = attribute_type
       super(entity, options, &block)
-      error("Invalid type #{attribute_type} for persistent attribute #{name}") if persistent? && !self.class.persistent_types.include?(attribute_type)
+      error("Invalid type #{attribute_type} for persistent attribute #{name}") if !self.class.persistent_types.include?(attribute_type)
     end
 
     def qualified_name
@@ -363,16 +438,6 @@ module Domgen
       @override.nil? ? false : @override
     end
 
-    def reference?
-      self.attribute_type == :reference
-    end
-
-    attr_writer :validate
-
-    def validate?
-      @validate.nil? ? true : @validate
-    end
-
     attr_writer :set_once
 
     def set_once?
@@ -383,7 +448,7 @@ module Domgen
 
     def generated_value?
       return @generated_value unless @generated_value.nil?
-      return self.primary_key? && self.attribute_type == :integer && !entity.abstract? && entity.final? && entity.extends.nil?
+      return self.primary_key? && self.integer? && !entity.abstract? && entity.final? && entity.extends.nil?
     end
 
     attr_writer :primary_key
@@ -408,73 +473,13 @@ module Domgen
       !immutable? && !generated_value?
     end
 
-    attr_writer :persistent
-
-    def persistent?
-      @persistent.nil? ? true : @persistent
-    end
-
-    attr_writer :polymorphic
-
-    def polymorphic?
-      error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
-      @polymorphic.nil? ? !referenced_entity.final? : @polymorphic
-    end
-
     def inverse
       error("inverse called on #{name} is invalid as attribute is not a reference") unless reference?
       @inverse ||= InverseElement.new(self, {})
     end
 
-    attr_reader :references
-
-    def references=(references)
-      error("references on #{name} is invalid as attribute is not a reference") unless reference?
-      @references = references
-    end
-
-    def referenced_entity
-      error("referenced_entity on #{name} is invalid as attribute is not a reference") unless reference?
-      self.entity.data_module.entity_by_name(self.references)
-    end
-
-    # The name of the local field appended with PK of foreign entity
-    def referencing_link_name
-      error("referencing_link_name on #{name} is invalid as attribute is not a reference") unless reference?
-      "#{name}#{referenced_entity.primary_key.name}"
-    end
-
-    def on_update=(on_update)
-      error("on_update on #{name} is invalid as attribute is not a reference") unless reference?
-      error("on_update #{on_update} on #{name} is invalid") unless self.class.change_actions.include?(on_update)
-      @on_update = on_update
-    end
-
-    def on_update
-      error("on_update on #{name} is invalid as attribute is not a reference") unless reference?
-      @on_update = :no_action if @on_update.nil?
-      @on_update
-    end
-
-    def on_delete=(on_delete)
-      error("on_delete on #{name} is invalid as attribute is not a reference") unless reference?
-      error("on_delete #{on_delete} on #{name} is invalid") unless self.class.change_actions.include?(on_delete)
-      @on_delete = on_delete
-    end
-
-    def on_delete
-      error("on_delete on #{name} is invalid as attribute is not a reference") unless reference?
-      @on_delete = :no_action if @on_delete.nil?
-      @on_delete
-    end
-
-    def self.change_actions
-      #{ :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
-      [:cascade, :restrict, :set_null, :set_default, :no_action]
-    end
-
     def self.persistent_types
-      [:text, :string, :reference, :boolean, :datetime, :integer, :real, :enumeration]
+      [:text, :reference, :boolean, :datetime, :date, :integer, :real, :enumeration]
     end
 
     def to_s
@@ -485,10 +490,8 @@ module Domgen
       attribute_type
     end
 
-    private
-
-    def characteristic_kind
-       "attribute"
+    def characteristic_container
+      entity
     end
   end
 
@@ -509,7 +512,7 @@ module Domgen
       else
         options = options.merge({:length => length})
       end
-      characteristic(name, :string, options, &block)
+      characteristic(name, :text, options, &block)
     end
 
     def integer(name, options = {}, &block)
@@ -524,25 +527,47 @@ module Domgen
       characteristic(name, :datetime, options, &block)
     end
 
+    def date(name, options = {}, &block)
+      characteristic(name, :date, options, &block)
+    end
+
     def i_enum(name, values, options = {}, &block)
-      enumeration_name = "#{self.name}#{name}"
-      enum_manager.enumeration(enumeration_name, :integer, { :values => values })
-      enumeration(name, enumeration_name, options, &block)
+      enumeration = data_module.enumeration("#{self.name}#{name}", :integer, {:top_level => false, :values => values})
+      enumeration(name, enumeration.name, options, &block)
     end
 
     def s_enum(name, values, options = {}, &block)
-      enumeration_name = "#{self.name}#{name}"
-      enum_manager.enumeration(enumeration_name, :string, { :values => values })
-      enumeration(name, enumeration_name, options, &block)
+      enumeration = data_module.enumeration("#{self.name}#{name}", :text, {:top_level => false, :values => values})
+      enumeration(name, enumeration.name, options, &block)
     end
 
     def enumeration(name, enumeration_key, options = {}, &block)
-      enumeration = enum_manager.enumeration_by_name(enumeration_key)
+      enumeration = data_module.enumeration_by_name(enumeration_key)
       params = options.dup
       params[:enumeration] = enumeration
       c = characteristic(name, :enumeration, params, &block)
       c.length = enumeration.max_value_length if enumeration.textual_values?
       c
+    end
+
+    def reference(other_type, options = {}, &block)
+      name = options.delete(:name)
+      if name.nil?
+        if other_type.to_s.include? "."
+          name = other_type.to_s.sub(/.+\./, '').to_sym
+        else
+          name = other_type
+        end
+      end
+
+      characteristic(name.to_s.to_sym, :reference, options.merge({:references => other_type}), &block)
+    end
+
+    def struct(name, struct_key, options = {}, &block)
+      struct = data_module.struct_by_name(struct_key)
+      params = options.dup
+      params[:struct] = struct
+      characteristic(name, :struct, params, &block)
     end
 
     protected
@@ -586,9 +611,7 @@ module Domgen
       raise "characteristic_kind not implemented"
     end
 
-    def enum_manager
-      raise "enum_manager not implemented"
-    end
+    # Also need to define data_module
   end
 
   class Entity < self.FacetedElement(:data_module)
@@ -651,19 +674,6 @@ module Domgen
 
     def final?
       @final.nil? ? !abstract? : @final
-    end
-
-    def reference(other_type, options = {}, &block)
-      name = options.delete(:name)
-      if name.nil?
-        if other_type.to_s.include? "."
-          name = other_type.to_s.sub(/.+\./,'').to_sym
-        else
-          name = other_type
-        end
-      end
-
-      attribute(name.to_s.to_sym, :reference, options.merge({:references => other_type}), &block)
     end
 
     def declared_attributes
@@ -782,15 +792,11 @@ module Domgen
       "Entity[#{self.qualified_name}]"
     end
 
-    protected
-
     def characteristic_kind
        "attribute"
     end
 
-    def enum_manager
-      data_module
-    end
+    protected
 
     def new_characteristic(name, type, options, &block)
       override = false
@@ -839,6 +845,86 @@ module Domgen
     end
   end
 
+  class StructField < Domgen.FacetedElement(:struct)
+    include Characteristic
+
+    attr_reader :field_type
+
+    def initialize(struct, name, field_type, options, &block)
+      @name = name
+      @field_type = field_type
+      super(struct, options, &block)
+    end
+
+    def qualified_name
+      "#{struct.qualified_name}$#{self.name}"
+    end
+
+    def to_s
+      "StructField[#{self.qualified_name}]"
+    end
+
+    def characteristic_type
+      field_type
+    end
+
+    def characteristic_container
+      struct
+    end
+  end
+
+  class Struct < self.FacetedElement(:data_module)
+    include GenerateFacet
+    include CharacteristicContainer
+
+    def initialize(data_module, name, options, &block)
+      @name = name
+      data_module.send :register_struct, name, self
+      super(data_module, options, &block)
+    end
+
+    def qualified_name
+      "#{data_module.name}.#{self.name}"
+    end
+
+    attr_writer :top_level
+
+    def top_level?
+      @top_level.nil? ? true : @top_level
+    end
+
+    def substruct(name, options = {}, &block)
+      struct = data_module.struct("#{self.name}#{name}", {:top_level => false}, &block)
+      struct(name, struct.name, options)
+    end
+
+    def fields
+      characteristics
+    end
+
+    def field(name, type, options = {}, &block)
+      characteristic(name, type, options, &block)
+    end
+
+    def to_s
+      "Struct[#{self.qualified_name}]"
+    end
+
+    def characteristic_kind
+       "field"
+    end
+
+    protected
+
+    def new_characteristic(name, type, options, &block)
+      StructField.new(self, name, type, options, &block)
+    end
+
+    def perform_verify
+      verify_characteristics
+    end
+  end
+
   class MessageParameter < Domgen.FacetedElement(:message)
     include Characteristic
 
@@ -862,10 +948,8 @@ module Domgen
       parameter_type
     end
 
-    protected
-
-    def characteristic_kind
-       "parameter"
+    def characteristic_container
+      message
     end
   end
 
@@ -895,15 +979,11 @@ module Domgen
       "Message[#{self.qualified_name}]"
     end
 
-    protected
-
     def characteristic_kind
-       raise "parameter"
+       "parameter"
     end
 
-    def enum_manager
-      data_module
-    end
+    protected
 
     def new_characteristic(name, type, options, &block)
       MessageParameter.new(self, name, type, options, &block)
@@ -949,12 +1029,6 @@ module Domgen
       "#{method.qualified_name}$#{self.name}"
     end
 
-    attr_writer :nullable
-
-    def nullable?
-      @nullable.nil? ? false : @nullable
-    end
-
     def to_s
       "Parameter[#{self.qualified_name}]"
     end
@@ -963,10 +1037,8 @@ module Domgen
       parameter_type
     end
 
-    protected
-
-    def characteristic_kind
-       "parameter"
+    def characteristic_container
+      method
     end
   end
 
@@ -996,15 +1068,14 @@ module Domgen
       return_type
     end
 
-    protected
-
-    def characteristic_kind
-       "return"
+    def characteristic_container
+      method
     end
   end
 
   class Method <  self.FacetedElement(:service)
     include CharacteristicContainer
+    include GenerateFacet
 
     def initialize(service, name, options, &block)
       @name = name
@@ -1051,18 +1122,18 @@ module Domgen
       @exceptions[name.to_s] = exception
     end
 
-    protected
-
-    def new_characteristic(name, type, options, &block)
-      Parameter.new(self, name, type, options, &block)
+    def data_module
+      self.service.data_module
     end
 
     def characteristic_kind
       "parameter"
     end
 
-    def enum_manager
-      method.service.data_module
+    protected
+
+    def new_characteristic(name, type, options, &block)
+      Parameter.new(self, name, type, options, &block)
     end
 
     def perform_verify
@@ -1121,6 +1192,7 @@ module Domgen
       @entities = Domgen::OrderedHash.new
       @services = Domgen::OrderedHash.new
       @messages = Domgen::OrderedHash.new
+      @structs = Domgen::OrderedHash.new
       @enumerations = Domgen::OrderedHash.new
       @exceptions = Domgen::OrderedHash.new
       @elements = Domgen::OrderedHash.new
@@ -1243,11 +1315,34 @@ module Domgen
       message
     end
 
+    def structs
+      @structs.values
+    end
+
+    def struct(name, options = {}, &block)
+      pre_struct_create(name)
+      struct = Struct.new(self, name, options, &block)
+      post_struct_create(name)
+      struct
+    end
+
+    def struct_by_name(name, optional = false)
+      name_parts = split_name(name)
+      repository.data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional)
+    end
+
+    def local_struct_by_name(name, optional = false)
+      struct = @structs[name.to_s]
+      error("Unable to locate local struct #{name} in #{self.name}") if !struct && !optional
+      struct
+    end
+
     protected
 
     def perform_verify
       entities.each { |p| p.verify }
       services.each { |p| p.verify }
+      structs.each { |p| p.verify }
       messages.each { |p| p.verify }
       enumerations.each { |p| p.verify }
       exceptions.each { |p| p.verify }
@@ -1293,6 +1388,20 @@ module Domgen
     def register_exception(name, exception)
       register_type_name(name.to_s, "exception", exception)
       @exceptions[name.to_s] = exception
+    end
+
+    def pre_struct_create(name)
+      error("Attempting to redefine Struct '#{name}'") if @structs[name.to_s]
+      Logger.debug "Struct '#{name}' definition started"
+    end
+
+    def post_struct_create(name)
+      Logger.debug "Struct '#{name}' definition completed"
+    end
+
+    def register_struct(name, struct)
+      register_type_name(name.to_s, "struct", struct)
+      @structs[name.to_s] = struct
     end
 
     def pre_entity_create(name)

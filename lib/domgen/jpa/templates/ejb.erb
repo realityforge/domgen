@@ -13,13 +13,21 @@ public class <%= entity.jpa.dao_name %>
   private javax.persistence.EntityManager em;
 
 <% entity.jpa.queries.each do |query| %>
-  public <%= query_return_type(query) %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{query.parameter_types[p]} #{p}"}.join(', ') %>)
+<%= description_javadoc_for(query) %>  public <%= query_return_type(query) %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{p.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.java_type} #{p.name}"}.join(', ') %>)
   {
-    final javax.persistence.TypedQuery<<%= entity.jpa.qualified_entity_name %>> query =
-      em.createNamedQuery( <%= entity.jpa.qualified_entity_name %>.<%= query.local_name %>, <%= entity.jpa.qualified_entity_name %>.class );
-<% query.parameters.each do |p| %>
-    query.setParameter("<%= p %>", <%= p %>);
-<% end %>
+    final javax.persistence.TypedQuery<<%= entity.jpa.qualified_name %>> query =
+      em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= query.local_name %>, <%= entity.jpa.qualified_name %>.class );
+<%
+   if !query.native?
+    query.parameters.each do |p|
+%>    query.setParameter(<%= "\"#{p.name}\"" %>, <%= p.name %>);
+<%  end
+   else %>
+<%  query.query_ordered_parameters.each_with_index do |p, index| %>
+    query.setParameter(<%= index + 1 %>, <%= p.name %>);
+<%  end
+   end %>
+<% if query.query_type == :select %>
 <% if query.multiplicity == :many %>
     return query.getResultList();
 <% elsif query.multiplicity == :one %>
@@ -33,46 +41,44 @@ public class <%= entity.jpa.dao_name %>
     {
       return null;
     }
+<% end
+   else %>
+<% if query.query_type == :insert || query.query_type == :update %>    query.setHint( "eclipselink.query-type", "org.eclipse.persistence.queries.DataModifyQuery" );<% end %>
+    return query.executeUpdate();
 <% end %>
   }
 <% end %>
 
-  /** Remove the given  <%= entity.jpa.qualified_entity_name %> from the persistence context, causing a managed entity to become detached. */
-  public void detach( final <%= entity.jpa.qualified_entity_name %> entity )
+<% if entity.jpa.detachable? %>
+  /** Remove the given  <%= entity.jpa.qualified_name %> from the persistence context, causing a managed entity to become detached. */
+  public void detach( final <%= entity.jpa.qualified_name %> entity )
   {
     em.detach( entity );
   }
 
-  /** Merge the state of the given <%= entity.jpa.qualified_entity_name %> into the current persistence context. */
-  public <%= entity.jpa.qualified_entity_name %> merge( final <%= entity.jpa.qualified_entity_name %> entity )
+  /** Merge the state of the given <%= entity.jpa.qualified_name %> into the current persistence context. */
+  public <%= entity.jpa.qualified_name %> merge( final <%= entity.jpa.qualified_name %> entity )
   {
     return em.merge( entity );
   }
-
-  /** Make an <%= entity.jpa.qualified_entity_name %> instance managed and persistent. */
-  public void persist( final <%= entity.jpa.qualified_entity_name %> entity )
+<% end %>
+  /** Make an <%= entity.jpa.qualified_name %> instance managed and persistent. */
+  public void persist( final <%= entity.jpa.qualified_name %> entity )
   {
     em.persist( entity );
     em.flush();
   }
 
-  /** Save a <%= entity.jpa.qualified_entity_name %> instance, merging it into the persistent context if required. */
-  public <%= entity.jpa.qualified_entity_name %> save( final <%= entity.jpa.qualified_entity_name %> entity )
-  {
-    final <%= entity.jpa.qualified_entity_name %> e = merge( entity );
-    persist( e );
-    return e;
-  }
-
-  /** Refresh the state of the <%= entity.jpa.qualified_entity_name %> instance from the database, overwriting changes made to the entity, if any. */
-  public void refresh( final <%= entity.jpa.qualified_entity_name %> entity )
+  /** Refresh the state of the <%= entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
+  public void refresh( final <%= entity.jpa.qualified_name %> entity )
   {
     em.refresh( entity );
   }
 
-  /** Remove the <%= entity.jpa.qualified_entity_name %> instance. */
-  public void remove( final <%= entity.jpa.qualified_entity_name %> entity )
+  /** Remove the <%= entity.jpa.qualified_name %> instance. */
+  public void remove( final <%= entity.jpa.qualified_name %> entity )
   {
     em.remove( entity );
+    em.flush();
   }
 }

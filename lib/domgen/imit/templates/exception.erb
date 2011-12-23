@@ -1,0 +1,11 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= exception.data_module.imit.service_package %>;
+
+<%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= exception.imit.name %> extends <%= exception.extends.nil? ? "Exception" : exception.data_module.exception_by_name(exception.extends).imit.qualified_name %>
+{
+  public <%= exception.imit.name %>() {}
+  public <%= exception.imit.name %>( final String message ) { super( message ); }
+  public <%= exception.imit.name %>( final String message, final Throwable cause ) { super( message, cause ); }
+}

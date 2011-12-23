@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0"
+             xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+  <persistence-unit name="<%= repository.jpa.unit_name %>" transaction-type="JTA">
+<% if repository.jpa.provider_class
+%>    <provider><%= repository.jpa.repository.jpa.provider_class %></provider>
+<% end %>
+    <jta-data-source><%= repository.jpa.data_source %></jta-data-source>
+
+<%
+repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
+  data_module.entities.select{|entity| entity.jpa?}.each do |entity|
+%>    <class><%= entity.jpa.qualified_name %></class>
+<%
+  end
+end
+%>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+    <validation-mode>AUTO</validation-mode>
+
+    <properties>
+      <!--
+      <property name="eclipselink.logging.logger" value="JavaLogger"/>
+      <property name="eclipselink.logging.level" value="FINE"/>
+      -->
+      <property name="eclipselink.temporal.mutable" value="false"/>
+    </properties>
+
+  </persistence-unit>
+</persistence>
+

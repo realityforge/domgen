@@ -22,11 +22,12 @@ module Domgen
 
       def define
         # Need to init emf now otherwise Buildr will not have jars loaded into classpath
-        Domgen::Xmi.init_emf
         namespace self.namespace_key do
           desc self.description || "Generates the #{key} xmi artifacts."
           t = task self.key => ["#{self.namespace_key}:load"] do
             begin
+              Domgen::Xmi.init_emf
+
               FileUtils.mkdir_p File.dirname(filename)
               Domgen::Xmi.generate_xmi(self.repository_key, self.model_name || self.repository_key, self.filename)
             rescue Exception => e
@@ -106,7 +107,6 @@ module Domgen
       # Primitive types will be added to the top-level model but enumeration types
       # will be added to the package they belong to.
       #
-      # Only persistent and attributes will be processed.
       repository.data_modules.each do |data_module|
         package = model.create_nested_package(data_module.name.to_s)
         resource.setID(package, data_module.name.to_s)
@@ -114,8 +114,8 @@ module Domgen
         packages[data_module.name] = package
 
         data_module.entities.each do |entity|
-          entity.attributes.select { |attr| attr.persistent? }.each do |attribute|
-            if attribute.enum?
+          entity.attributes.each do |attribute|
+            if attribute.enumeration?
               enum_key = create_enum_key(data_module, entity, attribute)
               enum_name = create_enum_name(entity, attribute)
               enum = package.create_owned_enumeration(enum_name)
@@ -147,8 +147,8 @@ module Domgen
           clazz.createOwnedComment().setBody(description(entity)) if description(entity)
           name_class_map[entity.qualified_name] ||= clazz
 
-          # Creating EMF attributes corresponding to persistent, non-enum attributes
-          entity.attributes.select { |attr| attr.persistent? && !attr.enum? }.each do |attribute|
+          # Creating EMF attributes corresponding to non-enum attributes
+          entity.attributes.select { |attr| !attr.enumeration? }.each do |attribute|
             attribute_type =
               attribute.reference? ? attribute.referenced_entity.primary_key.attribute_type : attribute.attribute_type
             prim_type = primitive_types[primitive_name(attribute_type)]
@@ -158,8 +158,8 @@ module Domgen
             emf_attr.createOwnedComment().setBody(description(attribute)) if description(attribute)
           end
 
-          # Creating EMF attributes corresponding to persistent enum attributes
-          entity.attributes.select { |attr| attr.persistent? && attr.enum? && !attr.reference? }.each do |attribute|
+          # Creating EMF attributes corresponding to enum attributes
+          entity.attributes.select { |attr| attr.enumeration? && !attr.reference? }.each do |attribute|
             enum_type = enumerations[create_enum_key(data_module, entity, attribute)]
             emf_attr = clazz.create_owned_attribute(attribute.name.to_s, enum_type, 0, 1)
             resource.setID(emf_attr, attribute.qualified_name.to_s)
@@ -172,7 +172,7 @@ module Domgen
       # corresponding to the references defined in it.
       repository.data_modules.each do |data_module|
         data_module.entities.each do |entity|
-          entity.attributes.select { |attribute| attribute.persistent? && attribute.reference? }.each do |attribute|
+          entity.attributes.select { |attribute| attribute.reference? }.each do |attribute|
             end1 = name_class_map[attribute.entity.qualified_name]
             end2 = name_class_map[attribute.referenced_entity.qualified_name]
             name = attribute.name == attribute.referenced_entity.name ? "" : attribute.name.to_s
@@ -296,38 +296,21 @@ module Domgen
     def self.init_emf
       return if @@init_emf == true
       @@init_emf = true
-
-      class_loader = JRuby.runtime.jruby_class_loader
-
-      uml2_direct_dependencies = [
-        'org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150',
-        'org.eclipse.uml2:org.eclipse.uml2.uml.resources:jar:3.1.0.v201005031530',
-        'org.eclipse.uml2:org.eclipse.uml2.common:jar:1.5.0.v201005031530',
-        'org.eclipse.emf:org.eclipse.emf.ecore:jar:2.6.0.v20100614-1136',
-        'org.eclipse.emf:org.eclipse.emf.common:jar:2.6.0.v20100614-1136',
-        'org.eclipse.emf:org.eclipse.emf.mapping.ecore2xml:jar:2.5.0.v20100521-1847',
-        'org.eclipse.emf:org.eclipse.emf.ecore.xmi:jar:2.5.0.v20100521-1846',
-      ]
-
-      uml_2_all_dependencies = []
-      uml2_direct_dependencies.each do |d|
-        Buildr.transitive(d).each do |td|
-          uml_2_all_dependencies.push td
-        end
+        #uml2_direct_dependencies = [
+        #  'org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150',
+        #  'org.eclipse.uml2:org.eclipse.uml2.uml.resources:jar:3.1.0.v201005031530',
+        #  'org.eclipse.uml2:org.eclipse.uml2.common:jar:1.5.0.v201005031530',
+        #  'org.eclipse.emf:org.eclipse.emf.ecore:jar:2.6.0.v20100614-1136',
+        #  'org.eclipse.emf:org.eclipse.emf.common:jar:2.6.0.v20100614-1136',
+        #  'org.eclipse.emf:org.eclipse.emf.mapping.ecore2xml:jar:2.5.0.v20100521-1847',
+        #  'org.eclipse.emf:org.eclipse.emf.ecore.xmi:jar:2.5.0.v20100521-1846',
+        #]
+      Buildr.transitive('org.eclipse.core:runtime:jar:3.3.100-v20070530').each do |artifact|
+        $CLASSPATH << artifact.to_s
       end
-
-      Buildr.artifact('org.eclipse.core:runtime:jar:3.3.100-v20070530').invoke
-
-      uml_2_all_dependencies.uniq!
-      uml_2_all_dependencies.each do |e|
-        class_loader.add_url(::Java.java.io.File.new(e.to_s).to_url)
-        ::Java.classpath << e.to_s
+      Buildr.transitive('org.eclipse.uml2:org.eclipse.uml2.uml:jar:3.1.0.v201006071150').each do |artifact|
+        $CLASSPATH << artifact.to_s
       end
-
-      ::Java.classpath << Buildr.artifact('org.eclipse.core:runtime:jar:3.3.100-v20070530').to_s
-      class_loader.add_url(::Java.java.io.File.new(Buildr.artifact('org.eclipse.core:runtime:jar:3.3.100-v20070530').to_s).to_url)
-
-      ::Java.load
     end
 
     def self.description(element)

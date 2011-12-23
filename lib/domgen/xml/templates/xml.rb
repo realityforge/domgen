@@ -79,8 +79,8 @@ module Domgen
         end
 
         def visit_attribute(attribute)
-          attribute_names = %w(abstract? override? reference? validate? set_once? generated_value?
-                           enum? primary_key? allow_blank? unique? nullable? immutable? persistent?
+          attribute_names = %w(abstract? override? reference? set_once? generated_value?
+                           enumeration? primary_key? allow_blank? unique? nullable? immutable?
                            updatable? allow_blank? qualified_name length min_length name)
           doc.attribute({"entity" => attribute.entity.qualified_name},
                         collect_attributes(attribute, attribute_names)) do
@@ -104,11 +104,9 @@ module Domgen
                             "inverse-relationship" => attribute.inverse.relationship_name.to_s)
             end
 
-            if attribute.persistent?
-              attributes = collect_attributes(attribute.sql, %w(column_name identity? sparse? calculation))
-              attributes['sql-type'] = attribute.sql.sql_type.gsub('[','').gsub(']','')
-              doc.persistent(attributes)
-            end
+            attributes = collect_attributes(attribute.sql, %w(column_name identity? sparse? calculation))
+            attributes['sql-type'] = attribute.sql.sql_type.gsub('[','').gsub(']','')
+            doc.persistent(attributes)
 
           end
         end
@@ -158,7 +156,7 @@ module Domgen
               end
             end
 
-            key_attributes = %w(name referenced_entity_name on_update on_delete constraint_name)
+            key_attributes = %w(name referenced_entity_name constraint_name)
             tag_each(table, :foreign_keys) do |key|
               doc.tag!("foreign-key", {:table => table.table_name}, collect_attributes(key, key_attributes)) do
                 doc.tag!("referencing-columns") do

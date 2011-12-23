@@ -14,10 +14,10 @@ module Domgen
         "char_length(trim(both from #{quote(column_name)} )) > 0"
       end
 
-      TYPE_MAP = {"string" => "varchar",
-                  "integer" => "integer",
+      TYPE_MAP = {"integer" => "integer",
                   "real" => "double precision",
                   "datetime" => "timestamp",
+                  "date" => "date",
                   "boolean" => "bit"}
 
 
@@ -27,11 +27,15 @@ module Domgen
         elsif :reference == column.attribute.attribute_type
           return column.attribute.referenced_entity.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
-          return "text"
-        elsif column.attribute.enum?
+          if column.attribute.length.nil?
+            return "text"
+          else
+            return "varchar(#{column.attribute.length})"
+          end
+        elsif column.attribute.enumeration?
           column.attribute.enumeration.textual_values? ? "varchar(#{column.attribute.length})" : "integer"
         else
-          return TYPE_MAP[column.attribute.attribute_type.to_s] + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
+          return TYPE_MAP[column.attribute.attribute_type.to_s]
         end
       end
 
@@ -61,10 +65,10 @@ module Domgen
         "LEN( #{quote(column_name)} ) > 0"
       end
 
-      TYPE_MAP = {"string" => "VARCHAR",
-                  "integer" => "INT",
+      TYPE_MAP = {"integer" => "INT",
                   "real" => "FLOAT",
                   "datetime" => "DATETIME",
+                  "date" => "DATE",
                   "boolean" => "BIT"}
 
       def column_type(column)
@@ -77,11 +81,15 @@ module Domgen
         elsif :reference == column.attribute.attribute_type
           return column.attribute.referenced_entity.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
-          return "[VARCHAR](MAX)"
-        elsif column.attribute.enum?
+                    if column.attribute.length.nil?
+            return "[VARCHAR](MAX)"
+          else
+            return "[VARCHAR](#{column.attribute.length})"
+          end
+        elsif column.attribute.enumeration?
           column.attribute.enumeration.textual_values? ? "VARCHAR(#{column.attribute.length})" : "INT"
         else
-          return quote(TYPE_MAP[column.attribute.attribute_type.to_s]) + (column.attribute.length.nil? ? '' : "(#{column.attribute.length})")
+          return quote(TYPE_MAP[column.attribute.attribute_type.to_s])
         end
       end
     end
@@ -551,8 +559,8 @@ module Domgen
         @foreign_keys.values
       end
 
-      def foreign_key(attribute_names, referrenced_entity_name, referrenced_attribute_names, options = {}, skip_if_present = false, &block)
-        foreign_key = ForeignKey.new(self, attribute_names, referrenced_entity_name, referrenced_attribute_names, options, &block)
+      def foreign_key(attribute_names, referenced_entity_name, referenced_attribute_names, options = {}, skip_if_present = false, &block)
+        foreign_key = ForeignKey.new(self, attribute_names, referenced_entity_name, referenced_attribute_names, options, &block)
         return if @indexes[foreign_key.name] && skip_if_present
         error("Foreign Key named #{foreign_key.name} already defined on table #{table_name}") if @indexes[foreign_key.name]
         @foreign_keys[foreign_key.name] = foreign_key
@@ -614,7 +622,7 @@ SQL
           copy_tags(c, constraint_by_name(c.name))
         end
 
-        entity.declared_attributes.select { |a| a.enum? && a.enumeration.numeric_values? }.each do |a|
+        entity.declared_attributes.select { |a| a.enumeration? && a.enumeration.numeric_values? }.each do |a|
           sorted_values = a.enumeration.values.values.sort
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
@@ -628,7 +636,7 @@ SQL
 #{a.sql.quoted_column_name} IN (#{a.enumeration.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
-        entity.declared_attributes.select{ |a| (a.has_length?) && a.persistent? && !a.allow_blank? }.each do |a|
+        entity.declared_attributes.select{ |a| (a.allows_length?) && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
           sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
@@ -697,7 +705,7 @@ SQL
           end
         end
 
-        immutable_attributes = self.entity.attributes.select { |a| a.persistent? && a.immutable? && !a.primary_key? }
+        immutable_attributes = self.entity.attributes.select { |a| a.immutable? && !a.primary_key? }
         if immutable_attributes.size > 0
           pk = self.entity.primary_key
 
@@ -802,11 +810,11 @@ SQL
           end
         end
 
-        self.entity.declared_attributes.select { |a| a.persistent? && a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
+        self.entity.declared_attributes.select { |a| a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
           foreign_key([a.name],
                       a.referenced_entity.qualified_name,
                       [a.referenced_entity.primary_key.name],
-                      {:on_update => a.on_update, :on_delete => a.on_delete},
+                      {:on_update => a.sql.on_update, :on_delete => a.sql.on_delete},
                       true)
         end
       end
@@ -869,6 +877,33 @@ SQL
         @persistent_calculation.nil? ? false : @persistent_calculation
       end
 
+      def on_update=(on_update)
+        error("on_update on #{column_name} is invalid as attribute is not a reference") unless attribute.reference?
+        error("on_update #{on_update} on #{column_name} is invalid") unless self.class.change_actions.include?(on_update)
+        @on_update = on_update
+      end
+
+      def on_update
+        error("on_update on #{name} is invalid as attribute is not a reference") unless attribute.reference?
+        @on_update.nil? ? :no_action : @on_update
+      end
+
+      def on_delete=(on_delete)
+        error("on_delete on #{column_name} is invalid as attribute is not a reference") unless attribute.reference?
+        error("on_delete #{on_delete} on #{column_name} is invalid") unless self.class.change_actions.include?(on_delete)
+        @on_delete = on_delete
+      end
+
+      def on_delete
+        error("on_delete on #{name} is invalid as attribute is not a reference") unless attribute.reference?
+        @on_delete.nil? ? :no_action : @on_delete
+      end
+
+      def self.change_actions
+        #{ :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
+        [:cascade, :restrict, :set_null, :set_default, :no_action]
+      end
+
       attr_accessor :default_value
 
       def to_s
@@ -893,8 +928,8 @@ SQL
       end
 
       def pre_verify
-        self.repository.data_modules.each do |dm|
-          self.repository.data_modules.each do |other|
+        self.repository.data_modules.select{|data_module| data_module.sql?}.each do |dm|
+          self.repository.data_modules.select{|data_module| data_module.sql?}.each do |other|
             if dm != other && dm.sql.schema.to_s == other.sql.schema.to_s
               Domgen.error("Multiple data modules (#{dm.name} && #{other.name}) are mapped to the same schema #{other.sql.schema}")
             end

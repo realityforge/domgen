@@ -3,28 +3,28 @@ module Domgen
     module JPA
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       FACETS = [:jpa, :sql]
-      HELPERS = [Domgen::JPA::Helper, Domgen::Java::Helper]
+      HELPERS = [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::JAXB::Helper]
     end
 
     def self.define_jpa_model_templates
       [
         Template.new(JPA::FACETS,
                      :enumeration,
-                     "#{JPA::TEMPLATE_DIRECTORY}/enum.erb",
-                     'java/#{enumeration.jpa.qualified_enumeration_name.gsub(".","/")}.java',
+                     "#{JPA::TEMPLATE_DIRECTORY}/enumeration.erb",
+                     'java/#{enumeration.jpa.qualified_name.gsub(".","/")}.java',
                      JPA::HELPERS),
         Template.new(JPA::FACETS,
                      :entity,
-                     "#{JPA::TEMPLATE_DIRECTORY}/model.erb",
-                     'java/#{entity.jpa.qualified_entity_name.gsub(".","/")}.java',
+                     "#{JPA::TEMPLATE_DIRECTORY}/entity.erb",
+                     'java/#{entity.jpa.qualified_name.gsub(".","/")}.java',
                      JPA::HELPERS,
-                     'entity.jpa.persistent?'),
+                     'entity.jpa?'),
         Template.new(JPA::FACETS,
                      :entity,
                      "#{JPA::TEMPLATE_DIRECTORY}/metamodel.erb",
                      'java/#{entity.jpa.qualified_metamodel_name.gsub(".","/")}.java',
                      JPA::HELPERS,
-                     'entity.jpa.persistent?'),
+                     'entity.jpa?'),
       ]
     end
 
@@ -44,7 +44,16 @@ module Domgen
                      "#{JPA::TEMPLATE_DIRECTORY}/ejb.erb",
                      'java/#{entity.jpa.qualified_dao_name.gsub(".","/")}.java',
                      JPA::HELPERS,
-                     'entity.jpa.persistent?')
+                     'entity.jpa?')
+      ]
+    end
+
+    def self.define_jpa_persistence_templates
+      [
+        Template.new(JPA::FACETS,
+                     :repository,
+                     "#{JPA::TEMPLATE_DIRECTORY}/persistence.xml.erb",
+                     'resources/META-INF/persistence.xml')
       ]
     end
   end

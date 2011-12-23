@@ -10,77 +10,93 @@ module Domgen
       [
         Template.new(Imit::FACETS,
                      :enumeration,
-                     "#{Imit::TEMPLATE_DIRECTORY}/enum.erb",
-                     'java/#{enumeration.imit.qualified_enumeration_name.gsub(".","/")}.java',
+                     "#{Imit::TEMPLATE_DIRECTORY}/enumeration.erb",
+                     'java/#{enumeration.imit.qualified_name.gsub(".","/")}.java',
                      Imit::HELPERS,
-                     'enumeration.data_module.imit.client_side?'),
-        Template.new(Imit::FACETS,
-                     :data_module,
-                     "#{Imit::TEMPLATE_DIRECTORY}/updater.erb",
-                     'java/#{data_module.imit.qualified_updater_name.gsub(".","/")}.java',
-                     Imit::HELPERS,
-                     'data_module.imit.client_side?'),
+                     'enumeration.data_module.imit?'),
         Template.new(Imit::FACETS,
                      :entity,
-                     "#{Imit::TEMPLATE_DIRECTORY}/imitation.erb",
-                     'java/#{entity.imit.qualified_imitation_name.gsub(".","/")}.java',
+                     "#{Imit::TEMPLATE_DIRECTORY}/entity.erb",
+                     'java/#{entity.imit.qualified_name.gsub(".","/")}.java',
                      Imit::HELPERS,
-                     'entity.imit.client_side?'),
+                     'entity.imit?'),
+        Template.new(Imit::FACETS,
+                     :data_module,
+                     "#{Imit::TEMPLATE_DIRECTORY}/mapper.erb",
+                     'java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'data_module.imit?'),
       ]
     end
 
     def self.define_imit_json_templates
       [
         Template.new(Imit::FACETS,
-                     :data_module,
-                     "#{Imit::TEMPLATE_DIRECTORY}/json_mapper.erb",
-                     'java/#{data_module.imit.qualified_json_mapper_name.gsub(".","/")}.java',
-                     Imit::HELPERS,
-                     'data_module.imit.client_side?'),
-        Template.new(Imit::FACETS,
                      :repository,
-                     "#{Imit::TEMPLATE_DIRECTORY}/repository_json_mapper.erb",
-                     'java/#{repository.imit.qualified_json_mapper_name.gsub(".","/")}.java',
+                     "#{Imit::TEMPLATE_DIRECTORY}/change_mapper.erb",
+                     'java/#{repository.imit.qualified_change_mapper_name.gsub(".","/")}.java',
                      Imit::HELPERS),
       ]
     end
 
-    def self.define_imit_rpc_templates
+    def self.define_imit_gwt_proxy_templates
       [
         Template.new(Imit::FACETS,
-                     :data_module,
-                     "#{Imit::TEMPLATE_DIRECTORY}/rpc_mapper.erb",
-                     'java/#{data_module.imit.qualified_rpc_mapper_name.gsub(".","/")}.java',
+                     :service,
+                     "#{Imit::TEMPLATE_DIRECTORY}/service.erb",
+                     'java/#{service.imit.qualified_name.gsub(".","/")}.java',
                      Imit::HELPERS,
-                     'data_module.imit.client_side?'),
+                     'service.imit? && service.gwt?'),
+        Template.new(Imit::FACETS + [:gwt],
+                     :service,
+                     "#{Imit::TEMPLATE_DIRECTORY}/proxy.erb",
+                     'java/#{service.imit.qualified_proxy_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'service.imit? && service.gwt?'),
+          Template.new(Imit::FACETS + [:gwt],
+                       :repository,
+                       "#{Imit::TEMPLATE_DIRECTORY}/services_module.erb",
+                       'java/#{repository.imit.qualified_services_module_name.gsub(".","/")}.java',
+                       [Domgen::Java::Helper]),
         Template.new(Imit::FACETS,
-                     :repository,
-                     "#{Imit::TEMPLATE_DIRECTORY}/repository_rpc_mapper.erb",
-                     'java/#{repository.imit.qualified_rpc_mapper_name.gsub(".","/")}.java',
-                     Imit::HELPERS),
+                     :exception,
+                     "#{Imit::TEMPLATE_DIRECTORY}/exception.erb",
+                     'java/#{exception.imit.qualified_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'exception.data_module.gwt?'),
       ]
     end
 
-    def self.define_imit_rpc_jpa_templates
+    def self.define_imit_gwt_proxy_service_test_templates
+      [
+          Template.new(Imit::FACETS + [:gwt],
+                       :repository,
+                       "#{Imit::TEMPLATE_DIRECTORY}/mock_services_module.erb",
+                       'test/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
+                       [Domgen::Java::Helper]),
+      ]
+    end
+
+    def self.define_imit_jpa_templates
       facets = Imit::FACETS + [:jpa]
       helpers = Imit::HELPERS + [Domgen::JPA::Helper, Domgen::Java::Helper]
       [
         Template.new(facets,
                      :data_module,
-                     "#{Imit::TEMPLATE_DIRECTORY}/rpc_jpa_encoder.erb",
-                     'java/#{data_module.imit.qualified_rpc_jpa_encoder_name.gsub(".","/")}.java',
+                     "#{Imit::TEMPLATE_DIRECTORY}/jpa_encoder.erb",
+                     'java/#{data_module.imit.qualified_jpa_encoder_name.gsub(".","/")}.java',
                      helpers,
-                     'data_module.imit.client_side?'),
+                     'data_module.imit?'),
         Template.new(facets,
                      :data_module,
                      "#{Imit::TEMPLATE_DIRECTORY}/router_interface.erb",
                      'java/#{data_module.imit.qualified_router_interface_name.gsub(".","/")}.java',
                      helpers,
-                     'data_module.imit.client_side?'),
+                     'data_module.imit?'),
         Template.new(facets,
                      :repository,
-                     "#{Imit::TEMPLATE_DIRECTORY}/repository_rpc_jpa_encoder.erb",
-                     'java/#{repository.imit.qualified_rpc_jpa_encoder_name.gsub(".","/")}.java',
+                     "#{Imit::TEMPLATE_DIRECTORY}/message_generator.erb",
+                     'java/#{repository.imit.qualified_message_generator_name.gsub(".","/")}.java',
                      helpers),
       ]
     end

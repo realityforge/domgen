@@ -23,24 +23,12 @@ module Domgen
     end
 
     class GwtEventParameter < Domgen.ParentedElement(:parameter)
-      def name
-        Domgen::Naming.camelize(parameter.name.to_s)
-      end
-
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::ImitJavaCharacteristic
 
       protected
 
       def characteristic
         parameter
-      end
-
-      def entity_to_classname(entity)
-        entity.gwt.qualified_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.gwt.qualified_name
       end
     end
 
@@ -54,7 +42,7 @@ module Domgen
       attr_writer :service_name
 
       def service_name
-        @service_name || service.name
+        @service_name || "Gwt#{service.name}"
       end
 
       def qualified_service_name
@@ -80,7 +68,7 @@ module Domgen
 
     class GwtMethod < Domgen.ParentedElement(:method)
       def name
-        Domgen::Naming.camelize(method.name.to_s)
+        Domgen::Naming.camelize(method.name)
       end
 
       attr_writer :cancelable
@@ -91,16 +79,105 @@ module Domgen
     end
 
     class GwtModule < Domgen.ParentedElement(:data_module)
+      attr_writer :shared_package
+
+      def shared_package
+        @shared_package || "#{parent_gwt.shared_package}.#{package_key}"
+      end
+
+      attr_writer :event_package
+
+      def event_package
+        @event_package || "#{parent_gwt.event_package}.#{package_key}"
+      end
+
+      attr_writer :server_package
+
+      def server_package
+        @server_package || "#{parent_gwt.server_package}.#{package_key}"
+      end
+
+      protected
+
+      def parent_gwt
+        data_module.repository.gwt
+      end
+
+      def package_key
+        Domgen::Naming.underscore(data_module.name)
+      end
+    end
+
+    class GwtReturn < Domgen.ParentedElement(:result)
+
+      include Domgen::Java::ImitJavaCharacteristic
+
+      protected
+
+      def characteristic
+        result
+      end
+    end
+
+    class GwtParameter < Domgen.ParentedElement(:parameter)
+      include Domgen::Java::ImitJavaCharacteristic
+
+      # Does the parameter come from the environment?
+      def environmental?
+        !!@environment_key
+      end
+
+      attr_reader :environment_key
+
+      def environment_key=(environment_key)
+        raise "Unknown environment_key #{environment_key}" unless self.class.environment_key_set.include?(environment_key)
+        @environment_key = environment_key
+      end
+
+      def environment_value
+        raise "environment_value invoked for non-environmental value" unless environmental?
+        self.class.environment_key_set[environment_key]
+      end
+
+      def self.environment_key_set
+        {
+          "request:session:id" => 'getThreadLocalRequest().getSession(true).getId()',
+          "request:permutation-strong-name" => 'getPermutationStrongName()',
+          "request:locale" => 'getThreadLocalRequest().getLocale().toString()',
+          "request:remote-host" => 'getThreadLocalRequest().getRemoteHost()',
+          "request:remote-address" => 'getThreadLocalRequest().getRemoteAddr()',
+          "request:remote-port" => 'getThreadLocalRequest().getRemotePort()',
+          "request:remote-user" => 'getThreadLocalRequest().getRemoteUser()',
+        }
+      end
+      protected
+
+      def characteristic
+        parameter
+      end
+    end
+
+    class GwtException < Domgen.ParentedElement(:exception)
+      def name
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+      end
+
+      def qualified_name
+        "#{exception.data_module.gwt.shared_package}.#{name}"
+      end
+    end
+
+    class GwtApplication < Domgen.ParentedElement(:repository)
       attr_writer :module_name
 
       def module_name
-        @module_name || data_module.name
+        @module_name || repository.name
       end
 
       attr_writer :package
 
       def package
-        @package || "#{data_module.repository.gwt.package}.#{Domgen::Naming.underscore(data_module.name)}"
+        @package || Domgen::Naming.underscore(repository.name)
       end
 
       attr_writer :shared_package
@@ -121,81 +198,36 @@ module Domgen
         @event_package || "#{client_package}.event"
       end
 
-      attr_writer :gin_package
+      attr_writer :ioc_package
 
-      def gin_package
-        @gin_package || "#{client_package}.gin"
+      def ioc_package
+        @ioc_package || "#{client_package}.ioc"
       end
 
       attr_writer :server_package
 
       def server_package
-        @server_package || "#{package}.server"
+        @server_package || "#{package}.server.servlet"
       end
 
       attr_writer :gin_module_name
 
       def gin_module_name
-        @gin_module_name || "#{data_module.name}ServicesGinModule"
+        @gin_module_name || "#{repository.name}GwtServicesModule"
       end
 
       def qualified_gin_module_name
-        "#{gin_package}.#{gin_module_name}"
-      end
-    end
-
-    class GwtReturn < Domgen.ParentedElement(:result)
-
-      include Domgen::Java::JavaCharacteristic
-
-      protected
-
-      def characteristic
-        result
+        "#{ioc_package}.#{gin_module_name}"
       end
 
-      def entity_to_classname(entity)
-        entity.gwt.qualified_name
+      attr_writer :mock_services_module_name
+
+      def mock_services_module_name
+        @mock_services_module_name || "#{repository.name}MockGwtServicesModule"
       end
 
-      def enumeration_to_classname(enumeration)
-        enumeration.gwt.qualified_name
-      end
-    end
-
-    class GwtParameter < Domgen.ParentedElement(:parameter)
-      def name
-        Domgen::Naming.camelize(parameter.name.to_s)
-      end
-
-      include Domgen::Java::JavaCharacteristic
-
-      protected
-
-      def characteristic
-        parameter
-      end
-
-      def entity_to_classname(entity)
-        entity.gwt.qualified_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.gwt.qualified_name
-      end
-    end
-
-    class GwtException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
-    end
-
-    class GwtApplication < Domgen.ParentedElement(:repository)
-      attr_writer :package
-
-      def package
-        @package || Domgen::Naming.underscore(repository.name)
+      def qualified_mock_services_module_name
+        "#{ioc_package}.#{mock_services_module_name}"
       end
     end
   end

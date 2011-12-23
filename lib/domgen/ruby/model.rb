@@ -1,5 +1,13 @@
 module Domgen
   module Ruby
+    class RubyAttribute < Domgen.ParentedElement(:attribute)
+      attr_writer :validate
+
+      def validate?
+        @validate.nil? ? true : @validate
+      end
+    end
+
     class RubyClass < Domgen.ParentedElement(:entity)
       attr_writer :classname
 
@@ -21,7 +29,7 @@ module Domgen
 
       def filename
         fqn = qualified_name
-        underscore(fqn[2..fqn.length])
+        Domgen::Naming.underscore(fqn[2..fqn.length])
       end
     end
 
@@ -36,5 +44,6 @@ module Domgen
 
   FacetManager.define_facet(:ruby,
                             Entity => Domgen::Ruby::RubyClass,
+                            Attribute => Domgen::Ruby::RubyAttribute,
                             DataModule => Domgen::Ruby::RubyModule )
 end

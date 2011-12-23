@@ -5,6 +5,6 @@ public final class <%= data_module.jpa.catalog_name %>
 {
   public static final Class[] MODELS =
   {
-<%= data_module.entities.select {|entity| entity.jpa.persistent? }.collect {|entity| "    #{entity.jpa.qualified_entity_name}.class" }.join(",\n") %>
+<%= data_module.entities.select {|entity| entity.jpa? }.collect {|entity| "    #{entity.jpa.qualified_name}.class" }.join(",\n") %>
   };
 }

@@ -12,7 +12,6 @@ require 'domgen/model'
 require 'domgen/template'
 require 'domgen/render_context'
 require 'domgen/generator'
-require 'domgen/helper'
 
 # Java
 require 'domgen/java/model'
@@ -26,6 +25,11 @@ require 'domgen/ruby/helper'
 require 'domgen/sql/model'
 require 'domgen/sql/helper'
 require 'domgen/sql/generator'
+
+# JAXB
+require 'domgen/jaxb/model'
+require 'domgen/jaxb/helper'
+require 'domgen/jaxb/generator'
 
 # JPA
 require 'domgen/jpa/model'
@@ -49,6 +53,10 @@ require 'domgen/xmi_generator'
 # EJB
 require 'domgen/ejb/model'
 require 'domgen/ejb/generator'
+
+# JWS
+require 'domgen/jws/model'
+require 'domgen/jws/generator'
 
 # GWT
 require 'domgen/gwt/model'

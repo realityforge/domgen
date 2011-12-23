@@ -1,12 +1,14 @@
 module Domgen
   module EJB
-    DEFAULT_SERVICE_PACKAGE_SUFFIX = "service"
-
     class EjbClass < Domgen.ParentedElement(:service)
       attr_writer :name
 
       def name
         @name || service.qualified_name
+      end
+
+      def boundary_name
+        "#{name}Boundary"
       end
 
       attr_writer :service_name
@@ -19,83 +21,71 @@ module Domgen
         "#{service.data_module.ejb.service_package}.#{service_name}"
       end
 
+      def boundary_interface_name
+        "Local#{service_name}Boundary"
+      end
+
+      def qualified_boundary_interface_name
+        "#{service.data_module.ejb.service_package}.#{boundary_interface_name}"
+      end
+
+      def remote_service_name
+        "Remote#{service_name}"
+      end
+
+      def qualified_remote_service_name
+        "#{service.data_module.ejb.service_package}.#{remote_service_name}"
+      end
+
+      def boundary_implementation_name
+        "#{service_name}BoundaryEJB"
+      end
+
+      def qualified_boundary_implementation_name
+        "#{service.data_module.ejb.service_package}.#{boundary_implementation_name}"
+      end
+
+      attr_accessor :boundary_extends
+
       attr_writer :local
 
       def local?
         @local.nil? ? true : @local
       end
 
+      def remote=(remote)
+        self.local = !remote
+      end
+
       def remote?
         !local?
+      end
+
+      attr_accessor :generate_boundary
+
+      def generate_boundary?
+        @generate_boundary.nil? ? service.methods.any?{|method| method.parameters.any?{|parameter|parameter.reference?}} : @generate_boundary
       end
     end
 
     class EjbParameter < Domgen.ParentedElement(:parameter)
-      def name
-        Domgen::Naming.camelize(parameter.name.to_s)
-      end
-
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::EEJavaCharacteristic
 
       protected
 
       def characteristic
         parameter
       end
-
-      def entity_to_classname(entity)
-        entity.ejb.qualified_service_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.ejb.qualified_name
-      end
-    end
-
-    class EjbMethod < Domgen.ParentedElement(:service)
-      def name
-        Domgen::Naming.camelize(service.name.to_s)
-      end
-    end
-
-    class EjbPackage < Domgen.ParentedElement(:data_module)
-      attr_writer :service_package
-
-      def service_package
-        @service_package || "#{data_module.repository.ejb.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
-      end
-
-      attr_writer :data_type_package
-
-      def data_type_package
-        @data_type_package || service_package
-      end
-    end
-
-    class EjbApplication < Domgen.ParentedElement(:repository)
-      attr_writer :service_package
-
-      def service_package
-        @service_package || "#{Domgen::Naming.underscore(repository.name)}.#{DEFAULT_SERVICE_PACKAGE_SUFFIX}"
-      end
     end
 
     class EjbReturn < Domgen.ParentedElement(:result)
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::EEJavaCharacteristic
 
       protected
 
       def characteristic
         result
-      end
-
-      def entity_to_classname(entity)
-        entity.ejb.qualified_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.ejb.qualified_name
       end
     end
 
@@ -105,14 +95,27 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.ejb.data_type_package}.#{name}"
+        "#{exception.data_module.ejb.service_package}.#{name}"
       end
+    end
+
+    class EjbPackage < Domgen.ParentedElement(:data_module)
+      include Domgen::Java::JavaPackage
+
+      protected
+
+      def facet_key
+        :ejb
+      end
+    end
+
+    class EjbApplication < Domgen.ParentedElement(:repository)
+      include Domgen::Java::ServerJavaApplication
     end
   end
 
   FacetManager.define_facet(:ejb,
                             Service => Domgen::EJB::EjbClass,
-                            Method => Domgen::EJB::EjbMethod,
                             Parameter => Domgen::EJB::EjbParameter,
                             Exception => Domgen::EJB::EjbException,
                             Result => Domgen::EJB::EjbReturn,

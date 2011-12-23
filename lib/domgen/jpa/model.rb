@@ -1,15 +1,73 @@
 module Domgen
   module JPA
-    DEFAULT_ENTITY_PACKAGE_SUFFIX = "entity"
+    class QueryParameter < Domgen.ParentedElement(:query)
+      include Characteristic
+      include Domgen::Java::EEJavaCharacteristic
+
+      attr_reader :parameter_type
+      attr_reader :name
+
+      def initialize(message, name, parameter_type, options, &block)
+        @name = name
+        @parameter_type = parameter_type
+        super(message, options, &block)
+      end
+
+      def qualified_name
+        "#{query.qualified_name}$#{self.name}"
+      end
+
+      def to_s
+        "QueryParameter[#{self.qualified_name}]"
+      end
+
+      def characteristic_type
+        parameter_type
+      end
+
+      def characteristic
+        self
+      end
+
+      def characteristic_kind
+        "parameter"
+      end
+    end
 
     class Query < Domgen.ParentedElement(:jpa_class)
+      include Domgen::CharacteristicContainer
+
       attr_reader :name
-      attr_accessor :parameter_types
 
       def initialize(jpa_class, name, ql, options = {}, & block)
         @name = name
         @ql = ql
         super(jpa_class, options, & block)
+
+        query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
+
+        expected_parameters = query_parameters.uniq.sort
+
+        expected_parameters.each do |parameter_name|
+          if !characteristic_exists?(parameter_name) && jpa_class.entity.attribute_exists?(parameter_name)
+            attribute = jpa_class.entity.attribute_by_name(parameter_name)
+            characteristic_options = {}
+            if attribute.attribute_type == :enumeration
+              characteristic_options[:enumeration] = attribute.enumeration
+            end
+            characteristic(attribute.name, attribute.attribute_type, characteristic_options)
+          end
+        end
+
+        actual_parameters = parameters.collect{|p|p.name.to_s}.sort
+        if expected_parameters != actual_parameters
+          raise "Actual parameters for query #{self.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}"
+        end
+
+        @query_ordered_parameters = []
+        query_parameters.each do |query_parameter|
+          @query_ordered_parameters << characteristic_by_name(query_parameter)
+        end
       end
 
       attr_writer :native
@@ -46,16 +104,13 @@ module Domgen
         @ql
       end
 
-      def populate_parameters
-        @parameter_types = {} unless @parameter_types
-        parameters.each do |p|
-          @parameter_types[p] = jpa_class.entity.attribute_by_name(p).jpa.java_type if @parameter_types[p].nil?
-        end
+      # An array of parameters ordered as they appear in query and with possible duplicates
+      def query_ordered_parameters
+        @query_ordered_parameters
       end
 
       def parameters
-        return [] if self.ql.nil?
-        self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }.uniq
+        characteristics
       end
 
       def qualified_name
@@ -63,13 +118,40 @@ module Domgen
       end
 
       def local_name
-        "#{name_prefix}#{name_suffix}"
+        if self.query_type == :select
+          suffix = no_ql? ? '' : "By#{name}"
+          if self.multiplicity == :many
+            "findAll#{suffix}"
+          elsif self.multiplicity == :zero_or_one
+            "find#{suffix}"
+          else
+            "get#{suffix}"
+          end
+        elsif self.query_type == :update
+          "update#{name}"
+        elsif self.query_type == :delete
+          "delete#{name}"
+        elsif self.query_type == :insert
+          "insert#{name}"
+        end
       end
 
-      attr_writer :query_type
+      def query_type=(query_type)
+        error("query_type #{query_type} is invalid") unless self.class.valid_query_types.include?(query_type)
+        @query_type = query_type
+      end
 
       def query_type
-        @query_type || :selector
+        @query_type || :select
+      end
+
+      def query_spec=(query_spec)
+        error("query_spec #{query_spec} is invalid") unless self.class.valid_query_specs.include?(query_spec)
+        @query_spec = query_spec
+      end
+
+      def query_spec
+        @query_spec || (ql =~ /\sFROM\s/ix) ? :statement : :criteria
       end
 
       def multiplicity
@@ -82,34 +164,65 @@ module Domgen
       end
 
       def query_string
-        if self.query_type == :full
+        table_name = self.native? ? jpa_class.entity.sql.table_name : jpa_class.entity.jpa.jpql_name
+        criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
+        if self.query_spec == :statement
           query = self.ql
-        elsif self.query_type == :selector
-          if self.native?
-            query = "SELECT O.* FROM #{jpa_class.entity.sql.table_name} O #{no_ql? ? '' : "WHERE "}#{sql}"
+        elsif self.query_spec == :criteria
+          if self.query_type == :select
+            if self.native?
+              query = "SELECT O.* FROM #{table_name} O #{criteria_clause}"
+            else
+              query = "SELECT O FROM #{table_name} O #{criteria_clause}"
+            end
+          elsif self.query_type == :update
+            raise "The combination of query_type == :update and query_spec == :criteria is not supported"
+          elsif self.query_type == :insert
+            raise "The combination of query_type == :insert and query_spec == :criteria is not supported"
+          elsif self.query_type == :delete
+            if self.native?
+              query = "DELETE FROM #{table_name} FROM #{table_name} O #{criteria_clause}"
+            else
+              query = "DELETE FROM #{table_name} O #{criteria_clause}"
+            end
           else
-            query = "SELECT O FROM #{jpa_class.entity.jpa.jpql_name} O #{no_ql? ? '' : "WHERE "}#{jpql}"
+            error("Unknown query type #{query_type}")
           end
         else
-          error("Unknown query type #{query_type}")
+          error("Unknown query spec #{query_spec}")
         end
-        query.gsub("\n", ' ')
+        query = query.gsub(/:[^\W]+/,'?') if self.native?
+        query.gsub(/[\s]+/, ' ').strip
       end
 
-      private
-
-      def name_prefix
-        if self.multiplicity == :many
-          "findAll"
-        elsif self.multiplicity == :zero_or_one
-          "find"
-        else
-          "get"
-        end
+      def self.valid_query_specs
+        [:statement, :criteria]
       end
 
-      def name_suffix
-        no_ql? ? '' : "By#{name}"
+      def self.valid_query_types
+        [:select, :update, :delete, :insert]
+      end
+
+      def to_s
+        "Query[#{self.qualified_name}]"
+      end
+
+      protected
+
+      def characteristic_kind
+        raise "parameter"
+      end
+
+      def data_module
+        jpa_class.entity.data_module
+      end
+
+      def new_characteristic(name, type, options, &block)
+        QueryParameter.new(self, name, type, options, &block)
+      end
+
+      def perform_verify
+        verify_characteristics
       end
     end
 
@@ -162,47 +275,48 @@ module Domgen
       def orphan_removal?
         !!@orphan_removal
       end
+
+      def inverse
+        self.parent
+      end
+
+      def traversable=(traversable)
+        error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
+        @traversable = traversable
+      end
+
+      def traversable?
+        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.jpa?) : @traversable
+      end
     end
 
     class JpaField < BaseJpaField
       attr_writer :persistent
 
       def persistent?
-        @persistent.nil? ? (!attribute.abstract? && attribute.persistent?) : @persistent
-      end
-
-      def name
-        attribute.name
+        @persistent.nil? ? !attribute.abstract? : @persistent
       end
 
       def attribute
         self.parent
       end
 
-      include Domgen::Java::JavaCharacteristic
+      include Domgen::Java::EEJavaCharacteristic
 
       protected
 
       def characteristic
         attribute
       end
-
-      def entity_to_classname(entity)
-        entity.jpa.qualified_entity_name
-      end
-
-      def enumeration_to_classname(enumeration)
-        enumeration.jpa.qualified_enumeration_name
-      end
     end
 
     class JpaEnumeration < Domgen.ParentedElement(:enumeration)
-      def enumeration_name
+      def name
         "#{enumeration.name}"
       end
 
-      def qualified_enumeration_name
-        "#{enumeration.data_module.jpa.data_type_package}.#{enumeration_name}"
+      def qualified_name
+        "#{enumeration.data_module.jpa.data_type_package}.#{name}"
       end
     end
 
@@ -219,18 +333,18 @@ module Domgen
         @jpql_name || entity.qualified_name.gsub('.','_')
       end
 
-      attr_writer :entity_name
+      attr_writer :name
 
-      def entity_name
-        @entity_name || entity.name
+      def name
+        @name || entity.name
       end
 
-      def qualified_entity_name
-        "#{entity.data_module.jpa.entity_package}.#{entity_name}"
+      def qualified_name
+        "#{entity.data_module.jpa.entity_package}.#{name}"
       end
 
       def metamodel_name
-        "#{entity_name}_"
+        "#{name}_"
       end
 
       def qualified_metamodel_name
@@ -247,10 +361,16 @@ module Domgen
         "#{entity.data_module.jpa.dao_package}.#{dao_name}"
       end
 
-      attr_writer :persistent
+      attr_writer :cacheable
 
-      def persistent?
-        @persistent.nil? ? true : @persistent
+      def cacheable?
+        @cacheable.nil? ? false : @cacheable
+      end
+
+      attr_writer :detachable
+
+      def detachable?
+        @detachable.nil? ? false : @detachable
       end
 
       def queries
@@ -271,24 +391,11 @@ module Domgen
         self.query(entity.primary_key.name,
                    "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
                    :multiplicity => :zero_or_one)
-        self.queries.each do |q|
-          q.populate_parameters
-        end
       end
     end
 
     class JpaPackage < Domgen.ParentedElement(:data_module)
-      attr_writer :entity_package
-
-      def entity_package
-        @entity_package || "#{data_module.repository.jpa.entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
-      end
-
-      attr_writer :data_type_package
-
-      def data_type_package
-        @data_type_package || entity_package
-      end
+      include Domgen::Java::JavaPackage
 
       attr_writer :catalog_name
 
@@ -305,15 +412,32 @@ module Domgen
       def dao_package
         @dao_package || "#{entity_package}.dao"
       end
+
+      protected
+
+      def facet_key
+        :jaxb
+      end
     end
 
     class PersistenceUnit < Domgen.ParentedElement(:repository)
       attr_accessor :unit_name
 
-      attr_writer :entity_package
+      include Domgen::Java::ServerJavaApplication
 
-      def entity_package
-        @entity_package || "#{Domgen::Naming.underscore(repository.name)}.#{DEFAULT_ENTITY_PACKAGE_SUFFIX}"
+      attr_writer :data_source
+
+      def data_source
+        @data_source || "jdbc/#{repository.name}DS"
+      end
+
+      attr_accessor :provider
+
+      def provider_class
+        return "org.eclipse.persistence.jpa.PersistenceProvider" if provider == :eclipselink
+        return "org.hibernate.ejb.HibernatePersistence" if provider == :hibernate
+        return nil if provider.nil?
+
       end
     end
   end

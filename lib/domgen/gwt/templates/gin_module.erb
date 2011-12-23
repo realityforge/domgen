@@ -1,51 +1,47 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= data_module.gwt.gin_package %>;
+package <%= repository.gwt.ioc_package %>;
 
-<%= description_javadoc_for(data_module, "") %>@javax.annotation.Generated( "Domgen" )
+<%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= data_module.gwt.gin_module_name %>
+public class <%= repository.gwt.gin_module_name %>
   extends com.google.gwt.inject.client.AbstractGinModule
 {
   private static com.google.gwt.user.client.rpc.XsrfToken c_xsrfToken;
-  private static boolean c_initialized;
 
-  private static com.google.gwt.user.client.rpc.XsrfToken getXsrfToken()
+  public static com.google.gwt.user.client.rpc.XsrfToken getXsrfToken()
   {
     if( null == c_xsrfToken )
     {
-      throw new IllegalStateException( "Attempting to construct service requiring XsrfToken without specifying toke." );
+      throw new IllegalStateException( "Attempting to construct service requiring XsrfToken without specifying token." );
     }
     return c_xsrfToken;
   }
 
   public static void initialize( final String moduleName, final com.google.gwt.user.client.rpc.XsrfToken xsrfToken )
   {
-    initialize( moduleName );
-    c_xsrfToken = xsrfToken;
-  }
-
-  public static void initialize( final String moduleName )
-  {
-    if( !c_initialized && !moduleName.equals( "<%= data_module.gwt.module_name %>" ) )
+    if( null != c_xsrfToken )
     {
-      throw new IllegalStateException( "Actual GWT module name '" + com.google.gwt.core.client.GWT.getModuleName() + "' does not match module name '<%= data_module.gwt.module_name %>' used during compilation." );
+      throw new IllegalStateException( "Attempting to re-initialialize gin module." );
     }
-    c_initialized = true;
+    if( !moduleName.equals( "<%= repository.gwt.module_name %>" ) )
+    {
+      throw new IllegalStateException( "Actual GWT module name '" + com.google.gwt.core.client.GWT.getModuleName() + "' does not match module name '<%= repository.gwt.module_name %>' used during compilation." );
+    }
+    c_xsrfToken = xsrfToken;
   }
 
   @Override
   protected void configure()
   {
   }
-
 <%
-   data_module.services.each do |service|
+  repository.data_modules.select{|data_module| data_module.gwt?}.each do |data_module|
+    data_module.services.select{|service| service.gwt?}.each do |service|
 %>
   @com.google.inject.Provides
   @javax.inject.Singleton
   public <%= service.gwt.qualified_async_service_name %> get<%= service.name %>()
   {
-    if( !c_initialized ) throw new IllegalStateException();
     final <%= service.gwt.qualified_async_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt.qualified_service_name %>.class );
 <% if service.gwt.xsrf_protected? %>
     ( (com.google.gwt.user.client.rpc.HasRpcToken) service ).setRpcToken( getXsrfToken() );
@@ -53,6 +49,7 @@ public class <%= data_module.gwt.gin_module_name %>
     return service;
   }
 <%
+    end
   end
 %>}
 

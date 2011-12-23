@@ -92,6 +92,7 @@ module Domgen
       extension_map.each_pair do |source_class, extension_class|
         Domgen.error("Facet #{key}: Unknown source class supplied in map '#{source_class.name}'") unless FacetManager.valid_source_classes.include?(source_class)
         Domgen.error("Facet #{key}: Extension class is not a class. '#{extension_class}'") unless extension_class.is_a?(Class)
+        source_class.class_eval("def #{key}?; false; end")
       end
       @key = key
       @extension_map = extension_map
@@ -106,6 +107,7 @@ module Domgen
       # way to determine if a particular element supports a facet via respond_to?
       object.instance_eval("def facet_#{self.key}; @#{self.key} ||= #{extension_class.name}.new(self); end")
       object.instance_eval("def #{self.key}; self.facet_#{self.key}; end")
+      object.instance_eval("def #{self.key}?; true; end")
       Logger.debug "Facet '#{key}' enabled for #{object.class} by adding extension #{extension_class}"
     end
 
@@ -113,6 +115,7 @@ module Domgen
       extension_class = self.extension_map[object.class]
       return unless extension_class
       object.instance_eval("def #{self.key}; Domgen.error(\"Facet #{self.key} has been disabled\"); end")
+      object.instance_eval("def #{self.key}?; false; end")
       object.send(:remove_instance_variable, :"@#{self.key}") rescue
       Logger.debug "Facet '#{key}' disabled for #{object.class} by removing extension #{extension_class}"
     end
@@ -134,6 +137,7 @@ module Domgen
       def valid_source_classes
         [
           Domgen::EnumerationSet,
+          Domgen::StructField, Domgen::Struct,
           Domgen::Attribute, Domgen::InverseElement, Domgen::Entity,
           Domgen::Service, Domgen::Method, Domgen::Parameter, Domgen::Exception, Domgen::Result,
           Domgen::Message, Domgen::MessageParameter,

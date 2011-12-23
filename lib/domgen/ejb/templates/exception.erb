@@ -3,6 +3,7 @@ package <%= exception.data_module.ejb.service_package %>;
 
 <%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<% if exception.jws? %>@javax.xml.ws.WebFault( name = "<%= exception.name %>" )<% end %>
 public class <%= exception.ejb.name %> extends <%= exception.extends.nil? ? "Exception" : exception.data_module.exception_by_name(exception.extends).ejb.qualified_name %>
 {
   public <%= exception.ejb.name %>() {}
