@@ -8,3 +8,22 @@
 * Introduce the "uses" metadata for service that can refer to entities (a.k.a DAOs) and other services. Use this to generate abstract service with required dependencies and update the uml generated.
 * Start to generate "environment" parameter for gwt method parameters that indicate parameter is retrieved from servlet environment
 * Use  javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
+* For both JPA and JWS we want to use vendor specific extensions. In JPA you want to define the Indexes and other
+  database artifacts while in JWS you want to indicate that a service should be validated for compliance with SOAP
+  xsd and also you want to use vendor specific extensions to annotate methods/services with wsdl documentation. Domgen
+  should be extended to support one vendor per facet, per repository. Then it would default to adding the annotations
+  for that particular vendor.
+  - JPA:
+    - EclipseLink:
+      - http://wiki.eclipse.org/Using_EclipseLink_JPA_Extensions_(ELUG)
+    - Hibernate:
+      - http://docs.jboss.org/hibernate/annotations/3.5/reference/en/html_single/#entity-hibspec-identifier
+  - JWS:
+    - Metro:
+      - @com.sun.xml.internal.ws.developer.SchemaValidation
+    - JbossWS:
+      - http://community.jboss.org/wiki/JBossWS-NativeUserGuide#Documentation
+      - http://community.jboss.org/wiki/JBossWS-NativeUserGuide#SchemaValidation
+    - CXF:
+      - http://fusesource.com/docs/esb/4.4.1/cxf_jaxws/JavaFirst-AnnotateCxf-WsdlDoc.html
+      - http://fusesource.com/docs/esb/4.4.1/cxf_jaxws/JavaFirst-AnnotateCxf-SchemaVal.html
