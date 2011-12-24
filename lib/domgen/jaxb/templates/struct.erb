@@ -38,7 +38,7 @@ public class <%= struct.jaxb.name %>
 %>  }
 <% struct.fields.each do |field|
 %>
-  public <%= annotated_type(field, :jaxb) %> <%= getter_prefix(field) %><%= field.name %>()
+  public <%= annotated_type(field, :jaxb) %> <%= getter_prefix(field) %><%= field.jaxb.name %>()
   {
     return <%= field.jaxb.name %>;
   }
