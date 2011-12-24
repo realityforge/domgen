@@ -127,9 +127,14 @@ module Domgen
       output_filename = eval("\"#{template.output_filename_pattern}\"", context_binding)
       output_filename = File.join(target_basedir, output_filename)
       result = template.render_to_string(context_binding)
-      FileUtils.mkdir_p File.dirname(output_filename)
-      File.open(output_filename, 'w') { |f| f.write(result) }
-      Logger.debug "Generated #{template.template_name} for #{key} #{object_name} to #{output_filename}"
+      FileUtils.mkdir_p File.dirname(output_filename) unless File.directory?(File.dirname(output_filename))
+      if File.exist?(output_filename) && IO.read(output_filename) == result
+        Logger.debug "Skipped generation of #{template.template_name} for #{key} #{object_name} to #{output_filename} due to no changes"
+      else
+        puts "Generating #{output_filename}"
+        File.open(output_filename, 'w') { |f| f.write(result) }
+        Logger.debug "Generated #{template.template_name} for #{key} #{object_name} to #{output_filename}"
+      end
     end
   end
 end
