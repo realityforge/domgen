@@ -13,6 +13,12 @@ public class <%= struct.jaxb.name %>
 <% end %>
 
 <% if struct.fields.size != 0 %>
+  /**
+   * This constructor is present for deserialization mechanisms and should not be called directly.
+   *
+   * @deprecated
+   */
+  @Deprecated
   public <%= struct.jaxb.name %>()
   {
   }
