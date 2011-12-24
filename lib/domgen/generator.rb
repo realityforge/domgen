@@ -131,7 +131,6 @@ module Domgen
       if File.exist?(output_filename) && IO.read(output_filename) == result
         Logger.debug "Skipped generation of #{template.template_name} for #{key} #{object_name} to #{output_filename} due to no changes"
       else
-        puts "Generating #{output_filename}"
         File.open(output_filename, 'w') { |f| f.write(result) }
         Logger.debug "Generated #{template.template_name} for #{key} #{object_name} to #{output_filename}"
       end
