@@ -28,14 +28,6 @@ module Domgen
       end
 
       def java_component_type(modality = :default)
-        if characteristic.characteristic_type == :struct && :none != characteristic.collection_type
-          return characteristic.struct.send(struct_key).qualified_name
-        else
-          java_type(modality)
-        end
-      end
-
-      def non_primitive_java_type(modality = :default)
         if characteristic.reference?
           if :default == modality
             return characteristic.referenced_entity.send(facet_key).qualified_name
@@ -57,13 +49,7 @@ module Domgen
             error("unknown modality #{modality}")
           end
         elsif characteristic.characteristic_type == :struct
-          if :none == characteristic.collection_type
-            return characteristic.struct.send(struct_key).qualified_name
-          elsif :sequence == characteristic.collection_type
-            return "java.util.List<#{characteristic.struct.send(struct_key).qualified_name}>"
-          else
-            error("unknown collection_type #{characteristic.collection_type}")
-          end
+          return characteristic.struct.send(struct_key).qualified_name
         elsif characteristic.characteristic_type == :date
           return date_java_type
         else
@@ -71,7 +57,19 @@ module Domgen
         end
       end
 
+      def non_primitive_java_type(modality = :default)
+        component_type = java_component_type(modality)
+        if :none == characteristic.collection_type
+          return component_type
+        elsif :sequence == characteristic.collection_type
+          "java.util.List<#{component_type}>"
+        else :sequence == characteristic.collection_type
+          "java.util.Set<#{component_type}>"
+        end
+      end
+
       def primitive?(modality = :default)
+        return false if characteristic.collection?
         return false if characteristic.nullable?
         return false if (characteristic.respond_to?(:generated_value?) && characteristic.generated_value?)
         return true if characteristic.integer? || characteristic.boolean?

@@ -21,20 +21,33 @@ public class <%= service.imit.proxy_name %>
     <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| Domgen::Naming.camelize(p.imit.name) } + ["null"]).join(', ') %>);
   }
 
-  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "final #{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" } + ["final @javax.annotation.Nullable com.google.gwt.user.client.rpc.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" } + ["final @javax.annotation.Nullable com.google.gwt.user.client.rpc.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)
   {
+  <% method.parameters.select{|parameter| (parameter.reference? || parameter.enumeration?) && parameter.collection?}.each do |parameter| %>
+    final <%= annotated_type(parameter, :gwt, :transport) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.gwt.java_component_type(:transport) %>>();
+    <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
+    for( final <%= parameter.imit.java_component_type %> entity: <%= parameter.name %> )
+    {
+    $<%= parameter.name %>.add( entity.<%=
+    parameter.reference? ? "get#{parameter.referenced_entity.primary_key.imit.name}()" :
+      parameter.enumeration.numeric_values? ? "ordinal()" : "name()"
+%> );
+    }
+    <% if parameter.nullable? %>}<% end %>
+  <% end %>
   _service.<%= method.gwt.name %>(<%= method.parameters.select{|parameter| !parameter.imit.environmental?}.collect do |parameter|
-  param_name = Domgen::Naming.camelize(parameter.imit.name)
-  param_value = param_name
-  if parameter.parameter_type == :enumeration && parameter.enumeration.numeric_values?
-    param_value = "#{param_name}.ordinal()"
+  param_value = parameter.name
+  if parameter.collection? && (parameter.enumeration? || parameter.reference?)
+    param_value = "$#{parameter.name}"
+  elsif parameter.parameter_type == :enumeration && parameter.enumeration.numeric_values?
+    param_value = "#{parameter.name}.ordinal()"
   elsif parameter.parameter_type == :enumeration && parameter.enumeration.textual_values?
-    param_value = "#{param_name}.name()"
+    param_value = "#{parameter.name}.name()"
   elsif parameter.reference?
-    param_value = "#{param_name}.get#{parameter.referenced_entity.primary_key.imit.name}()"
+    param_value = "#{parameter.name}.get#{parameter.referenced_entity.primary_key.imit.name}()"
   end
-  if parameter.nullable?
-    param_value = "null == #{param_name} ? null : #{param_value}"
+  if parameter.nullable? && !parameter.collection?
+    param_value = "null == #{parameter.name} ? null : #{param_value}"
   end
   param_value
 end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.environmental?}.empty? ? '' : ', ' %>new com.google.gwt.user.client.rpc.AsyncCallback<<%= method.return_value.imit.non_primitive_java_type(:transport) %>>()
@@ -48,18 +61,37 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
     public void onSuccess( final <%= method.return_value.imit.non_primitive_java_type(:transport) %> result )
     {
 <%
-    result_string = "result"
-    if method.return_value.enumeration? && method.return_value.enumeration.numeric_values?
-      result_string = "#{method.return_value.imit.java_type}.values()[ result ]"
-    elsif method.return_value.enumeration? && method.return_value.enumeration.textual_values?
-      result_string = "#{method.return_value.imit.java_type}.valueOf( result )"
-    elsif method.return_value.reference?
-      result_string = "_repository.getByID( #{method.return_value.referenced_entity.imit.qualified_name}.class, result )"
-    end
-    if method.return_value.nullable?
-      result_string = "null == result ? null : #{result_string}"
-    end
+   if !method.return_value.collection?
+     result_string = "result"
+     if method.return_value.enumeration? && method.return_value.enumeration.numeric_values?
+       result_string = "#{method.return_value.imit.java_type}.values()[ result ]"
+     elsif method.return_value.enumeration? && method.return_value.enumeration.textual_values?
+       result_string = "#{method.return_value.imit.java_type}.valueOf( result )"
+     elsif method.return_value.reference?
+       result_string = "_repository.getByID( #{method.return_value.referenced_entity.imit.qualified_name}.class, result )"
+     end
+     if method.return_value.nullable?
+       result_string = "null == result ? null : #{result_string}"
+     end
+   elsif method.return_value.enumeration? || method.return_value.reference?
+     result_string = "$result"
+   else
+     result_string = "result"
+   end
 %>
+  <% if method.return_value.collection? && (method.return_value.enumeration? || method.return_value.reference?) %>
+    final <%= annotated_type(method.return_value, :imit) %> $result = new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.imit.java_component_type %>>();
+    for( final <%= method.return_value.gwt.java_component_type(:transport) %> id: result )
+    {
+    $result.add( <%=
+    method.return_value.reference? ?
+      "_repository.getByID( #{method.return_value.referenced_entity.imit.qualified_name}.class, id )" :
+      method.return_value.enumeration.textual_values? ?
+        "#{method.return_value.imit.java_component_type}.valueOf( id )" :
+        "#{method.return_value.imit.java_component_type}.values()[ id ]"
+%> );
+    }
+  <% end %>
       if( null != callback ) callback.onSuccess( <%= result_string %> );
       _callback.onSuccess( result );
     }

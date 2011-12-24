@@ -27,11 +27,33 @@ public class <%= service.ejb.boundary_implementation_name %>
        return_prefix = "return "
      else
        return_prefix = "#{annotated_type(method.return_value, :ejb)} value = "
-       transform = "return #{modality_default_to_transport("value",method.return_value,:ejb)};"
+       if !method.return_value.collection?
+         transform = "return #{modality_default_to_transport("value", method.return_value, :ejb)};"
+       else
+         return_prefix = "#{annotated_type(method.return_value, :ejb)} result = "
+         transform = <<-JAVA
+        final #{annotated_type(method.return_value, :ejb, :boundary)} $result = new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:boundary)}>();
+        for( final #{method.return_value.ejb.java_component_type} k: result )
+        {
+          $result.add( #{
+         method.return_value.reference? ? "k.get#{method.return_value.referenced_entity.primary_key.name}()" :
+           method.return_value.enumeration.numeric_values? ? "k.ordinal()" : "k.name()"
+         } );
+        }
+        return $result;
+JAVA
+       end
      end
    end
 %>
   {
+<% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| %>
+    final <%= annotated_type(parameter, :ejb) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.ejb.java_component_type %>>();
+    for( final <%= parameter.ejb.java_component_type(:boundary) %> id: <%= parameter.name %> )
+    {
+    $<%= parameter.name %>.add( _<%= parameter.referenced_entity.qualified_name.gsub('.','') %>DAO.getByID( id ) );
+    }
+<% end %>  
   <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
   <%= transform %>
   }

@@ -21,9 +21,11 @@ public class <%= struct.jaxb.name %>
   public <%= struct.jaxb.name %>( <%= struct.fields.collect {|field| "final #{annotated_type(field, :jaxb) } #{field.jaxb.name}" }.join(", ") %> )
   {
 <% struct.fields.each do |field|
-     if field.collection?
+     if :sequence == field.collection_type
 %>    this.<%= field.jaxb.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.jaxb.java_component_type %>>( <%= field.jaxb.name %> ) );
-<%     else
+<%     elsif :set == field.collection_type
+%>    this.<%= field.jaxb.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.jaxb.java_component_type %>>( <%= field.jaxb.name %> ) );
+  <%     else
 %>    this.<%= field.jaxb.name %> = <%= field.jaxb.name %>;
 <%   end
    end

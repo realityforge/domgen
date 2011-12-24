@@ -53,6 +53,7 @@ JAVADOC
         extension = characteristic.send(characteristic_key)
 
         return variable_name if extension.java_type == extension.java_type(:boundary)
+        return "$#{variable_name}" if characteristic.reference? && characteristic.collection?
 
         transform = variable_name
         if characteristic.characteristic_type == :reference

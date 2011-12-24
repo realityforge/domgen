@@ -351,17 +351,15 @@ module Domgen
     end
 
     def collection?
-      self.struct? && self.collection_type != :none
+      self.collection_type != :none
     end
 
     def collection_type
-      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
       @collection_type || :none
     end
 
     def collection_type=(collection_type)
-      error("collection_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
-      error("collection_type #{collection_type} is invalid") unless [:none, :sequence].include?(collection_type)
+      error("collection_type #{collection_type} is invalid") unless [:none, :sequence, :set].include?(collection_type)
       @collection_type = collection_type
     end
 
@@ -415,7 +413,8 @@ module Domgen
       @name = name
       @attribute_type = attribute_type
       super(entity, options, &block)
-      error("Invalid type #{attribute_type} for persistent attribute #{name}") if !self.class.persistent_types.include?(attribute_type)
+      error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !self.class.persistent_types.include?(attribute_type)
+      error("Attribute #{self.qualified_name} must not be a collection") if collection?
     end
 
     def qualified_name
