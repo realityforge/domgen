@@ -15,7 +15,7 @@ module Domgen
 
     def initialize(repository_key, key, generator_keys, target_dir)
       @repository_key, @key, @generator_keys, @target_dir = repository_key, key, generator_keys, target_dir
-      @clobber_dir = true
+      @clobber_dir = false
       @namespace_key = :domgen
       @filter = nil
       yield self if block_given?
