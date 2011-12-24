@@ -63,7 +63,7 @@ module Domgen
           return component_type
         elsif :sequence == characteristic.collection_type
           "java.util.List<#{component_type}>"
-        else :sequence == characteristic.collection_type
+        else #:set == characteristic.collection_type
           "java.util.Set<#{component_type}>"
         end
       end
