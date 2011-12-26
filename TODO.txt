@@ -5,7 +5,9 @@
 * Make exceptions into characteristic containers?
 * Fix xmi generation: fix existing enumeration/service generation, add message generation
 * Move generation of enumerations, structs and exceptions into shared packages for java support
-* Introduce the "uses" metadata for service that can refer to entities (a.k.a DAOs) and other services. Use this to generate abstract service with required dependencies and update the uml generated.
+* Introduce the "uses" metadata for service that can refer to entities (a.k.a DAOs) and other services. Use this to
+  generate abstract service with required dependencies and update the uml generated.
+* Start to generate entity=>struct mappers based on rules or explicit mappings
 * Use javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
 * For both JPA and JWS we want to use vendor specific extensions. In JPA you want to define the Indexes and other
   database artifacts while in JWS you want to indicate that a service should be validated for compliance with SOAP
