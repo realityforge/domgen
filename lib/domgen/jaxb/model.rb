@@ -38,16 +38,6 @@ module Domgen
     end
 
     class JaxbStruct < Domgen.ParentedElement(:struct)
-      attr_writer :name
-
-      def name
-        @name || struct.name
-      end
-
-    def qualified_name
-      "#{struct.data_module.jaxb.data_type_package}.#{self.name}"
-    end
-
       attr_writer :xml_name
 
       def xml_name

@@ -310,16 +310,6 @@ module Domgen
       end
     end
 
-    class JpaEnumeration < Domgen.ParentedElement(:enumeration)
-      def name
-        "#{enumeration.name}"
-      end
-
-      def qualified_name
-        "#{enumeration.data_module.jpa.data_type_package}.#{name}"
-      end
-    end
-
     class JpaClass < Domgen.ParentedElement(:entity)
       attr_writer :table_name
 
@@ -443,7 +433,6 @@ module Domgen
   end
 
   FacetManager.define_facet(:jpa,
-                            EnumerationSet => Domgen::JPA::JpaEnumeration,
                             Attribute => Domgen::JPA::JpaField,
                             InverseElement => Domgen::JPA::JpaFieldInverse,
                             Entity => Domgen::JPA::JpaClass,

@@ -1,0 +1,12 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= exception.data_module.ee.data_type_package %>;
+
+<%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<% if exception.jws? %>@javax.xml.ws.WebFault( name = "<%= exception.name %>" )<% end %>
+public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? "java.lang.Exception" : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
+{
+  public <%= exception.ee.name %>() {}
+  public <%= exception.ee.name %>( final String message ) { super( message ); }
+  public <%= exception.ee.name %>( final String message, final Throwable cause ) { super( message, cause ); }
+}

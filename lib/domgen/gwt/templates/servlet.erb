@@ -74,8 +74,8 @@ LOOP
     {
     $<%= parameter.name %>.add( <%=
     parameter.date? ? "org.realityforge.replicant.client.RDate.toDate( k )" :
-      parameter.enumeration.numeric_values? ? "#{parameter.enumeration.jpa.qualified_name}.values()[ k ]" :
-        "#{parameter.enumeration.jpa.qualified_name}.valueOf( k )"
+      parameter.enumeration.numeric_values? ? "#{parameter.enumeration.e.qualified_name}.values()[ k ]" :
+        "#{parameter.enumeration.ee.qualified_name}.valueOf( k )"
 %> );
     }
     <% if parameter.nullable? %>}<% end %>
@@ -91,9 +91,9 @@ LOOP
       transform = "org.realityforge.replicant.client.RDate.toDate( #{p.gwt.name} )"
     elsif p.enumeration?
       if p.enumeration.numeric_values?
-        transform = "#{p.enumeration.jpa.qualified_name}.values()[ #{p.gwt.name} ]"
+        transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt.name} ]"
       else
-        transform = "#{p.enumeration.jpa.qualified_name}.valueOf( #{p.gwt.name} )"
+        transform = "#{p.enumeration.ee.qualified_name}.valueOf( #{p.gwt.name} )"
       end
     end
     if p.nullable? && transform
@@ -107,7 +107,7 @@ end.join(', ') %>);
 <% if !method.exceptions.empty?
 %>    }
 <% method.exceptions.each do |exception| %>
-    catch ( final <%= exception.ejb.qualified_name %> ignored )
+    catch ( final <%= exception.ee.qualified_name %> ignored )
     {
         throw new <%= exception.gwt.qualified_name %>();
     }

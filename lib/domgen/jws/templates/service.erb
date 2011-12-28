@@ -13,7 +13,7 @@ public interface <%= service.jws.service_name %>
 %><%= description_javadoc_for(method)
 %>  @javax.jws.WebMethod( operationName = "<%= method.name %>" )
   <%= annotated_type(method.return_value, :jws, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "@javax.jws.WebParam( name = \"#{p.name}\", mode = javax.jws.WebParam.Mode.IN, header = false ) #{annotated_type(p, :jws, :boundary)} #{Domgen::Naming.camelize(p.name)}" }.join(",\n      ") %>)<%=
-    exceptions = ["java.rmi.RemoteException"] + method.exceptions.collect{|e| e.ejb.qualified_name}
+    exceptions = ["java.rmi.RemoteException"] + method.exceptions.collect{|e| e.ee.qualified_name}
     "\n    throws #{exceptions.join(', ')}"
 %>;
 

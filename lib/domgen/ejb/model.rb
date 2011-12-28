@@ -89,16 +89,6 @@ module Domgen
       end
     end
 
-    class EjbException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
-
-      def qualified_name
-        "#{exception.data_module.ejb.service_package}.#{name}"
-      end
-    end
-
     class EjbPackage < Domgen.ParentedElement(:data_module)
       include Domgen::Java::JavaPackage
 
@@ -117,7 +107,6 @@ module Domgen
   FacetManager.define_facet(:ejb,
                             Service => Domgen::EJB::EjbClass,
                             Parameter => Domgen::EJB::EjbParameter,
-                            Exception => Domgen::EJB::EjbException,
                             Result => Domgen::EJB::EjbReturn,
                             DataModule => Domgen::EJB::EjbPackage,
                             Repository => Domgen::EJB::EjbApplication)

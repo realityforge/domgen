@@ -1,12 +1,12 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= enumeration.data_module.jpa.data_type_package %>;
+package <%= enumeration.data_module.ee.data_type_package %>;
 
 <%= description_javadoc_for(enumeration, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% if enumeration.jaxb?
 %>@javax.xml.bind.annotation.XmlType( name = "<%= enumeration.name %>Type"<%= namespace_annotation_parameter(enumeration.jaxb) %> )
 @javax.xml.bind.annotation.XmlEnum( java.lang.String.class )<% end %>
-public enum <%= enumeration.jpa.name %>
+public enum <%= enumeration.ee.name %>
   implements java.io.Serializable
 {
   <%= enumeration.values.keys.collect {|k| "#{k}" } .join(",\n  ") %>

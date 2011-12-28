@@ -1,0 +1,46 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= struct.data_module.ee.data_type_package %>;
+
+<%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<%= jaxb_class_annotations(struct) if struct.jaxb? %>
+public class <%= struct.name %>
+  implements java.io.Serializable
+{
+<% struct.fields.each do |field| %>
+  <%= jaxb_field_annotation(field) if struct.jaxb? %>
+  private <%= annotated_type(field, :ee) %> <%= field.name %>;
+<% end %>
+
+<% if struct.fields.size != 0 %>
+  /**
+   * This constructor is present for deserialization mechanisms and should not be called directly.
+   *
+   * @deprecated
+   */
+  @Deprecated
+  public <%= struct.name %>()
+  {
+  }
+<% end %>
+
+  public <%= struct.name %>( <%= struct.fields.collect {|field| "final #{annotated_type(field, :ee) } #{field.name}" }.join(", ") %> )
+  {
+<% struct.fields.each do |field|
+     if :sequence == field.collection_type
+%>    this.<%= field.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.ee.java_component_type %>>( <%= field.name %> ) );
+<%     elsif :set == field.collection_type
+%>    this.<%= field.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.ee.java_component_type %>>( <%= field.name %> ) );
+  <%     else
+%>    this.<%= field.name %> = <%= field.name %>;
+<%   end
+   end
+%>  }
+<% struct.fields.each do |field|
+%>
+  public <%= annotated_type(field, :ee) %> <%= getter_prefix(field) %><%= field.name %>()
+  {
+    return <%= field.name %>;
+  }
+<% end
+%>}

@@ -29,7 +29,6 @@ require 'domgen/sql/generator'
 # JAXB
 require 'domgen/jaxb/model'
 require 'domgen/jaxb/helper'
-require 'domgen/jaxb/generator'
 
 # JPA
 require 'domgen/jpa/model'
@@ -57,6 +56,10 @@ require 'domgen/ejb/generator'
 # JWS
 require 'domgen/jws/model'
 require 'domgen/jws/generator'
+
+# EE
+require 'domgen/ee/model'
+require 'domgen/ee/generator'
 
 # GWT
 require 'domgen/gwt/model'

@@ -30,15 +30,15 @@ module Domgen
       def java_component_type(modality = :default)
         if characteristic.reference?
           if :default == modality
-            return characteristic.referenced_entity.send(facet_key).qualified_name
+            return characteristic.referenced_entity.send(entity_key).qualified_name
           elsif :boundary == modality || :transport == modality
-            return characteristic.referenced_entity.primary_key.send(facet_key).non_primitive_java_type(modality)
+            return characteristic.referenced_entity.primary_key.send(entity_key).non_primitive_java_type(modality)
           else
             error("unknown modality #{modality}")
           end
         elsif characteristic.enumeration?
           if :default == modality || :boundary == modality
-            return characteristic.enumeration.send(facet_key).qualified_name
+            return characteristic.enumeration.send(enumeration_key).qualified_name
           elsif :transport == modality
             if characteristic.enumeration.textual_values?
               return "java.lang.String"
@@ -89,7 +89,7 @@ module Domgen
         return "int" if characteristic.integer?
         return "boolean" if characteristic.boolean?
         if (:boundary == modality || :transport == modality) && characteristic.reference?
-          return characteristic.referenced_entity.primary_key.send(facet_key).primitive_java_type
+          return characteristic.referenced_entity.primary_key.send(entity_key).primitive_java_type
         elsif :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
           return "int"
         end
@@ -100,7 +100,7 @@ module Domgen
         if :default == modality
           return characteristic.characteristic_type
         elsif :boundary == modality || :transport == modality
-          return characteristic.reference? ? characteristic.referenced_entity.primary_key.send(facet_key).characteristic_type : characteristic.characteristic_type
+          return characteristic.reference? ? characteristic.referenced_entity.primary_key.send(entity_key).characteristic_type : characteristic.characteristic_type
         else
           error("unknown modality #{modality}")
         end
@@ -112,8 +112,12 @@ module Domgen
         raise "characteristic unimplemented"
       end
 
-      def facet_key
-        raise "facet_key unimplemented"
+      def entity_key
+        raise "entity_key unimplemented"
+      end
+
+      def enumeration_key
+        raise "enumeration_key unimplemented"
       end
 
       def struct_key
@@ -126,12 +130,16 @@ module Domgen
 
       protected
 
-      def facet_key
+      def entity_key
         :jpa
       end
 
+      def enumeration_key
+        :ee
+      end
+
       def struct_key
-        :jaxb
+        :ee
       end
 
       def date_java_type
@@ -144,12 +152,16 @@ module Domgen
 
       protected
 
-      def facet_key
+      def enumeration_key
+        :imit
+      end
+
+      def entity_key
         :imit
       end
 
       def struct_key
-        :jaxb
+        :ee
       end
 
       def date_java_type
