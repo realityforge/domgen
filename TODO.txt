@@ -10,6 +10,8 @@
   generate abstract service with required dependencies and update the uml generated.
 * Start to generate entity=>struct mappers based on rules or explicit mappings
 * Disabling a facet should disable facet on all child elements, likewise for enabling the facet
+* Add xor constraint
+* Add state machine (based on rails gem or erlang library?)
 * Use javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
 * For both JPA and JWS we want to use vendor specific extensions. In JPA you want to define the Indexes and other
   database artifacts while in JWS you want to indicate that a service should be validated for compliance with SOAP
