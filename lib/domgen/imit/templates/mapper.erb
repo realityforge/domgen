@@ -25,20 +25,20 @@ public class <%= data_module.imit.mapper_name %>
 
 <% data_module.imit.client_side_entities.each do |entity| %>
 <% if !entity.abstract? %>
-  public Object applyChangeTo<%= entity.name %>( final Object id, final java.util.Map<String, java.io.Serializable> attributes )
+  public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.Change change )
   {
-    <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, id, false );
+    <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, change.getDesignator(), false );
     // If change is a delete...
-    if( null == attributes )
+    if( !change.isUpdate() )
     {
       if( null != entity )
       {
         if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
         {
-          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + id + "') is deleting local entity" );
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + change.getDesignator() + "') is deleting local entity" );
         }
         // It is in the local repository so we need to delete it
-        _repository.deregisterEntity( <%= entity.imit.name %>.class, id );
+        _repository.deregisterEntity( <%= entity.imit.name %>.class, change.getDesignator() );
          entity.invalidate();
       }
     }
@@ -48,60 +48,59 @@ public class <%= data_module.imit.mapper_name %>
       if( null == entity )
       {
         entity = new <%= entity.imit.name %>( _repository, _broker );
-        _repository.registerEntity( <%= entity.imit.name %>.class, id, entity );
+        _repository.registerEntity( <%= entity.imit.name %>.class, change.getDesignator(), entity );
         fullUpdate = true;
         if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
         {
-          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + id + "') is creating local entity" );
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + change.getDesignator() + "') is creating local entity" );
         }
       }
       else
       {
         if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
         {
-          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + id + "') is updating local entity" );
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + change.getDesignator() + "') is updating local entity" );
         }
       }
-      updateAttributes<%= entity.name %>( entity, attributes, fullUpdate );
+      updateAttributes<%= entity.name %>( entity, change, fullUpdate );
     }
     return entity;
   }
 
 <% end %>
-  private void updateAttributes<%= entity.name %>( final <%= entity.imit.name %> entity, final java.util.Map<String, java.io.Serializable> attributes, final boolean fullUpdate )
+  private void updateAttributes<%= entity.name %>( final <%= entity.imit.name %> entity, final org.realityforge.replicant.client.Change change, final boolean fullUpdate )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends)
-%>    updateAttributes<%= other.name %>( entity, attributes, fullUpdate );
+%>    updateAttributes<%= other.name %>( entity, change, fullUpdate );
 <% end %>
 <% entity.declared_attributes.select{|attribute| attribute.imit? }.each do |attribute|
+    key = "#{entity.name}.#{uppercase_constantize(attribute.name)}"
     value_converter =
         if attribute.imit.characteristic_type(:transport) == :datetime
-          "new java.util.Date( ( (Number) value ).longValue() )"
+          "new java.util.Date( change.getIntegerValue( #{key} ).longValue() )"
         elsif attribute.imit.characteristic_type(:transport) == :date
-          "org.realityforge.replicant.client.RDate.parse( ( (String) value ) )"
+          "org.realityforge.replicant.client.RDate.parse( change.getStringValue( #{key} ) )"
         elsif attribute.imit.characteristic_type(:transport) == :integer
-          "( (Number) value ).intValue()"
+          "change.getIntegerValue( #{key} )"
         elsif attribute.imit.characteristic_type(:transport) == :real
-          "( (Double) value ).doubleValue()"
+          "change.getIntegerValue( #{key} )"
         elsif attribute.imit.characteristic_type(:transport) == :boolean
-          "( (Boolean) value ).booleanValue()"
+          "change.getBooleanValue( #{key} )"
         elsif attribute.imit.characteristic_type(:transport) == :text
-          "( (String) value )"
+          "change.getStringValue( #{key} )"
         elsif attribute.imit.characteristic_type(:transport) == :enumeration && attribute.enumeration.textual_values?
-          "( (String) value )"
+          "change.getStringValue( #{key} )"
         elsif attribute.imit.characteristic_type == :enumeration && attribute.enumeration.numeric_values?
-          "( null == value ? null : ( (Number) value ).intValue() )"
+          "change.getIntegerValue( #{key} )"
         else
           raise "Unable to convert data type #{attribute.imit.characteristic_type(:transport)} on #{attribute.qualified_name}"
         end
-%>    if( attributes.containsKey( <%= entity.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %> ) )
+%>    if( change.containsKey( <%= entity.name %>.<%= uppercase_constantize( attribute.name ) %> ) )
     {
       <% if attribute.primary_key? %>if( fullUpdate )
       {<% end %>
-      <%= nullability_annotation(attribute.nullable?) %> final Object value = attributes.get( <%= entity.name %>.<%= Domgen::Naming.uppercase_constantize(attribute.name) %> );
-      <% if !attribute.nullable? %>assert null != value;<% end %>
-      set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( null != value ? #{value_converter} : null )" : value_converter %> );
+      set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( change.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %> );
       <% if attribute.primary_key? %>
       }<% end %>
     }
