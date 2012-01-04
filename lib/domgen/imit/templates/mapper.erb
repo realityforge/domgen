@@ -27,7 +27,18 @@ public class <%= data_module.imit.mapper_name %>
 <% if !entity.abstract? %>
   public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.Change change )
   {
-    <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, change.getDesignator(), false );
+<%
+   designator_value =
+        if entity.primary_key.imit.characteristic_type(:transport) == :integer
+          "Integer.parseInt( change.getDesignator().toString() )"
+        elsif entity.primary_key.imit.characteristic_type(:transport) == :text
+          "change.getDesignator()"
+        else
+          raise "Unable to convert data type #{entity.primary_key.imit.characteristic_type(:transport)} on #{entity.primary_key.qualified_name}"
+        end
+%>
+    final Object designator = <%= designator_value %>;
+    <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, designator, false );
     // If change is a delete...
     if( !change.isUpdate() )
     {
@@ -35,10 +46,10 @@ public class <%= data_module.imit.mapper_name %>
       {
         if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
         {
-          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + change.getDesignator() + "') is deleting local entity" );
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + designator + "') is deleting local entity" );
         }
         // It is in the local repository so we need to delete it
-        _repository.deregisterEntity( <%= entity.imit.name %>.class, change.getDesignator() );
+        _repository.deregisterEntity( <%= entity.imit.name %>.class, designator );
          entity.invalidate();
       }
     }
@@ -48,18 +59,18 @@ public class <%= data_module.imit.mapper_name %>
       if( null == entity )
       {
         entity = new <%= entity.imit.name %>( _repository, _broker );
-        _repository.registerEntity( <%= entity.imit.name %>.class, change.getDesignator(), entity );
+        _repository.registerEntity( <%= entity.imit.name %>.class, designator, entity );
         fullUpdate = true;
         if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
         {
-          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + change.getDesignator() + "') is creating local entity" );
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + designator + "') is creating local entity" );
         }
       }
       else
       {
         if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
         {
-          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + change.getDesignator() + "') is updating local entity" );
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + designator + "') is updating local entity" );
         }
       }
       updateAttributes<%= entity.name %>( entity, change, fullUpdate );
