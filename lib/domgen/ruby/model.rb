@@ -28,7 +28,7 @@ module Domgen
       end
 
       def filename
-        fqn = qualified_name
+        fqn = qualified_name.gsub(/::/, '/')
         Domgen::Naming.underscore(fqn[2..fqn.length])
       end
     end
