@@ -28,7 +28,7 @@ public class <%= data_module.imit.jpa_encoder_name %>
    other = entity.data_module.entity_by_name(entity.extends)
 %>    encodeAttributesAttributes<%= other.name %>( entity, attributes );
 <% end %>
-<% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.abstract? }.each do |attribute|
+<% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side? && !attribute.abstract? }.each do |attribute|
     value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": "")
     value_converter =
         if attribute.imit.characteristic_type(:transport) == :datetime

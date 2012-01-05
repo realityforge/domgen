@@ -85,7 +85,7 @@ public class <%= data_module.imit.mapper_name %>
    other = entity.data_module.entity_by_name(entity.extends)
 %>    updateAttributes<%= other.name %>( entity, change, fullUpdate );
 <% end %>
-<% entity.declared_attributes.select{|attribute| attribute.imit? }.each do |attribute|
+<% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side?}.each do |attribute|
     key = "#{entity.name}.#{Domgen::Naming.uppercase_constantize(attribute.name)}"
     value_converter =
         if attribute.imit.characteristic_type(:transport) == :datetime
@@ -120,7 +120,7 @@ public class <%= data_module.imit.mapper_name %>
 <% end %>
 
 <% data_module.entities.select{|entity| entity.imit?}.each do |entity| %>
-<% entity.declared_attributes.select{|attribute| attribute.imit?}.each do |attribute| %>
+<% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side?}.each do |attribute| %>
   private void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.name %> entity, <%= nullability_annotation(attribute.nullable?) %> final <%= attribute.imit.java_type(:transport) %> value )
   {
 <%

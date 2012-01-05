@@ -15,15 +15,15 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% if !entity.abstract? %>
   public static final int TRANSPORT_ID = <%= entity.imit.transport_id %>;
 <% end %>
-<% entity.declared_attributes.select{ |attribute| attribute.imit? }.each do |attribute|
+<% entity.declared_attributes.select{ |attribute| attribute.imit? && attribute.imit.client_side? }.each do |attribute|
 %>  public static final String <%= Domgen::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end %>
-<% entity.referencing_attributes.select{ |attribute| attribute.entity.imit? && !attribute.abstract? && attribute.inverse.imit.traversable?}.each do |attribute|
+<% entity.referencing_attributes.select{ |attribute| attribute.entity.imit? && attribute.imit.client_side? && !attribute.abstract? && attribute.inverse.imit? && attribute.inverse.imit.traversable?}.each do |attribute|
 %>  public static final String <%= Domgen::Naming.uppercase_constantize(attribute.inverse.relationship_name) %> = "<%= attribute.inverse.relationship_name %>";
 <% end %>
 <%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
 %><%= entity.extends.nil? ? "  protected EntityChangeBroker _broker;\n" : ""
-%><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit? }.each do |attribute|
+%><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side? }.each do |attribute|
   if !attribute.reference?
 %>
   private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.name %>;
@@ -49,14 +49,14 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   {
     <%= entity.extends.nil? ? "_repository = repository;\n    _broker = broker" : "super( repository, broker )" %>;
   }
-<% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit?}.each do |attribute|
+<% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
 %>  public abstract <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>();
 <% if attribute.attribute_type == :reference
   %>  abstract <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>();
 <% end %>
     abstract void set<%= attribute.imit.name(:transport) %>( <%= attribute.imit.java_type(:transport) %> value );
 <% end %>
-<% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit?}.each do |attribute|
+<% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
 %>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>()
   {
     check<%= attribute.reference? ? "Linked" : "Validity" %>();
@@ -165,7 +165,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   {
 <% if entity.extends.nil?
 %>
-<%    entity.declared_attributes.select{|attribute| attribute.imit? && attribute.reference? && attribute.inverse.imit.traversable?}.each do |attribute|
+<%    entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side? && attribute.reference? && attribute.inverse.imit.traversable?}.each do |attribute|
 %>    {
       if( null != _<%= attribute.imit.name %> )
       {
@@ -184,7 +184,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   }
 
 <%
-   linkable_attributes = entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.reference? && attribute.imit?}
+   linkable_attributes = entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.reference? && attribute.imit? && attribute.imit.client_side?}
 %>
 
   protected void performLink()
