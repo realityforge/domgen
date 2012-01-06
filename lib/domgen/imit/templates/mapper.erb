@@ -30,9 +30,9 @@ public class <%= data_module.imit.mapper_name %>
 <%
    designator_value =
         if entity.primary_key.imit.characteristic_type(:transport) == :integer
-          "Integer.parseInt( change.getDesignator().toString() )"
+          "change.getDesignatorAsInt()"
         elsif entity.primary_key.imit.characteristic_type(:transport) == :text
-          "change.getDesignator()"
+          "change.getDesignatorAsString()"
         else
           raise "Unable to convert data type #{entity.primary_key.imit.characteristic_type(:transport)} on #{entity.primary_key.qualified_name}"
         end
