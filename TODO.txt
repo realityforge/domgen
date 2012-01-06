@@ -3,6 +3,7 @@
   Entity but not Overtimes etc.
 * Support constants in relationship_constraints
 * Make exceptions into characteristic containers?
+* Remove imit.client_side? and replace with imit?
 * Fix xmi generation: fix existing enumeration/service generation, add message generation
 * Move generation of enumerations, structs and exceptions into shared packages for java support
 * Introduce the "uses" metadata for service that can refer to entities (a.k.a DAOs) and other services. Use this to
