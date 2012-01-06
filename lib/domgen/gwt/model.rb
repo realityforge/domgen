@@ -36,7 +36,7 @@ module Domgen
       attr_writer :xsrf_protected
 
       def xsrf_protected?
-        @xsrf_protected.nil? ? true : @xsrf_protected
+        @xsrf_protected.nil? ? false : @xsrf_protected
       end
 
       attr_writer :service_name
