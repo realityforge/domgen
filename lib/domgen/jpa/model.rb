@@ -406,7 +406,7 @@ module Domgen
       protected
 
       def facet_key
-        :jaxb
+        :ee
       end
     end
 

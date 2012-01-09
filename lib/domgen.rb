@@ -16,6 +16,9 @@ require 'domgen/generator'
 # Json
 require 'domgen/json/model'
 
+# Xml
+require 'domgen/xml/model'
+
 # Java
 require 'domgen/java/model'
 require 'domgen/java/helper'
