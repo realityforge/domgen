@@ -9,6 +9,18 @@ module Domgen
     def self.define_imit_templates
       [
         Template.new(Imit::FACETS,
+                     :struct,
+                     "#{Imit::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
+                     'java/#{struct.imit.qualified_jso_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'struct.imit?'),
+        Template.new(Imit::FACETS,
+                     :struct,
+                     "#{Imit::TEMPLATE_DIRECTORY}/struct_interface.java.erb",
+                     'java/#{struct.imit.qualified_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'struct.imit?'),
+        Template.new(Imit::FACETS,
                      :enumeration,
                      "#{Imit::TEMPLATE_DIRECTORY}/enumeration.erb",
                      'java/#{enumeration.imit.qualified_name.gsub(".","/")}.java',
