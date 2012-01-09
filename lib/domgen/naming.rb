@@ -30,6 +30,10 @@ module Domgen
       underscore(camel_cased_word).tr("_", "-")
     end
 
+    def self.jsonize(camel_cased_word)
+      underscore(camel_cased_word)
+    end
+
     def self.pluralize(string)
       plural = nil
       #in case someone passes in a Symbol instead

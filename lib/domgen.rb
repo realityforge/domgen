@@ -13,6 +13,9 @@ require 'domgen/template'
 require 'domgen/render_context'
 require 'domgen/generator'
 
+# Json
+require 'domgen/json/model'
+
 # Java
 require 'domgen/java/model'
 require 'domgen/java/helper'
