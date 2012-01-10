@@ -95,12 +95,11 @@ module Domgen
       protected
 
       def facet_key
-        :ejb
+        :ee
       end
     end
 
     class EjbApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ServerJavaApplication
     end
   end
 
