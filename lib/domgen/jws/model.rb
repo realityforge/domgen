@@ -39,26 +39,16 @@ module Domgen
     end
 
     class JwsPackage < Domgen.ParentedElement(:data_module)
-      attr_writer :service_package
+      include Domgen::Java::JavaPackage
 
-      def service_package
-        @service_package || "#{data_module.repository.jws.service_package}.#{Domgen::Naming.underscore(data_module.name)}"
-      end
+      protected
 
-      attr_writer :data_type_package
-
-      def data_type_package
-        @data_type_package || service_package
+      def facet_key
+        :ee
       end
     end
 
     class JwsApplication < Domgen.ParentedElement(:repository)
-      attr_writer :service_package
-
-      def service_package
-        @service_package || "#{Domgen::Naming.underscore(repository.name)}.server.service"
-      end
-
       attr_writer :service_name
 
       # The name of the service under which web services will be anchored
