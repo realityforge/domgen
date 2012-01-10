@@ -67,42 +67,37 @@ module Domgen
       # This is a map between DB types to EMF primitive types
       primitive_types = {}
 
-      # As we process the schema set, we put all the enumerations types that we discover inside this map
-      # This is a map between enumeration keys and String version of enumeration type
-      enumerations = {}
-
       # A map from fully qualified class names to EMF classes
-      name_class_map = {}
+      name_2_emf_map = {}
 
       # Phase 1: Package, primitive type, and enumeration type discovery.
       # Primitive types will be added to the top-level model but enumeration types
       # will be added to the package they belong to.
       #
       repository.data_modules.each do |data_module|
-        package = model.create_nested_package(data_module.name.to_s)
+        package = model.createNestedPackage(data_module.name.to_s)
         name(resource, package, data_module)
         describe(package, data_module)
 
         packages[data_module.name] = package
 
         data_module.enumerations.each do |enumeration|
-          enum = package.create_owned_enumeration(enumeration.qualified_name.to_s)
-          enumeration.values.each do |enum_literal, enum_index|
+          enum = package.createOwnedEnumeration(enumeration.name.to_s)
+          enumeration.values.keys.each do |enum_literal|
             literal = enum.create_owned_literal(enum_literal)
-            resource.setID(literal, "#{enumeration.qualified_name}.#{enum_literal}");
+            resource.setID(literal, "#{enumeration.qualified_name}.#{enum_literal}")
           end
           name(resource, enum, enumeration)
           describe(enum, enumeration)
-          enumerations[enumeration.qualified_name] = enum
+          name_2_emf_map[enumeration.qualified_name] = enum
         end
 
         data_module.entities.each do |entity|
-
           entity.attributes.each do |attribute|
             if !attribute.reference?
               pn = primitive_name(attribute.attribute_type)
               if !primitive_types[pn]
-                primitive_type = model.create_owned_primitive_type(pn)
+                primitive_type = model.createOwnedPrimitiveType(pn)
                 resource.setID(primitive_type, pn)
                 primitive_types[pn] = primitive_type
               end
@@ -116,28 +111,27 @@ module Domgen
       repository.data_modules.each do |data_module|
         data_module.entities.each do |entity|
           package = packages[data_module.name]
-          clazz = package.create_owned_class(entity.name, false)
+          clazz = package.createOwnedClass(entity.name, false)
           name(resource, clazz, entity)
           describe(clazz, entity)
-          name_class_map[entity.qualified_name] ||= clazz
-
-          # Creating EMF attributes corresponding to non-enum attributes
-          entity.attributes.select { |attr| !attr.enumeration? }.each do |attribute|
-            attribute_type =
-              attribute.reference? ? attribute.referenced_entity.primary_key.attribute_type : attribute.attribute_type
-            prim_type = primitive_types[primitive_name(attribute_type)]
-            name = attribute.reference? ? attribute.referencing_link_name : attribute.name.to_s
-            emf_attr = clazz.create_owned_attribute(name, prim_type, 0, 1)
-            name(resource, emf_attr, attribute)
-            describe(emf_attr, attribute)
+          name_2_emf_map[entity.qualified_name] ||= clazz
+          entity.attributes.each do |attribute|
+            define_attribute(resource, name_2_emf_map, primitive_types, clazz, attribute)
           end
+        end
+      end
 
-          # Creating EMF attributes corresponding to enum attributes
-          entity.attributes.select { |attr| attr.enumeration? }.each do |attribute|
-            enum_type = enumerations[attribute.enumeration.qualified_name]
-            emf_attr = clazz.create_owned_attribute(attribute.name.to_s, enum_type, 0, 1)
-            name(resource, emf_attr, attribute)
-            describe(emf_attr, attribute)
+      repository.data_modules.each do |data_module|
+        data_module.structs.each do |struct|
+          package = packages[data_module.name]
+          clazz = package.createOwnedClass(struct.name, false)
+          name(resource, clazz, struct)
+          describe(clazz, struct)
+          name_2_emf_map[struct.qualified_name] ||= clazz
+
+          # Creating EMF attributes for each field
+          struct.fields.each do |field|
+            define_attribute(resource, name_2_emf_map, primitive_types, clazz, field)
           end
         end
       end
@@ -147,25 +141,25 @@ module Domgen
       repository.data_modules.each do |data_module|
         data_module.entities.each do |entity|
           entity.attributes.select { |attribute| attribute.reference? }.each do |attribute|
-            end1 = name_class_map[attribute.entity.qualified_name]
-            end2 = name_class_map[attribute.referenced_entity.qualified_name]
+            end1 = name_2_emf_map[attribute.entity.qualified_name]
+            end2 = name_2_emf_map[attribute.referenced_entity.qualified_name]
             name = attribute.name == attribute.referenced_entity.name ? "" : attribute.name.to_s
 
             aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::NONE_LITERAL
             aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::SHARED_LITERAL if attribute.inverse.relationship_kind == :aggregation
             aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::COMPOSITE_LITERAL if attribute.inverse.relationship_kind == :composition
 
-            emf_association = end1.create_association(true,
-                                                      aggregation_kind,
-                                                      name,
-                                                      attribute.nullable? ? 0 : 1,
-                                                      1,
-                                                      end2,
-                                                      attribute.inverse.traversable?,
-                                                      Java.org.eclipse.uml2.uml.AggregationKind::NONE_LITERAL,
-                                                      "",
-                                                      0,
-                                                      attribute.inverse.multiplicity == :many ? Java.org.eclipse.uml2.uml.LiteralUnlimitedNatural::UNLIMITED : 1)
+            emf_association = end1.createAssociation(true,
+                                                     aggregation_kind,
+                                                     name,
+                                                     attribute.nullable? ? 0 : 1,
+                                                     1,
+                                                     end2,
+                                                     attribute.inverse.traversable?,
+                                                     Java.org.eclipse.uml2.uml.AggregationKind::NONE_LITERAL,
+                                                     "",
+                                                     0,
+                                                     attribute.inverse.multiplicity == :many ? Java.org.eclipse.uml2.uml.LiteralUnlimitedNatural::UNLIMITED : 1)
             resource.setID(emf_association, attribute.qualified_name.to_s + ".Assoc")
             describe(emf_association, attribute)
           end
@@ -176,41 +170,23 @@ module Domgen
       repository.data_modules.each do |data_module|
         data_module.services.each do |service|
           package = packages[data_module.name]
-          clazz = package.create_owned_class(service.name, false)
+          clazz = package.createOwnedClass(service.name, false)
           name(resource, clazz, service)
           describe(clazz, service)
-          name_class_map[service.qualified_name] ||= clazz
+          name_2_emf_map[service.qualified_name] ||= clazz
 
           service.methods.each do |method|
-            package = packages[data_module.name]
             names = Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
             types = Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
 
-            method.parameters.each do |p|
-              p_type_str = p.parameter_type.to_s
-              p_type_str.gsub!(/</, "[")
-              p_type_str.gsub!(/>/, "]")
-              param_type = if (name_class_map.has_key?(p_type_str))
-                name_class_map[p_type_str]
-              else
-                name_class_map[p_type_str] = package.create_owned_class(p_type_str, false)
-                name_class_map[p_type_str]
-              end
-              types.add(param_type)
-              names.add(p.name.to_s)
+            method.parameters.each do |characteristic|
+              names.add(characteristic_name(characteristic))
+              types.add(characteristic_type(name_2_emf_map, primitive_types, characteristic))
             end
 
             operation = if method.return_value.return_type != :void
-              return_type_str = method.return_value.return_type.to_s
-              return_type_str.gsub!(/</, "[")
-              return_type_str.gsub!(/>/, "]")
-              return_type = if (name_class_map.has_key?(return_type_str))
-                name_class_map[return_type_str]
-              else
-                name_class_map[return_type_str] = package.create_owned_class(return_type_str, false)
-                name_class_map[return_type_str]
-              end
-              clazz.createOwnedOperation(method.name.to_s, names, types, return_type)
+              emf_type = characteristic_type(name_2_emf_map, primitive_types, method.return_value)
+              clazz.createOwnedOperation(method.name.to_s, names, types, emf_type)
             else
               clazz.createOwnedOperation(method.name.to_s, names, types)
             end
@@ -225,36 +201,14 @@ module Domgen
         package = packages[data_module.name]
         data_module.messages.each do |message|
           msg_class_name = "#{message.name}Message"
-          msg_class = package.create_owned_class(msg_class_name, false)
-          name(resource, msg_class, message)
-          describe(msg_class, message)
-          name_class_map[message.qualified_name.to_s] ||= msg_class
+          emf_class = package.createOwnedClass(msg_class_name, false)
+          name(resource, emf_class, message)
+          describe(emf_class, message)
+          name_2_emf_map[message.qualified_name.to_s] ||= emf_class
 
-          message.parameters.each do |param|
-            param_name = param.name.to_s
-            param_type_str = param.parameter_type.to_s
-            param_type_str.gsub!(/</, "[")
-            param_type_str.gsub!(/>/, "]")
-            param_type = name_class_map[param_type_str]
-            if param_type.nil?
-              param_type = package.create_owned_class(param_type_str, false)
-              resource.setID( param_type, param_type_str )
-              name_class_map[param_type_str] = param_type
-            end
-            msg_class.create_owned_attribute(param_name, param_type, 0, 1)
+          message.parameters.each do |parameter|
+            define_attribute(resource, name_2_emf_map, primitive_types, emf_class, parameter)
           end
-        end
-      end
-
-      # Phase 6: Exception creation.
-      repository.data_modules.each do |data_module|
-        package = packages[data_module.name]
-        data_module.exceptions.each do |exception|
-          class_name = "#{exception.name}Exception"
-          clazz = package.create_owned_class(class_name, false)
-          name(resource, clazz, exception)
-          describe(clazz, exception)
-          name_class_map[exception.qualified_name] ||= clazz
         end
       end
 
@@ -290,6 +244,30 @@ module Domgen
       return "string" if attribute_type == :text
       return "int" if attribute_type == :integer
       return attribute_type.to_s
+    end
+
+    def self.define_attribute(resource, name_2_emf_map, primitive_types, emf_clazz, characteristic)
+      name = characteristic_name(characteristic)
+      emf_type = characteristic_type(name_2_emf_map, primitive_types, characteristic)
+      emf_attr = emf_clazz.createOwnedAttribute(name, emf_type)
+      name(resource, emf_attr, characteristic)
+      describe(emf_attr, characteristic)
+    end
+
+    def self.characteristic_name(characteristic)
+      characteristic.reference? ? characteristic.referencing_link_name : characteristic.collection? ? Domgen::Naming.pluralize(characteristic.name) : characteristic.name.to_s
+    end
+
+    def self.characteristic_type(name_2_emf_map, primitive_types, characteristic)
+      if characteristic.enumeration?
+        name_2_emf_map[characteristic.enumeration.qualified_name]
+      elsif characteristic.struct?
+        name_2_emf_map[characteristic.struct.qualified_name]
+      else
+        characteristic_type =
+          characteristic.reference? ? characteristic.referenced_entity.primary_key.characteristic_type : characteristic.characteristic_type
+        primitive_types[primitive_name(characteristic_type)]
+      end
     end
 
     def self.name(resource, emf_element, domgen_element)
