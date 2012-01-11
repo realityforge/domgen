@@ -4,7 +4,7 @@ package <%= service.data_module.ejb.service_package %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.Stateless( name = <%= service.ejb.boundary_interface_name %>.EJB_NAME )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
-<% if service.jws? %>@javax.jws.WebService( endpointInterface = <%= service.jws.qualified_service_name %>.SERVICE_NAME, serviceName = "<%= service.data_module.repository.jws.service_name %>", name = "<%= service.jws.name %>" )<% end %>
+<% if service.jws? %>@javax.jws.WebService( endpointInterface = "<%= service.jws.qualified_service_name %>", serviceName = "<%= service.data_module.repository.jws.service_name %>", portName = "<%= service.jws.port_name %>" )<% end %>
 public class <%= service.ejb.boundary_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}" : "" %>
   implements <%= service.ejb.boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jws? %>, <%= service.jws.qualified_service_name %><% end %>
@@ -53,7 +53,7 @@ JAVA
     {
     $<%= parameter.name %>.add( _<%= parameter.referenced_entity.qualified_name.gsub('.','') %>DAO.getByID( id ) );
     }
-<% end %>  
+<% end %>
   <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
   <%= transform %>
   }

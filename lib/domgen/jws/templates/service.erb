@@ -7,8 +7,6 @@ package <%= service.data_module.jws.service_package %>;
 public interface <%= service.jws.service_name %>
   extends java.rmi.Remote
 {
-  String SERVICE_NAME = "<%= service.jws.qualified_service_name %>";
-
 <% service.methods.select{|method| method.jws?}.each do |method|
 %><%= description_javadoc_for(method)
 %>  @javax.jws.WebMethod( operationName = "<%= method.name %>" )
