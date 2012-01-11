@@ -1,10 +1,10 @@
 module Domgen
   module JWS
     class JwsClass < Domgen.ParentedElement(:service)
-      attr_writer :name
+      attr_writer :port_name
 
-      def name
-        @name || service.qualified_name.to_s.gsub('.','/')
+      def port_name
+        @port_name || service.qualified_name.to_s
       end
 
       attr_writer :service_name
