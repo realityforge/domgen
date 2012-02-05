@@ -14,7 +14,7 @@ module Domgen
         @variables[key] = value
       end
 
-      def context
+      def context_binding
         clazz = Class.new
         @helpers.each do |helper|
           clazz.send :include, helper
@@ -24,8 +24,9 @@ module Domgen
           context.instance_eval "def #{k}; @#{k}; end"
           context.instance_variable_set "@#{k}".to_sym, v
         end
-
-        context
+        context.instance_eval do
+          return binding
+        end
       end
     end
   end

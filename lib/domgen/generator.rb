@@ -122,7 +122,7 @@ module Domgen
       Logger.debug "Generating #{template.template_name} for #{key} #{object_name}"
 
       render_context = create_context(template, key, value)
-      context_binding = render_context.context.send :binding
+      context_binding = render_context.context_binding
       return nil if !template.guard.nil? && !eval(template.guard, context_binding)
       output_filename = eval("\"#{template.output_filename_pattern}\"", context_binding)
       output_filename = File.join(target_basedir, output_filename)
