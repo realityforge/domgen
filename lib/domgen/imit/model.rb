@@ -15,7 +15,7 @@ module Domgen
       end
 
       def qualified_jso_name
-        "#{struct.data_module.imit.data_type_package}.#{self.jso_name}"
+        "#{struct.data_module.imit.decoder_package}.#{self.jso_name}"
       end
     end
 
@@ -182,6 +182,12 @@ module Domgen
         @encoder_package || "#{data_module.repository.imit.encoder_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
+      attr_writer :decoder_package
+
+      def decoder_package
+        @decoder_package || "#{data_module.repository.imit.decoder_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
       def mapper_name
         "#{data_module.name}Mapper"
       end
@@ -244,6 +250,12 @@ module Domgen
 
       def encoder_package
         @encoder_package || repository.jpa.entity_package
+      end
+
+      attr_writer :decoder_package
+
+      def decoder_package
+        @decoder_package || "#{repository.imit.package}.transport"
       end
 
       def change_mapper_name
