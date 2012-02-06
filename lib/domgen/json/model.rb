@@ -17,6 +17,15 @@ RUBY
 
     class JsonStruct < Domgen.ParentedElement(:struct)
       Domgen::JSON.include_json(self, :struct)
+
+      # Override name to strip out DTO/VO suffix
+      def name
+        return @name if @name
+        candidate = Domgen::Naming.jsonize(struct.name)
+        return candidate[0, candidate.size-4] if candidate =~ /_dto$/
+        return candidate[0, candidate.size-3] if candidate =~ /_vo$/
+        return candidate
+      end
     end
 
     class JsonMethod < Domgen.ParentedElement(:method)
