@@ -9,14 +9,6 @@ module Domgen
       def qualified_name
         "#{struct.data_module.imit.data_type_package}.#{self.name}"
       end
-
-      def jso_name
-        "Jso#{struct.name}"
-      end
-
-      def qualified_jso_name
-        "#{struct.data_module.imit.decoder_package}.#{self.jso_name}"
-      end
     end
 
     class ImitationStructField < Domgen.ParentedElement(:field)
@@ -117,21 +109,6 @@ module Domgen
     end
 
     class ImitationMethod < Domgen.ParentedElement(:method)
-      def jso_name
-        "Jso#{method.name}"
-      end
-
-      def qualified_jso_name
-        "#{method.service.data_module.imit.decoder_package}.#{self.jso_name}"
-      end
-
-      def jso_result_name
-        "Jso#{method.name}Result"
-      end
-
-      def qualified_jso_result_name
-        "#{method.service.data_module.imit.decoder_package}.#{self.jso_result_name}"
-      end
     end
 
     class ImitationException < Domgen.ParentedElement(:exception)
@@ -141,14 +118,6 @@ module Domgen
 
       def qualified_name
         "#{exception.data_module.imit.service_package}.#{name}"
-      end
-
-      def jso_name
-        "Jso#{exception.imit.name}"
-      end
-
-      def qualified_jso_name
-        "#{exception.data_module.imit.decoder_package}.#{self.jso_name}"
       end
     end
 

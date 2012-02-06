@@ -29,41 +29,6 @@ module Domgen
       ]
     end
 
-    def self.define_imit_jso_templates
-      [
-        Template.new(Imit::FACETS,
-                     :struct,
-                     "#{Imit::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
-                     'java/#{struct.imit.qualified_jso_name.gsub(".","/")}.java',
-                     Imit::HELPERS,
-                     'struct.imit?'),
-        Template.new(Imit::FACETS,
-                     :method,
-                     "#{Imit::TEMPLATE_DIRECTORY}/jso_method.java.erb",
-                     'java/#{method.imit.qualified_jso_name.gsub(".","/")}.java',
-                     Imit::HELPERS,
-                     'method.imit?'),
-        Template.new(Imit::FACETS,
-                     :method,
-                     "#{Imit::TEMPLATE_DIRECTORY}/jso_method_result.java.erb",
-                     'java/#{method.imit.qualified_jso_result_name.gsub(".","/")}.java',
-                     Imit::HELPERS,
-                     'method.imit?'),
-        Template.new(Imit::FACETS,
-                     :exception,
-                     "#{Imit::TEMPLATE_DIRECTORY}/jso_exception.java.erb",
-                     'java/#{exception.imit.qualified_jso_name.gsub(".","/")}.java',
-                     Imit::HELPERS,
-                     'exception.imit?'),
-        Template.new(Imit::FACETS,
-                     :struct,
-                     "#{Imit::TEMPLATE_DIRECTORY}/struct_interface.java.erb",
-                     'java/#{struct.imit.qualified_name.gsub(".","/")}.java',
-                     Imit::HELPERS,
-                     'struct.imit?')
-      ]
-    end
-
     def self.define_imit_json_templates
       [
         Template.new(Imit::FACETS,
