@@ -19,12 +19,22 @@ RUBY
       Domgen::JSON.include_json(self, :struct)
     end
 
+    class JsonMethod < Domgen.ParentedElement(:method)
+      Domgen::JSON.include_json(self, :method)
+    end
+
+    class JsonParameter < Domgen.ParentedElement(:method)
+      Domgen::JSON.include_json(self, :method)
+    end
+
     class JsonEnumeration < Domgen.ParentedElement(:enumeration)
       Domgen::JSON.include_json(self, :enumeration)
     end
   end
 
   FacetManager.define_facet(:json,
+                            Method => Domgen::JSON::JsonMethod,
+                            Parameter => Domgen::JSON::JsonParameter,
                             Struct => Domgen::JSON::JsonStruct,
                             StructField => Domgen::JSON::JsonStructField,
                             EnumerationSet => Domgen::JSON::JsonEnumeration)
