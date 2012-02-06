@@ -117,8 +117,20 @@ module Domgen
     end
 
     class ImitationMethod < Domgen.ParentedElement(:method)
-      def name
-        method.name
+      def jso_name
+        "Jso#{method.name}"
+      end
+
+      def qualified_jso_name
+        "#{method.service.data_module.imit.decoder_package}.#{self.jso_name}"
+      end
+
+      def jso_result_name
+        "Jso#{method.name}Result"
+      end
+
+      def qualified_jso_result_name
+        "#{method.service.data_module.imit.decoder_package}.#{self.jso_result_name}"
       end
     end
 
@@ -129,6 +141,14 @@ module Domgen
 
       def qualified_name
         "#{exception.data_module.imit.service_package}.#{name}"
+      end
+
+      def jso_name
+        "Jso#{exception.imit.name}"
+      end
+
+      def qualified_jso_name
+        "#{exception.data_module.imit.decoder_package}.#{self.jso_name}"
       end
     end
 

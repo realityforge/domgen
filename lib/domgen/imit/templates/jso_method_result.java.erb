@@ -1,0 +1,47 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= method.service.data_module.imit.decoder_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public final class <%= method.imit.jso_result_name %>
+  extends com.google.gwt.core.client.JavaScriptObject
+{
+  protected <%= method.imit.jso_result_name %>()
+  {
+  }
+
+  public final native boolean isNormalCompletion() /*-{
+    return this.fault == null;
+  }-*/;
+
+  public final Throwable toThrowable()
+  {
+    final String exceptionType = getExceptionType();
+<% method.exceptions.each do |exception| %>
+    if( "<%= exception.name %>".equals( exceptionType ) ) return to<%= exception.imit.name %>().toThrowable();
+<% end
+%>
+    return new Throwable("Unexpected fault. Type: " + exceptionType + ", Message: " + getExceptionMessage() );
+  }
+
+  private final native String getExceptionType() /*-{
+    return this.fault.type;
+  }-*/;
+
+  private final native String getExceptionMessage() /*-{
+    return this.fault.type;
+  }-*/;
+
+<% method.exceptions.each do |exception| %>
+  private final native <%= exception.imit.qualified_jso_name %> to<%= exception.imit.name %>() /*-{
+    return this.fault;
+  }-*/;
+<% end
+%>
+
+<% if method.return_value.return_type.to_s != 'void' %>
+  public final native <%= annotated_type(method.return_value, :imit, :transport) %> getReturnValue() /*-{
+    return this.result;
+  }-*/;
+<% end
+%>}
