@@ -14,7 +14,7 @@ public class <%= service.imit.proxy_name %>
   private com.google.gwt.user.client.rpc.AsyncCallback _callback;
 
 <% service.methods.each do |method|
-   method_name = Domgen::Naming.camelize(method.imit.name.to_s)
+   method_name = Domgen::Naming.camelize(method.name)
    parameters = method.parameters.select{|parameter| !parameter.imit.environmental?}
 %>
   public void <%= method_name %>(<%= parameters.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" }.join(', ') %>)
