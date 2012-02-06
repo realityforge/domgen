@@ -3,12 +3,14 @@ package <%= struct.data_module.ee.data_type_package %>;
 
 <%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<%= jackson_class_annotations(struct) if struct.jackson? %>
 <%= jaxb_class_annotations(struct) if struct.jaxb? %>
 public class <%= struct.name %>
   implements java.io.Serializable
 {
 <% struct.fields.each do |field| %>
-  <%= jaxb_field_annotation(field) if struct.jaxb? %>
+  <%= jackson_field_annotation(field) if field.jackson? %>
+  <%= jaxb_field_annotation(field) if field.jaxb? %>
   private <%= annotated_type(field, :ee) %> <%= field.name %>;
 <% end %>
 
