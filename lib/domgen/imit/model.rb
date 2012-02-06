@@ -20,7 +20,7 @@ module Domgen
     end
 
     class ImitationStructField < Domgen.ParentedElement(:field)
-      include Domgen::Java::EEJavaCharacteristic
+      include Domgen::Java::ImitJavaCharacteristic
 
       attr_writer :name
 
