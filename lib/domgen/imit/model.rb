@@ -78,7 +78,7 @@ module Domgen
       include Domgen::Java::ImitJavaCharacteristic
 
       def environmental?
-        parameter.gwt.environmental?
+        parameter.gwt? && parameter.gwt.environmental?
       end
 
       protected
