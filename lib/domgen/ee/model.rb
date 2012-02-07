@@ -6,7 +6,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.ee.data_type_package}.#{name}"
+        "#{exception.data_module.ee.service_package}.#{name}"
       end
     end
 
