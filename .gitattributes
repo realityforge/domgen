@@ -1,20 +1,6 @@
 * -text
-*.iml text -binary
-*.axl text -binary
-*.c text -binary
-*.css text -binary
-*.html text -binary
-*.java text -binary
-*.js text -binary
-*.jsp text -binary
-*.properties text -binary
-*.txt text -binary
-*.xml text -binary
-*.xsd text -binary
-*.rb text -binary
-*.haml text -binary
-*.rake text -binary
-*.sass text -binary
-*.yml text -binary
-*.rhtml text -binary
-*.jar binary
+*.rb text -crlf -binary
+*.rdoc text -crlf -binary
+*.textile text -crlf -binary
+*.txt text -crlf -binary
+*.erb text -crlf -binary
