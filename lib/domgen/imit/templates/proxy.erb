@@ -14,14 +14,19 @@ public class <%= service.imit.proxy_name %>
   private com.google.gwt.user.client.rpc.AsyncCallback _callback;
 
 <% service.methods.each do |method|
-   method_name = Domgen::Naming.camelize(method.imit.name.to_s)
+   method_name = Domgen::Naming.camelize(method.name)
+   parameters = method.parameters.select{|parameter| !parameter.imit.environmental?}
 %>
-  public void <%= method_name %>(<%= method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "final #{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }.join(', ') %>)
+  public void <%= method_name %>(<%= parameters.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" }.join(', ') %>)
   {
-    <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| Domgen::Naming.camelize(p.imit.name) } + ["null"]).join(', ') %>);
+    <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["null"]).join(', ') %>);
+  }
+  public void <%= method_name %>(<%= (parameters.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" } + ["final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)
+  {
+    <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["callback","null"]).join(', ') %>);
   }
 
-  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" } + ["final @javax.annotation.Nullable com.google.gwt.user.client.rpc.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" } + ["final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback","final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncErrorCallback errorCallback"]).join(', ') %>)
   {
   <% method.parameters.select{|parameter| (parameter.reference? || parameter.enumeration?) && parameter.collection?}.each do |parameter| %>
     final <%= annotated_type(parameter, :gwt, :transport) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.gwt.java_component_type(:transport) %>>();
@@ -54,7 +59,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
     {
     public void onFailure( final Throwable caught )
     {
-      if( null != callback ) callback.onFailure( caught );
+      if( null != errorCallback ) errorCallback.onFailure( caught );
       _callback.onFailure( caught );
     }
 

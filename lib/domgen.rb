@@ -36,6 +36,10 @@ require 'domgen/sql/generator'
 require 'domgen/jaxb/model'
 require 'domgen/jaxb/helper'
 
+# Jackson (JSon deserialization)
+require 'domgen/jackson/model'
+require 'domgen/jackson/helper'
+
 # JPA
 require 'domgen/jpa/model'
 require 'domgen/jpa/helper'

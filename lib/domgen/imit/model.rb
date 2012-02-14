@@ -9,18 +9,10 @@ module Domgen
       def qualified_name
         "#{struct.data_module.imit.data_type_package}.#{self.name}"
       end
-
-      def jso_name
-        "Jso#{struct.name}"
-      end
-
-      def qualified_jso_name
-        "#{struct.data_module.imit.data_type_package}.#{self.jso_name}"
-      end
     end
 
     class ImitationStructField < Domgen.ParentedElement(:field)
-      include Domgen::Java::EEJavaCharacteristic
+      include Domgen::Java::ImitJavaCharacteristic
 
       attr_writer :name
 
@@ -78,7 +70,7 @@ module Domgen
       include Domgen::Java::ImitJavaCharacteristic
 
       def environmental?
-        parameter.gwt.environmental?
+        parameter.gwt? && parameter.gwt.environmental?
       end
 
       protected
@@ -117,9 +109,6 @@ module Domgen
     end
 
     class ImitationMethod < Domgen.ParentedElement(:method)
-      def name
-        method.name
-      end
     end
 
     class ImitationException < Domgen.ParentedElement(:exception)
@@ -180,6 +169,12 @@ module Domgen
 
       def encoder_package
         @encoder_package || "#{data_module.repository.imit.encoder_package}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
+      attr_writer :decoder_package
+
+      def decoder_package
+        @decoder_package || "#{data_module.repository.imit.decoder_package}.#{Domgen::Naming.underscore(data_module.name)}"
       end
 
       def mapper_name
@@ -244,6 +239,12 @@ module Domgen
 
       def encoder_package
         @encoder_package || repository.jpa.entity_package
+      end
+
+      attr_writer :decoder_package
+
+      def decoder_package
+        @decoder_package || "#{repository.imit.package}.transport"
       end
 
       def change_mapper_name

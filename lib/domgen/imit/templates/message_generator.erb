@@ -31,7 +31,7 @@ public class <%= repository.imit.message_generator_name %>
       final @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> attributes = isUpdate ? <%= entity.data_module.imit.qualified_jpa_encoder_name %>.encode<%= entity.name %>( entity ) : null;
       final int transportID = <%= entity.imit.transport_id %>;
       final @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> routingKeys = _<%= entity.data_module.name %>Router.route<%= entity.name %>( entity );
-      return new EntityMessage( id, transportID, routingKeys, attributes );
+      return new EntityMessage( id, transportID, System.currentTimeMillis(), routingKeys, attributes );
     }
     else <%
    end

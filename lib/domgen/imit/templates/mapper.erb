@@ -88,9 +88,7 @@ public class <%= data_module.imit.mapper_name %>
 <% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side?}.each do |attribute|
     key = "#{entity.name}.#{Domgen::Naming.uppercase_constantize(attribute.name)}"
     value_converter =
-        if attribute.imit.characteristic_type(:transport) == :datetime
-          "new java.util.Date( change.getIntegerValue( #{key} ).longValue() )"
-        elsif attribute.imit.characteristic_type(:transport) == :date
+        if attribute.imit.characteristic_type(:transport) == :date
           "org.realityforge.replicant.client.RDate.parse( change.getStringValue( #{key} ) )"
         elsif attribute.imit.characteristic_type(:transport) == :integer
           "change.getIntegerValue( #{key} )"
