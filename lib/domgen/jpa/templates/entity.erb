@@ -67,7 +67,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <% end %>
 
   @javax.persistence.PostRemove
-  protected void onRemove()
+  protected void postRemove()
   {
     if( removed() )
     {
@@ -78,7 +78,11 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <% else %>
     _removed = true;
 <% end %>
+  }
 
+  @javax.persistence.PreRemove
+  protected void preRemove()
+  {
 <% entity.declared_attributes.
   select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.traversable? && attribute.inverse.jpa.traversable? }.
   each do |attribute|
