@@ -74,7 +74,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
       throw new IllegalStateException( "Attempting to remove already removed entity" );
     }
 <% if entity.extends %>
-    super.onRemove();
+    super.postRemove();
 <% else %>
     _removed = true;
 <% end %>
