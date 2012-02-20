@@ -154,11 +154,14 @@ JAVA
   #{j_deprecation_warning(attribute)}final void add#{name}( final #{type} value )
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-    if( null != #{name}  )
+    if( null != #{name} )
     {
       throw new IllegalStateException("Attempted to add value when non null value exists.");
     }
-    #{name} = value;
+    if( value != #{name} )
+    {
+      #{name} = value;
+    }
   }
 
   public final void remove#{name}( final #{type} value )
@@ -168,7 +171,10 @@ JAVA
     {
       throw new IllegalStateException("Attempted to remove value that was not the same.");
     }
-    #{name} = null;
+    if( null != #{name} )
+    {
+      #{name} = null;
+    }
   }
 JAVA
             java
@@ -341,13 +347,16 @@ STR
 
   #{j_deprecation_warning(attribute)} final void add#{name}( final #{type} value )
   {
-    safeGet#{plural_name}().add( value );
+    final java.util.List<#{type}> #{plural_name} = safeGet#{plural_name}();
+    if ( !#{plural_name}.contains( value ) )
+    {
+      #{plural_name}.add( value );
+    }
   }
 
   public final void remove#{name}( final #{type} value )
   {
-    final java.util.List<#{type}> #{plural_name} = safeGet#{plural_name}();
-    if ( #{plural_name}.contains( value ) )
+    if ( null != #{plural_name} && #{plural_name}.contains( value ) )
     {
       #{plural_name}.remove( value );
     }
