@@ -249,6 +249,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 
   public final void link()
   {
+    checkValidity();
     _linking = true;
     try
     {
@@ -263,6 +264,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 
   public final void delink()
   {
+    checkValidity();
    _delinking = true;
     try
     {
