@@ -265,7 +265,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   public final void delink()
   {
     checkValidity();
-   _delinking = true;
+    _delinking = true;
     try
     {
       performDelink();
