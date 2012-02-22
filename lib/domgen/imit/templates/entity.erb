@@ -161,7 +161,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   }
 <% end %>
 <% end %>
-  protected void invalidate()
+  public void invalidate()
   {
 <% if entity.extends.nil?
 %>
