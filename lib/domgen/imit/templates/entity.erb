@@ -174,7 +174,6 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     }
 <% end
 %>    _broker.entityRemoved( this );
-    _repository.deregisterEntity( <%= entity.imit.name %>.class, get<%= entity.primary_key.imit.name %>() );
     _repository = null;
     _broker = null;
 <% else

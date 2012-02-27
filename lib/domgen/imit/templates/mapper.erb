@@ -50,7 +50,6 @@ public class <%= data_module.imit.mapper_name %>
         }
         // It is in the local repository so we need to delete it
         _repository.deregisterEntity( <%= entity.imit.name %>.class, designator );
-         entity.invalidate();
       }
     }
     else
