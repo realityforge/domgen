@@ -230,9 +230,14 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 
 
 <% if entity.extends.nil? %>
+  public final boolean isValid()
+  {
+    return null != _repository;
+  }
+
   protected final void checkValidity()
   {
-    if( null == _repository )
+    if( !isValid() )
     {
       throw new IllegalStateException( "Method invoked on invalid imitation" );
     }
