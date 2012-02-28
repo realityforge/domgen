@@ -59,7 +59,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
 %>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>()
   {
-    check<%= attribute.reference? ? "Linked" : "Validity" %>();
+    <% if !attribute.primary_key? %>check<%= attribute.reference? ? "Linked" : "Validity" %>();<% end %>
     return _<%= attribute.imit.name %>;
   }
 <% if attribute.attribute_type == :reference
