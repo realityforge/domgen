@@ -305,7 +305,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   @Override
   public int hashCode()
   {
-    return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name }() ? get#{entity.primary_key.imit.name }().hashCode() : System.identityHashCode( this )" : "key == that.get#{entity.primary_key.imit.name }()" %>;
+    return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name }() ? get#{entity.primary_key.imit.name }().hashCode() : System.identityHashCode( this )" : "get#{entity.primary_key.imit.name }()" %>;
   }
 <% end %>
 }
