@@ -26,11 +26,24 @@ module Domgen
                      'java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java',
                      Imit::HELPERS,
                      'data_module.imit?'),
+        Template.new(Imit::FACETS,
+                     :struct,
+                     "#{Imit::TEMPLATE_DIRECTORY}/struct_interface.java.erb",
+                     'java/#{struct.imit.qualified_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'struct.imit?'),
+
       ]
     end
 
     def self.define_imit_json_templates
       [
+        Template.new(Imit::FACETS,
+                     :struct,
+                     "#{Imit::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
+                     'java/#{struct.imit.qualified_jso_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'struct.imit?'),
         Template.new(Imit::FACETS,
                      :repository,
                      "#{Imit::TEMPLATE_DIRECTORY}/change_mapper.erb",

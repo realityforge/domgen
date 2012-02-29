@@ -9,6 +9,14 @@ module Domgen
       def qualified_name
         "#{struct.data_module.imit.data_type_package}.#{self.name}"
       end
+
+      def jso_name
+        "Jso#{struct.name}"
+      end
+
+      def qualified_jso_name
+        "#{struct.data_module.imit.data_type_package}.#{self.jso_name}"
+      end
     end
 
     class ImitationStructField < Domgen.ParentedElement(:field)
