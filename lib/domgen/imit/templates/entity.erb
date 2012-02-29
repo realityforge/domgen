@@ -282,4 +282,30 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     }
   }
 <% end %>
+
+<% if !entity.abstract? %>
+  @Override
+  public boolean equals( final Object o )
+  {
+    if ( this == o )
+    {
+      return true;
+    }
+    else if ( o == null || !(o instanceof <%= entity.imit.name %>) )
+    {
+      return false;
+    }
+    else
+    {
+      final <%= entity.jpa.name%> that = (<%= entity.jpa.name %>) o;
+      return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name}() && get#{entity.primary_key.imit.name}().equals( that.get#{entity.primary_key.imit.name}() )" : "get#{entity.primary_key.imit.name }() == that.get#{entity.primary_key.imit.name }()" %>;
+    }
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name }() ? get#{entity.primary_key.imit.name }().hashCode() : System.identityHashCode( this )" : "key == that.get#{entity.primary_key.imit.name }()" %>;
+  }
+<% end %>
 }
