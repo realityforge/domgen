@@ -5,7 +5,7 @@ package <%= service.data_module.imit.service_package %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= service.imit.name %>
 {
-<% service.methods.each do |method|
+<% service.methods.select{|method| method.imit?}.each do |method|
 
   method_name = Domgen::Naming.camelize(method.name)
   parameters = method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "#{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }

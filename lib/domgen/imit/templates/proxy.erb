@@ -13,7 +13,7 @@ public class <%= service.imit.proxy_name %>
   @javax.inject.Inject
   private com.google.gwt.user.client.rpc.AsyncCallback _callback;
 
-<% service.methods.each do |method|
+<% service.methods.select{|method| method.imit?}.each do |method|
    method_name = Domgen::Naming.camelize(method.name)
    parameters = method.parameters.select{|parameter| !parameter.imit.environmental?}
 %>
