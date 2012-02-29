@@ -622,7 +622,7 @@ SQL
           copy_tags(c, constraint_by_name(c.name))
         end
 
-        entity.declared_attributes.select { |a| a.enumeration? && a.enumeration.numeric_values? }.each do |a|
+        entity.attributes.select { |a| a.enumeration? && a.enumeration.numeric_values? }.each do |a|
           sorted_values = a.enumeration.values.values.sort
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
@@ -630,19 +630,19 @@ SQL
 #{a.sql.quoted_column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
-        entity.declared_attributes.select { |a| a.attribute_type == :enumeration && a.enumeration.textual_values? }.each do |a|
+        entity.attributes.select { |a| a.attribute_type == :enumeration && a.enumeration.textual_values? }.each do |a|
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.quoted_column_name} IN (#{a.enumeration.values.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
-        entity.declared_attributes.select{ |a| (a.allows_length?) && !a.allow_blank? }.each do |a|
+        entity.attributes.select{ |a| (a.allows_length?) && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
           sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
         end
 
-        entity.declared_attributes.select { |a| a.set_once? }.each do |a|
+        entity.attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
           validation(validation_name, :negative_sql => <<SQL, :after => :update) unless validation_by_name(validation_name)
 SELECT I.#{a.entity.primary_key.sql.quoted_column_name}
@@ -810,7 +810,7 @@ SQL
           end
         end
 
-        self.entity.declared_attributes.select { |a| a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
+        self.entity.attributes.select { |a| a.reference? && !a.abstract? && !a.polymorphic? }.each do |a|
           foreign_key([a.name],
                       a.referenced_entity.qualified_name,
                       [a.referenced_entity.primary_key.name],
