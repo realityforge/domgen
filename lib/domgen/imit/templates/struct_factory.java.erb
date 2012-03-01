@@ -17,4 +17,32 @@ public class <%= struct.imit.factory_name %>
       return new <%= struct.imit.java_name %>( <%= params %> );
     }
   }
+
+<% if struct.top_level? %>
+  public static <%= struct.imit.qualified_name %> as<%= struct.imit.name %>( final String json )
+  {
+    if( com.google.gwt.core.client.GWT.isClient() )
+    {
+      return <%= struct.imit.jso_name %>.as<%= struct.imit.name %>( json );
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  public static String asJson( final <%= struct.imit.qualified_name %> entity )
+  {
+    if( com.google.gwt.core.client.GWT.isClient() )
+    {
+      return ((<%= struct.imit.jso_name %>) entity).toSource();
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
+  }
+<% end
+%>
+
 }

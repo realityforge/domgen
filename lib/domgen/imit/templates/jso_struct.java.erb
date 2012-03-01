@@ -38,12 +38,7 @@ final class <%= struct.imit.jso_name %>
 <% end
 %>
 <% if struct.top_level? %>
-  public static <%= struct.imit.qualified_name %> as<%= struct.imit.name %>( final String json )
-  {
-    return as<%= struct.imit.name %>0( json );
-  }
-
-  private static <%= struct.imit.jso_name %> as<%= struct.imit.name %>0( final String json )
+  protected static <%= struct.imit.jso_name %> as<%= struct.imit.name %>( final String json )
   {
     return com.google.gwt.core.client.JsonUtils.safeEval( json );
   }
