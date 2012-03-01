@@ -49,7 +49,14 @@ module Domgen
             error("unknown modality #{modality}")
           end
         elsif characteristic.characteristic_type == :struct
-          return characteristic.struct.send(struct_key).qualified_name
+          if :default == modality || :boundary == modality
+            return characteristic.struct.send(struct_key).qualified_name
+          elsif :transport == modality
+            return "java.lang.String"
+          else
+            error("unknown modality #{modality}")
+          end
+
         elsif characteristic.characteristic_type == :date
           return date_java_type
         else
