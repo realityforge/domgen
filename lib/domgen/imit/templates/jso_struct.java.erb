@@ -3,12 +3,27 @@ package <%= struct.data_module.imit.data_type_package %>;
 
 <%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public final class <%= struct.imit.jso_name %>
+final class <%= struct.imit.jso_name %>
   extends com.google.gwt.core.client.JavaScriptObject
   implements <%= struct.imit.qualified_name %>
 {
   protected <%= struct.imit.jso_name %>()
   {
+  }
+
+  protected static <%= struct.imit.jso_name %> create( <%= struct.fields.collect {|field| "final #{annotated_type(field, :imit) } #{field.name}" }.join(", ") %> )
+  {
+    final <%= struct.imit.jso_name %> entity = com.google.gwt.core.client.JavaScriptObject.createObject().cast();
+<% struct.fields.each do |field|
+     if :sequence == field.collection_type
+%>    entity.set<%= field.name %>( java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.imit.java_component_type %>>( <%= field.name %> ) ) );
+<%     elsif :set == field.collection_type
+%>    entity.set<%= field.name %>( java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.imit.java_component_type %>>( <%= field.name %> ) ) );
+  <%     else
+%>    entity.set<%= field.name %>( <%= field.name %> );
+<%   end
+   end
+%>    return entity;
   }
 
 <% struct.fields.select{|field| field.imit?}.each do |field|
@@ -17,7 +32,7 @@ public final class <%= struct.imit.jso_name %>
     return this.<%= field.json.name %>;
   }-*/;
 
-  public final native void set<%= field.name %>( <%= annotated_type(field, :imit) %> value ) /*-{
+  private final native void set<%= field.name %>( <%= annotated_type(field, :imit) %> value ) /*-{
     this.<%= field.json.name %> = value;
   }-*/;
 <% end

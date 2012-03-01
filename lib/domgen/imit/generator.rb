@@ -32,12 +32,23 @@ module Domgen
                      'java/#{struct.imit.qualified_name.gsub(".","/")}.java',
                      Imit::HELPERS,
                      'struct.imit?'),
-
+        Template.new(Imit::FACETS,
+                     :struct,
+                     "#{Imit::TEMPLATE_DIRECTORY}/java_struct.java.erb",
+                     'java/#{struct.imit.qualified_java_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'struct.imit?'),
       ]
     end
 
     def self.define_imit_json_templates
       [
+        Template.new(Imit::FACETS,
+                     :struct,
+                     "#{Imit::TEMPLATE_DIRECTORY}/struct_factory.java.erb",
+                     'java/#{struct.imit.qualified_factory_name.gsub(".","/")}.java',
+                     Imit::HELPERS,
+                     'struct.imit?'),
         Template.new(Imit::FACETS,
                      :struct,
                      "#{Imit::TEMPLATE_DIRECTORY}/jso_struct.java.erb",

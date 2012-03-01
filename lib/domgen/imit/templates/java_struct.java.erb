@@ -1,0 +1,44 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= struct.data_module.imit.data_type_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+final class <%= struct.imit.java_name %>
+  implements <%= struct.imit.qualified_name %>
+{
+<% struct.fields.each do |field| %>
+  private <%= annotated_type(field, :imit) %> <%= field.name %>;
+<% end %>
+
+<% if struct.fields.size != 0 %>
+  /**
+   * This constructor is present for deserialization mechanisms and should not be called directly.
+   *
+   * @deprecated
+   */
+  @Deprecated
+  protected <%= struct.imit.java_name %>()
+  {
+  }
+<% end %>
+
+  protected <%= struct.imit.java_name %>( <%= struct.fields.collect {|field| "final #{annotated_type(field, :imit) } #{field.name}" }.join(", ") %> )
+  {
+<% struct.fields.each do |field|
+     if :sequence == field.collection_type
+%>    this.<%= field.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.imit.java_component_type %>>( <%= field.name %> ) );
+<%     elsif :set == field.collection_type
+%>    this.<%= field.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.imit.java_component_type %>>( <%= field.name %> ) );
+  <%     else
+%>    this.<%= field.name %> = <%= field.name %>;
+<%   end
+   end
+%>  }
+<% struct.fields.each do |field|
+%>
+  public <%= annotated_type(field, :imit) %> <%= getter_prefix(field) %><%= field.name %>()
+  {
+    return <%= field.name %>;
+  }
+<% end
+%>}
