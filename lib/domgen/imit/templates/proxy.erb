@@ -40,7 +40,7 @@ public class <%= service.imit.proxy_name %>
        elsif parameter.enumeration?
          "entity.#{parameter.enumeration.numeric_values? ? "ordinal()" : "name()"}"
        else
-         "#{parameter.struct.imit.qualified_factory_name}.asJson( #{parameter.name} )"
+         "#{parameter.struct.imit.qualified_factory_name}.asJson( entity )"
        end
     %>
     $<%= parameter.name %>.add( <%= param_value %> );
