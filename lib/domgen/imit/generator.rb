@@ -43,19 +43,19 @@ module Domgen
 
     def self.define_imit_json_templates
       [
-        Template.new(Imit::FACETS,
+        Template.new(Imit::FACETS + [:json],
                      :struct,
                      "#{Imit::TEMPLATE_DIRECTORY}/struct_factory.java.erb",
                      'java/#{struct.imit.qualified_factory_name.gsub(".","/")}.java',
                      Imit::HELPERS,
                      'struct.imit?'),
-        Template.new(Imit::FACETS,
+        Template.new(Imit::FACETS + [:json],
                      :struct,
                      "#{Imit::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
                      'java/#{struct.imit.qualified_jso_name.gsub(".","/")}.java',
                      Imit::HELPERS,
                      'struct.imit?'),
-        Template.new(Imit::FACETS,
+        Template.new(Imit::FACETS + [:json],
                      :repository,
                      "#{Imit::TEMPLATE_DIRECTORY}/change_mapper.erb",
                      'java/#{repository.imit.qualified_change_mapper_name.gsub(".","/")}.java',
