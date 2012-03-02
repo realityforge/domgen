@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= service.data_module.gwt.server_package %>;
 
-<%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
+@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt.module_name %>/" + <%= service.gwt.qualified_service_name %>.PATH } )
 public class <%= service.gwt.servlet_name %>
@@ -12,7 +12,6 @@ public class <%= service.gwt.servlet_name %>
   private <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
 <% service.methods.select{|method| method.gwt?}.each do |method|
-%><%= description_javadoc_for(method)
 %>  public <%= annotated_type(method.return_value, :gwt, :transport) %> <%= method.gwt.name %>(<%= method.parameters.select{|parameter| !parameter.gwt.environmental?}.collect{|p| "#{annotated_type(p, :gwt, :transport)} #{p.gwt.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt.qualified_name}.join(', ')}"
 %>
