@@ -80,8 +80,8 @@ LOOP
        end
    end
 %>
-<% method.parameters.select{|p|p.struct?}.each do |parameter| %>
-    $<%= parameter.name %> = _jsonMapper.readValue( <%= parameter.name %>, <%= parameter.struct.ee.qualified_name %>.class );
+<% method.parameters.select{|p|p.struct? && !p.collection?}.each do |parameter| %>
+    $<%= parameter.name %> = _jsonMapper.readValue( <%= parameter.name %>, <%= parameter.ejb.java_type %>.class );
 <% end %>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
     $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.ejb.java_component_type(:boundary) %>>();
@@ -97,7 +97,7 @@ LOOP
              "#{parameter.enumeration.ee.qualified_name}.values()[ k ]" :
              "#{parameter.enumeration.ee.qualified_name}.valueOf( k )"
          else
-           "_jsonMapper.readValue( k, #{parameter.struct.ee.qualified_name}.class )"
+           "_jsonMapper.readValue( k, #{parameter.ejb.java_component_type}.class )"
          end
     %>
     $<%= parameter.name %>.add( <%= param_value %> );
