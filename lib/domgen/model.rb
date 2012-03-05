@@ -326,6 +326,10 @@ module Domgen
       characteristic_type == :enumeration
     end
 
+    def text?
+      characteristic_type == :text
+    end
+
     def reference?
       self.characteristic_type == :reference
     end
