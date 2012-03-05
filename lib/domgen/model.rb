@@ -278,10 +278,6 @@ module Domgen
   module Characteristic
     attr_reader :name
 
-    def enumeration?
-      characteristic_type == :enumeration
-    end
-
     def allows_length?
       characteristic_type == :text || (characteristic_type == :enumeration && enumeration.textual_values?)
     end
@@ -324,6 +320,10 @@ module Domgen
     def enumeration=(enumeration)
       error("enumeration on #{name} is invalid as #{characteristic_container.characteristic_kind} is not an enumeration") unless enumeration?
       @enumeration = enumeration
+    end
+
+    def enumeration?
+      characteristic_type == :enumeration
     end
 
     def reference?
