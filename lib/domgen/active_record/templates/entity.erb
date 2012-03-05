@@ -95,7 +95,7 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
   rhs = entity.attribute_by_name(c.rhs_operand)
   op = c.class.operators[c.operator]
   op = '==' if '=' == op
-  description = (lhs.attribute_type == :datetime) ? c.class.numeric_operator_descriptions[c.operator] : c.class.temporal_operator_descriptions[c.operator]
+  description = lhs.datetime? ? c.class.numeric_operator_descriptions[c.operator] : c.class.temporal_operator_descriptions[c.operator]
 %>
   validate do |record|
     if !record.<%= lhs.sql.column_name %>.nil? && !record.<%= rhs.sql.column_name %>.nil? && !(record.<%= lhs.sql.column_name %> <%= op %> record.<%= rhs.sql.column_name %>)
