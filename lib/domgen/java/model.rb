@@ -48,7 +48,7 @@ module Domgen
           else
             error("unknown modality #{modality}")
           end
-        elsif characteristic.characteristic_type == :struct
+        elsif characteristic.struct?
           if :default == modality || :boundary == modality
             return characteristic.struct.send(struct_key).qualified_name
           elsif :transport == modality
@@ -56,8 +56,7 @@ module Domgen
           else
             error("unknown modality #{modality}")
           end
-
-        elsif characteristic.characteristic_type == :date
+        elsif characteristic.date?
           return date_java_type
         else
           return Domgen::Java::TYPE_MAP[characteristic.characteristic_type.to_s] || characteristic.characteristic_type.to_s

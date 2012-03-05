@@ -12,7 +12,7 @@ module Domgen
         s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? "TIMESTAMP" : "DATE"} )\n" if attribute.datetime? || attribute.date?
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
-        if attribute.attribute_type == :text
+        if attribute.text?
           unless attribute.length.nil? && attribute.min_length.nil?
             s << "  @javax.validation.constraints.Size( "
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?

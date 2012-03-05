@@ -279,7 +279,7 @@ module Domgen
     attr_reader :name
 
     def allows_length?
-      characteristic_type == :text || (characteristic_type == :enumeration && enumeration.textual_values?)
+      text? || (enumeration? && enumeration.textual_values?)
     end
 
     attr_reader :length

@@ -39,7 +39,7 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
 %>  nillable_boolean :<%= a.sql.column_name %>
 <%         end
          end
-         if a.attribute_type == :text || (a.enumeration? && a.enumeration.textual_values?)
+         if a.text? || (a.enumeration? && a.enumeration.textual_values?)
 %>  nillable_attribute :<%= a.sql.column_name %>
 <%       end
          if !a.length.nil?
