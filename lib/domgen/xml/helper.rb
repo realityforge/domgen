@@ -30,13 +30,15 @@ module Domgen
   end
 end
 
-class Builder::XmlMarkup
-  def _nested_structures(block)
-    super(block)
-    # if there was no newline after the last item, indentation
-    # will be added anyway, which looks pretty wacky
-    unless target! =~ /\n$/
-      _newline
+module Builder
+  class XmlMarkup
+    def _nested_structures(block)
+      super(block)
+      # if there was no newline after the last item, indentation
+      # will be added anyway, which looks pretty wacky
+      unless target! =~ /\n$/
+        _newline
+      end
     end
   end
 end
