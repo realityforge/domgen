@@ -257,7 +257,7 @@ module Domgen
         end
 
         if 0 != sorted_values.first
-          error("Non-zero based numeric enumeration #{enumeration.name}")
+          error("Non-zero based numeric enumeration #{self.name}")
         end
       end
 
