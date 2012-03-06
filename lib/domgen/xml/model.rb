@@ -16,6 +16,10 @@ module Domgen
     class XmlStructField < Domgen.ParentedElement(:field)
       Domgen::XML.include_xml(self, :field)
 
+      def component_name
+        Domgen::Naming.xmlize(field.component_name)
+      end
+
       attr_writer :required
 
       def required?

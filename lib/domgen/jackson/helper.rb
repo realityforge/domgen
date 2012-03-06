@@ -10,8 +10,7 @@ module Domgen
       end
 
       def jackson_field_annotation(field)
-        name = field.collection? ? Domgen::Naming.jsonize(Domgen::Naming.pluralize(field.json.name)) : field.json.name
-        "@org.codehaus.jackson.annotate.JsonProperty(\"#{name}\")"
+        "@org.codehaus.jackson.annotate.JsonProperty(\"#{field.json.name}\")"
       end
     end
   end

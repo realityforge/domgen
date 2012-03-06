@@ -255,7 +255,7 @@ module Domgen
     end
 
     def self.characteristic_name(characteristic)
-      characteristic.reference? ? characteristic.referencing_link_name : characteristic.collection? ? Domgen::Naming.pluralize(characteristic.name) : characteristic.name.to_s
+      characteristic.reference? ? characteristic.referencing_link_name : characteristic.name.to_s
     end
 
     def self.characteristic_type(name_2_emf_map, primitive_types, characteristic)

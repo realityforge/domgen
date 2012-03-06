@@ -856,9 +856,11 @@ module Domgen
     include Characteristic
 
     attr_reader :field_type
+    attr_reader :component_name
 
     def initialize(struct, name, field_type, options, &block)
-      @name = name
+      @component_name = name
+      @name = (options[:collection_type] && options[:collection_type] != :none) ? Domgen::Naming.pluralize(name) : name
       @field_type = field_type
       super(struct, options, &block)
     end

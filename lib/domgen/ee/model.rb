@@ -25,10 +25,8 @@ module Domgen
     class EebStructField < Domgen.ParentedElement(:field)
       include Domgen::Java::EEJavaCharacteristic
 
-      attr_writer :name
-
       def name
-        @name || (field.collection? ? Domgen::Naming.pluralize(field.name) : field.name)
+        field.name
       end
 
       protected
