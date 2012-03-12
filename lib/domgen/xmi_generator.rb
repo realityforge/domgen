@@ -180,7 +180,7 @@ module Domgen
             types = Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
 
             method.parameters.each do |characteristic|
-              names.add(characteristic_name(characteristic))
+              names.add(characteristic.name.to_s)
               types.add(characteristic_type(name_2_emf_map, primitive_types, characteristic))
             end
 
@@ -247,15 +247,10 @@ module Domgen
     end
 
     def self.define_attribute(resource, name_2_emf_map, primitive_types, emf_clazz, characteristic)
-      name = characteristic_name(characteristic)
       emf_type = characteristic_type(name_2_emf_map, primitive_types, characteristic)
-      emf_attr = emf_clazz.createOwnedAttribute(name, emf_type)
+      emf_attr = emf_clazz.createOwnedAttribute(characteristic.name.to_s, emf_type)
       name(resource, emf_attr, characteristic)
       describe(emf_attr, characteristic)
-    end
-
-    def self.characteristic_name(characteristic)
-      characteristic.reference? ? characteristic.referencing_link_name : characteristic.name.to_s
     end
 
     def self.characteristic_type(name_2_emf_map, primitive_types, characteristic)
