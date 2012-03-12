@@ -95,8 +95,7 @@ module Domgen
             end
 
             if attribute.reference?
-              doc.reference("references" => attribute.references,
-                            "referenced-entity" => attribute.referenced_entity.qualified_name,
+              doc.reference("referenced-entity" => attribute.referenced_entity.qualified_name,
                             "polymorphic" => attribute.polymorphic?.to_s,
                             "link-name" => attribute.referencing_link_name,
                             "inverse-multiplicity" => attribute.inverse.multiplicity.to_s,
