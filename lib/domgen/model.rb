@@ -367,23 +367,24 @@ module Domgen
       @collection_type = collection_type
     end
 
-    attr_reader :referenced_struct
+    def referenced_struct
+      error("referenced_struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      @referenced_struct
+    end
 
     def referenced_struct=(referenced_struct)
       error("struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
       @referenced_struct = referenced_struct.is_a?(Symbol) ? self.characteristic_container.data_module.struct_by_name(referenced_struct) : referenced_struct
     end
 
-    attr_reader :referenced_entity_name
-
-    def referenced_entity_name=(referenced_entity_name)
-      error("referenced_entity_name on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
-      @referenced_entity_name = referenced_entity_name
-    end
-
     def referenced_entity
       error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
-      self.characteristic_container.data_module.entity_by_name(self.referenced_entity_name)
+      @referenced_entity
+    end
+
+    def referenced_entity=(referenced_entity)
+      error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      @referenced_entity = referenced_entity.is_a?(Symbol) ? self.characteristic_container.data_module.entity_by_name(referenced_entity) : referenced_entity
     end
 
     # The name of the local field appended with PK of foreign entity
@@ -567,7 +568,7 @@ module Domgen
         end
       end
 
-      characteristic(name.to_s.to_sym, :reference, options.merge({:referenced_entity_name => other_type}), &block)
+      characteristic(name.to_s.to_sym, :reference, options.merge({:referenced_entity => other_type}), &block)
     end
 
     def struct(name, struct_key, options = {}, &block)
@@ -775,7 +776,7 @@ module Domgen
       local_reference = attribute_by_name(attribute_name)
       error("Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
       scoping_attribute = local_reference.referenced_entity.attribute_by_name(constraint.scoping_attribute)
-      if entity.name.to_s != scoping_attribute.referenced_entity_name.to_s
+      if entity.name.to_s != scoping_attribute.referenced_entity.name.to_s
         error("Attribute in cycle references #{scoping_attribute.referenced_entity.name} while last reference in path is #{entity.name}")
       end
 
