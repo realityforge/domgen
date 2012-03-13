@@ -775,7 +775,9 @@ module Domgen
       local_reference = attribute_by_name(attribute_name)
       error("Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
       scoping_attribute = local_reference.referenced_entity.attribute_by_name(constraint.scoping_attribute)
-      error("Attribute in cycle references #{scoping_attribute.referenced_entity.name} while last reference in path is #{entity.name}") if entity != scoping_attribute.referenced_entity_name
+      if entity.name.to_s != scoping_attribute.referenced_entity_name.to_s
+        error("Attribute in cycle references #{scoping_attribute.referenced_entity.name} while last reference in path is #{entity.name}")
+      end
 
       add_unique_to_set("cycle", constraint, @cycle_constraints)
     end
