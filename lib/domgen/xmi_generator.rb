@@ -257,7 +257,7 @@ module Domgen
       if characteristic.enumeration?
         name_2_emf_map[characteristic.enumeration.qualified_name]
       elsif characteristic.struct?
-        name_2_emf_map[characteristic.struct.qualified_name]
+        name_2_emf_map[characteristic.referenced_struct.qualified_name]
       else
         characteristic_type =
           characteristic.reference? ? characteristic.referenced_entity.primary_key.characteristic_type : characteristic.characteristic_type

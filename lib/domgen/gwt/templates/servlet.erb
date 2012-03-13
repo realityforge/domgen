@@ -19,7 +19,7 @@ public class <%= service.gwt.servlet_name %>
 %>
   {
 <% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| %>
-    final <%= parameter.struct.ee.qualified_name %> $<%= parameter.name %>;
+    final <%= parameter.referenced_struct.ee.qualified_name %> $<%= parameter.name %>;
 <% end %>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
     final <%= annotated_type(parameter, :ejb, :boundary) %> $<%= parameter.name %>;

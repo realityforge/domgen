@@ -50,7 +50,7 @@ module Domgen
           end
         elsif characteristic.struct?
           if :default == modality || :boundary == modality
-            return characteristic.struct.send(struct_key).qualified_name
+            return characteristic.referenced_struct.send(struct_key).qualified_name
           elsif :transport == modality
             return "java.lang.String"
           else

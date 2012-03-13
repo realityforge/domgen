@@ -367,11 +367,11 @@ module Domgen
       @collection_type = collection_type
     end
 
-    attr_reader :struct
+    attr_reader :referenced_struct
 
-    def struct=(struct)
+    def referenced_struct=(referenced_struct)
       error("struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
-      @struct = struct
+      @referenced_struct = referenced_struct.is_a?(Symbol) ? self.characteristic_container.data_module.struct_by_name(referenced_struct) : referenced_struct
     end
 
     attr_reader :referenced_entity_name
@@ -573,7 +573,7 @@ module Domgen
     def struct(name, struct_key, options = {}, &block)
       struct = data_module.struct_by_name(struct_key)
       params = options.dup
-      params[:struct] = struct
+      params[:referenced_struct] = struct
       characteristic(name, :struct, params, &block)
     end
 

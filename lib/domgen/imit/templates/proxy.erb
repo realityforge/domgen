@@ -40,7 +40,7 @@ public class <%= service.imit.proxy_name %>
        elsif parameter.enumeration?
          "entity.#{parameter.enumeration.numeric_values? ? "ordinal()" : "name()"}"
        else
-         "#{parameter.struct.imit.qualified_factory_name}.asJson( entity )"
+         "#{parameter.referenced_struct.imit.qualified_factory_name}.asJson( entity )"
        end
     %>
     $<%= parameter.name %>.add( <%= param_value %> );
@@ -56,7 +56,7 @@ public class <%= service.imit.proxy_name %>
   elsif parameter.enumeration? && parameter.enumeration.textual_values?
     param_value = "#{parameter.name}.name()"
   elsif parameter.struct?
-    param_value = "#{parameter.struct.imit.qualified_factory_name}.asJson( #{parameter.name} )"
+    param_value = "#{parameter.referenced_struct.imit.qualified_factory_name}.asJson( #{parameter.name} )"
   elsif parameter.reference?
     param_value = "#{parameter.name}.get#{parameter.referenced_entity.primary_key.imit.name}()"
   end
@@ -84,7 +84,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
      elsif method.return_value.reference?
        result_string = "_repository.getByID( #{method.return_value.referenced_entity.imit.qualified_name}.class, result )"
      elsif method.return_value.struct?
-       result_string = "#{method.return_value.struct.imit.qualified_factory_name}.as#{method.return_value.struct.imit.name}( result )"
+       result_string = "#{method.return_value.referenced_struct.imit.qualified_factory_name}.as#{method.return_value.referenced_struct.imit.name}( result )"
      end
      if method.return_value.nullable?
        result_string = "null == result ? null : #{result_string}"
@@ -108,7 +108,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
            "#{method.return_value.imit.java_component_type}.valueOf( id )" :
            "#{method.return_value.imit.java_component_type}.values()[ id ]"
        else
-         "#{method.return_value.struct.imit.qualified_factory_name}.as#{method.return_value.struct.imit.name}( id )"
+         "#{method.return_value.referenced_struct.imit.qualified_factory_name}.as#{method.return_value.referenced_struct.imit.name}( id )"
        end
     %>
     $result.add( <%= param_value %> );
