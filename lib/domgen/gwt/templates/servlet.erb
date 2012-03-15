@@ -8,7 +8,7 @@ public class <%= service.gwt.servlet_name %>
   extends com.google.gwt.user.server.rpc.<%= service.gwt.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
   implements <%= service.gwt.qualified_service_name %>
 {
-  private final org.codehaus.jackson.map.ObjectMapper _jsonMapper = new org.codehaus.jackson.map.ObjectMapper();
+  private transient final org.codehaus.jackson.map.ObjectMapper _jsonMapper = new org.codehaus.jackson.map.ObjectMapper();
 
   @javax.ejb.EJB
   private <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
