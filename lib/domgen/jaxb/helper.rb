@@ -23,7 +23,7 @@ module Domgen
    @javax.xml.bind.annotation.XmlElement( name = "#{field.xml.component_name}" )
 JAVA
         else
-          "@javax.xml.bind.annotation.Xml#{field.xml.element? ? "Element" : "Attribute" }( name = \"#{field.xml.name}\", required = #{field.xml.required?}#{ns} )"
+          "@javax.xml.bind.annotation.Xml#{field.xml.element? ? "Element" : "Attribute" }( name = \"#{field.xml.name}\", required = #{field.xml.required?}#{ns} )\n"
         end
       end
     end
