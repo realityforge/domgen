@@ -10,7 +10,23 @@ module Domgen
       end
 
       def jackson_field_annotation(field)
-        "@org.codehaus.jackson.annotate.JsonProperty(\"#{field.json.name}\")"
+        s = ''
+        s << "@org.codehaus.jackson.annotate.JsonProperty(\"#{field.json.name}\")\n"
+        if field.date?
+          if field.collection?
+            if field.collection_type == :sequence
+              s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.replicant.server.json.jackson.DateListSerializer.class )\n"
+              s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.replicant.server.json.jackson.DateListDeserializer.class )\n"
+            else
+              s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.replicant.server.json.jackson.DateSetSerializer.class )\n"
+              s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.replicant.server.json.jackson.DateSetDeserializer.class )\n"
+            end
+          else
+            s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.replicant.server.json.jackson.DateSerializer.class )\n"
+            s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.replicant.server.json.jackson.DateDeserializer.class )\n"
+          end
+        end
+        s
       end
     end
   end
