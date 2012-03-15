@@ -13,7 +13,7 @@ public class <%= service.gwt.servlet_name %>
   private transient final org.codehaus.jackson.map.ObjectMapper _jsonMapper = new org.codehaus.jackson.map.ObjectMapper();
 
   @javax.ejb.EJB
-  private <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
+  private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
 <% service.methods.select{|method| method.gwt?}.each do |method|
 %>  public <%= annotated_type(method.return_value, :gwt, :transport) %> <%= method.gwt.name %>(<%= method.parameters.select{|parameter| !parameter.gwt.environmental?}.collect{|p| "#{annotated_type(p, :gwt, :transport)} #{p.gwt.name}" }.join(', ') %>)<%=
