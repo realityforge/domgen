@@ -35,7 +35,7 @@ public class <%= struct.imit.factory_name %>
   {
     if( com.google.gwt.core.client.GWT.isClient() )
     {
-      return ((<%= struct.imit.jso_name %>) entity).toSource();
+      return new com.google.gwt.json.client.JSONObject( (<%= struct.imit.jso_name %>) entity ).toString();
     }
     else
     {
@@ -44,5 +44,4 @@ public class <%= struct.imit.factory_name %>
   }
 <% end
 %>
-
 }
