@@ -15,8 +15,16 @@ final class <%= struct.imit.jso_name %>
   {
     final <%= struct.imit.jso_name %> entity = com.google.gwt.core.client.JavaScriptObject.createObject().cast();
 <% struct.fields.each do |field|
+    converted_value = Proc.new do |var|
+      case
+        when field.struct? then "(#{field.referenced_struct.imit.jso_name})#{var}"
+        when field.date? then "#{var}.toString()"
+        when field.enumeration? then "#{var}.name()"
+        else "#{var}"
+      end
+    end
      if :none == field.collection_type
-%>    entity.set<%= field.name %>( <%= field.name %> );
+%>    entity.set<%= field.name %>( <%= converted_value.call(field.name) %> );
 <%     else
     gwt_type =
       case
@@ -34,18 +42,11 @@ final class <%= struct.imit.jso_name %>
         when field.struct? then "ObjectArray"
         else (raise "Unsupported field type #{field.name}")
       end
-    converted_value =
-      case
-        when field.struct? then "(#{field.referenced_struct.imit.jso_name})v"
-        when field.date? then "v.toString()"
-        when field.enumeration? then field.enumeration.textual_values? ? "v.name()" : "v.ordinal()"
-        else "v"
-      end
 %>
     final <%= gwt_type %> $<%= field.name %> = newNative<%= gwt_creator %>();
     for ( final <%= field.imit.java_component_type %> v : <%= field.name %> )
     {
-      $<%= field.name %>.push( <%= converted_value %> );
+      $<%= field.name %>.push( <%= converted_value.call("v") %> );
     }
 
     entity.set<%= field.name %>( $<%= field.name %> );
@@ -81,7 +82,7 @@ final class <%= struct.imit.jso_name %>
   public final <%= annotated_type(field, :imit) %> <%= getter_prefix(field) %><%= field.name %>()
   {
 <% if conversion_rule.nil? %>
-    return (<%= field.imit.java_type %>)new org.realityforge.replicant.client.json.gwt.JsoReadOnly<%= field.struct? ? "" : gwt_type_suffix %><%= field.collection_type == :set ? "Set" : "List" %><%= field.struct? ? "<#{component_type}>" : "" %>( <%= getter_prefix(field) %><%= field.name %>0() );
+    return (<%= field.imit.java_type %>)new org.realityforge.replicant.client.json.gwt.JsoReadOnly<%= field.struct? ? "" : gwt_type_suffix %><%= field.collection_type == :set ? "Set" : "List" %>( <%= getter_prefix(field) %><%= field.name %>0() );
 <% else %>
     final com.google.gwt.core.client.JsArray<%= gwt_type_suffix %> source = <%= getter_prefix(field) %><%= field.name %>0();
     final java.util.<%= collection_type_impl %><<%= field.imit.java_component_type %>> collection = new java.util.<%= collection_type_impl %><<%= field.imit.java_component_type %>>();
@@ -99,6 +100,36 @@ final class <%= struct.imit.jso_name %>
   }-*/;
 
   private final native void set<%= field.name %>( com.google.gwt.core.client.JsArray<%= gwt_type_suffix %> value ) /*-{
+    this.<%= field.json.name %> = value;
+  }-*/;
+<%
+   elsif field.date?
+%>
+  public final <%= annotated_type(field, :imit) %> <%= getter_prefix(field) %><%= field.name %>()
+  {
+    return org.realityforge.replicant.client.RDate.parse( <%= getter_prefix(field) %><%= field.name %>0() );
+  }
+
+  private final native String <%= getter_prefix(field) %><%= field.name %>0() /*-{
+    return this.<%= field.json.name %>;
+  }-*/;
+
+  private final native void set<%= field.name %>( String value ) /*-{
+    this.<%= field.json.name %> = value;
+  }-*/;
+<%
+   elsif field.enumeration?
+%>
+  public final <%= annotated_type(field, :imit) %> <%= getter_prefix(field) %><%= field.name %>()
+  {
+    return <%= field.imit.java_type %>.valueOf( <%= "#{getter_prefix(field)}#{field.name}" %>0() );
+  }
+
+  private final native String <%= getter_prefix(field) %><%= field.name %>0() /*-{
+    return this.<%= field.json.name %>;
+  }-*/;
+
+  private final native void set<%= field.name %>( String value ) /*-{
     this.<%= field.json.name %> = value;
   }-*/;
 <%
