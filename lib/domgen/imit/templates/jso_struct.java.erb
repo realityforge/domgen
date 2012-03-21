@@ -133,6 +133,21 @@ final class <%= struct.imit.jso_name %>
     this.<%= field.json.name %> = value;
   }-*/;
 <%
+   elsif field.integer? && field.nullable?
+%>
+  public final native <%= annotated_type(field, :imit) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
+    return this.<%= field.json.name %> ? @java.lang.Integer::valueOf(I)( this.<%= field.json.name %> ) : null
+  }-*/;
+
+  private final void set<%= field.name %>( <%= annotated_type(field, :imit) %> value )
+  {
+    if( null != value ) set<%= field.name %>0( value.intValue() );
+  }
+
+  private final native void set<%= field.name %>0( int value ) /*-{
+    this.<%= field.json.name %> = value;
+  }-*/;
+<%
    else
 %>
   public final native <%= annotated_type(field, :imit) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
