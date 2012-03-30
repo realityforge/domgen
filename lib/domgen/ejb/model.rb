@@ -100,6 +100,7 @@ module Domgen
     end
 
     class EjbApplication < Domgen.ParentedElement(:repository)
+      include Domgen::Java::ServerJavaApplication
     end
   end
 
