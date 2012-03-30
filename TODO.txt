@@ -32,3 +32,6 @@
     - CXF:
       - http://fusesource.com/docs/esb/4.4.1/cxf_jaxws/JavaFirst-AnnotateCxf-WsdlDoc.html
       - http://fusesource.com/docs/esb/4.4.1/cxf_jaxws/JavaFirst-AnnotateCxf-SchemaVal.html
+
+* Rename inverse.relationship_name to inverse.name
+* Define dependency relationships between facets
