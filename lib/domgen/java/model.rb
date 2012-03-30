@@ -202,10 +202,16 @@ module Domgen
     end
 
     module JavaApplication
+      attr_writer :base_package
+
+      def base_package
+        @base_package || Domgen::Naming.underscore(repository.name)
+      end
+
       attr_writer :package
 
       def package
-        @package || "#{Domgen::Naming.underscore(repository.name)}.#{default_package_root}"
+        @package || "#{base_package}.#{default_package_root}"
       end
 
       attr_writer :entity_package
