@@ -411,7 +411,11 @@ module Domgen
     end
 
     class PersistenceUnit < Domgen.ParentedElement(:repository)
-      attr_accessor :unit_name
+      attr_writer :unit_name
+
+      def unit_name
+        @unit_name || repository.name
+      end
 
       include Domgen::Java::ServerJavaApplication
 
