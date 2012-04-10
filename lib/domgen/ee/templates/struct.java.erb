@@ -11,7 +11,7 @@ public class <%= struct.name %>
 <% struct.fields.each do |field| %>
   <%= jackson_field_annotation(field) if field.jackson? -%>
   <%= jaxb_field_annotation(field) if field.jaxb? -%>
-  private <%= annotated_type(field, :ee) %> <%= field.name %>;
+  private <%= annotated_type(field, :ee, :boundary) %> <%= field.name %>;
 <% end %>
 
 <% if struct.fields.size != 0 %>
@@ -26,7 +26,7 @@ public class <%= struct.name %>
   }
 <% end %>
 
-  public <%= struct.name %>( <%= struct.fields.collect {|field| "final #{annotated_type(field, :ee) } #{field.name}" }.join(", ") %> )
+  public <%= struct.name %>( <%= struct.fields.collect {|field| "final #{annotated_type(field, :ee, :boundary) } #{field.name}" }.join(", ") %> )
   {
 <% struct.fields.each do |field|
      if :sequence == field.collection_type
@@ -40,7 +40,7 @@ public class <%= struct.name %>
 %>  }
 <% struct.fields.each do |field|
 %>
-  public <%= annotated_type(field, :ee) %> <%= getter_prefix(field) %><%= field.name %>()
+  public <%= annotated_type(field, :ee, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
   {
     return <%= field.name %>;
   }
