@@ -940,10 +940,12 @@ module Domgen
   class MessageParameter < Domgen.FacetedElement(:message)
     include Characteristic
 
+    attr_reader :component_name
     attr_reader :parameter_type
 
     def initialize(message, name, parameter_type, options, &block)
-      @name = name
+      @component_name = name
+      @name = (options[:collection_type] && options[:collection_type] != :none) ? Domgen::Naming.pluralize(name) : name
       @parameter_type = parameter_type
       super(message, options, &block)
     end
@@ -1027,12 +1029,14 @@ module Domgen
 
   class Parameter < Domgen.FacetedElement(:method)
     attr_reader :name
+    attr_reader :component_name
     attr_reader :parameter_type
 
     include Characteristic
 
     def initialize(method, name, parameter_type, options, &block)
-      @name = name
+      @component_name = name
+      @name = (options[:collection_type] && options[:collection_type] != :none) ? Domgen::Naming.pluralize(name) : name
       @parameter_type = parameter_type
       super(method, options, &block)
     end
