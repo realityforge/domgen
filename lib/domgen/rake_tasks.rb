@@ -47,7 +47,22 @@ module Domgen
           end
         end
         @task_name = t.name
+        Domgen::GenerateTask.append_to_all_task(self.namespace_key, t.name)
       end
+    end
+
+    private
+
+    @@namespace_tasks = {}
+
+    def self.append_to_all_task(namespace, task_name)
+      all_task = @@namespace_tasks[namespace.to_s]
+      unless all_task
+        desc "Generate all #{namespace} artifacts"
+        all_task = task("all")
+        @@namespace_tasks[namespace.to_s] = all_task
+      end
+      all_task.enhance([task_name])
     end
   end
 
