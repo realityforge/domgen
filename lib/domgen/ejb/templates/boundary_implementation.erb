@@ -2,10 +2,9 @@
 package <%= service.data_module.ejb.service_package %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.ejb.Stateless( name = <%= service.ejb.boundary_interface_name %>.EJB_NAME )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
 @javax.ejb.Startup
-@javax.ejb.Singleton
+@javax.ejb.Singleton( name = <%= service.ejb.boundary_interface_name %>.EJB_NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 <% if service.jws? %>@javax.jws.WebService( endpointInterface = "<%= service.jws.qualified_service_name %>", serviceName = "<%= service.data_module.repository.jws.service_name %>", portName = "<%= service.jws.port_name %>" )<% end %>
 public class <%= service.ejb.boundary_implementation_name %>
