@@ -171,7 +171,7 @@ module Domgen
       attr_writer :module_name
 
       def module_name
-        @module_name || repository.name
+        @module_name || Domgen::Naming.underscore(repository.name)
       end
 
       attr_writer :package
