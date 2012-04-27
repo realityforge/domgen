@@ -3,11 +3,11 @@ package <%= service.data_module.gwt.shared_service_package %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@com.google.gwt.user.client.rpc.RemoteServiceRelativePath( <%= service.gwt.service_name %>.PATH )
-public interface <%= service.gwt.service_name %>
+@com.google.gwt.user.client.rpc.RemoteServiceRelativePath( <%= service.gwt.rpc_service_name %>.PATH )
+public interface <%= service.gwt.rpc_service_name %>
   extends com.google.gwt.user.client.rpc.<%= service.gwt.xsrf_protected? ? "XsrfProtectedService" : "RemoteService" %>
 {
-  String PATH = "<%= service.gwt.service_name %>";
+  String PATH = "<%= service.gwt.rpc_service_name %>";
 
 <% service.methods.select{|method| method.gwt?}.each do |method|
 %><%= description_javadoc_for(method)

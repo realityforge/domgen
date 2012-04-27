@@ -6,7 +6,7 @@ public class <%= service.imit.proxy_name %>
   implements <%= service.imit.name %>
 {
   @javax.inject.Inject
-  private <%= service.gwt.qualified_async_service_name %> _service;
+  private <%= service.gwt.qualified_async_rpc_service_name %> _service;
   @javax.inject.Inject
   private org.realityforge.replicant.client.EntityRepository _repository;
   @javax.inject.Named("GLOBAL")

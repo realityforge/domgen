@@ -100,26 +100,26 @@ module Domgen
         @xsrf_protected.nil? ? false : @xsrf_protected
       end
 
-      attr_writer :service_name
+      attr_writer :rpc_service_name
 
-      def service_name
-        @service_name || "Gwt#{service.name}"
+      def rpc_service_name
+        @rpc_service_name || "Gwt#{service.name}"
       end
 
       def qualified_service_name
-        "#{service.data_module.gwt.shared_service_package}.#{service_name}"
+        "#{service.data_module.gwt.shared_service_package}.#{rpc_service_name}"
       end
 
-      def async_service_name
-        "#{service_name}Async"
+      def async_rpc_service_name
+        "#{rpc_service_name}Async"
       end
 
-      def qualified_async_service_name
-        "#{service.data_module.gwt.shared_service_package}.#{async_service_name}"
+      def qualified_async_rpc_service_name
+        "#{service.data_module.gwt.shared_service_package}.#{async_rpc_service_name}"
       end
 
       def servlet_name
-        @servlet_name || "#{service_name}Servlet"
+        @servlet_name || "#{rpc_service_name}Servlet"
       end
 
       def qualified_servlet_name

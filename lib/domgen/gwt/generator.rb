@@ -10,7 +10,7 @@ module Domgen
       [
         Template.new(GWT::FACETS,
                      :service,
-                     "#{GWT::TEMPLATE_DIRECTORY}/service.erb",
+                     "#{GWT::TEMPLATE_DIRECTORY}/rpc_service.java.erb",
                      'java/#{service.gwt.qualified_service_name.gsub(".","/")}.java',
                      GWT::HELPERS,
                      'service.gwt?'),
@@ -22,8 +22,8 @@ module Domgen
                      'exception.data_module.gwt?'),
         Template.new(GWT::FACETS,
                      :service,
-                     "#{GWT::TEMPLATE_DIRECTORY}/async_service.erb",
-                     'java/#{service.gwt.qualified_async_service_name.gsub(".","/")}.java',
+                     "#{GWT::TEMPLATE_DIRECTORY}/async_rpc_service.erb",
+                     'java/#{service.gwt.qualified_async_rpc_service_name.gsub(".","/")}.java',
                      GWT::HELPERS,
                      'service.gwt?')
       ]
