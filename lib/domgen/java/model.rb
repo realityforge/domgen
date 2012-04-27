@@ -179,25 +179,33 @@ module Domgen
       attr_writer :entity_package
 
       def entity_package
-        @entity_package || "#{data_module.repository.send(facet_key).entity_package}.#{Domgen::Naming.underscore(data_module.name)}"
+        @entity_package || "#{parent_facet.entity_package}.#{package_key}"
       end
 
       attr_writer :service_package
 
       def service_package
-        @service_package || "#{data_module.repository.send(facet_key).service_package}.#{Domgen::Naming.underscore(data_module.name)}"
+        @service_package || "#{parent_facet.service_package}.#{package_key}"
       end
 
       attr_writer :data_type_package
 
       def data_type_package
-        @data_type_package || "#{data_module.repository.send(facet_key).data_type_package}.#{Domgen::Naming.underscore(data_module.name)}"
+        @data_type_package || "#{parent_facet.data_type_package}.#{package_key}"
       end
 
       protected
 
       def facet_key
         raise "facet_key unimplemented"
+      end
+
+      def parent_facet
+        data_module.repository.send(facet_key)
+      end
+
+      def package_key
+        Domgen::Naming.underscore(data_module.name)
       end
     end
 
