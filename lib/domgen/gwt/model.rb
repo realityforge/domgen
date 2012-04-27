@@ -100,6 +100,26 @@ module Domgen
         @xsrf_protected.nil? ? false : @xsrf_protected
       end
 
+      attr_writer :name
+
+      def name
+        @name || service.name
+      end
+
+      def qualified_name
+        "#{service.data_module.gwt.client_service_package}.#{name}"
+      end
+
+      attr_writer :proxy_name
+
+      def proxy_name
+        @proxy_name || "#{name}Proxy"
+      end
+
+      def qualified_proxy_name
+        "#{service.data_module.gwt.client_service_package}.#{proxy_name}"
+      end
+
       attr_writer :rpc_service_name
 
       def rpc_service_name
@@ -229,14 +249,14 @@ module Domgen
         @module_name || Domgen::Naming.underscore(repository.name)
       end
 
-      attr_writer :gin_module_name
+      attr_writer :rpc_services_module_name
 
-      def gin_module_name
-        @gin_module_name || "#{repository.name}GwtServicesModule"
+      def rpc_services_module_name
+        @rpc_services_module_name || "#{repository.name}GwtRpcServicesModule"
       end
 
-      def qualified_gin_module_name
-        "#{client_ioc_package}.#{gin_module_name}"
+      def qualified_rpc_services_module_name
+        "#{client_ioc_package}.#{rpc_services_module_name}"
       end
 
       attr_writer :mock_services_module_name
@@ -265,6 +285,16 @@ module Domgen
 
       def server_servlet_package
         @server_servlet_package || "#{server_package}.servlet"
+      end
+
+      attr_writer :services_module_name
+
+      def services_module_name
+        @services_module_name || "#{repository.name}GwtServicesModule"
+      end
+
+      def qualified_services_module_name
+        "#{client_ioc_package}.#{services_module_name}"
       end
 
       protected
