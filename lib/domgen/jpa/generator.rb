@@ -10,13 +10,13 @@ module Domgen
       [
         Template.new(JPA::FACETS,
                      :entity,
-                     "#{JPA::TEMPLATE_DIRECTORY}/entity.erb",
+                     "#{JPA::TEMPLATE_DIRECTORY}/entity.java.erb",
                      'java/#{entity.jpa.qualified_name.gsub(".","/")}.java',
                      JPA::HELPERS,
                      'entity.jpa?'),
         Template.new(JPA::FACETS,
                      :entity,
-                     "#{JPA::TEMPLATE_DIRECTORY}/metamodel.erb",
+                     "#{JPA::TEMPLATE_DIRECTORY}/metamodel.java.erb",
                      'java/#{entity.jpa.qualified_metamodel_name.gsub(".","/")}.java',
                      JPA::HELPERS,
                      'entity.jpa?'),
@@ -27,7 +27,7 @@ module Domgen
       [
         Template.new(JPA::FACETS,
                      :data_module,
-                     "#{JPA::TEMPLATE_DIRECTORY}/catalog.erb",
+                     "#{JPA::TEMPLATE_DIRECTORY}/catalog.java.erb",
                      'java/#{data_module.jpa.qualified_catalog_name.gsub(".","/")}.java'),
       ]
     end
@@ -36,7 +36,7 @@ module Domgen
       [
         Template.new(JPA::FACETS,
                      :entity,
-                     "#{JPA::TEMPLATE_DIRECTORY}/ejb.erb",
+                     "#{JPA::TEMPLATE_DIRECTORY}/ejb.java.erb",
                      'java/#{entity.jpa.qualified_dao_name.gsub(".","/")}.java',
                      JPA::HELPERS,
                      'entity.jpa?')

@@ -10,7 +10,7 @@ module Domgen
       [
         Template.new(JWS::FACETS,
                      :service,
-                     "#{JWS::TEMPLATE_DIRECTORY}/service.erb",
+                     "#{JWS::TEMPLATE_DIRECTORY}/service.java.erb",
                      'java/#{service.jws.qualified_service_name.gsub(".","/")}.java',
                      JWS::HELPERS),
       ]
