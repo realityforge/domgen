@@ -346,7 +346,7 @@ module Domgen
       attr_writer :package
 
       def package
-        @package || "#{base_package}.#{default_package_root}"
+        @package || (default_package_root ? "#{base_package}.#{default_package_root}" : base_package)
       end
 
       attr_writer :shared_package
@@ -422,7 +422,7 @@ module Domgen
       end
 
       def default_package_root
-        raise "default_package_root unimplemented"
+        nil
       end
     end
   end
