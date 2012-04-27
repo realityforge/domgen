@@ -8,7 +8,7 @@ module Domgen
       end
 
       def qualified_event_name
-        "#{message.data_module.gwt.event_package}.#{event_name}"
+        "#{message.data_module.gwt.client_event_package}.#{event_name}"
       end
 
       attr_writer :event_handler_name
@@ -18,7 +18,7 @@ module Domgen
       end
 
       def qualified_event_handler_name
-        "#{message.data_module.gwt.event_package}.#{event_handler_name}"
+        "#{message.data_module.gwt.client_event_package}.#{event_handler_name}"
       end
     end
 
@@ -46,7 +46,7 @@ module Domgen
       end
 
       def qualified_service_name
-        "#{service.data_module.gwt.shared_package}.#{service_name}"
+        "#{service.data_module.gwt.shared_service_package}.#{service_name}"
       end
 
       def async_service_name
@@ -54,7 +54,7 @@ module Domgen
       end
 
       def qualified_async_service_name
-        "#{service.data_module.gwt.shared_package}.#{async_service_name}"
+        "#{service.data_module.gwt.shared_service_package}.#{async_service_name}"
       end
 
       def servlet_name
@@ -62,7 +62,7 @@ module Domgen
       end
 
       def qualified_servlet_name
-        "#{service.data_module.gwt.server_package}.#{servlet_name}"
+        "#{service.data_module.gwt.server_servlet_package}.#{servlet_name}"
       end
     end
 
@@ -79,32 +79,24 @@ module Domgen
     end
 
     class GwtModule < Domgen.ParentedElement(:data_module)
-      attr_writer :shared_package
+      include Domgen::Java::ClientServerJavaPackage
 
-      def shared_package
-        @shared_package || "#{parent_gwt.shared_package}.#{package_key}"
+      attr_writer :client_event_package
+
+      def client_event_package
+        @client_event_package || "#{parent_facet.client_event_package}.#{package_key}"
       end
 
-      attr_writer :event_package
+      attr_writer :server_servlet_package
 
-      def event_package
-        @event_package || "#{parent_gwt.event_package}.#{package_key}"
-      end
-
-      attr_writer :server_package
-
-      def server_package
-        @server_package || "#{parent_gwt.server_package}.#{package_key}"
+      def server_servlet_package
+        @server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
       end
 
       protected
 
-      def parent_gwt
-        data_module.repository.gwt
-      end
-
-      def package_key
-        Domgen::Naming.underscore(data_module.name)
+      def facet_key
+        :gwt
       end
     end
 
@@ -163,51 +155,17 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.gwt.shared_package}.#{name}"
+        "#{exception.data_module.gwt.shared_data_type_package}.#{name}"
       end
     end
 
     class GwtApplication < Domgen.ParentedElement(:repository)
+      include Domgen::Java::JavaClientServerApplication
+
       attr_writer :module_name
 
       def module_name
         @module_name || Domgen::Naming.underscore(repository.name)
-      end
-
-      attr_writer :package
-
-      def package
-        @package || Domgen::Naming.underscore(repository.name)
-      end
-
-      attr_writer :shared_package
-
-      def shared_package
-        @shared_package || "#{package}.shared"
-      end
-
-      attr_writer :client_package
-
-      def client_package
-        @client_package || "#{package}.client"
-      end
-
-      attr_writer :event_package
-
-      def event_package
-        @event_package || "#{client_package}.event"
-      end
-
-      attr_writer :ioc_package
-
-      def ioc_package
-        @ioc_package || "#{client_package}.ioc"
-      end
-
-      attr_writer :server_package
-
-      def server_package
-        @server_package || "#{package}.server.servlet"
       end
 
       attr_writer :gin_module_name
@@ -217,7 +175,7 @@ module Domgen
       end
 
       def qualified_gin_module_name
-        "#{ioc_package}.#{gin_module_name}"
+        "#{client_ioc_package}.#{gin_module_name}"
       end
 
       attr_writer :mock_services_module_name
@@ -227,7 +185,31 @@ module Domgen
       end
 
       def qualified_mock_services_module_name
-        "#{ioc_package}.#{mock_services_module_name}"
+        "#{client_ioc_package}.#{mock_services_module_name}"
+      end
+
+      attr_writer :client_ioc_package
+
+      def client_ioc_package
+        @client_ioc_package || "#{client_package}.ioc"
+      end
+
+      attr_writer :client_event_package
+
+      def client_event_package
+        @client_event_package || "#{client_package}.event"
+      end
+
+      attr_writer :server_servlet_package
+
+      def server_servlet_package
+        @server_servlet_package || "#{server_package}.servlet"
+      end
+
+      protected
+
+      def facet_key
+        :gwt
       end
     end
   end
