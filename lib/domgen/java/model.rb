@@ -209,6 +209,77 @@ module Domgen
       end
     end
 
+    module ClientServerJavaPackage
+      attr_writer :shared_entity_package
+
+      def shared_entity_package
+        @shared_entity_package || "#{parent_facet.shared_entity_package}.#{package_key}"
+      end
+
+      attr_writer :shared_service_package
+
+      def shared_service_package
+        @shared_service_package || "#{parent_facet.shared_service_package}.#{package_key}"
+      end
+
+      attr_writer :shared_data_type_package
+
+      def shared_data_type_package
+        @shared_data_type_package || "#{parent_facet.shared_data_type_package}.#{package_key}"
+      end
+
+      attr_writer :client_entity_package
+
+      def client_entity_package
+        @client_entity_package || "#{parent_facet.client_entity_package}.#{package_key}"
+      end
+
+      attr_writer :client_service_package
+
+      def client_service_package
+        @client_service_package || "#{parent_facet.client_service_package}.#{package_key}"
+      end
+
+      attr_writer :client_data_type_package
+
+      def client_data_type_package
+        @client_data_type_package || "#{parent_facet.client_data_type_package}.#{package_key}"
+      end
+
+      attr_writer :server_entity_package
+
+      def server_entity_package
+        @server_entity_package || "#{parent_facet.server_entity_package}.#{package_key}"
+      end
+
+      attr_writer :server_service_package
+
+      def server_service_package
+        @server_service_package || "#{parent_facet.server_service_package}.#{package_key}"
+      end
+
+      attr_writer :server_data_type_package
+
+      def server_data_type_package
+        @server_data_type_package || "#{parent_facet.server_data_type_package}.#{package_key}"
+      end
+
+      protected
+
+      def facet_key
+        raise "facet_key unimplemented"
+      end
+
+      def parent_facet
+        data_module.repository.send(facet_key)
+      end
+
+      def package_key
+        Domgen::Naming.underscore(data_module.name)
+      end
+    end
+
+
     module JavaApplication
       attr_writer :base_package
 
@@ -262,6 +333,96 @@ module Domgen
 
       def default_package_root
         "client"
+      end
+    end
+
+    module JavaClientServerApplication
+      attr_writer :base_package
+
+      def base_package
+        @base_package || Domgen::Naming.underscore(repository.name)
+      end
+
+      attr_writer :package
+
+      def package
+        @package || "#{base_package}.#{default_package_root}"
+      end
+
+      attr_writer :shared_package
+
+      def shared_package
+        @shared_package || "#{package}.shared"
+      end
+
+      attr_writer :shared_data_type_package
+
+      def shared_data_type_package
+        @shared_data_type_package || "#{shared_package}.data_type"
+      end
+
+      attr_writer :shared_service_package
+
+      def shared_service_package
+        @shared_service_package || "#{shared_package}.service"
+      end
+
+      attr_writer :shared_entity_package
+
+      def shared_entity_package
+        @shared_entity_package || "#{shared_package}.entity"
+      end
+
+      attr_writer :client_package
+
+      def client_package
+        @client_package || "#{package}.client"
+      end
+
+      attr_writer :client_service_package
+
+      def client_service_package
+        @client_service_package || "#{client_package}.service"
+      end
+
+      attr_writer :client_data_type_package
+
+      def client_data_type_package
+        @client_data_type_package || "#{client_package}.data_type"
+      end
+
+      attr_writer :client_entity_package
+
+      def client_entity_package
+        @client_entity_package || "#{client_package}.entity"
+      end
+
+      attr_writer :server_package
+
+      def server_package
+        @server_package || "#{package}.server"
+      end
+
+      attr_writer :server_service_package
+
+      def server_service_package
+        @server_service_package || "#{server_package}.service"
+      end
+
+      attr_writer :server_data_type_package
+
+      def server_data_type_package
+        @server_data_type_package || "#{server_package}.data_type"
+      end
+
+      attr_writer :server_entity_package
+
+      def server_entity_package
+        @server_entity_package || "#{server_package}.entity"
+      end
+
+      def default_package_root
+        raise "default_package_root unimplemented"
       end
     end
   end
