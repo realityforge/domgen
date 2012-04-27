@@ -32,6 +32,57 @@ module Domgen
       end
     end
 
+    class GwtStruct < Domgen.ParentedElement(:struct)
+      def name
+        struct.name
+      end
+
+      def qualified_name
+        "#{struct.data_module.gwt.client_data_type_package}.#{self.name}"
+      end
+
+      def jso_name
+        "Jso#{struct.name}"
+      end
+
+      def qualified_jso_name
+        "#{struct.data_module.gwt.client_data_type_package}.#{self.jso_name}"
+      end
+
+      def java_name
+        "Java#{struct.name}"
+      end
+
+      def qualified_java_name
+        "#{struct.data_module.gwt.client_data_type_package}.#{self.java_name}"
+      end
+
+      def factory_name
+        "#{struct.name}Factory"
+      end
+
+      def qualified_factory_name
+        "#{struct.data_module.gwt.client_data_type_package}.#{self.factory_name}"
+      end
+    end
+
+    class GwtStructField < Domgen.ParentedElement(:field)
+      include Domgen::Java::ImitJavaCharacteristic
+
+      attr_writer :name
+
+      def name
+        @name || (field.collection? ? Domgen::Naming.pluralize(field.name) : field.name)
+      end
+
+      protected
+
+      def characteristic
+        field
+      end
+    end
+
+
     class GwtService < Domgen.ParentedElement(:service)
       attr_writer :xsrf_protected
 
@@ -215,6 +266,8 @@ module Domgen
   end
 
   FacetManager.define_facet(:gwt,
+                            Struct => Domgen::GWT::GwtStruct,
+                            StructField => Domgen::GWT::GwtStructField,
                             Service => Domgen::GWT::GwtService,
                             Method => Domgen::GWT::GwtMethod,
                             Parameter => Domgen::GWT::GwtParameter,

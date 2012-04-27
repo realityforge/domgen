@@ -167,7 +167,7 @@ module Domgen
       end
 
       def struct_key
-        :imit
+        :gwt
       end
 
       def date_java_type
