@@ -159,7 +159,7 @@ module Domgen
       protected
 
       def enumeration_key
-        :imit
+        :gwt
       end
 
       def entity_key

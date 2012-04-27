@@ -72,6 +72,12 @@ module Domgen
                      'java/#{struct.gwt.qualified_jso_name.gsub(".","/")}.java',
                      GWT::HELPERS,
                      'struct.gwt?'),
+        Template.new(GWT::FACETS,
+                     :enumeration,
+                     "#{GWT::TEMPLATE_DIRECTORY}/enumeration.erb",
+                     'java/#{enumeration.gwt.qualified_name.gsub(".","/")}.java',
+                     GWT::HELPERS,
+                     'enumeration.data_module.gwt?'),
       ]
     end
 

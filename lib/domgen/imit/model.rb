@@ -176,16 +176,6 @@ module Domgen
       end
     end
 
-    class ImitationEnumeration < Domgen.ParentedElement(:enumeration)
-      def name
-        "#{enumeration.name}"
-      end
-
-      def qualified_name
-        "#{enumeration.data_module.imit.data_type_package}.#{enumeration.name}"
-      end
-    end
-
     class ImitationModule < Domgen.ParentedElement(:data_module)
       include Domgen::Java::JavaPackage
 
@@ -328,7 +318,6 @@ module Domgen
   FacetManager.define_facet(:imit,
                             Struct => Domgen::Imit::ImitationStruct,
                             StructField => Domgen::Imit::ImitationStructField,
-                            EnumerationSet => Domgen::Imit::ImitationEnumeration,
                             Attribute => Domgen::Imit::ImitationAttribute,
                             InverseElement => Domgen::Imit::ImitationAttributeInverse,
                             Entity => Domgen::Imit::ImitationEntity,

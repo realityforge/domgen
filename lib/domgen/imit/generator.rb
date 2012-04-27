@@ -9,12 +9,6 @@ module Domgen
     def self.define_imit_templates
       [
         Template.new(Imit::FACETS,
-                     :enumeration,
-                     "#{Imit::TEMPLATE_DIRECTORY}/enumeration.erb",
-                     'java/#{enumeration.imit.qualified_name.gsub(".","/")}.java',
-                     Imit::HELPERS,
-                     'enumeration.data_module.imit?'),
-        Template.new(Imit::FACETS,
                      :entity,
                      "#{Imit::TEMPLATE_DIRECTORY}/entity.erb",
                      'java/#{entity.imit.qualified_name.gsub(".","/")}.java',

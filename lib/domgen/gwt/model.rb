@@ -1,5 +1,15 @@
 module Domgen
   module GWT
+    class GwtEnumeration < Domgen.ParentedElement(:enumeration)
+      def name
+        enumeration.name
+      end
+
+      def qualified_name
+        "#{enumeration.data_module.gwt.client_data_type_package}.#{name}"
+      end
+    end
+
     class GwtEvent < Domgen.ParentedElement(:message)
       attr_writer :event_name
 
@@ -266,6 +276,7 @@ module Domgen
   end
 
   FacetManager.define_facet(:gwt,
+                            EnumerationSet => Domgen::GWT::GwtEnumeration,
                             Struct => Domgen::GWT::GwtStruct,
                             StructField => Domgen::GWT::GwtStructField,
                             Service => Domgen::GWT::GwtService,
