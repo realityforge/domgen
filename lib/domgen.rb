@@ -67,6 +67,10 @@ require 'domgen/ejb/generator'
 require 'domgen/jws/model'
 require 'domgen/jws/generator'
 
+# JMX
+require 'domgen/jmx/model'
+require 'domgen/jmx/generator'
+
 # EE
 require 'domgen/ee/model'
 require 'domgen/ee/generator'
