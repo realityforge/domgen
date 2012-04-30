@@ -13,7 +13,7 @@ public class <%= repository.gwt.services_module_name %>
   repository.data_modules.select{|data_module| data_module.gwt? && data_module.gwt?}.each do |data_module|
     data_module.services.select{|service| service.gwt?}.each do |service|
 %>
-    bind( <%= service.gwt.qualified_name %>.class ).to( <%= service.gwt.qualified_proxy_name %>.class );
+    bind( <%= service.gwt.qualified_facade_service_name %>.class ).to( <%= service.gwt.qualified_proxy_name %>.class );
 <%
     end
   end

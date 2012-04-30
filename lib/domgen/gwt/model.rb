@@ -100,24 +100,22 @@ module Domgen
         @xsrf_protected.nil? ? false : @xsrf_protected
       end
 
-      attr_writer :name
+      attr_writer :facade_service_name
 
-      def name
-        @name || service.name
+      def facade_service_name
+        @facade_service_name || service.name
       end
 
-      def qualified_name
-        "#{service.data_module.gwt.client_service_package}.#{name}"
+      def qualified_facade_service_name
+        "#{service.data_module.gwt.client_service_package}.#{facade_service_name}"
       end
-
-      attr_writer :proxy_name
 
       def proxy_name
-        @proxy_name || "#{name}Proxy"
+        "#{facade_service_name}Proxy"
       end
 
       def qualified_proxy_name
-        "#{service.data_module.gwt.client_service_package}.#{proxy_name}"
+        "#{qualified_facade_service_name}Proxy"
       end
 
       attr_writer :rpc_service_name

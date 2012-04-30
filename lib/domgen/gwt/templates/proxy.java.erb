@@ -3,7 +3,7 @@ package <%= service.data_module.gwt.client_service_package %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked" } )
 public class <%= service.gwt.proxy_name %>
-  implements <%= service.gwt.name %>
+  implements <%= service.gwt.facade_service_name %>
 {
   @javax.inject.Inject
   private <%= service.gwt.qualified_async_rpc_service_name %> _service;
