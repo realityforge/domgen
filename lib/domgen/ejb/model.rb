@@ -64,7 +64,13 @@ module Domgen
       attr_accessor :generate_boundary
 
       def generate_boundary?
-        @generate_boundary.nil? ? service.methods.any?{|method| method.parameters.any?{|parameter|parameter.reference?}} : @generate_boundary
+        if @generate_boundary.nil?
+          return service.jmx? ||
+            service.jws? ||
+            service.methods.any?{|method| method.parameters.any?{|parameter|parameter.reference?}}
+        else
+          return @generate_boundary
+        end
       end
     end
 
