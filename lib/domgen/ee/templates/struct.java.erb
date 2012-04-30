@@ -26,6 +26,7 @@ public class <%= struct.name %>
   }
 <% end %>
 
+<% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{field.name}\""}.join(", ") %>})<% end -%>
   public <%= struct.name %>( <%= struct.fields.collect {|field| "final #{annotated_type(field, :ee, :boundary) } #{field.name}" }.join(", ") %> )
   {
 <% struct.fields.each do |field|
