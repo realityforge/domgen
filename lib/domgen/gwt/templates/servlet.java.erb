@@ -145,9 +145,9 @@ end.join(', ') %>);
 %>    }
 <% end %>
 <% method.exceptions.each do |exception| %>
-    catch ( final <%= exception.ee.qualified_name %> ignored )
+    catch ( final <%= exception.ee.qualified_name %> e )
     {
-        throw new <%= exception.gwt.qualified_name %>();
+        throw new <%= exception.gwt.qualified_name %>( e.getMessage() );
     }
 <% end %>
   }
