@@ -111,9 +111,12 @@ module Domgen
   end
 
   FacetManager.define_facet(:ejb,
-                            Service => Domgen::EJB::EjbClass,
-                            Parameter => Domgen::EJB::EjbParameter,
-                            Result => Domgen::EJB::EjbReturn,
-                            DataModule => Domgen::EJB::EjbPackage,
-                            Repository => Domgen::EJB::EjbApplication)
+                            {
+                              Service => Domgen::EJB::EjbClass,
+                              Parameter => Domgen::EJB::EjbParameter,
+                              Result => Domgen::EJB::EjbReturn,
+                              DataModule => Domgen::EJB::EjbPackage,
+                              Repository => Domgen::EJB::EjbApplication
+                            },
+                            [:ee])
 end

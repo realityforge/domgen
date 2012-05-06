@@ -437,9 +437,12 @@ module Domgen
   end
 
   FacetManager.define_facet(:jpa,
-                            Attribute => Domgen::JPA::JpaField,
-                            InverseElement => Domgen::JPA::JpaFieldInverse,
-                            Entity => Domgen::JPA::JpaClass,
-                            DataModule => Domgen::JPA::JpaPackage,
-                            Repository => Domgen::JPA::PersistenceUnit)
+                            {
+                              Attribute => Domgen::JPA::JpaField,
+                              InverseElement => Domgen::JPA::JpaFieldInverse,
+                              Entity => Domgen::JPA::JpaClass,
+                              DataModule => Domgen::JPA::JpaPackage,
+                              Repository => Domgen::JPA::PersistenceUnit
+                            },
+                            [:sql, :ee])
 end

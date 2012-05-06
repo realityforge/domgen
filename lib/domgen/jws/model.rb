@@ -98,11 +98,16 @@ module Domgen
   end
 
   FacetManager.define_facet(:jws,
-                            Service => Domgen::JWS::JwsClass,
-                            Method => Domgen::JWS::JwsMethod,
-                            Parameter => Domgen::JWS::JwsParameter,
-                            Exception => Domgen::JWS::JwsException,
-                            Result => Domgen::JWS::JwsReturn,
-                            DataModule => Domgen::JWS::JwsPackage,
-                            Repository => Domgen::JWS::JwsApplication)
+                            {
+                              Service => Domgen::JWS::JwsClass,
+                              Method => Domgen::JWS::JwsMethod,
+                              Parameter => Domgen::JWS::JwsParameter,
+                              Exception => Domgen::JWS::JwsException,
+                              Result => Domgen::JWS::JwsReturn,
+                              DataModule => Domgen::JWS::JwsPackage,
+                              Repository => Domgen::JWS::JwsApplication
+                            },
+                            [
+                              :jaxb
+                            ])
 end

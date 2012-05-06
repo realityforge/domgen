@@ -77,8 +77,9 @@ module Domgen
   class Facet
     attr_reader :key
     attr_reader :extension_map
+    attr_reader :required_facets
 
-    def initialize(key, extension_map)
+    def initialize(key, extension_map, required_facets)
       extension_map.each_pair do |source_class, extension_class|
         Domgen.error("Facet #{key}: Unknown source class supplied in map '#{source_class.name}'") unless FacetManager.valid_source_classes.include?(source_class)
         Domgen.error("Facet #{key}: Extension class is not a class. '#{extension_class}'") unless extension_class.is_a?(Class)
@@ -86,6 +87,7 @@ module Domgen
       end
       @key = key
       @extension_map = extension_map
+      @required_facets = required_facets
     end
 
     def enable_on(object)
@@ -113,9 +115,9 @@ module Domgen
 
   class FacetManager
     class << self
-      def define_facet(key, extension_map)
+      def define_facet(key, extension_map, required_facets = [])
         Domgen.error("Attempting to redefine facet #{key}") if facet_map[key.to_s]
-        facet_map[key.to_s] = Facet.new(key, extension_map)
+        facet_map[key.to_s] = Facet.new(key, extension_map, required_facets)
       end
 
       def facet_by_name(key)
@@ -155,7 +157,11 @@ module Domgen
       end
 
       def activate_facet(facet_key, object)
-        facet_by_name(facet_key).enable_on(object)
+        facet = facet_by_name(facet_key)
+        facet.required_facets.each do |required_facet_key|
+          activate_facet(required_facet_key, object)
+        end
+        facet.enable_on(object)
       end
 
       def deactivate_facet(facet_key, object)

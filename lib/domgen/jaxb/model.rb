@@ -17,9 +17,12 @@ module Domgen
   end
 
   FacetManager.define_facet(:jaxb,
-                            Struct => Domgen::JAXB::JaxbStruct,
-                            StructField => Domgen::JAXB::JaxbStructField,
-                            EnumerationSet => Domgen::JAXB::JaxbEnumeration,
-                            DataModule => Domgen::JAXB::JaxbDataModule,
-                            Repository => Domgen::JAXB::JaxbPackage)
+                            {
+                              Struct => Domgen::JAXB::JaxbStruct,
+                              StructField => Domgen::JAXB::JaxbStructField,
+                              EnumerationSet => Domgen::JAXB::JaxbEnumeration,
+                              DataModule => Domgen::JAXB::JaxbDataModule,
+                              Repository => Domgen::JAXB::JaxbPackage
+                            },
+                            [:xml, :ee])
 end

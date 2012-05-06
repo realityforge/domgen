@@ -17,9 +17,12 @@ module Domgen
   end
 
   FacetManager.define_facet(:jackson,
-                            Struct => Domgen::Jackson::JacksonStruct,
-                            StructField => Domgen::Jackson::JacksonStructField,
-                            EnumerationSet => Domgen::Jackson::JacksonEnumeration,
-                            DataModule => Domgen::Jackson::JacksonDataModule,
-                            Repository => Domgen::Jackson::JacksonPackage)
+                            {
+                              Struct => Domgen::Jackson::JacksonStruct,
+                              StructField => Domgen::Jackson::JacksonStructField,
+                              EnumerationSet => Domgen::Jackson::JacksonEnumeration,
+                              DataModule => Domgen::Jackson::JacksonDataModule,
+                              Repository => Domgen::Jackson::JacksonPackage
+                            },
+                            [:json])
 end
