@@ -2,8 +2,8 @@ module Domgen
 
   module Faceted
 
-    def facet_enabled?(facet)
-      all_enabled_facets.include?(facet)
+    def facet_enabled?(facet_key)
+      FacetManager.facet_enabled?(facet_key, self)
     end
 
     def verify
@@ -18,30 +18,20 @@ module Domgen
     end
 
     def activate_facets
-      self.all_enabled_facets.each do |facet_key|
-        facet = FacetManager.facet_by_name(facet_key)
-        facet.enable_on(self)
-      end
+      FacetManager.activate_facets(self, all_enabled_facets)
     end
 
     def activate_facet(facet_key)
-      FacetManager.facet_by_name(facet_key).enable_on(self)
+      FacetManager.activate_facet(facet_key, self)
     end
 
     def deactivate_facet(facet_key)
-      FacetManager.facet_by_name(facet_key).disable_on(self)
+      FacetManager.deactivate_facet(facet_key, self)
     end
 
     def extension_point(action)
       Logger.debug "Facet '#{self}' extension point #{action} started"
-      self.all_enabled_facets.each do |facet_key|
-        # Need to check for the magic facet_X method rather than X method directly as
-        # sometimes there is a global method of the same name.
-        extension_object = (self.send "facet_#{facet_key}" rescue nil)
-        if extension_object && extension_object.respond_to?(action)
-          extension_object.send action
-        end
-      end
+      FacetManager.extension_point(self, action)
       Logger.debug "Facet '#{self}' extension point #{action} completed"
     end
 
@@ -143,6 +133,38 @@ module Domgen
           Domgen::Message, Domgen::MessageParameter,
           Domgen::DataModule, Domgen::Repository
         ]
+      end
+
+      def extension_point(object, action)
+        facet_map.keys.each do |facet_key|
+          if facet_enabled?(facet_key, object)
+            # Need to check for the magic facet_X method rather than X method directly as
+            # sometimes there is a global method of the same name.
+            extension_object = (object.send "facet_#{facet_key}" rescue nil)
+            if extension_object && extension_object.respond_to?(action)
+              extension_object.send action
+            end
+          end
+        end
+      end
+
+      def activate_facets(object, facets)
+        facets.each do |facet_key|
+          activate_facet(facet_key, object)
+        end
+      end
+
+      def activate_facet(facet_key, object)
+        facet_by_name(facet_key).enable_on(object)
+      end
+
+      def deactivate_facet(facet_key, object)
+        facet_by_name(facet_key).disable_on(object)
+      end
+
+      def facet_enabled?(facet_key, object)
+        method_name = :"#{facet_key}?"
+        object.respond_to?(method_name) ? object.send(method_name) : false
       end
 
       private
