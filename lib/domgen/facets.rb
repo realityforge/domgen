@@ -33,7 +33,7 @@ module Domgen
     end
 
     def extension_point(action)
-      Logger.debug "Facetd '#{self}' extension point #{action} started"
+      Logger.debug "Facet '#{self}' extension point #{action} started"
       self.all_enabled_facets.each do |facet_key|
         # Need to check for the magic facet_X method rather than X method directly as
         # sometimes there is a global method of the same name.
@@ -42,7 +42,7 @@ module Domgen
           extension_object.send action
         end
       end
-      Logger.debug "Facetd '#{self}' extension point #{action} completed"
+      Logger.debug "Facet '#{self}' extension point #{action} completed"
     end
 
     def enabled_facets
