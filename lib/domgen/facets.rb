@@ -179,7 +179,7 @@ module Domgen
           next if !handle_sub_feature?(object, sub_feature_key)
           children = child_features(object, sub_feature_key)
           children.each do |child|
-            activate_facet(facet_key, child)
+            deactivate_facet(facet_key, child)
           end
         end
 
