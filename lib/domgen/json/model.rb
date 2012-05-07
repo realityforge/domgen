@@ -42,9 +42,11 @@ RUBY
   end
 
   FacetManager.define_facet(:json,
-                            Method => Domgen::JSON::JsonMethod,
-                            Parameter => Domgen::JSON::JsonParameter,
-                            Struct => Domgen::JSON::JsonStruct,
-                            StructField => Domgen::JSON::JsonStructField,
-                            EnumerationSet => Domgen::JSON::JsonEnumeration)
+                            {
+                              Method => Domgen::JSON::JsonMethod,
+                              Parameter => Domgen::JSON::JsonParameter,
+                              Struct => Domgen::JSON::JsonStruct,
+                              StructField => Domgen::JSON::JsonStructField,
+                              EnumerationSet => Domgen::JSON::JsonEnumeration
+                            })
 end
