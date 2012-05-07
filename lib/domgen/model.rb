@@ -1120,12 +1120,15 @@ module Domgen
 
     def returns(parameter_type, options = {}, &block)
       error("Attempting to redefine return type #{name} on #{self.qualified_name}") if @return_type
-      @return_type = Result.new(self, parameter_type, options, &block)
-      @return_type
+      @return_type ||= Result.new(self, parameter_type, options, &block)
     end
 
     def return_value
       @return_type ||= Result.new(self, :void, {})
+    end
+
+    def result
+      @return_type
     end
 
     def exceptions
