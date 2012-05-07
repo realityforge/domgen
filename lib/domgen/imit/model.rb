@@ -266,14 +266,17 @@ module Domgen
   end
 
   FacetManager.define_facet(:imit,
-                            Attribute => Domgen::Imit::ImitationAttribute,
-                            InverseElement => Domgen::Imit::ImitationAttributeInverse,
-                            Entity => Domgen::Imit::ImitationEntity,
-                            Method => Domgen::Imit::ImitationMethod,
-                            Result => Domgen::Imit::ImitationResult,
-                            Parameter => Domgen::Imit::ImitationParameter,
-                            Exception => Domgen::Imit::ImitationException,
-                            Service => Domgen::Imit::ImitationService,
-                            DataModule => Domgen::Imit::ImitationModule,
-                            Repository => Domgen::Imit::ImitationApplication)
+                            {
+                              Attribute => Domgen::Imit::ImitationAttribute,
+                              InverseElement => Domgen::Imit::ImitationAttributeInverse,
+                              Entity => Domgen::Imit::ImitationEntity,
+                              Method => Domgen::Imit::ImitationMethod,
+                              Result => Domgen::Imit::ImitationResult,
+                              Parameter => Domgen::Imit::ImitationParameter,
+                              Exception => Domgen::Imit::ImitationException,
+                              Service => Domgen::Imit::ImitationService,
+                              DataModule => Domgen::Imit::ImitationModule,
+                              Repository => Domgen::Imit::ImitationApplication
+                            },
+                            [:gwt])
 end
