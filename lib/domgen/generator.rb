@@ -124,8 +124,8 @@ module Domgen
 
       render_context = create_context(template, key, value)
       context_binding = render_context.context_binding
-      return nil if !template.guard.nil? && !eval(template.guard, context_binding)
-      output_filename = eval("\"#{template.output_filename_pattern}\"", context_binding)
+      return nil if !template.guard.nil? && !eval(template.guard, context_binding,"#{template.template_filename}#Guard")
+      output_filename = eval("\"#{template.output_filename_pattern}\"", context_binding,"#{template.template_filename}#Filename")
       output_filename = File.join(target_basedir, output_filename)
       result = template.render_to_string(context_binding)
       FileUtils.mkdir_p File.dirname(output_filename) unless File.directory?(File.dirname(output_filename))
