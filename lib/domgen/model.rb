@@ -273,6 +273,9 @@ module Domgen
       [:integer, :text]
     end
 
+    def to_s
+      "EnumerationSet[#{self.qualified_name}]"
+    end
   end
 
   module Characteristic
