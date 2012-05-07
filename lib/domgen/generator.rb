@@ -12,6 +12,7 @@ module Domgen
       templates = load_templates(generator_keys)
 
       templates.each do |template|
+        Logger.debug "Evaluation template: #{template.template_filename}"
         if :repository == template.scope
           if template.applicable?(repository) && (filter.nil? || filter.call(:repository, repository))
             render(directory, template, :repository, repository)
