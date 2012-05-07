@@ -20,6 +20,10 @@ module Domgen
         @guard = guard
       end
 
+      def to_s
+        "#{generator_key}:#{scope}:#{template_filename}"
+      end
+
       def applicable?(faceted_object)
         self.facets.all? {|facet_key| faceted_object.facet_enabled?(facet_key) }
       end
