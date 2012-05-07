@@ -162,6 +162,7 @@ module Domgen
         end
         facet.enable_on(object)
         object.send(:enabled_facets) << facet_key
+        object.send(:disabled_facets).delete(facet_key)
       end
 
       def deactivate_facet(facet_key, object)
@@ -173,6 +174,7 @@ module Domgen
         end
         facet_by_name(facet_key).disable_on(object)
         object.send(:disabled_facets) << facet_key
+        object.send(:enabled_facets).delete(facet_key)
       end
 
       def facet_enabled?(facet_key, object)
