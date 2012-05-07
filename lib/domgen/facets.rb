@@ -163,10 +163,26 @@ module Domgen
         facet.enable_on(object)
         object.send(:enabled_facets) << facet_key
         object.send(:disabled_facets).delete(facet_key)
+
+        dependent_features[object.class].each do |sub_feature_key|
+          next if !handle_sub_feature?(object, sub_feature_key)
+          children = child_features(object, sub_feature_key)
+          children.each do |child|
+            activate_facet(facet_key, child)
+          end
+        end
       end
 
       def deactivate_facet(facet_key, object)
         return if !facet_enabled?(facet_key, object)
+        dependent_features[object.class].each do |sub_feature_key|
+          next if !handle_sub_feature?(object, sub_feature_key)
+          children = child_features(object, sub_feature_key)
+          children.each do |child|
+            activate_facet(facet_key, child)
+          end
+        end
+
         facet_map.values.each do |facet|
           if facet.required_facets.include?(facet_key)
             deactivate_facet(facet.key, object)
@@ -183,6 +199,37 @@ module Domgen
       end
 
       private
+
+      def child_features(object, sub_feature_key)
+        children = object.send(sub_feature_key)
+        children.is_a?(Enumerable) ? children : [children]
+      end
+
+      def handle_sub_feature?(object, sub_feature_key)
+        return false if :inverse == sub_feature_key && object.is_a?(Attribute) && !object.reference?
+        return false if :result == sub_feature_key && object.is_a?(Method) && object.result.nil?
+        true
+      end
+
+      def dependent_features
+        {
+          Domgen::Repository => [:data_modules],
+          Domgen::DataModule => [:services, :exceptions, :entities, :messages, :structs, :enumerations],
+          Domgen::Message => [:parameters],
+          Domgen::MessageParameter => [],
+          Domgen::Struct => [:fields],
+          Domgen::StructField => [],
+          Domgen::EnumerationSet => [],
+          Domgen::Entity => [:attributes],
+          Domgen::Attribute => [:inverse],
+          Domgen::InverseElement => [],
+          Domgen::Service => [:methods],
+          Domgen::Method => [:parameters, :exceptions, :result],
+          Domgen::Parameter => [],
+          Domgen::Exception => [],
+          Domgen::Result => [],
+        }
+      end
 
       # Map a facet key to a map. The map maps types to extension classes
       def facet_map
