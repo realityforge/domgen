@@ -220,7 +220,7 @@ module Domgen
           Domgen::Struct => [:fields],
           Domgen::StructField => [],
           Domgen::EnumerationSet => [],
-          Domgen::Entity => [:attributes],
+          Domgen::Entity => [:declared_attributes],
           Domgen::Attribute => [:inverse],
           Domgen::InverseElement => [],
           Domgen::Service => [:methods],
