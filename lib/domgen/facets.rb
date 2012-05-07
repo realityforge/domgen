@@ -206,8 +206,8 @@ module Domgen
       end
 
       def handle_sub_feature?(object, sub_feature_key)
-        return false if :inverse == sub_feature_key && object.is_a?(Attribute) && !object.reference?
-        return false if :result == sub_feature_key && object.is_a?(Method) && object.result.nil?
+        return object.reference? if :inverse == sub_feature_key && object.is_a?(Attribute)
+        return !object.result.nil? if :result == sub_feature_key && object.is_a?(Method)
         true
       end
 
