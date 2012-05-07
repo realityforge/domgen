@@ -166,6 +166,11 @@ module Domgen
 
       def deactivate_facet(facet_key, object)
         return if !facet_enabled?(facet_key, object)
+        facet_map.values.each do |facet|
+          if facet.required_facets.include?(facet_key)
+            deactivate_facet(facet.key, object)
+          end
+        end
         facet_by_name(facet_key).disable_on(object)
         object.send(:disabled_facets) << facet_key
       end
