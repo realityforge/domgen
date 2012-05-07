@@ -50,14 +50,12 @@ module Domgen
 
   module GenerateFacet
     def enable_facet(key)
-      Domgen.error("Facet #{key} already enabled.") if self.enabled_facets.include?(key)
-      self.enabled_facets << key
+      Domgen.error("Facet #{key} already enabled.") if self.facet_enabled?(key)
       self.activate_facet(key)
     end
 
     def disable_facet(key)
-      Domgen.error("Facet #{key} already disabled.") if self.disabled_facets.include?(key)
-      self.disabled_facets << key
+      Domgen.error("Facet #{key} not enabled.") unless self.facet_enabled?(key)
       self.deactivate_facet(key)
     end
   end
@@ -157,15 +155,19 @@ module Domgen
       end
 
       def activate_facet(facet_key, object)
+        return if facet_enabled?(facet_key, object)
         facet = facet_by_name(facet_key)
         facet.required_facets.each do |required_facet_key|
           activate_facet(required_facet_key, object)
         end
         facet.enable_on(object)
+        object.send(:enabled_facets) << facet_key
       end
 
       def deactivate_facet(facet_key, object)
+        return if !facet_enabled?(facet_key, object)
         facet_by_name(facet_key).disable_on(object)
+        object.send(:disabled_facets) << facet_key
       end
 
       def facet_enabled?(facet_key, object)
