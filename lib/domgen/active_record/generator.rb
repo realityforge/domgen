@@ -4,11 +4,12 @@ module Domgen
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       FACETS = [:ruby]
     end
-
-    def self.define_active_record_templates
-      [
-        Template.new(ActiveRecord::FACETS, :entity, "#{ActiveRecord::TEMPLATE_DIRECTORY}/entity.rb.erb", 'ruby/#{entity.ruby.filename}.rb', [Domgen::Ruby::Helper])
-      ]
-    end
   end
+end
+Domgen.template_set(:active_record) do |template_set|
+  template_set.template(Domgen::Generator::ActiveRecord::FACETS,
+                        :entity,
+                        "#{Domgen::Generator::ActiveRecord::TEMPLATE_DIRECTORY}/entity.rb.erb",
+                        'ruby/#{entity.ruby.filename}.rb',
+                        [Domgen::Ruby::Helper])
 end

@@ -5,15 +5,12 @@ module Domgen
       FACETS = [:jws]
       HELPERS = [Domgen::Java::Helper]
     end
-
-    def self.define_jws_templates
-      [
-        Template.new(JWS::FACETS,
-                     :service,
-                     "#{JWS::TEMPLATE_DIRECTORY}/service.java.erb",
-                     'java/#{service.jws.qualified_service_name.gsub(".","/")}.java',
-                     JWS::HELPERS),
-      ]
-    end
   end
+end
+Domgen.template_set(:jws) do |template_set|
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/service.java.erb",
+                        'java/#{service.jws.qualified_service_name.gsub(".","/")}.java',
+                        Domgen::Generator::JWS::HELPERS)
 end

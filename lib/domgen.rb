@@ -18,6 +18,7 @@ require 'domgen/json/model'
 
 # Xml
 require 'domgen/xml/model'
+require 'domgen/xml/helper'
 
 # Java
 require 'domgen/java/model'
@@ -49,9 +50,8 @@ require 'domgen/jpa/generator'
 require 'domgen/active_record/generator'
 
 # Docbook
-require 'domgen/xml/generator'
 require 'domgen/xml/templates/xml'
-require 'domgen/xml/helper'
+require 'domgen/xml/generator'
 
 # Rake Tasks
 require 'domgen/rake_tasks'

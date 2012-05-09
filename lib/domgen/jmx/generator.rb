@@ -5,15 +5,12 @@ module Domgen
       FACETS = [:jmx]
       HELPERS = [Domgen::Java::Helper]
     end
-
-    def self.define_jmx_templates
-      [
-        Template.new(JMX::FACETS,
-                     :service,
-                     "#{JMX::TEMPLATE_DIRECTORY}/service.java.erb",
-                     'java/#{service.jmx.qualified_service_name.gsub(".","/")}.java',
-                     JMX::HELPERS),
-      ]
-    end
   end
+end
+Domgen.template_set(:jmx) do |template_set|
+  template_set.template(Domgen::Generator::JMX::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JMX::TEMPLATE_DIRECTORY}/service.java.erb",
+                        'java/#{service.jmx.qualified_service_name.gsub(".","/")}.java',
+                        Domgen::Generator::JMX::HELPERS)
 end
