@@ -106,9 +106,6 @@ module Domgen
         method_name = "define_#{generator_key}_templates".to_sym
         if self.respond_to? method_name
           new_templates = self.send(method_name)
-          new_templates.each do |template|
-            template.generator_key = generator_key
-          end
           templates = templates + new_templates
         else
           Domgen.error("Missing define_#{generator_key}_templates method")

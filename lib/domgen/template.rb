@@ -7,7 +7,6 @@ module Domgen
       attr_reader :helpers
       attr_reader :scope
       attr_reader :facets
-      attr_accessor :generator_key
 
       def initialize(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil)
         Domgen.error("Unexpected facets") unless facets.is_a?(Array) && facets.all? {|a| a.is_a?(Symbol)}
@@ -21,7 +20,7 @@ module Domgen
       end
 
       def to_s
-        "#{generator_key}:#{scope}:#{template_filename}"
+        "#{scope}:#{template_filename}"
       end
 
       def applicable?(faceted_object)
