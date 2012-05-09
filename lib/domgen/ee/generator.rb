@@ -12,12 +12,12 @@ Domgen.template_set(:ee_data_types) do |template_set|
   template_set.template(Domgen::Generator::EE::FACETS,
                         :enumeration,
                         "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/enumeration.java.erb",
-                        'java/#{enumeration.ee.qualified_name.gsub(".","/")}.java',
+                        'main/java/#{enumeration.ee.qualified_name.gsub(".","/")}.java',
                         Domgen::Generator::EE::HELPERS)
   template_set.template(Domgen::Generator::EE::FACETS,
                         :struct,
                         "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/struct.java.erb",
-                        'java/#{struct.ee.qualified_name.gsub(".","/")}.java',
+                        'main/java/#{struct.ee.qualified_name.gsub(".","/")}.java',
                         Domgen::Generator::EE::HELPERS)
 end
 
@@ -25,7 +25,7 @@ Domgen.template_set(:ee_exceptions) do |template_set|
   template_set.template(Domgen::Generator::EE::FACETS,
                         :exception,
                         "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/exception.java.erb",
-                        'java/#{exception.ee.qualified_name.gsub(".","/")}.java',
+                        'main/java/#{exception.ee.qualified_name.gsub(".","/")}.java',
                         Domgen::Generator::EE::HELPERS)
 end
 

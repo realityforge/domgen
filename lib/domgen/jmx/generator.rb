@@ -11,6 +11,6 @@ Domgen.template_set(:jmx) do |template_set|
   template_set.template(Domgen::Generator::JMX::FACETS,
                         :service,
                         "#{Domgen::Generator::JMX::TEMPLATE_DIRECTORY}/service.java.erb",
-                        'java/#{service.jmx.qualified_service_name.gsub(".","/")}.java',
+                        'main/java/#{service.jmx.qualified_service_name.gsub(".","/")}.java',
                         Domgen::Generator::JMX::HELPERS)
 end

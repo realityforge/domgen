@@ -11,6 +11,6 @@ Domgen.template_set(:jws) do |template_set|
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :service,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/service.java.erb",
-                        'java/#{service.jws.qualified_service_name.gsub(".","/")}.java',
+                        'main/java/#{service.jws.qualified_service_name.gsub(".","/")}.java',
                         Domgen::Generator::JWS::HELPERS)
 end
