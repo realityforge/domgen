@@ -9,9 +9,11 @@ module Domgen
     def self.generate(repository, directory, generator_keys, filter)
       Logger.info "Generator started: Generating #{generator_keys.inspect}"
 
-      templates = load_templates(generator_keys)
+      templates = {}
+      load_templates(generator_keys, templates)
+      Logger.debug "Templates to process: #{templates.keys.inspect}"
 
-      templates.each do |template|
+      templates.values.each do |template|
         Logger.debug "Evaluation template: #{template.template_filename}"
         if :repository == template.scope
           if template.applicable?(repository) && (filter.nil? || filter.call(:repository, repository))
@@ -99,20 +101,20 @@ module Domgen
       context
     end
 
-    def self.load_templates(generator_keys)
-      templates = []
-
-      generator_keys.each do |template_set_name|
-        template_set = Domgen.template_set_by_name(template_set_name)
-        templates += template_set.templates
+    def self.load_templates(names, templates, processed_template_sets = [])
+      names.select{|name| !processed_template_sets.include?(name)}.each do |name|
+        template_set = Domgen.template_set_by_name(name)
+        processed_template_sets << name
+        load_templates(template_set.required_template_sets, templates, processed_template_sets)
+        template_set.templates.each do |template|
+          templates[template.name] = template
+        end
       end
-
-      templates
     end
 
     def self.render(target_basedir, template, key, value, &block)
       object_name = value.respond_to?(:qualified_name) ? value.qualified_name : value.name
-      Logger.debug "Generating #{template.template_name} for #{key} #{object_name}"
+      Logger.debug "Generating #{template.name} for #{key} #{object_name}"
 
       render_context = create_context(template, key, value)
       context_binding = render_context.context_binding
@@ -122,10 +124,10 @@ module Domgen
       result = template.render_to_string(context_binding)
       FileUtils.mkdir_p File.dirname(output_filename) unless File.directory?(File.dirname(output_filename))
       if File.exist?(output_filename) && IO.read(output_filename) == result
-        Logger.debug "Skipped generation of #{template.template_name} for #{key} #{object_name} to #{output_filename} due to no changes"
+        Logger.debug "Skipped generation of #{template.name} for #{key} #{object_name} to #{output_filename} due to no changes"
       else
         File.open(output_filename, 'w') { |f| f.write(result) }
-        Logger.debug "Generated #{template.template_name} for #{key} #{object_name} to #{output_filename}"
+        Logger.debug "Generated #{template.name} for #{key} #{object_name} to #{output_filename}"
       end
     end
   end

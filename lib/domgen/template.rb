@@ -5,6 +5,12 @@ module Domgen
     end
 
     def template_set(name, options = {}, &block)
+      if name.is_a?(Hash) && name.size == 1
+        req = name.values[0]
+        options = options.dup
+        options[:required_template_sets] = req.is_a?(Array) ? req : [req]
+        name = name.keys[0]
+      end
       template_set = Domgen::Generator::TemplateSet.new(name, options, &block)
       template_set_map[name.to_s] = template_set
       template_set
@@ -26,9 +32,11 @@ module Domgen
   module Generator
     class TemplateSet < BaseElement
       attr_reader :name
+      attr_accessor :required_template_sets
 
       def initialize(name, options = {}, &block)
         @name = name
+        @required_template_sets = []
         super(options, &block)
       end
 
@@ -37,13 +45,13 @@ module Domgen
       end
 
       def template(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil)
-        template_map[template_filename] =
-          Template.new(facets, scope, template_filename, output_filename_pattern, helpers, guard)
+        template = Template.new(facets, scope, template_filename, output_filename_pattern, helpers, guard)
+        template_map[template.name] = template
       end
 
       def xml_template(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil)
-        template_map[template_filename] =
-          XmlTemplate.new(facets, scope, template_filename, output_filename_pattern, helpers, guard)
+        template = XmlTemplate.new(facets, scope, template_filename, output_filename_pattern, helpers, guard)
+        template_map[template.name] = template
       end
 
       def template_by_name(name)
@@ -79,7 +87,7 @@ module Domgen
       end
 
       def to_s
-        "#{scope}:#{template_filename}"
+        name
       end
 
       def applicable?(faceted_object)
@@ -90,8 +98,8 @@ module Domgen
         erb_instance.result(context_binding)
       end
 
-      def template_name
-        File.basename(template_filename, '.erb')
+      def name
+        @name ||= "#{facets.inspect}:#{File.basename(template_filename, '.erb')}"
       end
 
       protected

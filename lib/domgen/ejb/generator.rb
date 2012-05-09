@@ -7,14 +7,14 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:ejb) do |template_set|
+Domgen.template_set(:ejb_services => [:ee_exceptions]) do |template_set|
   template_set.template(Domgen::Generator::EJB::FACETS,
                         :service,
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/service.java.erb",
                         'java/#{service.ejb.qualified_service_name.gsub(".","/")}.java',
                         Domgen::Generator::EJB::HELPERS)
 end
-Domgen.template_set(:ejb_facades) do |template_set|
+Domgen.template_set(:ejb_service_facades => [:ejb_services]) do |template_set|
   template_set.template(Domgen::Generator::EJB::FACETS,
                         :service,
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/boundary_service.java.erb",
@@ -34,3 +34,5 @@ Domgen.template_set(:ejb_facades) do |template_set|
                         Domgen::Generator::EJB::HELPERS,
                         'service.ejb.generate_boundary?')
 end
+
+Domgen.template_set(:ejb => [:ejb_service_facades, :jpa_ejb_dao])

@@ -7,7 +7,7 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:jpa_model) do |template_set|
+Domgen.template_set(:jpa_model => [:ee_data_types]) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :entity,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity.java.erb",
@@ -27,7 +27,7 @@ Domgen.template_set(:jpa_model_catalog) do |template_set|
                         'java/#{data_module.jpa.qualified_catalog_name.gsub(".","/")}.java')
 end
 
-Domgen.template_set(:jpa_ejb) do |template_set|
+Domgen.template_set(:jpa_ejb_dao) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :entity,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb.java.erb",
@@ -35,9 +35,11 @@ Domgen.template_set(:jpa_ejb) do |template_set|
                         Domgen::Generator::JPA::HELPERS)
 end
 
-Domgen.template_set(:jpa_persistence) do |template_set|
+Domgen.template_set(:jpa_persistence_xml) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :repository,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/persistence.xml.erb",
                         'resources/META-INF/persistence.xml')
 end
+
+Domgen.template_set(:jpa => [:jpa_persistence_xml, :jpa_model])
