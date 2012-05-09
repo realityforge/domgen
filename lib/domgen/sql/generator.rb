@@ -23,7 +23,6 @@ Domgen.template_set(:pgsql) do |template_set|
                         :data_module,
                         "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/pgsql_ddl.sql.erb",
                         '#{data_module.name}/schema.sql')
-
   template_set.template(Domgen::Generator::Sql::FACETS,
                         :data_module,
                         "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/pgsql_finalize.sql.erb",
