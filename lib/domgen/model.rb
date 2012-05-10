@@ -412,22 +412,8 @@ module Domgen
     end
   end
 
-  class Attribute < self.FacetedElement(:entity)
+  module InheritedCharacteristic
     include Characteristic
-
-    attr_reader :attribute_type
-
-    def initialize(entity, name, attribute_type, options = {}, &block)
-      @name = name
-      @attribute_type = attribute_type
-      super(entity, options, &block)
-      error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !self.class.persistent_types.include?(attribute_type)
-      error("Attribute #{self.qualified_name} must not be a collection") if collection?
-    end
-
-    def qualified_name
-      "#{entity.qualified_name}.#{self.name}"
-    end
 
     def inherited?
       !!@inherited
@@ -447,6 +433,24 @@ module Domgen
 
     def override?
       @override.nil? ? false : @override
+    end
+  end
+
+  class Attribute < self.FacetedElement(:entity)
+    include InheritedCharacteristic
+
+    attr_reader :attribute_type
+
+    def initialize(entity, name, attribute_type, options = {}, &block)
+      @name = name
+      @attribute_type = attribute_type
+      super(entity, options, &block)
+      error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !self.class.persistent_types.include?(attribute_type)
+      error("Attribute #{self.qualified_name} must not be a collection") if collection?
+    end
+
+    def qualified_name
+      "#{entity.qualified_name}.#{self.name}"
     end
 
     attr_writer :set_once
@@ -1011,7 +1015,39 @@ module Domgen
     end
   end
 
+  class ExceptionParameter < Domgen.FacetedElement(:exception)
+    include InheritedCharacteristic
+
+    attr_reader :component_name
+    attr_reader :parameter_type
+
+    def initialize(exception, name, parameter_type, options, &block)
+      @component_name = name
+      @name = (options[:collection_type] && options[:collection_type] != :none) ? Domgen::Naming.pluralize(name) : name
+      @parameter_type = parameter_type
+      super(exception, options, &block)
+    end
+
+    def qualified_name
+      "#{exception.qualified_name}$#{self.name}"
+    end
+
+    def to_s
+      "ExceptionParameter[#{self.qualified_name}]"
+    end
+
+    def characteristic_type
+      parameter_type
+    end
+
+    def characteristic_container
+      exception
+    end
+  end
+
   class Exception < Domgen.FacetedElement(:data_module)
+    include CharacteristicContainer
+
     attr_reader :name
     attr_accessor :extends
 
@@ -1027,6 +1063,40 @@ module Domgen
 
     def to_s
       "Exception[#{self.qualified_name}]"
+    end
+
+    def declared_parameters
+      parameters.select { |p| !p.inherited? }
+    end
+
+    def parameters
+      characteristics
+    end
+
+    def parameter(name, type, options = {}, &block)
+      characteristic(name, type, options, &block)
+    end
+
+    def characteristic_kind
+      "parameter"
+    end
+
+    protected
+
+    def new_characteristic(name, type, options, &block)
+      override = false
+      if characteristic_map[name.to_s]
+        error("Attempting to override non abstract parameter #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
+        # nil out atribute so the characteristic container will not complain about it overriding an existing value
+        characteristic_map[name.to_s] = nil
+        override = true
+      end
+
+      ExceptionParameter.new(self, name, type, {:override => override}.merge(options), &block)
+    end
+
+    def perform_verify
+      verify_characteristics
     end
   end
 

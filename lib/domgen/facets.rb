@@ -129,7 +129,8 @@ module Domgen
           Domgen::EnumerationSet,
           Domgen::Struct, Domgen::StructField,
           Domgen::Entity, Domgen::Attribute, Domgen::InverseElement,
-          Domgen::Service, Domgen::Method, Domgen::Parameter, Domgen::Exception, Domgen::Result,
+          Domgen::Service, Domgen::Method, Domgen::Parameter, Domgen::Result,
+          Domgen::Exception, Domgen::ExceptionParameter,
           Domgen::Message, Domgen::MessageParameter,
           Domgen::DataModule, Domgen::Repository
         ]
@@ -226,7 +227,8 @@ module Domgen
           Domgen::Service => [:methods],
           Domgen::Method => [:parameters, :exceptions, :result],
           Domgen::Parameter => [],
-          Domgen::Exception => [],
+          Domgen::Exception => [:parameters],
+          Domgen::ExceptionParameter => [],
           Domgen::Result => [],
         }
       end
