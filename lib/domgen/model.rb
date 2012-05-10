@@ -412,7 +412,7 @@ module Domgen
     end
   end
 
-  module InheritedCharacteristic
+  module InheritableCharacteristic
     include Characteristic
 
     def inherited?
@@ -437,7 +437,7 @@ module Domgen
   end
 
   class Attribute < self.FacetedElement(:entity)
-    include InheritedCharacteristic
+    include InheritableCharacteristic
 
     attr_reader :attribute_type
 
@@ -629,6 +629,49 @@ module Domgen
     # Also need to define data_module
   end
 
+  module InheritableCharacteristicContainer
+    include CharacteristicContainer
+
+    attr_accessor :extends
+
+    def direct_subtypes
+      @direct_subtypes ||= []
+    end
+
+    attr_writer :abstract
+
+    def abstract?
+      @abstract.nil? ? false : @abstract
+    end
+
+    attr_writer :final
+
+    def final?
+      @final.nil? ? !abstract? : @final
+    end
+
+    protected
+
+    def declared_characteristics
+      characteristics.select { |c| !c.inherited? }
+    end
+
+    def inherited_characteristics
+      characteristics.select { |c| c.inherited? }
+    end
+
+    def perform_extend(data_module, type_key, extends)
+      base_type = data_module.send :"#{type_key}_by_name", extends
+      Domgen.error("#{type_key} #{name} attempting to extend final #{type_key} #{extends}") if base_type.final?
+      base_type.direct_subtypes << self
+      base_type.characteristics.collect { |c| c.clone }.each do |characteristic|
+        characteristic.instance_variable_set("@#{type_key}", self)
+        characteristic.mark_as_inherited
+        characteristic_map[characteristic.name.to_s] = characteristic
+      end
+    end
+  end
+
   class Entity < self.FacetedElement(:data_module)
     attr_reader :unique_constraints
     attr_reader :codependent_constraints
@@ -637,11 +680,10 @@ module Domgen
     attr_reader :cycle_constraints
     attr_reader :referencing_attributes
     attr_accessor :extends
-    attr_accessor :direct_subtypes
     attr_accessor :subtypes
 
     include GenerateFacet
-    include CharacteristicContainer
+    include InheritableCharacteristicContainer
 
     def initialize(data_module, name, options, &block)
       @name = name
@@ -652,16 +694,9 @@ module Domgen
       @relationship_constraints = Domgen::OrderedHash.new
       @cycle_constraints = Domgen::OrderedHash.new
       @referencing_attributes = []
-      @direct_subtypes = []
       @subtypes = []
       data_module.send :register_entity, name, self
-
-      if options[:extends]
-        base_type = data_module.entity_by_name(options[:extends])
-        Domgen.error("Entity #{name} attempting to extend final entity #{options[:extends]}") if base_type.final?
-        base_type.direct_subtypes << self
-        extend_from(base_type)
-      end
+      perform_extend(data_module, :entity, options[:extends]) if options[:extends]
       super(data_module, options, &block)
     end
 
@@ -673,26 +708,18 @@ module Domgen
       extends.nil? ? false : !data_module.entity_by_name(extends).abstract?
     end
 
-    attr_writer :abstract
-
-    def abstract?
-      @abstract.nil? ? false : @abstract
-    end
-
     attr_writer :read_only
 
     def read_only?
       @read_only.nil? ? false : @read_only
     end
 
-    attr_writer :final
-
-    def final?
-      @final.nil? ? !abstract? : @final
+    def declared_attributes
+      declared_characteristics
     end
 
-    def declared_attributes
-      attributes.select { |a| !a.inherited? }
+    def inherited_attributes
+      inherited_characteristics
     end
 
     def attributes
@@ -846,14 +873,6 @@ module Domgen
     end
 
     private
-
-    def extend_from(base_type)
-      base_type.attributes.collect { |a| a.clone }.each do |attribute|
-        attribute.instance_variable_set("@entity", self)
-        attribute.mark_as_inherited
-        characteristic_map[attribute.name.to_s] = attribute
-      end
-    end
 
     def add_unique_to_set(type, constraint, set)
       error("Only 1 #{type} constraint with name #{constraint.name} should be defined") if set[constraint.name]
@@ -1016,7 +1035,7 @@ module Domgen
   end
 
   class ExceptionParameter < Domgen.FacetedElement(:exception)
-    include InheritedCharacteristic
+    include InheritableCharacteristic
 
     attr_reader :component_name
     attr_reader :parameter_type
@@ -1046,14 +1065,14 @@ module Domgen
   end
 
   class Exception < Domgen.FacetedElement(:data_module)
-    include CharacteristicContainer
+    include InheritableCharacteristicContainer
 
     attr_reader :name
-    attr_accessor :extends
 
     def initialize(data_module, name, options, &block)
       @name = name
       data_module.send :register_exception, name, self
+      perform_extend(data_module, :exception, options[:extends]) if options[:extends]
       super(data_module, options, &block)
     end
 
@@ -1066,7 +1085,11 @@ module Domgen
     end
 
     def declared_parameters
-      parameters.select { |p| !p.inherited? }
+      declared_characteristics
+    end
+
+    def inherited_parameters
+      inherited_characteristics
     end
 
     def parameters

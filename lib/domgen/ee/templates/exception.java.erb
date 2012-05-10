@@ -14,19 +14,21 @@ param_desc =
   exception.parameters.collect do |parameter|
     "final #{annotated_type(parameter, :ee, :boundary) } #{parameter.name}"
   end.join(", ")
-param_desc_with_prefix = param_desc + (param_desc.size == 0 ? '' : ', ')
+param_desc_with_suffix = param_desc + (param_desc.size == 0 ? '' : ', ')
 
-param_values = exception.parameters.collect { |parameter| parameter.name}.join(", ")
-param_values_with_prefix = param_values + (param_values.size == 0 ? '' : ', ')
+param_values = exception.parameters.collect{ |parameter| parameter.name}.join(", ")
+param_values_with_suffix = param_values + (param_values.size == 0 ? '' : ', ')
 
+inherited_params = exception.inherited_parameters.collect{ |parameter| parameter.name}.join(", ")
+inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? '' : ', ')
 
       -%>
-  public <%= exception.ee.name %>( <%= param_desc %> ) { this( <%= param_values_with_prefix %>null, null ); }
-  public <%= exception.ee.name %>( <%= param_desc_with_prefix %>final String message ) { this( <%= param_values_with_prefix %>message, null ); }
-  public <%= exception.ee.name %>( <%= param_desc_with_prefix %>final String message, final Throwable cause )
+  public <%= exception.ee.name %>( <%= param_desc %> ) { this( <%= param_values_with_suffix %>null, null ); }
+  public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final String message ) { this( <%= param_values_with_suffix %>message, null ); }
+  public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final String message, final Throwable cause )
   {
-    super( message, cause );
-  <% exception.parameters.each do |parameter|
+    super( <%= inherited_params_with_suffix %>message, cause );
+  <% exception.declared_parameters.each do |parameter|
      if :sequence == parameter.collection_type
 %>    this.<%= parameter.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
 <%     elsif :set == parameter.collection_type
