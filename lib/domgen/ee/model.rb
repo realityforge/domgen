@@ -1,5 +1,19 @@
 module Domgen
   module EE
+    class EeExceptionParameter < Domgen.ParentedElement(:parameter)
+      include Domgen::Java::EEJavaCharacteristic
+
+      def name
+        parameter.name
+      end
+
+      protected
+
+      def characteristic
+        parameter
+      end
+    end
+
     class EeException < Domgen.ParentedElement(:exception)
       def name
         exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
@@ -63,6 +77,7 @@ module Domgen
 
   FacetManager.define_facet(:ee,
                             Exception => Domgen::EE::EeException,
+                            ExceptionParameter => Domgen::EE::EeExceptionParameter,
                             Struct => Domgen::EE::EeStruct,
                             StructField => Domgen::EE::EebStructField,
                             EnumerationSet => Domgen::EE::EeEnumeration,
