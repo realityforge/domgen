@@ -35,7 +35,12 @@ module Domgen
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/resources\/.*/}
           dir = "#{target_dir}/main/resources"
           buildr_project.resources.enhance([task_name])
-          buildr_project.resources.from dir
+          buildr_project.resources do |t|
+            t.enhance do
+              FileUtils.cp_r "#{dir}/.", buildr_project.resources.target.to_s
+            end
+          end
+          buildr_project.iml.main_source_directories << dir if buildr_project.iml?
         end
 
         # Is there test java source generated in project?
@@ -49,7 +54,12 @@ module Domgen
         if templates.any?{|template| template.output_filename_pattern =~ /^test\/resources\/.*/}
           dir = "#{target_dir}/test/resources"
           buildr_project.test.resources.enhance([task_name])
-          buildr_project.test.resources.from dir
+          buildr_project.test.resources do |t|
+            t.enhance do
+              FileUtils.cp_r "#{dir}/.", buildr_project.test.resources.target.to_s
+            end
+          end
+          buildr_project.iml.test_source_directories << dir if buildr_project.iml?
         end
       end
     end
