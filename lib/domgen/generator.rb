@@ -1,20 +1,11 @@
 module Domgen
-  class << self
-    def generate(repository_name, directory, generator_keys, filter)
-      Domgen::Generator.generate(Domgen.repository_by_name(repository_name), directory, generator_keys, filter)
-    end
-  end
-
   module Generator
-    def self.generate(repository, directory, generator_keys, filter)
-      Logger.info "Generator started: Generating #{generator_keys.inspect}"
+    def self.generate(repository, directory, templates, filter)
 
-      templates = {}
-      load_templates(generator_keys, templates)
-      Logger.debug "Templates to process: #{templates.keys.inspect}"
+      Logger.debug "Templates to process: #{templates.collect{|t|t.name}.inspect}"
 
-      templates.values.each do |template|
-        Logger.debug "Evaluation template: #{template.template_filename}"
+      templates.each do |template|
+        Logger.debug "Evaluating template: #{template.name}"
         if :repository == template.scope
           if template.applicable?(repository) && (filter.nil? || filter.call(:repository, repository))
             render(directory, template, :repository, repository)
@@ -99,17 +90,6 @@ module Domgen
         context.add_helper(helper)
       end
       context
-    end
-
-    def self.load_templates(names, templates, processed_template_sets = [])
-      names.select{|name| !processed_template_sets.include?(name)}.each do |name|
-        template_set = Domgen.template_set_by_name(name)
-        processed_template_sets << name
-        load_templates(template_set.required_template_sets, templates, processed_template_sets)
-        template_set.templates.each do |template|
-          templates[template.name] = template
-        end
-      end
     end
 
     def self.render(target_basedir, template, key, value, &block)

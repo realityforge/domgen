@@ -18,11 +18,28 @@ module Domgen
       @clobber_dir = false
       @namespace_key = :domgen
       @filter = nil
+      @template_map = {}
       yield self if block_given?
       define
+      load_templates(generator_keys)
+    end
+
+    def templates
+      @template_map.values
     end
 
     private
+
+    def load_templates(names, processed_template_sets = [])
+      names.select{|name| !processed_template_sets.include?(name)}.each do |name|
+        template_set = Domgen.template_set_by_name(name)
+        processed_template_sets << name
+        load_templates(template_set.required_template_sets, processed_template_sets)
+        template_set.templates.each do |template|
+          @template_map[template.name] = template
+        end
+      end
+    end
 
     def verbose?
       !!@verbose
@@ -36,7 +53,11 @@ module Domgen
           begin
             FileUtils.rm_rf(self.target_dir) if self.clobber_dir
             Domgen::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
-            Domgen.generate(self.repository_key, self.target_dir, self.generator_keys, self.filter)
+            Logger.info "Generator started: Generating #{self.generator_keys.inspect}"
+            Domgen::Generator.generate(Domgen.repository_by_name(self.repository_key),
+                                        self.target_dir,
+                                        self.templates,
+                                        self.filter)
           rescue Exception => e
             print "An error occurred invoking the generator\n"
             puts $!
