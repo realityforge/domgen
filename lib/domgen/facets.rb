@@ -127,8 +127,8 @@ module Domgen
       def valid_source_classes
         [
           Domgen::EnumerationSet,
-          Domgen::StructField, Domgen::Struct,
-          Domgen::Attribute, Domgen::InverseElement, Domgen::Entity,
+          Domgen::Struct, Domgen::StructField,
+          Domgen::Entity, Domgen::Attribute, Domgen::InverseElement,
           Domgen::Service, Domgen::Method, Domgen::Parameter, Domgen::Exception, Domgen::Result,
           Domgen::Message, Domgen::MessageParameter,
           Domgen::DataModule, Domgen::Repository
