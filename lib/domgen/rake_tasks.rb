@@ -13,8 +13,9 @@ module Domgen
 
     attr_reader :task_name
 
-    def initialize(repository_key, key, generator_keys, target_dir)
-      @repository_key, @key, @generator_keys, @target_dir = repository_key, key, generator_keys, target_dir
+    def initialize(repository_key, key, generator_keys, target_dir, buildr_project = nil)
+      @repository_key, @key, @generator_keys, @target_dir, @buildr_project =
+        repository_key, key, generator_keys, target_dir, buildr_project
       @clobber_dir = false
       @namespace_key = :domgen
       @filter = nil
@@ -22,6 +23,35 @@ module Domgen
       yield self if block_given?
       define
       load_templates(generator_keys)
+      if buildr_project
+        # Is there java source generated in project?
+        if templates.any?{|template| template.output_filename_pattern =~ /^main\/java\/.*/}
+          dir = "#{target_dir}/main/java"
+          file(dir => [task_name])
+          buildr_project.compile.from dir
+        end
+
+        # Is there resources generated in project?
+        if templates.any?{|template| template.output_filename_pattern =~ /^main\/resources\/.*/}
+          dir = "#{target_dir}/main/resources"
+          buildr_project.resources.enhance([task_name])
+          buildr_project.resources.from dir
+        end
+
+        # Is there test java source generated in project?
+        if templates.any?{|template| template.output_filename_pattern =~ /^test\/java\/.*/}
+          dir = "#{target_dir}/test/java"
+          file(dir => [task_name])
+          buildr_project.test.compile.from dir
+        end
+
+        # Is there resources generated in project?
+        if templates.any?{|template| template.output_filename_pattern =~ /^test\/resources\/.*/}
+          dir = "#{target_dir}/test/resources"
+          buildr_project.test.resources.enhance([task_name])
+          buildr_project.test.resources.from dir
+        end
+      end
     end
 
     def templates
