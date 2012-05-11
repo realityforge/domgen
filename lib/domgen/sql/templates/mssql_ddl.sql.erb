@@ -196,6 +196,10 @@ GO
 %>
 
 CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.spCheckConstraints
+(
+  @ShowErrors INT = 1,
+  @PrintProgress INT = 0
+)
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -213,9 +217,11 @@ BEGIN
    constraints = entity.sql.constraints + entity.sql.function_constraints
    constraints.select{|constraint| constraint.invariant?}.each do |constraint| %>
   BEGIN TRY
+    IF @PrintProgress = 1 PRINT 'Checking constraint <%= constraint.quoted_constraint_name %>'
     ALTER TABLE <%= entity.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
   END TRY
   BEGIN CATCH
+    IF @ShowErrors = 1 PRINT 'Constraint <%= constraint.quoted_constraint_name %> has errors'
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
       VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','<%= constraint.constraint_name %>','DBCC CHECKCONSTRAINTS(''<%= entity.data_module.sql.schema %>.<%= constraint.constraint_name %>'') WITH ALL_ERRORMSGS, NO_INFOMSGS')
   END CATCH
