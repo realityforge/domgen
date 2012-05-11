@@ -97,3 +97,8 @@ Domgen.template_set(:gwt_server_service) do |template_set|
                         'main/java/#{service.gwt.qualified_servlet_name.gsub(".","/")}.java',
                         Domgen::Generator::GWT::HELPERS)
 end
+
+Domgen.template_set(:gwt_shared => [:gwt_shared_service])
+Domgen.template_set(:gwt_client => [:gwt_client_service, :gwt_client_service_test])
+Domgen.template_set(:gwt_server => [:gwt_server_service])
+Domgen.template_set(:gwt => [:gwt_shared, :gwt_client, :gwt_server])
