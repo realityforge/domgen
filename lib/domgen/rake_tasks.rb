@@ -35,9 +35,13 @@ module Domgen
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/resources\/.*/}
           dir = "#{target_dir}/main/resources"
           buildr_project.resources.enhance([task_name])
+          buildr_project.resources.filter.into buildr_project.path_to(:target, :main, :resources) unless buildr_project.resources.target
           buildr_project.resources do |t|
             t.enhance do
-              FileUtils.cp_r "#{dir}/.", buildr_project.resources.target.to_s
+              if File.exist?(dir)
+                FileUtils.mkdir_p buildr_project.resources.target.to_s
+                FileUtils.cp_r "#{dir}/.", buildr_project.resources.target.to_s
+              end
             end
           end
           buildr_project.iml.main_source_directories << dir if buildr_project.iml?
@@ -54,9 +58,13 @@ module Domgen
         if templates.any?{|template| template.output_filename_pattern =~ /^test\/resources\/.*/}
           dir = "#{target_dir}/test/resources"
           buildr_project.test.resources.enhance([task_name])
+          buildr_project.test.resources.filter.into buildr_project.path_to(:target, :test, :resources) unless buildr_project.test.resources.target
           buildr_project.test.resources do |t|
             t.enhance do
-              FileUtils.cp_r "#{dir}/.", buildr_project.test.resources.target.to_s
+              if File.exist?(dir)
+                FileUtils.mkdir_p buildr_project.test.resources.target.to_s
+                FileUtils.cp_r "#{dir}/.", buildr_project.test.resources.target.to_s
+              end
             end
           end
           buildr_project.iml.test_source_directories << dir if buildr_project.iml?
