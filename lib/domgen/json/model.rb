@@ -8,7 +8,7 @@ module Domgen
       def name
         @name || Domgen::Naming.jsonize(#{parent_key}.name)
       end
-RUBY
+      RUBY
     end
 
     class JsonStructField < Domgen.ParentedElement(:field)
