@@ -29,6 +29,8 @@ module Domgen
           dir = "#{target_dir}/main/java"
           file(dir => [task_name])
           buildr_project.compile.from dir
+          # Need to force this as it may have already been cached and thus will not recalculate
+          buildr_project.iml.main_source_directories << dir if buildr_project.iml?
         end
 
         # Is there resources generated in project?
@@ -52,6 +54,8 @@ module Domgen
           dir = "#{target_dir}/test/java"
           file(dir => [task_name])
           buildr_project.test.compile.from dir
+          # Need to force this as it may have already been cached and thus will not recalculate
+          buildr_project.iml.test_source_directories << dir if buildr_project.iml?
         end
 
         # Is there resources generated in project?
