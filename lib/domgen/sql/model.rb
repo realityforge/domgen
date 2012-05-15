@@ -278,6 +278,10 @@ module Domgen
       def to_s
         "Constraint[#{self.qualified_constraint_name}]"
       end
+
+      def constraint_sql
+        @sql
+      end
     end
 
     class FunctionConstraint < Domgen.ParentedElement(:table)
