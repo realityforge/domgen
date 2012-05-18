@@ -151,7 +151,7 @@ module Domgen
       end
 
       def query_spec
-        @query_spec || (ql =~ /\sFROM\s/ix) ? :statement : :criteria
+        @query_spec || ((ql =~ /\sFROM\s/ix) ? :statement : :criteria)
       end
 
       def multiplicity
