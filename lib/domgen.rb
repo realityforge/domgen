@@ -8,6 +8,7 @@ require 'domgen/naming'
 # Core components
 require 'domgen/core'
 require 'domgen/facets'
+require 'domgen/features'
 require 'domgen/model'
 require 'domgen/template'
 require 'domgen/render_context'
