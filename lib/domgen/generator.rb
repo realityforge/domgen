@@ -25,6 +25,16 @@ module Domgen
                 end
               end
 
+              if :query == template.scope
+                data_module.entities.each do |entity|
+                  entity.queries.each do |query|
+                    if template.applicable?(query) && (filter.nil? || filter.call(:query, query))
+                      render(directory, template, :query, query)
+                    end
+                  end
+                end
+              end
+
               if :struct == template.scope
                 data_module.structs.each do |struct|
                   if template.applicable?(struct) && (filter.nil? || filter.call(:struct, struct))

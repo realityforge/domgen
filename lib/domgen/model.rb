@@ -278,6 +278,135 @@ module Domgen
     end
   end
 
+  class QueryParameter < Domgen.FacetedElement(:query)
+    include Characteristic
+
+    attr_reader :parameter_type
+    attr_reader :name
+
+    def initialize(message, name, parameter_type, options, &block)
+      @name = name
+      @parameter_type = parameter_type
+      super(message, options, &block)
+    end
+
+    def qualified_name
+      "#{query.qualified_name}$#{self.name}"
+    end
+
+    def to_s
+      "QueryParameter[#{self.qualified_name}]"
+    end
+
+    def characteristic_type
+      parameter_type
+    end
+
+    def characteristic
+      self
+    end
+
+    def characteristic_kind
+      "parameter"
+    end
+  end
+
+  class Query < self.FacetedElement(:entity)
+    include GenerateFacet
+    include Domgen::CharacteristicContainer
+
+    attr_reader :name
+
+    def initialize(entity, name, options = {}, & block)
+      @name = name
+      super(entity, options, & block)
+    end
+
+    def parameters
+      characteristics
+    end
+
+    def qualified_name
+      "#{entity.qualified_name}.#{local_name}"
+    end
+
+    def local_name
+      if self.query_type == :select
+        suffix = no_ql? ? '' : "By#{name}"
+        if self.multiplicity == :many
+          "findAll#{suffix}"
+        elsif self.multiplicity == :zero_or_one
+          "find#{suffix}"
+        else
+          "get#{suffix}"
+        end
+      elsif self.query_type == :update
+        "update#{name}"
+      elsif self.query_type == :delete
+        "delete#{name}"
+      elsif self.query_type == :insert
+        "insert#{name}"
+      end
+    end
+
+    def query_type=(query_type)
+      error("query_type #{query_type} is invalid") unless self.class.valid_query_types.include?(query_type)
+      @query_type = query_type
+    end
+
+    def query_type
+      @query_type || :select
+    end
+
+    def query_spec=(query_spec)
+      error("query_spec #{query_spec} is invalid") unless self.class.valid_query_specs.include?(query_spec)
+      @query_spec = query_spec
+    end
+
+    def query_spec
+      @query_spec || :statement
+    end
+
+    def multiplicity
+      @multiplicity || :many
+    end
+
+    def multiplicity=(multiplicity)
+      error("multiplicity #{multiplicity} is invalid") unless Domgen::InverseElement.inverse_multiplicity_types.include?(multiplicity)
+      @multiplicity = multiplicity
+    end
+
+    def self.valid_query_specs
+      [:statement, :criteria]
+    end
+
+    def self.valid_query_types
+      [:select, :update, :delete, :insert]
+    end
+
+    def to_s
+      "Query[#{self.qualified_name}]"
+    end
+
+    protected
+
+    def characteristic_kind
+      raise "parameter"
+    end
+
+    def data_module
+      self.entity.data_module
+    end
+
+    def new_characteristic(name, type, options, &block)
+      QueryParameter.new(self, name, type, options, &block)
+    end
+
+    def perform_verify
+      verify_characteristics
+    end
+  end
+
   class Attribute < self.FacetedElement(:entity)
     include InheritableCharacteristic
 
@@ -359,6 +488,7 @@ module Domgen
     attr_reader :dependency_constraints
     attr_reader :cycle_constraints
     attr_reader :referencing_attributes
+    attr_reader :queries
     attr_accessor :extends
     attr_accessor :subtypes
 
@@ -373,6 +503,7 @@ module Domgen
       @dependency_constraints = Domgen::OrderedHash.new
       @relationship_constraints = Domgen::OrderedHash.new
       @cycle_constraints = Domgen::OrderedHash.new
+      @queries = Domgen::OrderedHash.new
       @referencing_attributes = []
       @subtypes = []
       data_module.send :register_entity, name, self
@@ -408,6 +539,15 @@ module Domgen
 
     def attribute(name, type, options = {}, &block)
       characteristic(name, type, options, &block)
+    end
+
+    def queries
+      @queries.values
+    end
+
+    def query(name, options = {}, &block)
+      query = Query.new(self, name, options, &block)
+      add_unique_to_set("query", query, @queries)
     end
 
     def unique_constraints
