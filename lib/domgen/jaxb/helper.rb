@@ -11,7 +11,7 @@ module Domgen
         s << "@javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )\n"
         ns = namespace_annotation_parameter(struct.xml)
         s << "@javax.xml.bind.annotation.XmlRootElement( name = \"#{struct.xml.name}\"#{ns} )\n" if struct.top_level?
-        s << "@javax.xml.bind.annotation.XmlType( name = \"#{struct.name}Type\", propOrder = {#{struct.fields.collect{|field| "\"#{field.name}\""}.join(", ")}}#{ns} )\n"
+        s << "@javax.xml.bind.annotation.XmlType( name = \"#{struct.name}\", propOrder = {#{struct.fields.collect{|field| "\"#{field.name}\""}.join(", ")}}#{ns} )\n"
         s
       end
 
