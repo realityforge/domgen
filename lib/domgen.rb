@@ -82,3 +82,7 @@ require 'domgen/gwt/generator'
 # Imit
 require 'domgen/imit/model'
 require 'domgen/imit/generator'
+
+# AutoBean
+require 'domgen/auto_bean/model'
+require 'domgen/auto_bean/generator'
