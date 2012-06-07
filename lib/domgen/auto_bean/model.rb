@@ -8,12 +8,12 @@ module Domgen
       end
 
       def qualified_name
-        "#{struct.data_module.ee.data_type_package}.#{self.name}"
+        "#{struct.data_module.auto_bean.data_type_package}.#{self.name}"
       end
     end
 
     class AutoBeanbStructField < Domgen.ParentedElement(:field)
-      include Domgen::Java::EEJavaCharacteristic
+      include Domgen::Java::AutoBeanJavaCharacteristic
 
       def name
         field.name
@@ -32,7 +32,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{enumeration.data_module.ee.data_type_package}.#{name}"
+        "#{enumeration.data_module.auto_bean.data_type_package}.#{name}"
       end
     end
 
@@ -42,12 +42,12 @@ module Domgen
       protected
 
       def facet_key
-        :ee
+        :auto_bean
       end
     end
 
     class AutoBeanApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ServerJavaApplication
+      include Domgen::Java::ClientJavaApplication
     end
   end
 
