@@ -338,9 +338,15 @@ module Domgen
       "#{entity.qualified_name}.#{local_name}"
     end
 
+    attr_writer :includes_criteria
+
+    def includes_criteria?
+      @includes_criteria.nil? ? false : @includes_criteria
+    end
+
     def local_name
       if self.query_type == :select
-        suffix = no_ql? ? '' : "By#{name}"
+        suffix = includes_criteria? ? '' : "By#{name}"
         if self.multiplicity == :many
           "findAll#{suffix}"
         elsif self.multiplicity == :zero_or_one
