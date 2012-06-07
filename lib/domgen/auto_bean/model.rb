@@ -60,10 +60,13 @@ module Domgen
   end
 
   FacetManager.define_facet(:auto_bean,
-                            Struct => Domgen::AutoBean::AutoBeanStruct,
-                            StructField => Domgen::AutoBean::AutoBeanbStructField,
-                            EnumerationSet => Domgen::AutoBean::AutoBeanEnumeration,
-                            DataModule => Domgen::AutoBean::AutoBeanPackage,
-                            Repository => Domgen::AutoBean::AutoBeanApplication)
+                            {
+                              Struct => Domgen::AutoBean::AutoBeanStruct,
+                              StructField => Domgen::AutoBean::AutoBeanbStructField,
+                              EnumerationSet => Domgen::AutoBean::AutoBeanEnumeration,
+                              DataModule => Domgen::AutoBean::AutoBeanPackage,
+                              Repository => Domgen::AutoBean::AutoBeanApplication
+                            },
+                            [:json])
 
 end
