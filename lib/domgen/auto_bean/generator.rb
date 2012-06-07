@@ -19,4 +19,9 @@ Domgen.template_set(:auto_bean) do |template_set|
                         "#{Domgen::Generator::AutoBean::TEMPLATE_DIRECTORY}/struct.java.erb",
                         'main/java/#{struct.auto_bean.qualified_name.gsub(".","/")}.java',
                         Domgen::Generator::AutoBean::HELPERS)
+  template_set.template(Domgen::Generator::AutoBean::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::AutoBean::TEMPLATE_DIRECTORY}/factory.java.erb",
+                        'main/java/#{repository.auto_bean.qualified_factory_name.gsub(".","/")}.java',
+                        Domgen::Generator::AutoBean::HELPERS)
 end

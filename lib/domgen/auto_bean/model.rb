@@ -48,6 +48,14 @@ module Domgen
 
     class AutoBeanApplication < Domgen.ParentedElement(:repository)
       include Domgen::Java::ClientJavaApplication
+
+      def factory_name
+        "#{repository.name}Factory"
+      end
+
+      def qualified_factory_name
+        "#{repository.auto_bean.data_type_package}.#{self.factory_name}"
+      end
     end
   end
 
