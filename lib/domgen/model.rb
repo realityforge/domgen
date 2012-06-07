@@ -326,6 +326,14 @@ module Domgen
       characteristics
     end
 
+    def parameter_exists?(name)
+      characteristic_exists?(name)
+    end
+
+    def parameter(name, type, options = {}, &block)
+      characteristic(name, type, options, &block)
+    end
+
     def qualified_name
       "#{entity.qualified_name}.#{local_name}"
     end
