@@ -1,0 +1,16 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= struct.data_module.auto_bean.data_type_package %>;
+
+<%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public interface <%= struct.name %>
+  extends com.google.web.bindery.requestfactory.shared.ValueProxy
+{
+<% struct.fields.each do |field| %>
+  <% if field.json? %>@com.google.web.bindery.autobean.shared.AutoBean.PropertyName("<%= field.json.name %>")<% end %>
+  <%= annotated_type(field, :auto_bean, :boundary) %> <%= getter_prefix(field) %><%= field.name %>();
+
+  <% if field.json? %>@com.google.web.bindery.autobean.shared.AutoBean.PropertyName("<%= field.json.name %>")<% end %>
+  void set<%= field.name %>(<%= annotated_type(field, :auto_bean, :boundary) %> <%= field.name %>);
+<% end -%>
+}
