@@ -175,28 +175,6 @@ module Domgen
       end
     end
 
-    module AutoBeanJavaCharacteristic
-      include JavaCharacteristic
-
-      protected
-
-      def enumeration_key
-        :auto_bean
-      end
-
-      def entity_key
-        :imit
-      end
-
-      def struct_key
-        :auto_bean
-      end
-
-      def date_java_type
-        "org.realityforge.replicant.client.RDate"
-      end
-    end
-
     module JavaPackage
       attr_writer :entity_package
 

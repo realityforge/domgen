@@ -13,7 +13,7 @@ module Domgen
     end
 
     class AutoBeanbStructField < Domgen.ParentedElement(:field)
-      include Domgen::Java::AutoBeanJavaCharacteristic
+      include Domgen::Java::ImitJavaCharacteristic
 
       def name
         field.name

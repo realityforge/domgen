@@ -42,11 +42,6 @@ Domgen.template_set(:gwt_client_service) do |template_set|
                         'main/java/#{message.gwt.qualified_event_handler_name.gsub(".","/")}.java',
                         Domgen::Generator::GWT::HELPERS)
   template_set.template(Domgen::Generator::GWT::FACETS,
-                        :enumeration,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/enumeration.java.erb",
-                        'main/java/#{enumeration.gwt.qualified_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS,
                         :service,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/facade_service.java.erb",
                         'main/java/#{service.gwt.qualified_facade_service_name.gsub(".","/")}.java',
