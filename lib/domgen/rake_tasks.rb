@@ -35,14 +35,14 @@ module Domgen
 
         # Is there resources generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/resources\/.*/}
-          dir = "#{target_dir}/main/resources"
           buildr_project.resources.enhance([task_name])
           buildr_project.resources.filter.into buildr_project.path_to(:target, :main, :resources) unless buildr_project.resources.target
           buildr_project.resources do |t|
             t.enhance do
-              if File.exist?(dir)
+              # Don't extract the dir as a variable as it will be shared between the blocks
+              if File.exist?("#{target_dir}/main/resources")
                 FileUtils.mkdir_p buildr_project.resources.target.to_s
-                FileUtils.cp_r "#{dir}/.", buildr_project.resources.target.to_s
+                FileUtils.cp_r "#{target_dir}/main/resources/.", buildr_project.resources.target.to_s
               end
             end
           end
@@ -60,14 +60,14 @@ module Domgen
 
         # Is there resources generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^test\/resources\/.*/}
-          dir = "#{target_dir}/test/resources"
           buildr_project.test.resources.enhance([task_name])
           buildr_project.test.resources.filter.into buildr_project.path_to(:target, :test, :resources) unless buildr_project.test.resources.target
           buildr_project.test.resources do |t|
             t.enhance do
-              if File.exist?(dir)
+              # Don't extract the dir as a variable as it will be shared between the blocks
+              if File.exist?("#{target_dir}/test/resources")
                 FileUtils.mkdir_p buildr_project.test.resources.target.to_s
-                FileUtils.cp_r "#{dir}/.", buildr_project.test.resources.target.to_s
+                FileUtils.cp_r "#{target_dir}/test/resources/.", buildr_project.test.resources.target.to_s
               end
             end
           end
