@@ -467,7 +467,7 @@ JAVA
 
       def query_return_type(query)
         return "int" if query.query_type != :select
-        name = query.jpa_class.entity.jpa.qualified_name
+        name = query.entity.jpa.qualified_name
         return "#{nullability_annotation(false)} java.util.List<#{name}>" if query.multiplicity == :many
         "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{name}"
       end

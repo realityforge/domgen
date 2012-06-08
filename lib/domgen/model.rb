@@ -315,15 +315,21 @@ module Domgen
     include GenerateFacet
     include Domgen::CharacteristicContainer
 
+    attr_reader :base_name
     attr_reader :name
 
-    def initialize(entity, name, options = {}, & block)
-      @name = name
-      super(entity, options, & block)
+    def initialize(entity, base_name, options = {}, & block)
+      @base_name = base_name
+      super(entity, options, &block)
+      @name = local_name
     end
 
     def parameters
       characteristics
+    end
+
+    def parameter_by_name(name)
+      characteristic_by_name(name)
     end
 
     def parameter_exists?(name)
@@ -341,12 +347,12 @@ module Domgen
     attr_writer :includes_criteria
 
     def includes_criteria?
-      @includes_criteria.nil? ? false : @includes_criteria
+      @includes_criteria.nil? ? !parameters.empty? : @includes_criteria
     end
 
     def local_name
       if self.query_type == :select
-        suffix = includes_criteria? ? '' : "By#{name}"
+        suffix = includes_criteria? ? "By#{base_name}" : ''
         if self.multiplicity == :many
           "findAll#{suffix}"
         elsif self.multiplicity == :zero_or_one
@@ -372,15 +378,6 @@ module Domgen
       @query_type || :select
     end
 
-    def query_spec=(query_spec)
-      error("query_spec #{query_spec} is invalid") unless self.class.valid_query_specs.include?(query_spec)
-      @query_spec = query_spec
-    end
-
-    def query_spec
-      @query_spec || :statement
-    end
-
     def multiplicity
       @multiplicity || :many
     end
@@ -388,10 +385,6 @@ module Domgen
     def multiplicity=(multiplicity)
       error("multiplicity #{multiplicity} is invalid") unless Domgen::InverseElement.inverse_multiplicity_types.include?(multiplicity)
       @multiplicity = multiplicity
-    end
-
-    def self.valid_query_specs
-      [:statement, :criteria]
     end
 
     def self.valid_query_types
@@ -698,6 +691,10 @@ module Domgen
           end
           unique_constraint([a.name]) if existing_constraint.nil?
         end
+      end
+
+      self.queries.each do |q|
+        q.verify
       end
 
       error("Entity #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1

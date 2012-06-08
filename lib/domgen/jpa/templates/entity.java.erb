@@ -4,14 +4,14 @@ package <%= entity.data_module.jpa.entity_package %>;
 <%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <%
-   jpa_queries = entity.jpa.queries.select {|q| !q.native? }
+   jpa_queries = entity.queries.select {|q| !q.jpa.native? }
    if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
-<%= jpa_queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{q.local_name}, query = \"#{q.query_string}\" )" }.join(",\n") %>
+<%= jpa_queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{q.local_name}, query = \"#{q.jpa.query_string}\" )" }.join(",\n") %>
 } )<% end %>
 <%
-   native_queries = entity.jpa.queries.select {|q| q.native? }
+   native_queries = entity.queries.select {|q| q.jpa.native? }
    if !native_queries.empty? %>@javax.persistence.NamedNativeQueries( value = {
-<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{q.local_name}, query = \"#{q.query_string}\"#{q.native? ? ", resultClass = #{entity.jpa.name}.class" : ""} )" }.join(",\n") %>
+<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{q.local_name}, query = \"#{q.jpa.query_string}\"#{q.native? ? ", resultClass = #{entity.jpa.name}.class" : ""} )" }.join(",\n") %>
 } )<% end %>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity( name = "<%= entity.jpa.jpql_name %>" )<% if !entity.abstract? %>
@@ -36,7 +36,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
   @javax.persistence.Transient
   private boolean _removed;
 <% end %>
-<% entity.jpa.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= query.local_name %> = "<%= query.qualified_name %>";
+<% entity.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= query.name %> = "<%= query.qualified_name %>";
 <%
   end
    entity.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>

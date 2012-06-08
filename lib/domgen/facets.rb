@@ -129,6 +129,7 @@ module Domgen
           Domgen::EnumerationSet,
           Domgen::Struct, Domgen::StructField,
           Domgen::Entity, Domgen::Attribute, Domgen::InverseElement,
+          Domgen::Query, Domgen::QueryParameter,
           Domgen::Service, Domgen::Method, Domgen::Parameter, Domgen::Result,
           Domgen::Exception, Domgen::ExceptionParameter,
           Domgen::Message, Domgen::MessageParameter,

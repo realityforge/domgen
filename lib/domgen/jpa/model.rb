@@ -1,73 +1,46 @@
 module Domgen
   module JPA
-    class QueryParameter < Domgen.ParentedElement(:query)
-      include Characteristic
+    class JPAQueryParameter < Domgen.ParentedElement(:parameter)
       include Domgen::Java::EEJavaCharacteristic
 
-      attr_reader :parameter_type
-      attr_reader :name
-
-      def initialize(message, name, parameter_type, options, &block)
-        @name = name
-        @parameter_type = parameter_type
-        super(message, options, &block)
-      end
-
-      def qualified_name
-        "#{query.qualified_name}$#{self.name}"
-      end
-
-      def to_s
-        "QueryParameter[#{self.qualified_name}]"
-      end
-
-      def characteristic_type
-        parameter_type
-      end
+      protected
 
       def characteristic
-        self
-      end
-
-      def characteristic_kind
-        "parameter"
+        parameter
       end
     end
 
-    class Query < Domgen.ParentedElement(:jpa_class)
-      include Domgen::CharacteristicContainer
-
-      attr_reader :name
-
-      def initialize(jpa_class, name, ql, options = {}, & block)
-        @name = name
-        @ql = ql
-        super(jpa_class, options, & block)
-
+    class JPAQuery < Domgen.ParentedElement(:query)
+      def post_verify
         query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
 
         expected_parameters = query_parameters.uniq.sort
-
         expected_parameters.each do |parameter_name|
-          if !characteristic_exists?(parameter_name) && jpa_class.entity.attribute_exists?(parameter_name)
-            attribute = jpa_class.entity.attribute_by_name(parameter_name)
+          if !query.parameter_exists?(parameter_name) && query.entity.attribute_exists?(parameter_name)
+            attribute = query.entity.attribute_by_name(parameter_name)
             characteristic_options = {}
-            if attribute.attribute_type == :enumeration
-              characteristic_options[:enumeration] = attribute.enumeration
-            end
-            characteristic(attribute.name, attribute.attribute_type, characteristic_options)
+            characteristic_options[:enumeration] = attribute.enumeration if attribute.attribute_type == :enumeration
+            query.parameter(attribute.name, attribute.attribute_type, characteristic_options)
           end
         end
 
-        actual_parameters = parameters.collect{|p|p.name.to_s}.sort
+        actual_parameters = query.parameters.collect{|p|p.name.to_s}.sort
         if expected_parameters != actual_parameters
-          raise "Actual parameters for query #{self.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}"
+          raise "Actual parameters for query #{query.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}"
         end
+      end
 
-        @query_ordered_parameters = []
-        query_parameters.each do |query_parameter|
-          @query_ordered_parameters << characteristic_by_name(query_parameter)
-        end
+      def query_spec=(query_spec)
+        error("query_spec #{query_spec} is invalid") unless self.class.valid_query_specs.include?(query_spec)
+        @query_spec = query_spec
+      end
+
+      def query_spec
+        @query_spec || :criteria
+      end
+
+      def self.valid_query_specs
+        [:statement, :criteria]
       end
 
       attr_writer :native
@@ -86,7 +59,7 @@ module Domgen
 
       def jpql=(ql)
         @native = false
-        @ql = ql
+        self.ql = ql
       end
 
       def jpql
@@ -96,7 +69,7 @@ module Domgen
 
       def sql=(ql)
         @native = false
-        @ql = ql
+        self.ql = ql
       end
 
       def sql
@@ -106,123 +79,55 @@ module Domgen
 
       # An array of parameters ordered as they appear in query and with possible duplicates
       def query_ordered_parameters
+        unless @query_ordered_parameters
+          query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
+          @query_ordered_parameters = []
+          query_parameters.each do |query_parameter|
+            @query_ordered_parameters << query.parameter_by_name(query_parameter)
+          end
+        end
         @query_ordered_parameters
       end
 
-      def parameters
-        characteristics
-      end
-
-      def qualified_name
-        "#{jpa_class.entity.qualified_name}.#{local_name}"
-      end
-
-      def local_name
-        if self.query_type == :select
-          suffix = no_ql? ? '' : "By#{name}"
-          if self.multiplicity == :many
-            "findAll#{suffix}"
-          elsif self.multiplicity == :zero_or_one
-            "find#{suffix}"
-          else
-            "get#{suffix}"
-          end
-        elsif self.query_type == :update
-          "update#{name}"
-        elsif self.query_type == :delete
-          "delete#{name}"
-        elsif self.query_type == :insert
-          "insert#{name}"
-        end
-      end
-
-      def query_type=(query_type)
-        error("query_type #{query_type} is invalid") unless self.class.valid_query_types.include?(query_type)
-        @query_type = query_type
-      end
-
-      def query_type
-        @query_type || :select
-      end
-
-      def query_spec=(query_spec)
-        error("query_spec #{query_spec} is invalid") unless self.class.valid_query_specs.include?(query_spec)
-        @query_spec = query_spec
-      end
-
-      def query_spec
-        @query_spec || ((ql =~ /\sFROM\s/ix) ? :statement : :criteria)
-      end
-
-      def multiplicity
-        @multiplicity || :many
-      end
-
-      def multiplicity=(multiplicity)
-        error("multiplicity #{multiplicity} is invalid") unless Domgen::InverseElement.inverse_multiplicity_types.include?(multiplicity)
-        @multiplicity = multiplicity
-      end
-
       def query_string
-        table_name = self.native? ? jpa_class.entity.sql.table_name : jpa_class.entity.jpa.jpql_name
+        table_name = self.native? ? query.entity.sql.table_name : query.entity.jpa.jpql_name
         criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
+        q = nil
         if self.query_spec == :statement
-          query = self.ql
+          q = self.ql
         elsif self.query_spec == :criteria
-          if self.query_type == :select
+          if query.query_type == :select
             if self.native?
-              query = "SELECT O.* FROM #{table_name} O #{criteria_clause}"
+              q = "SELECT O.* FROM #{table_name} O #{criteria_clause}"
             else
-              query = "SELECT O FROM #{table_name} O #{criteria_clause}"
+              q = "SELECT O FROM #{table_name} O #{criteria_clause}"
             end
-          elsif self.query_type == :update
-            raise "The combination of query_type == :update and query_spec == :criteria is not supported"
-          elsif self.query_type == :insert
-            raise "The combination of query_type == :insert and query_spec == :criteria is not supported"
-          elsif self.query_type == :delete
+          elsif query.query_type == :update
+            raise "The combination of query.query_type == :update and query_spec == :criteria is not supported"
+          elsif query.query_type == :insert
+            raise "The combination of query.query_type == :insert and query_spec == :criteria is not supported"
+          elsif query.query_type == :delete
             if self.native?
-              query = "DELETE FROM #{table_name} FROM #{table_name} O #{criteria_clause}"
+              q = "DELETE FROM #{table_name} FROM #{table_name} O #{criteria_clause}"
             else
-              query = "DELETE FROM #{table_name} O #{criteria_clause}"
+              q = "DELETE FROM #{table_name} O #{criteria_clause}"
             end
           else
-            error("Unknown query type #{query_type}")
+            error("Unknown query type #{query.query_type}")
           end
         else
-          error("Unknown query spec #{query_spec}")
+          error("Unknown query spec #{self.query_spec}")
         end
-        query = query.gsub(/:[^\W]+/,'?') if self.native?
-        query.gsub(/[\s]+/, ' ').strip
-      end
-
-      def self.valid_query_specs
-        [:statement, :criteria]
-      end
-
-      def self.valid_query_types
-        [:select, :update, :delete, :insert]
-      end
-
-      def to_s
-        "Query[#{self.qualified_name}]"
+        q = q.gsub(/:[^\W]+/,'?') if self.native?
+        q.gsub(/[\s]+/, ' ').strip
       end
 
       protected
 
-      def characteristic_kind
-        raise "parameter"
-      end
-
-      def data_module
-        jpa_class.entity.data_module
-      end
-
-      def new_characteristic(name, type, options, &block)
-        QueryParameter.new(self, name, type, options, &block)
-      end
-
-      def perform_verify
-        verify_characteristics
+      def ql=(ql)
+        @ql = ql
+        self.query_spec = (ql =~ /\sFROM\s/ix) ? :statement : :criteria
+        self.query.includes_criteria = !ql.nil?
       end
     end
 
@@ -363,24 +268,14 @@ module Domgen
         @detachable.nil? ? false : @detachable
       end
 
-      def queries
-        @queries ||= []
-      end
-
-      def query(name, jpql, options = {}, &block)
-        query = Query.new(self, name, jpql, options, &block)
-        self.queries << query
-        query
-      end
-
-      def post_verify
-        self.query('All', nil, :multiplicity => :many)
-        self.query(entity.primary_key.name,
-                   "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
-                   :multiplicity => :one)
-        self.query(entity.primary_key.name,
-                   "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
-                   :multiplicity => :zero_or_one)
+      def pre_verify
+        entity.query('All', 'jpa.jpql' => nil, :multiplicity => :many)
+        entity.query(entity.primary_key.name,
+                     'jpa.jpql' => "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
+                     :multiplicity => :one)
+        entity.query(entity.primary_key.name,
+                     'jpa.ql' => "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
+                     :multiplicity => :zero_or_one)
       end
     end
 
@@ -438,6 +333,8 @@ module Domgen
 
   FacetManager.define_facet(:jpa,
                             {
+                              QueryParameter => Domgen::JPA::JPAQueryParameter,
+                              Query => Domgen::JPA::JPAQuery,
                               Attribute => Domgen::JPA::JpaField,
                               InverseElement => Domgen::JPA::JpaFieldInverse,
                               Entity => Domgen::JPA::JpaClass,

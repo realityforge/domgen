@@ -14,18 +14,18 @@ public class <%= entity.jpa.dao_name %>
   @javax.persistence.PersistenceContext<%= entity.data_module.repository.jpa.unit_name.nil? ? "" : "(unitName = \"#{entity.data_module.repository.jpa.unit_name}\")" %>
   private javax.persistence.EntityManager em;
 
-<% entity.jpa.queries.each do |query| %>
-<%= description_javadoc_for(query) %>  public <%= query_return_type(query) %> <%= query.local_name %>(<%= query.parameters.collect {|p| "final #{p.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.java_type} #{p.name}"}.join(', ') %>)
+<% entity.queries.each do |query| %>
+<%= description_javadoc_for(query) %>  public <%= query_return_type(query) %> <%= query.name %>(<%= query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"}.join(', ') %>)
   {
     final javax.persistence.TypedQuery<<%= entity.jpa.qualified_name %>> query =
-      em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= query.local_name %>, <%= entity.jpa.qualified_name %>.class );
+      em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= query.name %>, <%= entity.jpa.qualified_name %>.class );
 <%
-   if !query.native?
+   if !query.jpa.native?
     query.parameters.each do |p|
 %>    query.setParameter(<%= "\"#{p.name}\"" %>, <%= p.name %>);
 <%  end
    else %>
-<%  query.query_ordered_parameters.each_with_index do |p, index| %>
+<%  query.jpa.query_ordered_parameters.each_with_index do |p, index| %>
     query.setParameter(<%= index + 1 %>, <%= p.name %>);
 <%  end
    end %>
