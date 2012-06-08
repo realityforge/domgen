@@ -42,26 +42,6 @@ Domgen.template_set(:gwt_client_service) do |template_set|
                         'main/java/#{message.gwt.qualified_event_handler_name.gsub(".","/")}.java',
                         Domgen::Generator::GWT::HELPERS)
   template_set.template(Domgen::Generator::GWT::FACETS,
-                        :struct,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct_interface.java.erb",
-                        'main/java/#{struct.gwt.qualified_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :struct,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/java_struct.java.erb",
-                        'main/java/#{struct.gwt.qualified_java_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
-                        :struct,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct_factory.java.erb",
-                        'main/java/#{struct.gwt.qualified_factory_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
-                        :struct,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
-                        'main/java/#{struct.gwt.qualified_jso_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS,
                         :enumeration,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/enumeration.java.erb",
                         'main/java/#{enumeration.gwt.qualified_name.gsub(".","/")}.java',

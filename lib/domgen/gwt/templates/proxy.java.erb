@@ -11,6 +11,9 @@ public class <%= service.gwt.proxy_name %>
   @javax.inject.Inject
   private com.google.gwt.user.client.rpc.AsyncCallback _callback;
 
+  private final <%= service.data_module.repository.auto_bean.qualified_factory_name %> _factory =
+    com.google.web.bindery.autobean.vm.AutoBeanFactorySource.create( <%= service.data_module.repository.auto_bean.qualified_factory_name %>.class );
+
 <% service.methods.select{|method| method.gwt?}.each do |method|
    method_name = Domgen::Naming.camelize(method.name)
    parameters = method.parameters.select{|parameter| !parameter.gwt.environmental?}
@@ -36,7 +39,7 @@ public class <%= service.gwt.proxy_name %>
        if parameter.enumeration?
          "entity.#{parameter.enumeration.numeric_values? ? "ordinal()" : "name()"}"
        else
-         "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( entity )"
+         "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( entity ) ).getPayload()"
        end
     %>
     $<%= parameter.name %>.add( <%= param_value %> );
@@ -52,7 +55,7 @@ public class <%= service.gwt.proxy_name %>
   elsif parameter.enumeration? && parameter.enumeration.textual_values?
     param_value = "#{parameter.name}.name()"
   elsif parameter.struct?
-    param_value = "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( #{parameter.name} )"
+    param_value = "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( #{parameter.name} ) ).getPayload()"
   end
   if parameter.nullable? && !parameter.collection?
     param_value = "null == #{parameter.name} ? null : #{param_value}"
@@ -76,7 +79,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt.environ
      elsif method.return_value.enumeration? && method.return_value.enumeration.textual_values?
        result_string = "#{method.return_value.gwt.java_type}.valueOf( result )"
      elsif method.return_value.struct?
-       result_string = "#{method.return_value.referenced_struct.gwt.qualified_factory_name}.as#{method.return_value.referenced_struct.gwt.name}( result )"
+       result_string = "com.google.web.bindery.autobean.shared.AutoBeanCodex.decode( _factory, #{method.return_value.referenced_struct.auto_bean.qualified_name}.class, result ).as()"
      end
      if method.return_value.nullable?
        result_string = "null == result ? null : #{result_string}"
@@ -98,7 +101,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt.environ
            "#{method.return_value.gwt.java_component_type}.valueOf( id )" :
            "#{method.return_value.gwt.java_component_type}.values()[ id ]"
        else
-         "#{method.return_value.referenced_struct.gwt.qualified_factory_name}.as#{method.return_value.referenced_struct.gwt.name}( id )"
+         "com.google.web.bindery.autobean.shared.AutoBeanCodex.decode( _factory, #{method.return_value.referenced_struct.auto_bean.qualified_name}.class, id ).as()"
        end
     %>
     $result.add( <%= param_value %> );

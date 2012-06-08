@@ -159,7 +159,7 @@ module Domgen
       protected
 
       def enumeration_key
-        :gwt
+        :auto_bean
       end
 
       def entity_key
@@ -167,7 +167,7 @@ module Domgen
       end
 
       def struct_key
-        :gwt
+        :auto_bean
       end
 
       def date_java_type
