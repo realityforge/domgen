@@ -25,7 +25,7 @@ Domgen.template_set(:gwt_shared_service) do |template_set|
                         Domgen::Generator::GWT::HELPERS)
 end
 
-Domgen.template_set(:gwt_client_service) do |template_set|
+Domgen.template_set(:gwt_client_service => [:auto_bean]) do |template_set|
   template_set.template(Domgen::Generator::GWT::FACETS,
                         :repository,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/rpc_services_module.java.erb",
