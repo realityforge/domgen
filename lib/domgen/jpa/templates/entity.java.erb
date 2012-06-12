@@ -11,7 +11,7 @@ package <%= entity.data_module.jpa.entity_package %>;
 <%
    native_queries = entity.queries.select {|q| q.jpa.native? }
    if !native_queries.empty? %>@javax.persistence.NamedNativeQueries( value = {
-<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{q.local_name}, query = \"#{q.jpa.query_string}\"#{q.native? ? ", resultClass = #{entity.jpa.name}.class" : ""} )" }.join(",\n") %>
+<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{q.local_name}, query = \"#{q.jpa.query_string}\"#{q.jpa.native? ? ", resultClass = #{entity.jpa.name}.class" : ""} )" }.join(",\n") %>
 } )<% end %>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity( name = "<%= entity.jpa.jpql_name %>" )<% if !entity.abstract? %>
