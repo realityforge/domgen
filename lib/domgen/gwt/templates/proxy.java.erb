@@ -11,8 +11,8 @@ public class <%= service.gwt.proxy_name %>
   @javax.inject.Inject
   private com.google.gwt.user.client.rpc.AsyncCallback _callback;
 
-  private final <%= service.data_module.repository.auto_bean.qualified_factory_name %> _factory =
-    com.google.web.bindery.autobean.vm.AutoBeanFactorySource.create( <%= service.data_module.repository.auto_bean.qualified_factory_name %>.class );
+  @javax.inject.Inject
+  private <%= service.data_module.repository.auto_bean.qualified_factory_name %> _factory;
 
 <% service.methods.select{|method| method.gwt?}.each do |method|
    method_name = Domgen::Naming.camelize(method.name)
