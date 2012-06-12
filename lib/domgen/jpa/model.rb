@@ -68,7 +68,7 @@ module Domgen
       end
 
       def sql=(ql)
-        @native = false
+        @native = true
         self.ql = ql
       end
 
