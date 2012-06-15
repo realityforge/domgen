@@ -361,11 +361,11 @@ module Domgen
           "get#{suffix}"
         end
       elsif self.query_type == :update
-        "update#{name}"
+        "update#{base_name}"
       elsif self.query_type == :delete
-        "delete#{name}"
+        "delete#{base_name}"
       elsif self.query_type == :insert
-        "insert#{name}"
+        "insert#{base_name}"
       end
     end
 
