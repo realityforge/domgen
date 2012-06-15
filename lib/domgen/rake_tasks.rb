@@ -46,7 +46,7 @@ module Domgen
               end
             end
           end
-          buildr_project.iml.main_source_directories << dir if buildr_project.iml?
+          buildr_project.iml.main_source_directories << "#{target_dir}/main/resources" if buildr_project.iml?
         end
 
         # Is there test java source generated in project?
@@ -71,7 +71,7 @@ module Domgen
               end
             end
           end
-          buildr_project.iml.test_source_directories << dir if buildr_project.iml?
+          buildr_project.iml.test_source_directories << "#{target_dir}/test/resources" if buildr_project.iml?
         end
       end
     end
