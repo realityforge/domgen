@@ -268,13 +268,39 @@ module Domgen
       end
 
       def pre_verify
-        entity.query('All', 'jpa.jpql' => nil, :multiplicity => :many)
-        entity.query(entity.primary_key.name,
-                     'jpa.jpql' => "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
-                     :multiplicity => :one)
-        entity.query(entity.primary_key.name,
-                     'jpa.ql' => "O.#{entity.primary_key.jpa.name} = :#{entity.primary_key.jpa.name}",
-                     :multiplicity => :zero_or_one)
+        entity.query('findAll')
+        entity.query("findBy#{entity.primary_key.name}")
+        entity.query("getBy#{entity.primary_key.name}")
+        entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
+          jpql = ''
+          query_text = nil
+          query_text = $1 if query.name =~ /^findAllBy(.+)$/
+          query_text = $1 if query.name =~ /^findBy(.+)$/
+          query_text = $1 if query.name =~ /^getBy(.+)$/
+          next unless query_text
+
+          while true
+            if query_text =~ /(.+)(And|Or)(.+)/
+              parameter_name = $1
+              query_text = $3
+              if !entity.attribute_exists?(parameter_name)
+                jpql = nil
+                break
+              end
+              operation = $2.upcase
+              jpql = "#{jpql}#{parameter_name} = :#{parameter_name} #{operation} "
+            else
+              parameter_name = query_text
+              if !entity.attribute_exists?(parameter_name)
+                jpql = nil
+                break
+              end
+              jpql = "#{jpql}#{parameter_name} = :#{parameter_name}"
+              break
+            end
+          end
+          query.jpa.jpql = jpql if jpql
+        end
       end
     end
 
