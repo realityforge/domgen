@@ -315,13 +315,13 @@ module Domgen
     include GenerateFacet
     include Domgen::CharacteristicContainer
 
-    attr_reader :base_name
     attr_reader :name
 
     def initialize(entity, base_name, options = {}, & block)
-      @base_name = base_name
-      super(entity, options, &block)
-      @name = local_name
+      super(entity, options) do
+        @name = local_name(base_name)
+        yield self if block_given?
+      end
     end
 
     def parameters
@@ -341,32 +341,7 @@ module Domgen
     end
 
     def qualified_name
-      "#{entity.qualified_name}.#{local_name}"
-    end
-
-    attr_writer :includes_criteria
-
-    def includes_criteria?
-      @includes_criteria.nil? ? !parameters.empty? : @includes_criteria
-    end
-
-    def local_name
-      if self.query_type == :select
-        suffix = includes_criteria? ? "By#{base_name}" : ''
-        if self.multiplicity == :many
-          "findAll#{suffix}"
-        elsif self.multiplicity == :zero_or_one
-          "find#{suffix}"
-        else
-          "get#{suffix}"
-        end
-      elsif self.query_type == :update
-        "update#{base_name}"
-      elsif self.query_type == :delete
-        "delete#{base_name}"
-      elsif self.query_type == :insert
-        "insert#{base_name}"
-      end
+      "#{entity.qualified_name}.#{name}"
     end
 
     def query_type=(query_type)
@@ -396,6 +371,49 @@ module Domgen
     end
 
     protected
+
+    def local_name(base_name)
+      if base_name =~ /^findAll$/
+        self.query_type = :select
+        self.multiplicity = :many
+        return base_name
+      elsif base_name =~ /^findAll.+$/
+        self.query_type = :select
+        self.multiplicity = :many
+        return base_name
+      elsif base_name =~ /^find.+$/
+        self.query_type = :select
+        self.multiplicity = :zero_or_one
+        return base_name
+      elsif base_name =~ /^get.+$/
+        self.query_type = :select
+        self.multiplicity = :one
+        return base_name
+      elsif base_name =~ /^update.+$/
+        self.query_type = :update
+        return base_name
+      elsif base_name =~ /^delete.+$/
+        self.query_type = :delete
+        return base_name
+      elsif base_name =~ /^insert.+$/
+        self.query_type = :insert
+        return base_name
+      elsif self.query_type == :select
+        if self.multiplicity == :many
+          "findAllBy#{base_name}"
+        elsif self.multiplicity == :zero_or_one
+          "findBy#{base_name}"
+        else
+          "getBy#{base_name}"
+        end
+      elsif self.query_type == :update
+        "update#{base_name}"
+      elsif self.query_type == :delete
+        "delete#{base_name}"
+      elsif self.query_type == :insert
+        "insert#{base_name}"
+      end
+    end
 
     def characteristic_kind
       raise "parameter"
