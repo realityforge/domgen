@@ -18,7 +18,7 @@ public class <%= entity.jpa.dao_name %>
 <%= description_javadoc_for(query) %>  public <%= query_return_type(query) %> <%= query.name %>(<%= query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"}.join(', ') %>)
   {
     final javax.persistence.TypedQuery<<%= entity.jpa.qualified_name %>> query =
-      em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= query.name %>, <%= entity.jpa.qualified_name %>.class );
+      em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= entity.jpa.qualified_name %>.class );
 <%
    if !query.jpa.native?
     query.parameters.each do |p|
