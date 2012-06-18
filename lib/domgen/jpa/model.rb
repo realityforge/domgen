@@ -279,6 +279,8 @@ module Domgen
           query_text = $1 if query.name =~ /^getBy(.+)$/
           next unless query_text
 
+          entity_prefix = "O."
+
           while true
             if query_text =~ /(.+)(And|Or)(.+)/
               parameter_name = $1
@@ -288,14 +290,14 @@ module Domgen
                 break
               end
               operation = $2.upcase
-              jpql = "#{jpql}#{parameter_name} = :#{parameter_name} #{operation} "
+              jpql = "#{jpql}#{entity_prefix}#{parameter_name} = :#{parameter_name} #{operation} "
             else
               parameter_name = query_text
               if !entity.attribute_exists?(parameter_name)
                 jpql = nil
                 break
               end
-              jpql = "#{jpql}#{parameter_name} = :#{parameter_name}"
+              jpql = "#{jpql}#{entity_prefix}#{parameter_name} = :#{parameter_name}"
               break
             end
           end
