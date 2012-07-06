@@ -30,7 +30,7 @@ module Domgen
 
       # default to false for non-collection attributes and true for collection attributes
       def element?
-        @element.nil? ? field.collection? : @element
+        @element.nil? ? field.collection? || field.struct? : @element
       end
     end
 
