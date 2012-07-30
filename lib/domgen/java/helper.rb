@@ -14,6 +14,12 @@ module Domgen
         end
       end
 
+      def javabean_property_name(key)
+        name = key.to_s
+        return name if name == name.upcase
+        "#{name[0,1].downcase}#{name[1,name.length]}"
+      end
+
       def getter_prefix(attribute)
         attribute.boolean? ? "is" : "get"
       end
