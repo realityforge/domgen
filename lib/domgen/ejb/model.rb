@@ -1,5 +1,13 @@
 module Domgen
   module EJB
+    class EjbException < Domgen.ParentedElement(:exception)
+      attr_writer :rollback
+
+      def rollback?
+        @rollback.nil? ? true : @rollback
+      end
+    end
+
     class EjbClass < Domgen.ParentedElement(:service)
       attr_writer :name
 
@@ -113,6 +121,7 @@ module Domgen
   FacetManager.define_facet(:ejb,
                             {
                               Service => Domgen::EJB::EjbClass,
+                              Exception => Domgen::EJB::EjbException,
                               Parameter => Domgen::EJB::EjbParameter,
                               Result => Domgen::EJB::EjbReturn,
                               DataModule => Domgen::EJB::EjbPackage,
