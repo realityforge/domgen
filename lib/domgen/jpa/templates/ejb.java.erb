@@ -35,11 +35,13 @@ public class <%= entity.jpa.dao_name %>
 <% elsif query.multiplicity == :one %>
     return query.getSingleResult();
 <% else %>
-    try
+    query.setMaxResults( 1 );
+    final java.util.List<<%= entity.jpa.qualified_name %>> resultList = query.getResultList();
+    if ( resultList.size() > 0 )
     {
-      return query.getSingleResult();
+      return resultList.get( 0 );
     }
-    catch( final javax.persistence.NoResultException nre )
+    else
     {
       return null;
     }
