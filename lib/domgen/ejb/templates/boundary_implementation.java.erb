@@ -6,10 +6,9 @@ package <%= service.data_module.ejb.service_package %>;
 @javax.ejb.Startup
 @javax.ejb.Singleton( name = <%= service.ejb.boundary_interface_name %>.EJB_NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
-<% if service.jws? %>@javax.jws.WebService( endpointInterface = "<%= service.jws.qualified_service_name %>", serviceName = "<%= service.data_module.repository.jws.service_name %>", portName = "<%= service.jws.port_name %>" )<% end %>
 public class <%= service.ejb.boundary_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}" : "" %>
-  implements <%= service.ejb.boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jws? %>, <%= service.jws.qualified_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
+  implements <%= service.ejb.boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
 {
 <% if service.jmx? %>
   private javax.management.ObjectName _objectName;

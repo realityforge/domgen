@@ -17,6 +17,14 @@ module Domgen
         "#{service.data_module.jws.service_package}.#{service_name}"
       end
 
+      def boundary_implementation_name
+        "#{service_name}BoundaryEJB"
+      end
+
+      def qualified_boundary_implementation_name
+        "#{service.data_module.jws.service_package}.#{boundary_implementation_name}"
+      end
+
       attr_writer :cxf_annotations
 
       def cxf_annotations?

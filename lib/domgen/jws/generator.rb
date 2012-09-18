@@ -13,4 +13,9 @@ Domgen.template_set(:jws) do |template_set|
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/service.java.erb",
                         'main/java/#{service.jws.qualified_service_name.gsub(".","/")}.java',
                         Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/boundary_implementation.java.erb",
+                        'main/java/#{service.jws.qualified_boundary_implementation_name.gsub(".","/")}.java',
+                        Domgen::Generator::JWS::HELPERS)
 end
