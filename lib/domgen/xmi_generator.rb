@@ -224,6 +224,7 @@ module Domgen
       return if @@init_emf == true
       @@init_emf = true
       Buildr.artifacts(self.dependencies).each do |artifact|
+        artifact.invoke
         $CLASSPATH << artifact.to_s
       end
     end
