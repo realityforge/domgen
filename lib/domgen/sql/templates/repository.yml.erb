@@ -1,0 +1,6 @@
+<%=
+ config = {
+ 'modules' => repository.data_modules.select{|data_module| data_module.sql?}.collect {|data_module| data_module.name.to_s}
+ }
+ config.to_yaml
+ %>

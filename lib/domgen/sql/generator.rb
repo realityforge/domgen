@@ -6,7 +6,7 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:mssql) do |template_set|
+Domgen.template_set(:mssql => [:dbt_config]) do |template_set|
   template_set.template(Domgen::Generator::Sql::FACETS,
                         :repository,
                         "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/database_setup.sql.erb",
@@ -22,7 +22,7 @@ Domgen.template_set(:mssql) do |template_set|
                         '#{data_module.name}/finalize/schema_finalize.sql',
                         [::Domgen::Ruby::MssqlHelper])
 end
-Domgen.template_set(:pgsql) do |template_set|
+Domgen.template_set(:pgsql => [:dbt_config]) do |template_set|
   template_set.template(Domgen::Generator::Sql::FACETS,
                         :data_module,
                         "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/pgsql_ddl.sql.erb",
@@ -31,4 +31,10 @@ Domgen.template_set(:pgsql) do |template_set|
                         :data_module,
                         "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/pgsql_finalize.sql.erb",
                         '#{data_module.name}/finalize/schema_finalize.sql')
+end
+Domgen.template_set(:dbt_config) do |template_set|
+  template_set.template(Domgen::Generator::Sql::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/repository.yml.erb",
+                        'repository.yml')
 end
