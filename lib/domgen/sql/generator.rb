@@ -8,6 +8,10 @@ module Domgen
 end
 Domgen.template_set(:mssql) do |template_set|
   template_set.template(Domgen::Generator::Sql::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/database_setup.sql.erb",
+                        'db-hooks/pre/database_setup.sql')
+  template_set.template(Domgen::Generator::Sql::FACETS,
                         :data_module,
                         "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/mssql_ddl.sql.erb",
                         '#{data_module.name}/schema.sql',
