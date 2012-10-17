@@ -9,5 +9,5 @@ package <%= enumeration.data_module.ee.data_type_package %>;
 public enum <%= enumeration.ee.name %>
   implements java.io.Serializable
 {
-  <%= enumeration.values.keys.collect {|k| "#{k}" } .join(",\n  ") %>
+  <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>
 }

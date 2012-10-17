@@ -88,8 +88,8 @@ module Domgen
 
             unless attribute.enumeration.values.nil?
               doc.values do
-                attribute.enumeration.values.each_pair do |name, value|
-                  doc.value(:code => name, :value => value)
+                attribute.enumeration.values.each do |name|
+                  doc.value(:code => name)
                 end
               end
             end

@@ -239,34 +239,16 @@ module Domgen
 
     def values=(values)
       error("More than 0 values must be specified for enumeration #{name}") if values.size == 0
-      values.each_pair do |k, v|
+      values.each do |k|
         error("Key #{k} of enumeration #{name} should be a string") unless k.instance_of?(String)
-        if numeric_values?
-          error("Value #{v} for key #{k} of enumeration #{name} should be an integer") unless v.instance_of?(Fixnum)
-        else
-          error("Value #{v} for key #{k} of enumeration #{name} should be a string") unless v.instance_of?(String)
-        end
       end
-      error("Duplicate keys detected for enumeration #{name}") if values.keys.uniq.size != values.size
-      error("Duplicate values detected for enumeration #{name}") if values.values.uniq.size != values.size
-      if numeric_values?
-        sorted_values = values.values.sort
-
-        if (sorted_values[sorted_values.size - 1] - sorted_values[0] + 1) != sorted_values.size
-          error("Non-continuous values detected for enumeration #{name}")
-        end
-
-        if 0 != sorted_values.first
-          error("Non-zero based numeric enumeration #{self.name}")
-        end
-      end
-
+      error("Duplicate keys detected for enumeration #{name}") if values.uniq.size != values.size
       @values = values
     end
 
     def max_value_length
       error("max_value_length invoked on numeric enumeration") if numeric_values?
-      values.values.inject(0) { |max, value| max > value.length ? max : value.length }
+      values.inject(0) { |max, value| max > value.length ? max : value.length }
     end
 
     def self.enumeration_types

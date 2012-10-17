@@ -83,7 +83,7 @@ module Domgen
 
         data_module.enumerations.each do |enumeration|
           enum = package.createOwnedEnumeration(enumeration.name.to_s)
-          enumeration.values.keys.each do |enum_literal|
+          enumeration.values.each do |enum_literal|
             literal = enum.create_owned_literal(enum_literal)
             resource.setID(literal, "#{enumeration.qualified_name}.#{enum_literal}")
           end
