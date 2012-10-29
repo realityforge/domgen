@@ -291,6 +291,10 @@ module Domgen
     def characteristic_kind
       "parameter"
     end
+
+    def characteristic_container
+      query
+    end
   end
 
   class Query < self.FacetedElement(:entity)
@@ -352,6 +356,10 @@ module Domgen
       "Query[#{self.qualified_name}]"
     end
 
+    def data_module
+      self.entity.data_module
+    end
+
     protected
 
     def local_name(base_name)
@@ -399,10 +407,6 @@ module Domgen
 
     def characteristic_kind
       raise "parameter"
-    end
-
-    def data_module
-      self.entity.data_module
     end
 
     def new_characteristic(name, type, options, &block)
