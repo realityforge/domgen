@@ -153,7 +153,7 @@ module Domgen
       end
 
       def fetch_type=(fetch_type)
-        error("fetch_type #{fetch_type} is not recorgnized") unless self.class.fetch_types.include?(fetch_type)
+        error("fetch_type #{fetch_type} is not recognized") unless self.class.fetch_types.include?(fetch_type)
         @fetch_type = fetch_type
       end
 
@@ -164,7 +164,7 @@ module Domgen
       attr_reader :fetch_mode
 
       def fetch_mode=(fetch_mode)
-        error("fetch_mode #{fetch_mode} is not recorgnized") unless self.class.fetch_modes.include?(fetch_mode)
+        error("fetch_mode #{fetch_mode} is not recognized") unless self.class.fetch_modes.include?(fetch_mode)
         @fetch_mode = fetch_mode
       end
 
