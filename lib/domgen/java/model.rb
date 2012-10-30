@@ -161,20 +161,6 @@ module Domgen
       end
     end
 
-    module SOAPJavaCharacteristic
-      include EEJavaCharacteristic
-
-      protected
-
-      def sequence_type(component_type)
-        "#{component_type}[]"
-      end
-
-      def set_type(component_type)
-        "#{component_type}[]"
-      end
-    end
-
     module ImitJavaCharacteristic
       include JavaCharacteristic
 
