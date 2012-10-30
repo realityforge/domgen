@@ -43,7 +43,7 @@ module Domgen
         Domgen::Naming.camelize(parameter.name)
       end
 
-      include Domgen::Java::EEJavaCharacteristic
+      include Domgen::Java::SOAPJavaCharacteristic
 
       protected
 
@@ -91,7 +91,7 @@ module Domgen
 
     class JwsReturn < Domgen.ParentedElement(:result)
 
-      include Domgen::Java::EEJavaCharacteristic
+      include Domgen::Java::SOAPJavaCharacteristic
 
       protected
 
