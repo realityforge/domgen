@@ -7,10 +7,6 @@ package <%= service.data_module.ejb.service_package %>;
   @org.apache.cxf.annotations.WSDLDocumentation("<%= service.tags[:Description] %>")
 })
 <% end -%>
-@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.NEVER )
-@javax.ejb.Startup
-@javax.ejb.Singleton
-@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 @javax.jws.WebService( name= "<%= service.jws.web_service_name %>", serviceName = "<%= service.jws.web_service_name %>", portName = "<%= service.jws.port_name %>" )
 public class <%= service.jws.boundary_implementation_name %>
 {
