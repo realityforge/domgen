@@ -16,7 +16,7 @@ module Domgen
       attr_writer :service_name
 
       def service_name
-        @service_name || "#{service.name}WS"
+        @service_name || "#{service.name}Service"
       end
 
       def qualified_service_name
