@@ -24,7 +24,7 @@ module Domgen
       end
 
       def boundary_implementation_name
-        "#{service_name}BoundaryEJB"
+        "#{web_service_name}WSBoundaryEJB"
       end
 
       def qualified_boundary_implementation_name
