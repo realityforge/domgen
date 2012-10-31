@@ -7,7 +7,7 @@ package <%= service.data_module.ejb.service_package %>;
   @org.apache.cxf.annotations.WSDLDocumentation("<%= service.tags[:Description] %>")
 })
 <% end -%>
-@javax.jws.WebService( name= "<%= service.jws.web_service_name %>", serviceName = "<%= service.jws.web_service_name %>", portName = "<%= service.jws.port_name %>" )
+@javax.jws.WebService( name= "<%= service.jws.web_service_name %>", serviceName = "<%= service.jws.service_name %>", portName = "<%= service.jws.port_name %>" )
 @javax.jws.soap.SOAPBinding( style = javax.jws.soap.SOAPBinding.Style.DOCUMENT,
                              use = javax.jws.soap.SOAPBinding.Use.ENCODED,
                              parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.WRAPPED )
