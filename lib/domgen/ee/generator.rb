@@ -29,4 +29,4 @@ Domgen.template_set(:ee_exceptions) do |template_set|
                         Domgen::Generator::EE::HELPERS)
 end
 
-Domgen.template_set(:ee => [:jpa, :ejb, :jmx, :jws])
+Domgen.template_set(:ee => [:jpa, :ejb, :jmx, :jws, :jms])

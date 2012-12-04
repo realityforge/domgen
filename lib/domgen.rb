@@ -47,6 +47,10 @@ require 'domgen/jpa/model'
 require 'domgen/jpa/helper'
 require 'domgen/jpa/generator'
 
+# JMS
+require 'domgen/jms/model'
+require 'domgen/jms/generator'
+
 # ActiveRecord
 require 'domgen/active_record/generator'
 

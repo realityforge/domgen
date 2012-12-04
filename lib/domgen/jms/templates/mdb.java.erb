@@ -1,0 +1,46 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= method.service.data_module.jms.service_package %>;
+
+<%
+
+config_properties = {}
+config_properties['destinationName'] = method.jms.destination_name
+config_properties['destinationType'] = method.jms.destination_type
+config_properties['messageSelector'] = method.jms.message_selector if method.jms.message_selector
+config_properties['acknowledgeMode'] = method.jms.acknowledge_mode
+config_properties['clientID'] = method.jms.client_id if method.jms.client_id
+config_properties['subscriptionName'] = method.jms.subscription_name if method.jms.subscription_name
+config_properties['subscriptionDurability'] = method.jms.durable? ? 'Durable' : 'NonDurable'
+
+
+-%>
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.ejb.MessageDriven( mappedName = "<%= method.jms.resource_name %>",
+                          activationConfig =
+                            {
+<% config_properties.each_pair do |key, value| -%>
+                              @javax.ejb.ActivationConfigProperty( propertyName = "<%= key %>", propertyValue = "<%= value %>" ),
+<% end -%>
+                            } )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
+@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+public class <%= method.jms.mdb_name %>
+  implements javax.jms.MessageListener
+{
+  @javax.ejb.EJB
+  private <%= method.service.ejb.service_name %> _service;
+
+  public void onMessage( final javax.jms.Message msg )
+  {
+    try
+    {
+      //TODO:
+    }
+    catch ( javax.jms.JMSException jmse )
+    {
+      throw new RuntimeException( jmse );
+    }
+  }
+}
