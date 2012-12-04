@@ -12,5 +12,6 @@ Domgen.template_set(:jms => []) do |template_set|
                         :method,
                         "#{Domgen::Generator::JMS::TEMPLATE_DIRECTORY}/mdb.java.erb",
                         'main/java/#{method.jms.qualified_mdb_name.gsub(".","/")}.java',
-                        Domgen::Generator::JMS::HELPERS)
+                        Domgen::Generator::JMS::HELPERS,
+                        'method.jms.mdb?')
 end
