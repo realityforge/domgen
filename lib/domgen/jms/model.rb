@@ -56,6 +56,8 @@ module Domgen
       def durable?
         !!@durable
       end
+
+      #TODO: Validate that at max one parameter and no return
     end
 
     class JmsClass < Domgen.ParentedElement(:service)
