@@ -32,11 +32,20 @@ public class <%= method.jms.mdb_name %>
   @javax.ejb.EJB
   private <%= method.service.ejb.service_name %> _service;
 
-  public void onMessage( final javax.jms.Message msg )
+  public void onMessage( final javax.jms.Message message )
   {
     try
     {
-      //TODO:
+<%
+  unless method.parameters.empty?
+   raise "parameters for #{method.qualified_name} should only have 1 parameter" unless method.parameters.size == 1
+   parameter = method.parameters[0]
+-%>
+      final javax.jms.TextMessage textMessage = (javax.jms.TextMessage)message;
+      final String text = textMessage.getText();
+      final <%= parameter.ejb.java_component_type(:boundary) %> parameter = null;
+<% end -%>
+      _service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
     }
     catch ( javax.jms.JMSException jmse )
     {
