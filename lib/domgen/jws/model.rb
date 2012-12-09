@@ -4,13 +4,19 @@ module Domgen
       attr_writer :port_name
 
       def port_name
-        @port_name || service.qualified_name.to_s
+        @port_name || "#{web_service_name}Port"
+      end
+
+      attr_writer :web_service_name
+
+      def web_service_name
+        @web_service_name || service.name.to_s
       end
 
       attr_writer :service_name
 
       def service_name
-        @service_name || "#{service.name}WS"
+        @service_name || "#{service.name}Service"
       end
 
       def qualified_service_name
@@ -18,7 +24,7 @@ module Domgen
       end
 
       def boundary_implementation_name
-        "#{service_name}BoundaryEJB"
+        "#{web_service_name}WSBoundaryEJB"
       end
 
       def qualified_boundary_implementation_name

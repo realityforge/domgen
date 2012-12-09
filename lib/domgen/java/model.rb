@@ -66,12 +66,20 @@ module Domgen
       def non_primitive_java_type(modality = :default)
         component_type = java_component_type(modality)
         if :none == characteristic.collection_type
-          return component_type
+          component_type
         elsif :sequence == characteristic.collection_type
-          "java.util.List<#{component_type}>"
+          sequence_type(component_type)
         else #:set == characteristic.collection_type
-          "java.util.Set<#{component_type}>"
+          set_type(component_type)
         end
+      end
+
+      def sequence_type(component_type)
+        "java.util.List<#{component_type}>"
+      end
+
+      def set_type(component_type)
+        "java.util.Set<#{component_type}>"
       end
 
       def primitive?(modality = :default)
