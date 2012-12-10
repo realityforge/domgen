@@ -29,6 +29,8 @@ config_properties['subscriptionDurability'] = method.jms.durable? ? 'Durable' : 
 public class <%= method.jms.mdb_name %>
   implements javax.jms.MessageListener
 {
+  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.jms.mdb_name %>.class.getName() );
+
   @javax.ejb.EJB
   private <%= method.service.ejb.service_name %> _service;
 
@@ -40,16 +42,32 @@ public class <%= method.jms.mdb_name %>
   unless method.parameters.empty?
    raise "parameters for #{method.qualified_name} should only have 1 parameter" unless method.parameters.size == 1
    parameter = method.parameters[0]
+   encoded_type = parameter.ejb.java_component_type(:boundary)
+   boundary_type = parameter.ejb.java_component_type(:boundary)
 -%>
-      final javax.jms.TextMessage textMessage = (javax.jms.TextMessage)message;
-      final String text = textMessage.getText();
-      final <%= parameter.ejb.java_component_type(:boundary) %> parameter = null;
+      if ( message instanceof javax.jms.TextMessage )
+      {
+        final javax.jms.TextMessage textMessage = (javax.jms.TextMessage)message;
+        final String text = textMessage.getText();
+        final javax.xml.bind.JAXBContext context = javax.xml.bind.JAXBContext.newInstance( <%= encoded_type %>.class );
+        final javax.xml.bind.Unmarshaller marshaller = context.createUnmarshaller();
+        final java.io.StringReader reader = new java.io.StringReader( text );
+
+        final <%= encoded_type %> decoded = (<%= encoded_type %>) marshaller.unmarshal( reader );
+
+        final <%= boundary_type %> parameter = <%= boundary_type == encoded_type ? 'decoded' : 'null /*CONVERTME*/' %>;
 <% end -%>
-      _service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
+        _service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
+      }
+      else
+      {
+        throw new RuntimeException( "<%= method.jms.mdb_name %> can only process TextMessages but received a " + message.getClass() );
+      }
     }
-    catch ( javax.jms.JMSException jmse )
+    catch ( final Exception e )
     {
-      throw new RuntimeException( jmse );
+      LOG.log( java.util.logging.Level.WARNING, "Error processing the incoming message: " + e.getMessage(), e );
+      throw new RuntimeException( e );
     }
   }
 }
