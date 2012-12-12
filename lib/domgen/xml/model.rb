@@ -13,25 +13,31 @@ module Domgen
       RUBY
     end
 
-    class XmlStructField < Domgen.ParentedElement(:field)
-      Domgen::XML.include_xml(self, :field)
+    def self.include_data_element_xml(type, parent_key)
+      type.class_eval(<<-RUBY)
+      Domgen::XML.include_xml(self, :#{parent_key})
 
       def component_name
-        Domgen::Naming.xmlize(field.component_name)
+        Domgen::Naming.xmlize(#{parent_key}.component_name)
       end
 
       attr_writer :required
 
       def required?
-        @required.nil? ? !field.nullable? : @required
+        @required.nil? ? !#{parent_key}.nullable? : @required
       end
 
       attr_writer :element
 
       # default to false for non-collection attributes and true for collection attributes
       def element?
-        @element.nil? ? field.collection? || field.struct? : @element
+        @element.nil? ? #{parent_key}.collection? || #{parent_key}.struct? : @element
       end
+      RUBY
+    end
+
+    class XmlStructField < Domgen.ParentedElement(:field)
+      Domgen::XML.include_data_element_xml(self, :field)
     end
 
     class XmlStruct < Domgen.ParentedElement(:struct)
@@ -50,10 +56,15 @@ module Domgen
     class XmlEnumeration < Domgen.ParentedElement(:enumeration)
       Domgen::XML.include_xml(self, :enumeration)
     end
+
+    class XmlParameter < Domgen.ParentedElement(:parameter)
+      Domgen::XML.include_data_element_xml(self, :parameter)
+    end
   end
 
   FacetManager.define_facet(:xml,
                             Struct => Domgen::XML::XmlStruct,
                             StructField => Domgen::XML::XmlStructField,
+                            Parameter => Domgen::XML::XmlParameter,
                             EnumerationSet => Domgen::XML::XmlEnumeration)
 end
