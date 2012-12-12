@@ -85,5 +85,5 @@ module Domgen
                               DataModule => Domgen::JMS::JmsPackage,
                               Repository => Domgen::JMS::JmsApplication
                             },
-                            [:ejb, :ee])
+                            [:ejb, :jaxb, :ee])
 end
