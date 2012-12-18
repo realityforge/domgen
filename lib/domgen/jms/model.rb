@@ -21,16 +21,10 @@ module Domgen
         "#{method.service.data_module.jms.service_package}.#{mdb_name}"
       end
 
-      attr_writer :destination_name
-
-      def destination_name
-        @destination_name || method.qualified_name.gsub('#','.')
-      end
-
       attr_writer :destination_resource_name
 
       def destination_resource_name
-        @destination_resource_name || "jms/#{destination_name}"
+        @destination_resource_name || "jms/#{method.qualified_name.gsub('#','.')}"
       end
 
       def destination_type=(destination_type)
