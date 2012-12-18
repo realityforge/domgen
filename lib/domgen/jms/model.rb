@@ -14,7 +14,7 @@ module Domgen
       attr_writer :mdb_name
 
       def mdb_name
-        @destination_name || "#{method.name}#{method.service.name}MDB"
+        @mdb_name || "#{method.name}#{method.service.name}MDB"
       end
 
       def qualified_mdb_name
@@ -24,7 +24,13 @@ module Domgen
       attr_writer :destination_name
 
       def destination_name
-        @destination_name || "jms/#{method.qualified_name.gsub('#','.')}"
+        @destination_name || method.qualified_name.gsub('#','.')
+      end
+
+      attr_writer :destination_resource_name
+
+      def destination_resource_name
+        @destination_resource_name || "jms/#{destination_name}"
       end
 
       def destination_type=(destination_type)
