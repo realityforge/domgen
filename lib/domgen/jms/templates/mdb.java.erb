@@ -52,7 +52,7 @@ public class <%= method.jms.mdb_name %>
 <% end -%>
   {
 <% if in_container -%>
-    <%= jaxb_field_annotation(parameter, false) %>
+    @javax.xml.bind.annotation.XmlValue
     <%= boundary_type %> Value;
 <% end -%>
   }
