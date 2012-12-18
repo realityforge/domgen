@@ -24,7 +24,7 @@ config_properties['subscriptionDurability'] = method.jms.durable? ? 'Durable' : 
                               @javax.ejb.ActivationConfigProperty( propertyName = "<%= key %>", propertyValue = "<%= value %>" ),
 <% end -%>
                             } )
-@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRED )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 public class <%= method.jms.mdb_name %>
   implements javax.jms.MessageListener
