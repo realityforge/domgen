@@ -39,12 +39,12 @@ module Domgen
       attr_accessor :message_selector
 
       def acknowledge_mode=(acknowledge_mode)
-        raise "Invalid acknowledge_mode #{acknowledge_mode}" unless %w(AUTO_ACKNOWLEDGE DUPS_OK_ACKNOWLEDGE).include?(acknowledge_mode)
+        raise "Invalid acknowledge_mode #{acknowledge_mode}" unless %w(Auto-acknowledge Dups-ok-acknowledge).include?(acknowledge_mode)
         @acknowledge_mode = acknowledge_mode
       end
 
       def acknowledge_mode
-        @acknowledge_mode || 'AUTO_ACKNOWLEDGE'
+        @acknowledge_mode || 'Auto-acknowledge'
       end
 
       attr_accessor :client_id
