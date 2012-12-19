@@ -11,7 +11,10 @@ module Domgen
         "mdb/#{mdb_name}"
       end
 
-      attr_writer :mdb_name
+      def mdb_name=(mdb_name)
+        self.mdb = true
+        @mdb_name =mdb_name
+      end
 
       def mdb_name
         @mdb_name || "#{method.name}#{method.service.name}MDB"
@@ -21,7 +24,10 @@ module Domgen
         "#{method.service.data_module.jms.service_package}.#{mdb_name}"
       end
 
-      attr_writer :destination_resource_name
+      def destination_resource_name=(destination_resource_name)
+        self.mdb = true
+        @destination_resource_name = destination_resource_name
+      end
 
       def destination_resource_name
         @destination_resource_name || "jms/#{method.qualified_name.gsub('#','.')}"
@@ -29,6 +35,7 @@ module Domgen
 
       def destination_type=(destination_type)
         raise "Invalid destination type #{destination_type}" unless %w(javax.jms.Queue javax.jms.Topic).include?(destination_type)
+        self.mdb = true
         @destination_type = destination_type
       end
 
@@ -40,6 +47,7 @@ module Domgen
 
       def acknowledge_mode=(acknowledge_mode)
         raise "Invalid acknowledge_mode #{acknowledge_mode}" unless %w(Auto-acknowledge Dups-ok-acknowledge).include?(acknowledge_mode)
+        self.mdb = true
         @acknowledge_mode = acknowledge_mode
       end
 
