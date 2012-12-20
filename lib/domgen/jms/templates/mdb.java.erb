@@ -20,8 +20,12 @@ config_properties['subscriptionDurability'] = method.jms.durable? ? 'Durable' : 
                           mappedName = "<%= method.jms.destination_resource_name %>",
                           activationConfig =
                             {
-<% config_properties.each_pair do |key, value| -%>
-                              @javax.ejb.ActivationConfigProperty( propertyName = "<%= key %>", propertyValue = "<%= value %>" ),
+<%
+index = 0
+config_properties.each_pair do |key, value|
+ index += 1
+ -%>
+                              @javax.ejb.ActivationConfigProperty( propertyName = "<%= key %>", propertyValue = "<%= value %>" )<%= config_properties.size == index ? '' : ',' %>
 <% end -%>
                             } )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRED )
