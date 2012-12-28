@@ -259,10 +259,20 @@ module Domgen
         "#{entity.data_module.jpa.entity_package}.#{metamodel_name}"
       end
 
+      attr_writer :dao_service_name
+
+      def dao_service_name
+        @dao_service_name || "#{entity.name}Repository"
+      end
+
+      def qualified_dao_service_name
+        "#{entity.data_module.jpa.dao_package}.#{dao_service_name}"
+      end
+
       attr_writer :dao_name
 
       def dao_name
-        @dao_name || "#{entity.name}DAO"
+        @dao_name || "#{dao_service_name}EJB"
       end
 
       def qualified_dao_name

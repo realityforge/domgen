@@ -47,6 +47,11 @@ Domgen.template_set(:jpa_ejb_dao) do |template_set|
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb.java.erb",
                         'main/java/#{entity.jpa.qualified_dao_name.gsub(".","/")}.java',
                         Domgen::Generator::JPA::HELPERS)
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :entity,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_interface.java.erb",
+                        'main/java/#{entity.jpa.qualified_dao_service_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS)
 end
 
 Domgen.template_set(:jpa_persistence_xml) do |template_set|

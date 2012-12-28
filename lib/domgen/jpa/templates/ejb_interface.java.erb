@@ -1,0 +1,30 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= entity.data_module.jpa.dao_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.ejb.Local
+public interface <%= entity.jpa.dao_service_name %>
+{
+  public static final String NAME = "<%= entity.data_module.name %>.<%= entity.jpa.dao_service_name %>";
+
+<% entity.queries.each do |query| %>
+<%= description_javadoc_for(query) %>  <%= query_return_type(query) %> <%= query.name %>(<%= query.parameters.collect {|p| "#{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"}.join(', ') %>);
+<% end %>
+
+<% if entity.jpa.detachable? %>
+  /** Remove the given  <%= entity.jpa.qualified_name %> from the persistence context, causing a managed entity to become detached. */
+  void detach( <%= entity.jpa.qualified_name %> entity );
+
+  /** Merge the state of the given <%= entity.jpa.qualified_name %> into the current persistence context. */
+  <%= entity.jpa.qualified_name %> merge( <%= entity.jpa.qualified_name %> entity );
+<% end %>
+  /** Make an <%= entity.jpa.qualified_name %> instance managed and persistent. */
+  void persist( <%= entity.jpa.qualified_name %> entity );
+
+  /** Refresh the state of the <%= entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
+  void refresh( <%= entity.jpa.qualified_name %> entity );
+
+  /** Remove the <%= entity.jpa.qualified_name %> instance. */
+  void remove( <%= entity.jpa.qualified_name %> entity );
+}
