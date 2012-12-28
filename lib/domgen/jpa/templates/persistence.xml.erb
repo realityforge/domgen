@@ -17,7 +17,7 @@ repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_mod
   end
 end
 %>
-    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <exclude-unlisted-classes><%= repository.jpa.exclude_unlisted_classes? %></exclude-unlisted-classes>
     <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
     <validation-mode>AUTO</validation-mode>
 

@@ -361,6 +361,12 @@ module Domgen
         @data_source || "jdbc/#{repository.name}DS"
       end
 
+      attr_writer :exclude_unlisted_classes
+
+      def exclude_unlisted_classes?
+        @exclude_unlisted_classes.nil? ? true : @exclude_unlisted_classes
+      end
+
       attr_accessor :provider
 
       def provider_class
