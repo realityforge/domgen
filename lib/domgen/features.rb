@@ -14,6 +14,54 @@
 
 module Domgen
 
+  # TODO: A WIP - should merge into entities. Consider having a separate geometry object
+  # See http://postgis.refractions.net/docs/AddGeometryColumn.html
+  module GeoCharacteristic
+    def geometry?
+      self.characteristic_type == :geometry
+    end
+
+    def geometry_type=(geometry_type)
+      error("geometry_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      error("geometry_type on #{name} is invalid as #{geometry_type} is not known type geometry") unless allowable_geometry_types.include?(geometry_type)
+      @geometry_type = geometry_type
+    end
+
+    def geometry_type
+      error("geometry_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      @geometry_type
+    end
+
+    def geometry_dimensions=(geometry_dimensions)
+      error("geometry_dimensions on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      error("geometry_dimensions on #{name} is invalid as #{geometry_dimensions} is not valid") unless 2..4.include?(geometry_dimensions)
+      @geometry_dimensions = geometry_dimensions
+    end
+
+    def geometry_dimensions
+      error("geometry_dimensions= on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      @geometry_dimensions
+    end
+
+    def geometry_srid=(geometry_srid)
+      error("geometry_srid on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      @geometry_srid = geometry_srid
+    end
+
+    def geometry_srid
+      error("geometry_srid on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      @geometry_srid
+    end
+
+    def allowable_geometry_types
+      %w{POINT MULTIPOINT LINESTRING MULTILINESTRING POLYGON MULTIPOLYGON CIRCULARSTRING COMPOUNDCURVE MULTICURVE
+ 	     CURVEPOLYGON MULTISURFACE GEOMETRY GEOMETRYCOLLECTION POINTM MULTIPOINTM LINESTRINGM MULTILINESTRINGM POLYGONM
+         MULTIPOLYGONM CIRCULARSTRINGM COMPOUNDCURVEM MULTICURVEM CURVEPOLYGONM MULTISURFACEM TRIANGLE TRIANGLEM
+         POLYHEDRALSURFACE POLYHEDRALSURFACEM TIN TINM GEOMETRYCOLLECTIONM}
+    end
+
+  end
+
   module Characteristic
     attr_reader :name
 
