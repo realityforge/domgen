@@ -32,7 +32,7 @@ module Domgen
                   "real" => "double precision",
                   "datetime" => "timestamp",
                   "date" => "date",
-                  "boolean" => "bit"}
+                  "boolean" => "boolean"}
 
 
       def column_type(column)
