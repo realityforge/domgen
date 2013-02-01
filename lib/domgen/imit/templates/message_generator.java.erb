@@ -1,0 +1,43 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.encoder_package %>;
+
+import org.realityforge.replicant.server.EntityMessage;
+
+/**
+ * * Utility class that encodes RPC payloads from JPA entities for the repository "<%= repository.name %>".
+ */
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.imit.message_generator_name %>
+{
+<% repository.imit.client_side_data_modules.each do |data_module| %>
+  private final <%= data_module.imit.qualified_router_interface_name %> _<%= data_module.name %>Router;
+<% end %>
+
+  public <%= repository.imit.message_generator_name %>( <%= repository.imit.client_side_data_modules.collect { |data_module| "final #{data_module.imit.qualified_router_interface_name} #{data_module.name}Router" }.join(", ") %> )
+  {
+<% repository.imit.client_side_data_modules.each do |data_module| %>
+    _<%= data_module.name %>Router = <%= data_module.name %>Router;
+<% end %>
+  }
+
+  public EntityMessage convertToEntityMessage( final Object object, final boolean isUpdate )
+  {
+    <% repository.imit.concrete_client_side_entities.each do |entity|
+%>if( <%= entity.jpa.qualified_name %>.class.isInstance( object ) )
+    {
+      final <%= entity.jpa.qualified_name %> entity = <%= entity.jpa.qualified_name %>.class.cast( object );
+      final @javax.annotation.Nonnull java.io.Serializable id = entity.<%= getter_for(entity.primary_key) %>;
+      final @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> attributes = isUpdate ? <%= entity.data_module.imit.qualified_jpa_encoder_name %>.encode<%= entity.name %>( entity ) : null;
+      final int transportID = <%= entity.imit.transport_id %>;
+      final @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> routingKeys = _<%= entity.data_module.name %>Router.route<%= entity.name %>( entity );
+      return new EntityMessage( id, transportID, System.currentTimeMillis(), routingKeys, attributes );
+    }
+    else <%
+   end
+%>
+    {
+      return null;
+    }
+  }
+}

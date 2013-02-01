@@ -1,0 +1,49 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= message.data_module.gwt.client_event_package %>;
+
+public final class <%= message.gwt.event_name %>
+  extends com.google.gwt.event.shared.GwtEvent<<%= message.gwt.event_handler_name %>>
+{
+  public static final Type<<%= message.gwt.event_handler_name %>> TYPE = new Type<<%= message.gwt.event_handler_name %>>();
+<% message.parameters.each do |parameter|
+%>  private final <%= parameter.gwt.java_type %> <%= parameter.gwt.name %>;
+<% end %>
+
+  public <%= message.gwt.event_name %>(<%= message.parameters.collect{|p| "final #{annotated_type(p, :gwt)} #{p.gwt.name}"}.join(", ") %>)
+  {
+<% message.parameters.select{|p| !p.nullable?}.each do |parameter|
+%>    if( null == <%= parameter.gwt.name %> )
+    {
+      throw new IllegalArgumentException("<%= parameter.gwt.name %> is null");
+    }
+<% end %>
+<% message.parameters.each do |parameter|
+  if :sequence == parameter.collection_type
+%>    this.<%= parameter.gwt.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.gwt.java_component_type %>>( <%= parameter.gwt.name %> ) );
+<%     elsif :set == parameter.collection_type
+  %>    this.<%= parameter.gwt.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= parameter.gwt.java_component_type %>>( <%= parameter.gwt.name %> ) );
+<%     else
+%>  this.<%= parameter.gwt.name %> = <%= parameter.gwt.name %>;
+<% end
+   end %>
+  }
+
+<% message.parameters.each do |parameter|
+%>  public <%= annotated_type(parameter, :gwt) %> get<%= parameter.name %>()
+  {
+    return <%= parameter.gwt.name %>;
+  }
+<% end %>
+
+  @Override
+  public Type<<%= message.gwt.event_handler_name %>> getAssociatedType()
+  {
+    return TYPE;
+  }
+
+  @Override
+  protected void dispatch( final <%= message.gwt.event_handler_name %> handler )
+  {
+    handler.on<%= message.name %>( this );
+  }
+}

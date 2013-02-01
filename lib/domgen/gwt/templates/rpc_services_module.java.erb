@@ -1,0 +1,55 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.gwt.client_ioc_package %>;
+
+<%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.gwt.rpc_services_module_name %>
+  extends com.google.gwt.inject.client.AbstractGinModule
+{
+  private static com.google.gwt.user.client.rpc.XsrfToken c_xsrfToken;
+
+  public static com.google.gwt.user.client.rpc.XsrfToken getXsrfToken()
+  {
+    if( null == c_xsrfToken )
+    {
+      throw new IllegalStateException( "Attempting to construct service requiring XsrfToken without specifying token." );
+    }
+    return c_xsrfToken;
+  }
+
+  public static void initialize( final String moduleName, final com.google.gwt.user.client.rpc.XsrfToken xsrfToken )
+  {
+    if( null != c_xsrfToken )
+    {
+      throw new IllegalStateException( "Attempting to re-initialialize gin module." );
+    }
+    if( !moduleName.equals( "<%= repository.gwt.module_name %>" ) )
+    {
+      throw new IllegalStateException( "Actual GWT module name '" + com.google.gwt.core.client.GWT.getModuleName() + "' does not match module name '<%= repository.gwt.module_name %>' used during compilation." );
+    }
+    c_xsrfToken = xsrfToken;
+  }
+
+  @Override
+  protected void configure()
+  {
+  }
+<%
+  repository.data_modules.select{|data_module| data_module.gwt?}.each do |data_module|
+    data_module.services.select{|service| service.gwt?}.each do |service|
+%>
+  @com.google.inject.Provides
+  @javax.inject.Singleton
+  public <%= service.gwt.qualified_async_rpc_service_name %> get<%= service.name %>()
+  {
+    final <%= service.gwt.qualified_async_rpc_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt.qualified_service_name %>.class );
+<% if service.gwt.xsrf_protected? %>
+    ( (com.google.gwt.user.client.rpc.HasRpcToken) service ).setRpcToken( getXsrfToken() );
+<% end %>
+    return service;
+  }
+<%
+    end
+  end
+%>}
+

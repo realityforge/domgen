@@ -1,0 +1,88 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= entity.data_module.jpa.dao_package %>;
+
+@SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
+@javax.ejb.Startup
+@javax.ejb.Singleton( name = <%= entity.jpa.dao_service_name %>.NAME )
+@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+public class <%= entity.jpa.dao_name %>
+    implements <%= entity.jpa.dao_service_name %>
+{
+  @javax.persistence.PersistenceContext<%= entity.data_module.repository.jpa.unit_name.nil? ? "" : "(unitName = \"#{entity.data_module.repository.jpa.unit_name}\")" %>
+  private javax.persistence.EntityManager em;
+
+<% entity.queries.each do |query| %>
+<%= description_javadoc_for(query) %>  @Override
+  public <%= query_return_type(query) %> <%= query.name %>(<%= query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"}.join(', ') %>)
+  {
+    final javax.persistence.TypedQuery<<%= entity.jpa.qualified_name %>> query =
+      em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= entity.jpa.qualified_name %>.class );
+<%
+   if !query.jpa.native?
+    query.parameters.each do |p|
+%>    query.setParameter(<%= "\"#{p.name}\"" %>, <%= p.name %>);
+<%  end
+   else %>
+<%  query.jpa.query_ordered_parameters.each_with_index do |p, index| %>
+    query.setParameter(<%= index + 1 %>, <%= p.name %>);
+<%  end
+   end %>
+<% if query.query_type == :select %>
+<% if query.multiplicity == :many %>
+    return query.getResultList();
+<% elsif query.multiplicity == :one %>
+    return query.getSingleResult();
+<% else %>
+    query.setMaxResults( 1 );
+    final java.util.List<<%= entity.jpa.qualified_name %>> resultList = query.getResultList();
+    if ( resultList.size() > 0 )
+    {
+      return resultList.get( 0 );
+    }
+    else
+    {
+      return null;
+    }
+<% end
+   else %>
+<% if query.query_type == :insert || query.query_type == :update %>    query.setHint( "eclipselink.query-type", "org.eclipse.persistence.queries.DataModifyQuery" );<% end %>
+    return query.executeUpdate();
+<% end %>
+  }
+<% end %>
+
+<% if entity.jpa.detachable? %>
+  @Override
+  public void detach( final <%= entity.jpa.qualified_name %> entity )
+  {
+    em.detach( entity );
+  }
+
+  @Override
+  public <%= entity.jpa.qualified_name %> merge( final <%= entity.jpa.qualified_name %> entity )
+  {
+    return em.merge( entity );
+  }
+<% end %>
+  @Override
+  public void persist( final <%= entity.jpa.qualified_name %> entity )
+  {
+    em.persist( entity );
+    em.flush();
+  }
+
+  @Override
+  public void refresh( final <%= entity.jpa.qualified_name %> entity )
+  {
+    em.refresh( entity );
+  }
+
+  @Override
+  public void remove( final <%= entity.jpa.qualified_name %> entity )
+  {
+    em.remove( entity );
+    em.flush();
+  }
+}

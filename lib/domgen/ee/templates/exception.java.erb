@@ -1,0 +1,50 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= exception.data_module.ee.service_package %>;
+
+<%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<% if exception.ejb? %>@javax.ejb.ApplicationException( rollback = <%= exception.ejb.rollback? %>, inherited = true )<% end %>
+<% if exception.jws? %>@javax.xml.ws.WebFault( name = "<%= exception.name %>" )<% end %>
+public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? "java.lang.Exception" : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
+{
+<% exception.parameters.each do |parameter| %>
+  private <%= annotated_type(parameter, :ee, :boundary) %> <%= parameter.name %>;
+<% end %>
+<%
+param_desc =
+  exception.parameters.collect do |parameter|
+    "final #{annotated_type(parameter, :ee, :boundary) } #{parameter.name}"
+  end.join(", ")
+param_desc_with_suffix = param_desc + (param_desc.size == 0 ? '' : ', ')
+
+param_values = exception.parameters.collect{ |parameter| parameter.name}.join(", ")
+param_values_with_suffix = param_values + (param_values.size == 0 ? '' : ', ')
+
+inherited_params = exception.inherited_parameters.collect{ |parameter| parameter.name}.join(", ")
+inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? '' : ', ')
+
+      -%>
+  public <%= exception.ee.name %>( <%= param_desc %> ) { this( <%= param_values_with_suffix %>null, null ); }
+  public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final String message ) { this( <%= param_values_with_suffix %>message, null ); }
+  public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final String message, final Throwable cause )
+  {
+    super( <%= inherited_params_with_suffix %>message, cause );
+  <% exception.declared_parameters.each do |parameter|
+     if :sequence == parameter.collection_type
+%>    this.<%= parameter.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
+<%     elsif :set == parameter.collection_type
+%>    this.<%= parameter.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
+<%     else
+%>    this.<%= parameter.name %> = <%= parameter.name %>;
+<%   end
+   end
+%>  }
+
+<% exception.parameters.each do |parameter|
+%>
+public <%= annotated_type(parameter, :ee, :boundary) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+  {
+  return <%= parameter.name %>;
+}
+  <% end
+%>}

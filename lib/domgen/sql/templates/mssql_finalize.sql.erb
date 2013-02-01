@@ -1,0 +1,27 @@
+/* DO NOT EDIT: File is auto-generated */
+<% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| %>
+<% entity.sql.foreign_keys.each do |foreign_key| %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> CHECK CONSTRAINT <%= foreign_key.quoted_foreign_key_name %>
+GO
+<%
+   end
+   entity.sql.constraints.each do |constraint|
+%>
+ALTER TABLE <%= entity.sql.qualified_table_name %> CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
+GO
+<%
+   end
+  entity.sql.function_constraints.each do |constraint|
+%>
+ALTER TABLE <%= entity.sql.qualified_table_name %> CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
+GO
+<%
+   end
+   entity.sql.triggers.each do |trigger|
+%>
+ENABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified_table_name %>
+GO
+<%
+   end
+  end
+%>

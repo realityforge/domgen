@@ -1,0 +1,97 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= method.service.data_module.jms.service_package %>;
+
+<%
+
+config_properties = {}
+config_properties['destinationType'] = method.jms.destination_type
+config_properties['messageSelector'] = method.jms.message_selector if method.jms.message_selector
+config_properties['acknowledgeMode'] = method.jms.acknowledge_mode
+config_properties['clientID'] = method.jms.client_id if method.jms.client_id
+config_properties['subscriptionName'] = method.jms.subscription_name if method.jms.subscription_name
+config_properties['subscriptionDurability'] = method.jms.durable? ? 'Durable' : 'NonDurable'
+
+
+-%>
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.ejb.MessageDriven( name = "<%= method.jms.resource_name %>",
+                          mappedName = "<%= method.jms.destination_resource_name %>",
+                          activationConfig =
+                            {
+<%
+index = 0
+config_properties.each_pair do |key, value|
+ index += 1
+ -%>
+                              @javax.ejb.ActivationConfigProperty( propertyName = "<%= key %>", propertyValue = "<%= value %>" )<%= config_properties.size == index ? '' : ',' %>
+<% end -%>
+                            } )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRED )
+@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+public class <%= method.jms.mdb_name %>
+  implements javax.jms.MessageListener
+{
+  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.jms.mdb_name %>.class.getName() );
+
+  @javax.ejb.EJB
+  private <%= method.service.ejb.service_name %> _service;
+
+<%
+  parameter = method.parameters.empty? ? nil : method.parameters[0]
+  if parameter
+   raise "parameters for #{method.qualified_name} should only have 1 parameter" unless method.parameters.size == 1
+   encoded_type = "#{parameter.name}Message"
+   boundary_type = parameter.ejb.java_component_type(:boundary)
+   in_container = !(parameter.struct? && !parameter.collection?)
+   ns = namespace_annotation_parameter(parameter.xml)
+-%>
+  @javax.xml.bind.annotation.XmlRootElement( name = "<%= parameter.xml.name %>"<%= ns %> )
+  @javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
+  @javax.xml.bind.annotation.XmlType( name = "<%= method.name %><%= method.service.name %>_<%= parameter.name %>"<% if in_container %>, propOrder = {"Value"}<% end %><%= ns %> )
+  public static class <%= encoded_type %>
+<% unless in_container -%>
+      extends <%= parameter.referenced_struct.ee.qualified_name %>
+<% end -%>
+  {
+<% if in_container -%>
+    @javax.xml.bind.annotation.XmlValue
+    <%= boundary_type %> Value;
+<% end -%>
+  }
+<% end -%>
+
+  public void onMessage( final javax.jms.Message message )
+  {
+    try
+    {
+      if ( message instanceof javax.jms.TextMessage )
+      {
+<%
+  if parameter
+-%>
+        final javax.jms.TextMessage textMessage = (javax.jms.TextMessage)message;
+        final String text = textMessage.getText();
+        final javax.xml.bind.JAXBContext context = javax.xml.bind.JAXBContext.newInstance( <%= encoded_type %>.class );
+        final javax.xml.bind.Unmarshaller marshaller = context.createUnmarshaller();
+        final java.io.StringReader reader = new java.io.StringReader( text );
+
+        final <%= encoded_type %> decoded = (<%= encoded_type %>) marshaller.unmarshal( reader );
+
+        final <%= boundary_type %> parameter = <%= (parameter.struct? && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
+<% end -%>
+        _service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
+      }
+      else
+      {
+        throw new RuntimeException( "<%= method.jms.mdb_name %> can only process TextMessages but received a " + message.getClass() );
+      }
+    }
+    catch ( final Exception e )
+    {
+      LOG.log( java.util.logging.Level.WARNING, "Error processing the incoming message: " + e.getMessage(), e );
+      throw new RuntimeException( e );
+    }
+  }
+}

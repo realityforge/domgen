@@ -1,0 +1,35 @@
+* Make it possible to define a model check that defines the dependency requirements
+  between schemas. i.e. Entity can not be referenced by anyone. Template can reference
+  Entity but not Overtimes etc.
+* Support constants in relationship_constraints
+* Remove imit.client_side? and replace with imit?
+* Fix xmi generation: fix existing enumeration/service generation, add message generation
+* Introduce the "uses" metadata for service that can refer to entities (a.k.a DAOs) and other services. Use this to
+  generate abstract service with required dependencies and update the uml generated.
+* Start to generate entity=>struct mappers based on rules or explicit mappings
+* Disabling a facet should disable facet on all child elements, likewise for enabling the facet
+* Add xor constraint
+* Add state machine (based on rails gem or erlang library?)
+* Use javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
+* For both JPA and JWS we want to use vendor specific extensions. In JPA you want to define the Indexes and other
+  database artifacts while in JWS you want to indicate that a service should be validated for compliance with SOAP
+  xsd and also you want to use vendor specific extensions to annotate methods/services with wsdl documentation. Domgen
+  should be extended to support one vendor per facet, per repository. Then it would default to adding the annotations
+  for that particular vendor.
+  - JPA:
+    - EclipseLink:
+      - http://wiki.eclipse.org/Using_EclipseLink_JPA_Extensions_(ELUG)
+    - Hibernate:
+      - http://docs.jboss.org/hibernate/annotations/3.5/reference/en/html_single/#entity-hibspec-identifier
+  - JWS:
+    - Metro:
+      - @com.sun.xml.internal.ws.developer.SchemaValidation
+    - JbossWS:
+      - http://community.jboss.org/wiki/JBossWS-NativeUserGuide#Documentation
+      - http://community.jboss.org/wiki/JBossWS-NativeUserGuide#SchemaValidation
+    - CXF:
+      - http://fusesource.com/docs/esb/4.4.1/cxf_jaxws/JavaFirst-AnnotateCxf-WsdlDoc.html
+      - http://fusesource.com/docs/esb/4.4.1/cxf_jaxws/JavaFirst-AnnotateCxf-SchemaVal.html
+
+* Rename inverse.relationship_name to inverse.name
+* Support integer() on messages in GWT Events where they parameters are not nullable

@@ -1,0 +1,59 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= data_module.imit.encoder_package %>;
+
+/**
+ * Utility class that encodes payloads from JPA entities for the data module "<%= data_module.name %>".
+ */
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= data_module.imit.jpa_encoder_name %>
+{
+  private <%= data_module.imit.jpa_encoder_name %>()
+  {
+  }
+
+<% data_module.imit.client_side_entities.each do |entity| %>
+<% if !entity.abstract? %>
+  public static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( final <%= entity.jpa.qualified_name %> entity )
+  {
+    final java.util.Map<String, java.io.Serializable> attributes = new java.util.HashMap<String, java.io.Serializable>();
+    encodeAttributesAttributes<%= entity.name %>( entity, attributes );
+    return attributes;
+  }
+<% end %>
+
+  private static void encodeAttributesAttributes<%= entity.name %>( final <%= entity.jpa.qualified_name %> entity, final java.util.Map<String, java.io.Serializable> attributes )
+  {
+<% if entity.extends
+   other = entity.data_module.entity_by_name(entity.extends)
+%>    encodeAttributesAttributes<%= other.name %>( entity, attributes );
+<% end %>
+<% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side? && !attribute.abstract? }.each do |attribute|
+    value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": "")
+    value_converter =
+        if attribute.imit.transport_characteristic_type_key == :datetime
+          "( ( null == value ) ? null : value.getTime() )"
+        elsif attribute.imit.transport_characteristic_type_key == :date
+          "( ( null == value ) ? null : org.realityforge.replicant.client.RDate.fromDate( value ).toString() )"
+        elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_characteristic_type_key)
+          if attribute.nullable?
+            "( ( null == value ) ? null : value#{value_suffix} )"
+          else
+            "value#{value_suffix}"
+          end
+        elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
+          "( ( null == value ) ? null : value.name() )"
+        elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
+          "( ( null == value ) ? null : value.ordinal() )"
+        else
+          raise "Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}"
+        end
+%>
+    {
+      final <%= nullable_annotate(attribute, attribute.jpa.java_type, false) %> value = entity.<%= getter_for(attribute) %>;
+      attributes.put( "<%= attribute.name %>", <%= "#{value_converter}" %> );
+    }
+<% end %>
+  }
+<% end %>
+}

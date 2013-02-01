@@ -1,0 +1,111 @@
+# DO NOT EDIT: File is auto-generated
+module <%= entity.data_module.ruby.module_name %>
+
+class <%= entity.ruby.classname %> < ActiveRecord::Base
+  # Attributes:
+<% entity.attributes.each do |a|
+%>  #   <%= a.sql.column_name %>: <%= a.reference? ? a.referenced_entity.name : a.attribute_type %>
+<% end %>
+  set_table_name "<%= entity.sql.qualified_table_name.gsub('dbo.','') %>"
+  set_primary_key "<%= entity.primary_key.sql.column_name %>"
+<% entity.attributes.each do |a|
+   if a.ruby.validate?
+       if !a.generated_value?
+         if a.enumeration?
+           a.enumeration.values.each_with_index do |k,index|
+%>  <%= a.name %>_<%= ruby_name(k) %> = <%= a.enumeration.numeric_values? ? index : k.inspect %>
+  <%= a.name %>_<%= ruby_name(k) %>_Description = '<%= k %>'
+<%         end
+%>  <%= a.name %>Names = {<%= a.enumeration.values.collect{|k| "#{a.name}_#{ruby_name(k)} => #{a.name}_#{ruby_name(k)}_Description"}.join(', ') %>}
+  <%= a.name %>Values = [<%= a.enumeration.values.collect{|k| "#{a.name}_#{ruby_name(k)}"}.join(', ') %>]
+  validates_inclusion_of :<%= a.sql.column_name %>, :in => <%= a.name %>Values<% if a.nullable? %>, :allow_nil => true <% end %>
+<%
+         end
+         if !a.nullable? && a.attribute_type != :boolean
+%>  validates_presence_of :<%= a.sql.column_name %>
+<%       end
+         if a.unique?
+%>  validates_uniqueness_of :<%= a.sql.column_name %>
+<%       end
+         if a.integer?
+%>  validates_numericality_of :<%= a.sql.column_name %>, :only_integer => true, :allow_nil => true
+<%       end
+         if a.attribute_type == :real
+%>  validates_numericality_of :<%= a.sql.column_name %>, :only_integer => false, :allow_nil => true
+<%       end
+         if a.boolean?
+%>  validates_boolean :<%= a.sql.column_name %>, :allow_nil => <%= a.nullable? %>
+<%         if a.nullable?
+%>  nillable_boolean :<%= a.sql.column_name %>
+<%         end
+         end
+         if a.text? || (a.enumeration? && a.enumeration.textual_values?)
+%>  nillable_attribute :<%= a.sql.column_name %>
+<%       end
+         if !a.length.nil?
+%>  validates_length_of :<%= a.sql.column_name %>, :minimum => <%= a.min_length %>, :allow_nil => <%= a.nullable? %>, :allow_blank => <%= a.allow_blank? %>
+  validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => <%= a.nullable? %>, :allow_blank => <%= a.allow_blank? %>
+<%       end
+         if a.reference?
+%>  belongs_to :<%= Domgen::Naming.underscore(a.name) %>, :class_name => '<%= a.referenced_entity.ruby.qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
+  validates_reference_exists :<%= a.sql.column_name %>, <%= a.referenced_entity.ruby.qualified_name %>, :association_name => :<%= Domgen::Naming.underscore(a.name) %>, :allow_nil => true
+<%       end
+       end
+     end
+   end %>
+<% entity.referencing_attributes.each do |attribute|
+    if attribute.inverse.multiplicity == :many
+%>
+  has_many :<%= Domgen::Naming.pluralize(Domgen::Naming.underscore(attribute.inverse.relationship_name)) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_count_of :<%= Domgen::Naming.pluralize(Domgen::Naming.underscore(attribute.inverse.relationship_name)) %>
+<%
+    elsif [:one, :zero_or_one].include? attribute.inverse.multiplicity
+%>
+  has_one :<%= Domgen::Naming.underscore(attribute.inverse.relationship_name) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+<%
+    end
+  end
+%>
+
+<% entity.unique_constraints.each do |c|
+ attributes = c.attribute_names.collect{|attribute_name| entity.attribute_by_name(attribute_name)}
+%>
+  validates_uniqueness_of :<%= attributes.shift.sql.column_name %><% if !attributes.empty? %>, :scope => [<%= attributes.collect{|a|":#{a.sql.column_name}"}.join(", ") %>]<% end %>
+<% end %>
+<% entity.codependent_constraints.each do |c| %>
+  validates_codependent <%= c.attribute_names.collect{|attribute_name|":#{entity.attribute_by_name(attribute_name).sql.column_name}"}.join(', ') %>
+<% end %>
+<% entity.dependency_constraints.each do |c| %>
+  validates_dependent <%= ":#{entity.attribute_by_name(c.attribute_name).sql.column_name}, [#{c.dependent_attribute_names.collect { |attribute_name| ":#{entity.attribute_by_name(attribute_name).sql.column_name}" }.join(', ')}]" %>
+<% end %>
+<% entity.incompatible_constraints.each do |c| %>
+  validates_incompatible <%= c.attribute_names.collect { |attribute_name| ":#{entity.attribute_by_name(attribute_name).sql.column_name}" }.join(', ') %>
+<% end %>
+<% entity.cycle_constraints.each do |c|
+  target_attribute = entity.attribute_by_name(c.attribute_name)
+%>
+  validate do |record|
+    if !record.<%= target_attribute.name %>.nil? && record.<%= Domgen::Naming.underscore(target_attribute.name) %>.<%= c.scoping_attribute %> != record<%= c.attribute_name_path[0,c.attribute_name_path.length-1].collect{|a|".#{Domgen::Naming.underscore(a)}"}.join('') %>.<%= c.attribute_name_path.last %>
+      record.errors.add(:<%= target_attribute.name %>, 'must be one of the values in scope')
+    end
+  end
+<% end %>
+<% entity.relationship_constraints.each do |c|
+  lhs = entity.attribute_by_name(c.lhs_operand)
+  rhs = entity.attribute_by_name(c.rhs_operand)
+  op = c.class.operators[c.operator]
+  op = '==' if '=' == op
+  description = lhs.datetime? ? c.class.numeric_operator_descriptions[c.operator] : c.class.temporal_operator_descriptions[c.operator]
+%>
+  validate do |record|
+    if !record.<%= lhs.sql.column_name %>.nil? && !record.<%= rhs.sql.column_name %>.nil? && !(record.<%= lhs.sql.column_name %> <%= op %> record.<%= rhs.sql.column_name %>)
+      record.errors.add(:<%= lhs.sql.column_name %>, 'must <%= description %> <%= rhs.sql.column_name %>')
+    end
+  end
+<% end %>
+<%= entity.ruby.included_modules.collect {|m| "  include #{m}"}.join("\n") %>
+  # Make it possible for the users to extend the model by defining an extension class
+  include <%= entity.ruby.qualified_name %>Extension rescue NameError
+end
+
+end

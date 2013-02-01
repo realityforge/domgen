@@ -1,0 +1,11 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= service.data_module.gwt.shared_service_package %>;
+
+<%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public interface <%= service.gwt.async_rpc_service_name %>
+{
+<% service.methods.select{|method| method.gwt?}.each do |method|
+%><%= description_javadoc_for(method)
+%>  <%= method.gwt.cancelable? ? "com.google.gwt.http.client.Request" : "void" %> <%= method.gwt.name %>(<%= method.parameters.select{|parameter| !parameter.gwt.environmental?}.collect{|p| "#{annotated_type(p, :gwt, :transport)} #{Domgen::Naming.camelize(p.gwt.name(:transport))}" }.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt.environmental?}.empty? ? '' : ", " %>com.google.gwt.user.client.rpc.AsyncCallback<<%= method.return_value.return_type == :void ? "Void" : method.return_value.gwt.non_primitive_java_type(:transport) %>> callback );
+<% end %>}

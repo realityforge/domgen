@@ -1,0 +1,311 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= entity.data_module.imit.entity_package %>;
+
+import org.realityforge.replicant.client.EntityChangeBroker;
+import org.realityforge.replicant.client.EntityRepository;
+
+<%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
+<%= entity.extends ?
+  "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_name}\n" :
+  "    implements org.realityforge.replicant.client.Linkable" %>
+{
+  public static final String TYPE_KEY = "<%= entity.qualified_name %>";
+<% if !entity.abstract? %>
+  public static final int TRANSPORT_ID = <%= entity.imit.transport_id %>;
+<% end %>
+<% entity.declared_attributes.select{ |attribute| attribute.imit? && attribute.imit.client_side? }.each do |attribute|
+%>  public static final String <%= Domgen::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
+<% end %>
+<% entity.referencing_attributes.select{ |attribute| attribute.entity.imit? && attribute.imit.client_side? && !attribute.abstract? && attribute.inverse.imit? && attribute.inverse.imit.traversable?}.each do |attribute|
+%>  public static final String <%= Domgen::Naming.uppercase_constantize(attribute.inverse.relationship_name) %> = "<%= attribute.inverse.relationship_name %>";
+<% end %>
+<%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
+%><%= entity.extends.nil? ? "  protected EntityChangeBroker _broker;\n" : ""
+%><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side? }.each do |attribute|
+  if !attribute.reference?
+%>
+  private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.name %>;
+<% else
+%>  private <%= attribute.imit.java_type %> _<%= attribute.imit.name %>;
+  private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.java_type(:transport)}" %> _<%= attribute.imit.name(:transport) %>;
+<%
+   end
+   end
+%>
+<% entity.imit.referencing_client_side_attributes.each do |attribute| %><%= if attribute.inverse.multiplicity == :many
+          "  private java.util.List<#{attribute.entity.imit.qualified_name}> #{Domgen::Naming.pluralize(attribute.inverse.relationship_name)};\n"
+        else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
+          "  private #{attribute.entity.imit.qualified_name} #{attribute.inverse.relationship_name};\n"
+        end %>
+<% end %>
+<% if entity.extends.nil? %>
+  private boolean _linking;
+  private boolean _delinking;
+  private boolean _linked;
+<% end %>
+  protected <%= entity.imit.name %>( final EntityRepository repository, final EntityChangeBroker broker )
+  {
+    <%= entity.extends.nil? ? "_repository = repository;\n    _broker = broker" : "super( repository, broker )" %>;
+  }
+<% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
+%>  public abstract <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>();
+<% if attribute.attribute_type == :reference
+  %>  abstract <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>();
+<% end %>
+    abstract void set<%= attribute.imit.name(:transport) %>( <%= attribute.imit.java_type(:transport) %> value );
+<% end %>
+<% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
+%>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>()
+  {
+    <% if !attribute.primary_key? %>check<%= attribute.reference? ? "Linked" : "Validity" %>();<% end %>
+    return _<%= attribute.imit.name %>;
+  }
+<% if attribute.attribute_type == :reference
+%>
+  final <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>()
+  {
+    return _<%= attribute.referencing_link_name %>;
+  }
+<% end %>
+  final void set<%= attribute.imit.name(:transport) %>( final <%= annotated_type(attribute, :imit, :transport) %> value )
+  {
+    checkValidity();
+<% if attribute.reference?
+%>
+    _<%= attribute.imit.name %> = null;
+    _<%= attribute.referencing_link_name %> = value;
+<% elsif attribute.enumeration?
+%>
+<% if !attribute.imit.primitive?(:transport)
+%>    if( null != value )
+    {
+<% end %>
+    _<%= attribute.imit.name %> = <%= attribute.imit.java_type %>.<%= attribute.enumeration.textual_values? ? "valueOf( value )" : "values()[value]" %>;
+<% if !attribute.imit.primitive?(:transport)
+%>    }
+    else
+    {
+      _<%= attribute.imit.name %> = null;
+    }
+<% end %>
+    if( null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
+<% else
+%>    _<%= attribute.imit.name %> = value;
+    if( null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
+<% end %>  }
+<% end %>
+<% entity.imit.referencing_client_side_attributes.each do |attribute|
+        name = attribute.inverse.relationship_name
+        type = attribute.entity.imit.qualified_name
+        if attribute.inverse.multiplicity == :many
+          plural_name = Domgen::Naming.pluralize(name)
+%>
+  <%= description_javadoc_for(attribute) %>
+  @javax.annotation.Nonnull
+  public final java.util.List<<%= type %>> get<%= plural_name %>()
+  {
+    return java.util.Collections.unmodifiableList( safeGet<%= plural_name %>() );
+  }
+
+  <% if attribute.entity.data_module.name != entity.data_module.name %>/**
+   * This method should not be called directly. It is called when linking <%= type %>.
+   *
+   * @deprecated
+   */
+  @Deprecated
+  public <% end %>final void add<%= name %>( final <%= type %> value )
+  {
+    safeGet<%= plural_name %>().add( value );
+    if( null != _broker && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, value );
+  }
+
+  <% if attribute.entity.data_module.name != entity.data_module.name %>/**
+   * This method should not be called directly. It is called when delinking or relinking <%= type %>.
+   *
+   * @deprecated
+   */
+  @Deprecated
+  public <% end %>final void remove<%= name %>( final <%= type %> value )
+  {
+    if( null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, value );
+    safeGet<%= plural_name %>().remove( value );
+  }
+
+  private java.util.List<<%= type %>> safeGet<%= plural_name %>()
+  {
+    if( null == <%= plural_name %> )
+    {
+      <%= plural_name %> = new java.util.LinkedList<<%= type %>>();
+    }
+    return <%= plural_name %>;
+  }
+<% else %>
+  public final <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> get<%= name %>()
+  {
+    return <%= name %>;
+  }
+
+  <% if attribute.entity.data_module.name != entity.data_module.name %>/**
+   * This method should not be called directly. It is called when delinking or relinking <%= type %>.
+   *
+   * @deprecated
+   */
+  @Deprecated
+  protected <% end %>final void set<%= name %>( final <%= type %> value )
+  {
+    if( null != <%= name %> && null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
+    <%= name %> = value;
+    if( null != <%= name %> && null != _broker && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
+  }
+<% end %>
+<% end %>
+  public void invalidate()
+  {
+<% if entity.extends.nil?
+%>
+<%    entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side? && attribute.reference? && attribute.inverse.imit.traversable?}.each do |attribute|
+%>    {
+      if( null != _<%= attribute.imit.name %> )
+      {
+        _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, _<%= attribute.imit.name %> );
+      }
+    }
+<% end
+%>    _broker.entityRemoved( this );
+    _repository = null;
+    _broker = null;
+<% else
+%>    super.invalidate();
+<% end
+%>
+  }
+
+<%
+   linkable_attributes = entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.reference? && attribute.imit? && attribute.imit.client_side?}
+%>
+
+  protected void performLink()
+  {
+    <%= entity.extends.nil? ? "if( !_linking ) throw new IllegalStateException( \"performLink invoked from outside link\" )" : "super.performLink()" %>;
+<% linkable_attributes.each do |attribute|
+%>      link<%= attribute.imit.name %>();
+<% end %>
+  }
+
+  protected void performDelink()
+  {
+    <%= entity.extends.nil? ? "if( !_delinking ) throw new IllegalStateException( \"performDelink invoked from outside delink\" )" : "super.performDelink()" %>;
+<% linkable_attributes.each do |attribute|
+%>      delink<%= attribute.imit.name %>();
+<% end %>
+  }
+
+<% linkable_attributes.each do |attribute|
+%>
+    @SuppressWarnings( "deprecation" )
+    private void delink<%= attribute.imit.name %>()
+    {
+      if( null != _<%= attribute.imit.name %> )
+      {
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.remove<%= attribute.inverse.relationship_name %>( this );<% end %>
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.relationship_name %>( null );<% end %>
+        _<%= attribute.imit.name %> = null;
+      }
+    }
+
+    @SuppressWarnings( "deprecation" )
+    private void link<%= attribute.imit.name %>()
+    {
+      if( null == _<%= attribute.imit.name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
+      {
+        _<%= attribute.imit.name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= attribute.referencing_link_name %> );
+        if( null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, _<%= attribute.imit.name %> );
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.add<%= attribute.inverse.relationship_name %>( this );<% end %>
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.relationship_name %>( this );<% end %>
+      }
+    }
+<% end %>
+
+
+<% if entity.extends.nil? %>
+  public final boolean isValid()
+  {
+    return null != _repository;
+  }
+
+  protected final void checkValidity()
+  {
+    if( !isValid() )
+    {
+      throw new IllegalStateException( "Method invoked on invalid imitation" );
+    }
+  }
+
+  protected final void checkLinked()
+  {
+    checkValidity();
+    if( !_linked )
+    {
+      throw new IllegalStateException( "Method invoked on unlinked imitation" );
+    }
+  }
+
+  public final void link()
+  {
+    checkValidity();
+    _linking = true;
+    try
+    {
+      performLink();
+      _linked = true;
+    }
+    finally
+    {
+      _linking = false;
+    }
+  }
+
+  public final void delink()
+  {
+    checkValidity();
+    _delinking = true;
+    try
+    {
+      performDelink();
+      _linked = false;
+    }
+    finally
+    {
+      _delinking = false;
+    }
+  }
+<% end %>
+
+<% if !entity.abstract? %>
+  @Override
+  public boolean equals( final Object o )
+  {
+    if ( this == o )
+    {
+      return true;
+    }
+    else if ( o == null || !(o instanceof <%= entity.imit.name %>) )
+    {
+      return false;
+    }
+    else
+    {
+      final <%= entity.jpa.name%> that = (<%= entity.jpa.name %>) o;
+      return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name}() && get#{entity.primary_key.imit.name}().equals( that.get#{entity.primary_key.imit.name}() )" : "get#{entity.primary_key.imit.name }() == that.get#{entity.primary_key.imit.name }()" %>;
+    }
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name }() ? get#{entity.primary_key.imit.name }().hashCode() : System.identityHashCode( this )" : "get#{entity.primary_key.imit.name }()" %>;
+  }
+<% end %>
+}

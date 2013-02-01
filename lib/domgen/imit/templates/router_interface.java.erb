@@ -1,0 +1,11 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= data_module.imit.encoder_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+public interface <%= data_module.imit.router_interface_name %>
+{
+<% data_module.imit.concrete_client_side_entities.each do |entity| %>
+  @javax.annotation.Nonnull
+  java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity );
+<% end %>
+}

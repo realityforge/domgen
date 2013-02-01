@@ -1,0 +1,10 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= enumeration.data_module.auto_bean.data_type_package %>;
+
+<%= description_javadoc_for(enumeration, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public enum <%= enumeration.auto_bean.name %>
+  implements java.io.Serializable
+{
+  <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>
+}

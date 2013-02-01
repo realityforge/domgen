@@ -1,0 +1,13 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= enumeration.data_module.ee.data_type_package %>;
+
+<%= description_javadoc_for(enumeration, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<% if enumeration.jaxb?
+%>@javax.xml.bind.annotation.XmlType( name = "<%= enumeration.name %>Type"<%= namespace_annotation_parameter(enumeration.xml) %> )
+@javax.xml.bind.annotation.XmlEnum( java.lang.String.class )<% end %>
+public enum <%= enumeration.ee.name %>
+  implements java.io.Serializable
+{
+  <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>
+}

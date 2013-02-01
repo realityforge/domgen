@@ -1,0 +1,12 @@
+<%=
+  modules = YAML::Omap.new
+  repository.data_modules.select{|data_module| data_module.sql?}.collect do |data_module|
+    module_config = {}
+    module_config['schema'] = data_module.sql.schema.to_s
+    module_config['tables'] = data_module.entities.select { |entity| !entity.abstract? }.collect{|e| e.sql.qualified_table_name}
+    modules[data_module.name.to_s] = module_config
+  end
+
+ config = {'modules' => modules}
+ config.to_yaml
+ %>

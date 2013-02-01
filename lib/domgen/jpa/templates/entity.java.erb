@@ -1,0 +1,94 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= entity.data_module.jpa.entity_package %>;
+
+<%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<%
+   jpa_queries = entity.queries.select {|q| !q.jpa.native? }
+   if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
+<%= jpa_queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string}\" )" }.join(",\n") %>
+} )<% end %>
+<%
+   native_queries = entity.queries.select {|q| q.jpa.native? }
+   if !native_queries.empty? %>@javax.persistence.NamedNativeQueries( value = {
+<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string}\"#{q.jpa.native? ? ", resultClass = #{entity.jpa.name}.class" : ""} )" }.join(",\n") %>
+} )<% end %>
+@javax.persistence.Access( javax.persistence.AccessType.FIELD )
+@javax.persistence.Entity( name = "<%= entity.jpa.jpql_name %>" )<% if !entity.abstract? %>
+@javax.persistence.Table( name = "<%= entity.jpa.table_name %>",
+        schema = "<%= entity.data_module.sql.schema %>",
+        uniqueConstraints = {<%=
+  entity.attributes.select{|a|a.unique?}.collect{|a|
+  "@javax.persistence.UniqueConstraint( columnNames = {\"#{a.sql.column_name}\"})"
+  }.join(",\n        ")
+%>})<%
+else %>
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.TABLE_PER_CLASS)<%
+end
+%>
+@javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? "true" : "false" %> )
+public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
+<%= entity.extends ?
+  "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
+  "" %>    implements java.io.Serializable
+{
+<% if !entity.extends %>
+  @javax.persistence.Transient
+  private boolean _removed;
+<% end %>
+<% entity.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= Domgen::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
+<%
+  end
+   entity.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
+<%= j_jpa_field_attributes(attribute) -%>  private <%= attribute.jpa.java_type %> <%= attribute.jpa.name %>;
+<% end %>
+<% entity.referencing_attributes.
+  select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa? && attribute.inverse.jpa.traversable? }.
+  each do |attribute| %><%= j_declared_relation(attribute) %>
+<% end %>
+<%= j_constructors(entity) %>
+<%= j_declared_attribute_and_relation_accessors(entity) %>
+<%= j_equals_method(entity) %>
+<%= j_to_string_methods(entity) %>
+
+<% if !entity.extends %>
+  protected final boolean removed()
+  {
+    return _removed;
+  }
+
+  protected final void verifyNotRemoved()
+  {
+    if( removed() )
+    {
+      throw new IllegalStateException( "Attempting to manipulate entity that has been removed" );
+    }
+  }
+<% end %>
+
+  @javax.persistence.PostRemove
+  protected void postRemove()
+  {
+    if( removed() )
+    {
+      throw new IllegalStateException( "Attempting to remove already removed entity" );
+    }
+<% if entity.extends %>
+    super.postRemove();
+<% else %>
+    _removed = true;
+<% end %>
+  }
+
+  @javax.persistence.PreRemove
+  protected void preRemove()
+  {
+<% entity.declared_attributes.
+  select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.traversable? && attribute.inverse.jpa.traversable? }.
+  each do |attribute|
+%>    if ( null != <%= attribute.jpa.name %> )
+      {
+        <%= attribute.jpa.name %>.remove<%= attribute.inverse.relationship_name %>( this );
+      }
+<% end %>  }
+}

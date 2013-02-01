@@ -1,0 +1,26 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= service.data_module.imit.service_package %>;
+
+<%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public interface <%= service.imit.name %>
+{
+<% service.methods.select{|method| method.imit?}.each do |method|
+
+  method_name = Domgen::Naming.camelize(method.name)
+  parameters = method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "#{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }
+
+   normal_callback = "@javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"
+   non_normal_callback = "@javax.annotation.Nullable org.realityforge.replicant.client.AsyncErrorCallback errorCallback"
+
+%><%= description_javadoc_for(method)
+%>  void <%= method_name %>(<%= (parameters + [normal_callback, non_normal_callback]).join(', ') %>);
+
+<%= description_javadoc_for(method)
+%>  void <%= method_name %>(<%= (parameters + [normal_callback]).join(', ') %>);
+
+
+<%= description_javadoc_for(method)
+%>  void <%= method_name %>(<%= parameters.join(', ') %>);
+
+<% end %>}

@@ -1,0 +1,8 @@
+/* DO NOT EDIT: File is auto-generated */
+<% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| %>
+<% entity.sql.triggers.each do |trigger| %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> ENABLE TRIGGER <%= trigger.quoted_trigger_name %>;
+<%
+   end
+  end
+%>

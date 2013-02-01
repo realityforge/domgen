@@ -1,0 +1,116 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= service.data_module.gwt.client_service_package %>;
+
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked" } )
+public class <%= service.gwt.proxy_name %>
+  implements <%= service.gwt.facade_service_name %>
+{
+  @javax.inject.Inject
+  private <%= service.gwt.qualified_async_rpc_service_name %> _service;
+  @javax.inject.Named("GLOBAL")
+  @javax.inject.Inject
+  private com.google.gwt.user.client.rpc.AsyncCallback _callback;
+
+  @javax.inject.Inject
+  private <%= service.data_module.repository.auto_bean.qualified_factory_name %> _factory;
+
+<% service.methods.select{|method| method.gwt?}.each do |method|
+   method_name = Domgen::Naming.camelize(method.name)
+   parameters = method.parameters.select{|parameter| !parameter.gwt.environmental?}
+%>
+  public void <%= method_name %>(<%= parameters.collect{|p| "final #{annotated_type(p, :gwt, :boundary)} #{p.name}" }.join(', ') %>)
+  {
+    <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["null"]).join(', ') %>);
+  }
+  public void <%= method_name %>(<%= (parameters.collect{|p| "final #{annotated_type(p, :gwt, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.gwt.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
+  {
+    <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["callback","null"]).join(', ') %>);
+  }
+
+  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.gwt.environmental?}.collect{|p| "final #{annotated_type(p, :gwt, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.gwt.non_primitive_java_type(:boundary)}> callback","final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncErrorCallback errorCallback"]).join(', ') %>)
+  {
+  <% method.parameters.select{|parameter| (parameter.enumeration? || parameter.struct?) && parameter.collection?}.each do |parameter| %>
+    final <%= annotated_type(parameter, :gwt, :transport) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.gwt.java_component_type(:transport) %>>();
+    <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
+    for( final <%= parameter.gwt.java_component_type %> entity: <%= parameter.name %> )
+    {
+    <%
+       param_value =
+       if parameter.enumeration?
+         "entity.#{parameter.enumeration.numeric_values? ? "ordinal()" : "name()"}"
+       else
+         "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( entity ) ).getPayload()"
+       end
+    %>
+    $<%= parameter.name %>.add( <%= param_value %> );
+    }
+    <% if parameter.nullable? %>}<% end %>
+  <% end %>
+  _service.<%= method.gwt.name %>(<%= method.parameters.select{|parameter| !parameter.gwt.environmental?}.collect do |parameter|
+  param_value = parameter.name
+  if parameter.collection? && (parameter.enumeration? || parameter.struct?)
+    param_value = "$#{parameter.name}"
+  elsif parameter.enumeration? && parameter.enumeration.numeric_values?
+    param_value = "#{parameter.name}.ordinal()"
+  elsif parameter.enumeration? && parameter.enumeration.textual_values?
+    param_value = "#{parameter.name}.name()"
+  elsif parameter.struct?
+    param_value = "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( #{parameter.name} ) ).getPayload()"
+  end
+  if parameter.nullable? && !parameter.collection?
+    param_value = "null == #{parameter.name} ? null : #{param_value}"
+  end
+  param_value
+end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt.environmental?}.empty? ? '' : ', ' %>new com.google.gwt.user.client.rpc.AsyncCallback<<%= method.return_value.gwt.non_primitive_java_type(:transport) %>>()
+    {
+    public void onFailure( final Throwable caught )
+    {
+      if( null != errorCallback ) errorCallback.onFailure( caught );
+      _callback.onFailure( caught );
+    }
+
+    public void onSuccess( final <%= method.return_value.gwt.non_primitive_java_type(:transport) %> result )
+    {
+<%
+   if !method.return_value.collection?
+     result_string = "result"
+     if method.return_value.enumeration? && method.return_value.enumeration.numeric_values?
+       result_string = "#{method.return_value.gwt.java_type}.values()[ result ]"
+     elsif method.return_value.enumeration? && method.return_value.enumeration.textual_values?
+       result_string = "#{method.return_value.gwt.java_type}.valueOf( result )"
+     elsif method.return_value.struct?
+       result_string = "com.google.web.bindery.autobean.shared.AutoBeanCodex.decode( _factory, #{method.return_value.referenced_struct.auto_bean.qualified_name}.class, result ).as()"
+     end
+     if method.return_value.nullable?
+       result_string = "null == result ? null : #{result_string}"
+     end
+   elsif method.return_value.enumeration? || method.return_value.struct?
+     result_string = "$result"
+   else
+     result_string = "result"
+   end
+%>
+  <% if method.return_value.collection? && (method.return_value.enumeration? || method.return_value.struct?) %>
+    final <%= annotated_type(method.return_value, :gwt, :boundary) %> $result = new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.gwt.java_component_type %>>();
+    for( final <%= method.return_value.gwt.java_component_type(:transport) %> id: result )
+    {
+    <%
+       param_value =
+       if method.return_value.enumeration?
+         method.return_value.enumeration.textual_values? ?
+           "#{method.return_value.gwt.java_component_type}.valueOf( id )" :
+           "#{method.return_value.gwt.java_component_type}.values()[ id ]"
+       else
+         "com.google.web.bindery.autobean.shared.AutoBeanCodex.decode( _factory, #{method.return_value.referenced_struct.auto_bean.qualified_name}.class, id ).as()"
+       end
+    %>
+    $result.add( <%= param_value %> );
+    }
+  <% end %>
+      if( null != callback ) callback.onSuccess( <%= result_string %> );
+      _callback.onSuccess( result );
+    }
+  });
+  }
+
+<% end %>}

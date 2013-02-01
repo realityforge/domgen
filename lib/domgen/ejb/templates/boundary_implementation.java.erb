@@ -1,0 +1,95 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= service.data_module.ejb.service_package %>;
+
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
+@javax.ejb.Startup
+@javax.ejb.Singleton( name = <%= service.ejb.boundary_interface_name %>.EJB_NAME )
+@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+public class <%= service.ejb.boundary_implementation_name %>
+<%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}" : "" %>
+  implements <%= service.ejb.boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
+{
+<% if service.jmx? %>
+  private javax.management.ObjectName _objectName;
+
+  @javax.annotation.PostConstruct
+  public void registerInJMX()
+  {
+    try
+    {
+      _objectName = new javax.management.ObjectName( <%= service.jmx.qualified_service_name %>.OBJECT_NAME );
+      //noinspection EjbThisExpressionInspection
+      java.lang.management.ManagementFactory.getPlatformMBeanServer().registerMBean( this, _objectName );
+    }
+    catch( final Exception e )
+    {
+      throw new IllegalStateException( "Unable to register <%= service.qualified_name %> service in JMX registry due to: " + e, e );
+    }
+  }
+
+  @javax.annotation.PreDestroy
+  public void unregisterFromJMX()
+  {
+    try
+    {
+      java.lang.management.ManagementFactory.getPlatformMBeanServer().unregisterMBean( _objectName );
+    }
+    catch( final Exception e )
+    {
+      throw new IllegalStateException( "Unable to unregister <%= service.qualified_name %> service from JMX registry due to: " + e, e );
+    }
+  }
+<% end %>
+
+<% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| %>
+  @javax.ejb.EJB
+  private <%= entity.jpa.qualified_dao_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
+<% end %>
+  @javax.ejb.EJB
+  private <%= service.ejb.service_name %> _service;
+
+<% service.methods.each do |method|
+%>  @Override
+  public <%= annotated_type(method.return_value, :ejb, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :ejb, :boundary)} #{p.name}" }.join(', ') %>)<%=
+    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
+%><%
+   return_prefix = ''
+   transform = ''
+   if method.return_value.return_type != :void
+     if method.return_value.ejb.java_type == method.return_value.ejb.java_type(:boundary)
+       return_prefix = "return "
+     else
+       return_prefix = "#{annotated_type(method.return_value, :ejb)} value = "
+       if !method.return_value.collection?
+         transform = "return #{modality_default_to_transport("value", method.return_value, :ejb)};"
+       else
+         return_prefix = "#{annotated_type(method.return_value, :ejb)} result = "
+         transform = <<-JAVA
+        final #{annotated_type(method.return_value, :ejb, :boundary)} $result = new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:boundary)}>();
+        for( final #{method.return_value.ejb.java_component_type} k: result )
+        {
+          $result.add( #{
+         method.return_value.reference? ? "k.get#{method.return_value.referenced_entity.primary_key.name}()" :
+           method.return_value.enumeration.numeric_values? ? "k.ordinal()" : "k.name()"
+         } );
+        }
+        return $result;
+JAVA
+       end
+     end
+   end
+%>
+  {
+<% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| %>
+    final <%= annotated_type(parameter, :ejb) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.ejb.java_component_type %>>();
+    for( final <%= parameter.ejb.java_component_type(:boundary) %> id: <%= parameter.name %> )
+    {
+    $<%= parameter.name %>.add( _<%= parameter.referenced_entity.qualified_name.gsub('.','') %>DAO.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
+    }
+<% end %>
+  <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
+  <%= transform %>
+  }
+
+<% end %>}

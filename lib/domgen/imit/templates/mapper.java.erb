@@ -1,0 +1,146 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= data_module.imit.entity_package %>;
+
+import org.realityforge.replicant.client.EntityChangeBroker;
+import org.realityforge.replicant.client.EntityRepository;
+
+/**
+ * Utility class to map a change to an entity ensuring that the repository is updated as required.
+ */
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= data_module.imit.mapper_name %>
+{
+  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= data_module.imit.mapper_name %>.class.getName() );
+
+  private final EntityRepository _repository;
+  private final EntityChangeBroker _broker;
+
+  @javax.inject.Inject
+  public <%= data_module.imit.mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
+  {
+    _repository = repository;
+    _broker = broker;
+  }
+
+<% data_module.imit.client_side_entities.each do |entity| %>
+<% if !entity.abstract? %>
+  public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.Change change )
+  {
+<%
+   designator_value =
+        if entity.primary_key.imit.transport_characteristic_type_key == :integer
+          "change.getDesignatorAsInt()"
+        elsif entity.primary_key.imit.transport_characteristic_type_key == :text
+          "change.getDesignatorAsString()"
+        else
+          raise "Unable to convert data type #{entity.primary_key.imit.transport_characteristic_type_key} on #{entity.primary_key.qualified_name}"
+        end
+%>
+    final Object designator = <%= designator_value %>;
+    <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, designator, false );
+    // If change is a delete...
+    if( !change.isUpdate() )
+    {
+      if( null != entity )
+      {
+        if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
+        {
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + designator + "') is deleting local entity" );
+        }
+        // It is in the local repository so we need to delete it
+        _repository.deregisterEntity( <%= entity.imit.name %>.class, designator );
+      }
+    }
+    else
+    {
+      boolean fullUpdate = false;
+      if( null == entity )
+      {
+        entity = new <%= entity.imit.name %>( _repository, _broker );
+        _repository.registerEntity( <%= entity.imit.name %>.class, designator, entity );
+        fullUpdate = true;
+        if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
+        {
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + designator + "') is creating local entity" );
+        }
+      }
+      else
+      {
+        if( _broker.isEnabled() && LOG.isLoggable( java.util.logging.Level.FINE ) )
+        {
+          LOG.log( java.util.logging.Level.FINE, "applyChangeTo<%= entity.name %>('" + designator + "') is updating local entity" );
+        }
+      }
+      updateAttributes<%= entity.name %>( entity, change, fullUpdate );
+    }
+    return entity;
+  }
+
+<% end %>
+  private void updateAttributes<%= entity.name %>( final <%= entity.imit.name %> entity, final org.realityforge.replicant.client.Change change, final boolean fullUpdate )
+  {
+<% if entity.extends
+   other = entity.data_module.entity_by_name(entity.extends)
+%>    updateAttributes<%= other.name %>( entity, change, fullUpdate );
+<% end %>
+<% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side?}.each do |attribute|
+    key = "#{entity.name}.#{Domgen::Naming.uppercase_constantize(attribute.name)}"
+    value_converter =
+        if attribute.imit.transport_characteristic_type_key == :date
+          "org.realityforge.replicant.client.RDate.parse( change.getStringValue( #{key} ) )"
+        elsif attribute.imit.transport_characteristic_type_key == :integer
+          "change.getIntegerValue( #{key} )"
+        elsif attribute.imit.transport_characteristic_type_key == :real
+          "change.getIntegerValue( #{key} )"
+        elsif attribute.imit.transport_characteristic_type_key == :boolean
+          "change.getBooleanValue( #{key} )"
+        elsif attribute.imit.transport_characteristic_type_key == :text
+          "change.getStringValue( #{key} )"
+        elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
+          "change.getStringValue( #{key} )"
+        elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
+          "change.getIntegerValue( #{key} )"
+        else
+          raise "Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}"
+        end
+%>    if( change.containsKey( <%= entity.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %> ) )
+    {
+      <% if attribute.primary_key? %>if( fullUpdate )
+      {<% end %>
+      set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( change.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %> );
+      <% if attribute.primary_key? %>
+      }<% end %>
+    }
+<% end %>
+  }
+<% end %>
+
+<% data_module.entities.select{|entity| entity.imit?}.each do |entity| %>
+<% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side?}.each do |attribute| %>
+  private void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.name %> entity, <%= nullability_annotation(attribute.nullable?) %> final <%= attribute.imit.java_type(:transport) %> value )
+  {
+<%
+   getter_text = "entity.get#{attribute.imit.name(:transport)}()"
+   equal_check =
+       if attribute.primary_key?
+         "true"
+       elsif attribute.enumeration? && attribute.enumeration.numeric_values?
+         "(null == #{getter_text} || #{getter_text}.ordinal() != value)"
+       elsif attribute.enumeration? && attribute.enumeration.textual_values?
+         "(null == #{getter_text} || !#{getter_text}.name().equals( value ) )"
+         #"#{attribute.enumeration.imit.qualified_name}.valueOf( (String) value )"
+       elsif attribute.imit.primitive?(:transport)
+         "#{getter_text} != value"
+       else
+         "!( (null == value && null == #{getter_text}) || (null != #{getter_text} && null != value && #{getter_text}.equals( value ) ) )"
+       end
+%>
+    if( <%= equal_check %> )
+    {
+      entity.set<%= attribute.imit.name(:transport) %>( value );
+    }
+  }
+<% end %>
+<% end %>
+}

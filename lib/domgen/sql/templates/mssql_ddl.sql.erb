@@ -1,0 +1,242 @@
+/* DO NOT EDIT: File is auto-generated */
+<%= banner("DDL for Data Module '#{data_module.name}'") %>
+<% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| %>
+<% if entity.sql.partition_scheme %>
+IF CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Enterprise Edition%'
+BEGIN
+
+CREATE TABLE <%= entity.sql.qualified_table_name %>(
+<% entity.attributes.each do |a|
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
+<% end
+%>
+    CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC) ON [PRIMARY]
+) ON <%= entity.sql.partition_scheme %>
+
+END
+ELSE
+BEGIN
+<% end %>
+
+CREATE TABLE <%= entity.sql.qualified_table_name %>(
+<% entity.attributes.each do |a|
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
+<% end
+%>  CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC)
+)
+
+<% if entity.sql.partition_scheme %>
+END
+<% end %>
+GO
+<% entity.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
+  @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
+  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>;
+GO
+<% end %>
+<% entity.attributes.select {|a| !a.tags.empty?}.each do |a| %>
+<% a.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
+  @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
+  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'COLUMN', @level2name = <%= a.sql.quoted_column_name %>;
+GO
+<% end %>
+<% end %>
+<% if !entity.sql.force_overflow_for_large_objects.nil? %>
+EXEC sp_tableoption '<%= entity.sql.qualified_table_name %>', 'large value types out of row', <%= entity.sql.force_overflow_for_large_objects ? '1' : '0' %>
+<% end %>
+<% entity.attributes.select {|a| !a.sql.default_value.nil?}.each do |a| %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> ADD CONSTRAINT [DF_<%= entity.name %>_<%= a.name %>] DEFAULT (<%= a.sql.default_value %>) FOR <%= a.sql.quoted_column_name %>
+GO
+<% end %>
+<% entity.sql.indexes.each do |index| %>
+CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %>
+(<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} ASC" }.join(",") %>
+)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(",") %> )<% end %>
+<% if index.filter %>WHERE <%= index.filter %><% end %>
+<%= index.unique? ? 'ON [PRIMARY]' : '' %>
+GO
+<% index.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
+  @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
+  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'INDEX',  @level2name = <%= index.quoted_index_name %>;
+GO
+<% end %>
+
+<% end
+%>
+
+<%= banner("Foreign Keys for #{entity.sql.qualified_table_name}") %>
+<% entity.sql.foreign_keys.each do |foreign_key| %>
+ALTER TABLE <%= entity.sql.qualified_table_name %>
+  WITH NOCHECK ADD CONSTRAINT [<%= foreign_key.foreign_key_name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| entity.attribute_by_name(a).sql.quoted_column_name}.join(', ') %>)
+  REFERENCES <%= foreign_key.referenced_entity.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| foreign_key.referenced_entity.attribute_by_name(a).sql.quoted_column_name}.join(', ')  %>)
+<% if foreign_key.on_update != :no_action %>  ON UPDATE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_update] %><% end %>
+<% if foreign_key.on_delete != :no_action %>  ON DELETE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_delete] %><% end %>
+GO
+ALTER TABLE <%= entity.sql.qualified_table_name %> NOCHECK CONSTRAINT [<%= foreign_key.foreign_key_name %>]
+GO
+<%
+  end
+  if entity.sql.constraints.size > 0 %><%=
+    banner("Constraints for #{entity.sql.qualified_table_name}")
+%><%
+      entity.sql.constraints.each do |constraint|
+%>
+ALTER TABLE <%= entity.sql.qualified_table_name %>
+  WITH NOCHECK ADD CONSTRAINT <%= constraint.quoted_constraint_name %> CHECK ( <%= s(constraint.sql) %> )
+GO
+ALTER TABLE <%= entity.sql.qualified_table_name %> NOCHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
+GO
+<% constraint.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
+  @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
+  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'CONSTRAINT',  @level2name = <%= constraint.quoted_constraint_name %>;
+GO
+<% end %>
+<%    end
+   end
+   if entity.sql.function_constraints.size > 0 %><%=
+    banner("Function Constraints for #{entity.sql.qualified_table_name}")
+%><%
+    entity.sql.function_constraints.each do |constraint|
+%>
+CREATE FUNCTION <%= constraint.qualified_function_name %>
+(
+<%= constraint.parameters.collect{|parameter_name| a = entity.attribute_by_name(parameter_name); "  @#{a.sql.column_name} #{a.sql.sql_type}"}.join(",\n") %>
+)
+RETURNS BIT
+AS
+BEGIN
+  DECLARE @Result BIT;
+  SET @Result = 0;
+  <%= constraint.common_table_expression %>
+  SELECT @Result = 1 WHERE EXISTS (<%= constraint.positive_sql %>)
+  RETURN @Result
+END
+GO
+<% constraint.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
+  @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
+  @level1type = N'FUNCTION',  @level1name = [<%= s(entity.name) %>_<%= s(constraint.name) %>];
+GO
+<% end %>
+ALTER TABLE <%= entity.sql.qualified_table_name %>
+  WITH NOCHECK ADD CONSTRAINT
+  <%= constraint.quoted_constraint_name %>
+  CHECK (<%= constraint.constraint_sql %>)
+GO
+ALTER TABLE <%= entity.sql.qualified_table_name %> NOCHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
+GO
+<% constraint.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
+  @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
+  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'CONSTRAINT',  @level2name = <%= constraint.quoted_constraint_name %>;
+GO
+<% end %>
+    <%
+    end
+   end
+   if entity.sql.triggers.size > 0 %><%=
+    banner("Triggers for #{entity.sql.qualified_table_name}")
+%><%
+      entity.sql.triggers.each do |trigger|
+%>
+CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified_table_name %>
+<%
+  if trigger.after && !trigger.after.empty?
+%>  AFTER <%= trigger.after.collect{|a| a.to_s.upcase }.join(", ") %>
+<%
+  end
+  if trigger.instead_of && !trigger.instead_of.empty?
+%>  INSTEAD OF <%= trigger.instead_of.collect{|a| a.to_s.upcase }.join(", ") %>
+<%
+  end
+%>AS
+  DECLARE @RowsAffected INT
+  SET @RowsAffected = @@ROWCOUNT
+  --no need to continue on if no rows affected
+  IF @RowsAffected = 0 RETURN
+
+  SET NOCOUNT ON; -- to avoid the rowcount messages
+  SET ROWCOUNT 0; -- in case the client has modified the rowcount
+<%= trigger.sql %>
+GO
+<% trigger.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= sql_extended_property_value(value) %>',
+  @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
+  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'TRIGGER',  @level2name = <%= trigger.quoted_trigger_name %>;
+GO
+<% end %>
+DISABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified_table_name %>
+GO
+<%    end
+    end
+  end
+%>
+
+CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.spCheckConstraints
+(
+  @ShowErrors INT = 1,
+  @PrintProgress INT = 0
+)
+AS
+BEGIN
+  SET NOCOUNT ON;
+  DECLARE @Ignored INT
+
+  DECLARE @FailedConstraintChecks TABLE
+  (
+    SchemaName VARCHAR(500),
+    TableName VARCHAR(500),
+    ConstraintName VARCHAR(500),
+    ViewSQL VARCHAR(MAX) NULL
+  );
+<% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| %>
+<%
+   constraints = entity.sql.constraints + entity.sql.function_constraints
+   constraints.select{|constraint| constraint.invariant?}.each do |constraint| %>
+  IF @PrintProgress = 1 PRINT 'Checking constraint <%= constraint.quoted_constraint_name %>'
+  IF (SELECT COUNT(*) FROM <%=entity.sql.qualified_table_name %> WHERE NOT (<%= constraint.constraint_sql %>)) > 0
+  BEGIN
+    IF @ShowErrors = 1 PRINT 'Constraint <%= constraint.quoted_constraint_name %> has errors'
+    INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
+      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','<%= constraint.constraint_name %>','DBCC CHECKCONSTRAINTS(''<%= entity.data_module.sql.schema %>.<%= constraint.constraint_name %>'') WITH ALL_ERRORMSGS, NO_INFOMSGS')
+  END
+<%
+   end
+%>
+<% entity.sql.validations.select{|validation| !validation.invariant_negative_sql.nil?}.each do |validation| %>
+  ;<%= validation.common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.invariant_negative_sql %>)
+  IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
+  BEGIN
+    INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
+      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','V_<%= validation.name %>','<%= "#{validation.common_table_expression}#{validation.invariant_negative_sql}".gsub("'","''") %>')
+  END
+<%
+   end
+  end
+%>
+  SELECT * FROM @FailedConstraintChecks
+END
+GO
