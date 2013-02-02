@@ -95,7 +95,7 @@ module Domgen
         elsif :reference == column.attribute.attribute_type
           return column.attribute.referenced_entity.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
-                    if column.attribute.length.nil?
+          if column.attribute.length.nil?
             return "[VARCHAR](MAX)"
           else
             return "[VARCHAR](#{column.attribute.length})"
