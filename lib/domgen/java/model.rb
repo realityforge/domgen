@@ -55,9 +55,6 @@ Domgen::TypeDB.enhance(:date, 'java.object_type' => 'java.util.Date', 'java.imit
 Domgen::TypeDB.enhance(:datetime, 'java.object_type' => 'java.util.Date')
 Domgen::TypeDB.enhance(:boolean, 'java.primitive_type' => 'boolean', 'java.object_type' => 'java.lang.Boolean')
 Domgen::TypeDB.enhance(:text, 'java.object_type' => 'java.lang.String')
-Domgen::TypeDB.enhance(:enumeration)
-Domgen::TypeDB.enhance(:struct)
-Domgen::TypeDB.enhance(:reference)
 
 module Domgen
   module Java
