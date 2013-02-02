@@ -40,7 +40,7 @@ module Domgen
 
         actual_parameters = query.parameters.collect{|p|p.name.to_s}.sort
         if expected_parameters != actual_parameters
-          raise "Actual parameters for query #{query.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}"
+          Domgen.error("Actual parameters for query #{query.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}")
         end
       end
 
@@ -77,7 +77,7 @@ module Domgen
       end
 
       def jpql
-        raise "Called jpql for native query" if self.native?
+        Domgen.error("Called jpql for native query") if self.native?
         @ql
       end
 
@@ -87,7 +87,7 @@ module Domgen
       end
 
       def sql
-        raise "Called sql for non-native query" unless self.native?
+        Domgen.error("Called sql for non-native query") unless self.native?
         @ql
       end
 
@@ -117,9 +117,9 @@ module Domgen
               q = "SELECT O FROM #{table_name} O #{criteria_clause}"
             end
           elsif query.query_type == :update
-            raise "The combination of query.query_type == :update and query_spec == :criteria is not supported"
+            Domgen.error("The combination of query.query_type == :update and query_spec == :criteria is not supported")
           elsif query.query_type == :insert
-            raise "The combination of query.query_type == :insert and query_spec == :criteria is not supported"
+            Domgen.error("The combination of query.query_type == :insert and query_spec == :criteria is not supported")
           elsif query.query_type == :delete
             if self.native?
               q = "DELETE FROM #{table_name} FROM #{table_name} O #{criteria_clause}"
