@@ -134,3 +134,15 @@ module Domgen
     end
   end
 end
+
+# Define the "standard set" of characteristic types
+Domgen::TypeDB.characteristic_type(:void)
+Domgen::TypeDB.characteristic_type(:text)
+Domgen::TypeDB.characteristic_type(:integer)
+Domgen::TypeDB.characteristic_type(:real)
+Domgen::TypeDB.characteristic_type(:date)
+Domgen::TypeDB.characteristic_type(:datetime)
+Domgen::TypeDB.characteristic_type(:boolean)
+Domgen::TypeDB.characteristic_type(:enumeration)
+Domgen::TypeDB.characteristic_type(:struct)
+Domgen::TypeDB.characteristic_type(:reference)
