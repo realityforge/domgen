@@ -38,12 +38,6 @@ module Domgen
         target.send "#{keys.last}=", v
       end
     end
-
-    protected
-
-    def error(message)
-      Domgen.error(message)
-    end
   end
 
   class BaseTaggableElement < BaseElement

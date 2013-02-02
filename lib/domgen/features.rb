@@ -22,34 +22,34 @@ module Domgen
     end
 
     def geometry_type=(geometry_type)
-      error("geometry_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
-      error("geometry_type on #{name} is invalid as #{geometry_type} is not known type geometry") unless allowable_geometry_types.include?(geometry_type)
+      Domgen.error("geometry_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      Domgen.error("geometry_type on #{name} is invalid as #{geometry_type} is not known type geometry") unless allowable_geometry_types.include?(geometry_type)
       @geometry_type = geometry_type
     end
 
     def geometry_type
-      error("geometry_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      Domgen.error("geometry_type on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
       @geometry_type
     end
 
     def geometry_dimensions=(geometry_dimensions)
-      error("geometry_dimensions on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
-      error("geometry_dimensions on #{name} is invalid as #{geometry_dimensions} is not valid") unless 2..4.include?(geometry_dimensions)
+      Domgen.error("geometry_dimensions on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      Domgen.error("geometry_dimensions on #{name} is invalid as #{geometry_dimensions} is not valid") unless 2..4.include?(geometry_dimensions)
       @geometry_dimensions = geometry_dimensions
     end
 
     def geometry_dimensions
-      error("geometry_dimensions= on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      Domgen.error("geometry_dimensions= on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
       @geometry_dimensions
     end
 
     def geometry_srid=(geometry_srid)
-      error("geometry_srid on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      Domgen.error("geometry_srid on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
       @geometry_srid = geometry_srid
     end
 
     def geometry_srid
-      error("geometry_srid on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
+      Domgen.error("geometry_srid on #{name} is invalid as #{characteristic_container.characteristic_kind} is not geometry") unless geometry?
       @geometry_srid
     end
 
@@ -72,7 +72,7 @@ module Domgen
     attr_reader :length
 
     def length=(length)
-      error("length on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a string") unless allows_length?
+      Domgen.error("length on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a string") unless allows_length?
       @length = length
     end
 
@@ -86,7 +86,7 @@ module Domgen
     end
 
     def min_length=(length)
-      error("min_length on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a string") unless allows_length?
+      Domgen.error("min_length on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a string") unless allows_length?
       @min_length = length
     end
 
@@ -105,7 +105,7 @@ module Domgen
     attr_reader :enumeration
 
     def enumeration=(enumeration)
-      error("enumeration on #{name} is invalid as #{characteristic_container.characteristic_kind} is not an enumeration") unless enumeration?
+      Domgen.error("enumeration on #{name} is invalid as #{characteristic_container.characteristic_kind} is not an enumeration") unless enumeration?
       @enumeration = enumeration
     end
 
@@ -150,40 +150,40 @@ module Domgen
     end
 
     def collection_type=(collection_type)
-      error("collection_type #{collection_type} is invalid") unless [:none, :sequence, :set].include?(collection_type)
+      Domgen.error("collection_type #{collection_type} is invalid") unless [:none, :sequence, :set].include?(collection_type)
       @collection_type = collection_type
     end
 
     def referenced_struct
-      error("referenced_struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      Domgen.error("referenced_struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
       @referenced_struct
     end
 
     def referenced_struct=(referenced_struct)
-      error("struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
+      Domgen.error("struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
       @referenced_struct = referenced_struct.is_a?(Symbol) ? self.characteristic_container.data_module.struct_by_name(referenced_struct) : referenced_struct
     end
 
     def referenced_entity
-      error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      Domgen.error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
       @referenced_entity
     end
 
     def referenced_entity=(referenced_entity)
-      error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      Domgen.error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
       @referenced_entity = referenced_entity.is_a?(Symbol) ? self.characteristic_container.data_module.entity_by_name(referenced_entity) : referenced_entity
     end
 
     # The name of the local field appended with PK of foreign entity
     def referencing_link_name
-      error("referencing_link_name on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
+      Domgen.error("referencing_link_name on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
       "#{name}#{referenced_entity.primary_key.name}"
     end
 
     attr_writer :polymorphic
 
     def polymorphic?
-      error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
+      Domgen.error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
       @polymorphic.nil? ? !referenced_entity.final? : @polymorphic
     end
 
@@ -301,7 +301,7 @@ module Domgen
 
     def characteristic_by_name(name)
       characteristic = characteristic_map[name.to_s]
-      error("Unable to find #{characteristic_kind} named #{name} on type #{self.name}. Available #{characteristic_kind} set = #{attributes.collect { |a| a.name }.join(', ')}") unless characteristic
+      Domgen.error("Unable to find #{characteristic_kind} named #{name} on type #{self.name}. Available #{characteristic_kind} set = #{attributes.collect { |a| a.name }.join(', ')}") unless characteristic
       characteristic
     end
 
@@ -311,7 +311,7 @@ module Domgen
 
     def characteristic(name, type, options, &block)
       characteristic = new_characteristic(name, type, options, &block)
-      error("Attempting to override #{characteristic_kind} #{name} on #{self.name}") if characteristic_map[name.to_s]
+      Domgen.error("Attempting to override #{characteristic_kind} #{name} on #{self.name}") if characteristic_map[name.to_s]
       characteristic_map[name.to_s] = characteristic
       characteristic
     end

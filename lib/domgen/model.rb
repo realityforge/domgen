@@ -24,7 +24,7 @@ module Domgen
 
     def repository_by_name(name)
       repository = repository_map[name.to_s]
-      error("Unable to locate repository #{name}") unless repository
+      Domgen.error("Unable to locate repository #{name}") unless repository
       repository
     end
 
@@ -104,15 +104,15 @@ module Domgen
       rhs = entity.attribute_by_name(rhs_operand)
 
       if lhs.attribute_type != rhs.attribute_type
-        error("Relationship constraint #{self.name} between attributes of different types LHS: #{lhs.name}:#{lhs.attribute_type}, RHS: #{rhs.name}:#{rhs.attribute_type}")
+        Domgen.error("Relationship constraint #{self.name} between attributes of different types LHS: #{lhs.name}:#{lhs.attribute_type}, RHS: #{rhs.name}:#{rhs.attribute_type}")
       end
 
       if self.class.comparable_attribute_types.include?(lhs.attribute_type) || (lhs.enumeration? && lhs.enumeration.numeric_values?)
-        error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.operators.keys.include?(operator)
+        Domgen.error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.operators.keys.include?(operator)
       elsif self.class.equality_attribute_types.include?(lhs.attribute_type) || (lhs.enumeration? && lhs.enumeration.textual_values?)
-        error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.equality_operators.keys.include?(operator)
+        Domgen.error("Unknown operator #{operator} for relationship constraint #{self.name}") unless self.class.equality_operators.keys.include?(operator)
       else
-        error("Unsupported attribute type #{lhs.attribute_type} for relationship constraint #{self.name}")
+        Domgen.error("Unsupported attribute type #{lhs.attribute_type} for relationship constraint #{self.name}")
       end
     end
 
@@ -175,12 +175,12 @@ module Domgen
     end
 
     def multiplicity=(multiplicity)
-      error("multiplicity #{multiplicity} is invalid") unless self.class.inverse_multiplicity_types.include?(multiplicity)
+      Domgen.error("multiplicity #{multiplicity} is invalid") unless self.class.inverse_multiplicity_types.include?(multiplicity)
       @multiplicity = multiplicity
     end
 
     def traversable=(traversable)
-      error("traversable #{traversable} is invalid") unless self.class.inverse_traversable_types.include?(traversable)
+      Domgen.error("traversable #{traversable} is invalid") unless self.class.inverse_traversable_types.include?(traversable)
       @traversable = traversable
     end
 
@@ -202,7 +202,7 @@ module Domgen
     end
 
     def relationship_kind=(relationship_kind)
-      error("relationship_kind #{relationship_kind} is invalid") unless self.class.relationship_kind_types.include?(relationship_kind)
+      Domgen.error("relationship_kind #{relationship_kind} is invalid") unless self.class.relationship_kind_types.include?(relationship_kind)
       @relationship_kind = relationship_kind
     end
 
@@ -252,16 +252,16 @@ module Domgen
     attr_reader :values
 
     def values=(values)
-      error("More than 0 values must be specified for enumeration #{name}") if values.size == 0
+      Domgen.error("More than 0 values must be specified for enumeration #{name}") if values.size == 0
       values.each do |k|
-        error("Key #{k} of enumeration #{name} should be a string") unless k.instance_of?(String)
+        Domgen.error("Key #{k} of enumeration #{name} should be a string") unless k.instance_of?(String)
       end
-      error("Duplicate keys detected for enumeration #{name}") if values.uniq.size != values.size
+      Domgen.error("Duplicate keys detected for enumeration #{name}") if values.uniq.size != values.size
       @values = values
     end
 
     def max_value_length
-      error("max_value_length invoked on numeric enumeration") if numeric_values?
+      Domgen.error("max_value_length invoked on numeric enumeration") if numeric_values?
       values.inject(0) { |max, value| max > value.length ? max : value.length }
     end
 
@@ -345,7 +345,7 @@ module Domgen
     end
 
     def query_type=(query_type)
-      error("query_type #{query_type} is invalid") unless self.class.valid_query_types.include?(query_type)
+      Domgen.error("query_type #{query_type} is invalid") unless self.class.valid_query_types.include?(query_type)
       @query_type = query_type
     end
 
@@ -358,7 +358,7 @@ module Domgen
     end
 
     def multiplicity=(multiplicity)
-      error("multiplicity #{multiplicity} is invalid") unless Domgen::InverseElement.inverse_multiplicity_types.include?(multiplicity)
+      Domgen.error("multiplicity #{multiplicity} is invalid") unless Domgen::InverseElement.inverse_multiplicity_types.include?(multiplicity)
       @multiplicity = multiplicity
     end
 
@@ -441,8 +441,8 @@ module Domgen
       @name = name
       @attribute_type = attribute_type
       super(entity, options, &block)
-      error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !self.class.persistent_types.include?(attribute_type)
-      error("Attribute #{self.qualified_name} must not be a collection") if collection?
+      Domgen.error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !self.class.persistent_types.include?(attribute_type)
+      Domgen.error("Attribute #{self.qualified_name} must not be a collection") if collection?
     end
 
     def qualified_name
@@ -485,7 +485,7 @@ module Domgen
     end
 
     def inverse
-      error("inverse called on #{name} is invalid as attribute is not a reference") unless reference?
+      Domgen.error("inverse called on #{name} is invalid as attribute is not a reference") unless reference?
       @inverse ||= InverseElement.new(self, {})
     end
 
@@ -580,7 +580,7 @@ module Domgen
     end
 
     def unique_constraint(attribute_names, options = {}, &block)
-      error("Must have at least 1 or more attribute names for uniqueness constraint") if attribute_names.empty?
+      Domgen.error("Must have at least 1 or more attribute names for uniqueness constraint") if attribute_names.empty?
       constraint = UniqueConstraint.new(self, attribute_names, options, &block)
       add_unique_to_set("unique", constraint, @unique_constraints)
     end
@@ -592,9 +592,9 @@ module Domgen
     # Check that either the attribute is null or the attribute and all the dependents are not null
     def dependency_constraint(attribute_name, dependent_attribute_names, options = {}, &block)
       constraint = DependencyConstraint.new(self, attribute_name, dependent_attribute_names, options, &block)
-      error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !attribute_by_name(attribute_name).nullable?
+      Domgen.error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !attribute_by_name(attribute_name).nullable?
       dependent_attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
-        error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable dependent attribute") if !a.nullable?
+        Domgen.error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable dependent attribute") if !a.nullable?
       end
       add_unique_to_set("dependency", constraint, @dependency_constraints)
     end
@@ -617,7 +617,7 @@ module Domgen
     def codependent_constraint(attribute_names, options = {}, &block)
       constraint = CodependentConstraint.new(self, attribute_names, options, &block)
       attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
-        error("Codependent constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
+        Domgen.error("Codependent constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
       add_unique_to_set("codependent", constraint, @codependent_constraints)
     end
@@ -630,7 +630,7 @@ module Domgen
     def incompatible_constraint(attribute_names, options = {}, &block)
       constraint = IncompatibleConstraint.new(self, attribute_names, options, &block)
       attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
-        error("Incompatible constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
+        Domgen.error("Incompatible constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
       add_unique_to_set("incompatible", constraint, @incompatible_constraints)
     end
@@ -641,22 +641,22 @@ module Domgen
 
     # Constraint that ensures that the value of a particular value is within a particular scope
     def cycle_constraint(attribute_name, attribute_name_path, options = {}, &block)
-      error("Cycle constraint must have a path of length 1 or more") if attribute_name_path.empty?
+      Domgen.error("Cycle constraint must have a path of length 1 or more") if attribute_name_path.empty?
 
       constraint = CycleConstraint.new(self, attribute_name, attribute_name_path, options, &block)
 
       entity = self
       attribute_name_path.each do |attribute_name_path_element|
         other = entity.attribute_by_name(attribute_name_path_element)
-        error("Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
-        error("Path element #{attribute_name_path_element} is not a reference") if !other.reference?
+        Domgen.error("Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
+        Domgen.error("Path element #{attribute_name_path_element} is not a reference") if !other.reference?
         entity = other.referenced_entity
       end
       local_reference = attribute_by_name(attribute_name)
-      error("Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
+      Domgen.error("Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
       scoping_attribute = local_reference.referenced_entity.attribute_by_name(constraint.scoping_attribute)
       if entity.name.to_s != scoping_attribute.referenced_entity.name.to_s
-        error("Attribute in cycle references #{scoping_attribute.referenced_entity.name} while last reference in path is #{entity.name}")
+        Domgen.error("Attribute in cycle references #{scoping_attribute.referenced_entity.name} while last reference in path is #{entity.name}")
       end
 
       add_unique_to_set("cycle", constraint, @cycle_constraints)
@@ -665,7 +665,7 @@ module Domgen
     # Assume single column pk
     def primary_key
       primary_key = attributes.find { |a| a.primary_key? }
-      error("Unable to locate primary key for #{self.name}, attributes => #{attributes.collect { |a| a.name }}") unless primary_key
+      Domgen.error("Unable to locate primary key for #{self.name}, attributes => #{attributes.collect { |a| a.name }}") unless primary_key
       primary_key
     end
 
@@ -690,7 +690,7 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       override = false
       if characteristic_map[name.to_s]
-        error("Attempting to override non abstract attribute #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
+        Domgen.error("Attempting to override non abstract attribute #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
         # nil out atribute so the characteristic container will not complain about it overriding an existing value
         characteristic_map[name.to_s] = nil
         override = true
@@ -715,16 +715,16 @@ module Domgen
         q.verify
       end
 
-      error("Entity #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
+      Domgen.error("Entity #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
       attributes.each do |a|
-        error("Abstract attribute #{a.name} on non abstract object type #{name}") if !abstract? && a.abstract?
+        Domgen.error("Abstract attribute #{a.name} on non abstract object type #{name}") if !abstract? && a.abstract?
       end
     end
 
     private
 
     def add_unique_to_set(type, constraint, set)
-      error("Only 1 #{type} constraint with name #{constraint.name} should be defined") if set[constraint.name]
+      Domgen.error("Only 1 #{type} constraint with name #{constraint.name} should be defined") if set[constraint.name]
       set[constraint.name] = constraint
       constraint
     end
@@ -958,7 +958,7 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       override = false
       if characteristic_map[name.to_s]
-        error("Attempting to override non abstract parameter #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
+        Domgen.error("Attempting to override non abstract parameter #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
         # nil out atribute so the characteristic container will not complain about it overriding an existing value
         characteristic_map[name.to_s] = nil
         override = true
@@ -1061,7 +1061,7 @@ module Domgen
     end
 
     def returns(parameter_type, options = {}, &block)
-      error("Attempting to redefine return type #{name} on #{self.qualified_name}") if @return_type
+      Domgen.error("Attempting to redefine return type #{name} on #{self.qualified_name}") if @return_type
       @return_type ||= Result.new(self, parameter_type, options, &block)
     end
 
@@ -1078,7 +1078,7 @@ module Domgen
     end
 
     def exception(name, options = {}, &block)
-      error("Attempting to redefine exception #{name} on #{self.qualified_name}") if @exceptions[name.to_s]
+      Domgen.error("Attempting to redefine exception #{name} on #{self.qualified_name}") if @exceptions[name.to_s]
       exception = service.data_module.exception_by_name(name, true)
       if exception.nil?
         exception = service.data_module.exception(name, options)
@@ -1132,7 +1132,7 @@ module Domgen
     end
 
     def method(name, options = {}, &block)
-      error("Attempting to override method #{name} on #{self.name}") if @methods[name.to_s]
+      Domgen.error("Attempting to override method #{name} on #{self.name}") if @methods[name.to_s]
       method = Method.new(self, name, options, &block)
       @methods[name.to_s] = method
       method
@@ -1191,7 +1191,7 @@ module Domgen
 
     def local_enumeration_by_name(name, optional = false)
       enumeration = @enumerations[name.to_s]
-      error("Unable to locate local enumeration #{name} in #{self.name}") if !enumeration && !optional
+      Domgen.error("Unable to locate local enumeration #{name} in #{self.name}") if !enumeration && !optional
       enumeration
     end
 
@@ -1213,7 +1213,7 @@ module Domgen
 
     def local_exception_by_name(name, optional = false)
       exception = @exceptions[name.to_s]
-      error("Unable to locate local exception #{name} in #{self.name}") if !exception && !optional
+      Domgen.error("Unable to locate local exception #{name} in #{self.name}") if !exception && !optional
       exception
     end
 
@@ -1235,7 +1235,7 @@ module Domgen
 
     def local_entity_by_name(name, optional = false)
       entity = @entities[name.to_s]
-      error("Unable to locate local entity #{name} in #{self.name}") if !entity && !optional
+      Domgen.error("Unable to locate local entity #{name} in #{self.name}") if !entity && !optional
       entity
     end
 
@@ -1257,7 +1257,7 @@ module Domgen
 
     def local_service_by_name(name, optional = false)
       service = @services[name.to_s]
-      error("Unable to locate local service #{name} in #{self.name}") if !service && !optional
+      Domgen.error("Unable to locate local service #{name} in #{self.name}") if !service && !optional
       service
     end
 
@@ -1279,7 +1279,7 @@ module Domgen
 
     def local_message_by_name(name, optional = false)
       message = @messages[name.to_s]
-      error("Unable to locate local message #{name} in #{self.name}") if !message && !optional
+      Domgen.error("Unable to locate local message #{name} in #{self.name}") if !message && !optional
       message
     end
 
@@ -1301,7 +1301,7 @@ module Domgen
 
     def local_struct_by_name(name, optional = false)
       struct = @structs[name.to_s]
-      error("Unable to locate local struct #{name} in #{self.name}") if !struct && !optional
+      Domgen.error("Unable to locate local struct #{name} in #{self.name}") if !struct && !optional
       struct
     end
 
@@ -1320,7 +1320,7 @@ module Domgen
 
     def split_name(name)
       name_parts = name.to_s.split('.')
-      error("Name should have 0 or 1 '.' separators") if (name_parts.size != 1 && name_parts.size != 2)
+      Domgen.error("Name should have 0 or 1 '.' separators") if (name_parts.size != 1 && name_parts.size != 2)
       name_parts = [self.name] + name_parts if name_parts.size == 1
       name_parts
     end
@@ -1331,7 +1331,7 @@ module Domgen
     end
 
     def pre_enumeration_create(name)
-      error("Attempting to redefine Enumeration '#{name}'") if @enumerations[name.to_s]
+      Domgen.error("Attempting to redefine Enumeration '#{name}'") if @enumerations[name.to_s]
       Logger.debug "Enumeration '#{name}' definition started"
     end
 
@@ -1345,7 +1345,7 @@ module Domgen
     end
 
     def pre_exception_create(name)
-      error("Attempting to redefine Exception '#{name}'") if @exceptions[name.to_s]
+      Domgen.error("Attempting to redefine Exception '#{name}'") if @exceptions[name.to_s]
       Logger.debug "Exception '#{name}' definition started"
     end
 
@@ -1359,7 +1359,7 @@ module Domgen
     end
 
     def pre_struct_create(name)
-      error("Attempting to redefine Struct '#{name}'") if @structs[name.to_s]
+      Domgen.error("Attempting to redefine Struct '#{name}'") if @structs[name.to_s]
       Logger.debug "Struct '#{name}' definition started"
     end
 
@@ -1373,7 +1373,7 @@ module Domgen
     end
 
     def pre_entity_create(name)
-      error("Attempting to redefine Entity '#{name}'") if @entities[name.to_s]
+      Domgen.error("Attempting to redefine Entity '#{name}'") if @entities[name.to_s]
       Logger.debug "Entity '#{name}' definition started"
     end
 
@@ -1387,7 +1387,7 @@ module Domgen
     end
 
     def pre_service_create(name)
-      error("Attempting to redefine Service '#{name}'") if @services[name.to_s]
+      Domgen.error("Attempting to redefine Service '#{name}'") if @services[name.to_s]
       Logger.debug "Service '#{name}' definition started"
     end
 
@@ -1401,7 +1401,7 @@ module Domgen
     end
 
     def pre_message_create(name)
-      error("Attempting to redefine Message '#{name}'") if @messages[name.to_s]
+      Domgen.error("Attempting to redefine Message '#{name}'") if @messages[name.to_s]
       Logger.debug "Message '#{name}' definition started"
     end
 
@@ -1426,7 +1426,7 @@ module Domgen
       @name = name
       Logger.info "Model Check '#{name}' definition started"
       super(options, &block)
-      error("Model Check '#{name}' defines no check.") unless @check
+      Domgen.error("Model Check '#{name}' defines no check.") unless @check
       Logger.info "Model Check '#{name}' definition completed"
     end
 
@@ -1484,7 +1484,7 @@ module Domgen
 
     def data_module_by_name(name)
       data_module = @data_modules[name.to_s]
-      error("Unable to locate data_module #{name}") unless data_module
+      Domgen.error("Unable to locate data_module #{name}") unless data_module
       data_module
     end
 

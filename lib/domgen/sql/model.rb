@@ -219,7 +219,7 @@ module Domgen
       end
 
       def on_update=(on_update)
-        error("on_update #{on_update} on #{name} is invalid") unless ACTION_MAP.keys.include?(on_update)
+        Domgen.error("on_update #{on_update} on #{name} is invalid") unless ACTION_MAP.keys.include?(on_update)
         @on_update = on_update
       end
 
@@ -228,7 +228,7 @@ module Domgen
       end
 
       def on_delete=(on_delete)
-        error("on_delete #{on_delete} on #{name} is invalid") unless ACTION_MAP.keys.include?(on_delete)
+        Domgen.error("on_delete #{on_delete} on #{name} is invalid") unless ACTION_MAP.keys.include?(on_delete)
         @on_delete = on_delete
       end
 
@@ -487,7 +487,7 @@ module Domgen
 
       def constraint(name, options = {}, &block)
         existing = constraint_by_name(name)
-        error("Constraint named #{name} already defined on table #{qualified_table_name}") if existing
+        Domgen.error("Constraint named #{name} already defined on table #{qualified_table_name}") if existing
         constraint = Constraint.new(self, name, options, &block)
         @constraints[name.to_s] = constraint
         constraint
@@ -503,7 +503,7 @@ module Domgen
 
       def function_constraint(name, parameters, options = {}, &block)
         existing = function_constraint_by_name(name)
-        error("Function Constraint named #{name} already defined on table #{qualified_table_name}") if existing
+        Domgen.error("Function Constraint named #{name} already defined on table #{qualified_table_name}") if existing
         function_constraint = FunctionConstraint.new(self, name, parameters, options, &block)
         @function_constraints[name.to_s] = function_constraint
         function_constraint
@@ -519,7 +519,7 @@ module Domgen
 
       def validation(name, options = {}, &block)
         existing = validation_by_name(name)
-        error("Validation named #{name} already defined on table #{qualified_table_name}") if existing
+        Domgen.error("Validation named #{name} already defined on table #{qualified_table_name}") if existing
         validation = Validation.new(self, name, options, &block)
         @validations[name.to_s] = validation
         validation
@@ -535,7 +535,7 @@ module Domgen
 
       def action(name, options = {}, &block)
         existing = action_by_name(name)
-        error("Action named #{name} already defined on table #{qualified_table_name}") if existing
+        Domgen.error("Action named #{name} already defined on table #{qualified_table_name}") if existing
         action = Action.new(self, name, options, &block)
         @actions[name.to_s] = action
         action
@@ -551,7 +551,7 @@ module Domgen
 
       def trigger(name, options = {}, &block)
         existing = trigger_by_name(name)
-        error("Trigger named #{name} already defined on table #{qualified_table_name}") if existing
+        Domgen.error("Trigger named #{name} already defined on table #{qualified_table_name}") if existing
         trigger = Trigger.new(self, name, options, &block)
         @triggers[name.to_s] = trigger
         trigger
@@ -568,7 +568,7 @@ module Domgen
       def index(attribute_names, options = {}, skip_if_present = false, &block)
         index = Index.new(self, attribute_names, options, &block)
         return if @indexes[index.index_name] && skip_if_present
-        error("Index named #{index.index_name} already defined on table #{qualified_table_name}") if @indexes[index.index_name]
+        Domgen.error("Index named #{index.index_name} already defined on table #{qualified_table_name}") if @indexes[index.index_name]
         @indexes[index.index_name] = index
         index
       end
@@ -580,24 +580,24 @@ module Domgen
       def foreign_key(attribute_names, referenced_entity_name, referenced_attribute_names, options = {}, skip_if_present = false, &block)
         foreign_key = ForeignKey.new(self, attribute_names, referenced_entity_name, referenced_attribute_names, options, &block)
         return if @indexes[foreign_key.name] && skip_if_present
-        error("Foreign Key named #{foreign_key.name} already defined on table #{table_name}") if @indexes[foreign_key.name]
+        Domgen.error("Foreign Key named #{foreign_key.name} already defined on table #{table_name}") if @indexes[foreign_key.name]
         @foreign_keys[foreign_key.name] = foreign_key
         foreign_key
       end
 
       def post_verify
         if self.partition_scheme && indexes.select{|index|index.cluster?}.empty?
-          error("Must specify a clustered index if using a partition scheme")
+          Domgen.error("Must specify a clustered index if using a partition scheme")
         end
 
         self.indexes.each do |index|
           if index.cluster? && index.partial?
-            error("Must not specify a partial clustered index. Index = #{index.qualified_index_name}")
+            Domgen.error("Must not specify a partial clustered index. Index = #{index.qualified_index_name}")
           end
         end
 
         if indexes.select { |i| i.cluster? }.size > 1
-          error("#{qualified_table_name} defines multiple clustering indexes")
+          Domgen.error("#{qualified_table_name} defines multiple clustering indexes")
         end
 
         entity.unique_constraints.each do |c|
@@ -896,24 +896,24 @@ SQL
       end
 
       def on_update=(on_update)
-        error("on_update on #{column_name} is invalid as attribute is not a reference") unless attribute.reference?
-        error("on_update #{on_update} on #{column_name} is invalid") unless self.class.change_actions.include?(on_update)
+        Domgen.error("on_update on #{column_name} is invalid as attribute is not a reference") unless attribute.reference?
+        Domgen.error("on_update #{on_update} on #{column_name} is invalid") unless self.class.change_actions.include?(on_update)
         @on_update = on_update
       end
 
       def on_update
-        error("on_update on #{name} is invalid as attribute is not a reference") unless attribute.reference?
+        Domgen.error("on_update on #{name} is invalid as attribute is not a reference") unless attribute.reference?
         @on_update.nil? ? :no_action : @on_update
       end
 
       def on_delete=(on_delete)
-        error("on_delete on #{column_name} is invalid as attribute is not a reference") unless attribute.reference?
-        error("on_delete #{on_delete} on #{column_name} is invalid") unless self.class.change_actions.include?(on_delete)
+        Domgen.error("on_delete on #{column_name} is invalid as attribute is not a reference") unless attribute.reference?
+        Domgen.error("on_delete #{on_delete} on #{column_name} is invalid") unless self.class.change_actions.include?(on_delete)
         @on_delete = on_delete
       end
 
       def on_delete
-        error("on_delete on #{name} is invalid as attribute is not a reference") unless attribute.reference?
+        Domgen.error("on_delete on #{name} is invalid as attribute is not a reference") unless attribute.reference?
         @on_delete.nil? ? :no_action : @on_delete
       end
 

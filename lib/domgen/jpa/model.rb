@@ -45,7 +45,7 @@ module Domgen
       end
 
       def query_spec=(query_spec)
-        error("query_spec #{query_spec} is invalid") unless self.class.valid_query_specs.include?(query_spec)
+        Domgen.error("query_spec #{query_spec} is invalid") unless self.class.valid_query_specs.include?(query_spec)
         @query_spec = query_spec
       end
 
@@ -127,10 +127,10 @@ module Domgen
               q = "DELETE FROM #{table_name} O #{criteria_clause}"
             end
           else
-            error("Unknown query type #{query.query_type}")
+            Domgen.error("Unknown query type #{query.query_type}")
           end
         else
-          error("Unknown query spec #{self.query_spec}")
+          Domgen.error("Unknown query spec #{self.query_spec}")
         end
         q = q.gsub(/:[^\W]+/,'?') if self.native?
         q.gsub(/[\s]+/, ' ').strip
@@ -153,7 +153,7 @@ module Domgen
         value = value.is_a?(Array) ? value : [value]
         invalid_cascades = value.select { |v| !self.class.cascade_types.include?(v) }
         unless invalid_cascades.empty?
-          error("cascade_type must be one of #{self.class.cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
+          Domgen.error("cascade_type must be one of #{self.class.cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
         end
         @cascade = value
       end
@@ -167,7 +167,7 @@ module Domgen
       end
 
       def fetch_type=(fetch_type)
-        error("fetch_type #{fetch_type} is not recognized") unless self.class.fetch_types.include?(fetch_type)
+        Domgen.error("fetch_type #{fetch_type} is not recognized") unless self.class.fetch_types.include?(fetch_type)
         @fetch_type = fetch_type
       end
 
@@ -178,7 +178,7 @@ module Domgen
       attr_reader :fetch_mode
 
       def fetch_mode=(fetch_mode)
-        error("fetch_mode #{fetch_mode} is not recognized") unless self.class.fetch_modes.include?(fetch_mode)
+        Domgen.error("fetch_mode #{fetch_mode} is not recognized") unless self.class.fetch_modes.include?(fetch_mode)
         @fetch_mode = fetch_mode
       end
 
@@ -199,7 +199,7 @@ module Domgen
       end
 
       def traversable=(traversable)
-        error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
+        Domgen.error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
         @traversable = traversable
       end
 

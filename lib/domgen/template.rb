@@ -32,7 +32,7 @@ module Domgen
 
     def template_set_by_name(name)
       template_set = template_set_map[name.to_s]
-      error("Unable to locate template_set #{name}") unless template_set
+      Domgen.error("Unable to locate template_set #{name}") unless template_set
       template_set
     end
 
@@ -70,7 +70,7 @@ module Domgen
 
       def template_by_name(name)
         template = template_map[name.to_s]
-        error("Unable to locate template #{name}") unless template
+        Domgen.error("Unable to locate template #{name}") unless template
         template
       end
 

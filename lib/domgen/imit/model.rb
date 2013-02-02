@@ -17,7 +17,7 @@ module Domgen
 
     class ImitationAttributeInverse < Domgen.ParentedElement(:inverse)
       def traversable=(traversable)
-        error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
+        Domgen.error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
         @traversable = traversable
       end
 

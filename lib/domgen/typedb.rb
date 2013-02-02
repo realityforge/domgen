@@ -83,12 +83,6 @@ module Domgen
                     target.send("#{keys.last}=", v)
                   end
                 end
-
-                protected
-
-                def error(message)
-                  Domgen.error(message)
-                end
               end
 
           namespace_elements = namespace.to_s.split('.')
@@ -117,14 +111,14 @@ module Domgen
 
       def characteristic_type_by_name(name)
         characteristic_type = characteristic_type_map[name.to_s]
-        error("Unable to locate characteristic_type #{name}") unless characteristic_type
+        Domgen.error("Unable to locate characteristic_type #{name}") unless characteristic_type
         characteristic_type
       end
 
       private
 
       def register_characteristic_type(name, characteristic_type)
-        error("Attempt override characteristic_type #{name}") if characteristic_type?(name)
+        Domgen.error("Attempt override characteristic_type #{name}") if characteristic_type?(name)
         characteristic_type_map[name.to_s] = characteristic_type
       end
 

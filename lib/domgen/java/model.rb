@@ -45,7 +45,7 @@ module Domgen
           elsif :boundary == modality || :transport == modality
             return characteristic.referenced_entity.primary_key.send(entity_key).non_primitive_java_type(modality)
           else
-            error("unknown modality #{modality}")
+            Domgen.error("unknown modality #{modality}")
           end
         elsif characteristic.enumeration?
           if :default == modality || :boundary == modality
@@ -57,7 +57,7 @@ module Domgen
               return "java.lang.Integer"
             end
           else
-            error("unknown modality #{modality}")
+            Domgen.error("unknown modality #{modality}")
           end
         elsif characteristic.struct?
           if :default == modality || :boundary == modality
@@ -65,7 +65,7 @@ module Domgen
           elsif :transport == modality
             return "java.lang.String"
           else
-            error("unknown modality #{modality}")
+            Domgen.error("unknown modality #{modality}")
           end
         elsif characteristic.date?
           return date_java_type
@@ -106,7 +106,7 @@ module Domgen
           return false unless characteristic.reference?
           return characteristic.referenced_entity.primary_key.integer? || characteristic.referenced_entity.primary_key.boolean?
         else
-          error("unknown modality #{modality}")
+          Domgen.error("unknown modality #{modality}")
         end
       end
 
@@ -118,7 +118,7 @@ module Domgen
         elsif :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
           return "int"
         end
-        error("primitive_java_type invoked for non primitive method")
+        Domgen.error("primitive_java_type invoked for non primitive method")
       end
 
       def transport_characteristic_type_key
