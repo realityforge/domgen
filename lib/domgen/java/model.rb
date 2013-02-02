@@ -32,10 +32,7 @@ module Domgen
         end
       end
 
-      attr_writer :java_type
-
       def java_type(modality = :default)
-        return @java_type if @java_type
         return "void" if :void == characteristic.characteristic_type_key
         return primitive_java_type(modality) if primitive?(modality)
         non_primitive_java_type(modality)
