@@ -168,8 +168,8 @@ module Domgen
       GroupType = ::Struct.new("GroupType", :entity_key, :enumeration_key, :struct_key)
 
       GROUP_TYPE_MAP = {
-        :ee => GroupType.new(:jpa,:ee,:ee),
-        :imit => GroupType.new(:imit,:auto_bean,:auto_bean)
+        :ee => GroupType.new(:jpa, :ee, :ee),
+        :imit => GroupType.new(:imit, :auto_bean, :auto_bean)
       }
 
       MODALITIES = [:default, :boundary, :transport]
