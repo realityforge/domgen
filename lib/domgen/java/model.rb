@@ -73,7 +73,7 @@ module Domgen
           if characteristic_type
             return characteristic.characteristic_type.java.primitive_type
           else
-            characteristic.characteristic_type_key
+            Domgen.error("#{characteristic.name} is not a primitive type yet primitive_java_type invoked")
           end
         end
       end
