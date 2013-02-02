@@ -155,6 +155,15 @@ module Domgen
         end
       end
 
+      def transport_characteristic_type_key(characteristic, group_type)
+        check_modality(modality)
+        characteristic_group = group_type(group_type)
+
+        return characteristic.reference? ?
+          characteristic.referenced_entity.primary_key.send(characteristic_group.entity_key).characteristic_type_key :
+          characteristic.characteristic_type_key
+      end
+
       protected
 
       def sequence_type(component_type)
@@ -215,7 +224,7 @@ module Domgen
       end
 
       def transport_characteristic_type_key
-        characteristic.reference? ? characteristic.referenced_entity.primary_key.send(entity_key).characteristic_type_key : characteristic.characteristic_type_key
+        Domgen::Java.transport_characteristic_type_key(characteristic, group_type)
       end
 
       protected
@@ -223,20 +232,12 @@ module Domgen
       def characteristic
         raise "characteristic unimplemented"
       end
-
-      def entity_key
-        raise "entity_key unimplemented"
-      end
     end
 
     module EEJavaCharacteristic
       include JavaCharacteristic
 
       protected
-
-      def entity_key
-        :jpa
-      end
 
       def group_type
         :ee
@@ -249,10 +250,6 @@ module Domgen
       protected
 
       def group_type
-        :imit
-      end
-
-      def entity_key
         :imit
       end
     end
