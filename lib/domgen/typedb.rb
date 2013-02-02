@@ -135,6 +135,15 @@ module Domgen
       end
     end
   end
+
+  SUPPORTED_GEOMETRY_TYPES =
+    %w{point multipoint linestring multilinestring polygon multipolygon geometry
+       pointm multipointm linestringm multilinestringm polygonm multipolygonm}
+
+  UNSUPPORTED_GEOMETRY_TYPES =
+    %w{ circularstring compoundcurve multicurve
+        curvepolygon multisurface geometrycollection circularstringm compoundcurvem multicurvem curvepolygonm
+        multisurfacem triangle trianglem polyhedralsurface polyhedralsurfacem tin tinm geometrycollectionm}
 end
 
 # Define the "standard set" of characteristic types
@@ -145,3 +154,7 @@ Domgen::TypeDB.characteristic_type(:real)
 Domgen::TypeDB.characteristic_type(:date)
 Domgen::TypeDB.characteristic_type(:datetime)
 Domgen::TypeDB.characteristic_type(:boolean)
+
+Domgen::SUPPORTED_GEOMETRY_TYPES.each do |geometry_type|
+  Domgen::TypeDB.characteristic_type(geometry_type.to_sym)
+end

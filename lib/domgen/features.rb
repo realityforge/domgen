@@ -93,6 +93,10 @@ module Domgen
       self.characteristic_type_key == :struct
     end
 
+    def geometry?
+      self.characteristic_type_key == :geometry
+    end
+
     def characteristic_type
       Domgen::TypeDB.characteristic_type?(self.characteristic_type_key) ?
         Domgen::TypeDB.characteristic_type_by_name(self.characteristic_type_key) :
@@ -115,6 +119,11 @@ module Domgen
     def referenced_struct
       Domgen.error("referenced_struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
       @referenced_struct
+    end
+
+    def geometry
+      Domgen.error("geometry on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a geometry") unless geometry?
+      @geometry ||= Geometry.new(self)
     end
 
     def referenced_struct=(referenced_struct)
@@ -297,6 +306,16 @@ module Domgen
     end
 
     # Also need to define data_module
+  end
+
+  SUPPORTED_GEOMETRY_TYPES.each do |geometry|
+    CharacteristicContainer.module_eval(<<-CODE)
+      def #{geometry}(name, options = {}, &block)
+        params = options.dup
+        params[:"geometry.geometry_type"] = :#{geometry}
+        characteristic(name, :geometry, params, &block)
+      end
+    CODE
   end
 
   module InheritableCharacteristicContainer

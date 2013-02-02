@@ -56,6 +56,20 @@ Domgen::TypeDB.enhance(:datetime, 'java.object_type' => 'java.util.Date')
 Domgen::TypeDB.enhance(:boolean, 'java.primitive_type' => 'boolean', 'java.object_type' => 'java.lang.Boolean')
 Domgen::TypeDB.enhance(:text, 'java.object_type' => 'java.lang.String')
 
+Domgen::TypeDB.enhance(:point, 'java.object_type' => 'org.postgis.Point')
+Domgen::TypeDB.enhance(:multipoint, 'java.object_type' => 'org.postgis.MultiPoint')
+Domgen::TypeDB.enhance(:linestring, 'java.object_type' => 'org.postgis.LineString')
+Domgen::TypeDB.enhance(:multilinestring, 'java.object_type' => 'org.postgis.MultiLineString')
+Domgen::TypeDB.enhance(:polygon, 'java.object_type' => 'org.postgis.Polygon')
+Domgen::TypeDB.enhance(:multipolygon, 'java.object_type' => 'org.postgis.MultiPolygon')
+Domgen::TypeDB.enhance(:geometry, 'java.object_type' => 'org.postgis.Geometry')
+Domgen::TypeDB.enhance(:pointm, 'java.object_type' => 'org.postgis.Point')
+Domgen::TypeDB.enhance(:multipointm, 'java.object_type' => 'org.postgis.MultiPoint')
+Domgen::TypeDB.enhance(:linestringm, 'java.object_type' => 'org.postgis.LineString')
+Domgen::TypeDB.enhance(:multilinestringm, 'java.object_type' => 'org.postgis.MultiLineString')
+Domgen::TypeDB.enhance(:polygonm, 'java.object_type' => 'org.postgis.Polygon')
+Domgen::TypeDB.enhance(:multipolygonm, 'java.object_type' => 'org.postgis.MultiPolygon')
+
 module Domgen
   module Java
     class << self
@@ -120,6 +134,8 @@ module Domgen
           else #if :transport == modality
             return Domgen::TypeDB.characteristic_type_by_name(:text).java.object_type
           end
+        elsif characteristic.geometry?
+          return Domgen::TypeDB.characteristic_type_by_name(characteristic.geometry.geometry_type).java.object_type
         elsif characteristic.date? && group_type == :imit
           # TODO: Fix Hackity hack
           return characteristic.characteristic_type.java.imit.object_type

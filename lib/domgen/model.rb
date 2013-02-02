@@ -219,6 +219,31 @@ module Domgen
     end
   end
 
+  # TODO: A WIP - See http://postgis.refractions.net/docs/AddGeometryColumn.html
+  class Geometry < Domgen.ParentedElement(:characteristic)
+    def geometry_type=(geometry_type)
+      Domgen.error("geometry_type on #{characteristic.name} is invalid as #{geometry_type} is not a known type of geometry") unless Domgen::SUPPORTED_GEOMETRY_TYPES.include?(geometry_type.to_s)
+      @geometry_type = geometry_type
+    end
+
+    def geometry_type
+      @geometry_type || :geometry
+    end
+
+    def dimensions=(dimensions)
+      Domgen.error("dimensions on #{characteristic.name} is invalid as #{dimensions} is not valid") unless 2..4.include?(dimensions)
+      @dimensions = dimensions
+    end
+
+    attr_reader :dimensions
+
+    def srid=(srid)
+      @srid = srid
+    end
+
+    attr_reader :srid
+  end
+
   class EnumerationSet < self.FacetedElement(:data_module)
     attr_reader :name
     attr_reader :enumeration_type
