@@ -141,6 +141,12 @@ module Domgen
       self.characteristic_type_key == :struct
     end
 
+    def characteristic_type
+      Domgen::TypeDB.characteristic_type?(self.characteristic_type_key) ?
+        Domgen::TypeDB.characteristic_type_by_name(self.characteristic_type_key) :
+        nil
+    end
+
     def collection?
       self.collection_type != :none
     end

@@ -12,8 +12,116 @@
 # limitations under the License.
 #
 
+Domgen::TypeDB.config_element(:java) do
+  attr_writer :primitive_type
+
+  def primitive_type?
+    !!@primitive_type
+  end
+
+  def primitive_type
+    raise "#{root.name} is not a primitive type" unless @primitive_type
+    @primitive_type
+  end
+
+  attr_writer :object_type
+
+  def object_type
+    raise "#{root.name} is not a simple object type" unless @object_type
+    @object_type
+  end
+end
+
+Domgen::TypeDB.config_element(:"java.imit") do
+  def primitive_type?
+    root.java.primitive_type?
+  end
+
+  def primitive_type
+    root.java.primitive_type
+  end
+
+  attr_writer :object_type
+
+  def object_type
+    @object_type || root.java.object_type
+  end
+end
+
+Domgen::TypeDB.enhance(:void, 'java.primitive_type' => 'void', 'java.object_type' => 'java.lang.Void')
+Domgen::TypeDB.enhance(:integer, 'java.primitive_type' => 'int', 'java.object_type' => 'java.lang.Integer')
+Domgen::TypeDB.enhance(:real, 'java.primitive_type' => 'float', 'java.object_type' => 'java.lang.Float')
+Domgen::TypeDB.enhance(:date, 'java.object_type' => 'java.lang.Date', 'java.imit.object_type' => 'org.realityforge.replicant.client.RDate')
+Domgen::TypeDB.enhance(:datetime, 'java.object_type' => 'java.lang.Date')
+Domgen::TypeDB.enhance(:boolean, 'java.primitive_type' => 'boolean', 'java.object_type' => 'java.lang.Boolean')
+Domgen::TypeDB.enhance(:text, 'java.object_type' => 'java.lang.String')
+Domgen::TypeDB.enhance(:enumeration)
+Domgen::TypeDB.enhance(:struct)
+Domgen::TypeDB.enhance(:reference)
+
 module Domgen
   module Java
+    class << self
+
+      def primitive_java_type(characteristic, group_type, modality = :default)
+        check_modality(modality)
+        characteristic_group = group_type(group_type)
+
+        if (:boundary == modality || :transport == modality) && characteristic.reference?
+          return primitive_java_type(characteristic.referenced_entity.primary_key, group_type, modality)
+        elsif :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
+          return Domgen::TypeDB.characteristic_type_by_name(:integer).java.primitive_type
+        else
+          characteristic_type = characteristic.characteristic_type
+          if characteristic_type
+            return characteristic.characteristic_type.java.primitive_type
+          else
+            characteristic.characteristic_type_key
+          end
+        end
+      end
+
+      def primitive?(characteristic, group_type, modality = :default)
+        check_modality(modality)
+        characteristic_group = group_type(group_type)
+        return false if characteristic.collection?
+        return false if characteristic.nullable?
+        return false if (characteristic.respond_to?(:generated_value?) && characteristic.generated_value?)
+        return true if :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
+
+        characteristic_type = characteristic.characteristic_type
+        return true if characteristic_type && characteristic.characteristic_type.java.primitive_type?
+
+        return false unless characteristic.reference? && :default != modality
+
+        return primitive?(characteristic.referenced_entity.primary_key, group_type, modality)
+      end
+
+      protected
+
+      GroupType = ::Struct.new("GroupType", :entity_key, :enumeration_key, :struct_key)
+
+      GROUP_TYPE_MAP = {
+        :ee => GroupType.new(:jpa,:ee,:ee),
+        :imit => GroupType.new(:imit,:auto_bean,:auto_bean)
+      }
+
+      MODALITIES = [:default, :boundary, :transport]
+
+      def group_type(group_type)
+        check_group_type(group_type)
+        GROUP_TYPE_MAP[group_type]
+      end
+
+      def check_group_type(group_type)
+        raise "Unknown group_type #{group_type}" unless GROUP_TYPE_MAP[group_type]
+      end
+
+      def check_modality(modality)
+        raise "Unknown modality #{modality}" unless MODALITIES.include?(modality)
+      end
+    end
+
     TYPE_MAP = {"integer" => "java.lang.Integer",
                 "boolean" => "java.lang.Boolean",
                 "datetime" => "java.util.Date",
@@ -22,20 +130,16 @@ module Domgen
 
     module JavaCharacteristic
       def name(modality = :default)
-        if :default == modality
-          return characteristic.name
-        elsif :boundary == modality || :transport == modality
-          return characteristic.referencing_link_name if characteristic.reference?
-          return characteristic.name
-        else
-          error("unknown modality #{modality}")
-        end
+        return characteristic.referencing_link_name if characteristic.reference? && (:boundary == modality || :transport == modality)
+        return characteristic.name
       end
 
       def java_type(modality = :default)
-        return "void" if :void == characteristic.characteristic_type_key
-        return primitive_java_type(modality) if primitive?(modality)
-        non_primitive_java_type(modality)
+        if Domgen::Java.primitive?(characteristic, group_type, modality)
+          return Domgen::Java.primitive_java_type(characteristic, group_type, modality)
+        else
+          non_primitive_java_type(modality)
+        end
       end
 
       def java_component_type(modality = :default)
@@ -94,31 +198,11 @@ module Domgen
       end
 
       def primitive?(modality = :default)
-        return false if characteristic.collection?
-        return false if characteristic.nullable?
-        return false if (characteristic.respond_to?(:generated_value?) && characteristic.generated_value?)
-        return true if characteristic.integer? || characteristic.boolean?
-        return true if :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
-
-        if :default == modality
-          return false
-        elsif :boundary == modality || :transport == modality
-          return false unless characteristic.reference?
-          return characteristic.referenced_entity.primary_key.integer? || characteristic.referenced_entity.primary_key.boolean?
-        else
-          Domgen.error("unknown modality #{modality}")
-        end
+        Domgen::Java.primitive?(characteristic, group_type, modality)
       end
 
       def primitive_java_type(modality = :default)
-        return "int" if characteristic.integer?
-        return "boolean" if characteristic.boolean?
-        if (:boundary == modality || :transport == modality) && characteristic.reference?
-          return characteristic.referenced_entity.primary_key.send(entity_key).primitive_java_type
-        elsif :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
-          return "int"
-        end
-        Domgen.error("primitive_java_type invoked for non primitive method")
+        Domgen::Java.primitive_java_type(characteristic, group_type, modality)
       end
 
       def transport_characteristic_type_key
@@ -161,6 +245,10 @@ module Domgen
         :ee
       end
 
+      def group_type
+        :ee
+      end
+
       def date_java_type
         "java.util.Date"
       end
@@ -170,6 +258,10 @@ module Domgen
       include JavaCharacteristic
 
       protected
+
+      def group_type
+        :imit
+      end
 
       def enumeration_key
         :auto_bean
