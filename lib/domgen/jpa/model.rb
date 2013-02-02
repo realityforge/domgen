@@ -331,7 +331,7 @@ module Domgen
     end
 
     class JpaPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::JavaPackage
+      include Domgen::Java::EEJavaPackage
 
       attr_writer :catalog_name
 
@@ -347,12 +347,6 @@ module Domgen
 
       def dao_package
         @dao_package || "#{entity_package}.dao"
-      end
-
-      protected
-
-      def facet_key
-        :ee
       end
     end
 

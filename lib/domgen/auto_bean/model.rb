@@ -51,13 +51,7 @@ module Domgen
     end
 
     class AutoBeanPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::JavaPackage
-
-      protected
-
-      def facet_key
-        :auto_bean
-      end
+      include Domgen::Java::ImitJavaPackage
     end
 
     class AutoBeanApplication < Domgen.ParentedElement(:repository)

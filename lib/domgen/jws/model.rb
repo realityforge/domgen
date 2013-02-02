@@ -73,18 +73,12 @@ module Domgen
     end
 
     class JwsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::JavaPackage
+      include Domgen::Java::EEJavaPackage
 
       attr_writer :cxf_annotations
 
       def cxf_annotations?
         @cxf_annotations.nil? ? data_module.repository.jws.cxf_annotations? : @cxf_annotations
-      end
-
-      protected
-
-      def facet_key
-        :ee
       end
     end
 

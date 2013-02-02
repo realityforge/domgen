@@ -141,7 +141,7 @@ module Domgen
     end
 
     class ImitationModule < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::JavaPackage
+      include Domgen::Java::ImitJavaPackage
 
       attr_writer :encoder_package
 
@@ -199,10 +199,6 @@ module Domgen
 
       def concrete_client_side_entities
         client_side_entities.select{|entity| !entity.abstract?}
-      end
-
-      def facet_key
-        :imit
       end
     end
 

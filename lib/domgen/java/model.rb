@@ -285,6 +285,26 @@ module Domgen
       end
     end
 
+    module EEJavaPackage
+      include JavaPackage
+
+      protected
+
+      def facet_key
+        :ee
+      end
+    end
+
+    module ImitJavaPackage
+      include JavaPackage
+
+      protected
+
+      def facet_key
+        :imit
+      end
+    end
+
     module ClientServerJavaPackage
       attr_writer :shared_entity_package
 

@@ -118,13 +118,7 @@ module Domgen
     end
 
     class EjbPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::JavaPackage
-
-      protected
-
-      def facet_key
-        :ee
-      end
+      include Domgen::Java::EEJavaPackage
     end
 
     class EjbApplication < Domgen.ParentedElement(:repository)
