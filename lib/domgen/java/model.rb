@@ -375,7 +375,6 @@ module Domgen
       end
     end
 
-
     module JavaApplication
       attr_writer :base_package
 
