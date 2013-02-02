@@ -38,6 +38,14 @@ module Domgen
     class << self
       def mark_as_initialized
         characteristic_types.each do |characteristic_type|
+          # Ensure that all the config elements are expanded on instances prior to freezing the types
+          config_elements_map.keys.each do |k|
+            keys = k.to_s.split('.')
+            target = characteristic_type
+            keys[0, keys.length].each do |target_accessor_key|
+              target = target.send target_accessor_key.to_sym
+            end
+          end unless characteristic_type.frozen?
           characteristic_type.freeze
         end
       end
