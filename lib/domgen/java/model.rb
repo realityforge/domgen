@@ -112,16 +112,16 @@ module Domgen
             return characteristic.enumeration.send(characteristic_group.enumeration_key).qualified_name
           else #if :transport == modality
             if characteristic.enumeration.textual_values?
-              return "java.lang.String"
+              return Domgen::TypeDB.characteristic_type_by_name(:text).java.object_type
             else
-              return "java.lang.Integer"
+              return Domgen::TypeDB.characteristic_type_by_name(:integer).java.object_type
             end
           end
         elsif characteristic.struct?
           if :default == modality || :boundary == modality
             return characteristic.referenced_struct.send(characteristic_group.struct_key).qualified_name
           else #if :transport == modality
-            return "java.lang.String"
+            return Domgen::TypeDB.characteristic_type_by_name(:text).java.object_type
           end
         elsif characteristic.date? && group_type == :imit
           # TODO: Fix Hackity hack
