@@ -12,6 +12,34 @@
 # limitations under the License.
 #
 
+Domgen::TypeDB.config_element(:"sql.mssql") do
+  attr_accessor :sql_type
+end
+
+Domgen::TypeDB.config_element(:"sql.pgsql") do
+  attr_accessor :sql_type
+end
+
+Domgen::TypeDB.enhance(:integer, 'sql.mssql.sql_type' => 'INT', 'sql.pgsql.sql_type' => 'integer')
+Domgen::TypeDB.enhance(:real, 'sql.mssql.sql_type' => 'FLOAT', 'sql.pgsql.sql_type' => 'double precision')
+Domgen::TypeDB.enhance(:date, 'sql.mssql.sql_type' => 'DATE', 'sql.pgsql.sql_type' => 'date')
+Domgen::TypeDB.enhance(:datetime, 'sql.mssql.sql_type' => 'DATETIME', 'sql.pgsql.sql_type' => 'timestamp')
+Domgen::TypeDB.enhance(:boolean, 'sql.mssql.sql_type' => 'BIT', 'sql.pgsql.sql_type' => 'boolean')
+
+Domgen::TypeDB.enhance(:point, 'sql.pgsql.sql_type' => 'POINT')
+Domgen::TypeDB.enhance(:multipoint, 'sql.pgsql.sql_type' => 'MULTIPOINT')
+Domgen::TypeDB.enhance(:linestring, 'sql.pgsql.sql_type' => 'LINESTRING')
+Domgen::TypeDB.enhance(:multilinestring, 'sql.pgsql.sql_type' => 'MULTILINESTRING')
+Domgen::TypeDB.enhance(:polygon, 'sql.pgsql.sql_type' => 'POLYGON')
+Domgen::TypeDB.enhance(:multipolygon, 'sql.pgsql.sql_type' => 'MULTIPOLYGON')
+Domgen::TypeDB.enhance(:geometry, 'sql.pgsql.sql_type' => 'GEOMETRY')
+Domgen::TypeDB.enhance(:pointm, 'sql.pgsql.sql_type' => 'POINTM')
+Domgen::TypeDB.enhance(:multipointm, 'sql.pgsql.sql_type' => 'MULTIPOINTM')
+Domgen::TypeDB.enhance(:linestringm, 'sql.pgsql.sql_type' => 'LINESTRINGM')
+Domgen::TypeDB.enhance(:multilinestringm, 'sql.pgsql.sql_type' => 'MULTILINESTRINGM')
+Domgen::TypeDB.enhance(:polygonm, 'sql.pgsql.sql_type' => 'POLYGONM')
+Domgen::TypeDB.enhance(:multipolygonm, 'sql.pgsql.sql_type' => 'MULTIPOLYGONM')
+
 module Domgen
   module Sql
     class PgDialect
@@ -28,13 +56,6 @@ module Domgen
         "char_length(trim(both from #{quote(column_name)} )) > 0"
       end
 
-      TYPE_MAP = {"integer" => "integer",
-                  "real" => "double precision",
-                  "datetime" => "timestamp",
-                  "date" => "date",
-                  "boolean" => "boolean"}
-
-
       def column_type(column)
         if column.calculation
           Domgen.error("Unsupported column type - calculation")
@@ -49,7 +70,7 @@ module Domgen
         elsif column.attribute.enumeration?
           column.attribute.enumeration.textual_values? ? "varchar(#{column.attribute.length})" : "integer"
         else
-          return TYPE_MAP[column.attribute.attribute_type.to_s]
+          return column.attribute.characteristic_type.sql.pgsql.sql_type
         end
       end
 
@@ -103,7 +124,7 @@ module Domgen
         elsif column.attribute.enumeration?
           column.attribute.enumeration.textual_values? ? "VARCHAR(#{column.attribute.length})" : "INT"
         else
-          return quote(TYPE_MAP[column.attribute.attribute_type.to_s])
+          return quote(column.attribute.characteristic_type.sql.mssql.sql_type)
         end
       end
     end
