@@ -101,7 +101,7 @@ module Domgen
           key = namespace_elements.last
           code = <<-CODE
             def #{key}
-              @#{key} ||= Domgen::TypeDB.config_element(:#{namespace}).new(root)
+              @#{key} ||= Domgen::TypeDB.config_element(:"#{namespace}").new(root)
             end
           CODE
           parent.class_eval(code)
