@@ -169,7 +169,6 @@ module Domgen
       end
 
       def transport_characteristic_type_key(characteristic, group_type)
-        check_modality(modality)
         characteristic_group = group_type(group_type)
 
         return characteristic.reference? ?
