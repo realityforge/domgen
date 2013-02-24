@@ -168,12 +168,9 @@ module Domgen
         end
       end
 
-      def transport_characteristic_type_key(characteristic, group_type)
-        check_modality(modality)
-        characteristic_group = group_type(group_type)
-
+      def transport_characteristic_type_key(characteristic)
         return characteristic.reference? ?
-          characteristic.referenced_entity.primary_key.send(characteristic_group.entity_key).characteristic_type_key :
+          characteristic.referenced_entity.primary_key.characteristic_type_key :
           characteristic.characteristic_type_key
       end
 
@@ -237,7 +234,7 @@ module Domgen
       end
 
       def transport_characteristic_type_key
-        Domgen::Java.transport_characteristic_type_key(characteristic, group_type)
+        Domgen::Java.transport_characteristic_type_key(characteristic)
       end
 
       protected
