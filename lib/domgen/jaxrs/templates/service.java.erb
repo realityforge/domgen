@@ -9,7 +9,7 @@ public interface <%= service.jaxrs.service_name %>
 %>
   <% if method.jaxrs.path %>@javax.ws.rs.Path(<%= method.jaxrs.path %>)<% end %>
   @javax.ws.rs.<%= method.jaxrs.http_method %>
-  <%= annotated_type(method.return_value, :jaxrs, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jaxrs, :boundary)} #{Domgen::Naming.camelize(p.name)}" }.join(", ") %>)<%=
+  <%= annotated_type(method.return_value, :jaxrs, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| jaxrs_paramater(p) }.join(", ") %>)<%=
     exceptions = method.exceptions.collect{|e| e.ee.qualified_name}
     exceptions.empty? ? "" : "\n    throws #{exceptions.join(', ')}"
 %>;

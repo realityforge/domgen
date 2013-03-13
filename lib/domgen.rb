@@ -93,6 +93,7 @@ require 'domgen/jmx/generator'
 
 # JaxRS
 require 'domgen/jaxrs/model'
+require 'domgen/jaxrs/helper'
 require 'domgen/jaxrs/generator'
 
 # EE

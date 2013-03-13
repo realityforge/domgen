@@ -17,7 +17,7 @@ module Domgen
     module JaxRS
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       FACETS = [:jaxrs]
-      HELPERS = [Domgen::Java::Helper]
+      HELPERS = [Domgen::Java::Helper, Domgen::JaxRS::Helper]
     end
   end
 end

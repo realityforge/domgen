@@ -30,7 +30,28 @@ module Domgen
 
       include Domgen::Java::EEJavaCharacteristic
 
+      attr_writer :param_key
+
+      def param_key
+        @param_key || Domgen::Naming.pascal_case(characteristic.name)
+      end
+
+      attr_accessor :default_value
+
+      def param_type
+        @param_type || :query
+      end
+
+      def param_type=(param_type)
+        raise "Unknown param_type #{param_type}" unless valid_param_type?(param_type)
+        @param_type = param_type
+      end
+
       protected
+
+      def valid_param_type?(param_type)
+        [:query, :cookie, :path, :form, :header].include?(param_type)
+      end
 
       def characteristic
         parameter
