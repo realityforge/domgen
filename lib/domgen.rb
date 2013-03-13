@@ -91,6 +91,10 @@ require 'domgen/jws/generator'
 require 'domgen/jmx/model'
 require 'domgen/jmx/generator'
 
+# JaxRS
+require 'domgen/jaxrs/model'
+require 'domgen/jaxrs/generator'
+
 # EE
 require 'domgen/ee/model'
 require 'domgen/ee/generator'
