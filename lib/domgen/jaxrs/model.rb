@@ -27,9 +27,6 @@ module Domgen
     end
 
     class JaxRsParameter < Domgen.ParentedElement(:parameter)
-      def name
-        Domgen::Naming.camelize(parameter.name)
-      end
 
       include Domgen::Java::EEJavaCharacteristic
 
