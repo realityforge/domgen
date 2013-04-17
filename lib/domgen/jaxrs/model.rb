@@ -58,7 +58,7 @@ module Domgen
       end
     end
 
-    class JaxRsMethod < Domgen.ParentedElement(:service)
+    class JaxRsMethod < Domgen.ParentedElement(:method)
       attr_accessor :path
 
       def http_method=(http_method)
@@ -68,7 +68,7 @@ module Domgen
 
       def http_method
         return @http_method if @http_method
-        name = service.name.to_s
+        name = method.name.to_s
         if name =~ /^Get[A-Z].*/ || name =~ /^Find[A-Z].*/
           return "GET"
         elsif name =~ /^Delete[A-Z].*/ || name =~ /^Remove[A-Z].*/
