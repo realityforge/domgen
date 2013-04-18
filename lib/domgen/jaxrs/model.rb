@@ -64,7 +64,7 @@ module Domgen
       attr_writer :param_key
 
       def param_key
-        @param_key || Domgen::Naming.pascal_case(characteristic.name)
+        @param_key || Domgen::Naming.camelize(characteristic.name)
       end
 
       attr_accessor :default_value
