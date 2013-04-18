@@ -99,7 +99,7 @@ module Domgen
         return @path unless @path.nil?
         path_parameters = method.parameters.select { |p| p.jaxrs? && :path == p.jaxrs.param_type }
         return nil if path_parameters.empty?
-        return "/\{#{path_parameters.collect { |p| p.jaxrs.param_key }.join("/")}\}"
+        return "/{#{path_parameters.collect { |p| p.jaxrs.param_key }.join("/")}}"
       end
 
       def http_method=(http_method)
