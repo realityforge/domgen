@@ -27,4 +27,9 @@ Domgen.template_set(:jaxrs) do |template_set|
                         "#{Domgen::Generator::JaxRS::TEMPLATE_DIRECTORY}/service.java.erb",
                         'main/java/#{service.jaxrs.qualified_service_name.gsub(".","/")}.java',
                         Domgen::Generator::JaxRS::HELPERS)
+  template_set.template(Domgen::Generator::JaxRS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JaxRS::TEMPLATE_DIRECTORY}/boundary.java.erb",
+                        'main/java/#{service.jaxrs.qualified_boundary_name.gsub(".","/")}.java',
+                        Domgen::Generator::JaxRS::HELPERS)
 end

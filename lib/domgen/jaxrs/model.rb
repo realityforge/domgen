@@ -60,6 +60,16 @@ module Domgen
         "#{service.data_module.jaxrs.service_package}.#{service_name}"
       end
 
+      def boundary_name
+        "#{service_name}Impl"
+      end
+
+      def qualified_boundary_name
+        "#{service.data_module.jaxrs.service_package}.#{boundary_name}"
+      end
+
+      attr_accessor :boundary_extends
+
       attr_writer :path
 
       def path
