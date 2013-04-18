@@ -15,7 +15,7 @@
 module Domgen
   module JaxRS
     module MediaTypeEnabled
-      attr_accessor :consumes
+      attr_reader :consumes
 
       def consumes=(consumes)
         consumes = [consumes] unless consumes.is_a?(Array)
@@ -25,7 +25,7 @@ module Domgen
         @consumes = consumes
       end
 
-      attr_accessor :produces
+      attr_reader :produces
 
       def produces=(produces)
         produces = [produces] unless produces.is_a?(Array)
