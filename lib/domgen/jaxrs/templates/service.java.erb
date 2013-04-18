@@ -3,13 +3,14 @@ package <%= service.data_module.jaxrs.service_package %>;
 
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<%= jaxrs_path(service.jaxrs) -%>
 <%= jaxrs_produces(service.jaxrs) -%>
 <%= jaxrs_consumes(service.jaxrs) -%>
 public interface <%= service.jaxrs.service_name %>
 {
 <% service.methods.select{|method| method.jaxrs?}.each do |method|
 %>
-  <% if method.jaxrs.path %>@javax.ws.rs.Path("<%= method.jaxrs.path %>")<% end %>
+<%= jaxrs_path(method.jaxrs,'  ') -%>
   @javax.ws.rs.<%= method.jaxrs.http_method %>
 <%= jaxrs_produces(method.jaxrs, '  ') -%>
 <%= jaxrs_consumes(method.jaxrs, '  ') -%>

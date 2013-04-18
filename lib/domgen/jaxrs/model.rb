@@ -49,12 +49,24 @@ module Domgen
       attr_writer :service_name
 
       def service_name
-        @service_name || "#{service.name.to_s =~ /^(.*)Service/ ? service.name.to_s[0..-7] : service.name}RestService"
+        @service_name || "#{short_service_name}RestService"
+      end
+
+      def short_service_name
+        service.name.to_s =~ /^(.*)Service/ ? service.name.to_s[0..-7] : service.name
       end
 
       def qualified_service_name
         "#{service.data_module.jaxrs.service_package}.#{service_name}"
       end
+
+      attr_writer :path
+
+      def path
+        return @path unless @path.nil?
+        return "/#{Domgen::Naming.underscore(short_service_name)}"
+      end
+
     end
 
     class JaxRsParameter < Domgen.ParentedElement(:parameter)

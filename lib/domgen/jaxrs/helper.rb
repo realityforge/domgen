@@ -37,6 +37,11 @@ module Domgen
         "#{prefix}@javax.ws.rs.Consumes( {#{element.consumes.collect { |p| jaxrs_expanded_media_type(p) }.join(", ")}} )\n"
       end
 
+      def jaxrs_path(element, prefix = '')
+        return '' if element.path.nil? || '' == element.path
+        "#{prefix}@javax.ws.rs.Path(\"#{element.path}\")\n"
+      end
+
       def jaxrs_paramater(parameter)
         s = ''
         s << "@javax.ws.rs.CookieParam( \"#{parameter.jaxrs.param_key}\" )" if parameter.jaxrs.param_type == :cookie
