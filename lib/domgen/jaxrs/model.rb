@@ -14,7 +14,38 @@
 
 module Domgen
   module JaxRS
-    class JaxRsClass < Domgen.ParentedElement(:service)
+    module MediaTypeEnabled
+      attr_accessor :consumes
+
+      def consumes=(consumes)
+        consumes = [consumes] unless consumes.is_a?(Array)
+        consumes.each do |media_type|
+          raise "Specified media type '#{media_type}' is not valid" unless valid_media_type?(media_type)
+        end
+        @consumes = consumes
+      end
+
+      attr_accessor :produces
+
+      def produces=(produces)
+        produces = [produces] unless produces.is_a?(Array)
+        produces.each do |media_type|
+          raise "Specified media type '#{media_type}' is not valid" unless valid_media_type?(media_type)
+        end
+        @produces = produces
+      end
+
+      def valid_media_type?(media_type)
+        [:json, :xml, :plain].include?(media_type)
+      end
+    end
+
+    class JaxRsClass < Domgen.ParentedElement(:service, <<-INIT)
+      @produces = [:json, :xml]
+      @consumes = [:json, :xml]
+      INIT
+      include MediaTypeEnabled
+
       attr_writer :service_name
 
       def service_name
@@ -59,6 +90,9 @@ module Domgen
     end
 
     class JaxRsMethod < Domgen.ParentedElement(:method)
+
+      include MediaTypeEnabled
+
       attr_accessor :path
 
       def http_method=(http_method)

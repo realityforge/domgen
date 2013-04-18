@@ -15,6 +15,28 @@
 module Domgen
   module JaxRS
     module Helper
+      def jaxrs_expanded_media_type(media_type)
+        if :json == media_type
+          'javax.ws.rs.core.MediaType.APPLICATION_JSON'
+        elsif :xml == media_type
+          'javax.ws.rs.core.MediaType.APPLICATION_XML'
+        elsif :plain == media_type
+          'javax.ws.rs.core.MediaType.TEXT_PLAIN'
+        else
+          raise "Unknown media type #{media_type}"
+        end
+      end
+
+      def jaxrs_produces(element, prefix = '')
+        return '' if element.produces.nil? || element.produces.empty?
+        "#{prefix}@javax.ws.rs.Produces( {#{element.produces.collect { |p| jaxrs_expanded_media_type(p) }.join(", ")}} )\n"
+      end
+
+      def jaxrs_consumes(element, prefix = '')
+        return '' if element.consumes.nil? || element.consumes.empty?
+        "#{prefix}@javax.ws.rs.Consumes( {#{element.consumes.collect { |p| jaxrs_expanded_media_type(p) }.join(", ")}} )\n"
+      end
+
       def jaxrs_paramater(parameter)
         s = ''
         s << "@javax.ws.rs.CookieParam( \"#{parameter.jaxrs.param_key}\" )" if parameter.jaxrs.param_type == :cookie
