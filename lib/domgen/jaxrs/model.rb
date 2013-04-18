@@ -93,7 +93,14 @@ module Domgen
 
       include MediaTypeEnabled
 
-      attr_accessor :path
+      attr_writer :path
+
+      def path
+        return @path unless @path.nil?
+        path_parameters = method.parameters.select { |p| p.jaxrs? && :path == p.jaxrs.param_type }
+        return nil if path_parameters.empty?
+        return "/\{#{path_parameters.collect { |p| p.jaxrs.param_key }.join("/")}\}"
+      end
 
       def http_method=(http_method)
         raise "Specified http method '#{http_method}' is not valid" unless valid_http_method?(http_method)
