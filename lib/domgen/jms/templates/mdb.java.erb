@@ -59,6 +59,13 @@ public class <%= method.jms.mdb_name %>
 <% if in_container -%>
     @javax.xml.bind.annotation.XmlValue
     <%= boundary_type %> Value;
+<% else -%>
+<% if parameter.referenced_struct.fields.size != 0 %>
+  public <%= encoded_type %>( <%= parameter.referenced_struct.fields.collect {|field| "final #{annotated_type(field, :ee, :boundary)} #{field.name}" }.join(", ") %> )
+  {
+    super( <%= parameter.referenced_struct.fields.collect {|field| field.name.to_s }.join(", ") %> );
+  }
+<% end -%>
 <% end -%>
   }
 <% end -%>
