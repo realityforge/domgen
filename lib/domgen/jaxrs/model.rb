@@ -174,6 +174,21 @@ module Domgen
     end
 
     class JaxRsApplication < Domgen.ParentedElement(:repository)
+      include Domgen::Java::ServerJavaApplication
+
+      attr_writer :path
+
+      def path
+        @path || 'api'
+      end
+
+      def abstract_application_name
+        "#{repository.name}JaxRsApplication"
+      end
+
+      def qualified_abstract_application_name
+        "#{repository.jaxrs.service_package}.#{abstract_application_name}"
+      end
     end
   end
 

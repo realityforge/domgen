@@ -1,0 +1,20 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.jaxrs.service_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public abstract class <%= repository.jaxrs.abstract_application_name %>
+  extends javax.ws.rs.core.Application
+{
+  public static final String APPLICATION_PATH = "/<%= repository.jaxrs.path %>";
+
+  @Override
+  public java.util.Set<Class<?>> getClasses()
+  {
+    final java.util.Set<Class<?>> classes = new java.util.HashSet<Class<?>>();
+<% repository.data_modules.select{|d| d.jaxrs?}.collect {|d| d.services.select{|s| s.jaxrs?}.collect {|s| s.jaxrs.qualified_boundary_name }}.flatten.each do |boundary_name| -%>
+    classes.add( <%= boundary_name %>.class );
+<% end -%>
+    return classes;
+  }
+}

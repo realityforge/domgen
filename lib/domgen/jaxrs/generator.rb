@@ -23,6 +23,11 @@ module Domgen
 end
 Domgen.template_set(:jaxrs) do |template_set|
   template_set.template(Domgen::Generator::JaxRS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JaxRS::TEMPLATE_DIRECTORY}/abstract_application.java.erb",
+                        'main/java/#{repository.jaxrs.qualified_abstract_application_name.gsub(".","/")}.java',
+                        Domgen::Generator::JaxRS::HELPERS)
+  template_set.template(Domgen::Generator::JaxRS::FACETS,
                         :service,
                         "#{Domgen::Generator::JaxRS::TEMPLATE_DIRECTORY}/service.java.erb",
                         'main/java/#{service.jaxrs.qualified_service_name.gsub(".","/")}.java',
