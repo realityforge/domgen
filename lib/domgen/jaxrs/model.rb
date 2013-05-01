@@ -118,10 +118,13 @@ module Domgen
       attr_writer :path
 
       def path
-        return @path unless @path.nil?
+        if @path
+          return @path == '' ? nil : @path
+        end
+        base_path = "/#{Domgen::Naming.underscore(method.name)}"
         path_parameters = method.parameters.select { |p| p.jaxrs? && :path == p.jaxrs.param_type }
-        return nil if path_parameters.empty?
-        return "/{#{path_parameters.collect { |p| p.jaxrs.param_key }.join("/")}}"
+        return base_path if path_parameters.empty?
+        return "#{base_path}/{#{path_parameters.collect { |p| p.jaxrs.param_key }.join("/")}}"
       end
 
       def http_method=(http_method)
