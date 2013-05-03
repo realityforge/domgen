@@ -21,7 +21,7 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:ejb_services => [:ee_exceptions]) do |template_set|
+Domgen.template_set(:ejb_services) do |template_set|
   template_set.template(Domgen::Generator::EJB::FACETS,
                         :service,
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/service.java.erb",

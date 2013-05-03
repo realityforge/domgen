@@ -21,7 +21,7 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:jpa_model => [:ee_data_types]) do |template_set|
+Domgen.template_set(:jpa_model) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :entity,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity.java.erb",

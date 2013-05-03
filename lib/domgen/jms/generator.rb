@@ -21,7 +21,7 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:jms => []) do |template_set|
+Domgen.template_set(:jms) do |template_set|
   template_set.template(Domgen::Generator::JMS::FACETS,
                         :method,
                         "#{Domgen::Generator::JMS::TEMPLATE_DIRECTORY}/mdb.java.erb",
