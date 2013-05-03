@@ -71,16 +71,19 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
    end
 %>
   <% if method.return_value.collection? && method.return_value.reference? %>
-        final <%= annotated_type(method.return_value, :imit) %> $result = new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.imit.java_component_type %>>();
-        for( final <%= method.return_value.gwt.java_component_type(:boundary) %> id: result )
+        final <%= annotated_type(method.return_value, :imit) %> $result = null == result ? null : new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.imit.java_component_type %>>();
+        if( null != result )
         {
-        <%
-           param_value =
-           if method.return_value.reference?
-             "_repository.getByID( #{method.return_value.referenced_entity.imit.qualified_name}.class, id )"
-           end
-        %>
-        $result.add( <%= param_value %> );
+          for( final <%= method.return_value.gwt.java_component_type(:boundary) %> id: result )
+          {
+          <%
+             param_value =
+             if method.return_value.reference?
+               "_repository.getByID( #{method.return_value.referenced_entity.imit.qualified_name}.class, id )"
+             end
+          %>
+          $result.add( <%= param_value %> );
+          }
         }
 <% end %>
         if( null != callback ) callback.onSuccess( <%= result_string %> );

@@ -91,20 +91,23 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt.environ
    end
 %>
   <% if method.return_value.collection? && (method.return_value.enumeration? || method.return_value.struct?) %>
-    final <%= annotated_type(method.return_value, :gwt, :boundary) %> $result = new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.gwt.java_component_type %>>();
-    for( final <%= method.return_value.gwt.java_component_type(:transport) %> id: result )
+    final <%= annotated_type(method.return_value, :gwt, :boundary) %> $result = result == null ? null : new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.gwt.java_component_type %>>();
+    if ( null != result )
     {
-    <%
-       param_value =
-       if method.return_value.enumeration?
-         method.return_value.enumeration.textual_values? ?
-           "#{method.return_value.gwt.java_component_type}.valueOf( id )" :
-           "#{method.return_value.gwt.java_component_type}.values()[ id ]"
-       else
-         "com.google.web.bindery.autobean.shared.AutoBeanCodex.decode( _factory, #{method.return_value.referenced_struct.auto_bean.qualified_name}.class, id ).as()"
-       end
-    %>
-    $result.add( <%= param_value %> );
+      for( final <%= method.return_value.gwt.java_component_type(:transport) %> id: result )
+      {
+      <%
+         param_value =
+         if method.return_value.enumeration?
+           method.return_value.enumeration.textual_values? ?
+             "#{method.return_value.gwt.java_component_type}.valueOf( id )" :
+             "#{method.return_value.gwt.java_component_type}.values()[ id ]"
+         else
+           "com.google.web.bindery.autobean.shared.AutoBeanCodex.decode( _factory, #{method.return_value.referenced_struct.auto_bean.qualified_name}.class, id ).as()"
+         end
+      %>
+      $result.add( <%= param_value %> );
+      }
     }
   <% end %>
       if( null != callback ) callback.onSuccess( <%= result_string %> );
