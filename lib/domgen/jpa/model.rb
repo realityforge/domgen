@@ -359,6 +359,16 @@ module Domgen
 
       include Domgen::Java::ServerJavaApplication
 
+      attr_writer :ejb_module_name
+
+      def ejb_module_name
+        @ejb_module_name || "#{repository.name}RepositoryModule"
+      end
+
+      def qualified_ejb_module_name
+        "#{package}.#{ejb_module_name}"
+      end
+
       attr_writer :data_source
 
       def data_source

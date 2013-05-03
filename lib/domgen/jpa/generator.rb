@@ -41,6 +41,13 @@ Domgen.template_set(:jpa_model_catalog) do |template_set|
                         'main/java/#{data_module.jpa.qualified_catalog_name.gsub(".","/")}.java')
 end
 
+Domgen.template_set(:jpa_test_module) do |template_set|
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_module.java.erb",
+                        'test/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java')
+end
+
 Domgen.template_set(:jpa_ejb_dao) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :entity,

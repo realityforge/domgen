@@ -1,0 +1,21 @@
+package <%= repository.jpa.package %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.jpa.ejb_module_name %>
+  extends com.google.inject.AbstractModule
+{
+  @java.lang.Override
+  protected void configure()
+  {
+<%
+  repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
+    data_module.entities.select{|entity| entity.jpa?}.each do |entity|
+%>
+    bind( <%= entity.jpa.qualified_dao_service_name %>.class ).to( <%= entity.jpa.qualified_dao_name %>.class ).in( javax.inject.Singleton.class );
+<%
+    end
+  end
+%>
+  }
+}
