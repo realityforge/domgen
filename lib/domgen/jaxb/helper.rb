@@ -33,8 +33,8 @@ module Domgen
         ns = namespace_annotation_parameter(field.xml)
         if field.collection?
           s = ''
-          s << "  @javax.xml.bind.annotation.XmlElementWrapper( name = \"#{field.xml.name}\", required = #{field.xml.required?}#{ns})" if wrap_collections
-          s << "  @javax.xml.bind.annotation.XmlElement( name = \"#{field.xml.component_name}\" )"
+          s << "@javax.xml.bind.annotation.XmlElementWrapper( name = \"#{field.xml.name}\", required = #{field.xml.required?}#{ns})\n" if wrap_collections
+          s << "  @javax.xml.bind.annotation.XmlElement( name = \"#{field.xml.component_name}\" )\n"
           s
         else
           "@javax.xml.bind.annotation.Xml#{field.xml.element? ? "Element" : "Attribute" }( name = \"#{field.xml.name}\", required = #{field.xml.required?}#{ns} )\n"
