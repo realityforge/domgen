@@ -67,6 +67,13 @@ module Domgen
           else
             return "varchar(#{column.attribute.length})"
           end
+        elsif column.attribute.geometry?
+          spatial_reference_id = column.attribute.geometry.srid || -1
+          if column.attribute.geometry.geometry_type == :geometry
+            return "GEOMETRY"
+          else
+            return "GEOMETRY(#{column.attribute.geometry.geometry_type},#{spatial_reference_id})"
+          end
         elsif column.attribute.enumeration?
           column.attribute.enumeration.textual_values? ? "varchar(#{column.attribute.length})" : "integer"
         else
