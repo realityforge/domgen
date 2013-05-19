@@ -22,11 +22,12 @@ end
     <validation-mode>AUTO</validation-mode>
 
     <properties>
-      <!--
-      <property name="eclipselink.logging.logger" value="JavaLogger"/>
-      <property name="eclipselink.logging.level" value="FINE"/>
-      -->
-      <property name="eclipselink.temporal.mutable" value="false"/>
+<%
+repository.jpa.properties.each_pair do |key, value|
+%>      <property name="<%= key %>" value="<%= value %>"/>
+<%
+end
+%>
     </properties>
 
   </persistence-unit>

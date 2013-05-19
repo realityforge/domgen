@@ -359,6 +359,14 @@ module Domgen
 
       include Domgen::Java::ServerJavaApplication
 
+      attr_writer :properties
+
+      def properties
+        @properties || {"eclipselink.logging.logger" => "JavaLogger",
+                        #"eclipselink.logging.level" => "FINE",
+                        "eclipselink.temporal.mutable" => "false"}
+      end
+
       attr_writer :ejb_module_name
 
       def ejb_module_name
