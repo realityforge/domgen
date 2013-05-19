@@ -466,7 +466,7 @@ module Domgen
       @name = name
       @attribute_type = attribute_type
       super(entity, options, &block)
-      Domgen.error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !self.class.persistent_types.include?(attribute_type)
+      Domgen.error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !((characteristic_type && characteristic_type.persistent?) || reference? || enumeration?)
       Domgen.error("Attribute #{self.qualified_name} must not be a collection") if collection?
     end
 
@@ -512,10 +512,6 @@ module Domgen
     def inverse
       Domgen.error("inverse called on #{name} is invalid as attribute is not a reference") unless reference?
       @inverse ||= InverseElement.new(self, {})
-    end
-
-    def self.persistent_types
-      [:text, :reference, :boolean, :datetime, :date, :integer, :real, :enumeration]
     end
 
     def to_s

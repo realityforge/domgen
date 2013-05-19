@@ -23,6 +23,12 @@ module Domgen
       super(options, &block)
     end
 
+    attr_writer :persistent
+
+    def persistent?
+      !!@persistent
+    end
+
     def to_s
       "CharacteristicType[#{self.name}]"
     end
@@ -148,13 +154,13 @@ end
 
 # Define the "standard set" of characteristic types
 Domgen::TypeDB.characteristic_type(:void)
-Domgen::TypeDB.characteristic_type(:text)
-Domgen::TypeDB.characteristic_type(:integer)
-Domgen::TypeDB.characteristic_type(:real)
-Domgen::TypeDB.characteristic_type(:date)
-Domgen::TypeDB.characteristic_type(:datetime)
-Domgen::TypeDB.characteristic_type(:boolean)
+Domgen::TypeDB.characteristic_type(:text, 'persistent' => true)
+Domgen::TypeDB.characteristic_type(:integer, 'persistent' => true)
+Domgen::TypeDB.characteristic_type(:real, 'persistent' => true)
+Domgen::TypeDB.characteristic_type(:date, 'persistent' => true)
+Domgen::TypeDB.characteristic_type(:datetime, 'persistent' => true)
+Domgen::TypeDB.characteristic_type(:boolean, 'persistent' => true)
 
 Domgen::SUPPORTED_GEOMETRY_TYPES.each do |geometry_type|
-  Domgen::TypeDB.characteristic_type(geometry_type.to_sym)
+  Domgen::TypeDB.characteristic_type(geometry_type.to_sym, 'persistent' => true)
 end
