@@ -95,12 +95,6 @@ module Domgen
         "LEN( #{quote(column_name)} ) > 0"
       end
 
-      TYPE_MAP = {"integer" => "INT",
-                  "real" => "FLOAT",
-                  "datetime" => "DATETIME",
-                  "date" => "DATE",
-                  "boolean" => "BIT"}
-
       def column_type(column)
         if column.calculation
           sql_type = "AS #{@calculation}"
