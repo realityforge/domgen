@@ -38,6 +38,10 @@ Domgen.template_set(:mssql => [:dbt_config]) do |template_set|
 end
 Domgen.template_set(:pgsql => [:dbt_config]) do |template_set|
   template_set.template(Domgen::Generator::Sql::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/pgsql_database_setup.sql.erb",
+                        'db-hooks/pre/database_setup.sql')
+  template_set.template(Domgen::Generator::Sql::FACETS,
                         :data_module,
                         "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/pgsql_ddl.sql.erb",
                         '#{data_module.name}/schema.sql')
