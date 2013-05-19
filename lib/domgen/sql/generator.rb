@@ -23,7 +23,7 @@ end
 Domgen.template_set(:mssql => [:dbt_config]) do |template_set|
   template_set.template(Domgen::Generator::Sql::FACETS,
                         :repository,
-                        "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/database_setup.sql.erb",
+                        "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/mssql_database_setup.sql.erb",
                         'db-hooks/pre/database_setup.sql')
   template_set.template(Domgen::Generator::Sql::FACETS,
                         :data_module,
