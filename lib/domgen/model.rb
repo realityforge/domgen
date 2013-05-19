@@ -219,7 +219,6 @@ module Domgen
     end
   end
 
-  # TODO: A WIP - See http://postgis.refractions.net/docs/AddGeometryColumn.html
   class Geometry < Domgen.ParentedElement(:characteristic)
     def geometry_type=(geometry_type)
       Domgen.error("geometry_type on #{characteristic.name} is invalid as #{geometry_type} is not a known type of geometry") unless Domgen::SUPPORTED_GEOMETRY_TYPES.include?(geometry_type.to_s)
