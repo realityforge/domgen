@@ -231,11 +231,17 @@ module Domgen
     end
 
     def dimensions=(dimensions)
-      Domgen.error("dimensions on #{characteristic.name} is invalid as #{dimensions} is not valid") unless 2..4.include?(dimensions)
+      Domgen.error("dimensions can not be specified on #{characteristic.name} as geometry_type is not raw geometry") unless geometry_type == :geometry
+      Domgen.error("dimensions on #{characteristic.name} is invalid as #{dimensions} is not valid") unless [2,3].include?(dimensions)
       @dimensions = dimensions
     end
 
-    attr_reader :dimensions
+    def dimensions
+      return @dimensions if geometry_type == :geometry
+      return 2 if Domgen::SUPPORTED_2D_GEOMETRY_TYPES.include?(geometry_type)
+      return 3 if Domgen::SUPPORTED_3D_GEOMETRY_TYPES.include?(geometry_type)
+      return nil
+    end
 
     def srid=(srid)
       @srid = srid
