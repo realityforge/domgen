@@ -80,6 +80,24 @@ module Domgen
           return column.attribute.characteristic_type.sql.pgsql.sql_type
         end
       end
+
+      def post_verify_table_customization(table)
+        table.entity.attributes.select{ |a| a.sql? && a.geometry? }.each do |a|
+          constraint_name = "#{a.name}_ValidGeometry"
+          table.constraint(constraint_name, :sql => "ST_IsValid(#{quote(a.sql.column_name)})" ) unless table.constraint_by_name(constraint_name)
+
+          if a.geometry.geometry_type == :geometry
+            if a.geometry.dimensions
+              constraint_name = "#{a.name}_ValidDimensions"
+              table.constraint(constraint_name, :sql => "ST_ndims(#{quote(a.sql.column_name)}) = #{a.geometry.dimensions}") unless table.constraint_by_name(constraint_name)
+            end
+            if a.geometry.srid
+              constraint_name = "#{a.name}_ValidSpatialReferenceID"
+              table.constraint(constraint_name, :sql => "ST_srid(#{quote(a.sql.column_name)}) = #{a.geometry.srid}") unless table.constraint_by_name(constraint_name)
+            end
+          end
+        end
+      end
     end
 
     class MssqlDialect
@@ -115,6 +133,9 @@ module Domgen
         else
           return quote(column.attribute.characteristic_type.sql.mssql.sql_type)
         end
+      end
+
+      def post_verify_table_customization(table)
       end
     end
 
@@ -845,6 +866,8 @@ SQL
                       {:on_update => a.sql.on_update, :on_delete => a.sql.on_delete},
                       true)
         end
+
+        Domgen::Sql.dialect.post_verify_table_customization(self)
       end
 
       def copy_tags(from, to)
