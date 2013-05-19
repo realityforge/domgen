@@ -59,9 +59,9 @@ module Domgen
       def column_type(column)
         if column.calculation
           Domgen.error("Unsupported column type - calculation")
-        elsif :reference == column.attribute.attribute_type
+        elsif column.attribute.reference?
           return column.attribute.referenced_entity.primary_key.sql.sql_type
-        elsif column.attribute.attribute_type.to_s == 'text'
+        elsif column.attribute.text?
           if column.attribute.length.nil?
             return "text"
           else
