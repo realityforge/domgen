@@ -142,9 +142,10 @@ module Domgen
     end
   end
 
-  SUPPORTED_GEOMETRY_TYPES =
-    %w{point multipoint linestring multilinestring polygon multipolygon geometry
-       pointm multipointm linestringm multilinestringm polygonm multipolygonm}
+  SUPPORTED_2D_GEOMETRY_TYPES = %w{point multipoint linestring multilinestring polygon multipolygon}
+  SUPPORTED_3D_GEOMETRY_TYPES = %w{pointm multipointm linestringm multilinestringm polygonm multipolygonm}
+
+  SUPPORTED_GEOMETRY_TYPES = SUPPORTED_2D_GEOMETRY_TYPES + SUPPORTED_3D_GEOMETRY_TYPES + %w{geometry}
 
   UNSUPPORTED_GEOMETRY_TYPES =
     %w{ circularstring compoundcurve multicurve
