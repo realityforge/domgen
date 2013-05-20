@@ -176,11 +176,18 @@ module Domgen
         "Index[#{self.qualified_index_name}]"
       end
 
+      attr_reader :index_type
+
+      def index_type=(index_type)
+        Domgen.error("index_type #{index_type} on #{qualified_index_name} is invalid") unless self.class.valid_index_types.include?(index_type)
+        @index_type = index_type
+      end
+
       attr_writer :index_name
 
       def index_name
         if @index_name.nil?
-          prefix = cluster? ? 'CL' : unique? ? 'UQ' : 'IX'
+          prefix = cluster? ? 'CL' : unique? ? 'UQ' : gist? ? 'GS' : 'IX'
           suffix = attribute_names.join('_')
           @index_name = "#{prefix}_#{table.entity.name}_#{suffix}"
         end
@@ -195,10 +202,20 @@ module Domgen
         "#{table.entity.data_module.sql.quoted_schema}.#{quoted_index_name}"
       end
 
-      attr_writer :cluster
+      def ordered?
+        !gist?
+      end
 
       def cluster?
-        @cluster.nil? ? false : @cluster
+        index_type == :cluster
+      end
+
+      def gist?
+        index_type == :gist
+      end
+
+      def normal?
+        index_type == :normal
       end
 
       attr_writer :unique
@@ -209,6 +226,12 @@ module Domgen
 
       def partial?
         !self.filter.nil?
+      end
+
+      private
+
+      def self.valid_index_types
+        [:cluster, :gist, :normal]
       end
     end
 
@@ -589,7 +612,7 @@ module Domgen
       end
 
       def cluster(attribute_names, options = {}, &block)
-        index(attribute_names, options.merge(:cluster => true), &block)
+        index(attribute_names, options.merge(:index_type => :cluster), &block)
       end
 
       def indexes
