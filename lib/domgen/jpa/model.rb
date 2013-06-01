@@ -362,9 +362,9 @@ module Domgen
       attr_writer :properties
 
       def properties
-        @properties || {"eclipselink.logging.logger" => "JavaLogger",
-                        #"eclipselink.logging.level" => "FINE",
-                        "eclipselink.temporal.mutable" => "false"}
+        @properties ||= {"eclipselink.logging.logger" => "JavaLogger",
+                         #"eclipselink.logging.level" => "FINE",
+                         "eclipselink.temporal.mutable" => "false"}
       end
 
       attr_writer :ejb_module_name
