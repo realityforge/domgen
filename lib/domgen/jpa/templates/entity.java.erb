@@ -6,12 +6,12 @@ package <%= entity.data_module.jpa.entity_package %>;
 <%
    jpa_queries = entity.queries.select {|q| !q.jpa.native? }
    if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
-<%= jpa_queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string}\" )" }.join(",\n") %>
+<%= jpa_queries.collect { |q| "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\" )" }.join(",\n") %>
 } )<% end %>
 <%
    native_queries = entity.queries.select {|q| q.jpa.native? }
    if !native_queries.empty? %>@javax.persistence.NamedNativeQueries( value = {
-<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string}\"#{q.jpa.native? ? ", resultClass = #{entity.jpa.name}.class" : ""} )" }.join(",\n") %>
+<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{q.jpa.native? ? ", resultClass = #{entity.jpa.name}.class" : ""} )" }.join(",\n") %>
 } )<% end %>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity( name = "<%= entity.jpa.jpql_name %>" )<% if !entity.abstract? %>
