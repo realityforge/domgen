@@ -67,6 +67,8 @@ module Domgen
 
       attr_accessor :offset
 
+      attr_accessor :order_by
+
       def ql
         @ql
       end
@@ -109,6 +111,7 @@ module Domgen
 
       def query_string
         table_name = self.native? ? query.entity.sql.table_name : query.entity.jpa.jpql_name
+        order_by_clause = order_by ? " ORDER BY #{order_by}" : ""
         criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
         q = nil
         if self.query_spec == :statement
@@ -116,9 +119,9 @@ module Domgen
         elsif self.query_spec == :criteria
           if query.query_type == :select
             if self.native?
-              q = "SELECT O.* FROM #{table_name} O #{criteria_clause}"
+              q = "SELECT O.* FROM #{table_name} O #{criteria_clause}#{order_by_clause}"
             else
-              q = "SELECT O FROM #{table_name} O #{criteria_clause}"
+              q = "SELECT O FROM #{table_name} O #{criteria_clause}#{order_by_clause}"
             end
           elsif query.query_type == :update
             Domgen.error("The combination of query.query_type == :update and query_spec == :criteria is not supported")
