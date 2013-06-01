@@ -15,7 +15,7 @@ public class <%= entity.jpa.dao_name %>
 
 <% entity.queries.each do |query| %>
 <%= description_javadoc_for(query) %>  @Override
-  public <%= query_return_type(query) %> <%= query.name %>(<%= query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"}.join(', ') %>)
+  public <%= query_return_type(query) %> <%= query.name %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
     final javax.persistence.TypedQuery<<%= entity.jpa.qualified_name %>> query =
       em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= entity.jpa.qualified_name %>.class );
@@ -29,6 +29,12 @@ public class <%= entity.jpa.dao_name %>
     query.setParameter(<%= index + 1 %>, <%= p.name %>);
 <%  end
    end %>
+<% if query.jpa.offset -%>
+    query.setFirstResult( offset );
+<% end %>
+<% if query.jpa.limit -%>
+    query.setMaxResults( limit );
+<% end %>
 <% if query.query_type == :select %>
 <% if query.multiplicity == :many %>
     return query.getResultList();

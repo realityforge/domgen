@@ -63,6 +63,10 @@ module Domgen
         @native.nil? ? false : @native
       end
 
+      attr_accessor :limit
+
+      attr_accessor :offset
+
       def ql
         @ql
       end
