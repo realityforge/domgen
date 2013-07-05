@@ -7,4 +7,8 @@ public final class <%= data_module.jpa.catalog_name %>
   {
 <%= data_module.entities.select {|entity| entity.jpa? }.collect {|entity| "    #{entity.jpa.qualified_name}.class" }.join(",\n") %>
   };
+
+  private <%= data_module.jpa.catalog_name %>()
+  {
+  }
 }
