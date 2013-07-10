@@ -65,7 +65,8 @@ public class <%= service.ejb.boundary_implementation_name %>
          transform = "return #{modality_default_to_transport("value", method.return_value, :ejb)};"
        else
          return_prefix = "#{annotated_type(method.return_value, :ejb)} result = "
-         transform = <<-JAVA
+         transform = method.return_value.nullable? ? "if ( null == result ) { return null; }\n" : ''
+         transform = transform + <<-JAVA
         final #{annotated_type(method.return_value, :ejb, :boundary)} $result = new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:boundary)}>();
         for( final #{method.return_value.ejb.java_component_type} k: result )
         {
