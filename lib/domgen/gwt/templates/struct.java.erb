@@ -1,0 +1,11 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= struct.data_module.gwt.client_data_type_package %>;
+
+<%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public interface <%= struct.gwt.interface_name %>
+{
+<% struct.fields.each do |field| %>
+  <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>();
+<% end %>
+}

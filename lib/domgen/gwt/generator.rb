@@ -87,6 +87,19 @@ Domgen.template_set(:gwt_server_service) do |template_set|
                         Domgen::Generator::GWT::HELPERS)
 end
 
+Domgen.template_set(:gwt_client_jso) do |template_set|
+  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
+                        :struct,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct.java.erb",
+                        'main/java/#{struct.gwt.qualified_interface_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
+                        :struct,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
+                        'main/java/#{struct.gwt.qualified_jso_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
+end
+
 Domgen.template_set(:gwt_shared => [:gwt_shared_service])
 Domgen.template_set(:gwt_client => [:gwt_client_service, :gwt_client_service_test])
 Domgen.template_set(:gwt_server => [:gwt_server_service])

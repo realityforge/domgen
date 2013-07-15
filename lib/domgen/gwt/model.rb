@@ -14,6 +14,42 @@
 
 module Domgen
   module GWT
+    class GwtStruct < Domgen.ParentedElement(:struct)
+      attr_writer :interface_name
+
+      def interface_name
+        @interface_name || struct.name.to_s
+      end
+
+      def qualified_interface_name
+        "#{struct.data_module.gwt.client_data_type_package}.#{interface_name}"
+      end
+
+      attr_writer :jso_name
+
+      def jso_name
+        @jso_name || "Jso#{struct.name}"
+      end
+
+      def qualified_jso_name
+        "#{struct.data_module.gwt.client_data_type_package}.#{jso_name}"
+      end
+    end
+
+    class GwtStructField < Domgen.ParentedElement(:field)
+      include Domgen::Java::ImitJavaCharacteristic
+
+      def name
+        field.name
+      end
+
+      protected
+
+      def characteristic
+        field
+      end
+    end
+
     class GwtEvent < Domgen.ParentedElement(:message)
       attr_writer :event_name
 
@@ -112,6 +148,12 @@ module Domgen
 
     class GwtModule < Domgen.ParentedElement(:data_module)
       include Domgen::Java::ClientServerJavaPackage
+
+      attr_writer :client_data_type_package
+
+      def client_data_type_package
+        @client_data_type_package || "#{parent_facet.client_data_type_package}.#{package_key}"
+      end
 
       attr_writer :client_event_package
 
@@ -262,6 +304,8 @@ module Domgen
                               Method => Domgen::GWT::GwtMethod,
                               Parameter => Domgen::GWT::GwtParameter,
                               Exception => Domgen::GWT::GwtException,
+                              Struct => Domgen::GWT::GwtStruct,
+                              StructField => Domgen::GWT::GwtStructField,
                               Message => Domgen::GWT::GwtEvent,
                               MessageParameter => Domgen::GWT::GwtEventParameter,
                               Result => Domgen::GWT::GwtReturn,

@@ -1,0 +1,23 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= struct.data_module.gwt.client_data_type_package %>;
+
+<%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= struct.gwt.jso_name %>
+  extends com.google.gwt.core.client.JavaScriptObject
+  implements <%= struct.gwt.interface_name %>
+{
+<% struct.fields.select{|f|!f.collection?}.each do |field|
+%>
+  public native <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>() /*-{ return this.<%= field.json.name %>;  }-*/;
+<% end
+%><% struct.fields.select{|f|f.collection?}.each do |field|
+%>
+  private native com.google.gwt.core.client.JavaScriptObject <%= getter_prefix(field) %><%= field.name %>0() /*-{ return this.<%= field.json.name %>;  }-*/;
+
+  public final <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
+  {
+    return org.realityforge.replicant.client.JsoUtil.toList( <%= getter_prefix(field) %><%= field.name %>0() );
+  }
+<% end
+%>}
