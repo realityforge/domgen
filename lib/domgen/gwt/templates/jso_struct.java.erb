@@ -7,12 +7,28 @@ public class <%= struct.gwt.jso_name %>
   extends com.google.gwt.core.client.JavaScriptObject
   implements <%= struct.gwt.interface_name %>
 {
-<% struct.fields.select{|f|!f.collection?}.each do |field|
+<% struct.fields.select{|f|!f.collection? && !f.enumeration?}.each do |field|
 %>
   public native <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>() /*-{ return this.<%= field.json.name %>;  }-*/;
   protected native void set<%= field.name %>( <%= annotated_type(field, :gwt, :boundary) %> value ) /*-{ this.<%= field.json.name %> = value;  }-*/;
 <% end
-%><% struct.fields.select{|f|f.collection?}.each do |field|
+   struct.fields.select{|f|f.enumeration?}.each do |field|
+%>
+  public final <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
+  {
+    return <%= field.gwt.java_type %>.valueOf( <%= "#{getter_prefix(field)}#{field.name}" %>0() );
+  }
+
+  private final native String <%= getter_prefix(field) %><%= field.name %>0() /*-{
+    return this.<%= field.json.name %>;
+  }-*/;
+
+  private final native void set<%= field.name %>( String value ) /*-{
+    this.<%= field.json.name %> = value;
+  }-*/;
+<%
+end
+struct.fields.select{|f|f.collection?}.each do |field|
 %>
   private native com.google.gwt.core.client.JavaScriptObject <%= getter_prefix(field) %><%= field.name %>0() /*-{ return this.<%= field.json.name %>;  }-*/;
 
