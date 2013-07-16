@@ -44,6 +44,14 @@ module Domgen
       def qualified_java_name
         "#{struct.data_module.gwt.client_data_type_package}.#{java_name}"
       end
+
+      def factory_name
+        "#{struct.name}Factory"
+      end
+
+      def qualified_factory_name
+        "#{struct.data_module.gwt.client_data_type_package}.#{self.factory_name}"
+      end
     end
 
     class GwtStructField < Domgen.ParentedElement(:field)
