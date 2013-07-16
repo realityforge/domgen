@@ -10,10 +10,13 @@ public class <%= struct.gwt.jso_name %>
 <% struct.fields.select{|f|!f.collection?}.each do |field|
 %>
   public native <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>() /*-{ return this.<%= field.json.name %>;  }-*/;
+  protected native void set<%= field.name %>( <%= annotated_type(field, :gwt, :boundary) %> value ) /*-{ this.<%= field.json.name %> = value;  }-*/;
 <% end
 %><% struct.fields.select{|f|f.collection?}.each do |field|
 %>
   private native com.google.gwt.core.client.JavaScriptObject <%= getter_prefix(field) %><%= field.name %>0() /*-{ return this.<%= field.json.name %>;  }-*/;
+
+  protected native void set<%= field.name %>( final com.google.gwt.core.client.JavaScriptObject value ) /*-{ this.<%= field.json.name %> = value;  }-*/;
 
   public final <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
   {
