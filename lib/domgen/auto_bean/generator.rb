@@ -22,12 +22,15 @@ module Domgen
   end
 end
 
-Domgen.template_set(:auto_bean) do |template_set|
+Domgen.template_set(:auto_bean_enumeration) do |template_set|
   template_set.template(Domgen::Generator::AutoBean::FACETS,
                         :enumeration,
                         "#{Domgen::Generator::AutoBean::TEMPLATE_DIRECTORY}/enumeration.java.erb",
                         'main/java/#{enumeration.auto_bean.qualified_name.gsub(".","/")}.java',
                         Domgen::Generator::AutoBean::HELPERS)
+end
+
+Domgen.template_set(:auto_bean_struct) do |template_set|
   template_set.template(Domgen::Generator::AutoBean::FACETS,
                         :struct,
                         "#{Domgen::Generator::AutoBean::TEMPLATE_DIRECTORY}/struct.java.erb",
@@ -39,3 +42,5 @@ Domgen.template_set(:auto_bean) do |template_set|
                         'main/java/#{repository.auto_bean.qualified_factory_name.gsub(".","/")}.java',
                         Domgen::Generator::AutoBean::HELPERS)
 end
+
+Domgen.template_set(:auto_bean => [:auto_bean_enumeration, :auto_bean_struct])
