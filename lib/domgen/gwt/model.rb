@@ -34,6 +34,16 @@ module Domgen
       def qualified_jso_name
         "#{struct.data_module.gwt.client_data_type_package}.#{jso_name}"
       end
+
+      attr_writer :java_name
+
+      def java_name
+        @java_name || "Java#{struct.name}"
+      end
+
+      def qualified_java_name
+        "#{struct.data_module.gwt.client_data_type_package}.#{java_name}"
+      end
     end
 
     class GwtStructField < Domgen.ParentedElement(:field)

@@ -98,6 +98,11 @@ Domgen.template_set(:gwt_client_jso) do |template_set|
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
                         'main/java/#{struct.gwt.qualified_jso_name.gsub(".","/")}.java',
                         Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
+                        :struct,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/java_struct.java.erb",
+                        'main/java/#{struct.gwt.qualified_java_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
 end
 
 Domgen.template_set(:gwt_shared => [:gwt_shared_service])
