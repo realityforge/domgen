@@ -23,4 +23,12 @@ public class <%= struct.gwt.jso_name %>
     return org.realityforge.replicant.client.JsoUtil.toList( <%= getter_prefix(field) %><%= field.name %>0() );
   }
 <% end
-%>}
+%>
+<% if struct.top_level? %>
+  protected static <%= struct.gwt.qualified_jso_name %> as<%= struct.name %>( final String json )
+  {
+    return com.google.gwt.core.client.JsonUtils.safeEval( json );
+  }
+<% end
+%>
+}
