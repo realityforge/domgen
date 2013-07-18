@@ -14,11 +14,25 @@
 
 module Domgen
   module GWT
+    class GwtEnumeration < Domgen.ParentedElement(:enumeration)
+      def name
+        "#{enumeration.name}"
+      end
+
+      def qualified_name
+        "#{enumeration.data_module.gwt.client_data_type_package}.#{name}"
+      end
+    end
+
     class GwtStruct < Domgen.ParentedElement(:struct)
       attr_writer :interface_name
 
       def interface_name
         @interface_name || struct.name.to_s
+      end
+
+      def qualified_name
+        self.qualified_interface_name
       end
 
       def qualified_interface_name
@@ -101,6 +115,11 @@ module Domgen
     end
 
     class GwtService < Domgen.ParentedElement(:service)
+
+      def use_autobean_structs?
+        service.data_module.facet_enabled?(:auto_bean)
+      end
+
       attr_writer :xsrf_protected
 
       def xsrf_protected?
@@ -318,6 +337,7 @@ module Domgen
 
   FacetManager.define_facet(:gwt,
                             {
+                              EnumerationSet => Domgen::GWT::GwtEnumeration,
                               Service => Domgen::GWT::GwtService,
                               Method => Domgen::GWT::GwtMethod,
                               Parameter => Domgen::GWT::GwtParameter,
@@ -329,5 +349,5 @@ module Domgen
                               Result => Domgen::GWT::GwtReturn,
                               DataModule => Domgen::GWT::GwtModule,
                               Repository => Domgen::GWT::GwtApplication
-                            }, [:auto_bean])
+                            }, [])
 end

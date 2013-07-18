@@ -39,7 +39,7 @@ Domgen.template_set(:gwt_shared_service) do |template_set|
                         Domgen::Generator::GWT::HELPERS)
 end
 
-Domgen.template_set(:gwt_client_service => [:auto_bean]) do |template_set|
+Domgen.template_set(:gwt_client_service) do |template_set|
   template_set.template(Domgen::Generator::GWT::FACETS,
                         :repository,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/rpc_services_module.java.erb",
@@ -88,6 +88,11 @@ Domgen.template_set(:gwt_server_service) do |template_set|
 end
 
 Domgen.template_set(:gwt_client_jso) do |template_set|
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        :enumeration,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/enumeration.java.erb",
+                        'main/java/#{enumeration.gwt.qualified_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
   template_set.template(Domgen::Generator::GWT::FACETS + [:json],
                         :struct,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct.java.erb",

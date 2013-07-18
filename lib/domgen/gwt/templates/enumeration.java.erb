@@ -1,0 +1,10 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= enumeration.data_module.gwt.client_data_type_package %>;
+
+<%= description_javadoc_for(enumeration, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public enum <%= enumeration.gwt.name %>
+  implements java.io.Serializable
+{
+  <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>
+}

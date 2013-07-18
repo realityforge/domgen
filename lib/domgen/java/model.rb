@@ -188,7 +188,7 @@ module Domgen
 
       GROUP_TYPE_MAP = {
         :ee => GroupType.new(:jpa, :ee, :ee),
-        :imit => GroupType.new(:imit, :auto_bean, :auto_bean)
+        :imit => GroupType.new(:imit, :gwt, :gwt)
       }
 
       MODALITIES = [:default, :boundary, :transport]
