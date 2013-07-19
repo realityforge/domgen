@@ -32,4 +32,3 @@
       - http://fusesource.com/docs/esb/4.4.1/cxf_jaxws/JavaFirst-AnnotateCxf-SchemaVal.html
 
 * Rename inverse.relationship_name to inverse.name
-* Support integer() on messages in GWT Events where they parameters are not nullable
