@@ -75,6 +75,7 @@ module Domgen
                               DataModule => Domgen::AutoBean::AutoBeanPackage,
                               Repository => Domgen::AutoBean::AutoBeanApplication
                             },
-                            [:json])
+                            # jackson required as it defines the mapping to json-ish conventions
+                            [:json, :jackson])
 
 end
