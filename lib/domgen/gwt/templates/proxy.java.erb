@@ -61,7 +61,7 @@ public class <%= service.gwt.proxy_name %>
   elsif parameter.enumeration? && parameter.enumeration.textual_values?
     param_value = "#{parameter.name}.name()"
   elsif parameter.struct?
-    if parameter.service.gwt.use_autobean_structs?
+    if parameter.method.service.gwt.use_autobean_structs?
     param_value = "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( #{parameter.name} ) ).getPayload()"
     else
     param_value = "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( #{parameter.name} )"
