@@ -3,7 +3,7 @@ package <%= struct.data_module.gwt.client_data_type_package %>;
 
 <%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked" } )
-final class <%= struct.gwt.jso_name %>
+public final class <%= struct.gwt.jso_name %>
   extends com.google.gwt.core.client.JavaScriptObject
   implements <%= struct.gwt.qualified_interface_name %>
 {
