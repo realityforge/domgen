@@ -1,12 +1,12 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= service.data_module.gwt.server_servlet_package %>;
+package <%= service.data_module.gwt_rpc.server_servlet_package %>;
 
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt.module_name %>/" + <%= service.gwt.qualified_service_name %>.PATH } )
-public class <%= service.gwt.servlet_name %>
-  extends com.google.gwt.user.server.rpc.<%= service.gwt.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
-  implements <%= service.gwt.qualified_service_name %>
+@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_service_name %>.PATH } )
+public class <%= service.gwt_rpc.servlet_name %>
+  extends com.google.gwt.user.server.rpc.<%= service.gwt_rpc.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
+  implements <%= service.gwt_rpc.qualified_service_name %>
 {
   public static final long serialVersionUID = 1;
 
@@ -16,7 +16,7 @@ public class <%= service.gwt.servlet_name %>
   private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
 <% service.methods.select{|method| method.gwt?}.each do |method|
-%>  public <%= annotated_type(method.return_value, :gwt, :transport) %> <%= method.gwt.name %>(<%= method.parameters.select{|parameter| !parameter.gwt.environmental?}.collect{|p| "#{annotated_type(p, :gwt, :transport)} #{p.gwt.name}" }.join(', ') %>)<%=
+%>  public <%= annotated_type(method.return_value, :gwt, :transport) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt, :transport)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt.qualified_name}.join(', ')}"
 %>
   {
@@ -117,26 +117,26 @@ LOOP
 %>    try
     {
 <% end %>
-    <%= return_prefix %>_service.<%= method.gwt.name %>(<%= method.parameters.collect do |p|
-  if p.gwt.environmental?
-    value = p.gwt.environment_value
+    <%= return_prefix %>_service.<%= method.gwt_rpc.name %>(<%= method.parameters.collect do |p|
+  if p.gwt_rpc.environmental?
+    value = p.gwt_rpc.environment_value
   elsif p.struct? || (p.collection? && (p.date? || p.enumeration?|| p.struct?))
     value = "$#{p.name}"
   else
     transform = nil
     if p.date?
-      transform = "org.realityforge.replicant.client.RDate.toDate( #{p.gwt.name} )"
+      transform = "org.realityforge.replicant.client.RDate.toDate( #{p.gwt_rpc.name} )"
     elsif p.enumeration?
       if p.enumeration.numeric_values?
-        transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt.name} ]"
+        transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt_rpc.name} ]"
       else
-        transform = "#{p.enumeration.ee.qualified_name}.valueOf( #{p.gwt.name} )"
+        transform = "#{p.enumeration.ee.qualified_name}.valueOf( #{p.gwt_rpc.name} )"
       end
     end
     if p.nullable? && transform
-      transform = "(null == #{p.gwt.name} ? null : #{transform})"
+      transform = "(null == #{p.gwt_rpc.name} ? null : #{transform})"
     end
-    value = transform || p.gwt.name
+    value = transform || p.gwt_rpc.name
   end
   value
 end.join(', ') %>);

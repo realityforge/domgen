@@ -288,5 +288,5 @@ module Domgen
                               DataModule => Domgen::Imit::ImitationModule,
                               Repository => Domgen::Imit::ImitationApplication
                             },
-                            [:gwt])
+                            [:gwt_rpc])
 end

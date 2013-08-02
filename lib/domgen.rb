@@ -104,6 +104,10 @@ require 'domgen/ee/generator'
 require 'domgen/gwt/model'
 require 'domgen/gwt/generator'
 
+# GwtRPC
+require 'domgen/gwt_rpc/model'
+require 'domgen/gwt_rpc/generator'
+
 # Imit
 require 'domgen/imit/model'
 require 'domgen/imit/generator'
