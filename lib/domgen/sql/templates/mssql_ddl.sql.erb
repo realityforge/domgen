@@ -57,7 +57,7 @@ GO
 <% end %>
 <% entity.sql.indexes.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.cluster? ? '' : 'NON' %>CLUSTERED INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %>
-(<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} ASC" }.join(",") %>
+(<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(",") %>
 )<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(",") %> )<% end %>
 <% if index.filter %>WHERE <%= index.filter %><% end %>
 <%= index.unique? ? 'ON [PRIMARY]' : '' %>
