@@ -26,19 +26,19 @@ Domgen::TypeDB.enhance(:date, 'sql.mssql.sql_type' => 'DATE', 'sql.pgsql.sql_typ
 Domgen::TypeDB.enhance(:datetime, 'sql.mssql.sql_type' => 'DATETIME', 'sql.pgsql.sql_type' => 'timestamp')
 Domgen::TypeDB.enhance(:boolean, 'sql.mssql.sql_type' => 'BIT', 'sql.pgsql.sql_type' => 'boolean')
 
-Domgen::TypeDB.enhance(:point, 'sql.pgsql.sql_type' => 'POINT')
-Domgen::TypeDB.enhance(:multipoint, 'sql.pgsql.sql_type' => 'MULTIPOINT')
-Domgen::TypeDB.enhance(:linestring, 'sql.pgsql.sql_type' => 'LINESTRING')
-Domgen::TypeDB.enhance(:multilinestring, 'sql.pgsql.sql_type' => 'MULTILINESTRING')
-Domgen::TypeDB.enhance(:polygon, 'sql.pgsql.sql_type' => 'POLYGON')
-Domgen::TypeDB.enhance(:multipolygon, 'sql.pgsql.sql_type' => 'MULTIPOLYGON')
-Domgen::TypeDB.enhance(:geometry, 'sql.pgsql.sql_type' => 'GEOMETRY')
-Domgen::TypeDB.enhance(:pointm, 'sql.pgsql.sql_type' => 'POINTM')
-Domgen::TypeDB.enhance(:multipointm, 'sql.pgsql.sql_type' => 'MULTIPOINTM')
-Domgen::TypeDB.enhance(:linestringm, 'sql.pgsql.sql_type' => 'LINESTRINGM')
-Domgen::TypeDB.enhance(:multilinestringm, 'sql.pgsql.sql_type' => 'MULTILINESTRINGM')
-Domgen::TypeDB.enhance(:polygonm, 'sql.pgsql.sql_type' => 'POLYGONM')
-Domgen::TypeDB.enhance(:multipolygonm, 'sql.pgsql.sql_type' => 'MULTIPOLYGONM')
+Domgen::TypeDB.enhance(:point, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'POINT')
+Domgen::TypeDB.enhance(:multipoint, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTIPOINT')
+Domgen::TypeDB.enhance(:linestring, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'LINESTRING')
+Domgen::TypeDB.enhance(:multilinestring, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTILINESTRING')
+Domgen::TypeDB.enhance(:polygon, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'POLYGON')
+Domgen::TypeDB.enhance(:multipolygon, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTIPOLYGON')
+Domgen::TypeDB.enhance(:geometry, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'GEOMETRY')
+Domgen::TypeDB.enhance(:pointm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'POINTM')
+Domgen::TypeDB.enhance(:multipointm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTIPOINTM')
+Domgen::TypeDB.enhance(:linestringm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'LINESTRINGM')
+Domgen::TypeDB.enhance(:multilinestringm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTILINESTRINGM')
+Domgen::TypeDB.enhance(:polygonm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'POLYGONM')
+Domgen::TypeDB.enhance(:multipolygonm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTIPOLYGONM')
 
 module Domgen
   module Sql
@@ -136,6 +136,41 @@ module Domgen
       end
 
       def post_verify_table_customization(table)
+        table.entity.attributes.select{ |a| a.sql? && a.geometry? }.each do |a|
+          constraint_name = "#{a.name}_ValidGeometry"
+          table.constraint(constraint_name, :sql => "#{quote(a.sql.column_name)}.STIsValid() = 1" ) unless table.constraint_by_name(constraint_name)
+
+          if a.geometry.geometry_type != :geometry
+            label = {
+              :point => 'Point',
+              :multipoint => 'MultiPoint',
+              :linestring => 'LineString',
+              :multilinestring => 'MultiLineString',
+              :polygon => 'Polygon',
+              :multipolygon => 'MultiPolygon',
+            }[a.geometry.geometry_type]
+
+            constraint_name = "#{a.name}_CorrectType"
+            table.constraint(constraint_name, :sql => "#{quote(a.sql.column_name)}.STGeometryType() = '#{label}'") unless table.constraint_by_name(constraint_name)
+          end
+
+          if a.geometry.dimensions
+            constraint_name = "#{a.name}_ValidDimensions"
+            constraint =
+              if 2 == a.geometry.dimensions
+                "#{quote(a.sql.column_name)}.HasZ = 0 AND #{quote(a.sql.column_name)}.HasM = 0"
+              elsif 3 == a.geometry.dimensions
+                "#{quote(a.sql.column_name)}.HasZ = 1 AND #{quote(a.sql.column_name)}.HasM = 0"
+              else
+                "#{quote(a.sql.column_name)}.HasZ = 1 AND #{quote(a.sql.column_name)}.HasM = 1"
+              end
+            table.constraint(constraint_name, :sql => constraint) unless table.constraint_by_name(constraint_name)
+          end
+          if a.geometry.srid
+            constraint_name = "#{a.name}_ValidSpatialReferenceID"
+            table.constraint(constraint_name, :sql => "#{quote(a.sql.column_name)}.STSrid = #{a.geometry.srid}") unless table.constraint_by_name(constraint_name)
+          end
+        end
       end
     end
 
@@ -790,7 +825,13 @@ FROM inserted I, deleted D
 WHERE
   I.#{pk.sql.quoted_column_name} = D.#{pk.sql.quoted_column_name} AND
   (
-#{immutable_attributes.collect {|a| "    (I.#{a.sql.quoted_column_name} != D.#{a.sql.quoted_column_name})" }.join(" OR\n") }
+#{immutable_attributes.collect do |a|
+  if a.geometry?
+    "    (I.#{a.sql.quoted_column_name}.STEquals(D.#{a.sql.quoted_column_name}) = 0)"
+  else
+    "    (I.#{a.sql.quoted_column_name} != D.#{a.sql.quoted_column_name})"
+  end
+end.join(" OR\n") }
   )
 SQL
          end
