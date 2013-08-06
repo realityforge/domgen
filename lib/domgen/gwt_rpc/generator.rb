@@ -32,6 +32,11 @@ Domgen.template_set(:gwt_rpc_shared_service) do |template_set|
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/async_rpc_service.java.erb",
                         'main/java/#{service.gwt_rpc.qualified_async_rpc_service_name.gsub(".","/")}.java',
                         Domgen::Generator::GwtRpc::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        :exception,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/exception.java.erb",
+                        'main/java/#{exception.gwt_rpc.qualified_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
 end
 
 Domgen.template_set(:gwt_rpc_client_service) do |template_set|
@@ -72,7 +77,7 @@ Domgen.template_set(:gwt_rpc_server_service) do |template_set|
                         Domgen::Generator::GwtRpc::HELPERS)
 end
 
-Domgen.template_set(:gwt_rpc_shared => [:gwt_rpc_shared_service, :gwt_shared_exception])
+Domgen.template_set(:gwt_rpc_shared => [:gwt_rpc_shared_service])
 Domgen.template_set(:gwt_rpc_client => [:gwt_rpc_client_service, :gwt_rpc_client_service_test, :gwt_client_jso])
 Domgen.template_set(:gwt_rpc_server => [:gwt_rpc_server_service])
 Domgen.template_set(:gwt_rpc => [:gwt_rpc_shared, :gwt_rpc_client, :gwt_rpc_server])

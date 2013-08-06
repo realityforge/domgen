@@ -260,16 +260,6 @@ module Domgen
       end
     end
 
-    class GwtException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
-
-      def qualified_name
-        "#{exception.data_module.gwt.shared_data_type_package}.#{name}"
-      end
-    end
-
     class GwtApplication < Domgen.ParentedElement(:repository)
       include Domgen::Java::JavaClientServerApplication
 
@@ -341,7 +331,6 @@ module Domgen
                               Service => Domgen::GWT::GwtService,
                               Method => Domgen::GWT::GwtMethod,
                               Parameter => Domgen::GWT::GwtParameter,
-                              Exception => Domgen::GWT::GwtException,
                               Struct => Domgen::GWT::GwtStruct,
                               StructField => Domgen::GWT::GwtStructField,
                               Message => Domgen::GWT::GwtEvent,

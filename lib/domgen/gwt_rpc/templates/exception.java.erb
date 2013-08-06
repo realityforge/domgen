@@ -1,0 +1,11 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= exception.data_module.gwt_rpc.shared_data_type_package %>;
+
+<%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= exception.gwt_rpc.name %> extends <%= exception.extends.nil? ? "Exception" : exception.data_module.exception_by_name(exception.extends).gwt_rpc.qualified_name %> implements java.io.Serializable
+{
+  public <%= exception.gwt_rpc.name %>() {}
+  public <%= exception.gwt_rpc.name %>( final String message ) { super( message ); }
+  public <%= exception.gwt_rpc.name %>( final String message, final Throwable cause ) { super( message, cause ); }
+}

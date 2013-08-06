@@ -17,7 +17,7 @@ public class <%= service.gwt_rpc.servlet_name %>
 
 <% service.methods.select{|method| method.gwt?}.each do |method|
 %>  public <%= annotated_type(method.return_value, :gwt, :transport) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt, :transport)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
-    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt.qualified_name}.join(', ')}"
+    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt_rpc.qualified_name}.join(', ')}"
 %>
   {
 <% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| %>
@@ -147,7 +147,7 @@ end.join(', ') %>);
 <% method.exceptions.each do |exception| %>
     catch ( final <%= exception.ee.qualified_name %> e )
     {
-        throw new <%= exception.gwt.qualified_name %>( e.getMessage() );
+        throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
     }
 <% end %>
   }

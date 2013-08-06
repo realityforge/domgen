@@ -21,13 +21,6 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:gwt_shared_exception) do |template_set|
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :exception,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/exception.java.erb",
-                        'main/java/#{exception.gwt.qualified_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
-end
 
 Domgen.template_set(:gwt_client_event) do |template_set|
   template_set.template(Domgen::Generator::GWT::FACETS,
@@ -70,6 +63,5 @@ Domgen.template_set(:gwt_client_jso) do |template_set|
                         Domgen::Generator::GWT::HELPERS)
 end
 
-Domgen.template_set(:gwt_shared => [:gwt_shared_exception])
 Domgen.template_set(:gwt_client => [:gwt_client_event])
-Domgen.template_set(:gwt => [:gwt_shared, :gwt_client])
+Domgen.template_set(:gwt => [:gwt_client])
