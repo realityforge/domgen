@@ -34,9 +34,9 @@ Domgen.template_set(:gwt_rpc_shared_service) do |template_set|
                         Domgen::Generator::GwtRpc::HELPERS)
   template_set.template(Domgen::Generator::GWT::FACETS,
                         :exception,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/exception.java.erb",
+                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/exception.java.erb",
                         'main/java/#{exception.gwt_rpc.qualified_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
+                        Domgen::Generator::GwtRpc::HELPERS)
 end
 
 Domgen.template_set(:gwt_rpc_client_service) do |template_set|
