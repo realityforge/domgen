@@ -11,7 +11,7 @@ public class <%= repository.gwt_rpc.services_module_name %>
   {
 <%
   repository.data_modules.select{|data_module| data_module.gwt? && data_module.gwt?}.each do |data_module|
-    data_module.services.select{|service| service.gwt?}.each do |service|
+    data_module.services.select{|service| service.gwt_rpc?}.each do |service|
 %>
     bind( <%= service.gwt_rpc.qualified_facade_service_name %>.class ).to( <%= service.gwt_rpc.qualified_proxy_name %>.class );
 <%

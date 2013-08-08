@@ -5,10 +5,10 @@ package <%= service.data_module.gwt_rpc.client_service_package %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= service.gwt_rpc.facade_service_name %>
 {
-<% service.methods.select{|method| method.gwt?}.each do |method|
+<% service.methods.select{|method| method.gwt_rpc?}.each do |method|
 
   method_name = Domgen::Naming.camelize(method.name)
-  parameters = method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt, :boundary)} #{Domgen::Naming.camelize(p.gwt_rpc.name)}" }
+  parameters = method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :boundary)} #{Domgen::Naming.camelize(p.gwt_rpc.name)}" }
 
    normal_callback = "@javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback"
    non_normal_callback = "@javax.annotation.Nullable org.realityforge.replicant.client.AsyncErrorCallback errorCallback"

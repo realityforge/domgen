@@ -206,7 +206,7 @@ module Domgen
       include Domgen::Java::ClientJavaApplication
 
       def ioc_package
-        repository.gwt.client_ioc_package
+        repository.gwt_rpc.client_ioc_package
       end
 
       attr_writer :encoder_package

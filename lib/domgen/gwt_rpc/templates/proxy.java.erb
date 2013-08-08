@@ -16,20 +16,20 @@ public class <%= service.gwt_rpc.proxy_name %>
   private <%= service.data_module.repository.auto_bean.qualified_factory_name %> _factory;
 <% end %>
 
-<% service.methods.select{|method| method.gwt?}.each do |method|
+<% service.methods.select{|method| method.gwt_rpc?}.each do |method|
    method_name = Domgen::Naming.camelize(method.name)
    parameters = method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}
 %>
-  public void <%= method_name %>(<%= parameters.collect{|p| "final #{annotated_type(p, :gwt, :boundary)} #{p.name}" }.join(', ') %>)
+  public void <%= method_name %>(<%= parameters.collect{|p| "final #{annotated_type(p, :gwt_rpc, :boundary)} #{p.name}" }.join(', ') %>)
   {
     <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["null"]).join(', ') %>);
   }
-  public void <%= method_name %>(<%= (parameters.collect{|p| "final #{annotated_type(p, :gwt, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (parameters.collect{|p| "final #{annotated_type(p, :gwt_rpc, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
   {
     <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["callback","null"]).join(', ') %>);
   }
 
-  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "final #{annotated_type(p, :gwt, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback","final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncErrorCallback errorCallback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "final #{annotated_type(p, :gwt_rpc, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback","final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncErrorCallback errorCallback"]).join(', ') %>)
   {
   <% method.parameters.select{|parameter| (parameter.enumeration? || parameter.struct?) && parameter.collection?}.each do |parameter| %>
     final <%= annotated_type(parameter, :gwt, :transport) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.gwt_rpc.java_component_type(:transport) %>>();
@@ -105,7 +105,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
    end
 %>
   <% if method.return_value.collection? && (method.return_value.enumeration? || method.return_value.struct?) %>
-    final <%= annotated_type(method.return_value, :gwt, :boundary) %> $result = result == null ? null : new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.gwt_rpc.java_component_type %>>();
+    final <%= annotated_type(method.return_value, :gwt_rpc, :boundary) %> $result = result == null ? null : new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.gwt_rpc.java_component_type %>>();
     if ( null != result )
     {
       for( final <%= method.return_value.gwt_rpc.java_component_type(:transport) %> id: result )

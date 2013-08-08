@@ -11,7 +11,7 @@ public class <%= repository.gwt_rpc.mock_services_module_name %>
   {
 <%
   repository.data_modules.select{|data_module| data_module.gwt?}.each do |data_module|
-    data_module.services.select{|service| service.gwt?}.each do |service|
+    data_module.services.select{|service| service.gwt_rpc?}.each do |service|
 %>
     bind( <%= service.gwt_rpc.qualified_async_rpc_service_name %>.class ).toInstance( org.mockito.Mockito.mock( <%= service.gwt_rpc.qualified_async_rpc_service_name %>.class ) );
     bind( <%= service.gwt_rpc.qualified_facade_service_name %>.class ).toInstance( org.mockito.Mockito.mock( <%= service.gwt_rpc.qualified_facade_service_name %>.class ) );

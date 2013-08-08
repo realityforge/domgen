@@ -35,8 +35,8 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
   {
   }
 <%
-  repository.data_modules.select{|data_module| data_module.gwt?}.each do |data_module|
-    data_module.services.select{|service| service.gwt?}.each do |service|
+  repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
+    data_module.services.select{|service| service.gwt_rpc?}.each do |service|
 %>
   @com.google.inject.Provides
   @javax.inject.Singleton

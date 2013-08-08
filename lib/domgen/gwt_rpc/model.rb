@@ -86,22 +86,11 @@ module Domgen
     class GwtModule < Domgen.ParentedElement(:data_module)
       include Domgen::Java::ClientServerJavaPackage
 
-      attr_writer :client_data_type_package
-
-      def client_data_type_package
-        @client_data_type_package || "#{parent_facet.client_data_type_package}.#{package_key}"
-      end
-
-      attr_writer :client_event_package
-
-      def client_event_package
-        @client_event_package || "#{parent_facet.client_event_package}.#{package_key}"
-      end
-
       attr_writer :server_servlet_package
 
       def server_servlet_package
-        @server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
+        @server_servlet_package || "#{data_module.repository.gwt_rpc.server_servlet_package}.#{package_key}"
+        #@server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
       end
 
       protected
