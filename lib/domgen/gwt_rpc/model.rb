@@ -194,12 +194,6 @@ module Domgen
         @client_ioc_package || "#{client_package}.ioc"
       end
 
-      attr_writer :client_event_package
-
-      def client_event_package
-        @client_event_package || "#{client_package}.event"
-      end
-
       attr_writer :server_servlet_package
 
       def server_servlet_package
