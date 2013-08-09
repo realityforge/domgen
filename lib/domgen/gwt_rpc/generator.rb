@@ -32,7 +32,7 @@ Domgen.template_set(:gwt_rpc_shared_service) do |template_set|
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/async_rpc_service.java.erb",
                         'main/java/#{service.gwt_rpc.qualified_async_rpc_service_name.gsub(".","/")}.java',
                         Domgen::Generator::GwtRpc::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS,
+  template_set.template(Domgen::Generator::GwtRpc::FACETS,
                         :exception,
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/exception.java.erb",
                         'main/java/#{exception.gwt_rpc.qualified_name.gsub(".","/")}.java',
