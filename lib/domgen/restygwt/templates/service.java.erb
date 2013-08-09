@@ -1,0 +1,24 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= service.data_module.restygwt.client_service_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.ws.rs.Path( <%= service.restygwt.service_name %>.PATH )
+<%= jaxrs_produces(service.jaxrs) -%>
+<%= jaxrs_consumes(service.jaxrs) -%>
+public interface <%= service.restygwt.service_name %>
+  extends org.fusesource.restygwt.client.RestService
+{
+  String PATH = "<%= service.jaxrs.path%>";
+<% service.methods.select{|method| method.restygwt?}.each do |method|
+%>
+<%= jaxrs_path(method.jaxrs,'  ') -%>
+  @javax.ws.rs.<%= method.jaxrs.http_method %>
+<%= jaxrs_produces(method.jaxrs, '  ') -%>
+<%= jaxrs_consumes(method.jaxrs, '  ') -%>
+  void <%= Domgen::Naming.camelize(method.name) %>(<%= (method.parameters.collect{|p| jaxrs_paramater(p) } + [restygwt_return_type(method)]).join(", ") %>)<%=
+    exceptions = method.exceptions.collect{|e| e.restygwt.qualified_name}
+    exceptions.empty? ? "" : "\n    throws #{exceptions.join(', ')}"
+%>;
+
+<% end %>}

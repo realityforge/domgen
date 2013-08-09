@@ -1,0 +1,30 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.restygwt.client_ioc_package %>;
+
+<%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.restygwt.services_module_name %>
+  extends com.google.gwt.inject.client.AbstractGinModule
+{
+  @Override
+  protected void configure()
+  {
+  }
+<%
+  repository.data_modules.select{|data_module| data_module.restygwt?}.each do |data_module|
+    data_module.services.select{|service| service.restygwt?}.each do |service|
+%>
+  @com.google.inject.Provides
+  @javax.inject.Singleton
+  public <%= service.restygwt.qualified_service_name %> get<%= service.name %>()
+  {
+    final <%= service.restygwt.qualified_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.restygwt.qualified_service_name %>.class );
+    final org.fusesource.restygwt.client.Resource resource = new org.fusesource.restygwt.client.Resource( com.google.gwt.core.client.GWT.getHostPageBaseURL() + "<%= repository.jaxrs.path %>" + <%= service.restygwt.qualified_service_name %>.PATH );
+    ( (org.fusesource.restygwt.client.RestServiceProxy) service ).setResource( resource );
+    return service;
+  }
+<%
+    end
+  end
+%>}
+
