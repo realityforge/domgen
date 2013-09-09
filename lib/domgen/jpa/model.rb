@@ -228,6 +228,10 @@ module Domgen
 
       include Domgen::Java::EEJavaCharacteristic
 
+      def field_name
+        attribute.entity.jpa.to_field_name( name )
+      end
+
       protected
 
       def characteristic
@@ -236,6 +240,16 @@ module Domgen
     end
 
     class JpaClass < Domgen.ParentedElement(:entity)
+      def to_field_name( name )
+        field_naming =  entity.data_module.repository.jpa.field_naming
+
+        if field_naming
+          Domgen::Naming.send( field_naming, name)
+        else
+          name
+        end
+      end
+
       attr_writer :table_name
 
       def table_name
@@ -321,14 +335,14 @@ module Domgen
                 break
               end
               operation = $2.upcase
-              jpql = "#{jpql}#{entity_prefix}#{parameter_name} = :#{parameter_name} #{operation} "
+              jpql = "#{jpql}#{entity_prefix}#{to_field_name(parameter_name)} = :#{parameter_name} #{operation} "
             else
               parameter_name = query_text
               if !entity.attribute_exists?(parameter_name)
                 jpql = nil
                 break
               end
-              jpql = "#{jpql}#{entity_prefix}#{parameter_name} = :#{parameter_name}"
+              jpql = "#{jpql}#{entity_prefix}#{to_field_name(parameter_name)} = :#{parameter_name}"
               break
             end
           end
@@ -404,6 +418,9 @@ module Domgen
         return nil if provider.nil?
 
       end
+
+      attr_accessor :field_naming
+
     end
   end
 
