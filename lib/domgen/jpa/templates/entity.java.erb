@@ -40,7 +40,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%
   end
    entity.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
-<%= j_jpa_field_attributes(attribute) -%>  private <%= attribute.jpa.java_type %> <%= attribute.jpa.name %>;
+<%= j_jpa_field_attributes(attribute) -%>  private <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>;
 <% end %>
 <% entity.referencing_attributes.
   select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa? && attribute.inverse.jpa.traversable? }.
@@ -86,9 +86,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <% entity.declared_attributes.
   select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.traversable? && attribute.inverse.jpa.traversable? }.
   each do |attribute|
-%>    if ( null != <%= attribute.jpa.name %> )
+%>    if ( null != <%= attribute.jpa.field_name %> )
       {
-        <%= attribute.jpa.name %>.remove<%= attribute.inverse.relationship_name %>( this );
+        <%= attribute.jpa.field_name %>.remove<%= attribute.inverse.relationship_name %>( this );
       }
 <% end %>  }
 }
