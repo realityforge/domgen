@@ -946,6 +946,9 @@ SQL
     end
 
     class Column < Domgen.ParentedElement(:attribute)
+
+      attr_accessor :column_name
+
       def column_name
         if @column_name.nil?
           if attribute.reference?
