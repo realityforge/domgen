@@ -32,6 +32,12 @@ Domgen.template_set(:jpa_model) do |template_set|
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/metamodel.java.erb",
                         'main/java/#{entity.jpa.qualified_metamodel_name.gsub(".","/")}.java',
                         Domgen::Generator::JPA::HELPERS)
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :data_module,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity_package_info.java.erb",
+                        'main/java/#{data_module.jpa.entity_package.gsub(".","/")}/package-info.java',
+                        [],
+                        'data_module.entities.any?{|e|e.jpa?}')
 end
 
 Domgen.template_set(:jpa_model_catalog) do |template_set|
@@ -59,6 +65,12 @@ Domgen.template_set(:jpa_ejb_dao) do |template_set|
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_interface.java.erb",
                         'main/java/#{entity.jpa.qualified_dao_service_name.gsub(".","/")}.java',
                         Domgen::Generator::JPA::HELPERS)
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :data_module,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_package_info.java.erb",
+                        'main/java/#{data_module.jpa.dao_package.gsub(".","/")}/package-info.java',
+                        [],
+                        'data_module.entities.any?{|e|e.jpa?}')
 end
 
 Domgen.template_set(:jpa_persistence_xml) do |template_set|
