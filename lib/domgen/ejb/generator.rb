@@ -27,6 +27,12 @@ Domgen.template_set(:ejb_services) do |template_set|
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/service.java.erb",
                         'main/java/#{service.ejb.qualified_service_name.gsub(".","/")}.java',
                         Domgen::Generator::EJB::HELPERS)
+  template_set.template(Domgen::Generator::EJB::FACETS,
+                        :data_module,
+                        "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/service_package_info.java.erb",
+                        'main/java/#{data_module.ejb.service_package.gsub(".","/")}/package-info.java',
+                        [],
+                        'data_module.services.any?{|e|e.ejb?}')
 end
 Domgen.template_set(:ejb_service_facades => [:ejb_services]) do |template_set|
   template_set.template(Domgen::Generator::EJB::FACETS,
