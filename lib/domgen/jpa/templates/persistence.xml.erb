@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<% if repository.jpa.version == '2.1' %>
+<persistence version="2.1"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+<% else %>
 <persistence version="2.0"
              xmlns="http://java.sun.com/xml/ns/persistence"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+<% end %>
   <persistence-unit name="<%= repository.jpa.unit_name %>" transaction-type="JTA">
 <% if repository.jpa.provider_class
 %>    <provider><%= repository.jpa.repository.jpa.provider_class %></provider>

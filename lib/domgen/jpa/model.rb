@@ -372,6 +372,16 @@ module Domgen
     end
 
     class PersistenceUnit < Domgen.ParentedElement(:repository)
+
+      def version
+        @version || "2.0"
+      end
+
+      def version=(version)
+        raise "Unknown version '#{version}'" unless ["2.0","2.1"].include?(version)
+        @version = version
+      end
+
       attr_writer :unit_name
 
       def unit_name
