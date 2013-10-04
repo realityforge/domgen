@@ -27,6 +27,18 @@ module Domgen
         @web_service_name || service.name.to_s
       end
 
+      attr_writer :wsdl_name
+
+      def wsdl_name
+        @wsdl_name || "#{service.data_module.name}.#{web_service_name}.wsdl"
+      end
+
+      attr_writer :system_id
+
+      def system_id
+        @system_id || "http://example.com/#{service.data_module.repository.name}/#{wsdl_name}"
+      end
+
       attr_writer :service_name
 
       def service_name

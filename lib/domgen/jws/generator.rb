@@ -27,4 +27,9 @@ Domgen.template_set(:jws) do |template_set|
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/boundary_implementation.java.erb",
                         'main/java/#{service.jws.qualified_boundary_implementation_name.gsub(".","/")}.java',
                         Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
+                        'main/resources/META-INF/jax-ws-catalog.xml',
+                        Domgen::Generator::JWS::HELPERS)
 end

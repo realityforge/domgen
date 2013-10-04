@@ -1,0 +1,11 @@
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+<%
+  repository.data_modules.each do |data_module|
+    data_module.services.select{|s| s.jws?}.each do |service|
+-%>
+  <system systemId="<%= service.jws.system_id %>" uri="wsdl/<%= service.jws.wsdl_name %>"/>
+<%
+    end
+  end
+-%>
+</catalog>
