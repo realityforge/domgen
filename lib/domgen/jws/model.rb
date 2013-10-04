@@ -44,12 +44,6 @@ module Domgen
       def qualified_boundary_implementation_name
         "#{service.data_module.jws.service_package}.#{boundary_implementation_name}"
       end
-
-      attr_writer :cxf_annotations
-
-      def cxf_annotations?
-        @cxf_annotations.nil? ? service.data_module.jws.cxf_annotations? : @cxf_annotations
-      end
     end
 
     class JwsParameter < Domgen.ParentedElement(:parameter)
@@ -74,12 +68,6 @@ module Domgen
 
     class JwsPackage < Domgen.ParentedElement(:data_module)
       include Domgen::Java::EEJavaPackage
-
-      attr_writer :cxf_annotations
-
-      def cxf_annotations?
-        @cxf_annotations.nil? ? data_module.repository.jws.cxf_annotations? : @cxf_annotations
-      end
     end
 
     class JwsApplication < Domgen.ParentedElement(:repository)
@@ -88,12 +76,6 @@ module Domgen
       # The name of the service under which web services will be anchored
       def service_name
         @service_name || repository.name
-      end
-
-      attr_writer :cxf_annotations
-
-      def cxf_annotations?
-        @cxf_annotations.nil? ? false : @cxf_annotations
       end
     end
 
