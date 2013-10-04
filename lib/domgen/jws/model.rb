@@ -39,6 +39,10 @@ module Domgen
         @system_id || "http://example.com/#{service.data_module.repository.name}/#{wsdl_name}"
       end
 
+      def namespace
+        @namespace || service.data_module.repository.jws.namespace
+      end
+
       attr_writer :service_name
 
       def service_name
@@ -89,6 +93,13 @@ module Domgen
       def service_name
         @service_name || repository.name
       end
+
+      attr_writer :namespace
+
+      def namespace
+        @namespace || "http://example.com/#{service_name}"
+      end
+
     end
 
     class JwsReturn < Domgen.ParentedElement(:result)
