@@ -43,9 +43,9 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.inverse.relationship_name)};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.inverse.relationship_name};\n"
+          s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name)};\n"
         end
         s
       end
@@ -355,6 +355,7 @@ STR
       def j_has_many_attribute(attribute)
         name = attribute.inverse.relationship_name
         plural_name = Domgen::Naming.pluralize(name)
+        field_name = attribute.entity.jpa.to_field_name(plural_name)
         type = attribute.entity.jpa.qualified_name
         java = description_javadoc_for attribute
         java << <<STR
@@ -365,28 +366,28 @@ STR
 
   #{j_deprecation_warning(attribute)} final void add#{name}( final #{type} value )
   {
-    final java.util.List<#{type}> #{plural_name} = safeGet#{plural_name}();
-    if ( !#{plural_name}.contains( value ) )
+    final java.util.List<#{type}> #{field_name}Safe = safeGet#{plural_name}();
+    if ( !#{field_name}Safe.contains( value ) )
     {
-      #{plural_name}.add( value );
+      #{field_name}Safe.add( value );
     }
   }
 
   public final void remove#{name}( final #{type} value )
   {
-    if ( null != #{plural_name} && #{plural_name}.contains( value ) )
+    if ( null != #{field_name} && #{field_name}.contains( value ) )
     {
-      #{plural_name}.remove( value );
+      #{field_name}.remove( value );
     }
   }
 
   private java.util.List<#{type}> safeGet#{plural_name}()
   {
-    if( null == #{plural_name} )
+    if( null == #{field_name} )
     {
-      #{plural_name} = new java.util.LinkedList<#{type}>();
+      #{field_name} = new java.util.LinkedList<#{type}>();
     }
-    return #{plural_name};
+    return #{field_name};
   }
 STR
         java
