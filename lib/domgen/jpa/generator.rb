@@ -54,6 +54,15 @@ Domgen.template_set(:jpa_test_module) do |template_set|
                         'test/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java')
 end
 
+# This is the same as the test module but it appears in the main tree.
+# Sometimes you use guice for more than just testing...
+Domgen.template_set(:jpa_module) do |template_set|
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_module.java.erb",
+                        'main/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java')
+end
+
 Domgen.template_set(:jpa_ejb_dao) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :entity,
