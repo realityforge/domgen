@@ -106,6 +106,17 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= validation_suffix() %>
 <% end -%>
 <%
+      entity.incompatible_constraints.each do |c|
+        attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
+-%>
+<%= validation_prefix(c.name, entity) %>
+      if( !(<% attributes.each do |selected| -%>(<%= attributes.collect {|a| "object.#{getter_for(a)} #{a == selected ? '!' : '='}= null"}.join(" && ") %>) || <% end -%> false) )
+      {
+        return false;
+      }
+<%= validation_suffix() %>
+<% end -%>
+<%
       entity.dependency_constraints.each do |c|
         dependent_attributes = c.dependent_attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
         base_attribute = entity.attribute_by_name(c.attribute_name)
