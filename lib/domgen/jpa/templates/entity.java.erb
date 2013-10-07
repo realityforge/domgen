@@ -110,7 +110,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
 -%>
 <%= validation_prefix(c.name, entity) %>
-      if( !(<% attributes.each do |selected| -%>(<%= attributes.collect {|a| "object.#{getter_for(a)} #{a == selected ? '!' : '='}= null"}.join(" && ") %>) || <% end -%> false) )
+      if( (<% attributes.each do |selected| -%>(<%= "null != object.#{getter_for(selected)}" %> && (<%= attributes.collect {|a| a == selected ? nil : "null != object.#{getter_for(a)}"}.compact.join(" || ") %>)) || <% end -%> false) )
       {
         return false;
       }
