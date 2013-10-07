@@ -154,7 +154,7 @@ JAVA
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
             name = attribute.inverse.relationship_name
-            field_name = entity.to_field_name( name )
+            field_name = entity.jpa.to_field_name( name )
             type = nullable_annotate(attribute, attribute.entity.jpa.qualified_name, false, true)
 
             java = description_javadoc_for attribute
