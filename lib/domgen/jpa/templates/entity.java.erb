@@ -27,6 +27,7 @@ else %>
 end
 %>
 @javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? "true" : "false" %> )
+<% entity.codependent_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
@@ -91,4 +92,16 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         <%= attribute.jpa.field_name %>.remove<%= attribute.inverse.relationship_name %>( this );
       }
 <% end %>  }
+
+<%
+      entity.codependent_constraints.each do |c|
+        attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
+-%>
+<%= validation_prefix(c.name, entity) %>
+      if( !(( <%= attributes.collect {|a| "object.#{getter_for(a)} == null"}.join(" && ") %> ) || (<%= attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(" && ") %>) ) )
+      {
+        return false;
+      }
+<%= validation_suffix() %>
+<% end -%>
 }
