@@ -366,10 +366,10 @@ STR
 
   #{j_deprecation_warning(attribute)} final void add#{name}( final #{type} value )
   {
-    final java.util.List<#{type}> #{plural_name} = safeGet#{plural_name}();
-    if ( !#{field_name}.contains( value ) )
+    final java.util.List<#{type}> #{field_name}Safe = safeGet#{plural_name}();
+    if ( !#{field_name}Safe.contains( value ) )
     {
-      #{field_name}.add( value );
+      #{field_name}Safe.add( value );
     }
   }
 
