@@ -15,6 +15,12 @@
 module Domgen
   module JWS
     class JwsClass < Domgen.ParentedElement(:service)
+      attr_writer :port_type_name
+
+      def port_type_name
+        @port_type_name || web_service_name
+      end
+
       attr_writer :port_name
 
       def port_name
