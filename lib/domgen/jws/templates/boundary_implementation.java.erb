@@ -2,7 +2,7 @@
 package <%= service.data_module.ejb.service_package %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.jws.WebService( name= "<%= service.jws.web_service_name %>", serviceName = "<%= service.jws.service_name %>", portName = "<%= service.jws.port_name %>" )
+@javax.jws.WebService( name= "<%= service.jws.web_service_name %>", serviceName = "<%= service.jws.service_name %>", portName = "<%= service.jws.port_name %>", targetNamespace = "<%= service.jws.namespace %>", wsdlLocation = "<%= service.jws.system_id %>" )
 @javax.jws.soap.SOAPBinding( style = javax.jws.soap.SOAPBinding.Style.DOCUMENT,
                              use = javax.jws.soap.SOAPBinding.Use.LITERAL,
                              parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.WRAPPED )
