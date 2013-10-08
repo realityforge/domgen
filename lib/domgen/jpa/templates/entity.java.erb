@@ -31,6 +31,7 @@ end
 <% entity.dependency_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
 <% entity.incompatible_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
 <% entity.relationship_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
+<% entity.cycle_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
@@ -127,6 +128,33 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 -%>
 <%= validation_prefix(c.name, entity) %>
       if( null != object.<%= getter_for(lhs) %> && null != object.<%= getter_for(rhs) %> && !( (object.<%= getter_for(lhs) %>) <%= op %> (object.<%= getter_for(rhs) %>) ) )
+      {
+        return false;
+      }
+<%= validation_suffix() %>
+<% end -%>
+<%
+      entity.cycle_constraints.each do |c|
+        target_attribute = entity.attribute_by_name(c.attribute_name)
+        scoping_attribute = target_attribute.referenced_entity.attribute_by_name(c.scoping_attribute)
+
+        current_entity = entity
+        elements = c.attribute_name_path.collect do |element_name|
+          new_attr = current_entity.attribute_by_name(element_name)
+          current_entity = new_attr.referenced_entity
+          new_attr
+        end
+
+-%>
+<%= validation_prefix(c.name, entity) %>
+      try
+      {
+        if( !(null == object.<%= getter_for(target_attribute) %> || (object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %> == object.<%= elements.collect{|e|getter_for(e)}.join('.') %> ) ) )
+        {
+          return false;
+        }
+      }
+      catch( final Throwable t )
       {
         return false;
       }
