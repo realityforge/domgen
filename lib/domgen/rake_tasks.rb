@@ -67,6 +67,13 @@ module Domgen
           buildr_project.iml.main_source_directories << dir if buildr_project.iml?
         end
 
+        # Is there assets generated in project?
+        if templates.any?{|template| template.output_filename_pattern =~ /^main\/webapp\/.*/}
+          dir = "#{target_dir}/main/webapp"
+          buildr_project.assets.enhance([task_name])
+          buildr_project.assets.paths << file(dir => [task_name])
+        end
+
         # Is there test java source generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^test\/java\/.*/}
           dir = "#{target_dir}/test/java"
