@@ -21,12 +21,16 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:jws) do |template_set|
+
+Domgen.template_set(:jws_server) do |template_set|
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :service,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/boundary_implementation.java.erb",
                         'main/java/#{service.jws.qualified_boundary_implementation_name.gsub(".","/")}.java',
                         Domgen::Generator::JWS::HELPERS)
+end
+
+Domgen.template_set(:jws_wsdl) do |template_set|
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :service,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
@@ -38,3 +42,5 @@ Domgen.template_set(:jws) do |template_set|
                         'main/resources/META-INF/jax-ws-catalog.xml',
                         Domgen::Generator::JWS::HELPERS)
 end
+
+Domgen.template_set(:jws => [:jws_server, :jws_wsdl])
