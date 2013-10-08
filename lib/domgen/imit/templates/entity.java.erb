@@ -239,7 +239,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   {
     if( !isValid() )
     {
-      throw new IllegalStateException( "Method invoked on invalid imitation" );
+      throw new IllegalStateException( "Method invoked on invalid imitation of type <%= entity.imit.name %>" );
     }
   }
 
@@ -248,7 +248,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     checkValidity();
     if( !_linked )
     {
-      throw new IllegalStateException( "Method invoked on unlinked imitation" );
+      throw new IllegalStateException( "Method invoked on unlinked imitation of type <%= entity.imit.name %>" );
     }
   }
 
