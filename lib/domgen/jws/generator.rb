@@ -17,14 +17,30 @@ module Domgen
     module JWS
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       FACETS = [:jws]
-      HELPERS = [Domgen::Java::Helper]
+      HELPERS = [Domgen::Java::Helper, Domgen::JWS::Helper]
     end
   end
 end
-Domgen.template_set(:jws) do |template_set|
+
+Domgen.template_set(:jws_server) do |template_set|
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :service,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/boundary_implementation.java.erb",
                         'main/java/#{service.jws.qualified_boundary_implementation_name.gsub(".","/")}.java',
                         Domgen::Generator::JWS::HELPERS)
 end
+
+Domgen.template_set(:jws_wsdl) do |template_set|
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
+                        'main/resources/META-INF/wsdl/#{service.jws.wsdl_name}',
+                        Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
+                        'main/resources/META-INF/jax-ws-catalog.xml',
+                        Domgen::Generator::JWS::HELPERS)
+end
+
+Domgen.template_set(:jws => [:jws_server, :jws_wsdl])

@@ -15,6 +15,12 @@
 module Domgen
   module JWS
     class JwsClass < Domgen.ParentedElement(:service)
+      attr_writer :port_type_name
+
+      def port_type_name
+        @port_type_name || web_service_name
+      end
+
       attr_writer :port_name
 
       def port_name
@@ -25,6 +31,22 @@ module Domgen
 
       def web_service_name
         @web_service_name || service.name.to_s
+      end
+
+      attr_writer :wsdl_name
+
+      def wsdl_name
+        @wsdl_name || "#{service.data_module.name}.#{web_service_name}.wsdl"
+      end
+
+      attr_writer :system_id
+
+      def system_id
+        @system_id || "http://example.com/#{service.data_module.repository.name}/#{wsdl_name}"
+      end
+
+      def namespace
+        @namespace || service.data_module.repository.jws.namespace
       end
 
       attr_writer :service_name
@@ -43,12 +65,6 @@ module Domgen
 
       def qualified_boundary_implementation_name
         "#{service.data_module.jws.service_package}.#{boundary_implementation_name}"
-      end
-
-      attr_writer :cxf_annotations
-
-      def cxf_annotations?
-        @cxf_annotations.nil? ? service.data_module.jws.cxf_annotations? : @cxf_annotations
       end
     end
 
@@ -74,12 +90,6 @@ module Domgen
 
     class JwsPackage < Domgen.ParentedElement(:data_module)
       include Domgen::Java::EEJavaPackage
-
-      attr_writer :cxf_annotations
-
-      def cxf_annotations?
-        @cxf_annotations.nil? ? data_module.repository.jws.cxf_annotations? : @cxf_annotations
-      end
     end
 
     class JwsApplication < Domgen.ParentedElement(:repository)
@@ -90,11 +100,12 @@ module Domgen
         @service_name || repository.name
       end
 
-      attr_writer :cxf_annotations
+      attr_writer :namespace
 
-      def cxf_annotations?
-        @cxf_annotations.nil? ? false : @cxf_annotations
+      def namespace
+        @namespace || "http://example.com/#{service_name}"
       end
+
     end
 
     class JwsReturn < Domgen.ParentedElement(:result)

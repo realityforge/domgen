@@ -85,6 +85,7 @@ require 'domgen/ejb/generator'
 
 # JWS
 require 'domgen/jws/model'
+require 'domgen/jws/helper'
 require 'domgen/jws/generator'
 
 # JMX
