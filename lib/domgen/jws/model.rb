@@ -105,7 +105,6 @@ module Domgen
       def namespace
         @namespace || "http://example.com/#{service_name}"
       end
-
     end
 
     class JwsReturn < Domgen.ParentedElement(:result)
