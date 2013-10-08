@@ -38,6 +38,8 @@ module Domgen
       define
       load_templates(generator_keys)
       if buildr_project
+        file(File.expand_path(target_dir) => [task_name])
+
         # Is there java source generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/java\/.*/}
           dir = "#{target_dir}/main/java"
