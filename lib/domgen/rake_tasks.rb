@@ -52,6 +52,7 @@ module Domgen
         # Is there resources generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/resources\/.*/}
           dir = "#{target_dir}/main/resources"
+          file(dir => [task_name])
           buildr_project.resources.enhance([task_name])
           buildr_project.resources.filter.into buildr_project.path_to(:target, :main, :resources) unless buildr_project.resources.target
           buildr_project.resources do |t|
@@ -78,6 +79,7 @@ module Domgen
         # Is there resources generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^test\/resources\/.*/}
           dir = "#{target_dir}/test/resources"
+          file(dir => [task_name])
           buildr_project.test.resources.enhance([task_name])
           buildr_project.test.resources.filter.into buildr_project.path_to(:target, :test, :resources) unless buildr_project.test.resources.target
           buildr_project.test.resources do |t|
