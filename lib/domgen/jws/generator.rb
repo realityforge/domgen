@@ -22,7 +22,7 @@ module Domgen
   end
 end
 
-Domgen.template_set(:jws_server) do |template_set|
+Domgen.template_set(:jws_server_code) do |template_set|
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :service,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/boundary_implementation.java.erb",
@@ -43,4 +43,32 @@ Domgen.template_set(:jws_wsdl) do |template_set|
                         Domgen::Generator::JWS::HELPERS)
 end
 
-Domgen.template_set(:jws => [:jws_server, :jws_wsdl])
+Domgen.template_set(:jws_wsdl_resources) do |template_set|
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
+                        'main/resources/META-INF/wsdl/#{service.jws.wsdl_name}',
+                        Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
+                        'main/resources/META-INF/jax-ws-catalog.xml',
+                        Domgen::Generator::JWS::HELPERS)
+end
+
+Domgen.template_set(:jws_wsdl_assets) do |template_set|
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
+                        'main/webapp/META-INF/wsdl/#{service.jws.wsdl_name}',
+                        Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
+                        'main/webapp/META-INF/jax-ws-catalog.xml',
+                        Domgen::Generator::JWS::HELPERS)
+end
+
+Domgen.template_set(:jws_server => [:jws_server_code, :jws_wsdl_assets])
+Domgen.template_set(:jws_client => [:jws_wsdl_resources])
+Domgen.template_set(:jws => [:jws_server, :jws_client])
