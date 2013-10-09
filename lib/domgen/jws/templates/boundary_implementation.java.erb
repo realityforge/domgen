@@ -6,7 +6,7 @@ package <%= service.data_module.ejb.service_package %>;
 @javax.jws.soap.SOAPBinding( style = javax.jws.soap.SOAPBinding.Style.DOCUMENT,
                              use = javax.jws.soap.SOAPBinding.Use.LITERAL,
                              parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.WRAPPED )
-@com.sun.xml.internal.ws.developer.SchemaValidation
+@com.sun.xml.ws.developer.SchemaValidation
 public class <%= service.jws.boundary_implementation_name %>
 {
   @javax.ejb.EJB
