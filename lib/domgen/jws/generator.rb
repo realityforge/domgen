@@ -57,6 +57,8 @@ Domgen.template_set(:jws_wsdl_resources) do |template_set|
 end
 
 Domgen.template_set(:jws_wsdl_assets) do |template_set|
+  # GlassFish 4 / EE4 requires that the files appear in META-INF which seems counter to documentation at
+  # https://jax-ws.java.net/nonav/2.1.5/docs/catalog-support.html
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :service,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
@@ -67,6 +69,21 @@ Domgen.template_set(:jws_wsdl_assets) do |template_set|
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
                         'main/webapp/META-INF/jax-ws-catalog.xml',
                         Domgen::Generator::JWS::HELPERS)
+  # GlassFish 3.1.2.2 / EE6 requires that the files appear in WEB-INF
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
+                        'main/webapp/WEB-INF/wsdl/#{service.jws.wsdl_name}',
+                        Domgen::Generator::JWS::HELPERS,
+                        nil,
+                        :name => 'WEB-INF/wsdl.xml')
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
+                        'main/webapp/WEB-INF/jax-ws-catalog.xml',
+                        Domgen::Generator::JWS::HELPERS,
+                        nil,
+                        :name => 'WEB-INF/jax_ws_catalog.xml')
 end
 
 Domgen.template_set(:jws_server => [:jws_server_code, :jws_wsdl_assets])
