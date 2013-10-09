@@ -58,13 +58,13 @@ module Domgen
         template_map.values
       end
 
-      def template(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil)
-        template = Template.new(facets, scope, template_filename, output_filename_pattern, helpers, guard)
+      def template(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil, options = {})
+        template = Template.new(facets, scope, template_filename, output_filename_pattern, helpers, guard, options)
         template_map[template.name] = template
       end
 
-      def xml_template(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil)
-        template = XmlTemplate.new(facets, scope, template_filename, output_filename_pattern, helpers, guard)
+      def xml_template(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil, options = {})
+        template = XmlTemplate.new(facets, scope, template_filename, output_filename_pattern, helpers, guard, options)
         template_map[template.name] = template
       end
 
@@ -89,7 +89,7 @@ module Domgen
       attr_reader :scope
       attr_reader :facets
 
-      def initialize(facets, scope, template_filename, output_filename_pattern, helpers, guard)
+      def initialize(facets, scope, template_filename, output_filename_pattern, helpers, guard, options = {})
         Domgen.error("Unexpected facets") unless facets.is_a?(Array) && facets.all? {|a| a.is_a?(Symbol)}
         Domgen.error("Unknown scope for template #{scope}") unless valid_scopes.include?(scope)
         @facets = facets
@@ -98,6 +98,7 @@ module Domgen
         @output_filename_pattern = output_filename_pattern
         @helpers = helpers
         @guard = guard
+        @name = options[:name] if options[:name]
       end
 
       def to_s
@@ -132,8 +133,8 @@ module Domgen
     end
 
     class XmlTemplate < Template
-      def initialize(facets, scope, render_class, output_filename_pattern, helpers, guard)
-        super(facets, scope, render_class.name, output_filename_pattern, helpers + [render_class], guard)
+      def initialize(facets, scope, render_class, output_filename_pattern, helpers, guard, options = {})
+        super(facets, scope, render_class.name, output_filename_pattern, helpers + [render_class], guard, options)
       end
 
       def render_to_string(context_binding)
