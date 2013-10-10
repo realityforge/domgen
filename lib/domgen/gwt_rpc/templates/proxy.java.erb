@@ -32,7 +32,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "final #{annotated_type(p, :gwt_rpc, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback","final @javax.annotation.Nullable org.realityforge.replicant.client.AsyncErrorCallback errorCallback"]).join(', ') %>)
   {
   <% method.parameters.select{|parameter| (parameter.enumeration? || parameter.struct?) && parameter.collection?}.each do |parameter| %>
-    final <%= annotated_type(parameter, :gwt, :transport) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.gwt_rpc.java_component_type(:transport) %>>();
+    final <%= annotated_type(parameter, :gwt_rpc, :transport) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.gwt_rpc.java_component_type(:transport) %>>();
     <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
     for( final <%= parameter.gwt_rpc.java_component_type %> entity: <%= parameter.name %> )
     {
@@ -41,10 +41,10 @@ public class <%= service.gwt_rpc.proxy_name %>
        if parameter.enumeration?
          "entity.#{parameter.enumeration.numeric_values? ? "ordinal()" : "name()"}"
        else
-         if parameter.service.gwt_rpc.use_autobean_structs?
+         if parameter.method.service.gwt_rpc.use_autobean_structs?
          "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( entity ) ).getPayload()"
          else
-         "#{parameter.referenced_struct.gwt_rpc.qualified_factory_name}.asJson( #{parameter.name} )"
+         "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( #{parameter.name} )"
          end
        end
     %>

@@ -10,8 +10,8 @@ public class <%= repository.imit.services_module_name %>
   protected void configure()
   {
 <%
-  repository.data_modules.select{|data_module| data_module.imit? && data_module.gwt?}.each do |data_module|
-    data_module.services.select{|service| service.imit? && service.gwt?}.each do |service|
+  repository.data_modules.select{|data_module| data_module.imit? && data_module.gwt_rpc?}.each do |data_module|
+    data_module.services.select{|service| service.imit? && service.gwt_rpc?}.each do |service|
 %>
     bind( <%= service.imit.qualified_name %>.class ).to( <%= service.imit.qualified_proxy_name %>.class );
 <%
