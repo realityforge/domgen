@@ -525,6 +525,50 @@ JAVADOC
         "#{getter_prefix(attribute)}#{name}()"
       end
 
+      def validation_name(constraint_name)
+        "Validate#{constraint_name}"
+      end
+
+      def validation_prefix(constraint_name, entity)
+        return <<JAVA
+  @java.lang.annotation.Target( { java.lang.annotation.ElementType.TYPE } )
+  @java.lang.annotation.Retention( java.lang.annotation.RetentionPolicy.RUNTIME )
+  @javax.validation.Constraint( validatedBy = #{constraint_name}Validator.class )
+  @java.lang.annotation.Documented
+  public @interface #{validation_name(constraint_name)}
+  {
+    String message() default "{#{entity.jpa.qualified_name}.#{constraint_name}}";
+
+    Class<?>[] groups() default { };
+
+    Class<? extends javax.validation.Payload>[] payload() default { };
+  }
+
+  public static class #{constraint_name}Validator
+    implements javax.validation.ConstraintValidator<#{validation_name(constraint_name)}, #{entity.jpa.name}>
+  {
+    @Override
+    public void initialize( final #{validation_name(constraint_name)} constraintAnnotation )
+    {
+    }
+
+    @Override
+    public boolean isValid( final #{entity.jpa.name} object, final javax.validation.ConstraintValidatorContext constraintContext )
+    {
+      if ( null == object )
+      {
+        return true;
+      }
+JAVA
+      end
+
+      def validation_suffix
+        return <<JAVA
+      return true;
+    }
+  }
+JAVA
+      end
     end
   end
 end

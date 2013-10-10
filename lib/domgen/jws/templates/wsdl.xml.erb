@@ -55,7 +55,7 @@
       </xs:complexType>
 <% end -%>
 <% exceptions.each do |exception| -%>
-      <xs:element name="<%= exception.jws.name %>" type="tns:<%= exception.jws.name %>"/>
+      <xs:element name="<%= exception.name %>" type="tns:<%= exception.jws.name %>"/>
       <xs:complexType name="<%= exception.jws.name %>">
 <% if exception.parameters.size > 0 -%>
         <xs:sequence>
@@ -93,7 +93,7 @@
   exceptions.each do |exception|
 -%>
   <message name="<%= exception.jws.name %>">
-    <part name="<%= exception.jws.name %>" element="tns:<%= exception.jws.name %>"/>
+    <part name="fault" element="tns:<%= exception.name %>"/>
   </message>
 <%
   end

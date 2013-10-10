@@ -36,13 +36,13 @@ module Domgen
       attr_writer :wsdl_name
 
       def wsdl_name
-        @wsdl_name || "#{service.data_module.name}.#{web_service_name}.wsdl"
+        @wsdl_name || "#{service.data_module.name}/#{web_service_name}.wsdl"
       end
 
       attr_writer :system_id
 
       def system_id
-        @system_id || "http://example.com/#{service.data_module.repository.name}/#{wsdl_name}"
+        @system_id || "#{service.data_module.repository.jws.namespace}/#{wsdl_name}"
       end
 
       def namespace
@@ -103,9 +103,14 @@ module Domgen
       attr_writer :namespace
 
       def namespace
-        @namespace || "http://example.com/#{service_name}"
+        @namespace || "#{base_namespace}/#{service_name}"
       end
 
+      attr_writer :base_namespace
+
+      def base_namespace
+        @base_namespace || "http://example.com"
+      end
     end
 
     class JwsReturn < Domgen.ParentedElement(:result)
