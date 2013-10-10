@@ -137,11 +137,11 @@ module Domgen
                                         self.target_dir,
                                         self.templates,
                                         self.filter)
-          rescue Exception => e
-            print "An error occurred invoking the generator\n"
-            puts $!
-            puts $@
-            raise e
+          rescue Domgen::Generator::GeneratorError => e
+            puts e.message
+            puts e.cause.class.name.to_s
+            puts e.cause.backtrace.join("\n")
+            raise e.message
           ensure
             Domgen::Logger.level = old_level
           end

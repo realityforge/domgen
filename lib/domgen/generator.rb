@@ -105,6 +105,15 @@ module Domgen
       Logger.info "Generator completed"
     end
 
+    class GeneratorError < StandardError
+      attr_reader :cause
+
+      def initialize(message, cause)
+        super(message)
+        @cause = cause
+      end
+    end
+
     private
 
     def self.create_context(template, key, value)
@@ -123,15 +132,19 @@ module Domgen
       render_context = create_context(template, key, value)
       context_binding = render_context.context_binding
       return nil if !template.guard.nil? && !eval(template.guard, context_binding,"#{template.template_filename}#Guard")
-      output_filename = eval("\"#{template.output_filename_pattern}\"", context_binding,"#{template.template_filename}#Filename")
-      output_filename = File.join(target_basedir, output_filename)
-      result = template.render_to_string(context_binding)
-      FileUtils.mkdir_p File.dirname(output_filename) unless File.directory?(File.dirname(output_filename))
-      if File.exist?(output_filename) && IO.read(output_filename) == result
-        Logger.debug "Skipped generation of #{template.name} for #{key} #{object_name} to #{output_filename} due to no changes"
-      else
-        File.open(output_filename, 'w') { |f| f.write(result) }
-        Logger.debug "Generated #{template.name} for #{key} #{object_name} to #{output_filename}"
+      begin
+        output_filename = eval("\"#{template.output_filename_pattern}\"", context_binding, "#{template.template_filename}#Filename")
+        output_filename = File.join(target_basedir, output_filename)
+        result = template.render_to_string(context_binding)
+        FileUtils.mkdir_p File.dirname(output_filename) unless File.directory?(File.dirname(output_filename))
+        if File.exist?(output_filename) && IO.read(output_filename) == result
+          Logger.debug "Skipped generation of #{template.name} for #{key} #{object_name} to #{output_filename} due to no changes"
+        else
+          File.open(output_filename, 'w') { |f| f.write(result) }
+          Logger.debug "Generated #{template.name} for #{key} #{object_name} to #{output_filename}"
+        end
+      rescue => e
+        raise GeneratorError.new("Error generating #{template.name} for #{key} #{object_name}",e)
       end
     end
   end
