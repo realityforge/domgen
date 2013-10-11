@@ -559,11 +559,18 @@ JAVADOC
       {
         return true;
       }
+      try
+      {
 JAVA
       end
 
       def validation_suffix
         return <<JAVA
+      }
+      catch( final Throwable t )
+      {
+        return false;
+      }
       return true;
     }
   }

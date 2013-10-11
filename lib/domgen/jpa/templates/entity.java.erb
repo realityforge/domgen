@@ -102,10 +102,10 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
 -%>
 <%= validation_prefix(c.name, entity) %>
-      if( !(( <%= attributes.collect {|a| "object.#{getter_for(a)} == null"}.join(" && ") %> ) || (<%= attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(" && ") %>) ) )
-      {
-        return false;
-      }
+        if( !(( <%= attributes.collect {|a| "object.#{getter_for(a)} == null"}.join(" && ") %> ) || (<%= attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(" && ") %>) ) )
+        {
+          return false;
+        }
 <%= validation_suffix() %>
 <% end -%>
 <%
@@ -113,10 +113,10 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
 -%>
 <%= validation_prefix(c.name, entity) %>
-      if( (<% attributes.each do |selected| -%>(<%= "null != object.#{getter_for(selected)}" %> && (<%= attributes.collect {|a| a == selected ? nil : "null != object.#{getter_for(a)}"}.compact.join(" || ") %>)) || <% end -%> false) )
-      {
-        return false;
-      }
+        if( (<% attributes.each do |selected| -%>(<%= "null != object.#{getter_for(selected)}" %> && (<%= attributes.collect {|a| a == selected ? nil : "null != object.#{getter_for(a)}"}.compact.join(" || ") %>)) || <% end -%> false) )
+        {
+          return false;
+        }
 <%= validation_suffix() %>
 <% end -%>
 <%
@@ -128,9 +128,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 -%>
 <%= validation_prefix(c.name, entity) %>
         if( <% if lhs.nullable? %>null != object.<%= getter_for(lhs) %> && <% end %><% if lhs.nullable? %>null != object.<%= getter_for(rhs) %> && <% end %>!( (object.<%= getter_for(lhs) %>) <%= op %> (object.<%= getter_for(rhs) %>) ) )
-      {
-        return false;
-      }
+        {
+          return false;
+        }
 <%= validation_suffix() %>
 <% end -%>
 <%
@@ -147,17 +147,10 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 
 -%>
 <%= validation_prefix(c.name, entity) %>
-      try
-      {
         if( !(null == object.<%= getter_for(target_attribute) %> || (object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %> == object.<%= elements.collect{|e|getter_for(e)}.join('.') %> ) ) )
         {
           return false;
         }
-      }
-      catch( final Throwable t )
-      {
-        return false;
-      }
 <%= validation_suffix() %>
 <% end -%>
 <%
@@ -166,10 +159,10 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         base_attribute = entity.attribute_by_name(c.attribute_name)
 -%>
 <%= validation_prefix(c.name, entity) %>
-      if( !(null == object.<%= getter_for(base_attribute) %> || (<%= dependent_attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(" && ") %>) ) )
-      {
-        return false;
-      }
+        if( !(null == object.<%= getter_for(base_attribute) %> || (<%= dependent_attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(" && ") %>) ) )
+        {
+          return false;
+        }
 <%= validation_suffix() %>
 <% end -%>
 }
