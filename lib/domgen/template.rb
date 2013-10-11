@@ -59,12 +59,12 @@ module Domgen
       end
 
       def template(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil, options = {})
-        template = Template.new(facets, scope, template_filename, output_filename_pattern, helpers, guard, options)
+        template = Template.new(self, facets, scope, template_filename, output_filename_pattern, helpers, guard, options)
         template_map[template.name] = template
       end
 
       def xml_template(facets, scope, template_filename, output_filename_pattern, helpers = [], guard = nil, options = {})
-        template = XmlTemplate.new(facets, scope, template_filename, output_filename_pattern, helpers, guard, options)
+        template = XmlTemplate.new(self, facets, scope, template_filename, output_filename_pattern, helpers, guard, options)
         template_map[template.name] = template
       end
 
@@ -82,6 +82,7 @@ module Domgen
     end
 
     class Template < BaseElement
+      attr_reader :template_set
       attr_reader :template_filename
       attr_reader :output_filename_pattern
       attr_reader :guard
@@ -89,9 +90,10 @@ module Domgen
       attr_reader :scope
       attr_reader :facets
 
-      def initialize(facets, scope, template_filename, output_filename_pattern, helpers, guard, options = {})
+      def initialize(template_set, facets, scope, template_filename, output_filename_pattern, helpers, guard, options = {})
         Domgen.error("Unexpected facets") unless facets.is_a?(Array) && facets.all? {|a| a.is_a?(Symbol)}
         Domgen.error("Unknown scope for template #{scope}") unless valid_scopes.include?(scope)
+        @template_set = template_set
         @facets = facets
         @scope = scope
         @template_filename = template_filename
@@ -114,7 +116,7 @@ module Domgen
       end
 
       def name
-        @name ||= "#{facets.inspect}:#{File.basename(template_filename, '.erb')}"
+        @name ||= "#{template_set.name}:#{File.basename(template_filename, '.erb')}"
       end
 
       protected
@@ -133,8 +135,8 @@ module Domgen
     end
 
     class XmlTemplate < Template
-      def initialize(facets, scope, render_class, output_filename_pattern, helpers, guard, options = {})
-        super(facets, scope, render_class.name, output_filename_pattern, helpers + [render_class], guard, options)
+      def initialize(template_set, facets, scope, render_class, output_filename_pattern, helpers, guard, options = {})
+        super(template_set, facets, scope, render_class.name, output_filename_pattern, helpers + [render_class], guard, options)
       end
 
       def render_to_string(context_binding)
