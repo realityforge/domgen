@@ -127,7 +127,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         op = '==' if '=' == op
 -%>
 <%= validation_prefix(c.name, entity) %>
-      if( null != object.<%= getter_for(lhs) %> && null != object.<%= getter_for(rhs) %> && !( (object.<%= getter_for(lhs) %>) <%= op %> (object.<%= getter_for(rhs) %>) ) )
+        if( <% if lhs.nullable? %>null != object.<%= getter_for(lhs) %> && <% end %><% if lhs.nullable? %>null != object.<%= getter_for(rhs) %> && <% end %>!( (object.<%= getter_for(lhs) %>) <%= op %> (object.<%= getter_for(rhs) %>) ) )
       {
         return false;
       }
