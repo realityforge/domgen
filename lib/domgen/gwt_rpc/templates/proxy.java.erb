@@ -64,7 +64,7 @@ public class <%= service.gwt_rpc.proxy_name %>
     if parameter.method.service.gwt_rpc.use_autobean_structs?
     param_value = "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( #{parameter.name} ) ).getPayload()"
     else
-    param_value = "#{parameter.referenced_struct.gwt_rpc.qualified_factory_name}.asJson( #{parameter.name} )"
+    param_value = "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( #{parameter.name} )"
     end
   end
   if parameter.nullable? && !parameter.collection?
