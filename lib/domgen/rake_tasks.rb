@@ -37,6 +37,9 @@ module Domgen
       yield self if block_given?
       define
       load_templates(generator_keys)
+      if buildr_project.nil? && Buildr.application.current_scope.size > 0
+        buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
+      end
       if buildr_project
         file(File.expand_path(target_dir) => [task_name])
 
