@@ -46,7 +46,9 @@ module Domgen
         # Is there java source generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/java\/.*/}
           dir = "#{target_dir}/main/java"
-          file(dir => [task_name])
+          file(dir => [task_name]) do
+            mkdir_p dir
+          end
           buildr_project.compile.from dir
           # Need to force this as it may have already been cached and thus will not recalculate
           buildr_project.iml.main_source_directories << dir if buildr_project.iml?
@@ -55,7 +57,9 @@ module Domgen
         # Is there resources generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/resources\/.*/}
           dir = "#{target_dir}/main/resources"
-          file(dir => [task_name])
+          file(dir => [task_name]) do
+            mkdir_p dir
+          end
           buildr_project.resources.enhance([task_name])
           buildr_project.resources.filter.into buildr_project.path_to(:target, :main, :resources) unless buildr_project.resources.target
           buildr_project.resources do |t|
@@ -74,13 +78,17 @@ module Domgen
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/webapp\/.*/}
           dir = "#{target_dir}/main/webapp"
           buildr_project.assets.enhance([task_name])
-          buildr_project.assets.paths << file(dir => [task_name])
+          buildr_project.assets.paths << file(dir => [task_name]) do
+            mkdir_p dir
+          end
         end
 
         # Is there test java source generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^test\/java\/.*/}
           dir = "#{target_dir}/test/java"
-          file(dir => [task_name])
+          file(dir => [task_name]) do
+            mkdir_p dir
+          end
           buildr_project.test.compile.from dir
           # Need to force this as it may have already been cached and thus will not recalculate
           buildr_project.iml.test_source_directories << dir if buildr_project.iml?
@@ -89,7 +97,9 @@ module Domgen
         # Is there resources generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^test\/resources\/.*/}
           dir = "#{target_dir}/test/resources"
-          file(dir => [task_name])
+          file(dir => [task_name]) do
+            mkdir_p dir
+          end
           buildr_project.test.resources.enhance([task_name])
           buildr_project.test.resources.filter.into buildr_project.path_to(:target, :test, :resources) unless buildr_project.test.resources.target
           buildr_project.test.resources do |t|
