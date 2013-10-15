@@ -11,45 +11,31 @@ public enum <%= enumeration.ee.name %>
 {
   <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>;
 
-<% if enumeration.jackson? -%>
-<% if enumeration.textual_values? -%>
-  @org.codehaus.jackson.annotate.JsonValue
-  public String value()
-  {
-    return super.name();
-  }
-
-  @org.codehaus.jackson.annotate.JsonCreator
-  public static <%= enumeration.ee.name %> fromValue( final String typeCode )
-  {
-    for( final <%= enumeration.ee.name %> c: <%= enumeration.ee.name %>.values() )
-    {
-      if( c.name().equals( typeCode ) )
-      {
-        return c;
-      }
-    }
-    throw new IllegalArgumentException( "Invalid <%= enumeration.ee.name %> type code: " + typeCode );
-}
-<% else -%>
+<% if enumeration.jackson? && enumeration.numeric_values? -%>
   @org.codehaus.jackson.annotate.JsonValue
   public int value()
   {
     return super.ordinal();
   }
 
-  @org.codehaus.jackson.annotate.JsonCreator
-  public static <%= enumeration.ee.name %> fromValue( final int typeCode )
+  public static class Deserializer
+    extends org.codehaus.jackson.map.JsonDeserializer<<%= enumeration.ee.name %>>
   {
-    for( final <%= enumeration.ee.name %> c: <%= enumeration.ee.name %>.values() )
+    @Override
+    public <%= enumeration.ee.name %> deserialize( final org.codehaus.jackson.JsonParser parser, final org.codehaus.jackson.map.DeserializationContext context )
+      throws java.io.IOException
     {
-      if( c.ordinal() == typeCode )
+      final int typeCode = parser.getValueAsInt();
+      for( final <%= enumeration.ee.name %> c: <%= enumeration.ee.name %>.values() )
       {
-        return c;
+        if( c.ordinal() == typeCode )
+        {
+          return c;
+        }
       }
+      throw new java.io.IOException( "Invalid <%= enumeration.ee.name %> type code: " + typeCode );
     }
-    throw new IllegalArgumentException( "Invalid <%= enumeration.ee.name %> type code: " + typeCode );
-}
-<% end -%>
+  }
+
 <% end -%>
 }
