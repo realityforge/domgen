@@ -47,13 +47,23 @@ public final class <%= struct.gwt.jso_name %>
         else (raise "Unsupported field type #{field.name}")
       end
 %>
+<% if field.nullable? -%>
+    if( null != <%= field.name %> )
+    {
+<% end -%>
     final <%= gwt_type %> $<%= field.name %> = newNative<%= gwt_creator %>();
     for ( final <%= field.gwt.java_component_type %> v : <%= field.name %> )
     {
       $<%= field.name %>.push( <%= converted_value.call("v") %> );
     }
-
     entity.set<%= field.name %>( $<%= field.name %> );
+<% if field.nullable? -%>
+    }
+    else
+    {
+      entity.set<%= field.name %>( null );
+    }
+<% end -%>
 <%   end
    end
 %>    return entity;
