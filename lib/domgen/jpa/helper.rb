@@ -64,6 +64,11 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         s << gen_order_by_if_specifified(attribute)
+        if attribute.inverse.annotations
+          attribute.inverse.annotations.each do |a|
+            s << "  #{a}\n"
+          end
+        end
         if attribute.inverse.multiplicity == :many
           s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
