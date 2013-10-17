@@ -15,6 +15,12 @@
 module Domgen
   module JPA
     module Helper
+
+      # Returns the name of a field to be used in validation messages.
+      def validation_field_name(attribute)
+        attribute.validation_field_name ?  attribute.validation_field_name : attribute.sql.column_name.to_s.gsub(/(.)([A-Z])/, '\1 \2')
+      end
+
       def j_jpa_field_attributes(attribute)
         s = ''
         s << "  @javax.persistence.Id\n" if attribute.primary_key?
@@ -24,7 +30,7 @@ module Domgen
         s << "  @javax.persistence.Basic( optional = #{attribute.nullable?}, fetch = javax.persistence.FetchType.EAGER )\n" unless attribute.reference?
         s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? "ORDINAL" : "STRING"} )\n" if attribute.enumeration?
         s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? "TIMESTAMP" : "DATE"} )\n" if attribute.datetime? || attribute.date?
-        s << "  @javax.validation.constraints.NotNull( message = \"#{attribute.sql.column_name.to_s.gsub(/(.)([A-Z])/, '\1 \2')} must be supplied\")\n" if !attribute.nullable? && !attribute.generated_value?
+        s << "  @javax.validation.constraints.NotNull( message = \"#{validation_field_name(attribute)} must be supplied\")\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
         if attribute.text?
           unless attribute.length.nil? && attribute.min_length.nil?
@@ -32,7 +38,7 @@ module Domgen
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
             s << ", " unless attribute.min_length.nil? || !attribute.has_non_max_length?
             s << "max = #{attribute.length} " if attribute.has_non_max_length?
-            s << ", message = \"#{attribute.sql.column_name.to_s.gsub(/(.)([A-Z])/, '\1 \2')} "
+            s << ", message = \"#{validation_field_name(attribute)} "
             if attribute.min_length.nil?
               s << "must not be longer than #{attribute.length} characters\""
             elsif attribute.length.nil?
