@@ -37,6 +37,9 @@ module Domgen
       yield self if block_given?
       define
       load_templates(generator_keys)
+      if buildr_project.nil? && Buildr.application.current_scope.size > 0
+        buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
+      end
       if buildr_project
         file(File.expand_path(target_dir) => [task_name])
 
@@ -62,9 +65,9 @@ module Domgen
           buildr_project.resources do |t|
             t.enhance do
               # Don't extract the dir as a variable as it will be shared between the blocks
-              if File.exist?(dir)
+              if File.exist?("#{target_dir}/main/resources")
                 FileUtils.mkdir_p buildr_project.resources.target.to_s
-                FileUtils.cp_r "#{dir}/.", buildr_project.resources.target.to_s
+                FileUtils.cp_r "#{target_dir}/main/resources/.", buildr_project.resources.target.to_s
               end
             end
           end
@@ -102,9 +105,9 @@ module Domgen
           buildr_project.test.resources do |t|
             t.enhance do
               # Don't extract the dir as a variable as it will be shared between the blocks
-              if File.exist?(dir)
+              if File.exist?("#{target_dir}/test/resources")
                 FileUtils.mkdir_p buildr_project.test.resources.target.to_s
-                FileUtils.cp_r "#{dir}/.", buildr_project.test.resources.target.to_s
+                FileUtils.cp_r "#{target_dir}/test/resources/.", buildr_project.test.resources.target.to_s
               end
             end
           end

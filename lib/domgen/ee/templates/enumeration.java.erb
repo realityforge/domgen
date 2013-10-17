@@ -9,5 +9,33 @@ package <%= enumeration.data_module.ee.data_type_package %>;
 public enum <%= enumeration.ee.name %>
   implements java.io.Serializable
 {
-  <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>
+  <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>;
+
+<% if enumeration.jackson? && enumeration.numeric_values? -%>
+  @org.codehaus.jackson.annotate.JsonValue
+  public int value()
+  {
+    return super.ordinal();
+  }
+
+  public static class Deserializer
+    extends org.codehaus.jackson.map.JsonDeserializer<<%= enumeration.ee.name %>>
+  {
+    @Override
+    public <%= enumeration.ee.name %> deserialize( final org.codehaus.jackson.JsonParser parser, final org.codehaus.jackson.map.DeserializationContext context )
+      throws java.io.IOException
+    {
+      final int typeCode = parser.getValueAsInt();
+      for( final <%= enumeration.ee.name %> c: <%= enumeration.ee.name %>.values() )
+      {
+        if( c.ordinal() == typeCode )
+        {
+          return c;
+        }
+      }
+      throw new java.io.IOException( "Invalid <%= enumeration.ee.name %> type code: " + typeCode );
+    }
+  }
+
+<% end -%>
 }

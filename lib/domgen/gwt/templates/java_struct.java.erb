@@ -26,9 +26,9 @@ final class <%= struct.gwt.java_name %>
   {
 <% struct.fields.each do |field|
      if :sequence == field.collection_type
-%>    this.<%= field.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.gwt.java_component_type %>>( <%= field.name %> ) );
+%>    this.<%= field.name %> = <%= field.nullable? ? "null == #{field.name} ? null : " : '' %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.gwt.java_component_type %>>( <%= field.name %> ) );
 <%     elsif :set == field.collection_type
-%>    this.<%= field.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.gwt.java_component_type %>>( <%= field.name %> ) );
+%>    this.<%= field.name %> = <%= field.nullable? ? "null == #{field.name} ? null : " : '' %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.gwt.java_component_type %>>( <%= field.name %> ) );
   <%     else
 %>    this.<%= field.name %> = <%= field.name %>;
 <%   end

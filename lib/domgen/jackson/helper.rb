@@ -17,7 +17,7 @@ module Domgen
     module Helper
       def jackson_class_annotations(struct)
         s = ''
-        s << "@org.codehaus.jackson.annotate.JsonAutoDetect( value = org.codehaus.jackson.annotate.JsonMethod.FIELD )\n"
+        s << "@org.codehaus.jackson.annotate.JsonAutoDetect( value = org.codehaus.jackson.annotate.JsonMethod.NONE )\n"
         s << "@org.codehaus.jackson.annotate.JsonTypeName( \"#{struct.json.name}\" )\n"
         s << "@org.codehaus.jackson.annotate.JsonPropertyOrder({#{struct.fields.collect{|field| "\"#{field.name}\""}.join(", ")}})"
         s
@@ -26,7 +26,13 @@ module Domgen
       def jackson_field_annotation(field)
         s = ''
         s << "@org.codehaus.jackson.annotate.JsonProperty(\"#{field.json.name}\")\n"
-        if field.date?
+        if field.enumeration? && field.enumeration.numeric_values?
+          if field.collection?
+            raise "Attempted to use a collection of enumerations which is currently unsupported"
+          else
+            s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = #{field.enumeration.ee.qualified_name}.Deserializer.class )\n"
+          end
+        elsif field.date?
           if field.collection?
             if field.collection_type == :sequence
               s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.replicant.server.json.jackson.DateListSerializer.class )\n"

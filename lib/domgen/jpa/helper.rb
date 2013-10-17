@@ -529,6 +529,35 @@ JAVADOC
         "Validate#{constraint_name}"
       end
 
+      def jpa_validation_in_jpa?(constraint)
+        entity = constraint.entity
+        if constraint.is_a?(CodependentConstraint) || constraint.is_a?(IncompatibleConstraint)
+          return constraint.attribute_names.all? { |attribute_name| a = entity.attribute_by_name(attribute_name); a.jpa? && a.jpa.persistent? }
+        elsif constraint.is_a?(RelationshipConstraint)
+          lhs = entity.attribute_by_name(constraint.lhs_operand)
+          rhs = entity.attribute_by_name(constraint.rhs_operand)
+          return lhs.jpa? && lhs.jpa.persistent? && rhs.jpa? && rhs.jpa.persistent?
+        elsif constraint.is_a?(CycleConstraint)
+          target_attribute = entity.attribute_by_name(constraint.attribute_name)
+          scoping_attribute = target_attribute.referenced_entity.attribute_by_name(constraint.scoping_attribute)
+
+          current_entity = entity
+          elements = constraint.attribute_name_path.collect do |element_name|
+            new_attr = current_entity.attribute_by_name(element_name)
+            current_entity = new_attr.referenced_entity
+            new_attr
+          end + [target_attribute, scoping_attribute]
+          return elements.all? { |attribute| attribute.jpa? && attribute.jpa.persistent? }
+        elsif constraint.is_a?(DependencyConstraint)
+          target_attribute = entity.attribute_by_name(constraint.attribute_name)
+
+          return target_attribute.jpa? &&
+            constraint.dependent_attribute_names.all? { |attribute_name| a = entity.attribute_by_name(attribute_name); a.jpa? && a.jpa.persistent? }
+        else
+          return false
+        end
+      end
+
       def validation_prefix(constraint_name, entity)
         return <<JAVA
   @java.lang.annotation.Target( { java.lang.annotation.ElementType.TYPE } )

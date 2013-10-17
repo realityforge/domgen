@@ -8,7 +8,7 @@ public class <%= struct.gwt.factory_name %>
   public static <%= struct.gwt.qualified_interface_name %> create( <%= struct.fields.collect {|field| "final #{annotated_type(field, :gwt, :boundary) } #{field.name}" }.join(", ") %> )
   {
     <% params = struct.fields.collect { |field| field.name }.join(", ") %>
-    if( com.google.gwt.core.client.GWT.isClient() )
+    if( com.google.gwt.core.shared.GWT.isClient() )
     {
       return <%= struct.gwt.jso_name %>.create( <%= params %> );
     }
@@ -21,7 +21,7 @@ public class <%= struct.gwt.factory_name %>
 <% if struct.top_level? %>
   public static <%= struct.gwt.qualified_interface_name %> as<%= struct.name %>( final String json )
   {
-    if( com.google.gwt.core.client.GWT.isClient() )
+    if( com.google.gwt.core.shared.GWT.isClient() )
     {
       return <%= struct.gwt.jso_name %>.as<%= struct.name %>( json );
     }
@@ -33,7 +33,7 @@ public class <%= struct.gwt.factory_name %>
 
   public static String asJson( final <%= struct.gwt.qualified_interface_name %> entity )
   {
-    if( com.google.gwt.core.client.GWT.isClient() )
+    if( com.google.gwt.core.shared.GWT.isClient() )
     {
       return new com.google.gwt.json.client.JSONObject( (<%= struct.gwt.jso_name %>) entity ).toString();
     }

@@ -12,7 +12,7 @@ package <%= entity.data_module.jpa.entity_package %>;
    native_queries = entity.queries.select {|q| q.jpa.native? }
    if !native_queries.empty? %>@javax.persistence.NamedNativeQueries( value = {
 <%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{q.jpa.native? ? ", resultClass = #{entity.jpa.name}.class" : ""} )" }.join(",\n") %>
-} )<% end %>
+} )<% end -%>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity( name = "<%= entity.jpa.jpql_name %>" )<% if !entity.abstract? %>
 @javax.persistence.Table( name = "<%= entity.jpa.table_name %>",
@@ -22,16 +22,16 @@ package <%= entity.data_module.jpa.entity_package %>;
   "@javax.persistence.UniqueConstraint( columnNames = {\"#{a.sql.column_name}\"})"
   }.join(",\n        ")
 %>})<%
-else %>
+else -%>
 @javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.TABLE_PER_CLASS)<%
 end
-%>
+-%>
 @javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? "true" : "false" %> )
-<% entity.codependent_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
-<% entity.dependency_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
-<% entity.incompatible_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
-<% entity.relationship_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
-<% entity.cycle_constraints.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
+<% entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+<% entity.dependency_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+<% entity.incompatible_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+<% entity.relationship_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+<% entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
@@ -98,7 +98,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <% end %>  }
 
 <%
-      entity.codependent_constraints.each do |c|
+      entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
 -%>
 <%= validation_prefix(c.name, entity) %>
@@ -109,7 +109,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= validation_suffix() %>
 <% end -%>
 <%
-      entity.incompatible_constraints.each do |c|
+      entity.incompatible_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
 -%>
 <%= validation_prefix(c.name, entity) %>
@@ -120,21 +120,40 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= validation_suffix() %>
 <% end -%>
 <%
-      entity.relationship_constraints.each do |c|
+      entity.relationship_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         lhs = entity.attribute_by_name(c.lhs_operand)
         rhs = entity.attribute_by_name(c.rhs_operand)
         op = c.class.operators[c.operator]
+        op_prefix = ''
+        if lhs.date? || lhs.datetime?
+          if '=' == op
+            op = ".equals"
+          elsif '!=' == op
+            op = ".equals"
+            op_prefix = '!'
+          elsif '>' == op
+            op = ".after"
+          elsif '<=' == op
+            op = ".after"
+            op_prefix = '!'
+          elsif '<' == op
+            op = ".before"
+          elsif '>=' == op
+            op = ".before"
+            op_prefix = '!'
+          end
+        end
         op = '==' if '=' == op
 -%>
 <%= validation_prefix(c.name, entity) %>
-        if( <% if lhs.nullable? %>null != object.<%= getter_for(lhs) %> && <% end %><% if lhs.nullable? %>null != object.<%= getter_for(rhs) %> && <% end %>!( (object.<%= getter_for(lhs) %>) <%= op %> (object.<%= getter_for(rhs) %>) ) )
+        if( <% if lhs.nullable? %>null != object.<%= getter_for(lhs) %> && <% end %><% if lhs.nullable? %>null != object.<%= getter_for(rhs) %> && <% end %>!( <%= op_prefix %>(object.<%= getter_for(lhs) %>)<%= op %>(object.<%= getter_for(rhs) %>) ) )
         {
           return false;
         }
 <%= validation_suffix() %>
 <% end -%>
 <%
-      entity.cycle_constraints.each do |c|
+      entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         target_attribute = entity.attribute_by_name(c.attribute_name)
         scoping_attribute = target_attribute.referenced_entity.attribute_by_name(c.scoping_attribute)
 
@@ -154,7 +173,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= validation_suffix() %>
 <% end -%>
 <%
-      entity.dependency_constraints.each do |c|
+      entity.dependency_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         dependent_attributes = c.dependent_attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
         base_attribute = entity.attribute_by_name(c.attribute_name)
 -%>
