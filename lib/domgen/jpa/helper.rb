@@ -40,13 +40,13 @@ module Domgen
             s << "max = #{attribute.length} " if attribute.has_non_max_length?
             s << ", message = \"#{validation_field_name(attribute)} "
             if attribute.min_length.nil?
-              s << "must not be longer than #{attribute.length} characters\""
+              s << "must not be longer than {max} characters\""
             elsif attribute.length.nil?
-              s << "must be at least #{attribute.min_length} characters\""
+              s << "must be at least {min} characters\""
             elsif attribute.min_length == 0
-              s << "must not be more than #{attribute.length} characters\""
+              s << "must not be more than {max} characters\""
             else
-              s << "must be between #{attribute.min_length} and #{attribute.length} characters\""
+              s << "must be between {min} and {max} characters\""
             end
             s << " )\n"
           end
@@ -63,6 +63,7 @@ module Domgen
         s = ''
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
+        s << gen_order_by_if_specifified(attribute)
         if attribute.inverse.multiplicity == :many
           s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
@@ -123,6 +124,16 @@ module Domgen
         fetch_mode = attribute.inverse.jpa.fetch_mode
         if fetch_mode
           "  @org.hibernate.annotations.Fetch( org.hibernate.annotations.FetchMode.#{fetch_mode.to_s.upcase} )\n"
+        else
+          ''
+        end
+      end
+
+      def gen_order_by_if_specified(attribute)
+        order_by = attribute.inverse.order_by
+        if order_by
+          suffix = order_by == '' ? '' : "( \"#{order_by}\" )"
+          "  @javax.persistence.OrderBy#{suffix}\n"
         else
           ''
         end

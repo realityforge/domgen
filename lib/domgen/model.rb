@@ -162,6 +162,8 @@ module Domgen
 
   class InverseElement < Domgen.FacetedElement(:attribute)
 
+    attr_accessor :order_by
+
     def initialize(attribute, options, &block)
       super(attribute, options, &block)
     end
