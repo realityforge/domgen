@@ -35,6 +35,11 @@ module Domgen
             s << " )\n"
           end
         end
+        if attribute.annotations
+          attribute.annotations.each do |a|
+            s << "  #{a}\n"
+          end
+        end
         s
       end
 

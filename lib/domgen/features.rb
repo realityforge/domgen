@@ -16,6 +16,7 @@ module Domgen
 
   module Characteristic
     attr_reader :name
+    attr_accessor :annotations
 
     def allows_length?
       text? || (enumeration? && enumeration.textual_values?)
