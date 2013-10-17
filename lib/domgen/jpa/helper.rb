@@ -24,7 +24,7 @@ module Domgen
         s << "  @javax.persistence.Basic( optional = #{attribute.nullable?}, fetch = javax.persistence.FetchType.EAGER )\n" unless attribute.reference?
         s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? "ORDINAL" : "STRING"} )\n" if attribute.enumeration?
         s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? "TIMESTAMP" : "DATE"} )\n" if attribute.datetime? || attribute.date?
-        s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
+        s << "  @javax.validation.constraints.NotNull( message = \"#{attribute.sql.column_name.to_s.gsub(/(.)([A-Z])/, '\1 \2')} must be supplied\")\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
         if attribute.text?
           unless attribute.length.nil? && attribute.min_length.nil?
@@ -32,6 +32,16 @@ module Domgen
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
             s << ", " unless attribute.min_length.nil? || !attribute.has_non_max_length?
             s << "max = #{attribute.length} " if attribute.has_non_max_length?
+            s << ", message = \"#{attribute.sql.column_name.to_s.gsub(/(.)([A-Z])/, '\1 \2')} "
+            if attribute.min_length.nil?
+              s << "must not be longer than #{attribute.length} characters\""
+            elsif attribute.length.nil?
+              s << "must be at least #{attribute.min_length} characters\""
+            elsif attribute.min_length == 0
+              s << "must not be more than #{attribute.length} characters\""
+            else
+              s << "must be between #{attribute.min_length} and #{attribute.length} characters\""
+            end
             s << " )\n"
           end
         end
