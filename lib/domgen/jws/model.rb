@@ -36,7 +36,7 @@ module Domgen
       attr_writer :wsdl_name
 
       def wsdl_name
-        @wsdl_name || "#{service.data_module.name}/#{web_service_name}.wsdl"
+        @wsdl_name || "#{service.data_module.repository.name}/#{service.data_module.name}/#{web_service_name}.wsdl"
       end
 
       attr_writer :system_id
