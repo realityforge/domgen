@@ -42,7 +42,7 @@ module Domgen
       attr_writer :system_id
 
       def system_id
-        @system_id || "#{service.data_module.repository.jws.namespace}/#{wsdl_name}"
+        @system_id || "#{service.data_module.jws.namespace}/#{web_service_name}.wsdl"
       end
 
       def namespace
@@ -90,6 +90,10 @@ module Domgen
 
     class JwsPackage < Domgen.ParentedElement(:data_module)
       include Domgen::Java::EEJavaPackage
+
+      def namespace
+        @namespace || "#{data_module.repository.jws.namespace}/#{data_module.name}"
+      end
     end
 
     class JwsApplication < Domgen.ParentedElement(:repository)
