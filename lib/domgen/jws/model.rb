@@ -59,6 +59,14 @@ module Domgen
         "#{service.data_module.jws.service_package}.#{service_name}"
       end
 
+      def java_service_name
+        "#{web_service_name}WS"
+      end
+
+      def qualified_java_service_name
+        "#{service.data_module.jws.service_package}.#{java_service_name}"
+      end
+
       def boundary_implementation_name
         "#{web_service_name}WSBoundaryEJB"
       end
