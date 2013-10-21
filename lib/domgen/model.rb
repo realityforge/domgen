@@ -407,29 +407,29 @@ module Domgen
     protected
 
     def local_name(base_name)
-      if base_name =~ /^findAll$/
+      if base_name =~ /^[fF]indAll$/
         self.query_type = :select
         self.multiplicity = :many
         return base_name
-      elsif base_name =~ /^findAll.+$/
+      elsif base_name =~ /^[fF]indAll.+$/
         self.query_type = :select
         self.multiplicity = :many
         return base_name
-      elsif base_name =~ /^find.+$/
+      elsif base_name =~ /^[fF]ind.+$/
         self.query_type = :select
         self.multiplicity = :zero_or_one
         return base_name
-      elsif base_name =~ /^get.+$/
+      elsif base_name =~ /^[gG]et.+$/
         self.query_type = :select
         self.multiplicity = :one
         return base_name
-      elsif base_name =~ /^update.+$/
+      elsif base_name =~ /^[uU]pdate.+$/
         self.query_type = :update
         return base_name
-      elsif base_name =~ /^delete.+$/
+      elsif base_name =~ /^[dD]elete.+$/
         self.query_type = :delete
         return base_name
-      elsif base_name =~ /^insert.+$/
+      elsif base_name =~ /^[iI]nsert.+$/
         self.query_type = :insert
         return base_name
       elsif self.query_type == :select
