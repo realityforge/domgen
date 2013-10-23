@@ -42,6 +42,11 @@ Domgen.template_set(:restygwt_client_service) do |template_set|
                         "#{Domgen::Generator::RestGWT::TEMPLATE_DIRECTORY}/facade_service.java.erb",
                         'main/java/#{service.restygwt.qualified_facade_service_name.gsub(".","/")}.java',
                         Domgen::Generator::RestGWT::HELPERS)
+  template_set.template(Domgen::Generator::RestGWT::FACETS,
+                        :service,
+                        "#{Domgen::Generator::RestGWT::TEMPLATE_DIRECTORY}/proxy.java.erb",
+                        'main/java/#{service.restygwt.qualified_proxy_name.gsub(".","/")}.java',
+                        Domgen::Generator::RestGWT::HELPERS)
 end
 
 Domgen.template_set(:restygwt => [:restygwt_client_service])
