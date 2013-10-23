@@ -58,6 +58,10 @@ module Domgen
         parameters << "unique = #{attribute.unique?}"
         parameters << "insertable = #{!attribute.generated_value? || attribute.primary_key?}"
 
+        if attribute.reference?
+          parameters << "referencedColumnName = \"#{attribute.referenced_entity.primary_key.sql.column_name}\""
+        end
+
         if !attribute.reference? && attribute.has_non_max_length?
           parameters << "length = #{attribute.length}"
         end
