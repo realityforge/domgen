@@ -313,15 +313,15 @@ module Domgen
       end
 
       def pre_verify
-        entity.query('findAll')
-        entity.query("findBy#{entity.primary_key.name}")
-        entity.query("getBy#{entity.primary_key.name}")
+        entity.query(:FindAll)
+        entity.query(:"FindBy#{entity.primary_key.name}")
+        entity.query(:"GetBy#{entity.primary_key.name}")
         entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
           jpql = ''
           query_text = nil
-          query_text = $1 if query.name =~ /^findAllBy(.+)$/
-          query_text = $1 if query.name =~ /^findBy(.+)$/
-          query_text = $1 if query.name =~ /^getBy(.+)$/
+          query_text = $1 if query.name =~ /^[fF]indAllBy(.+)$/
+          query_text = $1 if query.name =~ /^[fF]indBy(.+)$/
+          query_text = $1 if query.name =~ /^[gG]etBy(.+)$/
           next unless query_text
 
           entity_prefix = "O."

@@ -434,18 +434,18 @@ module Domgen
         return base_name
       elsif self.query_type == :select
         if self.multiplicity == :many
-          "findAllBy#{base_name}"
+          :"FindAllBy#{base_name}"
         elsif self.multiplicity == :zero_or_one
-          "findBy#{base_name}"
+          :"FindBy#{base_name}"
         else
-          "getBy#{base_name}"
+          :"GetBy#{base_name}"
         end
       elsif self.query_type == :update
-        "update#{base_name}"
+        :"Update#{base_name}"
       elsif self.query_type == :delete
-        "delete#{base_name}"
+        :"Delete#{base_name}"
       elsif self.query_type == :insert
-        "insert#{base_name}"
+        :"Insert#{base_name}"
       end
     end
 
