@@ -10,7 +10,7 @@ package <%= entity.data_module.jpa.dao_package %>;
 public class <%= entity.jpa.dao_name %>
     implements <%= entity.jpa.dao_service_name %>
 {
-  @javax.persistence.PersistenceContext<%= entity.data_module.repository.jpa.unit_name.nil? ? "" : "(unitName = \"#{entity.data_module.repository.jpa.unit_name}\")" %>
+  @javax.persistence.PersistenceContext(unitName = <%= entity.data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME)
   private javax.persistence.EntityManager em;
 
 <% entity.queries.each do |query| %>

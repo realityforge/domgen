@@ -398,6 +398,14 @@ module Domgen
                          "eclipselink.temporal.mutable" => "false"}
       end
 
+      def unit_descriptor_name
+        @eunit_descriptor_name || "#{repository.name}PersistenceUnit"
+      end
+
+      def qualified_unit_descriptor_name
+        "#{entity_package}.#{unit_descriptor_name}"
+      end
+
       attr_writer :ejb_module_name
 
       def ejb_module_name
