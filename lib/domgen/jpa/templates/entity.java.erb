@@ -171,7 +171,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 
 -%>
 <%= validation_prefix(c.name, entity) %>
-        if( !(null == object.<%= getter_for(target_attribute) %> || (object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %> == object.<%= elements.collect{|e|getter_for(e)}.join('.') %> ) ) )
+        if( !(null == object.<%= getter_for(target_attribute) %> || (object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %>.<%= getter_for(scoping_attribute.entity.primary_key) %>.equals(object.<%= elements.collect{|e|getter_for(e)}.join('.') %>.<%= getter_for(elements.last.entity.primary_key) %> ) ) ) )
         {
           return false;
         }
