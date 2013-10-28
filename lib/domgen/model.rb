@@ -407,6 +407,7 @@ module Domgen
     protected
 
     def local_name(base_name)
+      base_name = base_name.to_s
       if base_name =~ /^[fF]indAll$/
         self.query_type = :select
         self.multiplicity = :many
