@@ -5,8 +5,7 @@ package <%= entity.data_module.jpa.dao_package %>;
 @javax.annotation.Generated( "Domgen" )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
 @javax.ejb.Startup
-@javax.ejb.Singleton( name = <%= entity.jpa.dao_service_name %>.NAME )
-@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+@javax.ejb.Stateless( name = <%= entity.jpa.dao_service_name %>.NAME )
 public class <%= entity.jpa.dao_name %>
     implements <%= entity.jpa.dao_service_name %>
 {
