@@ -151,7 +151,7 @@ JAVA
       def j_declared_attribute_and_relation_accessors(entity)
         relation_methods = entity.referencing_attributes.collect do |attribute|
 
-          if attribute.abstract? || attribute.inherited? || !attribute.entity.jpa? || !attribute.jpa.persistent? || !attribute.inverse.jpa.traversable? || attribute.referenced_entity != entity
+          if attribute.abstract? || attribute.inherited? || !attribute.entity.jpa? || !attribute.jpa.persistent? || !attribute.inverse.jpa.java_traversable? || attribute.referenced_entity != entity
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
             # Ignore attributes that have no inverse relationship
@@ -287,7 +287,7 @@ JAVA
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.jpa.traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(attribute.nullable?, field_name) { "this.#{field_name}.add#{inverse_name}( this );" }
@@ -298,7 +298,7 @@ JAVA
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.jpa.traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(true, field_name) { "#{field_name}.remove#{inverse_name}( this );" }

@@ -94,7 +94,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
   protected void preRemove()
   {
 <% entity.declared_attributes.
-  select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.traversable? && attribute.inverse.jpa.traversable? }.
+  select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.java_traversable? && attribute.inverse.jpa.traversable? }.
   each do |attribute|
 %>    if ( null != <%= attribute.jpa.field_name %> )
       {

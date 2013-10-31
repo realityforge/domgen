@@ -213,6 +213,14 @@ module Domgen
       def traversable?
         @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.jpa?) : @traversable
       end
+
+      def java_traversable=(java_traversable)
+        @java_traversable = java_traversable
+      end
+
+      def java_traversable?
+        @java_traversable.nil? ? traversable? : @java_traversable
+      end
     end
 
     class JpaField < BaseJpaField
