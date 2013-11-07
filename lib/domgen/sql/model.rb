@@ -818,9 +818,9 @@ SQL
 
           validation_name = "Immuter"
           unless validation_by_name(validation_name)
-            guard = immutable_attributes.collect { |a| "UPDATE(#{a.sql.column_name})" }.join(" OR ")
+            guard = immutable_attributes.collect { |a| "UPDATE(#{a.sql.quoted_column_name})" }.join(" OR ")
             validation(validation_name, :negative_sql => <<SQL, :after => :update, :guard => guard)
-SELECT I.#{pk.sql.column_name}
+SELECT I.#{pk.sql.quoted_column_name}
 FROM inserted I, deleted D
 WHERE
   I.#{pk.sql.quoted_column_name} = D.#{pk.sql.quoted_column_name} AND
@@ -850,7 +850,7 @@ SQL
             if !validation_by_name(validation_name)
               guard = "UPDATE(#{attribute.sql.quoted_column_name})"
               sql = <<SQL
-      SELECT I.#{self.entity.primary_key.sql.column_name}
+      SELECT I.#{self.entity.primary_key.sql.quoted_column_name}
       FROM
         inserted I
 SQL
