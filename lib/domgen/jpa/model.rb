@@ -147,7 +147,7 @@ module Domgen
 
       def ql=(ql)
         @ql = ql
-        self.query_spec ||= (ql =~ /\sFROM\s/ix) ? :statement : :criteria
+        self.query_spec = (ql =~ /\sFROM\s/ix) ? :statement : :criteria unless @query_spec
       end
     end
 
