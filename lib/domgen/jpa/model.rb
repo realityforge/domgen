@@ -447,6 +447,9 @@ module Domgen
 
       attr_accessor :field_naming
 
+      def persistence_file_fragments
+        @persistence_file_fragments ||= []
+      end
     end
   end
 
