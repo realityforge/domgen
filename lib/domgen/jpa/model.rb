@@ -386,7 +386,7 @@ module Domgen
       end
 
       def version=(version)
-        raise "Unknown version '#{version}'" unless ["2.0","2.1"].include?(version)
+        raise "Unknown version '#{version}'" unless ['2.0','2.1'].include?(version)
         @version = version
       end
 
