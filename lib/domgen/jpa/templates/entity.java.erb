@@ -27,6 +27,8 @@ else -%>
 end
 -%>
 @javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? "true" : "false" %> )
+<% if entity.data_module.repository.ee.version != '6' %>@javax.enterprise.inject.Vetoed
+<% end -%>
 <% entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
 <% entity.dependency_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
