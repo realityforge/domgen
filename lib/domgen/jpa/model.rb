@@ -382,7 +382,7 @@ module Domgen
     class PersistenceUnit < Domgen.ParentedElement(:repository)
 
       def version
-        @version || "2.0"
+        @version || (repository.ee.version == '6' ? '2.0' : '2.1')
       end
 
       def version=(version)
