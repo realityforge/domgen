@@ -129,12 +129,6 @@ module Domgen
         @client_event_package || "#{parent_facet.client_event_package}.#{package_key}"
       end
 
-      attr_writer :server_servlet_package
-
-      def server_servlet_package
-        @server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
-      end
-
       protected
 
       def facet_key
