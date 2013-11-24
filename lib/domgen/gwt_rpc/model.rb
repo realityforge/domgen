@@ -90,7 +90,6 @@ module Domgen
 
       def server_servlet_package
         @server_servlet_package || "#{data_module.repository.gwt_rpc.server_servlet_package}.#{package_key}"
-        #@server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
       end
 
       protected
