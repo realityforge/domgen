@@ -29,7 +29,7 @@ module Domgen
       attr_writer :facade_service_name
 
       def facade_service_name
-        @facade_service_name || service.name
+        @facade_service_name || service.imit? ? "GwtRpc#{service.name}" : service.name
       end
 
       def qualified_facade_service_name
