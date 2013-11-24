@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= service.data_module.imit.service_package %>;
 
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond" } )
 public class <%= service.imit.proxy_name %>
   implements <%= service.imit.name %>
 {
@@ -71,7 +71,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
    end
 %>
   <% if method.return_value.collection? && method.return_value.reference? %>
-        final <%= annotated_type(method.return_value, :imit) %> $result = null == result ? null : new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.imit.java_component_type %>>();
+        final <%= annotated_type(method.return_value, :imit) %> $result = <% if method.return_value.nullable? %>null == result ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.imit.java_component_type %>>();
         if( null != result )
         {
           for( final <%= method.return_value.gwt_rpc.java_component_type(:boundary) %> id: result )

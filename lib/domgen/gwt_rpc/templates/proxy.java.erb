@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= service.data_module.gwt_rpc.client_service_package %>;
 
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond" } )
 public class <%= service.gwt_rpc.proxy_name %>
   implements <%= service.gwt_rpc.facade_service_name %>
 {
@@ -105,7 +105,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
    end
 %>
   <% if method.return_value.collection? && (method.return_value.enumeration? || method.return_value.struct?) %>
-    final <%= annotated_type(method.return_value, :gwt_rpc, :boundary) %> $result = result == null ? null : new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.gwt_rpc.java_component_type %>>();
+    final <%= annotated_type(method.return_value, :gwt_rpc, :boundary) %> $result = <% if method.return_value.nullable? %>result == null ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? "HashSet" : "ArrayList" %><<%= method.return_value.gwt_rpc.java_component_type %>>();
     if ( null != result )
     {
       for( final <%= method.return_value.gwt_rpc.java_component_type(:transport) %> id: result )
