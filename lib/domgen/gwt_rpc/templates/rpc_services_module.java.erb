@@ -6,6 +6,15 @@ package <%= repository.gwt_rpc.client_ioc_package %>;
 public class <%= repository.gwt_rpc.rpc_services_module_name %>
   extends com.google.gwt.inject.client.AbstractGinModule
 {
+<%
+  needs_xsrf =
+    repository.data_modules.select{|data_module| data_module.gwt_rpc?}.any? do |data_module|
+      data_module.services.select{|service| service.gwt_rpc?}.any? do |service|
+        service.gwt_rpc.xsrf_protected?
+      end
+    end
+  if needs_xsrf
+%>
   private static com.google.gwt.user.client.rpc.XsrfToken c_xsrfToken;
 
   public static com.google.gwt.user.client.rpc.XsrfToken getXsrfToken()
@@ -16,18 +25,26 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
     }
     return c_xsrfToken;
   }
-
-  public static void initialize( final String moduleName, final com.google.gwt.user.client.rpc.XsrfToken xsrfToken )
+<%
+  end
+%>
+  public static void initialize( final String moduleName<% if needs_xsrf %>, final com.google.gwt.user.client.rpc.XsrfToken xsrfToken<% end -%> )
   {
+<%
+  if needs_xsrf
+-%>
     if( null != c_xsrfToken )
     {
       throw new IllegalStateException( "Attempting to re-initialialize gin module." );
     }
+    c_xsrfToken = xsrfToken;
+<%
+  end
+-%>
     if( !moduleName.equals( "<%= repository.gwt_rpc.module_name %>" ) )
     {
       throw new IllegalStateException( "Actual GWT module name '" + com.google.gwt.core.client.GWT.getModuleName() + "' does not match module name '<%= repository.gwt_rpc.module_name %>' used during compilation." );
     }
-    c_xsrfToken = xsrfToken;
   }
 
   @Override
