@@ -34,6 +34,7 @@ module Domgen
             attribute = query.entity.attribute_by_name(parameter_name)
             characteristic_options = {}
             characteristic_options[:enumeration] = attribute.enumeration if attribute.attribute_type == :enumeration
+            characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
             query.parameter(attribute.name, attribute.attribute_type, characteristic_options)
           end
         end
