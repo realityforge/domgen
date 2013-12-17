@@ -28,7 +28,7 @@ module Domgen
       def post_verify
         query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
 
-        expected_parameters = query_parameters.uniq.sort
+        expected_parameters = query_parameters.uniq
         expected_parameters.each do |parameter_name|
           if !query.parameter_exists?(parameter_name) && query.entity.attribute_exists?(parameter_name)
             attribute = query.entity.attribute_by_name(parameter_name)
@@ -39,8 +39,8 @@ module Domgen
           end
         end
 
-        actual_parameters = query.parameters.collect{|p|p.name.to_s}.sort
-        if expected_parameters != actual_parameters
+        actual_parameters = query.parameters.collect{|p|p.name.to_s}
+        if expected_parameters.sort != actual_parameters.sort
           Domgen.error("Actual parameters for query #{query.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}")
         end
       end
