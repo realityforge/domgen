@@ -162,6 +162,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%
       entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         target_attribute = entity.attribute_by_name(c.attribute_name)
+        first_attribute_step = self.entity.attribute_by_name(c.attribute_name_path[0])
         scoping_attribute = target_attribute.referenced_entity.attribute_by_name(c.scoping_attribute)
 
         current_entity = entity
@@ -173,7 +174,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 
 -%>
 <%= validation_prefix(c.name, entity) %>
-        if( !(null == object.<%= getter_for(target_attribute) %> || (object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %>.<%= getter_for(scoping_attribute.entity.primary_key) %>.equals(object.<%= elements.collect{|e|getter_for(e)}.join('.') %>.<%= getter_for(elements.last.entity.primary_key) %> ) ) ) )
+        if( <% if target_attribute.nullable? %>null != object.<%= getter_for(target_attribute) %> && <% end %><% if first_attribute_step.nullable? %>null != object.<%= getter_for(first_attribute_step) %> && <% end %>!((object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %>.<%= getter_for(scoping_attribute.entity.primary_key) %>.equals(object.<%= elements.collect{|e|getter_for(e)}.join('.') %>.<%= getter_for(elements.last.entity.primary_key) %> ) ) ) )
         {
           return false;
         }

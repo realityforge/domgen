@@ -799,14 +799,24 @@ SQL
           if !function_constraint_by_name(functional_constraint_name)
             function_constraint(functional_constraint_name, [c.attribute_name, c.attribute_name_path[0]]) do |constraint|
               constraint.invariant = true
-              constraint.positive_sql = <<SQL
+              start_attribute = self.entity.attribute_by_name(c.attribute_name)
+              sql = ''
+              if start_attribute.nullable?
+                sql += "SELECT 1 AS Result WHERE @#{start_attribute.sql.column_name} IS NULL\nUNION\n"
+              end
+              first_attribute_step = self.entity.attribute_by_name(c.attribute_name_path[0])
+              if first_attribute_step.nullable?
+                sql += "SELECT 1 AS Result WHERE @#{first_attribute_step.sql.column_name} IS NULL\nUNION\n"
+              end
+
+              sql += <<SQL
 SELECT 1 AS Result
 FROM
-  (SELECT '1' AS IgnoreMe) I
-LEFT JOIN #{target_entity.sql.qualified_table_name} C0 ON C0.#{target_entity.primary_key.sql.quoted_column_name} = @#{self.entity.attribute_by_name(c.attribute_name).sql.column_name}
+  #{target_entity.sql.qualified_table_name} C0
 #{joins.join("\n")}
-WHERE @#{self.entity.attribute_by_name(c.attribute_name).sql.column_name} IS NULL OR #{comparison_id} = #{next_id}
+WHERE #{comparison_id} = #{next_id} AND C0.#{target_entity.primary_key.sql.quoted_column_name} = @#{start_attribute.sql.column_name}
 SQL
+              constraint.positive_sql = sql
             end
             copy_tags(c, function_constraint_by_name(functional_constraint_name))
           end
