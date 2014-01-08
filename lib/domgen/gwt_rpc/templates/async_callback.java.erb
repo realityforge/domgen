@@ -1,0 +1,17 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.gwt_rpc.client_service_package %>;
+
+/**
+ * Interface to receive notification of successful call completion.
+ *
+ * @param <T> the type of the return value.
+ */
+public interface <%= repository.gwt_rpc.async_callback_name %><T>
+{
+  /**
+   * Called when an asynchronous call completes successfully.
+   *
+   * @param result the return value of the remote produced call
+   */
+  void onSuccess( T result );
+}

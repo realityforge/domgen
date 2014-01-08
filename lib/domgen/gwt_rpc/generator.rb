@@ -23,6 +23,11 @@ module Domgen
 end
 Domgen.template_set(:gwt_rpc_shared_service) do |template_set|
   template_set.template(Domgen::Generator::GwtRpc::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/async_callback.java.erb",
+                        'main/java/#{repository.gwt_rpc.qualified_async_callback_name.gsub(".","/")}.java',
+                        Domgen::Generator::GwtRpc::HELPERS)
+  template_set.template(Domgen::Generator::GwtRpc::FACETS,
                         :service,
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_service.java.erb",
                         'main/java/#{service.gwt_rpc.qualified_service_name.gsub(".","/")}.java',

@@ -51,7 +51,7 @@ public class <%= service.imit.proxy_name %>
     param_value = "null == #{parameter.name} ? null : #{param_value}"
   end
   param_value
-end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.environmental?}.empty? ? '' : ', ' %>new org.realityforge.replicant.client.AsyncCallback<<%= method.return_value.imit.non_primitive_java_type(:boundary) %>>()
+end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.environmental?}.empty? ? '' : ', ' %>new <%= service.data_module.repository.gwt_rpc.qualified_async_callback_name %><<%= method.return_value.imit.non_primitive_java_type(:boundary) %>>()
     {
       public void onSuccess( final <%= method.return_value.imit.non_primitive_java_type(:boundary) %> result )
       {
