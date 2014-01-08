@@ -43,9 +43,9 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name))};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(Domgen::Naming.camelize(attribute.inverse.relationship_name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name)};\n"
+          s << "  private #{attribute.entity.jpa.qualified_name} #{Domgen::Naming.camelize(attribute.inverse.relationship_name)};\n"
         end
         s
       end
@@ -160,7 +160,7 @@ JAVA
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
             name = attribute.inverse.relationship_name
-            field_name = entity.jpa.to_field_name( name )
+            field_name = Domgen::Naming.camelize( name )
             type = nullable_annotate(attribute, attribute.entity.jpa.qualified_name, false, true)
 
             java = description_javadoc_for attribute
@@ -361,7 +361,7 @@ STR
       def j_has_many_attribute(attribute)
         name = attribute.inverse.relationship_name
         plural_name = Domgen::Naming.pluralize(name)
-        field_name = attribute.entity.jpa.to_field_name(plural_name)
+        field_name = Domgen::Naming.camelize(plural_name)
         type = attribute.entity.jpa.qualified_name
         java = description_javadoc_for attribute
         java << <<STR

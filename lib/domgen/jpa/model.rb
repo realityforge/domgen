@@ -28,18 +28,19 @@ module Domgen
       def post_verify
         query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
 
-        expected_parameters = query_parameters.uniq.sort
+        expected_parameters = query_parameters.uniq
         expected_parameters.each do |parameter_name|
           if !query.parameter_exists?(parameter_name) && query.entity.attribute_exists?(parameter_name)
             attribute = query.entity.attribute_by_name(parameter_name)
             characteristic_options = {}
-            characteristic_options[:enumeration] = attribute.enumeration if attribute.attribute_type == :enumeration
+            characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
+            characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
             query.parameter(attribute.name, attribute.attribute_type, characteristic_options)
           end
         end
 
-        actual_parameters = query.parameters.collect{|p|p.name.to_s}.sort
-        if expected_parameters != actual_parameters
+        actual_parameters = query.parameters.collect{|p|p.name.to_s}
+        if expected_parameters.sort != actual_parameters.sort
           Domgen.error("Actual parameters for query #{query.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}")
         end
       end
@@ -237,7 +238,7 @@ module Domgen
       include Domgen::Java::EEJavaCharacteristic
 
       def field_name
-        attribute.entity.jpa.to_field_name( name )
+        Domgen::Naming.camelize( name )
       end
 
       protected
@@ -248,16 +249,6 @@ module Domgen
     end
 
     class JpaClass < Domgen.ParentedElement(:entity)
-      def to_field_name( name )
-        field_naming =  entity.data_module.repository.jpa.field_naming
-
-        if field_naming
-          Domgen::Naming.send( field_naming, name)
-        else
-          name
-        end
-      end
-
       attr_writer :table_name
 
       def table_name
@@ -343,14 +334,14 @@ module Domgen
                 break
               end
               operation = $2.upcase
-              jpql = "#{jpql}#{entity_prefix}#{to_field_name(parameter_name)} = :#{parameter_name} #{operation} "
+              jpql = "#{jpql}#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{operation} "
             else
               parameter_name = query_text
               if !entity.attribute_exists?(parameter_name)
                 jpql = nil
                 break
               end
-              jpql = "#{jpql}#{entity_prefix}#{to_field_name(parameter_name)} = :#{parameter_name}"
+              jpql = "#{jpql}#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name}"
               break
             end
           end
@@ -444,8 +435,6 @@ module Domgen
         return nil if provider.nil?
 
       end
-
-      attr_accessor :field_naming
 
       def persistence_file_fragments
         @persistence_file_fragments ||= []

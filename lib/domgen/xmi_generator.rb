@@ -55,21 +55,31 @@ module Domgen
       end
     end
 
+    def self.get_static_field_value(classname, field)
+      ::Java.java.lang.Thread.currentThread.getContextClassLoader.loadClass(classname).getField(field).get(nil)
+    end
+
     def self.generate_xmi(repository_key, filename)
       repository = Domgen.repository_by_name(repository_key)
 
       output_file = ::Java.java.io.File.new(filename).getAbsolutePath()
 
-      ::Java.org.eclipse.emf.ecore.resource.Resource::Factory::Registry::INSTANCE.getExtensionToFactoryMap().
-        put(File.extname(output_file).gsub('.', ''), Java.org.eclipse.uml2.uml.resource.UMLResource::Factory::INSTANCE)
+      registry = get_static_field_value('org.eclipse.emf.ecore.resource.Resource$Factory$Registry', 'INSTANCE')
+      umlResource = get_static_field_value('org.eclipse.uml2.uml.resource.UMLResource$Factory', 'INSTANCE')
+      ak_NONE_LITERAL = get_static_field_value('org.eclipse.uml2.uml.AggregationKind', 'NONE_LITERAL')
+      ak_SHARED_LITERAL = get_static_field_value('org.eclipse.uml2.uml.AggregationKind', 'SHARED_LITERAL')
+      ak_COMPOSITE_LITERAL = get_static_field_value('org.eclipse.uml2.uml.AggregationKind', 'COMPOSITE_LITERAL')
+      lit_UNLIMITED = get_static_field_value('org.eclipse.uml2.uml.LiteralUnlimitedNatural', 'UNLIMITED')
+
+      registry.getExtensionToFactoryMap().put(File.extname(output_file).gsub('.', ''), umlResource)
 
       model = ::Java.org.eclipse.uml2.uml.UMLFactory.eINSTANCE.createModel()
-      model.set_name(repository.name.to_s)
+      model.setName(repository.name.to_s)
 
       output_uri = ::Java.org.eclipse.emf.common.util.URI.createFileURI(output_file)
       puts "Creating XMI for repository #{repository_key} at #{output_file}"
       resource = ::Java.org.eclipse.emf.ecore.resource.impl.ResourceSetImpl.new.create_resource(output_uri)
-      resource.get_contents().add(model)
+      resource.getContents().add(model)
       name(resource, model, repository)
       describe(model, repository)
 
@@ -125,7 +135,7 @@ module Domgen
       repository.data_modules.each do |data_module|
         data_module.entities.each do |entity|
           package = packages[data_module.name]
-          clazz = package.createOwnedClass(entity.name, false)
+          clazz = package.createOwnedClass(entity.name.to_s, false)
           name(resource, clazz, entity)
           describe(clazz, entity)
           name_2_emf_map[entity.qualified_name] ||= clazz
@@ -138,7 +148,7 @@ module Domgen
       repository.data_modules.each do |data_module|
         data_module.structs.each do |struct|
           package = packages[data_module.name]
-          clazz = package.createOwnedClass(struct.name, false)
+          clazz = package.createOwnedClass(struct.name.to_s, false)
           name(resource, clazz, struct)
           describe(clazz, struct)
           name_2_emf_map[struct.qualified_name] ||= clazz
@@ -159,21 +169,24 @@ module Domgen
             end2 = name_2_emf_map[attribute.referenced_entity.qualified_name]
             name = attribute.name == attribute.referenced_entity.name ? "" : attribute.name.to_s
 
-            aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::NONE_LITERAL
-            aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::SHARED_LITERAL if attribute.inverse.relationship_kind == :aggregation
-            aggregation_kind = Java.org.eclipse.uml2.uml.AggregationKind::COMPOSITE_LITERAL if attribute.inverse.relationship_kind == :composition
+            aggregation_kind = ak_NONE_LITERAL
+            aggregation_kind = ak_SHARED_LITERAL if attribute.inverse.relationship_kind == :aggregation
+            aggregation_kind = ak_COMPOSITE_LITERAL if attribute.inverse.relationship_kind == :composition
 
-            emf_association = end1.createAssociation(true,
+            createAssociation = end1.getClass().getMethods().find{|m| m.getName() == "createAssociation" }
+
+            emf_association = createAssociation.invoke(end1,
+                                                       [true,
                                                      aggregation_kind,
                                                      name,
                                                      attribute.nullable? ? 0 : 1,
                                                      1,
                                                      end2,
                                                      attribute.inverse.traversable?,
-                                                     Java.org.eclipse.uml2.uml.AggregationKind::NONE_LITERAL,
-                                                     "",
+                                                     ak_NONE_LITERAL,
+                                                     '',
                                                      0,
-                                                     attribute.inverse.multiplicity == :many ? Java.org.eclipse.uml2.uml.LiteralUnlimitedNatural::UNLIMITED : 1)
+                                                     attribute.inverse.multiplicity == :many ? lit_UNLIMITED : 1])
             resource.setID(emf_association, attribute.qualified_name.to_s + ".Assoc")
             describe(emf_association, attribute)
           end
@@ -184,14 +197,14 @@ module Domgen
       repository.data_modules.each do |data_module|
         data_module.services.each do |service|
           package = packages[data_module.name]
-          clazz = package.createOwnedClass(service.name, false)
+          clazz = package.createOwnedClass(service.name.to_s, false)
           name(resource, clazz, service)
           describe(clazz, service)
           name_2_emf_map[service.qualified_name] ||= clazz
 
           service.methods.each do |method|
-            names = Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
-            types = Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
+            names = ::Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
+            types = ::Java.org.eclipse.emf.common.util.BasicEList.new(method.parameters.size)
 
             method.parameters.each do |characteristic|
               names.add(characteristic.name.to_s)
@@ -237,9 +250,9 @@ module Domgen
     def self.init_emf
       return if @@init_emf == true
       @@init_emf = true
-      Buildr.artifacts(self.dependencies).each do |artifact|
+      Buildr.artifacts(::Domgen::Xmi.dependencies).each do |artifact|
         artifact.invoke
-        $CLASSPATH << artifact.to_s
+        ::Java.classpath << artifact.to_s
       end
     end
 

@@ -673,8 +673,9 @@ module Domgen
       constraint = CycleConstraint.new(self, attribute_name, attribute_name_path, options, &block)
 
       entity = self
-      attribute_name_path.each do |attribute_name_path_element|
+      constraint.attribute_name_path.each_with_index do |attribute_name_path_element, i|
         other = entity.attribute_by_name(attribute_name_path_element)
+        Domgen.error("Path element #{attribute_name_path_element} is nullable") if other.nullable? && i != 0
         Domgen.error("Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
         Domgen.error("Path element #{attribute_name_path_element} is not a reference") if !other.reference?
         entity = other.referenced_entity
