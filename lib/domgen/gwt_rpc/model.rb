@@ -180,7 +180,7 @@ module Domgen
       attr_writer :async_callback_name
 
       def async_callback_name
-        @async_callback_name || "#{repository.name}AsyncCallback"
+        @async_callback_name || "#{repository.name}GwtRpcAsyncCallback"
       end
 
       def qualified_async_callback_name
@@ -190,7 +190,7 @@ module Domgen
       attr_writer :async_error_callback_name
 
       def async_error_callback_name
-        @async_error_callback_name || "#{repository.name}AsyncErrorCallback"
+        @async_error_callback_name || "#{repository.name}GwtRpcAsyncErrorCallback"
       end
 
       def qualified_async_error_callback_name
