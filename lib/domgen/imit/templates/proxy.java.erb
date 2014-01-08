@@ -88,7 +88,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
 <% end %>
         if( null != callback ) callback.onSuccess( <%= result_string %> );
       }
-  }, new org.realityforge.replicant.client.AsyncErrorCallback()
+  }, new <%= service.data_module.repository.gwt_rpc.qualified_async_error_callback_name %>()
     {
       public void onFailure( final Throwable caught )
       {

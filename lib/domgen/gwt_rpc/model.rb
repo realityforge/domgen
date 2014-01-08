@@ -187,6 +187,16 @@ module Domgen
         "#{client_service_package}.#{async_callback_name}"
       end
 
+      attr_writer :async_error_callback_name
+
+      def async_error_callback_name
+        @async_error_callback_name || "#{repository.name}AsyncErrorCallback"
+      end
+
+      def qualified_async_error_callback_name
+        "#{client_service_package}.#{async_error_callback_name}"
+      end
+
       attr_writer :mock_services_module_name
 
       def mock_services_module_name
