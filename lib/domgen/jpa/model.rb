@@ -392,9 +392,12 @@ module Domgen
       attr_writer :properties
 
       def properties
-        @properties ||= {"eclipselink.logging.logger" => "JavaLogger",
-                         #"eclipselink.logging.level" => "FINE",
-                         "eclipselink.temporal.mutable" => "false"}
+        @properties ||= {
+          "eclipselink.logging.logger" => "JavaLogger",
+          "eclipselink.session-name" => repository.name,
+          #"eclipselink.logging.level" => "FINE",
+          "eclipselink.temporal.mutable" => "false"
+        }
       end
 
       def unit_descriptor_name
