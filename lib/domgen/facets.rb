@@ -242,7 +242,7 @@ module Domgen
           Domgen::Query => [:parameters],
           Domgen::QueryParameter => [],
           Domgen::Service => [:methods],
-          Domgen::Method => [:parameters, :exceptions, :result],
+          Domgen::Method => [:parameters, :result],
           Domgen::Parameter => [],
           Domgen::Exception => [:parameters],
           Domgen::ExceptionParameter => [],
