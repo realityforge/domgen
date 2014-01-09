@@ -174,26 +174,26 @@ JAVA
   #{j_deprecation_warning(attribute)}final void add#{name}( final #{type} value )
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-    if( null != #{field_name} )
+    if( null != this.#{field_name} )
     {
       throw new IllegalStateException("Attempted to add value when non null value exists.");
     }
-    if( value != #{field_name} )
+    if( value != this.#{field_name} )
     {
-      #{field_name} = value;
+      this.#{field_name} = value;
     }
   }
 
   public final void remove#{name}( final #{type} value )
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-    if( null != #{field_name} && value != #{field_name} )
+    if( null != this.#{field_name} && value != this.#{field_name} )
     {
       throw new IllegalStateException("Attempted to remove value that was not the same.");
     }
-    if( null != #{field_name} )
+    if( null != this.#{field_name} )
     {
-      #{field_name} = null;
+      this.#{field_name} = null;
     }
   }
 JAVA
@@ -219,22 +219,22 @@ JAVA
        throw new NullPointerException( "#{name} parameter is not nullable" );
      }
 
-     if( value.equals( #{name} ) )
+     if( value.equals( this.#{name} ) )
      {
        return;
      }
 JAVA
         else
           return <<JAVA
-     if( null != #{name} && #{name}.equals( value ) )
+     if( null != this.#{name} && this.#{name}.equals( value ) )
      {
        return;
      }
-     else if( null != value && value.equals( #{name} ) )
+     else if( null != value && value.equals( this.#{name} ) )
      {
        return;
      }
-     else if( null == #{name} && null == value )
+     else if( null == this.#{name} && null == value )
      {
        return;
      }
@@ -254,7 +254,7 @@ JAVA
 JAVA
         if attribute.generated_value? && !attribute.nullable?
           java << <<JAVA
-      if( null == #{field_name} )
+      if( null == this.#{field_name} )
       {
         throw new IllegalStateException("Attempting to access generated value #{name} before it has been flushed to the database.");
       }
@@ -276,7 +276,7 @@ JAVA
   public void set#{name}( final #{type} value )
   {
 #{j_return_if_value_same(field_name, attribute.jpa.primitive?, attribute.nullable?)}
-        #{field_name} = value;
+        this.#{field_name} = value;
   }
 JAVA
         end
@@ -330,7 +330,7 @@ JAVA
   {
  #{j_return_if_value_same(field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
         #{j_remove_from_inverse(attribute)}
-        #{field_name} = value;
+        this.#{field_name} = value;
  #{j_add_to_inverse(attribute)}
   }
 JAVA
@@ -381,19 +381,19 @@ STR
 
   public final void remove#{name}( final #{type} value )
   {
-    if ( null != #{field_name} && #{field_name}.contains( value ) )
+    if ( null != this.#{field_name} && this.#{field_name}.contains( value ) )
     {
-      #{field_name}.remove( value );
+      this.#{field_name}.remove( value );
     }
   }
 
   private java.util.List<#{type}> safeGet#{plural_name}()
   {
-    if( null == #{field_name} )
+    if( null == this.#{field_name} )
     {
-      #{field_name} = new java.util.LinkedList<#{type}>();
+      this.#{field_name} = new java.util.LinkedList<#{type}>();
     }
-    return #{field_name};
+    return this.#{field_name};
   }
 STR
         java
