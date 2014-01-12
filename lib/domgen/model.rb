@@ -464,6 +464,8 @@ module Domgen
   end
 
   class Attribute < self.FacetedElement(:entity)
+    include GenerateFacet
+
     include InheritableCharacteristic
 
     attr_reader :attribute_type
