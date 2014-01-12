@@ -70,11 +70,6 @@ Domgen.template_set(:gwt_rpc_client_service) do |template_set|
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/proxy.java.erb",
                         'main/java/#{service.gwt_rpc.qualified_proxy_name.gsub(".","/")}.java',
                         Domgen::Generator::GwtRpc::HELPERS)
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/services_module.java.erb",
-                        'main/java/#{repository.gwt_rpc.qualified_services_module_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
 end
 Domgen.template_set(:gwt_rpc_client_service_test) do |template_set|
   template_set.template(Domgen::Generator::GwtRpc::FACETS,
