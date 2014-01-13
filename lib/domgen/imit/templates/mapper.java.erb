@@ -88,7 +88,7 @@ public class <%= data_module.imit.mapper_name %>
     key = "#{entity.name}.#{Domgen::Naming.uppercase_constantize(attribute.name)}"
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :date
-          "org.realityforge.replicant.client.RDate.parse( change.getStringValue( #{key} ) )"
+          "org.realityforge.gwt.datatypes.client.date.RDate.parse( change.getStringValue( #{key} ) )"
         elsif attribute.imit.transport_characteristic_type_key == :integer
           "change.getIntegerValue( #{key} )"
         elsif attribute.imit.transport_characteristic_type_key == :real
