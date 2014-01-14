@@ -17,7 +17,7 @@ CLUSTER <%= entity.sql.qualified_table_name %> USING <%= Domgen::Sql.dialect.quo
 
 -- TODO: Insert "Comments" for artifacts that == Description attribute.
 <% entity.attributes.select {|a| !a.sql.default_value.nil?}.each do |a| %>
-ALTER TABLE <%= entity.sql.qualified_table_name %> ADD CONSTRAINT "DF_<%= entity.name %>_<%= a.name %>" DEFAULT (<%= a.sql.default_value %>) FOR <%= a.sql.quoted_column_name %>;
+ALTER TABLE <%= entity.sql.qualified_table_name %> ALTER COLUMN <%= a.sql.quoted_column_name %> SET DEFAULT <%= a.sql.default_value %>;
 <% end %>
 <% entity.sql.indexes.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %>INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %><%= index.gist? ? ' USING GIST ' : '' %>
