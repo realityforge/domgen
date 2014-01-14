@@ -5,17 +5,16 @@ package <%= entity.data_module.jpa.dao_package %>;
 @javax.annotation.Generated( "Domgen" )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
 @javax.ejb.Startup
-@javax.ejb.Singleton( name = <%= entity.jpa.dao_service_name %>.NAME )
-@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+@javax.ejb.Stateless( name = <%= entity.jpa.dao_service_name %>.NAME )
 public class <%= entity.jpa.dao_name %>
     implements <%= entity.jpa.dao_service_name %>
 {
-  @javax.persistence.PersistenceContext<%= entity.data_module.repository.jpa.unit_name.nil? ? "" : "(unitName = \"#{entity.data_module.repository.jpa.unit_name}\")" %>
+  @javax.persistence.PersistenceContext(unitName = <%= entity.data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME)
   private javax.persistence.EntityManager em;
 
 <% entity.queries.each do |query| %>
 <%= description_javadoc_for(query) %>  @Override
-  public <%= query_return_type(query) %> <%= query.name %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
+  public <%= query_return_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
     final javax.persistence.TypedQuery<<%= entity.jpa.qualified_name %>> query =
       em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= entity.jpa.qualified_name %>.class );

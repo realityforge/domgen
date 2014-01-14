@@ -37,7 +37,7 @@ public class <%= service.gwt_rpc.servlet_name %>
      return_prefix = "final #{annotated_type(method.return_value, :ejb, :boundary)} returnValue = "
      transform = nil
      if method.return_value.date?
-       transform = "org.realityforge.replicant.client.RDate.fromDate( returnValue )"
+       transform = "org.realityforge.gwt.datatypes.client.date.RDate.fromDate( returnValue )"
      elsif method.return_value.enumeration?
        if method.return_value.enumeration.numeric_values?
          transform = "returnValue.ordinal()"
@@ -63,7 +63,7 @@ public class <%= service.gwt_rpc.servlet_name %>
       $returnValue.add(
 LOOP
          if method.return_value.date?
-           return_postfix << "org.realityforge.replicant.client.RDate.fromDate( k )"
+           return_postfix << "org.realityforge.gwt.datatypes.client.date.RDate.fromDate( k )"
          elsif method.return_value.struct?
            return_postfix << "_jsonMapper.writeValueAsString( k )"
          elsif method.return_value.enumeration.numeric_values?
@@ -93,7 +93,7 @@ LOOP
     <%
        param_value =
          if parameter.date?
-           "org.realityforge.replicant.client.RDate.toDate( k )"
+           "org.realityforge.gwt.datatypes.client.date.RDate.toDate( k )"
          elsif parameter.enumeration?
            parameter.enumeration.numeric_values? ?
              "#{parameter.enumeration.ee.qualified_name}.values()[ k ]" :
@@ -125,7 +125,7 @@ LOOP
   else
     transform = nil
     if p.date?
-      transform = "org.realityforge.replicant.client.RDate.toDate( #{p.gwt_rpc.name} )"
+      transform = "org.realityforge.gwt.datatypes.client.date.RDate.toDate( #{p.gwt_rpc.name} )"
     elsif p.enumeration?
       if p.enumeration.numeric_values?
         transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt_rpc.name} ]"

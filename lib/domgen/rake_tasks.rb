@@ -45,73 +45,71 @@ module Domgen
 
         # Is there java source generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/java\/.*/}
-          dir = "#{target_dir}/main/java"
-          file(dir => [task_name]) do
-            mkdir_p dir
+          main_java_dir = "#{target_dir}/main/java"
+          file(main_java_dir => [task_name]) do
+            mkdir_p main_java_dir
           end
-          buildr_project.compile.from dir
+          buildr_project.compile.from main_java_dir
           # Need to force this as it may have already been cached and thus will not recalculate
-          buildr_project.iml.main_source_directories << dir if buildr_project.iml?
+          buildr_project.iml.main_source_directories << main_java_dir if buildr_project.iml?
         end
 
         # Is there resources generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/resources\/.*/}
-          dir = "#{target_dir}/main/resources"
-          file(dir => [task_name]) do
-            mkdir_p dir
+          main_resources_dir = "#{target_dir}/main/resources"
+          file(main_resources_dir => [task_name]) do
+            mkdir_p main_resources_dir
           end
           buildr_project.resources.enhance([task_name])
           buildr_project.resources.filter.into buildr_project.path_to(:target, :main, :resources) unless buildr_project.resources.target
           buildr_project.resources do |t|
             t.enhance do
-              # Don't extract the dir as a variable as it will be shared between the blocks
-              if File.exist?("#{target_dir}/main/resources")
+              if File.exist?(main_resources_dir)
                 FileUtils.mkdir_p buildr_project.resources.target.to_s
-                FileUtils.cp_r "#{target_dir}/main/resources/.", buildr_project.resources.target.to_s
+                FileUtils.cp_r "#{main_resources_dir}/.", buildr_project.resources.target.to_s
               end
             end
           end
-          buildr_project.iml.main_source_directories << dir if buildr_project.iml?
+          buildr_project.iml.main_source_directories << main_resources_dir if buildr_project.iml?
         end
 
         # Is there assets generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^main\/webapp\/.*/}
-          dir = "#{target_dir}/main/webapp"
+          webapp_dir = File.expand_path("#{target_dir}/main/webapp")
           buildr_project.assets.enhance([task_name])
-          buildr_project.assets.paths << file(dir => [task_name]) do
-            mkdir_p dir
+          buildr_project.assets.paths << file(webapp_dir => [task_name]) do
+            mkdir_p webapp_dir
           end
         end
 
         # Is there test java source generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^test\/java\/.*/}
-          dir = "#{target_dir}/test/java"
-          file(dir => [task_name]) do
-            mkdir_p dir
+          test_java_dir = "#{target_dir}/test/java"
+          file(test_java_dir => [task_name]) do
+            mkdir_p test_java_dir
           end
-          buildr_project.test.compile.from dir
+          buildr_project.test.compile.from test_java_dir
           # Need to force this as it may have already been cached and thus will not recalculate
-          buildr_project.iml.test_source_directories << dir if buildr_project.iml?
+          buildr_project.iml.test_source_directories << test_java_dir if buildr_project.iml?
         end
 
         # Is there resources generated in project?
         if templates.any?{|template| template.output_filename_pattern =~ /^test\/resources\/.*/}
-          dir = "#{target_dir}/test/resources"
-          file(dir => [task_name]) do
-            mkdir_p dir
+          test_resources_dir = "#{target_dir}/test/resources"
+          file(test_resources_dir => [task_name]) do
+            mkdir_p test_resources_dir
           end
           buildr_project.test.resources.enhance([task_name])
           buildr_project.test.resources.filter.into buildr_project.path_to(:target, :test, :resources) unless buildr_project.test.resources.target
           buildr_project.test.resources do |t|
             t.enhance do
-              # Don't extract the dir as a variable as it will be shared between the blocks
-              if File.exist?("#{target_dir}/test/resources")
+              if File.exist?(test_resources_dir)
                 FileUtils.mkdir_p buildr_project.test.resources.target.to_s
-                FileUtils.cp_r "#{target_dir}/test/resources/.", buildr_project.test.resources.target.to_s
+                FileUtils.cp_r "#{test_resources_dir}/.", buildr_project.test.resources.target.to_s
               end
             end
           end
-          buildr_project.iml.test_source_directories << dir if buildr_project.iml?
+          buildr_project.iml.test_source_directories << test_resources_dir if buildr_project.iml?
         end
       end
     end

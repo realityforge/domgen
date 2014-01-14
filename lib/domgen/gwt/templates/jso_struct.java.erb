@@ -88,7 +88,7 @@ public final class <%= struct.gwt.jso_name %>
       end
     conversion_rule =
       case
-        when field.date? then Proc.new {|field, transport_value| "org.realityforge.replicant.client.RDate.parse( #{transport_value} )"}
+        when field.date? then Proc.new {|field, transport_value| "org.realityforge.gwt.datatypes.client.date.RDate.parse( #{transport_value} )"}
         when field.enumeration? then Proc.new {|field, transport_value| "#{field.gwt.java_component_type}.#{field.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{transport_value} ]"}"}
         else nil
       end
@@ -98,7 +98,7 @@ public final class <%= struct.gwt.jso_name %>
   public final <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
   {
 <% if conversion_rule.nil? %>
-    return (<%= field.gwt.java_type %>)new org.realityforge.replicant.client.json.gwt.JsoReadOnly<%= field.struct? ? "" : gwt_type_suffix %><%= field.collection_type == :set ? "Set" : "List" %>( <%= getter_prefix(field) %><%= field.name %>0() );
+    return (<%= field.gwt.java_type %>)new org.realityforge.gwt.datatypes.client.collections.JsoReadOnly<%= field.struct? ? "" : gwt_type_suffix %><%= field.collection_type == :set ? "Set" : "List" %>( <%= getter_prefix(field) %><%= field.name %>0() );
 <% else %>
     final com.google.gwt.core.client.JsArray<%= gwt_type_suffix %> source = <%= getter_prefix(field) %><%= field.name %>0();
     final java.util.<%= collection_type_impl %><<%= field.gwt.java_component_type %>> collection = new java.util.<%= collection_type_impl %><<%= field.gwt.java_component_type %>>();
@@ -123,7 +123,7 @@ public final class <%= struct.gwt.jso_name %>
 %>
   public final <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
   {
-    return org.realityforge.replicant.client.RDate.parse( <%= getter_prefix(field) %><%= field.name %>0() );
+    return org.realityforge.gwt.datatypes.client.date.RDate.parse( <%= getter_prefix(field) %><%= field.name %>0() );
   }
 
   private final native String <%= getter_prefix(field) %><%= field.name %>0() /*-{

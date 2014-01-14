@@ -10,8 +10,8 @@ public interface <%= service.imit.name %>
   method_name = Domgen::Naming.camelize(method.name)
   parameters = method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "#{annotated_type(p, :imit)} #{Domgen::Naming.camelize(p.imit.name)}" }
 
-   normal_callback = "@javax.annotation.Nullable org.realityforge.replicant.client.AsyncCallback<#{method.return_value.imit.non_primitive_java_type}> callback"
-   non_normal_callback = "@javax.annotation.Nullable org.realityforge.replicant.client.AsyncErrorCallback errorCallback"
+   normal_callback = "@javax.annotation.Nullable #{service.data_module.repository.imit.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback"
+   non_normal_callback = "@javax.annotation.Nullable #{service.data_module.repository.imit.qualified_async_error_callback_name} errorCallback"
 
 %><%= description_javadoc_for(method)
 %>  void <%= method_name %>(<%= (parameters + [normal_callback, non_normal_callback]).join(', ') %>);

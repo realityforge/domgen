@@ -35,15 +35,15 @@ module Domgen
         elsif field.date?
           if field.collection?
             if field.collection_type == :sequence
-              s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.replicant.server.json.jackson.DateListSerializer.class )\n"
-              s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.replicant.server.json.jackson.DateListDeserializer.class )\n"
+              s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateListSerializer.class )\n"
+              s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateListDeserializer.class )\n"
             else
-              s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.replicant.server.json.jackson.DateSetSerializer.class )\n"
-              s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.replicant.server.json.jackson.DateSetDeserializer.class )\n"
+              s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateSetSerializer.class )\n"
+              s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateSetDeserializer.class )\n"
             end
           else
-            s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.replicant.server.json.jackson.DateSerializer.class )\n"
-            s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.replicant.server.json.jackson.DateDeserializer.class )\n"
+            s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateSerializer.class )\n"
+            s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateDeserializer.class )\n"
           end
         end
         s

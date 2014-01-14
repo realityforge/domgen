@@ -23,6 +23,11 @@ module Domgen
 end
 Domgen.template_set(:jpa_model) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/unit_descriptor.java.erb",
+                        'main/java/#{repository.jpa.qualified_unit_descriptor_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS)
+  template_set.template(Domgen::Generator::JPA::FACETS,
                         :entity,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity.java.erb",
                         'main/java/#{entity.jpa.qualified_name.gsub(".","/")}.java',

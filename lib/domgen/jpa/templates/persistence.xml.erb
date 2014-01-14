@@ -38,5 +38,8 @@ end
     </properties>
 
   </persistence-unit>
+<% repository.jpa.persistence_file_fragments.each do |fragment| -%>
+<%= IO.read(fragment) -%>
+<% end -%>
 </persistence>
 

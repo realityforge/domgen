@@ -6,7 +6,7 @@ package <%= service.data_module.ejb.service_package %>;
 @javax.ejb.Local
 public interface <%= service.ejb.service_name %>
 {
-  String EJB_NAME = "<%= service.ejb.name %>";
+  String EJB_NAME = "<%= service.data_module.repository.name %>.<%= service.qualified_name %>";
 
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)

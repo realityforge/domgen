@@ -6,10 +6,10 @@ package <%= entity.data_module.jpa.dao_package %>;
 @javax.ejb.Local
 public interface <%= entity.jpa.dao_service_name %>
 {
-  public static final String NAME = "<%= entity.data_module.name %>.<%= entity.jpa.dao_service_name %>";
+  String NAME = "<%= entity.data_module.repository.name %>.<%= entity.data_module.name %>.<%= entity.jpa.dao_service_name %>";
 
 <% entity.queries.each do |query| %>
-<%= description_javadoc_for(query) %>  <%= query_return_type(query) %> <%= query.name %>(<%= (query.parameters.collect {|p| "#{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'int limit': nil] + [query.jpa.offset ? 'int offset': nil]).compact.join(', ') %>);
+<%= description_javadoc_for(query) %>  <%= query_return_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "#{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'int limit': nil] + [query.jpa.offset ? 'int offset': nil]).compact.join(', ') %>);
 <% end %>
 
 <% if entity.jpa.detachable? %>

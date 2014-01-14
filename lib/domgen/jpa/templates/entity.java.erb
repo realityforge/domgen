@@ -27,11 +27,18 @@ else -%>
 end
 -%>
 @javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? "true" : "false" %> )
-<% entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
-<% entity.dependency_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
-<% entity.incompatible_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
-<% entity.relationship_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
-<% entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
+<% if entity.data_module.repository.ee.version != '6' %>@javax.enterprise.inject.Vetoed
+<% end -%>
+<% entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+<% entity.dependency_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+<% entity.incompatible_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+<% entity.relationship_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+<% entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
@@ -89,7 +96,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
   protected void preRemove()
   {
 <% entity.declared_attributes.
-  select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.traversable? && attribute.inverse.jpa.traversable? }.
+  select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.java_traversable? && attribute.inverse.jpa.traversable? }.
   each do |attribute|
 %>    if ( null != <%= attribute.jpa.field_name %> )
       {
@@ -146,7 +153,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         op = '==' if '=' == op
 -%>
 <%= validation_prefix(c.name, entity) %>
-        if( <% if lhs.nullable? %>null != object.<%= getter_for(lhs) %> && <% end %><% if lhs.nullable? %>null != object.<%= getter_for(rhs) %> && <% end %>!( <%= op_prefix %>(object.<%= getter_for(lhs) %>)<%= op %>(object.<%= getter_for(rhs) %>) ) )
+        if( <% if lhs.nullable? %>null != object.<%= getter_for(lhs) %> && <% end %><% if rhs.nullable? %>null != object.<%= getter_for(rhs) %> && <% end %>!( <%= op_prefix %>(object.<%= getter_for(lhs) %>)<%= op %>(object.<%= getter_for(rhs) %>) ) )
         {
           return false;
         }
@@ -155,6 +162,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%
       entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         target_attribute = entity.attribute_by_name(c.attribute_name)
+        first_attribute_step = self.entity.attribute_by_name(c.attribute_name_path[0])
         scoping_attribute = target_attribute.referenced_entity.attribute_by_name(c.scoping_attribute)
 
         current_entity = entity
@@ -166,7 +174,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 
 -%>
 <%= validation_prefix(c.name, entity) %>
-        if( !(null == object.<%= getter_for(target_attribute) %> || (object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %> == object.<%= elements.collect{|e|getter_for(e)}.join('.') %> ) ) )
+        if( <% if target_attribute.nullable? %>null != object.<%= getter_for(target_attribute) %> && <% end %><% if first_attribute_step.nullable? %>null != object.<%= getter_for(first_attribute_step) %> && <% end %>!((object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %>.<%= getter_for(scoping_attribute.entity.primary_key) %>.equals(object.<%= elements.collect{|e|getter_for(e)}.join('.') %>.<%= getter_for(elements.last.entity.primary_key) %> ) ) ) )
         {
           return false;
         }

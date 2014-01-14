@@ -29,7 +29,7 @@ module Domgen
       attr_writer :facade_service_name
 
       def facade_service_name
-        @facade_service_name || service.name
+        @facade_service_name || service.imit? ? "GwtRpc#{service.name}" : service.name
       end
 
       def qualified_facade_service_name
@@ -90,7 +90,6 @@ module Domgen
 
       def server_servlet_package
         @server_servlet_package || "#{data_module.repository.gwt_rpc.server_servlet_package}.#{package_key}"
-        #@server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
       end
 
       protected
@@ -168,6 +167,16 @@ module Domgen
         @module_name || Domgen::Naming.underscore(repository.name)
       end
 
+      attr_writer :request_builder_name
+
+      def request_builder_name
+        @request_builder_name || "#{repository.name}RequestBuilder"
+      end
+
+      def qualified_request_builder_name
+        "#{client_ioc_package}.#{request_builder_name}"
+      end
+
       attr_writer :rpc_services_module_name
 
       def rpc_services_module_name
@@ -176,6 +185,26 @@ module Domgen
 
       def qualified_rpc_services_module_name
         "#{client_ioc_package}.#{rpc_services_module_name}"
+      end
+
+      attr_writer :async_callback_name
+
+      def async_callback_name
+        @async_callback_name || "#{repository.name}GwtRpcAsyncCallback"
+      end
+
+      def qualified_async_callback_name
+        "#{client_service_package}.#{async_callback_name}"
+      end
+
+      attr_writer :async_error_callback_name
+
+      def async_error_callback_name
+        @async_error_callback_name || "#{repository.name}GwtRpcAsyncErrorCallback"
+      end
+
+      def qualified_async_error_callback_name
+        "#{client_service_package}.#{async_error_callback_name}"
       end
 
       attr_writer :mock_services_module_name

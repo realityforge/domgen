@@ -1,0 +1,21 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.jpa.entity_package %>;
+
+public final class <%= repository.jpa.unit_descriptor_name %>
+{
+  public static final String NAME = "<%= repository.jpa.unit_name %>";
+
+<% repository.data_modules.each do |data_module| %>
+  public static Class[] get<%= data_module.name %>Models()
+  {
+    return new Class[]
+    {
+<%= data_module.entities.select {|entity| entity.jpa? }.collect {|entity| "      #{entity.jpa.qualified_name}.class" }.join(",\n") %>
+    };
+  }
+<% end %>
+
+  private <%= repository.jpa.unit_descriptor_name %>()
+  {
+  }
+}

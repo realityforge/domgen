@@ -70,9 +70,9 @@ module Domgen
           end
         end
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name))};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(Domgen::Naming.camelize(attribute.inverse.relationship_name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name)};\n"
+          s << "  private #{attribute.entity.jpa.qualified_name} #{Domgen::Naming.camelize(attribute.inverse.relationship_name)};\n"
         end
         s
       end
@@ -84,6 +84,10 @@ module Domgen
         parameters << "updatable = #{attribute.updatable?}"
         parameters << "unique = #{attribute.unique?}"
         parameters << "insertable = #{!attribute.generated_value? || attribute.primary_key?}"
+
+        if attribute.reference?
+          parameters << "referencedColumnName = \"#{attribute.referenced_entity.primary_key.sql.column_name}\""
+        end
 
         if !attribute.reference? && attribute.has_non_max_length?
           parameters << "length = #{attribute.length}"
@@ -105,11 +109,13 @@ module Domgen
 
         if declaring_relationship
           parameters << "optional = #{attribute.nullable?}"
+          parameters << "targetEntity = #{attribute.referenced_entity.jpa.qualified_name}.class"
         end
 
         if !declaring_relationship
           parameters << "orphanRemoval = #{attribute.inverse.jpa.orphan_removal?}"
           parameters << "mappedBy = \"#{attribute.jpa.field_name}\""
+          parameters << "targetEntity = #{attribute.entity.jpa.qualified_name}.class"
         end
 
         #noinspection RubyUnusedLocalVariable
@@ -182,7 +188,7 @@ JAVA
       def j_declared_attribute_and_relation_accessors(entity)
         relation_methods = entity.referencing_attributes.collect do |attribute|
 
-          if attribute.abstract? || attribute.inherited? || !attribute.entity.jpa? || !attribute.jpa.persistent? || !attribute.inverse.jpa.traversable? || attribute.referenced_entity != entity
+          if attribute.abstract? || attribute.inherited? || !attribute.entity.jpa? || !attribute.jpa.persistent? || !attribute.inverse.jpa.java_traversable? || attribute.referenced_entity != entity
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
             # Ignore attributes that have no inverse relationship
@@ -191,7 +197,7 @@ JAVA
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
             name = attribute.inverse.relationship_name
-            field_name = entity.jpa.to_field_name( name )
+            field_name = Domgen::Naming.camelize( name )
             type = nullable_annotate(attribute, attribute.entity.jpa.qualified_name, false, true)
 
             java = description_javadoc_for attribute
@@ -205,26 +211,26 @@ JAVA
   #{j_deprecation_warning(attribute)}final void add#{name}( final #{type} value )
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-    if( null != #{field_name} )
+    if( null != this.#{field_name} )
     {
       throw new IllegalStateException("Attempted to add value when non null value exists.");
     }
-    if( value != #{field_name} )
+    if( value != this.#{field_name} )
     {
-      #{field_name} = value;
+      this.#{field_name} = value;
     }
   }
 
   public final void remove#{name}( final #{type} value )
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-    if( null != #{field_name} && value != #{field_name} )
+    if( null != this.#{field_name} && value != this.#{field_name} )
     {
       throw new IllegalStateException("Attempted to remove value that was not the same.");
     }
-    if( null != #{field_name} )
+    if( null != this.#{field_name} )
     {
-      #{field_name} = null;
+      this.#{field_name} = null;
     }
   }
 JAVA
@@ -250,22 +256,22 @@ JAVA
        throw new NullPointerException( "#{name} parameter is not nullable" );
      }
 
-     if( value.equals( #{name} ) )
+     if( value.equals( this.#{name} ) )
      {
        return;
      }
 JAVA
         else
           return <<JAVA
-     if( null != #{name} && #{name}.equals( value ) )
+     if( null != this.#{name} && this.#{name}.equals( value ) )
      {
        return;
      }
-     else if( null != value && value.equals( #{name} ) )
+     else if( null != value && value.equals( this.#{name} ) )
      {
        return;
      }
-     else if( null == #{name} && null == value )
+     else if( null == this.#{name} && null == value )
      {
        return;
      }
@@ -285,7 +291,7 @@ JAVA
 JAVA
         if attribute.generated_value? && !attribute.nullable?
           java << <<JAVA
-      if( null == #{field_name} )
+      if( null == this.#{field_name} )
       {
         throw new IllegalStateException("Attempting to access generated value #{name} before it has been flushed to the database.");
       }
@@ -307,7 +313,7 @@ JAVA
   public void set#{name}( final #{type} value )
   {
 #{j_return_if_value_same(field_name, attribute.jpa.primitive?, attribute.nullable?)}
-        #{field_name} = value;
+        this.#{field_name} = value;
   }
 JAVA
         end
@@ -318,7 +324,7 @@ JAVA
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.jpa.traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(attribute.nullable?, field_name) { "this.#{field_name}.add#{inverse_name}( this );" }
@@ -329,7 +335,7 @@ JAVA
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.jpa.traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(true, field_name) { "#{field_name}.remove#{inverse_name}( this );" }
@@ -361,7 +367,7 @@ JAVA
   {
  #{j_return_if_value_same(field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
         #{j_remove_from_inverse(attribute)}
-        #{field_name} = value;
+        this.#{field_name} = value;
  #{j_add_to_inverse(attribute)}
   }
 JAVA
@@ -392,7 +398,7 @@ STR
       def j_has_many_attribute(attribute)
         name = attribute.inverse.relationship_name
         plural_name = Domgen::Naming.pluralize(name)
-        field_name = attribute.entity.jpa.to_field_name(plural_name)
+        field_name = Domgen::Naming.camelize(plural_name)
         type = attribute.entity.jpa.qualified_name
         java = description_javadoc_for attribute
         java << <<STR
@@ -412,19 +418,19 @@ STR
 
   public final void remove#{name}( final #{type} value )
   {
-    if ( null != #{field_name} && #{field_name}.contains( value ) )
+    if ( null != this.#{field_name} && this.#{field_name}.contains( value ) )
     {
-      #{field_name}.remove( value );
+      this.#{field_name}.remove( value );
     }
   }
 
   private java.util.List<#{type}> safeGet#{plural_name}()
   {
-    if( null == #{field_name} )
+    if( null == this.#{field_name} )
     {
-      #{field_name} = new java.util.LinkedList<#{type}>();
+      this.#{field_name} = new java.util.LinkedList<#{type}>();
     }
-    return #{field_name};
+    return this.#{field_name};
   }
 STR
         java

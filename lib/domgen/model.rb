@@ -412,45 +412,46 @@ module Domgen
     protected
 
     def local_name(base_name)
-      if base_name =~ /^findAll$/
+      base_name = base_name.to_s
+      if base_name =~ /^[fF]indAll$/
         self.query_type = :select
         self.multiplicity = :many
         return base_name
-      elsif base_name =~ /^findAll.+$/
+      elsif base_name =~ /^[fF]indAll.+$/
         self.query_type = :select
         self.multiplicity = :many
         return base_name
-      elsif base_name =~ /^find.+$/
+      elsif base_name =~ /^[fF]ind.+$/
         self.query_type = :select
         self.multiplicity = :zero_or_one
         return base_name
-      elsif base_name =~ /^get.+$/
+      elsif base_name =~ /^[gG]et.+$/
         self.query_type = :select
         self.multiplicity = :one
         return base_name
-      elsif base_name =~ /^update.+$/
+      elsif base_name =~ /^[uU]pdate.+$/
         self.query_type = :update
         return base_name
-      elsif base_name =~ /^delete.+$/
+      elsif base_name =~ /^[dD]elete.+$/
         self.query_type = :delete
         return base_name
-      elsif base_name =~ /^insert.+$/
+      elsif base_name =~ /^[iI]nsert.+$/
         self.query_type = :insert
         return base_name
       elsif self.query_type == :select
         if self.multiplicity == :many
-          "findAllBy#{base_name}"
+          :"FindAllBy#{base_name}"
         elsif self.multiplicity == :zero_or_one
-          "findBy#{base_name}"
+          :"FindBy#{base_name}"
         else
-          "getBy#{base_name}"
+          :"GetBy#{base_name}"
         end
       elsif self.query_type == :update
-        "update#{base_name}"
+        :"Update#{base_name}"
       elsif self.query_type == :delete
-        "delete#{base_name}"
+        :"Delete#{base_name}"
       elsif self.query_type == :insert
-        "insert#{base_name}"
+        :"Insert#{base_name}"
       end
     end
 
@@ -468,6 +469,8 @@ module Domgen
   end
 
   class Attribute < self.FacetedElement(:entity)
+    include GenerateFacet
+
     include InheritableCharacteristic
 
     attr_reader :attribute_type
@@ -677,8 +680,9 @@ module Domgen
       constraint = CycleConstraint.new(self, attribute_name, attribute_name_path, options, &block)
 
       entity = self
-      attribute_name_path.each do |attribute_name_path_element|
+      constraint.attribute_name_path.each_with_index do |attribute_name_path_element, i|
         other = entity.attribute_by_name(attribute_name_path_element)
+        Domgen.error("Path element #{attribute_name_path_element} is nullable") if other.nullable? && i != 0
         Domgen.error("Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
         Domgen.error("Path element #{attribute_name_path_element} is not a reference") if !other.reference?
         entity = other.referenced_entity

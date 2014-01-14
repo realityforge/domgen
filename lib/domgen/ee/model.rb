@@ -80,6 +80,15 @@ module Domgen
 
     class EeApplication < Domgen.ParentedElement(:repository)
       include Domgen::Java::ServerJavaApplication
+
+      def version
+        @version || '6'
+      end
+
+      def version=(version)
+        raise "Unknown version '#{version}'" unless ['6', '7'].include?(version)
+        @version = version
+      end
     end
   end
 

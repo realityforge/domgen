@@ -1,0 +1,16 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.service_package %>;
+
+/**
+ * Interface to receive notification of calls that fail to complete normally.
+ */
+public interface <%= repository.imit.async_error_callback_name %><T>
+{
+  /**
+   * Called when an asynchronous call fails to complete normally.
+   * This includes transport layer errors as well as exceptions throw by the actual service method.
+   *
+   * @param caught failure encountered while executing a remote procedure call
+   */
+  void onFailure( Throwable caught );
+}
