@@ -121,13 +121,25 @@ module Domgen
       attr_reader :environment_key
 
       def environment_key=(environment_key)
-        raise "Unknown environment_key #{environment_key}" unless self.class.environment_key_set.include?(environment_key)
+        raise "Unknown environment_key #{environment_key}" unless valid_environment_key?(environment_key)
         @environment_key = environment_key
+      end
+
+      def valid_environment_key?(environment_key)
+        self.class.environment_key_set.include?(environment_key) ||
+          environment_key_is_cookie?(environment_key)
+      end
+
+      def environment_key_is_cookie?(environment_key = self.environment_key)
+        environment_key =~ /^request:cookie:.*/
       end
 
       def environment_value
         raise "environment_value invoked for non-environmental value" unless environmental?
-        self.class.environment_key_set[environment_key]
+        return "findCookie(getThreadLocalRequest(),\"#{environment_key.to_s[15,100]}\")" if environment_key_is_cookie?(environment_key)
+        value = self.class.environment_key_set[environment_key]
+        return value if value
+
       end
 
       def self.environment_key_set

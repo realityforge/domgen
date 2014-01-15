@@ -151,4 +151,29 @@ end.join(', ') %>);
     }
 <% end %>
   }
-<% end %>}
+<% end %>
+<%
+has_cookie = false
+ service.methods.select{|method| method.gwt_rpc?}.each do |method|
+   has_cookie = method.parameters.any?{|p| p.gwt_rpc.environmental? && p.gwt_rpc.environment_key_is_cookie?}
+ end
+if has_cookie
+%>
+  @javax.annotation.Nullable
+  private static String findCookie( final javax.servlet.http.HttpServletRequest request, final String cookieName )
+  {
+    final javax.servlet.http.Cookie[] cookies = request.getCookies();
+    if ( null != cookies )
+    {
+      for ( final javax.servlet.http.Cookie cookie : cookies )
+      {
+        if ( cookie.getName().equals( cookieName ) )
+        {
+          return cookie.getValue();
+        }
+      }
+    }
+    return null;
+  }
+<% end %>
+}
