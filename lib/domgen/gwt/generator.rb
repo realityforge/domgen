@@ -63,5 +63,5 @@ Domgen.template_set(:gwt_client_jso) do |template_set|
                         Domgen::Generator::GWT::HELPERS)
 end
 
-Domgen.template_set(:gwt_client => [:gwt_client_event])
+Domgen.template_set(:gwt_client => [:gwt_client_event, :gwt_client_jso])
 Domgen.template_set(:gwt => [:gwt_client])
