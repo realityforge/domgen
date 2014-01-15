@@ -21,7 +21,7 @@ module Domgen
     end
   end
 end
-Domgen.template_set(:imit) do |template_set|
+Domgen.template_set(:imit_entity) do |template_set|
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :entity,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/entity.java.erb",
@@ -101,3 +101,7 @@ Domgen.template_set(:imit_jpa) do |template_set|
                         'main/java/#{repository.imit.qualified_message_generator_name.gsub(".","/")}.java',
                         helpers)
 end
+
+Domgen.template_set(:imit_server => [:imit_jpa, :imit_json])
+Domgen.template_set(:imit_client => [:imit_gwt_proxy_service_test, :imit_gwt_proxy, :imit_entity])
+Domgen.template_set(:imit => [:imit_client, :imit_server])
