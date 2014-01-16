@@ -8,6 +8,7 @@ import org.realityforge.replicant.server.EntityMessage;
  */
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.enterprise.context.ApplicationScoped
 public class <%= repository.imit.message_generator_name %>
   implements org.realityforge.replicant.server.EntityMessageGenerator
 {
@@ -15,6 +16,7 @@ public class <%= repository.imit.message_generator_name %>
   private final <%= data_module.imit.qualified_router_interface_name %> _<%= data_module.name %>Router;
 <% end %>
 
+  @javax.inject.Inject
   public <%= repository.imit.message_generator_name %>( <%= repository.imit.client_side_data_modules.collect { |data_module| "final #{data_module.imit.qualified_router_interface_name} #{data_module.name}Router" }.join(", ") %> )
   {
 <% repository.imit.client_side_data_modules.each do |data_module| %>
