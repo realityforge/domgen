@@ -248,6 +248,14 @@ module Domgen
         "#{entity_package}.#{change_mapper_name}"
       end
 
+      def message_constants_name
+        "#{repository.name}MessageConstants"
+      end
+
+      def qualified_message_constants_name
+        "#{encoder_package}.#{message_constants_name}"
+      end
+
       def message_generator_name
         "#{repository.name}EntityMessageGenerator"
       end
