@@ -12,15 +12,15 @@ Currently supported output formats are:
 
 h1. Schema Definition
 
-The common schema is defined in a common file, @schema_set.rb@. 
+The common schema is defined in a common file, @schema_set.rb@.
 
 h2. Example:
 
-bc.. 
+bc..
  1.  Domgen.define_schema_set(:myapp) do |ss|
- 2.     ss.define_generator(:sql) 
+ 2.     ss.define_generator(:sql)
  3.
- 4.     ss.define_schema("Core") do |s| 
+ 4.     ss.define_schema("Core") do |s|
  5.       s.sql.schema = 'dbo'
  6.       s.java.package = 'my.application.model'
  7.
@@ -44,7 +44,7 @@ bc..
 25.
 26.         t.sql.index([:PostedAt])
 27.       end
-28.    
+28.
 29.       s.define_object_type(:Comment) do |t|
 30.         t.integer(:ID, :primary_key => true)
 31.         t.reference(:Post, :immutable => true, :inverse_multiplicity => :one)
@@ -84,3 +84,4 @@ h3. Example Explanation
 - @t.sql.index[:PostedAt]@ (Line 26) := Creates an SQL index on that column.
 
 - @t.reference(:Post, :immutable => true, :inverse_multiplicity => :many)@ (Line 31) := A relationship from @Comment@ to @Post@. The @:inverse_relationship => :has_many@ creates a collection model association from @Post@ to @Comment@, i.e _Posts have many comments_ .
+

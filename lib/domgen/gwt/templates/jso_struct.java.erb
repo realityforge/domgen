@@ -74,7 +74,7 @@ public final class <%= struct.gwt.jso_name %>
   private static native <E extends com.google.gwt.core.client.JavaScriptObject> com.google.gwt.core.client.JsArray<E> newNativeObjectArray() /*-{ return []; }-*/;
 
 <% struct.fields.select{|field| field.gwt?}.each do |field|
-  if field.collection? 
+  if field.collection?
     collection_type_impl = field.collection_type == :set ? "HashSet" : "ArrayList"
     gwt_type_suffix =
       case
@@ -185,3 +185,4 @@ public final class <%= struct.gwt.jso_name %>
 <% end
 %>
 }
+

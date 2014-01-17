@@ -17,7 +17,7 @@
 #
 # DESCRIPTION
 #    Hash with preserved order and some array-like extensions
-#    Public domain. 
+#    Public domain.
 #
 # THANKS
 #    Andrew Johnson for his suggestions and fixes of Hash[],
@@ -247,3 +247,4 @@ module Domgen
     end
   end # class OrderedHash
 end
+
