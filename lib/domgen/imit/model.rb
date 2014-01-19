@@ -28,10 +28,8 @@ module Domgen
 
     class ImitationAttribute < Domgen.ParentedElement(:attribute)
 
-      attr_writer :client_side
-
       def client_side?
-        @client_side.nil? ? (attribute.entity.imit? && (!attribute.reference? || attribute.referenced_entity.imit?) ) : @client_side
+        !attribute.reference? || attribute.referenced_entity.imit?
       end
 
       include Domgen::Java::ImitJavaCharacteristic
@@ -69,12 +67,6 @@ module Domgen
     end
 
     class ImitationService < Domgen.ParentedElement(:service)
-      attr_writer :client_side
-
-      def client_side?
-        @client_side.nil? ? service.data_module.imit? : @client_side
-      end
-
       attr_writer :name
 
       def name
@@ -111,7 +103,15 @@ module Domgen
 
     class ImitationEntity < Domgen.ParentedElement(:entity)
 
-      attr_accessor :transport_id
+      def transport_id
+        raise "Attempted to invoke transport_id on abstract entity" if entity.abstract?
+        @transport_id
+      end
+
+      def transport_id=(transport_id)
+        raise "Attempted to assign transport_id on abstract entity" if entity.abstract?
+        @transport_id = transport_id
+      end
 
       def name
         entity.name
@@ -121,12 +121,6 @@ module Domgen
         "#{entity.data_module.imit.entity_package}.#{name}"
       end
 
-      attr_writer :client_side
-
-      def client_side?
-        @client_side.nil? ? entity.data_module.imit? : @client_side
-      end
-
       def referencing_client_side_attributes
         entity.referencing_attributes.select do |attribute|
           attribute.entity.imit? &&
@@ -134,7 +128,6 @@ module Domgen
             attribute.inverse.imit.traversable? &&
             entity == attribute.referenced_entity &&
             attribute.imit? &&
-            attribute.imit.client_side? &&
             attribute.referenced_entity.imit?
         end
       end
@@ -185,20 +178,6 @@ module Domgen
 
       def qualified_updater_name
         "#{entity_package}.#{updater_name}"
-      end
-
-      attr_writer :client_side
-
-      def client_side?
-        @client_side.nil? ? !@entity_package.nil? : @client_side
-      end
-
-      def client_side_entities
-        data_module.entities.select { |entity| entity.imit?  }
-      end
-
-      def concrete_client_side_entities
-        client_side_entities.select{|entity| !entity.abstract?}
       end
     end
 
@@ -284,20 +263,16 @@ module Domgen
         "#{ioc_package}.#{mock_services_module_name}"
       end
 
-      def client_side_data_modules
-        repository.data_modules.select{|data_module| data_module.imit? }
-      end
-
-      def client_side_entities
-        client_side_data_modules.collect{ |data_module| data_module.imit.client_side_entities }.flatten
-      end
-
-      def concrete_client_side_entities
-        client_side_entities.select{|entity| !entity.abstract?}
-      end
-
       def post_verify
-        concrete_client_side_entities.each_with_index {|entity, index| entity.imit.transport_id = index}
+        index = 0
+        repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+          data_module.entities.each do |entity|
+            if entity.imit? && !entity.abstract?
+              entity.imit.transport_id = index
+              index += 1
+            end
+          end
+        end
       end
     end
   end

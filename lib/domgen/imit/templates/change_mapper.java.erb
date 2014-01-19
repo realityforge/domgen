@@ -9,14 +9,14 @@ package <%= repository.imit.entity_package %>;
 public final class <%= repository.imit.change_mapper_name %>
   implements org.realityforge.replicant.client.ChangeMapper
 {
-<% repository.imit.client_side_data_modules.each do |data_module|
+<% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module|
 %>  private final <%= data_module.imit.qualified_mapper_name %> _<%= data_module.name %>;
 <% end %>
   @javax.inject.Inject
-  public <%= repository.imit.change_mapper_name%>( <%= repository.imit.client_side_data_modules.collect { |data_module| "final #{data_module.imit.qualified_mapper_name} #{data_module.name}" }.join(", ") %>
+  public <%= repository.imit.change_mapper_name%>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "final #{data_module.imit.qualified_mapper_name} #{data_module.name}" }.join(", ") %>
 )
   {
-<% repository.imit.client_side_data_modules.each do |data_module|
+<% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module|
 %>    _<%= data_module.name %> = <%= data_module.name %>;
 <% end %>
   }
@@ -25,9 +25,16 @@ public final class <%= repository.imit.change_mapper_name %>
   {
     switch( change.getTypeID() )
     {
-<% repository.imit.concrete_client_side_entities.each do |entity|
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.each do |entity|
+    if entity.imit? && !entity.abstract?
 %>      case <%= entity.imit.qualified_name %>.TRANSPORT_ID: return _<%= entity.data_module.name %>.applyChangeTo<%= entity.name %>( change );
-<% end %>
+<%
+    end
+  end
+end
+%>
       default: throw new IllegalArgumentException( "Unknown typeID = " + change.getTypeID() );
     }
   }

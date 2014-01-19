@@ -2,7 +2,6 @@
   between schemas. i.e. Entity can not be referenced by anyone. Template can reference
   Entity but not Overtimes etc.
 * Support constants in relationship_constraints
-* Remove imit.client_side? and replace with imit?
 * Fix xmi generation: fix existing enumeration/service generation, add message generation
 * Introduce the "uses" metadata for service that can refer to entities (a.k.a DAOs) and other services. Use this to
   generate abstract service with required dependencies and update the uml generated.

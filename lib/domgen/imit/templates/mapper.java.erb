@@ -23,7 +23,7 @@ public class <%= data_module.imit.mapper_name %>
     _broker = broker;
   }
 
-<% data_module.imit.client_side_entities.each do |entity| %>
+<% data_module.entities.select { |entity| entity.imit? }.each do |entity| %>
 <% if !entity.abstract? %>
   public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.Change change )
   {

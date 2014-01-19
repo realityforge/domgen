@@ -12,7 +12,7 @@ public class <%= data_module.imit.jpa_encoder_name %>
   {
   }
 
-<% data_module.imit.client_side_entities.each do |entity| %>
+<% data_module.entities.select { |entity| entity.imit?  }.each do |entity| %>
 <% if !entity.abstract? %>
   public static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( final <%= entity.jpa.qualified_name %> entity )
   {

@@ -12,21 +12,24 @@ import org.realityforge.replicant.server.EntityMessage;
 public class <%= repository.imit.message_generator_name %>
   implements org.realityforge.replicant.server.EntityMessageGenerator
 {
-<% repository.imit.client_side_data_modules.each do |data_module| %>
+<% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module| %>
   private final <%= data_module.imit.qualified_router_interface_name %> _<%= data_module.name %>Router;
 <% end %>
 
   @javax.inject.Inject
-  public <%= repository.imit.message_generator_name %>( <%= repository.imit.client_side_data_modules.collect { |data_module| "final #{data_module.imit.qualified_router_interface_name} #{data_module.name}Router" }.join(", ") %> )
+  public <%= repository.imit.message_generator_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "final #{data_module.imit.qualified_router_interface_name} #{data_module.name}Router" }.join(", ") %> )
   {
-<% repository.imit.client_side_data_modules.each do |data_module| %>
+<% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module| %>
     _<%= data_module.name %>Router = <%= data_module.name %>Router;
 <% end %>
   }
 
   public EntityMessage convertToEntityMessage( final Object object, final boolean isUpdate )
   {
-    <% repository.imit.concrete_client_side_entities.each do |entity|
+    <%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.each do |entity|
+    if entity.imit? && !entity.abstract?
 %>if( <%= entity.jpa.qualified_name %>.class.isInstance( object ) )
     {
       final <%= entity.jpa.qualified_name %> entity = <%= entity.jpa.qualified_name %>.class.cast( object );
@@ -37,7 +40,9 @@ public class <%= repository.imit.message_generator_name %>
       return new EntityMessage( id, transportID, System.currentTimeMillis(), routingKeys, attributes );
     }
     else <%
-   end
+    end
+  end
+end
 %>
     {
       return null;

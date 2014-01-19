@@ -5,8 +5,13 @@ package <%= repository.imit.encoder_package %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.message_constants_name %>
 {
-<% repository.imit.concrete_client_side_entities.each do |entity|
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.each do |entity|
+    if entity.imit? && !entity.abstract?
 %>  public static final int <%= Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(entity.name.to_s) %> = <%= entity.imit.transport_id %>;
 <%
-   end
+    end
+  end
+end
 %>}
