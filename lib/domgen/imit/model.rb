@@ -259,6 +259,21 @@ module Domgen
         "#{encoder_package}.#{message_generator_name}"
       end
 
+      def graph_encoder_name
+        "#{repository.name}GraphEncoder"
+      end
+
+      def qualified_graph_encoder_name
+        "#{encoder_package}.#{graph_encoder_name}"
+      end
+      def graph_encoder_impl_name
+        "#{repository.name}GraphEncoderImpl"
+      end
+
+      def qualified_graph_encoder_impl_name
+        "#{encoder_package}.#{graph_encoder_impl_name}"
+      end
+
       attr_writer :services_module_name
 
       def services_module_name

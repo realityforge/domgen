@@ -1,0 +1,78 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.encoder_package %>;
+
+/**
+ * Utility class that encodes a graph of entities as a set of messages for "<%= repository.name %>" repository.
+ */
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.enterprise.context.ApplicationScoped
+public class <%= repository.imit.graph_encoder_impl_name %>
+  implements <%= repository.imit.graph_encoder_name %>
+{
+  private final org.realityforge.replicant.server.EntityMessageGenerator _messageGenerator;
+
+  @javax.inject.Inject
+  public <%= repository.imit.graph_encoder_impl_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageGenerator messageGenerator )
+  {
+    _messageGenerator = messageGenerator;
+  }
+
+<% repository.data_modules.select { |data_module| data_module.imit?  }.each do |data_module| -%>
+<% data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity| %>
+<% if entity.imit.replication_root? %>
+  public void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
+  {
+    encode<%= entity.name %>( messages, object, Mode.DEFAULT );
+  }
+<% end %>
+  <%= entity.imit.replication_root? ? "public" : "private" %> void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object, @javax.annotation.Nonnull final Mode mode )
+  {
+    encodeObject( messages, object );
+
+    <%
+  outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side?}
+  replication_modes = outgoing_links.collect{|a| a.inverse.imit.replication_modes } + [:default]
+  replication_modes = replication_modes.flatten.sort.uniq
+  replication_modes.each do |replication_mode|
+%>if( Mode.<%= Domgen::Naming.uppercase_constantize(replication_mode) %> == mode )
+    {
+<%
+    outgoing_links.each do |a|
+      name = a.inverse.multiplicity == :many ? Domgen::Naming.pluralize(a.inverse.name) : a.inverse.name
+%>
+      encodeObjects( messages, object.get<%= name %>() );
+<%
+    end
+%>
+    }
+    else <%
+  end
+%>
+    {
+      throw new IllegalArgumentException("Unknown mode " + mode);
+    }
+  }
+<% end -%>
+<% end -%>
+
+  private void encodeObjects( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final java.util.List objects )
+  {
+    for ( final Object object : objects )
+    {
+      encodeObject( messages, object );
+    }
+  }
+
+  private void encodeObject( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nullable final Object object )
+  {
+    if ( null != object )
+    {
+      final org.realityforge.replicant.server.EntityMessage message = _messageGenerator.convertToEntityMessage( object, true );
+      if ( null != message )
+      {
+        messages.add( message );
+      }
+    }
+  }
+}
