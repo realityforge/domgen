@@ -43,9 +43,9 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(Domgen::Naming.camelize(attribute.inverse.relationship_name))};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(Domgen::Naming.camelize(attribute.inverse.name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          s << "  private #{attribute.entity.jpa.qualified_name} #{Domgen::Naming.camelize(attribute.inverse.relationship_name)};\n"
+          s << "  private #{attribute.entity.jpa.qualified_name} #{Domgen::Naming.camelize(attribute.inverse.name)};\n"
         end
         s
       end
@@ -159,7 +159,7 @@ JAVA
           elsif attribute.inverse.multiplicity == :many
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-            name = attribute.inverse.relationship_name
+            name = attribute.inverse.name
             field_name = Domgen::Naming.camelize( name )
             type = nullable_annotate(attribute, attribute.entity.jpa.qualified_name, false, true)
 
@@ -286,7 +286,7 @@ JAVA
       def j_add_to_inverse(attribute)
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
-        inverse_name = attribute.inverse.relationship_name
+        inverse_name = attribute.inverse.name
         if !attribute.inverse.jpa.java_traversable?
           ''
         else
@@ -297,7 +297,7 @@ JAVA
       def j_remove_from_inverse(attribute)
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
-        inverse_name = attribute.inverse.relationship_name
+        inverse_name = attribute.inverse.name
         if !attribute.inverse.jpa.java_traversable?
           ''
         else
@@ -359,7 +359,7 @@ STR
       end
 
       def j_has_many_attribute(attribute)
-        name = attribute.inverse.relationship_name
+        name = attribute.inverse.name
         plural_name = Domgen::Naming.pluralize(name)
         field_name = Domgen::Naming.camelize(plural_name)
         type = attribute.entity.jpa.qualified_name

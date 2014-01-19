@@ -188,13 +188,13 @@ module Domgen
       @traversable.nil? ? false : @traversable
     end
 
-    def relationship_name=(relationship_name)
-      @relationship_name = relationship_name
+    def name=(name)
+      @name = name
       self.traversable = true
     end
 
-    def relationship_name
-      @relationship_name || attribute.entity.name
+    def name
+      @name || attribute.entity.name
     end
 
     def relationship_kind

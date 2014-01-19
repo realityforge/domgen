@@ -58,12 +58,12 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
 <% entity.referencing_attributes.each do |attribute|
     if attribute.inverse.multiplicity == :many
 %>
-  has_many :<%= Domgen::Naming.pluralize(Domgen::Naming.underscore(attribute.inverse.relationship_name)) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
-  has_count_of :<%= Domgen::Naming.pluralize(Domgen::Naming.underscore(attribute.inverse.relationship_name)) %>
+  has_many :<%= Domgen::Naming.pluralize(Domgen::Naming.underscore(attribute.inverse.name)) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_count_of :<%= Domgen::Naming.pluralize(Domgen::Naming.underscore(attribute.inverse.name)) %>
 <%
     elsif [:one, :zero_or_one].include? attribute.inverse.multiplicity
 %>
-  has_one :<%= Domgen::Naming.underscore(attribute.inverse.relationship_name) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_one :<%= Domgen::Naming.underscore(attribute.inverse.name) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
 <%
     end
   end

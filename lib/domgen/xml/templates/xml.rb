@@ -99,7 +99,7 @@ module Domgen
                             "polymorphic" => attribute.polymorphic?.to_s,
                             "inverse-multiplicity" => attribute.inverse.multiplicity.to_s,
                             "inverse-traversable" => attribute.inverse.traversable?.to_s,
-                            "inverse-relationship" => attribute.inverse.relationship_name.to_s)
+                            "inverse-relationship" => attribute.inverse.name.to_s)
             end
 
             attributes = collect_attributes(attribute.sql, %w(column_name identity? sparse? calculation))

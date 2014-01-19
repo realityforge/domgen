@@ -100,7 +100,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
   each do |attribute|
 %>    if ( null != <%= attribute.jpa.field_name %> )
       {
-        <%= attribute.jpa.field_name %>.remove<%= attribute.inverse.relationship_name %>( this );
+        <%= attribute.jpa.field_name %>.remove<%= attribute.inverse.name %>( this );
       }
 <% end %>  }
 
