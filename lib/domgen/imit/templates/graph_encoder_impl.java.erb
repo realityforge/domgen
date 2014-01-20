@@ -17,9 +17,13 @@ public class <%= repository.imit.graph_encoder_impl_name %>
   {
     _messageGenerator = messageGenerator;
   }
-
 <% repository.data_modules.select { |data_module| data_module.imit?  }.each do |data_module| -%>
-<% data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity| %>
+<%
+  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+    outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable?}
+    replication_modes = outgoing_links.select{|a| a.inverse.imit?}.collect{|a| a.inverse.imit.replication_modes }
+    replication_modes = replication_modes.flatten.sort.uniq
+-%>
 <% if entity.imit.replication_root? -%>
   public void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
   {
@@ -29,23 +33,30 @@ public class <%= repository.imit.graph_encoder_impl_name %>
   <%= entity.imit.replication_root? ? "public" : "private" %> void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object, @javax.annotation.Nonnull final Mode mode )
   {
     encodeObject( messages, object );
-
-    <%
-  outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable?}
-  replication_modes = outgoing_links.select{|a| a.inverse.imit?}.collect{|a| a.inverse.imit.replication_modes } + [:default]
-  replication_modes = replication_modes.flatten.sort.uniq
+<%
   replication_modes.each do |replication_mode|
-%>if( Mode.<%= Domgen::Naming.uppercase_constantize(replication_mode) %> == mode )
+-%>    if( Mode.<%= Domgen::Naming.uppercase_constantize(replication_mode) %> == mode )
     {
 <%
     outgoing_links.each do |a|
       if a.inverse.multiplicity == :many
-%>
-      encodeObjects( messages, object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>() );
+-%>
+      {
+        for ( final <%= a.entity.jpa.qualified_name %> o : object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>() )
+        {
+          encode<%= a.entity.name %>( messages, o, mode );
+        }
+      }
 <%
       elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
 -%>
-      encodeObject( messages, object.get<%= a.inverse.name %>() );
+      {
+        final <%= a.entity.jpa.qualified_name %> o = object.get<%= a.inverse.name %>();
+        <% if a.inverse.multiplicity == :zero_or_one %>if( null != o )<% end %>
+        {
+          encode<%= a.entity.name %>( messages, o, mode );
+        }
+      }
 <%
       end
     end
@@ -53,13 +64,16 @@ public class <%= repository.imit.graph_encoder_impl_name %>
     }
     else <%
   end
+  if 0 != replication_modes.size
 %>
     {
       throw new IllegalArgumentException("Unknown mode " + mode);
     }
+<% end -%>
   }
-<% end -%>
-<% end -%>
+<%
+  end
+end -%>
 
   public void encodeObjects( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final java.util.List objects )
   {
