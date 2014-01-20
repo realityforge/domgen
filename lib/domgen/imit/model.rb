@@ -275,6 +275,14 @@ module Domgen
         "#{encoder_package}.#{change_recorder_name}"
       end
 
+      def replication_interceptor_name
+        "#{repository.name}ReplicationInterceptor"
+      end
+
+      def qualified_replication_interceptor_name
+        "#{encoder_package}.#{replication_interceptor_name}"
+      end
+
       def graph_encoder_impl_name
         "#{repository.name}GraphEncoderImpl"
       end

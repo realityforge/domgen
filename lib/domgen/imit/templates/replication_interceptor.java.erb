@@ -1,0 +1,27 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.encoder_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.interceptor.Interceptor
+@org.realityforge.replicant.server.ee.Replicate
+public class <%= repository.imit.replication_interceptor_name %>
+  extends org.realityforge.replicant.server.ee.AbstractReplicationInterceptor
+{
+  @javax.ejb.EJB
+  private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
+
+  @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  private javax.persistence.EntityManager _entityManager;
+
+  @Override
+  protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
+  {
+    return _endpoint;
+  }
+
+  @Override
+  protected javax.persistence.EntityManager getEntityManager()
+  {
+    return _entityManager;
+  }
+}
