@@ -27,4 +27,9 @@ replication_modes = replication_modes.flatten.sort.uniq
   void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object, @javax.annotation.Nonnull final Mode mode );
 <% end -%>
 <% end -%>
+
+    /**
+     * Helper method useful when manually creating bulk loads.
+     */
+   void encodeObjects( @javax.annotation.Nonnull java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull java.util.List objects );
 }
