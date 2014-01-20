@@ -353,16 +353,6 @@ module Domgen
     class JpaPackage < Domgen.ParentedElement(:data_module)
       include Domgen::Java::EEJavaPackage
 
-      attr_writer :catalog_name
-
-      def catalog_name
-        @catalog_name || "#{data_module.name}Catalog"
-      end
-
-      def qualified_catalog_name
-        "#{entity_package}.#{catalog_name}"
-      end
-
       attr_writer :dao_package
 
       def dao_package

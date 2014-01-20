@@ -45,13 +45,6 @@ Domgen.template_set(:jpa_model) do |template_set|
                         'data_module.entities.any?{|e|e.jpa?}')
 end
 
-Domgen.template_set(:jpa_model_catalog) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :data_module,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/catalog.java.erb",
-                        'main/java/#{data_module.jpa.qualified_catalog_name.gsub(".","/")}.java')
-end
-
 Domgen.template_set(:jpa_test_module) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :repository,
