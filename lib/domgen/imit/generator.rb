@@ -86,9 +86,9 @@ Domgen.template_set(:imit_jpa) do |template_set|
   facets = Domgen::Generator::Imit::FACETS + [:jpa]
   helpers = Domgen::Generator::Imit::HELPERS + [Domgen::JPA::Helper, Domgen::Java::Helper]
   template_set.template(facets,
-                        :data_module,
+                        :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/jpa_encoder.java.erb",
-                        'main/java/#{data_module.imit.qualified_jpa_encoder_name.gsub(".","/")}.java',
+                        'main/java/#{repository.imit.qualified_jpa_encoder_name.gsub(".","/")}.java',
                         helpers)
   template_set.template(facets,
                         :repository,

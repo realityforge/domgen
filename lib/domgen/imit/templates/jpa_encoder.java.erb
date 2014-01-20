@@ -1,18 +1,19 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= data_module.imit.encoder_package %>;
+package <%= repository.imit.encoder_package %>;
 
 /**
- * Utility class that encodes payloads from JPA entities for the data module "<%= data_module.name %>".
+ * Utility class that encodes payloads from JPA entities for the repository "<%= repository.name %>".
  */
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= data_module.imit.jpa_encoder_name %>
+public class <%= repository.imit.jpa_encoder_name %>
 {
-  private <%= data_module.imit.jpa_encoder_name %>()
+  private <%= repository.imit.jpa_encoder_name %>()
   {
   }
 
-<% data_module.entities.select { |entity| entity.imit?  }.each do |entity| %>
+<% repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module| -%>
+<% data_module.entities.select { |entity| entity.imit?  }.each do |entity| -%>
 <% if !entity.abstract? %>
   public static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( final <%= entity.jpa.qualified_name %> entity )
   {
@@ -55,5 +56,6 @@ public class <%= data_module.imit.jpa_encoder_name %>
     }
 <% end %>
   }
-<% end %>
+<% end -%>
+<% end -%>
 }

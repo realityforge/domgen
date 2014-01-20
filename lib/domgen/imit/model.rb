@@ -172,14 +172,6 @@ module Domgen
         "#{entity_package}.#{mapper_name}"
       end
 
-      def jpa_encoder_name
-        "#{data_module.name}JpaEncoder"
-      end
-
-      def qualified_jpa_encoder_name
-        "#{encoder_package}.#{jpa_encoder_name}"
-      end
-
       def updater_name
         "#{data_module.name}Updater"
       end
@@ -241,6 +233,14 @@ module Domgen
 
       def qualified_router_interface_name
         "#{encoder_package}.#{router_interface_name}"
+      end
+
+      def jpa_encoder_name
+        "#{repository.name}JpaEncoder"
+      end
+
+      def qualified_jpa_encoder_name
+        "#{encoder_package}.#{jpa_encoder_name}"
       end
 
       def message_constants_name
