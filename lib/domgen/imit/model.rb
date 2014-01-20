@@ -180,14 +180,6 @@ module Domgen
         "#{encoder_package}.#{jpa_encoder_name}"
       end
 
-      def router_interface_name
-        "#{data_module.name}Router"
-      end
-
-      def qualified_router_interface_name
-        "#{encoder_package}.#{router_interface_name}"
-      end
-
       def updater_name
         "#{data_module.name}Updater"
       end
@@ -241,6 +233,14 @@ module Domgen
 
       def qualified_change_mapper_name
         "#{entity_package}.#{change_mapper_name}"
+      end
+
+      def router_interface_name
+        "#{repository.name}Router"
+      end
+
+      def qualified_router_interface_name
+        "#{encoder_package}.#{router_interface_name}"
       end
 
       def message_constants_name

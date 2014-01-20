@@ -12,16 +12,12 @@ import org.realityforge.replicant.server.EntityMessage;
 public class <%= repository.imit.message_generator_name %>
   implements org.realityforge.replicant.server.EntityMessageGenerator
 {
-<% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module| %>
-  private final <%= data_module.imit.qualified_router_interface_name %> _<%= data_module.name %>Router;
-<% end %>
+  private final <%= repository.imit.qualified_router_interface_name %> _router;
 
   @javax.inject.Inject
-  public <%= repository.imit.message_generator_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "final #{data_module.imit.qualified_router_interface_name} #{data_module.name}Router" }.join(", ") %> )
+  public <%= repository.imit.message_generator_name %>( final <%= repository.imit.qualified_router_interface_name %> router )
   {
-<% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module| %>
-    _<%= data_module.name %>Router = <%= data_module.name %>Router;
-<% end %>
+    _router = router;
   }
 
   public EntityMessage convertToEntityMessage( final Object object, final boolean isUpdate )
@@ -36,7 +32,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       final @javax.annotation.Nonnull java.io.Serializable id = entity.<%= getter_for(entity.primary_key) %>;
       final @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> attributes = isUpdate ? <%= entity.data_module.imit.qualified_jpa_encoder_name %>.encode<%= entity.name %>( entity ) : null;
       final int transportID = <%= repository.imit.message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(entity.name.to_s) %>;
-      final @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> routingKeys = _<%= entity.data_module.name %>Router.route<%= entity.name %>( entity );
+      final @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> routingKeys = _router.route<%= entity.name %>( entity );
       return new EntityMessage( id, transportID, System.currentTimeMillis(), routingKeys, attributes );
     }
     else <%
