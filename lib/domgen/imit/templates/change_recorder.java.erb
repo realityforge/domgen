@@ -1,0 +1,15 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.encoder_package %>;
+
+public class <%= repository.imit.change_recorder_name %>
+  extends org.realityforge.replicant.server.ee.ChangeRecorder
+{
+  @javax.inject.Inject
+  private org.realityforge.replicant.server.EntityMessageGenerator _messageGenerator;
+
+  @Override
+  protected org.realityforge.replicant.server.EntityMessageGenerator getEntityMessageGenerator()
+  {
+    return _messageGenerator;
+  }
+}

@@ -266,6 +266,15 @@ module Domgen
       def qualified_graph_encoder_name
         "#{encoder_package}.#{graph_encoder_name}"
       end
+
+      def change_recorder_name
+        "#{repository.name}ChangeRecorder"
+      end
+
+      def qualified_change_recorder_name
+        "#{encoder_package}.#{change_recorder_name}"
+      end
+
       def graph_encoder_impl_name
         "#{repository.name}GraphEncoderImpl"
       end
