@@ -20,7 +20,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
 
 <% repository.data_modules.select { |data_module| data_module.imit?  }.each do |data_module| -%>
 <% data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity| %>
-<% if entity.imit.replication_root? %>
+<% if entity.imit.replication_root? -%>
   public void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
   {
     encode<%= entity.name %>( messages, object, Mode.DEFAULT );
@@ -44,12 +44,12 @@ public class <%= repository.imit.graph_encoder_impl_name %>
       encodeObjects( messages, object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>() );
 <%
       elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
-%>
+-%>
       encodeObject( messages, object.get<%= a.inverse.name %>() );
 <%
       end
     end
-%>
+-%>
     }
     else <%
   end
