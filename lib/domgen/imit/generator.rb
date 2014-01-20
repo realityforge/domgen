@@ -127,6 +127,6 @@ Domgen.template_set(:imit_jpa) do |template_set|
                         helpers)
 end
 
-Domgen.template_set(:imit_server => [:imit_jpa, :imit_json])
-Domgen.template_set(:imit_client => [:imit_gwt_proxy_service_test, :imit_gwt_proxy, :imit_entity])
+Domgen.template_set(:imit_server => [:imit_jpa])
+Domgen.template_set(:imit_client => [:imit_gwt_proxy_service_test, :imit_gwt_proxy, :imit_entity, :imit_json])
 Domgen.template_set(:imit => [:imit_client, :imit_server])
