@@ -27,7 +27,7 @@ module Domgen
 
       def replication_modes=(replication_modes)
         raise "replication_modes should be an array of symbols" unless replication_modes.is_a?(Array) && replication_modes.all? { |m| m.is_a?(Symbol) }
-        raise "replication_modes should only be set when traversable?" unless traversable?
+        raise "replication_modes should only be set when traversable?" unless inverse.traversable?
         @replication_modes = replication_modes
       end
 
