@@ -31,18 +31,23 @@ public class <%= repository.imit.graph_encoder_impl_name %>
     encodeObject( messages, object );
 
     <%
-  outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side?}
-  replication_modes = outgoing_links.collect{|a| a.inverse.imit.replication_modes } + [:default]
+  outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable?}
+  replication_modes = outgoing_links.select{|a| a.inverse.imit?}.collect{|a| a.inverse.imit.replication_modes } + [:default]
   replication_modes = replication_modes.flatten.sort.uniq
   replication_modes.each do |replication_mode|
 %>if( Mode.<%= Domgen::Naming.uppercase_constantize(replication_mode) %> == mode )
     {
 <%
     outgoing_links.each do |a|
-      name = a.inverse.multiplicity == :many ? Domgen::Naming.pluralize(a.inverse.name) : a.inverse.name
+      if a.inverse.multiplicity == :many
 %>
-      encodeObjects( messages, object.get<%= name %>() );
+      encodeObjects( messages, object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>() );
 <%
+      elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
+%>
+      encodeObject( messages, object.get<%= a.inverse.name %>() );
+<%
+      end
     end
 %>
     }
