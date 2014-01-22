@@ -5,7 +5,6 @@
 * Fix xmi generation: fix existing enumeration/service generation, add message generation
 * Introduce the "uses" metadata for service that can refer to entities (a.k.a DAOs) and other services. Use this to
   generate abstract service with required dependencies and update the uml generated.
-* Start to generate entity=>struct mappers based on rules or explicit mappings
 * Disabling a facet should disable facet on all child elements, likewise for enabling the facet
 * Add xor constraint
 * Add state machine (based on rails gem or erlang library?)
