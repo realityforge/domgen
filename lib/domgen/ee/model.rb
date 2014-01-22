@@ -93,12 +93,15 @@ module Domgen
   end
 
   FacetManager.define_facet(:ee,
-                            Exception => Domgen::EE::EeException,
-                            ExceptionParameter => Domgen::EE::EeExceptionParameter,
-                            Struct => Domgen::EE::EeStruct,
-                            StructField => Domgen::EE::EebStructField,
-                            EnumerationSet => Domgen::EE::EeEnumeration,
-                            DataModule => Domgen::EE::EePackage,
-                            Repository => Domgen::EE::EeApplication)
+                            {
+                              Exception => Domgen::EE::EeException,
+                              ExceptionParameter => Domgen::EE::EeExceptionParameter,
+                              Struct => Domgen::EE::EeStruct,
+                              StructField => Domgen::EE::EebStructField,
+                              EnumerationSet => Domgen::EE::EeEnumeration,
+                              DataModule => Domgen::EE::EePackage,
+                              Repository => Domgen::EE::EeApplication
+                            },
+                            [:java])
 
 end

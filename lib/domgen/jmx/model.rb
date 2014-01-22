@@ -80,11 +80,14 @@ module Domgen
   end
 
   FacetManager.define_facet(:jmx,
-                            Service => Domgen::JMX::JmxClass,
-                            Method => Domgen::JMX::JmxMethod,
-                            Parameter => Domgen::JMX::JmxParameter,
-                            Exception => Domgen::JMX::JmxException,
-                            Result => Domgen::JMX::JmxReturn,
-                            DataModule => Domgen::JMX::JmxPackage,
-                            Repository => Domgen::JMX::JmxApplication)
+                            {
+                              Service => Domgen::JMX::JmxClass,
+                              Method => Domgen::JMX::JmxMethod,
+                              Parameter => Domgen::JMX::JmxParameter,
+                              Exception => Domgen::JMX::JmxException,
+                              Result => Domgen::JMX::JmxReturn,
+                              DataModule => Domgen::JMX::JmxPackage,
+                              Repository => Domgen::JMX::JmxApplication
+                            },
+                            [:java])
 end

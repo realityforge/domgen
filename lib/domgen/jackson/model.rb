@@ -38,5 +38,5 @@ module Domgen
                               DataModule => Domgen::Jackson::JacksonDataModule,
                               Repository => Domgen::Jackson::JacksonPackage
                             },
-                            [:json])
+                            [:json, :java])
 end

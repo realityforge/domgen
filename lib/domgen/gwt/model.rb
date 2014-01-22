@@ -173,5 +173,6 @@ module Domgen
                               MessageParameter => Domgen::GWT::GwtEventParameter,
                               DataModule => Domgen::GWT::GwtModule,
                               Repository => Domgen::GWT::GwtApplication
-                            }, [])
+                            },
+                            [:java])
 end

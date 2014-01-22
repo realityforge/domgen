@@ -193,11 +193,14 @@ module Domgen
   end
 
   FacetManager.define_facet(:jaxrs,
-                            Service => Domgen::JaxRS::JaxRsClass,
-                            Method => Domgen::JaxRS::JaxRsMethod,
-                            Parameter => Domgen::JaxRS::JaxRsParameter,
-                            Exception => Domgen::JaxRS::JaxRsException,
-                            Result => Domgen::JaxRS::JaxRsReturn,
-                            DataModule => Domgen::JaxRS::JaxRsPackage,
-                            Repository => Domgen::JaxRS::JaxRsApplication)
+                            {
+                              Service => Domgen::JaxRS::JaxRsClass,
+                              Method => Domgen::JaxRS::JaxRsMethod,
+                              Parameter => Domgen::JaxRS::JaxRsParameter,
+                              Exception => Domgen::JaxRS::JaxRsException,
+                              Result => Domgen::JaxRS::JaxRsReturn,
+                              DataModule => Domgen::JaxRS::JaxRsPackage,
+                              Repository => Domgen::JaxRS::JaxRsApplication
+                            },
+                            [:ee])
 end
