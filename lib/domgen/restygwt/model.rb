@@ -167,5 +167,6 @@ module Domgen
                               Result => Domgen::RestGWT::RestGwtReturn,
                               DataModule => Domgen::RestGWT::RestGwtModule,
                               Repository => Domgen::RestGWT::RestGwtApplication
-                            }, [:gwt, :jaxrs])
+                            },
+                            [:gwt, :jaxrs])
 end

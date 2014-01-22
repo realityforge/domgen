@@ -183,6 +183,7 @@ module Domgen
 
     class ImitationApplication < Domgen.ParentedElement(:repository)
       include Domgen::Java::ClientJavaApplication
+
       attr_writer :async_callback_name
 
       def async_callback_name

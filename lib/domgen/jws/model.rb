@@ -157,7 +157,5 @@ module Domgen
                               DataModule => Domgen::JWS::JwsPackage,
                               Repository => Domgen::JWS::JwsApplication
                             },
-                            [
-                              :jaxb
-                            ])
+                            [:jaxb])
 end
