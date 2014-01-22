@@ -264,26 +264,12 @@ module Domgen
       end
     end
 
-    module JavaPackage
-      attr_writer :entity_package
-
-      def entity_package
-        @entity_package || "#{parent_facet.entity_package}.#{package_key}"
-      end
-
-      attr_writer :service_package
-
-      def service_package
-        @service_package || "#{parent_facet.service_package}.#{package_key}"
-      end
-
-      attr_writer :data_type_package
-
-      def data_type_package
-        @data_type_package || "#{parent_facet.data_type_package}.#{package_key}"
-      end
-
+    module BaseJavaPackage
       protected
+
+      def resolve_package(package_type)
+        (data_module.name == data_module.repository.name) ? parent_facet.send(package_type) : "#{parent_facet.send(package_type)}.#{package_key}"
+      end
 
       def facet_key
         raise "facet_key unimplemented"
@@ -295,6 +281,28 @@ module Domgen
 
       def package_key
         Domgen::Naming.underscore(data_module.name)
+      end
+    end
+
+    module JavaPackage
+      include BaseJavaPackage
+
+      attr_writer :entity_package
+
+      def entity_package
+        @entity_package || resolve_package(:entity_package)
+      end
+
+      attr_writer :service_package
+
+      def service_package
+        @service_package || resolve_package(:service_package)
+      end
+
+      attr_writer :data_type_package
+
+      def data_type_package
+        @data_type_package || resolve_package(:data_type_package)
       end
     end
 
@@ -319,72 +327,60 @@ module Domgen
     end
 
     module ClientServerJavaPackage
+      include BaseJavaPackage
+
       attr_writer :shared_entity_package
 
       def shared_entity_package
-        @shared_entity_package || "#{parent_facet.shared_entity_package}.#{package_key}"
+        @shared_entity_package || resolve_package(:shared_entity_package)
       end
 
       attr_writer :shared_service_package
 
       def shared_service_package
-        @shared_service_package || "#{parent_facet.shared_service_package}.#{package_key}"
+        @shared_service_package || resolve_package(:shared_service_package)
       end
 
       attr_writer :shared_data_type_package
 
       def shared_data_type_package
-        @shared_data_type_package || "#{parent_facet.shared_data_type_package}.#{package_key}"
+        @shared_data_type_package || resolve_package(:shared_data_type_package)
       end
 
       attr_writer :client_entity_package
 
       def client_entity_package
-        @client_entity_package || "#{parent_facet.client_entity_package}.#{package_key}"
+        @client_entity_package || resolve_package(:client_entity_package)
       end
 
       attr_writer :client_service_package
 
       def client_service_package
-        @client_service_package || "#{parent_facet.client_service_package}.#{package_key}"
+        @client_service_package || resolve_package(:client_service_package)
       end
 
       attr_writer :client_data_type_package
 
       def client_data_type_package
-        @client_data_type_package || "#{parent_facet.client_data_type_package}.#{package_key}"
+        @client_data_type_package || resolve_package(:client_data_type_package)
       end
 
       attr_writer :server_entity_package
 
       def server_entity_package
-        @server_entity_package || "#{parent_facet.server_entity_package}.#{package_key}"
+        @server_entity_package || resolve_package(:server_entity_package)
       end
 
       attr_writer :server_service_package
 
       def server_service_package
-        @server_service_package || "#{parent_facet.server_service_package}.#{package_key}"
+        @server_service_package || resolve_package(:server_service_package)
       end
 
       attr_writer :server_data_type_package
 
       def server_data_type_package
-        @server_data_type_package || "#{parent_facet.server_data_type_package}.#{package_key}"
-      end
-
-      protected
-
-      def facet_key
-        raise "facet_key unimplemented"
-      end
-
-      def parent_facet
-        data_module.repository.send(facet_key)
-      end
-
-      def package_key
-        Domgen::Naming.underscore(data_module.name)
+        @server_data_type_package || resolve_package(:server_data_type_package)
       end
     end
 
