@@ -120,13 +120,13 @@ module Domgen
       attr_writer :client_data_type_package
 
       def client_data_type_package
-        @client_data_type_package || "#{parent_facet.client_data_type_package}.#{package_key}"
+        @client_data_type_package || resolve_package(:client_data_type_package)
       end
 
       attr_writer :client_event_package
 
       def client_event_package
-        @client_event_package || "#{parent_facet.client_event_package}.#{package_key}"
+        @client_event_package || resolve_package(:client_event_package)
       end
 
       protected
