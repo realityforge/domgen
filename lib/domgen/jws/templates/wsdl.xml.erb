@@ -2,11 +2,16 @@
    methods = service.methods.select{|m| m.jws?}
    exceptions = methods.collect{|m|m.exceptions}.flatten.uniq
    structs = {}
+   enums = {}
    methods.each do |m|
      m.parameters.select { |p| p.struct? }.each do |p|
        structs[p.referenced_struct.qualified_name] = p.referenced_struct
      end
+     m.parameters.select { |p| p.enumeration? }.each do |p|
+       enums[p.enumeration.qualified_name] = p.enumeration
+     end
      structs[m.result.referenced_struct.qualified_name] = m.result.referenced_struct if m.result.struct?
+     enums[m.result.enumeration.qualified_name] = m.result.enumeration if m.result.enumeration?
    end
    to_process = structs.keys
    while !to_process.empty?
@@ -15,6 +20,9 @@
      struct.fields.select { |f| f.struct? && !structs[f.referenced_struct.qualified_name] }.each do |f|
        structs[f.referenced_struct.qualified_name] = f.referenced_struct
        to_process << f.referenced_struct.qualified_name
+     end
+     struct.fields.select { |f| f.enumeration? && !enums[f.enumeration.qualified_name]}.each do |f|
+       enums[f.enumeration.qualified_name] = f.enumeration
      end
    end
 
@@ -53,6 +61,16 @@
         <xs:attribute name="<%= field.xml.name %>" <%= xsd_type(field) %> <%= xsd_attribute_use(field) %>/>
 <% end -%>
       </xs:complexType>
+<% end -%>
+<% enums.values.each do |enum| -%>
+      <xs:element name="<%= enum.xml.name %>" type="tns:<%= enum.name %>"/>
+      <xs:simpleType name="<%= enum.name %>">
+        <xs:restriction base="xs:string">
+<% enum.values.each do |val| -%>
+          <xs:enumeration value="<%= val %>" />
+<% end -%>
+        </xs:restriction>
+      </xs:simpleType>
 <% end -%>
 <% exceptions.each do |exception| -%>
       <xs:element name="<%= exception.name %>" type="tns:<%= exception.jws.name %>"/>
