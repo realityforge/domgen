@@ -1,0 +1,8 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.entity_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+public enum <%= repository.imit.graph_enum_name %>
+{
+  <%= repository.imit.graphs.collect {|g| Domgen::Naming.uppercase_constantize(g.key) } .join(",\n  ") %>
+}

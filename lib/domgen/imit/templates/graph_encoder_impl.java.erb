@@ -10,43 +10,34 @@ package <%= repository.imit.encoder_package %>;
 public class <%= repository.imit.graph_encoder_impl_name %>
   implements <%= repository.imit.graph_encoder_name %>
 {
-  private final org.realityforge.replicant.server.EntityMessageGenerator _messageGenerator;
-
   @javax.inject.Inject
-  public <%= repository.imit.graph_encoder_impl_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageGenerator messageGenerator )
-  {
-    _messageGenerator = messageGenerator;
-  }
-<% repository.data_modules.select { |data_module| data_module.imit?  }.each do |data_module| -%>
+  private org.realityforge.replicant.server.EntityMessageGenerator _messageGenerator;
+
 <%
-  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
-    outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable?}
-    replication_modes = outgoing_links.select{|a| a.inverse.imit?}.collect{|a| a.inverse.imit.replication_modes }
-    replication_modes = replication_modes.flatten.sort.uniq
--%>
-<% if entity.imit.replication_root? -%>
-  public void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
+  repository.imit.graphs.select{|graph| graph.instance_root? }.each do |graph|
+    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+%>
+  @Override
+  public void encode<%= graph.key %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
   {
-    encode<%= entity.name %>( messages, object, Mode.DEFAULT );
+    _encode<%= graph.key %>_<%= entity.name %>( messages, object );
   }
-<% end %>
-  <%= entity.imit.replication_root? ? "public" : "private" %> void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object, @javax.annotation.Nonnull final Mode mode )
+
+<%
+  graph.reachable_entities.collect{|n|repository.data_modules[0].entity_by_name(n)}.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+    outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.key)}
+-%>
+  private void _encode<%= graph.key %>_<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
   {
     encodeObject( messages, object );
-<%
-  replication_modes.each do |replication_mode|
--%>    if( Mode.<%= Domgen::Naming.uppercase_constantize(replication_mode) %> == mode )
-    {
 <%
     outgoing_links.each do |a|
       if a.inverse.multiplicity == :many
 -%>
-      {
-        for ( final <%= a.entity.jpa.qualified_name %> o : object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>() )
-        {
-          encode<%= a.entity.name %>( messages, o, mode );
-        }
-      }
+    for ( final <%= a.entity.jpa.qualified_name %> o : object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>() )
+    {
+      _encode<%= graph.key %>_<%= a.entity.name %>( messages, o );
+    }
 <%
       elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
 -%>
@@ -60,20 +51,10 @@ public class <%= repository.imit.graph_encoder_impl_name %>
 <%
       end
     end
--%>
-    }
-    else <%
-  end
-  if 0 != replication_modes.size
 %>
-    {
-      throw new IllegalArgumentException("Unknown mode " + mode);
-    }
-<% end -%>
   }
-<%
-  end
-end -%>
+<% end -%>
+<% end %>
 
   public void encodeObjects( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final java.util.List objects )
   {

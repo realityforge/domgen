@@ -1,0 +1,64 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.encoder_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.imit.session_name %>
+  extends org.realityforge.ssf.SimpleSessionInfo
+{
+  private final org.realityforge.replicant.server.transport.PacketQueue _queue = new org.realityforge.replicant.server.transport.PacketQueue();
+<%
+  repository.imit.graphs.each do |graph|
+    if graph.instance_root?
+      entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+%>
+  private final java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>> _interestedIn<%= graph.key %> = new java.util.HashSet<>();
+<% else -%>
+  private boolean _interestedIn<%= graph.key %>;
+<%
+    end
+  end
+%>
+  public <%= repository.imit.session_name %>( @javax.annotation.Nonnull final String sessionID )
+  {
+    super( sessionID );
+  }
+
+  public final org.realityforge.replicant.server.transport.PacketQueue getQueue()
+  {
+    return _queue;
+  }
+
+<%
+  repository.imit.graphs.each do |graph|
+    if graph.instance_root?
+      entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+%>
+  public final void registerInterestIn<%= graph.key %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  {
+    _interestedIn<%= graph.key %>.add( id );
+  }
+
+  public final void deregisterInterestIn<%= graph.key %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  {
+    _interestedIn<%= graph.key %>.remove( id );
+  }
+
+  public final boolean is<%= graph.key %>Interesting( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  {
+    return _interestedIn<%= graph.key %>.contains( id );
+  }
+<% else -%>
+  public final boolean isInterestedIn<%= graph.key %>()
+  {
+    return _interestedIn<%= graph.key %>;
+  }
+
+  public final void setInterestedIn<%= graph.key %>( final boolean v )
+  {
+    _interestedIn<%= graph.key %> = v;
+  }
+<%
+    end
+  end
+%>
+}

@@ -1,0 +1,69 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.entity_package %>;
+
+import org.realityforge.replicant.client.transport.SubscriptionEntry;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.imit.subscription_manager_impl_name %>
+  extends org.realityforge.replicant.client.transport.AbstractSubscriptionManager<<%= repository.imit.qualified_graph_enum_name %>>
+  implements <%= repository.imit.qualified_subscription_manager_name %>
+{
+  private final <%= repository.imit.qualified_remote_subscription_manager_name %> _remote;
+
+  public <%= repository.imit.subscription_manager_impl_name %>( final <%= repository.imit.qualified_remote_subscription_manager_name %> remote )
+  {
+    _remote = remote;
+  }
+<%
+  repository.imit.graphs.each do |graph|
+  param = ''
+  param_value = ''
+  param_early_value = ''
+  subscribe_method = 'Type'
+  if graph.instance_root?
+    # Names are fully qualified so take any random data module
+    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+    type = entity.primary_key.imit.primitive_java_type
+    param = "#{type} id"
+    param_value = ', id'
+    param_early_value = 'id, '
+    subscribe_method = 'Instance'
+  end
+%>
+  public void subscribeTo<%= graph.key %>(<%= param %>)
+  {
+    final SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>> entry =
+      subscribeTo<%= subscribe_method %>Graph( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %><%= param_value %> );
+    if( null != entry )
+    {
+      _remote.remoteSubscribeTo<%= graph.key %>( <%= param_early_value %>new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          entry.markAsPresent();
+        }
+      } );
+    }
+  }
+
+  public void unsubscribeFrom<%= graph.key %>(<%= param %>)
+  {
+    final SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>> entry =
+      unsubscribeFrom<%= subscribe_method %>Graph( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %><%= param_value %> );
+    if( null != entry )
+    {
+      entry.markDeregisterInProgress();
+      _remote.remoteUnsubscribeFrom<%= graph.key %>( <%= param_early_value %>new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          entry.markAsDeregistered();
+        }
+      } );
+    }
+  }
+<% end %>
+}

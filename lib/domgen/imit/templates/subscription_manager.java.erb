@@ -1,0 +1,20 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.entity_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public interface <%= repository.imit.subscription_manager_name %>
+{<%
+  repository.imit.graphs.each do |graph|
+  param = ''
+  if graph.instance_root?
+    # Names are fully qualified so take any random data module
+    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+    type = entity.primary_key.imit.primitive_java_type
+    param = "#{type} id"
+  end
+%>
+  void subscribeTo<%= graph.key %>(<%= param %>);
+
+  void unsubscribeFrom<%= graph.key %>(<%= param %>);
+<% end %>}

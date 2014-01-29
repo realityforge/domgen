@@ -1,0 +1,124 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.encoder_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= repository.imit.session_manager_name %>
+  extends org.realityforge.ssf.InMemorySessionManager<<%= repository.imit.qualified_session_name %>>
+  implements org.realityforge.replicant.server.EntityMessageEndpoint
+{
+  @javax.inject.Inject
+  private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
+
+  @javax.annotation.Nonnull
+  protected final <%= repository.imit.qualified_graph_encoder_name %> getEncoder()
+  {
+    return _encoder;
+  }
+
+  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+  @Override
+  public void saveEntityMessages( @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> messages )
+  {
+    //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
+    final java.util.Map<String, <%= repository.imit.qualified_session_name %>> sessions = getSessions();
+    final org.realityforge.replicant.server.transport.EntityMessageAccumulator accumulator = new org.realityforge.replicant.server.transport.EntityMessageAccumulator();
+    synchronized ( sessions )
+    {
+      final java.util.Collection<<%= repository.imit.qualified_session_name %>> values = sessions.values();
+      for ( final org.realityforge.replicant.server.EntityMessage message : messages )
+      {
+        final java.util.Map<String, java.io.Serializable> routingKeys = message.getRoutingKeys();
+<%
+  repository.imit.graphs.each do |graph|
+
+  param = ''
+  type = 'Boolean'
+  check_method = "isInterestedIn#{graph.key}"
+  if graph.instance_root?
+    # Names are fully qualified so take any random data module
+    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+    type = entity.primary_key.imit.non_primitive_java_type
+    param = " #{graph.key} "
+    check_method = "is#{graph.key}Interesting"
+  end
+%>
+
+        final <%= type %> <%= graph.key %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%=Domgen::Naming.uppercase_constantize(graph.key)%>_KEY );
+        if ( null != <%= graph.key %> )
+        {
+          for ( final <%= repository.imit.qualified_session_name %> session : values )
+          {
+            if ( session.<%= check_method %>(<%= param %> ))
+            {
+              accumulator.addEntityMessage( session.getQueue(), message );
+            }
+          }
+        }
+<% end %>
+      }
+    }
+
+    accumulator.complete();
+  }
+
+  @javax.annotation.Nonnull
+  @Override
+  protected <%= repository.imit.qualified_session_name %> newSessionInfo()
+  {
+    return new <%= repository.imit.qualified_session_name %>( java.util.UUID.randomUUID().toString() );
+  }
+
+  @javax.annotation.Nonnull
+  protected final <%= repository.imit.qualified_session_name %> ensureSession( @javax.annotation.Nonnull final String clientID )
+    throws org.realityforge.replicant.server.transport.BadSessionException
+  {
+    final <%= repository.imit.qualified_session_name %> session = getSession( clientID );
+    if ( null == session )
+    {
+      throw new org.realityforge.replicant.server.transport.BadSessionException();
+    }
+    return session;
+  }
+<%
+  repository.imit.graphs.each do |graph|
+
+  param = ''
+  register_method = "setInterestedIn#{graph.key}( true )"
+  deregister_method = "setInterestedIn#{graph.key}( false )"
+  check_method = "isInterestedIn#{graph.key}()"
+  if graph.instance_root?
+    # Names are fully qualified so take any random data module
+    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+    param = ", @javax.annotation.Nonnull final #{entity.jpa.qualified_name} entity"
+    register_method = "registerInterestIn#{graph.key}( entity.#{getter_for(entity.primary_key)} )"
+    deregister_method = "deregisterInterestIn#{graph.key}( entity.#{getter_for(entity.primary_key)} )"
+    check_method = "is#{graph.key}Interesting( entity.#{getter_for(entity.primary_key)} )"
+  end
+%>
+  public void subscribeTo<%= graph.key %>( @javax.annotation.Nonnull final String sessionID<%= param %> )
+  {
+    final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
+    if ( !session.<%= check_method %> )
+    {
+      session.<%= register_method %>;
+      final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages = new java.util.LinkedList<>();
+<% if graph.instance_root? -%>
+      getEncoder().encode<%= graph.key %>( messages, entity );
+<% else -%>
+      collect<%= graph.key %>( messages );
+<% end -%>
+      session.getQueue().addPacket( messages );
+    }
+  }
+
+<% if !graph.instance_root? -%>
+  protected abstract void collect<%= graph.key %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages );
+<% end -%>
+
+  public void unsubscribeFrom<%= graph.key %>( @javax.annotation.Nonnull final String sessionID<%= param %> )
+    throws org.realityforge.replicant.server.transport.BadSessionException
+  {
+    ensureSession( sessionID ).<%= deregister_method %>;
+  }
+<% end %>
+}

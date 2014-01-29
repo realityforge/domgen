@@ -8,28 +8,13 @@ package <%= repository.imit.encoder_package %>;
 public interface <%= repository.imit.graph_encoder_name %>
 {
 <%
-replication_modes = []
-repository.data_modules.select { |data_module| data_module.imit?  }.each do |data_module|
-  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
-  replication_modes.concat entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side?}.collect{|a| a.inverse.imit.replication_modes }.flatten
-  end
-end
-replication_modes = replication_modes.flatten.sort.uniq
+  repository.imit.graphs.select{|graph| graph.instance_root? }.each do |graph|
+    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
 %>
-  enum Mode
-  {
-    <%= replication_modes.collect{|replication_mode|Domgen::Naming.uppercase_constantize(replication_mode) }.join(", ") %>
-  }
-
-<% repository.data_modules.select { |data_module| data_module.imit?  }.each do |data_module| -%>
-<% data_module.entities.select { |entity| entity.imit? && !entity.abstract? && entity.imit.replication_root? }.each do |entity| %>
-  void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object );
-  void encode<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object, @javax.annotation.Nonnull final Mode mode );
-<% end -%>
-<% end -%>
-
-    /**
-     * Helper method useful when manually creating bulk loads.
-     */
-   void encodeObjects( @javax.annotation.Nonnull java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull java.util.List objects );
+  void encode<%= graph.key %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object );
+<% end %>
+  /**
+   * Helper method useful when manually creating bulk loads.
+   */
+  void encodeObjects( @javax.annotation.Nonnull java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull java.util.List objects );
 }

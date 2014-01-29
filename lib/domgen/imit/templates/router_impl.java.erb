@@ -1,0 +1,47 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.encoder_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.enterprise.context.Dependent
+public class <%= repository.imit.router_impl_name %>
+  implements <%= repository.imit.qualified_router_interface_name %>
+{
+<%
+  repository.imit.graphs.each do |graph|
+    key = "#{Domgen::Naming.uppercase_constantize(graph.key)}_KEY"
+%>
+  public static final String <%= key %> = "<%= repository.name %>.<%= graph.key %>";
+<% end %>
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+    outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable?}
+ -%>
+  @javax.annotation.Nonnull
+  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
+  {
+    final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<>();
+<% entity.imit.replication_graphs.each do |graph| %>
+    _route<%= graph.key %>_<%= entity.name %>( map, entity );
+<% end %>
+    return map;
+  }
+
+<%
+  entity.imit.replication_graphs.each do |graph| %>
+  private void _route<%= graph.key %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
+  {
+<% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s %>
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.key) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
+<% elsif graph.instance_root? %>
+<% outgoing_links.each do |outgoing_link| %>
+    _route<%= graph.key %>_<%= outgoing_link.referenced_entity.name %>( map, entity.<%= getter_for(outgoing_link) %> );
+<% end %>
+<% else %>
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.key) %>_KEY, Boolean.TRUE );
+<% end %>
+  }
+<% end %>
+<% end %>
+<% end -%>
+}
