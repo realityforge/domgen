@@ -108,6 +108,14 @@ module Domgen
     end
 
     class ImitationMethod < Domgen.ParentedElement(:method)
+
+      def bulk_load=(bulk_load)
+        @bulk_load = !!bulk_load
+      end
+
+      def bulk_load?
+        @bulk_load.nil? ? false : @bulk_load
+      end
     end
 
     class ImitationException < Domgen.ParentedElement(:exception)

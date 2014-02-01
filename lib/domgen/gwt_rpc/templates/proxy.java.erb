@@ -56,7 +56,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   final org.realityforge.replicant.client.transport.RequestEntry request;
   if( null != session )
   {
-    request = session.getRequestManager().newRequestRegistration( false );
+    request = session.getRequestManager().newRequestRegistration( <%= method.imit.bulk_load? %> );
     org.realityforge.replicant.client.transport.SessionContext.setRequest( request );
   }
   else
