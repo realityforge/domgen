@@ -52,6 +52,7 @@ public class <%= service.gwt_rpc.proxy_name %>
     }
     <% if parameter.nullable? %>}<% end %>
   <% end %>
+<% if method.imit? %>
   final org.realityforge.replicant.client.transport.ClientSession session = org.realityforge.replicant.client.transport.SessionContext.getSession();
   final org.realityforge.replicant.client.transport.RequestEntry request;
   if( null != session )
@@ -63,6 +64,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   {
     request = null;
   }
+<% end %>
   _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect do |parameter|
   param_value = parameter.name
   if parameter.collection? && (parameter.enumeration? || parameter.struct?)
@@ -98,11 +100,13 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
           _callback.onFailure( caught );
         }
       };
+<% if method.imit? %>
       if( null != request && request.isExpectingResults() )
       {
         request.setNonNormalCompletionAction( runnable );
       }
       else
+<% end %>
       {
         runnable.run();
       }
@@ -169,17 +173,21 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
           _callback.onSuccess( result );
         }
       };
+<% if method.imit? %>
       if ( null != request && request.isExpectingResults() )
       {
         request.setNormalCompletionAction( runnable );
       }
       else
+<% end %>
       {
         runnable.run();
       }
     }
     });
+<% if method.imit? %>
     org.realityforge.replicant.client.transport.SessionContext.setRequest( null );
+<% end %>
   }
 
 <% end %>}
