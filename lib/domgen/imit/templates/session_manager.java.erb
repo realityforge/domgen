@@ -9,6 +9,9 @@ public abstract class <%= repository.imit.session_manager_name %>
   @javax.inject.Inject
   private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
 
+  @javax.annotation.Resource
+  private javax.transaction.TransactionSynchronizationRegistry _registry;
+
   @javax.annotation.Nonnull
   protected final <%= repository.imit.qualified_graph_encoder_name %> getEncoder()
   {
@@ -17,7 +20,9 @@ public abstract class <%= repository.imit.session_manager_name %>
 
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
   @Override
-  public void saveEntityMessages( @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> messages )
+  public boolean saveEntityMessages( @javax.annotation.Nullable final String sessionID,
+                                     @javax.annotation.Nullable final String jobID,
+                                     @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> messages )
   {
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     final java.util.Map<String, <%= repository.imit.qualified_session_name %>> sessions = getSessions();
@@ -50,7 +55,7 @@ public abstract class <%= repository.imit.session_manager_name %>
           {
             if ( session.<%= check_method %>(<%= param %> ))
             {
-              accumulator.addEntityMessage( session.getQueue(), message );
+              accumulator.addEntityMessage( session, message );
             }
           }
         }
@@ -58,7 +63,7 @@ public abstract class <%= repository.imit.session_manager_name %>
       }
     }
 
-    accumulator.complete();
+    return accumulator.complete( sessionID, jobID );
   }
 
   @javax.annotation.Nonnull
@@ -107,7 +112,8 @@ public abstract class <%= repository.imit.session_manager_name %>
 <% else -%>
       collect<%= graph.key %>( messages );
 <% end -%>
-      session.getQueue().addPacket( messages );
+      final String jobID = (String) _registry.getResource( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY );
+      session.getQueue().addPacket( jobID, messages );
     }
   }
 
