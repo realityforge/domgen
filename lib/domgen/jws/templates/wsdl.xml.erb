@@ -43,7 +43,9 @@
       <xs:element name="<%= struct.xml.name %>" type="tns:<%= struct.name %>"/>
       <xs:complexType name="<%= struct.name %>">
 <% collections = struct.fields.select{|f| f.collection?} -%>
-<% if collections.size > 0 -%>
+<% non_collections = struct.fields.select{|f| !f.collection? && !f.struct?} -%>
+<% referenced_structs = struct.fields.select{|f| !f.collection? && f.struct?} -%>
+<% if collections.size > 0 || referenced_structs.size > 0 -%>
         <xs:sequence>
 <% collections.each do |field| -%>
           <xs:element name="<%= field.xml.name %>">
@@ -54,9 +56,11 @@
             </xs:complexType>
           </xs:element>
 <% end -%>
+<% referenced_structs.each do |struct| -%>
+          <xs:element name="<%= struct.xml.name %>" <%= xsd_type(struct)%> />
+<% end -%>
         </xs:sequence>
 <% end -%>
-<% non_collections = struct.fields.select{|f| !f.collection?} -%>
 <% non_collections.each do |field| -%>
         <xs:attribute name="<%= field.xml.name %>" <%= xsd_type(field) %> <%= xsd_attribute_use(field) %>/>
 <% end -%>
