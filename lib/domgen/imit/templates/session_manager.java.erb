@@ -21,7 +21,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
   @Override
   public boolean saveEntityMessages( @javax.annotation.Nullable final String sessionID,
-                                     @javax.annotation.Nullable final String jobID,
+                                     @javax.annotation.Nullable final String requestID,
                                      @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> messages )
   {
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
@@ -63,7 +63,7 @@ public abstract class <%= repository.imit.session_manager_name %>
       }
     }
 
-    return accumulator.complete( sessionID, jobID );
+    return accumulator.complete( sessionID, requestID );
   }
 
   @javax.annotation.Nonnull
@@ -112,8 +112,8 @@ public abstract class <%= repository.imit.session_manager_name %>
 <% else -%>
       collect<%= graph.key %>( messages );
 <% end -%>
-      final String jobID = (String) _registry.getResource( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY );
-      session.getQueue().addPacket( jobID, messages );
+      final String requestID = (String) _registry.getResource( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY );
+      session.getQueue().addPacket( requestID, messages );
     }
   }
 
