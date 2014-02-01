@@ -56,11 +56,6 @@ Domgen.template_set(:gwt_rpc_client_service) do |template_set|
                         'main/java/#{repository.gwt_rpc.qualified_rpc_services_module_name.gsub(".","/")}.java',
                         Domgen::Generator::GwtRpc::HELPERS)
   template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/request_builder.java.erb",
-                        'main/java/#{repository.gwt_rpc.qualified_request_builder_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
                         :service,
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/facade_service.java.erb",
                         'main/java/#{service.gwt_rpc.qualified_facade_service_name.gsub(".","/")}.java',

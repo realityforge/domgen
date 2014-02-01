@@ -179,16 +179,6 @@ module Domgen
         @module_name || Domgen::Naming.underscore(repository.name)
       end
 
-      attr_writer :request_builder_name
-
-      def request_builder_name
-        @request_builder_name || "#{repository.name}RequestBuilder"
-      end
-
-      def qualified_request_builder_name
-        "#{client_ioc_package}.#{request_builder_name}"
-      end
-
       attr_writer :rpc_services_module_name
 
       def rpc_services_module_name
