@@ -52,6 +52,17 @@ public class <%= service.gwt_rpc.proxy_name %>
     }
     <% if parameter.nullable? %>}<% end %>
   <% end %>
+  final org.realityforge.replicant.client.transport.ClientSession session = org.realityforge.replicant.client.transport.SessionContext.getSession();
+  final org.realityforge.replicant.client.transport.RequestEntry request;
+  if( null != session )
+  {
+    request = session.getRequestManager().newRequestRegistration( false );
+    org.realityforge.replicant.client.transport.SessionContext.setRequest( request );
+  }
+  else
+  {
+    request = null;
+  }
   _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect do |parameter|
   param_value = parameter.name
   if parameter.collection? && (parameter.enumeration? || parameter.struct?)
@@ -75,8 +86,26 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
     {
     public void onFailure( final Throwable caught )
     {
-      if( null != errorCallback ) errorCallback.onFailure( caught );
-      _callback.onFailure( caught );
+      final Runnable runnable = new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          if ( null != errorCallback )
+          {
+            errorCallback.onFailure( caught );
+          }
+          _callback.onFailure( caught );
+        }
+      };
+      if( null != request && request.isExpectingResults() )
+      {
+        request.setNonNormalCompletionAction( runnable );
+      }
+      else
+      {
+        runnable.run();
+      }
     }
 
     public void onSuccess( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
@@ -128,10 +157,29 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
       }
     }
   <% end %>
-      if( null != callback ) callback.onSuccess( <%= result_string %> );
-      _callback.onSuccess( result );
+      final Runnable runnable = new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          if ( null != callback )
+          {
+            callback.onSuccess( result );
+          }
+          _callback.onSuccess( result );
+        }
+      };
+      if ( null != request && request.isExpectingResults() )
+      {
+        request.setNormalCompletionAction( runnable );
+      }
+      else
+      {
+        runnable.run();
+      }
     }
-  });
+    });
+    org.realityforge.replicant.client.transport.SessionContext.setRequest( null );
   }
 
 <% end %>}
