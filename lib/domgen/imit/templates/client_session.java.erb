@@ -1,0 +1,19 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.entity_package %>;
+
+public class <%= repository.imit.client_session_name %>
+  extends org.realityforge.replicant.client.transport.ClientSession
+{
+  private final <%= repository.imit.qualified_subscription_manager_name %> _subscriptionManager;
+
+  public <%= repository.imit.client_session_name %>( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final <%= repository.imit.qualified_remote_subscription_manager_name %> subscriptionManager )
+  {
+    super( sessionID );
+    _subscriptionManager = new <%= repository.imit.qualified_subscription_manager_impl_name %>( subscriptionManager );
+  }
+
+  public <%= repository.imit.qualified_subscription_manager_name %> getSubscriptionManager()
+  {
+    return _subscriptionManager;
+  }
+}

@@ -302,6 +302,14 @@ module Domgen
         "#{entity_package}.#{change_mapper_name}"
       end
 
+      def client_session_name
+        "#{repository.name}ClientSession"
+      end
+
+      def qualified_client_session_name
+        "#{entity_package}.#{client_session_name}"
+      end
+
       def graph_enum_name
         "#{repository.name}ReplicationGraph"
       end
