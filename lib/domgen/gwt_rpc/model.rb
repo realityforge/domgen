@@ -89,13 +89,13 @@ module Domgen
       attr_writer :server_servlet_package
 
       def server_servlet_package
-        @server_servlet_package || "#{data_module.repository.gwt_rpc.server_servlet_package}.#{package_key}"
+        @server_servlet_package || resolve_package(:server_servlet_package)
       end
 
       protected
 
       def facet_key
-        :gwt
+        :gwt_rpc
       end
     end
 
