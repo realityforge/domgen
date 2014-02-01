@@ -3,9 +3,8 @@ package <%= repository.imit.encoder_package %>;
 
 @javax.annotation.Generated( "Domgen" )
 public class <%= repository.imit.session_name %>
-  extends org.realityforge.ssf.SimpleSessionInfo
+  extends org.realityforge.replicant.server.transport.ReplicantSession
 {
-  private final org.realityforge.replicant.server.transport.PacketQueue _queue = new org.realityforge.replicant.server.transport.PacketQueue();
 <%
   repository.imit.graphs.each do |graph|
     if graph.instance_root?
@@ -21,11 +20,6 @@ public class <%= repository.imit.session_name %>
   public <%= repository.imit.session_name %>( @javax.annotation.Nonnull final String sessionID )
   {
     super( sessionID );
-  }
-
-  public final org.realityforge.replicant.server.transport.PacketQueue getQueue()
-  {
-    return _queue;
   }
 
 <%
