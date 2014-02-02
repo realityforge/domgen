@@ -101,7 +101,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         }
       };
 <% if method.imit? %>
-      if( null != request && request.isExpectingResults() )
+      if( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
       {
         request.setNonNormalCompletionAction( runnable );
       }
@@ -174,7 +174,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         }
       };
 <% if method.imit? %>
-      if ( null != request && request.isExpectingResults() )
+      if ( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
       {
         request.setNormalCompletionAction( runnable );
       }
