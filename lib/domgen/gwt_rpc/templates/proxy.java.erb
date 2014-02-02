@@ -109,6 +109,12 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% end %>
       {
         runnable.run();
+<% if method.imit? %>
+        if ( null != session )
+        {
+          session.getRequestManager().removeRequest( request.getRequestID() );
+        }
+<% end %>
       }
     }
 
@@ -182,6 +188,12 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% end %>
       {
         runnable.run();
+<% if method.imit? %>
+        if ( null != session )
+        {
+          session.getRequestManager().removeRequest( request.getRequestID() );
+        }
+<% end %>
       }
     }
     });
