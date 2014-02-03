@@ -232,6 +232,15 @@ module Domgen
 
       attr_reader :key
 
+      def cacheable?
+        !!@cacheable
+      end
+
+      def cacheable=(cacheable)
+        # TODO: Make sure it is false for instance based
+        @cacheable = cacheable
+      end
+
       def instance_root?
         !@instance_root.nil?
       end

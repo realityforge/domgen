@@ -100,7 +100,13 @@ public abstract class <%= repository.imit.session_manager_name %>
     check_method = "is#{graph.key}Interesting( entity.#{getter_for(entity.primary_key)} )"
   end
 %>
-  public void subscribeTo<%= graph.key %>( @javax.annotation.Nonnull final String sessionID<%= param %> )
+<% if graph.cacheable? -%>
+  private java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> _cached<%= graph.key %>Messages;
+  private final java.util.concurrent.locks.ReadWriteLock _lock<%= graph.key %>Cache = new java.util.concurrent.locks.ReentrantReadWriteLock();
+  private String _cached<%= graph.key %>Key;
+<% end -%>
+
+  public void subscribeTo<%= graph.key %>( @javax.annotation.Nonnull final String sessionID<%= param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
     if ( !session.<%= check_method %> )
@@ -110,14 +116,43 @@ public abstract class <%= repository.imit.session_manager_name %>
 <% if graph.instance_root? -%>
       getEncoder().encode<%= graph.key %>( messages, entity );
 <% else -%>
+<% if graph.cacheable? -%>
+    final java.util.concurrent.locks.Lock readLock = _lock<%= graph.key %>Cache.readLock();
+    final String cached<%= graph.key %>Key = get<%= graph.key %>CacheKey();
+    if ( null == _cachedMetaDataMessages || ( null == cached<%= graph.key %>Key || !cached<%= graph.key %>Key.equals( _cached<%= graph.key %>Key ) ) )
+    {
+      final java.util.concurrent.locks.Lock writeLock = _lock<%= graph.key %>Cache.writeLock();
+      try
+      {
+        _cached<%= graph.key %>Key = cached<%= graph.key %>Key;
+        _cached<%= graph.key %>Messages = new java.util.LinkedList<>();
+        collect<%= graph.key %>( _cached<%= graph.key %>Messages );
+      }
+      finally
+      {
+        writeLock.unlock();
+      }
+    }
+    readLock.unlock();
+    messages.addAll( _cached<%= graph.key %>Messages );
+<% else -%>
       collect<%= graph.key %>( messages );
 <% end -%>
-      final String requestID = (String) _registry.getResource( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY );
-      session.getQueue().addPacket( requestID, messages );
+<% end -%>
+<% if graph.cacheable? -%>
+      if( null == cacheKey || !cacheKey.equals( _cached<%= graph.key %>Key ) )
+<% end -%>
+      {
+        final String requestID = (String) _registry.getResource( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY );
+        session.getQueue().addPacket( requestID, messages );
+      }
     }
   }
 
 <% if !graph.instance_root? -%>
+<% if graph.cacheable? -%>
+  protected abstract String get<%= graph.key %>CacheKey();
+<% end -%>
   protected abstract void collect<%= graph.key %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages );
 <% end -%>
 
