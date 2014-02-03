@@ -170,7 +170,7 @@ module Domgen
 
       def replication_graphs
         entity.data_module.repository.imit.graphs.select do |graph|
-          (graph.instance_root? && graph.reachable_entities.include?(entity.name.to_s)) ||
+          (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
             (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s))
         end
       end
