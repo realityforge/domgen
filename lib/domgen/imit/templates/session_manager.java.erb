@@ -25,9 +25,10 @@ public abstract class <%= repository.imit.session_manager_name %>
                                      @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> messages )
   {
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
+    getLock().readLock().lock();
     final java.util.Map<String, <%= repository.imit.qualified_session_name %>> sessions = getSessions();
     final org.realityforge.replicant.server.transport.EntityMessageAccumulator accumulator = new org.realityforge.replicant.server.transport.EntityMessageAccumulator();
-    synchronized ( sessions )
+    try
     {
       final java.util.Collection<<%= repository.imit.qualified_session_name %>> values = sessions.values();
       for ( final org.realityforge.replicant.server.EntityMessage message : messages )
@@ -61,6 +62,10 @@ public abstract class <%= repository.imit.session_manager_name %>
         }
 <% end %>
       }
+    }
+    finally
+    {
+      getLock().readLock().unlock();
     }
 
     return accumulator.complete( sessionID, requestID );
