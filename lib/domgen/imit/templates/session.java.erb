@@ -27,6 +27,11 @@ public class <%= repository.imit.session_name %>
     if graph.instance_root?
       entity = repository.data_modules[0].entity_by_name(graph.instance_root)
 %>
+  public java.util.Set<Integer> getInterestedIn<%= graph.key %>()
+  {
+    return java.util.Collections.unmodifiableSet( _interestedIn<%= graph.key %> );
+  }
+
   public final void registerInterestIn<%= graph.key %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
   {
     _interestedIn<%= graph.key %>.add( id );
