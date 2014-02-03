@@ -134,18 +134,20 @@ public abstract class <%= repository.imit.session_manager_name %>
       }
     }
     readLock.unlock();
-    messages.addAll( _cached<%= graph.key %>Messages );
 <% else -%>
       collect<%= graph.key %>( messages );
 <% end -%>
 <% end -%>
 <% if graph.cacheable? -%>
       if( null == cacheKey || !cacheKey.equals( _cached<%= graph.key %>Key ) )
-<% end -%>
       {
+        messages.addAll( _cached<%= graph.key %>Messages );
+<% end -%>
         final String requestID = (String) _registry.getResource( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY );
         session.getQueue().addPacket( requestID, messages );
+<% if graph.cacheable? -%>
       }
+<% end -%>
     }
   }
 
