@@ -486,11 +486,11 @@ module Domgen
           entity_list = [repository.data_modules[0].entity_by_name(graph.instance_root)]
           while entity_list.size > 0
             entity = entity_list.pop
-            graph.reachable_entities << entity.name.to_s
+            graph.reachable_entities << entity.qualified_name.to_s
             entity.referencing_attributes.each do |a|
               if a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.key)
                 a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.key]
-                entity_list << a.entity unless graph.reachable_entities.include?(a.entity.name.to_s)
+                entity_list << a.entity unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
               end
             end
           end
