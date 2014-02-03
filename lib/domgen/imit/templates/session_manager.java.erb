@@ -117,11 +117,12 @@ public abstract class <%= repository.imit.session_manager_name %>
       getEncoder().encode<%= graph.key %>( messages, entity );
 <% else -%>
 <% if graph.cacheable? -%>
-    final java.util.concurrent.locks.Lock readLock = _lock<%= graph.key %>Cache.readLock();
+    _lock<%= graph.key %>Cache.readLock().lock();
     final String cached<%= graph.key %>Key = get<%= graph.key %>CacheKey();
     if ( null == _cachedMetaDataMessages || ( null == cached<%= graph.key %>Key || !cached<%= graph.key %>Key.equals( _cached<%= graph.key %>Key ) ) )
     {
-      final java.util.concurrent.locks.Lock writeLock = _lock<%= graph.key %>Cache.writeLock();
+      _lock<%= graph.key %>Cache.readLock().unlock();
+      _lock<%= graph.key %>Cache.writeLock().lock();
       try
       {
         _cached<%= graph.key %>Key = cached<%= graph.key %>Key;
@@ -130,10 +131,13 @@ public abstract class <%= repository.imit.session_manager_name %>
       }
       finally
       {
-        writeLock.unlock();
+        _lock<%= graph.key %>Cache.writeLock().unlock();
       }
     }
-    readLock.unlock();
+    else
+    {
+      _lock<%= graph.key %>Cache.readLock().unlock();
+    }
 <% else -%>
       collect<%= graph.key %>( messages );
 <% end -%>
