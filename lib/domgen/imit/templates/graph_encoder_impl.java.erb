@@ -45,7 +45,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
         final <%= a.entity.jpa.qualified_name %> o = object.get<%= a.inverse.name %>();
         <% if a.inverse.multiplicity == :zero_or_one %>if( null != o )<% end %>
         {
-          encode<%= a.entity.name %>( messages, o, mode );
+          _encode<%= graph.key %>_<%= a.entity.name %>( messages, o );
         }
       }
 <%
