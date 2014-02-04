@@ -20,6 +20,7 @@ public class <%= repository.imit.subscription_manager_impl_name %>
   param = ''
   param_value = ''
   param_early_value = ''
+  param_cache_value = ''
   subscribe_method = 'Type'
   if graph.instance_root?
     # Names are fully qualified so take any random data module
@@ -29,6 +30,8 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     param_value = ', id'
     param_early_value = 'id, '
     subscribe_method = 'Instance'
+  elsif graph.cacheable?
+    param_cache_value = 'eTag, content, '
   end
 %>
   public void subscribeTo<%= graph.key %>(<%= param %>)
@@ -37,7 +40,12 @@ public class <%= repository.imit.subscription_manager_impl_name %>
       subscribeTo<%= subscribe_method %>Graph( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %><%= param_value %> );
     if( null != entry )
     {
-      _context.remoteSubscribeTo<%= graph.key %>( <%= param_early_value %>new Runnable()
+<% if graph.cacheable? -%>
+      final org.realityforge.replicant.client.transport.CacheEntry cacheEntry = _context.getCacheService().lookup( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %>.name() );
+      final String eTag = null != cacheEntry ? cacheEntry.getETag() : null;
+      final String content = null != cacheEntry ? cacheEntry.getContent() : null;
+<% end -%>
+      _context.remoteSubscribeTo<%= graph.key %>( <%= param_cache_value %><%= param_early_value %>new Runnable()
       {
         @Override
         public void run()

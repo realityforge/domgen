@@ -7,14 +7,21 @@ public interface <%= repository.imit.client_session_context_name %>
 {<%
   repository.imit.graphs.each do |graph|
   param = ''
+  param_cache_value = ''
   if graph.instance_root?
     # Names are fully qualified so take any random data module
     entity = repository.data_modules[0].entity_by_name(graph.instance_root)
     type = entity.primary_key.imit.primitive_java_type
     param = "#{type} id, "
+  elsif graph.cacheable?
+    param_cache_value = "@javax.annotation.Nullable final String eTag, @javax.annotation.Nullable final String content, "
   end
 %>
-  void remoteSubscribeTo<%= graph.key %>( <%= param %><%= nullability_annotation(false) %> Runnable runnable );
+  void remoteSubscribeTo<%= graph.key %>( <%= param_cache_value %><%= param %><%= nullability_annotation(false) %> Runnable runnable );
 
   void remoteUnsubscribeFrom<%= graph.key %>( <%= param %><%= nullability_annotation(false) %> Runnable runnable );
-<% end %>}
+<% end %>
+<% if repository.imit.graphs.any? {|graph| graph.cacheable?} -%>
+  org.realityforge.replicant.client.transport.CacheService getCacheService();
+<% end -%>
+}

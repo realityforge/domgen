@@ -153,7 +153,7 @@ public abstract class <%= repository.imit.session_manager_name %>
         messages.addAll( _cached<%= graph.key %>Messages );
 <% end -%>
         final String requestID = (String) _registry.getResource( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY );
-        session.getQueue().addPacket( requestID, messages );
+        session.getQueue().addPacket( requestID, <%= graph.cacheable? ? "_cached#{graph.key}Key" : "null" %>, messages );
 <% if graph.cacheable? -%>
       }
 <% end -%>
