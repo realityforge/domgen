@@ -111,7 +111,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   private String _cached<%= graph.key %>Key;
 <% end -%>
 
-  public void subscribeTo<%= graph.key %>( @javax.annotation.Nonnull final String sessionID<%= param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
+  public <%= graph.cacheable? ? "boolean" : "void" %> subscribeTo<%= graph.key %>( @javax.annotation.Nonnull final String sessionID<%= param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
     if ( !session.<%= check_method %> )
@@ -156,9 +156,13 @@ public abstract class <%= repository.imit.session_manager_name %>
         org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY, "0" );
         session.getQueue().addPacket( requestID, <%= graph.cacheable? ? "_cached#{graph.key}Key" : "null" %>, messages );
 <% if graph.cacheable? -%>
+        return true;
       }
 <% end -%>
     }
+<% if graph.cacheable? -%>
+    return false;
+<% end -%>
   }
 
 <% if !graph.instance_root? -%>
