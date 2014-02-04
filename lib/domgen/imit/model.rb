@@ -116,6 +116,9 @@ module Domgen
       def bulk_load?
         @bulk_load.nil? ? false : @bulk_load
       end
+
+      # TODO: Remove this ugly hack!
+      attr_accessor :graph_to_subscribe
     end
 
     class ImitationException < Domgen.ParentedElement(:exception)
