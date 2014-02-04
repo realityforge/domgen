@@ -14,7 +14,7 @@ public interface <%= repository.imit.client_session_context_name %>
     type = entity.primary_key.imit.primitive_java_type
     param = "#{type} id, "
   elsif graph.cacheable?
-    param_cache_value = "@javax.annotation.Nullable final String eTag, @javax.annotation.Nullable final String content, "
+    param_cache_value = "@javax.annotation.Nullable final String eTag, @javax.annotation.Nonnull final Runnable cacheCurrentAction, "
   end
 %>
   void remoteSubscribeTo<%= graph.key %>( <%= param_cache_value %><%= param %><%= nullability_annotation(false) %> Runnable runnable );
@@ -23,5 +23,7 @@ public interface <%= repository.imit.client_session_context_name %>
 <% end %>
 <% if repository.imit.graphs.any? {|graph| graph.cacheable?} -%>
   org.realityforge.replicant.client.transport.CacheService getCacheService();
+
+  void loadCachedContent( <%= nullability_annotation(false) %> String changeSet, <%= nullability_annotation(false) %> Runnable runnable, boolean bulkChange );
 <% end -%>
 }

@@ -9,6 +9,8 @@ public class <%= repository.imit.subscription_manager_impl_name %>
   extends org.realityforge.replicant.client.transport.AbstractSubscriptionManager<<%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_subscription_manager_name %>
 {
+  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.subscription_manager_impl_name %>.class.getName() );
+
   private final <%= repository.imit.qualified_client_session_context_name %> _context;
 
   public <%= repository.imit.subscription_manager_impl_name %>( final <%= repository.imit.qualified_client_session_context_name %> context )
@@ -31,7 +33,7 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     param_early_value = 'id, '
     subscribe_method = 'Instance'
   elsif graph.cacheable?
-    param_cache_value = 'eTag, content, '
+    param_cache_value = 'eTag, cacheCurrentAction, '
   end
 %>
   public void subscribeTo<%= graph.key %>(<%= param %>)
@@ -40,19 +42,34 @@ public class <%= repository.imit.subscription_manager_impl_name %>
       subscribeTo<%= subscribe_method %>Graph( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %><%= param_value %> );
     if( null != entry )
     {
-<% if graph.cacheable? -%>
-      final org.realityforge.replicant.client.transport.CacheEntry cacheEntry = _context.getCacheService().lookup( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %>.name() );
-      final String eTag = null != cacheEntry ? cacheEntry.getETag() : null;
-      final String content = null != cacheEntry ? cacheEntry.getContent() : null;
-<% end -%>
-      _context.remoteSubscribeTo<%= graph.key %>( <%= param_cache_value %><%= param_early_value %>new Runnable()
+      final Runnable runnable = new Runnable()
       {
         @Override
         public void run()
         {
           entry.markAsPresent();
         }
-      } );
+      };
+<% if graph.cacheable? -%>
+      final org.realityforge.replicant.client.transport.CacheEntry cacheEntry = _context.getCacheService().lookup( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %>.name() );
+      final String eTag = null != cacheEntry ? cacheEntry.getETag() : null;
+      final String content = null != cacheEntry ? cacheEntry.getContent() : null;
+      if( null != content )
+      {
+        LOG.info( "Found locally cached data for graph <%= graph.key %> with etag " + eTag + "." );
+      }
+      final Runnable cacheCurrentAction = new Runnable()
+      {
+        public void run()
+        {
+          assert null != content;
+          LOG.info( "Loading cached data for graph <%= graph.key %> with etag " + eTag );
+          //TODO: Figure out how to make the bulkLoad configurable
+          _context.loadCachedContent( content, runnable, true );
+        }
+      };
+<% end -%>
+      _context.remoteSubscribeTo<%= graph.key %>( <%= param_cache_value %><%= param_early_value %>runnable );
     }
   }
 
