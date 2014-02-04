@@ -162,6 +162,11 @@ module Domgen
 
   class InverseElement < Domgen.FacetedElement(:attribute)
 
+    # A list of annotations to be added to the inverse relationship.
+    attr_accessor :annotations
+
+    attr_accessor :order_by
+
     def initialize(attribute, options, &block)
       super(attribute, options, &block)
     end

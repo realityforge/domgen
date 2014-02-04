@@ -15,6 +15,12 @@
 module Domgen
   module JPA
     module Helper
+
+      # Returns the name of a field to be used in validation messages.
+      def validation_field_name(attribute)
+        attribute.validation_field_name ?  attribute.validation_field_name : attribute.sql.column_name.to_s.gsub(/(.)([A-Z])/, '\1 \2')
+      end
+
       def j_jpa_field_attributes(attribute)
         s = ''
         s << "  @javax.persistence.Id\n" if attribute.primary_key?
@@ -24,7 +30,7 @@ module Domgen
         s << "  @javax.persistence.Basic( optional = #{attribute.nullable?}, fetch = javax.persistence.FetchType.EAGER )\n" unless attribute.reference?
         s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? "ORDINAL" : "STRING"} )\n" if attribute.enumeration?
         s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? "TIMESTAMP" : "DATE"} )\n" if attribute.datetime? || attribute.date?
-        s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
+        s << "  @javax.validation.constraints.NotNull( message = \"#{validation_field_name(attribute)} must be supplied\")\n" if !attribute.nullable? && !attribute.generated_value?
         s << nullable_annotate(attribute, '', true)
         if attribute.text?
           unless attribute.length.nil? && attribute.min_length.nil?
@@ -32,7 +38,22 @@ module Domgen
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
             s << ", " unless attribute.min_length.nil? || !attribute.has_non_max_length?
             s << "max = #{attribute.length} " if attribute.has_non_max_length?
+            s << ", message = \"#{validation_field_name(attribute)} "
+            if attribute.min_length.nil?
+              s << "must not be longer than {max} characters\""
+            elsif attribute.length.nil?
+              s << "must be at least {min} characters\""
+            elsif attribute.min_length == 0
+              s << "must not be more than {max} characters\""
+            else
+              s << "must be between {min} and {max} characters\""
+            end
             s << " )\n"
+          end
+        end
+        if attribute.annotations
+          attribute.annotations.each do |a|
+            s << "  #{a}\n"
           end
         end
         s
@@ -42,6 +63,12 @@ module Domgen
         s = ''
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
+        s << gen_order_by_if_specifified(attribute)
+        if attribute.inverse.annotations
+          attribute.inverse.annotations.each do |a|
+            s << "  #{a}\n"
+          end
+        end
         if attribute.inverse.multiplicity == :many
           s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(Domgen::Naming.camelize(attribute.inverse.name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
@@ -108,6 +135,16 @@ module Domgen
         fetch_mode = attribute.inverse.jpa.fetch_mode
         if fetch_mode
           "  @org.hibernate.annotations.Fetch( org.hibernate.annotations.FetchMode.#{fetch_mode.to_s.upcase} )\n"
+        else
+          ''
+        end
+      end
+
+      def gen_order_by_if_specified(attribute)
+        order_by = attribute.inverse.order_by
+        if order_by
+          suffix = order_by == '' ? '' : "( \"#{order_by}\" )"
+          "  @javax.persistence.OrderBy#{suffix}\n"
         else
           ''
         end

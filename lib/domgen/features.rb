@@ -17,6 +17,12 @@ module Domgen
   module Characteristic
     attr_reader :name
 
+    # A list of annotations to be added to the characteristic.
+    attr_accessor :annotations
+
+    # The name of the characteristic to be used in validation messages.
+    attr_accessor :validation_field_name
+
     def allows_length?
       text? || (enumeration? && enumeration.textual_values?)
     end
