@@ -6,10 +6,10 @@ public class <%= repository.imit.client_session_name %>
 {
   private final <%= repository.imit.qualified_subscription_manager_name %> _subscriptionManager;
 
-  public <%= repository.imit.client_session_name %>( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final <%= repository.imit.qualified_remote_subscription_manager_name %> subscriptionManager )
+  public <%= repository.imit.client_session_name %>( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_session_context_name %> context )
   {
     super( sessionID );
-    _subscriptionManager = new <%= repository.imit.qualified_subscription_manager_impl_name %>( subscriptionManager );
+    _subscriptionManager = new <%= repository.imit.qualified_subscription_manager_impl_name %>( context );
   }
 
   public <%= repository.imit.qualified_subscription_manager_name %> getSubscriptionManager()

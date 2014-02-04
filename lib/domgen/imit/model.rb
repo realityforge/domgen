@@ -407,12 +407,12 @@ module Domgen
         "#{entity_package}.#{subscription_manager_name}"
       end
 
-      def remote_subscription_manager_name
-        "#{repository.name}RemoteSubscriptionManager"
+      def client_session_context_name
+        "#{repository.name}ClientSessionContext"
       end
 
-      def qualified_remote_subscription_manager_name
-        "#{entity_package}.#{remote_subscription_manager_name}"
+      def qualified_client_session_context_name
+        "#{entity_package}.#{client_session_context_name}"
       end
 
       def subscription_manager_impl_name

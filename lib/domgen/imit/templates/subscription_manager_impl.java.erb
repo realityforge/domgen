@@ -9,11 +9,11 @@ public class <%= repository.imit.subscription_manager_impl_name %>
   extends org.realityforge.replicant.client.transport.AbstractSubscriptionManager<<%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_subscription_manager_name %>
 {
-  private final <%= repository.imit.qualified_remote_subscription_manager_name %> _remote;
+  private final <%= repository.imit.qualified_client_session_context_name %> _context;
 
-  public <%= repository.imit.subscription_manager_impl_name %>( final <%= repository.imit.qualified_remote_subscription_manager_name %> remote )
+  public <%= repository.imit.subscription_manager_impl_name %>( final <%= repository.imit.qualified_client_session_context_name %> context )
   {
-    _remote = remote;
+    _context = context;
   }
 <%
   repository.imit.graphs.each do |graph|
@@ -37,7 +37,7 @@ public class <%= repository.imit.subscription_manager_impl_name %>
       subscribeTo<%= subscribe_method %>Graph( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %><%= param_value %> );
     if( null != entry )
     {
-      _remote.remoteSubscribeTo<%= graph.key %>( <%= param_early_value %>new Runnable()
+      _context.remoteSubscribeTo<%= graph.key %>( <%= param_early_value %>new Runnable()
       {
         @Override
         public void run()
@@ -55,7 +55,7 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     if( null != entry )
     {
       entry.markDeregisterInProgress();
-      _remote.remoteUnsubscribeFrom<%= graph.key %>( <%= param_early_value %>new Runnable()
+      _context.remoteUnsubscribeFrom<%= graph.key %>( <%= param_early_value %>new Runnable()
       {
         @Override
         public void run()
