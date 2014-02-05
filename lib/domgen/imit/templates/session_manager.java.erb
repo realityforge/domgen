@@ -3,14 +3,10 @@ package <%= repository.imit.encoder_package %>;
 
 @javax.annotation.Generated( "Domgen" )
 public abstract class <%= repository.imit.session_manager_name %>
-  extends org.realityforge.ssf.InMemorySessionManager<<%= repository.imit.qualified_session_name %>>
-  implements org.realityforge.replicant.server.EntityMessageEndpoint
+  extends org.realityforge.replicant.server.transport.ReplicantSessionManager<<%= repository.imit.qualified_session_name %>>
 {
   @javax.inject.Inject
   private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
-
-  @javax.annotation.Resource
-  private javax.transaction.TransactionSynchronizationRegistry _registry;
 
   @javax.annotation.Nonnull
   protected final <%= repository.imit.qualified_graph_encoder_name %> getEncoder()
@@ -84,17 +80,6 @@ public abstract class <%= repository.imit.session_manager_name %>
     return new <%= repository.imit.qualified_session_name %>( java.util.UUID.randomUUID().toString() );
   }
 
-  @javax.annotation.Nonnull
-  protected final <%= repository.imit.qualified_session_name %> ensureSession( @javax.annotation.Nonnull final String clientID )
-    throws org.realityforge.replicant.server.transport.BadSessionException
-  {
-    final <%= repository.imit.qualified_session_name %> session = getSession( clientID );
-    if ( null == session )
-    {
-      throw new org.realityforge.replicant.server.transport.BadSessionException();
-    }
-    return session;
-  }
 <%
   repository.imit.graphs.each do |graph|
 
@@ -157,9 +142,7 @@ public abstract class <%= repository.imit.session_manager_name %>
       if( null == cacheKey || !cacheKey.equals( _cached<%= graph.key %>Key ) )
       {
         messages.addAll( _cached<%= graph.key %>Messages );
-        final String requestID = (String) _registry.getResource( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY );
-        org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY, "0" );
-        session.getQueue().addPacket( requestID, <%= graph.cacheable? ? "_cached#{graph.key}Key" : "null" %>, messages );
+        sendPacket( session, _cached<%= graph.key %>Key, messages );
         return true;
       }
 <% else -%>
