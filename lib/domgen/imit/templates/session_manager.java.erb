@@ -63,13 +63,10 @@ public abstract class <%= repository.imit.session_manager_name %>
         }
 <% end %>
       }
-      for ( final <%= repository.imit.qualified_session_name %> session : values )
+      final <%= repository.imit.qualified_session_name %> session = getSession( sessionID );
+      if( null != session )
       {
-        if ( session.getSessionID().equals( sessionID ) )
-        {
-          accumulator.addEntityMessages( session, sessionMessages );
-          break;
-        }
+        accumulator.addEntityMessages( session, messages );
       }
     }
     finally
