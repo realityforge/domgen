@@ -22,7 +22,8 @@ public abstract class <%= repository.imit.session_manager_name %>
   @Override
   public boolean saveEntityMessages( @javax.annotation.Nullable final String sessionID,
                                      @javax.annotation.Nullable final String requestID,
-                                     @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> messages )
+                                     @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> messages,
+                                     @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> sessionMessages )
   {
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     getLock().readLock().lock();
@@ -61,6 +62,14 @@ public abstract class <%= repository.imit.session_manager_name %>
           }
         }
 <% end %>
+      }
+      for ( final <%= repository.imit.qualified_session_name %> session : values )
+      {
+        if ( session.getSessionID().equals( sessionID ) )
+        {
+          accumulator.addEntityMessages( session, sessionMessages );
+          break;
+        }
       }
     }
     finally
