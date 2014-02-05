@@ -160,13 +160,13 @@ public abstract class <%= repository.imit.session_manager_name %>
       if( null == cacheKey || !cacheKey.equals( _cached<%= graph.key %>Key ) )
       {
         messages.addAll( _cached<%= graph.key %>Messages );
-<% end -%>
         final String requestID = (String) _registry.getResource( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY );
         org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY, "0" );
         session.getQueue().addPacket( requestID, <%= graph.cacheable? ? "_cached#{graph.key}Key" : "null" %>, messages );
-<% if graph.cacheable? -%>
         return true;
       }
+<% else -%>
+      org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet().mergeAll( messages );
 <% end -%>
     }
 <% if graph.cacheable? -%>
