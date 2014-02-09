@@ -18,7 +18,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
     entity = repository.data_modules[0].entity_by_name(graph.instance_root)
 %>
   @Override
-  public void encode<%= graph.key %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
+  public void encode<%= graph.key %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
   {
     _encode<%= graph.key %>_<%= entity.name %>( messages, object );
   }
@@ -27,7 +27,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
   graph.reachable_entities.collect{|n|repository.data_modules[0].entity_by_name(n)}.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
     outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.key)}
 -%>
-  private void _encode<%= graph.key %>_<%= entity.name %>( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
+  private void _encode<%= graph.key %>_<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
   {
     encodeObject( messages, object );
 <%
@@ -56,7 +56,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
 <% end -%>
 <% end %>
 
-  public void encodeObjects( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nonnull final java.util.List objects )
+  public void encodeObjects( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final java.util.List<?> objects )
   {
     for ( final Object object : objects )
     {
@@ -64,14 +64,14 @@ public class <%= repository.imit.graph_encoder_impl_name %>
     }
   }
 
-  private void encodeObject( @javax.annotation.Nonnull final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages, @javax.annotation.Nullable final Object object )
+  private void encodeObject( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nullable final Object object )
   {
     if ( null != object )
     {
       final org.realityforge.replicant.server.EntityMessage message = _messageGenerator.convertToEntityMessage( object, true );
       if ( null != message )
       {
-        messages.add( message );
+        messages.merge( message, true );
       }
     }
   }
