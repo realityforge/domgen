@@ -91,6 +91,8 @@ public class <%= data_module.imit.mapper_name %>
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :date
           "org.realityforge.gwt.datatypes.client.date.RDate.parse( change.getStringValue( #{key} ) )"
+        elsif attribute.imit.transport_characteristic_type_key == :datetime
+          "new java.util.Date( new java.math.BigDecimal( change.getStringValue( #{key} ) ).longValueExact() )"
         elsif attribute.imit.transport_characteristic_type_key == :integer
           "change.getIntegerValue( #{key} )"
         elsif attribute.imit.transport_characteristic_type_key == :real
