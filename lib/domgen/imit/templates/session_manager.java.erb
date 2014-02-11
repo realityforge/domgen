@@ -140,7 +140,7 @@ public abstract class <%= repository.imit.session_manager_name %>
 <% if graph.cacheable? -%>
       if( null == cacheKey || !cacheKey.equals( _cached<%= graph.key %>Key ) )
       {
-        final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages = new java.util.LinkedList<>();
+        final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages = new java.util.LinkedList<org.realityforge.replicant.server.EntityMessage>();
         messages.addAll( _cached<%= graph.key %>Messages.getEntityMessages() );
         sendPacket( session, _cached<%= graph.key %>Key, messages );
         return true;

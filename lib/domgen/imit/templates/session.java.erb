@@ -10,7 +10,7 @@ public class <%= repository.imit.session_name %>
     if graph.instance_root?
       entity = repository.data_modules[0].entity_by_name(graph.instance_root)
 %>
-  private final java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>> _interestedIn<%= graph.key %> = new java.util.HashSet<>();
+  private final java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>> _interestedIn<%= graph.key %> = new java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>>();
 <% else -%>
   private boolean _interestedIn<%= graph.key %>;
 <%
