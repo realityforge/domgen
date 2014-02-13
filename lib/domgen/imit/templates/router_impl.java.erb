@@ -13,6 +13,19 @@ public class <%= repository.imit.router_impl_name %>
   public static final String <%= key %> = "<%= repository.name %>.<%= graph.key %>";
 <% end %>
 <%
+  repository.data_modules.each do |data_module|
+    data_module.entities.each do |entity|
+      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.size > 0}.each do |attribute|
+        attribute.imit.filter_in_graphs.each do |graph_key|
+%>
+  public static final String <%= Domgen::Naming.uppercase_constantize(graph_key) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY = "<%= repository.name %>.<%= graph_key %>.<%= attribute.qualified_name %>";
+<%
+        end
+      end
+    end
+  end
+%>
+<%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
     outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable?}
@@ -31,6 +44,9 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   entity.imit.replication_graphs.each do |graph| %>
   private void _route<%= graph.key %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
   {
+<% entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.key)}.each do |attribute| %>
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.key) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY, entity.<%= getter_for(attribute) %> );
+<% end %>
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s %>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.key) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif graph.instance_root? %>

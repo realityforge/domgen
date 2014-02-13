@@ -51,6 +51,16 @@ module Domgen
         !attribute.reference? || attribute.referenced_entity.imit?
       end
 
+      def filter_in_graphs=(filter_in_graphs)
+        raise "filter_in_graphs should be an array of symbols" unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
+        raise "filter_in_graphs should only contain valid graphs" unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
+        @filter_in_graphs = filter_in_graphs
+      end
+
+      def filter_in_graphs
+        @filter_in_graphs || []
+      end
+
       include Domgen::Java::ImitJavaCharacteristic
 
       protected
@@ -174,7 +184,8 @@ module Domgen
       def replication_graphs
         entity.data_module.repository.imit.graphs.select do |graph|
           (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
-            (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s))
+            (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s)) ||
+            entity.attributes.any?{|a| a.imit? & a.imit.filter_in_graphs.include?(graph.key)}
         end
       end
 

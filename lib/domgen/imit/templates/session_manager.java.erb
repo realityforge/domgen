@@ -47,11 +47,30 @@ public abstract class <%= repository.imit.session_manager_name %>
 %>
 
         final <%= type %> <%= graph.key %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%=Domgen::Naming.uppercase_constantize(graph.key)%>_KEY );
+<%
+  extra_interest_filter = ''
+  repository.data_modules.each do |data_module|
+    data_module.entities.each do |entity|
+      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.key) }.each do |attribute|
+        var_name = "#{graph.key}#{attribute.qualified_name.gsub('.','_')}"
+        extra_interest_filter << ", #{var_name}"
+%>
+        final <%= attribute.imit.non_primitive_java_type %> <%= var_name %> = (<%= attribute.imit.non_primitive_java_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+<%
+      end
+    end
+  end
+
+  if !extra_interest_filter.empty?
+    extra_interest_filter = "&& is#{graph.key}Interesting( session#{graph.instance_root? ? ", #{graph.key}" : ''}#{extra_interest_filter} ) "
+  end
+%>
+
         if ( null != <%= graph.key %> )
         {
           for ( final <%= repository.imit.qualified_session_name %> session : values )
           {
-            if ( session.<%= check_method %>(<%= param %> ))
+            if ( session.<%= check_method %>(<%= param %> ) <%= extra_interest_filter %>)
             {
               accumulator.addEntityMessage( session, message );
             }
@@ -72,6 +91,33 @@ public abstract class <%= repository.imit.session_manager_name %>
 
     return accumulator.complete( sessionID, requestID );
   }
+<%
+  repository.imit.graphs.each do |graph|
+    extra_interest_filter = ''
+    repository.data_modules.each do |data_module|
+      data_module.entities.each do |entity|
+        entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.key) }.each do |attribute|
+          var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
+          extra_interest_filter << ", #{nullability_annotation(attribute.nullable?)} #{attribute.imit.non_primitive_java_type} #{var_name}"
+        end
+      end
+    end
+  initial_param = ''
+  check_method = "is#{graph.key}Interesting"
+  if graph.instance_root?
+    # Names are fully qualified so take any random data module
+    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+    type = entity.primary_key.imit.non_primitive_java_type
+    initial_param = ", #{type} #{Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")}"
+    check_method = "is#{graph.key}Interesting"
+  end
+  if extra_interest_filter.size > 0
+%>
+  protected abstract boolean <%= check_method %>( <%= repository.imit.qualified_session_name %> session<%= initial_param %><%= extra_interest_filter %> );
+<%
+  end
+end
+%>
 
   @javax.annotation.Nonnull
   @Override
