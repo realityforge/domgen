@@ -10,9 +10,9 @@ public class <%= repository.imit.session_name %>
     if graph.instance_root?
       entity = repository.data_modules[0].entity_by_name(graph.instance_root)
 %>
-  private final java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>> _interestedIn<%= graph.key %> = new java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>>();
+  private final java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>> _interestedIn<%= graph.name %> = new java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>>();
 <% else -%>
-  private boolean _interestedIn<%= graph.key %>;
+  private boolean _interestedIn<%= graph.name %>;
 <%
     end
   end
@@ -27,34 +27,34 @@ public class <%= repository.imit.session_name %>
     if graph.instance_root?
       entity = repository.data_modules[0].entity_by_name(graph.instance_root)
 %>
-  public java.util.Set<Integer> getInterestedIn<%= graph.key %>()
+  public java.util.Set<Integer> getInterestedIn<%= graph.name %>()
   {
-    return java.util.Collections.unmodifiableSet( _interestedIn<%= graph.key %> );
+    return java.util.Collections.unmodifiableSet( _interestedIn<%= graph.name %> );
   }
 
-  public final void registerInterestIn<%= graph.key %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  public final void registerInterestIn<%= graph.name %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
   {
-    _interestedIn<%= graph.key %>.add( id );
+    _interestedIn<%= graph.name %>.add( id );
   }
 
-  public final void deregisterInterestIn<%= graph.key %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  public final void deregisterInterestIn<%= graph.name %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
   {
-    _interestedIn<%= graph.key %>.remove( id );
+    _interestedIn<%= graph.name %>.remove( id );
   }
 
-  public final boolean is<%= graph.key %>Interesting( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  public final boolean is<%= graph.name %>Interesting( final <%= entity.primary_key.jpa.primitive_java_type %> id )
   {
-    return _interestedIn<%= graph.key %>.contains( id );
+    return _interestedIn<%= graph.name %>.contains( id );
   }
 <% else -%>
-  public final boolean isInterestedIn<%= graph.key %>()
+  public final boolean isInterestedIn<%= graph.name %>()
   {
-    return _interestedIn<%= graph.key %>;
+    return _interestedIn<%= graph.name %>;
   }
 
-  public final void setInterestedIn<%= graph.key %>( final boolean v )
+  public final void setInterestedIn<%= graph.name %>( final boolean v )
   {
-    _interestedIn<%= graph.key %> = v;
+    _interestedIn<%= graph.name %> = v;
   }
 <%
     end

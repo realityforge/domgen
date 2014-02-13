@@ -185,7 +185,7 @@ module Domgen
         entity.data_module.repository.imit.graphs.select do |graph|
           (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
             (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s)) ||
-            entity.attributes.any?{|a| a.imit? & a.imit.filter_in_graphs.include?(graph.key)}
+            entity.attributes.any?{|a| a.imit? & a.imit.filter_in_graphs.include?(graph.name)}
         end
       end
 
@@ -234,17 +234,17 @@ module Domgen
     end
 
     class ReplicationGraph < Domgen.ParentedElement(:application)
-      def initialize(application, key, options, &block)
-        @key = key
+      def initialize(application, name, options, &block)
+        @name = name
         @type_roots = []
         @instance_root = nil
-        application.send :register_graph, key, self
+        application.send :register_graph, name, self
         super(application, options, &block)
       end
 
       attr_reader :application
 
-      attr_reader :key
+      attr_reader :name
 
       def cacheable?
         !!@cacheable
@@ -511,8 +511,8 @@ module Domgen
             entity = entity_list.pop
             graph.reachable_entities << entity.qualified_name.to_s
             entity.referencing_attributes.each do |a|
-              if a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.key)
-                a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.key]
+              if a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
+                a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
                 entity_list << a.entity unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
               end
             end

@@ -36,37 +36,37 @@ public abstract class <%= repository.imit.session_manager_name %>
 
   param = ''
   type = 'Boolean'
-  check_method = "isInterestedIn#{graph.key}"
+  check_method = "isInterestedIn#{graph.name}"
   if graph.instance_root?
     # Names are fully qualified so take any random data module
     entity = repository.data_modules[0].entity_by_name(graph.instance_root)
     type = entity.primary_key.imit.non_primitive_java_type
-    param = " #{graph.key} "
-    check_method = "is#{graph.key}Interesting"
+    param = " #{graph.name} "
+    check_method = "is#{graph.name}Interesting"
   end
 %>
 
-        final <%= type %> <%= graph.key %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%=Domgen::Naming.uppercase_constantize(graph.key)%>_KEY );
+        final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%=Domgen::Naming.uppercase_constantize(graph.name)%>_KEY );
 <%
   extra_interest_filter = ''
   repository.data_modules.each do |data_module|
     data_module.entities.each do |entity|
-      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.key) }.each do |attribute|
-        var_name = "#{graph.key}#{attribute.qualified_name.gsub('.','_')}"
+      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
+        var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
         extra_interest_filter << ", #{var_name}"
 %>
-        final <%= attribute.imit.non_primitive_java_type %> <%= var_name %> = (<%= attribute.imit.non_primitive_java_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.key) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+        final <%= attribute.imit.non_primitive_java_type %> <%= var_name %> = (<%= attribute.imit.non_primitive_java_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
 <%
       end
     end
   end
 
   if !extra_interest_filter.empty?
-    extra_interest_filter = "&& is#{graph.key}Interesting( session#{graph.instance_root? ? ", #{graph.key}" : ''}#{extra_interest_filter} ) "
+    extra_interest_filter = "&& is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}#{extra_interest_filter} ) "
   end
 %>
 
-        if ( null != <%= graph.key %> )
+        if ( null != <%= graph.name %> )
         {
           for ( final <%= repository.imit.qualified_session_name %> session : values )
           {
@@ -96,20 +96,20 @@ public abstract class <%= repository.imit.session_manager_name %>
     extra_interest_filter = ''
     repository.data_modules.each do |data_module|
       data_module.entities.each do |entity|
-        entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.key) }.each do |attribute|
+        entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
           var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
           extra_interest_filter << ", #{nullability_annotation(attribute.nullable?)} #{attribute.imit.non_primitive_java_type} #{var_name}"
         end
       end
     end
   initial_param = ''
-  check_method = "is#{graph.key}Interesting"
+  check_method = "is#{graph.name}Interesting"
   if graph.instance_root?
     # Names are fully qualified so take any random data module
     entity = repository.data_modules[0].entity_by_name(graph.instance_root)
     type = entity.primary_key.imit.non_primitive_java_type
     initial_param = ", #{type} #{Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")}"
-    check_method = "is#{graph.key}Interesting"
+    check_method = "is#{graph.name}Interesting"
   end
   if extra_interest_filter.size > 0
 %>
@@ -130,65 +130,65 @@ end
   repository.imit.graphs.each do |graph|
 
   param = ''
-  register_method = "setInterestedIn#{graph.key}( true )"
-  deregister_method = "setInterestedIn#{graph.key}( false )"
-  check_method = "isInterestedIn#{graph.key}()"
+  register_method = "setInterestedIn#{graph.name}( true )"
+  deregister_method = "setInterestedIn#{graph.name}( false )"
+  check_method = "isInterestedIn#{graph.name}()"
   if graph.instance_root?
     # Names are fully qualified so take any random data module
     entity = repository.data_modules[0].entity_by_name(graph.instance_root)
     param = ", @javax.annotation.Nonnull final #{entity.jpa.qualified_name} entity"
-    register_method = "registerInterestIn#{graph.key}( entity.#{getter_for(entity.primary_key)} )"
-    deregister_method = "deregisterInterestIn#{graph.key}( entity.#{getter_for(entity.primary_key)} )"
-    check_method = "is#{graph.key}Interesting( entity.#{getter_for(entity.primary_key)} )"
+    register_method = "registerInterestIn#{graph.name}( entity.#{getter_for(entity.primary_key)} )"
+    deregister_method = "deregisterInterestIn#{graph.name}( entity.#{getter_for(entity.primary_key)} )"
+    check_method = "is#{graph.name}Interesting( entity.#{getter_for(entity.primary_key)} )"
   end
 %>
 <% if graph.cacheable? -%>
-  private org.realityforge.replicant.server.EntityMessageSet _cached<%= graph.key %>Messages;
-  private final java.util.concurrent.locks.ReadWriteLock _lock<%= graph.key %>Cache = new java.util.concurrent.locks.ReentrantReadWriteLock();
-  private String _cached<%= graph.key %>Key;
+  private org.realityforge.replicant.server.EntityMessageSet _cached<%= graph.name %>Messages;
+  private final java.util.concurrent.locks.ReadWriteLock _lock<%= graph.name %>Cache = new java.util.concurrent.locks.ReentrantReadWriteLock();
+  private String _cached<%= graph.name %>Key;
 <% end -%>
 
-  public <%= graph.cacheable? ? "boolean" : "void" %> subscribeTo<%= graph.key %>( @javax.annotation.Nonnull final String sessionID<%= param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
+  public <%= graph.cacheable? ? "boolean" : "void" %> subscribeTo<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
     if ( !session.<%= check_method %> )
     {
       session.<%= register_method %>;
 <% if graph.instance_root? -%>
-      getEncoder().encode<%= graph.key %>( org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet(), entity );
+      getEncoder().encode<%= graph.name %>( org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet(), entity );
 <% else -%>
 <% if graph.cacheable? -%>
-    _lock<%= graph.key %>Cache.readLock().lock();
-    final String cached<%= graph.key %>Key = get<%= graph.key %>CacheKey();
-    if ( null == _cachedMetaDataMessages || ( null == cached<%= graph.key %>Key || !cached<%= graph.key %>Key.equals( _cached<%= graph.key %>Key ) ) )
+    _lock<%= graph.name %>Cache.readLock().lock();
+    final String cached<%= graph.name %>Key = get<%= graph.name %>CacheKey();
+    if ( null == _cachedMetaDataMessages || ( null == cached<%= graph.name %>Key || !cached<%= graph.name %>Key.equals( _cached<%= graph.name %>Key ) ) )
     {
-      _lock<%= graph.key %>Cache.readLock().unlock();
-      _lock<%= graph.key %>Cache.writeLock().lock();
+      _lock<%= graph.name %>Cache.readLock().unlock();
+      _lock<%= graph.name %>Cache.writeLock().lock();
       try
       {
-        _cached<%= graph.key %>Key = cached<%= graph.key %>Key;
-        _cached<%= graph.key %>Messages = new org.realityforge.replicant.server.EntityMessageSet();
-        collect<%= graph.key %>( _cached<%= graph.key %>Messages );
+        _cached<%= graph.name %>Key = cached<%= graph.name %>Key;
+        _cached<%= graph.name %>Messages = new org.realityforge.replicant.server.EntityMessageSet();
+        collect<%= graph.name %>( _cached<%= graph.name %>Messages );
       }
       finally
       {
-        _lock<%= graph.key %>Cache.writeLock().unlock();
+        _lock<%= graph.name %>Cache.writeLock().unlock();
       }
     }
     else
     {
-      _lock<%= graph.key %>Cache.readLock().unlock();
+      _lock<%= graph.name %>Cache.readLock().unlock();
     }
 <% else -%>
-      collect<%= graph.key %>( org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet() );
+      collect<%= graph.name %>( org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet() );
 <% end -%>
 <% end -%>
 <% if graph.cacheable? -%>
-      if( null == cacheKey || !cacheKey.equals( _cached<%= graph.key %>Key ) )
+      if( null == cacheKey || !cacheKey.equals( _cached<%= graph.name %>Key ) )
       {
         final java.util.LinkedList<org.realityforge.replicant.server.EntityMessage> messages = new java.util.LinkedList<org.realityforge.replicant.server.EntityMessage>();
-        messages.addAll( _cached<%= graph.key %>Messages.getEntityMessages() );
-        sendPacket( session, _cached<%= graph.key %>Key, messages );
+        messages.addAll( _cached<%= graph.name %>Messages.getEntityMessages() );
+        sendPacket( session, _cached<%= graph.name %>Key, messages );
         return true;
       }
 <% end -%>
@@ -200,12 +200,12 @@ end
 
 <% if !graph.instance_root? -%>
 <% if graph.cacheable? -%>
-  protected abstract String get<%= graph.key %>CacheKey();
+  protected abstract String get<%= graph.name %>CacheKey();
 <% end -%>
-  protected abstract void collect<%= graph.key %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages );
+  protected abstract void collect<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages );
 <% end -%>
 
-  public void unsubscribeFrom<%= graph.key %>( @javax.annotation.Nonnull final String sessionID<%= param %> )
+  public void unsubscribeFrom<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= param %> )
     throws org.realityforge.replicant.server.transport.BadSessionException
   {
     ensureSession( sessionID ).<%= deregister_method %>;

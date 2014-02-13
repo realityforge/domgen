@@ -18,16 +18,16 @@ public class <%= repository.imit.graph_encoder_impl_name %>
     entity = repository.data_modules[0].entity_by_name(graph.instance_root)
 %>
   @Override
-  public void encode<%= graph.key %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
+  public void encode<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
   {
-    _encode<%= graph.key %>_<%= entity.name %>( messages, object );
+    _encode<%= graph.name %>_<%= entity.name %>( messages, object );
   }
 
 <%
   graph.reachable_entities.collect{|n|repository.data_modules[0].entity_by_name(n)}.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
-    outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.key)}
+    outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name)}
 -%>
-  private void _encode<%= graph.key %>_<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
+  private void _encode<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
   {
     encodeObject( messages, object );
 <%
@@ -36,7 +36,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
 -%>
     for ( final <%= a.entity.jpa.qualified_name %> o : object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>() )
     {
-      _encode<%= graph.key %>_<%= a.entity.name %>( messages, o );
+      _encode<%= graph.name %>_<%= a.entity.name %>( messages, o );
     }
 <%
       elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
@@ -45,7 +45,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
         final <%= a.entity.jpa.qualified_name %> o = object.get<%= a.inverse.name %>();
         <% if a.inverse.multiplicity == :zero_or_one %>if( null != o )<% end %>
         {
-          _encode<%= graph.key %>_<%= a.entity.name %>( messages, o );
+          _encode<%= graph.name %>_<%= a.entity.name %>( messages, o );
         }
       }
 <%

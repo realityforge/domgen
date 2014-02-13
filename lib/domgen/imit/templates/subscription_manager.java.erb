@@ -14,7 +14,7 @@ public interface <%= repository.imit.subscription_manager_name %>
     param = "#{type} id"
   end
 %>
-  void subscribeTo<%= graph.key %>(<%= param %>);
+  void subscribeTo<%= graph.name %>(<%= param %>);
 
-  void unsubscribeFrom<%= graph.key %>(<%= param %>);
+  void unsubscribeFrom<%= graph.name %>(<%= param %>);
 <% end %>}

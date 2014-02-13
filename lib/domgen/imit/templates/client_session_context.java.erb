@@ -17,9 +17,9 @@ public interface <%= repository.imit.client_session_context_name %>
     param_cache_value = "@javax.annotation.Nullable final String eTag, @javax.annotation.Nonnull final Runnable cacheCurrentAction, "
   end
 %>
-  void remoteSubscribeTo<%= graph.key %>( <%= param_cache_value %><%= param %><%= nullability_annotation(false) %> Runnable runnable );
+  void remoteSubscribeTo<%= graph.name %>( <%= param_cache_value %><%= param %><%= nullability_annotation(false) %> Runnable runnable );
 
-  void remoteUnsubscribeFrom<%= graph.key %>( <%= param %><%= nullability_annotation(false) %> Runnable runnable );
+  void remoteUnsubscribeFrom<%= graph.name %>( <%= param %><%= nullability_annotation(false) %> Runnable runnable );
 <% end %>
 <% if repository.imit.graphs.any? {|graph| graph.cacheable?} -%>
   org.realityforge.replicant.client.transport.CacheService getCacheService();

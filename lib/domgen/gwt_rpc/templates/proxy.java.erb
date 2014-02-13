@@ -57,7 +57,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   final org.realityforge.replicant.client.transport.RequestEntry request;
   if( null != session )
   {
-    request = session.getRequestManager().newRequestRegistration( <%= method.imit.graph_to_subscribe.nil? ? 'null' : "#{method.service.data_module.repository.imit.qualified_graph_enum_name}.#{Domgen::Naming.uppercase_constantize(method.service.data_module.repository.imit.graph_by_name(method.imit.graph_to_subscribe).key)}.name()" %>, <%= method.imit.bulk_load? %> );
+    request = session.getRequestManager().newRequestRegistration( <%= method.imit.graph_to_subscribe.nil? ? 'null' : "#{method.service.data_module.repository.imit.qualified_graph_enum_name}.#{Domgen::Naming.uppercase_constantize(method.service.data_module.repository.imit.graph_by_name(method.imit.graph_to_subscribe).name)}.name()" %>, <%= method.imit.bulk_load? %> );
     org.realityforge.replicant.client.transport.SessionContext.setRequest( request );
   }
   else

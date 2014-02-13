@@ -11,7 +11,7 @@ public interface <%= repository.imit.graph_encoder_name %>
   repository.imit.graphs.select{|graph| graph.instance_root? }.each do |graph|
     entity = repository.data_modules[0].entity_by_name(graph.instance_root)
 %>
-  void encode<%= graph.key %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object );
+  void encode<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object );
 <% end %>
   /**
    * Helper method useful when manually creating bulk loads.
