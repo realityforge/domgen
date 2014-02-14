@@ -185,7 +185,7 @@ module Domgen
         entity.data_module.repository.imit.graphs.select do |graph|
           (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
             (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s)) ||
-            entity.attributes.any?{|a| a.imit? & a.imit.filter_in_graphs.include?(graph.name)}
+            entity.attributes.any?{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name)}
         end
       end
 
