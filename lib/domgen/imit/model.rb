@@ -246,6 +246,10 @@ module Domgen
 
       attr_reader :name
 
+      def qualified_name
+        "#{application.repository.qualified_name}.Graphs.#{name}"
+      end
+
       def cacheable?
         !!@cacheable
       end
