@@ -128,7 +128,7 @@ module Domgen
 
     def referenced_struct=(referenced_struct)
       Domgen.error("struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
-      @referenced_struct = referenced_struct.is_a?(Symbol) ? self.characteristic_container.data_module.struct_by_name(referenced_struct) : referenced_struct
+      @referenced_struct = referenced_struct.is_a?(Symbol) ? self.struct_by_name(referenced_struct) : referenced_struct
     end
 
     def referenced_entity
@@ -138,7 +138,7 @@ module Domgen
 
     def referenced_entity=(referenced_entity)
       Domgen.error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
-      @referenced_entity = referenced_entity.is_a?(Symbol) ? self.characteristic_container.data_module.entity_by_name(referenced_entity) : referenced_entity
+      @referenced_entity = referenced_entity.is_a?(Symbol) ? self.entity_by_name(referenced_entity) : referenced_entity
     end
 
     # The name of the local field appended with PK of foreign entity
@@ -152,6 +152,14 @@ module Domgen
     def polymorphic?
       Domgen.error("polymorphic? on #{name} is invalid as attribute is not a reference") unless reference?
       @polymorphic.nil? ? !referenced_entity.final? : @polymorphic
+    end
+
+    def struct_by_name(name)
+      self.characteristic_container.data_module.struct_by_name(name)
+    end
+
+    def entity_by_name(name)
+      self.characteristic_container.data_module.entity_by_name(name)
     end
 
     def characteristic_type_key
