@@ -255,7 +255,7 @@ module Domgen
       end
 
       def cacheable=(cacheable)
-        # TODO: Make sure it is false for instance based
+        # TODO: Make sure it is false for instance based, or parameterizable
         @cacheable = cacheable
       end
 
@@ -287,6 +287,54 @@ module Domgen
       def reachable_entities
         raise "reachable_entities invoked for graph #{key} when not instance based" if 0 != @type_roots.size
         @reachable_entities ||= []
+      end
+
+      def filter(parameter_type, options = {}, &block)
+        Domgen.error("Attempting to redefine filter on graph #{self.name}") if @filter
+        @filter ||= FilterParameter.new(self, parameter_type, options, &block)
+      end
+
+      def filter_parameter
+        @filter
+      end
+    end
+
+    class FilterParameter < Domgen.ParentedElement(:graph)
+      attr_reader :filter_type
+
+      include Characteristic
+
+      def initialize(graph, filter_type, options, &block)
+        @filter_type = filter_type
+        super(graph, options, &block)
+      end
+
+      def name
+        "FilterParameter"
+      end
+
+      def qualified_name
+        "#{graph.qualified_name}$#{name}"
+      end
+
+      def to_s
+        "FilterParameter[#{self.qualified_name}]"
+      end
+
+      def characteristic_type_key
+        filter_type
+      end
+
+      def characteristic_container
+        graph
+      end
+
+      def struct_by_name(name)
+        self.graph.application.repository.struct_by_name(name)
+      end
+
+      def entity_by_name(name)
+        self.graph.application.repository.entity_by_name(name)
       end
     end
 

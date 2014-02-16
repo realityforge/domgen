@@ -13,8 +13,19 @@ public interface <%= repository.imit.subscription_manager_name %>
     type = entity.primary_key.imit.primitive_java_type
     param = "#{type} id"
   end
+  update_param = param.dup
+  if graph.filter_parameter
+    p = graph.filter_parameter
+    java_type = "#{nullability_annotation(p.nullable?)}  #{Domgen::Java.java_type(p, :imit, :default)}"
+    update_param = "#{update_param}, " if update_param.size > 0
+    filter_param = "#{java_type} filter"
+    update_param = "#{update_param}#{filter_param}"
+  end
 %>
-  void subscribeTo<%= graph.name %>(<%= param %>);
+  void subscribeTo<%= graph.name %>(<%= update_param %>);
 
   void unsubscribeFrom<%= graph.name %>(<%= param %>);
+<% if graph.filter_parameter %>
+  void update<%= graph.name %>Subscription(<%= update_param %>);
+<% end %>
 <% end %>}

@@ -30,13 +30,26 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     type = entity.primary_key.imit.primitive_java_type
     param = "#{type} id"
     param_value = ', id'
-    param_early_value = 'id, '
+    param_early_value = 'id'
     subscribe_method = 'Instance'
   elsif graph.cacheable?
     param_cache_value = 'eTag, cacheCurrentAction, '
   end
+  filter_param = ''
+  update_param = param.dup
+  update_param_early_value = param_early_value.dup
+  if graph.filter_parameter
+    p = graph.filter_parameter
+    java_type = "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :imit, :default)}"
+    update_param = "#{update_param}, " if update_param.size > 0
+    filter_param = "#{java_type} filter"
+    update_param = "#{update_param}#{filter_param}"
+    update_param_early_value = "#{update_param_early_value}, " if update_param_early_value.size > 0
+    update_param_early_value = "#{update_param_early_value}filter"
+  end
 %>
-  public void subscribeTo<%= graph.name %>(<%= param %>)
+  @Override
+  public void subscribeTo<%= graph.name %>(<%= update_param %>)
   {
     final SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>> entry =
       subscribeTo<%= subscribe_method %>Graph( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %><%= param_value %> );
@@ -69,10 +82,39 @@ public class <%= repository.imit.subscription_manager_impl_name %>
         }
       };
 <% end -%>
-      _context.remoteSubscribeTo<%= graph.name %>( <%= param_cache_value %><%= param_early_value %>runnable );
+      _context.remoteSubscribeTo<%= graph.name %>( <%= param_cache_value %><%= update_param_early_value %><%= update_param_early_value.size > 0 ? ', ' : '' %>runnable );
     }
+<% if graph.filter_parameter -%>
+    else
+    {
+      update<%= graph.name %>Subscription(<%= update_param_early_value %>);
+    }
+<% end -%>
   }
 
+<% if graph.filter_parameter %>
+  public void update<%= graph.name %>Subscription(<%= update_param %>)
+  {
+    final SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>> entry =
+      find<%= subscribe_method %>GraphSubscription( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %><%= param_value %> );
+    if( null != entry )
+    {
+      final Runnable runnable = new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          entry.setSubscriptionUpdateInProgress( false );
+        }
+      };
+      entry.setSubscriptionData( filter );
+      entry.setSubscriptionUpdateInProgress( true );
+      _context.remoteUpdate<%= graph.name %>Subscription( <%= update_param_early_value %><%= update_param_early_value.size > 0 ? ', ' : '' %>runnable );
+    }
+  }
+<% end %>
+
+  @Override
   public void unsubscribeFrom<%= graph.name %>(<%= param %>)
   {
     final SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>> entry =
@@ -80,7 +122,7 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     if( null != entry )
     {
       entry.markDeregisterInProgress();
-      _context.remoteUnsubscribeFrom<%= graph.name %>( <%= param_early_value %>new Runnable()
+      _context.remoteUnsubscribeFrom<%= graph.name %>( <%= param_early_value %><%= param_early_value.size > 0 ? ', ' : '' %>new Runnable()
       {
         @Override
         public void run()
