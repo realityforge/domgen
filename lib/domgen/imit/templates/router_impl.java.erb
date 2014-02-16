@@ -51,7 +51,17 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif graph.instance_root? %>
 <% outgoing_links.each do |outgoing_link| %>
+<% if outgoing_link.nullable? %>
+    {
+      final <%= outgoing_link.jpa.java_type %> v = entity.<%= getter_for(outgoing_link) %>;
+      if( null != v )
+      {
+        _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, v );
+      }
+    }
+<% else %>
     _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, entity.<%= getter_for(outgoing_link) %> );
+<% end %>
 <% end %>
 <% else %>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, Boolean.TRUE );
