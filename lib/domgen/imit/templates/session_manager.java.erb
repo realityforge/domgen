@@ -62,7 +62,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   end
 
   if !extra_interest_filter.empty?
-    extra_interest_filter = "&& is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}#{extra_interest_filter} ) "
+    extra_interest_filter = "&& is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}, session.getInterestedIn#{graph.name}().get( #{graph.name} )#{extra_interest_filter} ) "
   end
 %>
 
@@ -113,7 +113,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   end
   if extra_interest_filter.size > 0
 %>
-  protected abstract boolean <%= check_method %>( <%= repository.imit.qualified_session_name %> session<%= initial_param %><%= extra_interest_filter %> );
+  protected abstract boolean <%= check_method %>( <%= repository.imit.qualified_session_name %> session<%= initial_param %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<%= extra_interest_filter %> );
 <%
   end
 end
