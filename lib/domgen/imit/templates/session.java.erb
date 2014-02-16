@@ -9,9 +9,26 @@ public class <%= repository.imit.session_name %>
   repository.imit.graphs.each do |graph|
     if graph.instance_root?
       entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+      if graph.filter_parameter
+        p = graph.filter_parameter
+        java_type = Domgen::Java.java_type(p, :ee, :default)
+%>
+  private final java.util.HashMap<<%= entity.primary_key.jpa.non_primitive_java_type %>, <%= java_type %>> _interestedIn<%= graph.name %> = new java.util.HashMap<<%= entity.primary_key.jpa.non_primitive_java_type %>, <%= java_type %>>();
+<%
+      else
 %>
   private final java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>> _interestedIn<%= graph.name %> = new java.util.HashSet<<%= entity.primary_key.jpa.non_primitive_java_type %>>();
-<% else -%>
+<%
+      end
+else
+      if graph.filter_parameter
+        p = graph.filter_parameter
+        java_type = "#{nullability_annotation(true)} #{Domgen::Java.java_type(p, :ee, :default)}"
+%>
+  private <%= java_type %> _interestedIn<%= graph.name %>Filter;
+<%
+      end
+%>
   private boolean _interestedIn<%= graph.name %>;
 <%
     end
@@ -26,8 +43,37 @@ public class <%= repository.imit.session_name %>
   repository.imit.graphs.each do |graph|
     if graph.instance_root?
       entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+      if graph.filter_parameter
+        java_type = Domgen::Java.java_type(graph.filter_parameter, :ee, :default)
 %>
-  public java.util.Set<Integer> getInterestedIn<%= graph.name %>()
+  public java.util.Map<<%= entity.primary_key.jpa.non_primitive_java_type %>, <%= java_type %>> getInterestedIn<%= graph.name %>()
+  {
+    return java.util.Collections.unmodifiableMap( _interestedIn<%= graph.name %> );
+  }
+
+  public final void registerInterestIn<%= graph.name %>( final <%= entity.primary_key.jpa.primitive_java_type %> id, final <%= nullability_annotation(graph.filter_parameter.nullable?)%> <%= java_type %> filter )
+  {
+    _interestedIn<%= graph.name %>.put( id, filter );
+  }
+
+  public final void updateInterestIn<%= graph.name %>( final <%= entity.primary_key.jpa.primitive_java_type %> id, final <%= nullability_annotation(graph.filter_parameter.nullable?)%> <%= java_type %> filter )
+  {
+    _interestedIn<%= graph.name %>.put( id, filter );
+  }
+
+  public final void deregisterInterestIn<%= graph.name %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  {
+    _interestedIn<%= graph.name %>.remove( id );
+  }
+
+  public final boolean is<%= graph.name %>Interesting( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  {
+    return _interestedIn<%= graph.name %>.containsKey( id );
+  }
+<%
+      else
+%>
+  public java.util.Set<<%= entity.primary_key.jpa.non_primitive_java_type %>> getInterestedIn<%= graph.name %>()
   {
     return java.util.Collections.unmodifiableSet( _interestedIn<%= graph.name %> );
   }
@@ -46,7 +92,10 @@ public class <%= repository.imit.session_name %>
   {
     return _interestedIn<%= graph.name %>.contains( id );
   }
-<% else -%>
+<%
+    end
+  else
+-%>
   public final boolean isInterestedIn<%= graph.name %>()
   {
     return _interestedIn<%= graph.name %>;

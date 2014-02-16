@@ -130,17 +130,32 @@ end
   repository.imit.graphs.each do |graph|
 
   param = ''
+  param_value = ''
   register_method = "setInterestedIn#{graph.name}( true )"
   deregister_method = "setInterestedIn#{graph.name}( false )"
   check_method = "isInterestedIn#{graph.name}()"
+  pk_accessor = ''
   if graph.instance_root?
     # Names are fully qualified so take any random data module
     entity = repository.data_modules[0].entity_by_name(graph.instance_root)
     param = ", @javax.annotation.Nonnull final #{entity.jpa.qualified_name} entity"
-    register_method = "registerInterestIn#{graph.name}( entity.#{getter_for(entity.primary_key)} )"
-    deregister_method = "deregisterInterestIn#{graph.name}( entity.#{getter_for(entity.primary_key)} )"
-    check_method = "is#{graph.name}Interesting( entity.#{getter_for(entity.primary_key)} )"
+    param_value = 'entity'
+    pk_accessor = "entity.#{getter_for(entity.primary_key)}"
+    register_method = "registerInterestIn#{graph.name}( #{pk_accessor}#{graph.filter_parameter.nil? ? '' : ", filter"} )"
+    deregister_method = "deregisterInterestIn#{graph.name}( #{pk_accessor} )"
+    check_method = "is#{graph.name}Interesting( #{pk_accessor} )"
   end
+  filter_param = ''
+  update_param = param.dup
+  update_param_value = param_value.dup
+  if graph.filter_parameter
+    p = graph.filter_parameter
+    update_param = "#{update_param}, " if update_param.size > 0
+    update_param = "#{update_param}#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter"
+    update_param_value = "#{update_param_value}, " if update_param_value.size > 0
+    update_param_value = "#{update_param_value}filter"
+  end
+  update_param_value = ", #{update_param_value}" if update_param_value.size > 0
 %>
 <% if graph.cacheable? -%>
   private org.realityforge.replicant.server.EntityMessageSet _cached<%= graph.name %>Messages;
@@ -148,7 +163,7 @@ end
   private String _cached<%= graph.name %>Key;
 <% end -%>
 
-  public <%= graph.cacheable? ? "boolean" : "void" %> subscribeTo<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
+  public <%= graph.cacheable? ? "boolean" : "void" %> subscribeTo<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= update_param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
     if ( !session.<%= check_method %> )
@@ -193,10 +208,23 @@ end
       }
 <% end -%>
     }
+<% if graph.filter_parameter -%>
+    else
+    {
+      update<%= graph.name %>Subscription( sessionID<%= update_param_value %> );
+    }
+<% end -%>
 <% if graph.cacheable? -%>
     return false;
 <% end -%>
   }
+<% if graph.filter_parameter -%>
+  public void update<%= graph.name %>Subscription( @javax.annotation.Nonnull final String sessionID<%= update_param %> )
+  {
+    final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
+    ensureSession( sessionID ).updateInterestIn<%= graph.name %>( <%= "#{pk_accessor}#{pk_accessor.nil? ? '' : ", "}" %>filter );
+  }
+<% end -%>
 
 <% if !graph.instance_root? -%>
 <% if graph.cacheable? -%>
