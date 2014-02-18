@@ -272,28 +272,28 @@ module Domgen
       end
 
       def type_roots
-        raise "type_roots invoked for graph #{key} when instance based" if instance_root?
+        raise "type_roots invoked for graph #{name} when instance based" if instance_root?
         @type_roots
       end
 
       def type_roots=(type_roots)
-        raise "Attempted to assign type_roots #{type_roots.inspect} for graph #{key} when instance based on #{@instance_root.inspect}" if instance_root?
+        raise "Attempted to assign type_roots #{type_roots.inspect} for graph #{name} when instance based on #{@instance_root.inspect}" if instance_root?
         @type_roots = type_roots
       end
 
       def instance_root
-        raise "instance_root invoked for graph #{key} when not instance based" if 0 != @type_roots.size
+        raise "instance_root invoked for graph #{name} when not instance based" if 0 != @type_roots.size
         @instance_root
       end
 
       def instance_root=(instance_root)
-        raise "Attempted to assign instance_root to #{instance_root.inspect} for graph #{key} when not instance based (type_roots=#{@type_roots.inspect})" if 0 != @type_roots.size
+        raise "Attempted to assign instance_root to #{instance_root.inspect} for graph #{name} when not instance based (type_roots=#{@type_roots.inspect})" if 0 != @type_roots.size
         @instance_root = instance_root
       end
 
       # Return the list of entities reachable in instance graph
       def reachable_entities
-        raise "reachable_entities invoked for graph #{key} when not instance based" if 0 != @type_roots.size
+        raise "reachable_entities invoked for graph #{name} when not instance based" if 0 != @type_roots.size
         @reachable_entities ||= []
       end
 
