@@ -61,6 +61,14 @@ module Domgen
         @filter_in_graphs || []
       end
 
+      def include_edges
+        @include_edges ||= []
+      end
+
+      def include_edges=(include_edges)
+        @include_edges = include_edges
+      end
+
       include Domgen::Java::ImitJavaCharacteristic
 
       protected
@@ -566,6 +574,11 @@ module Domgen
               if a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
                 a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
                 entity_list << a.entity unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
+              end
+            end
+            entity.attributes.each do |a|
+              if a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit? && a.imit.include_edges.include?(graph.name)
+                entity_list << a.referenced_entity unless graph.reachable_entities.include?(a.referenced_entity.qualified_name.to_s)
               end
             end
           end

@@ -28,7 +28,7 @@ public class <%= repository.imit.router_impl_name %>
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
-    outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable?}
+    outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit?}
  -%>
   @javax.annotation.Nonnull
   public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
@@ -50,7 +50,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s %>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif graph.instance_root? %>
-<% outgoing_links.each do |outgoing_link| %>
+<% outgoing_links.select{|a| a.imit.include_edges.include?(graph.name) }.each do |outgoing_link| %>
 <% if outgoing_link.nullable? %>
     {
       final <%= outgoing_link.jpa.java_type %> v = entity.<%= getter_for(outgoing_link) %>;
