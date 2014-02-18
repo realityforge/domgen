@@ -4,5 +4,15 @@ package <%= repository.imit.entity_package %>;
 @javax.annotation.Generated( "Domgen" )
 public enum <%= repository.imit.graph_enum_name %>
 {
-  <%= repository.imit.graphs.collect {|g| Domgen::Naming.uppercase_constantize(g.name) } .join(",\n  ") %>
+  <%= repository.imit.graphs.collect do |g|
+    elements = g.instance_root? ? g.reachable_entities.sort : g.type_roots
+    data = <<-DATA
+  /**
+   * #{g.name} is a #{g.instance_root? ? 'instance' : 'type'}-based replication graph.
+   * <p>It includes the following entities:</p>
+   * <ul>
+DATA
+   data += elements.collect{|e| "   * <li>#{e}</li>"}.join("\n")
+   data += "\n   * </ul>\n   */\n  #{Domgen::Naming.uppercase_constantize(g.name)}"
+  end.join(",\n") %>
 }
