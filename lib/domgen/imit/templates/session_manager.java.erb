@@ -39,7 +39,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   check_method = "isInterestedIn#{graph.name}"
   if graph.instance_root?
     # Names are fully qualified so take any random data module
-    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+    entity = repository.entity_by_name(graph.instance_root)
     type = entity.primary_key.imit.non_primitive_java_type
     param = " #{graph.name} "
     check_method = "is#{graph.name}Interesting"
@@ -106,7 +106,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   check_method = "is#{graph.name}Interesting"
   if graph.instance_root?
     # Names are fully qualified so take any random data module
-    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+    entity = repository.entity_by_name(graph.instance_root)
     type = entity.primary_key.imit.non_primitive_java_type
     initial_param = ", #{type} #{Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")}"
     check_method = "is#{graph.name}Interesting"
@@ -137,7 +137,7 @@ end
   pk_accessor = ''
   if graph.instance_root?
     # Names are fully qualified so take any random data module
-    entity = repository.data_modules[0].entity_by_name(graph.instance_root)
+    entity = repository.entity_by_name(graph.instance_root)
     param = ", @javax.annotation.Nonnull final #{entity.jpa.qualified_name} entity"
     param_value = 'entity'
     pk_accessor = "entity.#{getter_for(entity.primary_key)}"

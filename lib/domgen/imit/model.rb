@@ -566,7 +566,7 @@ module Domgen
           end
         end
         repository.imit.graphs.select { |graph| graph.instance_root? }.each do |graph|
-          entity_list = [repository.data_modules[0].entity_by_name(graph.instance_root)]
+          entity_list = [repository.entity_by_name(graph.instance_root)]
           while entity_list.size > 0
             entity = entity_list.pop
             graph.reachable_entities << entity.qualified_name.to_s
