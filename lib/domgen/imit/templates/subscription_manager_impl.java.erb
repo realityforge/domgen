@@ -28,9 +28,10 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     # Names are fully qualified so take any random data module
     entity = repository.entity_by_name(graph.instance_root)
     type = entity.primary_key.imit.primitive_java_type
-    param = "#{type} id"
-    param_value = ', id'
-    param_early_value = 'id'
+    varname = "#{Domgen::Naming.camelize(entity.name)}#{entity.primary_key.name}"
+    param = "#{type} #{varname}"
+    param_value = ", #{varname}"
+    param_early_value = varname
     subscribe_method = 'Instance'
   elsif graph.cacheable?
     param_cache_value = 'eTag, cacheCurrentAction, '
@@ -48,6 +49,12 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     update_param_early_value = "#{update_param_early_value}filter"
   end
 %>
+  @Override
+  public boolean isSubscribedTo<%= graph.name %>(<%= param %>)
+  {
+    return null != find<%= subscribe_method %>GraphSubscription( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %><%= param_value %> );
+  }
+
   @Override
   public void subscribeTo<%= graph.name %>(<%= update_param %>)
   {

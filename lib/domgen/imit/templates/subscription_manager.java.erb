@@ -11,7 +11,7 @@ public interface <%= repository.imit.subscription_manager_name %>
     # Names are fully qualified so take any random data module
     entity = repository.entity_by_name(graph.instance_root)
     type = entity.primary_key.imit.primitive_java_type
-    param = "#{type} id"
+    param = "#{type} #{Domgen::Naming.camelize(entity.name)}#{entity.primary_key.name}"
   end
   update_param = param.dup
   if graph.filter_parameter
@@ -22,6 +22,8 @@ public interface <%= repository.imit.subscription_manager_name %>
     update_param = "#{update_param}#{filter_param}"
   end
 %>
+  boolean isSubscribedTo<%= graph.name %>(<%= param %>);
+
   void subscribeTo<%= graph.name %>(<%= update_param %>);
 
   void unsubscribeFrom<%= graph.name %>(<%= param %>);
