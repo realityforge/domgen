@@ -569,16 +569,18 @@ module Domgen
           entity_list = [repository.entity_by_name(graph.instance_root)]
           while entity_list.size > 0
             entity = entity_list.pop
-            graph.reachable_entities << entity.qualified_name.to_s
-            entity.referencing_attributes.each do |a|
-              if a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
-                a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
-                entity_list << a.entity unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
+            if !graph.reachable_entities.include?(entity.qualified_name.to_s)
+              graph.reachable_entities << entity.qualified_name.to_s
+              entity.referencing_attributes.each do |a|
+                if a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
+                  a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
+                  entity_list << a.entity unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
+                end
               end
-            end
-            entity.attributes.each do |a|
-              if a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit? && a.imit.include_edges.include?(graph.name)
-                entity_list << a.referenced_entity unless graph.reachable_entities.include?(a.referenced_entity.qualified_name.to_s)
+              entity.attributes.each do |a|
+                if a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit? && a.imit.include_edges.include?(graph.name)
+                  entity_list << a.referenced_entity unless graph.reachable_entities.include?(a.referenced_entity.qualified_name.to_s)
+                end
               end
             end
           end
