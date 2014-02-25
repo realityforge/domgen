@@ -47,4 +47,19 @@ public final class <%= message.gwt.event_name %>
   {
     handler.on<%= message.name %>( this );
   }
+
+  public String toDebugString()
+  {
+    return toString();
+  }
+
+  public String toString()
+  {
+    return "<%= message.name %>[" + <% if message.parameters.empty? -%>""<% else
+    message.parameters.each_with_index do |parameter, i|
+      value = parameter.reference? ? "#{parameter.name}.#{getter_prefix(parameter.referenced_entity.primary_key)}#{(parameter.referenced_entity.primary_key.name)}()" : parameter.name
+      %> <%= i != 0 ? " + \"\, \" + " : "" %> "<%= parameter.name %>=" + <%= value %> <%
+    end
+    end -%> + "]";
+  }
 }
