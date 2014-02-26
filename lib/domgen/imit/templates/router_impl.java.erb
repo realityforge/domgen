@@ -50,7 +50,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s %>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif graph.instance_root? %>
-<% outgoing_links.select{|a| a.imit.include_edges.include?(graph.name) }.each do |outgoing_link| %>
+<% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) }.each do |outgoing_link| %>
 <% if outgoing_link.nullable? %>
     {
       final <%= outgoing_link.jpa.java_type %> v = entity.<%= getter_for(outgoing_link) %>;
