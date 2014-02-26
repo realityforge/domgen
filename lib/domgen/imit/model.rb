@@ -61,6 +61,16 @@ module Domgen
         @filter_in_graphs || []
       end
 
+      # TODO: Remove this ugly hack as soon as we can calculate whether an entitiy
+      # is shared between multiple graph instances
+      def traverse_during_unload?
+        @traverse_during_unload.nil? ? true : @traverse_during_unload
+      end
+
+      def traverse_during_unload=(traverse_during_unload)
+        @traverse_during_unload = !!traverse_during_unload
+      end
+
       def include_edges
         @include_edges ||= []
       end

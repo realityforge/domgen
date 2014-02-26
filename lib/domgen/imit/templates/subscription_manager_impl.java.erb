@@ -231,8 +231,25 @@ public class <%= repository.imit.subscription_manager_impl_name %>
 <%
       end
     end
+    entity.attributes.each do |a|
+      if a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit? && a.imit.include_edges.include?(graph.name)
+        # These are likely to be shared so we have to be careful and check if they are part of other subscriptions?
+        if a.imit.traverse_during_unload?
 %>
-<% if entity.qualified_name.to_s != graph.instance_root.to_s || entity.imit.replication_graphs.size == 1 %>
+      {
+        final <%= a.referenced_entity.imit.qualified_name %> o = object.get<%= a.name %>();
+        <% if a.nullable? %>if( null != o )<% end %>
+        {
+          unload<%= graph.name %>_<%= a.referenced_entity.name %>( o );
+        }
+      }
+<%
+        end
+      end
+    end
+    if entity.qualified_name.to_s != graph.instance_root.to_s || entity.imit.replication_graphs.size == 1
+     # We should really check to see if they have shared subscriptions
+ %>
     _context.getRepository().deregisterEntity( <%= entity.imit.qualified_name %>.class, object.get<%= entity.primary_key.name %>() );
 <% end -%>
   }
