@@ -51,6 +51,18 @@ public class <%= repository.imit.graph_encoder_impl_name %>
 <%
       end
     end
+    entity.attributes.each do |a|
+      if a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit? && a.imit.include_edges.include?(graph.name) %>
+      {
+        final <%= a.referenced_entity.jpa.qualified_name %> o = object.get<%= a.name %>();
+        <% if a.nullable? %>if( null != o )<% end %>
+        {
+          _encode<%= graph.name %>_<%= a.referenced_entity.name %>( messages, o );
+        }
+      }
+<%
+      end
+    end
 %>
   }
 <% end -%>
