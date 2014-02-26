@@ -29,7 +29,7 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     entity = repository.entity_by_name(graph.instance_root)
     type = entity.primary_key.imit.primitive_java_type
     varname = "#{Domgen::Naming.camelize(entity.name)}#{entity.primary_key.name}"
-    param = "#{type} #{varname}"
+    param = "final #{type} #{varname}"
     param_value = ", #{varname}"
     param_early_value = varname
     subscribe_method = 'Instance'
@@ -48,6 +48,7 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     update_param_early_value = "#{update_param_early_value}, " if update_param_early_value.size > 0
     update_param_early_value = "#{update_param_early_value}filter"
   end
+  suffix = "@javax.annotation.Nullable final Runnable action"
 %>
   @Override
   public boolean isSubscribedTo<%= graph.name %>(<%= param %>)
@@ -55,8 +56,25 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     return null != find<%= subscribe_method %>GraphSubscription( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %><%= param_value %> );
   }
 
+<% if graph.instance_root? -%>
   @Override
-  public void subscribeTo<%= graph.name %>(<%= update_param %>)
+  public java.util.Map<Object, SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>>> get<%= graph.name %>Subscriptions()
+  {
+    final java.util.Map<Object, SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>>> subscriptions =
+      getInstanceSubscriptions().get( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> );
+    if ( null != subscriptions )
+    {
+      return java.util.Collections.unmodifiableMap( subscriptions );
+    }
+    else
+    {
+      return java.util.Collections.emptyMap();
+    }
+  }
+<% end -%>
+
+  @Override
+  public void subscribeTo<%= graph.name %>(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>)
   {
     final SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>> entry =
       subscribeTo<%= subscribe_method %>Graph( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %><%= param_value %> );
@@ -68,6 +86,11 @@ public class <%= repository.imit.subscription_manager_impl_name %>
         public void run()
         {
           entry.markAsPresent();
+          if( null != action )
+          {
+            action.run();
+          }
+          LOG.info( "subscribeTo<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
         }
       };
 <% if graph.cacheable? -%>
@@ -86,21 +109,23 @@ public class <%= repository.imit.subscription_manager_impl_name %>
           LOG.info( "Loading cached data for graph <%= graph.name %> with etag " + eTag );
           //TODO: Figure out how to make the bulkLoad configurable
           _context.loadCachedContent( content, runnable, true );
+          LOG.info( "subscribeTo<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
         }
       };
 <% end -%>
+      LOG.info( "subscribeTo<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) requested." );
       _context.remoteSubscribeTo<%= graph.name %>( <%= param_cache_value %><%= update_param_early_value %><%= update_param_early_value.size > 0 ? ', ' : '' %>runnable );
     }
 <% if graph.filter_parameter -%>
     else
     {
-      update<%= graph.name %>Subscription(<%= update_param_early_value %>);
+      update<%= graph.name %>Subscription(<%= update_param_early_value %><%= update_param_early_value.size > 0 ? ', ' : '' %>action);
     }
 <% end -%>
   }
 
 <% if graph.filter_parameter %>
-  public void update<%= graph.name %>Subscription(<%= update_param %>)
+  public void update<%= graph.name %>Subscription(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>)
   {
     final SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>> entry =
       find<%= subscribe_method %>GraphSubscription( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %><%= param_value %> );
@@ -112,8 +137,14 @@ public class <%= repository.imit.subscription_manager_impl_name %>
         public void run()
         {
           entry.setSubscriptionUpdateInProgress( false );
+          if( null != action )
+          {
+            action.run();
+          }
+          LOG.info( "update<%= graph.name %>Subscription(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
         }
       };
+      LOG.info( "update<%= graph.name %>Subscription(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) requested." );
       entry.setSubscriptionData( filter );
       entry.setSubscriptionUpdateInProgress( true );
       _context.remoteUpdate<%= graph.name %>Subscription( <%= update_param_early_value %><%= update_param_early_value.size > 0 ? ', ' : '' %>runnable );
@@ -122,12 +153,13 @@ public class <%= repository.imit.subscription_manager_impl_name %>
 <% end %>
 
   @Override
-  public void unsubscribeFrom<%= graph.name %>(<%= param %>)
+  public void unsubscribeFrom<%= graph.name %>(<%= param %><%= param.size > 0 ? ", #{suffix}" : suffix %>)
   {
     final SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>> entry =
       unsubscribeFrom<%= subscribe_method %>Graph( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %><%= param_value %> );
     if( null != entry )
     {
+      LOG.info( "unsubscribeFrom<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) requested." );
       entry.markDeregisterInProgress();
       _context.remoteUnsubscribeFrom<%= graph.name %>( <%= param_early_value %><%= param_early_value.size > 0 ? ', ' : '' %>new Runnable()
       {
@@ -135,6 +167,11 @@ public class <%= repository.imit.subscription_manager_impl_name %>
         public void run()
         {
           entry.markAsDeregistered();
+          if( null != action )
+          {
+            action.run();
+          }
+          LOG.info( "unsubscribeFrom<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
         }
       } );
     }

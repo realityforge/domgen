@@ -21,13 +21,18 @@ public interface <%= repository.imit.subscription_manager_name %>
     filter_param = "#{java_type} filter"
     update_param = "#{update_param}#{filter_param}"
   end
+  suffix = "@javax.annotation.Nullable Runnable runnable"
 %>
   boolean isSubscribedTo<%= graph.name %>(<%= param %>);
 
-  void subscribeTo<%= graph.name %>(<%= update_param %>);
+  void subscribeTo<%= graph.name %>(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>);
 
-  void unsubscribeFrom<%= graph.name %>(<%= param %>);
+  void unsubscribeFrom<%= graph.name %>(<%= param %><%= param.size > 0 ? ", #{suffix}" : suffix %>);
+
+<% if graph.instance_root? -%>
+  java.util.Map<Object, org.realityforge.replicant.client.transport.SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>>> get<%= graph.name %>Subscriptions();
+<% end -%>
 <% if graph.filter_parameter %>
-  void update<%= graph.name %>Subscription(<%= update_param %>);
+  void update<%= graph.name %>Subscription(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>);
 <% end %>
 <% end %>}
