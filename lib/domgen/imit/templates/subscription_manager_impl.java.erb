@@ -167,6 +167,18 @@ public class <%= repository.imit.subscription_manager_impl_name %>
         public void run()
         {
           entry.markAsDeregistered();
+<% if !graph.instance_root? -%>
+          unload<%= graph.name %>();
+<%
+  else
+    entity = repository.entity_by_name(graph.instance_root)
+%>
+          final <%= entity.imit.qualified_name %> e = _context.getRepository().findByID( <%= entity.imit.qualified_name %>.class, <%= varname %> );
+          if( null != e )
+          {
+            unload<%= graph.name %>_<%= entity.name %>( e );
+          }
+<% end %>
           if( null != action )
           {
             action.run();
@@ -176,5 +188,56 @@ public class <%= repository.imit.subscription_manager_impl_name %>
       } );
     }
   }
+
+<% if !graph.instance_root? -%>
+  protected void unload<%= graph.name %>()
+  {
+<%
+  graph.type_roots.reverse.each do |root|
+    entity = repository.entity_by_name(root)
+-%>
+    for ( final <%= entity.imit.qualified_name %> e : _context.getRepository().findAll( <%= entity.imit.qualified_name %>.class ) )
+    {
+      _context.getRepository().deregisterEntity( <%= entity.imit.qualified_name %>.class, e.get<%= entity.primary_key.name %>() );
+    }
+<% end -%>
+  }
+<% else %>
+<%
+  graph.reachable_entities.collect{|n|repository.entity_by_name(n)}.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+    is_root = entity.qualified_name.to_s == graph.instance_root.to_s
+    outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name)}
+-%>
+  private void unload<%= graph.name %>_<%= entity.name %>(@javax.annotation.Nonnull final <%= entity.imit.qualified_name %> object )
+  {
+<%
+    outgoing_links.each do |a|
+      if a.inverse.multiplicity == :many
+-%>
+    for ( final <%= a.entity.imit.qualified_name %> o : new java.util.ArrayList<<%= a.entity.imit.qualified_name %>>(object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>()) )
+    {
+      unload<%= graph.name %>_<%= a.entity.name %>( o );
+    }
+<%
+      elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
+-%>
+      {
+        final <%= a.entity.imit.qualified_name %> o = object.get<%= a.inverse.name %>();
+        <% if a.inverse.multiplicity == :zero_or_one %>if( null != o )<% end %>
+        {
+          unload<%= graph.name %>_<%= a.entity.name %>( o );
+        }
+      }
+<%
+      end
+    end
+%>
+<% if entity.qualified_name.to_s != graph.instance_root.to_s || entity.imit.replication_graphs.size == 1 %>
+    _context.getRepository().deregisterEntity( <%= entity.imit.qualified_name %>.class, object.get<%= entity.primary_key.name %>() );
+<% end -%>
+  }
+<% end %>
+<% end %>
+
 <% end %>
 }

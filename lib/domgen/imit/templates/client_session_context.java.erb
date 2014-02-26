@@ -32,6 +32,7 @@ public interface <%= repository.imit.client_session_context_name %>
   void remoteUpdate<%= graph.name %>Subscription( <%= update_param %><%= nullability_annotation(false) %> Runnable runnable );
 <% end %>
 <% end %>
+  org.realityforge.replicant.client.EntityRepository getRepository();
 <% if repository.imit.graphs.any? {|graph| graph.cacheable?} -%>
   org.realityforge.replicant.client.transport.CacheService getCacheService();
 
