@@ -3,9 +3,15 @@ package <%= message.data_module.gwt.client_event_package %>;
 
 @javax.annotation.Generated( "Domgen" )
 public final class <%= message.gwt.event_name %>
-  extends com.google.gwt.event.shared.GwtEvent<<%= message.gwt.event_handler_name %>>
+  extends com.google.gwt.event.shared.GwtEvent<<%= message.gwt.event_name %>.Handler>
 {
-  public static final Type<<%= message.gwt.event_handler_name %>> TYPE = new Type<<%= message.gwt.event_handler_name %>>();
+  public static interface Handler
+    extends com.google.gwt.event.shared.EventHandler
+  {
+    void on<%= message.name %>( @javax.annotation.Nonnull <%= message.gwt.event_name %> event );
+  }
+
+  public static final Type<Handler> TYPE = new Type<Handler>();
 <% message.parameters.each do |parameter|
 %>  private final <%= parameter.gwt.java_type %> <%= parameter.gwt.name %>;
 <% end %>
@@ -37,13 +43,13 @@ public final class <%= message.gwt.event_name %>
 <% end %>
 
   @Override
-  public Type<<%= message.gwt.event_handler_name %>> getAssociatedType()
+  public Type<Handler> getAssociatedType()
   {
     return TYPE;
   }
 
   @Override
-  protected void dispatch( final <%= message.gwt.event_handler_name %> handler )
+  protected void dispatch( final Handler handler )
   {
     handler.on<%= message.name %>( this );
   }

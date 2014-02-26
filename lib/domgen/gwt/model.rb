@@ -92,16 +92,6 @@ module Domgen
       def qualified_event_name
         "#{message.data_module.gwt.client_event_package}.#{event_name}"
       end
-
-      attr_writer :event_handler_name
-
-      def event_handler_name
-        @event_handler_name || "#{event_name}Handler"
-      end
-
-      def qualified_event_handler_name
-        "#{message.data_module.gwt.client_event_package}.#{event_handler_name}"
-      end
     end
 
     class GwtEventParameter < Domgen.ParentedElement(:parameter)

@@ -28,11 +28,6 @@ Domgen.template_set(:gwt_client_event) do |template_set|
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/event.java.erb",
                         'main/java/#{message.gwt.qualified_event_name.gsub(".","/")}.java',
                         Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :message,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/event_handler.java.erb",
-                        'main/java/#{message.gwt.qualified_event_handler_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
 end
 
 Domgen.template_set(:gwt_client_jso) do |template_set|
