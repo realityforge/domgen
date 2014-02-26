@@ -40,7 +40,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   if graph.instance_root?
     # Names are fully qualified so take any random data module
     entity = repository.entity_by_name(graph.instance_root)
-    type = entity.primary_key.imit.non_primitive_java_type
+    type = entity.primary_key.jpa.non_primitive_java_type
     param = " #{graph.name} "
     check_method = "is#{graph.name}Interesting"
   end
@@ -55,7 +55,7 @@ public abstract class <%= repository.imit.session_manager_name %>
         var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
         extra_interest_filter << ", #{var_name}"
 %>
-        final <%= attribute.imit.non_primitive_java_type %> <%= var_name %> = (<%= attribute.imit.non_primitive_java_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+        final <%= attribute.jpa.non_primitive_java_type %> <%= var_name %> = (<%= attribute.jpa.non_primitive_java_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
 <%
       end
     end
@@ -98,7 +98,7 @@ public abstract class <%= repository.imit.session_manager_name %>
       data_module.entities.each do |entity|
         entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
           var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
-          extra_interest_filter << ", #{nullability_annotation(attribute.nullable?)} #{attribute.imit.non_primitive_java_type} #{var_name}"
+          extra_interest_filter << ", #{nullability_annotation(attribute.nullable?)} #{attribute.jpa.non_primitive_java_type} #{var_name}"
         end
       end
     end
@@ -107,7 +107,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   if graph.instance_root?
     # Names are fully qualified so take any random data module
     entity = repository.entity_by_name(graph.instance_root)
-    type = entity.primary_key.imit.non_primitive_java_type
+    type = entity.primary_key.jpa.non_primitive_java_type
     initial_param = ", #{type} #{Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")}"
     check_method = "is#{graph.name}Interesting"
   end
