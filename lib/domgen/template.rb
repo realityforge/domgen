@@ -127,6 +127,7 @@ module Domgen
 
       def erb_instance
         unless @template
+          raise "Unable to locate file #{template_filename} for template #{name}" unless File.exist?(template_filename)
           @template = ERB.new(IO.read(template_filename), nil, '-')
           @template.filename = template_filename
         end
