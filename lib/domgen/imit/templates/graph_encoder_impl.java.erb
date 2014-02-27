@@ -36,7 +36,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
 -%>
     for ( final <%= a.entity.jpa.qualified_name %> o : object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>() )
     {
-      if( !messages.containsEntityMessage( <%= entity.imit.transport_id %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
+      if( !messages.containsEntityMessage( <%= repository.imit.message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(entity.name.to_s) %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
       {
         _encode<%= graph.name %>_<%= a.entity.name %>( messages, o );
       }
@@ -48,7 +48,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
         final <%= a.entity.jpa.qualified_name %> o = object.get<%= a.inverse.name %>();
         <% if a.inverse.multiplicity == :zero_or_one %>if( null != o )<% end %>
         {
-          if( !messages.containsEntityMessage( <%= entity.imit.transport_id %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
+          if( !messages.containsEntityMessage( <%= repository.imit.message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(entity.name.to_s) %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
           {
             _encode<%= graph.name %>_<%= a.entity.name %>( messages, o );
           }
@@ -63,7 +63,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
         final <%= a.referenced_entity.jpa.qualified_name %> o = object.get<%= a.name %>();
         <% if a.nullable? %>if( null != o )<% end %>
         {
-          if( !messages.containsEntityMessage( <%= entity.imit.transport_id %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
+          if( !messages.containsEntityMessage( <%= repository.imit.message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(a.referenced_entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(a.referenced_entity.name.to_s) %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
           {
             _encode<%= graph.name %>_<%= a.referenced_entity.name %>( messages, o );
           }
