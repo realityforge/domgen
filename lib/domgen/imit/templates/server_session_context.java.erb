@@ -1,0 +1,81 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= repository.imit.encoder_package %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.ejb.Local
+public interface <%= repository.imit.server_session_context_name %>
+{
+<%
+  repository.imit.graphs.each do |graph|
+    extra_interest_filter = ''
+    repository.data_modules.each do |data_module|
+      data_module.entities.each do |entity|
+        entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
+          var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
+          extra_interest_filter << ", #{nullability_annotation(attribute.nullable?)} #{attribute.jpa.non_primitive_java_type} #{var_name}"
+        end
+      end
+    end
+  initial_param = ''
+  check_method = "is#{graph.name}Interesting"
+  if graph.instance_root?
+    # Names are fully qualified so take any random data module
+    entity = repository.entity_by_name(graph.instance_root)
+    type = entity.primary_key.jpa.non_primitive_java_type
+    initial_param = ", @javax.annotation.Nonnull #{type} #{Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")}"
+    check_method = "is#{graph.name}Interesting"
+  end
+  if extra_interest_filter.size > 0
+%>
+  boolean <%= check_method %>( @javax.annotation.Nonnull <%= repository.imit.qualified_session_name %> session<%= initial_param %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<%= extra_interest_filter %> );
+<%
+  end
+end
+%>
+<%
+  repository.imit.graphs.each do |graph|
+    filter_param = ''
+    if graph.filter_parameter
+      p = graph.filter_parameter
+      filter_param = "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter"
+    end
+if !graph.instance_root?
+ if graph.cacheable? -%>
+  @javax.annotation.Nullable
+  String get<%= graph.name %>CacheKey();
+<% end %>
+  void collect<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages );
+<%
+else
+  if graph.filter_parameter
+    filter_java_type = "#{nullability_annotation(graph.filter_parameter.nullable?)} #{Domgen::Java.java_type(graph.filter_parameter, :ee, :default)}"
+
+    root_entity = repository.entity_by_name(graph.instance_root)
+    graph.reachable_entities.collect{|n|repository.entity_by_name(n)}.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+      outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name)}
+      outgoing_links.each do |a|
+        if a.inverse.multiplicity == :many
+%>
+  @javax.annotation.Nonnull
+  java.util.List<<%= a.entity.jpa.qualified_name %>> get<%= Domgen::Naming.pluralize(a.inverse.name) %>In<%= graph.name %>Graph( @javax.annotation.Nonnull <%= a.referenced_entity.jpa.qualified_name %> object, <%= filter_java_type %> filter );
+<%
+      elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
+%>
+  @javax.annotation.Nonnull
+  <%= a.entity.jpa.qualified_name %> get<%= a.inverse.name %>In<%= graph.name %>Graph( @javax.annotation.Nonnull <%= a.referenced_entity.jpa.qualified_name %> object, <%= filter_java_type %> filter );
+<%
+        end
+      end
+      entity.attributes.each do |a|
+        if a.reference? && a.imit? && a.imit.client_side? && a.referenced_entity.imit? && a.imit.include_edges.include?(graph.name) %>
+  @javax.annotation.Nonnull
+  <%= a.referenced_entity.jpa.qualified_name %> get<%= a.name %>In<%= graph.name %>Graph( @javax.annotation.Nonnull <%= a.entity.jpa.qualified_name %> object, <%= filter_java_type %> filter );
+<%
+        end
+      end
+    end
+  end
+end
+ %>
+<% end %>
+}

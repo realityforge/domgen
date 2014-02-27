@@ -14,6 +14,8 @@ public abstract class <%= repository.imit.session_manager_name %>
     return _encoder;
   }
 
+  protected abstract <%= repository.imit.qualified_server_session_context_name %> getContext();
+
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
   @Override
   public boolean saveEntityMessages( @javax.annotation.Nullable final String sessionID,
@@ -62,7 +64,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   end
 
   if !extra_interest_filter.empty?
-    extra_interest_filter = "&& is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}, session.getInterestedIn#{graph.name}().get( #{graph.name} )#{extra_interest_filter} ) "
+    extra_interest_filter = "&& getContext().is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}, session.getInterestedIn#{graph.name}().get( #{graph.name} )#{extra_interest_filter} ) "
   end
 %>
 
@@ -143,11 +145,11 @@ public abstract class <%= repository.imit.session_manager_name %>
     {
       session.<%= register_method %>;
 <% if graph.instance_root? -%>
-      getEncoder().encode<%= graph.name %>( org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet(), entity );
+      getEncoder().encode<%= graph.name %>( org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet(), entity<%= graph.filter_parameter.nil? ? '' : ", filter" %> );
 <% else -%>
 <% if graph.cacheable? -%>
     _lock<%= graph.name %>Cache.readLock().lock();
-    final String cached<%= graph.name %>Key = get<%= graph.name %>CacheKey();
+    final String cached<%= graph.name %>Key = getContext().get<%= graph.name %>CacheKey();
     if ( null == _cachedMetaDataMessages || ( null == cached<%= graph.name %>Key || !cached<%= graph.name %>Key.equals( _cached<%= graph.name %>Key ) ) )
     {
       _lock<%= graph.name %>Cache.readLock().unlock();
@@ -156,7 +158,7 @@ public abstract class <%= repository.imit.session_manager_name %>
       {
         _cached<%= graph.name %>Key = cached<%= graph.name %>Key;
         _cached<%= graph.name %>Messages = new org.realityforge.replicant.server.EntityMessageSet();
-        collect<%= graph.name %>( _cached<%= graph.name %>Messages );
+        getContext().collect<%= graph.name %>( _cached<%= graph.name %>Messages );
       }
       finally
       {
@@ -197,13 +199,6 @@ public abstract class <%= repository.imit.session_manager_name %>
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
     ensureSession( sessionID ).updateInterestIn<%= graph.name %>( <%= "#{pk_accessor}#{pk_accessor.nil? ? '' : ", "}" %>filter );
   }
-<% end -%>
-
-<% if !graph.instance_root? -%>
-<% if graph.cacheable? -%>
-  protected abstract String get<%= graph.name %>CacheKey();
-<% end -%>
-  protected abstract void collect<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages );
 <% end -%>
 
   public void unsubscribeFrom<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= param %> )

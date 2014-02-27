@@ -10,8 +10,9 @@ public interface <%= repository.imit.graph_encoder_name %>
 <%
   repository.imit.graphs.select{|graph| graph.instance_root? }.each do |graph|
     entity = repository.entity_by_name(graph.instance_root)
+    p = graph.filter_parameter
 %>
-  void encode<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object );
+  void encode<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> object<%= p.nil? ? '' : ", #{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter" %> );
 <% end %>
   /**
    * Helper method useful when manually creating bulk loads.

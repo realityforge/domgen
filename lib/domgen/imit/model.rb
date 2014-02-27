@@ -451,6 +451,14 @@ module Domgen
         "#{encoder_package}.#{session_manager_name}"
       end
 
+      def server_session_context_name
+        "#{repository.name}SessionContext"
+      end
+
+      def qualified_server_session_context_name
+        "#{encoder_package}.#{server_session_context_name}"
+      end
+
       def router_interface_name
         "#{repository.name}Router"
       end
