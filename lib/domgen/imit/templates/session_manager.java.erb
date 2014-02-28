@@ -197,7 +197,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   public void update<%= graph.name %>Subscription( @javax.annotation.Nonnull final String sessionID<%= update_param %> )
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
-    ensureSession( sessionID ).updateInterestIn<%= graph.name %>( <%= "#{pk_accessor}#{pk_accessor.nil? ? '' : ", "}" %>filter );
+    session.updateInterestIn<%= graph.name %>( <%= "#{pk_accessor}#{pk_accessor.nil? ? '' : ", "}" %>filter );
   }
 <% end -%>
 
