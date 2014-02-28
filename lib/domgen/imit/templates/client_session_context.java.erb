@@ -33,6 +33,8 @@ public interface <%= repository.imit.client_session_context_name %>
 <% end %>
 <% end %>
   org.realityforge.replicant.client.EntityRepository getRepository();
+
+  org.realityforge.replicant.client.EntityChangeBroker getEntityChangeBroker();
 <% if repository.imit.graphs.any? {|graph| graph.cacheable?} -%>
   org.realityforge.replicant.client.transport.CacheService getCacheService();
 

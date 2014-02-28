@@ -192,6 +192,7 @@ public class <%= repository.imit.subscription_manager_impl_name %>
 <% if !graph.instance_root? -%>
   protected void unload<%= graph.name %>()
   {
+    _context.getEntityChangeBroker().pause();
 <%
   graph.type_roots.reverse.each do |root|
     entity = repository.entity_by_name(root)
@@ -201,6 +202,7 @@ public class <%= repository.imit.subscription_manager_impl_name %>
       _context.getRepository().deregisterEntity( <%= entity.imit.qualified_name %>.class, e.get<%= entity.primary_key.name %>() );
     }
 <% end -%>
+    _context.getEntityChangeBroker().resume();
   }
 <% else %>
 <%
@@ -210,6 +212,9 @@ public class <%= repository.imit.subscription_manager_impl_name %>
 -%>
   private void unload<%= graph.name %>_<%= entity.name %>(@javax.annotation.Nonnull final <%= entity.imit.qualified_name %> object )
   {
+<% if is_root -%>
+    _context.getEntityChangeBroker().pause();
+<% end -%>
 <%
     outgoing_links.each do |a|
       if a.inverse.multiplicity == :many
@@ -251,6 +256,9 @@ public class <%= repository.imit.subscription_manager_impl_name %>
      # We should really check to see if they have shared subscriptions
  %>
     _context.getRepository().deregisterEntity( <%= entity.imit.qualified_name %>.class, object.get<%= entity.primary_key.name %>() );
+<% end -%>
+<% if is_root -%>
+    _context.getEntityChangeBroker().resume();
 <% end -%>
   }
 <% end %>
