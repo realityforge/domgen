@@ -86,11 +86,11 @@ public class <%= repository.imit.subscription_manager_impl_name %>
         public void run()
         {
           entry.markAsPresent();
+          LOG.info( "subscribeTo<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
           if( null != action )
           {
             action.run();
           }
-          LOG.info( "subscribeTo<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
         }
       };
 <% if graph.cacheable? -%>
@@ -109,7 +109,6 @@ public class <%= repository.imit.subscription_manager_impl_name %>
           LOG.info( "Loading cached data for graph <%= graph.name %> with etag " + eTag );
           //TODO: Figure out how to make the bulkLoad configurable
           _context.loadCachedContent( content, runnable, true );
-          LOG.info( "subscribeTo<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
         }
       };
 <% end -%>
@@ -137,17 +136,21 @@ public class <%= repository.imit.subscription_manager_impl_name %>
         public void run()
         {
           entry.setSubscriptionUpdateInProgress( false );
+          LOG.info( "update<%= graph.name %>Subscription(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
           if( null != action )
           {
             action.run();
           }
-          LOG.info( "update<%= graph.name %>Subscription(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
         }
       };
       LOG.info( "update<%= graph.name %>Subscription(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) requested." );
       entry.setSubscriptionData( filter );
       entry.setSubscriptionUpdateInProgress( true );
       _context.remoteUpdate<%= graph.name %>Subscription( <%= update_param_early_value %><%= update_param_early_value.size > 0 ? ', ' : '' %>runnable );
+    }
+    else
+    {
+      LOG.warning( "update<%= graph.name %>Subscription(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) request but not currently subscribed." );
     }
   }
 <% end %>
@@ -179,16 +182,17 @@ public class <%= repository.imit.subscription_manager_impl_name %>
             unload<%= graph.name %>_<%= entity.name %>( e );
           }
 <% end %>
+          LOG.info( "unsubscribeFrom<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
           if( null != action )
           {
             action.run();
           }
-          LOG.info( "unsubscribeFrom<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) completed." );
         }
       } );
     }
     else
     {
+      LOG.info( "unsubscribeFrom<%= graph.name %>(<%= graph.instance_root? ? "\" + #{varname} + \"" : "" %>) requested but no such subscription." );
       if( null != action )
       {
         action.run();

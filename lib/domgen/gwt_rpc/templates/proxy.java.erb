@@ -110,14 +110,14 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% if method.imit? %>
       if( null != request && LOG.isLoggable( LOG_LEVEL ) )
       {
-        LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request returned: RequestID=" + request.getRequestID() );
+        LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed with exception: RequestID=" + request.getRequestID() );
       }
       if( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
       {
         request.setNonNormalCompletionAction( runnable );
         if( LOG.isLoggable( LOG_LEVEL ) )
         {
-          LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed but change set not arrived: RequestID=" + request.getRequestID() );
+          LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed with exception but change set not arrived: RequestID=" + request.getRequestID() );
         }
       }
       else
@@ -130,11 +130,17 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
           session.getRequestManager().removeRequest( request.getRequestID() );
           if( LOG.isLoggable( LOG_LEVEL ) )
           {
-            LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed and no change set or already arrived: RequestID=" + request.getRequestID() );
+            LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed with exception and no change set or already arrived: RequestID=" + request.getRequestID() );
           }
         }
 <% end %>
       }
+<% if method.imit? %>
+      if( LOG.isLoggable( LOG_LEVEL ) )
+      {
+        LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed with exception." );
+      }
+<% end %>
     }
 
     public void onSuccess( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
@@ -199,9 +205,17 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         }
       };
 <% if method.imit? %>
+      if( null != request && LOG.isLoggable( LOG_LEVEL ) )
+      {
+        LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed normally: RequestID=" + request.getRequestID() );
+      }
       if ( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
       {
         request.setNormalCompletionAction( runnable );
+        if( LOG.isLoggable( LOG_LEVEL ) )
+        {
+          LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed normally but change set not arrived: RequestID=" + request.getRequestID() );
+        }
       }
       else
 <% end %>
@@ -211,6 +225,14 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         if ( null != session )
         {
           session.getRequestManager().removeRequest( request.getRequestID() );
+          if( LOG.isLoggable( LOG_LEVEL ) )
+          {
+            LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed normally and no change set or already arrived: RequestID=" + request.getRequestID() );
+          }
+        }
+        if( LOG.isLoggable( LOG_LEVEL ) )
+        {
+          LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed normally." );
         }
 <% end %>
       }
