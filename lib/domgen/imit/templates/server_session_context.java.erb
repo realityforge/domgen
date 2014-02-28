@@ -12,7 +12,7 @@ public interface <%= repository.imit.server_session_context_name %>
       data_module.entities.each do |entity|
         entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
           var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
-          extra_interest_filter << ", #{nullability_annotation(attribute.nullable?)} #{attribute.jpa.non_primitive_java_type} #{var_name}"
+          extra_interest_filter << ", @javax.annotation.Nullable #{attribute.jpa.non_primitive_java_type} #{var_name}"
         end
       end
     end
