@@ -1,0 +1,47 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= exception.data_module.jws.service_package %>;
+
+<% params = exception.inherited_parameters + exception.parameters -%>
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<%= jaxb_exception_annotations(exception) %>
+public class <%= exception.jws.fault_info_name %>
+{
+<% params.each do |parameter| %>
+  <%= jaxb_field_annotation(parameter) -%>
+  private <%= annotated_type(parameter, :ee, :boundary) %> <%= parameter.name %>;
+<% end %>
+
+<% if params.size != 0 %>
+  /**
+   * This constructor is present for deserialization mechanisms and should not be called directly.
+   *
+   * @deprecated
+   */
+  @Deprecated
+  public <%= exception.jws.fault_info_name %>()
+  {
+  }
+<% end %>
+
+  public <%= exception.jws.fault_info_name %>( <%= params.collect {|parameter| "final #{annotated_type(parameter, :ee, :boundary)} #{parameter.name}" }.join(", ") %> )
+  {
+<% params.each do |parameter|
+     null_protection = parameter.nullable? ? "#{parameter.name} == null ? null : " : ""
+     if :sequence == parameter.collection_type
+%>    this.<%= parameter.name %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
+<%     elsif :set == parameter.collection_type
+%>    this.<%= parameter.name %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
+  <%     else
+%>    this.<%= parameter.name %> = <%= parameter.name %>;
+<%   end
+   end
+%>  }
+<% params.each do |parameter|
+%>
+  public <%= annotated_type(parameter, :ee, :boundary) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+  {
+    return <%= parameter.name %>;
+  }
+<% end
+%>}

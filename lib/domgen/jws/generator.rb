@@ -17,7 +17,7 @@ module Domgen
     module JWS
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       FACETS = [:jws]
-      HELPERS = [Domgen::Java::Helper, Domgen::JWS::Helper]
+      HELPERS = [Domgen::Java::Helper, Domgen::JWS::Helper, Domgen::JAXB::Helper]
     end
   end
 end
@@ -35,6 +35,16 @@ Domgen.template_set(:jws_server_service) do |template_set|
                         :service,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/service.java.erb",
                         'main/java/#{service.jws.qualified_java_service_name.gsub(".","/")}.java',
+                        Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :exception,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/exception.java.erb",
+                        'main/java/#{exception.jws.qualified_name.gsub(".","/")}.java',
+                        Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :exception,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/fault_info.java.erb",
+                        'main/java/#{exception.jws.qualified_fault_info_name.gsub(".","/")}.java',
                         Domgen::Generator::JWS::HELPERS)
 end
 

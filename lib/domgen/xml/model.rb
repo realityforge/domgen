@@ -74,11 +74,21 @@ module Domgen
     class XmlParameter < Domgen.ParentedElement(:parameter)
       Domgen::XML.include_data_element_xml(self, :parameter)
     end
+
+    class XmlException < Domgen.ParentedElement(:exception)
+      Domgen::XML.include_xml(self, :exception)
+    end
+
+    class XmlExceptionParameter < Domgen.ParentedElement(:parameter)
+      Domgen::XML.include_data_element_xml(self, :parameter)
+    end
   end
 
   FacetManager.define_facet(:xml,
                             Struct => Domgen::XML::XmlStruct,
                             StructField => Domgen::XML::XmlStructField,
+                            Exception => Domgen::XML::XmlException,
+                            ExceptionParameter => Domgen::XML::XmlExceptionParameter,
                             Parameter => Domgen::XML::XmlParameter,
                             EnumerationSet => Domgen::XML::XmlEnumeration)
 end

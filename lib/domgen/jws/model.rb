@@ -138,11 +138,25 @@ module Domgen
 
     class JwsException < Domgen.ParentedElement(:exception)
       def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+        "#{exception.name}_Exception"
       end
 
       def qualified_name
-        "#{exception.data_module.jws.data_type_package}.#{name}"
+        "#{exception.data_module.jws.service_package}.#{name}"
+      end
+
+      def fault_info_name
+        "#{exception.name}ExceptionInfo"
+      end
+
+      def qualified_fault_info_name
+        "#{exception.data_module.jws.service_package}.#{fault_info_name}"
+      end
+
+      attr_writer :namespace
+
+      def namespace
+        @namespace || exception.data_module.repository.jws.namespace
       end
     end
   end

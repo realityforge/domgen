@@ -4,7 +4,6 @@ package <%= exception.data_module.ee.service_package %>;
 <%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% if exception.ejb? %>@javax.ejb.ApplicationException( rollback = <%= exception.ejb.rollback? %>, inherited = true )<% end %>
-<% if exception.jws? %>@javax.xml.ws.WebFault( name = "<%= exception.name %>" )<% end %>
 public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? "java.lang.Exception" : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
 {
 <% exception.parameters.each do |parameter| %>

@@ -29,6 +29,16 @@ module Domgen
         s
       end
 
+      def jaxb_exception_annotations(exception)
+        s = ''
+        s << "@javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )\n"
+        ns = namespace_annotation_parameter(exception.xml)
+        s << "@javax.xml.bind.annotation.XmlRootElement( name = \"#{exception.xml.name}\"#{ns} )\n"
+        params = exception.inherited_parameters + exception.parameters
+        s << "@javax.xml.bind.annotation.XmlType( name = \"#{exception.name}\", propOrder = {#{params.collect{|p| "\"#{p.name}\""}.join(", ")}}#{ns} )\n"
+        s
+      end
+
       def jaxb_field_annotation(field, wrap_collections = true)
         ns = namespace_annotation_parameter(field.xml)
         if field.collection?
