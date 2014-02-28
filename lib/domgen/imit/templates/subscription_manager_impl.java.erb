@@ -187,6 +187,13 @@ public class <%= repository.imit.subscription_manager_impl_name %>
         }
       } );
     }
+    else
+    {
+      if( null != action )
+      {
+        action.run();
+      }
+    }
   }
 
 <% if !graph.instance_root? -%>
