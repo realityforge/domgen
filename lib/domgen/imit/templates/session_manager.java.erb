@@ -197,7 +197,9 @@ public abstract class <%= repository.imit.session_manager_name %>
   public void update<%= graph.name %>Subscription( @javax.annotation.Nonnull final String sessionID<%= update_param %> )
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
+    <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> original = session.get<%= graph.name %>Parameter(<%= pk_accessor %>);
     session.updateInterestIn<%= graph.name %>( <%= "#{pk_accessor}#{pk_accessor.nil? ? '' : ", "}" %>filter );
+    getContext().collectForFilterChange<%= graph.name %>( org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet(), entity, original, filter );
   }
 <% end -%>
 
