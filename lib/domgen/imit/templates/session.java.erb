@@ -70,6 +70,12 @@ else
   {
     return _interestedIn<%= graph.name %>.containsKey( id );
   }
+
+  <%= nullability_annotation(graph.filter_parameter.nullable?)%>
+  public final <%= java_type %> get<%= graph.name %>Parameter( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  {
+    return _interestedIn<%= graph.name %>.get( id );
+  }
 <%
       else
 %>
