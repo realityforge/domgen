@@ -201,7 +201,8 @@ public class <%= repository.imit.subscription_manager_impl_name %>
   }
 
 <% if !graph.instance_root? -%>
-  protected void unload<%= graph.name %>()
+  @Override
+  public void unload<%= graph.name %>()
   {
     _context.getEntityChangeBroker().pause();
 <%
@@ -221,6 +222,13 @@ public class <%= repository.imit.subscription_manager_impl_name %>
     is_root = entity.qualified_name.to_s == graph.instance_root.to_s
     outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name)}
 -%>
+<% if is_root -%>
+  @Override
+  public void unload<%= graph.name %>(@javax.annotation.Nonnull final <%= entity.imit.qualified_name %> object )
+  {
+    unload<%= graph.name %>_<%= entity.name %>( object );
+  }
+<% end -%>
   <%= is_root ? "protected" : "private" %> void unload<%= graph.name %>_<%= entity.name %>(@javax.annotation.Nonnull final <%= entity.imit.qualified_name %> object )
   {
 <% if is_root -%>

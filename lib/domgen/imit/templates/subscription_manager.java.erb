@@ -30,7 +30,11 @@ public interface <%= repository.imit.subscription_manager_name %>
   void unsubscribeFrom<%= graph.name %>(<%= param %><%= param.size > 0 ? ", #{suffix}" : suffix %>);
 
 <% if graph.instance_root? -%>
+  void unload<%= graph.name %>( @javax.annotation.Nonnull <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %> object );
+
   java.util.Map<Object, org.realityforge.replicant.client.transport.SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>>> get<%= graph.name %>Subscriptions();
+<% else -%>
+  void unload<%= graph.name %>();
 <% end -%>
 <% if graph.filter_parameter %>
   void update<%= graph.name %>Subscription(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>);
