@@ -163,10 +163,31 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% end %>
 <% end %>
 
+  public void verifySelf()
+    throws Exception
+  {
+    checkValidity();
+    final <%= entity.imit.name %> r = _repository.findByID( <%= entity.imit.name %>.class, <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.name %>() );
+    if( r != this )
+    {
+      throw new IllegalStateException( "Registered entity does not match current entity Registered: " + r + " Current: " + this );
+    }
+<% entity.declared_attributes.select{ |a| a.imit? && a.reference? && a.imit.client_side? && a.inverse.traversable? }.
+      each do |attribute| %>
+    if( null != _<%= attribute.imit.name %> )
+    {
+      _<%= attribute.imit.name %>.verifySelf();
+    }
+<% end %>
+  }
+
   @Override
   public void verify()
+    throws Exception
   {
-<% if !entity.extends.nil? %>
+<% if entity.extends.nil? %>
+    verifySelf();
+<% else %>
     super.verify();
 <% end -%>
 <%
