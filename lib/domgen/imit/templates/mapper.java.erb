@@ -125,7 +125,7 @@ public class <%= data_module.imit.mapper_name %>
   private void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.name %> entity, <%= nullability_annotation(attribute.nullable?) %> final <%= attribute.imit.java_type(:transport) %> value )
   {
 <%
-   getter_text = "entity.get#{attribute.imit.name(:transport)}()"
+   getter_text = "entity.#{getter_prefix(attribute)}#{attribute.imit.name(:transport)}()"
    equal_check =
        if attribute.primary_key?
          "true"

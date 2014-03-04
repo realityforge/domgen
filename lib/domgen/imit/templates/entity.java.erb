@@ -51,21 +51,21 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     <%= entity.extends.nil? ? "_repository = repository;\n    _broker = broker" : "super( repository, broker )" %>;
   }
 <% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
-%>  public abstract <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>();
+%>  public abstract <%= annotated_type(attribute, :imit) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>();
 <% if attribute.attribute_type == :reference
-  %>  abstract <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>();
+  %>  abstract <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>();
 <% end %>
     abstract void set<%= attribute.imit.name(:transport) %>( <%= attribute.imit.java_type(:transport) %> value );
 <% end %>
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
-%>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>()
+%>  public <%= annotated_type(attribute, :imit) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>()
   {
     <% if !attribute.primary_key? %>check<%= attribute.reference? ? "Linked" : "Validity" %>();<% end %>
     return _<%= attribute.imit.name %>;
   }
 <% if attribute.attribute_type == :reference
 %>
-  final <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>()
+  final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
   {
     return _<%= attribute.referencing_link_name %>;
   }
@@ -105,7 +105,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 %>
   <%= description_javadoc_for(attribute) %>
   @javax.annotation.Nonnull
-  public final java.util.List<<%= type %>> get<%= plural_name %>()
+  public final java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= plural_name %>()
   {
     return java.util.Collections.unmodifiableList( safeGet<%= plural_name %>() );
   }
@@ -143,7 +143,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     return <%= plural_name %>;
   }
 <% else %>
-  public final <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> get<%= name %>()
+  public final <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> <%= getter_prefix(attribute) %><%= name %>()
   {
     return <%= name %>;
   }
@@ -346,15 +346,15 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     }
     else
     {
-      final <%= entity.jpa.name%> that = (<%= entity.jpa.name %>) o;
-      return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name}() && get#{entity.primary_key.imit.name}().equals( that.get#{entity.primary_key.imit.name}() )" : "get#{entity.primary_key.imit.name }() == that.get#{entity.primary_key.imit.name }()" %>;
+      final <%= entity.jpa.name %> that = (<%= entity.jpa.name %>) o;
+      return <%=  !entity.primary_key.imit.primitive? ? "null != #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name}() && #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name}().equals( that.get#{entity.primary_key.imit.name}() )" : "#{getter_prefix(entity.primary_key)}#{entity.primary_key.name }() == that.#{getter_prefix(entity.primary_key)}#{entity.primary_key.name }()" %>;
     }
   }
 
   @Override
   public int hashCode()
   {
-    return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name }() ? get#{entity.primary_key.imit.name }().hashCode() : System.identityHashCode( this )" : "get#{entity.primary_key.imit.name }()" %>;
+    return <%=  !entity.primary_key.imit.primitive? ? "null != #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name }() ? #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name }().hashCode() : System.identityHashCode( this )" : "#{getter_prefix(entity.primary_key)}#{entity.primary_key.name }()" %>;
   }
 <% end %>
 }
