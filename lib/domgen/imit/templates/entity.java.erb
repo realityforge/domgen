@@ -9,7 +9,7 @@ import org.realityforge.replicant.client.EntityRepository;
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_name}\n" :
-  "    implements org.realityforge.replicant.client.Linkable" %>
+  "    implements org.realityforge.replicant.client.Linkable, org.realityforge.replicant.client.Verifiable" %>
 {
   public static final String TYPE_KEY = "<%= entity.qualified_name %>";
 <% if !entity.abstract? %>
@@ -162,6 +162,35 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   }
 <% end %>
 <% end %>
+
+  @Override
+  public void verify()
+  {
+<% if !entity.extends.nil? %>
+    super.verify();
+<% end -%>
+<%
+entity.imit.referencing_client_side_attributes.each do |attribute|
+  if attribute.inverse.multiplicity == :many
+%>
+    if( null != <%= Domgen::Naming.pluralize(attribute.inverse.name) %> )
+    {
+      for( final <%= attribute.entity.imit.qualified_name %> o : <%= Domgen::Naming.pluralize(attribute.inverse.name) %> )
+      {
+        o.verify();
+      }
+    }
+<% else %>
+    if( null != <%= attribute.inverse.name %> )
+    {
+      <%= attribute.inverse.name %>.verify();
+    }
+<%
+  end
+ end
+%>
+  }
+
   public void invalidate()
   {
 <% if entity.extends.nil?
@@ -175,6 +204,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     }
 <% end
 %>    _broker.entityRemoved( this );
+    delink();
     _repository = null;
     _broker = null;
 <% else
@@ -236,6 +266,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     return _created;
   }
 
+  @Override
   public final boolean isValid()
   {
     return null != _repository;
@@ -258,6 +289,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     }
   }
 
+  @Override
   public final void link()
   {
     checkValidity();
@@ -278,7 +310,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     }
   }
 
-  public final void delink()
+  private void delink()
   {
     checkValidity();
     _delinking = true;
@@ -291,6 +323,12 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     {
       _delinking = false;
     }
+  }
+
+  @Override
+  public final boolean isLinked()
+  {
+    return _linked;
   }
 <% end %>
 
