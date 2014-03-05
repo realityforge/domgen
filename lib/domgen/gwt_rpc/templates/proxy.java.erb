@@ -7,6 +7,10 @@ public class <%= service.gwt_rpc.proxy_name %>
 {
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= service.gwt_rpc.proxy_name %>.class.getName() );
   private static final java.util.logging.Level LOG_LEVEL = java.util.logging.Level.INFO;
+<% service.methods.select{|method| method.gwt_rpc?}.each do |method|
+-%>
+  private static final String <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> = "<%= service.qualified_name %>.<%= method.name %>";
+<% end %>
 
   @javax.inject.Inject
   private <%= service.gwt_rpc.qualified_async_rpc_service_name %> _service;
@@ -64,7 +68,7 @@ public class <%= service.gwt_rpc.proxy_name %>
     org.realityforge.replicant.client.transport.SessionContext.setRequest( request );
     if( LOG.isLoggable( LOG_LEVEL ) )
     {
-      LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> created request " + request.getRequestID() );
+      LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " created request " + request.getRequestID() );
     }
   }
   else
@@ -110,14 +114,14 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% if method.imit? %>
       if( null != request && LOG.isLoggable( LOG_LEVEL ) )
       {
-        LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed with exception: RequestID=" + request.getRequestID() );
+        LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception: RequestID=" + request.getRequestID() );
       }
       if( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
       {
         request.setNonNormalCompletionAction( runnable );
         if( LOG.isLoggable( LOG_LEVEL ) )
         {
-          LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed with exception but change set not arrived: RequestID=" + request.getRequestID() );
+          LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception but change set not arrived: RequestID=" + request.getRequestID() );
         }
       }
       else
@@ -127,10 +131,10 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% if method.imit? %>
         if ( null != session )
         {
-          session.getRequestManager().removeRequest( request.getRequestID() );
+          session.removeRequest( request.getRequestID() );
           if( LOG.isLoggable( LOG_LEVEL ) )
           {
-            LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed with exception and no change set or already arrived: RequestID=" + request.getRequestID() );
+            LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception and no change set or already arrived: RequestID=" + request.getRequestID() );
           }
         }
 <% end %>
@@ -138,7 +142,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% if method.imit? %>
       if( LOG.isLoggable( LOG_LEVEL ) )
       {
-        LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed with exception." );
+        LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception." );
       }
 <% end %>
     }
@@ -207,14 +211,14 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% if method.imit? %>
       if( null != request && LOG.isLoggable( LOG_LEVEL ) )
       {
-        LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed normally: RequestID=" + request.getRequestID() );
+        LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally: RequestID=" + request.getRequestID() );
       }
       if ( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
       {
         request.setNormalCompletionAction( runnable );
         if( LOG.isLoggable( LOG_LEVEL ) )
         {
-          LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed normally but change set not arrived: RequestID=" + request.getRequestID() );
+          LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally but change set not arrived: RequestID=" + request.getRequestID() );
         }
       }
       else
@@ -224,15 +228,15 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% if method.imit? %>
         if ( null != session )
         {
-          session.getRequestManager().removeRequest( request.getRequestID() );
+          session.removeRequest( request.getRequestID() );
           if( LOG.isLoggable( LOG_LEVEL ) )
           {
-            LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed normally and no change set or already arrived: RequestID=" + request.getRequestID() );
+            LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally and no change set or already arrived: RequestID=" + request.getRequestID() );
           }
         }
         if( LOG.isLoggable( LOG_LEVEL ) )
         {
-          LOG.log( LOG_LEVEL, "<%= service.qualified_name %>.<%= method.name %> request completed normally." );
+          LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally." );
         }
 <% end %>
       }
