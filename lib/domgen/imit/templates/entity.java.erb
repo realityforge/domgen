@@ -383,14 +383,11 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   {
     return "<%= entity.qualified_name %>[" + <%=
       entity.attributes.select{ |a| a.imit? && a.imit.client_side? }.collect do |a|
-      value = "#{getter_prefix(a)}#{a.imit.name.to_s}()"
-      if a.reference?
-        suffix = ".#{getter_prefix(a.referenced_entity.primary_key)}#{a.referenced_entity.primary_key.name}()"
-        value = "(null != #{value} ? #{value}#{suffix} : #{value})"
-      end
-  "\"#{a.name}=\" + #{value}"
+      value = "#{getter_prefix(a)}#{a.imit.name(:transport).to_s}()"
+      output = "\"#{a.name}=\" + #{value}"
+      entity.primary_key == a ? output : "(isValid() ? #{output} : \"\")"
       end.join(" + \", \" + ")
-    %> + "]";
+    %> + "]" + (!isValid() ? "(Invalid)" : !isLinked() ? "(Unlinked)" : !isCreated() ? "(Creating)" : "");
   }
 <% end -%>
 }
