@@ -420,7 +420,7 @@ module Domgen
       end
 
       def client_session_name
-        "#{repository.name}ClientSession"
+        "#{repository.name}ClientSessionImpl"
       end
 
       def qualified_client_session_name
