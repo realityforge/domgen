@@ -65,7 +65,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   }
 <% if attribute.attribute_type == :reference
 %>
-  final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
+  protected final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
   {
     return _<%= attribute.referencing_link_name %>;
   }
