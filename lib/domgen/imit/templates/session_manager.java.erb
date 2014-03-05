@@ -170,7 +170,7 @@ public abstract class <%= repository.imit.session_manager_name %>
       _lock<%= graph.name %>Cache.readLock().unlock();
     }
 <% else -%>
-      collect<%= graph.name %>( org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet() );
+      getContext().collect<%= graph.name %>( org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionEntityMessageSet() );
 <% end -%>
 <% end -%>
 <% if graph.cacheable? -%>

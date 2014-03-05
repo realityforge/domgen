@@ -34,8 +34,8 @@ Domgen.template_set(:imit_entity) do |template_set|
                         Domgen::Generator::Imit::HELPERS)
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :repository,
-                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/subscription_manager.java.erb",
-                        'main/java/#{repository.imit.qualified_subscription_manager_name.gsub(".","/")}.java',
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client_session_interface.java.erb",
+                        'main/java/#{repository.imit.qualified_client_session_interface_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::HELPERS)
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :repository,
@@ -46,11 +46,6 @@ Domgen.template_set(:imit_entity) do |template_set|
                         :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client_session_context.java.erb",
                         'main/java/#{repository.imit.qualified_client_session_context_name.gsub(".","/")}.java',
-                        Domgen::Generator::Imit::HELPERS)
-  template_set.template(Domgen::Generator::Imit::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/subscription_manager_impl.java.erb",
-                        'main/java/#{repository.imit.qualified_subscription_manager_impl_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::HELPERS)
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :repository,
