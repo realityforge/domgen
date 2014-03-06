@@ -272,7 +272,11 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     {
       if( null == _<%= attribute.imit.name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
       {
-        _<%= attribute.imit.name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= attribute.referencing_link_name %> );
+        _<%= attribute.imit.name %> = _repository.findByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= attribute.referencing_link_name %> );
+        if( null == _<%= attribute.imit.name %> )
+        {
+          throw new IllegalStateException( "Unable to locate entity of type '<%= attribute.referenced_entity.imit.qualified_name %>' and id = '" + _<%= attribute.referencing_link_name %> + "' via '<%= attribute.imit.name %>' attribute on " + this );
+        }
         if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, _<%= attribute.imit.name %> );
 <% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.add<%= attribute.inverse.name %>( this );<% end %>
 <% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.name %>( this );<% end %>
