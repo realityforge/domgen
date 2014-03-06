@@ -29,6 +29,8 @@ public class <%= service.gwt_rpc.servlet_name %>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
     final <%= annotated_type(parameter, :ejb, :boundary) %> $<%= parameter.name %>;
 <% end %>
+    try
+  {
 <% if method.parameters.any?{|p| p.struct?}
 %>  try
   {
@@ -116,10 +118,6 @@ LOOP
       throw new IllegalArgumentException( ioe.getMessage(), ioe );
     }
 <% end %>
-<% if !method.exceptions.empty?
-%>    try
-    {
-<% end %>
     <%= return_prefix %>_service.<%= method.gwt_rpc.name %>(<%= method.parameters.collect do |p|
   if p.gwt_rpc.environmental?
     value = p.gwt_rpc.environment_value
@@ -143,22 +141,23 @@ LOOP
   end
   value
 end.join(', ') %>);
-      final String complete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.get( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY );
-      if( null != complete )
-      {
-        getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, complete );
-        org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY );
-      }
   <%= return_postfix %>
-<% if !method.exceptions.empty?
-%>    }
-<% end %>
+    }
 <% method.exceptions.each do |exception| %>
     catch ( final <%= exception.ee.qualified_name %> e )
     {
         throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
     }
 <% end %>
+    finally
+    {
+      final String complete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.get( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY );
+      if( null != complete )
+      {
+        getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, complete );
+        org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY );
+      }
+    }
   }
 <% end %>
 <%
