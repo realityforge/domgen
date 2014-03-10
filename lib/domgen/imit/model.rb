@@ -319,17 +319,6 @@ module Domgen
         if cacheable? && (filter_parameter || instance_root?)
           raise "Cacheable graphs are not supported for instance based or filterable graphs"
         end
-        if !instance_root?
-          type_roots.each do |root|
-            entity = application.repository.entity_by_name(root)
-            if entity.imit.associated_instance_root_graphs.size > 0
-              raise "Entity #{root} is part of type graph #{name} and is also part of instance graphs #{entity.imit.associated_instance_root_graphs.collect{|g| g.name}.inspect} which is not allowed."
-            end
-            if entity.imit.associated_type_graphs.size > 1
-              raise "Entity #{root} is part of type graph #{name} and is also part of other type graphs #{entity.imit.associated_type_graphs.collect{|g| g.name}.delete_if{|g| g == name}.inspect} which is not allowed."
-            end
-          end
-        end
       end
     end
 
