@@ -515,14 +515,6 @@ module Domgen
         "#{entity_package}.#{client_session_interface_name}"
       end
 
-      def client_session_context_name
-        "#{repository.name}ClientSessionContext"
-      end
-
-      def qualified_client_session_context_name
-        "#{entity_package}.#{client_session_context_name}"
-      end
-
       def change_recorder_name
         "#{repository.name}ChangeRecorder"
       end
