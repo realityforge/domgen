@@ -15,6 +15,8 @@ public interface <%= service.jws.java_service_name %>
   String PORT_NAME = "<%= service.jws.port_name %>";
   String SERVICE_NAME = "<%= service.jws.service_name %>";
   String WEB_SERVICE_NAME = "<%= service.jws.web_service_name %>";
+    String LOCAL_WAR_WSDL_LOCATION = "WEB-INF/wsdl/<%= service.jws.wsdl_name %>";
+    String LOCAL_JAR_WSDL_LOCATION = "META-INF/wsdl/<%= service.jws.wsdl_name %>";
 
 <% service.methods.each do |method|
 %>  @javax.jws.WebMethod( operationName = "<%= method.name %>" )
