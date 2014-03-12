@@ -3,6 +3,7 @@ package <%= service.data_module.ejb.service_package %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.jws.WebService( name= <%= service.jws.java_service_name %>.WEB_SERVICE_NAME, serviceName = <%= service.jws.java_service_name %>.SERVICE_NAME, portName = <%= service.jws.java_service_name %>.PORT_NAME, targetNamespace = <%= service.jws.java_service_name %>.NAMESPACE, endpointInterface = <%= service.jws.java_service_name %>.ENDPOINT_INTERFACE )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.NEVER )
 // For some reason we need to make these classes Stateless to avoid bug when we deploy into glassfish using versioned artifacts
 @javax.ejb.Stateless
 @com.sun.xml.ws.developer.SchemaValidation
