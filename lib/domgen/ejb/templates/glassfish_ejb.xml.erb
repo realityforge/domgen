@@ -1,0 +1,21 @@
+<!DOCTYPE glassfish-ejb-jar PUBLIC "-//GlassFish.org// DTD GlassFish Application Server 3.1 EJB 3.1//EN" "http://glassfish.org/dtds/glassfish-ejb-jar_3_1-1.dtd">
+<glassfish-ejb-jar>
+  <enterprise-beans>
+<%
+  repository.data_modules.each do |data_module|
+    data_module.services.select{|s| s.ejb? && s.jws?}.each do |service|
+-%>
+    <ejb>
+      <ejb-name><%= service.jws.boundary_ejb_name %></ejb-name>
+      <webservice-endpoint>
+        <port-component-name><%= service.jws.web_service_name %></port-component-name>
+        <endpoint-address-uri><%= service.jws.url %></endpoint-address-uri>
+      </webservice-endpoint>
+    </ejb>
+<%
+    end
+  end
+-%>
+  </enterprise-beans>
+  <disable-nonportable-jndi-names>true</disable-nonportable-jndi-names>
+</glassfish-ejb-jar>

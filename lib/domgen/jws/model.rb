@@ -15,6 +15,17 @@
 module Domgen
   module JWS
     class JwsClass < Domgen.ParentedElement(:service)
+
+      def boundary_ejb_name
+        "#{service.data_module.repository.name}.#{service.data_module.name}.#{service.jws.java_service_name}"
+      end
+
+      attr_writer :url
+
+      def url
+        @url || "#{service.data_module.jws.url}/#{web_service_name}"
+      end
+
       attr_writer :port_type_name
 
       def port_type_name
@@ -102,6 +113,12 @@ module Domgen
       def namespace
         @namespace || "#{data_module.repository.jws.namespace}/#{data_module.name}"
       end
+
+      attr_writer :url
+
+      def url
+        @url || "#{data_module.repository.jws.url}/#{data_module.name}"
+      end
     end
 
     class JwsApplication < Domgen.ParentedElement(:repository)
@@ -122,6 +139,12 @@ module Domgen
 
       def base_namespace
         @base_namespace || "http://example.com"
+      end
+
+      attr_writer :url
+
+      def url
+        @url || "/api/soap"
       end
     end
 

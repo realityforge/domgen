@@ -2,19 +2,25 @@
 package <%= service.data_module.ejb.service_package %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.jws.WebService( targetNamespace = <%= service.jws.java_service_name %>.NAMESPACE, wsdlLocation = <%= service.jws.java_service_name %>.WSDL_LOCATION )
+@javax.jws.WebService( targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, wsdlLocation = <%= service.jws.java_service_name %>.MetaData.WSDL_LOCATION )
 @javax.jws.soap.SOAPBinding( style = javax.jws.soap.SOAPBinding.Style.DOCUMENT,
                              use = javax.jws.soap.SOAPBinding.Use.LITERAL,
                              parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.WRAPPED )
 @com.sun.xml.ws.developer.SchemaValidation
 public interface <%= service.jws.java_service_name %>
 {
-  String NAMESPACE = "<%= service.jws.namespace %>";
-  String WSDL_LOCATION = "<%= service.jws.system_id %>";
-  String ENDPOINT_INTERFACE = "<%= service.jws.qualified_java_service_name %>";
-  String PORT_NAME = "<%= service.jws.port_name %>";
-  String SERVICE_NAME = "<%= service.jws.service_name %>";
-  String WEB_SERVICE_NAME = "<%= service.jws.web_service_name %>";
+  interface MetaData
+  {
+    String EJB_NAME = "<%= service.jws.boundary_ejb_name %>";
+    String NAMESPACE = "<%= service.jws.namespace %>";
+    String WSDL_LOCATION = "<%= service.jws.system_id %>";
+    String ENDPOINT_INTERFACE = "<%= service.jws.qualified_java_service_name %>";
+    String PORT_NAME = "<%= service.jws.port_name %>";
+    String SERVICE_NAME = "<%= service.jws.service_name %>";
+    String WEB_SERVICE_NAME = "<%= service.jws.web_service_name %>";
+    String LOCAL_WAR_WSDL_LOCATION = "WEB-INF/wsdl/<%= service.jws.wsdl_name %>";
+    String LOCAL_JAR_WSDL_LOCATION = "META-INF/wsdl/<%= service.jws.wsdl_name %>";
+  }
 
 <% service.methods.each do |method|
 %>  @javax.jws.WebMethod( operationName = "<%= method.name %>" )
