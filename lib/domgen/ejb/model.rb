@@ -29,8 +29,16 @@ module Domgen
         @name || service.qualified_name
       end
 
+      def service_ejb_name
+        "#{service.data_module.repository.name}.#{service.ejb.name}"
+      end
+
       def boundary_name
         "#{name}Boundary"
+      end
+
+      def boundary_ejb_name
+        "#{service.data_module.repository.name}.#{service.ejb.boundary_name}"
       end
 
       attr_writer :service_name

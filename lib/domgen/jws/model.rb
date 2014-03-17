@@ -15,6 +15,11 @@
 module Domgen
   module JWS
     class JwsClass < Domgen.ParentedElement(:service)
+
+      def boundary_ejb_name
+        "#{service.data_module.repository.name}.#{service.data_module.name}.#{service.jws.java_service_name}"
+      end
+
       attr_writer :port_type_name
 
       def port_type_name
