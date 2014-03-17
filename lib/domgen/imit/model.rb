@@ -408,6 +408,14 @@ module Domgen
         "#{entity_package}.#{change_mapper_name}"
       end
 
+      def data_loader_service_name
+        "Abstract#{repository.name}DataLoaderService"
+      end
+
+      def qualified_data_loader_service_name
+        "#{entity_package}.#{data_loader_service_name}"
+      end
+
       def client_session_name
         "#{repository.name}ClientSessionImpl"
       end
