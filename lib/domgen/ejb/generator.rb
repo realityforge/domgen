@@ -54,5 +54,12 @@ Domgen.template_set(:ejb_service_facades => [:ejb_services]) do |template_set|
                         Domgen::Generator::EJB::HELPERS,
                         'service.ejb.generate_boundary?')
 end
+Domgen.template_set(:ejb_glassfish_config_assets) do |template_set|
+  template_set.template(Domgen::Generator::EJB::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/glassfish_ejb.xml.erb",
+                        'main/webapp/WEB-INF/glassfish-ejb-jar.xml',
+                        Domgen::Generator::EJB::HELPERS)
+end
 
 Domgen.template_set(:ejb => [:ejb_service_facades, :jpa_ejb_dao])
