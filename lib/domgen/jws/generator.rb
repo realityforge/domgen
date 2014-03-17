@@ -78,6 +78,14 @@ Domgen.template_set(:jws_wsdl_assets) do |template_set|
                         :name => 'WEB-INF/jax_ws_catalog.xml')
 end
 
+Domgen.template_set(:jws_jaxws_config) do |template_set|
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/sun_jaxws.xml.erb",
+                        'main/webapp/WEB-INF/sun-jaxws.xml',
+                        Domgen::Generator::JWS::HELPERS)
+end
+
 Domgen.template_set(:jws_server => [:jws_server_boundary, :jws_server_service, :jws_wsdl_assets])
 Domgen.template_set(:jws_client => [:jws_wsdl_resources])
 Domgen.template_set(:jws => [:jws_server, :jws_client])
