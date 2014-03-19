@@ -25,6 +25,9 @@ module Domgen
         s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? "ORDINAL" : "STRING"} )\n" if attribute.enumeration?
         s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? "TIMESTAMP" : "DATE"} )\n" if attribute.datetime? || attribute.date?
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
+        converter = attribute.jpa.converter
+        s << "  @javax.persistence.Convert( converter = #{converter}.class )\n" if converter
+
         s << nullable_annotate(attribute, '', true)
         if attribute.text?
           unless attribute.length.nil? && attribute.min_length.nil?

@@ -12,6 +12,25 @@
 # limitations under the License.
 #
 
+Domgen::TypeDB.config_element(:'jpa.mssql') do
+  attr_accessor :converter
+end
+
+Domgen::TypeDB.config_element(:'jpa.pgsql') do
+  attr_accessor :converter
+end
+
+Domgen::TypeDB.config_element(:'jpa') do
+  attr_accessor :converter
+end
+
+[:point, :multipoint, :linestring, :multilinestring, :polygon, :multipolygon, :geometry,
+ :pointm, :multipointm, :linestringm, :multilinestringm, :polygonm, :multipolygonm ].each do |type_key|
+  Domgen::TypeDB.enhance(type_key,
+                         'jpa.pgsql.converter' => 'org.realityforge.jeo.geolatte.jpa.PostgisConverter',
+                         'jpa.mssql.converter' => 'org.realityforge.jeo.geolatte.jpa.SqlServerConverter')
+end
+
 module Domgen
   module JPA
     class JPAQueryParameter < Domgen.ParentedElement(:parameter)
@@ -236,6 +255,17 @@ module Domgen
       end
 
       include Domgen::Java::EEJavaCharacteristic
+
+      attr_writer :converter
+
+      def converter
+        return nil if attribute.reference?
+        @converter ||
+          attribute.characteristic_type.jpa.converter ||
+          (Domgen::Sql.dialect.is_a?(Domgen::Sql::MssqlDialect) ?
+            attribute.characteristic_type.jpa.mssql.converter :
+            attribute.characteristic_type.jpa.pgsql.converter)
+      end
 
       def field_name
         Domgen::Naming.camelize( name )
