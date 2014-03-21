@@ -260,6 +260,7 @@ module Domgen
 
       def converter
         return nil if attribute.reference?
+        return nil if attribute.enumeration?
         @converter ||
           attribute.characteristic_type.jpa.converter ||
           (Domgen::Sql.dialect.is_a?(Domgen::Sql::MssqlDialect) ?
