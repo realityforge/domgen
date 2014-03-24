@@ -162,7 +162,8 @@ module Domgen
 
     class GwtException < Domgen.ParentedElement(:exception)
       def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+        prefix = "GwtRpc#{exception.name}"
+        exception.name.to_s =~ /Exception$/ ? prefix : "#{prefix}Exception"
       end
 
       def qualified_name
