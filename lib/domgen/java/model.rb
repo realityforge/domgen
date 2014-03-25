@@ -316,16 +316,6 @@ module Domgen
       end
     end
 
-    module ImitJavaPackage
-      include JavaPackage
-
-      protected
-
-      def facet_key
-        :imit
-      end
-    end
-
     module ClientServerJavaPackage
       include BaseJavaPackage
 
@@ -381,6 +371,16 @@ module Domgen
 
       def server_data_type_package
         @server_data_type_package || resolve_package(:server_data_type_package)
+      end
+    end
+
+    module ImitJavaPackage
+      include ClientServerJavaPackage
+
+      protected
+
+      def facet_key
+        :imit
       end
     end
 

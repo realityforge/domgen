@@ -121,7 +121,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{service.data_module.imit.service_package}.#{name}"
+        "#{service.data_module.imit.client_service_package}.#{name}"
       end
 
       attr_writer :proxy_name
@@ -131,7 +131,7 @@ module Domgen
       end
 
       def qualified_proxy_name
-        "#{service.data_module.imit.service_package}.#{proxy_name}"
+        "#{service.data_module.imit.client_service_package}.#{proxy_name}"
       end
     end
 
@@ -155,7 +155,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.imit.service_package}.#{name}"
+        "#{exception.data_module.imit.client_service_package}.#{name}"
       end
     end
 
@@ -176,7 +176,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{entity.data_module.imit.entity_package}.#{name}"
+        "#{entity.data_module.imit.client_entity_package}.#{name}"
       end
 
       def replication_root?
@@ -239,7 +239,7 @@ module Domgen
       end
 
       def qualified_mapper_name
-        "#{entity_package}.#{mapper_name}"
+        "#{client_entity_package}.#{mapper_name}"
       end
 
       def updater_name
@@ -247,7 +247,7 @@ module Domgen
       end
 
       def qualified_updater_name
-        "#{entity_package}.#{updater_name}"
+        "#{client_entity_package}.#{updater_name}"
       end
     end
 
@@ -362,7 +362,7 @@ module Domgen
     end
 
     class ImitationApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ClientJavaApplication
+      include Domgen::Java::JavaClientServerApplication
 
       attr_writer :async_callback_name
 
@@ -371,7 +371,7 @@ module Domgen
       end
 
       def qualified_async_callback_name
-        "#{service_package}.#{async_callback_name}"
+        "#{client_service_package}.#{async_callback_name}"
       end
 
       attr_writer :async_error_callback_name
@@ -381,23 +381,23 @@ module Domgen
       end
 
       def qualified_async_error_callback_name
-        "#{service_package}.#{async_error_callback_name}"
+        "#{client_service_package}.#{async_error_callback_name}"
       end
 
-      def ioc_package
+      def client_ioc_package
         repository.gwt_rpc.client_ioc_package
       end
 
       attr_writer :encoder_package
 
       def encoder_package
-        @encoder_package || repository.jpa.entity_package
+        @encoder_package || repository.imit.server_entity_package
       end
 
       attr_writer :decoder_package
 
       def decoder_package
-        @decoder_package || "#{repository.imit.package}.transport"
+        @decoder_package || "#{repository.imit.client_package}.transport"
       end
 
       def change_mapper_name
@@ -405,7 +405,7 @@ module Domgen
       end
 
       def qualified_change_mapper_name
-        "#{entity_package}.#{change_mapper_name}"
+        "#{client_entity_package}.#{change_mapper_name}"
       end
 
       def data_loader_service_name
@@ -413,7 +413,7 @@ module Domgen
       end
 
       def qualified_data_loader_service_name
-        "#{entity_package}.#{data_loader_service_name}"
+        "#{client_entity_package}.#{data_loader_service_name}"
       end
 
       def client_session_name
@@ -421,7 +421,7 @@ module Domgen
       end
 
       def qualified_client_session_name
-        "#{entity_package}.#{client_session_name}"
+        "#{client_entity_package}.#{client_session_name}"
       end
 
       def graph_enum_name
@@ -429,7 +429,7 @@ module Domgen
       end
 
       def qualified_graph_enum_name
-        "#{entity_package}.#{graph_enum_name}"
+        "#{shared_entity_package}.#{graph_enum_name}"
       end
 
       def session_name
@@ -509,7 +509,7 @@ module Domgen
       end
 
       def qualified_client_session_interface_name
-        "#{entity_package}.#{client_session_interface_name}"
+        "#{client_entity_package}.#{client_session_interface_name}"
       end
 
       def change_recorder_name
@@ -543,7 +543,7 @@ module Domgen
       end
 
       def qualified_services_module_name
-        "#{ioc_package}.#{services_module_name}"
+        "#{client_ioc_package}.#{services_module_name}"
       end
 
       attr_writer :mock_services_module_name
@@ -553,7 +553,7 @@ module Domgen
       end
 
       def qualified_mock_services_module_name
-        "#{ioc_package}.#{mock_services_module_name}"
+        "#{client_ioc_package}.#{mock_services_module_name}"
       end
 
       def graphs
