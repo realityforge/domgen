@@ -48,7 +48,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   end
 %>
 
-        final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%=Domgen::Naming.uppercase_constantize(graph.name)%>_KEY );
+        final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY );
 <%
   extra_interest_filter = ''
   repository.data_modules.each do |data_module|
