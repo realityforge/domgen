@@ -1,8 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= repository.imit.client_entity_package %>;
 
-import org.realityforge.replicant.client.transport.SubscriptionEntry;
-
 public class <%= repository.imit.client_session_name %>
   extends org.realityforge.replicant.client.transport.ClientSession<<%= repository.imit.client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_client_session_interface_name %>
@@ -44,127 +42,27 @@ public class <%= repository.imit.client_session_name %>
   @Override
   public boolean isSubscribedTo<%= graph.name %>(<%= graph_id_param %>)
   {
-    return null != find<%= graph.instance_root? ? 'Instance' : 'Type' %>GraphSubscription( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> );
+    return isSubscribed( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> );
   }
-
-<% if graph.instance_root? -%>
-  @Override
-  public java.util.Map<Object, SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>>> get<%= graph.name %>Subscriptions()
-  {
-    final java.util.Map<Object, SubscriptionEntry<<%= repository.imit.qualified_graph_enum_name %>>> subscriptions =
-      getInstanceSubscriptions().get( <%= key %> );
-    if ( null != subscriptions )
-    {
-      return java.util.Collections.unmodifiableMap( subscriptions );
-    }
-    else
-    {
-      return java.util.Collections.emptyMap();
-    }
-  }
-<% end -%>
 
   @Override
   public void subscribeTo<%= graph.name %>(<%= [graph_id_param, filter_param, std_param].compact.join(", ") %>)
   {
-    subscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
+    requestSubscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
   }
 
 <% if graph.filter_parameter %>
   public void update<%= graph.name %>Subscription(<%= [graph_id_param, filter_param, std_param].compact.join(", ") %>)
   {
-    updateSubscription( <%= key %>, <%= graph_id %>, filter, action );
+    requestSubscriptionUpdate( <%= key %>, <%= graph_id %>, filter, action );
   }
 <% end %>
 
   @Override
   public void unsubscribeFrom<%= graph.name %>(<%= [graph_id_param, std_param].compact.join(", ") %>)
   {
-    unsubscribe( <%= key %>, <%= graph_id %>, action );
+    requestUnsubscribe( <%= key %>, <%= graph_id %>, action );
   }
-
-<% if !graph.instance_root? -%>
-  @Override
-  public void unload<%= graph.name %>()
-  {
-    _broker.pause();
-<%
-  graph.type_roots.reverse.each do |root|
-    entity = repository.entity_by_name(root)
--%>
-    for ( final <%= entity.imit.qualified_name %> e : _repository.findAll( <%= entity.imit.qualified_name %>.class ) )
-    {
-      _repository.deregisterEntity( <%= entity.imit.qualified_name %>.class, e.get<%= entity.primary_key.name %>() );
-    }
-<% end -%>
-    _broker.resume();
-  }
-<% else %>
-<%
-  graph.reachable_entities.collect{|n|repository.entity_by_name(n)}.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
-    is_root = entity.qualified_name.to_s == graph.instance_root.to_s
-    outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name)}
--%>
-<% if is_root -%>
-  @Override
-  public void unload<%= graph.name %>(@javax.annotation.Nonnull final <%= entity.imit.qualified_name %> object )
-  {
-    unload<%= graph.name %>_<%= entity.name %>( object );
-  }
-<% end -%>
-  <%= is_root ? "protected" : "private" %> void unload<%= graph.name %>_<%= entity.name %>(@javax.annotation.Nonnull final <%= entity.imit.qualified_name %> object )
-  {
-<% if is_root -%>
-    _broker.pause();
-<% end -%>
-<%
-    outgoing_links.each do |a|
-      if a.inverse.multiplicity == :many
--%>
-    for ( final <%= a.entity.imit.qualified_name %> o : new java.util.ArrayList<<%= a.entity.imit.qualified_name %>>(object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>()) )
-    {
-      unload<%= graph.name %>_<%= a.entity.name %>( o );
-    }
-<%
-      elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
--%>
-      {
-        final <%= a.entity.imit.qualified_name %> o = object.get<%= a.inverse.name %>();
-        <% if a.inverse.multiplicity == :zero_or_one %>if( null != o )<% end %>
-        {
-          unload<%= graph.name %>_<%= a.entity.name %>( o );
-        }
-      }
-<%
-      end
-    end
-    entity.attributes.each do |a|
-      if a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit? && a.imit.include_edges.include?(graph.name)
-        # These are likely to be shared so we have to be careful and check if they are part of other subscriptions?
-        if a.imit.traverse_during_unload?
-%>
-      {
-        final <%= a.referenced_entity.imit.qualified_name %> o = object.get<%= a.name %>();
-        <% if a.nullable? %>if( null != o )<% end %>
-        {
-          unload<%= graph.name %>_<%= a.referenced_entity.name %>( o );
-        }
-      }
-<%
-        end
-      end
-    end
-    if entity.qualified_name.to_s != graph.instance_root.to_s || entity.imit.replication_graphs.size == 1
-     # We should really check to see if they have shared subscriptions
- %>
-    _repository.deregisterEntity( <%= entity.imit.qualified_name %>.class, object.get<%= entity.primary_key.name %>() );
-<% end -%>
-<% if is_root -%>
-    _broker.resume();
-<% end -%>
-  }
-<% end %>
-<% end %>
 
 <% end %>
 }

@@ -1,9 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= data_module.imit.client_entity_package %>;
 
-import org.realityforge.replicant.client.EntityChangeBroker;
-import org.realityforge.replicant.client.EntityRepository;
-
 /**
  * Utility class to map a change to an entity ensuring that the repository is updated as required.
  *
@@ -15,14 +12,16 @@ public class <%= data_module.imit.mapper_name %>
 {
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= data_module.imit.mapper_name %>.class.getName() );
 
-  private final EntityRepository _repository;
-  private final EntityChangeBroker _broker;
+  private final org.realityforge.replicant.client.EntityRepository _repository;
+  private final org.realityforge.replicant.client.EntityChangeBroker _broker;
+  private final org.realityforge.replicant.client.EntitySubscriptionManager _subscriptionManager;
 
   @javax.inject.Inject
-  public <%= data_module.imit.mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
+  public <%= data_module.imit.mapper_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker broker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager )
   {
     _repository = repository;
     _broker = broker;
+    _subscriptionManager =subscriptionManager;
   }
 
 <% data_module.entities.select { |entity| entity.imit? }.each do |entity| %>
@@ -52,6 +51,7 @@ public class <%= data_module.imit.mapper_name %>
         }
         // It is in the local repository so we need to delete it
         _repository.deregisterEntity( <%= entity.imit.name %>.class, designator );
+        _subscriptionManager.removeEntity( <%= entity.imit.name %>.class, designator );
       }
     }
     else
@@ -75,6 +75,15 @@ public class <%= data_module.imit.mapper_name %>
         }
       }
       updateAttributes<%= entity.name %>( entity, change, fullUpdate );
+      final int channelCount = change.getChannelCount();
+      final org.realityforge.replicant.client.GraphDescriptor[] descriptors = new org.realityforge.replicant.client.GraphDescriptor[ change.getChannelCount() ];
+      for ( int i = 0; i < descriptors.length; i++ )
+      {
+
+        descriptors[i] = new org.realityforge.replicant.client.GraphDescriptor( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[change.getChannelID( i )], change.getSubChannelID( i ) );
+      }
+      _subscriptionManager.updateEntity( <%= entity.imit.name %>.class, designator, descriptors );
+
     }
     return entity;
   }
