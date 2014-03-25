@@ -25,6 +25,7 @@ inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? 
       -%>
   public <%= exception.ee.name %>( <%= param_desc %> ) { this( <%= param_values_with_suffix %>null, null ); }
   public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final String message ) { this( <%= param_values_with_suffix %>message, null ); }
+  public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final Throwable cause ) { this( <%= param_values_with_suffix %>null, cause ); }
   public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final String message, final Throwable cause )
   {
     super( <%= inherited_params_with_suffix %>message, cause );
