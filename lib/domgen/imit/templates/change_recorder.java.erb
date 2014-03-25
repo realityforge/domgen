@@ -60,7 +60,7 @@ public class <%= repository.imit.change_recorder_name %>
     else
 <% end %>
     {
-      return recordEntityMessageForEntity( entity, true, extraRoutingKeys );
+      return recordEntityMessageForEntity( entity, isUpdate, extraRoutingKeys );
     }
   }
 }
