@@ -15,6 +15,11 @@
 module Domgen
   module Java
     module Helper
+
+      def to_package(classname)
+        classname.gsub(/^(.*)\.[^.]+$/,'\1')
+      end
+
       def nullability_annotation(is_nullable)
         is_nullable ? "@javax.annotation.Nullable" : "@javax.annotation.Nonnull"
       end

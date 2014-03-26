@@ -1,5 +1,5 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= service.data_module.ejb.service_package %>;
+package <%= to_package(service.jws.qualified_java_service_name) %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.jws.WebService( targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, wsdlLocation = <%= service.jws.java_service_name %>.MetaData.WSDL_LOCATION )

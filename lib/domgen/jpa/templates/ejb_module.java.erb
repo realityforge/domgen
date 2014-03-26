@@ -1,4 +1,4 @@
-package <%= repository.jpa.package %>;
+package <%= to_package(repository.jpa.qualified_ejb_module_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )

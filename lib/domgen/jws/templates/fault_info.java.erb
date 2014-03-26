@@ -1,5 +1,5 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= exception.data_module.jws.service_package %>;
+package <%= to_package(exception.jws.qualified_fault_info_name) %>;
 
 <% params = exception.inherited_parameters + exception.parameters -%>
 @javax.annotation.Generated( "Domgen" )

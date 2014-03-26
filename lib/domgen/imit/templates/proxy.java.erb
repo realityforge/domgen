@@ -1,9 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= service.data_module.imit.client_service_package %>;
+package <%= to_package(service.imit.qualified_proxy_name) %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond" } )
 public class <%= service.imit.proxy_name %>
-  implements <%= service.imit.name %>
+  implements <%= service.imit.qualified_name %>
 {
   @javax.inject.Inject
   private <%= service.gwt_rpc.qualified_facade_service_name %> _service;

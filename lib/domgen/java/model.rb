@@ -349,6 +349,10 @@ module Domgen
         @client_service_package || resolve_package(:client_service_package)
       end
 
+      def internal_client_service_package
+        "#{client_service_package}.internal"
+      end
+
       attr_writer :client_data_type_package
 
       def client_data_type_package
