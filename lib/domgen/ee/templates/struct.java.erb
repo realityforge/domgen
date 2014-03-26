@@ -5,7 +5,7 @@ package <%= to_package(struct.ee.qualified_name) %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <%= jackson_class_annotations(struct) if struct.jackson? %>
 <%= jaxb_class_annotations(struct) if struct.jaxb? %>
-public class <%= struct.name %>
+public class <%= struct.ee.name %>
   implements java.io.Serializable
 {
 <% struct.fields.each do |field| %>
