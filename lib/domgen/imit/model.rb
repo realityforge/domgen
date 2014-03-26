@@ -131,7 +131,7 @@ module Domgen
       end
 
       def qualified_proxy_name
-        "#{service.data_module.imit.client_service_package}.#{proxy_name}"
+        "#{service.data_module.imit.internal_client_service_package}.#{proxy_name}"
       end
     end
 
