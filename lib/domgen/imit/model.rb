@@ -225,7 +225,7 @@ module Domgen
       attr_writer :encoder_package
 
       def encoder_package
-        @encoder_package || "#{data_module.repository.imit.encoder_package}.#{Domgen::Naming.underscore(data_module.name)}"
+        @encoder_package || resolve_package(:encoder_package)
       end
 
       attr_writer :decoder_package
