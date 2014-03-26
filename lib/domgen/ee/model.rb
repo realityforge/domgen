@@ -82,7 +82,7 @@ module Domgen
       include Domgen::Java::ServerJavaApplication
 
       def version
-        @version || '6'
+        @version || '7'
       end
 
       def version=(version)
