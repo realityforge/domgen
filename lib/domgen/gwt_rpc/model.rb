@@ -16,6 +16,30 @@ module Domgen
   module GwtRpc
     class GwtService < Domgen.ParentedElement(:service)
 
+      def client_service_package
+        service.data_module.gwt_rpc.client_service_package
+      end
+
+      def shared_service_package
+        service.data_module.gwt_rpc.shared_service_package
+      end
+
+      def server_servlet_package
+        service.data_module.gwt_rpc.server_servlet_package
+      end
+
+      attr_writer :rpc_prefix
+
+      def rpc_prefix
+        @rpc_prefix || "GwtRpc"
+      end
+
+      attr_writer :facade_prefix
+
+      def facade_prefix
+        @facade_prefix || (service.imit? ? "Gwt" : "")
+      end
+
       def use_autobean_structs?
         service.data_module.facet_enabled?(:auto_bean)
       end
@@ -29,29 +53,29 @@ module Domgen
       attr_writer :facade_service_name
 
       def facade_service_name
-        @facade_service_name || service.imit? ? "GwtRpc#{service.name}" : service.name
+        @facade_service_name || "#{facade_prefix}#{service.name}"
       end
 
       def qualified_facade_service_name
-        "#{service.data_module.gwt_rpc.client_service_package}.#{facade_service_name}"
+        "#{client_service_package}.#{facade_service_name}"
       end
 
       def proxy_name
-        "#{facade_service_name}Proxy"
+        "#{facade_service_name}Impl"
       end
 
       def qualified_proxy_name
-        "#{qualified_facade_service_name}Proxy"
+        "#{client_service_package}.#{proxy_name}"
       end
 
       attr_writer :rpc_service_name
 
       def rpc_service_name
-        @rpc_service_name || "Gwt#{service.name}"
+        @rpc_service_name || "#{rpc_prefix}#{service.name}"
       end
 
       def qualified_rpc_service_name
-        "#{service.data_module.gwt_rpc.shared_service_package}.#{rpc_service_name}"
+        "#{shared_service_package}.#{rpc_service_name}"
       end
 
       def async_rpc_service_name
@@ -59,7 +83,7 @@ module Domgen
       end
 
       def qualified_async_rpc_service_name
-        "#{service.data_module.gwt_rpc.shared_service_package}.#{async_rpc_service_name}"
+        "#{shared_service_package}.#{async_rpc_service_name}"
       end
 
       def servlet_name
@@ -67,7 +91,7 @@ module Domgen
       end
 
       def qualified_servlet_name
-        "#{service.data_module.gwt_rpc.server_servlet_package}.#{servlet_name}"
+        "#{server_servlet_package}.#{servlet_name}"
       end
     end
 
