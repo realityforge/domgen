@@ -8,7 +8,7 @@ package <%= to_package(repository.imit.qualified_graph_encoder_impl_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.enterprise.context.ApplicationScoped
 public class <%= repository.imit.graph_encoder_impl_name %>
-  implements <%= repository.imit.graph_encoder_name %>
+  implements <%= repository.imit.qualified_graph_encoder_name %>
 {
   @javax.inject.Inject
   private org.realityforge.replicant.server.EntityMessageGenerator _messageGenerator;
