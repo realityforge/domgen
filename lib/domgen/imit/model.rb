@@ -217,6 +217,10 @@ module Domgen
             attribute.referenced_entity.imit?
         end
       end
+
+      def post_verify
+        entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_recorder_name if entity.jpa?
+      end
     end
 
     class ImitationModule < Domgen.ParentedElement(:data_module)
