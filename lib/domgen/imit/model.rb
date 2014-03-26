@@ -241,14 +241,6 @@ module Domgen
       def qualified_mapper_name
         "#{client_entity_package}.#{mapper_name}"
       end
-
-      def updater_name
-        "#{data_module.name}Updater"
-      end
-
-      def qualified_updater_name
-        "#{client_entity_package}.#{updater_name}"
-      end
     end
 
     class ReplicationGraph < Domgen.ParentedElement(:application)
