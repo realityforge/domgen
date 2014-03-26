@@ -222,10 +222,10 @@ module Domgen
     class ImitationModule < Domgen.ParentedElement(:data_module)
       include Domgen::Java::ImitJavaPackage
 
-      attr_writer :encoder_package
+      attr_writer :server_comm_package
 
-      def encoder_package
-        @encoder_package || resolve_package(:encoder_package)
+      def server_comm_package
+        @server_comm_package || resolve_package(:server_comm_package)
       end
 
       attr_writer :client_comm_package
@@ -380,10 +380,10 @@ module Domgen
         repository.gwt_rpc.client_ioc_package
       end
 
-      attr_writer :encoder_package
+      attr_writer :server_comm_package
 
-      def encoder_package
-        @encoder_package || repository.imit.server_entity_package
+      def server_comm_package
+        @server_comm_package || "#{server_package}.net"
       end
 
       attr_writer :client_comm_package
@@ -437,7 +437,7 @@ module Domgen
       end
 
       def qualified_session_name
-        "#{encoder_package}.#{session_name}"
+        "#{server_comm_package}.#{session_name}"
       end
 
       def session_manager_name
@@ -445,7 +445,7 @@ module Domgen
       end
 
       def qualified_session_manager_name
-        "#{encoder_package}.#{session_manager_name}"
+        "#{server_comm_package}.#{session_manager_name}"
       end
 
       def server_session_context_name
@@ -453,7 +453,7 @@ module Domgen
       end
 
       def qualified_server_session_context_name
-        "#{encoder_package}.#{server_session_context_name}"
+        "#{server_comm_package}.#{server_session_context_name}"
       end
 
       def router_interface_name
@@ -461,7 +461,7 @@ module Domgen
       end
 
       def qualified_router_interface_name
-        "#{encoder_package}.#{router_interface_name}"
+        "#{server_comm_package}.#{router_interface_name}"
       end
 
       def router_impl_name
@@ -469,7 +469,7 @@ module Domgen
       end
 
       def qualified_router_impl_name
-        "#{encoder_package}.#{router_impl_name}"
+        "#{server_comm_package}.#{router_impl_name}"
       end
 
       def jpa_encoder_name
@@ -477,7 +477,7 @@ module Domgen
       end
 
       def qualified_jpa_encoder_name
-        "#{encoder_package}.#{jpa_encoder_name}"
+        "#{server_comm_package}.#{jpa_encoder_name}"
       end
 
       def message_constants_name
@@ -485,7 +485,7 @@ module Domgen
       end
 
       def qualified_message_constants_name
-        "#{encoder_package}.#{message_constants_name}"
+        "#{server_comm_package}.#{message_constants_name}"
       end
 
       def message_generator_name
@@ -493,7 +493,7 @@ module Domgen
       end
 
       def qualified_message_generator_name
-        "#{encoder_package}.#{message_generator_name}"
+        "#{server_comm_package}.#{message_generator_name}"
       end
 
       def graph_encoder_name
@@ -501,7 +501,7 @@ module Domgen
       end
 
       def qualified_graph_encoder_name
-        "#{encoder_package}.#{graph_encoder_name}"
+        "#{server_comm_package}.#{graph_encoder_name}"
       end
 
       def change_recorder_name
@@ -509,7 +509,7 @@ module Domgen
       end
 
       def qualified_change_recorder_name
-        "#{encoder_package}.#{change_recorder_name}"
+        "#{server_comm_package}.#{change_recorder_name}"
       end
 
       def replication_interceptor_name
@@ -517,7 +517,7 @@ module Domgen
       end
 
       def qualified_replication_interceptor_name
-        "#{encoder_package}.#{replication_interceptor_name}"
+        "#{server_comm_package}.#{replication_interceptor_name}"
       end
 
       def graph_encoder_impl_name
@@ -525,7 +525,7 @@ module Domgen
       end
 
       def qualified_graph_encoder_impl_name
-        "#{encoder_package}.#{graph_encoder_impl_name}"
+        "#{server_comm_package}.#{graph_encoder_impl_name}"
       end
 
       attr_writer :services_module_name
