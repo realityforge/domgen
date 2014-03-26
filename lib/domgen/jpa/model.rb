@@ -342,6 +342,10 @@ module Domgen
         @detachable.nil? ? false : @detachable
       end
 
+      def entity_listeners
+        @entity_listeners ||= []
+      end
+
       def pre_verify
         entity.query(:FindAll)
         entity.query(:"FindBy#{entity.primary_key.name}")
