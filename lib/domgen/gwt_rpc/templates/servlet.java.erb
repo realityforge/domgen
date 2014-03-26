@@ -3,10 +3,10 @@ package <%= service.data_module.gwt_rpc.server_servlet_package %>;
 
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_service_name %>.PATH } )
+@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_rpc_service_name %>.PATH } )
 public class <%= service.gwt_rpc.servlet_name %>
   extends com.google.gwt.user.server.rpc.<%= service.gwt_rpc.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
-  implements <%= service.gwt_rpc.qualified_service_name %>
+  implements <%= service.gwt_rpc.qualified_rpc_service_name %>
 {
   public static final long serialVersionUID = 1;
 

@@ -66,12 +66,12 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
   @javax.inject.Singleton
   public <%= service.gwt_rpc.qualified_async_rpc_service_name %> get<%= service.name %>()
   {
-    final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt_rpc.qualified_service_name %>.class );
+    final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt_rpc.qualified_rpc_service_name %>.class );
 <% if service.gwt_rpc.xsrf_protected? %>
     ( (com.google.gwt.user.client.rpc.HasRpcToken) service ).setRpcToken( getXsrfToken() );
 <% end %>
     ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( org.realityforge.replicant.client.transport.gwt.ReplicantRpcRequestBuilder.INSTANCE );
-    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( com.google.gwt.core.client.GWT.getHostPageBaseURL() + "<%= repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_service_name %>.PATH );
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( com.google.gwt.core.client.GWT.getHostPageBaseURL() + "<%= repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_rpc_service_name %>.PATH );
     return service;
   }
 <%

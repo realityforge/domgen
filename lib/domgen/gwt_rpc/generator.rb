@@ -35,7 +35,7 @@ Domgen.template_set(:gwt_rpc_shared_service) do |template_set|
   template_set.template(Domgen::Generator::GwtRpc::FACETS,
                         :service,
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_service.java.erb",
-                        'main/java/#{service.gwt_rpc.qualified_service_name.gsub(".","/")}.java',
+                        'main/java/#{service.gwt_rpc.qualified_rpc_service_name.gsub(".","/")}.java',
                         Domgen::Generator::GwtRpc::HELPERS)
   template_set.template(Domgen::Generator::GwtRpc::FACETS,
                         :service,

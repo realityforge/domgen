@@ -50,7 +50,7 @@ module Domgen
         @rpc_service_name || "Gwt#{service.name}"
       end
 
-      def qualified_service_name
+      def qualified_rpc_service_name
         "#{service.data_module.gwt_rpc.shared_service_package}.#{rpc_service_name}"
       end
 
