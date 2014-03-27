@@ -299,6 +299,10 @@ module Domgen
         @service_package || resolve_package(:service_package)
       end
 
+      def internal_service_package
+        "#{service_package}.internal"
+      end
+
       attr_writer :data_type_package
 
       def data_type_package
@@ -489,6 +493,10 @@ module Domgen
         @client_service_package || "#{client_package}.service"
       end
 
+      def internal_client_service_package
+        "#{client_service_package}.internal"
+      end
+
       attr_writer :client_data_type_package
 
       def client_data_type_package
@@ -511,6 +519,10 @@ module Domgen
 
       def server_service_package
         @server_service_package || "#{server_package}.service"
+      end
+
+      def internal_server_service_package
+        "#{server_service_package}.internal"
       end
 
       attr_writer :server_data_type_package

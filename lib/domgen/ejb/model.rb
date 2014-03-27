@@ -72,7 +72,7 @@ module Domgen
       end
 
       def qualified_boundary_implementation_name
-        "#{service.data_module.ejb.service_package}.#{boundary_implementation_name}"
+        "#{service.data_module.ejb.internal_service_package}.#{boundary_implementation_name}"
       end
 
       attr_accessor :boundary_extends
