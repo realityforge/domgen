@@ -390,6 +390,12 @@ module Domgen
         @client_comm_package || "#{client_package}.net"
       end
 
+      def shared_comm_package
+        @shared_comm_package || "#{shared_package}.net"
+      end
+
+      attr_writer :shared_comm_package
+
       def change_mapper_name
         "#{repository.name}ChangeMapper"
       end
@@ -427,7 +433,7 @@ module Domgen
       end
 
       def qualified_graph_enum_name
-        "#{shared_entity_package}.#{graph_enum_name}"
+        "#{shared_comm_package}.#{graph_enum_name}"
       end
 
       def session_name
