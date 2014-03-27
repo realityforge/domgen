@@ -568,11 +568,6 @@ module Domgen
                   entity_list << a.entity unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
                 end
               end
-              entity.attributes.each do |a|
-                if a.reference? && a.imit? && a.imit.client_side? && a.referenced_entity.imit? && a.imit.include_edges.include?(graph.name)
-                  entity_list << a.referenced_entity unless graph.reachable_entities.include?(a.referenced_entity.qualified_name.to_s)
-                end
-              end
             end
           end
         end

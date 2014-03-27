@@ -67,13 +67,6 @@ else
 <%
         end
       end
-      entity.attributes.each do |a|
-        if a.reference? && a.imit? && a.imit.client_side? && a.referenced_entity.imit? && a.imit.include_edges.include?(graph.name) %>
-  @javax.annotation.Nonnull
-  <%= a.referenced_entity.jpa.qualified_name %> get<%= a.name %>In<%= graph.name %>Graph( @javax.annotation.Nonnull <%= a.entity.jpa.qualified_name %> object, <%= filter_java_type %> filter );
-<%
-        end
-      end
     end
   end
 end
