@@ -31,12 +31,12 @@ public class <%= service.gwt_rpc.proxy_name %>
   {
     <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["null"]).join(', ') %>);
   }
-  public void <%= method_name %>(<%= (parameters.collect{|p| "final #{annotated_type(p, :gwt_rpc, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt_rpc.qualified_async_callback_name}<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (parameters.collect{|p| "final #{annotated_type(p, :gwt_rpc, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
   {
     <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["callback","null"]).join(', ') %>);
   }
 
-  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "final #{annotated_type(p, :gwt_rpc, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt_rpc.qualified_async_callback_name}<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback","final @javax.annotation.Nullable #{service.data_module.repository.gwt_rpc.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "final #{annotated_type(p, :gwt_rpc, :boundary)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback","final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
   {
   <% method.parameters.select{|parameter| (parameter.enumeration? || parameter.struct?) && parameter.collection?}.each do |parameter| %>
     final <%= annotated_type(parameter, :gwt_rpc, :transport) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.gwt_rpc.java_component_type(:transport) %>>();

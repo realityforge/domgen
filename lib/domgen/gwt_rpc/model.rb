@@ -214,26 +214,6 @@ module Domgen
         "#{client_ioc_package}.#{rpc_services_module_name}"
       end
 
-      attr_writer :async_callback_name
-
-      def async_callback_name
-        @async_callback_name || "#{repository.name}GwtRpcAsyncCallback"
-      end
-
-      def qualified_async_callback_name
-        "#{client_service_package}.#{async_callback_name}"
-      end
-
-      attr_writer :async_error_callback_name
-
-      def async_error_callback_name
-        @async_error_callback_name || "#{repository.name}GwtRpcAsyncErrorCallback"
-      end
-
-      def qualified_async_error_callback_name
-        "#{client_service_package}.#{async_error_callback_name}"
-      end
-
       attr_writer :mock_services_module_name
 
       def mock_services_module_name

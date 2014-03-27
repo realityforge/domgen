@@ -18,12 +18,12 @@ public class <%= service.imit.proxy_name %>
   {
     <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["null"]).join(', ') %>);
   }
-  public void <%= method_name %>(<%= (parameters.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.imit.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (parameters.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)
   {
     <%= method_name %>(<%= (parameters.collect{|p| p.name } + ["callback","null"]).join(', ') %>);
   }
 
-  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.imit.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback","final @javax.annotation.Nullable #{service.data_module.repository.imit.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "final #{annotated_type(p, :imit)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback","final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
   {
   <% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| %>
     final <%= annotated_type(parameter, :gwt_rpc, :boundary) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.gwt_rpc.java_component_type(:boundary) %>>();
@@ -51,7 +51,7 @@ public class <%= service.imit.proxy_name %>
     param_value = "null == #{parameter.name} ? null : #{param_value}"
   end
   param_value
-end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.environmental?}.empty? ? '' : ', ' %>new <%= service.data_module.repository.gwt_rpc.qualified_async_callback_name %><<%= method.return_value.imit.non_primitive_java_type(:boundary) %>>()
+end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.environmental?}.empty? ? '' : ', ' %>new <%= service.data_module.repository.gwt.qualified_async_callback_name %><<%= method.return_value.imit.non_primitive_java_type(:boundary) %>>()
     {
       public void onSuccess( final <%= method.return_value.imit.non_primitive_java_type(:boundary) %> result )
       {
@@ -88,13 +88,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
 <% end %>
         if( null != callback ) callback.onSuccess( <%= result_string %> );
       }
-  }, new <%= service.data_module.repository.gwt_rpc.qualified_async_error_callback_name %>()
-    {
-      public void onFailure( final Throwable caught )
-      {
-        if( null != errorCallback ) errorCallback.onFailure( caught );
-      }
-    });
+  }, errorCallback );
   }
 
 <% end %>}

@@ -64,16 +64,6 @@ end
 
 Domgen.template_set(:imit_gwt_proxy) do |template_set|
   template_set.template(Domgen::Generator::Imit::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/async_callback.java.erb",
-                        'main/java/#{repository.imit.qualified_async_callback_name.gsub(".","/")}.java',
-                        Domgen::Generator::Imit::HELPERS)
-  template_set.template(Domgen::Generator::Imit::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/async_error_callback.java.erb",
-                        'main/java/#{repository.imit.qualified_async_error_callback_name.gsub(".","/")}.java',
-                        Domgen::Generator::Imit::HELPERS)
-  template_set.template(Domgen::Generator::Imit::FACETS,
                         :service,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/service.java.erb",
                         'main/java/#{service.imit.qualified_name.gsub(".","/")}.java',

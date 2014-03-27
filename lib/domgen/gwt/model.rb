@@ -146,6 +146,26 @@ module Domgen
         @client_event_package || "#{client_package}.event"
       end
 
+      attr_writer :async_callback_name
+
+      def async_callback_name
+        @async_callback_name || "#{repository.name}AsyncCallback"
+      end
+
+      def qualified_async_callback_name
+        "#{client_service_package}.#{async_callback_name}"
+      end
+
+      attr_writer :async_error_callback_name
+
+      def async_error_callback_name
+        @async_error_callback_name || "#{repository.name}AsyncErrorCallback"
+      end
+
+      def qualified_async_error_callback_name
+        "#{client_service_package}.#{async_error_callback_name}"
+      end
+
       protected
 
       def facet_key
