@@ -4,11 +4,11 @@ package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
 @javax.ejb.Startup
-@javax.ejb.Singleton( name = <%= service.ejb.boundary_interface_name %>.EJB_NAME )
+@javax.ejb.Singleton( name = <%= service.ejb.qualified_boundary_interface_name %>.EJB_NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 public class <%= service.ejb.boundary_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}" : "" %>
-  implements <%= service.ejb.boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
+  implements <%= service.ejb.qualified_boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
 {
 <% if service.jmx? %>
   private javax.management.ObjectName _objectName;
@@ -47,7 +47,7 @@ public class <%= service.ejb.boundary_implementation_name %>
   private <%= entity.jpa.qualified_dao_service_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
 <% end %>
   @javax.ejb.EJB
-  private <%= service.ejb.service_name %> _service;
+  private <%= service.ejb.qualified_service_name %> _service;
 
 <% service.methods.each do |method|
 %>  @Override
