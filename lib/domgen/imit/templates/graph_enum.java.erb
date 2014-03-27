@@ -13,6 +13,16 @@ public enum <%= repository.imit.graph_enum_name %>
    * <ul>
 DATA
    data += elements.collect{|e| "   * <li>#{e}</li>"}.join("\n")
-   data += "\n   * </ul>\n   */\n  #{Domgen::Naming.uppercase_constantize(g.name)}"
+   data += "\n   * </ul>\n"
+   if g.instance_root? && g.links.size > 0
+     data += "   * <p>It links to the following graphs:</p>\n"
+     data += "   * <ul>\n"
+     g.links.each_pair do |attribute, target_graph|
+       data += "   * <li>#{attribute.qualified_name} links to the #{target_graph.name} graph</li>\n"
+     end
+     data += "   * </ul>\n"
+   end
+   data += "   */\n"
+   data += "  #{Domgen::Naming.uppercase_constantize(g.name)}"
   end.join(",\n") %>
 }

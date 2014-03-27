@@ -61,27 +61,30 @@ module Domgen
         @filter_in_graphs || []
       end
 
-      # TODO: Remove this ugly hack as soon as we can calculate whether an entitiy
-      # is shared between multiple graph instances
-      def traverse_during_unload?
-        @traverse_during_unload.nil? ? true : @traverse_during_unload
+      def graph_links
+        @graph_links ||= {}
       end
 
-      def traverse_during_unload=(traverse_during_unload)
-        @traverse_during_unload = !!traverse_during_unload
-      end
-
-      def include_edges
-        @include_edges ||= []
-      end
-
-      def include_edges=(include_edges)
-        @include_edges = include_edges
+      def graph_links=(graph_links)
+        @graph_links = graph_links
       end
 
       include Domgen::Java::ImitJavaCharacteristic
 
       protected
+
+      def pre_verify
+        self.graph_links.each_pair do |source_graph_key, target_graph_key|
+          source_graph = attribute.entity.data_module.repository.imit.graph_by_name(source_graph_key)
+          target_graph = attribute.entity.data_module.repository.imit.graph_by_name(target_graph_key)
+          prefix = "Link #{source_graph_key}=>#{target_graph_key} on #{attribute.qualified_name}"
+          raise "#{prefix} must have an instance graph on the LHS" unless source_graph.instance_root?
+          raise "#{prefix} must have an non filtered graph on the LHS" unless source_graph.filter_parameter.nil?
+          raise "#{prefix} must have an instance graph on the RHS" unless target_graph.instance_root?
+          raise "#{prefix} must have an non filtered graph on the RHS" unless target_graph.filter_parameter.nil?
+          source_graph.links[attribute] = target_graph
+        end
+      end
 
       def characteristic
         attribute
@@ -294,6 +297,17 @@ module Domgen
       def instance_root=(instance_root)
         raise "Attempted to assign instance_root to #{instance_root.inspect} for graph #{name} when not instance based (type_roots=#{@type_roots.inspect})" if 0 != @type_roots.size
         @instance_root = instance_root
+      end
+
+      # Map of attribute that is the link to target graph
+      def links
+        raise "links invoked for graph #{name} when not instance based" if 0 != @type_roots.size
+        @links ||= {}
+      end
+
+      def links=(links)
+        raise "Attempted to assign links to #{links.inspect} for graph #{name} when not instance based (type_roots=#{@type_roots.inspect})" if 0 != @type_roots.size
+        @links = links
       end
 
       # Return the list of entities reachable in instance graph
