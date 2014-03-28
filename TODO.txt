@@ -1,4 +1,5 @@
 * Imit: Generate events for subscriptions starting and completing on the client side.
+* JWS: Generate fake server and services as in the Calendar model based on SOAP API.
 * JWS: Add ability to document wsdl
 * Make it possible to define a model check that defines the dependency requirements
   between schemas. i.e. Entity can not be referenced by anyone. Template can reference
