@@ -85,6 +85,14 @@ module Domgen
       def qualified_boundary_implementation_name
         "#{service.data_module.jws.service_package}.#{boundary_implementation_name}"
       end
+
+      def fake_implementation_name
+        "Fake#{web_service_name}"
+      end
+
+      def qualified_fake_implementation_name
+        "#{service.data_module.jws.fake_service_package}.#{fake_implementation_name}"
+      end
     end
 
     class JwsParameter < Domgen.ParentedElement(:parameter)
@@ -114,6 +122,12 @@ module Domgen
         @namespace || "#{data_module.repository.jws.namespace}/#{data_module.name}"
       end
 
+      attr_writer :fake_service_package
+
+      def fake_service_package
+        @fake_service_package || resolve_package(:fake_service_package, data_module.repository.jws)
+      end
+
       attr_writer :url
 
       def url
@@ -122,6 +136,20 @@ module Domgen
     end
 
     class JwsApplication < Domgen.ParentedElement(:repository)
+      attr_writer :fake_service_package
+
+      def fake_service_package
+        @fake_service_package || "#{repository.java.base_package}.fake"
+      end
+
+      def fake_server_name
+        "Fake#{repository.name}Server"
+      end
+
+      def qualified_fake_server_name
+        "#{fake_service_package}.#{fake_server_name}"
+      end
+
       attr_writer :service_name
 
       # The name of the service under which web services will be anchored
