@@ -267,8 +267,8 @@ module Domgen
     module BaseJavaPackage
       protected
 
-      def resolve_package(package_type)
-        (data_module.name == data_module.repository.name) ? parent_facet.send(package_type) : "#{parent_facet.send(package_type)}.#{package_key}"
+      def resolve_package(package_type, facet = parent_facet)
+        (data_module.name == data_module.repository.name) ? facet.send(package_type) : "#{facet.send(package_type)}.#{package_key}"
       end
 
       def facet_key
