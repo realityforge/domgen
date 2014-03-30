@@ -109,9 +109,9 @@ module Domgen
       end
     end
 
-    class JwsMethod < Domgen.ParentedElement(:service)
+    class JwsMethod < Domgen.ParentedElement(:method)
       def name
-        Domgen::Naming.camelize(service.name)
+        Domgen::Naming.camelize(method.name)
       end
     end
 
