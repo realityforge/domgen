@@ -23,8 +23,8 @@ module Domgen
         return ' type="xs:integer"' if characteristic.integer?
         return ' type="xs:string"' if characteristic.text?
         return xsd_type(characteristic.referenced_entity.primary_key) if characteristic.reference?
-        return " type=\"tns:#{characteristic.referenced_struct.name}\"" if characteristic.struct?
-        return " type=\"tns:#{characteristic.enumeration.name}\"" if characteristic.enumeration?
+        return " type=\"#{Domgen::Naming.underscore(characteristic.referenced_struct.data_module.name)}:#{characteristic.referenced_struct.name}\"" if characteristic.struct?
+        return " type=\"#{Domgen::Naming.underscore(characteristic.enumeration.data_module.name)}:#{characteristic.enumeration.name}\"" if characteristic.enumeration?
         raise "unknown type #{characteristic.characteristic_type} and can not convert to xsd"
       end
 
