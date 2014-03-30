@@ -201,7 +201,7 @@ module Domgen
       attr_writer :namespace
 
       def namespace
-        @namespace || exception.data_module.repository.jws.namespace
+        @namespace || exception.data_module.jws.namespace
       end
     end
   end
