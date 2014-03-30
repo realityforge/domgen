@@ -113,6 +113,14 @@ module Domgen
       def name
         Domgen::Naming.camelize(method.name)
       end
+
+      def input_action
+        "#{method.service.jws.namespace}/#{method.service.jws.web_service_name}/#{method.name}Request"
+      end
+
+      def output_action
+        "#{method.service.jws.namespace}/#{method.service.jws.web_service_name}/#{method.name}Response"
+      end
     end
 
     class JwsPackage < Domgen.ParentedElement(:data_module)
