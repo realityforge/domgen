@@ -57,7 +57,7 @@ module Domgen
       end
 
       def namespace
-        @namespace || service.data_module.repository.jws.namespace
+        @namespace || "#{service.data_module.jws.namespace}/#{web_service_name}"
       end
 
       attr_writer :service_name
