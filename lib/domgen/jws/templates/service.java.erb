@@ -6,7 +6,6 @@ package <%= to_package(service.jws.qualified_java_service_name) %>;
 @javax.jws.soap.SOAPBinding( style = javax.jws.soap.SOAPBinding.Style.DOCUMENT,
                              use = javax.jws.soap.SOAPBinding.Use.LITERAL,
                              parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.WRAPPED )
-@com.sun.xml.ws.developer.SchemaValidation
 public interface <%= service.jws.java_service_name %>
 {
   interface MetaData
