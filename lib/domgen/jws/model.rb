@@ -53,7 +53,7 @@ module Domgen
       attr_writer :system_id
 
       def system_id
-        @system_id || "#{service.data_module.jws.namespace}/#{web_service_name}.wsdl"
+        @system_id || "#{namespace}.wsdl"
       end
 
       def namespace
