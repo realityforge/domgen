@@ -82,6 +82,22 @@ module Domgen
     class XmlExceptionParameter < Domgen.ParentedElement(:parameter)
       Domgen::XML.include_data_element_xml(self, :parameter)
     end
+
+    class XmlApplication < Domgen.ParentedElement(:repository)
+      Domgen::XML.include_xml(self, :repository)
+
+      attr_writer :namespace
+
+      def namespace
+        @namespace || "#{base_namespace}/#{repository.name}"
+      end
+
+      attr_writer :base_namespace
+
+      def base_namespace
+        @base_namespace || "http://example.com"
+      end
+    end
   end
 
   FacetManager.define_facet(:xml,
@@ -90,5 +106,6 @@ module Domgen
                             Exception => Domgen::XML::XmlException,
                             ExceptionParameter => Domgen::XML::XmlExceptionParameter,
                             Parameter => Domgen::XML::XmlParameter,
+                            Repository => Domgen::XML::XmlApplication,
                             EnumerationSet => Domgen::XML::XmlEnumeration)
 end

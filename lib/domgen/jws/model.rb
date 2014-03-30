@@ -160,13 +160,7 @@ module Domgen
       attr_writer :namespace
 
       def namespace
-        @namespace || "#{base_namespace}/#{service_name}"
-      end
-
-      attr_writer :base_namespace
-
-      def base_namespace
-        @base_namespace || "http://example.com"
+        @namespace || "#{repository.xml.base_namespace}/#{service_name}"
       end
 
       attr_writer :url
