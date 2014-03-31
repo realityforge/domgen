@@ -88,6 +88,8 @@
           <xs:element ref="<%= Domgen::Naming.underscore(struct.data_module.name) %>:<%= struct.xml.name %>" />
 <% end -%>
         </xs:sequence>
+<% else -%>
+        <xs:sequence/>
 <% end -%>
 <% non_collections.each do |field| -%>
         <xs:attribute name="<%= field.xml.name %>" <%= xsd_type(field) %> <%= xsd_attribute_use(field) %>/>
