@@ -63,7 +63,7 @@
 <% data_modules.values.select{|dm| dm != data_module}.each do |import| -%>
       <xs:import namespace="<%= import.jws.namespace %>"/>
 <% end -%>
-<% structs.values.select{|s| s.data_module.name == data_module.name}.each do |struct| -%>
+<% structs.values.reverse.select{|s| s.data_module.name == data_module.name}.each do |struct| -%>
       <xs:element name="<%= struct.xml.name %>" type="<%= Domgen::Naming.underscore(struct.data_module.name) %>:<%= struct.name %>"/>
       <xs:complexType name="<%= struct.name %>">
 <% collections = struct.fields.select{|f| f.collection?} -%>
