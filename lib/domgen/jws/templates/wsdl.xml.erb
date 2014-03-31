@@ -72,7 +72,7 @@
 <% if collections.size > 0 || referenced_structs.size > 0 -%>
         <xs:sequence>
 <% collections.each do |field| -%>
-          <xs:element name="<%= field.xml.name %>">
+          <xs:element name="<%= field.xml.name %>" form="qualified">
             <xs:complexType>
               <xs:sequence>
 <% if field.struct? %>
