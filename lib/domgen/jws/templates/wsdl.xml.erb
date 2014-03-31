@@ -113,6 +113,8 @@
           <xs:element name="<%= parameter.name %>" <%= xsd_type(parameter) %> <%= jws_element_occurrences(parameter) %>/>
 <% end -%>
         </xs:sequence>
+<% else -%>
+        <xs:all/>
 <% end -%>
       </xs:complexType>
 <% end -%>
