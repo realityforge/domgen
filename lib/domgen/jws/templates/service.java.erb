@@ -23,8 +23,8 @@ public interface <%= service.jws.java_service_name %>
 
 <% service.methods.each do |method|
 %>  @javax.jws.WebMethod( operationName = "<%= method.name %>" )
-    @javax.xml.ws.RequestWrapper(localName = "<%= method.name %>", targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, className = "<%= service.jws.qualified_java_service_name %>$<%= method.name %>")
-    @javax.xml.ws.ResponseWrapper(localName = "<%= method.name %>Response", targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, className = "<%= service.jws.qualified_java_service_name %>$<%= method.name %>Response")
+  @javax.xml.ws.RequestWrapper( localName = "<%= method.name %>", targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, className = "<%= service.jws.qualified_java_service_name %>$<%= method.name %>" )
+  @javax.xml.ws.ResponseWrapper( localName = "<%= method.name %>Response", targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, className = "<%= service.jws.qualified_java_service_name %>$<%= method.name %>Response" )
   @javax.xml.ws.Action( input = "<%= method.jws.input_action %>", output = "<%= method.jws.output_action %>", fault = {<% method.exceptions.each do |exception|
 %>
     @javax.xml.ws.FaultAction( className = <%= exception.jws.qualified_name %>.class, value = "<%= exception.jws.fault_action(method) %>" )
