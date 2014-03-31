@@ -56,7 +56,7 @@
 <% data_modules.values.each do |data_module| -%>
     <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="<%= data_module.jws.namespace %>"  version="1.0">
 <% data_modules.values.select{|dm| dm != data_module}.each do |import| -%>
-    <xs:import namespace="<%= import.jws.namespace %>"/>
+      <xs:import namespace="<%= import.jws.namespace %>"/>
 <% end -%>
 <% structs.values.select{|s| s.data_module.name == data_module.name}.each do |struct| -%>
       <xs:element name="<%= struct.xml.name %>" type="<%= Domgen::Naming.underscore(struct.data_module.name) %>:<%= struct.name %>"/>
@@ -111,7 +111,7 @@
 <% end -%>
     <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="<%= service.jws.namespace %>">
 <% data_modules.values.each do |import| -%>
-    <xs:import namespace="<%= import.jws.namespace %>"/>
+      <xs:import namespace="<%= import.jws.namespace %>"/>
 <% end -%>
 <% methods.each do |method| -%>
       <xs:element name="<%= method.name %>" type="tns:<%= method.name %>"/>
