@@ -221,6 +221,10 @@ module Domgen
       def namespace
         @namespace || exception.data_module.jws.namespace
       end
+
+      def fault_action(method)
+        "#{method.service.jws.namespace}/#{method.service.jws.web_service_name}/#{method.name}/Fault/#{exception.jws.name}"
+      end
     end
   end
 
