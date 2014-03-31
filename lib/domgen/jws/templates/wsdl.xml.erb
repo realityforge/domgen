@@ -60,6 +60,16 @@
                xmlns:<%= Domgen::Naming.underscore(data_module.name) %>="<%= data_module.jws.namespace %>"<% end %>
                xmlns:tns="<%= data_module.jws.namespace %>"
                xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<% enums.select{|e| e.data_module.name == data_module.name}.values.each do |enum| -%>
+      <xs:element name="<%= enum.xml.name %>" type="<%= Domgen::Naming.underscore(enum.data_module.name) %>:<%= enum.name %>"/>
+      <xs:simpleType name="<%= enum.name %>">
+        <xs:restriction base="xs:string">
+<% enum.values.each do |val| -%>
+          <xs:enumeration value="<%= val %>" />
+<% end -%>
+        </xs:restriction>
+      </xs:simpleType>
+<% end -%>
 <% data_modules.values.select{|dm| dm != data_module}.each do |import| -%>
       <xs:import namespace="<%= import.jws.namespace %>"/>
 <% end -%>
@@ -95,16 +105,6 @@
         <xs:attribute name="<%= field.xml.name %>" <%= xsd_type(field) %> <%= xsd_attribute_use(field) %>/>
 <% end -%>
       </xs:complexType>
-<% end -%>
-<% enums.select{|e| e.data_module.name == data_module.name}.values.each do |enum| -%>
-      <xs:element name="<%= enum.xml.name %>" type="<%= Domgen::Naming.underscore(enum.data_module.name) %>:<%= enum.name %>"/>
-      <xs:simpleType name="<%= enum.name %>">
-        <xs:restriction base="xs:string">
-<% enum.values.each do |val| -%>
-          <xs:enumeration value="<%= val %>" />
-<% end -%>
-        </xs:restriction>
-      </xs:simpleType>
 <% end -%>
 <% exceptions.select{|e| e.data_module.name == data_module.name}.each do |exception| -%>
       <xs:element name="<%= exception.jws.name %>" nillable="true" type="<%= Domgen::Naming.underscore(exception.data_module.name) %>:<%= exception.name %>"/>
