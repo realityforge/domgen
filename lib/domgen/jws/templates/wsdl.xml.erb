@@ -126,14 +126,15 @@
       </xs:complexType>
       <xs:element name="<%= method.name %>Response" type="tns:<%= method.name %>Response"/>
       <xs:complexType name="<%= method.name %>Response">
-<% if method.result.return_type.to_s != 'void' -%>
+<% if method.result.return_type.to_s == 'void' -%>
+        <xs:sequence/>
+<% else -%>
         <xs:sequence>
           <xs:element name="return" <%= xsd_type(method.result) %> <%= jws_element_occurrences(method.result) %>/>
         </xs:sequence>
 <% end -%>
       </xs:complexType>
 <% end -%>
-
     </xs:schema>
   </types>
 <%
