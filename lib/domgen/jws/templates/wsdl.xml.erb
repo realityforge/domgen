@@ -70,13 +70,17 @@
           <xs:element name="<%= field.xml.name %>">
             <xs:complexType>
               <xs:sequence>
+<% if field.struct? %>
+                <xs:element ref="<%= Domgen::Naming.underscore(field.referenced_struct.data_module.name) %>:<%= field.referenced_struct.xml.name %>" <%= jws_element_occurrences(field) %>/>
+<% else %>
                 <xs:element name="<%= field.xml.component_name %>" <%= xsd_type(field) %> <%= jws_element_occurrences(field) %>/>
+<% end %>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
 <% end -%>
 <% referenced_structs.each do |struct| -%>
-          <xs:element name="<%= struct.xml.name %>" <%= xsd_type(struct)%> />
+          <xs:element ref="<%= Domgen::Naming.underscore(struct.data_module.name) %>:<%= struct.xml.name %>" />
 <% end -%>
         </xs:sequence>
 <% end -%>
