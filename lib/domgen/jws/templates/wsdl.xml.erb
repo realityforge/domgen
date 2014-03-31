@@ -159,7 +159,7 @@
       <input wsam:Action="<%= method.jws.input_action %>" message="tns:<%= method.name %>"/>
       <output wsam:Action="<%= method.jws.output_action %>" message="tns:<%= method.name %>Response"/>
 <% method.exceptions.each do |exception| -%>
-      <fault message="tns:<%= exception.jws.name %>" name="<%= exception.jws.name %>" wsam:Action="<%= service.jws.namespace %>/<%= service.jws.web_service_name %>/<%= method.name %>/Fault/<%= exception.jws.name %>"/>
+      <fault message="tns:<%= exception.jws.name %>" name="<%= exception.jws.name %>" wsam:Action="<%= exception.jws.fault_action(method) %>"/>
 <% end -%>
     </operation>
 <% end -%>
