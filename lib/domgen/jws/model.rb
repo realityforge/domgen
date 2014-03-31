@@ -158,6 +158,16 @@ module Domgen
         "#{fake_service_package}.#{fake_server_name}"
       end
 
+      attr_writer :fake_server_test_name
+
+      def fake_server_test_name
+        @fake_server_test_name || "AbstractFake#{repository.name}ServerTest"
+      end
+
+      def qualified_fake_server_test_name
+        "#{fake_service_package}.#{fake_server_test_name}"
+      end
+
       attr_writer :service_name
 
       # The name of the service under which web services will be anchored
