@@ -105,8 +105,8 @@
       </xs:simpleType>
 <% end -%>
 <% exceptions.select{|e| e.data_module.name == data_module.name}.each do |exception| -%>
-      <xs:element name="<%= exception.jws.name %>" nillable="true" type="<%= Domgen::Naming.underscore(exception.data_module.name) %>:<%= exception.jws.name %>"/>
-      <xs:complexType name="<%= exception.jws.name %>">
+      <xs:element name="<%= exception.jws.name %>" nillable="true" type="<%= Domgen::Naming.underscore(exception.data_module.name) %>:<%= exception.name %>"/>
+      <xs:complexType name="<%= exception.name %>">
 <% if exception.parameters.size > 0 -%>
         <xs:sequence>
 <% exception.parameters.each do |parameter| %>
