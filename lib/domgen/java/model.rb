@@ -76,8 +76,6 @@ module Domgen
 
       def primitive_java_type(characteristic, group_type, modality = :default)
         check_modality(modality)
-        characteristic_group = group_type(group_type)
-
         if (:boundary == modality || :transport == modality) && characteristic.reference?
           return primitive_java_type(characteristic.referenced_entity.primary_key, group_type, modality)
         elsif :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
