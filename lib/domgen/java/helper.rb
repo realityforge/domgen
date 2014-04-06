@@ -28,13 +28,16 @@ module Domgen
         !(extension.primitive?(modality) || extension.java_type(modality).to_s == 'void')
       end
 
-      def annotated_type(characteristic, characteristic_key, modality = :default)
-        extension = characteristic.send(characteristic_key)
-        unless supports_nullable?(extension, modality)
-          return extension.java_type(modality)
-        else
-          return "#{nullability_annotation(characteristic.nullable?)} #{extension.java_type(modality)}"
-        end
+      def annotated_type(characteristic, facet_key, modality = :default, options = {})
+        final_qualifier = options[:final] ? 'final ' : ''
+        public_qualifier = options[:public] ? 'public ' : ''
+        private_qualifier = options[:private] ? 'private ' : ''
+        protected_qualifier = options[:protected] ? 'protected ' : ''
+        abstract_qualifier = options[:abstract] ? 'abstract ' : ''
+        native_qualifier = options[:native] ? 'native ' : ''
+        extension = characteristic.send(facet_key)
+        nullability_prefix = (supports_nullable?(extension, modality)) ? "#{nullability_annotation(characteristic.nullable?)} " : ''
+        return "#{nullability_prefix}#{public_qualifier}#{protected_qualifier}#{private_qualifier}#{abstract_qualifier}#{final_qualifier}#{native_qualifier}#{extension.java_type(modality)}"
       end
 
       def javabean_property_name(key)
