@@ -51,7 +51,7 @@ module Domgen
         s << "@javax.ws.rs.HeaderParam( \"#{parameter.jaxrs.param_key}\" )" if parameter.jaxrs.param_type == :header
         s << " "
         s << "@javax.ws.rs.DefaultValue( \"#{parameter.jaxrs.default_value}\" ) " if parameter.jaxrs.default_value
-        s << "#{annotated_type(parameter, :jaxrs, :boundary)} #{Domgen::Naming.camelize(parameter.name)}"
+        s << "#{annotated_type(parameter, :jaxrs, :boundary, :final => true)} #{Domgen::Naming.camelize(parameter.name)}"
         s
       end
     end

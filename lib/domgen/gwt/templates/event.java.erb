@@ -16,7 +16,7 @@ public final class <%= message.gwt.event_name %>
 %>  private final <%= parameter.gwt.java_type %> <%= parameter.gwt.name %>;
 <% end %>
 
-  public <%= message.gwt.event_name %>(<%= message.parameters.collect{|p| "final #{annotated_type(p, :gwt)} #{p.gwt.name}"}.join(", ") %>)
+  <%= message.gwt.event_name %>(<%= message.parameters.collect{|p| "#{annotated_type(p, :gwt, :default, :public => true, :final => true)} #{p.gwt.name}"}.join(", ") %>)
   {
 <% message.parameters.select{|p| !p.nullable? && !p.gwt.primitive?}.each do |parameter|
 %>    if( null == <%= parameter.gwt.name %> )
@@ -36,7 +36,7 @@ public final class <%= message.gwt.event_name %>
   }
 
 <% message.parameters.each do |parameter|
-%>  public <%= annotated_type(parameter, :gwt) %> get<%= parameter.name %>()
+%>  <%= annotated_type(parameter, :gwt, :default, :public => true) %> get<%= parameter.name %>()
   {
     return <%= parameter.gwt.name %>;
   }

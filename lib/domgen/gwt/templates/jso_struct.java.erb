@@ -11,7 +11,7 @@ public final class <%= struct.gwt.jso_name %>
   {
   }
 
-  protected static <%= struct.gwt.jso_name %> create( <%= struct.fields.collect {|field| "final #{annotated_type(field, :gwt, :boundary) } #{field.name}" }.join(", ") %> )
+  protected static <%= struct.gwt.jso_name %> create( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{field.name}" }.join(", ") %> )
   {
     final <%= struct.gwt.jso_name %> entity = com.google.gwt.core.client.JavaScriptObject.createObject().cast();
 <% struct.fields.each do |field|
@@ -92,10 +92,8 @@ public final class <%= struct.gwt.jso_name %>
         when field.enumeration? then Proc.new {|field, transport_value| "#{field.gwt.java_component_type}.#{field.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{transport_value} ]"}"}
         else nil
       end
-
-      component_type = field.struct? ? field.referenced_struct.gwt.qualified_jso_name : field.gwt.java_component_type
 %>
-  public final <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
+  <%= annotated_type(field, :gwt, :boundary, :final => true, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
 <% if conversion_rule.nil? %>
     return (<%= field.gwt.java_type %>)new org.realityforge.gwt.datatypes.client.collections.JsoReadOnly<%= field.struct? ? "" : gwt_type_suffix %><%= field.collection_type == :set ? "Set" : "List" %>( <%= getter_prefix(field) %><%= field.name %>0() );
@@ -121,7 +119,7 @@ public final class <%= struct.gwt.jso_name %>
 <%
    elsif field.date?
 %>
-  public final <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
+  <%= annotated_type(field, :gwt, :boundary, :final => true, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
     return org.realityforge.gwt.datatypes.client.date.RDate.parse( <%= getter_prefix(field) %><%= field.name %>0() );
   }
@@ -136,7 +134,7 @@ public final class <%= struct.gwt.jso_name %>
 <%
    elsif field.enumeration?
 %>
-  public final <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
+  <%= annotated_type(field, :gwt, :boundary, :final => true, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
     <% transport_value = "#{getter_prefix(field)}#{field.name}0()" -%>
     return <%= field.gwt.java_type %>.<%= field.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{transport_value} ]" %>;
@@ -152,26 +150,26 @@ public final class <%= struct.gwt.jso_name %>
 <%
    elsif field.integer? && field.nullable?
 %>
-  public final native <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
+  <%= annotated_type(field, :gwt, :boundary, :final => true, :native => true, :public => true) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
     return this.<%= field.json.name %> ? @java.lang.Integer::valueOf(I)( this.<%= field.json.name %> ) : null
   }-*/;
 
-  private final void set<%= field.name %>( <%= annotated_type(field, :gwt, :boundary) %> value )
+  private void set<%= field.name %>( <%= annotated_type(field, :gwt, :boundary, :final => true) %> value )
   {
     if( null != value ) set<%= field.name %>0( value.intValue() );
   }
 
-  private final native void set<%= field.name %>0( int value ) /*-{
+  private native void set<%= field.name %>0( int value ) /*-{
     this.<%= field.json.name %> = value;
   }-*/;
 <%
    else
 %>
-  public final native <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
+  <%= annotated_type(field, :gwt, :boundary, :public => true, :final => true, :native => true) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
     return this.<%= field.json.name %>;
   }-*/;
 
-  private final native void set<%= field.name %>( <%= annotated_type(field, :gwt, :boundary) %> value ) /*-{
+  private native void set<%= field.name %>( <%= annotated_type(field, :gwt, :boundary) %> value ) /*-{
     this.<%= field.json.name %> = value;
   }-*/;
 <% end

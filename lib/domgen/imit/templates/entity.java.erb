@@ -26,7 +26,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 %><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side? }.each do |attribute|
   if !attribute.reference?
 %>
-  private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.name %>;
+  <%= annotated_type(attribute, :imit, :private => true) %> _<%= attribute.imit.name %>;
 <% else
 %>  private <%= attribute.imit.java_type %> _<%= attribute.imit.name %>;
   private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.java_type(:transport)}" %> _<%= attribute.imit.name(:transport) %>;
@@ -51,14 +51,14 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     <%= entity.extends.nil? ? "_repository = repository;\n    _broker = broker" : "super( repository, broker )" %>;
   }
 <% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
-%>  public abstract <%= annotated_type(attribute, :imit) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>();
+%>  <%= annotated_type(attribute, :imit, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>();
 <% if attribute.attribute_type == :reference
   %>  abstract <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>();
 <% end %>
     abstract void set<%= attribute.imit.name(:transport) %>( <%= attribute.imit.java_type(:transport) %> value );
 <% end %>
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
-%>  public <%= annotated_type(attribute, :imit) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>()
+%>  <%= annotated_type(attribute, :imit, :default, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>()
   {
     <% if !attribute.primary_key? %>check<%= attribute.reference? ? "Linked" : "Validity" %>();<% end %>
     return _<%= attribute.imit.name %>;
@@ -70,7 +70,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     return _<%= attribute.referencing_link_name %>;
   }
 <% end %>
-  final void set<%= attribute.imit.name(:transport) %>( final <%= annotated_type(attribute, :imit, :transport) %> value )
+  final void set<%= attribute.imit.name(:transport) %>( <%= annotated_type(attribute, :imit, :transport, :final => true) %> value )
   {
     checkValidity();
 <% if attribute.reference?

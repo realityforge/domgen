@@ -16,7 +16,7 @@ public class <%= service.gwt_rpc.servlet_name %>
   private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
-%>  public <%= annotated_type(method.return_value, :gwt_rpc, :transport) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
+%>  <%= annotated_type(method.return_value, :gwt_rpc, :transport, :public => true) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt_rpc.qualified_name}.join(', ')}"
 %>
   {
@@ -27,7 +27,7 @@ public class <%= service.gwt_rpc.servlet_name %>
     final <%= parameter.referenced_struct.ee.qualified_name %> $<%= parameter.name %>;
 <% end %>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
-    final <%= annotated_type(parameter, :ejb, :boundary) %> $<%= parameter.name %>;
+    <%= annotated_type(parameter, :ejb, :boundary, :final => true) %> $<%= parameter.name %>;
 <% end %>
     try
   {
@@ -39,7 +39,7 @@ public class <%= service.gwt_rpc.servlet_name %>
    return_prefix = ''
    return_postfix = ''
    if method.return_value.return_type != :void
-     return_prefix = "final #{annotated_type(method.return_value, :ejb, :boundary)} returnValue = "
+     return_prefix = "#{annotated_type(method.return_value, :ejb, :boundary, :final => true)} returnValue = "
      transform = nil
      if method.return_value.date?
        transform = "org.realityforge.gwt.datatypes.client.date.RDate.fromDate( returnValue )"
@@ -60,7 +60,7 @@ public class <%= service.gwt_rpc.servlet_name %>
        return_postfix = "return #{transform || "returnValue"};"
      elsif method.return_value.date? || method.return_value.enumeration? || method.return_value.struct?
        return_postfix = ""
-       return_postfix << "final #{annotated_type(method.return_value, :ejb, :transport)} $returnValue = #{method.return_value.nullable? ? "null == returnValue ? null : " : '' }new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:transport) }>();\n"
+       return_postfix << "#{annotated_type(method.return_value, :ejb, :transport, :final => true)} $returnValue = #{method.return_value.nullable? ? "null == returnValue ? null : " : '' }new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:transport) }>();\n"
        return_postfix << "  if( null != returnValue )\n    {\n" if method.return_value.nullable?
        return_postfix << <<LOOP
     for( final #{method.return_value.ejb.java_component_type(:boundary) } k: returnValue )

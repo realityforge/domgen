@@ -7,12 +7,12 @@ package <%= to_package(exception.ee.qualified_name) %>;
 public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? "java.lang.Exception" : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
 {
 <% exception.parameters.each do |parameter| %>
-  private <%= annotated_type(parameter, :ee, :boundary) %> <%= parameter.name %>;
+  <%= annotated_type(parameter, :ee, :boundary, :private => true) %> <%= parameter.name %>;
 <% end %>
 <%
 param_desc =
   exception.parameters.collect do |parameter|
-    "final #{annotated_type(parameter, :ee, :boundary) } #{parameter.name}"
+    "#{annotated_type(parameter, :ee, :boundary, :final => true) } #{parameter.name}"
   end.join(", ")
 param_desc_with_suffix = param_desc + (param_desc.size == 0 ? '' : ', ')
 
@@ -42,7 +42,7 @@ inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? 
 
 <% exception.parameters.each do |parameter|
 %>
-public <%= annotated_type(parameter, :ee, :boundary) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+<%= annotated_type(parameter, :ee, :boundary, :public => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
   {
   return <%= parameter.name %>;
 }

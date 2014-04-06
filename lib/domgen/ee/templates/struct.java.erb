@@ -27,7 +27,7 @@ public class <%= struct.ee.name %>
 <% end %>
 
 <% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join(", ") %>})<% end -%>
-  public <%= struct.name %>( <%= struct.fields.collect {|field| "final #{annotated_type(field, :ee, :boundary)} #{field.name}" }.join(", ") %> )
+  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{field.name}" }.join(", ") %> )
   {
 <% struct.fields.each do |field|
      null_protection = field.nullable? ? "#{field.name} == null ? null : " : ""
@@ -42,7 +42,7 @@ public class <%= struct.ee.name %>
 %>  }
 <% struct.fields.each do |field|
 %>
-  public <%= annotated_type(field, :ee, :boundary) %> <%= getter_prefix(field) %><%= field.name %>()
+  <%= annotated_type(field, :ee, :boundary, :public => true, :final => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
     return <%= field.name %>;
   }
