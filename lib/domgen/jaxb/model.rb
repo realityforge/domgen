@@ -27,6 +27,13 @@ module Domgen
     end
 
     class JaxbPackage < Domgen.ParentedElement(:repository)
+      def marshalling_test_name
+        "#{repository.name}JaxbMarshallingTest"
+      end
+
+      def qualified_marshalling_test_name
+        "#{repository.ee.data_type_package}.#{marshalling_test_name}"
+      end
     end
   end
 

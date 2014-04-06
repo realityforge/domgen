@@ -1,0 +1,85 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.jaxb.qualified_marshalling_test_name) %>;
+
+@SuppressWarnings( "deprecation" )
+public class <%= repository.jaxb.marshalling_test_name %>
+{
+<%
+  repository.data_modules.select{|dm|dm.jaxb?}.each do |data_module|
+    data_module.enumerations.select{|e|e.jaxb?}.each do |enumeration|
+-%>
+  @org.testng.annotations.Test
+  public void marshal<%= data_module.name %><%= enumeration.name %>()
+    throws Exception
+  {
+    final java.io.StringWriter xml = new java.io.StringWriter();
+    final <%= enumeration.ee.qualified_name %> input = <%= enumeration.ee.qualified_name %>.<%= enumeration.values[0] %>;
+    javax.xml.bind.JAXB.marshal( input, xml );
+    final String data = xml.toString();
+    org.testng.Assert.assertTrue( data.contains( "><%= enumeration.numeric_values? ? '0' : enumeration.values[0] %><" ) );
+<% if enumeration.top_level? -%>
+    final javax.xml.validation.SchemaFactory schemaFactory = javax.xml.validation.SchemaFactory.newInstance( javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI );
+    final java.net.URL resource = getClass().getResource( "/<%= data_module.xml.resource_xsd_name %>" );
+    org.testng.Assert.assertNotNull( resource );
+    schemaFactory.newSchema( resource ).newValidator().validate( new javax.xml.transform.stream.StreamSource( new java.io.StringReader( data ) ) );
+<% end -%>
+    final <%= enumeration.ee.qualified_name %> output = javax.xml.bind.JAXB.unmarshal( new java.io.StringReader( data ), <%= enumeration.ee.qualified_name %>.class );
+    org.testng.Assert.assertEquals( output, input );
+  }
+<%
+    end
+
+def create_parameter_value(p)
+  v =
+    if p.integer?
+      "1"
+    elsif p.reference?
+      create_parameter_value(p.referenced_entity.primary_key)
+    elsif p.boolean?
+      "true"
+    elsif p.enumeration?
+      "#{p.enumeration.ee.qualified_name}.#{p.enumeration.values[0]}"
+    elsif p.struct?
+      create_struct(p.referenced_struct)
+    elsif p.datetime?
+      "new java.util.Date(77, 11, 3, 22, 32)"
+    elsif p.date?
+      "new java.util.Date(77, 11, 3)"
+    elsif p.text?
+      "\"HelloWorld\""
+    else
+      raise "Unknown parameter type for #{p.qualified_name}"
+    end
+  !p.collection? ? v : (p.collection_type == :sequence) ? "java.util.Arrays.asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.asList( #{v} ) )"
+end
+
+def create_struct(struct)
+  result = "new #{struct.ee.qualified_name}("
+  result << struct.fields.collect { |p| create_parameter_value(p) }.join(", ")
+  result << ")"
+end
+
+    data_module.structs.select{|s|s.jaxb?}.each do |struct|
+%>
+  @org.testng.annotations.Test
+  public void marshal<%= data_module.name %><%= struct.name %>()
+    throws Exception
+  {
+    final java.io.StringWriter xml = new java.io.StringWriter();
+    final <%= struct.ee.qualified_name %> input = <%= create_struct(struct) %>;
+    javax.xml.bind.JAXB.marshal( input, xml );
+    final String data = xml.toString();
+<% if struct.top_level? -%>
+    final javax.xml.validation.SchemaFactory schemaFactory = javax.xml.validation.SchemaFactory.newInstance( javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI );
+    final java.net.URL resource = getClass().getResource( "/<%= data_module.xml.resource_xsd_name %>" );
+    org.testng.Assert.assertNotNull( resource );
+    schemaFactory.newSchema( resource ).newValidator().validate( new javax.xml.transform.stream.StreamSource( new java.io.StringReader( data ) ) );
+<% end -%>
+    final <%= struct.ee.qualified_name %> output = javax.xml.bind.JAXB.unmarshal( new java.io.StringReader( data ), <%= struct.ee.qualified_name %>.class );
+    org.testng.Assert.assertEquals( output, input );
+  }
+<%
+    end
+  end
+-%>
+}
