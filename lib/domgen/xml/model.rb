@@ -96,8 +96,27 @@ module Domgen
     class XmlPackage < Domgen.ParentedElement(:data_module)
       Domgen::XML.include_xml(self, :data_module)
 
+      attr_writer :namespace
+
       def namespace
         @namespace || "#{data_module.repository.xml.namespace}/#{data_module.name}"
+      end
+
+      # xml prefix
+      def prefix
+        Domgen::Naming.underscore(data_module.name)
+      end
+
+      def schema_name
+        data_module.name
+      end
+
+      def xsd_name
+        "#{data_module.repository.name}/#{schema_name}.xsd"
+      end
+
+      def resource_xsd_name
+        "META-INF/xsd/#{xsd_name}"
       end
     end
 

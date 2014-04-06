@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="<%= data_module.jws.namespace %>"
+           version="1.0"
+<% data_module.repository.data_modules.each do |dm| -%>
+           xmlns:<%= dm.xml.prefix %>="<%= dm.xml.namespace %>"
+<% end -%>
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<% data_module.repository.data_modules.select{|dm| dm.name != data_module.name && dm.xml?}.each do |dm| -%>
+  <xs:import namespace="<%= dm.xml.namespace %>"/>
+<% end -%>
+<% data_module.enumerations.each do |enum| -%>
+<% if enum.top_level? -%>
+  <xs:element name="<%= enum.xml.name %>" type="<%= data_module.xml.prefix %>:<%= enum.name %>"/>
+<% end -%>
+  <xs:simpleType name="<%= enum.name %>">
+    <xs:restriction base="xs:<%= enum.numeric_values? ? 'integer' : 'string' %>">
+<% enum.values.each_with_index do |val, index| -%>
+      <xs:enumeration value="<%= enum.numeric_values? ? index: val %>" />
+<% end -%>
+    </xs:restriction>
+  </xs:simpleType>
+<% end -%>
+<% data_module.structs.each do |struct| -%>
+  <xs:element name="<%= struct.xml.name %>" type="<%= data_module.xml.prefix %>:<%= struct.name %>"/>
+  <xs:complexType name="<%= struct.name %>">
+<% if !struct.fields.select{|f| f.collection? || f.struct?}.empty? -%>
+    <xs:sequence>
+<% struct.fields.each do |field| -%>
+<% if field.collection? -%>
+      <xs:element name="<%= field.xml.name %>" form="qualified" nillable="false">
+        <xs:complexType>
+          <xs:sequence>
+<% if field.struct? -%>
+            <xs:element ref="<%= field.referenced_struct.data_module.xml.prefix %>:<%= field.referenced_struct.xml.name %>" <%= xsd_element_occurrences(field) %>/>
+<% else -%>
+            <xs:element name="<%= field.xml.component_name %>" <%= xsd_type(field) %> <%= xsd_element_occurrences(field) %>/>
+<% end -%>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+<% elsif field.struct? -%>
+      <xs:element ref="<%= data_module.xml.prefix %>:<%= struct.xml.name %>" />
+<% end -%>
+<% end -%>
+    </xs:sequence>
+<% else -%>
+    <xs:sequence/>
+<% end -%>
+<% struct.fields.select{|f| !f.collection? && !f.struct?}.each do |field| -%>
+    <xs:attribute name="<%= field.xml.name %>" <%= xsd_type(field) %> <%= xsd_attribute_use(field) %>/>
+<% end -%>
+  </xs:complexType>
+<% end -%>
+<% data_module.exceptions.each do |exception| -%>
+  <xs:element name="<%= exception.xml.name %>" nillable="false" type="<%= data_module.xml.prefix %>:<%= exception.name %>"/>
+  <xs:complexType name="<%= exception.name %>">
+<% if exception.parameters.size > 0 -%>
+    <xs:sequence>
+<% exception.parameters.each do |parameter| %>
+      <xs:element name="<%= parameter.name %>" <%= xsd_type(parameter) %> <%= xsd_element_occurrences(parameter) %>/>
+<% end -%>
+    </xs:sequence>
+<% else -%>
+    <xs:all/>
+<% end -%>
+  </xs:complexType>
+<% end -%>
+</xs:schema>

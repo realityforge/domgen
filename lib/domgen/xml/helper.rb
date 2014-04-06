@@ -15,43 +15,27 @@
 module Domgen
   module Xml
     module Helper
-      def to_tag_name(name)
-        name.to_s.gsub(/_/, '-').gsub(/\?/, '')
+      def xsd_type(characteristic)
+        return ' type="xs:dateTime"' if characteristic.datetime?
+        return ' type="xs:date"' if characteristic.date?
+        return ' type="xs:boolean"' if characteristic.boolean?
+        return ' type="xs:integer"' if characteristic.integer?
+        return ' type="xs:string"' if characteristic.text?
+        return xsd_type(characteristic.referenced_entity.primary_key) if characteristic.reference?
+        return " type=\"#{characteristic.referenced_struct.data_module.xml.prefix}:#{characteristic.referenced_struct.name}\"" if characteristic.struct?
+        return " type=\"#{characteristic.enumeration.data_module.xml.prefix}:#{characteristic.enumeration.name}\"" if characteristic.enumeration?
+        raise "unknown type #{characteristic.characteristic_type} and can not convert to xsd"
       end
 
-      def tag_each(target, name)
-        values = target.send(name)
-        unless values.nil? || values.empty?
-          doc.tag!(to_tag_name(name)) do
-            values.each do |item|
-              yield item
-            end
-          end
-        end
+      def xsd_element_occurrences(characteristic)
+        s = ''
+        s << ' minOccurs="0"' if (characteristic.nullable? || characteristic.collection?)
+        s << ' maxOccurs="unbounded"' if characteristic.collection?
+        s
       end
 
-      def collect_attributes(target, names)
-        attributes = Hash.new
-        names.each do |name|
-          value = target.send(name.to_sym)
-          if value
-            attributes[to_tag_name(name)] = value
-          end
-        end
-        attributes
-      end
-    end
-  end
-end
-
-module Builder
-  class XmlMarkup
-    def _nested_structures(block)
-      super(block)
-      # if there was no newline after the last item, indentation
-      # will be added anyway, which looks pretty wacky
-      unless target! =~ /\n$/
-        _newline
+      def xsd_attribute_use(characteristic)
+        characteristic.nullable? ? ' use="optional"' : ' use="required"'
       end
     end
   end
