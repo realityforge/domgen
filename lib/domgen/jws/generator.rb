@@ -104,7 +104,7 @@ Domgen.template_set(:jws_fakes) do |template_set|
                         Domgen::Generator::JWS::HELPERS)
 end
 
-Domgen.template_set(:jws_server => [:jws_server_boundary, :jws_server_service, :jws_wsdl_assets])
-Domgen.template_set(:jws_fake_server => [:jws_fakes, :jws_server_service, :jws_wsdl_resources])
-Domgen.template_set(:jws_client => [:jws_wsdl_resources])
+Domgen.template_set(:jws_server => [:jws_server_boundary, :jws_server_service, :jws_wsdl_assets, :xml_xsd_assets])
+Domgen.template_set(:jws_fake_server => [:jws_fakes, :jws_server_service, :jws_wsdl_resources, :xml_xsd_resources])
+Domgen.template_set(:jws_client => [:jws_wsdl_resources, :xml_xsd_resources])
 Domgen.template_set(:jws => [:jws_server, :jws_client])
