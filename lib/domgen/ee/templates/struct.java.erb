@@ -47,4 +47,59 @@ public class <%= struct.ee.name %>
     return <%= field.name %>;
   }
 <% end
-%>}
+%>
+
+  @Override
+  public boolean equals( final Object o )
+  {
+    if ( this == o )
+    {
+      return true;
+    }
+    if ( o == null || getClass() != o.getClass() )
+    {
+      return false;
+    }
+
+    final <%= struct.ee.name %> that = (<%= struct.ee.name %>) o;
+<% struct.fields.select{|f|!f.collection?}.each do |field| -%>
+    if ( <%= field.ee.primitive?(:boundary) ? "#{field.name} != that.#{field.name}" : "#{field.nullable? ? "null == #{field.name} ? null != that.#{field.name} : " : ''}!#{field.name}.equals( that.#{field.name} )" %> )
+    {
+      return false;
+    }
+<% end -%>
+<% struct.fields.select{|f|f.collection?}.each do |field| -%>
+<% if field.nullable? -%>
+    if ( (null ==  <%= field.name %> && null !=  that.<%= field.name %>) || (null !=  <%= field.name %> && null ==  that.<%= field.name %>) )
+    {
+      return false;
+    }
+    else if ( null != <%= field.name %> )
+<% end -%>
+    {
+      if ( <%= field.name %>.size() != that.<%= field.name %>.size() )
+      {
+        return false;
+      }
+      for ( final <%= field.ee.java_component_type %> v : <%= field.name %> )
+      {
+        if ( !that.<%= field.name %>.contains( v ) )
+        {
+          return false;
+        }
+      }
+    }
+<% end -%>
+    return true;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = 0;
+<% struct.fields.each do |field| -%>
+    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{field.name} ? 1 : 0": field.name) : "#{field.nullable? ? "null == #{field.name} ? null : " : ''}#{field.name}.hashCode()" %>);
+<% end -%>
+    return result;
+  }
+}
