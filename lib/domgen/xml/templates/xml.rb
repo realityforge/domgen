@@ -1,3 +1,16 @@
+module Builder
+  class XmlMarkup
+    def _nested_structures(block)
+      super(block)
+      # if there was no newline after the last item, indentation
+      # will be added anyway, which looks pretty wacky
+      unless target! =~ /\n$/
+        _newline
+      end
+    end
+  end
+end
+
 module Domgen
   module Xml
     module Templates
@@ -103,7 +116,7 @@ module Domgen
             end
 
             attributes = collect_attributes(attribute.sql, %w(column_name identity? sparse? calculation))
-            attributes['sql-type'] = attribute.sql.sql_type.gsub('[','').gsub(']','')
+            attributes['sql-type'] = attribute.sql.sql_type.gsub('[', '').gsub(']', '')
             doc.persistent(attributes)
 
           end
@@ -175,8 +188,8 @@ module Domgen
                 doc.tag!(key) do |v|
                   if [:Description].include?(key)
                     text = item.tag_as_html(key)
-                    ENTITY_EXPANDSION_MAP.each_pair do |k,v|
-                      text = text.gsub("&#{k};","&#{v};")
+                    ENTITY_EXPANDSION_MAP.each_pair do |k, v|
+                      text = text.gsub("&#{k};", "&#{v};")
                     end
                     v << text
                   else
@@ -190,6 +203,32 @@ module Domgen
 
         def attribute_ref(entity, name)
           doc.attribute(:class => entity.qualified_name, :attribute => name)
+        end
+
+        def to_tag_name(name)
+          name.to_s.gsub(/_/, '-').gsub(/\?/, '')
+        end
+
+        def tag_each(target, name)
+          values = target.send(name)
+          unless values.nil? || values.empty?
+            doc.tag!(to_tag_name(name)) do
+              values.each do |item|
+                yield item
+              end
+            end
+          end
+        end
+
+        def collect_attributes(target, names)
+          attributes = Hash.new
+          names.each do |name|
+            value = target.send(name.to_sym)
+            if value
+              attributes[to_tag_name(name)] = value
+            end
+          end
+          attributes
         end
 
         ENTITY_EXPANDSION_MAP =
