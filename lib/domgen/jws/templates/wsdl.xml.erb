@@ -26,7 +26,7 @@
 <% if method.parameters.size > 0 -%>
         <xs:sequence>
 <% method.parameters.each do |parameter| -%>
-          <xs:element name="<%= parameter.name %>" <%= xsd_type(parameter) %> <%= jws_element_occurrences(parameter) %>/>
+          <xs:element name="<%= parameter.name %>" <%= xsd_type(parameter) %> <%= xsd_element_occurrences(parameter) %>/>
 <% end -%>
         </xs:sequence>
 <% end -%>
@@ -37,7 +37,7 @@
         <xs:sequence/>
 <% else -%>
         <xs:sequence>
-          <xs:element name="return" <%= xsd_type(method.result) %> <%= jws_element_occurrences(method.result) %>/>
+          <xs:element name="return" <%= xsd_type(method.result) %> <%= xsd_element_occurrences(method.result) %>/>
         </xs:sequence>
 <% end -%>
       </xs:complexType>
@@ -48,7 +48,7 @@
   exceptions.each do |exception|
 -%>
   <message name="<%= exception.jws.name %>">
-    <part name="fault" element="<%= Domgen::Naming.underscore(exception.data_module.name) %>:<%= exception.jws.name %>" xmlns:<%= Domgen::Naming.underscore(exception.data_module.name) %>="<%= exception.data_module.jws.namespace %>"/>
+    <part name="fault" element="<%= exception.data_module.xml.prefix %>:<%= exception.xml.name %>" xmlns:<%= exception.data_module.xml.prefix %>="<%= exception.data_module.xml.namespace %>"/>
   </message>
 <%
   end
