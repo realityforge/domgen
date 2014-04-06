@@ -22,7 +22,7 @@ module Domgen
       end
 
       def qualified_service_name
-        "#{service.data_module.jmx.service_package}.#{service_name}"
+        "#{service.data_module.jmx.server_service_package}.#{service_name}"
       end
     end
 
@@ -62,12 +62,11 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.jmx.data_type_package}.#{name}"
+        "#{exception.data_module.jmx.server_data_type_package}.#{name}"
       end
     end
 
     class JmxPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
     end
 
     class JmxApplication < Domgen.ParentedElement(:repository)

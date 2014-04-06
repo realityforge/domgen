@@ -57,7 +57,7 @@ module Domgen
       end
 
       def qualified_service_name
-        "#{service.data_module.jaxrs.service_package}.#{service_name}"
+        "#{service.data_module.jaxrs.server_service_package}.#{service_name}"
       end
 
       def boundary_name
@@ -65,7 +65,7 @@ module Domgen
       end
 
       def qualified_boundary_name
-        "#{service.data_module.jaxrs.service_package}.#{boundary_name}"
+        "#{service.data_module.jaxrs.server_service_package}.#{boundary_name}"
       end
 
       attr_accessor :boundary_extends
@@ -165,17 +165,15 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.jaxrs.data_type_package}.#{name}"
+        "#{exception.data_module.jaxrs.server_data_type_package}.#{name}"
       end
     end
 
     class JaxRsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
+      include Domgen::Java::EEClientServerJavaPackage
     end
 
     class JaxRsApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ServerJavaApplication
-
       attr_writer :path
 
       def path
@@ -187,7 +185,7 @@ module Domgen
       end
 
       def qualified_abstract_application_name
-        "#{repository.jaxrs.service_package}.#{abstract_application_name}"
+        "#{repository.ee.server_service_package}.#{abstract_application_name}"
       end
     end
   end

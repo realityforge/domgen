@@ -373,10 +373,24 @@ module Domgen
         @server_service_package || resolve_package(:server_service_package)
       end
 
+      def server_internal_service_package
+        "#{server_service_package}.internal"
+      end
+
       attr_writer :server_data_type_package
 
       def server_data_type_package
         @server_data_type_package || resolve_package(:server_data_type_package)
+      end
+    end
+
+    module EEClientServerJavaPackage
+      include ClientServerJavaPackage
+
+      protected
+
+      def facet_key
+        :ee
       end
     end
 

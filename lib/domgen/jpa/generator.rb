@@ -40,7 +40,7 @@ Domgen.template_set(:jpa_model) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :data_module,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity_package_info.java.erb",
-                        'main/java/#{data_module.jpa.entity_package.gsub(".","/")}/package-info.java',
+                        'main/java/#{data_module.jpa.server_entity_package.gsub(".","/")}/package-info.java',
                         Domgen::Generator::JPA::HELPERS,
                         'data_module.entities.any?{|e|e.jpa?}')
 end

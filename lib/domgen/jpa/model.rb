@@ -299,7 +299,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{entity.data_module.jpa.entity_package}.#{name}"
+        "#{entity.data_module.jpa.server_entity_package}.#{name}"
       end
 
       def metamodel_name
@@ -307,7 +307,7 @@ module Domgen
       end
 
       def qualified_metamodel_name
-        "#{entity.data_module.jpa.entity_package}.#{metamodel_name}"
+        "#{entity.data_module.jpa.server_entity_package}.#{metamodel_name}"
       end
 
       attr_writer :dao_service_name
@@ -386,12 +386,12 @@ module Domgen
     end
 
     class JpaPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
+      include Domgen::Java::EEClientServerJavaPackage
 
       attr_writer :dao_package
 
       def dao_package
-        @dao_package || "#{entity_package}.dao"
+        @dao_package || "#{server_entity_package}.dao"
       end
     end
 
@@ -412,8 +412,6 @@ module Domgen
         @unit_name || repository.name
       end
 
-      include Domgen::Java::ServerJavaApplication
-
       attr_writer :properties
 
       def properties
@@ -430,7 +428,7 @@ module Domgen
       end
 
       def qualified_unit_descriptor_name
-        "#{entity_package}.#{unit_descriptor_name}"
+        "#{repository.ee.server_entity_package}.#{unit_descriptor_name}"
       end
 
       attr_writer :ejb_module_name
@@ -440,7 +438,7 @@ module Domgen
       end
 
       def qualified_ejb_module_name
-        "#{package}.#{ejb_module_name}"
+        "#{repository.ee.server_package}.#{ejb_module_name}"
       end
 
       attr_writer :data_source

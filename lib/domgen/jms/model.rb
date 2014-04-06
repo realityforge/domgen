@@ -35,7 +35,7 @@ module Domgen
       end
 
       def qualified_mdb_name
-        "#{method.service.data_module.jms.service_package}.#{mdb_name}"
+        "#{method.service.data_module.jms.server_service_package}.#{mdb_name}"
       end
 
       def destination_resource_name=(destination_resource_name)
@@ -86,11 +86,10 @@ module Domgen
     end
 
     class JmsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
+      include Domgen::Java::EEClientServerJavaPackage
     end
 
     class JmsApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ServerJavaApplication
     end
   end
 

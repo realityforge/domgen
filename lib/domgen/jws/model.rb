@@ -67,7 +67,7 @@ module Domgen
       end
 
       def qualified_service_name
-        "#{service.data_module.jws.service_package}.#{service_name}"
+        "#{service.data_module.jws.server_service_package}.#{service_name}"
       end
 
       def java_service_name
@@ -75,7 +75,7 @@ module Domgen
       end
 
       def qualified_java_service_name
-        "#{service.data_module.jws.service_package}.#{java_service_name}"
+        "#{service.data_module.jws.server_service_package}.#{java_service_name}"
       end
 
       def boundary_implementation_name
@@ -83,7 +83,7 @@ module Domgen
       end
 
       def qualified_boundary_implementation_name
-        "#{service.data_module.jws.service_package}.#{boundary_implementation_name}"
+        "#{service.data_module.jws.server_service_package}.#{boundary_implementation_name}"
       end
 
       def fake_implementation_name
@@ -124,7 +124,7 @@ module Domgen
     end
 
     class JwsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
+      include Domgen::Java::EEClientServerJavaPackage
 
       def namespace
         @namespace || "#{data_module.repository.jws.namespace}/#{data_module.name}"
@@ -205,7 +205,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.jws.service_package}.#{name}"
+        "#{exception.data_module.jws.server_service_package}.#{name}"
       end
 
       def fault_info_name
@@ -213,7 +213,7 @@ module Domgen
       end
 
       def qualified_fault_info_name
-        "#{exception.data_module.jws.service_package}.#{fault_info_name}"
+        "#{exception.data_module.jws.server_service_package}.#{fault_info_name}"
       end
 
       attr_writer :namespace

@@ -34,7 +34,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{exception.data_module.ee.service_package}.#{name}"
+        "#{exception.data_module.ee.server_service_package}.#{name}"
       end
     end
 
@@ -46,7 +46,7 @@ module Domgen
       end
 
       def qualified_name
-        "#{struct.data_module.ee.data_type_package}.#{self.name}"
+        "#{struct.data_module.ee.server_data_type_package}.#{self.name}"
       end
     end
 
@@ -70,16 +70,16 @@ module Domgen
       end
 
       def qualified_name
-        "#{enumeration.data_module.ee.data_type_package}.#{name}"
+        "#{enumeration.data_module.ee.server_data_type_package}.#{name}"
       end
     end
 
     class EePackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
+      include Domgen::Java::EEClientServerJavaPackage
     end
 
     class EeApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ServerJavaApplication
+      include Domgen::Java::JavaClientServerApplication
 
       def version
         @version || '7'

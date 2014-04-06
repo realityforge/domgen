@@ -32,7 +32,7 @@ module Domgen
       end
 
       def qualified_marshalling_test_name
-        "#{repository.ee.data_type_package}.#{marshalling_test_name}"
+        "#{repository.ee.server_data_type_package}.#{marshalling_test_name}"
       end
     end
   end

@@ -48,7 +48,7 @@ module Domgen
       end
 
       def qualified_service_name
-        "#{service.data_module.ejb.service_package}.#{service_name}"
+        "#{service.data_module.ejb.server_service_package}.#{service_name}"
       end
 
       def boundary_interface_name
@@ -56,7 +56,7 @@ module Domgen
       end
 
       def qualified_boundary_interface_name
-        "#{service.data_module.ejb.service_package}.#{boundary_interface_name}"
+        "#{service.data_module.ejb.server_service_package}.#{boundary_interface_name}"
       end
 
       def remote_service_name
@@ -64,7 +64,7 @@ module Domgen
       end
 
       def qualified_remote_service_name
-        "#{service.data_module.ejb.service_package}.#{remote_service_name}"
+        "#{service.data_module.ejb.server_service_package}.#{remote_service_name}"
       end
 
       def boundary_implementation_name
@@ -72,7 +72,7 @@ module Domgen
       end
 
       def qualified_boundary_implementation_name
-        "#{service.data_module.ejb.internal_service_package}.#{boundary_implementation_name}"
+        "#{service.data_module.ejb.server_internal_service_package}.#{boundary_implementation_name}"
       end
 
       attr_accessor :boundary_extends
@@ -126,11 +126,10 @@ module Domgen
     end
 
     class EjbPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
+      include Domgen::Java::EEClientServerJavaPackage
     end
 
     class EjbApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ServerJavaApplication
     end
   end
 
