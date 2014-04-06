@@ -1,134 +1,24 @@
 <%
    methods = service.methods.select{|m| m.jws?}
    exceptions = methods.collect{|m|m.exceptions}.flatten.uniq
-   structs = {}
-   enums = {}
-   data_modules = {}
-   methods.each do |m|
-     m.parameters.select { |p| p.struct? }.each do |p|
-       structs[p.referenced_struct.qualified_name] = p.referenced_struct
-     end
-     m.parameters.select { |p| p.enumeration? }.each do |p|
-       enums[p.enumeration.qualified_name] = p.enumeration
-     end
-     structs[m.result.referenced_struct.qualified_name] = m.result.referenced_struct if m.result.struct?
-     enums[m.result.enumeration.qualified_name] = m.result.enumeration if m.result.enumeration?
-   end
-   to_process = structs.keys
-   while !to_process.empty?
-     name = to_process.pop
-     struct = structs[name]
-     struct.fields.select { |f| f.struct? && !structs[f.referenced_struct.qualified_name] }.each do |f|
-       structs[f.referenced_struct.qualified_name] = f.referenced_struct
-       to_process << f.referenced_struct.qualified_name
-     end
-     struct.fields.select { |f| f.enumeration? && !enums[f.enumeration.qualified_name]}.each do |f|
-       enums[f.enumeration.qualified_name] = f.enumeration
-     end
-   end
-
-   data_modules[service.data_module.name] = service.data_module
-   exceptions.each do |exception|
-     data_modules[exception.data_module.name] = exception.data_module unless data_modules[exception.data_module.name]
-   end
-   structs.values.each do |struct|
-     data_modules[struct.data_module.name] = struct.data_module unless data_modules[struct.data_module.name]
-   end
-   enums.each do |enum|
-     data_modules[enum.data_module.name] = enum.data_module unless data_modules[enum.data_module.name]
-   end
-
-   # TODO: Internal structs
+   data_modules = service.data_module.repository.data_modules.select{|data_module| data_module.xml?}
 -%>
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <definitions targetNamespace="<%= service.jws.namespace %>"
              name="<%= service.jws.web_service_name %>"
              xmlns="http://schemas.xmlsoap.org/wsdl/"
              xmlns:tns="<%= service.jws.namespace %>"
-<% data_modules.values.each do |data_module| -%>
-             xmlns:<%= Domgen::Naming.underscore(data_module.name) %>="<%= data_module.jws.namespace %>"
+<% data_modules.each do |data_module| -%>
+             xmlns:<%= data_module.xml.prefix %>="<%= data_module.xml.namespace %>"
 <% end -%>
              xmlns:xs="http://www.w3.org/2001/XMLSchema"
              xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
              xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata">
   <types>
-<% data_modules.values.each do |data_module| -%>
-    <xs:schema targetNamespace="<%= data_module.jws.namespace %>"
-               version="1.0"
-<% data_modules.values.each do |data_module| -%>
-               xmlns:<%= Domgen::Naming.underscore(data_module.name) %>="<%= data_module.jws.namespace %>"<% end %>
-               xmlns:tns="<%= data_module.jws.namespace %>"
-               xmlns:xs="http://www.w3.org/2001/XMLSchema">
-<% enums.select{|e| e.data_module.name == data_module.name}.values.each do |enum| -%>
-      <xs:element name="<%= enum.xml.name %>" type="<%= Domgen::Naming.underscore(enum.data_module.name) %>:<%= enum.name %>"/>
-      <xs:simpleType name="<%= enum.name %>">
-        <xs:restriction base="xs:string">
-<% enum.values.each do |val| -%>
-          <xs:enumeration value="<%= val %>" />
-<% end -%>
-        </xs:restriction>
-      </xs:simpleType>
-<% end -%>
-<% data_modules.values.select{|dm| dm != data_module}.each do |import| -%>
-      <xs:import namespace="<%= import.jws.namespace %>"/>
-<% end -%>
-<% structs.values.reverse.select{|s| s.data_module.name == data_module.name}.each do |struct| -%>
-      <xs:element name="<%= struct.xml.name %>" type="<%= Domgen::Naming.underscore(struct.data_module.name) %>:<%= struct.name %>"/>
-      <xs:complexType name="<%= struct.name %>">
-<% collections = struct.fields.select{|f| f.collection?} -%>
-<% non_collections = struct.fields.select{|f| !f.collection? && !f.struct?} -%>
-<% referenced_structs = struct.fields.select{|f| !f.collection? && f.struct?} -%>
-<% if collections.size > 0 || referenced_structs.size > 0 -%>
-        <xs:sequence>
-<% collections.each do |field| -%>
-          <xs:element name="<%= field.xml.name %>" form="qualified">
-            <xs:complexType>
-              <xs:sequence>
-<% if field.struct? %>
-                <xs:element ref="<%= Domgen::Naming.underscore(field.referenced_struct.data_module.name) %>:<%= field.referenced_struct.xml.name %>" <%= jws_element_occurrences(field) %>/>
-<% else %>
-                <xs:element name="<%= field.xml.component_name %>" <%= xsd_type(field) %> <%= jws_element_occurrences(field) %>/>
-<% end %>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-<% end -%>
-<% referenced_structs.each do |struct| -%>
-          <xs:element ref="<%= Domgen::Naming.underscore(struct.data_module.name) %>:<%= struct.xml.name %>" />
-<% end -%>
-        </xs:sequence>
-<% else -%>
-        <xs:sequence/>
-<% end -%>
-<% non_collections.each do |field| -%>
-        <xs:attribute name="<%= field.xml.name %>" <%= xsd_type(field) %> <%= xsd_attribute_use(field) %>/>
-<% end -%>
-      </xs:complexType>
-<% end -%>
-<% exceptions.select{|e| e.data_module.name == data_module.name}.each do |exception| -%>
-      <xs:element name="<%= exception.jws.name %>" nillable="true" type="<%= Domgen::Naming.underscore(exception.data_module.name) %>:<%= exception.name %>"/>
-      <xs:complexType name="<%= exception.name %>">
-<% if exception.parameters.size > 0 -%>
-        <xs:sequence>
-<% exception.parameters.each do |parameter| %>
-          <xs:element name="<%= parameter.name %>" <%= xsd_type(parameter) %> <%= jws_element_occurrences(parameter) %>/>
-<% end -%>
-        </xs:sequence>
-<% else -%>
-        <xs:all/>
-<% end -%>
-      </xs:complexType>
-<% end -%>
-    </xs:schema>
-<% end -%>
-    <xs:schema targetNamespace="<%= service.jws.namespace %>"
-<% data_modules.values.each do |data_module| -%>
-               xmlns:<%= Domgen::Naming.underscore(data_module.name) %>="<%= data_module.jws.namespace %>"<% end %>
-               xmlns:tns="<%= service.jws.namespace %>"
-               xmlns:xs="http://www.w3.org/2001/XMLSchema">
-<% data_modules.values.each do |import| -%>
-      <xs:import namespace="<%= import.jws.namespace %>"/>
+    <xs:schema targetNamespace="<%= service.jws.namespace %>">
+<% data_modules.each do |data_module| -%>
+      <xs:import namespace="<%= data_module.xml.namespace %>" schemaLocation="../../../xsd/<%= data_module.xml.xsd_name %>"/>
 <% end -%>
 <% methods.each do |method| -%>
       <xs:element name="<%= method.name %>" type="tns:<%= method.name %>"/>

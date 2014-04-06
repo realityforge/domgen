@@ -1,6 +1,10 @@
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
 <%
-  repository.data_modules.each do |data_module|
+  repository.data_modules.select{|data_module| data_module.xml?}.each do |data_module|
+-%>
+  <public publicId="<%= data_module.xml.namespace %>" uri="xsd/<%= data_module.xml.xsd_name %>"/>
+  <system systemId="<%= data_module.xml.namespace %>" uri="xsd/<%= data_module.xml.xsd_name %>"/>
+<%
     data_module.services.select{|s| s.jws?}.each do |service|
 -%>
   <public publicId="<%= service.jws.system_id %>" uri="wsdl/<%= service.jws.wsdl_name %>"/>
