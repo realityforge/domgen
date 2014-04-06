@@ -5,11 +5,19 @@ package <%= to_package(enumeration.ee.qualified_name) %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% if enumeration.jaxb?
 %>@javax.xml.bind.annotation.XmlType( name = "<%= enumeration.name %>Type"<%= namespace_annotation_parameter(enumeration.xml) %> )
-@javax.xml.bind.annotation.XmlEnum( java.lang.String.class )<% end %>
+@javax.xml.bind.annotation.XmlEnum( <% if enumeration.numeric_values? %>java.lang.Integer.class<% else %>java.lang.String.class<% end %> )
+<% if enumeration.top_level?
+%>@javax.xml.bind.annotation.XmlRootElement( name = "<%= enumeration.xml.name %>"<%= namespace_annotation_parameter(enumeration.xml) %> )
+<% end -%>
+<% end -%>
 public enum <%= enumeration.ee.name %>
   implements java.io.Serializable
 {
-  <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>;
+  <%= enumeration.values.collect do |k|
+   index = enumeration.values.index(k)
+   prefix = enumeration.jaxb? ? "@javax.xml.bind.annotation.XmlEnumValue( \"#{enumeration.numeric_values? ? index : k}\" ) " : ""
+  "#{prefix}#{k}"
+  end.join(",\n  ") %>;
 
 <% if enumeration.jackson? && enumeration.numeric_values? -%>
   @org.codehaus.jackson.annotate.JsonValue
