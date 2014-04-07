@@ -69,7 +69,7 @@ module Domgen
 
     def initialize(#{parent_key}, options = {}, &block)
       @#{parent_key} = #{parent_key}
-    #{pre_config_code}
+      #{pre_config_code}
       super(options, &block)
     end
     RUBY
