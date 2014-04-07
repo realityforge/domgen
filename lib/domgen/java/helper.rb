@@ -35,7 +35,7 @@ module Domgen
         protected_qualifier = options[:protected] ? 'protected ' : ''
         abstract_qualifier = options[:abstract] ? 'abstract ' : ''
         native_qualifier = options[:native] ? 'native ' : ''
-        extension = characteristic.send(facet_key)
+        extension = characteristic.facet(facet_key)
         nullability_prefix = (supports_nullable?(extension, modality)) ? "#{nullability_annotation(characteristic.nullable?)} " : ''
         return "#{nullability_prefix}#{public_qualifier}#{protected_qualifier}#{private_qualifier}#{abstract_qualifier}#{final_qualifier}#{native_qualifier}#{extension.java_type(modality)}"
       end

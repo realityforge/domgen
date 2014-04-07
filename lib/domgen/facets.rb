@@ -20,6 +20,10 @@ module Domgen
       FacetManager.facet_enabled?(facet_key, self)
     end
 
+    def facet(facet_key)
+      self.send(facet_key)
+    end
+
     def verify
       extension_point(:pre_verify)
       perform_verify
