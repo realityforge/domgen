@@ -77,6 +77,10 @@ module Domgen
       self.characteristic_type_key == :integer
     end
 
+    def real?
+      self.characteristic_type_key == :real
+    end
+
     def boolean?
       self.characteristic_type_key == :boolean
     end
