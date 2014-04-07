@@ -160,17 +160,9 @@ module Domgen
     end
 
     class JaxRsException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
-
-      def qualified_name
-        "#{exception.data_module.jaxrs.server_data_type_package}.#{name}"
-      end
     end
 
     class JaxRsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEClientServerJavaPackage
     end
 
     class JaxRsApplication < Domgen.ParentedElement(:repository)

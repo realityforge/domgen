@@ -86,7 +86,6 @@ module Domgen
     end
 
     class JmsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEClientServerJavaPackage
     end
 
     class JmsApplication < Domgen.ParentedElement(:repository)
