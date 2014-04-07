@@ -45,9 +45,6 @@ module Domgen
     end
 
     class RestGwtMethod < Domgen.ParentedElement(:method)
-      def name
-        Domgen::Naming.camelize(method.name)
-      end
     end
 
     class RestGwtModule < Domgen.ParentedElement(:data_module)
