@@ -322,7 +322,8 @@ module Domgen
       end
 
       def parent_facet
-        data_module.repository.send(facet_key)
+        return nil unless parent.respond_to?(:parent)
+        parent.parent.facet(self.facet_key)
       end
 
       def package_key
