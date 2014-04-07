@@ -98,7 +98,7 @@ public class <%= struct.ee.name %>
   {
     int result = 0;
 <% struct.fields.each do |field| -%>
-    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{field.name} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{field.name})" : field.name) : "#{field.nullable? ? "null == #{field.name} ? null : " : ''}#{field.name}.hashCode()" %>);
+    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{field.name} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{field.name})" : field.name) : "#{field.nullable? ? "null == #{field.name} ? 0 : " : ''}#{field.name}.hashCode()" %>);
 <% end -%>
     return result;
   }
