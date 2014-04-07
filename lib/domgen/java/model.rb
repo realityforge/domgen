@@ -92,7 +92,6 @@ module Domgen
 
       def primitive?(characteristic, group_type, modality = :default)
         check_modality(modality)
-        characteristic_group = group_type(group_type)
         return false if characteristic.collection?
         return false if characteristic.nullable?
         return false if (characteristic.respond_to?(:generated_value?) && characteristic.generated_value?)
