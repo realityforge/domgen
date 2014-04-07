@@ -262,8 +262,57 @@ module Domgen
       end
     end
 
+    module BaseDefiner
+      def self.included(base)
+        class << base
+          def idefine_method(*args, &block)
+            raise "Method #{args[0]} already defined" if method_defined?(args[0])
+            define_method(*args, &block)
+          end
+
+          def idefine_setter(key)
+            idefine_method("#{key}=") do |value|
+              instance_variable_set("@#{key}", value)
+            end
+          end
+
+          def idefine_getter(key, default_value)
+            idefine_method(key) do
+              instance_variable_get("@#{key}") || (default_value.is_a?(Proc) ? instance_eval(&default_value) : default_value)
+            end
+          end
+        end
+      end
+    end
+
     module BaseJavaPackage
       protected
+
+      def self.included(base)
+        base.send :include, BaseDefiner
+        class << base
+          def java_package(package_key, options = {})
+            scope = options[:scope]
+            sub_packages = options[:sub_packages] || []
+            raise "Sub-packages #{sub_packages.inspect} expected to be an array" unless sub_packages.is_a?(Array)
+
+            key = scope.nil? ? :"#{package_key}_package" : "#{scope}_#{package_key}_package"
+            idefine_getter(key, Proc.new {self.resolve_package(key)})
+            idefine_setter(key)
+            sub_packages.each do |sub_package|
+              sub_package_ruby_name = sub_package.split('.').reverse.join('_')
+              sub_package_key = scope.nil? ? :"#{sub_package_ruby_name}_#{package_key}_package" : "#{scope}_#{sub_package_ruby_name}_#{package_key}_package"
+              idefine_getter(sub_package_key, Proc.new { "#{self.send(key)}.#{sub_package}" })
+            end
+          end
+
+          def standard_java_packages(scope)
+            java_package :data_type, :scope => scope
+            java_package :entity, :scope => scope
+            java_package :service, :scope => scope, :sub_packages => ['internal']
+          end
+        end
+      end
 
       def resolve_package(package_type, facet = parent_facet)
         (data_module.name == data_module.repository.name) ? facet.send(package_type) : "#{facet.send(package_type)}.#{package_key}"
@@ -285,103 +334,15 @@ module Domgen
     module JavaPackage
       include BaseJavaPackage
 
-      attr_writer :entity_package
-
-      def entity_package
-        @entity_package || resolve_package(:entity_package)
-      end
-
-      attr_writer :service_package
-
-      def service_package
-        @service_package || resolve_package(:service_package)
-      end
-
-      def internal_service_package
-        "#{service_package}.internal"
-      end
-
-      attr_writer :data_type_package
-
-      def data_type_package
-        @data_type_package || resolve_package(:data_type_package)
-      end
-    end
-
-    module EEJavaPackage
-      include JavaPackage
-
-      protected
-
-      def facet_key
-        :ee
-      end
+      standard_java_packages(nil)
     end
 
     module ClientServerJavaPackage
       include BaseJavaPackage
 
-      attr_writer :shared_entity_package
-
-      def shared_entity_package
-        @shared_entity_package || resolve_package(:shared_entity_package)
-      end
-
-      attr_writer :shared_service_package
-
-      def shared_service_package
-        @shared_service_package || resolve_package(:shared_service_package)
-      end
-
-      attr_writer :shared_data_type_package
-
-      def shared_data_type_package
-        @shared_data_type_package || resolve_package(:shared_data_type_package)
-      end
-
-      attr_writer :client_entity_package
-
-      def client_entity_package
-        @client_entity_package || resolve_package(:client_entity_package)
-      end
-
-      attr_writer :client_service_package
-
-      def client_service_package
-        @client_service_package || resolve_package(:client_service_package)
-      end
-
-      def internal_client_service_package
-        "#{client_service_package}.internal"
-      end
-
-      attr_writer :client_data_type_package
-
-      def client_data_type_package
-        @client_data_type_package || resolve_package(:client_data_type_package)
-      end
-
-      attr_writer :server_entity_package
-
-      def server_entity_package
-        @server_entity_package || resolve_package(:server_entity_package)
-      end
-
-      attr_writer :server_service_package
-
-      def server_service_package
-        @server_service_package || resolve_package(:server_service_package)
-      end
-
-      def server_internal_service_package
-        "#{server_service_package}.internal"
-      end
-
-      attr_writer :server_data_type_package
-
-      def server_data_type_package
-        @server_data_type_package || resolve_package(:server_data_type_package)
-      end
+      standard_java_packages(:shared)
+      standard_java_packages(:client)
+      standard_java_packages(:server)
     end
 
     module EEClientServerJavaPackage
@@ -404,61 +365,42 @@ module Domgen
       end
     end
 
-    module JavaApplication
-      def base_package
-        repository.java.base_package
+    module BaseJavaApplication
+      def self.included(base)
+        base.send :include, BaseDefiner
+        class << base
+          def java_package(package_key, options = {})
+            scope = options[:scope]
+            sub_packages = options[:sub_packages] || []
+            raise "Sub-packages #{sub_packages.inspect} expected to be an array" unless sub_packages.is_a?(Array)
+
+            key = scope.nil? ? "#{package_key}_package" : "#{scope}_#{package_key}_package"
+            scope_package = scope.nil? ? 'package' : "#{scope}_package"
+            idefine_getter(key, Proc.new {"#{self.send(scope_package)}.#{package_key}"})
+            idefine_setter(key)
+            sub_packages.each do |sub_package|
+              sub_package_ruby_name = sub_package.split('.').reverse.join('_')
+              sub_package_key = scope.nil? ? :"#{sub_package_ruby_name}_#{package_key}_package" : "#{scope}_#{sub_package_ruby_name}_#{package_key}_package"
+              idefine_getter(sub_package_key, Proc.new { "#{self.send(key)}.#{sub_package}" })
+            end
+          end
+
+          def standard_java_packages(scope)
+            java_package :data_type, :scope => scope
+            java_package :entity, :scope => scope
+            java_package :service, :scope => scope, :sub_packages => ['internal']
+          end
+
+          def context_package(scope)
+            scope_package = "#{scope}_package"
+            idefine_setter(scope_package)
+            idefine_getter(scope_package, Proc.new { "#{self.send(:package)}.#{scope}" })
+          end
+        end
       end
-
-      attr_writer :package
-
-      def package
-        @package || "#{base_package}.#{default_package_root}"
-      end
-
-      attr_writer :entity_package
-
-      def entity_package
-        @entity_package || "#{package}.entity"
-      end
-
-      attr_writer :service_package
-
-      def service_package
-        @service_package || "#{package}.service"
-      end
-
-      attr_writer :data_type_package
-
-      def data_type_package
-        @data_type_package || "#{package}.data_type"
-      end
-
-      def default_package_root
-        raise "default_package_root unimplemented"
-      end
-    end
-
-    module ServerJavaApplication
-      include JavaApplication
 
       protected
 
-      def default_package_root
-        "server"
-      end
-    end
-
-    module ClientJavaApplication
-      include JavaApplication
-
-      protected
-
-      def default_package_root
-        "client"
-      end
-    end
-
-    module JavaClientServerApplication
       def base_package
         repository.java.base_package
       end
@@ -469,89 +411,26 @@ module Domgen
         @package || (default_package_root ? "#{base_package}.#{default_package_root}" : base_package)
       end
 
-      attr_writer :shared_package
-
-      def shared_package
-        @shared_package || "#{package}.shared"
-      end
-
-      attr_writer :shared_data_type_package
-
-      def shared_data_type_package
-        @shared_data_type_package || "#{shared_package}.data_type"
-      end
-
-      attr_writer :shared_service_package
-
-      def shared_service_package
-        @shared_service_package || "#{shared_package}.service"
-      end
-
-      attr_writer :shared_entity_package
-
-      def shared_entity_package
-        @shared_entity_package || "#{shared_package}.entity"
-      end
-
-      attr_writer :client_package
-
-      def client_package
-        @client_package || "#{package}.client"
-      end
-
-      attr_writer :client_service_package
-
-      def client_service_package
-        @client_service_package || "#{client_package}.service"
-      end
-
-      def internal_client_service_package
-        "#{client_service_package}.internal"
-      end
-
-      attr_writer :client_data_type_package
-
-      def client_data_type_package
-        @client_data_type_package || "#{client_package}.data_type"
-      end
-
-      attr_writer :client_entity_package
-
-      def client_entity_package
-        @client_entity_package || "#{client_package}.entity"
-      end
-
-      attr_writer :server_package
-
-      def server_package
-        @server_package || "#{package}.server"
-      end
-
-      attr_writer :server_service_package
-
-      def server_service_package
-        @server_service_package || "#{server_package}.service"
-      end
-
-      def internal_server_service_package
-        "#{server_service_package}.internal"
-      end
-
-      attr_writer :server_data_type_package
-
-      def server_data_type_package
-        @server_data_type_package || "#{server_package}.data_type"
-      end
-
-      attr_writer :server_entity_package
-
-      def server_entity_package
-        @server_entity_package || "#{server_package}.entity"
-      end
-
       def default_package_root
         nil
       end
+    end
+
+    module JavaApplication
+      include BaseJavaApplication
+
+      standard_java_packages(nil)
+    end
+
+    module JavaClientServerApplication
+      include BaseJavaApplication
+
+      context_package(:shared)
+      standard_java_packages(:shared)
+      context_package(:client)
+      standard_java_packages(:client)
+      context_package(:server)
+      standard_java_packages(:server)
     end
 
     class Application < Domgen.ParentedElement(:repository)
