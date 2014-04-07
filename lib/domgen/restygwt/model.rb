@@ -67,7 +67,6 @@ module Domgen
     end
 
     class RestGwtReturn < Domgen.ParentedElement(:result)
-
       include Domgen::Java::ImitJavaCharacteristic
 
       protected
@@ -108,6 +107,7 @@ module Domgen
           "request:remote-user" => 'getThreadLocalRequest().getRemoteUser()',
         }
       end
+
       protected
 
       def characteristic
