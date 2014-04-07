@@ -15,6 +15,8 @@
 module Domgen
   module JMS
     class JmsMethod < Domgen.ParentedElement(:method)
+      include Domgen::Java::BaseJavaGenerator
+
       attr_writer :mdb
 
       def mdb?
@@ -25,17 +27,11 @@ module Domgen
         "mdb/#{mdb_name}"
       end
 
+      java_artifact :mdb, :service, :server, :ee, '#{method.name}#{method.service.name}MDB'
+
       def mdb_name=(mdb_name)
         self.mdb = true
-        @mdb_name =mdb_name
-      end
-
-      def mdb_name
-        @mdb_name || "#{method.name}#{method.service.name}MDB"
-      end
-
-      def qualified_mdb_name
-        "#{method.service.data_module.jms.server_service_package}.#{mdb_name}"
+        @mdb_name = mdb_name
       end
 
       def destination_resource_name=(destination_resource_name)

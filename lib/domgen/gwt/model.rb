@@ -15,57 +15,23 @@
 module Domgen
   module GWT
     class GwtEnumeration < Domgen.ParentedElement(:enumeration)
-      def name
-        "#{enumeration.name}"
-      end
+      include Domgen::Java::BaseJavaGenerator
 
-      def qualified_name
-        "#{enumeration.data_module.gwt.client_data_type_package}.#{name}"
-      end
+      java_artifact :name, :data_type, :client, :gwt, '#{enumeration.name}'
     end
 
     class GwtStruct < Domgen.ParentedElement(:struct)
-      attr_writer :interface_name
+      include Domgen::Java::BaseJavaGenerator
 
-      def interface_name
-        @interface_name || struct.name.to_s
-      end
-
+      # Needed to hook into standard java type resolution code
       def qualified_name
         self.qualified_interface_name
       end
 
-      def qualified_interface_name
-        "#{struct.data_module.gwt.client_data_type_package}.#{interface_name}"
-      end
-
-      attr_writer :jso_name
-
-      def jso_name
-        @jso_name || "Jso#{struct.name}"
-      end
-
-      def qualified_jso_name
-        "#{struct.data_module.gwt.client_data_type_package}.#{jso_name}"
-      end
-
-      attr_writer :java_name
-
-      def java_name
-        @java_name || "Java#{struct.name}"
-      end
-
-      def qualified_java_name
-        "#{struct.data_module.gwt.client_data_type_package}.#{java_name}"
-      end
-
-      def factory_name
-        "#{struct.name}Factory"
-      end
-
-      def qualified_factory_name
-        "#{struct.data_module.gwt.client_data_type_package}.#{self.factory_name}"
-      end
+      java_artifact :interface, :data_type, :client, :gwt, '#{struct.name}'
+      java_artifact :jso, :data_type, :client, :gwt, 'Jso#{struct.name}'
+      java_artifact :java, :data_type, :client, :gwt, 'Java#{struct.name}'
+      java_artifact :factory, :data_type, :client, :gwt, '#{struct.name}Factory'
     end
 
     class GwtStructField < Domgen.ParentedElement(:field)
@@ -83,15 +49,9 @@ module Domgen
     end
 
     class GwtEvent < Domgen.ParentedElement(:message)
-      attr_writer :event_name
+      include Domgen::Java::BaseJavaGenerator
 
-      def event_name
-        @event_name || "#{message.name}Event"
-      end
-
-      def qualified_event_name
-        "#{message.data_module.gwt.client_event_package}.#{event_name}"
-      end
+      java_artifact :event, :event, :client, :gwt, '#{message.name}Event'
     end
 
     class GwtEventParameter < Domgen.ParentedElement(:parameter)
@@ -138,6 +98,7 @@ module Domgen
     end
 
     class GwtApplication < Domgen.ParentedElement(:repository)
+      include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
       attr_writer :client_event_package
@@ -146,25 +107,8 @@ module Domgen
         @client_event_package || "#{client_package}.event"
       end
 
-      attr_writer :async_callback_name
-
-      def async_callback_name
-        @async_callback_name || "#{repository.name}AsyncCallback"
-      end
-
-      def qualified_async_callback_name
-        "#{client_service_package}.#{async_callback_name}"
-      end
-
-      attr_writer :async_error_callback_name
-
-      def async_error_callback_name
-        @async_error_callback_name || "#{repository.name}AsyncErrorCallback"
-      end
-
-      def qualified_async_error_callback_name
-        "#{client_service_package}.#{async_error_callback_name}"
-      end
+      java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
+      java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
 
       protected
 

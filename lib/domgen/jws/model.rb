@@ -15,6 +15,7 @@
 module Domgen
   module JWS
     class JwsClass < Domgen.ParentedElement(:service)
+      include Domgen::Java::BaseJavaGenerator
 
       def boundary_ejb_name
         "#{service.data_module.repository.name}.#{service.data_module.name}.#{service.jws.java_service_name}"
@@ -60,39 +61,10 @@ module Domgen
         @namespace || "#{service.data_module.jws.namespace}/#{web_service_name}"
       end
 
-      attr_writer :service_name
-
-      def service_name
-        @service_name || "#{service.name}Service"
-      end
-
-      def qualified_service_name
-        "#{service.data_module.jws.server_service_package}.#{service_name}"
-      end
-
-      def java_service_name
-        "#{web_service_name}WS"
-      end
-
-      def qualified_java_service_name
-        "#{service.data_module.jws.server_service_package}.#{java_service_name}"
-      end
-
-      def boundary_implementation_name
-        "#{web_service_name}WSBoundaryEJB"
-      end
-
-      def qualified_boundary_implementation_name
-        "#{service.data_module.jws.server_service_package}.#{boundary_implementation_name}"
-      end
-
-      def fake_implementation_name
-        "Fake#{web_service_name}"
-      end
-
-      def qualified_fake_implementation_name
-        "#{service.data_module.jws.fake_service_package}.#{fake_implementation_name}"
-      end
+      java_artifact :service, :service, :server, :ee, '#{service.name}Service'
+      java_artifact :java_service, :service, :server, :ee, '#{web_service_name}WS'
+      java_artifact :boundary_implementation, :service, :server, :ee, '#{web_service_name}WSBoundaryEJB'
+      java_artifact :fake_implementation, :service, :fake, :jws, 'Fake#{web_service_name}'
     end
 
     class JwsParameter < Domgen.ParentedElement(:parameter)
@@ -144,29 +116,16 @@ module Domgen
     end
 
     class JwsApplication < Domgen.ParentedElement(:repository)
+      include Domgen::Java::BaseJavaGenerator
+
       attr_writer :fake_service_package
 
       def fake_service_package
         @fake_service_package || "#{repository.java.base_package}.fake"
       end
 
-      def fake_server_name
-        "Fake#{repository.name}Server"
-      end
-
-      def qualified_fake_server_name
-        "#{fake_service_package}.#{fake_server_name}"
-      end
-
-      attr_writer :fake_server_test_name
-
-      def fake_server_test_name
-        @fake_server_test_name || "AbstractFake#{repository.name}ServerTest"
-      end
-
-      def qualified_fake_server_test_name
-        "#{fake_service_package}.#{fake_server_test_name}"
-      end
+      java_artifact :fake_server, :service, :fake, :jws, 'Fake#{repository.name}Server'
+      java_artifact :fake_server_test, :service, :fake, :jws, 'AbstractFake#{repository.name}ServerTest'
 
       attr_writer :service_name
 
@@ -200,21 +159,10 @@ module Domgen
     end
 
     class JwsException < Domgen.ParentedElement(:exception)
-      def name
-        "#{exception.name}_Exception"
-      end
+      include Domgen::Java::BaseJavaGenerator
 
-      def qualified_name
-        "#{exception.data_module.jws.server_service_package}.#{name}"
-      end
-
-      def fault_info_name
-        "#{exception.name}ExceptionInfo"
-      end
-
-      def qualified_fault_info_name
-        "#{exception.data_module.jws.server_service_package}.#{fault_info_name}"
-      end
+      java_artifact :fault_info, :service, :server, :ee, '#{exception.name}ExceptionInfo'
+      java_artifact :name, :service, :server, :ee, '#{exception.name}_Exception'
 
       attr_writer :namespace
 

@@ -15,22 +15,7 @@
 module Domgen
   module GwtRpc
     class GwtService < Domgen.ParentedElement(:service)
-
-      def client_service_package
-        service.data_module.gwt_rpc.client_service_package
-      end
-
-      def internal_client_service_package
-        service.data_module.gwt_rpc.client_internal_service_package
-      end
-
-      def shared_service_package
-        service.data_module.gwt_rpc.shared_service_package
-      end
-
-      def server_servlet_package
-        service.data_module.gwt_rpc.server_servlet_package
-      end
+      include Domgen::Java::BaseJavaGenerator
 
       attr_writer :rpc_prefix
 
@@ -65,42 +50,13 @@ module Domgen
       end
 
       def qualified_facade_service_name
-        "#{outer_service? ? client_service_package : client_internal_service_package}.#{facade_service_name}"
+        "#{outer_service? ? parent.parent.gwt_rpc.client_service_package : parent.parent.gwt_rpc.client_internal_service_package}.#{facade_service_name}"
       end
 
-      def proxy_name
-        "#{facade_service_name}Impl"
-      end
-
-      def qualified_proxy_name
-        "#{client_internal_service_package}.#{proxy_name}"
-      end
-
-      attr_writer :rpc_service_name
-
-      def rpc_service_name
-        @rpc_service_name || "#{rpc_prefix}#{service.name}"
-      end
-
-      def qualified_rpc_service_name
-        "#{shared_service_package}.#{rpc_service_name}"
-      end
-
-      def async_rpc_service_name
-        "#{rpc_service_name}Async"
-      end
-
-      def qualified_async_rpc_service_name
-        "#{shared_service_package}.#{async_rpc_service_name}"
-      end
-
-      def servlet_name
-        @servlet_name || "#{rpc_service_name}Servlet"
-      end
-
-      def qualified_servlet_name
-        "#{server_servlet_package}.#{servlet_name}"
-      end
+      java_artifact :proxy, :service, :client, :gwt_rpc, '#{facade_service_name}Impl', :sub_package => 'internal'
+      java_artifact :rpc_service, :service, :shared, :gwt_rpc, '#{rpc_prefix}#{service.name}'
+      java_artifact :async_rpc_service, :service, :shared, :gwt_rpc, '#{rpc_service_name}Async'
+      java_artifact :servlet, :servlet, :server, :gwt_rpc, '#{rpc_service_name}Servlet'
     end
 
     class GwtMethod < Domgen.ParentedElement(:method)
@@ -193,17 +149,13 @@ module Domgen
     end
 
     class GwtException < Domgen.ParentedElement(:exception)
-      def name
-        prefix = "GwtRpc#{exception.name}"
-        exception.name.to_s =~ /Exception$/ ? prefix : "#{prefix}Exception"
-      end
+      include Domgen::Java::BaseJavaGenerator
 
-      def qualified_name
-        "#{exception.data_module.gwt_rpc.shared_data_type_package}.#{name}"
-      end
+      java_artifact :name, :data_type, :shared, :gwt_rpc, 'GwtRpc#{exception.name}Exception'
     end
 
     class GwtApplication < Domgen.ParentedElement(:repository)
+      include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
       attr_writer :module_name
@@ -212,25 +164,9 @@ module Domgen
         @module_name || Domgen::Naming.underscore(repository.name)
       end
 
-      attr_writer :rpc_services_module_name
-
-      def rpc_services_module_name
-        @rpc_services_module_name || "#{repository.name}GwtRpcServicesModule"
-      end
-
-      def qualified_rpc_services_module_name
-        "#{client_ioc_package}.#{rpc_services_module_name}"
-      end
-
-      attr_writer :mock_services_module_name
-
-      def mock_services_module_name
-        @mock_services_module_name || "#{repository.name}MockGwtServicesModule"
-      end
-
-      def qualified_mock_services_module_name
-        "#{client_ioc_package}.#{mock_services_module_name}"
-      end
+      java_artifact :rpc_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesModule'
+      java_artifact :mock_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule'
+      java_artifact :services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtServicesModule'
 
       attr_writer :client_ioc_package
 
@@ -245,14 +181,6 @@ module Domgen
       end
 
       attr_writer :services_module_name
-
-      def services_module_name
-        @services_module_name || "#{repository.name}GwtServicesModule"
-      end
-
-      def qualified_services_module_name
-        "#{client_ioc_package}.#{services_module_name}"
-      end
 
       protected
 

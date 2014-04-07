@@ -23,6 +23,8 @@ module Domgen
     end
 
     class EjbClass < Domgen.ParentedElement(:service)
+      include Domgen::Java::BaseJavaGenerator
+
       attr_writer :name
 
       def name
@@ -41,39 +43,10 @@ module Domgen
         "#{service.data_module.repository.name}.#{service.ejb.boundary_name}"
       end
 
-      attr_writer :service_name
-
-      def service_name
-        @service_name || service.name
-      end
-
-      def qualified_service_name
-        "#{service.data_module.ejb.server_service_package}.#{service_name}"
-      end
-
-      def boundary_interface_name
-        "Local#{service_name}Boundary"
-      end
-
-      def qualified_boundary_interface_name
-        "#{service.data_module.ejb.server_service_package}.#{boundary_interface_name}"
-      end
-
-      def remote_service_name
-        "Remote#{service_name}"
-      end
-
-      def qualified_remote_service_name
-        "#{service.data_module.ejb.server_service_package}.#{remote_service_name}"
-      end
-
-      def boundary_implementation_name
-        "#{service_name}BoundaryEJB"
-      end
-
-      def qualified_boundary_implementation_name
-        "#{service.data_module.ejb.server_internal_service_package}.#{boundary_implementation_name}"
-      end
+      java_artifact :service, :service, :server, :ee, '#{service.name}'
+      java_artifact :boundary_interface, :service, :server, :ee, 'Local#{service_name}Boundary'
+      java_artifact :remote_service, :service, :server, :ee, 'Remote#{service_name}'
+      java_artifact :boundary_implementation, :service, :server, :ee, '#{service_name}BoundaryEJB', :sub_package => 'internal'
 
       attr_accessor :boundary_extends
 

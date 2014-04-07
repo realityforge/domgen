@@ -117,25 +117,10 @@ module Domgen
     end
 
     class ImitationService < Domgen.ParentedElement(:service)
-      attr_writer :name
+      include Domgen::Java::BaseJavaGenerator
 
-      def name
-        @name || service.name
-      end
-
-      def qualified_name
-        "#{service.data_module.imit.client_service_package}.#{name}"
-      end
-
-      attr_writer :proxy_name
-
-      def proxy_name
-        @proxy_name || "#{name}Impl"
-      end
-
-      def qualified_proxy_name
-        "#{service.data_module.imit.client_internal_service_package}.#{proxy_name}"
-      end
+      java_artifact :name, :service, :client, :imit, '#{service.name}'
+      java_artifact :proxy, :service, :client, :imit, '#{name}Impl', :sub_package => 'internal'
     end
 
     class ImitationMethod < Domgen.ParentedElement(:method)
@@ -153,16 +138,13 @@ module Domgen
     end
 
     class ImitationException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
+      include Domgen::Java::BaseJavaGenerator
 
-      def qualified_name
-        "#{exception.data_module.imit.client_service_package}.#{name}"
-      end
+      java_artifact :name, :service, :client, :imit, '#{exception.name}Exception'
     end
 
     class ImitationEntity < Domgen.ParentedElement(:entity)
+      include Domgen::Java::BaseJavaGenerator
 
       def transport_id
         raise "Attempted to invoke transport_id on abstract entity" if entity.abstract?
@@ -174,13 +156,7 @@ module Domgen
         @transport_id = transport_id
       end
 
-      def name
-        entity.name
-      end
-
-      def qualified_name
-        "#{entity.data_module.imit.client_entity_package}.#{name}"
-      end
+      java_artifact :name, :entity, :client, :imit, '#{entity.name}'
 
       def replication_root?
         entity.data_module.repository.imit.graphs.any?{|g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s }
@@ -227,27 +203,10 @@ module Domgen
     end
 
     class ImitationModule < Domgen.ParentedElement(:data_module)
+      include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::ImitJavaPackage
 
-      attr_writer :server_comm_package
-
-      def server_comm_package
-        @server_comm_package || resolve_package(:server_comm_package)
-      end
-
-      attr_writer :client_comm_package
-
-      def client_comm_package
-        @client_comm_package || resolve_package(:client_comm_package)
-      end
-
-      def mapper_name
-        "#{data_module.name}Mapper"
-      end
-
-      def qualified_mapper_name
-        "#{client_entity_package}.#{mapper_name}"
-      end
+      java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
     end
 
     class ReplicationGraph < Domgen.ParentedElement(:application)
@@ -372,6 +331,7 @@ module Domgen
     end
 
     class ImitationApplication < Domgen.ParentedElement(:repository)
+      include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
       def client_ioc_package
@@ -396,161 +356,25 @@ module Domgen
 
       attr_writer :shared_comm_package
 
-      def change_mapper_name
-        "#{repository.name}ChangeMapper"
-      end
-
-      def qualified_change_mapper_name
-        "#{client_comm_package}.#{change_mapper_name}"
-      end
-
-      def data_loader_service_name
-        "Abstract#{repository.name}DataLoaderService"
-      end
-
-      def qualified_data_loader_service_name
-        "#{client_comm_package}.#{data_loader_service_name}"
-      end
-
-      def client_session_name
-        "#{repository.name}ClientSessionImpl"
-      end
-
-      def qualified_client_session_name
-        "#{client_comm_package}.#{client_session_name}"
-      end
-
-      def client_session_interface_name
-        "#{repository.name}ClientSession"
-      end
-
-      def qualified_client_session_interface_name
-        "#{client_comm_package}.#{client_session_interface_name}"
-      end
-
-      def graph_enum_name
-        "#{repository.name}ReplicationGraph"
-      end
-
-      def qualified_graph_enum_name
-        "#{shared_comm_package}.#{graph_enum_name}"
-      end
-
-      def session_name
-        "#{repository.name}Session"
-      end
-
-      def qualified_session_name
-        "#{server_comm_package}.#{session_name}"
-      end
-
-      def session_manager_name
-        "Abstract#{repository.name}SessionManager"
-      end
-
-      def qualified_session_manager_name
-        "#{server_comm_package}.#{session_manager_name}"
-      end
-
-      def server_session_context_name
-        "#{repository.name}SessionContext"
-      end
-
-      def qualified_server_session_context_name
-        "#{server_comm_package}.#{server_session_context_name}"
-      end
-
-      def router_interface_name
-        "#{repository.name}Router"
-      end
-
-      def qualified_router_interface_name
-        "#{server_comm_package}.#{router_interface_name}"
-      end
-
-      def router_impl_name
-        "#{repository.name}RouterImpl"
-      end
-
-      def qualified_router_impl_name
-        "#{server_comm_package}.#{router_impl_name}"
-      end
-
-      def jpa_encoder_name
-        "#{repository.name}JpaEncoder"
-      end
-
-      def qualified_jpa_encoder_name
-        "#{server_comm_package}.#{jpa_encoder_name}"
-      end
-
-      def message_constants_name
-        "#{repository.name}MessageConstants"
-      end
-
-      def qualified_message_constants_name
-        "#{server_comm_package}.#{message_constants_name}"
-      end
-
-      def message_generator_name
-        "#{repository.name}EntityMessageGenerator"
-      end
-
-      def qualified_message_generator_name
-        "#{server_comm_package}.#{message_generator_name}"
-      end
-
-      def graph_encoder_name
-        "#{repository.name}GraphEncoder"
-      end
-
-      def qualified_graph_encoder_name
-        "#{server_comm_package}.#{graph_encoder_name}"
-      end
-
-      def change_recorder_name
-        "#{repository.name}ChangeRecorder"
-      end
-
-      def qualified_change_recorder_name
-        "#{server_comm_package}.#{change_recorder_name}"
-      end
-
-      def replication_interceptor_name
-        "#{repository.name}ReplicationInterceptor"
-      end
-
-      def qualified_replication_interceptor_name
-        "#{server_comm_package}.#{replication_interceptor_name}"
-      end
-
-      def graph_encoder_impl_name
-        "#{repository.name}GraphEncoderImpl"
-      end
-
-      def qualified_graph_encoder_impl_name
-        "#{server_comm_package}.#{graph_encoder_impl_name}"
-      end
-
-      attr_writer :services_module_name
-
-      def services_module_name
-        @services_module_name || "#{repository.name}ImitServicesModule"
-      end
-
-      def qualified_services_module_name
-        "#{client_ioc_package}.#{services_module_name}"
-      end
-
-      attr_writer :mock_services_module_name
-
-      def mock_services_module_name
-        @mock_services_module_name || "#{repository.name}MockImitServicesModule"
-      end
-
-      def qualified_mock_services_module_name
-        "#{client_ioc_package}.#{mock_services_module_name}"
-      end
+      java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapper'
+      java_artifact :data_loader_service, :comm, :client, :imit, 'Abstract#{repository.name}DataLoaderService'
+      java_artifact :client_session, :comm, :client, :imit, '#{repository.name}ClientSessionImpl'
+      java_artifact :client_session_interface, :comm, :client, :imit, '#{repository.name}ClientSession'
+      java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
+      java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
+      java_artifact :session_manager, :comm, :server, :imit, 'Abstract#{repository.name}SessionManager'
+      java_artifact :server_session_context, :comm, :server, :imit, '#{repository.name}SessionContext'
+      java_artifact :router_interface, :comm, :server, :imit, '#{repository.name}Router'
+      java_artifact :router_impl, :comm, :server, :imit, '#{repository.name}RouterImpl'
+      java_artifact :jpa_encoder, :comm, :server, :imit, '#{repository.name}JpaEncoder'
+      java_artifact :message_constants, :comm, :server, :imit, '#{repository.name}MessageConstants'
+      java_artifact :message_generator, :comm, :server, :imit, '#{repository.name}EntityMessageGenerator'
+      java_artifact :graph_encoder, :comm, :server, :imit, '#{repository.name}GraphEncoder'
+      java_artifact :change_recorder, :comm, :server, :imit, '#{repository.name}ChangeRecorder'
+      java_artifact :replication_interceptor, :comm, :server, :imit, '#{repository.name}ReplicationInterceptor'
+      java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{repository.name}GraphEncoderImpl'
+      java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
+      java_artifact :mock_services_module, :ioc, :client, :imit, '#{repository.name}MockImitServicesModule'
 
       def graphs
         graph_map.values

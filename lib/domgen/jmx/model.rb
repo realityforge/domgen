@@ -15,15 +15,9 @@
 module Domgen
   module JMX
     class JmxClass < Domgen.ParentedElement(:service)
-      attr_writer :service_name
+      include Domgen::Java::BaseJavaGenerator
 
-      def service_name
-        @service_name || "#{service.name}MXBean"
-      end
-
-      def qualified_service_name
-        "#{service.data_module.jmx.server_service_package}.#{service_name}"
-      end
+      java_artifact :service, :service, :server, :ee, '#{service.name}MXBean'
     end
 
     class JmxParameter < Domgen.ParentedElement(:parameter)

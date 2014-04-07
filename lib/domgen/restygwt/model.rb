@@ -15,33 +15,11 @@
 module Domgen
   module RestGWT
     class RestGwtService < Domgen.ParentedElement(:service)
-      attr_writer :facade_service_name
+      include Domgen::Java::BaseJavaGenerator
 
-      def facade_service_name
-        @facade_service_name || service.name
-      end
-
-      def qualified_facade_service_name
-        "#{service.data_module.gwt.client_service_package}.#{facade_service_name}"
-      end
-
-      def proxy_name
-        "#{facade_service_name}Proxy"
-      end
-
-      def qualified_proxy_name
-        "#{qualified_facade_service_name}Proxy"
-      end
-
-      attr_writer :service_name
-
-      def service_name
-        @service_name || "RestGwt#{service.name}"
-      end
-
-      def qualified_service_name
-        "#{service.data_module.gwt.client_service_package}.#{service_name}"
-      end
+      java_artifact :facade_service, :service, :client, :gwt, '#{service.name}'
+      java_artifact :proxy, :service, :client, :gwt, '#{facade_service}Proxy'
+      java_artifact :service, :service, :client, :gwt, 'RestGwt#{service.name}'
     end
 
     class RestGwtMethod < Domgen.ParentedElement(:method)
@@ -49,12 +27,6 @@ module Domgen
 
     class RestGwtModule < Domgen.ParentedElement(:data_module)
       include Domgen::Java::ClientServerJavaPackage
-
-      attr_writer :server_servlet_package
-
-      def server_servlet_package
-        @server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
-      end
 
       protected
 
@@ -113,16 +85,13 @@ module Domgen
     end
 
     class RestGwtException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
+      include Domgen::Java::BaseJavaGenerator
 
-      def qualified_name
-        "#{exception.data_module.gwt.client_data_type_package}.#{name}"
-      end
+      java_artifact :name, :data_type, :client, :gwt, '#{exception.name}Exception'
     end
 
     class RestGwtApplication < Domgen.ParentedElement(:repository)
+      include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
       attr_writer :module_name
@@ -137,15 +106,7 @@ module Domgen
         @client_ioc_package || "#{client_package}.ioc"
       end
 
-      attr_writer :services_module_name
-
-      def services_module_name
-        @services_module_name || "#{repository.name}RestyGwtServicesModule"
-      end
-
-      def qualified_services_module_name
-        "#{client_ioc_package}.#{services_module_name}"
-      end
+      java_artifact :services_module, :ioc, :client, :gwt, '#{repository.name}RestyGwtServicesModule'
 
       protected
 

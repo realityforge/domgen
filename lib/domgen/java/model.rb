@@ -331,10 +331,26 @@ module Domgen
       end
     end
 
-    module JavaPackage
-      include BaseJavaPackage
-
-      standard_java_packages(nil)
+    module BaseJavaGenerator
+      def self.included(base)
+        base.send :include, BaseDefiner
+        class << base
+          def java_artifact(key, artifact_type, scope, facet_key, default_value, options = {})
+            method_name = :name == key ? 'name' : "#{key}_name"
+            idefine_getter(method_name, default_value)
+            idefine_method("qualified_#{method_name}") do
+              sub_package = options[:sub_package]
+              sub_package_prefix = options[:sub_package] ? "#{sub_package.split('.').reverse.join('_')}_" : ''
+              package_key = "#{scope.nil? ? '' : "#{scope}_"}#{sub_package_prefix}#{artifact_type.nil? ? '' : "#{artifact_type}_"}package"
+              facet_parent = parent
+              while !facet_parent.is_a?(DataModule) && !facet_parent.is_a?(Repository)
+                facet_parent = facet_parent.parent
+              end
+              "#{facet_parent.facet(facet_key).send(package_key)}.#{send(method_name)}"
+            end
+          end
+        end
+      end
     end
 
     module ClientServerJavaPackage

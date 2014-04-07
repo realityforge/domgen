@@ -280,6 +280,8 @@ module Domgen
     end
 
     class JpaClass < Domgen.ParentedElement(:entity)
+      include Domgen::Java::BaseJavaGenerator
+
       attr_writer :table_name
 
       def table_name
@@ -292,43 +294,10 @@ module Domgen
         @jpql_name || entity.qualified_name.gsub('.','_')
       end
 
-      attr_writer :name
-
-      def name
-        @name || entity.name
-      end
-
-      def qualified_name
-        "#{entity.data_module.jpa.server_entity_package}.#{name}"
-      end
-
-      def metamodel_name
-        "#{name}_"
-      end
-
-      def qualified_metamodel_name
-        "#{entity.data_module.jpa.server_entity_package}.#{metamodel_name}"
-      end
-
-      attr_writer :dao_service_name
-
-      def dao_service_name
-        @dao_service_name || "#{entity.name}Repository"
-      end
-
-      def qualified_dao_service_name
-        "#{entity.data_module.jpa.dao_package}.#{dao_service_name}"
-      end
-
-      attr_writer :dao_name
-
-      def dao_name
-        @dao_name || "#{dao_service_name}EJB"
-      end
-
-      def qualified_dao_name
-        "#{entity.data_module.jpa.dao_package}.#{dao_name}"
-      end
+      java_artifact :name, :entity, :server, :ee, '#{entity.name}'
+      java_artifact :metamodel, :entity, :server, :ee, '#{name}_'
+      java_artifact :dao_service, :entity, :server, :jpa, '#{name}Repository', :subpackage => 'dao'
+      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :subpackage => 'dao'
 
       attr_writer :cacheable
 
@@ -396,6 +365,7 @@ module Domgen
     end
 
     class PersistenceUnit < Domgen.ParentedElement(:repository)
+      include Domgen::Java::BaseJavaGenerator
 
       def version
         @version || (repository.ee.version == '6' ? '2.0' : '2.1')
@@ -423,23 +393,8 @@ module Domgen
         }
       end
 
-      def unit_descriptor_name
-        @eunit_descriptor_name || "#{repository.name}PersistenceUnit"
-      end
-
-      def qualified_unit_descriptor_name
-        "#{repository.ee.server_entity_package}.#{unit_descriptor_name}"
-      end
-
-      attr_writer :ejb_module_name
-
-      def ejb_module_name
-        @ejb_module_name || "#{repository.name}RepositoryModule"
-      end
-
-      def qualified_ejb_module_name
-        "#{repository.ee.server_package}.#{ejb_module_name}"
-      end
+      java_artifact :unit_descriptor, nil, :server, :ee, '#{repository.name}PersistenceUnit'
+      java_artifact :ejb_module, nil, :server, :ee, '#{repository.name}RepositoryModule'
 
       attr_writer :data_source
 

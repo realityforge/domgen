@@ -27,13 +27,9 @@ module Domgen
     end
 
     class JaxbPackage < Domgen.ParentedElement(:repository)
-      def marshalling_test_name
-        "#{repository.name}JaxbMarshallingTest"
-      end
+      include Domgen::Java::BaseJavaGenerator
 
-      def qualified_marshalling_test_name
-        "#{repository.ee.server_data_type_package}.#{marshalling_test_name}"
-      end
+      java_artifact :marshalling_test, :data_type, :server, :ee, '#{repository.name}JaxbMarshallingTest'
     end
   end
 

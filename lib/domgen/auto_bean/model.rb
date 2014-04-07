@@ -15,15 +15,9 @@
 module Domgen
   module AutoBean
     class AutoBeanStruct < Domgen.ParentedElement(:struct)
-      attr_writer :name
+      include Domgen::Java::BaseJavaGenerator
 
-      def name
-        @name || struct.name
-      end
-
-      def qualified_name
-        "#{struct.data_module.auto_bean.data_type_package}.#{self.name}"
-      end
+      java_artifact :name, :data_type, :client, :auto_bean, '#{struct.name}'
     end
 
     class AutoBeanbStructField < Domgen.ParentedElement(:field)
@@ -41,13 +35,9 @@ module Domgen
     end
 
     class AutoBeanEnumeration < Domgen.ParentedElement(:enumeration)
-      def name
-        "#{enumeration.name}"
-      end
+      include Domgen::Java::BaseJavaGenerator
 
-      def qualified_name
-        "#{enumeration.data_module.auto_bean.data_type_package}.#{name}"
-      end
+      java_artifact :name, :data_type, :client, :auto_bean, '#{enumeration.name}'
     end
 
     class AutoBeanPackage < Domgen.ParentedElement(:data_module)
@@ -55,21 +45,10 @@ module Domgen
     end
 
     class AutoBeanApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::JavaApplication
+      include Domgen::Java::JavaClientServerApplication
+      include Domgen::Java::BaseJavaGenerator
 
-      def factory_name
-        "#{repository.name}Factory"
-      end
-
-      def qualified_factory_name
-        "#{repository.auto_bean.data_type_package}.#{self.factory_name}"
-      end
-
-      protected
-
-      def default_package_root
-        "client"
-      end
+      java_artifact :factory, :data_type, :client, :auto_bean, '#{repository.name}Factory'
     end
   end
 
