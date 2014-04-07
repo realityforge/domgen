@@ -82,6 +82,6 @@ module Domgen
                               Repository => Domgen::AutoBean::AutoBeanApplication
                             },
                             # jackson required as it defines the mapping to json-ish conventions
-                            [:json, :jackson])
+                            [:json, :jackson, :imit])
 
 end
