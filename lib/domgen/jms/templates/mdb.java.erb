@@ -46,11 +46,10 @@ public class <%= method.jms.mdb_name %>
    encoded_type = "#{parameter.name}Message"
    boundary_type = parameter.ejb.java_component_type(:boundary)
    in_container = !(parameter.struct? && !parameter.collection?)
-   ns = namespace_annotation_parameter(parameter.xml)
 -%>
-  @javax.xml.bind.annotation.XmlRootElement( name = "<%= parameter.xml.name %>"<%= ns %> )
+  @javax.xml.bind.annotation.XmlRootElement( name = "<%= parameter.xml.name %>" )
   @javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
-  @javax.xml.bind.annotation.XmlType( name = "<%= method.name %><%= method.service.name %>_<%= parameter.name %>"<% if in_container %>, propOrder = {"Value"}<% end %><%= ns %> )
+  @javax.xml.bind.annotation.XmlType( name = "<%= method.name %><%= method.service.name %>_<%= parameter.name %>"<% if in_container %>, propOrder = {"Value"}<% end %> )
   public static class <%= encoded_type %>
 <% unless in_container -%>
       extends <%= parameter.referenced_struct.ee.qualified_name %>
