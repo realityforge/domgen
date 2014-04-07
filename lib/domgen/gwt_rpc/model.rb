@@ -21,7 +21,7 @@ module Domgen
       end
 
       def internal_client_service_package
-        service.data_module.gwt_rpc.internal_client_service_package
+        service.data_module.gwt_rpc.client_internal_service_package
       end
 
       def shared_service_package
@@ -65,7 +65,7 @@ module Domgen
       end
 
       def qualified_facade_service_name
-        "#{outer_service? ? client_service_package : internal_client_service_package}.#{facade_service_name}"
+        "#{outer_service? ? client_service_package : client_internal_service_package}.#{facade_service_name}"
       end
 
       def proxy_name
@@ -73,7 +73,7 @@ module Domgen
       end
 
       def qualified_proxy_name
-        "#{internal_client_service_package}.#{proxy_name}"
+        "#{client_internal_service_package}.#{proxy_name}"
       end
 
       attr_writer :rpc_service_name
