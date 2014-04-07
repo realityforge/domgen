@@ -27,10 +27,6 @@ module Domgen
     end
 
     class JmxParameter < Domgen.ParentedElement(:parameter)
-      def name
-        Domgen::Naming.camelize(parameter.name)
-      end
-
       include Domgen::Java::EEJavaCharacteristic
 
       protected
@@ -41,9 +37,6 @@ module Domgen
     end
 
     class JmxMethod < Domgen.ParentedElement(:service)
-      def name
-        Domgen::Naming.camelize(service.name)
-      end
     end
 
     class JmxReturn < Domgen.ParentedElement(:result)
@@ -57,13 +50,6 @@ module Domgen
     end
 
     class JmxException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
-
-      def qualified_name
-        "#{exception.data_module.jmx.server_data_type_package}.#{name}"
-      end
     end
 
     class JmxPackage < Domgen.ParentedElement(:data_module)
