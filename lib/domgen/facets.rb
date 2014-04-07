@@ -76,13 +76,7 @@ module Domgen
 
   def self.FacetedElement(parent_key)
     type = self.ParentedElement(parent_key, "self.activate_facets")
-    type.class_eval(<<-CODE)
-        def facet_parent
-          self.#{parent_key}
-        end
-
-        include Domgen::Faceted
-    CODE
+    type.send :include, Domgen::Faceted
     type
   end
 
