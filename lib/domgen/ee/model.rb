@@ -74,6 +74,12 @@ module Domgen
       end
     end
 
+    class EeService < Domgen.ParentedElement(:service)
+    end
+
+    class EeMethod < Domgen.ParentedElement(:method)
+    end
+
     class EePackage < Domgen.ParentedElement(:data_module)
       include Domgen::Java::EEClientServerJavaPackage
     end
@@ -99,6 +105,8 @@ module Domgen
                               Struct => Domgen::EE::EeStruct,
                               StructField => Domgen::EE::EebStructField,
                               EnumerationSet => Domgen::EE::EeEnumeration,
+                              Service => Domgen::EE::EeService,
+                              Method => Domgen::EE::EeMethod,
                               DataModule => Domgen::EE::EePackage,
                               Repository => Domgen::EE::EeApplication
                             },
