@@ -277,7 +277,7 @@ module Domgen
 
           def idefine_getter(key, default_value)
             idefine_method(key) do
-              instance_variable_get("@#{key}") || (default_value.is_a?(Proc) ? instance_eval(&default_value) : default_value)
+              instance_variable_get("@#{key}") || (default_value.is_a?(Proc) ? instance_eval(&default_value) : eval("\"#{default_value}\"", binding, key))
             end
           end
         end
