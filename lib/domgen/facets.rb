@@ -58,7 +58,7 @@ module Domgen
     end
 
     def all_enabled_facets
-      (enabled_facets + (self.respond_to?(:facet_parent) ? facet_parent.all_enabled_facets : [])).uniq - disabled_facets
+      (enabled_facets + (self.respond_to?(:parent) ? self.parent.all_enabled_facets : [])).uniq - disabled_facets
     end
   end
 
