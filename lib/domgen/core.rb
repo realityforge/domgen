@@ -72,6 +72,10 @@ module Domgen
       #{pre_config_code}
       super(options, &block)
     end
+
+    def parent
+      self.#{parent_key}
+    end
     RUBY
     type.class_eval(code)
     type

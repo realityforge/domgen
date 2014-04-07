@@ -171,7 +171,7 @@ module Domgen
       end
     end
 
-    class BaseJpaField < Domgen.ParentedElement(:parent)
+    class BaseJpaField < Domgen.ParentedElement(:field_parent)
       def cascade
         @cascade || []
       end
@@ -222,7 +222,7 @@ module Domgen
       end
 
       def inverse
-        self.parent
+        self.field_parent
       end
 
       def traversable=(traversable)
@@ -251,7 +251,7 @@ module Domgen
       end
 
       def attribute
-        self.parent
+        self.field_parent
       end
 
       include Domgen::Java::EEJavaCharacteristic
