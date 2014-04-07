@@ -459,7 +459,6 @@ module Domgen
         return "org.eclipse.persistence.jpa.PersistenceProvider" if provider == :eclipselink
         return "org.hibernate.ejb.HibernatePersistence" if provider == :hibernate
         return nil if provider.nil?
-
       end
 
       def persistence_file_fragments
