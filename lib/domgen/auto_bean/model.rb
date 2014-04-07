@@ -55,7 +55,7 @@ module Domgen
     end
 
     class AutoBeanApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ClientJavaApplication
+      include Domgen::Java::JavaApplication
 
       def factory_name
         "#{repository.name}Factory"
@@ -63,6 +63,12 @@ module Domgen
 
       def qualified_factory_name
         "#{repository.auto_bean.data_type_package}.#{self.factory_name}"
+      end
+
+      protected
+
+      def default_package_root
+        "client"
       end
     end
   end
