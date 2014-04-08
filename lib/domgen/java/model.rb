@@ -305,7 +305,9 @@ module Domgen
             end
           end
 
-          def standard_java_packages(scope)
+        def standard_java_packages(scopes)
+          scopes = scopes.is_a?(Array) ? scopes : [scopes]
+          scopes.each do |scope|
             java_package :data_type, :scope => scope
             java_package :entity, :scope => scope
             java_package :service, :scope => scope, :sub_packages => ['internal']
@@ -356,9 +358,7 @@ module Domgen
     module ClientServerJavaPackage
       include BaseJavaPackage
 
-      standard_java_packages(:shared)
-      standard_java_packages(:client)
-      standard_java_packages(:server)
+      standard_java_packages([:shared,:client,:server])
     end
 
     module EEClientServerJavaPackage
@@ -401,10 +401,13 @@ module Domgen
             end
           end
 
-          def standard_java_packages(scope)
-            java_package :data_type, :scope => scope
-            java_package :entity, :scope => scope
-            java_package :service, :scope => scope, :sub_packages => ['internal']
+          def standard_java_packages(scopes)
+            scopes = scopes.is_a?(Array) ? scopes : [scopes]
+            scopes.each do |scope|
+              java_package :data_type, :scope => scope
+              java_package :entity, :scope => scope
+              java_package :service, :scope => scope, :sub_packages => ['internal']
+            end
           end
 
           def context_package(scope)
@@ -442,11 +445,9 @@ module Domgen
       include BaseJavaApplication
 
       context_package(:shared)
-      standard_java_packages(:shared)
       context_package(:client)
-      standard_java_packages(:client)
       context_package(:server)
-      standard_java_packages(:server)
+      standard_java_packages([:shared,:client,:server])
     end
 
     class Application < Domgen.ParentedElement(:repository)
