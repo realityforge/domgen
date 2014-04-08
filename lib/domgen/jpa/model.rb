@@ -392,7 +392,7 @@ module Domgen
         }
       end
 
-      java_artifact :unit_descriptor, nil, :server, :jpa, '#{repository.name}PersistenceUnit'
+      java_artifact :unit_descriptor, :entity, :server, :jpa, '#{repository.name}PersistenceUnit'
       java_artifact :ejb_module, nil, :server, :jpa, '#{repository.name}RepositoryModule'
 
       attr_writer :data_source
