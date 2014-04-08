@@ -343,15 +343,16 @@ module Domgen
         class << base
           def java_artifact(key, artifact_type, scope, facet_key, default_value, options = {})
             method_name = :name == key ? 'name' : "#{key}_name"
+            sub_package = options[:sub_package]
+            sub_package_prefix = options[:sub_package] ? "#{sub_package.split('.').reverse.join('_')}_" : ''
+            package_key_suffix = "#{sub_package_prefix}#{artifact_type.nil? ? '' : "#{artifact_type}_"}package"
             idefine_getter(method_name, default_value)
             idefine_method("qualified_#{method_name}") do
-              sub_package = options[:sub_package]
-              sub_package_prefix = options[:sub_package] ? "#{sub_package.split('.').reverse.join('_')}_" : ''
-              package_key = "#{scope.nil? ? '' : "#{scope}_"}#{sub_package_prefix}#{artifact_type.nil? ? '' : "#{artifact_type}_"}package"
               facet_parent = parent
               while !facet_parent.is_a?(DataModule) && !facet_parent.is_a?(Repository)
                 facet_parent = facet_parent.parent
               end
+              package_key = "#{scope.nil? ? '' : "#{scope}_"}#{package_key_suffix}"
               "#{facet_parent.facet(facet_key).send(package_key)}.#{send(method_name)}"
             end
           end
