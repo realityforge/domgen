@@ -289,21 +289,25 @@ module Domgen
 
       def self.included(base)
         base.send :include, BaseDefiner
-        class << base
-          def java_package(package_key, options = {})
-            scope = options[:scope]
-            sub_packages = options[:sub_packages] || []
-            raise "Sub-packages #{sub_packages.inspect} expected to be an array" unless sub_packages.is_a?(Array)
+        base.send :extend, ClassMethods
+      end
 
-            key = scope.nil? ? :"#{package_key}_package" : "#{scope}_#{package_key}_package"
-            idefine_getter(key, Proc.new {self.resolve_package(key)})
-            idefine_setter(key)
-            sub_packages.each do |sub_package|
-              sub_package_ruby_name = sub_package.split('.').reverse.join('_')
-              sub_package_key = scope.nil? ? :"#{sub_package_ruby_name}_#{package_key}_package" : "#{scope}_#{sub_package_ruby_name}_#{package_key}_package"
-              idefine_getter(sub_package_key, Proc.new { "#{self.send(key)}.#{sub_package}" })
-            end
+      module ClassMethods
+        def java_package(package_key, options = {})
+          scope = options[:scope]
+          sub_packages = options[:sub_packages] || []
+          raise "Sub-packages #{sub_packages.inspect} expected to be an array" unless sub_packages.is_a?(Array)
+
+          key = scope.nil? ? :"#{package_key}_package" : "#{scope}_#{package_key}_package"
+          facet_key = options[:facet_key]
+          idefine_getter(key, Proc.new { self.resolve_package(key, parent_facet(facet_key)) })
+          idefine_setter(key)
+          sub_packages.each do |sub_package|
+            sub_package_ruby_name = sub_package.split('.').reverse.join('_')
+            sub_package_key = scope.nil? ? :"#{sub_package_ruby_name}_#{package_key}_package" : "#{scope}_#{sub_package_ruby_name}_#{package_key}_package"
+            idefine_getter(sub_package_key, Proc.new { "#{self.send(key)}.#{sub_package}" })
           end
+        end
 
         def standard_java_packages(scopes)
           scopes = scopes.is_a?(Array) ? scopes : [scopes]
