@@ -150,8 +150,10 @@ module Domgen
                                         self.filter)
           rescue Domgen::Generator::GeneratorError => e
             puts e.message
-            puts e.cause.class.name.to_s
-            puts e.cause.backtrace.join("\n")
+            if e.cause
+              puts e.cause.class.name.to_s
+              puts e.cause.backtrace.join("\n")
+            end
             raise e.message
           ensure
             Domgen::Logger.level = old_level

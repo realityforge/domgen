@@ -108,7 +108,7 @@ module Domgen
     class GeneratorError < StandardError
       attr_reader :cause
 
-      def initialize(message, cause)
+      def initialize(message, cause = nil)
         super(message)
         @cause = cause
       end
