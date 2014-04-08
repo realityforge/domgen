@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema targetNamespace="<%= data_module.jws.namespace %>"
+<xs:schema targetNamespace="<%= data_module.xml.namespace %>"
            version="1.0"
 <% data_module.repository.data_modules.each do |dm| -%>
            xmlns:<%= dm.xml.prefix %>="<%= dm.xml.namespace %>"
