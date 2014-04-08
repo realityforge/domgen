@@ -67,14 +67,12 @@ Domgen.template_set(:jws_wsdl_assets) do |template_set|
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
                         'main/webapp/WEB-INF/wsdl/#{service.jws.wsdl_name}',
                         Domgen::Generator::JWS::HELPERS,
-                        nil,
                         :name => 'WEB-INF/wsdl.xml')
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :repository,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
                         'main/webapp/WEB-INF/jax-ws-catalog.xml',
                         Domgen::Generator::JWS::HELPERS,
-                        nil,
                         :name => 'WEB-INF/jax_ws_catalog.xml')
 end
 

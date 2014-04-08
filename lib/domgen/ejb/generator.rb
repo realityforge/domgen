@@ -32,7 +32,7 @@ Domgen.template_set(:ejb_services) do |template_set|
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/service_package_info.java.erb",
                         'main/java/#{data_module.ejb.server_service_package.gsub(".","/")}/package-info.java',
                         [],
-                        'data_module.services.any?{|e|e.ejb?}')
+                        :guard => 'data_module.services.any?{|e|e.ejb?}')
 end
 Domgen.template_set(:ejb_service_facades => [:ejb_services]) do |template_set|
   template_set.template(Domgen::Generator::EJB::FACETS,
@@ -40,19 +40,19 @@ Domgen.template_set(:ejb_service_facades => [:ejb_services]) do |template_set|
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/boundary_service.java.erb",
                         'main/java/#{service.ejb.qualified_boundary_interface_name.gsub(".","/")}.java',
                         Domgen::Generator::EJB::HELPERS,
-                        'service.ejb.generate_boundary?')
+                        :guard => 'service.ejb.generate_boundary?')
   template_set.template(Domgen::Generator::EJB::FACETS,
                         :service,
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/remote_service.java.erb",
                         'main/java/#{service.ejb.qualified_remote_service_name.gsub(".","/")}.java',
                         Domgen::Generator::EJB::HELPERS,
-                        'service.ejb.generate_boundary? && service.ejb.remote?')
+                        :guard => 'service.ejb.generate_boundary? && service.ejb.remote?')
   template_set.template(Domgen::Generator::EJB::FACETS,
                         :service,
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/boundary_implementation.java.erb",
                         'main/java/#{service.ejb.qualified_boundary_implementation_name.gsub(".","/")}.java',
                         Domgen::Generator::EJB::HELPERS,
-                        'service.ejb.generate_boundary?')
+                        :guard => 'service.ejb.generate_boundary?')
 end
 Domgen.template_set(:ejb_glassfish_config_assets) do |template_set|
   template_set.template(Domgen::Generator::EJB::FACETS,

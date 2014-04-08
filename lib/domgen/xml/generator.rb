@@ -28,7 +28,6 @@ Domgen.template_set(:xml_xsd_assets) do |template_set|
                         "#{Domgen::Generator::Xml::TEMPLATE_DIRECTORY}/schema.xsd.erb",
                         'main/webapp/WEB-INF/xsd/#{data_module.xml.xsd_name}',
                         Domgen::Generator::Xml::HELPERS,
-                        nil,
                         :name => 'WEB-INF/schema.xsd')
 end
 
@@ -38,7 +37,6 @@ Domgen.template_set(:xml_xsd_resources) do |template_set|
                         "#{Domgen::Generator::Xml::TEMPLATE_DIRECTORY}/schema.xsd.erb",
                         'main/resources/#{data_module.xml.resource_xsd_name}',
                         Domgen::Generator::Xml::HELPERS,
-                        nil,
                         :name => 'WEB-INF/schema.xsd')
 end
 
