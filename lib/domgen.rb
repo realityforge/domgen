@@ -86,6 +86,7 @@ require 'domgen/ejb/generator'
 
 # JWS
 require 'domgen/jws/model'
+require 'domgen/jws/wsimport_template'
 require 'domgen/jws/generator'
 
 # JMX

@@ -17,6 +17,10 @@ module Domgen
     class JwsClass < Domgen.ParentedElement(:service)
       include Domgen::Java::BaseJavaGenerator
 
+      def api_package
+        "#{service.data_module.jws.api_package}.#{Domgen::Naming.underscore(web_service_name.gsub(/Service$/,''))}"
+      end
+
       def boundary_ejb_name
         "#{service.data_module.repository.name}.#{service.data_module.name}.#{service.jws.java_service_name}"
       end
@@ -102,6 +106,12 @@ module Domgen
         @namespace || "#{data_module.repository.jws.namespace}/#{data_module.name}"
       end
 
+      attr_writer :api_package
+
+      def api_package
+        @api_package || resolve_package(:api_package, data_module.repository.jws)
+      end
+
       attr_writer :fake_service_package
 
       def fake_service_package
@@ -117,6 +127,12 @@ module Domgen
 
     class JwsApplication < Domgen.ParentedElement(:repository)
       include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :api_package
+
+      def api_package
+        @api_package || "#{repository.java.base_package}.api"
+      end
 
       attr_writer :fake_service_package
 

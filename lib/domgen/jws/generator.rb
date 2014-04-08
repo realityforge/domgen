@@ -30,6 +30,16 @@ Domgen.template_set(:jws_server_boundary) do |template_set|
                         Domgen::Generator::JWS::HELPERS)
 end
 
+Domgen.template_set(:jws_client_service) do |template_set|
+  template = Domgen::JWS::WsimportTemplate.new(template_set,
+                                               Domgen::Generator::JWS::FACETS,
+                                               :service,
+                                               "wsimport",
+                                               '#{service.jws.api_package}',
+                                               Domgen::Generator::JWS::HELPERS)
+  template_set.register_template(template)
+end
+
 Domgen.template_set(:jws_server_service) do |template_set|
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :service,
@@ -104,5 +114,5 @@ end
 
 Domgen.template_set(:jws_server => [:jws_server_boundary, :jws_server_service, :jws_wsdl_assets, :xml_xsd_assets])
 Domgen.template_set(:jws_fake_server => [:jws_fakes, :jws_server_service, :jws_wsdl_resources, :xml_xsd_resources])
-Domgen.template_set(:jws_client => [:jws_wsdl_resources, :xml_xsd_resources])
+Domgen.template_set(:jws_client => [:jws_wsdl_resources, :xml_xsd_resources, :jws_client_service])
 Domgen.template_set(:jws => [:jws_server, :jws_client])
