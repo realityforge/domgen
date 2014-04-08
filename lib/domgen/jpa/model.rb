@@ -294,10 +294,10 @@ module Domgen
         @jpql_name || entity.qualified_name.gsub('.','_')
       end
 
-      java_artifact :name, :entity, :server, :ee, '#{entity.name}'
-      java_artifact :metamodel, :entity, :server, :ee, '#{name}_'
-      java_artifact :dao_service, :entity, :server, :jpa, '#{name}Repository', :subpackage => 'dao'
-      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :subpackage => 'dao'
+      java_artifact :name, :entity, :server, :jpa, '#{entity.name}'
+      java_artifact :metamodel, :entity, :server, :jpa, '#{name}_'
+      java_artifact :dao_service, :entity, :server, :jpa, '#{name}Repository', :sub_package => 'dao'
+      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao'
 
       attr_writer :cacheable
 
@@ -357,15 +357,14 @@ module Domgen
     class JpaPackage < Domgen.ParentedElement(:data_module)
       include Domgen::Java::EEClientServerJavaPackage
 
-      attr_writer :dao_package
-
-      def dao_package
-        @dao_package || "#{server_entity_package}.dao"
+      def server_dao_entity_package
+        "#{server_entity_package}.dao"
       end
     end
 
     class PersistenceUnit < Domgen.ParentedElement(:repository)
       include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
 
       def version
         @version || (repository.ee.version == '6' ? '2.0' : '2.1')
@@ -393,8 +392,8 @@ module Domgen
         }
       end
 
-      java_artifact :unit_descriptor, nil, :server, :ee, '#{repository.name}PersistenceUnit'
-      java_artifact :ejb_module, nil, :server, :ee, '#{repository.name}RepositoryModule'
+      java_artifact :unit_descriptor, nil, :server, :jpa, '#{repository.name}PersistenceUnit'
+      java_artifact :ejb_module, nil, :server, :jpa, '#{repository.name}RepositoryModule'
 
       attr_writer :data_source
 
