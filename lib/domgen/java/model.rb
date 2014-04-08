@@ -30,6 +30,13 @@ Domgen::TypeDB.config_element(:java) do
     raise "#{root.name} is not a simple object type" unless @object_type
     @object_type
   end
+
+  attr_writer :fixture_value
+
+  def fixture_value
+    raise "#{root.name} has no fixture value" unless @fixture_value
+    @fixture_value
+  end
 end
 
 Domgen::TypeDB.config_element(:"java.imit") do
@@ -46,15 +53,21 @@ Domgen::TypeDB.config_element(:"java.imit") do
   def object_type
     @object_type || root.java.object_type
   end
+
+  attr_writer :fixture_value
+
+  def fixture_value
+    @fixture_value || root.java.fixture_value
+  end
 end
 
 Domgen::TypeDB.enhance(:void, 'java.primitive_type' => 'void', 'java.object_type' => 'java.lang.Void')
-Domgen::TypeDB.enhance(:integer, 'java.primitive_type' => 'int', 'java.object_type' => 'java.lang.Integer')
-Domgen::TypeDB.enhance(:real, 'java.primitive_type' => 'float', 'java.object_type' => 'java.lang.Float')
-Domgen::TypeDB.enhance(:date, 'java.object_type' => 'java.util.Date', 'java.imit.object_type' => 'org.realityforge.gwt.datatypes.client.date.RDate')
-Domgen::TypeDB.enhance(:datetime, 'java.object_type' => 'java.util.Date')
-Domgen::TypeDB.enhance(:boolean, 'java.primitive_type' => 'boolean', 'java.object_type' => 'java.lang.Boolean')
-Domgen::TypeDB.enhance(:text, 'java.object_type' => 'java.lang.String')
+Domgen::TypeDB.enhance(:integer, 'java.primitive_type' => 'int', 'java.object_type' => 'java.lang.Integer', 'java.fixture_value' => '42')
+Domgen::TypeDB.enhance(:real, 'java.primitive_type' => 'float', 'java.object_type' => 'java.lang.Float', 'java.fixture_value' => '3.14F')
+Domgen::TypeDB.enhance(:date, 'java.object_type' => 'java.util.Date', 'java.imit.object_type' => 'org.realityforge.gwt.datatypes.client.date.RDate', 'java.fixture_value' => 'new java.util.Date(114, 3, 1)', 'java.imit.fixture_value' => 'new org.realityforge.gwt.datatypes.client.date.RDate(2014, 3, 1)')
+Domgen::TypeDB.enhance(:datetime, 'java.object_type' => 'java.util.Date', 'java.fixture_value' => 'new java.util.Date(114, 14, 3, 10, 9)')
+Domgen::TypeDB.enhance(:boolean, 'java.primitive_type' => 'boolean', 'java.object_type' => 'java.lang.Boolean', 'java.fixture_value' => 'true')
+Domgen::TypeDB.enhance(:text, 'java.object_type' => 'java.lang.String', 'java.fixture_value' => '"Hello Space!"')
 
 Domgen::TypeDB.enhance(:point, 'java.object_type' => 'org.geolatte.geom.Point')
 Domgen::TypeDB.enhance(:multipoint, 'java.object_type' => 'org.geolatte.geom.MultiPoint')
@@ -146,6 +159,67 @@ module Domgen
         end
       end
 
+      def java_component_fixture_value(characteristic, group_type, modality = :default)
+        check_modality(modality)
+        characteristic_group = group_type(group_type)
+
+        if characteristic.reference?
+          if :default == modality
+            raise "Unable to create fixture data for reference in default modality"
+          else #if :boundary == modality || :transport == modality
+            other = characteristic.referenced_entity.primary_key.facet(characteristic_group.entity_key)
+            return java_fixture_value(other, group_type, modality)
+          end
+        elsif characteristic.enumeration?
+          if :default == modality || :boundary == modality
+            return "#{characteristic.enumeration.facet(characteristic_group.enumeration_key).qualified_name}.#{characteristic.enumeration.values[0]}"
+          else #if :transport == modality
+            if characteristic.enumeration.textual_values?
+              return "\"#{characteristic.enumeration.values[0]}\""
+            else
+              return "0"
+            end
+          end
+        elsif characteristic.struct?
+          if :default == modality || :boundary == modality
+            return "new #{characteristic.referenced_struct.send(characteristic_group.struct_key).qualified_name}(#{characteristic.referenced_struct.fields.collect { |p| java_fixture_value(p) }.join(", ")})"
+          else #if :transport == modality
+            raise "Unable to determine fixture type for transport struct type"
+          end
+        elsif characteristic.geometry?
+          return Domgen::TypeDB.characteristic_type_by_name(characteristic.geometry.geometry_type).java.fixture_value
+        elsif characteristic.date? && group_type == :imit
+          # TODO: Fix Hackity hack
+          return characteristic.characteristic_type.java.imit.fixture_value
+        else
+          characteristic_type = characteristic.characteristic_type
+          if characteristic_type
+            return characteristic_type.java.fixture_value
+          end
+          return nil
+        end
+      end
+
+      def java_fixture_value(characteristic, group_type, modality = :default)
+        if primitive?(characteristic, group_type, modality)
+          return java_component_fixture_value(characteristic, group_type, modality)
+        else
+          non_primitive_fixture_value(characteristic, group_type, modality)
+        end
+      end
+
+      def non_primitive_fixture_value(characteristic, group_type, modality = :default)
+        component_type = java_component_fixture_value(characteristic, group_type, modality)
+        if :none == characteristic.collection_type
+          component_type
+        elsif :sequence == characteristic.collection_type
+          "java.util.Arrays.asList( #{component_type} )"
+        else #if :set == characteristic.collection_type
+          "new java.util.HashSet<>( java.util.Arrays.asList( #{component_type} ) )"
+          set_type(component_type)
+        end
+      end
+
       def java_type(characteristic, group_type, modality = :default)
         if primitive?(characteristic, group_type, modality)
           return primitive_java_type(characteristic, group_type, modality)
@@ -228,6 +302,10 @@ module Domgen
 
       def primitive_java_type(modality = :default)
         Domgen::Java.primitive_java_type(characteristic, group_type, modality)
+      end
+
+      def java_fixture_value(modality = :default)
+        Domgen::Java.java_fixture_value(characteristic, group_type, modality)
       end
 
       def transport_characteristic_type_key
