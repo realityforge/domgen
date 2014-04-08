@@ -1,3 +1,4 @@
+/* DO NOT EDIT: File is auto-generated */
 <% if repository.data_modules.select{ |d| d.sql? }.collect{|d|d.entities.select{|e| e.sql?}.collect{|e| e.attributes.select{|a| a.geometry?}} }.flatten.size > 0 %>
 CREATE EXTENSION postgis;
 <% end %>
