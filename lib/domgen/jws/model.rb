@@ -17,6 +17,14 @@ module Domgen
     class JwsClass < Domgen.ParentedElement(:service)
       include Domgen::Java::BaseJavaGenerator
 
+      def qualified_api_interface_name
+        "#{api_package}.#{web_service_name}"
+      end
+
+      def qualified_api_endpoint_name
+        "#{qualified_api_interface_name}Service"
+      end
+
       def api_package
         "#{service.data_module.jws.api_package}.#{Domgen::Naming.underscore(web_service_name.gsub(/Service$/,''))}"
       end

@@ -10,6 +10,7 @@ public abstract class <%= repository.jws.fake_server_test_name %>
     data_module.services.select{|s|s.jws?}.each do |service|
 -%>
   private <%= service.jws.qualified_java_service_name %> _<%= service.data_module.name %><%= service.name %>;
+  private <%= service.jws.qualified_api_interface_name %> _<%= service.data_module.name %><%= service.name %>Client;
 <%
     end
   end
@@ -27,8 +28,8 @@ public abstract class <%= repository.jws.fake_server_test_name %>
 -%>
     _<%= service.data_module.name %><%= service.name %> = org.mockito.Mockito.mock( <%= service.jws.qualified_java_service_name %>.class );
     _server.set<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>( _<%= service.data_module.name %><%= service.name %> );
-    //_<%= service.data_module.name %><%= service.name %>Client = new SimpleCalendarServiceService().get<%= service.name %>Port();
-    //( (javax.xml.ws.BindingProvider) _<%= service.data_module.name %><%= service.name %>Client ).getRequestContext().put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, _server.get<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>Address() );
+    _<%= service.data_module.name %><%= service.name %>Client = new <%= service.jws.qualified_api_endpoint_name %>().get<%= service.name %>Port();
+    ( (javax.xml.ws.BindingProvider) _<%= service.data_module.name %><%= service.name %>Client ).getRequestContext().put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, _server.get<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>Address() );
 <%
     end
   end
@@ -49,7 +50,7 @@ public abstract class <%= repository.jws.fake_server_test_name %>
     data_module.services.select{|s|s.jws?}.each do |service|
 -%>
     _<%= service.data_module.name %><%= service.name %> = null;
-    //_<%= service.data_module.name %><%= service.name %>Client = null;
+    _<%= service.data_module.name %><%= service.name %>Client = null;
 <%
     end
   end
@@ -69,6 +70,12 @@ public abstract class <%= repository.jws.fake_server_test_name %>
   {
     return _<%= service.data_module.name %><%= service.name %>;
   }
+
+  protected final <%= service.jws.qualified_api_interface_name %> get<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>Client()
+  {
+    return _<%= service.data_module.name %><%= service.name %>Client;
+  }
+
 <%
     end
   end
