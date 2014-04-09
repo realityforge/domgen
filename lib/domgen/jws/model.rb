@@ -13,8 +13,73 @@
 #
 
 module Domgen
-  module JWS
-    class JwsClass < Domgen.ParentedElement(:service)
+  FacetManager.facet(:jws => [:jaxb]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :api_package
+
+      def api_package
+        @api_package || "#{repository.java.base_package}.api"
+      end
+
+      attr_writer :fake_service_package
+
+      def fake_service_package
+        @fake_service_package || "#{repository.java.base_package}.fake"
+      end
+
+      java_artifact :fake_server, :service, :fake, :jws, 'Fake#{repository.name}Server'
+      java_artifact :abstract_fake_server_test, :service, :fake, :jws, 'AbstractFake#{repository.name}ServerTest'
+      java_artifact :client_integration_test, :service, :fake, :jws, '#{repository.name}ClientIntegrationTest'
+
+      attr_writer :service_name
+
+      # The name of the service under which web services will be anchored
+      def service_name
+        @service_name || repository.name
+      end
+
+      attr_writer :namespace
+
+      def namespace
+        @namespace || "#{repository.xml.base_namespace}/#{service_name}"
+      end
+
+      attr_writer :url
+
+      def url
+        @url || "/api/soap"
+      end
+    end
+
+    facet.enhance(DataModule) do
+      include Domgen::Java::EEClientServerJavaPackage
+
+      def namespace
+        @namespace || "#{data_module.repository.jws.namespace}/#{data_module.name}"
+      end
+
+      attr_writer :api_package
+
+      def api_package
+        @api_package || resolve_package(:api_package, data_module.repository.jws)
+      end
+
+      attr_writer :fake_service_package
+
+      def fake_service_package
+        @fake_service_package || resolve_package(:fake_service_package, data_module.repository.jws)
+      end
+
+      attr_writer :url
+
+      def url
+        @url || "#{data_module.repository.jws.url}/#{data_module.name}"
+      end
+    end
+
+    facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
       def qualified_api_interface_name
@@ -26,7 +91,7 @@ module Domgen
       end
 
       def api_package
-        "#{service.data_module.jws.api_package}.#{Domgen::Naming.underscore(web_service_name.gsub(/Service$/,''))}"
+        "#{service.data_module.jws.api_package}.#{Domgen::Naming.underscore(web_service_name.gsub(/Service$/, ''))}"
       end
 
       def boundary_ejb_name
@@ -79,21 +144,7 @@ module Domgen
       java_artifact :fake_implementation, :service, :fake, :jws, 'Fake#{web_service_name}'
     end
 
-    class JwsParameter < Domgen.ParentedElement(:parameter)
-      def name
-        Domgen::Naming.camelize(parameter.name)
-      end
-
-      include Domgen::Java::EEJavaCharacteristic
-
-      protected
-
-      def characteristic
-        parameter
-      end
-    end
-
-    class JwsMethod < Domgen.ParentedElement(:method)
+    facet.enhance(Method) do
       def name
         Domgen::Naming.camelize(method.name)
       end
@@ -107,73 +158,21 @@ module Domgen
       end
     end
 
-    class JwsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEClientServerJavaPackage
-
-      def namespace
-        @namespace || "#{data_module.repository.jws.namespace}/#{data_module.name}"
+    facet.enhance(Parameter) do
+      def name
+        Domgen::Naming.camelize(parameter.name)
       end
 
-      attr_writer :api_package
+      include Domgen::Java::EEJavaCharacteristic
 
-      def api_package
-        @api_package || resolve_package(:api_package, data_module.repository.jws)
-      end
+      protected
 
-      attr_writer :fake_service_package
-
-      def fake_service_package
-        @fake_service_package || resolve_package(:fake_service_package, data_module.repository.jws)
-      end
-
-      attr_writer :url
-
-      def url
-        @url || "#{data_module.repository.jws.url}/#{data_module.name}"
+      def characteristic
+        parameter
       end
     end
 
-    class JwsApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::BaseJavaGenerator
-
-      attr_writer :api_package
-
-      def api_package
-        @api_package || "#{repository.java.base_package}.api"
-      end
-
-      attr_writer :fake_service_package
-
-      def fake_service_package
-        @fake_service_package || "#{repository.java.base_package}.fake"
-      end
-
-      java_artifact :fake_server, :service, :fake, :jws, 'Fake#{repository.name}Server'
-      java_artifact :abstract_fake_server_test, :service, :fake, :jws, 'AbstractFake#{repository.name}ServerTest'
-      java_artifact :client_integration_test, :service, :fake, :jws, '#{repository.name}ClientIntegrationTest'
-
-      attr_writer :service_name
-
-      # The name of the service under which web services will be anchored
-      def service_name
-        @service_name || repository.name
-      end
-
-      attr_writer :namespace
-
-      def namespace
-        @namespace || "#{repository.xml.base_namespace}/#{service_name}"
-      end
-
-      attr_writer :url
-
-      def url
-        @url || "/api/soap"
-      end
-    end
-
-    class JwsReturn < Domgen.ParentedElement(:result)
-
+    facet.enhance(Result) do
       include Domgen::Java::EEJavaCharacteristic
 
       protected
@@ -183,7 +182,7 @@ module Domgen
       end
     end
 
-    class JwsException < Domgen.ParentedElement(:exception)
+    facet.enhance(Exception) do
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :fault_info, :service, :server, :ee, '#{exception.name}ExceptionInfo'
@@ -200,16 +199,4 @@ module Domgen
       end
     end
   end
-
-  FacetManager.define_facet(:jws,
-                            {
-                              Service => Domgen::JWS::JwsClass,
-                              Method => Domgen::JWS::JwsMethod,
-                              Parameter => Domgen::JWS::JwsParameter,
-                              Exception => Domgen::JWS::JwsException,
-                              Result => Domgen::JWS::JwsReturn,
-                              DataModule => Domgen::JWS::JwsPackage,
-                              Repository => Domgen::JWS::JwsApplication
-                            },
-                            [:jaxb])
 end

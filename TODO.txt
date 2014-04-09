@@ -5,14 +5,6 @@
 * When we define the artifacts in the model files, we should also be able to define the "template_group" and
   "artifact type" (ie, main/java vs test/java vs main/resources etc). This would allow us to remove the need
   for generator.rb files.
-* Simplify facet creation by creating all elements in facet and allowing facet writers ability to enhance facets
-  i.e.
-   FacetManager.define_facet(:restygwt => [:gwt, :jaxrs]) do |facet|
-     facet.enhance(:service) do
-        doX
-     end
-   end
-
 * Make it possible to define a model check that defines the dependency requirements
   between schemas. i.e. Entity can not be referenced by anyone. Template can reference
   Entity but not Overtimes etc.

@@ -533,8 +533,10 @@ module Domgen
       context_package(:server)
       standard_java_packages([:shared,:client,:server])
     end
+  end
 
-    class Application < Domgen.ParentedElement(:repository)
+  FacetManager.facet(:java) do |facet|
+    facet.enhance(Repository) do
       attr_writer :base_package
 
       def base_package
@@ -542,8 +544,4 @@ module Domgen
       end
     end
   end
-
-  FacetManager.define_facet(:java,
-                            {Repository => Domgen::Java::Application},
-                            [])
 end

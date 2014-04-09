@@ -13,32 +13,35 @@
 #
 
 module Domgen
-  module EE
-    class EeExceptionParameter < Domgen.ParentedElement(:parameter)
-      include Domgen::Java::EEJavaCharacteristic
+  FacetManager.facet(:ee => [:java]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::JavaClientServerApplication
 
-      def name
-        parameter.name
+      def version
+        @version || '7'
       end
 
-      protected
-
-      def characteristic
-        parameter
+      def version=(version)
+        raise "Unknown version '#{version}'" unless ['6', '7'].include?(version)
+        @version = version
       end
     end
 
-    class EeException < Domgen.ParentedElement(:exception)
+    facet.enhance(DataModule) do
+      include Domgen::Java::EEClientServerJavaPackage
+    end
+
+    facet.enhance(EnumerationSet) do
       def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+        "#{enumeration.name}"
       end
 
       def qualified_name
-        "#{exception.data_module.ee.server_service_package}.#{name}"
+        "#{enumeration.data_module.ee.server_data_type_package}.#{name}"
       end
     end
 
-    class EeStruct < Domgen.ParentedElement(:struct)
+    facet.enhance(Struct) do
       attr_writer :name
 
       def name
@@ -50,7 +53,7 @@ module Domgen
       end
     end
 
-    class EebStructField < Domgen.ParentedElement(:field)
+    facet.enhance(StructField) do
       include Domgen::Java::EEJavaCharacteristic
 
       def name
@@ -64,52 +67,28 @@ module Domgen
       end
     end
 
-    class EeEnumeration < Domgen.ParentedElement(:enumeration)
+    facet.enhance(Exception) do
       def name
-        "#{enumeration.name}"
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
       end
 
       def qualified_name
-        "#{enumeration.data_module.ee.server_data_type_package}.#{name}"
+        "#{exception.data_module.ee.server_service_package}.#{name}"
       end
     end
 
-    class EeService < Domgen.ParentedElement(:service)
-    end
+    facet.enhance(ExceptionParameter) do
+      include Domgen::Java::EEJavaCharacteristic
 
-    class EeMethod < Domgen.ParentedElement(:method)
-    end
-
-    class EePackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEClientServerJavaPackage
-    end
-
-    class EeApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::JavaClientServerApplication
-
-      def version
-        @version || '7'
+      def name
+        parameter.name
       end
 
-      def version=(version)
-        raise "Unknown version '#{version}'" unless ['6', '7'].include?(version)
-        @version = version
+      protected
+
+      def characteristic
+        parameter
       end
     end
   end
-
-  FacetManager.define_facet(:ee,
-                            {
-                              Exception => Domgen::EE::EeException,
-                              ExceptionParameter => Domgen::EE::EeExceptionParameter,
-                              Struct => Domgen::EE::EeStruct,
-                              StructField => Domgen::EE::EebStructField,
-                              EnumerationSet => Domgen::EE::EeEnumeration,
-                              Service => Domgen::EE::EeService,
-                              Method => Domgen::EE::EeMethod,
-                              DataModule => Domgen::EE::EePackage,
-                              Repository => Domgen::EE::EeApplication
-                            },
-                            [:java])
-
 end

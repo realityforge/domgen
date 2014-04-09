@@ -14,7 +14,6 @@
 
 module Domgen
   module JSON
-
     def self.include_json(type, parent_key)
       type.class_eval(<<-RUBY)
       attr_writer :name
@@ -24,12 +23,14 @@ module Domgen
       end
       RUBY
     end
+  end
 
-    class JsonStructField < Domgen.ParentedElement(:field)
-      Domgen::JSON.include_json(self, :field)
+  FacetManager.facet(:json) do |facet|
+    facet.enhance(EnumerationSet) do
+      Domgen::JSON.include_json(self, :enumeration)
     end
 
-    class JsonStruct < Domgen.ParentedElement(:struct)
+    facet.enhance(Struct) do
       Domgen::JSON.include_json(self, :struct)
 
       # Override name to strip out DTO/VO suffix
@@ -42,25 +43,8 @@ module Domgen
       end
     end
 
-    class JsonMethod < Domgen.ParentedElement(:method)
-      Domgen::JSON.include_json(self, :method)
-    end
-
-    class JsonParameter < Domgen.ParentedElement(:method)
-      Domgen::JSON.include_json(self, :method)
-    end
-
-    class JsonEnumeration < Domgen.ParentedElement(:enumeration)
-      Domgen::JSON.include_json(self, :enumeration)
+    facet.enhance(StructField) do
+      Domgen::JSON.include_json(self, :field)
     end
   end
-
-  FacetManager.define_facet(:json,
-                            {
-                              Method => Domgen::JSON::JsonMethod,
-                              Parameter => Domgen::JSON::JsonParameter,
-                              Struct => Domgen::JSON::JsonStruct,
-                              StructField => Domgen::JSON::JsonStructField,
-                              EnumerationSet => Domgen::JSON::JsonEnumeration
-                            })
 end

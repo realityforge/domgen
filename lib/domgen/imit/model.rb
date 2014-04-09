@@ -14,201 +14,6 @@
 
 module Domgen
   module Imit
-
-    class ImitationAttributeInverse < Domgen.ParentedElement(:inverse)
-      def traversable=(traversable)
-        Domgen.error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
-        @traversable = traversable
-      end
-
-      def traversable?
-        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.imit?) : @traversable
-      end
-
-      def exclude_edges
-        @exclude_edges ||= []
-      end
-
-      def exclude_edges=(exclude_edges)
-        @exclude_edges = exclude_edges
-      end
-
-      def replication_edges=(replication_edges)
-        raise "replication_edges should be an array of symbols" unless replication_edges.is_a?(Array) && replication_edges.all? { |m| m.is_a?(Symbol) }
-        raise "replication_edges should only be set when traversable?" unless inverse.traversable?
-        raise "replication_edges should only contain valid graphs" unless replication_edges.all? { |m| inverse.attribute.entity.data_module.repository.imit.graph_by_name(m) }
-        @replication_edges = replication_edges
-      end
-
-      def replication_edges
-        @replication_edges || []
-      end
-    end
-
-    class ImitationAttribute < Domgen.ParentedElement(:attribute)
-
-      def client_side?
-        !attribute.reference? || attribute.referenced_entity.imit?
-      end
-
-      def filter_in_graphs=(filter_in_graphs)
-        raise "filter_in_graphs should be an array of symbols" unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
-        raise "filter_in_graphs should only contain valid graphs" unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
-        @filter_in_graphs = filter_in_graphs
-      end
-
-      def filter_in_graphs
-        @filter_in_graphs || []
-      end
-
-      def graph_links
-        @graph_links ||= {}
-      end
-
-      def graph_links=(graph_links)
-        @graph_links = graph_links
-      end
-
-      include Domgen::Java::ImitJavaCharacteristic
-
-      protected
-
-      def pre_verify
-        self.graph_links.each_pair do |source_graph_key, target_graph_key|
-          source_graph = attribute.entity.data_module.repository.imit.graph_by_name(source_graph_key)
-          target_graph = attribute.entity.data_module.repository.imit.graph_by_name(target_graph_key)
-          prefix = "Link #{source_graph_key}=>#{target_graph_key} on #{attribute.qualified_name}"
-          raise "#{prefix} must have an instance graph on the LHS" unless source_graph.instance_root?
-          raise "#{prefix} must have an non filtered graph on the LHS" unless source_graph.filter_parameter.nil?
-          raise "#{prefix} must have an instance graph on the RHS" unless target_graph.instance_root?
-          raise "#{prefix} must have an non filtered graph on the RHS" unless target_graph.filter_parameter.nil?
-          source_graph.links[attribute] = target_graph
-        end
-      end
-
-      def characteristic
-        attribute
-      end
-    end
-
-    class ImitationResult < Domgen.ParentedElement(:result)
-
-      include Domgen::Java::ImitJavaCharacteristic
-
-      protected
-
-      def characteristic
-        result
-      end
-    end
-
-    class ImitationParameter < Domgen.ParentedElement(:parameter)
-      include Domgen::Java::ImitJavaCharacteristic
-
-      def environmental?
-        parameter.gwt_rpc? && parameter.gwt_rpc.environmental?
-      end
-
-      protected
-
-      def characteristic
-        parameter
-      end
-    end
-
-    class ImitationService < Domgen.ParentedElement(:service)
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :name, :service, :client, :imit, '#{service.name}'
-      java_artifact :proxy, :service, :client, :imit, '#{name}Impl', :sub_package => 'internal'
-    end
-
-    class ImitationMethod < Domgen.ParentedElement(:method)
-
-      def bulk_load=(bulk_load)
-        @bulk_load = !!bulk_load
-      end
-
-      def bulk_load?
-        @bulk_load.nil? ? false : @bulk_load
-      end
-
-      # TODO: Remove this ugly hack!
-      attr_accessor :graph_to_subscribe
-    end
-
-    class ImitationException < Domgen.ParentedElement(:exception)
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :name, :service, :client, :imit, '#{exception.name}Exception'
-    end
-
-    class ImitationEntity < Domgen.ParentedElement(:entity)
-      include Domgen::Java::BaseJavaGenerator
-
-      def transport_id
-        raise "Attempted to invoke transport_id on abstract entity" if entity.abstract?
-        @transport_id
-      end
-
-      def transport_id=(transport_id)
-        raise "Attempted to assign transport_id on abstract entity" if entity.abstract?
-        @transport_id = transport_id
-      end
-
-      java_artifact :name, :entity, :client, :imit, '#{entity.name}'
-
-      def replication_root?
-        entity.data_module.repository.imit.graphs.any?{|g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s }
-      end
-
-      def associated_instance_root_graphs
-        entity.data_module.repository.imit.graphs.select {|g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s }
-      end
-
-      def associated_type_graphs
-        entity.data_module.repository.imit.graphs.select {|g| !g.instance_root? && g.type_roots.include?(entity.qualified_name.to_s) }
-      end
-
-      def replicate(graph, replication_type)
-        raise "#{replication_type.inspect} is not of a known type" unless [:instance, :type].include?(replication_type)
-        graph = entity.data_module.repository.imit.graph_by_name(graph)
-        k = entity.qualified_name
-        graph.instance_root = k if :instance == replication_type
-        graph.type_roots.concat([k.to_s]) if :type == replication_type
-      end
-
-      def replication_graphs
-        entity.data_module.repository.imit.graphs.select do |graph|
-          (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
-            (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s)) ||
-            entity.attributes.any?{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name)}
-        end
-      end
-
-      def referencing_client_side_attributes
-        entity.referencing_attributes.select do |attribute|
-          attribute.entity.imit? &&
-            attribute.inverse.imit? &&
-            attribute.inverse.imit.traversable? &&
-            entity == attribute.referenced_entity &&
-            attribute.imit? &&
-            attribute.referenced_entity.imit?
-        end
-      end
-
-      def post_verify
-        entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_recorder_name if entity.jpa?
-      end
-    end
-
-    class ImitationModule < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::BaseJavaGenerator
-      include Domgen::Java::ImitJavaPackage
-
-      java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
-    end
-
     class ReplicationGraph < Domgen.ParentedElement(:application)
       def initialize(application, name, options, &block)
         @name = name
@@ -329,8 +134,10 @@ module Domgen
         self.graph.application.repository.entity_by_name(name)
       end
     end
+  end
 
-    class ImitationApplication < Domgen.ParentedElement(:repository)
+  FacetManager.facet(:imit => [:gwt_rpc]) do |facet|
+    facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
@@ -415,7 +222,7 @@ module Domgen
             end
           end
         end
-        repository.imit.graphs.each {|g| g.post_verify}
+        repository.imit.graphs.each { |g| g.post_verify }
       end
 
       private
@@ -428,20 +235,196 @@ module Domgen
         @graphs ||= Domgen::OrderedHash.new
       end
     end
-  end
 
-  FacetManager.define_facet(:imit,
-                            {
-                              Attribute => Domgen::Imit::ImitationAttribute,
-                              InverseElement => Domgen::Imit::ImitationAttributeInverse,
-                              Entity => Domgen::Imit::ImitationEntity,
-                              Method => Domgen::Imit::ImitationMethod,
-                              Result => Domgen::Imit::ImitationResult,
-                              Parameter => Domgen::Imit::ImitationParameter,
-                              Exception => Domgen::Imit::ImitationException,
-                              Service => Domgen::Imit::ImitationService,
-                              DataModule => Domgen::Imit::ImitationModule,
-                              Repository => Domgen::Imit::ImitationApplication
-                            },
-                            [:gwt_rpc])
+    facet.enhance(DataModule) do
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::ImitJavaPackage
+
+      java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
+    end
+
+    facet.enhance(Service) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :name, :service, :client, :imit, '#{service.name}'
+      java_artifact :proxy, :service, :client, :imit, '#{name}Impl', :sub_package => 'internal'
+    end
+
+    facet.enhance(Method) do
+      def bulk_load=(bulk_load)
+        @bulk_load = !!bulk_load
+      end
+
+      def bulk_load?
+        @bulk_load.nil? ? false : @bulk_load
+      end
+
+      # TODO: Remove this ugly hack!
+      attr_accessor :graph_to_subscribe
+    end
+
+    facet.enhance(Parameter) do
+      include Domgen::Java::ImitJavaCharacteristic
+
+      def environmental?
+        parameter.gwt_rpc? && parameter.gwt_rpc.environmental?
+      end
+
+      protected
+
+      def characteristic
+        parameter
+      end
+    end
+
+    facet.enhance(Result) do
+      include Domgen::Java::ImitJavaCharacteristic
+
+      protected
+
+      def characteristic
+        result
+      end
+    end
+
+    facet.enhance(Exception) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :name, :service, :client, :imit, '#{exception.name}Exception'
+    end
+
+    facet.enhance(Entity) do
+      include Domgen::Java::BaseJavaGenerator
+
+      def transport_id
+        raise "Attempted to invoke transport_id on abstract entity" if entity.abstract?
+        @transport_id
+      end
+
+      def transport_id=(transport_id)
+        raise "Attempted to assign transport_id on abstract entity" if entity.abstract?
+        @transport_id = transport_id
+      end
+
+      java_artifact :name, :entity, :client, :imit, '#{entity.name}'
+
+      def replication_root?
+        entity.data_module.repository.imit.graphs.any? { |g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s }
+      end
+
+      def associated_instance_root_graphs
+        entity.data_module.repository.imit.graphs.select { |g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s }
+      end
+
+      def associated_type_graphs
+        entity.data_module.repository.imit.graphs.select { |g| !g.instance_root? && g.type_roots.include?(entity.qualified_name.to_s) }
+      end
+
+      def replicate(graph, replication_type)
+        raise "#{replication_type.inspect} is not of a known type" unless [:instance, :type].include?(replication_type)
+        graph = entity.data_module.repository.imit.graph_by_name(graph)
+        k = entity.qualified_name
+        graph.instance_root = k if :instance == replication_type
+        graph.type_roots.concat([k.to_s]) if :type == replication_type
+      end
+
+      def replication_graphs
+        entity.data_module.repository.imit.graphs.select do |graph|
+          (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
+            (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s)) ||
+            entity.attributes.any? { |a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }
+        end
+      end
+
+      def referencing_client_side_attributes
+        entity.referencing_attributes.select do |attribute|
+          attribute.entity.imit? &&
+            attribute.inverse.imit? &&
+            attribute.inverse.imit.traversable? &&
+            entity == attribute.referenced_entity &&
+            attribute.imit? &&
+            attribute.referenced_entity.imit?
+        end
+      end
+
+      def post_verify
+        entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_recorder_name if entity.jpa?
+      end
+    end
+
+    facet.enhance(Attribute) do
+      def client_side?
+        !attribute.reference? || attribute.referenced_entity.imit?
+      end
+
+      def filter_in_graphs=(filter_in_graphs)
+        raise "filter_in_graphs should be an array of symbols" unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
+        raise "filter_in_graphs should only contain valid graphs" unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
+        @filter_in_graphs = filter_in_graphs
+      end
+
+      def filter_in_graphs
+        @filter_in_graphs || []
+      end
+
+      def graph_links
+        @graph_links ||= {}
+      end
+
+      def graph_links=(graph_links)
+        @graph_links = graph_links
+      end
+
+      include Domgen::Java::ImitJavaCharacteristic
+
+      protected
+
+      def pre_verify
+        self.graph_links.each_pair do |source_graph_key, target_graph_key|
+          source_graph = attribute.entity.data_module.repository.imit.graph_by_name(source_graph_key)
+          target_graph = attribute.entity.data_module.repository.imit.graph_by_name(target_graph_key)
+          prefix = "Link #{source_graph_key}=>#{target_graph_key} on #{attribute.qualified_name}"
+          raise "#{prefix} must have an instance graph on the LHS" unless source_graph.instance_root?
+          raise "#{prefix} must have an non filtered graph on the LHS" unless source_graph.filter_parameter.nil?
+          raise "#{prefix} must have an instance graph on the RHS" unless target_graph.instance_root?
+          raise "#{prefix} must have an non filtered graph on the RHS" unless target_graph.filter_parameter.nil?
+          source_graph.links[attribute] = target_graph
+        end
+      end
+
+      def characteristic
+        attribute
+      end
+    end
+
+    facet.enhance(InverseElement) do
+      def traversable=(traversable)
+        Domgen.error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
+        @traversable = traversable
+      end
+
+      def traversable?
+        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.imit?) : @traversable
+      end
+
+      def exclude_edges
+        @exclude_edges ||= []
+      end
+
+      def exclude_edges=(exclude_edges)
+        @exclude_edges = exclude_edges
+      end
+
+      def replication_edges=(replication_edges)
+        raise "replication_edges should be an array of symbols" unless replication_edges.is_a?(Array) && replication_edges.all? { |m| m.is_a?(Symbol) }
+        raise "replication_edges should only be set when traversable?" unless inverse.traversable?
+        raise "replication_edges should only contain valid graphs" unless replication_edges.all? { |m| inverse.attribute.entity.data_module.repository.imit.graph_by_name(m) }
+        @replication_edges = replication_edges
+      end
+
+      def replication_edges
+        @replication_edges || []
+      end
+    end
+  end
 end

@@ -14,7 +14,6 @@
 
 module Domgen
   module XML
-
     def self.include_xml(type, parent_key)
       type.class_eval(<<-RUBY)
       attr_writer :name
@@ -47,53 +46,26 @@ module Domgen
       end
       RUBY
     end
+  end
 
-    class XmlStructField < Domgen.ParentedElement(:field)
-      Domgen::XML.include_data_element_xml(self, :field)
-    end
+  FacetManager.facet(:xml) do |facet|
+    facet.enhance(Repository) do
+      Domgen::XML.include_xml(self, :repository)
 
-    class XmlStruct < Domgen.ParentedElement(:struct)
-      Domgen::XML.include_xml(self, :struct)
-
-      # Override name to strip out DTO/VO suffix
-      def name
-        return @name if @name
-        candidate = Domgen::Naming.xmlize(struct.name)
-        return candidate[0, candidate.size-4] if candidate =~ /-dto$/
-        return candidate[0, candidate.size-3] if candidate =~ /-vo$/
-        candidate
-      end
+      attr_writer :namespace
 
       def namespace
-        struct.data_module.xml.namespace
+        @namespace || "#{base_namespace}/#{repository.name}"
+      end
+
+      attr_writer :base_namespace
+
+      def base_namespace
+        @base_namespace || "http://example.com"
       end
     end
 
-    class XmlEnumeration < Domgen.ParentedElement(:enumeration)
-      Domgen::XML.include_xml(self, :enumeration)
-
-      def namespace
-        enumeration.data_module.xml.namespace
-      end
-    end
-
-    class XmlParameter < Domgen.ParentedElement(:parameter)
-      Domgen::XML.include_data_element_xml(self, :parameter)
-    end
-
-    class XmlException < Domgen.ParentedElement(:exception)
-      Domgen::XML.include_xml(self, :exception)
-
-      def namespace
-        exception.data_module.xml.namespace
-      end
-    end
-
-    class XmlExceptionParameter < Domgen.ParentedElement(:parameter)
-      Domgen::XML.include_data_element_xml(self, :parameter)
-    end
-
-    class XmlPackage < Domgen.ParentedElement(:data_module)
+    facet.enhance(DataModule) do
       Domgen::XML.include_xml(self, :data_module)
 
       attr_writer :namespace
@@ -120,30 +92,49 @@ module Domgen
       end
     end
 
-    class XmlApplication < Domgen.ParentedElement(:repository)
-      Domgen::XML.include_xml(self, :repository)
-
-      attr_writer :namespace
+    facet.enhance(EnumerationSet) do
+      Domgen::XML.include_xml(self, :enumeration)
 
       def namespace
-        @namespace || "#{base_namespace}/#{repository.name}"
-      end
-
-      attr_writer :base_namespace
-
-      def base_namespace
-        @base_namespace || "http://example.com"
+        enumeration.data_module.xml.namespace
       end
     end
-  end
 
-  FacetManager.define_facet(:xml,
-                            Struct => Domgen::XML::XmlStruct,
-                            StructField => Domgen::XML::XmlStructField,
-                            Exception => Domgen::XML::XmlException,
-                            ExceptionParameter => Domgen::XML::XmlExceptionParameter,
-                            Parameter => Domgen::XML::XmlParameter,
-                            DataModule => Domgen::XML::XmlPackage,
-                            Repository => Domgen::XML::XmlApplication,
-                            EnumerationSet => Domgen::XML::XmlEnumeration)
+    facet.enhance(Parameter) do
+      Domgen::XML.include_data_element_xml(self, :parameter)
+    end
+
+    facet.enhance(Exception) do
+      Domgen::XML.include_xml(self, :exception)
+
+      def namespace
+        exception.data_module.xml.namespace
+      end
+    end
+
+    facet.enhance(ExceptionParameter) do
+      Domgen::XML.include_data_element_xml(self, :parameter)
+    end
+
+    facet.enhance(Struct) do
+      Domgen::XML.include_xml(self, :struct)
+
+      # Override name to strip out DTO/VO suffix
+      def name
+        return @name if @name
+        candidate = Domgen::Naming.xmlize(struct.name)
+        return candidate[0, candidate.size-4] if candidate =~ /-dto$/
+        return candidate[0, candidate.size-3] if candidate =~ /-vo$/
+        candidate
+      end
+
+      def namespace
+        struct.data_module.xml.namespace
+      end
+    end
+
+    facet.enhance(StructField) do
+      Domgen::XML.include_data_element_xml(self, :field)
+    end
+  end
 end

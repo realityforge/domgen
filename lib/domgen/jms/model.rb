@@ -13,8 +13,8 @@
 #
 
 module Domgen
-  module JMS
-    class JmsMethod < Domgen.ParentedElement(:method)
+  FacetManager.facet(:jms => [:ejb, :jaxb, :ee]) do |facet|
+    facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
 
       attr_writer :mdb
@@ -40,7 +40,7 @@ module Domgen
       end
 
       def destination_resource_name
-        @destination_resource_name || "jms/#{method.qualified_name.gsub('#','.')}"
+        @destination_resource_name || "jms/#{method.qualified_name.gsub('#', '.')}"
       end
 
       def destination_type=(destination_type)
@@ -77,23 +77,5 @@ module Domgen
 
       #TODO: Validate that at max one parameter and no return
     end
-
-    class JmsClass < Domgen.ParentedElement(:service)
-    end
-
-    class JmsPackage < Domgen.ParentedElement(:data_module)
-    end
-
-    class JmsApplication < Domgen.ParentedElement(:repository)
-    end
   end
-
-  FacetManager.define_facet(:jms,
-                            {
-                              Method => Domgen::JMS::JmsMethod,
-                              Service => Domgen::JMS::JmsClass,
-                              DataModule => Domgen::JMS::JmsPackage,
-                              Repository => Domgen::JMS::JmsApplication
-                            },
-                            [:ejb, :jaxb, :ee])
 end

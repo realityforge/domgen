@@ -84,20 +84,28 @@ module Domgen
     type
   end
 
-  class Facet
+  class Facet < BaseElement
     attr_reader :key
     attr_reader :extension_map
     attr_reader :required_facets
 
-    def initialize(key, extension_map, required_facets)
+    def initialize(key, extension_map, required_facets, options = {}, &block)
       extension_map.each_pair do |source_class, extension_class|
-        Domgen.error("Facet #{key}: Unknown source class supplied in map '#{source_class.name}'") unless FacetManager.valid_source_classes.include?(source_class)
+        Domgen.error("Facet #{key}: Unknown source class supplied in map '#{source_class.name}'") unless FacetManager.valid_source_classes.keys.include?(source_class)
         Domgen.error("Facet #{key}: Extension class is not a class. '#{extension_class}'") unless extension_class.is_a?(Class)
         source_class.class_eval("def #{key}?; false; end")
       end
       @key = key
       @extension_map = extension_map
       @required_facets = required_facets
+      FacetManager.send :register_facet, self
+      super(options, &block)
+    end
+
+    def enhance(source_class, &block)
+      extension = @extension_map[source_class]
+      raise "Unknown source class #{source_class.name}" unless extension
+      extension.class_eval &block
     end
 
     def enable_on(object)
@@ -123,11 +131,23 @@ module Domgen
     end
   end
 
+  # Container of all facet implementations
+  module Facets
+  end
+
   class FacetManager
     class << self
       def define_facet(key, extension_map, required_facets = [])
-        Domgen.error("Attempting to redefine facet #{key}") if facet_map[key.to_s]
-        facet_map[key.to_s] = Facet.new(key, extension_map, required_facets)
+        Facet.new(key, extension_map, required_facets)
+      end
+
+      def register_facet(facet)
+        Domgen.error("Attempting to redefine facet #{facet.key}") if facet_map[facet.key.to_s]
+        facet_map[facet.key.to_s] = facet
+      end
+
+      def facet?(key)
+        !!facet_map[key.to_s]
       end
 
       def facet_by_name(key)
@@ -136,17 +156,41 @@ module Domgen
         facet
       end
 
+      def facet(definition, options = {}, &block)
+        raise "Unknown definition form '#{definition.inspect}'" unless (definition.is_a?(Symbol) || (definition.is_a?(Hash) && 1 == definition.size))
+        key = (definition.is_a?(Hash) ? definition.keys[0] : definition).to_sym
+        Domgen.error("Attempting to redefine facet #{key}") if FacetManager.facet?(key)
+        required_facets = definition.is_a?(Hash) ? definition.values[0] : []
+
+        excluded_elements = options[:excluded_elements] || []
+        extension_map = {}
+
+        module_name = ::Domgen::Naming.pascal_case(key)
+        ::Domgen::Facets.class_eval "module #{module_name}\n end"
+        module_instance = ::Domgen::Facets.const_get(module_name)
+
+        valid_source_classes.each_pair do |type, key|
+          next if excluded_elements.include?(type)
+          extension_name = "#{module_name}#{type.name.gsub(/^.*\:\:(.*)$/, "\\1")}"
+          module_instance.class_eval "class #{extension_name} < ::Domgen.ParentedElement(:#{key}); end"
+          extension_map[type] = module_instance.const_get(extension_name)
+        end
+
+        Facet.new(key, extension_map, required_facets, &block)
+      end
+
       def valid_source_classes
-        [
-          Domgen::EnumerationSet,
-          Domgen::Struct, Domgen::StructField,
-          Domgen::Entity, Domgen::Attribute, Domgen::InverseElement,
-          Domgen::Query, Domgen::QueryParameter,
-          Domgen::Service, Domgen::Method, Domgen::Parameter, Domgen::Result,
-          Domgen::Exception, Domgen::ExceptionParameter,
-          Domgen::Message, Domgen::MessageParameter,
-          Domgen::DataModule, Domgen::Repository
-        ]
+        {
+          Domgen::EnumerationSet => :enumeration,
+          Domgen::Struct => :struct, Domgen::StructField => :field,
+          Domgen::Entity => :entity, Domgen::Attribute => :attribute, Domgen::InverseElement => :inverse,
+          Domgen::Query => :query, Domgen::QueryParameter => :parameter,
+          Domgen::Service => :service, Domgen::Method => :method, Domgen::Parameter => :parameter, Domgen::Result => :result,
+          Domgen::Exception => :exception, Domgen::ExceptionParameter => :parameter,
+          Domgen::Message => :message, Domgen::MessageParameter => :parameter,
+          Domgen::DataModule => :data_module,
+          Domgen::Repository => :repository
+        }
       end
 
       def extension_point(object, action)

@@ -13,16 +13,12 @@
 #
 
 module Domgen
-  module EJB
-    class EjbException < Domgen.ParentedElement(:exception)
-      attr_writer :rollback
-
-      def rollback?
-        @rollback.nil? ? true : @rollback
-      end
+  FacetManager.facet(:ejb => [:ee]) do |facet|
+    facet.enhance(DataModule) do
+      include Domgen::Java::EEClientServerJavaPackage
     end
 
-    class EjbClass < Domgen.ParentedElement(:service)
+    facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
       attr_writer :name
@@ -70,14 +66,14 @@ module Domgen
         if @generate_boundary.nil?
           return service.jmx? ||
             service.jws? ||
-            service.methods.any?{|method| method.parameters.any?{|parameter|parameter.reference?}}
+            service.methods.any? { |method| method.parameters.any? { |parameter| parameter.reference? } }
         else
           return @generate_boundary
         end
       end
     end
 
-    class EjbParameter < Domgen.ParentedElement(:parameter)
+    facet.enhance(Parameter) do
       include Domgen::Java::EEJavaCharacteristic
 
       protected
@@ -87,8 +83,7 @@ module Domgen
       end
     end
 
-    class EjbReturn < Domgen.ParentedElement(:result)
-
+    facet.enhance(Result) do
       include Domgen::Java::EEJavaCharacteristic
 
       protected
@@ -98,22 +93,12 @@ module Domgen
       end
     end
 
-    class EjbPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEClientServerJavaPackage
-    end
+    facet.enhance(Exception) do
+      attr_writer :rollback
 
-    class EjbApplication < Domgen.ParentedElement(:repository)
+      def rollback?
+        @rollback.nil? ? true : @rollback
+      end
     end
   end
-
-  FacetManager.define_facet(:ejb,
-                            {
-                              Service => Domgen::EJB::EjbClass,
-                              Exception => Domgen::EJB::EjbException,
-                              Parameter => Domgen::EJB::EjbParameter,
-                              Result => Domgen::EJB::EjbReturn,
-                              DataModule => Domgen::EJB::EjbPackage,
-                              Repository => Domgen::EJB::EjbApplication
-                            },
-                            [:ee])
 end

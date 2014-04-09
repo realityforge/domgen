@@ -13,8 +13,59 @@
 #
 
 module Domgen
-  module GwtRpc
-    class GwtService < Domgen.ParentedElement(:service)
+  FacetManager.facet(:gwt_rpc => [:gwt]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
+
+      attr_writer :module_name
+
+      def module_name
+        @module_name || Domgen::Naming.underscore(repository.name)
+      end
+
+      java_artifact :rpc_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesModule'
+      java_artifact :mock_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule'
+      java_artifact :services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtServicesModule'
+
+      attr_writer :client_ioc_package
+
+      def client_ioc_package
+        @client_ioc_package || "#{client_package}.ioc"
+      end
+
+      attr_writer :server_servlet_package
+
+      def server_servlet_package
+        @server_servlet_package || "#{server_package}.servlet"
+      end
+
+      attr_writer :services_module_name
+
+      protected
+
+      def facet_key
+        :gwt
+      end
+    end
+
+    facet.enhance(DataModule) do
+      include Domgen::Java::ClientServerJavaPackage
+
+      attr_writer :server_servlet_package
+
+      def server_servlet_package
+        @server_servlet_package || resolve_package(:server_servlet_package)
+      end
+
+      protected
+
+      def facet_key
+        :gwt_rpc
+      end
+    end
+
+    facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
       attr_writer :rpc_prefix
@@ -59,7 +110,7 @@ module Domgen
       java_artifact :servlet, :servlet, :server, :gwt_rpc, '#{rpc_service_name}Servlet'
     end
 
-    class GwtMethod < Domgen.ParentedElement(:method)
+    facet.enhance(Method) do
       def name
         Domgen::Naming.camelize(method.name)
       end
@@ -69,36 +120,10 @@ module Domgen
       def cancelable?
         @cancelable.nil? ? false : @cancelable
       end
+
     end
 
-    class GwtModule < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::ClientServerJavaPackage
-
-      attr_writer :server_servlet_package
-
-      def server_servlet_package
-        @server_servlet_package || resolve_package(:server_servlet_package)
-      end
-
-      protected
-
-      def facet_key
-        :gwt_rpc
-      end
-    end
-
-    class GwtReturn < Domgen.ParentedElement(:result)
-
-      include Domgen::Java::ImitJavaCharacteristic
-
-      protected
-
-      def characteristic
-        result
-      end
-    end
-
-    class GwtParameter < Domgen.ParentedElement(:parameter)
+    facet.enhance(Parameter) do
       include Domgen::Java::ImitJavaCharacteristic
 
       # Does the parameter come from the environment?
@@ -124,7 +149,7 @@ module Domgen
 
       def environment_value
         raise "environment_value invoked for non-environmental value" unless environmental?
-        return "findCookie(getThreadLocalRequest(),\"#{environment_key.to_s[15,100]}\")" if environment_key_is_cookie?(environment_key)
+        return "findCookie(getThreadLocalRequest(),\"#{environment_key.to_s[15, 100]}\")" if environment_key_is_cookie?(environment_key)
         value = self.class.environment_key_set[environment_key]
         return value if value
 
@@ -141,6 +166,7 @@ module Domgen
           "request:remote-user" => 'getThreadLocalRequest().getRemoteUser()',
         }
       end
+
       protected
 
       def characteristic
@@ -148,56 +174,20 @@ module Domgen
       end
     end
 
-    class GwtException < Domgen.ParentedElement(:exception)
+    facet.enhance(Result) do
+      include Domgen::Java::ImitJavaCharacteristic
+
+      protected
+
+      def characteristic
+        result
+      end
+    end
+
+    facet.enhance(Exception) do
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :name, :data_type, :shared, :gwt_rpc, 'GwtRpc#{exception.name}Exception'
     end
-
-    class GwtApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::BaseJavaGenerator
-      include Domgen::Java::JavaClientServerApplication
-
-      attr_writer :module_name
-
-      def module_name
-        @module_name || Domgen::Naming.underscore(repository.name)
-      end
-
-      java_artifact :rpc_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesModule'
-      java_artifact :mock_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule'
-      java_artifact :services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtServicesModule'
-
-      attr_writer :client_ioc_package
-
-      def client_ioc_package
-        @client_ioc_package || "#{client_package}.ioc"
-      end
-
-      attr_writer :server_servlet_package
-
-      def server_servlet_package
-        @server_servlet_package || "#{server_package}.servlet"
-      end
-
-      attr_writer :services_module_name
-
-      protected
-
-      def facet_key
-        :gwt
-      end
-    end
   end
-
-  FacetManager.define_facet(:gwt_rpc,
-                            {
-                              Service => Domgen::GwtRpc::GwtService,
-                              Method => Domgen::GwtRpc::GwtMethod,
-                              Parameter => Domgen::GwtRpc::GwtParameter,
-                              Result => Domgen::GwtRpc::GwtReturn,
-                              Exception => Domgen::GwtRpc::GwtException,
-                              DataModule => Domgen::GwtRpc::GwtModule,
-                              Repository => Domgen::GwtRpc::GwtApplication
-                            }, [:gwt])
 end

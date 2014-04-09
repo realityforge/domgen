@@ -13,16 +13,16 @@
 #
 
 module Domgen
-  module Ruby
-    class RubyAttribute < Domgen.ParentedElement(:attribute)
-      attr_writer :validate
+  FacetManager.facet(:ruby) do |facet|
+    facet.enhance(DataModule) do
+      attr_writer :module_name
 
-      def validate?
-        @validate.nil? ? true : @validate
+      def module_name
+        @module_name || data_module.name
       end
     end
 
-    class RubyClass < Domgen.ParentedElement(:entity)
+    facet.enhance(Entity) do
       attr_writer :classname
 
       def included_modules
@@ -45,19 +45,14 @@ module Domgen
         fqn = qualified_name.gsub(/::/, '/')
         Domgen::Naming.underscore(fqn[1..fqn.length])
       end
-    end
 
-    class RubyModule < Domgen.ParentedElement(:data_module)
-      attr_writer :module_name
+      facet.enhance(Attribute) do
+        attr_writer :validate
 
-      def module_name
-        @module_name || data_module.name
+        def validate?
+          @validate.nil? ? true : @validate
+        end
       end
     end
   end
-
-  FacetManager.define_facet(:ruby,
-                            Entity => Domgen::Ruby::RubyClass,
-                            Attribute => Domgen::Ruby::RubyAttribute,
-                            DataModule => Domgen::Ruby::RubyModule )
 end

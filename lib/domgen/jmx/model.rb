@@ -13,14 +13,22 @@
 #
 
 module Domgen
-  module JMX
-    class JmxClass < Domgen.ParentedElement(:service)
+  FacetManager.facet(:jmx => [:java]) do |facet|
+    facet.enhance(Repository) do
+      attr_writer :domain_name
+
+      def domain_name
+        @domain_name || repository.name
+      end
+    end
+
+    facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :service, :service, :server, :ee, '#{service.name}MXBean'
     end
 
-    class JmxParameter < Domgen.ParentedElement(:parameter)
+    facet.enhance(Parameter) do
       include Domgen::Java::EEJavaCharacteristic
 
       protected
@@ -30,10 +38,7 @@ module Domgen
       end
     end
 
-    class JmxMethod < Domgen.ParentedElement(:service)
-    end
-
-    class JmxReturn < Domgen.ParentedElement(:result)
+    facet.enhance(Result) do
       include Domgen::Java::EEJavaCharacteristic
 
       protected
@@ -42,31 +47,5 @@ module Domgen
         result
       end
     end
-
-    class JmxException < Domgen.ParentedElement(:exception)
-    end
-
-    class JmxPackage < Domgen.ParentedElement(:data_module)
-    end
-
-    class JmxApplication < Domgen.ParentedElement(:repository)
-      attr_writer :domain_name
-
-      def domain_name
-        @domain_name || repository.name
-      end
-    end
   end
-
-  FacetManager.define_facet(:jmx,
-                            {
-                              Service => Domgen::JMX::JmxClass,
-                              Method => Domgen::JMX::JmxMethod,
-                              Parameter => Domgen::JMX::JmxParameter,
-                              Exception => Domgen::JMX::JmxException,
-                              Result => Domgen::JMX::JmxReturn,
-                              DataModule => Domgen::JMX::JmxPackage,
-                              Repository => Domgen::JMX::JmxApplication
-                            },
-                            [:java])
 end

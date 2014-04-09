@@ -49,7 +49,7 @@ module Domgen
       end
 
       def quote_string(string)
-        string.gsub("\'","''")
+        string.gsub("\'", "''")
       end
 
       def disallow_blank_constraint(column_name)
@@ -82,9 +82,9 @@ module Domgen
       end
 
       def post_verify_table_customization(table)
-        table.entity.attributes.select{ |a| a.sql? && a.geometry? }.each do |a|
+        table.entity.attributes.select { |a| a.sql? && a.geometry? }.each do |a|
           constraint_name = "#{a.name}_ValidGeometry"
-          table.constraint(constraint_name, :sql => "ST_IsValid(#{quote(a.sql.column_name)})" ) unless table.constraint_by_name(constraint_name)
+          table.constraint(constraint_name, :sql => "ST_IsValid(#{quote(a.sql.column_name)})") unless table.constraint_by_name(constraint_name)
 
           if a.geometry.geometry_type == :geometry
             if a.geometry.dimensions
@@ -106,7 +106,7 @@ module Domgen
       end
 
       def quote_string(string)
-        string.gsub("\'","''")
+        string.gsub("\'", "''")
       end
 
       def disallow_blank_constraint(column_name)
@@ -136,9 +136,9 @@ module Domgen
       end
 
       def post_verify_table_customization(table)
-        table.entity.attributes.select{ |a| a.sql? && a.geometry? }.each do |a|
+        table.entity.attributes.select { |a| a.sql? && a.geometry? }.each do |a|
           constraint_name = "#{a.name}_ValidGeometry"
-          table.constraint(constraint_name, :sql => "#{quote(a.sql.column_name)}.STIsValid() = 1" ) unless table.constraint_by_name(constraint_name)
+          table.constraint(constraint_name, :sql => "#{quote(a.sql.column_name)}.STIsValid() = 1") unless table.constraint_by_name(constraint_name)
 
           if a.geometry.geometry_type != :geometry
             label = {
@@ -185,15 +185,6 @@ module Domgen
     end
 
     class SqlSchema < Domgen.ParentedElement(:data_module)
-      attr_writer :schema
-
-      def schema
-        @schema || data_module.name
-      end
-
-      def quoted_schema
-        Domgen::Sql.dialect.quote(self.schema)
-      end
     end
 
     class Index < Domgen.ParentedElement(:table)
@@ -435,7 +426,7 @@ module Domgen
 
       # The SQL generated in constraint
       def constraint_sql
-        parameter_string = parameters.collect{|parameter_name| "  #{table.entity.attribute_by_name(parameter_name).sql.column_name}"}.join(",")
+        parameter_string = parameters.collect { |parameter_name| "  #{table.entity.attribute_by_name(parameter_name).sql.column_name}" }.join(",")
         function_call = "#{self.qualified_function_name}(#{parameter_string}) = 1"
         (self.or_conditions + [function_call]).join(" OR ")
       end
@@ -531,8 +522,52 @@ module Domgen
         "Action[#{self.qualified_trigger_name}]"
       end
     end
+  end
 
-    class Table < Domgen.ParentedElement(:entity)
+  FacetManager.facet(:sql) do |facet|
+    facet.enhance(Repository) do
+      def error_handler
+        @error_handler ||= Proc.new do |error_message|
+          "RAISERROR ('#{error_message}', 16, 1) WITH SETERROR"
+        end
+      end
+
+      def define_error_handler(&block)
+        @error_handler = block
+      end
+
+      def emit_error(error_message)
+        error_handler.call(error_message)
+      end
+
+      def pre_verify
+        self.repository.data_modules.select { |data_module| data_module.sql? }.each do |dm|
+          self.repository.data_modules.select { |data_module| data_module.sql? }.each do |other|
+            if dm != other && dm.sql.schema.to_s == other.sql.schema.to_s
+              Domgen.error("Multiple data modules (#{dm.name} && #{other.name}) are mapped to the same schema #{other.sql.schema}")
+            end
+          end
+        end
+      end
+
+      def to_s
+        "Database[#{self.repository.name}]"
+      end
+    end
+
+    facet.enhance(DataModule) do
+      attr_writer :schema
+
+      def schema
+        @schema || data_module.name
+      end
+
+      def quoted_schema
+        Domgen::Sql.dialect.quote(self.schema)
+      end
+    end
+
+    facet.enhance(Entity) do
       attr_writer :table_name
       attr_accessor :partition_scheme
 
@@ -542,17 +577,6 @@ module Domgen
       # should be set to false unless the data columns are infrequently accessed relative to the other columns
       # TODO: MSSQL Specific
       attr_accessor :force_overflow_for_large_objects
-
-      def initialize(entity, options = {}, &block)
-        @indexes = Domgen::OrderedHash.new
-        @constraints = Domgen::OrderedHash.new
-        @function_constraints = Domgen::OrderedHash.new
-        @validations = Domgen::OrderedHash.new
-        @actions = Domgen::OrderedHash.new
-        @triggers = Domgen::OrderedHash.new
-        @foreign_keys = Domgen::OrderedHash.new
-        super(entity, options, &block)
-      end
 
       def table_name
         @table_name ||= sql_name(:table, entity.name)
@@ -566,83 +590,123 @@ module Domgen
         "#{entity.data_module.sql.quoted_schema}.#{quoted_table_name}"
       end
 
+      def constraint_values
+        @constraint_values ||= Domgen::OrderedHash.new
+      end
+
       def constraints
-        @constraints.values
+        constraint_values.values
       end
 
       def constraint_by_name(name)
-        @constraints[name.to_s]
+        constraint_values[name.to_s]
       end
 
       def constraint(name, options = {}, &block)
         existing = constraint_by_name(name)
         Domgen.error("Constraint named #{name} already defined on table #{qualified_table_name}") if existing
         constraint = Constraint.new(self, name, options, &block)
-        @constraints[name.to_s] = constraint
+        constraint_values[name.to_s] = constraint
         constraint
       end
 
+      def function_constraint_values
+        @function_constraint_values ||= Domgen::OrderedHash.new
+      end
+
       def function_constraints
-        @function_constraints.values
+        function_constraint_values.values
       end
 
       def function_constraint_by_name(name)
-        @function_constraints[name.to_s]
-      end
-
-      def function_constraint(name, parameters, options = {}, &block)
-        existing = function_constraint_by_name(name)
-        Domgen.error("Function Constraint named #{name} already defined on table #{qualified_table_name}") if existing
-        function_constraint = FunctionConstraint.new(self, name, parameters, options, &block)
-        @function_constraints[name.to_s] = function_constraint
+        function_constraint = function_constraint_values[name.to_s]
+        Domgen.error("No Function Constraint named #{name} defined on table #{qualified_table_name}") unless function_constraint
         function_constraint
       end
 
+      def function_constraint?(name)
+        !!function_constraint_values[name.to_s]
+      end
+
+      def function_constraint(name, parameters, options = {}, &block)
+        Domgen.error("Function Constraint named #{name} already defined on table #{qualified_table_name}") if function_constraint?(name)
+        function_constraint = Domgen::Sql::FunctionConstraint.new(self, name, parameters, options, &block)
+        function_constraint_values[name.to_s] = function_constraint
+        function_constraint
+      end
+
+      def validation_values
+        @validation_values ||= Domgen::OrderedHash.new
+      end
+
       def validations
-        @validations.values
+        validation_values.values
       end
 
       def validation_by_name(name)
-        @validations[name.to_s]
-      end
-
-      def validation(name, options = {}, &block)
-        existing = validation_by_name(name)
-        Domgen.error("Validation named #{name} already defined on table #{qualified_table_name}") if existing
-        validation = Validation.new(self, name, options, &block)
-        @validations[name.to_s] = validation
+        validation = validation_values[name.to_s]
+        Domgen.error("No validation named #{name} defined on table #{qualified_table_name}") unless validation
         validation
       end
 
+      def validation?(name)
+        !!validation_values[name.to_s]
+      end
+
+      def validation(name, options = {}, &block)
+        Domgen.error("Validation named #{name} already defined on table #{qualified_table_name}") if validation?(name)
+        validation = Domgen::Sql::Validation.new(self, name, options, &block)
+        validation_values[name.to_s] = validation
+        validation
+      end
+
+      def action_values
+        @action_values ||= Domgen::OrderedHash.new
+      end
+
       def actions
-        @actions.values
+        action_values.values
       end
 
       def action_by_name(name)
-        @actions[name.to_s]
-      end
-
-      def action(name, options = {}, &block)
-        existing = action_by_name(name)
-        Domgen.error("Action named #{name} already defined on table #{qualified_table_name}") if existing
-        action = Action.new(self, name, options, &block)
-        @actions[name.to_s] = action
+        action = action_values[name.to_s]
+        Domgen.error("No action named #{name} defined on table #{qualified_table_name}") unless action
         action
       end
 
+      def action?(name)
+        !!action_values[name.to_s]
+      end
+
+      def action(name, options = {}, &block)
+        Domgen.error("Action named #{name} already defined on table #{qualified_table_name}") if action?(name)
+        action = Action.new(self, name, options, &block)
+        action_values[name.to_s] = action
+        action
+      end
+
+      def trigger_values
+        @trigger_values ||= Domgen::OrderedHash.new
+      end
+
       def triggers
-        @triggers.values
+        trigger_values.values
       end
 
       def trigger_by_name(name)
-        @triggers[name.to_s]
+        trigger = trigger_values[name.to_s]
+        Domgen.error("No trigger named #{name} on table #{qualified_table_name}") unless trigger
+        trigger
+      end
+
+      def trigger?(name)
+        !!trigger_values[name.to_s]
       end
 
       def trigger(name, options = {}, &block)
-        existing = trigger_by_name(name)
-        Domgen.error("Trigger named #{name} already defined on table #{qualified_table_name}") if existing
-        trigger = Trigger.new(self, name, options, &block)
-        @triggers[name.to_s] = trigger
+        Domgen.error("Trigger named #{name} already defined on table #{qualified_table_name}") if trigger?(name)
+        trigger = Domgen::Sql::Trigger.new(self, name, options, &block)
+        trigger_values[name.to_s] = trigger
         trigger
       end
 
@@ -650,32 +714,40 @@ module Domgen
         index(attribute_names, options.merge(:index_type => :cluster), &block)
       end
 
+      def index_values
+        @index_values ||= Domgen::OrderedHash.new
+      end
+
       def indexes
-        @indexes.values
+        index_values.values
       end
 
       def index(attribute_names, options = {}, skip_if_present = false, &block)
-        index = Index.new(self, attribute_names, options, &block)
-        return if @indexes[index.index_name] && skip_if_present
-        Domgen.error("Index named #{index.index_name} already defined on table #{qualified_table_name}") if @indexes[index.index_name]
-        @indexes[index.index_name] = index
+        index = Domgen::Sql::Index.new(self, attribute_names, options, &block)
+        return if index_values[index.index_name] && skip_if_present
+        Domgen.error("Index named #{index.index_name} already defined on table #{qualified_table_name}") if index_values[index.index_name]
+        index_values[index.index_name] = index
         index
       end
 
+      def foreign_key_values
+        @foreign_key_values ||= Domgen::OrderedHash.new
+      end
+
       def foreign_keys
-        @foreign_keys.values
+        foreign_key_values.values
       end
 
       def foreign_key(attribute_names, referenced_entity_name, referenced_attribute_names, options = {}, skip_if_present = false, &block)
-        foreign_key = ForeignKey.new(self, attribute_names, referenced_entity_name, referenced_attribute_names, options, &block)
-        return if @indexes[foreign_key.name] && skip_if_present
-        Domgen.error("Foreign Key named #{foreign_key.name} already defined on table #{table_name}") if @indexes[foreign_key.name]
-        @foreign_keys[foreign_key.name] = foreign_key
+        foreign_key = Domgen::Sql::ForeignKey.new(self, attribute_names, referenced_entity_name, referenced_attribute_names, options, &block)
+        return if foreign_key_values[foreign_key.name] && skip_if_present
+        Domgen.error("Foreign Key named #{foreign_key.name} already defined on table #{table_name}") if foreign_key_values[foreign_key.name]
+        foreign_key_values[foreign_key.name] = foreign_key
         foreign_key
       end
 
       def post_verify
-        if self.partition_scheme && indexes.select{|index|index.cluster?}.empty?
+        if self.partition_scheme && indexes.select { |index| index.cluster? }.empty?
           Domgen.error("Must specify a clustered index if using a partition scheme")
         end
 
@@ -730,7 +802,7 @@ SQL
         end
 
         entity.attributes.select { |a| a.enumeration? && a.enumeration.numeric_values? }.each do |a|
-          sorted_values = (0..(a.enumeration.values.length)).collect{|v|v}
+          sorted_values = (0..(a.enumeration.values.length)).collect { |v| v }
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.quoted_column_name} >= #{sorted_values[0]} AND
@@ -743,15 +815,15 @@ SQL
 #{a.sql.quoted_column_name} IN (#{a.enumeration.values.collect { |v| "'#{v}'" }.join(',')})
 SQL
         end
-        entity.attributes.select{ |a| (a.allows_length?) && !a.allow_blank? }.each do |a|
+        entity.attributes.select { |a| (a.allows_length?) && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
           sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
-          constraint(constraint_name, :sql => sql ) unless constraint_by_name(constraint_name)
+          constraint(constraint_name, :sql => sql) unless constraint_by_name(constraint_name)
         end
 
         entity.attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
-          validation(validation_name, :negative_sql => <<SQL, :after => :update) unless validation_by_name(validation_name)
+          validation(validation_name, :negative_sql => <<SQL, :after => :update) unless validation?(validation_name)
 SELECT I.#{a.entity.primary_key.sql.quoted_column_name}
 FROM
 inserted I
@@ -796,7 +868,7 @@ SQL
           comparison_id = "C0.#{scoping_attribute.sql.column_name}"
 
           functional_constraint_name = "#{c.name}_Scope"
-          if !function_constraint_by_name(functional_constraint_name)
+          unless function_constraint?(functional_constraint_name)
             function_constraint(functional_constraint_name, [c.attribute_name, c.attribute_name_path[0]]) do |constraint|
               constraint.invariant = true
               start_attribute = self.entity.attribute_by_name(c.attribute_name)
@@ -827,7 +899,7 @@ SQL
           pk = self.entity.primary_key
 
           validation_name = "Immuter"
-          unless validation_by_name(validation_name)
+          unless validation?(validation_name)
             guard = immutable_attributes.collect { |a| "UPDATE(#{a.sql.quoted_column_name})" }.join(" OR ")
             validation(validation_name, :negative_sql => <<SQL, :after => :update, :guard => guard)
 SELECT I.#{pk.sql.quoted_column_name}
@@ -836,15 +908,15 @@ WHERE
   I.#{pk.sql.quoted_column_name} = D.#{pk.sql.quoted_column_name} AND
   (
 #{immutable_attributes.collect do |a|
-  if a.geometry?
-    "    (I.#{a.sql.quoted_column_name}.STEquals(D.#{a.sql.quoted_column_name}) = 0)"
-  else
-    "    (I.#{a.sql.quoted_column_name} != D.#{a.sql.quoted_column_name})"
-  end
-end.join(" OR\n") }
+              if a.geometry?
+                "    (I.#{a.sql.quoted_column_name}.STEquals(D.#{a.sql.quoted_column_name}) = 0)"
+              else
+                "    (I.#{a.sql.quoted_column_name} != D.#{a.sql.quoted_column_name})"
+              end
+            end.join(" OR\n") }
   )
 SQL
-         end
+          end
         end
 
         abstract_relationships = self.entity.attributes.select { |a| a.reference? && a.referenced_entity.abstract? }
@@ -857,7 +929,7 @@ SQL
             names = concrete_subtypes.keys
             validation_name = "#{attribute.name}ForeignKey"
             #TODO: Turn this into a functional validation
-            if !validation_by_name(validation_name)
+            unless validation?(validation_name)
               guard = "UPDATE(#{attribute.sql.quoted_column_name})"
               sql = <<SQL
       SELECT I.#{self.entity.primary_key.sql.quoted_column_name}
@@ -871,14 +943,14 @@ SQL
               (0..(names.size - 2)).each do |index|
                 sql << " OR\n (#{names[index] }.#{Domgen::Sql.dialect.quote("ID")} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{Domgen::Sql.dialect.quote("ID")} IS NOT NULL" }.join(' OR ') }))"
               end
-              validation(validation_name, :negative_sql => sql, :guard => guard) unless validation_by_name(validation_name)
+              validation(validation_name, :negative_sql => sql, :guard => guard) unless validation?(validation_name)
             end
           end
         end
 
         if self.entity.read_only?
           trigger_name = "ReadOnlyCheck"
-          unless trigger_by_name(trigger_name)
+          unless trigger?(trigger_name)
             trigger(trigger_name) do |trigger|
               trigger.description("Ensure that #{self.entity.name} is read only.")
               trigger.after = []
@@ -888,11 +960,11 @@ SQL
           end
         end
 
-        Trigger::VALID_AFTER.each do |after|
+        Domgen::Sql::Trigger::VALID_AFTER.each do |after|
           desc = "Trigger after #{after} on #{self.entity.name}\n\n"
           sql = ""
-          validations = self.validations.select {|v| v.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
-          actions = self.actions.select {|a| a.after.include?(after)}.sort { |a, b| b.priority <=> a.priority }
+          validations = self.validations.select { |v| v.after.include?(after) }.sort { |a, b| b.priority <=> a.priority }
+          actions = self.actions.select { |a| a.after.include?(after) }.sort { |a, b| b.priority <=> a.priority }
           if !validations.empty? || !actions.empty?
             trigger_name = "After#{after.to_s.capitalize}"
             trigger(trigger_name) do |trigger|
@@ -904,7 +976,7 @@ SQL
                   sql += <<SQL
 ;
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
-#{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})
+                  #{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
     ROLLBACK
@@ -955,8 +1027,7 @@ SQL
       end
     end
 
-    class Column < Domgen.ParentedElement(:attribute)
-
+    facet.enhance(Attribute) do
       attr_accessor :column_name
 
       def column_name
@@ -983,7 +1054,7 @@ SQL
       attr_writer :identity
 
       def identity?
-        @identity.nil? ? attribute.generated_value? && attribute.primary_key?  : @identity
+        @identity.nil? ? attribute.generated_value? && attribute.primary_key? : @identity
       end
 
       # TODO: MSSQL Specific
@@ -1038,42 +1109,6 @@ SQL
         "Column[#{self.quoted_column_name}]"
       end
     end
-
-    class Database < Domgen.ParentedElement(:repository)
-      def initialize(repository, options = {}, &block)
-        @error_handler = Proc.new do |error_message|
-          "RAISERROR ('#{error_message}', 16, 1) WITH SETERROR"
-        end
-        super(repository, options, & block)
-      end
-
-      def define_error_handler(&block)
-        @error_handler = block
-      end
-
-      def emit_error(error_message)
-        @error_handler.call(error_message)
-      end
-
-      def pre_verify
-        self.repository.data_modules.select{|data_module| data_module.sql?}.each do |dm|
-          self.repository.data_modules.select{|data_module| data_module.sql?}.each do |other|
-            if dm != other && dm.sql.schema.to_s == other.sql.schema.to_s
-              Domgen.error("Multiple data modules (#{dm.name} && #{other.name}) are mapped to the same schema #{other.sql.schema}")
-            end
-          end
-        end
-      end
-
-      def to_s
-        "Database[#{self.repository.name}]"
-      end
-    end
   end
 
-  FacetManager.define_facet(:sql,
-                            Attribute => Domgen::Sql::Column,
-                            Entity => Domgen::Sql::Table,
-                            DataModule => Domgen::Sql::SqlSchema,
-                            Repository => Domgen::Sql::Database)
 end

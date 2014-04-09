@@ -13,14 +13,31 @@
 #
 
 module Domgen
-  module AutoBean
-    class AutoBeanStruct < Domgen.ParentedElement(:struct)
+  FacetManager.facet(:auto_bean => [:jackson, :imit]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::JavaClientServerApplication
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :factory, :data_type, :client, :auto_bean, '#{repository.name}Factory'
+    end
+
+    facet.enhance(DataModule) do
+      include Domgen::Java::ImitJavaPackage
+    end
+
+    facet.enhance(EnumerationSet) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :name, :data_type, :client, :auto_bean, '#{enumeration.name}'
+    end
+
+    facet.enhance(Struct) do
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :name, :data_type, :client, :auto_bean, '#{struct.name}'
     end
 
-    class AutoBeanbStructField < Domgen.ParentedElement(:field)
+    facet.enhance(StructField) do
       include Domgen::Java::ImitJavaCharacteristic
 
       def name
@@ -33,34 +50,5 @@ module Domgen
         field
       end
     end
-
-    class AutoBeanEnumeration < Domgen.ParentedElement(:enumeration)
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :name, :data_type, :client, :auto_bean, '#{enumeration.name}'
-    end
-
-    class AutoBeanPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::ImitJavaPackage
-    end
-
-    class AutoBeanApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::JavaClientServerApplication
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :factory, :data_type, :client, :auto_bean, '#{repository.name}Factory'
-    end
   end
-
-  FacetManager.define_facet(:auto_bean,
-                            {
-                              Struct => Domgen::AutoBean::AutoBeanStruct,
-                              StructField => Domgen::AutoBean::AutoBeanbStructField,
-                              EnumerationSet => Domgen::AutoBean::AutoBeanEnumeration,
-                              DataModule => Domgen::AutoBean::AutoBeanPackage,
-                              Repository => Domgen::AutoBean::AutoBeanApplication
-                            },
-                            # jackson required as it defines the mapping to json-ish conventions
-                            [:json, :jackson, :imit])
-
 end

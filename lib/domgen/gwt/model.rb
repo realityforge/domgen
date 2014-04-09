@@ -13,58 +13,28 @@
 #
 
 module Domgen
-  module GWT
-    class GwtEnumeration < Domgen.ParentedElement(:enumeration)
+  FacetManager.facet(:gwt => [:java]) do |facet|
+    facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
 
-      java_artifact :name, :data_type, :client, :gwt, '#{enumeration.name}'
-    end
+      attr_writer :client_event_package
 
-    class GwtStruct < Domgen.ParentedElement(:struct)
-      include Domgen::Java::BaseJavaGenerator
-
-      # Needed to hook into standard java type resolution code
-      def qualified_name
-        self.qualified_interface_name
+      def client_event_package
+        @client_event_package || "#{client_package}.event"
       end
 
-      java_artifact :interface, :data_type, :client, :gwt, '#{struct.name}'
-      java_artifact :jso, :data_type, :client, :gwt, 'Jso#{struct.name}'
-      java_artifact :java, :data_type, :client, :gwt, 'Java#{struct.name}'
-      java_artifact :factory, :data_type, :client, :gwt, '#{struct.name}Factory'
-    end
-
-    class GwtStructField < Domgen.ParentedElement(:field)
-      include Domgen::Java::ImitJavaCharacteristic
-
-      def name
-        field.name
-      end
+      java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
+      java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
 
       protected
 
-      def characteristic
-        field
+      def facet_key
+        :gwt
       end
     end
 
-    class GwtEvent < Domgen.ParentedElement(:message)
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :event, :event, :client, :gwt, '#{message.name}Event'
-    end
-
-    class GwtEventParameter < Domgen.ParentedElement(:parameter)
-      include Domgen::Java::ImitJavaCharacteristic
-
-      protected
-
-      def characteristic
-        parameter
-      end
-    end
-
-    class GwtModule < Domgen.ParentedElement(:data_module)
+    facet.enhance(DataModule) do
       include Domgen::Java::ClientServerJavaPackage
 
       attr_writer :client_data_type_package
@@ -86,47 +56,54 @@ module Domgen
       end
     end
 
-    class GwtReturn < Domgen.ParentedElement(:result)
+    facet.enhance(Message) do
+      include Domgen::Java::BaseJavaGenerator
 
+      java_artifact :event, :event, :client, :gwt, '#{message.name}Event'
+    end
+
+    facet.enhance(MessageParameter) do
       include Domgen::Java::ImitJavaCharacteristic
 
       protected
 
       def characteristic
-        result
+        parameter
       end
     end
 
-    class GwtApplication < Domgen.ParentedElement(:repository)
+    facet.enhance(Struct) do
       include Domgen::Java::BaseJavaGenerator
-      include Domgen::Java::JavaClientServerApplication
 
-      attr_writer :client_event_package
-
-      def client_event_package
-        @client_event_package || "#{client_package}.event"
+      # Needed to hook into standard java type resolution code
+      def qualified_name
+        self.qualified_interface_name
       end
 
-      java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
-      java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
+      java_artifact :interface, :data_type, :client, :gwt, '#{struct.name}'
+      java_artifact :jso, :data_type, :client, :gwt, 'Jso#{struct.name}'
+      java_artifact :java, :data_type, :client, :gwt, 'Java#{struct.name}'
+      java_artifact :factory, :data_type, :client, :gwt, '#{struct.name}Factory'
+    end
+
+    facet.enhance(StructField) do
+      include Domgen::Java::ImitJavaCharacteristic
+
+      def name
+        field.name
+      end
 
       protected
 
-      def facet_key
-        :gwt
+      def characteristic
+        field
       end
     end
-  end
 
-  FacetManager.define_facet(:gwt,
-                            {
-                              EnumerationSet => Domgen::GWT::GwtEnumeration,
-                              Struct => Domgen::GWT::GwtStruct,
-                              StructField => Domgen::GWT::GwtStructField,
-                              Message => Domgen::GWT::GwtEvent,
-                              MessageParameter => Domgen::GWT::GwtEventParameter,
-                              DataModule => Domgen::GWT::GwtModule,
-                              Repository => Domgen::GWT::GwtApplication
-                            },
-                            [:java])
+    facet.enhance(EnumerationSet) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :name, :data_type, :client, :gwt, '#{enumeration.name}'
+    end
+  end
 end
