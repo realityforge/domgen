@@ -1,5 +1,4 @@
 * Imit: Generate events for subscriptions starting and completing on the client side.
-* JWS: Generate client code by callout?
 * JWS: Add ability to document wsdl
 * Generate documentation indicating the template groups, contained artifacts, facet list, facet configurations
   etc from metadata attached to code.
@@ -23,9 +22,6 @@
   generate abstract service with required dependencies and update the uml generated.
 * Add xor constraint
 * Add state machine (based on rails gem or erlang library?)
-* Figure out mechanism for declaring converters for jpa fields - derive from data type?
-* Add converters to the list of classes in persistence unit
-* Add ability to configure the set of classes in persistence unit. Can we also declare extra named/native queries there?
 * Add validation annotations; @NotNull, @Pattern, @Past
 * Add unique constraints in jpa ala
 - http://lucasterdev.altervista.org/wordpress/2012/07/28/unique-constraint-validation-part-1/
