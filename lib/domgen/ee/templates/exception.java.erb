@@ -4,7 +4,7 @@ package <%= to_package(exception.ee.qualified_name) %>;
 <%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% if exception.ejb? %>@javax.ejb.ApplicationException( rollback = <%= exception.ejb.rollback? %>, inherited = true )<% end %>
-public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? "java.lang.Exception" : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
+public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
 {
 <% exception.parameters.each do |parameter| %>
   <%= annotated_type(parameter, :ee, :boundary, :private => true) %> <%= parameter.name %>;

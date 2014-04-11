@@ -543,5 +543,36 @@ module Domgen
         @base_package || Domgen::Naming.underscore(repository.name)
       end
     end
+
+    facet.enhance(Exception) do
+      def runtime?
+        :runtime == exception_category
+      end
+
+      def normal?
+        :normal == exception_category
+      end
+
+      def error?
+        :error == exception_category
+      end
+
+      def standard_extends
+        runtime? ? 'java.lang.RuntimeException' : normal? ? 'java.lang.Exception' : 'java.lang.Error'
+      end
+
+      def exception_category
+        @exception_category || :normal
+      end
+
+      def exception_category=(exception_category)
+        raise "Invalid exception category #{exception_category}" unless valid_exception_categories.include?(exception_category)
+        @exception_category = exception_category
+      end
+
+      def valid_exception_categories
+        [:normal, :runtime, :error]
+      end
+    end
   end
 end
