@@ -27,7 +27,7 @@ public interface <%= service.jws.java_service_name %>
   @javax.xml.ws.ResponseWrapper( localName = "<%= method.name %>Response", targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, className = "<%= service.jws.qualified_java_service_name %>$<%= method.name %>Response" )
   @javax.xml.ws.Action( input = "<%= method.jws.input_action %>", output = "<%= method.jws.output_action %>", fault = {<% method.exceptions.each do |exception|
 %>
-    @javax.xml.ws.FaultAction( className = <%= exception.jws.qualified_name %>.class, value = "<%= exception.jws.fault_action(method) %>" )
+    @javax.xml.ws.FaultAction( className = <%= exception.jws.qualified_name %>.class, value = "<%= exception.jws.fault_action(method) %>" ),
 <% end %>} )
 <% if method.return_value.return_type != :void -%>
   @javax.jws.WebResult( targetNamespace = "" )
