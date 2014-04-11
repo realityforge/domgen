@@ -106,7 +106,7 @@ end
   public void call<%= method_name_prefix %>Error<%= exception.name %>()
     throws Exception
   {
-    org.mockito.Mockito.when( get<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>().<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p|java_characteristic_fixture(p)}.join(",") %>) ).thenThrow( new <%= exception.jws.qualified_name  %>( "Damn!", new <%= exception.jws.qualified_fault_info_name %>(<%= exception.parameters.collect{|p|java_characteristic_fixture(p)}.join(", ") %>), null ) );
+    org.mockito.Mockito.doThrow( new <%= exception.jws.qualified_name  %>( "Damn!", new <%= exception.jws.qualified_fault_info_name %>(<%= exception.parameters.collect{|p|java_characteristic_fixture(p)}.join(", ") %>), null ) ).when( get<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>() ).<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p|java_characteristic_fixture(p)}.join(",") %>);
 
     try
     {
