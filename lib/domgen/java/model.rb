@@ -442,7 +442,7 @@ module Domgen
     module ClientServerJavaPackage
       include BaseJavaPackage
 
-      standard_java_packages([:shared,:client,:server])
+      standard_java_packages([:shared, :client, :server])
     end
 
     module EEClientServerJavaPackage
@@ -476,7 +476,7 @@ module Domgen
 
             key = scope.nil? ? "#{package_key}_package" : "#{scope}_#{package_key}_package"
             scope_package = scope.nil? ? 'package' : "#{scope}_package"
-            idefine_getter(key, Proc.new {"#{self.send(scope_package)}.#{package_key}"})
+            idefine_getter(key, Proc.new { "#{self.send(scope_package)}.#{package_key}" })
             idefine_setter(key)
             sub_packages.each do |sub_package|
               sub_package_ruby_name = sub_package.split('.').reverse.join('_')
@@ -531,7 +531,7 @@ module Domgen
       context_package(:shared)
       context_package(:client)
       context_package(:server)
-      standard_java_packages([:shared,:client,:server])
+      standard_java_packages([:shared, :client, :server])
     end
   end
 
