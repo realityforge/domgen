@@ -7,5 +7,6 @@ public class <%= exception.restygwt.name %> extends <%= exception.extends.nil? ?
 {
   public <%= exception.restygwt.name %>() {}
   public <%= exception.restygwt.name %>( final String message ) { super( message ); }
+  public <%= exception.restygwt.name %>( final Throwable cause ) { super( null, cause ); }
   public <%= exception.restygwt.name %>( final String message, final Throwable cause ) { super( message, cause ); }
 }
