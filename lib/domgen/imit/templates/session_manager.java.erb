@@ -221,7 +221,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
       }
 <% else -%>
       final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
-      getContext().collectRosterList( messages );
+      getContext().collect<%= graph.name %>( messages );
       final org.realityforge.replicant.server.ChangeSet changeSet = org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges();
       populateChangeSetFor<%= graph.name %>( session, <%= graph.instance_root? ? pk_accessor : 'null' %>, changeSet, messages );
 <% end -%>
