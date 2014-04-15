@@ -605,7 +605,7 @@ module Domgen
       def constraint(name, options = {}, &block)
         existing = constraint_by_name(name)
         Domgen.error("Constraint named #{name} already defined on table #{qualified_table_name}") if existing
-        constraint = Constraint.new(self, name, options, &block)
+        constraint = Domgen::Sql::Constraint.new(self, name, options, &block)
         constraint_values[name.to_s] = constraint
         constraint
       end
