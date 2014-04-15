@@ -63,7 +63,14 @@ public final class <%= message.gwt.event_name %>
   {
     return "<%= message.name %>[" + <% if message.parameters.empty? -%>""<% else
     message.parameters.each_with_index do |parameter, i|
-      value = parameter.reference? ? "#{parameter.name}.#{getter_prefix(parameter.referenced_entity.primary_key)}#{(parameter.referenced_entity.primary_key.name)}()" : parameter.name
+      value = parameter.name
+      if parameter.reference?
+        if parameter.collection?
+          value = "\"(Count=\" + #{parameter.name}.size() + \")\""
+        else
+          value = "#{parameter.name}.#{getter_prefix(parameter.referenced_entity.primary_key)}#{(parameter.referenced_entity.primary_key.name)}()"
+        end
+      end
       %> <%= i != 0 ? " + \"\, \" + " : "" %> "<%= parameter.name %>=" + <%= value %> <%
     end
     end -%> + "]";
