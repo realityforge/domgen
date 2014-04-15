@@ -142,6 +142,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
             final org.realityforge.replicant.server.EntityMessageSet entityMessageSet = encode<%= graph.name %>( _<%= repository.entity_by_name(graph.instance_root).name %>Repository.getByID( id ) );
             changeSet.mergeAll( org.realityforge.replicant.server.ChangeUtil.toChanges( entityMessageSet.getEntityMessages(), <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), id ) );
             return true;
+              changeSet.addAction( new org.realityforge.replicant.server.ChannelAction( new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), id ), org.realityforge.replicant.server.ChannelAction.Action.ADD ) );
           }
           else <% end -%>
 
