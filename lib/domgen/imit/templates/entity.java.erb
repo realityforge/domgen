@@ -371,7 +371,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     }
     else
     {
-      final <%= entity.jpa.name %> that = (<%= entity.jpa.name %>) o;
+      final <%= entity.imit.name %> that = (<%= entity.imit.name %>) o;
       return <%=  !entity.primary_key.imit.primitive? ? "null != #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name}() && #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name}().equals( that.get#{entity.primary_key.imit.name}() )" : "#{getter_prefix(entity.primary_key)}#{entity.primary_key.name }() == that.#{getter_prefix(entity.primary_key)}#{entity.primary_key.name }()" %>;
     }
   }
