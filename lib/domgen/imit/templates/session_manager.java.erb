@@ -135,14 +135,17 @@ public abstract class <%= repository.imit.session_manager_name %>
         for ( final org.realityforge.replicant.server.ChannelLink link : links )
         {
           <% repository.imit.graphs.select{|g| g.instance_root? && g.filter_parameter.nil? }.each do |graph| -%>
-if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal() == link.getTargetChannel().getChannelID() && !session.is<%= graph.name %>Interesting( (<%= repository.entity_by_name(graph.instance_root).primary_key.jpa.java_type %>) link.getTargetChannel().getSubChannelID() ) )
+if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal() == link.getTargetChannel().getChannelID() )
           {
-            final <%= repository.entity_by_name(graph.instance_root).primary_key.jpa.java_type %> id = (<%= repository.entity_by_name(graph.instance_root).primary_key.jpa.java_type %>) link.getTargetChannel().getSubChannelID();
-            session.registerInterestIn<%= graph.name %>( id );
-            final org.realityforge.replicant.server.EntityMessageSet entityMessageSet = encode<%= graph.name %>( _<%= repository.entity_by_name(graph.instance_root).name %>Repository.getByID( id ) );
-            changeSet.mergeAll( org.realityforge.replicant.server.ChangeUtil.toChanges( entityMessageSet.getEntityMessages(), <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), id ) );
-            return true;
+            if( !session.is<%= graph.name %>Interesting( (<%= repository.entity_by_name(graph.instance_root).primary_key.jpa.java_type %>) link.getTargetChannel().getSubChannelID() ) )
+            {
+              final <%= repository.entity_by_name(graph.instance_root).primary_key.jpa.java_type %> id = (<%= repository.entity_by_name(graph.instance_root).primary_key.jpa.java_type %>) link.getTargetChannel().getSubChannelID();
+              session.registerInterestIn<%= graph.name %>( id );
+              final org.realityforge.replicant.server.EntityMessageSet entityMessageSet = encode<%= graph.name %>( _<%= repository.entity_by_name(graph.instance_root).name %>Repository.getByID( id ) );
+              changeSet.mergeAll( org.realityforge.replicant.server.ChangeUtil.toChanges( entityMessageSet.getEntityMessages(), <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), id ) );
               changeSet.addAction( new org.realityforge.replicant.server.ChannelAction( new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), id ), org.realityforge.replicant.server.ChannelAction.Action.ADD ) );
+              return true;
+            }
           }
           else <% end -%>
 
