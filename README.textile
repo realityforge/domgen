@@ -84,4 +84,3 @@ h3. Example Explanation
 - @t.sql.index[:PostedAt]@ (Line 26) := Creates an SQL index on that column.
 
 - @t.reference(:Post, :immutable => true, :inverse_multiplicity => :many)@ (Line 31) := A relationship from @Comment@ to @Post@. The @:inverse_relationship => :has_many@ creates a collection model association from @Post@ to @Comment@, i.e _Posts have many comments_ .
-

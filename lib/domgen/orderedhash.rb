@@ -247,4 +247,3 @@ module Domgen
     end
   end # class OrderedHash
 end
-
