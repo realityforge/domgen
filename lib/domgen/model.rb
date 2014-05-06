@@ -347,7 +347,7 @@ module Domgen
 
     attr_reader :name
 
-    def initialize(entity, base_name, options = {}, & block)
+    def initialize(entity, base_name, options = {}, &block)
       super(entity, options) do
         @name = local_name(base_name)
         yield self if block_given?
