@@ -169,10 +169,10 @@ module Domgen
         ::Domgen::Facets.class_eval "module #{module_name}\n end"
         module_instance = ::Domgen::Facets.const_get(module_name)
 
-        valid_source_classes.each_pair do |type, key|
+        valid_source_classes.each_pair do |type, parent_key|
           next if excluded_elements.include?(type)
           extension_name = "#{module_name}#{type.name.gsub(/^.*\:\:(.*)$/, "\\1")}"
-          module_instance.class_eval "class #{extension_name} < ::Domgen.ParentedElement(:#{key}); end"
+          module_instance.class_eval "class #{extension_name} < ::Domgen.ParentedElement(:#{parent_key}); end"
           extension_map[type] = module_instance.const_get(extension_name)
         end
 
