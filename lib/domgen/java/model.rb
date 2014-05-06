@@ -343,7 +343,9 @@ module Domgen
       def self.included(base)
         class << base
           def idefine_method(*args, &block)
-            raise "Method #{args[0]} already defined" if method_defined?(args[0])
+            @defined_methods ||= []
+            raise "Method #{args[0]} already defined" if @defined_methods.include?(args[0])
+            @defined_methods << args[0]
             define_method(*args, &block)
           end
 
