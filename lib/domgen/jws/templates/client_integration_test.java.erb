@@ -37,7 +37,7 @@ def java_create_struct(struct)
   result << ")"
 end
 
-def jws_characteristic_fixture(service, p)
+def jws_characteristic_fixture(service, p, force_singular = false)
   v =
     if p.integer?
       "new java.math.BigInteger( \"42\" )"
@@ -58,7 +58,7 @@ def jws_characteristic_fixture(service, p)
     else
       raise "Unknown parameter type for #{p.qualified_name}"
     end
-  return v if !p.collection?
+  return v if !p.collection? || force_singular
 
   (p.collection_type == :sequence) ? "java.util.Arrays.asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.asList( #{v} ) )"
 end
@@ -96,7 +96,7 @@ end
       org.testng.Assert.assertEquals( actualOutput, expectedResult );
     }
 <% else  -%>
-    org.testng.Assert.assertEquals( result, <%= jws_characteristic_fixture(service, method.return_value) %> );
+    org.testng.Assert.assertEquals( result, <%= jws_characteristic_fixture(service, method.return_value, true) %> );
 <% end -%>
 <% end -%>
   }
