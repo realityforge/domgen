@@ -3,7 +3,7 @@ package <%= to_package(service.gwt_rpc.qualified_proxy_name) %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond" } )
 public class <%= service.gwt_rpc.proxy_name %>
-  implements <%= service.gwt_rpc.facade_service_name %>
+  implements <%= service.gwt_rpc.qualified_facade_service_name %>
 {
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= service.gwt_rpc.proxy_name %>.class.getName() );
   private static final java.util.logging.Level LOG_LEVEL = java.util.logging.Level.INFO;
