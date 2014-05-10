@@ -30,7 +30,7 @@ public class <%= service.jws.boundary_implementation_name %>
 <% method.exceptions.each do |exception| -%>
     catch ( final <%= exception.ee.qualified_name %> e )
     {
-      throw new <%= exception.jws.qualified_name %>( e.getMessage(), new <%= exception.jws.qualified_fault_info_name %>( <%= (exception.inherited_parameters + exception.parameters).collect{|p| "e.#{getter_prefix(p)}#{p.name}()"}.join(', ') %> ), e );
+      throw new <%= exception.jws.qualified_name %>( e.getMessage(), new <%= exception.jws.qualified_fault_info_name %>( <%= (exception.parameters).collect{|p| "e.#{getter_prefix(p)}#{p.name}()"}.join(', ') %> ), e );
     }
 <% end -%>
 <% end -%>

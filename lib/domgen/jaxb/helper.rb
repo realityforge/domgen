@@ -34,8 +34,7 @@ module Domgen
         s << "@javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )\n"
         ns = namespace_annotation_parameter(exception.xml)
         s << "@javax.xml.bind.annotation.XmlRootElement( name = \"#{exception.xml.name}\"#{ns} )\n"
-        params = exception.inherited_parameters + exception.parameters
-        s << "@javax.xml.bind.annotation.XmlType( name = \"#{exception.name}\", propOrder = {#{params.collect{|p| "\"#{p.name}\""}.join(", ")}}#{ns} )\n"
+        s << "@javax.xml.bind.annotation.XmlType( name = \"#{exception.name}\", propOrder = {#{exception.parameters.collect{|p| "\"#{p.name}\""}.join(", ")}}#{ns} )\n"
         s
       end
 
