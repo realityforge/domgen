@@ -70,7 +70,9 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
 <% if service.gwt_rpc.xsrf_protected? %>
     ( (com.google.gwt.user.client.rpc.HasRpcToken) service ).setRpcToken( getXsrfToken() );
 <% end %>
+<% if service.imit? -%>
     ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( org.realityforge.replicant.client.transport.gwt.ReplicantRpcRequestBuilder.INSTANCE );
+<% end -%>
     ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( com.google.gwt.core.client.GWT.getHostPageBaseURL() + "<%= repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_rpc_service_name %>.PATH );
     return service;
   }

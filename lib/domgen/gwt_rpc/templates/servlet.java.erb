@@ -20,8 +20,10 @@ public class <%= service.gwt_rpc.servlet_name %>
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt_rpc.qualified_name}.join(', ')}"
 %>
   {
+<% if method.imit? -%>
     org.realityforge.replicant.server.ee.ReplicantContextHolder.put(org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_HEADER ));
     org.realityforge.replicant.server.ee.ReplicantContextHolder.put(org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_HEADER ));
+<% end -%>
 
 <% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| %>
     final <%= parameter.referenced_struct.ee.qualified_name %> $<%= parameter.name %>;
@@ -151,12 +153,14 @@ end.join(', ') %>);
 <% end %>
     finally
     {
+<% if method.imit? -%>
       final String complete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.get( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY );
       if( null != complete )
       {
         getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, complete );
         org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY );
       }
+<% end -%>
     }
   }
 <% end %>
