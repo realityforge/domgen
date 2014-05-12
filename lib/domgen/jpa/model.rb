@@ -103,7 +103,6 @@ module Domgen
         @properties ||= {
           "eclipselink.logging.logger" => "JavaLogger",
           "eclipselink.session-name" => repository.name,
-          #"eclipselink.logging.level" => "FINE",
           "eclipselink.temporal.mutable" => "false"
         }
       end
