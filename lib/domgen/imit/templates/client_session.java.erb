@@ -30,7 +30,7 @@ public class <%= repository.imit.client_session_name %>
   if graph.instance_root?
     entity = repository.entity_by_name(graph.instance_root)
     graph_id = "#{Domgen::Naming.camelize(entity.name)}#{entity.primary_key.name}"
-    graph_id_param = "final #{Domgen::Java.primitive_java_type(entity.primary_key, :imit, :default)} #{graph_id}"
+    graph_id_param = "final #{Domgen::Java.java_type(entity.primary_key, :imit, :default)} #{graph_id}"
   elsif graph.cacheable?
     cache_key = "#{key}.name()"
   end

@@ -10,7 +10,7 @@ public interface <%= repository.imit.client_session_interface_name %>
   if graph.instance_root?
     # Names are fully qualified so take any random data module
     entity = repository.entity_by_name(graph.instance_root)
-    type = entity.primary_key.imit.primitive_java_type
+    type = entity.primary_key.imit.java_type
     param = "#{type} #{Domgen::Naming.camelize(entity.name)}#{entity.primary_key.name}"
   end
   update_param = param.dup

@@ -84,17 +84,17 @@ else
     return java.util.Collections.unmodifiableSet( _interestedIn<%= graph.name %> );
   }
 
-  public final void registerInterestIn<%= graph.name %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  public final void registerInterestIn<%= graph.name %>( final <%= entity.primary_key.jpa.java_type %> id )
   {
     _interestedIn<%= graph.name %>.add( id );
   }
 
-  public final void deregisterInterestIn<%= graph.name %>( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  public final void deregisterInterestIn<%= graph.name %>( final <%= entity.primary_key.jpa.java_type %> id )
   {
     _interestedIn<%= graph.name %>.remove( id );
   }
 
-  public final boolean is<%= graph.name %>Interesting( final <%= entity.primary_key.jpa.primitive_java_type %> id )
+  public final boolean is<%= graph.name %>Interesting( final <%= entity.primary_key.jpa.java_type %> id )
   {
     return _interestedIn<%= graph.name %>.contains( id );
   }
