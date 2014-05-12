@@ -183,6 +183,15 @@ module Domgen
       java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
       java_artifact :mock_services_module, :ioc, :client, :imit, '#{repository.name}MockImitServicesModule'
 
+      def auto_register_change_recorder=(auto_register_change_recorder)
+        @auto_register_change_recorder = !!auto_register_change_recorder
+      end
+
+      def auto_register_change_recorder?
+        @auto_register_change_recorder.nil? ? true : @auto_register_change_recorder
+      end
+
+
       def graphs
         graph_map.values
       end
@@ -348,7 +357,9 @@ module Domgen
       end
 
       def post_verify
-        entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_recorder_name if entity.jpa?
+        if entity.data_module.repository.imit.auto_register_change_recorder? && entity.jpa?
+          entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_recorder_name
+        end
       end
     end
 
