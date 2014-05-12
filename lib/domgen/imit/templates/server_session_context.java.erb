@@ -62,7 +62,7 @@ else
 <%
       elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
 %>
-  @javax.annotation.Nonnull
+  <%= nullability_annotation(a.inverse.multiplicity == :zero_or_one) %>
   <%= a.entity.jpa.qualified_name %> get<%= a.inverse.name %>In<%= graph.name %>Graph( @javax.annotation.Nonnull <%= a.referenced_entity.jpa.qualified_name %> object, <%= filter_java_type %> filter );
 <%
         end
