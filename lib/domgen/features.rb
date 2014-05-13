@@ -142,7 +142,7 @@ module Domgen
 
     def referenced_entity=(referenced_entity)
       Domgen.error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
-      @referenced_entity = referenced_entity.is_a?(Symbol) ? self.entity_by_name(referenced_entity) : referenced_entity
+      @referenced_entity = (referenced_entity.is_a?(Symbol) || referenced_entity.is_a?(String)) ? self.entity_by_name(referenced_entity) : referenced_entity
     end
 
     # The name of the local field appended with PK of foreign entity
