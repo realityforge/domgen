@@ -59,7 +59,15 @@ Domgen.template_set(:ejb_glassfish_config_assets) do |template_set|
                         :repository,
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/glassfish_ejb.xml.erb",
                         'main/webapp/WEB-INF/glassfish-ejb-jar.xml',
-                        Domgen::Generator::EJB::HELPERS)
+                        Domgen::Generator::EJB::HELPERS,
+                        :name => 'WEB-INF/glassfish-ejb-jar.xml')
 end
-
+Domgen.template_set(:ejb_glassfish_config_resources) do |template_set|
+  template_set.template(Domgen::Generator::EJB::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/glassfish_ejb.xml.erb",
+                        'main/resources/META-INF/glassfish-ejb-jar.xml',
+                        Domgen::Generator::EJB::HELPERS,
+                        :name => 'META-INF/glassfish-ejb-jar.xml')
+end
 Domgen.template_set(:ejb => [:ejb_service_facades, :jpa_ejb_dao])
