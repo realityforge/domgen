@@ -56,7 +56,7 @@ module Domgen
       end
 
       def fetch_type=(fetch_type)
-        Domgen.error("fetch_type #{fetch_type} is not recognized") unless self.class.fetch_types.include?(fetch_type)
+        Domgen.error("fetch_type #{fetch_type} is not recognized") unless BaseJpaField.fetch_types.include?(fetch_type)
         @fetch_type = fetch_type
       end
 
@@ -67,7 +67,7 @@ module Domgen
       attr_reader :fetch_mode
 
       def fetch_mode=(fetch_mode)
-        Domgen.error("fetch_mode #{fetch_mode} is not recognized") unless self.class.fetch_modes.include?(fetch_mode)
+        Domgen.error("fetch_mode #{fetch_mode} is not recognized") unless BaseJpaField.fetch_modes.include?(fetch_mode)
         @fetch_mode = fetch_mode
       end
 
