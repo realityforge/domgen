@@ -60,7 +60,8 @@ def jws_characteristic_fixture(service, p, force_singular = false)
     end
   return v if !p.collection? || force_singular
 
-  (p.collection_type == :sequence) ? "java.util.Arrays.asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.asList( #{v} ) )"
+  # Collections in generated api are always lists
+  "java.util.Arrays.asList( #{v} )"
 end
 
 def jws_create_struct(service, struct)
