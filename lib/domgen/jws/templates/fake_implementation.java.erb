@@ -9,7 +9,7 @@ public class <%= service.jws.fake_implementation_name %>
 {
   private <%= service.jws.qualified_java_service_name %> _delegate;
 
-  final void setDelegate( final <%= service.jws.qualified_java_service_name %> delegate )
+  public final void setDelegate( final <%= service.jws.qualified_java_service_name %> delegate )
   {
     _delegate = delegate;
   }
