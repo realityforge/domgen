@@ -7,7 +7,8 @@ public class <%= repository.jws.client_integration_test_name %>
 {
 <%
 
-def java_characteristic_fixture(p)
+def java_characteristic_fixture(p, parent_context = nil)
+  type_spec = ''
   v =
     if p.integer?
       "42"
@@ -18,7 +19,12 @@ def java_characteristic_fixture(p)
     elsif p.enumeration?
       "#{p.enumeration.ee.qualified_name}.#{p.enumeration.values[0]}"
     elsif p.struct?
-      java_create_struct(p.referenced_struct)
+      if parent_context == p.referenced_struct
+        type_spec = "<#{p.referenced_struct.ee.qualified_name}>"
+        ''
+      else
+        java_create_struct(p.referenced_struct, p.characteristic_container)
+      end
     elsif p.datetime?
       "javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar( \"2014-03-01T10:09:00.000+00:00\" ).toGregorianCalendar().getTime()"
     elsif p.date?
@@ -28,12 +34,12 @@ def java_characteristic_fixture(p)
     else
       raise "Unknown parameter type for #{p.qualified_name}"
     end
-  !p.collection? ? v : (p.collection_type == :sequence) ? "java.util.Arrays.asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.asList( #{v} ) )"
+  !p.collection? ? v : (p.collection_type == :sequence) ? "java.util.Arrays.#{type_spec}asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.#{type_spec}asList( #{v} ) )"
 end
 
-def java_create_struct(struct)
+def java_create_struct(struct, context)
   result = "new #{struct.ee.qualified_name}("
-  result << struct.fields.collect { |p| java_characteristic_fixture(p) }.join(", ")
+  result << struct.fields.collect { |p| java_characteristic_fixture(p, context) }.join(", ")
   result << ")"
 end
 
@@ -46,9 +52,9 @@ def jws_characteristic_fixture(service, p, force_singular = false)
     elsif p.boolean?
       "true"
     elsif p.enumeration?
-      "#{p.service.jws.api_package}.#{p.enumeration.name}.#{p.enumeration.values[0]}"
+      "#{p.method.service.jws.api_package}.#{p.enumeration.name}.#{p.enumeration.values[0]}"
     elsif p.struct?
-      "convert( #{service.jws.api_package}.#{p.referenced_struct.name}.class, #{java_create_struct(p.referenced_struct)} )"
+      "convert( #{service.jws.api_package}.#{p.referenced_struct.name}.class, #{java_create_struct(p.referenced_struct, p.characteristic_container)} )"
     elsif p.datetime?
       "javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar( \"2014-03-01T10:09:00.000+00:00\" )"
     elsif p.date?
