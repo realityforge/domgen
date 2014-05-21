@@ -40,7 +40,7 @@
         </xs:complexType>
       </xs:element>
 <% elsif field.struct? -%>
-      <xs:element ref="<%= data_module.xml.prefix %>:<%= struct.xml.name %>" />
+      <xs:element ref="<%= field.referenced_struct.data_module.xml.prefix %>:<%= field.referenced_struct.xml.name %>" />
 <% end -%>
 <% end -%>
     </xs:sequence>
