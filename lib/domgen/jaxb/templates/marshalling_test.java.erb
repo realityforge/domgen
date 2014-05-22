@@ -29,7 +29,8 @@ public class <%= repository.jaxb.marshalling_test_name %>
 <%
     end
 
-def create_parameter_value(p)
+def create_parameter_value(p, parent_context = nil)
+  type_spec = ''
   v =
     if p.integer?
       "1"
@@ -40,7 +41,12 @@ def create_parameter_value(p)
     elsif p.enumeration?
       "#{p.enumeration.ee.qualified_name}.#{p.enumeration.values[0]}"
     elsif p.struct?
-      create_struct(p.referenced_struct)
+      if parent_context == p.referenced_struct
+        type_spec = "<#{p.referenced_struct.ee.qualified_name}>"
+        ''
+      else
+        create_struct(p.referenced_struct, p.characteristic_container)
+      end
     elsif p.datetime?
       "new java.util.Date(77, 11, 3, 22, 32)"
     elsif p.date?
@@ -50,12 +56,12 @@ def create_parameter_value(p)
     else
       raise "Unknown parameter type for #{p.qualified_name}"
     end
-  !p.collection? ? v : (p.collection_type == :sequence) ? "java.util.Arrays.asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.asList( #{v} ) )"
+  !p.collection? ? v : (p.collection_type == :sequence) ? "java.util.Arrays.#{type_spec}asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.#{type_spec}asList( #{v} ) )"
 end
 
-def create_struct(struct)
+def create_struct(struct, context)
   result = "new #{struct.ee.qualified_name}("
-  result << struct.fields.collect { |p| create_parameter_value(p) }.join(", ")
+  result << struct.fields.collect { |p| create_parameter_value(p, context) }.join(", ")
   result << ")"
 end
 
@@ -66,7 +72,7 @@ end
     throws Exception
   {
     final java.io.StringWriter xml = new java.io.StringWriter();
-    final <%= struct.ee.qualified_name %> input = <%= create_struct(struct) %>;
+    final <%= struct.ee.qualified_name %> input = <%= create_struct(struct, nil) %>;
     javax.xml.bind.JAXB.marshal( input, xml );
     final String data = xml.toString();
 <% if struct.top_level? -%>
