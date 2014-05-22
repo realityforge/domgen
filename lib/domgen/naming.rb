@@ -52,7 +52,7 @@ module Domgen
     end
 
     def self.jsonize(camel_cased_word)
-      underscore(camel_cased_word)
+      camelize(camel_cased_word)
     end
 
     def self.pluralize(string)
