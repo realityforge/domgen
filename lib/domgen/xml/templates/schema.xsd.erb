@@ -28,11 +28,11 @@
     <xs:sequence>
 <% struct.fields.each do |field| -%>
 <% if field.collection? -%>
-      <xs:element name="<%= field.xml.name %>" form="qualified" nillable="false">
+      <xs:element name="<%= field.xml.name %>" nillable="false">
         <xs:complexType>
           <xs:sequence>
 <% if field.struct? -%>
-            <xs:element ref="<%= field.referenced_struct.data_module.xml.prefix %>:<%= field.referenced_struct.xml.name %>" <%= xsd_element_occurrences(field) %>/>
+            <xs:element name="<%= field.xml.component_name %>" type="<%= field.referenced_struct.data_module.xml.prefix %>:<%= field.referenced_struct.name %>" <%= xsd_element_occurrences(field) %>/>
 <% else -%>
             <xs:element name="<%= field.xml.component_name %>" <%= xsd_type(field) %> <%= xsd_element_occurrences(field) %>/>
 <% end -%>
@@ -40,7 +40,7 @@
         </xs:complexType>
       </xs:element>
 <% elsif field.struct? -%>
-      <xs:element ref="<%= field.referenced_struct.data_module.xml.prefix %>:<%= field.referenced_struct.xml.name %>" />
+      <xs:element name="<%= field.xml.name %>" type="<%= field.referenced_struct.data_module.xml.prefix %>:<%= field.referenced_struct.name %>" <%= xsd_element_occurrences(field) %>/>
 <% end -%>
 <% end -%>
     </xs:sequence>
