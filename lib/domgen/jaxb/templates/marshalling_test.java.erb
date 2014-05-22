@@ -79,6 +79,7 @@ end
     final javax.xml.validation.SchemaFactory schemaFactory = javax.xml.validation.SchemaFactory.newInstance( javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI );
     final java.net.URL resource = getClass().getResource( "/<%= data_module.xml.resource_xsd_name %>" );
     org.testng.Assert.assertNotNull( resource );
+    schemaFactory.setResourceResolver( new TestLSResourceResolver() );
     schemaFactory.newSchema( resource ).newValidator().validate( new javax.xml.transform.stream.StreamSource( new java.io.StringReader( data ) ) );
 <% end -%>
     final <%= struct.ee.qualified_name %> output = javax.xml.bind.JAXB.unmarshal( new java.io.StringReader( data ), <%= struct.ee.qualified_name %>.class );
@@ -88,4 +89,159 @@ end
     end
   end
 -%>
+
+  private class TestLSResourceResolver
+    implements org.w3c.dom.ls.LSResourceResolver
+  {
+    @Override
+    public org.w3c.dom.ls.LSInput resolveResource( final String type,
+                                                   final String namespaceURI,
+                                                   final String publicId,
+                                                   final String systemId,
+                                                   final String baseURI )
+    {
+<%
+  repository.data_modules.select{|dm|dm.jaxb?}.each do |data_module|
+%>
+      if ( "<%= data_module.xml.namespace %>".equals( namespaceURI ) ||
+           "<%= data_module.xml.namespace %>".equals( systemId ) ||
+           "<%= data_module.xml.namespace %>".equals( publicId ) )
+      {
+        try
+        {
+          final java.io.InputStream inputStream = getClass().getResourceAsStream( "/<%= data_module.xml.resource_xsd_name %>" );
+          org.testng.Assert.assertNotNull( inputStream );
+          return new TestLSInput( "<%= data_module.xml.namespace %>", "<%= data_module.xml.namespace %>", inputStream );
+        }
+        catch ( final Exception e )
+        {
+          throw new RuntimeException( e );
+        }
+      }
+<%
+  end
+%>      return null;
+    }
+  }
+
+  private static class TestLSInput
+    implements org.w3c.dom.ls.LSInput
+  {
+    private final String _publicID;
+    private final String _systemID;
+    private final java.io.InputStream _inputStream;
+
+    private TestLSInput( final String publicID, final String systemID, final java.io.InputStream inputStream )
+    {
+      _publicID = publicID;
+      _systemID = systemID;
+      _inputStream = inputStream;
+    }
+
+    @Override
+    public java.io.Reader getCharacterStream()
+    {
+      return null;
+    }
+
+    @Override
+    public void setCharacterStream( final java.io.Reader characterStream )
+    {
+    }
+
+    @Override
+    public java.io.InputStream getByteStream()
+    {
+      return null;
+    }
+
+    @Override
+    public void setByteStream( final java.io.InputStream byteStream )
+    {
+    }
+
+    @Override
+    public String getStringData()
+    {
+      synchronized ( _inputStream )
+      {
+        try
+        {
+          final byte[] input = new byte[ _inputStream.available() ];
+          _inputStream.read( input );
+          return new String( input );
+        }
+        catch ( java.io.IOException e )
+        {
+          return null;
+        }
+      }
+    }
+
+    @Override
+    public void setStringData( final String stringData )
+    {
+
+    }
+
+    @Override
+    public String getSystemId()
+    {
+      return _systemID;
+    }
+
+    @Override
+    public void setSystemId( final String systemId )
+    {
+
+    }
+
+    @Override
+    public String getPublicId()
+    {
+      return _publicID;
+    }
+
+    @Override
+    public void setPublicId( final String publicId )
+    {
+
+    }
+
+    @Override
+    public String getBaseURI()
+    {
+      return null;
+    }
+
+    @Override
+    public void setBaseURI( final String baseURI )
+    {
+
+    }
+
+    @Override
+    public String getEncoding()
+    {
+      return null;
+    }
+
+    @Override
+    public void setEncoding( final String encoding )
+    {
+
+    }
+
+    @Override
+    public boolean getCertifiedText()
+    {
+      return false;
+    }
+
+    @Override
+    public void setCertifiedText( final boolean certifiedText )
+    {
+
+    }
+  }
 }
