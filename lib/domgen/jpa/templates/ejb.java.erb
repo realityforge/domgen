@@ -5,9 +5,9 @@ package <%= to_package(entity.jpa.qualified_dao_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
 @javax.ejb.Startup
-@javax.ejb.Stateless( name = <%= entity.jpa.dao_service_name %>.NAME )
+@javax.ejb.Stateless( name = <%= entity.jpa.qualified_dao_service_name %>.NAME )
 public class <%= entity.jpa.dao_name %>
-    implements <%= entity.jpa.dao_service_name %>
+    implements <%= entity.jpa.qualified_dao_service_name %>
 {
   @javax.persistence.PersistenceContext(unitName = <%= entity.data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME)
   private javax.persistence.EntityManager em;
