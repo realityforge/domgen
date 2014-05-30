@@ -2,12 +2,12 @@
 package <%= to_package(service.jws.qualified_boundary_implementation_name) %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.jws.WebService( serviceName = <%= service.jws.java_service_name %>.MetaData.SERVICE_NAME, portName = <%= service.jws.java_service_name %>.MetaData.PORT_NAME, targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, endpointInterface = <%= service.jws.java_service_name %>.MetaData.ENDPOINT_INTERFACE, wsdlLocation = <%= service.jws.java_service_name %>.MetaData.LOCAL_WAR_WSDL_LOCATION )
+@javax.jws.WebService( serviceName = <%= service.jws.qualified_java_service_name %>.MetaData.SERVICE_NAME, portName = <%= service.jws.qualified_java_service_name %>.MetaData.PORT_NAME, targetNamespace = <%= service.jws.qualified_java_service_name %>.MetaData.NAMESPACE, endpointInterface = <%= service.jws.qualified_java_service_name %>.MetaData.ENDPOINT_INTERFACE, wsdlLocation = <%= service.jws.qualified_java_service_name %>.MetaData.LOCAL_WAR_WSDL_LOCATION )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.NEVER )
-@javax.ejb.Singleton( name = <%= service.jws.java_service_name %>.MetaData.EJB_NAME )
+@javax.ejb.Singleton( name = <%= service.jws.qualified_java_service_name %>.MetaData.EJB_NAME )
 @com.sun.xml.ws.developer.SchemaValidation
 public class <%= service.jws.boundary_implementation_name %>
-  implements <%= service.jws.java_service_name %>
+  implements <%= service.jws.qualified_java_service_name %>
 {
   @javax.ejb.EJB
   private <%= service.ejb.qualified_boundary_interface_name %> _service;
