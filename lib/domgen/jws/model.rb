@@ -77,6 +77,14 @@ module Domgen
       def url
         @url || "#{data_module.repository.jws.url}/#{data_module.name}"
       end
+
+      def server_ws_service_package
+        "#{server_service_package}.ws"
+      end
+
+      def server_internal_ws_service_package
+        "#{server_service_package}.ws.internal"
+      end
     end
 
     facet.enhance(Service) do
@@ -139,8 +147,8 @@ module Domgen
       end
 
       java_artifact :service, :service, :server, :ee, '#{service.name}Service'
-      java_artifact :java_service, :service, :server, :ee, '#{web_service_name}WS'
-      java_artifact :boundary_implementation, :service, :server, :ee, '#{web_service_name}WSBoundaryEJB'
+      java_artifact :java_service, :service, :server, :jws, '#{web_service_name}WS', :sub_package => 'ws'
+      java_artifact :boundary_implementation, :service, :server, :jws, '#{web_service_name}WSBoundaryEJB', :sub_package => 'ws.internal'
       java_artifact :fake_implementation, :service, :fake, :jws, 'Fake#{web_service_name}'
     end
 
@@ -185,8 +193,8 @@ module Domgen
     facet.enhance(Exception) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :fault_info, :service, :server, :ee, '#{exception.name}ExceptionInfo'
-      java_artifact :name, :service, :server, :ee, '#{exception.name}_Exception'
+      java_artifact :fault_info, :service, :server, :jws, '#{exception.name}ExceptionInfo', :sub_package => 'ws'
+      java_artifact :name, :service, :server, :jws, '#{exception.name}_Exception', :sub_package => 'ws'
 
       attr_writer :namespace
 

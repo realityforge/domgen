@@ -409,29 +409,29 @@ module Domgen
     def local_name(base_name)
       base_name = base_name.to_s
       if base_name =~ /^[fF]indAll$/
-        self.query_type = :select
-        self.multiplicity = :many
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :many if @multiplicity.nil?
         return base_name
       elsif base_name =~ /^[fF]indAll.+$/
-        self.query_type = :select
-        self.multiplicity = :many
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :many if @multiplicity.nil?
         return base_name
       elsif base_name =~ /^[fF]ind.+$/
-        self.query_type = :select
-        self.multiplicity = :zero_or_one
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :zero_or_one if @multiplicity.nil?
         return base_name
       elsif base_name =~ /^[gG]et.+$/
-        self.query_type = :select
-        self.multiplicity = :one
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :one if @multiplicity.nil?
         return base_name
       elsif base_name =~ /^[uU]pdate.+$/
-        self.query_type = :update
+        self.query_type = :update if @query_type.nil?
         return base_name
       elsif base_name =~ /^[dD]elete.+$/
-        self.query_type = :delete
+        self.query_type = :delete if @query_type.nil?
         return base_name
       elsif base_name =~ /^[iI]nsert.+$/
-        self.query_type = :insert
+        self.query_type = :insert if @query_type.nil?
         return base_name
       elsif self.query_type == :select
         if self.multiplicity == :many
