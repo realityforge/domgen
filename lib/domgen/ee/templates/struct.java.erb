@@ -5,13 +5,14 @@ package <%= to_package(struct.ee.qualified_name) %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <%= jackson_class_annotations(struct) if struct.jackson? -%>
 <%= jaxb_class_annotations(struct) if struct.jaxb? -%>
+
 public class <%= struct.ee.name %>
   implements java.io.Serializable
 {
 <% struct.fields.each do |field| -%>
 <%= "  " + jackson_field_annotation(field) if field.jackson? -%>
 <%= "  " + jaxb_field_annotation(field) if field.jaxb? -%>
-  <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= field.name %>;
+  <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= Domgen::Naming.camelize(field.name) %>;
 <% end -%>
 
 <% if struct.fields.size != 0 %>
@@ -27,16 +28,16 @@ public class <%= struct.ee.name %>
 <% end %>
 
 <% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join(", ") %>})<% end -%>
-  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{field.name}" }.join(", ") %> )
+  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Domgen::Naming.camelize(field.name)}" }.join(", ") %> )
   {
 <% struct.fields.each do |field|
-     null_protection = field.nullable? ? "#{field.name} == null ? null : " : ""
+     null_protection = field.nullable? ? "#{Domgen::Naming.camelize(field.name)} == null ? null : " : ""
      if :sequence == field.collection_type
-%>    this.<%= field.name %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.ee.java_component_type %>>( <%= field.name %> ) );
+%>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.ee.java_component_type %>>( <%= Domgen::Naming.camelize(field.name) %> ) );
 <%     elsif :set == field.collection_type
-%>    this.<%= field.name %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.ee.java_component_type %>>( <%= field.name %> ) );
+%>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.ee.java_component_type %>>( <%= Domgen::Naming.camelize(field.name) %> ) );
   <%     else
-%>    this.<%= field.name %> = <%= field.name %>;
+%>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= Domgen::Naming.camelize(field.name) %>;
 <%   end
    end
 %>  }
@@ -44,7 +45,7 @@ public class <%= struct.ee.name %>
 %>
   <%= annotated_type(field, :ee, :boundary, :public => true, :final => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
-    return <%= field.name %>;
+    return <%= Domgen::Naming.camelize(field.name) %>;
   }
 <% end
 %>
@@ -63,27 +64,27 @@ public class <%= struct.ee.name %>
 
     final <%= struct.ee.name %> that = (<%= struct.ee.name %>) o;
 <% struct.fields.select{|f|!f.collection?}.each do |field| -%>
-    if ( <%= field.ee.primitive?(:boundary) ? "#{field.name} != that.#{field.name}" : "#{field.nullable? ? "null == #{field.name} ? null != that.#{field.name} : " : ''}!#{field.name}.equals( that.#{field.name} )" %> )
+    if ( <%= field.ee.primitive?(:boundary) ? "#{Domgen::Naming.camelize(field.name)} != that.#{Domgen::Naming.camelize(field.name)}" : "#{field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? null != that.#{Domgen::Naming.camelize(field.name)} : " : ''}!#{Domgen::Naming.camelize(field.name)}.equals( that.#{Domgen::Naming.camelize(field.name)} )" %> )
     {
       return false;
     }
 <% end -%>
 <% struct.fields.select{|f|f.collection?}.each do |field| -%>
 <% if field.nullable? -%>
-    if ( (null ==  <%= field.name %> && null !=  that.<%= field.name %>) || (null !=  <%= field.name %> && null ==  that.<%= field.name %>) )
+    if ( (null ==  <%= Domgen::Naming.camelize(field.name) %> && null !=  that.<%= Domgen::Naming.camelize(field.name) %>) || (null !=  <%= Domgen::Naming.camelize(field.name) %> && null ==  that.<%= Domgen::Naming.camelize(field.name) %>) )
     {
       return false;
     }
-    else if ( null != <%= field.name %> )
+    else if ( null != <%= Domgen::Naming.camelize(field.name) %> )
 <% end -%>
     {
-      if ( <%= field.name %>.size() != that.<%= field.name %>.size() )
+      if ( <%= Domgen::Naming.camelize(field.name) %>.size() != that.<%= Domgen::Naming.camelize(field.name) %>.size() )
       {
         return false;
       }
-      for ( final <%= field.ee.java_component_type %> v : <%= field.name %> )
+      for ( final <%= field.ee.java_component_type %> v : <%= Domgen::Naming.camelize(field.name) %> )
       {
-        if ( !that.<%= field.name %>.contains( v ) )
+        if ( !that.<%= Domgen::Naming.camelize(field.name) %>.contains( v ) )
         {
           return false;
         }
@@ -98,7 +99,7 @@ public class <%= struct.ee.name %>
   {
     int result = 0;
 <% struct.fields.each do |field| -%>
-    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{field.name} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{field.name})" : field.name) : "#{field.nullable? ? "null == #{field.name} ? 0 : " : ''}#{field.name}.hashCode()" %>);
+    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Domgen::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Domgen::Naming.camelize(field.name)})" : Domgen::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? 0 : " : ''}#{Domgen::Naming.camelize(field.name)}.hashCode()" %>);
 <% end -%>
     return result;
   }
