@@ -391,7 +391,9 @@ module Domgen
       protected
 
       def pre_verify
-        self.graph_links.each_pair do |source_graph_key, target_graph_key|
+        self.graph_links.each_pair do |source_graph_key, config|
+          target_graph_key = config[:target_graph]
+          path = config[:path]
           source_graph = attribute.entity.data_module.repository.imit.graph_by_name(source_graph_key)
           target_graph = attribute.entity.data_module.repository.imit.graph_by_name(target_graph_key)
           prefix = "Link #{source_graph_key}=>#{target_graph_key} on #{attribute.qualified_name}"
@@ -399,6 +401,16 @@ module Domgen
           raise "#{prefix} must have an non filtered graph on the LHS" unless source_graph.filter_parameter.nil?
           raise "#{prefix} must have an instance graph on the RHS" unless target_graph.instance_root?
           raise "#{prefix} must have an non filtered graph on the RHS" unless target_graph.filter_parameter.nil?
+          if path
+            entity = attribute.referenced_entity
+            path.to_s.split.each_with_index do |attribute_name_path_element, i|
+              other = entity.attribute_by_name(attribute_name_path_element)
+              Domgen.error("Graph link element #{attribute_name_path_element} is nullable") if other.nullable? && i != 0
+              Domgen.error("Graph link element #{attribute_name_path_element} is not immutable") if !other.immutable?
+              Domgen.error("Graph link element #{attribute_name_path_element} is not a reference") if !other.reference?
+              entity = other.referenced_entity
+            end
+          end
           source_graph.links[attribute] = target_graph
         end
       end
