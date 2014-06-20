@@ -4,9 +4,9 @@ package <%= to_package(repository.imit.qualified_data_loader_service_name) %>;
 public abstract class <%= repository.imit.data_loader_service_name %>
   extends org.realityforge.replicant.client.json.gwt.GwtDataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
 {
-  protected <%= repository.imit.data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChangeMapper changeMapper, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker changeBroker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager )
+  protected <%= repository.imit.data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChangeMapper changeMapper, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker changeBroker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager, @javax.annotation.Nonnull final org.realityforge.replicant.client.json.gwt.ReplicantConfig replicantConfig )
   {
-    super( changeMapper, changeBroker, repository, cacheService, subscriptionManager );
+    super( changeMapper, changeBroker, repository, cacheService, subscriptionManager, replicantConfig );
   }
 
   @javax.annotation.Nonnull
