@@ -1,0 +1,34 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_client_router_interface_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public interface <%= repository.imit.client_router_interface_name %>
+{
+<%
+  repository.imit.graphs.each do |graph|
+    key = "#{Domgen::Naming.uppercase_constantize(graph.name)}_KEY"
+-%>
+  String <%= key %> = "<%= repository.name %>.<%= graph.name %>";
+<% end -%>
+<%
+  repository.data_modules.each do |data_module|
+    data_module.entities.each do |entity|
+      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.size > 0}.each do |attribute|
+        attribute.imit.filter_in_graphs.each do |graph_key|
+-%>
+  String <%= Domgen::Naming.uppercase_constantize(graph_key) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY = "<%= repository.name %>.<%= graph_key %>.<%= attribute.qualified_name %>";
+<%
+        end
+      end
+    end
+  end
+%>
+  @javax.annotation.Nonnull
+  java.util.Map<String, java.io.Serializable> route( @javax.annotation.Nonnull Object entity );
+<% repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module| -%>
+<% data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity| -%>
+  @javax.annotation.Nonnull
+  java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.imit.qualified_name rescue "X" %> entity );
+<% end -%>
+<% end -%>
+}

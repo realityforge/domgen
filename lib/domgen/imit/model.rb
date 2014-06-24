@@ -166,6 +166,8 @@ module Domgen
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapper'
       java_artifact :data_loader_service, :comm, :client, :imit, 'Abstract#{repository.name}DataLoaderService'
       java_artifact :client_session, :comm, :client, :imit, '#{repository.name}ClientSessionImpl'
+      java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
+      java_artifact :client_router_impl, :comm, :client, :imit, '#{repository.name}ClientRouterImpl'
       java_artifact :client_session_interface, :comm, :client, :imit, '#{repository.name}ClientSession'
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
       java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'

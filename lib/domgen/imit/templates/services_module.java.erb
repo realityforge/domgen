@@ -11,6 +11,7 @@ public class <%= repository.imit.services_module_name %>
   {
     super.configure();
     bind( org.realityforge.replicant.client.ChangeMapper.class ).to( <%= repository.imit.qualified_change_mapper_name %>.class );
+    bind( <%= repository.imit.qualified_client_router_interface_name %>.class ).to( <%= repository.imit.qualified_client_router_impl_name %>.class );
 <%
   repository.data_modules.select{|data_module| data_module.imit? && data_module.gwt_rpc?}.each do |data_module|
     data_module.services.select{|service| service.imit? && service.gwt_rpc?}.each do |service|

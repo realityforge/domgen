@@ -60,6 +60,16 @@ Domgen.template_set(:imit_entity) do |template_set|
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/change_mapper.java.erb",
                         'main/java/#{repository.imit.qualified_change_mapper_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::HELPERS)
+  template_set.template(Domgen::Generator::Imit::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client_router_impl.java.erb",
+                        'main/java/#{repository.imit.qualified_client_router_impl_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::HELPERS + [Domgen::JPA::Helper, Domgen::Java::Helper])
+  template_set.template(Domgen::Generator::Imit::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client_router_interface.java.erb",
+                        'main/java/#{repository.imit.qualified_client_router_interface_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::HELPERS)
 end
 
 Domgen.template_set(:imit_gwt_proxy) do |template_set|

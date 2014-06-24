@@ -1,0 +1,74 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_client_router_impl_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.imit.client_router_impl_name %>
+  implements <%= repository.imit.qualified_client_router_interface_name %>
+{
+  @Override
+  @javax.annotation.Nonnull
+  public java.util.Map<String, java.io.Serializable> route( @javax.annotation.Nonnull Object entity )
+  {
+    <%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+-%>if( entity instanceof <%= entity.imit.qualified_name %> )
+    {
+      return route<%= entity.name %>( (<%= entity.imit.qualified_name %>) entity );
+    }
+    else <%
+  end
+end
+%>
+    {
+      return java.util.Collections.emptyMap();
+    }
+  }
+
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+    outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit?}
+ -%>
+  @Override
+  @javax.annotation.Nonnull
+  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.imit.qualified_name %> entity )
+  {
+    final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<String, java.io.Serializable>();
+<% entity.imit.replication_graphs.each do |graph| %>
+    _route<%= graph.name %>_<%= entity.name %>( map, entity );
+<% end %>
+    return map;
+  }
+
+<%
+  entity.imit.replication_graphs.each do |graph| %>
+  private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.imit.qualified_name %> entity )
+  {
+<% entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name)}.each do |attribute| %>
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY, entity.<%= getter_for(attribute) %> );
+<% end %>
+<% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s %>
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
+<% elsif graph.instance_root? %>
+<% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) }.each do |outgoing_link| %>
+<% if outgoing_link.nullable? %>
+    {
+      final <%= outgoing_link.imit.java_type %> v = entity.<%= getter_for(outgoing_link) %>;
+      if( null != v )
+      {
+        _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, v );
+      }
+    }
+<% else %>
+    _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, entity.<%= getter_for(outgoing_link) %> );
+<% end %>
+<% end %>
+<% else %>
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, Boolean.TRUE );
+<% end %>
+  }
+<% end %>
+<% end %>
+<% end -%>
+}
