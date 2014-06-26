@@ -348,6 +348,21 @@ module Domgen
         graph.type_roots.concat([k.to_s]) if :type == replication_type
       end
 
+      def subgraph_roots
+        @subgraph_roots || []
+      end
+
+      def subgraph_roots=(subgraph_roots)
+        raise "subgraph_roots expected to be an array" unless subgraph_roots.is_a?(Array)
+        subgraph_roots.each do |subgraph_root|
+          graph = entity.data_module.repository.imit.graph_by_name(subgraph_root)
+          raise "subgraph_roots specifies a non graph #{subgraph_root}" unless graph
+          raise "subgraph_roots specifies a non-instance graph #{subgraph_root}" unless graph.instance_root?
+          raise "subgraph_roots specifies a non-filtered graph #{subgraph_root}" unless graph.filtered?
+        end
+        @subgraph_roots = subgraph_roots
+      end
+
       def replication_graphs
         entity.data_module.repository.imit.graphs.select do |graph|
           (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
