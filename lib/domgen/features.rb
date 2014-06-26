@@ -132,7 +132,7 @@ module Domgen
 
     def referenced_struct=(referenced_struct)
       Domgen.error("struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
-      @referenced_struct = referenced_struct.is_a?(Symbol) ? self.struct_by_name(referenced_struct) : referenced_struct
+      @referenced_struct = (referenced_struct.is_a?(Symbol) || referenced_struct.is_a?(String)) ? self.struct_by_name(referenced_struct) : referenced_struct
     end
 
     def referenced_entity
