@@ -203,7 +203,6 @@ module Domgen
         @auto_register_change_recorder.nil? ? true : @auto_register_change_recorder
       end
 
-
       def graphs
         graph_map.values
       end
