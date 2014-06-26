@@ -89,6 +89,16 @@ module Domgen
         @filter
       end
 
+      def filtered?
+        !unfiltered?
+      end
+
+
+      def unfiltered?
+        @filter.nil?
+      end
+
+
       def post_verify
         if cacheable? && (filter_parameter || instance_root?)
           raise "Cacheable graphs are not supported for instance based or filterable graphs"
@@ -400,9 +410,9 @@ module Domgen
           target_graph = attribute.entity.data_module.repository.imit.graph_by_name(target_graph_key)
           prefix = "Link #{source_graph_key}=>#{target_graph_key} on #{attribute.qualified_name}"
           raise "#{prefix} must have an instance graph on the LHS" unless source_graph.instance_root?
-          raise "#{prefix} must have an non filtered graph on the LHS" unless source_graph.filter_parameter.nil?
+          raise "#{prefix} must have an non filtered graph on the LHS" unless source_graph.unfiltered?
           raise "#{prefix} must have an instance graph on the RHS" unless target_graph.instance_root?
-          raise "#{prefix} must have an non filtered graph on the RHS" unless target_graph.filter_parameter.nil?
+          raise "#{prefix} must have an non filtered graph on the RHS" unless target_graph.unfiltered?
           if path
             entity = attribute.referenced_entity
             path.to_s.split.each_with_index do |attribute_name_path_element, i|
