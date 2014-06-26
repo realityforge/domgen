@@ -70,6 +70,11 @@ Domgen.template_set(:imit_entity) do |template_set|
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client_router_interface.java.erb",
                         'main/java/#{repository.imit.qualified_client_router_interface_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::HELPERS)
+  template_set.template(Domgen::Generator::Imit::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/repository_debugger.java.erb",
+                        'main/java/#{repository.imit.qualified_repository_debugger_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::HELPERS)
 end
 
 Domgen.template_set(:imit_gwt_proxy) do |template_set|

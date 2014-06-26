@@ -173,6 +173,7 @@ module Domgen
 
       attr_writer :shared_comm_package
 
+      java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapper'
       java_artifact :data_loader_service, :comm, :client, :imit, 'Abstract#{repository.name}DataLoaderService'
       java_artifact :client_session, :comm, :client, :imit, '#{repository.name}ClientSessionImpl'

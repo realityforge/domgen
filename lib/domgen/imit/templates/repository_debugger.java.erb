@@ -1,0 +1,36 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_repository_debugger_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.imit.repository_debugger_name %>
+  extends org.realityforge.replicant.client.EntityRepositoryDebugger
+{
+  public void outputRepository( final org.realityforge.replicant.client.EntityRepository repository )
+  {
+    final java.util.ArrayList<Class> types = repository.getTypes();
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+-%>
+    types.remove( <%= entity.imit.qualified_name %>.class );
+    outputType( repository, <%= entity.imit.qualified_name %>.class );
+<%
+  end
+end
+%>
+    for ( final Class type : types )
+    {
+      outputType( repository, type );
+    }
+  }
+
+<% repository.imit.graphs.each do |graph| %>
+  public void output<%= graph.name %>Graph( final org.realityforge.replicant.client.EntityRepository repository )
+  {
+<% (graph.instance_root? ? graph.reachable_entities : graph.type_roots ).collect{|e| repository.entity_by_name(e)}.each do |entity| -%>
+    outputType( repository, <%= entity.imit.qualified_name %>.class );
+<% end -%>
+  }
+<% end %>
+}

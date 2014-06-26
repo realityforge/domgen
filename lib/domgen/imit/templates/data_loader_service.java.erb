@@ -44,4 +44,10 @@ public abstract class <%= repository.imit.data_loader_service_name %>
       throw new IllegalStateException();
     }
   }
+
+  @Override
+  protected <%= repository.imit.qualified_repository_debugger_name %> getEntityRepositoryDebugger()
+  {
+    return new <%= repository.imit.qualified_repository_debugger_name %>();
+  }
 }
