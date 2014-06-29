@@ -17,21 +17,19 @@ public abstract class <%= repository.imit.data_loader_service_name %>
     return <%= repository.imit.qualified_graph_enum_name %>.values()[ channel ];
   }
 
-  protected int updateSubscriptionForFilteredEntities( final <%= repository.imit.qualified_graph_enum_name %> graph,
-                                                       final Object subChannelID,
-                                                       final Object filter,
-                                                       final org.realityforge.replicant.client.ChannelSubscriptionEntry graphEntry )
+  @Override
+  protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
   {
     <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
--%>if( graph == <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> )
+-%>if( entry.getDescriptor().getGraph() == <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> )
     {
       int removedEntities = 0;
 <% graph.reachable_entities.reverse.each do |entity| -%>
       {
-        final java.util.Map<Object, org.realityforge.replicant.client.EntitySubscriptionEntry> map = graphEntry.getEntities().get( <%= repository.entity_by_name(entity).imit.qualified_name %>.class );
+        final java.util.Map<Object, org.realityforge.replicant.client.EntitySubscriptionEntry> map = entry.getEntities().get( <%= repository.entity_by_name(entity).imit.qualified_name %>.class );
         if( null != map )
         {
-          removedEntities += updateSubscriptionForFilteredEntities( graph, subChannelID, filter, map.values() );
+          removedEntities += updateSubscriptionForFilteredEntities( entry, filter, map.values() );
         }
       }
 <% end -%>
