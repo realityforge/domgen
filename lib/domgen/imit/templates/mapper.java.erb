@@ -75,7 +75,6 @@ public class <%= data_module.imit.mapper_name %>
         }
       }
       updateAttributes<%= entity.name %>( entity, change, fullUpdate );
-      final int channelCount = change.getChannelCount();
       final org.realityforge.replicant.client.ChannelDescriptor[] descriptors = new org.realityforge.replicant.client.ChannelDescriptor[ change.getChannelCount() ];
       for ( int i = 0; i < descriptors.length; i++ )
       {
