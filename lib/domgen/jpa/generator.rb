@@ -89,4 +89,11 @@ Domgen.template_set(:jpa_persistence_xml) do |template_set|
                         'main/resources/META-INF/persistence.xml')
 end
 
+Domgen.template_set(:jpa_test_persistence_xml) do |template_set|
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/persistence.xml.erb",
+                        'test/resources/META-INF/persistence.xml')
+end
+
 Domgen.template_set(:jpa => [:jpa_persistence_xml, :jpa_model])
