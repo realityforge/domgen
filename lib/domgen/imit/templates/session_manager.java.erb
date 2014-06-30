@@ -95,7 +95,7 @@ public abstract class <%= repository.imit.session_manager_name %>
 <% end %>
       }
       {
-        final <%= repository.imit.qualified_session_name %> session = getSession( sessionID );
+        final <%= repository.imit.qualified_session_name %> session = null != sessionID ? getSession( sessionID ) : null;
         if( null != session && null != sessionChanges )
         {
           accumulator.addChanges( session, sessionChanges.getChanges() );
