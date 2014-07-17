@@ -271,6 +271,7 @@ module Domgen
     def self.primitive_name(attribute_type)
       return "string" if attribute_type == :text
       return "int" if attribute_type == :integer
+      return "long" if attribute_type == :long
       return attribute_type.to_s
     end
 

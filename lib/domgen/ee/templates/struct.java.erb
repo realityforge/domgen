@@ -99,7 +99,7 @@ public class <%= struct.ee.name %>
   {
     int result = 0;
 <% struct.fields.each do |field| -%>
-    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Domgen::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Domgen::Naming.camelize(field.name)})" : Domgen::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? 0 : " : ''}#{Domgen::Naming.camelize(field.name)}.hashCode()" %>);
+    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Domgen::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Domgen::Naming.camelize(field.name)})" : field.long? ? "(int)(#{Domgen::Naming.camelize(field.name)})" : Domgen::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? 0 : " : ''}#{Domgen::Naming.camelize(field.name)}.hashCode()" %>);
 <% end -%>
     return result;
   }

@@ -21,6 +21,7 @@ Domgen::TypeDB.config_element(:"sql.pgsql") do
 end
 
 Domgen::TypeDB.enhance(:integer, 'sql.mssql.sql_type' => 'INT', 'sql.pgsql.sql_type' => 'integer')
+Domgen::TypeDB.enhance(:long, 'sql.mssql.sql_type' => 'BIGINT', 'sql.pgsql.sql_type' => 'bigint')
 Domgen::TypeDB.enhance(:real, 'sql.mssql.sql_type' => 'FLOAT', 'sql.pgsql.sql_type' => 'double precision')
 Domgen::TypeDB.enhance(:date, 'sql.mssql.sql_type' => 'DATE', 'sql.pgsql.sql_type' => 'date')
 Domgen::TypeDB.enhance(:datetime, 'sql.mssql.sql_type' => 'DATETIME', 'sql.pgsql.sql_type' => 'timestamp')

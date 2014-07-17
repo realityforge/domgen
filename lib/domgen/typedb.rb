@@ -157,6 +157,7 @@ end
 Domgen::TypeDB.characteristic_type(:void)
 Domgen::TypeDB.characteristic_type(:text, 'persistent' => true)
 Domgen::TypeDB.characteristic_type(:integer, 'persistent' => true)
+Domgen::TypeDB.characteristic_type(:long, 'persistent' => true)
 Domgen::TypeDB.characteristic_type(:real, 'persistent' => true)
 Domgen::TypeDB.characteristic_type(:date, 'persistent' => true)
 Domgen::TypeDB.characteristic_type(:datetime, 'persistent' => true)

@@ -133,7 +133,7 @@ module Domgen
     end
 
     def self.comparable_attribute_types
-      [:integer, :date, :datetime, :real]
+      [:integer, :long, :date, :datetime, :real]
     end
 
     def self.equality_attribute_types

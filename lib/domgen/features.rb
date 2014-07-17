@@ -77,6 +77,10 @@ module Domgen
       self.characteristic_type_key == :integer
     end
 
+    def long?
+      self.characteristic_type_key == :long
+    end
+
     def real?
       self.characteristic_type_key == :real
     end
@@ -223,6 +227,10 @@ module Domgen
 
     def integer(name, options = {}, &block)
       characteristic(name, :integer, options, &block)
+    end
+
+    def long(name, options = {}, &block)
+      characteristic(name, :long, options, &block)
     end
 
     def real(name, options = {}, &block)
