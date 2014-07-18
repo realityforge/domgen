@@ -4,7 +4,6 @@ package <%= to_package(entity.jpa.qualified_dao_name) %>;
 @SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
-@javax.ejb.Startup
 @javax.ejb.Stateless( name = <%= entity.jpa.qualified_dao_service_name %>.NAME )
 public class <%= entity.jpa.dao_name %>
     implements <%= entity.jpa.qualified_dao_service_name %>
