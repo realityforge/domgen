@@ -229,7 +229,7 @@ module Domgen
       all_task = @@namespace_tasks[namespace.to_s]
       unless all_task
         desc "Generate all #{namespace} artifacts"
-        all_task = task("all")
+        all_task = task('all')
         @@namespace_tasks[namespace.to_s] = all_task
       end
       all_task
