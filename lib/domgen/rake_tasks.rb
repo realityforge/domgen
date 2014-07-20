@@ -72,7 +72,7 @@ module Domgen
         end
 
         # Is there assets generated in project?
-        if templates.any?{|template| template.output_path =~ /^main\/webapp\/.*/}
+        if templates.any? { |template| template.output_path =~ /^main\/webapp\/.*/ }
           webapp_dir = File.expand_path("#{target_dir}/main/webapp")
           buildr_project.assets.enhance([task_name])
           buildr_project.assets.paths << file(webapp_dir => [task_name]) do
@@ -81,7 +81,7 @@ module Domgen
         end
 
         # Is there test java source generated in project?
-        if templates.any?{|template| template.output_path =~ /^test\/java\/.*/}
+        if templates.any? { |template| template.output_path =~ /^test\/java\/.*/ }
           test_java_dir = "#{target_dir}/test/java"
           file(test_java_dir => [task_name]) do
             mkdir_p test_java_dir
@@ -92,7 +92,7 @@ module Domgen
         end
 
         # Is there resources generated in project?
-        if templates.any?{|template| template.output_path =~ /^test\/resources\/.*/}
+        if templates.any? { |template| template.output_path =~ /^test\/resources\/.*/ }
           test_resources_dir = "#{target_dir}/test/resources"
           file(test_resources_dir => [task_name]) do
             mkdir_p test_resources_dir
@@ -119,7 +119,7 @@ module Domgen
     private
 
     def load_templates(names, processed_template_sets = [])
-      names.select{|name| !processed_template_sets.include?(name)}.each do |name|
+      names.select { |name| !processed_template_sets.include?(name) }.each do |name|
         template_set = Domgen.template_set_by_name(name)
         processed_template_sets << name
         load_templates(template_set.required_template_sets, processed_template_sets)
