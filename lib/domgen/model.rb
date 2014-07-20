@@ -1505,7 +1505,10 @@ module Domgen
     end
 
     def data_module(name, options = {}, &block)
-      Domgen::DataModule.new(self, name, options, &block)
+      pre_data_module_create(name)
+      data_module = Domgen::DataModule.new(self, name, options, &block)
+      post_data_module_create(name)
+      data_module
     end
 
     def data_modules
@@ -1556,6 +1559,15 @@ module Domgen
     include Faceted
 
     protected
+
+    def pre_data_module_create(name)
+      Domgen.error("Attempting to redefine DataModule '#{name}'") if @data_modules[name.to_s]
+      Logger.debug "DataModule '#{name}' definition started"
+    end
+
+    def post_data_module_create(name)
+      Logger.debug "DataModule '#{name}' definition completed"
+    end
 
     def perform_verify
       data_modules.each { |p| p.verify }
