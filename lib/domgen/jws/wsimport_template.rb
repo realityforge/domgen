@@ -28,7 +28,7 @@ module Domgen
 
       protected
 
-      def generate!(target_basedir, element_type, element)
+      def generate!(target_basedir, element_type, element, unprocessed_files)
         object_name = name_for_element(element)
         render_context = create_context(element_type, element)
         context_binding = render_context.context_binding
@@ -43,6 +43,8 @@ module Domgen
           digest = Digest::MD5.hexdigest(IO.read(wsdl_filename))
           output_dir = "#{base_dir}/#{output_package.gsub(".", "/")}"
           digest_filename = "#{output_dir}/#{element.name}.wsdl.md5"
+          unprocessed_files.delete_if{|f| f =~ /^#{output_dir}\/.*/ }
+          unprocessed_files.delete(output_dir)
 
           FileUtils.mkdir_p File.dirname(digest_filename) unless File.directory?(File.dirname(digest_filename))
           if File.exist?(digest_filename) && IO.read(digest_filename) == digest

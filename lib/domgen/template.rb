@@ -120,11 +120,11 @@ module Domgen
         raise "output_path unimplemented"
       end
 
-      def generate(target_basedir, element_type, element)
+      def generate(target_basedir, element_type, element, unprocessed_files)
         Logger.debug "Generating #{self.name} for #{element_type} #{name_for_element(element)}"
         return nil unless guard_allows?(element_type, element)
 
-        generate!(target_basedir, element_type, element)
+        generate!(target_basedir, element_type, element, unprocessed_files)
       end
 
       def guard_allows?(element_type, element)
@@ -140,7 +140,7 @@ module Domgen
 
       protected
 
-      def generate!(target_basedir, element_type, element)
+      def generate!(target_basedir, element_type, element, unprocessed_files)
         raise "generate not implemented"
       end
 
@@ -179,13 +179,14 @@ module Domgen
 
       protected
 
-      def generate!(target_basedir, element_type, element)
+      def generate!(target_basedir, element_type, element, unprocessed_files)
         object_name = name_for_element(element)
         render_context = create_context(element_type, element)
         context_binding = render_context.context_binding
         begin
           output_filename = eval("\"#{self.output_filename_pattern}\"", context_binding, "#{self.template_key}#Filename")
           output_filename = File.join(target_basedir, output_filename)
+          unprocessed_files.delete(output_filename)
           result = self.render_to_string(context_binding)
           FileUtils.mkdir_p File.dirname(output_filename) unless File.directory?(File.dirname(output_filename))
           if File.exist?(output_filename) && IO.read(output_filename) == result
