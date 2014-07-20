@@ -38,7 +38,11 @@ module Domgen
       if buildr_project.nil? && Buildr.application.current_scope.size > 0
         buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
       end
-      if buildr_project
+      if buildr_project.nil?
+        task('clean') do
+          rm_rf target_dir
+        end
+      else
         buildr_project.clean { rm_rf target_dir }
         file(File.expand_path(target_dir) => [task_name])
 
