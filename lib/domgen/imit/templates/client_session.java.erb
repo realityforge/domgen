@@ -27,7 +27,7 @@ public class <%= repository.imit.client_session_name %>
   filter_var = filter_type ? 'filter': 'null'
   filter_param = filter_type ? "#{filter_type} #{filter_var}" : nil
   std_param = "@javax.annotation.Nullable final Runnable action"
-%>
+-%>
   @Override
   public boolean isSubscribedTo<%= graph.name %>(<%= graph_id_param %>)
   {
@@ -40,18 +40,17 @@ public class <%= repository.imit.client_session_name %>
     requestSubscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
   }
 
-<% if graph.filter_parameter %>
+<% if graph.filter_parameter -%>
   public void update<%= graph.name %>Subscription(<%= [graph_id_param, filter_param, std_param].compact.join(", ") %>)
   {
     requestSubscriptionUpdate( <%= key %>, <%= graph_id %>, filter, action );
   }
-<% end %>
 
+<% end -%>
   @Override
   public void unsubscribeFrom<%= graph.name %>(<%= [graph_id_param, std_param].compact.join(", ") %>)
   {
     requestUnsubscribe( <%= key %>, <%= graph_id %>, action );
   }
-
-<% end %>
+<% end -%>
 }
