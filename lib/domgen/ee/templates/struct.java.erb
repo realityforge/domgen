@@ -2,7 +2,8 @@
 package <%= to_package(struct.ee.qualified_name) %>;
 
 <%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.EI_EXPOSE_REP", "PMD.EI_EXPOSE_REP2" } )
+@edu.umd.cs.findbugs.annotations.SuppressWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <%= jackson_class_annotations(struct) if struct.jackson? -%>
 <%= jaxb_class_annotations(struct) if struct.jaxb? -%>
 
