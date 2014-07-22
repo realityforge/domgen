@@ -12,11 +12,6 @@ public class <%= repository.imit.client_session_name %>
 
 <%
   repository.imit.graphs.each do |graph|
-  param = ''
-  param_value = ''
-  param_early_value = ''
-  param_cache_value = ''
-  subscribe_method = 'Type'
   key = "#{repository.imit.qualified_graph_enum_name}.#{Domgen::Naming.uppercase_constantize(graph.name)}"
   graph_id = "null"
   cache_key = "null"
