@@ -2,7 +2,7 @@
 package <%= to_package(entity.jpa.qualified_name) %>;
 
 <%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.EI_EXPOSE_REP", "PMD.EI_EXPOSE_REP2" } )
 <%
    jpa_queries = entity.queries.select {|q| !q.jpa.native? }
    if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
