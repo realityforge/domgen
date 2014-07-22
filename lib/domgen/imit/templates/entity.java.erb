@@ -5,6 +5,7 @@ import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 
 <%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
+@edu.umd.cs.findbugs.annotations.SuppressWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <%= entity.extends ?
