@@ -5,15 +5,10 @@ public class <%= repository.imit.client_session_name %>
   extends org.realityforge.replicant.client.transport.ClientSession<<%= repository.imit.client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_client_session_interface_name %>
 {
-  private final org.realityforge.replicant.client.EntityRepository _repository;
-  private final org.realityforge.replicant.client.EntityChangeBroker _broker;
-
+  public <%= repository.imit.client_session_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.AbstractDataLoaderService<<%= repository.imit.client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>> dataLoaderService, @javax.annotation.Nonnull final String sessionID )
   // TODO: We should generate  an abstract data loader that does unloads
-  public <%= repository.imit.client_session_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.AbstractDataLoaderService<<%= repository.imit.client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>> dataLoaderService, @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker broker )
   {
     super( dataLoaderService, sessionID );
-    _repository = repository;
-    _broker = broker;
   }
 
 <%
