@@ -26,7 +26,7 @@ public enum <%= enumeration.ee.name %>
     return super.ordinal();
   }
 
-  class Deserializer
+  static class Deserializer
     extends org.codehaus.jackson.map.JsonDeserializer<<%= enumeration.ee.name %>>
   {
     @Override
