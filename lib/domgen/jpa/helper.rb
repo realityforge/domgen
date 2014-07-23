@@ -573,6 +573,7 @@ JAVADOC
   @java.lang.annotation.Retention( java.lang.annotation.RetentionPolicy.RUNTIME )
   @javax.validation.Constraint( validatedBy = #{constraint_name}Validator.class )
   @java.lang.annotation.Documented
+  @SuppressWarnings( { "PMD.UselessParentheses" } )
   public @interface #{validation_name(constraint_name)}
   {
     String message() default "{#{entity.jpa.qualified_name}.#{constraint_name}}";
