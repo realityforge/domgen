@@ -382,7 +382,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   protected final <%= repository.imit.qualified_session_name %> ensureSession( @javax.annotation.Nonnull final String sessionID )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
-    final org.realityforge.replicant.example.server.net.TyrellSession session = getSession( sessionID );
+    final <%= repository.imit.qualified_session_name %> session = getSession( sessionID );
     if ( null == session )
     {
       throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
