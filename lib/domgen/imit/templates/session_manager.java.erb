@@ -194,6 +194,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 <% end -%>
 
   public <%= graph.cacheable? ? "boolean" : "void" %> subscribeTo<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= update_param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
     if ( !session.<%= graph.instance_root? ? "is#{graph.name}Interesting( #{pk_accessor} )" : "isInterestedIn#{graph.name}()" %> )
@@ -272,6 +273,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 
 <% if graph.filter_parameter -%>
   public void update<%= graph.name %>Subscription( @javax.annotation.Nonnull final String sessionID<%= update_param %> )
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
     <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> original = session.get<%= graph.name %>Parameter(<%= pk_accessor %>);
@@ -285,7 +287,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 <% end -%>
 
   public void unsubscribeFrom<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= param %> )
-    throws org.realityforge.replicant.server.transport.BadSessionException
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
     doUnsubscribeFrom<%= graph.name %>( session<%= pk_accessor.size == 0 ? '' : ", #{pk_accessor}" %> );
@@ -322,4 +324,15 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
     }
   }
 <% end -%>
+
+  protected final <%= repository.imit.qualified_session_name %> ensureSession( @javax.annotation.Nonnull final String sessionID )
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
+  {
+    final org.realityforge.replicant.example.server.net.TyrellSession session = getSession( sessionID );
+    if ( null == session )
+    {
+      throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
+    }
+    return session;
+  }
 }

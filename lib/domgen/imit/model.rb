@@ -218,6 +218,23 @@ module Domgen
         graph
       end
 
+      def invalid_session_exception=(invalid_session_exception)
+        @invalid_session_exception = invalid_session_exception
+      end
+
+      def invalid_session_exception
+        @invalid_session_exception
+      end
+
+      def pre_verify
+        raise "invalid_session_exception not specified" if self.invalid_session_exception.nil? && self.graphs.size > 0
+        begin
+          repository.exception_by_name(self.invalid_session_exception)
+        rescue
+          raise "Bad invalid_session_exception specified"
+        end
+      end
+
       def post_verify
         index = 0
         repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
