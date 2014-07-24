@@ -43,6 +43,51 @@ public abstract class <%= repository.imit.session_manager_name %>
       {
         final java.util.Map<String, java.io.Serializable> routingKeys = message.getRoutingKeys();
 <%
+  repository.imit.graphs.select{|graph| graph.instance_root?}.each do |graph|
+
+    instance_root = repository.entity_by_name(graph.instance_root)
+    type = instance_root.primary_key.jpa.non_primitive_java_type
+    param = " #{graph.name} "
+%>
+
+        final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY );
+<%
+  extra_interest_filter = ''
+  repository.data_modules.each do |data_module|
+    data_module.entities.each do |entity|
+      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
+        var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
+        extra_interest_filter << ", #{var_name}"
+%>
+        final <%= attribute.jpa.non_primitive_java_type %> <%= var_name %> = (<%= attribute.jpa.non_primitive_java_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+<%
+      end
+    end
+  end
+
+  if !extra_interest_filter.empty?
+    extra_interest_filter = "&& getContext().is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}, session.getInterestedIn#{graph.name}().get( #{graph.name} )#{extra_interest_filter} ) "
+  end
+%>
+        if ( null != <%= graph.name %> )
+        {
+          for ( final <%= repository.imit.qualified_session_name %> session : values )
+          {
+            if ( session.<%= graph.instance_root? ? "is#{graph.name}Interesting" : "isInterestedIn#{graph.name}" %>(<%= param %> ) <%= extra_interest_filter %>)
+            {
+              if( message.isDelete() && <%= repository.imit.qualified_message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(instance_root.name.to_s) %> == message.getTypeID() )
+              {
+                doUnsubscribeFrom<%= graph.name %>( accumulator, session<%= param.size > 0 ? ", #{param}" : "" %> );
+              }
+            }
+          }
+        }
+<% end %>
+      }
+      for ( final org.realityforge.replicant.server.EntityMessage message : messages )
+      {
+        final java.util.Map<String, java.io.Serializable> routingKeys = message.getRoutingKeys();
+<%
   repository.imit.graphs.each do |graph|
 
   param = ''
@@ -83,12 +128,6 @@ public abstract class <%= repository.imit.session_manager_name %>
             if ( session.<%= graph.instance_root? ? "is#{graph.name}Interesting" : "isInterestedIn#{graph.name}" %>(<%= param %> ) <%= extra_interest_filter %>)
             {
               accumulator.addChange( session, new org.realityforge.replicant.server.Change( message, <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? graph.name : 0 %> ) );
-<% if graph.instance_root? %>
-              if( message.isDelete() && <%= repository.imit.qualified_message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(instance_root.name.to_s) %> == message.getTypeID() )
-              {
-                doUnsubscribeFrom<%= graph.name %>( session<%= param.size > 0 ? ", #{param}" : "" %> );
-              }
-<% end %>
             }
           }
         }
@@ -291,6 +330,21 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   {
     final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
     doUnsubscribeFrom<%= graph.name %>( session<%= pk_accessor.size == 0 ? '' : ", #{pk_accessor}" %> );
+  }
+
+  private void doUnsubscribeFrom<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeAccumulator accumulator, @javax.annotation.Nonnull final <%= repository.imit.qualified_session_name %> session<%= graph.instance_root? ? ", #{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type} id" : '' %> )
+  {
+<% if graph.instance_root? -%>
+    if ( session.is<%= graph.name %>Interesting( id ) )
+    {
+      session.deregisterInterestIn<%= graph.name %>( id );
+<% else -%>
+    if ( session.isInterestedIn<%= graph.name %>() )
+    {
+      session.setInterestedIn<%= graph.name %>( false );
+<% end -%>
+      accumulator.addAction( session, new org.realityforge.replicant.server.ChannelAction( new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? 'id' : 'null' %> ), org.realityforge.replicant.server.ChannelAction.Action.REMOVE, null ) );
+    }
   }
 
   private void doUnsubscribeFrom<%= graph.name %>( @javax.annotation.Nonnull final <%= repository.imit.qualified_session_name %> session<%= graph.instance_root? ? ", #{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type} id" : '' %> )
