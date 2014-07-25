@@ -248,27 +248,28 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 <% if graph.cacheable? -%>
       final String cached<%= graph.name %>Key = getContext().get<%= graph.name %>CacheKey();
       _lock<%= graph.name %>Cache.readLock().lock();
+      final boolean uncached;
       try
       {
-        if ( null == _cachedMetaDataMessages || ( null == cached<%= graph.name %>Key || !cached<%= graph.name %>Key.equals( _cached<%= graph.name %>Key ) ) )
-        {
-          _lock<%= graph.name %>Cache.readLock().unlock();
-          _lock<%= graph.name %>Cache.writeLock().lock();
-          try
-          {
-            _cached<%= graph.name %>Key = cached<%= graph.name %>Key;
-            _cached<%= graph.name %>Messages = new org.realityforge.replicant.server.EntityMessageSet();
-            getContext().collect<%= graph.name %>( _cached<%= graph.name %>Messages );
-          }
-          finally
-          {
-            _lock<%= graph.name %>Cache.writeLock().unlock();
-          }
-        }
+        uncached = null == _cachedMetaDataMessages || ( null == cached<%= graph.name %>Key || !cached<%= graph.name %>Key.equals(_cached<%= graph.name %>Key) );
       }
       finally
       {
         _lock<%= graph.name %>Cache.readLock().unlock();
+      }
+      if ( uncached )
+      {
+        _lock<%= graph.name %>Cache.writeLock().lock();
+        try
+        {
+          _cached<%= graph.name %>Key = cached<%= graph.name %>Key;
+          _cached<%= graph.name %>Messages = new org.realityforge.replicant.server.EntityMessageSet();
+          getContext().collect<%= graph.name %>( _cached<%= graph.name %>Messages );
+        }
+        finally
+        {
+          _lock<%= graph.name %>Cache.writeLock().unlock();
+        }
       }
 <% else -%>
       final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
