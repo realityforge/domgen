@@ -28,7 +28,11 @@ module Domgen
         converter = attribute.jpa.converter
         s << "  @javax.persistence.Convert( converter = #{converter}.class )\n" if converter
 
-        s << nullable_annotate(attribute, '', true)
+        unless jpa_nullable_annotation?(attribute)
+          is_nonnull = !jpa_nullable?(attribute) && attribute.immutable?
+          s << "  #{nullability_annotation(!is_nonnull)}\n"
+        end
+
         if attribute.text?
           unless attribute.length.nil? && attribute.min_length.nil?
             s << "  @javax.validation.constraints.Size( "
@@ -121,12 +125,15 @@ module Domgen
         declared_attribute_names = entity.declared_attributes.collect{|a| a.name}
         declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
         undeclared_immutable_attributes = immutable_attributes.select{ |a| !declared_attribute_names.include?(a.name) }
-        return '' if immutable_attributes.empty?
         java = <<JAVA
-  protected #{entity.jpa.name}()
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
+  #{immutable_attributes.empty? ? 'public' : 'protected'} #{entity.jpa.name}()
   {
   }
 
+JAVA
+        return java if immutable_attributes.empty?
+        java = java + <<JAVA
   @SuppressWarnings( { "ConstantConditions", "deprecation" } )
   public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.name}"}.join(", ")})
   {
@@ -270,6 +277,16 @@ JAVA
 
   protected #{type} doGet#{name}()
   {
+JAVA
+        if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
+          java << <<JAVA
+    if( null == #{field_name} )
+    {
+      throw new IllegalStateException("Attempting to access non-null field #{name} before it has been set.");
+    }
+JAVA
+        end
+        java << <<JAVA
     return #{field_name};
   }
 
@@ -430,6 +447,7 @@ STR
 JAVA
         s += <<JAVA
   @Override
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   public int hashCode()
   {
     final #{pk_type} key = #{pk_getter};
@@ -475,17 +493,23 @@ JAVA
         s
       end
 
-      def nullable_annotate(attribute, type, is_field_annotation, inverse_side = false)
+      def jpa_nullable_annotation?(attribute)
         # Not sure why PrimaryKeys can not have annotation other than the fact that EclipseLink fails
         # to find ID if it is
-        if attribute.jpa.primitive? || attribute.primary_key?
+        !(attribute.jpa.primitive? || attribute.primary_key?)
+      end
+
+      def jpa_nullable?(attribute, inverse_side = false)
+        attribute.nullable? ||
+          attribute.generated_value? ||
+          (attribute.reference? && attribute.inverse.multiplicity == :zero_or_one && inverse_side)
+      end
+
+      def nullable_annotate(attribute, type, is_field_annotation, inverse_side = false)
+        if jpa_nullable_annotation?(attribute)
           return type
-        elsif !attribute.nullable? &&
-          !attribute.generated_value? &&
-          !(attribute.reference? && attribute.inverse.multiplicity == :zero_or_one && inverse_side)
-          annotation = "#{nullability_annotation(false)} #{type}"
         else
-          annotation = "#{nullability_annotation(true)} #{type}"
+          annotation = "#{nullability_annotation(jpa_nullable?(attribute, inverse_side))} #{type}"
         end
         if is_field_annotation
           "  #{annotation}\n"
