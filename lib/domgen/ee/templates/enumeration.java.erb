@@ -11,7 +11,6 @@ package <%= to_package(enumeration.ee.qualified_name) %>;
 <% end -%>
 <% end -%>
 public enum <%= enumeration.ee.name %>
-  implements java.io.Serializable
 {
   <%= enumeration.values.collect do |k|
    index = enumeration.values.index(k)

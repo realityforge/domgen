@@ -3,7 +3,7 @@ package <%= to_package(exception.gwt_rpc.qualified_name) %>;
 
 <%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= exception.gwt_rpc.name %> extends <%= exception.extends.nil? ? "Exception" : exception.data_module.exception_by_name(exception.extends).gwt_rpc.qualified_name %> implements java.io.Serializable
+public class <%= exception.gwt_rpc.name %> extends <%= exception.extends.nil? ? "Exception" : exception.data_module.exception_by_name(exception.extends).gwt_rpc.qualified_name %>
 {
   public <%= exception.gwt_rpc.name %>() { super(); }
   public <%= exception.gwt_rpc.name %>( final String message ) { super( message ); }
