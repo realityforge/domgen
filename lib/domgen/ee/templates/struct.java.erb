@@ -10,6 +10,8 @@ package <%= to_package(struct.ee.qualified_name) %>;
 public class <%= struct.ee.name %>
   implements java.io.Serializable
 {
+  private static final long serialVersionUID = 1;
+
 <% struct.fields.each do |field| -%>
 <%= "  " + jackson_field_annotation(field) if field.jackson? -%>
 <%= "  " + jaxb_field_annotation(field) if field.jaxb? -%>

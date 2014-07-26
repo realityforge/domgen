@@ -5,6 +5,8 @@ package <%= to_package(repository.imit.qualified_session_name) %>;
 public class <%= repository.imit.session_name %>
   extends org.realityforge.replicant.server.transport.ReplicantSession
 {
+  private static final long serialVersionUID = 1;
+
 <%
   repository.imit.graphs.each do |graph|
     if graph.instance_root?

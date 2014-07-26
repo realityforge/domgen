@@ -8,7 +8,7 @@ public class <%= service.gwt_rpc.servlet_name %>
   extends com.google.gwt.user.server.rpc.<%= service.gwt_rpc.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
   implements <%= service.gwt_rpc.qualified_rpc_service_name %>
 {
-  public static final long serialVersionUID = 1;
+  private static final long serialVersionUID = 1;
 
   private transient final org.codehaus.jackson.map.ObjectMapper _jsonMapper = new org.codehaus.jackson.map.ObjectMapper();
 

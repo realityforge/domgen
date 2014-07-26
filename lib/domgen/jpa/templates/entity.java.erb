@@ -48,6 +48,8 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
   "    implements java.io.Serializable" %>
 {
+  private static final long serialVersionUID = 1;
+
 <% if !entity.extends %>
   @javax.persistence.Transient
   private boolean _removed;
