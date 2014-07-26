@@ -427,6 +427,7 @@ STR
         equality_comparison = (!pk.jpa.primitive?) ? "null != key && key.equals( that.#{pk_getter} )" : "key == that.#{pk_getter}"
         s = <<JAVA
   @Override
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   public boolean equals( final Object o )
   {
     if ( this == o )
