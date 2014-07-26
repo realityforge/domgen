@@ -120,39 +120,11 @@ public class <%= data_module.imit.mapper_name %>
     {
       <% if attribute.primary_key? %>if( fullUpdate )
       {<% end %>
-      set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( entity, <%= attribute.nullable? ? "( change.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %> );
+      entity.set<%= attribute.imit.name(:transport) %>( <%= attribute.nullable? ? "( change.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %> );
       <% if attribute.primary_key? %>
       }<% end %>
     }
 <% end %>
   }
-<% end %>
-
-<% data_module.entities.select{|entity| entity.imit?}.each do |entity| %>
-<% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side?}.each do |attribute| %>
-  private void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.name %> entity, <%= nullability_annotation(attribute.nullable?) %> final <%= attribute.imit.java_type(:transport) %> value )
-  {
-<%
-   getter_text = "entity.#{getter_prefix(attribute)}#{attribute.imit.name(:transport)}()"
-   equal_check =
-       if attribute.primary_key?
-         "true"
-       elsif attribute.enumeration? && attribute.enumeration.numeric_values?
-         "(null == #{getter_text} || #{getter_text}.ordinal() != value)"
-       elsif attribute.enumeration? && attribute.enumeration.textual_values?
-         "(null == #{getter_text} || !#{getter_text}.name().equals( value ) )"
-         #"#{attribute.enumeration.imit.qualified_name}.valueOf( (String) value )"
-       elsif attribute.imit.primitive?(:transport)
-         "#{getter_text} != value"
-       else
-         "!( (null == value && null == #{getter_text}) || (null != #{getter_text} && null != value && #{getter_text}.equals( value ) ) )"
-       end
-%>
-    if( <%= equal_check %> )
-    {
-      entity.set<%= attribute.imit.name(:transport) %>( value );
-    }
-  }
-<% end %>
 <% end %>
 }

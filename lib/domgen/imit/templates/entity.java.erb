@@ -81,6 +81,33 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   final void set<%= attribute.imit.name(:transport) %>( <%= annotated_type(attribute, :imit, :transport, :final => true) %> value )
   {
     checkValidity();
+<% if attribute.imit.primitive?(:transport) && !attribute.enumeration? && !attribute.reference? %>
+    if( value == _<%= Domgen::Naming.camelize(attribute.imit.name) %> )
+    {
+      return;
+    }
+<%
+  else
+    value = "_#{Domgen::Naming.camelize(attribute.imit.name)}"
+    check = if attribute.enumeration? && attribute.enumeration.numeric_values?
+         "#{value}.ordinal() == value"
+       elsif attribute.enumeration? && attribute.enumeration.textual_values?
+         "#{value}.name().equals( value )"
+       elsif attribute.reference?
+         lhs = "#{value}.#{getter_prefix(attribute.referenced_entity.primary_key)}#{attribute.referenced_entity.primary_key.name}()"
+         attribute.imit.primitive?(:transport) ? "#{lhs} == value" : "#{lhs}.equals(value)"
+       else
+         "#{value}.equals( value )"
+       end
+    check = attribute.nullable? ?
+        "(null == value && null == #{value}) || (null != #{value} && null != value && #{check} )" :
+        "(null != #{value} && #{check} )"
+%>
+    if( <%= check %> )
+    {
+      return;
+    }
+<% end %>
 <% if attribute.reference?
 %>
     _<%= Domgen::Naming.camelize(attribute.imit.name) %> = null;
