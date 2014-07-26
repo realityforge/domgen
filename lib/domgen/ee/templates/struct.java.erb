@@ -2,7 +2,7 @@
 package <%= to_package(struct.ee.qualified_name) %>;
 
 <%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
-@edu.umd.cs.findbugs.annotations.SuppressWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UselessParentheses" } )
 <%= jackson_class_annotations(struct) if struct.jackson? -%>
 <%= jaxb_class_annotations(struct) if struct.jaxb? -%>
@@ -23,7 +23,7 @@ public class <%= struct.ee.name %>
    * @deprecated
    */
   @Deprecated
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
   public <%= struct.name %>()
   {
   }

@@ -2,7 +2,7 @@
 package <%= to_package(entity.jpa.qualified_metamodel_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@edu.umd.cs.findbugs.annotations.SuppressWarnings({"UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD","UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD","UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.persistence.metamodel.StaticMetamodel(<%= entity.jpa.name %>.class)
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.metamodel_name %>
