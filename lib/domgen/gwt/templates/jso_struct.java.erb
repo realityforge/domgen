@@ -14,7 +14,10 @@ public final class <%= struct.gwt.jso_name %>
   protected static <%= struct.gwt.jso_name %> create( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{field.name}" }.join(", ") %> )
   {
     final <%= struct.gwt.jso_name %> entity = com.google.gwt.core.client.JavaScriptObject.createObject().cast();
-<% struct.fields.each do |field|
+<%
+  creators_used = []
+
+  struct.fields.each do |field|
     converted_value = Proc.new do |var|
       case
         when field.struct? then "(#{field.referenced_struct.gwt.jso_name})#{var}"
@@ -46,6 +49,7 @@ public final class <%= struct.gwt.jso_name %>
         when field.struct? then "ObjectArray"
         else (raise "Unsupported field type #{field.name}")
       end
+    creators_used << gwt_creator unless creators_used.include?(gwt_creator)
 %>
 <% if field.nullable? -%>
     if( null != <%= field.name %> )
@@ -69,9 +73,15 @@ public final class <%= struct.gwt.jso_name %>
 %>    return entity;
   }
 
+<% if creators_used.include?('StringArray') %>
   private static native com.google.gwt.core.client.JsArrayString newNativeStringArray() /*-{ return []; }-*/;
+<% end %>
+<% if creators_used.include?('IntegerArray') %>
   private static native com.google.gwt.core.client.JsArrayInteger newNativeIntegerArray() /*-{ return []; }-*/;
+<% end %>
+<% if creators_used.include?('ObjectArray') %>
   private static native <E extends com.google.gwt.core.client.JavaScriptObject> com.google.gwt.core.client.JsArray<E> newNativeObjectArray() /*-{ return []; }-*/;
+<% end %>
 
 <% struct.fields.select{|field| field.gwt?}.each do |field|
   if field.collection?
