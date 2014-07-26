@@ -7,7 +7,7 @@ final class <%= struct.gwt.java_name %>
   implements <%= struct.gwt.qualified_interface_name %>
 {
 <% struct.fields.each do |field| %>
-  <%= annotated_type(field, :gwt, :boundary, :private => true) %> <%= field.name %>;
+  <%= annotated_type(field, :gwt, :boundary, :private => true) %> _<%= Domgen::Naming.camelize(field.name) %>;
 <% end %>
 
 <% if struct.fields.size != 0 %>
@@ -17,20 +17,21 @@ final class <%= struct.gwt.java_name %>
    * @deprecated
    */
   @Deprecated
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
   protected <%= struct.gwt.java_name %>()
   {
   }
 <% end %>
 
-  protected <%= struct.gwt.java_name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{field.name}" }.join(", ") %> )
+  protected <%= struct.gwt.java_name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Domgen::Naming.camelize(field.name)}" }.join(", ") %> )
   {
 <% struct.fields.each do |field|
      if :sequence == field.collection_type
-%>    this.<%= field.name %> = <%= field.nullable? ? "null == #{field.name} ? null : " : '' %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.gwt.java_component_type %>>( <%= field.name %> ) );
+%>    _<%= Domgen::Naming.camelize(field.name) %> = <%= field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? null : " : '' %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.gwt.java_component_type %>>( <%= Domgen::Naming.camelize(field.name) %> ) );
 <%     elsif :set == field.collection_type
-%>    this.<%= field.name %> = <%= field.nullable? ? "null == #{field.name} ? null : " : '' %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.gwt.java_component_type %>>( <%= field.name %> ) );
+%>    _<%= Domgen::Naming.camelize(field.name) %> = <%= field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? null : " : '' %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.gwt.java_component_type %>>( <%= Domgen::Naming.camelize(field.name) %> ) );
   <%     else
-%>    this.<%= field.name %> = <%= field.name %>;
+%>    _<%= Domgen::Naming.camelize(field.name) %> = <%= Domgen::Naming.camelize(field.name) %>;
 <%   end
    end
 %>  }
@@ -38,7 +39,7 @@ final class <%= struct.gwt.java_name %>
 %>
   <%= annotated_type(field, :gwt, :boundary, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
-    return <%= field.name %>;
+    return _<%= Domgen::Naming.camelize(field.name) %>;
   }
 <% end
 %>}
