@@ -62,6 +62,13 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 %>  <%= annotated_type(attribute, :imit, :default, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>()
   {
     <% if !attribute.primary_key? %>check<%= attribute.reference? ? "Linked" : "Validity" %>();<% end %>
+<% if !attribute.primary_key? && !attribute.imit.primitive? && !attribute.nullable? %>
+    //TODO: This should be compiled out in non dev - perhaps via gwt-property-source
+    if( null == _<%= Domgen::Naming.camelize(attribute.imit.name) %> )
+    {
+      throw new IllegalStateException("Attempted to access nonnull <%= attribute.qualified_name %> before it has been assigned a value");
+    }
+<% end %>
     return _<%= Domgen::Naming.camelize(attribute.imit.name) %>;
   }
 <% if attribute.attribute_type == :reference
