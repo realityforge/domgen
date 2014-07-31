@@ -199,8 +199,8 @@ module Domgen
 
           while true
             if query_text =~ /(.+)(And|Or)(.+)/
-              parameter_name = $1
-              query_text = $3
+              parameter_name = $3
+              query_text = $1
               if !entity.attribute_exists?(parameter_name)
                 jpql = nil
                 break
