@@ -206,14 +206,14 @@ module Domgen
                 break
               end
               operation = $2.upcase
-              jpql = "#{jpql}#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{operation} "
+              jpql = "#{operation} #{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
             else
               parameter_name = query_text
               if !entity.attribute_exists?(parameter_name)
                 jpql = nil
                 break
               end
-              jpql = "#{jpql}#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name}"
+              jpql = "#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
               break
             end
           end
