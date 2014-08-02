@@ -100,11 +100,19 @@ module Domgen
       attr_writer :properties
 
       def properties
-        @properties ||= {
-          "eclipselink.logging.logger" => "JavaLogger",
-          "eclipselink.session-name" => repository.name,
-          "eclipselink.temporal.mutable" => "false"
-        }
+        @properties ||= default_properties
+      end
+
+      def default_properties
+        if provider.nil? || provider == :eclipselink
+          {
+            "eclipselink.logging.logger" => "JavaLogger",
+            "eclipselink.session-name" => repository.name,
+            "eclipselink.temporal.mutable" => "false"
+          }
+        else
+          {}
+        end
       end
 
       java_artifact :unit_descriptor, :entity, :server, :jpa, '#{repository.name}PersistenceUnit'
