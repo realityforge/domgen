@@ -255,7 +255,11 @@ JAVA
       def j_simple_attribute(attribute)
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
-        type = nullable_annotate(attribute, attribute.jpa.java_type, false)
+        if attribute.generated_value? && !attribute.nullable?
+          type = "#{nullability_annotation(false)} #{attribute.jpa.java_type}"
+        else
+          type = nullable_annotate(attribute, attribute.jpa.java_type, false)
+        end
         java = description_javadoc_for attribute
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
