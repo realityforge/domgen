@@ -170,7 +170,7 @@ module Domgen
       attr_writer :cacheable
 
       def cacheable?
-        @cacheable.nil? ? false : @cacheable
+        @cacheable.nil? ? entity.read_only? : @cacheable
       end
 
       attr_writer :detachable
