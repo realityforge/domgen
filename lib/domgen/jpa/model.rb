@@ -321,6 +321,25 @@ module Domgen
         @query_spec || :criteria
       end
 
+      def default_hints
+        hints = {}
+        if [:insert, :update].include?(self.query.query_type)
+          provider = self.query.entity.data_module.repository.jpa.provider
+          if provider.nil? || provider == :eclipselink
+            hints['eclipselink.query-type'] = 'org.eclipse.persistence.queries.DataModifyQuery'
+          end
+        end
+        hints
+      end
+
+      def hints
+        @hints ||= {}
+      end
+
+      def actual_hints
+        default_hints.merge(hints)
+      end
+
       def self.valid_query_specs
         [:statement, :criteria]
       end
