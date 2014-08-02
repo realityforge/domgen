@@ -141,6 +141,10 @@ module Domgen
       def persistence_file_fragments
         @persistence_file_fragments ||= []
       end
+
+      def orm_file_fragments
+        @orm_file_fragments ||= []
+      end
     end
 
     facet.enhance(DataModule) do
