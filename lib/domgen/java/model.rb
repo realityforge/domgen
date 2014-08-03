@@ -359,7 +359,10 @@ module Domgen
           def idefine_getter(key, default_value, options = {})
             customizable = options[:customizable].nil? ? true : !!options[:customizable]
             idefine_method(key) do
-              (customizable ? instance_variable_get("@#{key}") : nil) || (default_value.is_a?(Proc) ? instance_eval(&default_value) : eval("\"#{default_value}\"", binding, key))
+              (customizable ? instance_variable_get("@#{key}") : nil) ||
+                (default_value.is_a?(Proc) ?
+                  instance_eval(&default_value) :
+                  eval("\"#{default_value}\"", binding, key))
             end
           end
         end
