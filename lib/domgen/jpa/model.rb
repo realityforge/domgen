@@ -212,9 +212,6 @@ module Domgen
         entity.query(:FindAll)
         entity.query(:"FindBy#{entity.primary_key.name}")
         entity.query(:"GetBy#{entity.primary_key.name}")
-        entity.queries.each do |query|
-          query.result_class = entity.name
-        end
         entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
           jpql = ''
           query_text = nil
