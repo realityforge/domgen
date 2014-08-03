@@ -401,18 +401,6 @@ module Domgen
         @ql
       end
 
-      # An array of parameters ordered as they appear in query and with possible duplicates
-      def query_ordered_parameters
-        unless @query_ordered_parameters
-          query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
-          @query_ordered_parameters = []
-          query_parameters.each do |query_parameter|
-            @query_ordered_parameters << query.parameter_by_name(query_parameter)
-          end
-        end
-        @query_ordered_parameters
-      end
-
       def query_string
         table_name = self.native? ? query.entity.sql.table_name : query.entity.jpa.jpql_name
         order_by_clause = order_by ? " ORDER BY #{order_by}" : ""
@@ -443,7 +431,16 @@ module Domgen
         else
           Domgen.error("Unknown query spec #{self.query_spec}")
         end
-        q = q.gsub(/:[^\W]+/, '?') if self.native?
+        if self.native?
+          q = q.gsub(/:([^\W]+)/) do |parameter_name|
+            index = nil
+            query.parameters.each_with_index do |parameter, i|
+              index = i + 1 if parameter_name[1,parameter_name.length].to_s == parameter.name.to_s
+            end
+            raise "Unable to locate parameter named #{parameter_name} in #{query.qualified_name}" unless index
+            "?#{index}"
+          end
+        end
         q.gsub(/[\s]+/, ' ').strip
       end
 
