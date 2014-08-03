@@ -501,13 +501,32 @@ module Domgen
       "DataAccessObject[#{self.qualified_name}]"
     end
 
+    def entity=(entity)
+      Domgen.error("entity= on #{qualified_name} is invalid as entity already specified") if @entity
+      @entity = (entity.is_a?(Symbol) || entity.is_a?(String)) ? data_module.entity_by_name(entity) : entity
+      queries.each do |query|
+        query.result_class = @entity.name unless query.result_class?
+      end
+      @entity
+    end
+
+    def entity
+      Domgen.error("entity on #{qualified_name} is invalid as entity not specified") unless @entity
+      @entity
+    end
+
+    def repository?
+      !@entity.nil?
+    end
+
     def queries
       @queries.values
     end
 
     def query(name, options = {}, &block)
       Domgen.error("Attempting to override query #{name} on #{self.name}") if @queries[name.to_s]
-      query = Query.new(self, name, options, &block)
+      params = repository? ? options.merge(:result_class => entity.name) : options.dup
+      query = Query.new(self, name, params, &block)
       @queries[name.to_s] = query
       query
     end
@@ -617,6 +636,8 @@ module Domgen
       @referencing_attributes = []
       @subtypes = []
       data_module.send :register_entity, name, self
+      # Force the instantiation of the DAO
+      self.dao
       perform_extend(data_module, :entity, options[:extends]) if options[:extends]
       super(data_module, options, &block)
     end
@@ -660,7 +681,7 @@ module Domgen
     end
 
     def dao
-      @dao ||= data_module.dao("#{name}Repository")
+      @dao ||= data_module.dao("#{name}Repository", :entity => name)
     end
 
     def unique_constraints

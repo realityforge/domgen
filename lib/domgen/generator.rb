@@ -39,8 +39,16 @@ module Domgen
                 end
               end
 
+              if :dao == template.scope
+                data_module.daos.each do |dao|
+                  if template.applicable?(dao) && (filter.nil? || filter.call(:dao, dao))
+                    template.generate(directory, :dao, dao, unprocessed_files)
+                  end
+                end
+              end
+
               if :query == template.scope
-                data_module.entities.each do |entity|
+                data_module.daos.each do |entity|
                   entity.queries.each do |query|
                     if template.applicable?(query) && (filter.nil? || filter.call(:query, query))
                       template.generate(directory, :query, query, unprocessed_files)

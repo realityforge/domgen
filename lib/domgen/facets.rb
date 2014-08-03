@@ -184,7 +184,7 @@ module Domgen
           Domgen::EnumerationSet => :enumeration,
           Domgen::Struct => :struct, Domgen::StructField => :field,
           Domgen::Entity => :entity, Domgen::Attribute => :attribute, Domgen::InverseElement => :inverse,
-          Domgen::Query => :query, Domgen::QueryParameter => :parameter,
+          Domgen::DataAccessObject => :dao, Domgen::Query => :query, Domgen::QueryParameter => :parameter,
           Domgen::Service => :service, Domgen::Method => :method, Domgen::Parameter => :parameter, Domgen::Result => :result,
           Domgen::Exception => :exception, Domgen::ExceptionParameter => :parameter,
           Domgen::Message => :message, Domgen::MessageParameter => :parameter,

@@ -1,30 +1,32 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(entity.jpa.qualified_dao_service_name) %>;
+package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.Local
-public interface <%= entity.jpa.dao_service_name %>
+public interface <%= dao.jpa.dao_service_name %>
 {
-  String NAME = "<%= entity.data_module.repository.name %>.<%= entity.data_module.name %>.<%= entity.jpa.dao_service_name %>";
+  String NAME = "<%= dao.data_module.repository.name %>.<%= dao.data_module.name %>.<%= dao.jpa.dao_service_name %>";
 
-<% entity.queries.each do |query| %>
+<% dao.queries.each do |query| %>
 <%= description_javadoc_for(query) %>  <%= query_return_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "#{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'int limit': nil] + [query.jpa.offset ? 'int offset': nil]).compact.join(', ') %>);
 <% end %>
 
-<% if entity.jpa.detachable? %>
-  /** Remove the given  <%= entity.jpa.qualified_name %> from the persistence context, causing a managed entity to become detached. */
-  void detach( <%= entity.jpa.qualified_name %> entity );
+<% if dao.repository? %>
+<% if dao.entity.jpa.detachable? %>
+  /** Remove the given  <%= dao.entity.jpa.qualified_name %> from the persistence context, causing a managed entity to become detached. */
+  void detach( <%= dao.entity.jpa.qualified_name %> entity );
 
-  /** Merge the state of the given <%= entity.jpa.qualified_name %> into the current persistence context. */
-  <%= entity.jpa.qualified_name %> merge( <%= entity.jpa.qualified_name %> entity );
+  /** Merge the state of the given <%= dao.entity.jpa.qualified_name %> into the current persistence context. */
+  <%= dao.entity.jpa.qualified_name %> merge( <%= dao.entity.jpa.qualified_name %> entity );
 <% end %>
-  /** Make an <%= entity.jpa.qualified_name %> instance managed and persistent. */
-  void persist( <%= entity.jpa.qualified_name %> entity );
+  /** Make an <%= dao.entity.jpa.qualified_name %> instance managed and persistent. */
+  void persist( <%= dao.entity.jpa.qualified_name %> entity );
 
-  /** Refresh the state of the <%= entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
-  void refresh( <%= entity.jpa.qualified_name %> entity );
+  /** Refresh the state of the <%= dao.entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
+  void refresh( <%= dao.entity.jpa.qualified_name %> entity );
 
-  /** Remove the <%= entity.jpa.qualified_name %> instance. */
-  void remove( <%= entity.jpa.qualified_name %> entity );
+  /** Remove the <%= dao.entity.jpa.qualified_name %> instance. */
+  void remove( <%= dao.entity.jpa.qualified_name %> entity );
+<% end %>
 }

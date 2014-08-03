@@ -161,7 +161,7 @@ module Domgen
       end
 
       def valid_scopes
-        [:enumeration, :message, :exception, :method, :service, :struct, :entity, :data_module, :repository]
+        [:enumeration, :message, :exception, :method, :service, :struct, :entity, :dao, :data_module, :repository]
       end
     end
 

@@ -1,22 +1,22 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(entity.jpa.qualified_dao_name) %>;
+package <%= to_package(dao.jpa.qualified_dao_name) %>;
 
 @SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
-@javax.ejb.Stateless( name = <%= entity.jpa.qualified_dao_service_name %>.NAME )
-public class <%= entity.jpa.dao_name %>
-    implements <%= entity.jpa.qualified_dao_service_name %>
+@javax.ejb.Stateless( name = <%= dao.jpa.qualified_dao_service_name %>.NAME )
+public class <%= dao.jpa.dao_name %>
+    implements <%= dao.jpa.qualified_dao_service_name %>
 {
-  @javax.persistence.PersistenceContext(unitName = <%= entity.data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME)
+  @javax.persistence.PersistenceContext(unitName = <%= dao.data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME)
   private javax.persistence.EntityManager em;
 
-<% entity.queries.each do |query| %>
+<% dao.queries.each do |query| %>
 <%= description_javadoc_for(query) %>  @Override
   public <%= query_return_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
-    final javax.persistence.TypedQuery<<%= entity.jpa.qualified_name %>> query =
-      em.createNamedQuery( <%= entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= entity.jpa.qualified_name %>.class );
+    final javax.persistence.TypedQuery<<%= query.entity.jpa.qualified_name %>> query =
+      em.createNamedQuery( <%= query.entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= query.entity.jpa.qualified_name %>.class );
 <%
    if !query.jpa.native?
     query.parameters.each do |p|
@@ -40,7 +40,7 @@ public class <%= entity.jpa.dao_name %>
     return query.getSingleResult();
 <% else %>
     query.setMaxResults( 1 );
-    final java.util.List<<%= entity.jpa.qualified_name %>> resultList = query.getResultList();
+    final java.util.List<<%= query.entity.jpa.qualified_name %>> resultList = query.getResultList();
     if ( resultList.size() > 0 )
     {
       return resultList.get( 0 );
@@ -56,36 +56,38 @@ public class <%= entity.jpa.dao_name %>
   }
 <% end %>
 
-<% if entity.jpa.detachable? %>
+<% if dao.repository? %>
+<% if dao.entity.jpa.detachable? %>
   @Override
-  public void detach( final <%= entity.jpa.qualified_name %> entity )
+  public void detach( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.detach( entity );
   }
 
   @Override
-  public <%= entity.jpa.qualified_name %> merge( final <%= entity.jpa.qualified_name %> entity )
+  public <%= dao.entity.jpa.qualified_name %> merge( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     return em.merge( entity );
   }
 <% end %>
   @Override
-  public void persist( final <%= entity.jpa.qualified_name %> entity )
+  public void persist( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.persist( entity );
     em.flush();
   }
 
   @Override
-  public void refresh( final <%= entity.jpa.qualified_name %> entity )
+  public void refresh( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.refresh( entity );
   }
 
   @Override
-  public void remove( final <%= entity.jpa.qualified_name %> entity )
+  public void remove( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.remove( entity );
     em.flush();
   }
+<% end %>
 }

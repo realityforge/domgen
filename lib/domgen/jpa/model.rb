@@ -159,6 +159,21 @@ module Domgen
       end
     end
 
+    facet.enhance(DataAccessObject) do
+      include Domgen::Java::BaseJavaGenerator
+
+      def server_dao_entity_package
+        "#{server_entity_package}.dao"
+      end
+
+      def server_internal_dao_entity_package
+        "#{server_entity_package}.dao.internal"
+      end
+
+      java_artifact :dao_service, :entity, :server, :jpa, '#{dao.name}', :sub_package => 'dao'
+      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao.internal'
+    end
+
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
@@ -176,8 +191,6 @@ module Domgen
 
       java_artifact :name, :entity, :server, :jpa, '#{entity.name}'
       java_artifact :metamodel, :entity, :server, :jpa, '#{name}_'
-      java_artifact :dao_service, :entity, :server, :jpa, '#{name}Repository', :sub_package => 'dao'
-      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao.internal'
 
       attr_writer :cacheable
 
