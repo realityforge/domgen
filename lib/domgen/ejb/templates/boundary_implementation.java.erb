@@ -44,7 +44,7 @@ public class <%= service.ejb.boundary_implementation_name %>
 
 <% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| %>
   @javax.ejb.EJB
-  private <%= entity.jpa.qualified_dao_service_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
+  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
 <% end %>
   @javax.ejb.EJB
   private <%= service.ejb.qualified_service_name %> _service;

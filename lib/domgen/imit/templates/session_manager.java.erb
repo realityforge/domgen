@@ -14,7 +14,7 @@ public abstract class <%= repository.imit.session_manager_name %>
 
 <% repository.imit.graphs.select{|g| g.instance_root? && g.filter_parameter.nil? }.collect{|g|repository.entity_by_name(g.instance_root)}.uniq.each do |entity| %>
   @javax.ejb.EJB
-  private <%= entity.jpa.qualified_dao_service_name %> _<%= entity.name %>Repository;
+  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= entity.name %>Repository;
 <% end %>
 
   @javax.annotation.Nonnull
