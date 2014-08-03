@@ -199,6 +199,9 @@ module Domgen
         entity.query(:FindAll)
         entity.query(:"FindBy#{entity.primary_key.name}")
         entity.query(:"GetBy#{entity.primary_key.name}")
+        entity.queries.each do |query|
+          query.result_class = entity.name
+        end
         entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
           jpql = ''
           query_text = nil
@@ -328,7 +331,7 @@ module Domgen
       def default_hints
         hints = {}
         if [:insert, :update].include?(self.query.query_type)
-          provider = self.query.entity.data_module.repository.jpa.provider
+          provider = self.query.data_module.repository.jpa.provider
           if provider.nil? || provider == :eclipselink
             hints['eclipselink.query-type'] = 'org.eclipse.persistence.queries.DataModifyQuery'
           end

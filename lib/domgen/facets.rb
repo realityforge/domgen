@@ -272,13 +272,14 @@ module Domgen
       def dependent_features
         {
           Domgen::Repository => [:data_modules],
-          Domgen::DataModule => [:services, :exceptions, :entities, :messages, :structs, :enumerations],
+          Domgen::DataModule => [:services, :exceptions, :entities, :messages, :structs, :enumerations, :daos],
           Domgen::Message => [:parameters],
           Domgen::MessageParameter => [],
           Domgen::Struct => [:fields],
           Domgen::StructField => [],
           Domgen::EnumerationSet => [],
-          Domgen::Entity => [:declared_attributes, :queries],
+          Domgen::Entity => [:declared_attributes],
+          Domgen::DataAccessObject => [:queries],
           Domgen::Attribute => [:inverse],
           Domgen::InverseElement => [],
           Domgen::Query => [:parameters],
