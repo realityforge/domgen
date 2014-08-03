@@ -8,6 +8,12 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
 public class <%= dao.jpa.dao_name %>
     implements <%= dao.jpa.qualified_dao_service_name %>
 {
+<% unless dao.repository? -%>
+<% dao.queries.each do |query| -%>
+  private static final String <%= Domgen::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
+<% end -%>
+<% end -%>
+
   @javax.persistence.PersistenceContext(unitName = <%= dao.data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME)
   private javax.persistence.EntityManager em;
 
@@ -16,7 +22,7 @@ public class <%= dao.jpa.dao_name %>
   public <%= query_return_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
     final javax.persistence.TypedQuery<<%= query.entity.jpa.qualified_name %>> query =
-      em.createNamedQuery( <%= query.entity.jpa.qualified_name %>.<%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= query.entity.jpa.qualified_name %>.class );
+      em.createNamedQuery( <%= dao.repository? ? "#{query.entity.jpa.qualified_name}." : '' %><%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= query.entity.jpa.qualified_name %>.class );
 <%
    if !query.jpa.native?
     query.parameters.each do |p|

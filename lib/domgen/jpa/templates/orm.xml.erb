@@ -15,6 +15,21 @@
     </persistence-unit-defaults>
   </persistence-unit-metadata>
 
+<% repository.data_modules.each do |data_module| -%>
+<% data_module.daos.select{|dao| !dao.repository?}.each do |dao| -%>
+<% dao.queries.select{|query|!query.jpa.native?}.each do |query| -%>
+  <named-query name="<%= query.qualified_name %>" >
+    <query><%= query.jpa.query_string.encode(:xml => :text) %></query>
+  </named-query>
+<% end -%>
+<% dao.queries.select{|query|query.jpa.native?}.each do |query| -%>
+  <named-native-query name="<%= query.qualified_name %>" result-class="<%= query.entity.jpa.qualified_name %>">
+    <query><%= query.jpa.query_string.encode(:xml => :text) %></query>
+  </named-native-query>
+<% end -%>
+<% end -%>
+<% end -%>
+
 <% repository.jpa.orm_file_fragments.each do |fragment| -%>
 <%= IO.read(fragment) -%>
 <% end -%>
