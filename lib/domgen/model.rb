@@ -636,8 +636,6 @@ module Domgen
       @referencing_attributes = []
       @subtypes = []
       data_module.send :register_entity, name, self
-      # Force the instantiation of the DAO
-      self.dao
       perform_extend(data_module, :entity, options[:extends]) if options[:extends]
       super(data_module, options, &block)
     end
