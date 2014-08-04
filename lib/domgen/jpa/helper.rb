@@ -511,7 +511,7 @@ JAVA
       end
 
       def nullable_annotate(attribute, type, is_field_annotation, inverse_side = false)
-        if jpa_nullable_annotation?(attribute)
+        if !jpa_nullable_annotation?(attribute)
           return type
         else
           annotation = "#{nullability_annotation(jpa_nullable?(attribute, inverse_side))} #{type}"
