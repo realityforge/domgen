@@ -68,12 +68,14 @@ Domgen.template_set(:jpa_ejb_dao) do |template_set|
                         :dao,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb.java.erb",
                         'main/java/#{dao.jpa.qualified_dao_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS)
+                        Domgen::Generator::JPA::HELPERS,
+                        :guard => '!dao.repository? || dao.entity.jpa?')
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :dao,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_interface.java.erb",
                         'main/java/#{dao.jpa.qualified_dao_service_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS)
+                        Domgen::Generator::JPA::HELPERS,
+                        :guard => '!dao.repository? || dao.entity.jpa?')
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :data_module,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_package_info.java.erb",
