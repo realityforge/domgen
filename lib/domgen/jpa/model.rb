@@ -401,8 +401,11 @@ module Domgen
         @ql
       end
 
+      def derive_table_name
+        self.native? ? query.entity.sql.table_name : query.entity.jpa.jpql_name
+      end
+
       def query_string
-        table_name = self.native? ? query.entity.sql.table_name : query.entity.jpa.jpql_name
         order_by_clause = order_by ? " ORDER BY #{order_by}" : ""
         criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
         q = nil
@@ -411,9 +414,9 @@ module Domgen
         elsif self.query_spec == :criteria
           if query.query_type == :select
             if self.native?
-              q = "SELECT O.* FROM #{table_name} O #{criteria_clause}#{order_by_clause}"
+              q = "SELECT O.* FROM #{derive_table_name} O #{criteria_clause}#{order_by_clause}"
             else
-              q = "SELECT O FROM #{table_name} O #{criteria_clause}#{order_by_clause}"
+              q = "SELECT O FROM #{derive_table_name} O #{criteria_clause}#{order_by_clause}"
             end
           elsif query.query_type == :update
             Domgen.error("The combination of query.query_type == :update and query_spec == :criteria is not supported")
@@ -421,9 +424,10 @@ module Domgen
             Domgen.error("The combination of query.query_type == :insert and query_spec == :criteria is not supported")
           elsif query.query_type == :delete
             if self.native?
+              table_name = derive_table_name
               q = "DELETE FROM #{table_name} FROM #{table_name} O #{criteria_clause}"
             else
-              q = "DELETE FROM #{table_name} O #{criteria_clause}"
+              q = "DELETE FROM #{derive_table_name} O #{criteria_clause}"
             end
           else
             Domgen.error("Unknown query type #{query.query_type}")

@@ -19,10 +19,10 @@ public class <%= dao.jpa.dao_name %>
 
 <% dao.queries.each do |query| %>
 <%= description_javadoc_for(query) %>  @Override
-  public <%= query_return_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
+  public <%= query_result_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
-    final javax.persistence.TypedQuery<<%= query.entity.jpa.qualified_name %>> query =
-      em.createNamedQuery( <%= dao.repository? ? "#{query.entity.jpa.qualified_name}." : '' %><%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= query.entity.jpa.qualified_name %>.class );
+    final javax.persistence.TypedQuery<<%= query_component_result_type(query) %>> query =
+      em.createNamedQuery( <%= dao.repository? ? "#{query.entity.jpa.qualified_name}." : '' %><%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= query_component_result_type(query) %>.class );
 <%
    if !query.jpa.native?
     query.parameters.each do |p|
@@ -46,7 +46,7 @@ public class <%= dao.jpa.dao_name %>
     return query.getSingleResult();
 <% else %>
     query.setMaxResults( 1 );
-    final java.util.List<<%= query.entity.jpa.qualified_name %>> resultList = query.getResultList();
+    final java.util.List<<%= query_component_result_type(query) %>> resultList = query.getResultList();
     if ( resultList.size() > 0 )
     {
       return resultList.get( 0 );

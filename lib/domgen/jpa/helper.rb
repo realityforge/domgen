@@ -523,9 +523,17 @@ JAVA
         end
       end
 
-      def query_return_type(query)
+      def query_component_result_type(query)
+        query.result_entity? ?
+          query.entity.jpa.qualified_name :
+          query.result_struct? ?
+            query.struct.ee.qualified_name :
+            (raise "Not yet able to handle scalar")
+      end
+
+      def query_result_type(query)
         return "int" if query.query_type != :select
-        name = query.entity.jpa.qualified_name
+        name = query_component_result_type(query)
         return "#{nullability_annotation(false)} java.util.List<#{name}>" if query.multiplicity == :many
         "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{name}"
       end

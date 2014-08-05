@@ -404,22 +404,47 @@ module Domgen
       self.dao.data_module
     end
 
-    def result_class=(result_class)
-      raise "Can not reassign result_class on #{qualified_name} to #{result_class} as already specified as #{@result_class}" unless @result_class.nil?
-      @result_class = result_class
+    def result_type?
+      !!@result_type
     end
 
-    def result_class
-      raise "result_class invoked on #{qualified_name} when no result_class specified" if @result_class.nil?
-      @result_class
+    def result_type
+      raise "result_type called on #{qualified_name} before it has been specified" unless @result_type
+      @result_type
     end
 
-    def result_class?
-      !@result_class.nil?
+    def result_type=(result_type)
+      raise "Attempt to reassign result_type on #{qualified_name} from #{@result_type} to #{result_type}" if @result_type
+      raise "Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}" unless [:reference, :struct, :scalar].include?(result_type)
+      @result_type = result_type
+    end
+
+    def result_entity?
+      self.result_type == :reference
+    end
+
+    def result_entity=(entity)
+      self.result_type = :reference
+      @entity = (entity.is_a?(Symbol) || entity.is_a?(String)) ? data_module.entity_by_name(entity) : entity
     end
 
     def entity
-      data_module.entity_by_name(result_class)
+      raise "entity called on #{qualified_name} before being specified" unless @entity
+      @entity
+    end
+
+    def result_struct?
+      self.result_type == :struct
+    end
+
+    def result_struct=(struct)
+      self.result_type = :struct
+      @struct = (struct.is_a?(Symbol) || struct.is_a?(String)) ? data_module.struct_by_name(struct) : struct
+    end
+
+    def struct
+      raise "struct called on #{qualified_name} before being specified" unless @struct
+      @struct
     end
 
     protected
@@ -505,7 +530,7 @@ module Domgen
       Domgen.error("entity= on #{qualified_name} is invalid as entity already specified") if @entity
       @entity = (entity.is_a?(Symbol) || entity.is_a?(String)) ? data_module.entity_by_name(entity) : entity
       queries.each do |query|
-        query.result_class = @entity.name unless query.result_class?
+        query.result_entity = @entity unless query.result_type?
       end
       @entity
     end
@@ -525,7 +550,7 @@ module Domgen
 
     def query(name, options = {}, &block)
       Domgen.error("Attempting to override query #{name} on #{self.name}") if @queries[name.to_s]
-      params = repository? ? options.merge(:result_class => entity.name) : options.dup
+      params = repository? ? options.merge(:result_entity => entity) : options.dup
       query = Query.new(self, name, params, &block)
       @queries[name.to_s] = query
       query
