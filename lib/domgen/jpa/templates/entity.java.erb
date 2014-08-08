@@ -14,7 +14,7 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 <%
    native_queries = entity.queries.select {|q| q.jpa.native? }
    if !native_queries.empty? %>@javax.persistence.NamedNativeQueries( value = {
-<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{q.jpa.native? ? ", resultClass = #{entity.jpa.name}.class" : ""} )" }.join(",\n") %>
+<%= native_queries.collect { |q| "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Domgen::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{q.jpa.native? && :select == q.query_type ? ", resultClass = #{entity.jpa.name}.class" : ""}, hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(", ")}} )" }.join(",\n") %>
 } )<% end -%>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity( name = "<%= entity.jpa.jpql_name %>" )<% if !entity.abstract? %>
