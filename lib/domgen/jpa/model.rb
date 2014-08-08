@@ -350,11 +350,11 @@ module Domgen
       end
 
       def hints
-        @hints ||= {}
+        @hints ||= default_hints
       end
 
       def actual_hints
-        default_hints.merge(hints)
+        hints
       end
 
       def self.valid_query_specs
