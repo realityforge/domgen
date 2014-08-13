@@ -29,8 +29,21 @@ public class <%= dao.jpa.dao_name %>
 %>    query.setParameter( <%= "\"#{p.name}\"" %>, <%= p.name %> );
 <%  end
    else %>
-<%  query.parameters.each_with_index do |p, index| %>
-    query.setParameter(<%= index + 1 %>, <%= p.name %>);
+<%  query.parameters.each_with_index do |p, index|
+    param_suffix = nil
+    if p.reference?
+      param_suffix = ".#{getter_for(p.referenced_entity.primary_key)}"
+    elsif p.enumeration? && p.enumeration.textual_values?
+      param_suffix = ".name()"
+    elsif p.enumeration? && p.enumeration.numeric_value?
+      param_suffix = ".ordinal()"
+    end
+    param_value = "#{p.name}#{param_suffix}"
+    if param_suffix && p.nullable?
+      param_value = "null == #{p.name} ? null : #{param_value}"
+    end
+%>
+    query.setParameter( <%= index + 1 %>, <%= param_value %> );
 <%  end
    end %>
 <% if query.jpa.offset -%>
