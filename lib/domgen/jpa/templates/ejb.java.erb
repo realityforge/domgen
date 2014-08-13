@@ -26,7 +26,7 @@ public class <%= dao.jpa.dao_name %>
 <%
    if !query.jpa.native?
     query.parameters.each do |p|
-%>    query.setParameter(<%= "\"#{p.name}\"" %>, <%= p.name %>);
+%>    query.setParameter( <%= "\"#{p.name}\"" %>, <%= p.name %> );
 <%  end
    else %>
 <%  query.parameters.each_with_index do |p, index| %>
