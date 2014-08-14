@@ -99,6 +99,65 @@ module Domgen
           end
         end
       end
+
+      def raise_error_sql(error_message)
+        "RAISE EXCEPTION '#{error_message}';"
+      end
+
+      def immuter_guard(entity, immutable_attributes)
+        nil
+      end
+
+      def immuter_sql(entity, immutable_attributes)
+        <<-SQL
+        SELECT 1
+        WHERE
+          (
+          #{immutable_attributes.collect do |a|
+                      if a.geometry?
+                        "            ST_Equals((NEW.#{a.sql.quoted_column_name}, OLD.#{a.sql.quoted_column_name}) = 0)"
+                      else
+                        "            (NEW.#{a.sql.quoted_column_name} != OLD.#{a.sql.quoted_column_name})"
+                      end
+                    end.join(" OR\n") }
+          )
+        SQL
+      end
+
+      def set_once_sql(attribute)
+        <<-SQL
+SELECT 1
+WHERE
+  OLD.#{attribute.sql.quoted_column_name} IS NOT NULL AND
+  (
+    NEW.#{attribute.sql.quoted_column_name} IS NULL OR
+    OLD.#{attribute.sql.quoted_column_name} != NEW.#{attribute.sql.quoted_column_name}
+  )
+SQL
+      end
+
+      def validations_trigger_sql(entity, validations, actions)
+        sql = ''
+        if !validations.empty?
+          validations.each do |validation|
+            sql += <<SQL
+#{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
+            #{validation.common_table_expression} IF EXISTS (#{validation.negative_sql}) THEN
+    ROLLBACK;
+    #{entity.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
+  END IF;
+#{validation.guard.nil? ? '' : "END" }
+SQL
+          end
+        end
+
+        unless actions.empty?
+          actions.each do |action|
+            sql += "\n#{action.sql};\n"
+          end
+        end
+        sql
+      end
     end
 
     class MssqlDialect
@@ -172,6 +231,76 @@ module Domgen
             table.constraint(constraint_name, :sql => "#{quote(a.sql.column_name)}.STSrid = #{a.geometry.srid}") unless table.constraint_by_name(constraint_name)
           end
         end
+      end
+
+      def raise_error_sql(error_message)
+        "RAISERROR ('#{error_message}', 16, 1) WITH SETERROR"
+      end
+
+      def immuter_guard(entity, immutable_attributes)
+        immutable_attributes.collect { |a| "UPDATE(#{a.sql.quoted_column_name})" }.join(" OR ")
+      end
+
+      def immuter_sql(entity, immutable_attributes)
+        pk = entity.primary_key
+        <<-SQL
+        SELECT I.#{pk.sql.quoted_column_name}
+        FROM inserted I, deleted D
+        WHERE
+          I.#{pk.sql.quoted_column_name} = D.#{pk.sql.quoted_column_name} AND
+          (
+          #{immutable_attributes.collect do |a|
+                      if a.geometry?
+                        "            (I.#{a.sql.quoted_column_name}.STEquals(D.#{a.sql.quoted_column_name}) = 0)"
+                      else
+                        "            (I.#{a.sql.quoted_column_name} != D.#{a.sql.quoted_column_name})"
+                      end
+                    end.join(" OR\n") }
+          )
+        SQL
+      end
+
+      def set_once_sql(attribute)
+        <<-SQL
+          SELECT 1
+          FROM
+          inserted I
+          JOIN deleted D ON D.#{attribute.entity.primary_key.sql.quoted_column_name} = I.#{attribute.entity.primary_key.sql.quoted_column_name}
+          WHERE
+            D.#{attribute.sql.quoted_column_name} IS NOT NULL AND
+            (
+              I.#{attribute.sql.quoted_column_name} IS NULL OR
+              D.#{attribute.sql.quoted_column_name} != I.#{attribute.sql.quoted_column_name}
+            )
+        SQL
+      end
+
+      def validations_trigger_sql(entity, validations, actions)
+        sql =''
+        if !validations.empty?
+          sql += "DECLARE @Ignored INT\n"
+          validations.each do |validation|
+            sql += <<SQL
+;
+#{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
+            #{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})
+  IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
+  BEGIN
+    ROLLBACK
+    #{entity.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
+    RETURN
+  END
+#{validation.guard.nil? ? '' : "END" }
+SQL
+          end
+        end
+
+        unless actions.empty?
+          actions.each do |action|
+            sql += "\n#{action.sql};\n"
+          end
+        end
+        sql
       end
     end
 
@@ -529,7 +658,7 @@ module Domgen
     facet.enhance(Repository) do
       def error_handler
         @error_handler ||= Proc.new do |error_message|
-          "RAISERROR ('#{error_message}', 16, 1) WITH SETERROR"
+          Domgen::Sql.dialect.raise_error_sql(error_message)
         end
       end
 
@@ -824,18 +953,7 @@ SQL
 
         entity.attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
-          validation(validation_name, :negative_sql => <<SQL, :after => :update) unless validation?(validation_name)
-SELECT I.#{a.entity.primary_key.sql.quoted_column_name}
-FROM
-inserted I
-JOIN deleted D ON D.#{a.entity.primary_key.sql.quoted_column_name} = I.#{a.entity.primary_key.sql.quoted_column_name}
-WHERE
-  D.#{a.sql.quoted_column_name} IS NOT NULL AND
-  (
-    I.#{a.sql.quoted_column_name} IS NULL OR
-    D.#{a.sql.quoted_column_name} != I.#{a.sql.quoted_column_name}
-  )
-SQL
+          validation(validation_name, :negative_sql => Domgen::Sql.dialect.set_once_sql(a), :after => :update) unless validation?(validation_name)
         end
 
         entity.cycle_constraints.each do |c|
@@ -897,26 +1015,11 @@ SQL
 
         immutable_attributes = self.entity.attributes.select { |a| a.immutable? && !a.primary_key? }
         if immutable_attributes.size > 0
-          pk = self.entity.primary_key
-
           validation_name = "Immuter"
           unless validation?(validation_name)
-            guard = immutable_attributes.collect { |a| "UPDATE(#{a.sql.quoted_column_name})" }.join(" OR ")
-            validation(validation_name, :negative_sql => <<SQL, :after => :update, :guard => guard)
-SELECT I.#{pk.sql.quoted_column_name}
-FROM inserted I, deleted D
-WHERE
-  I.#{pk.sql.quoted_column_name} = D.#{pk.sql.quoted_column_name} AND
-  (
-#{immutable_attributes.collect do |a|
-              if a.geometry?
-                "    (I.#{a.sql.quoted_column_name}.STEquals(D.#{a.sql.quoted_column_name}) = 0)"
-              else
-                "    (I.#{a.sql.quoted_column_name} != D.#{a.sql.quoted_column_name})"
-              end
-            end.join(" OR\n") }
-  )
-SQL
+            guard = Domgen::Sql.dialect.immuter_guard(self.entity, immutable_attributes)
+            guard_sql = Domgen::Sql.dialect.immuter_sql(self.entity, immutable_attributes)
+            validation(validation_name, :negative_sql => guard_sql, :after => :update, :guard => guard)
           end
         end
 
@@ -963,29 +1066,16 @@ SQL
 
         Domgen::Sql::Trigger::VALID_AFTER.each do |after|
           desc = "Trigger after #{after} on #{self.entity.name}\n\n"
-          sql = ""
           validations = self.validations.select { |v| v.after.include?(after) }.sort { |a, b| b.priority <=> a.priority }
           actions = self.actions.select { |a| a.after.include?(after) }.sort { |a, b| b.priority <=> a.priority }
           if !validations.empty? || !actions.empty?
             trigger_name = "After#{after.to_s.capitalize}"
             trigger(trigger_name) do |trigger|
+              sql = Domgen::Sql.dialect.validations_trigger_sql(self.entity, validations, actions)
 
               if !validations.empty?
                 desc += "Enforce following validations:\n"
-                sql += "DECLARE @Ignored INT\n"
                 validations.each do |validation|
-                  sql += <<SQL
-;
-#{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
-                  #{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})
-  IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
-  BEGIN
-    ROLLBACK
-    #{self.entity.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
-    RETURN
-  END
-#{validation.guard.nil? ? '' : "END" }
-SQL
                   desc += "* #{validation.name}#{validation.tags[:Description] ? ": " : ""}#{validation.tags[:Description]}\n"
                 end
                 desc += "\n"
@@ -994,7 +1084,6 @@ SQL
               if !actions.empty?
                 desc += "Performing the following actions:\n"
                 actions.each do |action|
-                  sql += "\n#{action.sql};\n"
                   desc += "* #{action.name}#{action.tags[:Description] ? ": " : ""}#{action.tags[:Description]}\n"
                 end
               end
