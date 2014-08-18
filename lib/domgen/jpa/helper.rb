@@ -18,7 +18,15 @@ module Domgen
       def j_jpa_field_attributes(attribute)
         s = ''
         s << "  @javax.persistence.Id\n" if attribute.primary_key?
-        s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
+        if attribute.sql.identity?
+          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n"
+        elsif attribute.sql.sequence?
+          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.SEQUENCE, generator = \"#{attribute.jpa.generator_name}\" )\n"
+          # Due to a bug in eclipselink the schema and sequence name attributes need to be quoted
+          schema = Domgen::Sql.dialect.quote(attribute.entity.data_module.sql.schema).gsub("\"", '\\"')
+          sequence_name = Domgen::Sql.dialect.quote(attribute.sql.sequence_name).gsub("\"", '\\"')
+          s << "  @javax.persistence.SequenceGenerator( name = \"#{attribute.jpa.generator_name}\", schema = \"#{schema}\", sequenceName = \"#{sequence_name}\", allocationSize = 1, initialValue = 1 )\n"
+        end
         s << gen_relation_annotation(attribute, true) if attribute.reference?
         s << gen_column_annotation(attribute)
         s << "  @javax.persistence.Basic( optional = #{attribute.nullable?}, fetch = javax.persistence.FetchType.EAGER )\n" unless attribute.reference?

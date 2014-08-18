@@ -5,6 +5,9 @@
 <% entity.attributes.select {|a| a.sql.identity?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") %> start 1 increment 1 maxvalue 2147483647 minvalue 1 cache 1;
 <% end %>
 
+<% entity.attributes.select {|a| a.sql.sequence?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote(a.sql.sequence_name) %> start 1 increment 1 maxvalue 2147483647 minvalue 1 cache 1;
+<% end %>
+
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
 %>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema + "." + Domgen::Sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") }'::text) " : '' %><%= a.nullable? ? '': 'NOT '%>NULL,

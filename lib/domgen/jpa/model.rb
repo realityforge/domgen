@@ -256,6 +256,11 @@ module Domgen
         @persistent.nil? ? !attribute.abstract? : @persistent
       end
 
+      def generator_name
+        raise "generator_name invoked on non-sequence" unless attribute.sql.sequence?
+        "#{attribute.entity.name}#{attribute.name}Generator"
+      end
+
       include Domgen::Java::EEJavaCharacteristic
 
       attr_writer :converter

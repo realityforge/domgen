@@ -1141,10 +1141,32 @@ SQL
         @sql_type ||= Domgen::Sql.dialect.column_type(self)
       end
 
-      attr_writer :identity
+      def generator_type
+        return :identity if @generator_type.nil? && attribute.generated_value? && attribute.primary_key?
+        @generator_type || :none
+      end
+
+      def generator_type=(generator_type)
+        raise "generator_type supplied #{generator_type} not valid" unless [:none, :identity, :sequence].include?(generator_type)
+        @generator_type = generator_type
+      end
+
+      def sequence?
+        self.generator_type == :sequence
+      end
 
       def identity?
-        @identity.nil? ? attribute.generated_value? && attribute.primary_key? : @identity
+        self.generator_type == :identity
+      end
+
+      def sequence_name
+        raise "sequence_name called on #{attribute.qualified_name} when not a sequence" unless self.sequence?
+        @sequence_name || "#{attribute.entity.sql.table_name}#{attribute.name}Sequence"
+      end
+
+      def sequence_name=(sequence_name)
+        raise "sequence_name= called on #{attribute.qualified_name} when not a sequence" if !@generator_type.nil? && !self.sequence?
+        @sequence_name = sequence_name
       end
 
       # TODO: MSSQL Specific
