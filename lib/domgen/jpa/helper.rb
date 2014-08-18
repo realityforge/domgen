@@ -62,7 +62,7 @@ module Domgen
         parameters << "name = \"#{attribute.sql.column_name}\""
         parameters << "nullable = #{attribute.nullable?}"
         parameters << "updatable = #{attribute.updatable?}"
-        parameters << "unique = #{attribute.unique?}"
+        parameters << "unique = #{attribute.unique? || attribute.primary_key?}"
         parameters << "insertable = #{!attribute.generated_value? || attribute.primary_key?}"
 
         if attribute.reference?
