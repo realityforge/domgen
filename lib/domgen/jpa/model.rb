@@ -218,6 +218,7 @@ module Domgen
           query_text = $1 if query.name =~ /^[fF]indAllBy(.+)$/
           query_text = $1 if query.name =~ /^[fF]indBy(.+)$/
           query_text = $1 if query.name =~ /^[gG]etBy(.+)$/
+          query_text = $1 if query.name =~ /^[dD]eleteBy(.+)$/
           next unless query_text
 
           entity_prefix = "O."
