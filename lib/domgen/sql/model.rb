@@ -1161,7 +1161,7 @@ SQL
 
       def sequence_name
         raise "sequence_name called on #{attribute.qualified_name} when not a sequence" unless self.sequence?
-        @sequence_name || "#{attribute.entity.sql.table_name}#{attribute.name}Sequence"
+        @sequence_name || "#{attribute.entity.sql.table_name}#{attribute.name}Seq"
       end
 
       def sequence_name=(sequence_name)
