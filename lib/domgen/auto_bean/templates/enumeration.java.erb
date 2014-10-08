@@ -2,7 +2,7 @@
 package <%= to_package(enumeration.auto_bean.qualified_name) %>;
 
 <%= description_javadoc_for(enumeration, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public enum <%= enumeration.auto_bean.name %>
   implements java.io.Serializable
 {

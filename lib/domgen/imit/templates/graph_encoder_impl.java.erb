@@ -27,7 +27,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
     end
 
 %>
-  @Override
+  @java.lang.Override
   public void encode<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", final #{filter_param}" %> )
   {
     _encode<%= graph.name %>_<%= entity.name %>( messages, object<%= filter_param.nil? ? '' : ", filter" %> );

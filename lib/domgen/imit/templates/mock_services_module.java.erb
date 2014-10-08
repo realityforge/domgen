@@ -2,11 +2,11 @@
 package <%= to_package(repository.imit.qualified_mock_services_module_name) %>;
 
 <%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.mock_services_module_name %>
   extends com.google.inject.AbstractModule
 {
-  @Override
+  @java.lang.Override
   protected void configure()
   {
     bind( <%= repository.imit.qualified_client_router_interface_name %>.class ).to( <%= repository.imit.qualified_client_router_impl_name %>.class );

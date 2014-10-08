@@ -2,7 +2,7 @@
 package <%= to_package(struct.gwt.qualified_interface_name) %>;
 
 <%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= struct.gwt.interface_name %>
 {
 <% struct.fields.each do |field| %>

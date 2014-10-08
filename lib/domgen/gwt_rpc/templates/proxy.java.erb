@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.gwt_rpc.qualified_proxy_name) %>;
 
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond" } )
 public class <%= service.gwt_rpc.proxy_name %>
   implements <%= service.gwt_rpc.qualified_facade_service_name %>
 {
@@ -101,7 +101,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
     {
       final Runnable runnable = new Runnable()
       {
-        @Override
+        @java.lang.Override
         public void run()
         {
           if ( null != errorCallback )
@@ -198,7 +198,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
   <% end %>
       final Runnable runnable = new Runnable()
       {
-        @Override
+        @java.lang.Override
         public void run()
         {
           if ( null != callback )

@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.jaxb.qualified_marshalling_test_name) %>;
 
-@SuppressWarnings( "deprecation" )
+@java.lang.SuppressWarnings( "deprecation" )
 public class <%= repository.jaxb.marshalling_test_name %>
 {
 <%
@@ -93,7 +93,7 @@ end
   private class TestLSResourceResolver
     implements org.w3c.dom.ls.LSResourceResolver
   {
-    @Override
+    @java.lang.Override
     public org.w3c.dom.ls.LSInput resolveResource( final String type,
                                                    final String namespaceURI,
                                                    final String publicId,
@@ -138,29 +138,29 @@ end
       _inputStream = inputStream;
     }
 
-    @Override
+    @java.lang.Override
     public java.io.Reader getCharacterStream()
     {
       return null;
     }
 
-    @Override
+    @java.lang.Override
     public void setCharacterStream( final java.io.Reader characterStream )
     {
     }
 
-    @Override
+    @java.lang.Override
     public java.io.InputStream getByteStream()
     {
       return null;
     }
 
-    @Override
+    @java.lang.Override
     public void setByteStream( final java.io.InputStream byteStream )
     {
     }
 
-    @Override
+    @java.lang.Override
     public String getStringData()
     {
       synchronized ( _inputStream )
@@ -178,67 +178,67 @@ end
       }
     }
 
-    @Override
+    @java.lang.Override
     public void setStringData( final String stringData )
     {
 
     }
 
-    @Override
+    @java.lang.Override
     public String getSystemId()
     {
       return _systemID;
     }
 
-    @Override
+    @java.lang.Override
     public void setSystemId( final String systemId )
     {
 
     }
 
-    @Override
+    @java.lang.Override
     public String getPublicId()
     {
       return _publicID;
     }
 
-    @Override
+    @java.lang.Override
     public void setPublicId( final String publicId )
     {
 
     }
 
-    @Override
+    @java.lang.Override
     public String getBaseURI()
     {
       return null;
     }
 
-    @Override
+    @java.lang.Override
     public void setBaseURI( final String baseURI )
     {
 
     }
 
-    @Override
+    @java.lang.Override
     public String getEncoding()
     {
       return null;
     }
 
-    @Override
+    @java.lang.Override
     public void setEncoding( final String encoding )
     {
 
     }
 
-    @Override
+    @java.lang.Override
     public boolean getCertifiedText()
     {
       return false;
     }
 
-    @Override
+    @java.lang.Override
     public void setCertifiedText( final boolean certifiedText )
     {
 

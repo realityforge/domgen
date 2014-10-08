@@ -2,7 +2,7 @@
 package <%= to_package(service.restygwt.qualified_facade_service_name) %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= service.restygwt.facade_service_name %>
 {
 <% service.methods.select{|method| method.restygwt?}.each do |method|

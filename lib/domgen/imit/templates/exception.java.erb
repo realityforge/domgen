@@ -2,7 +2,7 @@
 package <%= to_package(exception.imit.qualified_name) %>;
 
 <%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= exception.imit.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).imit.qualified_name %>
 {
   public <%= exception.imit.name %>() {}

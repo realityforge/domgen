@@ -2,7 +2,7 @@
 package <%= to_package(struct.auto_bean.qualified_name) %>;
 
 <%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= struct.auto_bean.name %>
   extends com.google.web.bindery.requestfactory.shared.ValueProxy
 {

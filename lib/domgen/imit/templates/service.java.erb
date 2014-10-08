@@ -2,7 +2,7 @@
 package <%= to_package(service.imit.qualified_name) %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= service.imit.name %>
 {
 <% service.methods.select{|method| method.imit?}.each do |method|

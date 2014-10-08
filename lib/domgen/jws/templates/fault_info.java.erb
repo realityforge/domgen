@@ -2,7 +2,7 @@
 package <%= to_package(exception.jws.qualified_fault_info_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <%= jaxb_exception_annotations(exception) %>
 public class <%= exception.jws.fault_info_name %>
 {
@@ -17,7 +17,7 @@ public class <%= exception.jws.fault_info_name %>
    *
    * @deprecated
    */
-  @Deprecated
+  @java.lang.Deprecated
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
   public <%= exception.jws.fault_info_name %>()
   {

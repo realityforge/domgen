@@ -13,13 +13,13 @@ public class <%= repository.imit.replication_interceptor_name %>
   @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
   private javax.persistence.EntityManager _entityManager;
 
-  @Override
+  @java.lang.Override
   protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
   {
     return _endpoint;
   }
 
-  @Override
+  @java.lang.Override
   protected javax.persistence.EntityManager getEntityManager()
   {
     return _entityManager;

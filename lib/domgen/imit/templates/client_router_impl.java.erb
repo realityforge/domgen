@@ -5,7 +5,7 @@ package <%= to_package(repository.imit.qualified_client_router_impl_name) %>;
 public class <%= repository.imit.client_router_impl_name %>
   implements <%= repository.imit.qualified_client_router_interface_name %>
 {
-  @Override
+  @java.lang.Override
   @javax.annotation.Nonnull
   public java.util.Map<String, java.io.Serializable> route( @javax.annotation.Nonnull Object entity )
   {
@@ -30,7 +30,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
     outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit?}
  -%>
-  @Override
+  @java.lang.Override
   @javax.annotation.Nonnull
   public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.imit.qualified_name %> entity )
   {

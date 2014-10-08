@@ -2,7 +2,7 @@
 package <%= to_package(enumeration.ee.qualified_name) %>;
 
 <%= description_javadoc_for(enumeration, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% if enumeration.jaxb?
 %>@javax.xml.bind.annotation.XmlType( name = "<%= enumeration.name %>Type"<%= namespace_annotation_parameter(enumeration.xml) %> )
 @javax.xml.bind.annotation.XmlEnum( <% if enumeration.numeric_values? %>java.lang.Integer.class<% else %>java.lang.String.class<% end %> )
@@ -28,7 +28,7 @@ public enum <%= enumeration.ee.name %>
   static class Deserializer
     extends org.codehaus.jackson.map.JsonDeserializer<<%= enumeration.ee.name %>>
   {
-    @Override
+    @java.lang.Override
     public <%= enumeration.ee.name %> deserialize( final org.codehaus.jackson.JsonParser parser, final org.codehaus.jackson.map.DeserializationContext context )
       throws java.io.IOException
     {

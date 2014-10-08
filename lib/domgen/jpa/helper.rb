@@ -142,7 +142,7 @@ module Domgen
 JAVA
         return java if immutable_attributes.empty?
         java = java + <<JAVA
-  @SuppressWarnings( { "ConstantConditions", "deprecation" } )
+  @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
   public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.name}"}.join(", ")})
   {
 #{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(", ")});\n"}
@@ -357,7 +357,7 @@ JAVA
 JAVA
         if attribute.updatable?
           java << <<JAVA
-  @SuppressWarnings( { "deprecation" } )
+  @java.lang.SuppressWarnings( { "deprecation" } )
   public void set#{name}( final #{type} value )
   {
  #{j_return_if_value_same(field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
@@ -383,7 +383,7 @@ JAVA
    * This method should not be called directly. It is called from the constructor of #{attribute.entity.jpa.qualified_name}.
    * @deprecated
    */
-  @Deprecated public
+  @java.lang.Deprecated public
 STR
         else
           ''
@@ -438,7 +438,7 @@ STR
         pk_type = nullable_annotate(pk, pk.jpa.java_type, false)
         equality_comparison = (!pk.jpa.primitive?) ? "null != key && key.equals( that.#{pk_getter} )" : "key == that.#{pk_getter}"
         s = <<JAVA
-  @Override
+  @java.lang.Override
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   public boolean equals( final Object o )
   {
@@ -459,7 +459,7 @@ STR
   }
 JAVA
         s += <<JAVA
-  @Override
+  @java.lang.Override
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   public int hashCode()
   {
@@ -490,7 +490,7 @@ JAVA
       def j_to_string_methods(entity)
         return '' if entity.abstract?
         s = <<JAVA
-  @Override
+  @java.lang.Override
   public String toString()
   {
     return "#{entity.name}[" +
@@ -627,16 +627,16 @@ JAVADOC
     Class<? extends javax.validation.Payload>[] payload() default { };
   }
 
-  @SuppressWarnings( { "PMD.UselessParentheses" } )
+  @java.lang.SuppressWarnings( { "PMD.UselessParentheses" } )
   public static class #{constraint_name}Validator
     implements javax.validation.ConstraintValidator<#{validation_name(constraint_name)}, #{entity.jpa.name}>
   {
-    @Override
+    @java.lang.Override
     public void initialize( final #{validation_name(constraint_name)} constraintAnnotation )
     {
     }
 
-    @Override
+    @java.lang.Override
     public boolean isValid( final #{entity.jpa.name} object, final javax.validation.ConstraintValidatorContext constraintContext )
     {
       if ( null == object )

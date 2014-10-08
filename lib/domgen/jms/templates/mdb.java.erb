@@ -15,7 +15,7 @@ config_properties['subscriptionDurability'] = method.jms.durable? ? 'Durable' : 
 -%>
 
 @javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.MessageDriven( name = "<%= method.jms.resource_name %>",
                           mappedName = "<%= method.jms.destination_resource_name %>",
                           activationConfig =

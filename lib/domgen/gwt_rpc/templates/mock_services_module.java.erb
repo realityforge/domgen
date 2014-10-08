@@ -2,11 +2,11 @@
 package <%= to_package(repository.gwt_rpc.qualified_mock_services_module_name) %>;
 
 <%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.gwt_rpc.mock_services_module_name %>
   extends com.google.inject.AbstractModule
 {
-  @Override
+  @java.lang.Override
   protected void configure()
   {
 <%

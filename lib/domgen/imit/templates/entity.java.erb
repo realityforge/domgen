@@ -6,7 +6,7 @@ import org.realityforge.replicant.client.EntityRepository;
 
 <%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_name}\n" :
@@ -150,7 +150,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
    *
    * @deprecated
    */
-  @Deprecated
+  @java.lang.Deprecated
   public <% end %>final void add<%= name %>( final <%= type %> value )
   {
     safeGet<%= plural_name %>().add( value );
@@ -162,7 +162,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
    *
    * @deprecated
    */
-  @Deprecated
+  @java.lang.Deprecated
   public <% end %>final void remove<%= name %>( final <%= type %> value )
   {
     if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.name ) %>, value );
@@ -188,7 +188,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
    *
    * @deprecated
    */
-  @Deprecated
+  @java.lang.Deprecated
   protected <% end %>final void set<%= name %>( final <%= type %> value )
   {
     if( null != <%= Domgen::Naming.camelize(name) %> && isCreated() && null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.name ) %>, <%= Domgen::Naming.camelize(name) %> );
@@ -216,7 +216,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% end %>
   }
 
-  @Override
+  @java.lang.Override
   public void verify()
     throws Exception
   {
@@ -291,7 +291,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 
 <% linkable_attributes.each do |attribute|
 %>
-    @SuppressWarnings( "deprecation" )
+    @java.lang.SuppressWarnings( "deprecation" )
     private void delink<%= attribute.imit.name %>()
     {
       if( null != _<%= Domgen::Naming.camelize(attribute.imit.name) %> )
@@ -302,7 +302,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
       }
     }
 
-    @SuppressWarnings( "deprecation" )
+    @java.lang.SuppressWarnings( "deprecation" )
     private void link<%= attribute.imit.name %>()
     {
       if( null == _<%= Domgen::Naming.camelize(attribute.imit.name) %> <%= attribute.nullable? ? "&& null != _#{Domgen::Naming.camelize(attribute.referencing_link_name)}" : "" %> )
@@ -326,7 +326,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     return _created;
   }
 
-  @Override
+  @java.lang.Override
   public final boolean isValid()
   {
     return null != _repository;
@@ -349,7 +349,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     }
   }
 
-  @Override
+  @java.lang.Override
   public final void link()
   {
     checkValidity();
@@ -385,7 +385,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     }
   }
 
-  @Override
+  @java.lang.Override
   public final boolean isLinked()
   {
     return _linked;
@@ -393,7 +393,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 <% end %>
 
 <% if !entity.abstract? %>
-  @Override
+  @java.lang.Override
   public boolean equals( final Object o )
   {
     if ( this == o )
@@ -412,13 +412,13 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   }
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_COMPARISON_OF_NULL_AND_NONNULL_VALUE"})
-  @Override
+  @java.lang.Override
   public int hashCode()
   {
     return <%=  !entity.primary_key.imit.primitive? ? "null != #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name }() ? #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name }().hashCode() : System.identityHashCode( this )" : "#{getter_prefix(entity.primary_key)}#{entity.primary_key.name }()" %>;
   }
 
-  @Override
+  @java.lang.Override
   public String toString()
   {
     return "<%= entity.qualified_name %>[" + <%=

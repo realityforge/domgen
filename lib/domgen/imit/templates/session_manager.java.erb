@@ -25,8 +25,8 @@ public abstract class <%= repository.imit.session_manager_name %>
 
   protected abstract <%= repository.imit.qualified_server_session_context_name %> getContext();
 
-  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-  @Override
+  @java.lang.SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+  @java.lang.Override
   public boolean saveEntityMessages( @javax.annotation.Nullable final String sessionID,
                                      @javax.annotation.Nullable final String requestID,
                                      @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> messages,
@@ -157,7 +157,7 @@ public abstract class <%= repository.imit.session_manager_name %>
   }
 
   @javax.annotation.Nonnull
-  @Override
+  @java.lang.Override
   protected <%= repository.imit.qualified_session_name %> newSessionInfo()
   {
     return new <%= repository.imit.qualified_session_name %>( java.util.UUID.randomUUID().toString() );

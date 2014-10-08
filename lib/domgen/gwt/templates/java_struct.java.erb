@@ -2,7 +2,7 @@
 package <%= to_package(struct.gwt.qualified_java_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 final class <%= struct.gwt.java_name %>
   implements <%= struct.gwt.qualified_interface_name %>
 {
@@ -16,7 +16,7 @@ final class <%= struct.gwt.java_name %>
    *
    * @deprecated
    */
-  @Deprecated
+  @java.lang.Deprecated
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
   protected <%= struct.gwt.java_name %>()
   {

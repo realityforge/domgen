@@ -2,7 +2,7 @@
 package <%= to_package(service.jmx.qualified_service_name) %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.management.MXBean
 public interface <%= service.jmx.service_name %>
 {

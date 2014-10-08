@@ -2,7 +2,7 @@
 package <%= to_package(service.gwt_rpc.qualified_async_rpc_service_name) %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= service.gwt_rpc.async_rpc_service_name %>
 {
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|

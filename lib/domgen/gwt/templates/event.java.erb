@@ -42,13 +42,13 @@ public final class <%= message.gwt.event_name %>
   }
 <% end %>
 
-  @Override
+  @java.lang.Override
   public Type<Handler> getAssociatedType()
   {
     return TYPE;
   }
 
-  @Override
+  @java.lang.Override
   protected void dispatch( final Handler handler )
   {
     handler.on<%= message.name %>( this );

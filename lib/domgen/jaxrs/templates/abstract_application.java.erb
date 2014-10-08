@@ -2,13 +2,13 @@
 package <%= to_package(repository.jaxrs.qualified_abstract_application_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public abstract class <%= repository.jaxrs.abstract_application_name %>
   extends javax.ws.rs.core.Application
 {
   public static final String APPLICATION_PATH = "/<%= repository.jaxrs.path %>";
 
-  @Override
+  @java.lang.Override
   public java.util.Set<Class<?>> getClasses()
   {
     final java.util.Set<Class<?>> classes = new java.util.HashSet<Class<?>>();

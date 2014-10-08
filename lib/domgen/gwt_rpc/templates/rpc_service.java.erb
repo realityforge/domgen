@@ -2,7 +2,7 @@
 package <%= to_package(service.gwt_rpc.qualified_rpc_service_name) %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @com.google.gwt.user.client.rpc.RemoteServiceRelativePath( <%= service.gwt_rpc.rpc_service_name %>.PATH )
 public interface <%= service.gwt_rpc.rpc_service_name %>
   extends com.google.gwt.user.client.rpc.<%= service.gwt_rpc.xsrf_protected? ? "XsrfProtectedService" : "RemoteService" %>

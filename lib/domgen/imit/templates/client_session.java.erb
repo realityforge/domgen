@@ -28,13 +28,13 @@ public class <%= repository.imit.client_session_name %>
   filter_param = filter_type ? "#{filter_type} #{filter_var}" : nil
   std_param = "@javax.annotation.Nullable final Runnable action"
 -%>
-  @Override
+  @java.lang.Override
   public boolean isSubscribedTo<%= graph.name %>(<%= graph_id_param %>)
   {
     return isSubscribed( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> );
   }
 
-  @Override
+  @java.lang.Override
   public void subscribeTo<%= graph.name %>(<%= [graph_id_param, filter_param, std_param].compact.join(", ") %>)
   {
     requestSubscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
@@ -47,7 +47,7 @@ public class <%= repository.imit.client_session_name %>
   }
 
 <% end -%>
-  @Override
+  @java.lang.Override
   public void unsubscribeFrom<%= graph.name %>(<%= [graph_id_param, std_param].compact.join(", ") %>)
   {
     requestUnsubscribe( <%= key %>, <%= graph_id %>, action );

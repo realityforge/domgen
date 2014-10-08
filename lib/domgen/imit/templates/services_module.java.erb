@@ -2,11 +2,11 @@
 package <%= to_package(repository.imit.qualified_services_module_name) %>;
 
 <%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.services_module_name %>
   extends org.realityforge.replicant.client.json.gwt.ReplicantGinModule
 {
-  @Override
+  @java.lang.Override
   protected void configure()
   {
     super.configure();

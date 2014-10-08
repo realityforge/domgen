@@ -2,7 +2,7 @@
 package <%= to_package(service.restygwt.qualified_service_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ws.rs.Path( <%= service.restygwt.service_name %>.PATH )
 <%= jaxrs_produces(service.jaxrs) -%>
 <%= jaxrs_consumes(service.jaxrs) -%>

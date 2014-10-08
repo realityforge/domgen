@@ -10,14 +10,14 @@ public abstract class <%= repository.imit.data_loader_service_name %>
   }
 
   @javax.annotation.Nonnull
-  @Override
+  @java.lang.Override
   protected <%= repository.imit.qualified_graph_enum_name %> channelToGraph( final int channel )
     throws IllegalArgumentException
   {
     return <%= repository.imit.qualified_graph_enum_name %>.values()[ channel ];
   }
 
-  @Override
+  @java.lang.Override
   protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
   {
     <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
@@ -43,7 +43,7 @@ public abstract class <%= repository.imit.data_loader_service_name %>
     }
   }
 
-  @Override
+  @java.lang.Override
   protected <%= repository.imit.qualified_repository_debugger_name %> getEntityRepositoryDebugger()
   {
     return new <%= repository.imit.qualified_repository_debugger_name %>();

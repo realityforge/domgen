@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(dao.jpa.qualified_dao_name) %>;
 
-@SuppressWarnings( { "UnusedDeclaration" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
 @javax.ejb.Stateless( name = <%= dao.jpa.qualified_dao_service_name %>.NAME )
@@ -18,7 +18,7 @@ public class <%= dao.jpa.dao_name %>
   private javax.persistence.EntityManager em;
 
 <% dao.queries.each do |query| %>
-<%= description_javadoc_for(query) %>  @Override
+<%= description_javadoc_for(query) %>  @java.lang.Override
   public <%= query_result_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
     final javax.persistence.TypedQuery<<%= query_component_result_type(query) %>> query =
@@ -77,32 +77,32 @@ public class <%= dao.jpa.dao_name %>
 
 <% if dao.repository? %>
 <% if dao.entity.jpa.detachable? %>
-  @Override
+  @java.lang.Override
   public void detach( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.detach( entity );
   }
 
-  @Override
+  @java.lang.Override
   public <%= dao.entity.jpa.qualified_name %> merge( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     return em.merge( entity );
   }
 <% end %>
-  @Override
+  @java.lang.Override
   public void persist( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.persist( entity );
     em.flush();
   }
 
-  @Override
+  @java.lang.Override
   public void refresh( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.refresh( entity );
   }
 
-  @Override
+  @java.lang.Override
   public void remove( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.remove( entity );
