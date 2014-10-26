@@ -13,7 +13,11 @@ public class <%= service.jaxrs.boundary_name %>
 {
   public static final String EJB_NAME = "<%= service.jaxrs.service_name %>";
 
+<% if service.data_module.repository.ee.use_cdi? -%>
+  @javax.inject.Inject
+<% else %>
   @javax.ejb.EJB
+<% end %>
   private <%= service.ejb.qualified_boundary_interface_name %> _service;
 
 <% service.methods.select{|method| method.jaxrs?}.each do |method|

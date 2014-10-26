@@ -3,8 +3,14 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
+
+<% if dao.data_module.repository.ee.use_cdi? -%>
+@javax.enterprise.context.ApplicationScoped
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.MANDATORY )
+<% else -%>
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.MANDATORY )
 @javax.ejb.Stateless( name = <%= dao.jpa.qualified_dao_service_name %>.NAME )
+<% end -%>
 public class <%= dao.jpa.dao_name %>
     implements <%= dao.jpa.qualified_dao_service_name %>
 {

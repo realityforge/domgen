@@ -36,7 +36,11 @@ public class <%= method.jms.mdb_name %>
 {
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.jms.mdb_name %>.class.getName() );
 
+<% if method.service.data_module.repository.ee.use_cdi? -%>
+  @javax.inject.Inject
+<% else %>
   @javax.ejb.EJB
+<% end %>
   private <%= method.service.ejb.service_name %> _service;
 
 <%

@@ -13,7 +13,11 @@ public abstract class <%= repository.imit.session_manager_name %>
   private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
 
 <% repository.imit.graphs.select{|g| g.instance_root? && g.filter_parameter.nil? }.collect{|g|repository.entity_by_name(g.instance_root)}.uniq.each do |entity| %>
+<% if repository.ee.use_cdi? -%>
+  @javax.inject.Inject
+<% else %>
   @javax.ejb.EJB
+<% end %>
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= entity.name %>Repository;
 <% end %>
 

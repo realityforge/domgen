@@ -3,7 +3,9 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+<% if dao.data_module.repository.ee.use_cdi? -%>
 @javax.ejb.Local
+<% end -%>
 public interface <%= dao.jpa.dao_service_name %>
 {
   String NAME = "<%= dao.data_module.repository.name %>.<%= dao.data_module.name %>.<%= dao.jpa.dao_service_name %>";
