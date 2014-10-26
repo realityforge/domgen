@@ -8,7 +8,7 @@ package <%= to_package(service.ejb.qualified_boundary_interface_name) %>;
 <% end -%>
 public interface <%= service.ejb.boundary_interface_name %>
 {
-  String EJB_NAME = "<%= service.ejb.boundary_ejb_name %>";
+  String NAME = "<%= service.ejb.boundary_ejb_name %>";
 
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)

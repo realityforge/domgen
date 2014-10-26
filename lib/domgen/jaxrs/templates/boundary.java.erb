@@ -5,13 +5,13 @@ package <%= to_package(service.jaxrs.qualified_boundary_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.NEVER )
 @javax.ejb.Startup
-@javax.ejb.Singleton( name = <%= service.jaxrs.boundary_name %>.EJB_NAME )
+@javax.ejb.Singleton( name = <%= service.jaxrs.boundary_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 public class <%= service.jaxrs.boundary_name %>
 <%= service.jaxrs.boundary_extends ? "  extends #{service.jaxrs.boundary_extends}" : "" %>
   implements <%= service.jaxrs.qualified_service_name %>
 {
-  public static final String EJB_NAME = "<%= service.jaxrs.service_name %>";
+  public static final String NAME = "<%= service.jaxrs.service_name %>";
 
 <% if service.data_module.repository.ee.use_cdi? -%>
   @javax.inject.Inject

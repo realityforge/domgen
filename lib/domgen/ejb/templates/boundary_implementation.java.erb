@@ -4,7 +4,7 @@ package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
 @javax.ejb.Startup
-@javax.ejb.Singleton( name = <%= service.ejb.qualified_boundary_interface_name %>.EJB_NAME )
+@javax.ejb.Singleton( name = <%= service.ejb.qualified_boundary_interface_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 public class <%= service.ejb.boundary_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}" : "" %>
