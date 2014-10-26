@@ -2,7 +2,7 @@
 package <%= to_package(repository.imit.qualified_server_session_context_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-<% if service.data_module.repository.ee.use_cdi? -%>
+<% if repository.ee.use_cdi? -%>
 @javax.ejb.Local
 <% end -%>
 public interface <%= repository.imit.server_session_context_name %>
