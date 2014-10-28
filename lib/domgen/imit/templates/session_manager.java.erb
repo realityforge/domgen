@@ -127,6 +127,9 @@ public abstract class <%= repository.imit.session_manager_name %>
 
         if ( null != <%= graph.name %> )
         {
+<% if graph.cacheable? && !graph.external_cache_management? -%>
+          _auto<%= graph.name %>RuntimeIndex++;
+<% end -%>
           for ( final <%= repository.imit.qualified_session_name %> session : values )
           {
             if ( session.<%= graph.instance_root? ? "is#{graph.name}Interesting" : "isInterestedIn#{graph.name}" %>(<%= param %> ) <%= extra_interest_filter %>)
@@ -234,6 +237,10 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   private org.realityforge.replicant.server.EntityMessageSet _cached<%= graph.name %>Messages;
   private final java.util.concurrent.locks.ReadWriteLock _lock<%= graph.name %>Cache = new java.util.concurrent.locks.ReentrantReadWriteLock();
   private String _cached<%= graph.name %>Key;
+<% unless graph.external_cache_management? -%>
+  private java.util.UUID _auto<%= graph.name %>RuntimeKey = java.util.UUID.randomUUID();
+  private long _auto<%= graph.name %>RuntimeIndex;
+<% end -%>
 <% end -%>
 
   public <%= graph.cacheable? ? "boolean" : "void" %> subscribeTo<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= update_param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
@@ -250,7 +257,11 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 <% else -%>
       session.setInterestedIn<%= graph.name %>( true );
 <% if graph.cacheable? -%>
+<% if graph.external_cache_management? -%>
       final String cached<%= graph.name %>Key = getContext().get<%= graph.name %>CacheKey();
+<% else -%>
+      final String cached<%= graph.name %>Key = _auto<%= graph.name %>RuntimeKey + "-" + _auto<%= graph.name %>RuntimeIndex;
+<% end -%>
       _lock<%= graph.name %>Cache.readLock().lock();
       final boolean uncached;
       try

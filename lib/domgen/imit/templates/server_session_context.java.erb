@@ -42,7 +42,7 @@ end
       filter_param = "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter"
     end
 if !graph.instance_root?
- if graph.cacheable? -%>
+ if graph.cacheable? && graph.external_cache_management? -%>
   @javax.annotation.Nullable
   String get<%= graph.name %>CacheKey();
 <% end %>

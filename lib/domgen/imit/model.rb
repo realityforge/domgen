@@ -39,6 +39,15 @@ module Domgen
         @cacheable = cacheable
       end
 
+      def external_cache_management?
+        raise "external_cache_management? invoked on #{qualified_name} when not cacheable" unless cacheable?
+        @external_cache_management.nil? ? true : !!@external_cache_management
+      end
+
+      def external_cache_management=(external_cache_management)
+        @external_cache_management = external_cache_management
+      end
+
       def instance_root?
         !@instance_root.nil?
       end
