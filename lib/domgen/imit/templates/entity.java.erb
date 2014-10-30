@@ -132,7 +132,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
 <% end %>  }
 <% end %>
-<% entity.imit.referencing_client_side_attributes.each do |attribute|
+<% entity.imit.referencing_client_side_attributes.select{|a| a.imit.client_side?}.each do |attribute|
         name = attribute.inverse.name
         type = attribute.entity.imit.qualified_name
         if attribute.inverse.multiplicity == :many

@@ -417,8 +417,12 @@ module Domgen
     end
 
     facet.enhance(Attribute) do
+      def client_side=(client_side)
+        @client_side = client_side
+      end
+
       def client_side?
-        !attribute.reference? || attribute.referenced_entity.imit?
+        @client_side.nil? ? (!attribute.reference? || attribute.referenced_entity.imit?) : @client_side
       end
 
       def filter_in_graphs=(filter_in_graphs)
