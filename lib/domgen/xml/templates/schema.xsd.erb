@@ -21,7 +21,7 @@
     </xs:restriction>
   </xs:simpleType>
 <% end -%>
-<% data_module.structs.each do |struct| -%>
+<% data_module.structs.select{|s|s.xml?}.each do |struct| -%>
   <xs:element name="<%= struct.xml.name %>" type="<%= data_module.xml.prefix %>:<%= struct.name %>"/>
   <xs:complexType name="<%= struct.name %>">
 <% if !struct.fields.select{|f| f.collection? || f.struct?}.empty? -%>
