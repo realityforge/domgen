@@ -99,11 +99,19 @@ Domgen.template_set(:imit_gwt_proxy) do |template_set|
                         'main/java/#{exception.imit.qualified_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::HELPERS)
 end
-Domgen.template_set(:imit_gwt_proxy_service_test) do |template_set|
+Domgen.template_set(:imit_test_module) do |template_set|
   template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
                         :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/mock_services_module.java.erb",
                         'test/java/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
+                        [Domgen::Java::Helper])
+end
+
+Domgen.template_set(:imit_module) do |template_set|
+  template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/mock_services_module.java.erb",
+                        'main/java/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
                         [Domgen::Java::Helper])
 end
 
@@ -174,5 +182,5 @@ end
 
 Domgen.template_set(:imit_shared => [:imit_metadata])
 Domgen.template_set(:imit_server => [:imit_jpa])
-Domgen.template_set(:imit_client => [:imit_gwt_proxy_service_test, :imit_gwt_proxy, :imit_entity])
+Domgen.template_set(:imit_client => [:imit_test_module, :imit_gwt_proxy, :imit_entity])
 Domgen.template_set(:imit => [:imit_client, :imit_server, :imit_shared])

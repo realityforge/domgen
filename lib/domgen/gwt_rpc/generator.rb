@@ -56,11 +56,19 @@ Domgen.template_set(:gwt_rpc_client_service) do |template_set|
                         'main/java/#{service.gwt_rpc.qualified_proxy_name.gsub(".","/")}.java',
                         Domgen::Generator::GwtRpc::HELPERS)
 end
-Domgen.template_set(:gwt_rpc_client_service_test) do |template_set|
+Domgen.template_set(:gwt_rpc_test_module) do |template_set|
   template_set.template(Domgen::Generator::GwtRpc::FACETS,
                         :repository,
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/mock_services_module.java.erb",
                         'test/java/#{repository.gwt_rpc.qualified_mock_services_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::GwtRpc::HELPERS)
+end
+
+Domgen.template_set(:gwt_rpc_module) do |template_set|
+  template_set.template(Domgen::Generator::GwtRpc::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/mock_services_module.java.erb",
+                        'main/java/#{repository.gwt_rpc.qualified_mock_services_module_name.gsub(".","/")}.java',
                         Domgen::Generator::GwtRpc::HELPERS)
 end
 
@@ -73,6 +81,6 @@ Domgen.template_set(:gwt_rpc_server_service) do |template_set|
 end
 
 Domgen.template_set(:gwt_rpc_shared => [:gwt_rpc_shared_service])
-Domgen.template_set(:gwt_rpc_client => [:gwt_rpc_client_service, :gwt_rpc_client_service_test, :gwt_client_jso])
+Domgen.template_set(:gwt_rpc_client => [:gwt_rpc_client_service, :gwt_rpc_test_module, :gwt_client_jso])
 Domgen.template_set(:gwt_rpc_server => [:gwt_rpc_server_service])
 Domgen.template_set(:gwt_rpc => [:gwt_rpc_shared, :gwt_rpc_client, :gwt_rpc_server])
