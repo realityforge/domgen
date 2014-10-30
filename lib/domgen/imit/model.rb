@@ -291,8 +291,8 @@ module Domgen
                 if graph.cacheable?
                   m.imit.graph_to_subscribe = graph.name
                   m.text(:ETag, :nullable => true)
+                  m.returns(:boolean)
                 end
-                m.returns(:boolean)
                 m.exception(self.invalid_session_exception)
               end
               s.method(:"UnsubscribeFrom#{graph.name}") do |m|
