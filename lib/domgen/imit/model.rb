@@ -262,7 +262,7 @@ module Domgen
           repository.imit.graphs.each do |graph|
             if graph.instance_root?
               filter_options = {}
-              if graph.filter_parameter.filter_type && graph.filter_parameter.filter_type == :struct
+              if graph.filtered? && graph.filter_parameter.filter_type == :struct
                 filter_options[:referenced_struct] = graph.filter_parameter.referenced_struct
               end
               s.method(:"SubscribeTo#{graph.name}") do |m|
