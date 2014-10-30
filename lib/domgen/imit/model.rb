@@ -200,17 +200,19 @@ module Domgen
       java_artifact :message_generator, :comm, :server, :imit, '#{repository.name}EntityMessageGenerator'
       java_artifact :graph_encoder, :comm, :server, :imit, '#{repository.name}GraphEncoder'
       java_artifact :change_recorder, :comm, :server, :imit, '#{repository.name}ChangeRecorder'
+      java_artifact :change_recorder_impl, :comm, :server, :imit, '#{repository.name}ChangeRecorderImpl'
+      java_artifact :change_listener, :comm, :server, :imit, '#{repository.name}EntityChangeListener'
       java_artifact :replication_interceptor, :comm, :server, :imit, '#{repository.name}ReplicationInterceptor'
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{repository.name}GraphEncoderImpl'
       java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
       java_artifact :mock_services_module, :ioc, :client, :imit, '#{repository.name}MockImitServicesModule'
 
-      def auto_register_change_recorder=(auto_register_change_recorder)
-        @auto_register_change_recorder = !!auto_register_change_recorder
+      def auto_register_change_listener=(auto_register_change_listener)
+        @auto_register_change_listener = !!auto_register_change_listener
       end
 
-      def auto_register_change_recorder?
-        @auto_register_change_recorder.nil? ? true : @auto_register_change_recorder
+      def auto_register_change_listener?
+        @auto_register_change_listener.nil? ? true : @auto_register_change_listener
       end
 
       def graphs
@@ -410,8 +412,8 @@ module Domgen
       end
 
       def post_verify
-        if entity.data_module.repository.imit.auto_register_change_recorder? && entity.jpa?
-          entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_recorder_name
+        if entity.data_module.repository.imit.auto_register_change_listener? && entity.jpa?
+          entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_listener_name
         end
       end
     end
