@@ -229,6 +229,14 @@ module Domgen
         graph
       end
 
+      def subscription_manager=(subscription_manager)
+        @subscription_manager = subscription_manager
+      end
+
+      def subscription_manager
+        @subscription_manager
+      end
+
       def invalid_session_exception=(invalid_session_exception)
         @invalid_session_exception = invalid_session_exception
       end
@@ -238,11 +246,61 @@ module Domgen
       end
 
       def pre_verify
+        raise "subscription_manager not specified" if self.subscription_manager.nil? && self.graphs.size > 0
+        begin
+          repository.service_by_name(self.subscription_manager)
+        rescue
+          raise "Bad subscription_manager specified"
+        end
         raise "invalid_session_exception not specified" if self.invalid_session_exception.nil? && self.graphs.size > 0
         begin
           repository.exception_by_name(self.invalid_session_exception)
         rescue
           raise "Bad invalid_session_exception specified"
+        end
+        repository.service_by_name(self.subscription_manager).tap do |s|
+          repository.imit.graphs.each do |graph|
+            if graph.instance_root?
+              filter_options = {}
+              if graph.filter_parameter.filter_type && graph.filter_parameter.filter_type == :struct
+                filter_options[:referenced_struct] = graph.filter_parameter.referenced_struct
+              end
+              s.method(:"SubscribeTo#{graph.name}") do |m|
+                m.string(:ClientID, 50)
+                m.reference(graph.instance_root)
+                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options) if graph.filtered?
+                m.exception(self.invalid_session_exception)
+              end
+              if graph.filtered?
+                s.method(:"Update#{graph.name}Subscription") do |m|
+                  m.string(:ClientID, 50)
+                  m.reference(graph.instance_root)
+                  m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options)
+                  m.exception(self.invalid_session_exception)
+                end
+              end
+              s.method(:"UnsubscribeFrom#{graph.name}") do |m|
+                m.string(:ClientID, 50)
+                m.reference(graph.instance_root)
+                m.exception(self.invalid_session_exception)
+              end
+
+            else
+              s.method(:"SubscribeTo#{graph.name}") do |m|
+                m.text(:ClientID)
+                if graph.cacheable?
+                  m.imit.graph_to_subscribe = graph.name
+                  m.text(:ETag, :nullable => true)
+                end
+                m.returns(:boolean)
+                m.exception(self.invalid_session_exception)
+              end
+              s.method(:"UnsubscribeFrom#{graph.name}") do |m|
+                m.string(:ClientID, 50)
+                m.exception(self.invalid_session_exception)
+              end
+            end
+          end
         end
       end
 
