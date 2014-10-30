@@ -2,7 +2,7 @@
 package <%= to_package(repository.imit.qualified_data_loader_service_name) %>;
 
 public abstract class <%= repository.imit.data_loader_service_name %>
-  extends org.realityforge.replicant.client.json.gwt.GwtDataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
+  extends org.realityforge.replicant.client.json.gwt.WebPollerDataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
 {
   private final <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> _remoteSubscriptionService;
 
@@ -10,6 +10,12 @@ public abstract class <%= repository.imit.data_loader_service_name %>
   {
     super( changeMapper, changeBroker, repository, cacheService, subscriptionService, replicantConfig );
     _remoteSubscriptionService = remoteSubscriptionService;
+  }
+
+  @javax.annotation.Nonnull
+  protected <%= repository.imit.qualified_client_session_name %> createSession( @javax.annotation.Nonnull final String sessionID )
+  {
+    return new <%= repository.imit.qualified_client_session_name %>( this, sessionID );
   }
 
   protected final <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> getRemoteSubscriptionService()
