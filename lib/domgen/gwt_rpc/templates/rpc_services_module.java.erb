@@ -28,6 +28,26 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
 <%
   end
 %>
+  private static String c_baseURL;
+
+  public static void setBaseURL( @javax.annotation.Nonnull final String baseURL )
+  {
+    if( null != c_baseURL )
+    {
+      throw new IllegalStateException( "Attempting to re-initialialize base url." );
+    }
+    else if( null == baseURL )
+    {
+      throw new IllegalStateException( "Attempting to initialialize base url to null." );
+    }
+    c_baseURL = baseURL;
+  }
+
+  public static String getBaseURL()
+  {
+    return null == c_baseURL ? com.google.gwt.core.client.GWT.getHostPageBaseURL() : c_baseURL;
+  }
+
   public static void initialize( final String moduleName<% if needs_xsrf %>, final com.google.gwt.user.client.rpc.XsrfToken xsrfToken<% end -%> )
   {
 <%
@@ -73,7 +93,7 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
 <% if service.imit? -%>
     ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( org.realityforge.replicant.client.transport.gwt.ReplicantRpcRequestBuilder.INSTANCE );
 <% end -%>
-    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( com.google.gwt.core.client.GWT.getHostPageBaseURL() + "<%= repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_rpc_service_name %>.PATH );
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( getBaseURL() + "<%= repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_rpc_service_name %>.PATH );
     return service;
   }
 <%
