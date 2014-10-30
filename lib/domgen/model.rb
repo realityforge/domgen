@@ -1048,6 +1048,7 @@ module Domgen
 
   class Exception < Domgen.FacetedElement(:data_module)
     include InheritableCharacteristicContainer
+    include GenerateFacet
 
     attr_reader :name
 
