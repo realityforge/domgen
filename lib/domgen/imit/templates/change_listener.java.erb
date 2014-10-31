@@ -31,9 +31,6 @@ public class <%= repository.imit.change_listener_name %>
     }
   }
 
-  /** Standard JNDI key for BeanManager. */
-  private static final String BEAN_MANAGER_KEY = "java:comp/BeanManager";
-
   /*
    * The registry and recorder are actually accessed via JNDI. The @Resource/@Inject annotations is ignored in production as JPA 2.0 does not
    * support it. However our Guice based test infrastructure uses it to populate and avoid instantiation of JNDI
