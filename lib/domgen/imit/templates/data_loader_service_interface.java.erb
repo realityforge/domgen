@@ -1,0 +1,13 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_data_loader_service_interface_name) %>;
+
+public interface <%= repository.imit.data_loader_service_interface_name %>
+{
+  boolean isConnected();
+
+  void connect();
+
+  void disconnect();
+
+  <%= repository.imit.qualified_client_session_name %> getSession();
+}
