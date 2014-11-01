@@ -2,7 +2,7 @@
 package <%= to_package(repository.imit.qualified_data_loader_service_name) %>;
 
 public abstract class <%= repository.imit.data_loader_service_name %>
-  extends org.realityforge.replicant.client.json.gwt.WebPollerDataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
+  extends org.realityforge.replicant.client.json.gwt.<%= repository.imit.poll_replicate_mode? ? 'WebPoller' : 'Gwt' %>DataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_data_loader_service_interface_name %>
 {
   private final <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> _remoteSubscriptionService;

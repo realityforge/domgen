@@ -3,7 +3,10 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 public abstract class <%= repository.imit.session_manager_name %>
-  extends org.realityforge.replicant.server.transport.ReplicantSessionManager<<%= repository.imit.qualified_session_name %>>
+  extends org.realityforge.replicant.server.transport.Replicant<% if repository.imit.poll_replicate_mode? -%>Json<% end -%>SessionManager<<%= repository.imit.qualified_session_name %>>
+<% if repository.imit.poll_replicate_mode? -%>
+  implements org.realityforge.replicant.server.ee.rest.ReplicantPollSource
+<% end -%>
 {
 <% if repository.imit.graphs.any?{|g| !g.filter_parameter.nil? } -%>
   private transient final org.codehaus.jackson.map.ObjectMapper _jsonMapper = new org.codehaus.jackson.map.ObjectMapper();
@@ -404,4 +407,14 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
     }
     return session;
   }
+<% if repository.imit.poll_replicate_mode? -%>
+
+  @java.lang.Override
+  @javax.annotation.Nullable
+  public final String poll( @javax.annotation.Nonnull final String clientID, final int lastSequenceAcked )
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
+  {
+    return pollJsonData( ensureSession( clientID ), lastSequenceAcked );
+  }
+<% end -%>
 }
