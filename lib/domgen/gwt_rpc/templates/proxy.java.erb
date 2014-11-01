@@ -60,12 +60,12 @@ public class <%= service.gwt_rpc.proxy_name %>
     <% if parameter.nullable? %>}<% end %>
   <% end %>
 <% if method.imit? %>
-  final org.realityforge.replicant.client.transport.ClientSession session = org.realityforge.replicant.client.transport.SessionContext.getSession();
+  final org.realityforge.replicant.client.transport.ClientSession session = <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().getSession();
   final org.realityforge.replicant.client.transport.RequestEntry request;
   if( null != session )
   {
     request = session.newRequestRegistration( <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %>, <%= method.imit.graph_to_subscribe.nil? ? 'null' : "#{method.service.data_module.repository.imit.qualified_graph_enum_name}.#{Domgen::Naming.uppercase_constantize(method.service.data_module.repository.imit.graph_by_name(method.imit.graph_to_subscribe).name)}.name()" %>, <%= method.imit.bulk_load? %> );
-    org.realityforge.replicant.client.transport.SessionContext.setRequest( request );
+    <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setRequest( request );
     if( LOG.isLoggable( LOG_LEVEL ) )
     {
       LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " created request " + request.getRequestID() );
@@ -243,7 +243,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
     }
     });
 <% if method.imit? %>
-    org.realityforge.replicant.client.transport.SessionContext.setRequest( null );
+    <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setRequest( null );
 <% end %>
   }
 

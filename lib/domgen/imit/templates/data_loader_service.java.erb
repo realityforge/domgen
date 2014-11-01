@@ -9,7 +9,7 @@ public abstract class <%= repository.imit.data_loader_service_name %>
 
   protected <%= repository.imit.data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChangeMapper changeMapper, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker changeBroker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionService, @javax.annotation.Nonnull final org.realityforge.replicant.client.json.gwt.ReplicantConfig replicantConfig, @javax.annotation.Nonnull <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> remoteSubscriptionService )
   {
-    super( changeMapper, changeBroker, repository, cacheService, subscriptionService, replicantConfig );
+    super(  <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext(), changeMapper, changeBroker, repository, cacheService, subscriptionService, replicantConfig );
     _remoteSubscriptionService = remoteSubscriptionService;
   }
 
