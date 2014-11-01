@@ -323,6 +323,16 @@ module Domgen
               end
             end
           end
+          if self.poll_replicate_mode?
+            s.method(:Poll) do |m|
+              m.string(:ClientID, 50)
+              m.integer(:LastSequenceAcked)
+              m.returns(:text, :nullable => true) do |a|
+                a.description('A change set represented as json or null if no change set outstanding.')
+              end
+              m.exception(self.invalid_session_exception)
+            end
+          end
         end
       end
 
