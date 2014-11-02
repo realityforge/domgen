@@ -4,12 +4,14 @@ package <%= to_package(repository.imit.qualified_services_module_name) %>;
 <%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.services_module_name %>
-  extends org.realityforge.replicant.client.json.gwt.ReplicantGinModule
+  extends <%= repository.imit.multi_session? ? 'com.google.gwt.inject.client.AbstractGinModule' : 'org.realityforge.replicant.client.json.gwt.ReplicantGinModule' %>
 {
   @java.lang.Override
   protected void configure()
   {
+<% unless repository.imit.multi_session? -%>
     super.configure();
+<% end -%>
     bind( <%= repository.imit.qualified_change_mapper_name %>.class ).asEagerSingleton();
     bind( <%= repository.imit.qualified_client_router_interface_name %>.class ).to( <%= repository.imit.qualified_client_router_impl_name %>.class ).asEagerSingleton();
 <%

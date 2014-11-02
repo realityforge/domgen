@@ -208,6 +208,15 @@ module Domgen
       java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
       java_artifact :mock_services_module, :ioc, :client, :imit, '#{repository.name}MockImitServicesModule'
 
+      def multi_session=(multi_session)
+        raise "multi_session '#{multi_session}' is invalid. Must be a boolean value" unless multi_session.is_a?(TrueClass) || multi_session.is_a?(FalseClass)
+        @multi_session = multi_session
+      end
+
+      def multi_session?
+        @multi_session.nil? ? false : @multi_session
+      end
+
       def replicate_mode=(replicate_mode)
         raise "replicate_mode '#{replicate_mode}' is invalid. Must be one of #{self.class.valid_replicate_modes.inspect}" unless self.class.valid_replicate_modes.include?(replicate_mode)
         @replicate_mode = replicate_mode
