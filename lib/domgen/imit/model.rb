@@ -268,17 +268,17 @@ module Domgen
       end
 
       def pre_verify
-        raise "subscription_manager not specified" if self.subscription_manager.nil? && self.graphs.size > 0
+        raise 'subscription_manager not specified' if self.subscription_manager.nil? && self.graphs.size > 0
         begin
           repository.service_by_name(self.subscription_manager)
         rescue
-          raise "Bad subscription_manager specified"
+          raise 'Bad subscription_manager specified'
         end
-        raise "invalid_session_exception not specified" if self.invalid_session_exception.nil? && self.graphs.size > 0
+        raise 'invalid_session_exception not specified' if self.invalid_session_exception.nil? && self.graphs.size > 0
         begin
           repository.exception_by_name(self.invalid_session_exception)
         rescue
-          raise "Bad invalid_session_exception specified"
+          raise 'Bad invalid_session_exception specified'
         end
         repository.service_by_name(self.subscription_manager).tap do |s|
           repository.imit.graphs.each do |graph|
