@@ -24,6 +24,7 @@ module Domgen
         @module_name || Domgen::Naming.underscore(repository.name)
       end
 
+      java_artifact :rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}RpcRequestBuilder'
       java_artifact :rpc_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesModule'
       java_artifact :mock_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule'
       java_artifact :services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtServicesModule'
