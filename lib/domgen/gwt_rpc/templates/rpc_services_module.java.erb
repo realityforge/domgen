@@ -17,9 +17,6 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
   }
 
 <% end -%>
-  {
-    getSessionContext().setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
-  }
 <%
   needs_xsrf =
     repository.data_modules.select{|data_module| data_module.gwt_rpc?}.any? do |data_module|
@@ -60,6 +57,12 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
     {
       throw new IllegalStateException( "Specified GWT module name '" + moduleName + "' does not match module name '<%= repository.gwt_rpc.module_name %>' used during compilation." );
     }
+<% if repository.imit? -%>
+    if( null == getSessionContext().getBaseURL() )
+    {
+      getSessionContext().setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
+    }
+<% end -%>
   }
 
   @java.lang.Override
