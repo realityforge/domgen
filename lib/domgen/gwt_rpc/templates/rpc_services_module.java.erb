@@ -6,7 +6,7 @@ package <%= to_package(repository.gwt_rpc.qualified_rpc_services_module_name) %>
 public class <%= repository.gwt_rpc.rpc_services_module_name %>
   extends com.google.gwt.inject.client.AbstractGinModule
 {
-<% if repository.imit? %>
+<% if repository.imit? -%>
   @javax.annotation.Nonnull
   private static final org.realityforge.replicant.client.transport.SessionContext c_sessionContext = new org.realityforge.replicant.client.transport.SessionContext();
 
@@ -16,10 +16,10 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
     return c_sessionContext;
   }
 
+<% end -%>
   {
     getSessionContext().setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
   }
-<% end %>
 <%
   needs_xsrf =
     repository.data_modules.select{|data_module| data_module.gwt_rpc?}.any? do |data_module|
@@ -39,10 +39,10 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
     }
     return c_xsrfToken;
   }
+
 <%
   end
-%>
-
+-%>
   public static void initialize( final String moduleName<% if needs_xsrf %>, final com.google.gwt.user.client.rpc.XsrfToken xsrfToken<% end -%> )
   {
 <%
