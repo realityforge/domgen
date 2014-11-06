@@ -57,12 +57,10 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
     {
       throw new IllegalStateException( "Specified GWT module name '" + moduleName + "' does not match module name '<%= repository.gwt_rpc.module_name %>' used during compilation." );
     }
-<% if repository.imit? -%>
     if( null == getSessionContext().getBaseURL() )
     {
       getSessionContext().setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
     }
-<% end -%>
   }
 
   @java.lang.Override
