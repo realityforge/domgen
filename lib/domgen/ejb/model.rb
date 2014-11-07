@@ -46,6 +46,10 @@ module Domgen
 
       attr_accessor :boundary_extends
 
+      def boundary_interceptors
+        @boundary_interceptors ||= []
+      end
+
       attr_writer :local
 
       def local?

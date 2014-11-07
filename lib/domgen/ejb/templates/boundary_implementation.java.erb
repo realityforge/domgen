@@ -6,6 +6,9 @@ package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 @javax.ejb.Startup
 @javax.ejb.Singleton( name = <%= service.ejb.qualified_boundary_interface_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+<% if service.ejb.boundary_interceptors.size > 0 -%>
+@javax.interceptor.Interceptors( { <%= service.ejb.boundary_interceptors.collect{|i| "#{i}.class"}.join(", ") %> } )
+<% end-%>
 public class <%= service.ejb.boundary_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}\n" : "" -%>
   implements <%= service.ejb.qualified_boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
