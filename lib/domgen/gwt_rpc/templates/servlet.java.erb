@@ -26,8 +26,8 @@ public class <%= service.gwt_rpc.servlet_name %>
 %>
   {
 <% if method.imit? -%>
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put(org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_HEADER ));
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put(org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_HEADER ));
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_HEADER ) );
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_HEADER ) );
 <% end -%>
 
 <% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| %>
