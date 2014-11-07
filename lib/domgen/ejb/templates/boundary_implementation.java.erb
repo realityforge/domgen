@@ -7,10 +7,10 @@ package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 @javax.ejb.Singleton( name = <%= service.ejb.qualified_boundary_interface_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 public class <%= service.ejb.boundary_implementation_name %>
-<%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}" : "" %>
+<%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}\n" : "" -%>
   implements <%= service.ejb.qualified_boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
 {
-<% if service.jmx? %>
+<% if service.jmx? -%>
   private javax.management.ObjectName _objectName;
 
   @javax.annotation.PostConstruct
@@ -40,21 +40,21 @@ public class <%= service.ejb.boundary_implementation_name %>
       throw new IllegalStateException( "Unable to unregister <%= service.qualified_name %> service from JMX registry due to: " + e, e );
     }
   }
-<% end %>
 
-<% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| %>
+<% end -%>
+<% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
 <% if service.data_module.repository.ee.use_cdi? -%>
   @javax.inject.Inject
-<% else %>
+<% else -%>
   @javax.ejb.EJB
-<% end %>
+<% end  -%>
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
 <% end %>
 <% if service.data_module.repository.ee.use_cdi? -%>
   @javax.inject.Inject
-<% else %>
+<% else -%>
   @javax.ejb.EJB
-<% end %>
+<% end -%>
   private <%= service.ejb.qualified_service_name %> _service;
 
 <% service.methods.each do |method|
