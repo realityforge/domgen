@@ -7,6 +7,10 @@ package <%= to_package(repository.imit.qualified_server_session_context_name) %>
 <% end -%>
 public interface <%= repository.imit.server_session_context_name %>
 {
+<% unless repository.ee.use_cdi? -%>
+  String NAME = "<%= repository.imit.server_session_context_name %>";
+
+<% end -%>
 <%
   repository.imit.graphs.each do |graph|
     extra_interest_filter = ''
