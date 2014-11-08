@@ -192,7 +192,7 @@ module Domgen
       java_artifact :client_session_interface, :comm, :client, :imit, '#{repository.name}ClientSession'
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
       java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
-      java_artifact :session_manager, :comm, :server, :imit, 'Abstract#{repository.name}SessionManager'
+      java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerEJB'
       java_artifact :server_session_context, :comm, :server, :imit, '#{repository.name}SessionContext'
       java_artifact :router_interface, :comm, :server, :imit, '#{repository.name}Router'
       java_artifact :router_impl, :comm, :server, :imit, '#{repository.name}RouterImpl'
