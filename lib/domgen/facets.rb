@@ -30,6 +30,10 @@ module Domgen
       extension_point(:post_verify)
     end
 
+    def all_enabled_facets
+      (enabled_facets + (self.respond_to?(:parent) ? self.parent.all_enabled_facets : [])).uniq - disabled_facets
+    end
+
     protected
 
     def perform_verify
@@ -59,10 +63,6 @@ module Domgen
 
     def disabled_facets
       @disabled_facets ||= []
-    end
-
-    def all_enabled_facets
-      (enabled_facets + (self.respond_to?(:parent) ? self.parent.all_enabled_facets : [])).uniq - disabled_facets
     end
   end
 
