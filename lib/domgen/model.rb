@@ -1662,6 +1662,10 @@ module Domgen
       data_module
     end
 
+    def data_module_by_name?(name)
+      !!@data_modules[name.to_s]
+    end
+
     def model_check(name, options = {}, &block)
       Domgen::ModelCheck.new(self, name, options, &block)
     end
