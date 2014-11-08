@@ -52,7 +52,7 @@
 <% end -%>
   </xs:complexType>
 <% end -%>
-<% data_module.exceptions.each do |exception| -%>
+<% data_module.exceptions.select{|e|e.xml?}.each do |exception| -%>
   <xs:element name="<%= exception.xml.name %>" nillable="false" type="<%= data_module.xml.prefix %>:<%= exception.name %>"/>
   <xs:complexType name="<%= exception.name %>">
 <% if exception.parameters.size > 0 -%>
