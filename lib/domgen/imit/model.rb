@@ -276,18 +276,53 @@ module Domgen
         @invalid_session_exception
       end
 
+      def imit_control_data_module=(imit_control_data_module)
+        @imit_control_data_module = imit_control_data_module
+      end
+
+      def imit_control_data_module
+        @imit_control_data_module
+      end
+
       def pre_verify
-        raise 'subscription_manager not specified' if self.subscription_manager.nil? && self.graphs.size > 0
-        begin
-          repository.service_by_name(self.subscription_manager)
-        rescue
-          raise 'Bad subscription_manager specified'
-        end
-        raise 'invalid_session_exception not specified' if self.invalid_session_exception.nil? && self.graphs.size > 0
-        begin
-          repository.exception_by_name(self.invalid_session_exception)
-        rescue
-          raise 'Bad invalid_session_exception specified'
+        if self.graphs.size == 0
+          raise 'subscription_manager specified when no graphs defined' unless self.subscription_manager.nil?
+          raise 'invalid_session_exception specified when no graphs defined' unless self.invalid_session_exception.nil?
+          raise 'imit_control_data_module specified when no graphs defined' unless self.imit_control_data_module.nil?
+        else
+          if self.imit_control_data_module.nil? && self.repository.data_module_by_name?(self.repository.name)
+            self.imit_control_data_module = self.repository.name
+          end
+          if self.subscription_manager.nil?
+            if self.imit_control_data_module
+              self.subscription_manager = "#{self.imit_control_data_module}.SubscriptionService"
+            else
+              raise 'subscription_manager not specified (and unable to be derived) when graphs defined'
+            end
+          end
+          sm_name_parts = self.subscription_manager.to_s.split('.')
+          raise 'subscription_manager invalid. Expected to be in format DataModule.ServiceName' if sm_name_parts.length != 2
+          self.repository.data_module_by_name(sm_name_parts[0]).service(sm_name_parts[1]) do |s|
+            (s.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :imit]).each do |facet_key|
+              s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
+            end
+          end
+
+          if self.invalid_session_exception.nil?
+            if self.imit_control_data_module
+              self.invalid_session_exception = "#{self.imit_control_data_module}.BadSession"
+            else
+              raise 'invalid_session_exception not specified (and unable to be derived) when graphs defined'
+            end
+          end
+          e_name_parts = self.invalid_session_exception.to_s.split('.')
+          raise 'invalid_session_exception invalid. Expected to be in format DataModule.Exception' if e_name_parts.length != 2
+          self.repository.data_module_by_name(e_name_parts[0]).
+            exception(e_name_parts[1], 'ejb.rollback' => false) do |e|
+            (e.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :imit]).each do |facet_key|
+              e.disable_facet(facet_key) if e.facet_enabled?(facet_key)
+            end
+          end
         end
         repository.service_by_name(self.subscription_manager).tap do |s|
           repository.imit.graphs.each do |graph|
