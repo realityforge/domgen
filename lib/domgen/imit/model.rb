@@ -19,6 +19,8 @@ module Domgen
         @name = name
         @type_roots = []
         @instance_root = nil
+        @outward_graph_links = Domgen::OrderedHash.new
+        @inward_graph_links = Domgen::OrderedHash.new
         application.send :register_graph, name, self
         super(application, options, &block)
       end
@@ -72,15 +74,14 @@ module Domgen
         @instance_root = instance_root
       end
 
-      # Map of attribute that is the link to target graph
-      def links
-        raise "links invoked for graph #{name} when not instance based" if 0 != @type_roots.size
-        @links ||= {}
+      def outward_graph_links
+        raise "outward_graph_links invoked for graph #{name} when not instance based" if 0 != @type_roots.size
+        @outward_graph_links.values
       end
 
-      def links=(links)
-        raise "Attempted to assign links to #{links.inspect} for graph #{name} when not instance based (type_roots=#{@type_roots.inspect})" if 0 != @type_roots.size
-        @links = links
+      def inward_graph_links
+        raise "inward_graph_links invoked for graph #{name} when not instance based" if 0 != @type_roots.size
+        @inward_graph_links.values
       end
 
       # Return the list of entities reachable in instance graph
@@ -109,6 +110,90 @@ module Domgen
       def post_verify
         if cacheable? && (filter_parameter || instance_root?)
           raise "Graph #{self.name} can not be marked as cacheable as cacheable graphs are not supported for instance based or filterable graphs"
+        end
+        self.outward_graph_links.each do |graph_link|
+          target_graph = application.repository.imit.graph_by_name(graph_link.target_graph)
+          if target_graph.filtered? && self.unfiltered?
+            raise "Graph '#{self.name}' is an unfiltered graph but has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}'. This is not supported."
+          elsif target_graph.filtered? && self.filtered? && !target_graph.filter_parameter.equiv?(self.filter_parameter)
+            raise "Graph '#{self.name}' has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' but has a different filter. This is not supported."
+          end
+        end if self.instance_root?
+      end
+
+      protected
+
+      def register_outward_graph_link(graph_link)
+        key = graph_link.imit_attribute.attribute.qualified_name.to_s
+        raise "Attempted to register duplicate outward graph link on attribute '#{graph_link.imit_attribute.attribute.qualified_name}' on graph '#{self.name}'" if @outward_graph_links[key]
+        @outward_graph_links[key] = graph_link
+      end
+
+      def register_inward_graph_link(graph_link)
+        key = graph_link.imit_attribute.attribute.qualified_name.to_s
+        raise "Attempted to register duplicate inward graph link on attribute '#{graph_link.imit_attribute.attribute.qualified_name}' on graph '#{self.name}'" if @inward_graph_links[key]
+        @inward_graph_links[key] = graph_link
+      end
+    end
+
+    class GraphLink < Domgen.ParentedElement(:imit_attribute)
+      def initialize(imit_attribute, source_graph, target_graph, options, &block)
+        repository = imit_attribute.attribute.entity.data_module.repository
+        unless repository.imit.graph_by_name?(source_graph)
+          raise "Source graph '#{source_graph}' specified for link on #{imit_attribute.attribute.name} does not exist"
+        end
+        unless repository.imit.graph_by_name?(target_graph)
+          raise "Target graph '#{target_graph}' specified for link on #{imit_attribute.attribute.name} does not exist"
+        end
+        unless imit_attribute.attribute.reference?
+          raise "Attempted to define a graph link on non-reference attribute '#{imit_attribute.attribute.qualified_name}'"
+        end
+        @source_graph = source_graph
+        @target_graph = target_graph
+        super(imit_attribute, options, &block)
+        repository.imit.graph_by_name(source_graph).send :register_outward_graph_link, self
+        repository.imit.graph_by_name(target_graph).send :register_inward_graph_link, self
+      end
+
+      attr_reader :source_graph
+      attr_reader :target_graph
+
+      attr_reader :path
+
+      def path=(path)
+        @path = path
+      end
+
+      def verify
+        # Need to make sure the other side is a disconnected graph
+        self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph
+
+        entity = self.imit_attribute.attribute.referenced_entity
+
+        # Need to make sure that the path is valid
+        if self.path
+          prefix = "Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.name}' with path element"
+          self.path.to_s.split.each_with_index do |attribute_name_path_element, i|
+            other = entity.attribute_by_name(attribute_name_path_element)
+            Domgen.error("#{prefix} #{attribute_name_path_element} is nullable") if other.nullable? && i != 0
+            Domgen.error("#{prefix} #{attribute_name_path_element} is not immutable") if !other.immutable?
+            Domgen.error("#{prefix} #{attribute_name_path_element} is not a reference") if !other.reference?
+            entity = other.referenced_entity
+          end
+        end
+
+        repository = imit_attribute.attribute.entity.data_module.repository
+        source_graph = repository.imit.graph_by_name(self.source_graph)
+        target_graph = repository.imit.graph_by_name(self.target_graph)
+
+        # Need to make sure both graphs are instance graphs
+        prefix = "Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.name}'"
+        raise "#{prefix} must have an instance graph on the LHS" unless source_graph.instance_root?
+        raise "#{prefix} must have an instance graph on the RHS" unless target_graph.instance_root?
+
+        # Need to make sure that the other side is the root of the graph
+        unless target_graph.instance_root != entity.name
+          raise "Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' links to entity that is not the root of the graph"
         end
       end
     end
@@ -588,39 +673,25 @@ module Domgen
         @filter_in_graphs || []
       end
 
-      def graph_links
+      def graph_links_map
         @graph_links ||= {}
       end
 
-      def graph_links=(graph_links)
-        @graph_links = graph_links
+      def graph_links
+        graph_links_map.values
+      end
+
+      def add_graph_link(source_graph, target_graph, options = {}, &block)
+        key = "#{source_graph}->#{target_graph}"
+        raise "Graph link already defined between #{source_graph} and #{target_graph} on attribute '#{attribute.qualified_name}'" if graph_links_map[key]
+        graph_links_map[key] = Domgen::Imit::GraphLink.new(self, source_graph, target_graph, options, &block)
       end
 
       include Domgen::Java::ImitJavaCharacteristic
 
-
       def pre_verify
-        self.graph_links.each_pair do |source_graph_key, config|
-          target_graph_key = config[:target_graph]
-          path = config[:path]
-          source_graph = attribute.entity.data_module.repository.imit.graph_by_name(source_graph_key)
-          target_graph = attribute.entity.data_module.repository.imit.graph_by_name(target_graph_key)
-          prefix = "Link #{source_graph_key}=>#{target_graph_key} on #{attribute.qualified_name}"
-          raise "#{prefix} must have an instance graph on the LHS" unless source_graph.instance_root?
-          raise "#{prefix} must have an non filtered graph on the LHS" unless source_graph.unfiltered?
-          raise "#{prefix} must have an instance graph on the RHS" unless target_graph.instance_root?
-          raise "#{prefix} must have an non filtered graph on the RHS" unless target_graph.unfiltered?
-          if path
-            entity = attribute.referenced_entity
-            path.to_s.split.each_with_index do |attribute_name_path_element, i|
-              other = entity.attribute_by_name(attribute_name_path_element)
-              Domgen.error("Graph link element #{attribute_name_path_element} is nullable") if other.nullable? && i != 0
-              Domgen.error("Graph link element #{attribute_name_path_element} is not immutable") if !other.immutable?
-              Domgen.error("Graph link element #{attribute_name_path_element} is not a reference") if !other.reference?
-              entity = other.referenced_entity
-            end
-          end
-          source_graph.links[attribute] = target_graph
+        self.graph_links.each do |graph_link|
+          graph_link.verify
         end
       end
 
