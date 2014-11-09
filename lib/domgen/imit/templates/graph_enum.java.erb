@@ -14,11 +14,19 @@ public enum <%= repository.imit.graph_enum_name %>
 DATA
    data += elements.collect{|e| "   * <li>#{e}</li>"}.join("\n")
    data += "\n   * </ul>\n"
-   if g.instance_root? && g.links.size > 0
+   if g.instance_root? && g.outward_graph_links.size > 0
      data += "   * <p>It links to the following graphs:</p>\n"
      data += "   * <ul>\n"
-     g.links.each_pair do |attribute, target_graph|
-       data += "   * <li>#{attribute.qualified_name} links to the #{target_graph.name} graph</li>\n"
+     g.outward_graph_links.each do |graph_link|
+       data += "   * <li>#{graph_link.imit_attribute.attribute.qualified_name} links to the #{graph_link.target_graph} graph</li>\n"
+     end
+     data += "   * </ul>\n"
+   end
+   if g.instance_root? && g.inward_graph_links.size > 0
+     data += "   * <p>It is linked from the following graphs:</p>\n"
+     data += "   * <ul>\n"
+     g.inward_graph_links.each do |graph_link|
+       data += "   * <li>#{graph_link.imit_attribute.attribute.qualified_name} links from the #{graph_link.source_graph} graph</li>\n"
      end
      data += "   * </ul>\n"
    end
