@@ -102,11 +102,9 @@ module Domgen
         !unfiltered?
       end
 
-
       def unfiltered?
         @filter.nil?
       end
-
 
       def post_verify
         if cacheable? && (filter_parameter || instance_root?)
