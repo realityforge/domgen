@@ -133,6 +133,14 @@ module Domgen
         "#{graph.qualified_name}$#{name}"
       end
 
+      def equiv?(other_filter_parameter)
+        return false if other_filter_parameter.filter_type != self.filter_type
+        return false if other_filter_parameter.collection_type != self.collection_type
+        return false if other_filter_parameter.struct? && other_filter_parameter.referenced_struct.name != self.referenced_struct.name
+        return false if other_filter_parameter.reference? && other_filter_parameter.referenced_entity.name != self.referenced_entity.name
+        return true
+      end
+
       def to_s
         "FilterParameter[#{self.qualified_name}]"
       end
