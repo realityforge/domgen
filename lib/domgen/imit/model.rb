@@ -260,6 +260,10 @@ module Domgen
         graph
       end
 
+      def graph_by_name?(name)
+        !!graph_map[name.to_s]
+      end
+
       def subscription_manager=(subscription_manager)
         @subscription_manager = subscription_manager
       end
