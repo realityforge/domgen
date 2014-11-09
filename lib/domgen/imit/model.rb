@@ -652,5 +652,11 @@ module Domgen
         @replication_edges || []
       end
     end
+
+    facet.enhance(Struct) do
+      def filter_for_graph(graph_key)
+        struct.data_module.repository.imit.graph_by_name(graph_key).filter(:struct, :referenced_struct => struct.qualified_name)
+      end
+    end
   end
 end
