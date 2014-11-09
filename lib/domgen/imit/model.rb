@@ -110,7 +110,7 @@ module Domgen
 
       def post_verify
         if cacheable? && (filter_parameter || instance_root?)
-          raise "Cacheable graphs are not supported for instance based or filterable graphs"
+          raise "Graph #{self.name} can not be marked as cacheable as cacheable graphs are not supported for instance based or filterable graphs"
         end
       end
     end
