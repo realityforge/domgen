@@ -89,9 +89,9 @@ module Domgen
         @reachable_entities ||= []
       end
 
-      def filter(parameter_type, options = {}, &block)
+      def filter(filter_type, options = {}, &block)
         Domgen.error("Attempting to redefine filter on graph #{self.name}") if @filter
-        @filter ||= FilterParameter.new(self, parameter_type, options, &block)
+        @filter ||= FilterParameter.new(self, filter_type, options, &block)
       end
 
       def filter_parameter
