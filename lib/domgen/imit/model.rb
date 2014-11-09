@@ -592,7 +592,6 @@ module Domgen
 
       include Domgen::Java::ImitJavaCharacteristic
 
-      protected
 
       def pre_verify
         self.graph_links.each_pair do |source_graph_key, config|
