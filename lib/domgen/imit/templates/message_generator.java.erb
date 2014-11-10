@@ -43,6 +43,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       {
 <%
   links.each do |graph_link|
+    source_graph = repository.imit.graph_by_name(graph_link.source_graph)
     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
     entity = graph_link.imit_attribute.attribute.referenced_entity
     getter_path = [getter_for(graph_link.imit_attribute.attribute)]
@@ -54,7 +55,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       end
     end
 -%>
-        links.add( new org.realityforge.replicant.server.ChannelLink( new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(target_graph.name) %>.ordinal(), entity.<%= getter_path.join('.') %>.<%= getter_for(entity.primary_key) %> ) ) );
+        links.add( new org.realityforge.replicant.server.ChannelLink( new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(source_graph.name) %>.ordinal(), routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(source_graph.name) %>_KEY ) ), new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(target_graph.name) %>.ordinal(), entity.<%= getter_path.join('.') %>.<%= getter_for(entity.primary_key) %> ) ) );
 <% end -%>
       }
 <% end -%>
