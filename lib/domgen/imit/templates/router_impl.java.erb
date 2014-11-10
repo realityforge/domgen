@@ -9,49 +9,49 @@ public class <%= repository.imit.router_impl_name %>
 <%
   repository.imit.graphs.each do |graph|
     key = "#{Domgen::Naming.uppercase_constantize(graph.name)}_KEY"
-%>
+-%>
   public static final String <%= key %> = "<%= repository.name %>.<%= graph.name %>";
-<% end %>
+<% end -%>
 <%
   repository.data_modules.each do |data_module|
     data_module.entities.each do |entity|
       entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.size > 0}.each do |attribute|
         attribute.imit.filter_in_graphs.each do |graph_key|
-%>
+-%>
   public static final String <%= Domgen::Naming.uppercase_constantize(graph_key) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY = "<%= repository.name %>.<%= graph_key %>.<%= attribute.qualified_name %>";
 <%
         end
       end
     end
   end
-%>
+-%>
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
     outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit?}
  -%>
+
   @javax.annotation.Nonnull
   public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
   {
     final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<String, java.io.Serializable>();
-<% entity.imit.replication_graphs.each do |graph| %>
+<% entity.imit.replication_graphs.each do |graph| -%>
     _route<%= graph.name %>_<%= entity.name %>( map, entity );
-<% end %>
+<% end -%>
     return map;
   }
+<% entity.imit.replication_graphs.each do |graph| -%>
 
-<%
-  entity.imit.replication_graphs.each do |graph| %>
   private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
   {
-<% entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name)}.each do |attribute| %>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY, entity.<%= getter_for(attribute) %> );
-<% end %>
-<% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s %>
+<% entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name)}.each do |attribute| -%>
+<% end -%>
+<% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
-<% elsif graph.instance_root? %>
-<% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) }.each do |outgoing_link| %>
-<% if outgoing_link.nullable? %>
+<% elsif graph.instance_root? -%>
+<% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) }.each do |outgoing_link| -%>
+<% if outgoing_link.nullable? -%>
     {
       final <%= outgoing_link.jpa.java_type %> v = entity.<%= getter_for(outgoing_link) %>;
       if( null != v )
@@ -59,15 +59,15 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
         _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, v );
       }
     }
-<% else %>
+<% else -%>
     _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, entity.<%= getter_for(outgoing_link) %> );
-<% end %>
-<% end %>
-<% else %>
+<% end -%>
+<% end -%>
+<% else -%>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, Boolean.TRUE );
-<% end %>
+<% end -%>
   }
-<% end %>
-<% end %>
+<% end -%>
+<% end -%>
 <% end -%>
 }
