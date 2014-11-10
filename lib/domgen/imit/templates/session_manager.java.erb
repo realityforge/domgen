@@ -318,7 +318,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
       }
 <% else -%>
       final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
-      _context.collect<%= graph.name %>( messages );
+      <% if graph.external_data_load? -%>_context.<% end -%>collect<%= graph.name %>( messages );
       final org.realityforge.replicant.server.ChangeSet changeSet = org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges();
       populateChangeSetFor<%= graph.name %>( session, <%= graph.instance_root? ? pk_accessor : 'null' %>, changeSet, messages<%= graph.filter_parameter.nil? ? '' : ', filter' %> );
 <% end -%>
