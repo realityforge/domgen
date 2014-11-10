@@ -53,8 +53,10 @@ if !graph.instance_root?
   String get<%= graph.name %>CacheKey();
 
 <% end -%>
+<% if graph.external_data_load? -%>
   void collect<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages );
 
+<% end -%>
 <%
 else
   if graph.filter_parameter

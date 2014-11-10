@@ -41,6 +41,14 @@ module Domgen
         @cacheable = cacheable
       end
 
+      def external_data_load?
+        filtered? || (@external_data_load.nil? ? false : !!@external_data_load)
+      end
+
+      def external_data_load=(external_data_load)
+        @external_data_load = external_data_load
+      end
+
       def external_cache_management?
         raise "external_cache_management? invoked on #{qualified_name} when not cacheable" unless cacheable?
         @external_cache_management.nil? ? false : !!@external_cache_management
