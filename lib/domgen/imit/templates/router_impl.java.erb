@@ -44,8 +44,8 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 
   private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
   {
-    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY, entity.<%= getter_for(attribute) %> );
 <% entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name)}.each do |attribute| -%>
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY, entity.<%= getter_for(attribute) %><%= attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}" : '' %> );
 <% end -%>
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
