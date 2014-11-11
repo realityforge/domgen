@@ -86,8 +86,14 @@ else
 end
  -%>
 <% end -%>
-<% repository.imit.graphs.select{|g| g.instance_root? }.collect{|g| g.inward_graph_links }.flatten.each do |graph_link|
+<%
+  processed = []
+  repository.imit.graphs.select{|g| g.instance_root? }.collect{|g| g.inward_graph_links }.flatten.each do |graph_link|
      graph = repository.imit.graph_by_name(graph_link.target_graph)
+     next unless graph.filtered?
+     key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+      next if processed.include?(key)
+      processed << key
 -%>
   boolean shouldFollowLinkFrom<%= graph_link.source_graph %>To<%= graph.name %>( @javax.annotation.Nonnull <%= repository.entity_by_name(graph.instance_root).jpa.qualified_name %> entity, @javax.annotation.Nonnull <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter );
 
