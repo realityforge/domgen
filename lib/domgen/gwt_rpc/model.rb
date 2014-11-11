@@ -24,6 +24,18 @@ module Domgen
         @module_name || Domgen::Naming.underscore(repository.name)
       end
 
+      attr_writer :base_api_url
+
+      def base_api_url
+        @base_api_url || 'api/rpc'
+      end
+
+      attr_writer :api_url
+
+      def api_url
+        @api_url || "#{self.base_api_url}/#{self.module_name}"
+      end
+
       java_artifact :rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}RpcRequestBuilder'
       java_artifact :rpc_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesModule'
       java_artifact :mock_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule'
@@ -59,6 +71,12 @@ module Domgen
         @server_servlet_package || resolve_package(:server_servlet_package)
       end
 
+      attr_writer :api_url
+
+      def api_url
+        @api_url || (data_module.name == data_module.repository.name) ? data_module.repository.gwt_rpc.api_url : "#{data_module.repository.gwt_rpc.api_url}.#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
       protected
 
       def facet_key
@@ -68,6 +86,18 @@ module Domgen
 
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :servlet_path
+
+      def servlet_path
+        @servlet_path || service.name
+      end
+
+      attr_writer :api_url
+
+      def api_url
+        @api_url || "#{service.data_module.gwt_rpc.api_url}/#{self.servlet_path}"
+      end
 
       attr_writer :rpc_prefix
 
