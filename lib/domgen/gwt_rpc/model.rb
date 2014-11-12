@@ -194,7 +194,8 @@ module Domgen
           "request:remote-host" => 'getThreadLocalRequest().getRemoteHost()',
           "request:remote-address" => 'getThreadLocalRequest().getRemoteAddr()',
           "request:remote-port" => 'getThreadLocalRequest().getRemotePort()',
-          "request:remote-user" => 'getThreadLocalRequest().getRemoteUser()',
+          'request:remote-user' => 'getThreadLocalRequest().getRemoteUser()',
+          'request' => 'getThreadLocalRequest()',
         }
       end
 
