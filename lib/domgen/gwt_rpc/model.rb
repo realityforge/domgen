@@ -188,12 +188,12 @@ module Domgen
 
       def self.environment_key_set
         {
-          "request:session:id" => 'getThreadLocalRequest().getSession(true).getId()',
-          "request:permutation-strong-name" => 'getPermutationStrongName()',
-          "request:locale" => 'getThreadLocalRequest().getLocale().toString()',
-          "request:remote-host" => 'getThreadLocalRequest().getRemoteHost()',
-          "request:remote-address" => 'getThreadLocalRequest().getRemoteAddr()',
-          "request:remote-port" => 'getThreadLocalRequest().getRemotePort()',
+          'request:session:id' => 'getThreadLocalRequest().getSession(true).getId()',
+          'request:permutation-strong-name' => 'getPermutationStrongName()',
+          'request:locale' => 'getThreadLocalRequest().getLocale().toString()',
+          'request:remote-host' => 'getThreadLocalRequest().getRemoteHost()',
+          'request:remote-address' => 'getThreadLocalRequest().getRemoteAddr()',
+          'request:remote-port' => 'getThreadLocalRequest().getRemotePort()',
           'request:remote-user' => 'getThreadLocalRequest().getRemoteUser()',
           'request' => 'getThreadLocalRequest()',
         }
