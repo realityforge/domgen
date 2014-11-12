@@ -74,7 +74,7 @@ module Domgen
       attr_writer :api_url
 
       def api_url
-        @api_url || (data_module.name == data_module.repository.name) ? data_module.repository.gwt_rpc.api_url : "#{data_module.repository.gwt_rpc.api_url}.#{Domgen::Naming.underscore(data_module.name)}"
+        @api_url || (data_module.name == data_module.repository.name) ? data_module.repository.gwt_rpc.api_url : "#{data_module.repository.gwt_rpc.api_url}/#{Domgen::Naming.underscore(data_module.name)}"
       end
 
       protected
