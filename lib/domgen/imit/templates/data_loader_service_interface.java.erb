@@ -6,9 +6,9 @@ public interface <%= repository.imit.data_loader_service_interface_name %>
 {
   boolean isConnected();
 
-  void connect();
+  void connect( @javax.annotation.Nullable java.lang.Runnable runnable );
 
-  void disconnect();
+  void disconnect( @javax.annotation.Nullable java.lang.Runnable runnable );
 
   <%= repository.imit.qualified_client_session_interface_name %> getSession();
 }
