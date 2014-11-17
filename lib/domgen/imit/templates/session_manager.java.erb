@@ -82,8 +82,9 @@ entities.uniq.each do |entity| -%>
       entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
         var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
         extra_interest_filter << ", #{var_name}"
+        param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
 %>
-        final <%= attribute.jpa.non_primitive_java_type %> <%= var_name %> = (<%= attribute.jpa.non_primitive_java_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+        final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
 <%
       end
     end
@@ -133,8 +134,9 @@ entities.uniq.each do |entity| -%>
       entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
         var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
         extra_interest_filter << ", #{var_name}"
+        param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
 %>
-        final <%= attribute.jpa.non_primitive_java_type %> <%= var_name %> = (<%= attribute.jpa.non_primitive_java_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+        final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
 <%
       end
     end
