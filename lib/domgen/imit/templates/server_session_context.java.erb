@@ -30,7 +30,6 @@ public interface <%= repository.imit.server_session_context_name %>
     entity = repository.entity_by_name(graph.instance_root)
     type = entity.primary_key.jpa.non_primitive_java_type
     initial_param = ", @javax.annotation.Nonnull #{type} #{Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")}"
-    check_method = "is#{graph.name}Interesting"
   end
   if extra_interest_filter.size > 0
 -%>
