@@ -8,7 +8,17 @@ public enum <%= repository.imit.graph_enum_name %>
     elements = g.instance_root? ? g.reachable_entities.sort : g.type_roots
     data = <<-DATA
   /**
-   * #{g.name} is a #{g.instance_root? ? 'instance' : 'type'}-based replication graph.
+   * #{g.name} is a #{g.instance_root? ? 'instance' : 'type'}-based replication graph#{g.cacheable? ? " that has caching controlled by the #{g.external_cache_management? ? 'developer' : 'system'}" : ''}.
+   *
+DATA
+    if g.filtered?
+data += <<DATA
+   * <p>The graph is filtered using #{g.filter_parameter.struct? ? g.filter_parameter.referenced_struct.qualified_name : g.filter_parameter.reference? ? g.filter_parameter.referenced_entity.qualified_name : g.filter_parameter.filter_type }</p>
+   *
+DATA
+    end
+
+data += <<DATA
    * <p>It includes the following entities:</p>
    * <ul>
 DATA
