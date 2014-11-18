@@ -76,7 +76,16 @@ else
   <%= nullability_annotation(graph.filter_parameter.nullable?)%>
   public final <%= java_type %> get<%= graph.name %>Parameter( final <%= entity.primary_key.jpa.primitive_java_type %> id )
   {
+<% if graph.filter_parameter.nullable? -%>
     return _interestedIn<%= graph.name %>.get( id );
+<% else -%>
+    final <%= java_type %> value = _interestedIn<%= graph.name %>.get( id );
+    if ( null == value )
+    {
+      throw new java.lang.IllegalStateException( "Unable to locate filter parameter for <%= graph.name %>/" + id );
+    }
+    return value;
+<% end -%>
   }
 <%
       else
