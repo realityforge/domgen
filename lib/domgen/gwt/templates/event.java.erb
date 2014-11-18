@@ -5,7 +5,7 @@ package <%= to_package(message.gwt.qualified_event_name) %>;
 public final class <%= message.gwt.event_name %>
   extends com.google.gwt.event.shared.GwtEvent<<%= message.gwt.event_name %>.Handler>
 {
-  public static interface Handler
+  public interface Handler
     extends com.google.gwt.event.shared.EventHandler
   {
     void on<%= message.name %>( @javax.annotation.Nonnull <%= message.gwt.event_name %> event );
