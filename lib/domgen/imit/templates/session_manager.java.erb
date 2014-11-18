@@ -387,6 +387,24 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
     final org.realityforge.replicant.server.ChangeSet changeSet = org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges();
     changeSet.addAction( new org.realityforge.replicant.server.ChannelAction( new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? pk_accessor : 0 %> ), org.realityforge.replicant.server.ChannelAction.Action.UPDATE, toJsonObject( filter ) ) );
     org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges().mergeAll( org.realityforge.replicant.server.ChangeUtil.toChanges( messages.getEntityMessages(), <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? pk_accessor : 0 %> ) );
+<%
+  processed = []
+  graph.outward_graph_links.each do |graph_link|
+     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+     next unless target_graph.filtered?
+     key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+      next if processed.include?(key)
+      processed << key
+      instance_root = repository.entity_by_name(target_graph.instance_root)
+-%>
+    {
+      final java.util.List<<%= instance_root.jpa.qualified_name %>> links = _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( entity, filter );
+      for ( final <%= instance_root.jpa.qualified_name %> link : links )
+      {
+        update<%= target_graph.name %>Subscription( sessionID, link, filter );
+      }
+    }
+<% end -%>
   }
 <% end -%>
 
