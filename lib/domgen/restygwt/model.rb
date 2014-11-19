@@ -74,7 +74,7 @@ module Domgen
       attr_reader :environment_key
 
       def environment_key=(environment_key)
-        raise "Unknown environment_key #{environment_key}" unless self.class.environment_key_set.include?(environment_key)
+        Domgen.error("Unknown environment_key #{environment_key}") unless self.class.environment_key_set.include?(environment_key)
         @environment_key = environment_key
       end
 

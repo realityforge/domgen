@@ -46,7 +46,7 @@ public class <%= method.jms.mdb_name %>
 <%
   parameter = method.parameters.empty? ? nil : method.parameters[0]
   if parameter
-   raise "parameters for #{method.qualified_name} should only have 1 parameter" unless method.parameters.size == 1
+   Domgen.error("parameters for #{method.qualified_name} should only have 1 parameter") unless method.parameters.size == 1
    encoded_type = "#{parameter.name}Message"
    boundary_type = parameter.ejb.java_component_type(:boundary)
    in_container = !(parameter.struct? && !parameter.collection?)

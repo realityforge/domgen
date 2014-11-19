@@ -171,11 +171,11 @@ module Domgen
     end
 
     def characteristic_type_key
-      raise "characteristic_type_key not implemented"
+      Domgen.error('characteristic_type_key not implemented')
     end
 
     def characteristic_container
-      raise "characteristic_container not implemented"
+      Domgen.error('characteristic_container not implemented')
     end
   end
 
@@ -314,11 +314,11 @@ module Domgen
     end
 
     def new_characteristic(name, type, options, &block)
-      raise "new_characteristic not implemented"
+      Domgen.error('new_characteristic not implemented')
     end
 
     def characteristic_kind
-      raise "characteristic_kind not implemented"
+      Domgen.error('characteristic_kind not implemented')
     end
 
     # Also need to define data_module

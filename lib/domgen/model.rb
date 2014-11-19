@@ -254,7 +254,7 @@ module Domgen
     attr_reader :enumeration_type
 
     def initialize(data_module, name, enumeration_type, options = {}, &block)
-      raise "Unknown enumeration type #{enumeration_type}" if !self.class.enumeration_types.include?(enumeration_type)
+      Domgen.error("Unknown enumeration type #{enumeration_type}") if !self.class.enumeration_types.include?(enumeration_type)
       @name = name
       @enumeration_type = enumeration_type
       data_module.send :register_enumeration, name, self
@@ -409,13 +409,13 @@ module Domgen
     end
 
     def result_type
-      raise "result_type called on #{qualified_name} before it has been specified" unless @result_type
+      Domgen.error("result_type called on #{qualified_name} before it has been specified") unless @result_type
       @result_type
     end
 
     def result_type=(result_type)
-      raise "Attempt to reassign result_type on #{qualified_name} from #{@result_type} to #{result_type}" if @result_type
-      raise "Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}" unless [:reference, :struct, :scalar].include?(result_type)
+      Domgen.error("Attempt to reassign result_type on #{qualified_name} from #{@result_type} to #{result_type}") if @result_type
+      Domgen.error("Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}") unless [:reference, :struct, :scalar].include?(result_type)
       @result_type = result_type
     end
 
@@ -429,7 +429,7 @@ module Domgen
     end
 
     def entity
-      raise "entity called on #{qualified_name} before being specified" unless @entity
+      Domgen.error("entity called on #{qualified_name} before being specified") unless @entity
       @entity
     end
 
@@ -443,7 +443,7 @@ module Domgen
     end
 
     def struct
-      raise "struct called on #{qualified_name} before being specified" unless @struct
+      Domgen.error("struct called on #{qualified_name} before being specified") unless @struct
       @struct
     end
 
@@ -494,7 +494,7 @@ module Domgen
     end
 
     def characteristic_kind
-      raise "parameter"
+      "parameter"
     end
 
     def new_characteristic(name, type, options, &block)
@@ -1510,7 +1510,7 @@ module Domgen
     end
 
     def register_type_name(key, type_name, element)
-      raise "Attempting to redefine #{key} of type #{@elements[key].class.name} as an #{type_name}" if @elements[key]
+      Domgen.error("Attempting to redefine #{key} of type #{@elements[key].class.name} as an #{type_name}") if @elements[key]
       @elements[key] = element
     end
 

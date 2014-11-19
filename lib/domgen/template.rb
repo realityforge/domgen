@@ -117,7 +117,7 @@ module Domgen
       end
 
       def output_path
-        raise "output_path unimplemented"
+        Domgen.error('output_path unimplemented')
       end
 
       def generate(target_basedir, element_type, element, unprocessed_files)
@@ -141,7 +141,7 @@ module Domgen
       protected
 
       def generate!(target_basedir, element_type, element, unprocessed_files)
-        raise "generate not implemented"
+        Domgen.error('generate not implemented')
       end
 
       def name_for_element(element)
@@ -201,7 +201,7 @@ module Domgen
       end
 
       def render_to_string(context_binding)
-        raise "render_to_string not implemented"
+        Domgen.error('render_to_string not implemented')
       end
     end
 
@@ -218,7 +218,7 @@ module Domgen
 
       def erb_instance
         unless @template
-          raise "Unable to locate file #{template_filename} for template #{name}" unless File.exist?(template_filename)
+          Domgen.error("Unable to locate file #{template_filename} for template #{name}") unless File.exist?(template_filename)
           @template = ERB.new(IO.read(template_filename), nil, '-')
           @template.filename = template_filename
         end

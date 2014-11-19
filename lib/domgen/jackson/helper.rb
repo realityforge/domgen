@@ -28,7 +28,7 @@ module Domgen
         s << "@org.codehaus.jackson.annotate.JsonProperty(\"#{field.json.name}\")\n"
         if field.enumeration? && field.enumeration.numeric_values?
           if field.collection?
-            raise "Attempted to use a collection of enumerations which is currently unsupported"
+            Domgen.error("Attempted to use a collection of enumerations which is currently unsupported")
           else
             s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = #{field.enumeration.ee.qualified_name}.Deserializer.class )\n"
           end

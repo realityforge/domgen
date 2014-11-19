@@ -87,7 +87,7 @@ module Domgen
       end
 
       def version=(version)
-        raise "Unknown version '#{version}'" unless ['2.0', '2.1'].include?(version)
+        Domgen.error("Unknown version '#{version}'") unless %w(2.0 2.1).include?(version)
         @version = version
       end
 
@@ -258,7 +258,7 @@ module Domgen
       end
 
       def generator_name
-        raise "generator_name invoked on non-sequence" unless attribute.sql.sequence?
+        Domgen.error('generator_name invoked on non-sequence') unless attribute.sql.sequence?
         "#{attribute.entity.name}#{attribute.name}Generator"
       end
 

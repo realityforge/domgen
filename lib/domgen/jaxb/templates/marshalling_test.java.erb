@@ -54,7 +54,7 @@ def create_parameter_value(p, parent_context = nil)
     elsif p.text?
       "\"HelloWorld\""
     else
-      raise "Unknown parameter type for #{p.qualified_name}"
+      Domgen.error("Unknown parameter type for #{p.qualified_name}")
     end
   !p.collection? ? v : (p.collection_type == :sequence) ? "java.util.Arrays.#{type_spec}asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.#{type_spec}asList( #{v} ) )"
 end

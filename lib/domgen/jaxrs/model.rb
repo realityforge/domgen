@@ -22,7 +22,7 @@ module Domgen
       def consumes=(consumes)
         consumes = [consumes] unless consumes.is_a?(Array)
         consumes.each do |media_type|
-          raise "Specified media type '#{media_type}' is not valid" unless valid_media_type?(media_type)
+          Domgen.error("Specified media type '#{media_type}' is not valid") unless valid_media_type?(media_type)
         end
         @consumes = consumes
       end
@@ -34,7 +34,7 @@ module Domgen
       def produces=(produces)
         produces = [produces] unless produces.is_a?(Array)
         produces.each do |media_type|
-          raise "Specified media type '#{media_type}' is not valid" unless valid_media_type?(media_type)
+          Domgen.error("Specified media type '#{media_type}' is not valid") unless valid_media_type?(media_type)
         end
         @produces = produces
       end
@@ -95,7 +95,7 @@ module Domgen
       end
 
       def http_method=(http_method)
-        raise "Specified http method '#{http_method}' is not valid" unless valid_http_method?(http_method)
+        Domgen.error("Specified http method '#{http_method}' is not valid") unless valid_http_method?(http_method)
         @http_method = http_method
       end
 
@@ -132,7 +132,7 @@ module Domgen
       end
 
       def param_type=(param_type)
-        raise "Unknown param_type #{param_type}" unless valid_param_type?(param_type)
+        Domgen.error("Unknown param_type #{param_type}") unless valid_param_type?(param_type)
         @param_type = param_type
       end
 

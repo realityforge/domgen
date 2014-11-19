@@ -50,7 +50,7 @@ module Domgen
       end
 
       def external_cache_management?
-        raise "external_cache_management? invoked on #{qualified_name} when not cacheable" unless cacheable?
+        Domgen.error("external_cache_management? invoked on #{qualified_name} when not cacheable") unless cacheable?
         @external_cache_management.nil? ? false : !!@external_cache_management
       end
 
@@ -63,38 +63,38 @@ module Domgen
       end
 
       def type_roots
-        raise "type_roots invoked for graph #{name} when instance based" if instance_root?
+        Domgen.error("type_roots invoked for graph #{name} when instance based") if instance_root?
         @type_roots
       end
 
       def type_roots=(type_roots)
-        raise "Attempted to assign type_roots #{type_roots.inspect} for graph #{name} when instance based on #{@instance_root.inspect}" if instance_root?
+        Domgen.error("Attempted to assign type_roots #{type_roots.inspect} for graph #{name} when instance based on #{@instance_root.inspect}") if instance_root?
         @type_roots = type_roots
       end
 
       def instance_root
-        raise "instance_root invoked for graph #{name} when not instance based" if 0 != @type_roots.size
+        Domgen.error("instance_root invoked for graph #{name} when not instance based") if 0 != @type_roots.size
         @instance_root
       end
 
       def instance_root=(instance_root)
-        raise "Attempted to assign instance_root to #{instance_root.inspect} for graph #{name} when not instance based (type_roots=#{@type_roots.inspect})" if 0 != @type_roots.size
+        Domgen.error("Attempted to assign instance_root to #{instance_root.inspect} for graph #{name} when not instance based (type_roots=#{@type_roots.inspect})") if 0 != @type_roots.size
         @instance_root = instance_root
       end
 
       def outward_graph_links
-        raise "outward_graph_links invoked for graph #{name} when not instance based" if 0 != @type_roots.size
+        Domgen.error("outward_graph_links invoked for graph #{name} when not instance based") if 0 != @type_roots.size
         @outward_graph_links.values
       end
 
       def inward_graph_links
-        raise "inward_graph_links invoked for graph #{name} when not instance based" if 0 != @type_roots.size
+        Domgen.error("inward_graph_links invoked for graph #{name} when not instance based") if 0 != @type_roots.size
         @inward_graph_links.values
       end
 
       # Return the list of entities reachable in instance graph
       def reachable_entities
-        raise "reachable_entities invoked for graph #{name} when not instance based" if 0 != @type_roots.size
+        Domgen.error("reachable_entities invoked for graph #{name} when not instance based") if 0 != @type_roots.size
         @reachable_entities ||= []
       end
 
@@ -117,14 +117,14 @@ module Domgen
 
       def post_verify
         if cacheable? && (filter_parameter || instance_root?)
-          raise "Graph #{self.name} can not be marked as cacheable as cacheable graphs are not supported for instance based or filterable graphs"
+          Domgen.error("Graph #{self.name} can not be marked as cacheable as cacheable graphs are not supported for instance based or filterable graphs")
         end
         self.outward_graph_links.each do |graph_link|
           target_graph = application.repository.imit.graph_by_name(graph_link.target_graph)
           if target_graph.filtered? && self.unfiltered?
-            raise "Graph '#{self.name}' is an unfiltered graph but has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}'. This is not supported."
+            Domgen.error("Graph '#{self.name}' is an unfiltered graph but has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}'. This is not supported.")
           elsif target_graph.filtered? && self.filtered? && !target_graph.filter_parameter.equiv?(self.filter_parameter)
-            raise "Graph '#{self.name}' has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' but has a different filter. This is not supported."
+            Domgen.error("Graph '#{self.name}' has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' but has a different filter. This is not supported.")
           end
         end if self.instance_root?
       end
@@ -133,13 +133,13 @@ module Domgen
 
       def register_outward_graph_link(graph_link)
         key = graph_link.imit_attribute.attribute.qualified_name.to_s
-        raise "Attempted to register duplicate outward graph link on attribute '#{graph_link.imit_attribute.attribute.qualified_name}' on graph '#{self.name}'" if @outward_graph_links[key]
+        Domgen.error("Attempted to register duplicate outward graph link on attribute '#{graph_link.imit_attribute.attribute.qualified_name}' on graph '#{self.name}'") if @outward_graph_links[key]
         @outward_graph_links[key] = graph_link
       end
 
       def register_inward_graph_link(graph_link)
         key = graph_link.imit_attribute.attribute.qualified_name.to_s
-        raise "Attempted to register duplicate inward graph link on attribute '#{graph_link.imit_attribute.attribute.qualified_name}' on graph '#{self.name}'" if @inward_graph_links[key]
+        Domgen.error("Attempted to register duplicate inward graph link on attribute '#{graph_link.imit_attribute.attribute.qualified_name}' on graph '#{self.name}'") if @inward_graph_links[key]
         @inward_graph_links[key] = graph_link
       end
     end
@@ -148,13 +148,13 @@ module Domgen
       def initialize(imit_attribute, source_graph, target_graph, options, &block)
         repository = imit_attribute.attribute.entity.data_module.repository
         unless repository.imit.graph_by_name?(source_graph)
-          raise "Source graph '#{source_graph}' specified for link on #{imit_attribute.attribute.name} does not exist"
+          Domgen.error("Source graph '#{source_graph}' specified for link on #{imit_attribute.attribute.name} does not exist")
         end
         unless repository.imit.graph_by_name?(target_graph)
-          raise "Target graph '#{target_graph}' specified for link on #{imit_attribute.attribute.name} does not exist"
+          Domgen.error("Target graph '#{target_graph}' specified for link on #{imit_attribute.attribute.name} does not exist")
         end
         unless imit_attribute.attribute.reference?
-          raise "Attempted to define a graph link on non-reference attribute '#{imit_attribute.attribute.qualified_name}'"
+          Domgen.error("Attempted to define a graph link on non-reference attribute '#{imit_attribute.attribute.qualified_name}'")
         end
         @source_graph = source_graph
         @target_graph = target_graph
@@ -196,12 +196,12 @@ module Domgen
 
         # Need to make sure both graphs are instance graphs
         prefix = "Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.name}'"
-        raise "#{prefix} must have an instance graph on the LHS" unless source_graph.instance_root?
-        raise "#{prefix} must have an instance graph on the RHS" unless target_graph.instance_root?
+        Domgen.error("#{prefix} must have an instance graph on the LHS") unless source_graph.instance_root?
+        Domgen.error("#{prefix} must have an instance graph on the RHS") unless target_graph.instance_root?
 
         # Need to make sure that the other side is the root of the graph
         unless target_graph.instance_root != entity.name
-          raise "Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' links to entity that is not the root of the graph"
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' links to entity that is not the root of the graph")
         end
       end
     end
@@ -308,7 +308,7 @@ module Domgen
       java_artifact :mock_services_module, :ioc, :client, :imit, '#{repository.name}MockImitServicesModule'
 
       def multi_session=(multi_session)
-        raise "multi_session '#{multi_session}' is invalid. Must be a boolean value" unless multi_session.is_a?(TrueClass) || multi_session.is_a?(FalseClass)
+        Domgen.error("multi_session '#{multi_session}' is invalid. Must be a boolean value") unless multi_session.is_a?(TrueClass) || multi_session.is_a?(FalseClass)
         @multi_session = multi_session
       end
 
@@ -317,7 +317,7 @@ module Domgen
       end
 
       def replicate_mode=(replicate_mode)
-        raise "replicate_mode '#{replicate_mode}' is invalid. Must be one of #{self.class.valid_replicate_modes.inspect}" unless self.class.valid_replicate_modes.include?(replicate_mode)
+        Domgen.error("replicate_mode '#{replicate_mode}' is invalid. Must be one of #{self.class.valid_replicate_modes.inspect}") unless self.class.valid_replicate_modes.include?(replicate_mode)
         @replicate_mode = replicate_mode
       end
 
@@ -389,9 +389,9 @@ module Domgen
 
       def pre_verify
         if self.graphs.size == 0
-          raise 'subscription_manager specified when no graphs defined' unless self.subscription_manager.nil?
-          raise 'invalid_session_exception specified when no graphs defined' unless self.invalid_session_exception.nil?
-          raise 'imit_control_data_module specified when no graphs defined' unless self.imit_control_data_module.nil?
+          Domgen.error('subscription_manager specified when no graphs defined') unless self.subscription_manager.nil?
+          Domgen.error('invalid_session_exception specified when no graphs defined') unless self.invalid_session_exception.nil?
+          Domgen.error('imit_control_data_module specified when no graphs defined') unless self.imit_control_data_module.nil?
         else
           if self.imit_control_data_module.nil? && self.repository.data_module_by_name?(self.repository.name)
             self.imit_control_data_module = self.repository.name
@@ -400,11 +400,11 @@ module Domgen
             if self.imit_control_data_module
               self.subscription_manager = "#{self.imit_control_data_module}.SubscriptionService"
             else
-              raise 'subscription_manager not specified (and unable to be derived) when graphs defined'
+              Domgen.error('subscription_manager not specified (and unable to be derived) when graphs defined')
             end
           end
           sm_name_parts = self.subscription_manager.to_s.split('.')
-          raise 'subscription_manager invalid. Expected to be in format DataModule.ServiceName' if sm_name_parts.length != 2
+          Domgen.error('subscription_manager invalid. Expected to be in format DataModule.ServiceName') if sm_name_parts.length != 2
           self.repository.data_module_by_name(sm_name_parts[0]).service(sm_name_parts[1]) do |s|
             (s.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :imit]).each do |facet_key|
               s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
@@ -415,11 +415,11 @@ module Domgen
             if self.imit_control_data_module
               self.invalid_session_exception = "#{self.imit_control_data_module}.BadSession"
             else
-              raise 'invalid_session_exception not specified (and unable to be derived) when graphs defined'
+              Domgen.error('invalid_session_exception not specified (and unable to be derived) when graphs defined')
             end
           end
           e_name_parts = self.invalid_session_exception.to_s.split('.')
-          raise 'invalid_session_exception invalid. Expected to be in format DataModule.Exception' if e_name_parts.length != 2
+          Domgen.error('invalid_session_exception invalid. Expected to be in format DataModule.Exception') if e_name_parts.length != 2
           self.repository.data_module_by_name(e_name_parts[0]).
             exception(e_name_parts[1], 'ejb.rollback' => false) do |e|
             (e.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :imit]).each do |facet_key|
@@ -590,12 +590,12 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       def transport_id
-        raise "Attempted to invoke transport_id on abstract entity" if entity.abstract?
+        Domgen.error("Attempted to invoke transport_id on abstract entity") if entity.abstract?
         @transport_id
       end
 
       def transport_id=(transport_id)
-        raise "Attempted to assign transport_id on abstract entity" if entity.abstract?
+        Domgen.error("Attempted to assign transport_id on abstract entity") if entity.abstract?
         @transport_id = transport_id
       end
 
@@ -614,7 +614,7 @@ module Domgen
       end
 
       def replicate(graph, replication_type)
-        raise "#{replication_type.inspect} is not of a known type" unless [:instance, :type].include?(replication_type)
+        Domgen.error("#{replication_type.inspect} is not of a known type") unless [:instance, :type].include?(replication_type)
         graph = entity.data_module.repository.imit.graph_by_name(graph)
         k = entity.qualified_name
         graph.instance_root = k if :instance == replication_type
@@ -630,12 +630,12 @@ module Domgen
       end
 
       def subgraph_roots=(subgraph_roots)
-        raise "subgraph_roots expected to be an array" unless subgraph_roots.is_a?(Array)
+        Domgen.error("subgraph_roots expected to be an array") unless subgraph_roots.is_a?(Array)
         subgraph_roots.each do |subgraph_root|
           graph = entity.data_module.repository.imit.graph_by_name(subgraph_root)
-          raise "subgraph_roots specifies a non graph #{subgraph_root}" unless graph
-          raise "subgraph_roots specifies a non-instance graph #{subgraph_root}" unless graph.instance_root?
-          raise "subgraph_roots specifies a non-filtered graph #{subgraph_root}" unless graph.filtered?
+          Domgen.error("subgraph_roots specifies a non graph #{subgraph_root}") unless graph
+          Domgen.error("subgraph_roots specifies a non-instance graph #{subgraph_root}") unless graph.instance_root?
+          Domgen.error("subgraph_roots specifies a non-filtered graph #{subgraph_root}") unless graph.filtered?
         end
         @subgraph_roots = subgraph_roots
       end
@@ -676,8 +676,8 @@ module Domgen
       end
 
       def filter_in_graphs=(filter_in_graphs)
-        raise "filter_in_graphs should be an array of symbols" unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
-        raise "filter_in_graphs should only contain valid graphs" unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
+        Domgen.error("filter_in_graphs should be an array of symbols") unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
+        Domgen.error("filter_in_graphs should only contain valid graphs") unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
         @filter_in_graphs = filter_in_graphs
       end
 
@@ -695,7 +695,7 @@ module Domgen
 
       def add_graph_link(source_graph, target_graph, options = {}, &block)
         key = "#{source_graph}->#{target_graph}"
-        raise "Graph link already defined between #{source_graph} and #{target_graph} on attribute '#{attribute.qualified_name}'" if graph_links_map[key]
+        Domgen.error("Graph link already defined between #{source_graph} and #{target_graph} on attribute '#{attribute.qualified_name}'") if graph_links_map[key]
         graph_links_map[key] = Domgen::Imit::GraphLink.new(self, source_graph, target_graph, options, &block)
       end
 
@@ -731,9 +731,9 @@ module Domgen
       end
 
       def replication_edges=(replication_edges)
-        raise "replication_edges should be an array of symbols" unless replication_edges.is_a?(Array) && replication_edges.all? { |m| m.is_a?(Symbol) }
-        raise "replication_edges should only be set when traversable?" unless inverse.traversable?
-        raise "replication_edges should only contain valid graphs" unless replication_edges.all? { |m| inverse.attribute.entity.data_module.repository.imit.graph_by_name(m) }
+        Domgen.error("replication_edges should be an array of symbols") unless replication_edges.is_a?(Array) && replication_edges.all? { |m| m.is_a?(Symbol) }
+        Domgen.error("replication_edges should only be set when traversable?") unless inverse.traversable?
+        Domgen.error("replication_edges should only contain valid graphs") unless replication_edges.all? { |m| inverse.attribute.entity.data_module.repository.imit.graph_by_name(m) }
         @replication_edges = replication_edges
       end
 

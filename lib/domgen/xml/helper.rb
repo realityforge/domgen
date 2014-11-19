@@ -27,7 +27,7 @@ module Domgen
         return xsd_type(characteristic.referenced_entity.primary_key) if characteristic.reference?
         return " type=\"#{characteristic.referenced_struct.data_module.xml.prefix}:#{characteristic.referenced_struct.name}\"" if characteristic.struct?
         return " type=\"#{characteristic.enumeration.data_module.xml.prefix}:#{characteristic.enumeration.name}\"" if characteristic.enumeration?
-        raise "unknown type #{characteristic.characteristic_type} and can not convert to xsd"
+        Domgen.error("unknown type #{characteristic.characteristic_type} and can not convert to xsd")
       end
 
       def xsd_element_occurrences(characteristic)

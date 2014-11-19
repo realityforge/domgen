@@ -30,7 +30,7 @@ module Domgen
       end
 
       def version=(version)
-        raise "Unknown version '#{version}'" unless ['6', '7'].include?(version)
+        Domgen.error("Unknown version '#{version}'") unless %w(6 7).include?(version)
         @version = version
       end
     end

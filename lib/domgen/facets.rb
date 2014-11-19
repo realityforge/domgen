@@ -111,7 +111,7 @@ module Domgen
 
     def enhance(source_class, &block)
       extension = @extension_map[source_class]
-      raise "Unknown source class #{source_class.name}" unless extension
+      Domgen.error("Unknown source class #{source_class.name}") unless extension
       extension.class_eval &block
     end
 
@@ -164,7 +164,7 @@ module Domgen
       end
 
       def facet(definition, options = {}, &block)
-        raise "Unknown definition form '#{definition.inspect}'" unless (definition.is_a?(Symbol) || (definition.is_a?(Hash) && 1 == definition.size))
+        Domgen.error("Unknown definition form '#{definition.inspect}'") unless (definition.is_a?(Symbol) || (definition.is_a?(Hash) && 1 == definition.size))
         key = (definition.is_a?(Hash) ? definition.keys[0] : definition).to_sym
         Domgen.error("Attempting to redefine facet #{key}") if FacetManager.facet?(key)
         required_facets = definition.is_a?(Hash) ? definition.values[0] : []

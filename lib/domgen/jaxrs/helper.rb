@@ -23,7 +23,7 @@ module Domgen
         elsif :plain == media_type
           'javax.ws.rs.core.MediaType.TEXT_PLAIN'
         else
-          raise "Unknown media type #{media_type}"
+          Domgen.error("Unknown media type #{media_type}")
         end
       end
 

@@ -37,7 +37,7 @@ public final class <%= struct.gwt.jso_name %>
         when field.integer? then "com.google.gwt.core.client.JsArrayInteger"
         when field.boolean? then "com.google.gwt.core.client.JsArrayBoolean"
         when field.struct? then "com.google.gwt.core.client.JsArray<#{field.referenced_struct.gwt.qualified_jso_name}>"
-        else (raise "Unsupported field type #{field.name}")
+        else (Domgen.error("Unsupported field type #{field.name}"))
       end
     gwt_creator =
       case
@@ -47,7 +47,7 @@ public final class <%= struct.gwt.jso_name %>
         when field.integer? then "IntegerArray"
         when field.boolean? then "BooleanArray"
         when field.struct? then "ObjectArray"
-        else (raise "Unsupported field type #{field.name}")
+        else (Domgen.error("Unsupported field type #{field.name}"))
       end
     creators_used << gwt_creator unless creators_used.include?(gwt_creator)
 %>
@@ -94,7 +94,7 @@ public final class <%= struct.gwt.jso_name %>
         when field.integer? then "Integer"
         when field.boolean? then "Boolean"
         when field.struct? then "<#{field.referenced_struct.gwt.qualified_jso_name}>"
-        else (raise "Unsupported field type #{field.name}")
+        else (Domgen.error("Unsupported field type #{field.name}"))
       end
     conversion_rule =
       case

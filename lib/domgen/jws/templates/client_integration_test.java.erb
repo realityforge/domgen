@@ -32,7 +32,7 @@ def java_characteristic_fixture(p, parent_context = nil)
     elsif p.text?
       "\"Hello Space!\""
     else
-      raise "Unknown parameter type for #{p.qualified_name}"
+      Domgen.error("Unknown parameter type for #{p.qualified_name}")
     end
   !p.collection? ? v : (p.collection_type == :sequence) ? "java.util.Arrays.#{type_spec}asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.#{type_spec}asList( #{v} ) )"
 end
@@ -62,7 +62,7 @@ def jws_characteristic_fixture(service, p, force_singular = false)
     elsif p.text?
       "\"Hello Space!\""
     else
-      raise "Unknown parameter type for #{p.qualified_name}"
+      Domgen.error("Unknown parameter type for #{p.qualified_name}")
     end
   return v if !p.collection? || force_singular
 

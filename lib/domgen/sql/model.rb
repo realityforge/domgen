@@ -1147,7 +1147,7 @@ SQL
       end
 
       def generator_type=(generator_type)
-        raise "generator_type supplied #{generator_type} not valid" unless [:none, :identity, :sequence].include?(generator_type)
+        Domgen.error("generator_type supplied #{generator_type} not valid") unless [:none, :identity, :sequence].include?(generator_type)
         @generator_type = generator_type
       end
 
@@ -1160,12 +1160,12 @@ SQL
       end
 
       def sequence_name
-        raise "sequence_name called on #{attribute.qualified_name} when not a sequence" unless self.sequence?
+        Domgen.error("sequence_name called on #{attribute.qualified_name} when not a sequence") unless self.sequence?
         @sequence_name || "#{attribute.entity.sql.table_name}#{attribute.name}Seq"
       end
 
       def sequence_name=(sequence_name)
-        raise "sequence_name= called on #{attribute.qualified_name} when not a sequence" if !@generator_type.nil? && !self.sequence?
+        Domgen.error("sequence_name= called on #{attribute.qualified_name} when not a sequence") if !@generator_type.nil? && !self.sequence?
         @sequence_name = sequence_name
       end
 

@@ -82,11 +82,11 @@ module Domgen
         output = `#{command.join(' ')}`
         if $? != 0
           puts output
-          raise "Problem building webservices"
+          Domgen.error('Problem building webservices')
         end
         unless File.exist?("#{base_dir}/#{output_package.gsub('.','/')}/#{service_name}.java")
           puts output
-          raise "Problem building webservices"
+          Domgen.error('Problem building webservices')
         end
         if output =~ /\[WARNING\]/
           puts output

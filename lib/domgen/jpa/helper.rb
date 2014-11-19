@@ -536,7 +536,7 @@ JAVA
           query.entity.jpa.qualified_name :
           query.result_struct? ?
             query.struct.ee.qualified_name :
-            (raise "Not yet able to handle scalar")
+            (Domgen.error('Not yet able to handle scalar'))
       end
 
       def query_result_type(query)
