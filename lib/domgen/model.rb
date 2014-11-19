@@ -685,6 +685,14 @@ module Domgen
       characteristic(name, type, options, &block)
     end
 
+    def attribute_by_name?
+      characteristic_exists?(name)
+    end
+
+    def attribute_by_name
+      characteristic_by_name(name)
+    end
+
     def queries
       dao.queries
     end
