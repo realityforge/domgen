@@ -287,7 +287,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 <% if graph.instance_root? -%>
       session.registerInterestIn<%= graph.name %>( <%= pk_accessor %><%= graph.filter_parameter.nil? ? '' : ", filter" %> );
       final org.realityforge.replicant.server.ChangeSet changeSet = org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges();
-      populateChangeSetFor<%= graph.name %>( session, <%= graph.instance_root? ? pk_accessor : 'null' %>, changeSet, encode<%= graph.name %>( entity<%= graph.filter_parameter.nil? ? '' : ', filter' %> )<%= graph.filter_parameter.nil? ? '' : ', filter' %> );
+      populateChangeSetFor<%= graph.name %>( session, <%= pk_accessor %>, changeSet, encode<%= graph.name %>( entity<%= graph.filter_parameter.nil? ? '' : ', filter' %> )<%= graph.filter_parameter.nil? ? '' : ', filter' %> );
       expandLinks( session, changeSet );
 <% else -%>
       session.setInterestedIn<%= graph.name %>( true );
@@ -325,7 +325,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
       final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
       <% if graph.external_data_load? -%>_context.<% end -%>collect<%= graph.name %>( messages );
       final org.realityforge.replicant.server.ChangeSet changeSet = org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges();
-      populateChangeSetFor<%= graph.name %>( session, <%= graph.instance_root? ? pk_accessor : 'null' %>, changeSet, messages<%= graph.filter_parameter.nil? ? '' : ', filter' %> );
+      populateChangeSetFor<%= graph.name %>( session, null, changeSet, messages<%= graph.filter_parameter.nil? ? '' : ', filter' %> );
 <% end -%>
 <% end -%>
 <% if graph.cacheable? -%>
