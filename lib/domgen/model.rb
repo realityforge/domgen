@@ -1285,11 +1285,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional)
     end
 
+    def enumeration_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_enumeration_by_name?(name_parts[1])
+    end
+
     def local_enumeration_by_name(name, optional = false)
       enumeration = @enumerations[name.to_s]
       Domgen.error("Unable to locate local enumeration #{name} in #{self.name}") if !enumeration && !optional
       yield enumeration if block_given?
       enumeration
+    end
+
+    def local_exception_by_name?(name)
+      !@enumerations[name.to_s].nil?
     end
 
     def exceptions
@@ -1308,11 +1318,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional)
     end
 
+    def exception_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_exception_by_name?(name_parts[1])
+    end
+
     def local_exception_by_name(name, optional = false)
       exception = @exceptions[name.to_s]
       Domgen.error("Unable to locate local exception #{name} in #{self.name}") if !exception && !optional
       yield exception if block_given?
       exception
+    end
+
+    def local_exception_by_name?(name)
+      !@exceptions[name.to_s].nil?
     end
 
     def daos
@@ -1331,11 +1351,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_dao_by_name(name_parts[1], optional)
     end
 
+    def dao_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_dao_by_name?(name_parts[1])
+    end
+
     def local_dao_by_name(name, optional = false)
       dao = @daos[name.to_s]
       Domgen.error("Unable to locate local dao #{name} in #{self.name}") if !dao && !optional
       yield dao if block_given?
       dao
+    end
+
+    def local_dao_by_name?(name)
+      !@daos[name.to_s].nil?
     end
 
     def entities
@@ -1354,11 +1384,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional)
     end
 
+    def entity_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_entity_by_name?(name_parts[1])
+    end
+
     def local_entity_by_name(name, optional = false)
       entity = @entities[name.to_s]
       Domgen.error("Unable to locate local entity #{name} in #{self.name}") if !entity && !optional
       yield entity if block_given?
       entity
+    end
+
+    def local_entity_by_name?(name)
+      !@entities[name.to_s].nil?
     end
 
     def services
@@ -1377,11 +1417,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional)
     end
 
+    def service_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_service_by_name?(name_parts[1])
+    end
+
     def local_service_by_name(name, optional = false)
       service = @services[name.to_s]
       Domgen.error("Unable to locate local service #{name} in #{self.name}") if !service && !optional
       yield service if block_given?
       service
+    end
+
+    def local_service_by_name?(name)
+      !@services[name.to_s].nil?
     end
 
     def messages
@@ -1400,11 +1450,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1], optional)
     end
 
+    def message_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_message_by_name?(name_parts[1])
+    end
+
     def local_message_by_name(name, optional = false)
       message = @messages[name.to_s]
       Domgen.error("Unable to locate local message #{name} in #{self.name}") if !message && !optional
       yield message if block_given?
       message
+    end
+
+    def local_message_by_name?(name)
+      !@messages[name.to_s].nil?
     end
 
     def structs
@@ -1423,11 +1483,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional)
     end
 
+    def struct_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_struct_by_name?(name_parts[1])
+    end
+
     def local_struct_by_name(name, optional = false)
       struct = @structs[name.to_s]
       Domgen.error("Unable to locate local struct #{name} in #{self.name}") if !struct && !optional
       yield struct if block_given?
       struct
+    end
+
+    def local_struct_by_name?(name)
+      !@structs[name.to_s].nil?
     end
 
     private
