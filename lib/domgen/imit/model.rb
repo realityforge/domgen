@@ -98,6 +98,10 @@ module Domgen
         @reachable_entities ||= []
       end
 
+      def included_entities
+        instance_root? ? reachable_entities : type_roots
+      end
+
       def filter(filter_type, options = {}, &block)
         Domgen.error("Attempting to redefine filter on graph #{self.name}") if @filter
         @filter ||= FilterParameter.new(self, filter_type, options, &block)
