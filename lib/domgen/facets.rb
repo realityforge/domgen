@@ -31,7 +31,7 @@ module Domgen
     end
 
     def all_enabled_facets
-      (enabled_facets + (self.respond_to?(:parent) ? self.parent.all_enabled_facets : [])).uniq - disabled_facets
+      (enabled_facets + (self.respond_to?(:parent, true) ? parent.all_enabled_facets : [])).uniq - disabled_facets
     end
 
     protected
