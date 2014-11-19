@@ -1330,9 +1330,9 @@ module Domgen
     end
 
     def local_dao_by_name(name, optional = false)
-      message = @daos[name.to_s]
-      Domgen.error("Unable to locate local dao #{name} in #{self.name}") if !message && !optional
-      message
+      dao = @daos[name.to_s]
+      Domgen.error("Unable to locate local dao #{name} in #{self.name}") if !dao && !optional
+      dao
     end
 
     def entities
