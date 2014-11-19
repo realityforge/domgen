@@ -1680,6 +1680,9 @@ module Domgen
     end
 
     def post_repository_definition
+      # Run hooks in all the modules that can generate other model elements
+      self.complete
+
       # Add back links for all references
       Logger.debug "Repository #{name}: Adding back links for all references"
       self.data_modules.each do |data_module|

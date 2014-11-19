@@ -24,6 +24,10 @@ module Domgen
       self.send(facet_key)
     end
 
+    def complete
+      extension_point(:pre_complete)
+    end
+
     def verify
       extension_point(:pre_verify)
       extension_point(:perform_verify)
