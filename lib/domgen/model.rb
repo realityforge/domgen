@@ -685,11 +685,11 @@ module Domgen
       characteristic(name, type, options, &block)
     end
 
-    def attribute_by_name?
+    def attribute_by_name?(name)
       characteristic_exists?(name)
     end
 
-    def attribute_by_name
+    def attribute_by_name(name)
       characteristic_by_name(name)
     end
 
