@@ -1288,6 +1288,7 @@ module Domgen
     def local_enumeration_by_name(name, optional = false)
       enumeration = @enumerations[name.to_s]
       Domgen.error("Unable to locate local enumeration #{name} in #{self.name}") if !enumeration && !optional
+      yield enumeration if block_given?
       enumeration
     end
 
@@ -1310,6 +1311,7 @@ module Domgen
     def local_exception_by_name(name, optional = false)
       exception = @exceptions[name.to_s]
       Domgen.error("Unable to locate local exception #{name} in #{self.name}") if !exception && !optional
+      yield exception if block_given?
       exception
     end
 
@@ -1332,6 +1334,7 @@ module Domgen
     def local_dao_by_name(name, optional = false)
       dao = @daos[name.to_s]
       Domgen.error("Unable to locate local dao #{name} in #{self.name}") if !dao && !optional
+      yield dao if block_given?
       dao
     end
 
@@ -1354,6 +1357,7 @@ module Domgen
     def local_entity_by_name(name, optional = false)
       entity = @entities[name.to_s]
       Domgen.error("Unable to locate local entity #{name} in #{self.name}") if !entity && !optional
+      yield entity if block_given?
       entity
     end
 
@@ -1376,6 +1380,7 @@ module Domgen
     def local_service_by_name(name, optional = false)
       service = @services[name.to_s]
       Domgen.error("Unable to locate local service #{name} in #{self.name}") if !service && !optional
+      yield service if block_given?
       service
     end
 
@@ -1398,6 +1403,7 @@ module Domgen
     def local_message_by_name(name, optional = false)
       message = @messages[name.to_s]
       Domgen.error("Unable to locate local message #{name} in #{self.name}") if !message && !optional
+      yield message if block_given?
       message
     end
 
@@ -1420,6 +1426,7 @@ module Domgen
     def local_struct_by_name(name, optional = false)
       struct = @structs[name.to_s]
       Domgen.error("Unable to locate local struct #{name} in #{self.name}") if !struct && !optional
+      yield struct if block_given?
       struct
     end
 
@@ -1608,6 +1615,7 @@ module Domgen
     def data_module_by_name(name)
       data_module = @data_modules[name.to_s]
       Domgen.error("Unable to locate data_module #{name}") unless data_module
+      yield data_module if block_given?
       data_module
     end
 
@@ -1619,34 +1627,34 @@ module Domgen
       Domgen::ModelCheck.new(self, name, options, &block)
     end
 
-    def enumeration_by_name(name, optional = false)
+    def enumeration_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional, &block)
     end
 
-    def exception_by_name(name, optional = false)
+    def exception_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional, &block)
     end
 
-    def entity_by_name(name, optional = false)
+    def entity_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional, &block)
     end
 
-    def service_by_name(name, optional = false)
+    def service_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional, &block)
     end
 
-    def struct_by_name(name, optional = false)
+    def struct_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional, &block)
     end
 
-    def message_by_name(name, optional = false)
+    def message_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1], optional, &block)
     end
 
     include GenerateFacet
