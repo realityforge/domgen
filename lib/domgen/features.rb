@@ -307,12 +307,6 @@ module Domgen
       characteristic_map.values
     end
 
-    def verify_characteristics
-      self.characteristics.each do |c|
-        c.verify
-      end
-    end
-
     def characteristic_map
       @characteristics ||= Domgen::OrderedHash.new
     end

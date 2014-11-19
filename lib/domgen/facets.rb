@@ -26,7 +26,7 @@ module Domgen
 
     def verify
       extension_point(:pre_verify)
-      perform_verify
+      extension_point(:perform_verify)
       extension_point(:post_verify)
     end
 
@@ -35,9 +35,6 @@ module Domgen
     end
 
     protected
-
-    def perform_verify
-    end
 
     def activate_facets
       FacetManager.activate_facets(self, all_enabled_facets)
@@ -194,14 +191,26 @@ module Domgen
       end
 
       def extension_point(object, action)
+        if object.respond_to?(action, true)
+          Logger.debug "Running '#{action}' hook on #{object.class} #{object.respond_to?(:name) ? object.name : object.to_s}"
+          object.send(action)
+        end
         facet_map.keys.each do |facet_key|
           if facet_enabled?(facet_key, object)
             # Need to check for the magic facet_X method rather than X method directly as
             # sometimes there is a global method of the same name.
             extension_object = (object.send "facet_#{facet_key}" rescue nil)
-            if extension_object && extension_object.respond_to?(action)
+            if extension_object && extension_object.respond_to?(action, true)
+              Logger.debug "Running '#{action}' hook on #{facet_key} facet of #{object.class} #{object.respond_to?(:qualified_name) ? object.qualified_name : object.name}"
               extension_object.send action
             end
+          end
+        end
+        dependent_features[object.class].each do |sub_feature_key|
+          next if !handle_sub_feature?(object, sub_feature_key)
+          children = child_features(object, sub_feature_key)
+          children.each do |child|
+            extension_point(child, action)
           end
         end
       end

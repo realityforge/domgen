@@ -500,10 +500,6 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       QueryParameter.new(self, name, type, options, &block)
     end
-
-    def perform_verify
-      verify_characteristics
-    end
   end
 
   class DataAccessObject <  self.FacetedElement(:data_module)
@@ -554,12 +550,6 @@ module Domgen
       query = Query.new(self, name, params, &block)
       @queries[name.to_s] = query
       query
-    end
-
-    protected
-
-    def perform_verify
-      queries.each { |p| p.verify }
     end
   end
 
@@ -832,8 +822,6 @@ module Domgen
     end
 
     def perform_verify
-      verify_characteristics
-
       # Add unique constraints on all unique attributes unless covered by existing constraint
       self.attributes.each do |a|
         if a.unique?
@@ -842,10 +830,6 @@ module Domgen
           end
           unique_constraint([a.name]) if existing_constraint.nil?
         end
-      end
-
-      self.queries.each do |q|
-        q.verify
       end
 
       Domgen.error("Entity #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
@@ -939,10 +923,6 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       StructField.new(self, name, type, options, &block)
     end
-
-    def perform_verify
-      verify_characteristics
-    end
   end
 
   class MessageParameter < Domgen.FacetedElement(:message)
@@ -1009,10 +989,6 @@ module Domgen
 
     def new_characteristic(name, type, options, &block)
       MessageParameter.new(self, name, type, options, &block)
-    end
-
-    def perform_verify
-      verify_characteristics
     end
   end
 
@@ -1099,10 +1075,6 @@ module Domgen
       end
 
       ExceptionParameter.new(self, name, type, {:override => override}.merge(options), &block)
-    end
-
-    def perform_verify
-      verify_characteristics
     end
   end
 
@@ -1233,11 +1205,6 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       Parameter.new(self, name, type, options, &block)
     end
-
-    def perform_verify
-      verify_characteristics
-      return_value.verify
-    end
   end
 
   class Service <  self.FacetedElement(:data_module)
@@ -1270,12 +1237,6 @@ module Domgen
       method = Method.new(self, name, options, &block)
       @methods[name.to_s] = method
       method
-    end
-
-    protected
-
-    def perform_verify
-      methods.each { |p| p.verify }
     end
   end
 
@@ -1460,18 +1421,6 @@ module Domgen
       struct = @structs[name.to_s]
       Domgen.error("Unable to locate local struct #{name} in #{self.name}") if !struct && !optional
       struct
-    end
-
-    protected
-
-    def perform_verify
-      entities.each { |p| p.verify }
-      services.each { |p| p.verify }
-      structs.each { |p| p.verify }
-      messages.each { |p| p.verify }
-      enumerations.each { |p| p.verify }
-      exceptions.each { |p| p.verify }
-      daos.each { |p| p.verify }
     end
 
     private
@@ -1712,10 +1661,6 @@ module Domgen
 
     def post_data_module_create(name)
       Logger.debug "DataModule '#{name}' definition completed"
-    end
-
-    def perform_verify
-      data_modules.each { |p| p.verify }
     end
 
     private
