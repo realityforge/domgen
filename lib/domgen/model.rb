@@ -1298,7 +1298,7 @@ module Domgen
       enumeration
     end
 
-    def local_exception_by_name?(name)
+    def local_enumeration_by_name?(name)
       !@enumerations[name.to_s].nil?
     end
 
