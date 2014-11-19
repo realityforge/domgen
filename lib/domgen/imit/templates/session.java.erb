@@ -112,17 +112,52 @@ else
 <%
     end
   else
+    filter_type = nil
+    if graph.filter_parameter
+      filter_type = Domgen::Java.java_type(graph.filter_parameter, :ee, :default)
+    end
 -%>
   public final boolean isInterestedIn<%= graph.name %>()
   {
     return _interestedIn<%= graph.name %>;
   }
 
-  public final void setInterestedIn<%= graph.name %>( final boolean v )
+  public final void registerInterestedIn<%= graph.name %>(<%= filter_type.nil? ? '' : "#{filter_type} filter " %>)
   {
-    _interestedIn<%= graph.name %> = v;
+<% if filter_type -%>
+    _<%= graph.name %>Filter = filter;
+<% end -%>
+    _interestedIn<%= graph.name %> = true;
   }
+
+  public final void deregisterInterestedIn<%= graph.name %>()
+  {
+    _interestedIn<%= graph.name %> = false;
+  }
+
+<% if filter_type -%>
+  private <%= filter_type %> _<%= graph.name %>Filter;
+
+  public final void updateInterestIn<%= graph.name %>( final <%= nullability_annotation(graph.filter_parameter.nullable?)%> <%= filter_type %> filter )
+  {
+    _<%= graph.name %>Filter = filter;
+  }
+
+  public <%= filter_type %> get<%= graph.name %>Parameter()
+  {
+<% if graph.filter_parameter.nullable? -%>
+    return _<%= graph.name %>Filter;
+<% else -%>
+    if ( null == _<%= graph.name %>Filter )
+    {
+      throw new java.lang.IllegalStateException( "Unable to locate filter parameter for <%= graph.name %>" );
+    }
+    return _<%= graph.name %>Filter;
+<% end -%>
+  }
+
 <%
+      end
     end
   end
 %>

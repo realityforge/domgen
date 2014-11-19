@@ -42,25 +42,30 @@ end
 -%>
 <%
   repository.imit.graphs.each do |graph|
-    filter_param = ''
+    filter_java_type = nil
     if graph.filter_parameter
-      p = graph.filter_parameter
-      filter_param = "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter"
+      filter_java_type = "#{nullability_annotation(graph.filter_parameter.nullable?)} #{Domgen::Java.java_type(graph.filter_parameter, :ee, :default)}"
     end
 if !graph.instance_root?
  if graph.cacheable? && graph.external_cache_management? -%>
   @javax.annotation.Nullable
   String get<%= graph.name %>CacheKey();
 
-<% end -%>
-<% if graph.external_data_load? -%>
-  void collect<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages );
+<%
+  end
+  if filter_java_type
+-%>
+  void collectForFilterChange<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages, <%= filter_java_type %> original, <%= filter_java_type %> filter );
+
+<%
+  end
+  if graph.external_data_load? || filter_java_type -%>
+  void collect<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages<%= filter_java_type.nil? ? '' : ", #{filter_java_type} filter" %> );
 
 <% end -%>
 <%
 else
-  if graph.filter_parameter
-    filter_java_type = "#{nullability_annotation(graph.filter_parameter.nullable?)} #{Domgen::Java.java_type(graph.filter_parameter, :ee, :default)}"
+  if filter_java_type
 -%>
   void collectForFilterChange<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= repository.entity_by_name(graph.instance_root).jpa.qualified_name %> entity, <%= filter_java_type %> original, <%= filter_java_type %> filter );
 
