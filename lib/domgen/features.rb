@@ -219,8 +219,10 @@ module Domgen
     def string(name, length, options = {}, &block)
       if length.class == Range
         options = options.merge({:min_length => length.first, :length => length.last})
-      else
+      elsif length.is_a?(Numeric)
         options = options.merge({:length => length})
+      else
+        Domgen.error("Second parameter to string is neither a range nor an integer. Parameter = #{length.inspect}")
       end
       characteristic(name, :text, options, &block)
     end
