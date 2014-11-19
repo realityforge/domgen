@@ -621,6 +621,10 @@ module Domgen
         graph.type_roots.concat([k.to_s]) if :type == replication_type
       end
 
+      #
+      # subgraph_roots are parts of the graph that are exposed by encoder
+      # Useful when collecting entities when a filter is present
+      #
       def subgraph_roots
         @subgraph_roots || []
       end
