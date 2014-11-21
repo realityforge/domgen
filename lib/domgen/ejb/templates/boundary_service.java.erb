@@ -3,7 +3,7 @@ package <%= to_package(service.ejb.qualified_boundary_interface_name) %>;
 
 <%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-<% if service.data_module.repository.ee.use_cdi? -%>
+<% unless service.data_module.repository.ee.use_cdi? -%>
 @javax.ejb.Local
 <% end -%>
 public interface <%= service.ejb.boundary_interface_name %>
