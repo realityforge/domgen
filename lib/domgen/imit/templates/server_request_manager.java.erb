@@ -1,0 +1,34 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_server_request_manager_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.ejb.Singleton( name = "<%= repository.imit.server_request_manager_name %>" )
+@javax.ejb.TransactionManagement( javax.ejb.TransactionManagementType.CONTAINER )
+@javax.ejb.TransactionAttribute(javax.ejb.TransactionAttributeType.SUPPORTS )
+@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+@javax.ejb.Local( org.realityforge.replicant.server.ee.ReplicationRequestManager.class )
+public class <%= repository.imit.server_request_manager_name %>
+  extends org.realityforge.replicant.server.ee.AbstractReplicationRequestManager
+{
+<% if repository.ee.use_cdi? -%>
+  @javax.inject.Inject
+<% else %>
+  @javax.ejb.EJB
+<% end %>
+  private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
+
+  @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  private javax.persistence.EntityManager _entityManager;
+
+  @java.lang.Override
+  protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
+  {
+    return _endpoint;
+  }
+
+  @java.lang.Override
+  protected javax.persistence.EntityManager getEntityManager()
+  {
+    return _entityManager;
+  }
+}

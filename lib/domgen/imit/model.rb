@@ -306,6 +306,7 @@ module Domgen
       java_artifact :change_recorder, :comm, :server, :imit, '#{repository.name}ChangeRecorder'
       java_artifact :change_recorder_impl, :comm, :server, :imit, '#{repository.name}ChangeRecorderImpl'
       java_artifact :change_listener, :comm, :server, :imit, '#{repository.name}EntityChangeListener'
+      java_artifact :server_request_manager, :comm, :server, :imit, '#{repository.name}RequestManager'
       java_artifact :replication_interceptor, :comm, :server, :imit, '#{repository.name}ReplicationInterceptor'
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{repository.name}GraphEncoderImpl'
       java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'

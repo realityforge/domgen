@@ -163,6 +163,11 @@ Domgen.template_set(:imit_jpa) do |template_set|
                         helpers)
   template_set.template(facets,
                         :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server_request_manager.java.erb",
+                        'main/java/#{repository.imit.qualified_server_request_manager_name.gsub(".","/")}.java',
+                        helpers)
+  template_set.template(facets,
+                        :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/replication_interceptor.java.erb",
                         'main/java/#{repository.imit.qualified_replication_interceptor_name.gsub(".","/")}.java',
                         helpers)

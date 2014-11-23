@@ -12,20 +12,11 @@ public class <%= repository.imit.replication_interceptor_name %>
 <% else %>
   @javax.ejb.EJB
 <% end %>
-  private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
-
-  @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
-  private javax.persistence.EntityManager _entityManager;
+  private org.realityforge.replicant.server.ee.ReplicationRequestManager _requestManager;
 
   @java.lang.Override
-  protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
+  protected org.realityforge.replicant.server.ee.ReplicationRequestManager getRequestManager()
   {
-    return _endpoint;
-  }
-
-  @java.lang.Override
-  protected javax.persistence.EntityManager getEntityManager()
-  {
-    return _entityManager;
+    return _requestManager;
   }
 }
