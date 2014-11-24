@@ -67,7 +67,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <% entity.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= Domgen::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <%
   end
-   entity.declared_attributes.select { |a| !a.abstract? && a.jpa.persistent? }.each do |attribute| %>
+   entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? }.each do |attribute| %>
 <%= j_jpa_field_attributes(attribute) -%>  private <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>;
 <% end %>
 <% entity.referencing_attributes.

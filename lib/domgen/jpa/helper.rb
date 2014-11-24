@@ -129,7 +129,7 @@ module Domgen
       end
 
       def j_constructors(entity)
-        immutable_attributes = entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa.persistent? }
+        immutable_attributes = entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent? }
         declared_attribute_names = entity.declared_attributes.collect{|a| a.name}
         declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
         undeclared_immutable_attributes = immutable_attributes.select{ |a| !declared_attribute_names.include?(a.name) }
@@ -155,7 +155,7 @@ JAVA
       end
 
       def j_declared_attribute_accessors(entity)
-        entity.declared_attributes.select{|attribute| attribute.jpa.persistent? }.collect do |attribute|
+        entity.declared_attributes.select{|attribute| attribute.jpa? && attribute.jpa.persistent? }.collect do |attribute|
           if attribute.abstract?
             j_abstract_attribute(attribute)
           elsif attribute.reference?
@@ -495,7 +495,7 @@ JAVA
   {
     return "#{entity.name}[" +
 JAVA
-        s += entity.attributes.select{|a| a.jpa.persistent?}.collect do |a|
+        s += entity.attributes.select{|a| a.jpa? && a.jpa.persistent?}.collect do |a|
           "           \"#{a.jpa.name} = \" + doGet#{a.jpa.name}()"
         end.join(" + \", \" +\n")
         s += <<JAVA
