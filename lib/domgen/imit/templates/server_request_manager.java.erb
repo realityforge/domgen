@@ -3,8 +3,7 @@ package <%= to_package(repository.imit.qualified_server_request_manager_name) %>
 
 @javax.annotation.Generated( "Domgen" )
 @javax.ejb.Singleton( name = "<%= repository.imit.server_request_manager_name %>" )
-@javax.ejb.TransactionManagement( javax.ejb.TransactionManagementType.CONTAINER )
-@javax.ejb.TransactionAttribute(javax.ejb.TransactionAttributeType.SUPPORTS )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRED )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 @javax.ejb.Local( org.realityforge.replicant.server.ee.ReplicationRequestManager.class )
 public class <%= repository.imit.server_request_manager_name %>
