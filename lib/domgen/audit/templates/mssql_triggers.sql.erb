@@ -1,0 +1,63 @@
+/* DO NOT EDIT: File is auto-generated */
+<%
+   create_columns = entity.attributes.select{|a| a.jpa? && a.jpa.persistent? && !(a.primary_key? && a.generated_value?)}.collect{|a| a.sql.quoted_column_name }
+   update_columns = entity.attributes.select{|a| a.jpa? && a.jpa.persistent? && !a.immutable?}.collect{|a| a.sql.quoted_column_name }
+-%>
+
+CREATE TRIGGER <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("sp#{entity.name}ViewInsert") %>
+  ON <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("vw#{entity.name}") %>
+  INSTEAD OF INSERT
+AS
+  DECLARE @At DATETIME
+  SET @At = GETDATE()
+
+  INSERT INTO <%= entity.sql.qualified_table_name %>(<%= create_columns.join(', ') %>, [AuditStartAt], [AuditLastModifiedAt])
+    SELECT <%= create_columns.collect{|c| "I.#{c}" }.join(", ") %>, @At, @At
+    FROM inserted I
+
+  INSERT INTO <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("#{entity.sql.table_name}History") %>([Op], <%= Domgen::Sql.dialect.quote("#{entity.name}#{entity.primary_key.sql.column_name}") %>, <%= update_columns.join(', ') %>, [SnapshotAt])
+    SELECT 'I', I.<%= entity.primary_key.sql.quoted_column_name %>, <%= update_columns.collect{|c| "I.#{c}" }.join(', ') %>, @At
+    FROM inserted I
+GO
+
+DISABLE TRIGGER <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("sp#{entity.name}ViewInsert") %> ON <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("vw#{entity.name}") %>
+GO
+
+CREATE TRIGGER <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("sp#{entity.name}ViewDelete") %>
+  ON <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("vw#{entity.name}") %>
+  INSTEAD OF DELETE
+AS
+  DECLARE @At DATETIME
+  SET @At = GETDATE()
+
+  UPDATE <%= entity.sql.qualified_table_name %>
+    SET <%= entity.sql.qualified_table_name %>.[AuditEndAt] = @At, <%= entity.sql.qualified_table_name %>.[AuditLastModifiedAt] = @At
+    FROM deleted D
+    WHERE <%= entity.sql.qualified_table_name %>.<%= entity.primary_key.sql.quoted_column_name %> = D.<%= entity.primary_key.sql.quoted_column_name %>;
+
+  INSERT INTO <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("#{entity.sql.table_name}History") %>([Op], <%= Domgen::Sql.dialect.quote("#{entity.name}#{entity.primary_key.sql.column_name}") %>, <%= update_columns.join(', ') %>, [SnapshotAt])
+    SELECT 'D', D.<%= entity.primary_key.sql.quoted_column_name %>, <%= update_columns.collect{|c| "D.#{c}" }.join(', ') %>, @At
+    FROM deleted D
+GO
+
+DISABLE TRIGGER <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("sp#{entity.name}ViewDelete") %> ON <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("vw#{entity.name}") %>
+GO
+
+CREATE TRIGGER <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("sp#{entity.name}ViewUpdate") %>
+  ON <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("vw#{entity.name}") %>
+  INSTEAD OF UPDATE
+AS
+  DECLARE @At DATETIME
+  SET @At = GETDATE()
+
+  UPDATE <%= entity.sql.qualified_table_name %>
+    SET <%= update_columns.collect{|c| "#{entity.sql.qualified_table_name}.#{c} = I.#{c}" }.join(', ') %>, <%= entity.sql.qualified_table_name %>.[AuditLastModifiedAt] = @At
+    FROM inserted I
+    WHERE <%= entity.sql.qualified_table_name %>.<%= entity.primary_key.sql.quoted_column_name %> = I.<%= entity.primary_key.sql.quoted_column_name %>;
+
+  INSERT INTO <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("#{entity.sql.table_name}History") %>([Op], <%= Domgen::Sql.dialect.quote("#{entity.name}#{entity.primary_key.sql.column_name}") %>, <%= update_columns.join(', ') %>, [SnapshotAt])
+    SELECT 'U', I.<%= entity.primary_key.sql.quoted_column_name %>, <%= update_columns.collect{|c| "I.#{c}" }.join(', ') %>, @At
+    FROM inserted I
+GO
+
+DISABLE TRIGGER <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("sp#{entity.name}ViewUpdate") %> ON <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("vw#{entity.name}") %>

@@ -1,0 +1,8 @@
+/* DO NOT EDIT: File is auto-generated */
+CREATE VIEW <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("vw#{entity.name}") %>
+AS
+SELECT <%= entity.attributes.select{|a| a.jpa? && a.jpa.persistent? }.collect{|a| "T.#{a.sql.quoted_column_name}" }.join(", ") %>
+FROM
+  <%= entity.sql.qualified_table_name %> T
+WHERE
+  T.[AuditEndAt] IS NULL;
