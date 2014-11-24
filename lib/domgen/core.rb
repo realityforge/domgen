@@ -47,7 +47,13 @@ module Domgen
       @tags ||= {}
     end
 
-    def description(value)
+    def description=(description)
+      tags[:Description] = description
+    end
+
+    def description(value = nil)
+      return tags[:Description] if value.nil?
+      # Assume an old style "setter"
       tags[:Description] = value
     end
 
