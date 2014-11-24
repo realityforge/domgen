@@ -4,6 +4,7 @@ package <%= to_package(repository.imit.qualified_server_request_manager_name) %>
 @javax.annotation.Generated( "Domgen" )
 <% if repository.ee.use_cdi? -%>
 @javax.enterprise.context.ApplicationScoped
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
 <% else -%>
 @javax.ejb.Singleton( name = "<%= repository.imit.server_request_manager_name %>" )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRED )
