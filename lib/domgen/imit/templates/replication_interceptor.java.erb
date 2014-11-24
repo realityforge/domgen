@@ -9,9 +9,9 @@ public class <%= repository.imit.replication_interceptor_name %>
 {
 <% if repository.ee.use_cdi? -%>
   @javax.inject.Inject
-<% else %>
+<% else -%>
   @javax.ejb.EJB
-<% end %>
+<% end -%>
   private org.realityforge.replicant.server.ee.ReplicationRequestManager _requestManager;
 
   @java.lang.Override

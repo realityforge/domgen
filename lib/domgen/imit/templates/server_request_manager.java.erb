@@ -12,9 +12,9 @@ public class <%= repository.imit.server_request_manager_name %>
 {
 <% if repository.ee.use_cdi? -%>
   @javax.inject.Inject
-<% else %>
+<% else -%>
   @javax.ejb.EJB
-<% end %>
+<% end -%>
   private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
 
   @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
