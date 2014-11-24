@@ -48,4 +48,3 @@ $function$;
 CREATE TRIGGER <%= Domgen::Sql.dialect.quote("trg#{entity.name}ViewDML") %>
   INSTEAD OF INSERT OR UPDATE OR DELETE ON <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("vw#{entity.name}") %>
   FOR EACH ROW EXECUTE PROCEDURE <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote("sp#{entity.name}ViewDML") %>();
-
