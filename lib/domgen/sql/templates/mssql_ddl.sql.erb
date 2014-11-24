@@ -1,5 +1,11 @@
 /* DO NOT EDIT: File is auto-generated */
 <%= banner("DDL for Data Module '#{data_module.name}'") %>
+
+<% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| -%>
+<% entity.attributes.select {|a| a.sql.sequence?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote(a.sql.sequence_name) %> AS <%= a.sql.sql_type %> start with 1 increment by 1;
+<% end -%>
+<% end -%>
+GO
 <% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| %>
 <% if entity.sql.partition_scheme %>
 IF CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Enterprise Edition%'
@@ -7,7 +13,7 @@ BEGIN
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
-%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : a.sql.sequence? ? "DEFAULT (NEXT value FOR #{entity.data_module.sql.quoted_schema}.#{Domgen::Sql.dialect.quote(a.sql.sequence_name)}) " : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>
     CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC) ON [PRIMARY]
@@ -20,7 +26,7 @@ BEGIN
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
-%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : a.sql.sequence? ? "DEFAULT (NEXT value FOR #{entity.data_module.sql.quoted_schema}.#{Domgen::Sql.dialect.quote(a.sql.sequence_name)}) " : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>  CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC)
 )
