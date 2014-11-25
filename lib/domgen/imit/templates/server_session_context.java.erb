@@ -18,7 +18,7 @@ public interface <%= repository.imit.server_session_context_name %>
       data_module.entities.each do |entity|
         entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
           var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
-          nullable = !(attribute.entity.qualified_name == graph.instance_root)
+          nullable = !graph.instance_root? || !(attribute.entity.qualified_name == graph.instance_root)
           param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
           extra_interest_filter << ", #{nullability_annotation(nullable)} #{param_type} #{var_name}"
         end
