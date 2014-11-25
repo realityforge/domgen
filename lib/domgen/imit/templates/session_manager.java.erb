@@ -407,7 +407,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
       final java.util.List<<%= instance_root.jpa.qualified_name %>> links = _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( entity, filter );
       for ( final <%= instance_root.jpa.qualified_name %> link : links )
       {
-        update<%= target_graph.name %>Subscription( sessionID, link, filter );
+        subscribeTo<%= target_graph.name %>( sessionID, link, filter );
       }
     }
 <% end if graph.instance_root? -%>
