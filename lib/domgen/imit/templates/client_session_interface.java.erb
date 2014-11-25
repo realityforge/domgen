@@ -4,7 +4,10 @@ package <%= to_package(repository.imit.qualified_client_session_interface_name) 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= repository.imit.client_session_interface_name %>
-{<%
+{
+  @javax.annotation.Nonnull
+  String getSessionID();
+<%
   repository.imit.graphs.each do |graph|
   param = ''
   if graph.instance_root?
