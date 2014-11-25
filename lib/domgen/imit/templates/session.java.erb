@@ -47,6 +47,7 @@ else
       entity = repository.entity_by_name(graph.instance_root)
       if graph.filter_parameter
         java_type = Domgen::Java.java_type(graph.filter_parameter, :ee, :default)
+        primitive = Domgen::Java.primitive?(graph.filter_parameter, :ee, :default)
 %>
   public java.util.Map<<%= entity.primary_key.jpa.non_primitive_java_type %>, <%= java_type %>> getInterestedIn<%= graph.name %>()
   {
@@ -76,7 +77,7 @@ else
   <%= nullability_annotation(graph.filter_parameter.nullable?)%>
   public final <%= java_type %> get<%= graph.name %>Parameter( final <%= entity.primary_key.jpa.primitive_java_type %> id )
   {
-<% if graph.filter_parameter.nullable? -%>
+<% if graph.filter_parameter.nullable? || primitive -%>
     return _interestedIn<%= graph.name %>.get( id );
 <% else -%>
     final <%= java_type %> value = _interestedIn<%= graph.name %>.get( id );
@@ -113,8 +114,10 @@ else
     end
   else
     filter_type = nil
+    primitive = false
     if graph.filter_parameter
       filter_type = Domgen::Java.java_type(graph.filter_parameter, :ee, :default)
+      primitive = Domgen::Java.primitive?(graph.filter_parameter, :ee, :default)
     end
 -%>
   public final boolean isInterestedIn<%= graph.name %>()
@@ -145,7 +148,7 @@ else
 
   public <%= filter_type %> get<%= graph.name %>Parameter()
   {
-<% if graph.filter_parameter.nullable? -%>
+<% if graph.filter_parameter.nullable? || primitive -%>
     return _<%= graph.name %>Filter;
 <% else -%>
     if ( null == _<%= graph.name %>Filter )
