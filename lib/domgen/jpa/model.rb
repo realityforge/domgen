@@ -271,7 +271,7 @@ module Domgen
         return nil if attribute.enumeration?
         @converter ||
           attribute.characteristic_type.jpa.converter ||
-          (Domgen::Sql.dialect.is_a?(Domgen::Sql::MssqlDialect) ?
+          (Domgen::Sql.dialect.is_a?(Domgen::Mssql::MssqlDialect) ?
             attribute.characteristic_type.jpa.mssql.converter :
             attribute.characteristic_type.jpa.pgsql.converter)
       end

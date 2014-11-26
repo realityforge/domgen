@@ -49,6 +49,15 @@ require 'domgen/sql/model'
 require 'domgen/sql/helper'
 require 'domgen/sql/generator'
 
+# MsSQL
+require 'domgen/mssql/model'
+require 'domgen/mssql/helper'
+require 'domgen/mssql/generator'
+
+# PgSQL
+require 'domgen/pgsql/model'
+require 'domgen/pgsql/generator'
+
 # JAXB
 require 'domgen/jaxb/model'
 require 'domgen/jaxb/helper'

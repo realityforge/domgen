@@ -91,7 +91,7 @@ ALTER TABLE <%= entity.sql.qualified_table_name %>
 CREATE OR REPLACE FUNCTION <%= function_name %>() RETURNS
 TRIGGER AS '
     BEGIN
-    	<%= Domgen::Sql.dialect.quote_string(trigger.sql) %>
+        <%= Domgen::Sql.dialect.quote_string(trigger.sql) %>
         RETURN NEW;
     END;
 ' LANGUAGE plpgsql;
