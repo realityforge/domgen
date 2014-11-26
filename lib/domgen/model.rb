@@ -250,6 +250,8 @@ module Domgen
   end
 
   class EnumerationSet < self.FacetedElement(:data_module)
+    include GenerateFacet
+
     attr_reader :name
     attr_reader :enumeration_type
 
