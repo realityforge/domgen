@@ -10,7 +10,7 @@
   <xs:import namespace="<%= dm.xml.namespace %>"/>
 <% end -%>
 <% data_module.enumerations.each do |enum| -%>
-<% if enum.top_level? -%>
+<% if enum.xml? && enum.top_level? -%>
   <xs:element name="<%= enum.xml.name %>" type="<%= data_module.xml.prefix %>:<%= enum.name %>"/>
 <% end -%>
   <xs:simpleType name="<%= enum.name %>">
