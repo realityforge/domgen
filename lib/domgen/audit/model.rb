@@ -18,7 +18,23 @@ module Domgen
   end
 
   FacetManager.facet(:audit => [:sql]) do |facet|
+    facet.enhance(Repository) do
+
+      attr_writer :audit_table_suffix
+
+      def audit_table_suffix
+        @audit_table_suffix || 'History'
+      end
+    end
+
     facet.enhance(DataModule) do
+
+      attr_writer :audit_table_suffix
+
+      def audit_table_suffix
+        @audit_table_suffix || data_module.repository.audit.audit_table_suffix
+      end
+
       def pre_complete
         data_module.entities.each do |original_entity|
 
@@ -39,7 +55,7 @@ module Domgen
               a.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
             end
 
-            data_module.entity("#{original_entity.name}History") do |e|
+            data_module.entity("#{original_entity.name}#{audit_table_suffix}") do |e|
               e.disable_facet(:audit) if e.audit?
               e.integer(:Id, :primary_key => true)
               e.enumeration(:Op, :AuditChangeType, :immutable => true)
