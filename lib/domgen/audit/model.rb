@@ -39,7 +39,11 @@ module Domgen
         data_module.entities.each do |original_entity|
 
           if original_entity.audit?
-            data_module.enumeration(:AuditChangeType, :text, :values => %w(I U D)) unless data_module.enumeration_by_name?(:AuditChangeType)
+            unless data_module.enumeration_by_name?(:AuditChangeType)
+              data_module.enumeration(:AuditChangeType, :text, :values => %w(I U D)) do |e|
+                e.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
+              end
+            end
 
             original_entity.jpa.table_name = "vw#{original_entity.name}"
             original_entity.primary_key.sql.generator_type = :sequence
@@ -57,6 +61,7 @@ module Domgen
 
             data_module.entity("#{original_entity.name}#{audit_table_suffix}") do |e|
               e.disable_facet(:audit) if e.audit?
+              e.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
               e.integer(:Id, :primary_key => true)
               e.enumeration(:Op, :AuditChangeType, :immutable => true)
               e.reference(original_entity.name, :immutable => true)
