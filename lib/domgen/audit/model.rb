@@ -35,7 +35,6 @@ module Domgen
             end
             original_entity.relationship_constraint(:lte, :AuditStartAt, :AuditEndAt)
 
-            original_entity.string(:AuditUsername, 50, :nullable => true, :description => 'the username of last modifier')
             original_entity.datetime(:AuditLastModifiedAt, :description => 'the last time the entity was modified', 'jpa.persistent' => false) do |a|
               a.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
             end
