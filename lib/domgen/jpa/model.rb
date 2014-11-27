@@ -258,7 +258,7 @@ module Domgen
       end
 
       def generator_name
-        Domgen.error('generator_name invoked on non-sequence') unless attribute.sql.sequence?
+        Domgen.error('generator_name invoked on non-sequence') if !sequence? && !table_sequence?
         "#{attribute.entity.name}#{attribute.name}Generator"
       end
 
@@ -278,6 +278,41 @@ module Domgen
 
       def field_name
         Domgen::Naming.camelize(name)
+      end
+
+      def generated_value_strategy
+        @generated_value_strategy || (attribute.sql.identity? ? :identity : attribute.sql.sequence? ? :sequence : :none)
+      end
+
+      def generated_value_strategy=(generated_value_strategy)
+        raise "Invalid generated_value_strategy set on #{attribute.qualified_name}" unless self.class.valid_generated_value_strategies.include?(generated_value_strategy)
+        @generated_value_strategy = generated_value_strategy
+      end
+
+      def identity?
+        self.generated_value_strategy == :identity
+      end
+
+      def sequence?
+        self.generated_value_strategy == :sequence
+      end
+
+      def table_sequence?
+        self.generated_value_strategy == :table_sequence
+      end
+
+      def sequence_name=(sequence_name)
+        Domgen.error("sequence_name= called on #{attribute.qualified_name} when not a sequence") if !sequence? && !table_sequence?
+        @sequence_name = sequence_name
+      end
+
+      def sequence_name
+        Domgen.error("sequence_name called on #{attribute.qualified_name} when not a sequence") if !sequence? && !table_sequence?
+        @sequence_name || (sequence? && attribute.sql.sequence? ? attribute.sql.sequence_name : "#{attribute.entity.sql.table_name}#{attribute.name}Seq" )
+      end
+
+      def self.valid_generated_value_strategies
+        [:none, :identity, :sequence, :table_sequence]
       end
 
       protected

@@ -195,8 +195,61 @@ SQL
         @version || '2012'
       end
 
+      def supports_sequences?
+        version != '2008'
+      end
+
       def self.valid_versions
         %w(2008 2012)
+      end
+
+      def post_complete
+        unless supports_sequences?
+          repository.data_modules.select { |dm| dm.jpa? }.each do |data_module|
+            data_module.entities.select { |e| e.jpa? }.each do |entity|
+              entity.attributes.select { |a| a.jpa? && a.sql.sequence? }.each do |attribute|
+
+                data_module.entity("#{entity.name}Seq") do |e|
+                  e.disable_facets_not_in([:sql, :mssql])
+                  e.string(:Name, entity.name.length, :immutable => true, :primary_key => true)
+                  e.integer(:Value)
+                  e.mssql.sequence_key = entity.name
+
+                  attribute.jpa.generated_value_strategy = :table_sequence
+                  attribute.jpa.sequence_name = e.sql.table_name
+                  attribute.sql.generator_type = :none
+                end
+              end
+            end
+          end
+        end
+      end
+
+      def post_verify
+        repository.data_modules.select { |dm| dm.mssql? }.each do |data_module|
+          data_module.entities.select { |e| e.mssql? && e.mssql.sequence_table? }.each do |entity|
+            entity.sql.foreign_key_values.clear
+            entity.sql.trigger_values.clear
+            entity.sql.action_values.clear
+            entity.sql.validation_values.clear
+            entity.sql.function_constraint_values.clear
+            entity.sql.constraint_values.clear
+          end
+        end
+      end
+    end
+
+    facet.enhance(Entity) do
+      def sequence_table?
+        !!@sequence_key
+      end
+
+      def sequence_key
+        @sequence_key
+      end
+
+      def sequence_key=(sequence_key)
+        @sequence_key = sequence_key
       end
     end
   end

@@ -23,5 +23,16 @@ ENABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified
 GO
 <%
    end
+   if entity.mssql? && entity.mssql.sequence_table?
+%>
+DECLARE @SeqValue INT
+SELECT @SeqValue = Value FROM <%= entity.sql.qualified_table_name %>
+IF ( @SeqValue IS NULL )
+  BEGIN
+    INSERT INTO <%= entity.sql.qualified_table_name %>(Name, Value) VALUES ( '<%= entity.mssql.sequence_key %>', 1 )
+  END
+GO
+<%
+   end
   end
 %>
