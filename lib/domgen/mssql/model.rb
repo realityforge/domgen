@@ -187,11 +187,16 @@ SQL
   FacetManager.facet(:mssql) do |facet|
     facet.enhance(Repository) do
       def version=(version)
+        raise "Unknown version '#{version}' specified for mssql facet" unless self.class.valid_versions.include?(version)
         @version = version
       end
 
       def version
-        @version || ''
+        @version || '2012'
+      end
+
+      def self.valid_versions
+        %w(2008 2012)
       end
     end
   end
