@@ -389,10 +389,6 @@ module Domgen
           end
         end
       end
-
-      def to_s
-        "Database[#{self.repository.name}]"
-      end
     end
 
     facet.enhance(DataModule) do
@@ -821,10 +817,6 @@ SQL
           to.tags[k] = v
         end
       end
-
-      def to_s
-        "Table[#{self.qualified_table_name}]"
-      end
     end
 
     facet.enhance(Attribute) do
@@ -926,10 +918,6 @@ SQL
       end
 
       attr_accessor :default_value
-
-      def to_s
-        "Column[#{self.quoted_column_name}]"
-      end
     end
   end
 end
