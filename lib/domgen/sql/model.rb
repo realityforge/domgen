@@ -14,19 +14,6 @@
 
 module Domgen
   module Sql
-    @@dialect = nil
-
-    def self.dialect
-      @@dialect ||= MssqlDialect.new
-    end
-
-    def self.dialect=(dialect)
-      @@dialect = dialect.new
-    end
-
-    class SqlSchema < Domgen.ParentedElement(:data_module)
-    end
-
     class Index < Domgen.ParentedElement(:table)
       attr_accessor :attribute_names
       attr_accessor :include_attribute_names
@@ -61,7 +48,7 @@ module Domgen
       end
 
       def quoted_index_name
-        Domgen::Sql.dialect.quote(self.index_name)
+        table.dialect.quote(self.index_name)
       end
 
       def qualified_index_name
@@ -161,7 +148,7 @@ module Domgen
       end
 
       def quoted_foreign_key_name
-        Domgen::Sql.dialect.quote(self.foreign_key_name)
+        table.dialect.quote(self.foreign_key_name)
       end
 
       def qualified_foreign_key_name
@@ -202,7 +189,7 @@ module Domgen
       end
 
       def quoted_constraint_name
-        Domgen::Sql.dialect.quote(self.constraint_name)
+        table.dialect.quote(self.constraint_name)
       end
 
       def qualified_constraint_name
@@ -245,7 +232,7 @@ module Domgen
       end
 
       def quoted_constraint_name
-        Domgen::Sql.dialect.quote(self.constraint_name)
+        table.dialect.quote(self.constraint_name)
       end
 
       def qualified_constraint_name
@@ -257,7 +244,7 @@ module Domgen
       end
 
       def quoted_function_name
-        Domgen::Sql.dialect.quote(self.function_name)
+        table.dialect.quote(self.function_name)
       end
 
       def qualified_function_name
@@ -351,7 +338,7 @@ module Domgen
       end
 
       def quoted_trigger_name
-        Domgen::Sql.dialect.quote(self.trigger_name)
+        table.dialect.quote(self.trigger_name)
       end
 
       def qualified_trigger_name
@@ -366,9 +353,14 @@ module Domgen
 
   FacetManager.facet(:sql) do |facet|
     facet.enhance(Repository) do
+
+      def dialect
+        @dialect ||= (repository.mssql? ? Domgen::Mssql::MssqlDialect.new : repository.pgsql? ? Domgen::Pgsql::PgsqlDialect.new  : (raise 'Unable to determine the dialect in use') )
+      end
+
       def error_handler
         @error_handler ||= Proc.new do |error_message|
-          Domgen::Sql.dialect.raise_error_sql(error_message)
+          self.dialect.raise_error_sql(error_message)
         end
       end
 
@@ -378,6 +370,10 @@ module Domgen
 
       def emit_error(error_message)
         error_handler.call(error_message)
+      end
+
+      def pre_complete
+        self.repository.enable_facet(:mssql) if !self.repository.mssql? && !self.repository.pgsql?
       end
 
       def pre_verify
@@ -392,6 +388,11 @@ module Domgen
     end
 
     facet.enhance(DataModule) do
+
+      def dialect
+        data_module.repository.sql.dialect
+      end
+
       attr_writer :schema
 
       def schema
@@ -399,11 +400,15 @@ module Domgen
       end
 
       def quoted_schema
-        Domgen::Sql.dialect.quote(self.schema)
+        self.dialect.quote(self.schema)
       end
     end
 
     facet.enhance(Entity) do
+      def dialect
+        entity.data_module.sql.dialect
+      end
+
       attr_writer :table_name
       attr_accessor :partition_scheme
 
@@ -419,7 +424,7 @@ module Domgen
       end
 
       def quoted_table_name
-        Domgen::Sql.dialect.quote(table_name)
+        self.dialect.quote(table_name)
       end
 
       def qualified_table_name
@@ -653,13 +658,13 @@ SQL
         end
         entity.attributes.select { |a| (a.allows_length?) && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
-          sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
+          sql = self.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql) unless constraint_by_name(constraint_name)
         end
 
         entity.attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
-          validation(validation_name, :negative_sql => Domgen::Sql.dialect.set_once_sql(a), :after => :update) unless validation?(validation_name)
+          validation(validation_name, :negative_sql => self.dialect.set_once_sql(a), :after => :update) unless validation?(validation_name)
         end
 
         entity.cycle_constraints.each do |c|
@@ -723,8 +728,8 @@ SQL
         if immutable_attributes.size > 0
           validation_name = "Immuter"
           unless validation?(validation_name)
-            guard = Domgen::Sql.dialect.immuter_guard(self.entity, immutable_attributes)
-            guard_sql = Domgen::Sql.dialect.immuter_sql(self.entity, immutable_attributes)
+            guard = self.dialect.immuter_guard(self.entity, immutable_attributes)
+            guard_sql = self.dialect.immuter_sql(self.entity, immutable_attributes)
             validation(validation_name, :negative_sql => guard_sql, :after => :update, :guard => guard)
           end
         end
@@ -747,11 +752,11 @@ SQL
         inserted I
 SQL
               concrete_subtypes.each_pair do |name, subtype|
-                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{Domgen::Sql.dialect.quote("ID")} = I.#{attribute.sql.quoted_column_name}"
+                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{self.dialect.quote("ID")} = I.#{attribute.sql.quoted_column_name}"
               end
-              sql << "      WHERE (#{names.collect { |name| "#{name}.#{Domgen::Sql.dialect.quote("ID")} IS NULL" }.join(' AND ') })"
+              sql << "      WHERE (#{names.collect { |name| "#{name}.#{self.dialect.quote("ID")} IS NULL" }.join(' AND ') })"
               (0..(names.size - 2)).each do |index|
-                sql << " OR\n (#{names[index] }.#{Domgen::Sql.dialect.quote("ID")} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{Domgen::Sql.dialect.quote("ID")} IS NOT NULL" }.join(' OR ') }))"
+                sql << " OR\n (#{names[index] }.#{self.dialect.quote("ID")} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{self.dialect.quote("ID")} IS NOT NULL" }.join(' OR ') }))"
               end
               validation(validation_name, :negative_sql => sql, :guard => guard) unless validation?(validation_name)
             end
@@ -777,7 +782,7 @@ SQL
           if !validations.empty? || !actions.empty?
             trigger_name = "After#{after.to_s.capitalize}"
             trigger(trigger_name) do |trigger|
-              sql = Domgen::Sql.dialect.validations_trigger_sql(self.entity, validations, actions)
+              sql = self.dialect.validations_trigger_sql(self.entity, validations, actions)
 
               if !validations.empty?
                 desc += "Enforce following validations:\n"
@@ -809,7 +814,7 @@ SQL
                       true)
         end
 
-        Domgen::Sql.dialect.post_verify_table_customization(self)
+        self.dialect.post_verify_table_customization(self)
       end
 
       def copy_tags(from, to)
@@ -820,6 +825,10 @@ SQL
     end
 
     facet.enhance(Attribute) do
+      def dialect
+        attribute.entity.sql.dialect
+      end
+
       attr_accessor :column_name
 
       def column_name
@@ -834,13 +843,13 @@ SQL
       end
 
       def quoted_column_name
-        Domgen::Sql.dialect.quote(self.column_name)
+        self.dialect.quote(self.column_name)
       end
 
       attr_writer :sql_type
 
       def sql_type
-        @sql_type ||= Domgen::Sql.dialect.column_type(self)
+        @sql_type ||= self.dialect.column_type(self)
       end
 
       def generator_type

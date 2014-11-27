@@ -38,8 +38,8 @@ Domgen::TypeDB.enhance(:polygonm, 'sql.pgsql.sql_type' => 'POLYGONM')
 Domgen::TypeDB.enhance(:multipolygonm, 'sql.pgsql.sql_type' => 'MULTIPOLYGONM')
 
 module Domgen
-  module Sql
-    class PgDialect
+  module Pgsql
+    class PgsqlDialect
       # Quote identifier
       def quote(column_name)
         "\"#{column_name}\""

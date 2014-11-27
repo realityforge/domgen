@@ -23,16 +23,16 @@ module Domgen
         elsif attribute.jpa.sequence?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.SEQUENCE, generator = \"#{attribute.jpa.generator_name}\" )\n"
           # Due to a bug in eclipselink the schema and sequence name attributes need to be quoted
-          schema = Domgen::Sql.dialect.quote(attribute.entity.data_module.sql.schema).gsub("\"", '\\"')
-          sequence_name = Domgen::Sql.dialect.quote(attribute.jpa.sequence_name).gsub("\"", '\\"')
+          schema = attribute.sql.dialect.quote(attribute.entity.data_module.sql.schema).gsub("\"", '\\"')
+          sequence_name = attribute.sql.dialect.quote(attribute.jpa.sequence_name).gsub("\"", '\\"')
           s << "  @javax.persistence.SequenceGenerator( name = \"#{attribute.jpa.generator_name}\", schema = \"#{schema}\", sequenceName = \"#{sequence_name}\", allocationSize = 1, initialValue = 1 )\n"
         elsif attribute.jpa.table_sequence?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.TABLE, generator = \"#{attribute.jpa.generator_name}\" )\n"
           # Due to a bug in eclipselink the schema and sequence name attributes need to be quoted
-          schema = Domgen::Sql.dialect.quote(attribute.entity.data_module.sql.schema).gsub("\"", '\\"')
-          sequence_name = Domgen::Sql.dialect.quote(attribute.jpa.sequence_name).gsub("\"", '\\"')
-          pk_column = Domgen::Sql.dialect.quote('Name')
-          value_column = Domgen::Sql.dialect.quote('Value')
+          schema = attribute.sql.dialect.quote(attribute.entity.data_module.sql.schema).gsub("\"", '\\"')
+          sequence_name = attribute.sql.dialect.quote(attribute.jpa.sequence_name).gsub("\"", '\\"')
+          pk_column = attribute.sql.dialect.quote('Name')
+          value_column = attribute.sql.dialect.quote('Value')
           s << "  @javax.persistence.TableGenerator( name = \"#{attribute.jpa.generator_name}\", schema = \"#{schema}\", table = \"#{sequence_name}\", pkColumnName = \"#{pk_column}\", valueColumnName=\"#{value_column}\", pkColumnValue=\"#{attribute.entity.name}\", allocationSize = 1, initialValue = 1 )\n"
         end
         s << gen_relation_annotation(attribute, true) if attribute.reference?

@@ -2,20 +2,20 @@
 <%= banner("DDL for Data Module '#{data_module.name}'") %>
 <% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| %>
 
-<% entity.attributes.select {|a| a.sql.identity?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") %> start 1 increment 1 maxvalue 2147483647 minvalue 1 cache 1;
+<% entity.attributes.select {|a| a.sql.identity?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") %> start 1 increment 1 maxvalue 2147483647 minvalue 1 cache 1;
 <% end %>
 
-<% entity.attributes.select {|a| a.sql.sequence?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote(a.sql.sequence_name) %> start 1 increment 1 maxvalue 2147483647 minvalue 1 cache 1;
+<% entity.attributes.select {|a| a.sql.sequence?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote(a.sql.sequence_name) %> start 1 increment 1 maxvalue 2147483647 minvalue 1 cache 1;
 <% end %>
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
-%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema + "." + Domgen::Sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") }'::text) " : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema + "." + data_module.sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") }'::text) " : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
-%>  CONSTRAINT <%= Domgen::Sql.dialect.quote("PK_#{entity.name}") %> PRIMARY KEY (<%= entity.primary_key.sql.quoted_column_name %>)
+%>  CONSTRAINT <%= data_module.sql.dialect.quote("PK_#{entity.name}") %> PRIMARY KEY (<%= entity.primary_key.sql.quoted_column_name %>)
 );
 <% if (entity.sql.indexes.select{|i| i.cluster?}.size == 0) %>
-CLUSTER <%= entity.sql.qualified_table_name %> USING <%= Domgen::Sql.dialect.quote("PK_#{entity.name}") %>;
+CLUSTER <%= entity.sql.qualified_table_name %> USING <%= data_module.sql.dialect.quote("PK_#{entity.name}") %>;
 <% end %>
 
 -- TODO: Insert "Comments" for artifacts that == Description attribute.
@@ -86,12 +86,12 @@ ALTER TABLE <%= entity.sql.qualified_table_name %>
     banner("Triggers for #{entity.sql.qualified_table_name}")
 %><%
       entity.sql.triggers.each do |trigger|
-   function_name = "#{trigger.table.entity.data_module.sql.quoted_schema}.#{Domgen::Sql.dialect.quote(trigger.trigger_name + "Function")}"
+   function_name = "#{trigger.table.entity.data_module.sql.quoted_schema}.#{data_module.sql.dialect.quote(trigger.trigger_name + "Function")}"
 %>
 CREATE OR REPLACE FUNCTION <%= function_name %>() RETURNS
 TRIGGER AS '
     BEGIN
-        <%= Domgen::Sql.dialect.quote_string(trigger.sql) %>
+        <%= data_module.sql.dialect.quote_string(trigger.sql) %>
         RETURN NEW;
     END;
 ' LANGUAGE plpgsql;

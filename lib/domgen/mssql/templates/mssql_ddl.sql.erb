@@ -3,7 +3,7 @@
 
 <% if data_module.repository.mssql.supports_sequences? -%>
 <% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| -%>
-<% entity.attributes.select {|a| a.sql.sequence?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= Domgen::Sql.dialect.quote(a.sql.sequence_name) %> AS <%= a.sql.sql_type %> start with 1 increment by 1;
+<% entity.attributes.select {|a| a.sql.sequence?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote(a.sql.sequence_name) %> AS <%= a.sql.sql_type %> start with 1 increment by 1;
 <% end -%>
 <% end -%>
 <% end -%>
@@ -15,7 +15,7 @@ BEGIN
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
-%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : a.sql.sequence? ? "DEFAULT (NEXT value FOR #{entity.data_module.sql.quoted_schema}.#{Domgen::Sql.dialect.quote(a.sql.sequence_name)}) " : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : a.sql.sequence? ? "DEFAULT (NEXT value FOR #{entity.data_module.sql.quoted_schema}.#{data_module.sql.dialect.quote(a.sql.sequence_name)}) " : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>
     CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC) ON [PRIMARY]
@@ -28,7 +28,7 @@ BEGIN
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
-%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : a.sql.sequence? ? "DEFAULT (NEXT value FOR #{entity.data_module.sql.quoted_schema}.#{Domgen::Sql.dialect.quote(a.sql.sequence_name)}) " : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : a.sql.sequence? ? "DEFAULT (NEXT value FOR #{entity.data_module.sql.quoted_schema}.#{data_module.sql.dialect.quote(a.sql.sequence_name)}) " : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>  CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC)
 )
@@ -40,7 +40,7 @@ GO
 <% entity.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
+  @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
   @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>;
 GO
@@ -49,7 +49,7 @@ GO
 <% a.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
+  @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
   @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
   @level2type = N'COLUMN', @level2name = <%= a.sql.quoted_column_name %>;
@@ -73,7 +73,7 @@ GO
 <% index.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
+  @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
   @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
   @level2type = N'INDEX',  @level2name = <%= index.quoted_index_name %>;
@@ -108,7 +108,7 @@ GO
 <% constraint.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
+  @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
   @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
   @level2type = N'CONSTRAINT',  @level2name = <%= constraint.quoted_constraint_name %>;
@@ -138,7 +138,7 @@ GO
 <% constraint.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
+  @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
   @level1type = N'FUNCTION',  @level1name = [<%= s(entity.name) %>_<%= s(constraint.name) %>];
 GO
@@ -153,7 +153,7 @@ GO
 <% constraint.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
+  @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
   @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
   @level2type = N'CONSTRAINT',  @level2name = <%= constraint.quoted_constraint_name %>;
@@ -190,7 +190,7 @@ GO
 <% trigger.tags.each_pair do |name, value| %>
 EXEC sys.sp_addextendedproperty
   @name = N'<%= sql_extended_property_key(name) %>',
-  @value = N'<%= sql_extended_property_value(value) %>',
+  @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
   @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
   @level2type = N'TRIGGER',  @level2name = <%= trigger.quoted_trigger_name %>;

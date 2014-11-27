@@ -21,8 +21,8 @@ module Domgen
         (name.to_s == 'Description') ? 'MS_Description' : name
       end
 
-      def sql_extended_property_value(value)
-        Domgen::Sql.dialect.quote_string(value).strip
+      def sql_extended_property_value(data_module, value)
+        data_module.sql.dialect.quote_string(value).strip
       end
     end
   end
