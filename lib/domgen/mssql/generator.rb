@@ -16,7 +16,7 @@ module Domgen
   module Generator
     module Mssql
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:mssql, :sql]
+      FACETS = [:mssql]
     end
   end
 end

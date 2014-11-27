@@ -16,7 +16,7 @@ module Domgen
   module Generator
     module Audit
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:sql, :audit]
+      FACETS = [:audit]
     end
   end
 end

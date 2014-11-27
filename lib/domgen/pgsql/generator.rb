@@ -16,7 +16,7 @@ module Domgen
   module Generator
     module Pgsql
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:sql, :pgsql]
+      FACETS = [:pgsql]
     end
   end
 end
