@@ -184,7 +184,7 @@ SQL
     end
   end
 
-  FacetManager.facet(:mssql) do |facet|
+  FacetManager.facet(:mssql => [:sql]) do |facet|
     facet.enhance(Repository) do
       def version=(version)
         raise "Unknown version '#{version}' specified for mssql facet" unless self.class.valid_versions.include?(version)

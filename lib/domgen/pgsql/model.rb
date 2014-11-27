@@ -157,5 +157,5 @@ SQL
     end
   end
 
-  FacetManager.facet(:pgsql)
+  FacetManager.facet(:pgsql => [:sql])
 end
