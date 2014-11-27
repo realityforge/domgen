@@ -129,12 +129,12 @@ module Domgen
           I.#{pk.sql.quoted_column_name} = D.#{pk.sql.quoted_column_name} AND
           (
           #{immutable_attributes.collect do |a|
-                      if a.geometry?
-                        "            (I.#{a.sql.quoted_column_name}.STEquals(D.#{a.sql.quoted_column_name}) = 0)"
-                      else
-                        "            (I.#{a.sql.quoted_column_name} != D.#{a.sql.quoted_column_name})"
-                      end
-                    end.join(" OR\n") }
+          if a.geometry?
+            "            (I.#{a.sql.quoted_column_name}.STEquals(D.#{a.sql.quoted_column_name}) = 0)"
+          else
+            "            (I.#{a.sql.quoted_column_name} != D.#{a.sql.quoted_column_name})"
+          end
+        end.join(" OR\n") }
           )
         SQL
       end
