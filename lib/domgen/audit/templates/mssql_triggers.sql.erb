@@ -1,6 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 <%
-   create_columns = entity.attributes.select{|a| a.jpa? && a.jpa.persistent? && !(a.primary_key? && a.generated_value?)}.collect{|a| a.sql.quoted_column_name }
+   create_columns = entity.attributes.select{|a| a.jpa? && a.jpa.persistent?}.collect{|a| a.sql.quoted_column_name }
    update_columns = entity.attributes.select{|a| a.jpa? && a.jpa.persistent? && !a.immutable?}.collect{|a| a.sql.quoted_column_name }
 -%>
 
