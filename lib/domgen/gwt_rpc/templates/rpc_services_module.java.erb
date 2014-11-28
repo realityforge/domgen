@@ -16,6 +16,19 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
     return c_sessionContext;
   }
 
+<% else -%>
+  private static String c_baseURL;
+
+  public static void setBaseURL( final String baseURL )
+  {
+    c_baseURL = baseURL;
+  }
+
+  public static String getBaseURL()
+  {
+    return c_baseURL;
+  }
+
 <% end -%>
 <%
   needs_xsrf =
@@ -53,9 +66,9 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
 <%
   end
 -%>
-    if( null == getSessionContext().getBaseURL() )
+    if( null == <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() )
     {
-      getSessionContext().setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
+      <% if repository.imit? -%>getSessionContext().<% end -%>setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
     }
   }
 
@@ -85,11 +98,11 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
 <% if service.imit? -%>
     ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new <%= repository.gwt_rpc.qualified_rpc_request_builder_name %>( c_sessionContext ) );
 <% end -%>
-    if ( null == getSessionContext().getBaseURL() )
+    if ( null == <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() )
     {
       throw new java.lang.IllegalStateException( "<%= repository.gwt_rpc.rpc_services_module_name %>.initialize() not invoked prior to using gin module" );
     }
-    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( getSessionContext().getBaseURL() + "<%= service.gwt_rpc.api_url %>" );
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() + "<%= service.gwt_rpc.api_url %>" );
     return service;
   }
 <%

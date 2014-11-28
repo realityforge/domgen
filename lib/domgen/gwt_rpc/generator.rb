@@ -44,7 +44,8 @@ Domgen.template_set(:gwt_rpc_client_service) do |template_set|
                         :repository,
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_request_builder.java.erb",
                         'main/java/#{repository.gwt_rpc.qualified_rpc_request_builder_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
+                        Domgen::Generator::GwtRpc::HELPERS,
+                        :guard => 'repository.imit?')
   template_set.template(Domgen::Generator::GwtRpc::FACETS,
                         :repository,
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_services_module.java.erb",
