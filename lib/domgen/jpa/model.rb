@@ -162,6 +162,15 @@ module Domgen
     facet.enhance(DataAccessObject) do
       include Domgen::Java::BaseJavaGenerator
 
+      def transaction_type
+        @transaction_type || :mandatory
+      end
+
+      def transaction_type=(transaction_type)
+        raise "Attempted to set transaction_type to invalid #{transaction_type}" unless [:mandatory, :required, :requires_new].include?(transaction_type)
+        @transaction_type = transaction_type
+      end
+
       def server_dao_entity_package
         "#{server_entity_package}.dao"
       end
