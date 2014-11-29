@@ -17,7 +17,7 @@
 
 <% repository.data_modules.each do |data_module| -%>
 <% data_module.daos.select{|dao| !dao.repository?}.each do |dao| -%>
-<% dao.queries.select{|query|!query.jpa.native?}.each do |query| -%>
+<% dao.queries.select{|query|query.jpa? && !query.jpa.native?}.each do |query| -%>
   <named-query name="<%= query.qualified_name %>" >
     <query><%= query.jpa.query_string.encode(:xml => :text) %></query>
 <% query.jpa.hints.each do |k,v| -%>
@@ -25,7 +25,7 @@
 <% end -%>
   </named-query>
 <% end -%>
-<% dao.queries.select{|query|query.jpa.native?}.each do |query| -%>
+<% dao.queries.select{|query|query.jpa? && query.jpa.native?}.each do |query| -%>
   <named-native-query name="<%= query.qualified_name %>"<% if query.result_entity? %> result-class="<%= query.entity.jpa.qualified_name %>"<% elsif query.result_struct? %> result-set-mapping="<%= query.qualified_name %>"<% end %>>
     <query><%= query.jpa.query_string.encode(:xml => :text) %></query>
 <% query.jpa.hints.each do |k,v| -%>
@@ -43,7 +43,7 @@
 
 <% repository.data_modules.each do |data_module| -%>
 <% data_module.daos.select{|dao| !dao.repository?}.each do |dao| -%>
-<% dao.queries.select{|query|query.jpa.native? && query.result_struct?}.each do |query| -%>
+<% dao.queries.select{|query|query.jpa? && query.jpa.native? && query.result_struct?}.each do |query| -%>
   <sql-result-set-mapping name="<%= query.qualified_name %>">
     <constructor-result target-class="<%= query.struct.ee.qualified_name %>">
 <% query.struct.fields.each do |parameter| -%>
