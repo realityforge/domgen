@@ -27,7 +27,7 @@
 <% end -%>
 <% dao.queries.select{|query|query.jpa? && query.jpa.native?}.each do |query| -%>
   <named-native-query name="<%= query.qualified_name %>"<% if query.result_entity? %> result-class="<%= query.entity.jpa.qualified_name %>"<% elsif query.result_struct? %> result-set-mapping="<%= query.qualified_name %>"<% end %>>
-    <query><%= query.jpa.query_string.encode(:xml => :text) %></query>
+    <query><![CDATA[<%= query.jpa.query_string %>]]></query>
 <% query.jpa.hints.each do |k,v| -%>
     <hint name="<%= k %>" value="<%= v %>"/>
 <% end -%>
