@@ -3,8 +3,9 @@ modules: !omap
 <% repository.data_modules.select{|data_module| data_module.sql?}.each do |data_module| -%>
    - <%= data_module.name %>:
       schema: <%= data_module.sql.schema %>
-      tables:
-<% data_module.entities.select { |entity| entity.sql? && !entity.abstract? }.each do |entity| -%>
+<% tables = data_module.entities.select { |entity| entity.sql? && !entity.abstract? } -%>
+      tables:<%= tables.empty? ? ' []' : '' %>
+<% tables.each do |entity| -%>
         - "<%= entity.sql.qualified_table_name %>"
 <% end -%>
 <% end -%>
