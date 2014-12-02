@@ -58,6 +58,9 @@ module Domgen
             original_entity.datetime(:AuditLastModifiedAt, :description => 'the last time the entity was modified', 'jpa.persistent' => false) do |a|
               a.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
             end
+            original_entity.unique_constraints.each do |c|
+              original_entity.sql.index(c.attribute_names, {:unique => true, :filter => 'AuditEndAt IS NULL'}, true)
+            end
 
             data_module.entity("#{original_entity.name}#{table_suffix}") do |e|
               e.disable_facet(:audit) if e.audit?
