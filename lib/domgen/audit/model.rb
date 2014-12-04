@@ -58,19 +58,25 @@ module Domgen
             original_entity.datetime(:AuditLastModifiedAt, :description => 'the last time the entity was modified', 'jpa.persistent' => false) do |a|
               a.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
             end
+            original_entity.unique_constraints.each do |c|
+              original_entity.sql.index(c.attribute_names, {:unique => true, :filter => 'AuditEndAt IS NULL'}, true)
+            end
 
             data_module.entity("#{original_entity.name}#{table_suffix}") do |e|
               e.disable_facet(:audit) if e.audit?
               e.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
               e.integer(:Id, :primary_key => true)
               e.enumeration(:Op, :AuditChangeType, :immutable => true)
-              e.reference(original_entity.name, :immutable => true)
+              e.reference(original_entity.name, :immutable => true, 'sql.on_delete' => :cascade)
               e.datetime(:SnapshotAt, :immutable => true)
 
               original_entity.attributes.select { |a| !a.immutable? && a.jpa? && a.jpa.persistent? }.each do |a|
                 options = {:immutable => true}
                 options[:referenced_struct] = a.referenced_struct if a.struct?
-                options[:referenced_entity] = a.referenced_entity if a.reference?
+                if a.reference?
+                  options[:referenced_entity] = a.referenced_entity
+                  options['sql.on_delete'] = :cascade
+                end
                 if a.enumeration?
                   options[:enumeration] = a.enumeration
                   options[:length] = a.length

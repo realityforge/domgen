@@ -20,12 +20,14 @@ module Domgen
     end
   end
 end
+
 Domgen.template_set(:audit_psql) do |template_set|
   template_set.template(Domgen::Generator::Audit::FACETS + [:pgsql],
                         :entity,
                         "#{Domgen::Generator::Audit::TEMPLATE_DIRECTORY}/psql_view.sql.erb",
                         '#{entity.data_module.name}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql')
 end
+
 Domgen.template_set(:audit_mssql) do |template_set|
   template_set.template(Domgen::Generator::Audit::FACETS + [:mssql],
                         :entity,
