@@ -28,6 +28,7 @@ require 'domgen/model'
 require 'domgen/template'
 require 'domgen/render_context'
 require 'domgen/generator'
+require 'domgen/filters'
 
 # Json
 require 'domgen/json/model'
