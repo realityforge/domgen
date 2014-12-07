@@ -156,6 +156,14 @@ end.join(', ') %>);
       throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
     }
 <% end %>
+<% if method.imit? -%>
+    catch ( final javax.ejb.EJBException e )
+    {
+      // If the transaction has rolled back there will be no messages arriving
+      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, "1" );
+      throw e;
+    }
+<% end %>
     finally
     {
 <% if method.imit? -%>
