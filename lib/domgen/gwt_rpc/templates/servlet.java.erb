@@ -153,7 +153,7 @@ end.join(', ') %>);
 <% method.exceptions.each do |exception| %>
     catch ( final <%= exception.ee.qualified_name %> e )
     {
-        throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
+      throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
     }
 <% end %>
     finally
