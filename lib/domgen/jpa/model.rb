@@ -116,6 +116,7 @@ module Domgen
       end
 
       java_artifact :unit_descriptor, :entity, :server, :jpa, '#{repository.name}PersistenceUnit'
+      java_artifact :persistent_test_module, :test, :server, :jpa, '#{repository.name}PersistenceTestModule', :sub_package => 'util'
       java_artifact :ejb_module, nil, :server, :jpa, '#{repository.name}RepositoryModule'
 
       attr_writer :data_source

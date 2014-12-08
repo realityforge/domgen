@@ -45,6 +45,14 @@ Domgen.template_set(:jpa_model) do |template_set|
                         :guard => 'data_module.entities.any?{|e|e.jpa?}')
 end
 
+Domgen.template_set(:jpa_test_persistent_test_module) do |template_set|
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/persistent_test_module.java.erb",
+                        'test/java/#{repository.jpa.qualified_persistent_test_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS)
+end
+
 Domgen.template_set(:jpa_test_module) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :repository,
@@ -62,6 +70,15 @@ Domgen.template_set(:jpa_module) do |template_set|
                         'main/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java',
                         Domgen::Generator::JPA::HELPERS)
 end
+
+Domgen.template_set(:jpa_persistent_test_module) do |template_set|
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/persistent_test_module.java.erb",
+                        'main/java/#{repository.jpa.qualified_persistent_test_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS)
+end
+
 
 Domgen.template_set(:jpa_ejb_dao) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,

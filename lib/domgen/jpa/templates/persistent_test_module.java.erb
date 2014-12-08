@@ -1,0 +1,37 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.jpa.qualified_persistent_test_module_name) %>;
+
+public class <%= repository.jpa.persistent_test_module_name %>
+  extends org.realityforge.guiceyloops.server.PersistenceTestModule
+{
+  public <%= repository.jpa.persistent_test_module_name %>( final boolean singleEntityManagerProject )
+  {
+    super( singleEntityManagerProject );
+  }
+
+  @java.lang.Override
+  protected String getPersistenceUnitName()
+  {
+    return <%= repository.jpa.qualified_unit_descriptor_name %>.NAME;
+  }
+
+  protected void configure()
+  {
+    super.configure();
+    final java.util.List<String> tables = new java.util.ArrayList<>();
+<% repository.data_modules.each do |data_module| -%>
+    for ( final java.lang.Class model : <%= repository.jpa.qualified_unit_descriptor_name %>.get<%= data_module.name %>Models() )
+    {
+      collectTableName( tables, model );
+    }
+<% end -%>
+    java.util.Collections.reverse( tables );
+
+<% repository.data_modules.select{|e| e.sql?}.each do |data_module| -%>
+<% data_module.entities.select{|e| e.sql? && e.sql.load_from_fixture?}.each do |entity| -%>
+    org.testng.Assert.assertTrue( tables.remove( "<%= data_module.sql.schema %>.<%= entity.sql.table_name %>" ) );
+<% end -%>
+<% end -%>
+    requestCleaningOfTables( tables.toArray( new String[ tables.size() ] ) );
+  }
+}

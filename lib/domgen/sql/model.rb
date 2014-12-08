@@ -409,6 +409,14 @@ module Domgen
         entity.data_module.sql.dialect
       end
 
+      def load_from_fixture=(load_from_fixture)
+        @load_from_fixture = load_from_fixture
+      end
+
+      def load_from_fixture?
+        @load_from_fixture.nil? ? false : !!@load_from_fixture
+      end
+
       attr_writer :table_name
       attr_accessor :partition_scheme
 
