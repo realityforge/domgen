@@ -1,0 +1,29 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_client_session_context_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public interface <%= repository.imit.client_session_context_name %>
+{
+<% repository.imit.graphs.select{|g| g.filtered?}.each do |graph|
+    extra_interest_filter = ''
+    if graph.instance_root?
+      entity = repository.entity_by_name(graph.instance_root)
+      type = entity.primary_key.imit.non_primitive_java_type
+      extra_interest_filter = ", @javax.annotation.Nonnull #{type} #{Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")}"
+    end
+
+    repository.data_modules.each do |data_module|
+      data_module.entities.each do |entity|
+        entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
+          var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
+          nullable = !graph.instance_root? || !(attribute.entity.qualified_name == graph.instance_root)
+          param_type = attribute.reference? ? attribute.referenced_entity.primary_key.imit.non_primitive_java_type : attribute.imit.non_primitive_java_type
+          extra_interest_filter << ", #{nullability_annotation(nullable)} #{param_type} #{var_name}"
+        end
+      end
+    end
+-%>
+  boolean does<%= graph.name %>MatchEntity( @javax.annotation.Nonnull <%= Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %> filter, @javax.annotation.Nonnull Object entity<%= extra_interest_filter %> );
+<% end -%>
+}

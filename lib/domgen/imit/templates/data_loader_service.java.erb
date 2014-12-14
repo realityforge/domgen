@@ -1,16 +1,77 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.imit.qualified_data_loader_service_name) %>;
 
-public abstract class <%= repository.imit.data_loader_service_name %>
+public class <%= repository.imit.data_loader_service_name %>
   extends org.realityforge.replicant.client.json.gwt.<%= repository.imit.poll_replicate_mode? ? 'WebPoller' : 'Gwt' %>DataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_data_loader_service_interface_name %>
 {
   private final <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> _remoteSubscriptionService;
+  @javax.annotation.Nonnull
+  private final <%= repository.imit.qualified_client_session_context_name %> _context;
+  @javax.annotation.Nonnull
+  private final <%= repository.imit.qualified_client_router_interface_name %> _router;
 
-  protected <%= repository.imit.data_loader_service_name %>( @javax.annotation.Nonnull final <%= repository.imit.qualified_change_mapper_name %> changeMapper, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker changeBroker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionService, @javax.annotation.Nonnull final org.realityforge.replicant.client.json.gwt.ReplicantConfig replicantConfig, @javax.annotation.Nonnull <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> remoteSubscriptionService )
+  @javax.inject.Inject
+  public <%= repository.imit.data_loader_service_name %>( @javax.annotation.Nonnull final <%= repository.imit.qualified_change_mapper_name %> changeMapper, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker changeBroker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionService, @javax.annotation.Nonnull final com.google.web.bindery.event.shared.EventBus eventBus, @javax.annotation.Nonnull final org.realityforge.replicant.client.json.gwt.ReplicantConfig replicantConfig, @javax.annotation.Nonnull <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> remoteSubscriptionService, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
   {
-    super(  <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext(), changeMapper, changeBroker, repository, cacheService, subscriptionService, replicantConfig );
+    super( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext(), changeMapper, changeBroker, repository, cacheService, subscriptionService, eventBus, replicantConfig );
     _remoteSubscriptionService = remoteSubscriptionService;
+    _context  = context;
+    _router = router;
+    setBaseURL( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().getBaseURL() + getEndpointOffset() );
+  }
+
+  @java.lang.SuppressWarnings( "ConstantConditions" )
+  @java.lang.Override
+  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor,
+                                           @javax.annotation.Nullable final Object rawFilter,
+                                           @javax.annotation.Nonnull final Class<?> entityType,
+                                           @javax.annotation.Nonnull final Object entityID )
+  {
+    <% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
+if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
+    {
+      final <%= Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) rawFilter;
+      assert null != filter;
+      final Object entity = getRepository().getByID( entityType, entityID );
+      final java.util.Map<java.lang.String, java.io.Serializable> route = _router.route( entity );
+<%
+  if graph.instance_root?
+    entity = repository.entity_by_name(graph.instance_root)
+    var_name = Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
+    extra_interest_filter = ", #{var_name}"
+-%>
+      @javax.annotation.Nonnull
+      final <%= entity.primary_key.imit.non_primitive_java_type %> <%= var_name %> = (<%= entity.primary_key.imit.non_primitive_java_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY );
+      assert null != <%= var_name %>;
+<% end -%>
+<%
+  repository.data_modules.each do |data_module|
+    data_module.entities.each do |entity|
+      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
+        var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
+        nullable = !graph.instance_root? || !(attribute.entity.qualified_name == graph.instance_root)
+        param_type = attribute.reference? ? attribute.referenced_entity.primary_key.imit.non_primitive_java_type : attribute.imit.non_primitive_java_type
+        extra_interest_filter << ", #{var_name}"
+-%>
+      <%= nullability_annotation(nullable) %>
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+<% if !nullable -%>
+      assert null != <%= var_name %>;
+<% end -%>
+<%
+      end
+    end
+  end
+-%>
+
+      return _context.does<%= graph.name %>MatchEntity( filter, entity<%= extra_interest_filter %> );
+    }
+    else <% end -%>
+
+    {
+      throw new java.lang.IllegalStateException();
+    }
   }
 
   @javax.annotation.Nonnull
