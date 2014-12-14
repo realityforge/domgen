@@ -10,6 +10,7 @@ import org.realityforge.replicant.server.EntityMessage;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UCF_USELESS_CONTROL_FLOW","NP_LOAD_OF_KNOWN_NULL_VALUE"})
 @javax.enterprise.context.ApplicationScoped
+@javax.enterprise.inject.Typed( org.realityforge.replicant.server.EntityMessageGenerator.class )
 public class <%= repository.imit.message_generator_name %>
   implements org.realityforge.replicant.server.EntityMessageGenerator
 {

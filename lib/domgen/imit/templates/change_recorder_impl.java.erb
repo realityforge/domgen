@@ -2,6 +2,7 @@
 package <%= to_package(repository.imit.qualified_change_recorder_impl_name) %>;
 
 @javax.enterprise.context.ApplicationScoped
+@javax.enterprise.inject.Typed( <%= repository.imit.qualified_change_recorder_name %>.class )
 public class <%= repository.imit.change_recorder_impl_name %>
   implements <%= repository.imit.qualified_change_recorder_name %>
 {
