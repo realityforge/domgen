@@ -46,6 +46,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
       assert null != <%= var_name %>;
 <% end -%>
 <%
+  extra_interest_filter = ''
   repository.data_modules.each do |data_module|
     data_module.entities.each do |entity|
       entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
