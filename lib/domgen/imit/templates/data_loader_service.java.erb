@@ -21,6 +21,13 @@ public class <%= repository.imit.data_loader_service_name %>
     setBaseURL( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().getBaseURL() + getEndpointOffset() );
   }
 
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getSystemKey()
+  {
+    return "<%= repository.name %>";
+  }
+
   @java.lang.SuppressWarnings( "ConstantConditions" )
   @java.lang.Override
   protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor,
