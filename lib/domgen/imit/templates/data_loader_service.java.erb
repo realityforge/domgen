@@ -36,6 +36,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
       final Object entity = getRepository().getByID( entityType, entityID );
       final java.util.Map<java.lang.String, java.io.Serializable> route = _router.route( entity );
 <%
+  extra_interest_filter = ''
   if graph.instance_root?
     entity = repository.entity_by_name(graph.instance_root)
     var_name = Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
@@ -46,7 +47,6 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
       assert null != <%= var_name %>;
 <% end -%>
 <%
-  extra_interest_filter = ''
   repository.data_modules.each do |data_module|
     data_module.entities.each do |entity|
       entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
