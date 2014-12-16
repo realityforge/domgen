@@ -39,6 +39,20 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% entity.imit.replication_graphs.each do |graph| -%>
     _route<%= graph.name %>_<%= entity.name %>( map, entity );
 <% end -%>
+<% entity.attributes.select{|a|a.imit? && a.imit.graph_links.size > 0}.collect{|a| a.imit.graph_links }.flatten.each do |graph_link|
+
+    getter_path = [getter_for(graph_link.imit_attribute.attribute)]
+    current_entity = graph_link.imit_attribute.attribute.referenced_entity
+    if graph_link.path
+      graph_link.path.to_s.split.each_with_index do |attribute_name_path_element, i|
+        other = current_entity.attribute_by_name(attribute_name_path_element)
+        getter_path << getter_for(other)
+        current_entity = other.referenced_entity
+      end
+    end
+-%>
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph_link.source_graph) %>_KEY, entity.<%= getter_path.join('.') %>.<%= getter_for(current_entity.primary_key) %> );
+<% end -%>
     return map;
   }
 <% entity.imit.replication_graphs.each do |graph| -%>
