@@ -18,7 +18,7 @@ module Domgen
     attr_reader :name
 
     def allows_length?
-      text? || (enumeration? && enumeration.textual_values?)
+      text? || (enumeration? && enumeration.textual_values?) || (reference? && referenced_entity.primary_key.allows_length?)
     end
 
     attr_reader :length
