@@ -176,10 +176,12 @@ module Domgen
         @path = path
       end
 
-      def verify
+      def pre_verify
         # Need to make sure the other side is a disconnected graph
         self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph
+      end
 
+      def post_verify
         entity = self.imit_attribute.attribute.referenced_entity
 
         # Need to make sure that the path is valid
@@ -704,9 +706,15 @@ module Domgen
 
       include Domgen::Java::ImitJavaCharacteristic
 
+      def pre_verify
+        self.graph_links.each do |graph_link|
+          graph_link.pre_verify
+        end
+      end
+
       def post_verify
         self.graph_links.each do |graph_link|
-          graph_link.verify
+          graph_link.post_verify
         end
       end
 
