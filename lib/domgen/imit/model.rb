@@ -208,7 +208,7 @@ module Domgen
           Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' links to entity that is not the root of the graph")
         end
 
-        elements = (source_graph.instance_root? ? source_graph.reachable_entities.sort : source_graph.type_roots)#.collect{|g|g.name}
+        elements = (source_graph.instance_root? ? source_graph.reachable_entities.sort : source_graph.type_roots)
         unless elements.include?(self.imit_attribute.attribute.entity.qualified_name)
           Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' attempts to link to a graph when the entity is not part of the source graph - #{elements.inspect}")
         end
