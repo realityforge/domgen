@@ -36,6 +36,17 @@ module Domgen
       end
 
       build_key = options[:key] || (buildr_project.nil? ? :default : buildr_project.name.split(':').last)
+
+      if target_dir.nil? && !buildr_project.nil?
+        target_dir = buildr_project._(:target, :generated, 'domgen', build_key)
+      elsif !target_dir.nil? && !buildr_project.nil?
+        Domgen.warn('Domgen::Build.define_generate_task specifies a target directory parameter but it can be be derived from the context. The parameter should be removed.')
+      end
+
+      if target_dir.nil?
+        Domgen.error('Domgen::Build.define_generate_task should specify a target directory as it can not be derived from the context.')
+      end
+
       Domgen::GenerateTask.new(repository_key, build_key, generator_keys, target_dir, buildr_project, &block)
     end
   end
@@ -53,7 +64,7 @@ module Domgen
 
     attr_reader :task_name
 
-    def initialize(repository_key, key, generator_keys, target_dir = nil, buildr_project = nil)
+    def initialize(repository_key, key, generator_keys, target_dir, buildr_project = nil)
       @repository_key, @key, @generator_keys, @buildr_project =
         repository_key, key, generator_keys, buildr_project
       @namespace_key = :domgen
@@ -61,14 +72,6 @@ module Domgen
       @template_map = {}
       if buildr_project.nil? && Buildr.application.current_scope.size > 0
         buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
-      end
-      if target_dir.nil? && !buildr_project.nil?
-        target_dir = buildr_project._(:target, :generated, 'domgen', key)
-      elsif !target_dir.nil? && !buildr_project.nil?
-        Domgen.warn("Domgen task #{full_task_name} specifies a target directory parameter but it can be be derived from the context. The parameter should be removed.")
-      end
-      if target_dir.nil?
-        Domgen.error("Domgen task #{full_task_name} should specify a target directory as it can not be derived from the context")
       end
       @target_dir = target_dir
       yield self if block_given?
