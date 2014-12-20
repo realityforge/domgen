@@ -26,18 +26,27 @@ module Domgen
 
     attr_reader :task_name
 
-    def initialize(repository_key, key, generator_keys, target_dir, buildr_project = nil)
-      @repository_key, @key, @generator_keys, @target_dir, @buildr_project =
-        repository_key, key, generator_keys, target_dir, buildr_project
+    def initialize(repository_key, key, generator_keys, target_dir = nil, buildr_project = nil)
+      @repository_key, @key, @generator_keys, @buildr_project =
+        repository_key, key, generator_keys, buildr_project
       @namespace_key = :domgen
       @filter = nil
       @template_map = {}
-      yield self if block_given?
-      define
-      load_templates(generator_keys)
       if buildr_project.nil? && Buildr.application.current_scope.size > 0
         buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
       end
+      if target_dir.nil? && !buildr_project.nil?
+        target_dir = buildr_project._(:target, :generated, 'domgen', key)
+      elsif !target_dir.nil? && !buildr_project.nil?
+        Domgen.warn("Domgen task #{full_task_name} specifies a target directory parameter but it can be be derived from the context. The parameter should be removed.")
+      end
+      if target_dir.nil?
+        Domgen.error("Domgen task #{full_task_name} should specify a target directory as it can not be derived from the context")
+      end
+      @target_dir = target_dir
+      yield self if block_given?
+      define
+      load_templates(generator_keys)
       if buildr_project.nil?
         task('clean') do
           rm_rf target_dir
