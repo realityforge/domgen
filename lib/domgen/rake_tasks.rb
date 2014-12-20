@@ -198,14 +198,14 @@ module Domgen
             if self.repository_key
               repository = Domgen.repository_by_name(self.repository_key)
               if Domgen.repositorys.size == 1
-                Domgen.warn("Domgen task #{full_task_name} specifies a repository_key parameter but it can be be derived is only a single repository. The parameter should be removed.")
+                Domgen.warn("Domgen task #{full_task_name} specifies a repository_key parameter but it can be be derived as there is only a single repository. The parameter should be removed.")
               end
             elsif self.repository_key.nil?
               repositorys = Domgen.repositorys
               if repositorys.size == 1
                 repository = repositorys[0]
               else
-                Domgen.error("Domgen task #{full_task_name} does not specify a repository and can not be derived. Candidate repositories include #{repositorys.collect{|r|r.name}.inspect}")
+                Domgen.error("Domgen task #{full_task_name} does not specify a repository_key parameter and it can not be derived. Candidate repositories include #{repositorys.collect{|r|r.name}.inspect}")
               end
             end
 
