@@ -17,6 +17,10 @@ module Domgen
   Logger.level = ::Logger::WARN
   Logger.datetime_format = ''
 
+  def self.warn(message)
+    Logger.warn(message)
+  end
+
   def self.error(message)
     Logger.error(message)
     raise message
