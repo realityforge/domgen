@@ -37,6 +37,11 @@ module Domgen
 
       build_key = options[:key] || (buildr_project.nil? ? :default : buildr_project.name.split(':').last)
 
+      if target_dir
+        base_directory = File.dirname(Buildr.application.buildfile.to_s)
+        target_dir = File.expand_path(target_dir, base_directory)
+      end
+
       if target_dir.nil? && !buildr_project.nil?
         target_dir = buildr_project._(:target, :generated, 'domgen', build_key)
       elsif !target_dir.nil? && !buildr_project.nil?
