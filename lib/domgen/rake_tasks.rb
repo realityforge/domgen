@@ -13,6 +13,33 @@
 #
 
 module Domgen
+  class Build
+    def self.define_load_task(filename = nil)
+      base_directory = File.dirname(Buildr.application.buildfile.to_s)
+      candidate_file = File.expand_path("#{base_directory}/architecture.rb")
+      if filename.nil?
+        filename = candidate_file
+      elsif File.expand_path(filename) == candidate_file
+        Domgen.warn("Domgen::Build.define_load_task() passed parameter '#{filename}' which is the same value as the default parameter. This parameter can be removed.")
+      end
+      File.expand_path(filename)
+      Domgen::LoadSchema.new(filename)
+    end
+
+    def self.define_generate_task(generator_keys, options = {})
+      repository_key = options[:repository_key]
+      target_dir = options[:target_dir]
+      buildr_project = options[:buildr_project]
+
+      if buildr_project.nil? && Buildr.application.current_scope.size > 0
+        buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
+      end
+
+      build_key = options[:key] || (buildr_project.nil? ? :default : buildr_project.name.split(':').last)
+      Domgen::GenerateTask.new(repository_key, build_key, generator_keys, target_dir, buildr_project)
+    end
+  end
+
   class GenerateTask
     attr_accessor :description
     attr_accessor :namespace_key
