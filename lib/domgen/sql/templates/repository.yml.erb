@@ -6,6 +6,6 @@ modules: !omap
 <% tables = data_module.entities.select { |entity| entity.sql? && !entity.abstract? } -%>
       tables:<%= tables.empty? ? ' []' : '' %>
 <% tables.each do |entity| -%>
-        - "<%= entity.sql.qualified_table_name %>"
+         - "<%= entity.sql.qualified_table_name.gsub('"',"\\\"") %>"
 <% end -%>
 <% end -%>
