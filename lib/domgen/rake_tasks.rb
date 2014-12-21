@@ -20,7 +20,7 @@ module Domgen
       if filename.nil?
         filename = candidate_file
       elsif File.expand_path(filename) == candidate_file
-        Domgen.warn("Domgen::Build.define_load_task() passed parameter '#{filename}' which is the same value as the default parameter. This parameter can be removed.")
+        Domgen.warn("Domgen::Build.define_load_task() passed parameter '#{filename}' which is the same value as the default parameter. This parameter can be removed.")
       end
       File.expand_path(filename)
       Domgen::LoadSchema.new(filename, &block)
