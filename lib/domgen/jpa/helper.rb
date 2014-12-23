@@ -544,7 +544,7 @@ JAVA
           query.entity.jpa.qualified_name :
           query.result_struct? ?
             query.struct.ee.qualified_name :
-            (Domgen.error('Not yet able to handle scalar'))
+            Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.object_type
       end
 
       def query_result_type(query)

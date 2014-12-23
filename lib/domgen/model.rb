@@ -417,8 +417,16 @@ module Domgen
 
     def result_type=(result_type)
       Domgen.error("Attempt to reassign result_type on #{qualified_name} from #{@result_type} to #{result_type}") if @result_type
-      Domgen.error("Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}") unless [:reference, :struct, :scalar].include?(result_type)
+      Domgen.error("Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}") unless ([:reference, :struct] + self.class.supported_scalar_types).include?(result_type)
       @result_type = result_type
+    end
+
+    def self.supported_scalar_types
+      [:integer, :long, :datetime, :real, :text, :boolean]
+    end
+
+    def result_scalar?
+      !result_entity? && !result_struct?
     end
 
     def result_entity?
