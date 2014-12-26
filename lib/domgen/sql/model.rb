@@ -417,6 +417,14 @@ module Domgen
         @load_from_fixture.nil? ? false : !!@load_from_fixture
       end
 
+      def sequence_table=(sequence_table)
+        @sequence_table = sequence_table
+      end
+
+      def sequence_table?
+        @sequence_table.nil? ? false : !!@sequence_table
+      end
+
       attr_writer :table_name
       attr_accessor :partition_scheme
 

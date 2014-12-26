@@ -20,7 +20,7 @@ public class <%= repository.jpa.persistent_test_module_name %>
     super.configure();
     final java.util.List<String> tables = new java.util.ArrayList<>();
 <% repository.data_modules.each do |data_module| -%>
-<% data_module.entities.select{|e| e.sql? && !e.sql.load_from_fixture?}.each do |entity| -%>
+<% data_module.entities.select{|e| e.sql? && !e.sql.load_from_fixture? && !e.sql.sequence_table?}.each do |entity| -%>
     tables.add( "<%= entity.sql.qualified_table_name.gsub('"',"\\\"") %>" );
 <% end -%>
 <% end -%>

@@ -211,6 +211,7 @@ SQL
 
                 data_module.entity("#{entity.name}Seq") do |e|
                   e.disable_facets_not_in([:sql, :mssql])
+                  e.sql.sequence_table = true
                   e.string(:Name, entity.name.length, :immutable => true, :primary_key => true)
                   e.integer(:Value)
                   e.mssql.sequence_key = entity.name
