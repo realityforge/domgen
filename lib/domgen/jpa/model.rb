@@ -134,8 +134,8 @@ module Domgen
       attr_accessor :provider
 
       def provider_class
-        return "org.eclipse.persistence.jpa.PersistenceProvider" if provider == :eclipselink
-        return "org.hibernate.ejb.HibernatePersistence" if provider == :hibernate
+        return 'org.eclipse.persistence.jpa.PersistenceProvider' if provider == :eclipselink
+        return 'org.hibernate.ejb.HibernatePersistence' if provider == :hibernate
         return nil if provider.nil?
       end
 
@@ -438,7 +438,7 @@ module Domgen
       end
 
       def jpql
-        Domgen.error("Called jpql for native query") if self.native?
+        Domgen.error('Called jpql for native query') if self.native?
         @ql
       end
 
@@ -448,7 +448,7 @@ module Domgen
       end
 
       def sql
-        Domgen.error("Called sql for non-native query") unless self.native?
+        Domgen.error('Called sql for non-native query') unless self.native?
         @ql
       end
 
@@ -470,9 +470,9 @@ module Domgen
               q = "SELECT O FROM #{derive_table_name} O #{criteria_clause}#{order_by_clause}"
             end
           elsif query.query_type == :update
-            Domgen.error("The combination of query.query_type == :update and query_spec == :criteria is not supported")
+            Domgen.error('The combination of query.query_type == :update and query_spec == :criteria is not supported')
           elsif query.query_type == :insert
-            Domgen.error("The combination of query.query_type == :insert and query_spec == :criteria is not supported")
+            Domgen.error('The combination of query.query_type == :insert and query_spec == :criteria is not supported')
           elsif query.query_type == :delete
             if self.native?
               table_name = derive_table_name
