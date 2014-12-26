@@ -21,11 +21,11 @@ public class <%= repository.ejb.services_module_name %>
 -%>
     bind( <%= service.ejb.qualified_service_name %>.class ).to( <%= service.ejb.qualified_service_name %>EJB.class ).in( javax.inject.Singleton.class );
 <%
-      end
-      if service.ejb.generate_boundary?
+        if service.ejb.generate_boundary?
 -%>
     bind( <%= service.ejb.qualified_boundary_interface_name %>.class ).to( <%= service.ejb.qualified_boundary_implementation_name %>.class ).in( javax.inject.Singleton.class );
 <%
+        end
       end
     end
   end
