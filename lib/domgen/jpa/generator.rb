@@ -45,6 +45,14 @@ Domgen.template_set(:jpa_model) do |template_set|
                         :guard => 'data_module.entities.any?{|e|e.jpa?}')
 end
 
+Domgen.template_set(:jpa_test_entity_test) do |template_set|
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/abstract_entity_test.java.erb",
+                        'test/java/#{repository.jpa.qualified_abstract_entity_test_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS)
+end
+
 Domgen.template_set(:jpa_test_persistent_test_module) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :repository,
@@ -59,6 +67,15 @@ Domgen.template_set(:jpa_test_module) do |template_set|
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_module.java.erb",
                         'test/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java',
                         Domgen::Generator::JPA::HELPERS)
+end
+
+Domgen.template_set(:jpa_test_dao_test) do |template_set|
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :dao,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_test.java.erb",
+                        'test/java/#{dao.jpa.qualified_dao_test_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS,
+                        :guard => 'dao.queries.any?{|q|!q.jpa.standard_query?}')
 end
 
 # This is the same as the test module but it appears in the main tree.

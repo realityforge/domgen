@@ -117,7 +117,22 @@ module Domgen
 
       java_artifact :unit_descriptor, :entity, :server, :jpa, '#{repository.name}PersistenceUnit'
       java_artifact :persistent_test_module, :test, :server, :jpa, '#{repository.name}PersistenceTestModule', :sub_package => 'util'
+      java_artifact :abstract_entity_test, :test, :server, :jpa, 'Abstract#{repository.name}EntityTest', :sub_package => 'util'
       java_artifact :ejb_module, :test, :server, :jpa, '#{repository.name}RepositoryModule', :sub_package => 'util'
+
+      def extra_test_modules
+        @extra_test_modules ||= []
+      end
+
+      def qualified_base_entity_test_name
+        "#{server_util_test_package}.#{base_entity_test_name}"
+      end
+
+      attr_writer :base_entity_test_name
+
+      def base_entity_test_name
+        @base_entity_test_name || abstract_entity_test_name.gsub(/^Abstract/,'')
+      end
 
       attr_writer :data_source
 
@@ -182,6 +197,7 @@ module Domgen
 
       java_artifact :dao_service, :entity, :server, :jpa, '#{dao.name}', :sub_package => 'dao'
       java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao.internal'
+      java_artifact :dao_test, :entity, :server, :jpa, 'Abstract#{dao_service_name}EJBTest', :sub_package => 'dao.internal'
     end
 
     facet.enhance(Entity) do
