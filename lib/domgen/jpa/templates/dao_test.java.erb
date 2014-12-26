@@ -7,7 +7,8 @@ public abstract class <%= dao.jpa.dao_test_name %>
   extends <%= dao.data_module.repository.jpa.qualified_base_entity_test_name %>
 {
 <% dao.queries.select{|q|!q.jpa.standard_query?}.each do |query| -%>
-  public abstract void <%= Domgen::Naming.camelize(query.name) %>();
+  public abstract void <%= Domgen::Naming.camelize(query.name) %>()
+    throws Exception;
 
 <% end -%>
   protected final <%= dao.jpa.qualified_dao_service_name %> service()
