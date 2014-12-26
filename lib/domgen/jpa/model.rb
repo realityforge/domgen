@@ -219,9 +219,9 @@ module Domgen
       end
 
       def pre_verify
-        entity.query(:FindAll)
-        entity.query(:"FindBy#{entity.primary_key.name}")
-        entity.query(:"GetBy#{entity.primary_key.name}")
+        entity.query(:FindAll, 'jpa.standard_query' => true)
+        entity.query("FindBy#{entity.primary_key.name}", 'jpa.standard_query' => true)
+        entity.query("GetBy#{entity.primary_key.name}", 'jpa.standard_query' => true)
         entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
           jpql = ''
           query_text = nil
@@ -253,7 +253,10 @@ module Domgen
               break
             end
           end
-          query.jpa.jpql = jpql if jpql
+          if jpql
+            query.jpa.jpql = jpql
+            query.jpa.standard_query = true
+          end
         end
       end
     end
@@ -423,6 +426,12 @@ module Domgen
       attr_accessor :offset
 
       attr_accessor :order_by
+
+      def standard_query?
+        @standard_query.nil? ? false : !!@standard_query
+      end
+
+      attr_accessor :standard_query
 
       def ql
         @ql
