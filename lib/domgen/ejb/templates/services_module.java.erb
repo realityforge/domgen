@@ -1,0 +1,34 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.ejb.qualified_services_module_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.ejb.services_module_name %>
+  extends org.realityforge.guiceyloops.server.FlushingTestModule
+{
+  public <%= repository.ejb.services_module_name %>( final org.realityforge.guiceyloops.server.Flushable flushable )
+  {
+    super( true, flushable );
+  }
+
+  @java.lang.Override
+  protected void configure()
+  {
+<%
+  repository.data_modules.select{|data_module| data_module.ejb?}.each do |data_module|
+    data_module.services.select{|service| service.ejb?}.each do |service|
+      if service.ejb.standard_implementation?
+-%>
+    bind( <%= service.ejb.qualified_service_name %>.class ).to( <%= service.ejb.qualified_service_name %>EJB.class ).in( javax.inject.Singleton.class );
+<%
+      end
+      if service.ejb.generate_boundary?
+-%>
+    bind( <%= service.ejb.qualified_boundary_interface_name %>.class ).to( <%= service.ejb.qualified_boundary_implementation_name %>.class ).in( javax.inject.Singleton.class );
+<%
+      end
+    end
+  end
+-%>
+  }
+}

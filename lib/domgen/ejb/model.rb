@@ -14,6 +14,28 @@
 
 module Domgen
   FacetManager.facet(:ejb => [:ee]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
+
+      java_artifact :services_module, :test, :server, :jpa, '#{repository.name}ServicesModule', :sub_package => 'util'
+      java_artifact :abstract_service_test, :test, :server, :jpa, 'Abstract#{repository.name}ServiceTest', :sub_package => 'util'
+
+      def extra_test_modules
+        @extra_test_modules ||= []
+      end
+
+      def qualified_base_service_test_name
+        "#{server_util_test_package}.#{base_service_test_name}"
+      end
+
+      attr_writer :base_service_test_name
+
+      def base_service_test_name
+        @base_service_test_name || abstract_service_test_name.gsub(/^Abstract/,'')
+      end
+    end
+
     facet.enhance(DataModule) do
       include Domgen::Java::EEClientServerJavaPackage
     end
@@ -43,6 +65,7 @@ module Domgen
       java_artifact :boundary_interface, :service, :server, :ee, 'Local#{service_name}Boundary'
       java_artifact :remote_service, :service, :server, :ee, 'Remote#{service_name}'
       java_artifact :boundary_implementation, :service, :server, :ee, '#{service_name}BoundaryEJB', :sub_package => 'internal'
+      java_artifact :service_test, :service, :server, :ee, 'Abstract#{service_name}EJBTest'
 
       attr_accessor :boundary_extends
 
@@ -74,6 +97,14 @@ module Domgen
         else
           return @generate_boundary
         end
+      end
+
+      def standard_implementation?
+        @standard_implementation.nil? ? true : !!@standard_implementation
+      end
+
+      def standard_implementation=(standard_implementation)
+        @standard_implementation = standard_implementation
       end
     end
 

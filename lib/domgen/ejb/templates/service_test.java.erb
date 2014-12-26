@@ -1,0 +1,22 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(service.ejb.qualified_service_test_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= service.ejb.service_test_name %>
+  extends <%= service.data_module.repository.ejb.qualified_base_service_test_name %>
+{
+<% service.methods.select{|m|m.ejb?}.each do |method| -%>
+  public abstract void <%= Domgen::Naming.camelize(method.name) %>();
+
+<% end -%>
+  protected final <%= service.ejb.qualified_service_name %> service()
+  {
+    return s( <%= service.ejb.qualified_service_name %>.class );
+  }
+
+  protected final <%= service.ejb.qualified_service_name %>EJB ejb()
+  {
+    return toObject( <%= service.ejb.qualified_service_name %>EJB.class, service() );
+  }
+}
