@@ -20,7 +20,7 @@ Domgen::TypeDB.config_element('jpa.pgsql') do
   attr_accessor :converter
 end
 
-Domgen::TypeDB.config_element(:'jpa') do
+Domgen::TypeDB.config_element('jpa') do
   attr_accessor :converter
 end
 
