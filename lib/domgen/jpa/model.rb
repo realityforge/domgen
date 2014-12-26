@@ -12,11 +12,11 @@
 # limitations under the License.
 #
 
-Domgen::TypeDB.config_element(:'jpa.mssql') do
+Domgen::TypeDB.config_element('jpa.mssql') do
   attr_accessor :converter
 end
 
-Domgen::TypeDB.config_element(:'jpa.pgsql') do
+Domgen::TypeDB.config_element('jpa.pgsql') do
   attr_accessor :converter
 end
 
