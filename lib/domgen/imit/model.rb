@@ -445,6 +445,7 @@ module Domgen
           end
         end
         repository.service_by_name(self.subscription_manager).tap do |s|
+          s.ejb.standard_implementation = false
           repository.imit.graphs.each do |graph|
             filter_options = {}
             if graph.filtered? && graph.filter_parameter.filter_type == :struct
