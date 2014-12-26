@@ -12,11 +12,11 @@ public class <%= repository.jpa.ejb_module_name %>
 <%
   repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
     data_module.daos.select{|dao| dao.jpa? && (!dao.repository? || dao.entity.jpa?)}.each do |dao|
-%>
+-%>
     bind( <%= dao.jpa.qualified_dao_service_name %>.class ).to( <%= dao.jpa.qualified_dao_name %>.class ).in( javax.inject.Singleton.class );
 <%
     end
   end
-%>
+-%>
   }
 }
