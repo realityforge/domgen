@@ -20,18 +20,12 @@ public class <%= repository.jpa.persistent_test_module_name %>
     super.configure();
     final java.util.List<String> tables = new java.util.ArrayList<>();
 <% repository.data_modules.each do |data_module| -%>
-    for ( final java.lang.Class model : <%= repository.jpa.qualified_unit_descriptor_name %>.get<%= data_module.name %>Models() )
-    {
-      collectTableName( tables, model );
-    }
+<% data_module.entities.select{|e| e.sql? && !e.sql.load_from_fixture?}.each do |entity| -%>
+    tables.add( "<%= entity.sql.qualified_table_name.gsub('"',"\\\"") %>" );
+<% end -%>
 <% end -%>
     java.util.Collections.reverse( tables );
 
-<% repository.data_modules.select{|e| e.sql?}.each do |data_module| -%>
-<% data_module.entities.select{|e| e.sql? && e.sql.load_from_fixture?}.each do |entity| -%>
-    org.testng.Assert.assertTrue( tables.remove( "<%= data_module.sql.schema %>.<%= entity.sql.table_name %>" ) );
-<% end -%>
-<% end -%>
     requestCleaningOfTables( tables.toArray( new String[ tables.size() ] ) );
   }
 }
