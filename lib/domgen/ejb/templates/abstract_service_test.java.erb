@@ -17,7 +17,7 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   {
     final java.util.ArrayList<com.google.inject.Module> modules = new java.util.ArrayList<>();
     java.util.Collections.addAll( modules, super.getModules() );
-<% repository.ejb.extra_test_modules.each do |test_module| %>
+<% repository.ejb.extra_test_modules.each do |test_module| -%>
     modules.add( new <%= test_module %>() );
 <% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
