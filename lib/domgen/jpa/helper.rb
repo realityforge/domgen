@@ -582,11 +582,6 @@ JAVA
 JAVADOC
       end
 
-      def getter_for( attribute, name = nil )
-        name = attribute.jpa.name unless name
-        "#{getter_prefix(attribute)}#{name}()"
-      end
-
       def validation_name(constraint_name)
         "Validate#{constraint_name}"
       end

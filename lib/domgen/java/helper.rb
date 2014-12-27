@@ -51,6 +51,11 @@ module Domgen
         attribute.boolean? ? "is" : "get"
       end
 
+      def getter_for( attribute, name = nil )
+        name = attribute.name unless name
+        "#{getter_prefix(attribute)}#{name}()"
+      end
+
       def description_javadoc_for(element, depth = "  ")
         description = element.tags[:Description]
         return '' unless description
