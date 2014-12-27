@@ -96,7 +96,7 @@ module Domgen
       attr_reader :extra_data
 
       def initialize(template_set, facets, scope, template_key, helpers, options = {})
-        Domgen.error("Unexpected facets") unless facets.is_a?(Array) && facets.all? {|a| a.is_a?(Symbol)}
+        Domgen.error('Unexpected facets') unless facets.is_a?(Array) && facets.all? {|a| a.is_a?(Symbol)}
         Domgen.error("Unknown scope for template #{scope}") unless valid_scopes.include?(scope)
         @template_set = template_set
         @facets = facets
