@@ -323,6 +323,7 @@ module Domgen
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{repository.name}GraphEncoderImpl'
       java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
       java_artifact :mock_services_module, :ioc, :client, :imit, '#{repository.name}MockImitServicesModule'
+      java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
 
       def multi_session=(multi_session)
         Domgen.error("multi_session '#{multi_session}' is invalid. Must be a boolean value") unless multi_session.is_a?(TrueClass) || multi_session.is_a?(FalseClass)
@@ -405,6 +406,7 @@ module Domgen
       end
 
       def pre_verify
+        repository.ejb.extra_test_modules << self.qualified_server_net_module_name if repository.ejb?
         if self.graphs.size == 0
           Domgen.error('subscription_manager specified when no graphs defined') unless self.subscription_manager.nil?
           Domgen.error('invalid_session_exception specified when no graphs defined') unless self.invalid_session_exception.nil?

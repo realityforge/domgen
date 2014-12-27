@@ -203,7 +203,15 @@ Domgen.template_set(:imit_jpa) do |template_set|
                         helpers)
 end
 
+Domgen.template_set(:imit_server_qa) do |template_set|
+  template_set.template(Domgen::Generator::Imit::FACETS + [:jpa],
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server_net_module.java.erb",
+                        'test/java/#{repository.imit.qualified_server_net_module_name.gsub(".","/")}.java',
+                        [Domgen::Java::Helper])
+end
+
 Domgen.template_set(:imit_shared => [:imit_metadata])
-Domgen.template_set(:imit_server => [:imit_jpa, :imit_jpa_listener])
+Domgen.template_set(:imit_server => [:imit_jpa, :imit_jpa_listener, :imit_server_qa])
 Domgen.template_set(:imit_client => [:imit_test_module, :imit_gwt_proxy, :imit_entity])
 Domgen.template_set(:imit => [:imit_client, :imit_server, :imit_shared])
