@@ -25,6 +25,7 @@ module Domgen
         options[:required_template_sets] = req.is_a?(Array) ? req : [req]
         name = name.keys[0]
       end
+      raise "Attempting to redefine template_set #{name}" if template_set_map[name.to_s]
       template_set = Domgen::Generator::TemplateSet.new(name, options, &block)
       template_set_map[name.to_s] = template_set
       template_set
