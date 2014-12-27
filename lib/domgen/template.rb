@@ -135,7 +135,7 @@ module Domgen
       end
 
       def name
-        @name ||= "#{self.template_set.name}:#{File.basename(self.template_key, '.erb')}"
+        @name ||= "#{self.template_set.name}:#{self.template_key.gsub(/.*\/templates\/(.*)\.erb/,'\1')}"
       end
 
       protected
