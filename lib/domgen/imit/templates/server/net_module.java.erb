@@ -10,7 +10,7 @@ public class <%= repository.imit.server_net_module_name %>
   protected void configure()
   {
     bind( <%= repository.imit.qualified_change_recorder_name %>.class ).to( <%= repository.imit.qualified_change_recorder_impl_name %>.class ).in( javax.inject.Singleton.class );
-    bind( org.realityforge.replicant.server.EntityMessageGenerator.class ).to( <%= repository.imit.qualified_message_generator_name %>.class ).in( javax.inject.Singleton.class );
+    bind( <%= repository.imit.qualified_message_generator_interface_name %>.class ).to( <%= repository.imit.qualified_message_generator_name %>.class ).in( javax.inject.Singleton.class );
     bind( <%= repository.imit.qualified_router_interface_name %>.class ).to( <%= repository.imit.qualified_router_impl_name %>.class ).in( javax.inject.Singleton.class );
   }
 }

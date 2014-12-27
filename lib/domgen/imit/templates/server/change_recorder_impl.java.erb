@@ -7,7 +7,7 @@ public class <%= repository.imit.change_recorder_impl_name %>
   implements <%= repository.imit.qualified_change_recorder_name %>
 {
   @javax.inject.Inject
-  private org.realityforge.replicant.server.EntityMessageGenerator _messageGenerator;
+  private <%= repository.imit.qualified_message_generator_interface_name %> _messageGenerator;
   @javax.annotation.Resource
   private javax.transaction.TransactionSynchronizationRegistry _registry;
 
