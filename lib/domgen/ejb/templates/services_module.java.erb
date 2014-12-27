@@ -23,7 +23,7 @@ public class <%= repository.ejb.services_module_name %>
 <%
         if service.ejb.generate_boundary?
 -%>
-    bind( <%= service.ejb.qualified_boundary_interface_name %>.class ).to( <%= service.ejb.qualified_boundary_implementation_name %>.class ).in( javax.inject.Singleton.class );
+    bindService( <%= service.ejb.qualified_boundary_interface_name %>.class, <%= service.ejb.qualified_boundary_implementation_name %>.class );
 <%
         end
       end
