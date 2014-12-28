@@ -105,7 +105,7 @@ Domgen.template_set(:imit_client_service) do |template_set|
                         :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/services_module.java.erb",
                         'main/java/#{repository.imit.qualified_services_module_name.gsub(".","/")}.java',
-                        [Domgen::Java::Helper])
+                        Domgen::Generator::Imit::HELPERS)
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :exception,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/exception.java.erb",
@@ -119,7 +119,7 @@ end
                           :repository,
                           "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/mock_services_module.java.erb",
                           type + '/java/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
-                          [Domgen::Java::Helper])
+                          Domgen::Generator::Imit::HELPERS)
   end
 end
 
