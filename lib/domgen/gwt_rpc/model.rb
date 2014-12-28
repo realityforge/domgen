@@ -38,7 +38,7 @@ module Domgen
 
       java_artifact :rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}RpcRequestBuilder'
       java_artifact :rpc_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesModule'
-      java_artifact :mock_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule'
+      java_artifact :mock_services_module, :test, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule', :sub_package => 'util'
       java_artifact :services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtServicesModule'
 
       attr_writer :client_ioc_package
