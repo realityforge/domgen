@@ -120,6 +120,16 @@ end
                           "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/mock_services_module.java.erb",
                           type + '/java/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
                           Domgen::Generator::Imit::HELPERS)
+    template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
+                          :repository,
+                          "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/callback_success_answer.java.erb",
+                          type + '/java/#{repository.imit.qualified_callback_success_answer_name.gsub(".","/")}.java',
+                          Domgen::Generator::Imit::HELPERS)
+    template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
+                          :repository,
+                          "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/callback_failure_answer.java.erb",
+                          type + '/java/#{repository.imit.qualified_callback_failure_answer_name.gsub(".","/")}.java',
+                          Domgen::Generator::Imit::HELPERS)
   end
 end
 

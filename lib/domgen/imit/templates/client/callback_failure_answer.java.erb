@@ -1,0 +1,29 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_callback_failure_answer_name) %>;
+
+<%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public final class <%= repository.imit.callback_failure_answer_name %><T>
+  implements org.mockito.stubbing.Answer<Void>
+{
+  private final Throwable _throwable;
+
+  public <%= repository.imit.callback_failure_answer_name %>( @javax.annotation.Nonnull final Throwable throwable )
+  {
+    _throwable = throwable;
+  }
+
+  @Override
+  public Void answer( final org.mockito.invocation.InvocationOnMock invocation )
+    throws Throwable
+  {
+    for ( final Object argument : invocation.getArguments() )
+    {
+      if ( argument instanceof <%= repository.gwt.qualified_async_error_callback_name %> )
+      {
+        ( (<%= repository.gwt.qualified_async_error_callback_name %>) argument ).onFailure( _throwable );
+      }
+    }
+    return null;
+  }
+}

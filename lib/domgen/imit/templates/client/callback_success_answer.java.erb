@@ -1,0 +1,30 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_callback_success_answer_name) %>;
+
+<%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public final class <%= repository.imit.callback_success_answer_name %><T>
+  implements org.mockito.stubbing.Answer<Void>
+{
+  private final T _result;
+
+  public <%= repository.imit.callback_success_answer_name %>( @javax.annotation.Nullable final T result )
+  {
+    _result = result;
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Override
+  public Void answer( final org.mockito.invocation.InvocationOnMock invocation )
+    throws Throwable
+  {
+    for ( final Object argument : invocation.getArguments() )
+    {
+      if ( argument instanceof <%= repository.gwt.qualified_async_callback_name %> )
+      {
+        ( (<%= repository.gwt.qualified_async_callback_name %><T>) argument ).onSuccess( _result );
+      }
+    }
+    return null;
+  }
+}
