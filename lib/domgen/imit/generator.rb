@@ -117,6 +117,11 @@ end
   Domgen.template_set(:"imit_client_#{type}_qa") do |template_set|
     template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
                           :repository,
+                          "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/abstract_client_test.java.erb",
+                          type + '/java/#{repository.imit.qualified_abstract_client_test_name.gsub(".","/")}.java',
+                          Domgen::Generator::Imit::HELPERS)
+    template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
+                          :repository,
                           "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/mock_services_module.java.erb",
                           type + '/java/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
                           Domgen::Generator::Imit::HELPERS)
