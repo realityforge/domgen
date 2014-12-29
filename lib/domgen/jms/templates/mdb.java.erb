@@ -9,8 +9,9 @@ config_properties['messageSelector'] = method.jms.message_selector if method.jms
 config_properties['acknowledgeMode'] = method.jms.acknowledge_mode
 config_properties['clientID'] = method.jms.client_id if method.jms.client_id
 config_properties['subscriptionName'] = method.jms.subscription_name if method.jms.subscription_name
-config_properties['subscriptionDurability'] = method.jms.durable? ? 'Durable' : 'NonDurable'
-
+if ( config_properties['destinationType'] == 'javax.jms.Topic' )
+  config_properties['subscriptionDurability'] = method.jms.durable? ? 'Durable' : 'NonDurable'
+end
 
 -%>
 
