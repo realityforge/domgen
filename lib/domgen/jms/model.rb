@@ -40,7 +40,7 @@ module Domgen
       end
 
       def destination_resource_name
-        @destination_resource_name || "jms/#{method.qualified_name.gsub('#', '.')}"
+        @destination_resource_name || "#{Domgen::Naming.underscore(method.service.data_module.repository.name)}/jms/#{method.qualified_name.gsub('#', '.')}"
       end
 
       def destination_type=(destination_type)
