@@ -4,16 +4,11 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 
-<% if dao.data_module.repository.ee.use_cdi? -%>
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.<%= Domgen::Naming.uppercase_constantize(dao.jpa.transaction_type.to_s) %> )
 @javax.enterprise.inject.Typed( <%= dao.jpa.qualified_dao_service_name %>.class )
-<% else -%>
-@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.<%= Domgen::Naming.uppercase_constantize(dao.jpa.transaction_type.to_s) %> )
-@javax.ejb.Stateless( name = <%= dao.jpa.qualified_dao_service_name %>.NAME )
-<% end -%>
 public class <%= dao.jpa.dao_name %>
-    implements <%= dao.jpa.qualified_dao_service_name %>
+  implements <%= dao.jpa.qualified_dao_service_name %>
 {
 <% unless dao.repository? -%>
 <% dao.queries.each do |query| -%>

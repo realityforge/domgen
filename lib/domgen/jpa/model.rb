@@ -196,8 +196,8 @@ module Domgen
       end
 
       java_artifact :dao_service, :entity, :server, :jpa, '#{dao.name}', :sub_package => 'dao'
-      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao.internal'
-      java_artifact :dao_test, :entity, :server, :jpa, 'Abstract#{dao_service_name}EJBTest', :sub_package => 'dao.internal'
+      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}Impl', :sub_package => 'dao.internal'
+      java_artifact :dao_test, :entity, :server, :jpa, 'Abstract#{dao_service_name}ImplTest', :sub_package => 'dao.internal'
     end
 
     facet.enhance(Entity) do
