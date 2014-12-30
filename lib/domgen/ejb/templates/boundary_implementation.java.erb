@@ -47,7 +47,7 @@ public class <%= service.ejb.boundary_implementation_name %>
 <% end -%>
 <% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
   @javax.inject.Inject
-  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
+  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>;
 <% end -%>
   @javax.inject.Inject
   private <%= service.ejb.qualified_service_name %> _service;
@@ -90,7 +90,7 @@ JAVA
     <%= annotated_type(parameter, :ejb, :default, :final => true) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.ejb.java_component_type %>>();
     for( final <%= parameter.ejb.java_component_type(:boundary) %> id: <%= parameter.name %> )
     {
-      $<%= parameter.name %>.add( _<%= parameter.referenced_entity.qualified_name.gsub('.','') %>DAO.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
+      $<%= parameter.name %>.add( _<%= Domgen::Naming.camelize(parameter.referenced_entity.dao.jpa.dao_service_name) %>.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
     }
 <% end -%>
     <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
