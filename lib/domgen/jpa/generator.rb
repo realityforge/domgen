@@ -59,8 +59,8 @@ end
                           Domgen::Generator::JPA::HELPERS)
     template_set.template(Domgen::Generator::JPA::FACETS,
                           :repository,
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_module.java.erb",
-                          type + '/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java',
+                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_module.java.erb",
+                          type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java',
                           Domgen::Generator::JPA::HELPERS)
   end
 end
