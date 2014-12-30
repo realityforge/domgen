@@ -52,16 +52,16 @@ public class <%= service.ejb.boundary_implementation_name %>
   @javax.ejb.EJB
 <% end  -%>
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
-<% end %>
+<% end -%>
 <% if service.data_module.repository.ee.use_cdi? -%>
   @javax.inject.Inject
 <% else -%>
   @javax.ejb.EJB
 <% end -%>
   private <%= service.ejb.qualified_service_name %> _service;
-
 <% service.methods.each do |method|
-%>  @java.lang.Override
+%>
+  @java.lang.Override
   public <%= annotated_type(method.return_value, :ejb, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :ejb, :boundary)} #{p.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %><%
@@ -91,17 +91,18 @@ JAVA
        end
      end
    end
+   transform = transform.size > 0 ? "    #{transform}\n" : transform
 %>
   {
-<% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| %>
+<% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| -%>
     <%= annotated_type(parameter, :ejb, :default, :final => true) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.ejb.java_component_type %>>();
     for( final <%= parameter.ejb.java_component_type(:boundary) %> id: <%= parameter.name %> )
     {
-    $<%= parameter.name %>.add( _<%= parameter.referenced_entity.qualified_name.gsub('.','') %>DAO.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
+      $<%= parameter.name %>.add( _<%= parameter.referenced_entity.qualified_name.gsub('.','') %>DAO.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
     }
-<% end %>
-  <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
-  <%= transform %>
+<% end -%>
+    <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
+<%= transform -%>
   }
-
-<% end %>}
+<% end -%>
+}
