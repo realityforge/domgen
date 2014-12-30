@@ -9,11 +9,7 @@ package <%= to_package(service.jws.qualified_boundary_implementation_name) %>;
 public class <%= service.jws.boundary_implementation_name %>
   implements <%= service.jws.qualified_java_service_name %>
 {
-<% if service.data_module.repository.ee.use_cdi? -%>
   @javax.inject.Inject
-<% else %>
-  @javax.ejb.EJB
-<% end %>
   private <%= service.ejb.qualified_boundary_interface_name %> _service;
 
 <% service.methods.each do |method|

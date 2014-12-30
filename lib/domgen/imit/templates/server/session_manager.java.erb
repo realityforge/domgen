@@ -25,11 +25,7 @@ repository.imit.graphs.select{|g| !g.instance_root?}.each do |graph|
 end
 
 entities.uniq.each do |entity| -%>
-<% if repository.ee.use_cdi? -%>
   @javax.inject.Inject
-<% else -%>
-  @javax.ejb.EJB
-<% end -%>
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= entity.data_module.name %><%= entity.name %>Repository;
 <% end -%>
   @javax.inject.Inject

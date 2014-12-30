@@ -7,11 +7,7 @@ package <%= to_package(repository.imit.qualified_replication_interceptor_name) %
 public class <%= repository.imit.replication_interceptor_name %>
   extends org.realityforge.replicant.server.ee.AbstractReplicationInterceptor
 {
-<% if repository.ee.use_cdi? -%>
   @javax.inject.Inject
-<% else -%>
-  @javax.ejb.EJB
-<% end -%>
   private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
 
   @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )

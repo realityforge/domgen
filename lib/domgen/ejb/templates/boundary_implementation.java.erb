@@ -46,18 +46,10 @@ public class <%= service.ejb.boundary_implementation_name %>
 
 <% end -%>
 <% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
-<% if service.data_module.repository.ee.use_cdi? -%>
   @javax.inject.Inject
-<% else -%>
-  @javax.ejb.EJB
-<% end  -%>
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
 <% end -%>
-<% if service.data_module.repository.ee.use_cdi? -%>
   @javax.inject.Inject
-<% else -%>
-  @javax.ejb.EJB
-<% end -%>
   private <%= service.ejb.qualified_service_name %> _service;
 <% service.methods.each do |method|
 %>
