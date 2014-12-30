@@ -84,6 +84,12 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
     end
   end
 -%>
+  }
+
+  private static native void setModuleBase( Object service, String baseURL ) /*-{
+   service.@com.google.gwt.user.client.rpc.impl.RemoteServiceProxy::moduleBaseURL = baseURL;
+  }-*/;
+
 <%
   repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
     data_module.services.select{|service| service.gwt_rpc?}.each do |service|
@@ -104,6 +110,7 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
       throw new java.lang.IllegalStateException( "<%= repository.gwt_rpc.rpc_services_module_name %>.initialize() not invoked prior to using gin module" );
     }
     ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() + "<%= service.gwt_rpc.api_url %>" );
+    setModuleBase( service, <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() + "<%= repository.gwt_rpc.module_name %>/" );
     return service;
   }
 <%
