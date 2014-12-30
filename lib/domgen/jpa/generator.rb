@@ -89,7 +89,7 @@ Domgen.template_set(:jpa_ejb_dao) do |template_set|
                         :guard => '!dao.repository? || dao.entity.jpa?')
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :data_module,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_package_info.java.erb",
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_package_info.java.erb",
                         'main/java/#{data_module.jpa.server_dao_entity_package.gsub(".","/")}/package-info.java',
                         Domgen::Generator::JPA::HELPERS,
                         :guard => 'data_module.entities.any?{|e|e.jpa?}')
