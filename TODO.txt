@@ -18,3 +18,9 @@
 * Add unique constraints in jpa ala
 - http://lucasterdev.altervista.org/wordpress/2012/07/28/unique-constraint-validation-part-1/
 * Use javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
+* In the imit facet, the server side code for collecting objects in a graph can generate lot's of
+  instances. Every flush requires every one of those instances be dirty-checked. Every database
+  operation results in a flush atm. This results in very very very very very slow loads. Of particular
+  concern is loads such as planners MetaData graph that takes an extremely long time. In planner we
+  we cache the output so the problem is mitigated, but in Acal/Calendar there is no caching and this
+  problem is amplified when scaling up.
