@@ -19,7 +19,7 @@ public class <%= repository.ejb.services_module_name %>
     data_module.services.select{|service| service.ejb?}.each do |service|
       if service.ejb.standard_implementation?
 -%>
-    bind( <%= service.ejb.qualified_service_name %>.class ).to( <%= service.ejb.qualified_service_name %>EJB.class ).in( javax.inject.Singleton.class );
+    bind<%= service.qualified_name.to_s.gsub('.','') %>();
 <%
         if service.ejb.generate_boundary?
 -%>
@@ -31,4 +31,19 @@ public class <%= repository.ejb.services_module_name %>
   end
 -%>
   }
+<%
+  repository.data_modules.select{|data_module| data_module.ejb?}.each do |data_module|
+    data_module.services.select{|service| service.ejb?}.each do |service|
+      if service.ejb.standard_implementation?
+-%>
+
+  protected void bind<%= service.qualified_name.to_s.gsub('.','') %>()
+  {
+    bind( <%= service.ejb.qualified_service_name %>.class ).to( <%= service.ejb.qualified_service_name %>EJB.class ).in( javax.inject.Singleton.class );
+  }
+<%
+      end
+    end
+  end
+-%>
 }
