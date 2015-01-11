@@ -46,12 +46,7 @@ Domgen.template_set(:jpa_model) do |template_set|
 end
 
 %w(main test).each do |type|
-  Domgen.template_set(:"jpa_#{type}_qa") do |template_set|
-    template_set.template(Domgen::Generator::JPA::FACETS,
-                          :repository,
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/abstract_entity_test.java.erb",
-                          type + '/java/#{repository.jpa.qualified_abstract_entity_test_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS)
+  Domgen.template_set(:"jpa_#{type}_qa_external") do |template_set|
     template_set.template(Domgen::Generator::JPA::FACETS,
                           :repository,
                           "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/persistent_test_module.java.erb",
@@ -61,6 +56,13 @@ end
                           :repository,
                           "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_module.java.erb",
                           type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java',
+                          Domgen::Generator::JPA::HELPERS)
+  end
+  Domgen.template_set(:"jpa_#{type}_qa") do |template_set|
+    template_set.template(Domgen::Generator::JPA::FACETS,
+                          :repository,
+                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/abstract_entity_test.java.erb",
+                          type + '/java/#{repository.jpa.qualified_abstract_entity_test_name.gsub(".","/")}.java',
                           Domgen::Generator::JPA::HELPERS)
   end
 end
