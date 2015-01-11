@@ -4,13 +4,22 @@ package <%= to_package(repository.imit.qualified_server_net_module_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 public class <%= repository.imit.server_net_module_name %>
-  extends com.google.inject.AbstractModule
+  extends org.realityforge.guiceyloops.shared.AbstractModule
 {
   @java.lang.Override
   protected void configure()
   {
+    bind( <%= repository.imit.qualified_graph_encoder_name %>.class ).to( <%= repository.imit.qualified_graph_encoder_impl_name %>.class ).in( javax.inject.Singleton.class );
     bind( <%= repository.imit.qualified_change_recorder_name %>.class ).to( <%= repository.imit.qualified_change_recorder_impl_name %>.class ).in( javax.inject.Singleton.class );
     bind( <%= repository.imit.qualified_message_generator_interface_name %>.class ).to( <%= repository.imit.qualified_message_generator_name %>.class ).in( javax.inject.Singleton.class );
     bind( <%= repository.imit.qualified_router_interface_name %>.class ).to( <%= repository.imit.qualified_router_impl_name %>.class ).in( javax.inject.Singleton.class );
+    bind( <%= repository.imit.qualified_server_session_context_name %>.class ).to( <%= repository.imit.qualified_server_session_context_name %>EJB.class ).in( javax.inject.Singleton.class );
+    multiBind( <%= repository.imit.qualified_session_manager_name %>.class,
+<% if repository.imit.poll_replicate_mode? -%>
+               org.realityforge.replicant.server.ee.rest.ReplicantPollSource.class,
+<% end -%>
+               org.realityforge.replicant.server.EntityMessageEndpoint.class,
+               org.realityforge.ssf.SessionManager.class,
+               <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class );
   }
 }
