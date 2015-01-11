@@ -71,17 +71,31 @@ Domgen.template_set(:ejb_glassfish_config_resources) do |template_set|
                         :name => 'META-INF/glassfish-ejb-jar.xml')
 end
 
+%w(main test).each do |type|
+  Domgen.template_set("ejb_#{type}_qa_external") do |template_set|
+    template_set.description = 'Quality Assurance/Test classes shared outside the project'
+    template_set.template(Domgen::Generator::EJB::FACETS,
+                          :repository,
+                          "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/services_module.java.erb",
+                          type + '/java/#{repository.ejb.qualified_services_module_name.gsub(".","/")}.java',
+                          Domgen::Generator::EJB::HELPERS)
+    template_set.template(Domgen::Generator::EJB::FACETS,
+                          :repository,
+                          "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/complete_module.java.erb",
+                          type + '/java/#{repository.ejb.qualified_complete_module_name.gsub(".","/")}.java',
+                          Domgen::Generator::EJB::HELPERS)
+  end
+  Domgen.template_set("ejb_#{type}_qa") do |template_set|
+    template_set.description = 'Quality Assurance/Test classes shared within the project'
+    template_set.template(Domgen::Generator::EJB::FACETS,
+                          :repository,
+                          "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/abstract_service_test.java.erb",
+                          type + '/java/#{repository.ejb.qualified_abstract_service_test_name.gsub(".","/")}.java',
+                          Domgen::Generator::EJB::HELPERS)
+  end
+end
+
 Domgen.template_set(:ejb_test_service_test) do |template_set|
-  template_set.template(Domgen::Generator::EJB::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/abstract_service_test.java.erb",
-                        'test/java/#{repository.ejb.qualified_abstract_service_test_name.gsub(".","/")}.java',
-                        Domgen::Generator::EJB::HELPERS)
-  template_set.template(Domgen::Generator::EJB::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/services_module.java.erb",
-                        'test/java/#{repository.ejb.qualified_services_module_name.gsub(".","/")}.java',
-                        Domgen::Generator::EJB::HELPERS)
   template_set.template(Domgen::Generator::EJB::FACETS,
                         :service,
                         "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/service_test.java.erb",
