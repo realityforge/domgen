@@ -46,10 +46,16 @@ module Domgen
         @namespace || "#{repository.xml.base_namespace}/#{service_name}"
       end
 
+      attr_writer :base_url
+
+      def base_url
+        @base_url || "/api/soap"
+      end
+
       attr_writer :url
 
       def url
-        @url || "/api/soap"
+        @url || "#{base_url}/#{repository.name}"
       end
     end
 
