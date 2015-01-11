@@ -48,6 +48,7 @@ module Domgen
     class TemplateSet < BaseElement
       attr_reader :name
       attr_accessor :required_template_sets
+      attr_accessor :description
 
       def initialize(name, options = {}, &block)
         @name = name
