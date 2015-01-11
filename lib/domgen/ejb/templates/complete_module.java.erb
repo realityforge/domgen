@@ -1,0 +1,25 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.ejb.qualified_complete_module_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.ejb.complete_module_name %>
+  extends com.google.inject.AbstractModule
+{
+  private final org.realityforge.guiceyloops.server.Flushable _flushable;
+
+  public <%= repository.ejb.complete_module_name %>( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.Flushable flushable )
+  {
+    _flushable = flushable;
+  }
+
+  @Override
+  protected void configure()
+  {
+<% if repository.jpa? -%>
+    install( new <%= repository.jpa.qualified_persistent_test_module_name %>() );
+    install( new <%= repository.jpa.qualified_dao_module_name %>() );
+<% end -%>
+    install( new <%= repository.ejb.qualified_services_module_name %>( _flushable ) );
+  }
+}
