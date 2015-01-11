@@ -6,10 +6,16 @@ package <%= to_package(repository.ejb.qualified_abstract_service_test_name) %>;
 public abstract class <%= repository.ejb.abstract_service_test_name %>
   extends <%= repository.jpa? ? repository.jpa.qualified_base_entity_test_name : 'org.realityforge.guiceyloops.server.AbstractServerTest' %>
 {
+  @javax.annotation.Nullable
+  protected com.google.inject.Module new<%= repository.name %>ServicesModule()
+  {
+    return new <%= repository.ejb.qualified_services_module_name %>( this );
+  }
+
   @java.lang.Override
   protected com.google.inject.Module getDefaultTestModule()
   {
-    return new <%= repository.ejb.qualified_services_module_name %>( this );
+    return null;
   }
 
   @java.lang.Override
@@ -20,6 +26,7 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% repository.ejb.extra_test_modules.each do |test_module| -%>
     modules.add( new <%= test_module %>() );
 <% end -%>
+    addModule( modules, new<%= repository.name %>ServicesModule() );
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
 }
