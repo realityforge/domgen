@@ -93,7 +93,7 @@
   </binding>
   <service name="<%= service.jws.service_name %>">
     <port name="<%= service.jws.port_name %>" binding="tns:<%= service.jws.port_name %>Binding">
-      <soap:address location="<%= service.jws.namespace %>/<%= service.jws.web_service_name %>"/>
+      <soap:address location="<%= service.jws.namespace %>"/>
     </port>
   </service>
 </definitions>
