@@ -4,28 +4,20 @@ package <%= to_package(repository.jpa.qualified_persistent_test_module_name) %>;
 public class <%= repository.jpa.persistent_test_module_name %>
   extends org.realityforge.guiceyloops.server.PersistenceTestModule
 {
-  public <%= repository.jpa.persistent_test_module_name %>( final boolean singleEntityManagerProject )
+  public <%= repository.jpa.persistent_test_module_name %>()
   {
-    super( singleEntityManagerProject );
+    this( null );
   }
 
-  @java.lang.Override
-  protected String getPersistenceUnitName()
+  public <%= repository.jpa.persistent_test_module_name %>( @javax.annotation.Nullable final String databasePrefix )
   {
-    return <%= repository.jpa.qualified_unit_descriptor_name %>.NAME;
-  }
-
-  protected void configure()
-  {
-    super.configure();
-    final java.util.List<String> tables = new java.util.ArrayList<>();
-<% repository.data_modules.each do |data_module| -%>
-<% data_module.entities.select{|e| e.sql? && !e.sql.load_from_fixture? && !e.sql.sequence_table?}.each do |entity| -%>
-    tables.add( "<%= entity.sql.qualified_table_name.gsub('"',"\\\"") %>" );
-<% end -%>
-<% end -%>
-    java.util.Collections.reverse( tables );
-
-    requestCleaningOfTables( tables.toArray( new String[ tables.size() ] ) );
+<%
+    tables = repository.data_modules.collect do |data_module|
+      data_module.entities.select{|e| e.sql? && !e.sql.load_from_fixture? && !e.sql.sequence_table?}.collect do |entity|
+        "\"#{entity.sql.qualified_table_name.gsub('"',"\\\"")}\""
+      end
+    end.reverse.join(", ")
+-%>
+    super( <%= repository.jpa.qualified_unit_descriptor_name %>.NAME, new String[] {<%= tables %>}, databasePrefix );
   }
 }
