@@ -4,6 +4,7 @@ package <%= to_package(repository.jpa.qualified_unit_descriptor_name) %>;
 public final class <%= repository.jpa.unit_descriptor_name %>
 {
   public static final String NAME = "<%= repository.jpa.unit_name %>";
+  public static final String RESOURCE_NAME = "<%= repository.jpa.data_source %>";
 
 <% repository.data_modules.each do |data_module| %>
   public static Class[] get<%= data_module.name %>Models()
