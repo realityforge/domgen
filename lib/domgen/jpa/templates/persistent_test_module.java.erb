@@ -13,7 +13,7 @@ public class <%= repository.jpa.persistent_test_module_name %>
   {
 <%
     tables = repository.data_modules.collect do |data_module|
-      data_module.entities.select{|e| e.sql? && !e.sql.load_from_fixture? && !e.sql.sequence_table?}.collect do |entity|
+      data_module.entities.select{|e| !e.abstract? && e.sql? && !e.sql.load_from_fixture? && !e.sql.sequence_table?}.collect do |entity|
         "\"#{entity.sql.qualified_table_name.gsub('"',"\\\"")}\""
       end
     end.flatten.reverse.join(", ")
