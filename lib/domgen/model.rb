@@ -1763,7 +1763,7 @@ module Domgen
 
     def split_name(name)
       name_parts = name.to_s.split('.')
-      Domgen.error("Name should have 1 '.' separator") if 2 != name_parts.size
+      Domgen.error("Name '#{name}' should have 1 '.' separator") if 2 != name_parts.size
       name_parts
     end
 
