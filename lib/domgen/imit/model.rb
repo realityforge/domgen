@@ -416,43 +416,40 @@ module Domgen
       def pre_verify
         repository.ejb.extra_test_modules << self.qualified_server_net_module_name if repository.ejb?
         if self.graphs.size == 0
-          Domgen.error('subscription_manager specified when no graphs defined') unless self.subscription_manager.nil?
-          Domgen.error('invalid_session_exception specified when no graphs defined') unless self.invalid_session_exception.nil?
-          Domgen.error('imit_control_data_module specified when no graphs defined') unless self.imit_control_data_module.nil?
-        else
-          if self.imit_control_data_module.nil? && self.repository.data_module_by_name?(self.repository.name)
-            self.imit_control_data_module = self.repository.name
+          Domgen.error('imit facet enabled but no graphs defined')
+        end
+        if self.imit_control_data_module.nil? && self.repository.data_module_by_name?(self.repository.name)
+          self.imit_control_data_module = self.repository.name
+        end
+        if self.subscription_manager.nil?
+          if self.imit_control_data_module
+            self.subscription_manager = "#{self.imit_control_data_module}.SubscriptionService"
+          else
+            Domgen.error('subscription_manager not specified (and unable to be derived) when graphs defined')
           end
-          if self.subscription_manager.nil?
-            if self.imit_control_data_module
-              self.subscription_manager = "#{self.imit_control_data_module}.SubscriptionService"
-            else
-              Domgen.error('subscription_manager not specified (and unable to be derived) when graphs defined')
-            end
+        end
+        sm_name_parts = self.subscription_manager.to_s.split('.')
+        Domgen.error('subscription_manager invalid. Expected to be in format DataModule.ServiceName') if sm_name_parts.length != 2
+        self.repository.data_module_by_name(sm_name_parts[0]).service(sm_name_parts[1]) do |s|
+          (s.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
+            s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
           end
-          sm_name_parts = self.subscription_manager.to_s.split('.')
-          Domgen.error('subscription_manager invalid. Expected to be in format DataModule.ServiceName') if sm_name_parts.length != 2
-          self.repository.data_module_by_name(sm_name_parts[0]).service(sm_name_parts[1]) do |s|
-            (s.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :imit]).each do |facet_key|
-              s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
-            end
-          end
+        end
 
-          if self.invalid_session_exception.nil?
-            if self.imit_control_data_module
-              self.invalid_session_exception = "#{self.imit_control_data_module}.BadSession"
-            else
-              Domgen.error('invalid_session_exception not specified (and unable to be derived) when graphs defined')
-            end
+        if self.invalid_session_exception.nil?
+          if self.imit_control_data_module
+            self.invalid_session_exception = "#{self.imit_control_data_module}.BadSession"
+          else
+            Domgen.error('invalid_session_exception not specified (and unable to be derived) when graphs defined')
           end
-          e_name_parts = self.invalid_session_exception.to_s.split('.')
-          Domgen.error('invalid_session_exception invalid. Expected to be in format DataModule.Exception') if e_name_parts.length != 2
-          exception_data_module = self.repository.data_module_by_name(e_name_parts[0])
-          e = exception_data_module.exception_by_name?(e_name_parts[1]) ? exception_data_module.exception_by_name(e_name_parts[1]) : exception_data_module.exception(e_name_parts[1])
-          e.ejb.rollback = false
-          (e.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :imit]).each do |facet_key|
-            e.disable_facet(facet_key) if e.facet_enabled?(facet_key)
-          end
+        end
+        e_name_parts = self.invalid_session_exception.to_s.split('.')
+        Domgen.error('invalid_session_exception invalid. Expected to be in format DataModule.Exception') if e_name_parts.length != 2
+        exception_data_module = self.repository.data_module_by_name(e_name_parts[0])
+        e = exception_data_module.exception_by_name?(e_name_parts[1]) ? exception_data_module.exception_by_name(e_name_parts[1]) : exception_data_module.exception(e_name_parts[1])
+        e.ejb.rollback = false
+        (e.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
+          e.disable_facet(facet_key) if e.facet_enabled?(facet_key)
         end
         repository.service_by_name(self.subscription_manager).tap do |s|
           s.ejb.standard_implementation = false
