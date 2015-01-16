@@ -237,7 +237,7 @@ else
 <% repository.imit.graphs.select{|graph| !graph.instance_root? && graph.filter_parameter.nil? }.each do |graph| -%>
       if ( subscriptionsFilter.allow( "<%= graph.name %>" ) )
       {
-        g.write("<%= graph.name %>",_interestedIn<%= graph.name %> );
+        g.write( "<%= graph.name %>",_interestedIn<%= graph.name %> );
       }
 <% end -%>
       g.writeEnd();
