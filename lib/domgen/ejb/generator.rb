@@ -93,6 +93,13 @@ end
                           type + '/java/#{repository.ejb.qualified_abstract_service_test_name.gsub(".","/")}.java',
                           Domgen::Generator::EJB::HELPERS)
   end
+  Domgen.template_set(:"ejb_#{type}_qa_aggregate") do |template_set|
+    template_set.template(Domgen::Generator::EJB::FACETS,
+                          :repository,
+                          "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/aggregate_service_test.java.erb",
+                          type + '/java/#{repository.ejb.qualified_aggregate_service_test_name.gsub(".","/")}.java',
+                          Domgen::Generator::EJB::HELPERS)
+  end
 end
 
 Domgen.template_set(:ejb_test_service_test) do |template_set|

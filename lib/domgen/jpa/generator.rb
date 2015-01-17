@@ -65,6 +65,13 @@ end
                           type + '/java/#{repository.jpa.qualified_abstract_entity_test_name.gsub(".","/")}.java',
                           Domgen::Generator::JPA::HELPERS)
   end
+  Domgen.template_set(:"jpa_#{type}_qa_aggregate") do |template_set|
+    template_set.template(Domgen::Generator::JPA::FACETS,
+                          :repository,
+                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/aggregate_entity_test.java.erb",
+                          type + '/java/#{repository.jpa.qualified_aggregate_entity_test_name.gsub(".","/")}.java',
+                          Domgen::Generator::JPA::HELPERS)
+  end
 end
 
 Domgen.template_set(:jpa_dao_test) do |template_set|
