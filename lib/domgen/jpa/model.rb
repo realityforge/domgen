@@ -187,14 +187,6 @@ module Domgen
         @transaction_type = transaction_type
       end
 
-      def server_dao_entity_package
-        "#{server_entity_package}.dao"
-      end
-
-      def server_internal_dao_entity_package
-        "#{server_entity_package}.dao.internal"
-      end
-
       java_artifact :dao_service, :entity, :server, :jpa, '#{dao.name}', :sub_package => 'dao'
       java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}Impl', :sub_package => 'dao.internal'
       java_artifact :dao_test, :entity, :server, :jpa, 'Abstract#{dao_service_name}ImplTest', :sub_package => 'dao.internal'
