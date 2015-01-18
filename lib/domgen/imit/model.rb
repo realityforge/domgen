@@ -329,17 +329,12 @@ module Domgen
       java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
 
+      def qualified_client_session_context_impl_name
+        "#{qualified_client_session_context_name}Impl"
+      end
+
       def extra_test_modules
         @extra_test_modules ||= []
-      end
-
-      def multi_session=(multi_session)
-        Domgen.error("multi_session '#{multi_session}' is invalid. Must be a boolean value") unless multi_session.is_a?(TrueClass) || multi_session.is_a?(FalseClass)
-        @multi_session = multi_session
-      end
-
-      def multi_session?
-        @multi_session.nil? ? false : @multi_session
       end
 
       def replicate_mode=(replicate_mode)
