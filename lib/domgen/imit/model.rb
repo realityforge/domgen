@@ -285,6 +285,12 @@ module Domgen
         @server_comm_package || "#{server_package}.net"
       end
 
+      attr_writer :server_rest_package
+
+      def server_rest_package
+        @server_rest_package || "#{server_package}.rest"
+      end
+
       attr_writer :client_comm_package
 
       def client_comm_package
@@ -310,6 +316,7 @@ module Domgen
       java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerEJB'
       java_artifact :server_session_context, :comm, :server, :imit, '#{repository.name}SessionContext'
+      java_artifact :session_exception_mapper, :rest, :server, :imit, '#{repository.name}BadSessionExceptionMapper'
       java_artifact :router_interface, :comm, :server, :imit, '#{repository.name}Router'
       java_artifact :router_impl, :comm, :server, :imit, '#{repository.name}RouterImpl'
       java_artifact :jpa_encoder, :comm, :server, :imit, '#{repository.name}JpaEncoder'

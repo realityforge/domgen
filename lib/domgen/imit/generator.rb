@@ -222,6 +222,11 @@ Domgen.template_set(:imit_server_service) do |template_set|
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/session_manager.java.erb",
                         'main/java/#{repository.imit.qualified_session_manager_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::SERVER_HELPERS)
+  template_set.template(Domgen::Generator::Imit::SERVER_FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/session_exception_mapper.java.erb",
+                        'main/java/#{repository.imit.qualified_session_exception_mapper_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::SERVER_HELPERS)
 end
 
 Domgen.template_set(:imit_server_qa) do |template_set|
