@@ -736,7 +736,7 @@ module Domgen
       dependent_attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
         Domgen.error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable dependent attribute") if !a.nullable?
       end
-      add_unique_to_set("dependency", constraint, @dependency_constraints)
+      add_unique_to_set('dependency', constraint, @dependency_constraints)
     end
 
     def relationship_constraints
@@ -746,7 +746,7 @@ module Domgen
     # Check that either the attribute is null or the attribute and all the dependents are not null
     def relationship_constraint(operator, lhs_operand, rhs_operand, options = {}, &block)
       constraint = RelationshipConstraint.new(self, operator, lhs_operand, rhs_operand, options, &block)
-      add_unique_to_set("relationship", constraint, @relationship_constraints)
+      add_unique_to_set('relationship', constraint, @relationship_constraints)
     end
 
     def codependent_constraints
@@ -759,7 +759,7 @@ module Domgen
       attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
         Domgen.error("Codependent constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
-      add_unique_to_set("codependent", constraint, @codependent_constraints)
+      add_unique_to_set('codependent', constraint, @codependent_constraints)
     end
 
     def incompatible_constraints
@@ -772,7 +772,7 @@ module Domgen
       attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
         Domgen.error("Incompatible constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
-      add_unique_to_set("incompatible", constraint, @incompatible_constraints)
+      add_unique_to_set('incompatible', constraint, @incompatible_constraints)
     end
 
     def cycle_constraints
@@ -781,7 +781,7 @@ module Domgen
 
     # Constraint that ensures that the value of a particular value is within a particular scope
     def cycle_constraint(attribute_name, attribute_name_path, options = {}, &block)
-      Domgen.error("Cycle constraint must have a path of length 1 or more") if attribute_name_path.empty?
+      Domgen.error('Cycle constraint must have a path of length 1 or more') if attribute_name_path.empty?
 
       constraint = CycleConstraint.new(self, attribute_name, attribute_name_path, options, &block)
 
@@ -800,7 +800,7 @@ module Domgen
         Domgen.error("Attribute in cycle references #{scoping_attribute.referenced_entity.name} while last reference in path is #{entity.name}")
       end
 
-      add_unique_to_set("cycle", constraint, @cycle_constraints)
+      add_unique_to_set('cycle', constraint, @cycle_constraints)
     end
 
     # Assume single column pk
@@ -823,7 +823,7 @@ module Domgen
     end
 
     def characteristic_kind
-       "attribute"
+       'attribute'
     end
 
     protected

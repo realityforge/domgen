@@ -244,7 +244,7 @@ module Domgen
           query_text = $1 if query.name =~ /^[dD]eleteBy(.+)$/
           next unless query_text
 
-          entity_prefix = "O."
+          entity_prefix = 'O.'
 
           while true
             if query_text =~ /(.+)(And|Or)(.+)/
