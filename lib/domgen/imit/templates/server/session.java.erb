@@ -265,18 +265,16 @@ else
           {
 <% end -%>
 <% if Domgen::Java.primitive?(graph.filter_parameter, :ee, :default) -%>
-            g.write( "<%= graph.name %>", _<%= graph.name %>Filter );
+            g.write( "filter", _<%= graph.name %>Filter );
 <% else -%>
-            {
-              final java.io.StringWriter writer = new java.io.StringWriter();
-              try { c_jsonMapper.writeValue( writer, _<%= graph.name %>Filter ); }
-              catch ( final java.io.IOException ioe ) {}
-              writer.flush();
-              final javax.json.JsonReader reader =
-                javax.json.Json.createReader( new java.io.StringReader( writer.toString() ) );
-              g.write( "<%= graph.name %>", reader.read() );
-              reader.close();
-            }
+            final java.io.StringWriter writer = new java.io.StringWriter();
+            try { c_jsonMapper.writeValue( writer, _<%= graph.name %>Filter ); }
+            catch ( final java.io.IOException ioe ) {}
+            writer.flush();
+            final javax.json.JsonReader reader =
+              javax.json.Json.createReader( new java.io.StringReader( writer.toString() ) );
+            g.write( "filter", reader.read() );
+            reader.close();
 <% end -%>
 <% if graph.filter_parameter.nullable? -%>
           }
