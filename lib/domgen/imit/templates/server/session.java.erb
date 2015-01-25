@@ -253,6 +253,7 @@ else
       {
         final org.realityforge.rest.field_filter.FieldFilter <%= graph.name %>Filter = subscriptionsFilter.subFilter( "<%= graph.name %>" );
         g.writeStartObject( "<%= graph.name %>" );
+        g.write( "subscribed", _interestedIn<%= graph.name %> );
         if( _interestedIn<%= graph.name %> )
         {
 <% if graph.filter_parameter.nullable? -%>
