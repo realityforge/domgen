@@ -259,7 +259,7 @@ else
 <% if graph.filter_parameter.nullable? -%>
           if( null == _<%= graph.name %>Filter )
           {
-            g.write( "<%= graph.name %>" );
+            g.writeNull( "filter" );
           }
           else
           {
