@@ -772,8 +772,8 @@ module Domgen
     end
 
     facet.enhance(Struct) do
-      def filter_for_graph(graph_key)
-        struct.data_module.repository.imit.graph_by_name(graph_key).filter(:struct, :referenced_struct => struct.qualified_name)
+      def filter_for_graph(graph_key, options = {})
+        struct.data_module.repository.imit.graph_by_name(graph_key).filter(:struct, options.merge(:referenced_struct => struct.qualified_name))
       end
     end
   end
