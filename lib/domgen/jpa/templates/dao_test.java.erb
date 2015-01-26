@@ -11,13 +11,13 @@ public abstract class <%= dao.jpa.dao_test_name %>
     throws Exception;
 
 <% end -%>
-  protected final <%= dao.jpa.qualified_dao_service_name %> service()
+  protected final <%= dao.jpa.qualified_dao_service_name %> dao()
   {
     return s( <%= dao.jpa.qualified_dao_service_name %>.class );
   }
 
-  protected final <%= dao.jpa.qualified_dao_name %> ejb()
+  protected final <%= dao.jpa.qualified_dao_name %> impl()
   {
-    return toObject( <%= dao.jpa.qualified_dao_name %>.class, service() );
+    return toObject( <%= dao.jpa.qualified_dao_name %>.class, dao() );
   }
 }
