@@ -240,6 +240,14 @@ module Domgen
         "#{graph.qualified_name}$#{name}"
       end
 
+      def immutable?
+        @immutable.nil? ? true : @immutable
+      end
+
+      def immutable=(immutable)
+        @immutable = immutable
+      end
+
       def equiv?(other_filter_parameter)
         return false if other_filter_parameter.filter_type != self.filter_type
         return false if other_filter_parameter.collection_type != self.collection_type
@@ -471,7 +479,7 @@ module Domgen
               m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options) if graph.filtered?
               m.exception(self.invalid_session_exception)
             end
-            if graph.filtered?
+            if graph.filtered? && !graph.filter_parameter.immutable?
               s.method(:"Update#{graph.name}Subscription") do |m|
                 m.string(:ClientID, 50)
                 m.reference(graph.instance_root) if graph.instance_root?

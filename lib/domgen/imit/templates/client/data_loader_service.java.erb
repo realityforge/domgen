@@ -201,7 +201,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
         completionAction.run();
       }
     };
-    <% repository.imit.graphs.select{|g|!g.filter_parameter.nil?}.each do |graph|
+    <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
     {
 <% if graph.instance_root? -%>
