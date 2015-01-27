@@ -57,6 +57,16 @@ end
                           "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_module.java.erb",
                           type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java',
                           Domgen::Generator::JPA::HELPERS)
+    template_set.template(Domgen::Generator::JPA::FACETS,
+                          :repository,
+                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/test_factory_set.java.erb",
+                          type + '/java/#{repository.jpa.qualified_test_factory_set_name.gsub(".","/")}.java',
+                          Domgen::Generator::JPA::HELPERS)
+    template_set.template(Domgen::Generator::JPA::FACETS,
+                          :data_module,
+                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/abstract_test_factory.java.erb",
+                          type + '/java/#{data_module.jpa.qualified_abstract_test_factory_name.gsub(".","/")}.java',
+                          Domgen::Generator::JPA::HELPERS)
   end
   Domgen.template_set(:"jpa_#{type}_qa") do |template_set|
     template_set.template(Domgen::Generator::JPA::FACETS,

@@ -1,0 +1,26 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.jpa.qualified_test_factory_set_name) %>;
+<% data_modules = repository.data_modules.select{|data_module| data_module.jpa?} -%>
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.jpa.test_factory_set_name %>
+{
+<% data_modules.each do |data_module| -%>
+  private final <%= data_module.jpa.qualified_test_factory_name %> _<%= Domgen::Naming.camelize(data_module.name) %>;
+<% end -%>
+
+  public <%= repository.jpa.test_factory_set_name %>( @javax.annotation.Nonnull final com.google.inject.Injector injector )
+  {
+<% data_modules.each do |data_module| -%>
+    _<%= Domgen::Naming.camelize(data_module.name) %> = new <%=data_module.jpa.qualified_test_factory_name %>( this, injector );
+<% end -%>
+  }
+<% data_modules.each do |data_module| -%>
+
+  public <%= data_module.jpa.qualified_test_factory_name %> <%= Domgen::Naming.camelize(data_module.name) %>()
+  {
+    return _<%= Domgen::Naming.camelize(data_module.name) %>;
+  }
+<% end -%>
+}

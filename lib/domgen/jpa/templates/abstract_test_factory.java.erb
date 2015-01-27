@@ -1,0 +1,56 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.jpa.qualified_abstract_test_factory_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public abstract class <%= data_module.jpa.abstract_test_factory_name %>
+{
+  private final <%= data_module.repository.jpa.qualified_test_factory_set_name %> _factorySet;
+  private final com.google.inject.Injector _injector;
+
+  protected <%= data_module.jpa.abstract_test_factory_name %>( @javax.annotation.Nonnull final <%= data_module.repository.jpa.qualified_test_factory_set_name %> factorySet, @javax.annotation.Nonnull final com.google.inject.Injector injector )
+  {
+    _factorySet = factorySet;
+    _injector = injector;
+  }
+
+  protected final <%= data_module.repository.jpa.qualified_test_factory_set_name %> getFactorySet()
+  {
+    return _factorySet;
+  }
+<% data_module.repository.data_modules.select{|dm|dm.jpa? && dm.name != data_module.name}.each do |dm| -%>
+
+  protected final <%= dm.jpa.abstract_test_factory_name %> <%= Domgen::Naming.camelize(dm.name) %>()
+  {
+    return getFactorySet().<%= Domgen::Naming.camelize(dm.name) %>();
+  }
+
+<% end -%>
+<% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
+
+  @javax.annotation.Nonnull
+  public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  {
+    final <%= entity.jpa.qualified_name %> entity = new <%= entity.jpa.qualified_name %>(<%= entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Domgen::Naming.camelize(a.name)}.join(', ') %>);
+<% entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
+    entity.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
+<% end -%>
+    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( entity );
+    return entity;
+  }
+<% end -%>
+<% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
+
+  @javax.annotation.Nonnull
+  protected final <%= entity.dao.jpa.qualified_dao_service_name %> <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>()
+  {
+    return s( <%= entity.dao.jpa.qualified_dao_service_name %>.class );
+  }
+<% end -%>
+
+  @javax.annotation.Nonnull
+  protected final <T> T s( @javax.annotation.Nonnull final Class<T> type )
+  {
+    return _injector.getInstance( type );
+  }
+}

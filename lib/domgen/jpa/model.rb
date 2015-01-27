@@ -120,6 +120,7 @@ module Domgen
       java_artifact :abstract_entity_test, :test, :server, :jpa, 'Abstract#{repository.name}EntityTest', :sub_package => 'util'
       java_artifact :aggregate_entity_test, :test, :server, :jpa, '#{repository.name}AggregateEntityTest', :sub_package => 'util'
       java_artifact :dao_module, :test, :server, :jpa, '#{repository.name}RepositoryModule', :sub_package => 'util'
+      java_artifact :test_factory_set, :test, :server, :jpa, '#{repository.name}FactorySet', :sub_package => 'util'
 
       def extra_test_modules
         @extra_test_modules ||= []
@@ -165,7 +166,18 @@ module Domgen
     end
 
     facet.enhance(DataModule) do
+      include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::EEClientServerJavaPackage
+
+      java_artifact :abstract_test_factory, :test, :server, :jpa, 'Abstract#{data_module.name}Factory', :sub_package => 'util'
+
+      def test_factory_name
+        @test_factory_name || abstract_test_factory_name.gsub(/^Abstract/,'')
+      end
+
+      def qualified_test_factory_name
+        "#{server_util_test_package}.#{test_factory_name}"
+      end
 
       def server_dao_entity_package
         "#{server_entity_package}.dao"
