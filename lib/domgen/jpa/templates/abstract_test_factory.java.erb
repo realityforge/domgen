@@ -20,7 +20,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 <% data_module.repository.data_modules.select{|dm|dm.jpa? && dm.name != data_module.name}.each do |dm| -%>
 
-  protected final <%= dm.jpa.abstract_test_factory_name %> <%= Domgen::Naming.camelize(dm.name) %>()
+  protected final <%= dm.jpa.qualified_test_factory_name %> <%= Domgen::Naming.camelize(dm.name) %>()
   {
     return getFactorySet().<%= Domgen::Naming.camelize(dm.name) %>();
   }
