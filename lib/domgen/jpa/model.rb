@@ -169,11 +169,19 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::EEClientServerJavaPackage
 
+      attr_writer :short_test_code
+
+      def short_test_code
+        Domgen::Naming.split_into_words(data_module.name.to_s).collect{|w|w[0,1]}.join.downcase
+      end
+
       java_artifact :abstract_test_factory, :test, :server, :jpa, 'Abstract#{data_module.name}Factory', :sub_package => 'util'
 
       def server_util_test_package
         data_module.repository.jpa.server_util_test_package
       end
+
+      attr_writer :test_factory_name
 
       def test_factory_name
         @test_factory_name || abstract_test_factory_name.gsub(/^Abstract/,'')
