@@ -168,6 +168,11 @@ end.join(', ') %>);
       {
         getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, complete );
       }
+      else
+      {
+        final String message = "Unable to find completion flag " + org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY + " in ReplicantContextHolder. Servlet expects to invoke service with replication interceptor enabled.";
+        throw new IllegalStateException( message );
+      }
 <% end -%>
     }
   }
