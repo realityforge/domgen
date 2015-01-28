@@ -343,6 +343,7 @@ module Domgen
       java_artifact :callback_failure_answer, :test, :client, :imit, '#{repository.name}CallbackFailureAnswer', :sub_package => 'util'
       java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
+      java_artifact :test_factory_set, :test, :client, :imit, '#{repository.name}FactorySet', :sub_package => 'util'
 
       def qualified_client_session_context_impl_name
         "#{qualified_client_session_context_name}Impl"
@@ -555,7 +556,24 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::ImitJavaPackage
 
+      attr_writer :short_test_code
+
+      def short_test_code
+        Domgen::Naming.split_into_words(data_module.name.to_s).collect{|w|w[0,1]}.join.downcase
+      end
+
       java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
+      java_artifact :abstract_test_factory, :entity, :client, :imit, 'Abstract#{data_module.name}Factory'
+
+      attr_writer :test_factory_name
+
+      def test_factory_name
+        @test_factory_name || abstract_test_factory_name.gsub(/^Abstract/,'')
+      end
+
+      def qualified_test_factory_name
+        "#{client_entity_package}.#{test_factory_name}"
+      end
     end
 
     facet.enhance(Service) do
