@@ -99,6 +99,7 @@ module Domgen
         if @generate_boundary.nil?
           return service.jmx? ||
             service.jws? ||
+            service.imit? ||
             service.methods.any? { |method| method.parameters.any? { |parameter| parameter.reference? } }
         else
           return @generate_boundary
