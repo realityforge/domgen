@@ -504,6 +504,12 @@ module Domgen
             end
           end
         end
+
+        repository.data_modules.select { |data_module| data_module.ejb? }.each do |data_module|
+          data_module.services.select { |service| service.ejb? && service.ejb.generate_boundary? }.each do |service|
+            service.ejb.boundary_interceptors << repository.imit.qualified_replication_interceptor_name
+          end
+        end
       end
 
       def post_verify
@@ -557,13 +563,6 @@ module Domgen
 
       java_artifact :name, :service, :client, :imit, '#{service.name}'
       java_artifact :proxy, :service, :client, :imit, '#{name}Impl', :sub_package => 'internal'
-
-      def pre_verify
-        if service.ejb?
-          service.ejb.boundary_interceptors << service.data_module.repository.imit.qualified_replication_interceptor_name
-          service.ejb.generate_boundary = true
-        end
-      end
     end
 
     facet.enhance(Method) do
