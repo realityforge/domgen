@@ -31,12 +31,12 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   @javax.annotation.Nonnull
   public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    final <%= entity.jpa.qualified_name %> entity = new <%= entity.jpa.qualified_name %>(<%= entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Domgen::Naming.camelize(a.name)}.join(', ') %>);
+    final <%= entity.jpa.qualified_name %> $_ = new <%= entity.jpa.qualified_name %>(<%= entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Domgen::Naming.camelize(a.name)}.join(', ') %>);
 <% entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
-    entity.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
+    $_.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
 <% end -%>
-    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( entity );
-    return entity;
+    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( $_ );
+    return $_;
   }
 <% end -%>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
