@@ -34,6 +34,8 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
 <% entity.attributes.select{|a|a.imit? && a.imit.client_side?}.each do |a| -%>
 <% if a.reference? -%>
     entity.set<%= a.referencing_link_name %>( <%= Domgen::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() );
+<% elsif a.enumeration? -%>
+    entity.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
 <% else -%>
     entity.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
 <% end -%>
@@ -48,6 +50,8 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
   {
 <% if a.reference? -%>
     entity.set<%= a.referencing_link_name %>( <%= Domgen::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() );
+<% elsif a.enumeration? -%>
+    entity.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
 <% else -%>
     entity.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
 <% end -%>
