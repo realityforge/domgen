@@ -53,4 +53,10 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   {
     return _injector.getInstance( type );
   }
+
+  @javax.annotation.Nonnull
+  protected final com.google.inject.Injector getInjector()
+  {
+    return _injector;
+  }
 }
