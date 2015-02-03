@@ -10,7 +10,7 @@ public class <%= message.ee.name %>
   private static final long serialVersionUID = 1;
 
 <% message.parameters.each do |parameter| -%>
-  <%= annotated_type(parameter, :ee, :default, :final => true, :private => true) %> <%= Domgen::Naming.camelize(parameter.name) %>;
+  <%= annotated_type(parameter, :ee, :default, :private => true) %> <%= Domgen::Naming.camelize(parameter.name) %>;
 <% end -%>
 
 <% if message.parameters.size != 0 %>
@@ -26,7 +26,7 @@ public class <%= message.ee.name %>
   }
 <% end %>
 
-  public <%= message.name %>( <%= message.parameters.collect {|parameter| "#{annotated_type(parameter, :ee, :boundary, :final => true)} #{Domgen::Naming.camelize(parameter.name)}" }.join(", ") %> )
+  public <%= message.name %>( <%= message.parameters.collect {|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Domgen::Naming.camelize(parameter.name)}" }.join(", ") %> )
   {
 <% message.parameters.each do |parameter|
      null_protection = parameter.nullable? ? "#{Domgen::Naming.camelize(parameter.name)} == null ? null : " : ""
@@ -41,7 +41,7 @@ public class <%= message.ee.name %>
 %>  }
 <% message.parameters.each do |parameter|
 %>
-  <%= annotated_type(parameter, :ee, :boundary, :public => true, :final => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+  <%= annotated_type(parameter, :ee, :default, :public => true, :final => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
   {
     return <%= Domgen::Naming.camelize(parameter.name) %>;
   }
@@ -62,7 +62,7 @@ public class <%= message.ee.name %>
 
     final <%= message.ee.name %> that = (<%= message.ee.name %>) o;
 <% message.parameters.select{|f|!f.collection?}.each do |parameter| -%>
-    if ( <%= parameter.ee.primitive?(:boundary) ? "#{Domgen::Naming.camelize(parameter.name)} != that.#{Domgen::Naming.camelize(parameter.name)}" : "#{parameter.nullable? ? "null == #{Domgen::Naming.camelize(parameter.name)} ? null != that.#{Domgen::Naming.camelize(parameter.name)} : " : ''}!#{Domgen::Naming.camelize(parameter.name)}.equals( that.#{Domgen::Naming.camelize(parameter.name)} )" %> )
+    if ( <%= parameter.ee.primitive?(:default) ? "#{Domgen::Naming.camelize(parameter.name)} != that.#{Domgen::Naming.camelize(parameter.name)}" : "#{parameter.nullable? ? "null == #{Domgen::Naming.camelize(parameter.name)} ? null != that.#{Domgen::Naming.camelize(parameter.name)} : " : ''}!#{Domgen::Naming.camelize(parameter.name)}.equals( that.#{Domgen::Naming.camelize(parameter.name)} )" %> )
     {
       return false;
     }
@@ -97,7 +97,7 @@ public class <%= message.ee.name %>
   {
     int result = 0;
 <% message.parameters.each do |parameter| -%>
-    result = 31 * result + (<%= parameter.ee.primitive?(:boundary) ? (parameter.boolean? ? "#{Domgen::Naming.camelize(parameter.name)} ? 1 : 0": parameter.real? ? "Float.floatToIntBits(#{Domgen::Naming.camelize(parameter.name)})" : parameter.long? ? "(int)(#{Domgen::Naming.camelize(parameter.name)})" : Domgen::Naming.camelize(parameter.name)) : "#{parameter.nullable? ? "null == #{Domgen::Naming.camelize(parameter.name)} ? 0 : " : ''}#{Domgen::Naming.camelize(parameter.name)}.hashCode()" %>);
+    result = 31 * result + (<%= parameter.ee.primitive?(:default) ? (parameter.boolean? ? "#{Domgen::Naming.camelize(parameter.name)} ? 1 : 0": parameter.real? ? "Float.floatToIntBits(#{Domgen::Naming.camelize(parameter.name)})" : parameter.long? ? "(int)(#{Domgen::Naming.camelize(parameter.name)})" : Domgen::Naming.camelize(parameter.name)) : "#{parameter.nullable? ? "null == #{Domgen::Naming.camelize(parameter.name)} ? 0 : " : ''}#{Domgen::Naming.camelize(parameter.name)}.hashCode()" %>);
 <% end -%>
     return result;
   }
