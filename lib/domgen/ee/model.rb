@@ -29,6 +29,13 @@ module Domgen
         !!@use_cdi
       end
 
+      attr_writer :server_event_package
+
+      def server_event_package
+        @server_event_package || "#{server_package}.event"
+      end
+
+
       def version=(version)
         Domgen.error("Unknown version '#{version}'") unless %w(6 7).include?(version)
         @version = version
@@ -37,6 +44,37 @@ module Domgen
 
     facet.enhance(DataModule) do
       include Domgen::Java::EEClientServerJavaPackage
+
+      attr_writer :server_event_package
+
+      def server_event_package
+        @server_event_package || resolve_package(:server_event_package)
+      end
+
+    end
+
+    facet.enhance(Message) do
+      def name
+        "#{message.name}"
+      end
+
+      def qualified_name
+        "#{message.data_module.ee.server_event_package}.#{name}"
+      end
+    end
+
+    facet.enhance(MessageParameter) do
+      include Domgen::Java::EEJavaCharacteristic
+
+      def name
+        parameter.name
+      end
+
+      protected
+
+      def characteristic
+        parameter
+      end
     end
 
     facet.enhance(EnumerationSet) do

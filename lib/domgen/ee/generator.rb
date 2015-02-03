@@ -35,6 +35,14 @@ Domgen.template_set(:ee_data_types) do |template_set|
                         Domgen::Generator::EE::HELPERS)
 end
 
+Domgen.template_set(:ee_messages) do |template_set|
+  template_set.template(Domgen::Generator::EE::FACETS,
+                        :message,
+                        "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/message.java.erb",
+                        'main/java/#{message.ee.qualified_name.gsub(".","/")}.java',
+                        Domgen::Generator::EE::HELPERS)
+end
+
 Domgen.template_set(:ee_exceptions) do |template_set|
   template_set.template(Domgen::Generator::EE::FACETS,
                         :exception,
@@ -43,4 +51,4 @@ Domgen.template_set(:ee_exceptions) do |template_set|
                         Domgen::Generator::EE::HELPERS)
 end
 
-Domgen.template_set(:ee => [:jaxrs, :jpa, :ejb, :jmx, :jws, :jms, :ee_exceptions, :ee_data_types])
+Domgen.template_set(:ee => [:jaxrs, :jpa, :ejb, :jmx, :jws, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
