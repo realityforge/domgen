@@ -233,7 +233,7 @@ module Domgen
       end
 
       def name
-        "FilterParameter"
+        'FilterParameter'
       end
 
       def qualified_name
@@ -630,12 +630,12 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       def transport_id
-        Domgen.error("Attempted to invoke transport_id on abstract entity") if entity.abstract?
+        Domgen.error('Attempted to invoke transport_id on abstract entity') if entity.abstract?
         @transport_id
       end
 
       def transport_id=(transport_id)
-        Domgen.error("Attempted to assign transport_id on abstract entity") if entity.abstract?
+        Domgen.error('Attempted to assign transport_id on abstract entity') if entity.abstract?
         @transport_id = transport_id
       end
 
@@ -670,7 +670,7 @@ module Domgen
       end
 
       def subgraph_roots=(subgraph_roots)
-        Domgen.error("subgraph_roots expected to be an array") unless subgraph_roots.is_a?(Array)
+        Domgen.error('subgraph_roots expected to be an array') unless subgraph_roots.is_a?(Array)
         subgraph_roots.each do |subgraph_root|
           graph = entity.data_module.repository.imit.graph_by_name(subgraph_root)
           Domgen.error("subgraph_roots specifies a non graph #{subgraph_root}") unless graph
@@ -716,8 +716,8 @@ module Domgen
       end
 
       def filter_in_graphs=(filter_in_graphs)
-        Domgen.error("filter_in_graphs should be an array of symbols") unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
-        Domgen.error("filter_in_graphs should only contain valid graphs") unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
+        Domgen.error('filter_in_graphs should be an array of symbols') unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
+        Domgen.error('filter_in_graphs should only contain valid graphs') unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
         @filter_in_graphs = filter_in_graphs
       end
 
@@ -777,9 +777,9 @@ module Domgen
       end
 
       def replication_edges=(replication_edges)
-        Domgen.error("replication_edges should be an array of symbols") unless replication_edges.is_a?(Array) && replication_edges.all? { |m| m.is_a?(Symbol) }
-        Domgen.error("replication_edges should only be set when traversable?") unless inverse.traversable?
-        Domgen.error("replication_edges should only contain valid graphs") unless replication_edges.all? { |m| inverse.attribute.entity.data_module.repository.imit.graph_by_name(m) }
+        Domgen.error('replication_edges should be an array of symbols') unless replication_edges.is_a?(Array) && replication_edges.all? { |m| m.is_a?(Symbol) }
+        Domgen.error('replication_edges should only be set when traversable?') unless inverse.traversable?
+        Domgen.error('replication_edges should only contain valid graphs') unless replication_edges.all? { |m| inverse.attribute.entity.data_module.repository.imit.graph_by_name(m) }
         @replication_edges = replication_edges
       end
 
