@@ -11,15 +11,12 @@ public interface <%= repository.imit.client_router_interface_name %>
   String <%= key %> = "<%= repository.name %>.<%= graph.name %>";
 <% end -%>
 <%
-  repository.data_modules.each do |data_module|
-    data_module.entities.each do |entity|
-      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.size > 0}.each do |attribute|
-        attribute.imit.filter_in_graphs.each do |graph_key|
+  repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
+    graph.routing_keys.each do |routing_key|
+      attribute = routing_key.imit_attribute.attribute
 -%>
-  String <%= Domgen::Naming.uppercase_constantize(graph_key) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY = "<%= repository.name %>.<%= graph_key %>.<%= attribute.qualified_name %>";
+  String <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY = "<%= repository.name %>.<%= graph.name %>.<%= attribute.qualified_name %>";
 <%
-        end
-      end
     end
   end
 %>

@@ -73,21 +73,20 @@ entities.uniq.each do |entity| -%>
         final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY );
 <%
   extra_interest_filter = ''
-  repository.data_modules.each do |data_module|
-    data_module.entities.each do |entity|
-      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
-        var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
-        extra_interest_filter << ", #{var_name}"
-        param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
+  if graph.filtered?
+    graph.routing_keys.each do |routing_key|
+      attribute = routing_key.imit_attribute.attribute
+      var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
+      extra_interest_filter << ", #{var_name}"
+      param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
 %>
         final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
 <%
-      end
     end
   end
 
   if !extra_interest_filter.empty?
-    extra_interest_filter = "&& _context.is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}#{graph.instance_root? ? ", session.getInterestedIn#{graph.name}().get( #{graph.name} )" : '' }#{extra_interest_filter} ) "
+    extra_interest_filter = "&& /* XXX */ _context.is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}#{graph.instance_root? ? ", session.getInterestedIn#{graph.name}().get( #{graph.name} )" : '' }#{extra_interest_filter} ) "
   end
 %>
         if ( null != <%= graph.name %> )
@@ -103,8 +102,9 @@ entities.uniq.each do |entity| -%>
             }
           }
         }
-<% end %>
+<% end -%>
       }
+
       for ( final org.realityforge.replicant.server.EntityMessage message : messages )
       {
         final java.util.Map<String, java.io.Serializable> routingKeys = message.getRoutingKeys();
@@ -120,32 +120,28 @@ entities.uniq.each do |entity| -%>
     type = instance_root.primary_key.jpa.non_primitive_java_type
     param = " #{graph.name} "
   end
-%>
-
+-%>
         final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY );
+        if ( null != <%= graph.name %> )
+        {
 <%
   extra_interest_filter = ''
-  repository.data_modules.each do |data_module|
-    data_module.entities.each do |entity|
-      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }.each do |attribute|
-        var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
-        extra_interest_filter << ", #{var_name}"
-        param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
-%>
-        final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+  if graph.filtered?
+    graph.routing_keys.each do |routing_key|
+      attribute = routing_key.imit_attribute.attribute
+      var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
+      extra_interest_filter << ", #{var_name}"
+      param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
+-%>
+          final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
 <%
-      end
     end
   end
 
   if !extra_interest_filter.empty?
     extra_interest_filter = "&& _context.is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}, session.#{graph.instance_root? ? "getInterestedIn#{graph.name}().get( #{graph.name} )" : "get#{graph.name}Parameter()" }#{extra_interest_filter} ) "
-    #extra_interest_filter = "&& _context.is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}, session.getInterestedIn#{graph.name}().get( #{graph.name} )#{extra_interest_filter} ) "
   end
-%>
-
-        if ( null != <%= graph.name %> )
-        {
+-%>
 <% if graph.cacheable? && !graph.external_cache_management? -%>
           _auto<%= graph.name %>RuntimeIndex++;
 <% end -%>
@@ -157,7 +153,7 @@ entities.uniq.each do |entity| -%>
             }
           }
         }
-<% end %>
+<% end -%>
       }
       {
         final <%= repository.imit.qualified_session_name %> session = null != sessionID ? getSession( sessionID ) : null;

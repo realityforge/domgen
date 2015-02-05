@@ -14,15 +14,11 @@ public class <%= repository.imit.router_impl_name %>
   public static final String <%= key %> = "<%= repository.name %>.<%= graph.name %>";
 <% end -%>
 <%
-  repository.data_modules.each do |data_module|
-    data_module.entities.each do |entity|
-      entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.size > 0}.each do |attribute|
-        attribute.imit.filter_in_graphs.each do |graph_key|
+  repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
+    graph.routing_keys.each do |routing_key|
 -%>
-  public static final String <%= Domgen::Naming.uppercase_constantize(graph_key) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY = "<%= repository.name %>.<%= graph_key %>.<%= attribute.qualified_name %>";
+  public static final String <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY = "<%= repository.name %>.<%= graph.name %>.<%= routing_key.name %>";
 <%
-        end
-      end
     end
   end
 -%>
@@ -45,8 +41,10 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 
   private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
   {
-<% entity.attributes.select{|a| a.imit? && a.imit.filter_in_graphs.include?(graph.name)}.each do |attribute| -%>
-    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY, entity.<%= getter_for(attribute) %><%= attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}" : '' %> );
+<% if graph.filtered? -%>
+<% graph.routing_keys.each do |routing_key| -%>
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity.<%= getter_for(routing_key.imit_attribute.attribute) %><%= routing_key.imit_attribute.attribute.reference? ? ".#{getter_for(routing_key.imit_attribute.attribute.referenced_entity.primary_key)}" : '' %> );
+<% end -%>
 <% end -%>
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );

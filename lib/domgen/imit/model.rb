@@ -21,6 +21,7 @@ module Domgen
         @instance_root = nil
         @outward_graph_links = Domgen::OrderedHash.new
         @inward_graph_links = Domgen::OrderedHash.new
+        @routing_keys = Domgen::OrderedHash.new
         application.send :register_graph, name, self
         super(application, options, &block)
       end
@@ -92,6 +93,11 @@ module Domgen
         @inward_graph_links.values
       end
 
+      def routing_keys
+        Domgen.error("routing_keys invoked for graph #{name} when not filtered") if unfiltered?
+        @routing_keys.values
+      end
+
       # Return the list of entities reachable in instance graph
       def reachable_entities
         Domgen.error("reachable_entities invoked for graph #{name} when not instance based") if 0 != @type_roots.size
@@ -134,6 +140,12 @@ module Domgen
       end
 
       protected
+
+      def register_routing_key(routing_key)
+        key = routing_key.name.to_s
+        Domgen.error("Attempted to register duplicate routing key link on attribute '#{routing_key.imit_attribute.attribute.qualified_name}' on graph '#{self.name}'") if @routing_keys[key]
+        @routing_keys[key] = routing_key
+      end
 
       def register_outward_graph_link(graph_link)
         key = graph_link.imit_attribute.attribute.qualified_name.to_s
@@ -219,6 +231,25 @@ module Domgen
         unless elements.include?(entity.qualified_name)
           Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' attempts to link to a graph when the target entity is not part of the target graph - #{elements.inspect}")
         end
+      end
+    end
+
+    class RoutingKey < Domgen.ParentedElement(:imit_attribute)
+      attr_reader :name
+      attr_reader :graph
+
+      def initialize(imit_attribute, name, graph, options, &block)
+        repository = imit_attribute.attribute.entity.data_module.repository
+        unless repository.imit.graph_by_name?(graph)
+          Domgen.error("Graph '#{source_graph}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not exist")
+        end
+        # unless imit_attribute.attribute.reference?
+        #   Domgen.error("Attempted to define a routing key on non-reference attribute '#{imit_attribute.attribute.qualified_name}'")
+        # end
+        @name = name
+        @graph = repository.imit.graph_by_name(graph)
+        super(imit_attribute, options, &block)
+        repository.imit.graph_by_name(graph).send :register_routing_key, self
       end
     end
 
@@ -684,7 +715,7 @@ module Domgen
         entity.data_module.repository.imit.graphs.select do |graph|
           (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
             (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s)) ||
-            entity.attributes.any? { |a| a.imit? && a.imit.filter_in_graphs.include?(graph.name) }
+            entity.attributes.any? { |a| a.imit? && a.imit.routing_keys.any?{|routing_key|routing_key.graph.name.to_s == graph.name.to_s} }
         end
       end
 
@@ -718,11 +749,21 @@ module Domgen
       def filter_in_graphs=(filter_in_graphs)
         Domgen.error('filter_in_graphs should be an array of symbols') unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
         Domgen.error('filter_in_graphs should only contain valid graphs') unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
-        @filter_in_graphs = filter_in_graphs
+        filter_in_graphs.each do |graph|
+          add_routing_key(attribute.qualified_name.gsub('.','_'), graph)
+        end
       end
 
-      def filter_in_graphs
-        @filter_in_graphs || []
+      def routing_keys_map
+        @routing_keys ||= {}
+      end
+
+      def routing_keys
+        routing_keys_map.values
+      end
+
+      def add_routing_key(name, graph, options = {})
+        routing_keys_map[name] = Domgen::Imit::RoutingKey.new(self, name, graph, options)
       end
 
       def graph_links_map
@@ -776,6 +817,7 @@ module Domgen
         @exclude_edges = exclude_edges
       end
 
+      # Replication edges represent graphs that must be subscribed to when the containing entity is subscribed
       def replication_edges=(replication_edges)
         Domgen.error('replication_edges should be an array of symbols') unless replication_edges.is_a?(Array) && replication_edges.all? { |m| m.is_a?(Symbol) }
         Domgen.error('replication_edges should only be set when traversable?') unless inverse.traversable?
