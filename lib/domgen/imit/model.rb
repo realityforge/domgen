@@ -265,13 +265,23 @@ module Domgen
         a = imit_attribute.attribute
         if path.size > 0
           Domgen.error("Path parameter '#{path.inspect}' specified for routing key #{name} on #{imit_attribute.attribute.name} when initial attribute is not a reference") unless a.reference?
-          path.each do |path_element|
-            Domgen.error("Path element '#{path_element}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribtue of #{a.referenced_entity.qualified_name}") unless a.referenced_entity.attribute_by_name?(path_element)
+          path.each do |path_key|
+            self.multivalued = true if is_path_element_recursive?(path_key)
+            path_element = get_attribute_name_from_path_element?(path_key)
+            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribtue of #{a.referenced_entity.qualified_name}") unless a.referenced_entity.attribute_by_name?(path_element)
             a = a.referenced_entity.attribute_by_name(path_element)
-            Domgen.error("Path element '#{path_element}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
+            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
           end
         end
         @path = path
+      end
+
+      def is_path_element_recursive?(path_element)
+        path_element =~ /^\*.*/
+      end
+
+      def get_attribute_name_from_path_element?(path_element)
+        is_path_element_recursive?(path_element) ? path_element[1,path_element.length] : path_element
       end
 
       # The name of the attribute that is used in referenced entity. This
@@ -299,7 +309,7 @@ module Domgen
         return self.imit_attribute.attribute.referenced_entity if self.imit_attribute.attribute.reference?
         a = imit_attribute.attribute
         path.each do |path_element|
-          a = a.referenced_entity.attribute_by_name(path_element)
+          a = a.referenced_entity.attribute_by_name(get_attribute_name_from_path_element?(path_element))
         end
         a.referenced_entity
       end
@@ -320,7 +330,7 @@ module Domgen
 
         a = imit_attribute.attribute
         path.each do |path_element|
-          a = a.referenced_entity.attribute_by_name(path_element)
+          a = a.referenced_entity.attribute_by_name(get_attribute_name_from_path_element?(path_element))
           return false if a.nullable?
         end
         return !a.nullable?

@@ -43,8 +43,10 @@ public class <%= repository.imit.router_impl_name %>
   }
 <%
       unless routing_key.target_nullsafe?
+        index = 0
         a = routing_key.imit_attribute.attribute
-        routing_key.path.each_with_index do |path_element, index|
+        routing_key.path.each do |path_element|
+          next_attribute = a.referenced_entity.attribute_by_name(routing_key.get_attribute_name_from_path_element?(path_element))
 -%>
 
   private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.jpa.qualified_name %> value )
@@ -53,19 +55,32 @@ public class <%= repository.imit.router_impl_name %>
     if( null != value )
     {
 <% end -%>
-<% if routing_key.path.size == (index - 1) -%>
-    route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(a) %> );
-<% else -%>
-    put_<%= graph.name %>_<%= routing_key.name %>( map, value.<%= getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name)) %> );
+    route_<%= graph.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value.<%= getter_for(next_attribute) %> );
+<% if routing_key.is_path_element_recursive?(path_element) -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(next_attribute) %> );
 <% end -%>
 <% if a.nullable? -%>
     }
 <% end -%>
   }
-
 <%
-          a = a.referenced_entity.attribute_by_name(path_element)
+          a = next_attribute
+          index = index + 1
         end
+-%>
+
+  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.jpa.qualified_name %> value )
+  {
+<% if a.nullable? -%>
+    if( null != value )
+    {
+<% end -%>
+    put_<%= graph.name %>_<%= routing_key.name %>( map, value.<%= getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name)) %> );
+<% if a.nullable? -%>
+    }
+<% end -%>
+  }
+<%
       end
     end
   end
@@ -99,7 +114,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     a = routing_key.imit_attribute.attribute
     path = [getter_for(a)]
     routing_key.path.each do |path_element|
-      a = a.referenced_entity.attribute_by_name(path_element)
+      a = a.referenced_entity.attribute_by_name(routing_key.get_attribute_name_from_path_element?(path_element))
       path << getter_for(a)
     end
     path << getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name))
