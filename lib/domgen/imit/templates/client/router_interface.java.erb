@@ -24,7 +24,7 @@ public interface <%= repository.imit.client_router_interface_name %>
 <% repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module| -%>
 <% data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity| -%>
   @javax.annotation.Nonnull
-  java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.imit.qualified_name rescue "X" %> entity );
+  java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.imit.qualified_name %> entity );
 <% end -%>
 <% end -%>
 }
