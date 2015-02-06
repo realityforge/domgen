@@ -71,6 +71,8 @@ entities.uniq.each do |entity| -%>
 %>
 
         final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY );
+        if ( null != <%= graph.name %> )
+        {
 <%
   extra_interest_filter = ''
   if graph.filtered?
@@ -78,8 +80,8 @@ entities.uniq.each do |entity| -%>
       var_name = Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))
       extra_interest_filter << ", #{var_name}"
       param_type = routing_key.target_attribute.jpa.non_primitive_java_type
-%>
-        final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+-%>
+          final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <%
     end
   end
@@ -87,9 +89,7 @@ entities.uniq.each do |entity| -%>
   if !extra_interest_filter.empty?
     extra_interest_filter = "&& _context.is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}#{graph.instance_root? ? ", session.getInterestedIn#{graph.name}().get( #{graph.name} )" : '' }#{extra_interest_filter} ) "
   end
-%>
-        if ( null != <%= graph.name %> )
-        {
+-%>
           for ( final <%= repository.imit.qualified_session_name %> session : values )
           {
             if ( session.<%= graph.instance_root? ? "is#{graph.name}Interesting" : "isInterestedIn#{graph.name}" %>(<%= param %> ) <%= extra_interest_filter %>)

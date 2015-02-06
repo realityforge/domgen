@@ -23,36 +23,20 @@ public class <%= repository.imit.router_impl_name %>
   end
 -%>
 <%
-repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
-  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
-    outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit?}
- -%>
-
-  @javax.annotation.Nonnull
-  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
-  {
-    final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<String, java.io.Serializable>();
-<% entity.imit.replication_graphs.each do |graph| -%>
-    _route<%= graph.name %>_<%= entity.name %>( map, entity );
-<% end -%>
-    return map;
-  }
-<% entity.imit.replication_graphs.each do |graph| -%>
-
-<%
-  if graph.filtered?
+  repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
     graph.routing_keys.each do |routing_key|
-%>
+-%>
+
   private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, final <%= routing_key.target_attribute.jpa.non_primitive_java_type %> value )
   {
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
   }
-
 <%
       unless routing_key.target_nullsafe?
         a = routing_key.imit_attribute.attribute
         routing_key.path.each_with_index do |path_element, index|
 -%>
+
   private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.jpa.qualified_name %> value )
   {
 <% if a.nullable? -%>
@@ -76,11 +60,28 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     end
   end
 -%>
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+    outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit?}
+ -%>
+
+  @javax.annotation.Nonnull
+  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
+  {
+    final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<String, java.io.Serializable>();
+<% entity.imit.replication_graphs.each do |graph| -%>
+    _route<%= graph.name %>_<%= entity.name %>( map, entity );
+<% end -%>
+    return map;
+  }
+<% entity.imit.replication_graphs.each do |graph| -%>
+
   private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
   {
 <% if graph.filtered? -%>
 <%
-  graph.routing_keys.each do |routing_key|
+  graph.routing_keys.select{|rk| rk.imit_attribute.attribute.entity.name == entity.name}.each do |routing_key|
     if !routing_key.reference?
 -%>
     put_<%= graph.name %>_<%= routing_key.name %>( map, entity.<%= getter_for(routing_key.imit_attribute.attribute) %> );

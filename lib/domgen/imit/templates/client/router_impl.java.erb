@@ -5,6 +5,44 @@ package <%= to_package(repository.imit.qualified_client_router_impl_name) %>;
 public class <%= repository.imit.client_router_impl_name %>
   implements <%= repository.imit.qualified_client_router_interface_name %>
 {
+<%
+  repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
+    graph.routing_keys.each do |routing_key|
+-%>
+  private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, final <%= routing_key.target_attribute.imit.non_primitive_java_type %> value )
+  {
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
+  }
+
+<%
+      unless routing_key.target_nullsafe?
+        a = routing_key.imit_attribute.attribute
+        routing_key.path.each_with_index do |path_element, index|
+-%>
+
+  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.imit.qualified_name %> value )
+  {
+<% if a.nullable? -%>
+    if( null != value )
+    {
+<% end -%>
+<% if routing_key.path.size == (index - 1) -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(a) %> );
+<% else -%>
+    put_<%= graph.name %>_<%= routing_key.name %>( map, value.<%= getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name)) %> );
+<% end -%>
+<% if a.nullable? -%>
+    }
+<% end -%>
+  }
+
+<%
+          a = a.referenced_entity.attribute_by_name(path_element)
+        end
+      end
+    end
+  end
+-%>
   @java.lang.Override
   @javax.annotation.Nonnull
   public java.util.Map<String, java.io.Serializable> route( @javax.annotation.Nonnull Object entity )
@@ -42,49 +80,12 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     return map;
   }
 <% entity.imit.replication_graphs.each do |graph| -%>
-<%
-  if graph.filtered?
-    graph.routing_keys.each do |routing_key|
-%>
-  private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, final <%= routing_key.target_attribute.imit.non_primitive_java_type %> value )
-  {
-    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
-  }
-
-<%
-      unless routing_key.target_nullsafe?
-        a = routing_key.imit_attribute.attribute
-        routing_key.path.each_with_index do |path_element, index|
--%>
-  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.imit.qualified_name %> value )
-  {
-<% if a.nullable? -%>
-    if( null != value )
-    {
-<% end -%>
-<% if routing_key.path.size == (index - 1) -%>
-    route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(a) %> );
-<% else -%>
-    put_<%= graph.name %>_<%= routing_key.name %>( map, value.<%= getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name)) %> );
-<% end -%>
-<% if a.nullable? -%>
-    }
-<% end -%>
-  }
-
-<%
-          a = a.referenced_entity.attribute_by_name(path_element)
-        end
-      end
-    end
-  end
--%>
 
   private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.imit.qualified_name %> entity )
   {
 <% if graph.filtered? -%>
 <%
-  graph.routing_keys.each do |routing_key|
+  graph.routing_keys.select{|rk| rk.imit_attribute.attribute.entity.name == entity.name}.each do |routing_key|
     if !routing_key.reference?
 -%>
     put_<%= graph.name %>_<%= routing_key.name %>( map, entity.<%= getter_for(routing_key.imit_attribute.attribute) %> );
