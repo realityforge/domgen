@@ -19,7 +19,6 @@ public class <%= repository.imit.client_router_impl_name %>
         a = routing_key.imit_attribute.attribute
         routing_key.path.each_with_index do |path_element, index|
 -%>
-
   private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.imit.qualified_name %> value )
   {
 <% if a.nullable? -%>
