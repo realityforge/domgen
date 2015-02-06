@@ -15,10 +15,9 @@ public interface <%= repository.imit.server_session_context_name %>
 repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
   extra_interest_filter = ''
   graph.routing_keys.each do |routing_key|
-    attribute = routing_key.imit_attribute.attribute
-    var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
-    nullable = !graph.instance_root? || !(attribute.entity.qualified_name == graph.instance_root)
-    param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
+    var_name = Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))
+    nullable = !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
+    param_type = routing_key.target_attribute.jpa.non_primitive_java_type
     extra_interest_filter << ", #{nullability_annotation(nullable)} #{param_type} #{var_name}"
   end
   initial_param = ''

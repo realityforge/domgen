@@ -251,6 +251,74 @@ module Domgen
 
       # The graph that routing key is used by
       attr_reader :graph
+
+      # The path is the chain of references along which routing key walks
+      # Each link in chain must be a reference. Must be empty if initial
+      # attribtue is not a reference. A null in the path means nokey is
+      # selected
+      def path
+        @path || []
+      end
+
+      def path=(path)
+        Domgen.error("Path parameter '#{path.inspect}' specified for routing key #{name} on #{imit_attribute.attribute.name} is not an array") unless path.is_a?(Array)
+        a = imit_attribute.attribute
+        if path.size > 0
+          Domgen.error("Path parameter '#{path.inspect}' specified for routing key #{name} on #{imit_attribute.attribute.name} when initial attribute is not a reference") unless a.reference?
+          path.each do |path_element|
+            Domgen.error("Path element '#{path_element}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribtue of #{a.referenced_entity.qualified_name}") unless a.referenced_entity.attribute_by_name?(path_element)
+            a = a.referenced_entity.attribute_by_name(path_element)
+            Domgen.error("Path element '#{path_element}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
+          end
+        end
+        @path = path
+      end
+
+      # The name of the attribute that is used in referenced entity. This
+      # must be null if the initial attribute is not a reference, otherwise
+      # it must match a name in the target entity
+      def attribute_name
+        Domgen.error("attribute_name invoked for routing key #{name} on #{imit_attribute.attribute.name} when attribute is not a reference") unless reference?
+        return @attribute_name unless @attribute_name.nil?
+        referenced_entity.primary_key.name
+      end
+
+      def attribute_name=(attribute_name)
+        unless attribute_name.nil?
+          Domgen.error("attribute_name parameter '#{attribute_name.inspect}' specified for routing key #{name} on #{imit_attribute.attribute.name} used when attribute is not a reference") unless reference?
+        end
+        @attribute_name = attribute_name
+      end
+
+      def reference?
+        self.path.size > 0 || self.imit_attribute.attribute.reference?
+      end
+
+      def referenced_entity
+        Domgen.error("referenced_entity invoked on routing key #{name} on #{imit_attribute.attribute.name} when attribute is not a reference") unless reference?
+        return self.imit_attribute.attribute.referenced_entity if self.imit_attribute.attribute.reference?
+        a = imit_attribute.attribute
+        path.each do |path_element|
+          a = a.referenced_entity.attribute_by_name(path_element)
+        end
+        a.referenced_entity
+      end
+
+      def target_attribute
+        self.reference? ? self.referenced_entity.attribute_by_name(self.attribute_name) : self.imit_attribute.attribute
+      end
+
+      def target_nullsafe?
+        return true unless self.reference?
+        return self.imit_attribute.attribute.reference? if self.path.size == 0
+
+        a = imit_attribute.attribute
+        path.each do |path_element|
+          a = a.referenced_entity.attribute_by_name(path_element)
+          return false if a.nullable?
+        end
+        return !a.nullable?
+      end
     end
 
     class FilterParameter < Domgen.ParentedElement(:graph)
@@ -750,7 +818,7 @@ module Domgen
         Domgen.error('filter_in_graphs should be an array of symbols') unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
         Domgen.error('filter_in_graphs should only contain valid graphs') unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
         filter_in_graphs.each do |graph|
-          add_routing_key(attribute.qualified_name.gsub('.','_'), graph)
+          routing_key(graph)
         end
       end
 
@@ -762,8 +830,10 @@ module Domgen
         routing_keys_map.values
       end
 
-      def add_routing_key(name, graph, options = {})
-        routing_keys_map[name] = Domgen::Imit::RoutingKey.new(self, name, graph, options)
+      def routing_key(graph, options = {})
+        params = options.dup
+        name = params.delete(:name) || attribute.qualified_name.gsub('.','_')
+        routing_keys_map["#{graph}#{name}"] = Domgen::Imit::RoutingKey.new(self, name, graph, params)
       end
 
       def graph_links_map

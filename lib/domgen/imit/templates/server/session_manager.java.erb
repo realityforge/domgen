@@ -75,12 +75,11 @@ entities.uniq.each do |entity| -%>
   extra_interest_filter = ''
   if graph.filtered?
     graph.routing_keys.each do |routing_key|
-      attribute = routing_key.imit_attribute.attribute
-      var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
+      var_name = Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))
       extra_interest_filter << ", #{var_name}"
-      param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
+      param_type = routing_key.target_attribute.jpa.non_primitive_java_type
 %>
-        final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+        final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <%
     end
   end
@@ -128,12 +127,11 @@ entities.uniq.each do |entity| -%>
   extra_interest_filter = ''
   if graph.filtered?
     graph.routing_keys.each do |routing_key|
-      attribute = routing_key.imit_attribute.attribute
-      var_name = "#{graph.name}#{attribute.qualified_name.gsub('.','_')}"
+      var_name = Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))
       extra_interest_filter << ", #{var_name}"
-      param_type = attribute.reference? ? attribute.referenced_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.non_primitive_java_type
+      param_type = routing_key.target_attribute.jpa.non_primitive_java_type
 -%>
-          final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+          final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <%
     end
   end

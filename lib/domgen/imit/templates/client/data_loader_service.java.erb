@@ -56,14 +56,13 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 <%
   if graph.filtered?
     graph.routing_keys.each do |routing_key|
-      attribute = routing_key.imit_attribute.attribute
-      var_name = Domgen::Naming.camelize("#{attribute.entity.name}#{attribute.name}")
-      nullable = !graph.instance_root? || !(attribute.entity.qualified_name == graph.instance_root)
-      param_type = attribute.reference? ? attribute.referenced_entity.primary_key.imit.non_primitive_java_type : attribute.imit.non_primitive_java_type
+      var_name = Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))
+      nullable = !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
+      param_type = routing_key.target_attribute.imit.non_primitive_java_type
       extra_interest_filter << ", #{var_name}"
 -%>
       <%= nullability_annotation(nullable) %>
-      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(attribute.qualified_name.gsub('.','_')) %>_KEY );
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <% if !nullable -%>
       assert null != <%= var_name %>;
 <% end -%>

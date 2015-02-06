@@ -39,11 +39,64 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   }
 <% entity.imit.replication_graphs.each do |graph| -%>
 
+<%
+  if graph.filtered?
+    graph.routing_keys.each do |routing_key|
+%>
+  private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, final <%= routing_key.target_attribute.jpa.non_primitive_java_type %> value )
+  {
+    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
+  }
+
+<%
+      unless routing_key.target_nullsafe?
+        a = routing_key.imit_attribute.attribute
+        routing_key.path.each_with_index do |path_element, index|
+-%>
+  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.jpa.qualified_name %> value )
+  {
+<% if a.nullable? -%>
+    if( null != value )
+    {
+<% end -%>
+<% if routing_key.path.size == (index - 1) -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(a) %> );
+<% else -%>
+    put_<%= graph.name %>_<%= routing_key.name %>( map, value.<%= getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name)) %> );
+<% end -%>
+<% if a.nullable? -%>
+    }
+<% end -%>
+  }
+
+<%
+          a = a.referenced_entity.attribute_by_name(path_element)
+        end
+      end
+    end
+  end
+-%>
   private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> entity )
   {
 <% if graph.filtered? -%>
-<% graph.routing_keys.each do |routing_key| -%>
-    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity.<%= getter_for(routing_key.imit_attribute.attribute) %><%= routing_key.imit_attribute.attribute.reference? ? ".#{getter_for(routing_key.imit_attribute.attribute.referenced_entity.primary_key)}" : '' %> );
+<%
+  graph.routing_keys.each do |routing_key|
+    if !routing_key.reference?
+-%>
+    put_<%= graph.name %>_<%= routing_key.name %>( map, entity.<%= getter_for(routing_key.imit_attribute.attribute) %> );
+<% elsif routing_key.target_nullsafe?
+    a = routing_key.imit_attribute.attribute
+    path = [getter_for(a)]
+    routing_key.path.each do |path_element|
+      a = a.referenced_entity.attribute_by_name(path_element)
+      path << getter_for(a)
+    end
+    path << getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name))
+-%>
+    put_<%= graph.name %>_<%= routing_key.name %>( map, entity.<%= path.join('.') %> );
+<% else -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_0( map, entity.<%= getter_for(routing_key.imit_attribute.attribute) %> );
+<% end -%>
 <% end -%>
 <% end -%>
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
