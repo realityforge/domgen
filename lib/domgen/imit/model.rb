@@ -238,7 +238,7 @@ module Domgen
       def initialize(imit_attribute, name, graph, options, &block)
         repository = imit_attribute.attribute.entity.data_module.repository
         unless repository.imit.graph_by_name?(graph)
-          Domgen.error("Graph '#{source_graph}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not exist")
+          Domgen.error("Graph '#{graph}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not exist")
         end
         # unless imit_attribute.attribute.reference?
         #   Domgen.error("Attempted to define a routing key on non-reference attribute '#{imit_attribute.attribute.qualified_name}'")
