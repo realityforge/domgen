@@ -86,7 +86,7 @@ entities.uniq.each do |entity| -%>
   end
 
   if !extra_interest_filter.empty?
-    extra_interest_filter = "&& /* XXX */ _context.is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}#{graph.instance_root? ? ", session.getInterestedIn#{graph.name}().get( #{graph.name} )" : '' }#{extra_interest_filter} ) "
+    extra_interest_filter = "&& _context.is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}#{graph.instance_root? ? ", session.getInterestedIn#{graph.name}().get( #{graph.name} )" : '' }#{extra_interest_filter} ) "
   end
 %>
         if ( null != <%= graph.name %> )
