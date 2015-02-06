@@ -235,9 +235,6 @@ module Domgen
     end
 
     class RoutingKey < Domgen.ParentedElement(:imit_attribute)
-      attr_reader :name
-      attr_reader :graph
-
       def initialize(imit_attribute, name, graph, options, &block)
         repository = imit_attribute.attribute.entity.data_module.repository
         unless repository.imit.graph_by_name?(graph)
@@ -251,6 +248,12 @@ module Domgen
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(graph).send :register_routing_key, self
       end
+
+      # A unique name for routing key within the graph
+      attr_reader :name
+
+      # The graph that routing key is used by
+      attr_reader :graph
     end
 
     class FilterParameter < Domgen.ParentedElement(:graph)
