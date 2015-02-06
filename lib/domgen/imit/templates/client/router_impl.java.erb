@@ -11,7 +11,17 @@ public class <%= repository.imit.client_router_impl_name %>
 -%>
   private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, final <%= routing_key.target_attribute.imit.non_primitive_java_type %> value )
   {
+<% if routing_key.multivalued? -%>
+    java.util.ArrayList<<%= routing_key.target_attribute.imit.non_primitive_java_type %>> keys = (java.util.ArrayList<<%= routing_key.target_attribute.imit.non_primitive_java_type %>>) map.get( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+    if( null == keys )
+    {
+      keys = new java.util.ArrayList<<%= routing_key.target_attribute.imit.non_primitive_java_type %>>();
+      map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, keys );
+    }
+    keys.add( value );
+<% else -%>
     map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
+<% end -%>
   }
 
 <%

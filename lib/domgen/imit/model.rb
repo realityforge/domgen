@@ -308,6 +308,12 @@ module Domgen
         self.reference? ? self.referenced_entity.attribute_by_name(self.attribute_name) : self.imit_attribute.attribute
       end
 
+      attr_writer :multivalued
+
+      def multivalued?
+        @multivalued.nil? ? false : !!@multivalued
+      end
+
       def target_nullsafe?
         return true unless self.reference?
         return self.imit_attribute.attribute.reference? if self.path.size == 0

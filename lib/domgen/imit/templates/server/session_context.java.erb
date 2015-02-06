@@ -18,6 +18,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
     var_name = Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))
     nullable = !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
     param_type = routing_key.target_attribute.jpa.non_primitive_java_type
+    param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
     extra_interest_filter << ", #{nullability_annotation(nullable)} #{param_type} #{var_name}"
   end
   initial_param = ''
