@@ -774,7 +774,7 @@ module Domgen
         graph_links_map.values
       end
 
-      def add_graph_link(source_graph, target_graph, options = {}, &block)
+      def graph_link(source_graph, target_graph, options = {}, &block)
         key = "#{source_graph}->#{target_graph}"
         Domgen.error("Graph link already defined between #{source_graph} and #{target_graph} on attribute '#{attribute.qualified_name}'") if graph_links_map[key]
         graph_links_map[key] = Domgen::Imit::GraphLink.new(self, source_graph, target_graph, options, &block)
