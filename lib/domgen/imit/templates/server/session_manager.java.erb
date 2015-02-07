@@ -349,11 +349,14 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 <% if !graph.instance_root? && !graph.external_data_load? -%>
   private void collect<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages )
   {
+    // Add to a list so that when routing we limit the number of new entities that are loaded during routing
+    final java.util.LinkedList<Object> objects = new java.util.LinkedList<>();
 <% graph.type_roots.each do |type_root_name|
   type = repository.entity_by_name(type_root_name)
 -%>
-    _encoder.encodeObjects( messages, _<%= type.data_module.name %><%= type.name %>Repository.findAll() );
+    objects.addAll( _<%= Domgen::Naming.camelize("#{type.data_module.name}#{type.name}") %>Repository.findAll() );
 <% end -%>
+    _encoder.encodeObjects( messages, objects );
   }
 
 <% end -%>
