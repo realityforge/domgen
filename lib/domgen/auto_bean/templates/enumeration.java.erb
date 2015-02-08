@@ -6,5 +6,5 @@ package <%= to_package(enumeration.auto_bean.qualified_name) %>;
 public enum <%= enumeration.auto_bean.name %>
   implements java.io.Serializable
 {
-  <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>
+  <%= enumeration.values.collect {|k| "#{k.name}" } .join(",\n  ") %>
 }

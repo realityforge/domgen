@@ -12,10 +12,12 @@ package <%= to_package(enumeration.ee.qualified_name) %>;
 <% end -%>
 public enum <%= enumeration.ee.name %>
 {
-  <%= enumeration.values.collect do |k|
-   index = enumeration.values.index(k)
+  <%=
+  index = 0
+  enumeration.values.collect do |k|
    prefix = enumeration.jaxb? ? "@javax.xml.bind.annotation.XmlEnumValue( \"#{enumeration.numeric_values? ? index : k}\" ) " : ""
-  "#{prefix}#{k}"
+   index = index + 1
+  "#{prefix}#{k.name}"
   end.join(",\n  ") %>;
 
 <% if enumeration.jackson? && enumeration.numeric_values? -%>

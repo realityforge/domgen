@@ -5,5 +5,5 @@ package <%= to_package(enumeration.gwt.qualified_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public enum <%= enumeration.gwt.name %>
 {
-  <%= enumeration.values.collect {|k| "#{k}" } .join(",\n  ") %>
+  <%= enumeration.values.collect {|k| "#{k.name}" } .join(",\n  ") %>
 }

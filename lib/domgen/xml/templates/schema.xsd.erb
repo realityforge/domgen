@@ -16,7 +16,7 @@
   <xs:simpleType name="<%= enum.name %>">
     <xs:restriction base="xs:<%= enum.numeric_values? ? 'integer' : 'string' %>">
 <% enum.values.each_with_index do |val, index| -%>
-      <xs:enumeration value="<%= enum.numeric_values? ? index: val %>" />
+      <xs:enumeration value="<%= enum.numeric_values? ? index: val.name %>" />
 <% end -%>
     </xs:restriction>
   </xs:simpleType>

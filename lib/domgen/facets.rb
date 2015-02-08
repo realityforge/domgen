@@ -189,7 +189,7 @@ module Domgen
 
       def valid_source_classes
         {
-          Domgen::EnumerationSet => :enumeration,
+          Domgen::EnumerationSet => :enumeration, Domgen::EnumerationValue => :enumeration_value,
           Domgen::Struct => :struct, Domgen::StructField => :field,
           Domgen::Entity => :entity, Domgen::Attribute => :attribute, Domgen::InverseElement => :inverse,
           Domgen::DataAccessObject => :dao, Domgen::Query => :query, Domgen::QueryParameter => :parameter,
@@ -297,7 +297,8 @@ module Domgen
           Domgen::MessageParameter => [],
           Domgen::Struct => [:fields],
           Domgen::StructField => [],
-          Domgen::EnumerationSet => [],
+          Domgen::EnumerationSet => [:values],
+          Domgen::EnumerationValue => [],
           Domgen::Entity => [:declared_attributes],
           Domgen::DataAccessObject => [:queries],
           Domgen::Attribute => [:inverse],

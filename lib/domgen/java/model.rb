@@ -176,7 +176,7 @@ module Domgen
             return "#{characteristic.enumeration.facet(characteristic_group.enumeration_key).qualified_name}.#{characteristic.enumeration.values[0]}"
           else #if :transport == modality
             if characteristic.enumeration.textual_values?
-              return "\"#{characteristic.enumeration.values[0]}\""
+              return "\"#{characteristic.enumeration.values[0].name}\""
             else
               return "0"
             end

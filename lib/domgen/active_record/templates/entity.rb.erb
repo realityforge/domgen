@@ -13,11 +13,11 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
        if !a.generated_value?
          if a.enumeration?
            a.enumeration.values.each_with_index do |k,index|
-%>  <%= a.name %>_<%= ruby_name(k) %> = <%= a.enumeration.numeric_values? ? index : k.inspect %>
-  <%= a.name %>_<%= ruby_name(k) %>_Description = '<%= k %>'
+%>  <%= a.name %>_<%= ruby_name(k.name) %> = <%= a.enumeration.numeric_values? ? index : k.name.inspect %>
+  <%= a.name %>_<%= ruby_name(k.name) %>_Description = '<%= k.name %>'
 <%         end
-%>  <%= a.name %>Names = {<%= a.enumeration.values.collect{|k| "#{a.name}_#{ruby_name(k)} => #{a.name}_#{ruby_name(k)}_Description"}.join(', ') %>}
-  <%= a.name %>Values = [<%= a.enumeration.values.collect{|k| "#{a.name}_#{ruby_name(k)}"}.join(', ') %>]
+%>  <%= a.name %>Names = {<%= a.enumeration.values.collect{|k| "#{a.name}_#{ruby_name(k.name)} => #{a.name}_#{ruby_name(k.name)}_Description"}.join(', ') %>}
+  <%= a.name %>Values = [<%= a.enumeration.values.collect{|k| "#{a.name}_#{ruby_name(k.name)}"}.join(', ') %>]
   validates_inclusion_of :<%= a.sql.column_name %>, :in => <%= a.name %>Values<% if a.nullable? %>, :allow_nil => true <% end %>
 <%
          end

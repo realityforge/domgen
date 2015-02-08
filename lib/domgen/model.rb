@@ -249,6 +249,17 @@ module Domgen
     attr_reader :srid
   end
 
+  class EnumerationValue < self.FacetedElement(:enumeration_set)
+    attr_reader :name
+    attr_reader :enumeration_set
+
+    def initialize(enumeration_set, name, options = {}, &block)
+      @name = name
+      enumeration_set.send :register_enumeration_value, name, self
+      super(enumeration_set, options, &block)
+    end
+  end
+
   class EnumerationSet < self.FacetedElement(:data_module)
     include GenerateFacet
 
@@ -281,7 +292,13 @@ module Domgen
       self.enumeration_type == :text
     end
 
-    attr_reader :values
+    def value_map
+      @values ||= Domgen::OrderedHash.new
+    end
+
+    def values
+      value_map.values
+    end
 
     def values=(values)
       Domgen.error("More than 0 values must be specified for enumeration #{name}") if values.size == 0
@@ -289,12 +306,19 @@ module Domgen
         Domgen.error("Key #{k} of enumeration #{name} should be a string") unless k.instance_of?(String)
       end
       Domgen.error("Duplicate keys detected for enumeration #{name}") if values.uniq.size != values.size
-      @values = values
+      values.each do |v|
+        self.value(v)
+      end
+    end
+
+    def value(name, options = {})
+      Domgen.error("Duplicate value defined enumeration #{name}") if value_map[name.to_s]
+      value_map[name.to_s] = Domgen::EnumerationValue.new(self, name, options)
     end
 
     def max_value_length
       Domgen.error("max_value_length invoked on numeric enumeration") if numeric_values?
-      values.inject(0) { |max, value| max > value.length ? max : value.length }
+      values.inject(0) { |max, value| max > value.name.length ? max : value.name.length }
     end
 
     def self.enumeration_types
@@ -304,6 +328,13 @@ module Domgen
     def to_s
       "EnumerationSet[#{self.qualified_name}]"
     end
+
+    protected
+
+    def register_enumeration_value(name, enumeration_value)
+      value_map[name] = enumeration_value
+    end
+
   end
 
   class QueryParameter < Domgen.FacetedElement(:query)

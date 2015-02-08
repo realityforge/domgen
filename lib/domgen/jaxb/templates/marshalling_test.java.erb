@@ -13,10 +13,10 @@ public class <%= repository.jaxb.marshalling_test_name %>
     throws Exception
   {
     final java.io.StringWriter xml = new java.io.StringWriter();
-    final <%= enumeration.ee.qualified_name %> input = <%= enumeration.ee.qualified_name %>.<%= enumeration.values[0] %>;
+    final <%= enumeration.ee.qualified_name %> input = <%= enumeration.ee.qualified_name %>.<%= enumeration.values[0].name %>;
     javax.xml.bind.JAXB.marshal( input, xml );
     final String data = xml.toString();
-    org.testng.Assert.assertTrue( data.contains( "><%= enumeration.numeric_values? ? '0' : enumeration.values[0] %><" ) );
+    org.testng.Assert.assertTrue( data.contains( "><%= enumeration.numeric_values? ? '0' : enumeration.values[0].name %><" ) );
 <% if enumeration.top_level? -%>
     final javax.xml.validation.SchemaFactory schemaFactory = javax.xml.validation.SchemaFactory.newInstance( javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI );
     final java.net.URL resource = getClass().getResource( "/<%= data_module.xml.resource_xsd_name %>" );
@@ -39,7 +39,7 @@ def create_parameter_value(p, parent_context = nil)
     elsif p.boolean?
       "true"
     elsif p.enumeration?
-      "#{p.enumeration.ee.qualified_name}.#{p.enumeration.values[0]}"
+      "#{p.enumeration.ee.qualified_name}.#{p.enumeration.values[0].name}"
     elsif p.struct?
       if parent_context == p.referenced_struct
         type_spec = "<#{p.referenced_struct.ee.qualified_name}>"

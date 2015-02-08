@@ -17,7 +17,7 @@ def java_characteristic_fixture(p, parent_context = nil)
     elsif p.boolean?
       "true"
     elsif p.enumeration?
-      "#{p.enumeration.ee.qualified_name}.#{p.enumeration.values[0]}"
+      "#{p.enumeration.ee.qualified_name}.#{p.enumeration.values[0].name}"
     elsif p.struct?
       if parent_context == p.referenced_struct
         type_spec = "<#{p.referenced_struct.ee.qualified_name}>"
@@ -52,7 +52,7 @@ def jws_characteristic_fixture(service, p, force_singular = false)
     elsif p.boolean?
       "true"
     elsif p.enumeration?
-      "#{p.method.service.jws.api_package}.#{p.enumeration.name}.#{p.enumeration.values[0]}"
+      "#{p.method.service.jws.api_package}.#{p.enumeration.name}.#{p.enumeration.values[0].name}"
     elsif p.struct?
       "convert( #{service.jws.api_package}.#{p.referenced_struct.name}.class, #{java_create_struct(p.referenced_struct, p.characteristic_container)} )"
     elsif p.datetime?
