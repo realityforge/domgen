@@ -258,6 +258,16 @@ module Domgen
       enumeration_set.send :register_enumeration_value, name, self
       super(enumeration_set, options, &block)
     end
+
+    def value=(value)
+      raise "value= invoked on #{name} enumeration value of #{enumeration_set.qualified_name} when not a text value" unless enumeration_set.textual_values?
+      @value = value
+    end
+
+    def value
+      raise "value invoked on #{name} enumeration value of #{enumeration_set.qualified_name} when not a text value" unless enumeration_set.textual_values?
+      @value.nil? ? name.to_s : @value
+    end
   end
 
   class EnumerationSet < self.FacetedElement(:data_module)
@@ -317,8 +327,8 @@ module Domgen
     end
 
     def max_value_length
-      Domgen.error("max_value_length invoked on numeric enumeration") if numeric_values?
-      values.inject(0) { |max, value| max > value.name.length ? max : value.name.length }
+      Domgen.error("max_value_length invoked on numeric enumeration #{qualified_name}") if numeric_values?
+      values.inject(0) { |max, value| max > value.value.length ? max : value.value.length }
     end
 
     def self.enumeration_types

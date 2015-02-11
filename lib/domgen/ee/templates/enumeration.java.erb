@@ -47,4 +47,48 @@ public enum <%= enumeration.ee.name %>
   }
 
 <% end -%>
+<% if enumeration.jpa? && enumeration.jpa.requires_converter? -%>
+  @javax.persistence.Converter
+  public static class Converter
+    implements javax.persistence.AttributeConverter<<%= enumeration.ee.name %>, java.lang.String>
+  {
+    @java.lang.Override
+    public <%= enumeration.ee.name %> convertToEntityAttribute( final java.lang.String data )
+    {
+      if ( null == data )
+      {
+        return null;
+      }
+<% enumeration.values.each do |enum_value| -%>
+      else if ( "<%= enum_value.value %>".equals( data ) )
+      {
+        return <%= enumeration.ee.name %>.<%= enum_value.name %>;
+      }
+<% end -%>
+      else
+      {
+        throw new java.lang.IllegalStateException();
+      }
+    }
+
+    @java.lang.Override
+    public java.lang.String convertToDatabaseColumn( final <%= enumeration.ee.name %> value )
+    {
+      if ( null == value )
+      {
+        return null;
+      }
+<% enumeration.values.each do |enum_value| -%>
+      else if ( <%= enumeration.ee.name %>.<%= enum_value.name %>.equals( value ) )
+      {
+        return "<%= enum_value.value %>";
+      }
+<% end -%>
+      else
+      {
+        throw new java.lang.IllegalStateException();
+      }
+    }
+  }
+<% end -%>
 }

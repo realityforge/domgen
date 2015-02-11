@@ -298,6 +298,12 @@ module Domgen
       end
     end
 
+    facet.enhance(EnumerationSet) do
+      def requires_converter?
+        enumeration.textual_values? && enumeration.values.any?{|v| v.name != v.value}
+      end
+    end
+
     facet.enhance(Attribute) do
       include Domgen::JPA::BaseJpaField
 
@@ -318,6 +324,7 @@ module Domgen
 
       def converter
         return nil if attribute.reference?
+        return "#{attribute.enumeration.ee.qualified_name}.Converter" if attribute.enumeration? && attribute.enumeration.jpa.requires_converter?
         return nil if attribute.enumeration?
         @converter ||
           attribute.characteristic_type.jpa.converter ||
