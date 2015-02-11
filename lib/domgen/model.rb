@@ -313,7 +313,7 @@ module Domgen
     def values=(values)
       Domgen.error("More than 0 values must be specified for enumeration #{name}") if values.size == 0
       values.each do |k|
-        Domgen.error("Key #{k} of enumeration #{name} should be a string") unless k.instance_of?(String)
+        Domgen.error("Key #{k} of enumeration #{qualified_name} should be a string") unless k.instance_of?(String)
       end
       Domgen.error("Duplicate keys detected for enumeration #{name}") if values.uniq.size != values.size
       values.each do |v|
@@ -322,7 +322,7 @@ module Domgen
     end
 
     def value(name, options = {})
-      Domgen.error("Duplicate value defined enumeration #{name}") if value_map[name.to_s]
+      Domgen.error("Duplicate value defined enumeration #{qualified_name}") if value_map[name.to_s]
       value_map[name.to_s] = Domgen::EnumerationValue.new(self, name, options)
     end
 
