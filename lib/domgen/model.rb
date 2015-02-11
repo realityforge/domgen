@@ -323,7 +323,7 @@ module Domgen
 
     def value(name, options = {})
       Domgen.error("Duplicate value defined enumeration #{qualified_name}") if value_map[name.to_s]
-      value_map[name.to_s] = Domgen::EnumerationValue.new(self, name, options)
+      Domgen::EnumerationValue.new(self, name, options)
     end
 
     def max_value_length
@@ -342,7 +342,7 @@ module Domgen
     protected
 
     def register_enumeration_value(name, enumeration_value)
-      value_map[name] = enumeration_value
+      value_map[name.to_s] = enumeration_value
     end
 
   end
