@@ -42,7 +42,7 @@ module Domgen
         s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? "TIMESTAMP" : "DATE"} )\n" if attribute.datetime? || attribute.date?
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         converter = attribute.jpa.converter
-        s << "  @javax.persistence.Convert( converter = #{converter}.class )\n" if converter
+        s << "  @javax.persistence.Convert( converter = #{converter.gsub('$','.')}.class )\n" if converter
 
         unless jpa_nullable_annotation?(attribute)
           is_nonnull = !jpa_nullable?(attribute) && attribute.immutable?

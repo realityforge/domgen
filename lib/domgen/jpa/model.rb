@@ -324,7 +324,7 @@ module Domgen
 
       def converter
         return nil if attribute.reference?
-        return "#{attribute.enumeration.ee.qualified_name}.Converter" if attribute.enumeration? && attribute.enumeration.jpa.requires_converter?
+        return "#{attribute.enumeration.ee.qualified_name}$Converter" if attribute.enumeration? && attribute.enumeration.jpa.requires_converter?
         return nil if attribute.enumeration?
         @converter ||
           attribute.characteristic_type.jpa.converter ||
