@@ -55,9 +55,11 @@ public class <%= repository.imit.router_impl_name %>
     if( null != value )
     {
 <% end -%>
-    route_<%= graph.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value.<%= getter_for(next_attribute) %> );
 <% if routing_key.is_path_element_recursive?(path_element) -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value );
     route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(next_attribute) %> );
+<% else -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value.<%= getter_for(next_attribute) %> );
 <% end -%>
 <% if a.nullable? -%>
     }
