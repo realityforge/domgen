@@ -41,7 +41,9 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
       final <%= Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) rawFilter;
       assert null != filter;
       final Object entity = getRepository().getByID( entityType, entityID );
+<% if graph.instance_root? || (graph.filtered? && graph.routing_keys.size > 0) -%>
       final java.util.Map<java.lang.String, java.io.Serializable> route = _router.route( entity );
+<% end -%>
 <%
   extra_interest_filter = ''
   if graph.instance_root?
