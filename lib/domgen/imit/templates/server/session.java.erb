@@ -196,34 +196,39 @@ else
 <% repository.imit.graphs.select{|graph| graph.instance_root? && !graph.filter_parameter.nil? }.each do |graph| -%>
       if ( subscriptionsFilter.allow( "<%= graph.name %>" ) )
       {
+        final org.realityforge.rest.field_filter.FieldFilter <%= graph.name %>Filter = subscriptionsFilter.subFilter( "<%= graph.name %>" );
         g.writeStartObject( "<%= graph.name %>" );
         for ( final java.util.Map.Entry<<%= repository.entity_by_name(graph.instance_root).primary_key.jpa.java_type %>, <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>> entry : _interestedIn<%= graph.name %>.entrySet() )
         {
+          final String key = String.valueOf( entry.getKey() );
+          if ( <%= graph.name %>Filter.allow( key ) )
+          {
 <% if graph.filter_parameter.nullable? -%>
-          if( null == entry.getValue() )
-          {
-            g.writeNull( String.valueOf( entry.getKey() ) );
-          }
-          else
-          {
+            if( null == entry.getValue() )
+            {
+              g.writeNull( key );
+            }
+            else
+            {
 <% end -%>
 <% if Domgen::Java.primitive?(graph.filter_parameter, :ee, :default) -%>
-          g.write( String.valueOf( entry.getKey() ), entry.getValue() );
+            g.write( key, entry.getValue() );
 <% else -%>
-          {
-              final java.io.StringWriter writer = new java.io.StringWriter();
-              try { c_jsonMapper.writeValue( writer, entry.getValue() ); }
-              catch ( final java.io.IOException ioe ) {}
-              writer.flush();
-              final javax.json.JsonReader reader =
-                javax.json.Json.createReader( new java.io.StringReader( writer.toString() ) );
-              g.write( String.valueOf( entry.getKey() ), reader.read() );
-              reader.close();
-          }
+            {
+                final java.io.StringWriter writer = new java.io.StringWriter();
+                try { c_jsonMapper.writeValue( writer, entry.getValue() ); }
+                catch ( final java.io.IOException ioe ) {}
+                writer.flush();
+                final javax.json.JsonReader reader =
+                  javax.json.Json.createReader( new java.io.StringReader( writer.toString() ) );
+                g.write( key, reader.read() );
+                reader.close();
+            }
 <% end -%>
 <% if graph.filter_parameter.nullable? -%>
-          }
+            }
 <% end -%>
+          }
         }
         g.writeEnd();
       }
@@ -253,8 +258,11 @@ else
       {
         final org.realityforge.rest.field_filter.FieldFilter <%= graph.name %>Filter = subscriptionsFilter.subFilter( "<%= graph.name %>" );
         g.writeStartObject( "<%= graph.name %>" );
-        g.write( "subscribed", _interestedIn<%= graph.name %> );
-        if( _interestedIn<%= graph.name %> )
+        if ( <%= graph.name %>Filter.allow( "subscribed" ) )
+        {
+          g.write( "subscribed", _interestedIn<%= graph.name %> );
+        }
+        if( _interestedIn<%= graph.name %> && <%= graph.name %>Filter.allow( "filter" ) )
         {
 <% if graph.filter_parameter.nullable? -%>
           if( null == _<%= graph.name %>Filter )
