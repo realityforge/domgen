@@ -23,6 +23,13 @@ public class <%= repository.imit.data_loader_service_name %>
 
   @javax.annotation.Nonnull
   @java.lang.Override
+  protected Class<<%= repository.imit.qualified_graph_enum_name %>> getGraphType()
+  {
+    return <%= repository.imit.qualified_graph_enum_name %>.class;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
   protected String getSystemKey()
   {
     return "<%= repository.name %>";
