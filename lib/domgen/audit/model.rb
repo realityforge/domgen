@@ -47,7 +47,7 @@ module Domgen
 
             original_entity.jpa.table_name = "vw#{original_entity.name}"
             original_entity.primary_key.sql.generator_type = :sequence
-            original_entity.datetime(:AuditEndAt, :set_once => true, :nullable => true, 'jpa.persistent' => false) do |a|
+            original_entity.datetime(:AuditStartAt, :immutable => true, 'jpa.persistent' => false) do |a|
               a.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
             end
             end_at_attribute = original_entity.datetime(:AuditEndAt, :set_once => true, :nullable => true, 'jpa.persistent' => false) do |a|
