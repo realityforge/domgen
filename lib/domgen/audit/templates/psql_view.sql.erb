@@ -28,14 +28,14 @@ AS $function$
         RETURN NEW;
       ELSIF TG_OP = 'UPDATE' THEN
         UPDATE <%= entity.sql.qualified_table_name %>
-          SET <%= update_columns.collect{|c| "#{c} = NEW.#{c}" }.join(', ') %>
+          SET "AuditLastModifiedAt" = current_timestamp, <%= update_columns.collect{|c| "#{c} = NEW.#{c}" }.join(', ') %>
           WHERE <%= entity.primary_key.sql.quoted_column_name %> = OLD.<%= entity.primary_key.sql.quoted_column_name %>;
         INSERT INTO <%= entity.data_module.sql.quoted_schema %>.<%= entity.sql.dialect.quote("#{entity.sql.table_name}History") %>("Op", <%= entity.sql.dialect.quote("#{entity.name}#{entity.primary_key.sql.column_name}") %>, <%= update_columns.join(', ') %>, "SnapshotAt")
           VALUES ('U', OLD.<%= entity.primary_key.sql.quoted_column_name %>, <%= update_columns.collect{|c| "NEW.#{c}" }.join(', ') %>, current_timestamp);
        RETURN NEW;
       ELSIF TG_OP = 'DELETE' THEN
         UPDATE <%= entity.sql.qualified_table_name %>
-          SET "AuditEndAt" = current_timestamp
+          SET "AuditLastModifiedAt" = current_timestamp, "AuditEndAt" = current_timestamp
           WHERE <%= entity.primary_key.sql.quoted_column_name %> = OLD.<%= entity.primary_key.sql.quoted_column_name %>;
         INSERT INTO <%= entity.data_module.sql.quoted_schema %>.<%= entity.sql.dialect.quote("#{entity.sql.table_name}History") %>("Op", <%= entity.sql.dialect.quote("#{entity.name}#{entity.primary_key.sql.column_name}") %>, <%= update_columns.join(', ') %>, "SnapshotAt")
           VALUES ('D', OLD.<%= entity.primary_key.sql.quoted_column_name %>, <%= update_columns.collect{|c| "OLD.#{c}" }.join(', ') %>, current_timestamp);
