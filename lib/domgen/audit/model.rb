@@ -14,7 +14,7 @@
 
 module Domgen
   class Audit
-    VALID_HISTORY_FACETS = [:sql, :audit]
+    VALID_HISTORY_FACETS = [:sql, :audit, :pgsql, :mssql]
   end
 
   FacetManager.facet(:audit => [:sql]) do |facet|
@@ -47,7 +47,7 @@ module Domgen
 
             original_entity.jpa.table_name = "vw#{original_entity.name}"
             original_entity.primary_key.sql.generator_type = :sequence
-            original_entity.datetime(:AuditStartAt, :immutable => true, 'jpa.persistent' => false) do |a|
+            end_at_attribtue = original_entity.datetime(:AuditEndAt, :set_once => true, :nullable => true, 'jpa.persistent' => false) do |a|
               a.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
             end
             original_entity.datetime(:AuditEndAt, :set_once => true, :nullable => true, 'jpa.persistent' => false) do |a|
@@ -59,7 +59,7 @@ module Domgen
               a.disable_facets_not_in(Domgen::Audit::VALID_HISTORY_FACETS)
             end
             original_entity.unique_constraints.each do |c|
-              original_entity.sql.index(c.attribute_names, {:unique => true, :filter => 'AuditEndAt IS NULL'}, true)
+              original_entity.sql.index(c.attribute_names, {:unique => true, :filter => "#{end_at_attribtue.sql.quoted_column_name} IS NULL"}, true)
             end
 
             data_module.entity("#{original_entity.name}#{table_suffix}") do |e|
