@@ -242,7 +242,9 @@ module Domgen
       attr_writer :cacheable
 
       def cacheable?
-        @cacheable.nil? ? entity.read_only? : @cacheable
+        return @cacheable unless @cacheable.nil?
+        return true if entity.read_only?
+        entity.attributes.all?{|a| a.immutable? || a.primary_key? }
       end
 
       attr_writer :detachable
