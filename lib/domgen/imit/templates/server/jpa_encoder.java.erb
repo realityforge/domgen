@@ -13,6 +13,76 @@ public class <%= repository.imit.jpa_encoder_name %>
   {
   }
 
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.each do |entity|
+    if entity.imit? && !entity.abstract?
+-%>
+  public static void encodeEntity<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final int channelID, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nullable final String subChannelColumn )
+    throws java.sql.SQLException
+  {
+    try ( final java.sql.ResultSet resultSet = statement.executeQuery() )
+    {
+      encodeEntity<%= entity.name %>( changeSet, channelID, resultSet, subChannelColumn );
+    }
+  }
+
+  public static void encodeEntity<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final int channelID, @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nullable final String subChannelColumn )
+    throws java.sql.SQLException
+  {
+    while ( resultSet.next() )
+    {
+      final java.util.HashMap<String, java.io.Serializable> attributeValues = new java.util.HashMap<>();
+<% entity.attributes.select{|a| a.imit?}.each do |attribute|
+    a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
+    type_suffix = 'Object'
+    type_suffix = 'Int' if a.integer?
+    type_suffix = 'Long' if a.long?
+    type_suffix = 'Boolean' if a.boolean?
+    type_suffix = 'Date' if a.datetime? || a.date?
+    type_suffix = 'String' if a.text?
+    type_suffix = 'Double' if a.real?
+
+    value_converter =
+        if attribute.imit.transport_characteristic_type_key == :datetime
+          "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.getTime() )"
+        elsif attribute.imit.transport_characteristic_type_key == :date
+          "( ( null == $#{attribute.name} ) ? null : org.realityforge.gwt.datatypes.client.date.RDate.fromDate( $#{attribute.name} ).toString() )"
+        elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_characteristic_type_key)
+          if attribute.nullable?
+            "( ( null == $#{attribute.name} ) ? null : $#{attribute.name} )"
+          else
+            "$#{attribute.name}"
+          end
+        elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
+          "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.name() )"
+        elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
+          "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.ordinal() )"
+        else
+          Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
+        end
+
+-%>
+      final <%= attribute.jpa.java_type(:boundary) %> $<%= attribute.name %> = resultSet.get<%= type_suffix %>( "<%= attribute.sql.column_name %>" );
+      attributeValues.put( "<%= attribute.name %>", <%= value_converter %> );
+<% end -%>
+      final org.realityforge.replicant.server.EntityMessage entityMessage =
+        new org.realityforge.replicant.server.EntityMessage( $<%= entity.primary_key.name %>,
+                                                             <%= repository.imit.qualified_message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(entity.name.to_s) %>,
+                                                             0,
+                                                             new java.util.HashMap<String, java.io.Serializable>(),
+                                                             attributeValues,
+                                                             null );
+      changeSet.merge( new org.realityforge.replicant.server.Change( entityMessage, channelID, null != subChannelColumn ? (java.io.Serializable) resultSet.getObject( subChannelColumn ) : null ) );
+    }
+  }
+
+<%
+    end
+  end
+end
+-%>
+
 <% repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module| -%>
 <% data_module.entities.select { |entity| entity.imit?  }.each do |entity| -%>
 <% if !entity.abstract? %>
