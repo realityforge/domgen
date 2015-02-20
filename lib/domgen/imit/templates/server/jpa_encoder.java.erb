@@ -12,22 +12,22 @@ public class <%= repository.imit.jpa_encoder_name %>
   private <%= repository.imit.jpa_encoder_name %>()
   {
   }
-
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.each do |entity|
     if entity.imit? && !entity.abstract?
 -%>
-  public static void encodeEntity<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final int channelID, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nullable final String subChannelColumn )
+
+  public static void encode<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nullable final String subChannelColumn )
     throws java.sql.SQLException
   {
     try ( final java.sql.ResultSet resultSet = statement.executeQuery() )
     {
-      encodeEntity<%= entity.name %>( changeSet, channelID, resultSet, subChannelColumn );
+      encode<%= entity.name %>( changeSet, graph, resultSet, subChannelColumn );
     }
   }
 
-  public static void encodeEntity<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final int channelID, @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nullable final String subChannelColumn )
+  private static void encode<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nullable final String subChannelColumn )
     throws java.sql.SQLException
   {
     while ( resultSet.next() )
