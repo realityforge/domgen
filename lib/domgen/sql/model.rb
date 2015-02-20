@@ -385,6 +385,22 @@ module Domgen
           end
         end
       end
+
+      attr_writer :sql_driver
+
+      def sql_driver
+        if @sql_driver.nil?
+          @sql_driver =
+            if self.repository.pgsql?
+              'org.postgresql.Driver'
+            elsif self.repository.mssql?
+              'net.sourceforge.jtds.jdbc.Driver'
+            else
+              raise 'No default SQL driver available, specify one with repository.sql.sql_driver = "your.driver.here"'
+            end
+        end
+        @sql_driver
+      end
     end
 
     facet.enhance(DataModule) do
