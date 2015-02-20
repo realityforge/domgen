@@ -18,10 +18,10 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
-      java_artifact :complete_module, :test, :server, :jpa, '#{repository.name}Module', :sub_package => 'util'
-      java_artifact :services_module, :test, :server, :jpa, '#{repository.name}ServicesModule', :sub_package => 'util'
-      java_artifact :aggregate_service_test, :test, :server, :jpa, '#{repository.name}AggregateServiceTest', :sub_package => 'util'
-      java_artifact :abstract_service_test, :test, :server, :jpa, 'Abstract#{repository.name}ServiceTest', :sub_package => 'util'
+      java_artifact :complete_module, :test, :server, :ejb, '#{repository.name}Module', :sub_package => 'util'
+      java_artifact :services_module, :test, :server, :ejb, '#{repository.name}ServicesModule', :sub_package => 'util'
+      java_artifact :aggregate_service_test, :test, :server, :ejb, '#{repository.name}AggregateServiceTest', :sub_package => 'util'
+      java_artifact :abstract_service_test, :test, :server, :ejb, 'Abstract#{repository.name}ServiceTest', :sub_package => 'util'
 
       def extra_test_modules
         @extra_test_modules ||= []
