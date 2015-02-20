@@ -43,6 +43,8 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     type_suffix = 'String' if a.text?
     type_suffix = 'Double' if a.real?
 
+    db_type = attribute.jpa.java_type(:boundary)
+
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :datetime
           "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.getTime() )"
@@ -55,15 +57,26 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
             "$#{attribute.name}"
           end
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
-          "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.name() )"
+          db_type = 'java.lang.String'
+          type_suffix = 'String'
+          if attribute.nullable?
+            "( ( null == $#{attribute.name} ) ? null : $#{attribute.name} )"
+          else
+            "$#{attribute.name}"
+          end
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
-          "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.ordinal() )"
+          db_type = 'java.lang.Integer'
+          if attribute.nullable?
+            "( ( null == $#{attribute.name} ) ? null : $#{attribute.name} )"
+          else
+            "$#{attribute.name}"
+          end
         else
           Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
         end
 
 -%>
-      final <%= attribute.jpa.java_type(:boundary) %> $<%= attribute.name %> = resultSet.get<%= type_suffix %>( "<%= attribute.sql.column_name %>" );
+      final <%= db_type %> $<%= attribute.name %> = (<%= db_type %>) resultSet.get<%= type_suffix %>( "<%= attribute.sql.column_name %>" );
       attributeValues.put( "<%= attribute.name %>", <%= value_converter %> );
 <% end -%>
       final org.realityforge.replicant.server.EntityMessage entityMessage =
