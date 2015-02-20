@@ -391,10 +391,10 @@ module Domgen
       def sql_driver
         if @sql_driver.nil?
           @sql_driver =
-            if self.repository.facet_enabled?(:pgsql)
-              "org.postgresql.Driver"
-            elsif self.repository.facet_enabled?(:mssql)
-              "net.sourceforge.jtds.jdbc.Driver"
+            if self.repository.pgsql?
+              'org.postgresql.Driver'
+            elsif self.repository.mssql?
+              'net.sourceforge.jtds.jdbc.Driver'
             else
               raise 'No default SQL driver available, specify one with repository.sql.sql_driver = "your.driver.here"'
             end
