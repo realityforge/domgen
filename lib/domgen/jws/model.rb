@@ -179,6 +179,16 @@ module Domgen
 
       include Domgen::Java::EEJavaCharacteristic
 
+      attr_writer :empty_list_to_null
+
+      def empty_list_to_null?
+        @empty_list_to_null.nil? ? false : !!@empty_list_to_null
+      end
+
+      def post_verify
+        raise "Parameter '#{parameter.qualified_name}' is a nullable collection without 'jws.empty_list_to_null' property set to true. This is unsupported in the jws facet." if parameter.nullable? && parameter.collection? && !empty_list_to_null?
+      end
+
       protected
 
       def characteristic

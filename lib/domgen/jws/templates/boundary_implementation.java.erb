@@ -14,7 +14,7 @@ public class <%= service.jws.boundary_implementation_name %>
   private <%= service.ejb.qualified_boundary_interface_name %> _service;
 
 <% service.methods.each do |method|
-%>  public <%= annotated_type(method.return_value, :jws, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :jws, :boundary)} #{p.name}" }.join(', ') %>)<%=
+%>  public <%= annotated_type(method.return_value, :jws, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :jws, :boundary, :nullable => (p.collection? ? false : p.nullable?))} #{p.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.jws.qualified_name}.join(', ')}"
 %><%
   return_prefix = method.return_value.return_type == :void ? '' : 'return '
@@ -24,7 +24,13 @@ public class <%= service.jws.boundary_implementation_name %>
     try
     {
 <% end -%>
-    <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect {|parameter| parameter.name }.join(', ') %>);
+    <%= return_prefix  %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect {|parameter|
+    if parameter.nullable? && parameter.collection? && parameter.jws.empty_list_to_null?
+      "#{parameter.name}.isEmpty() ? null : #{parameter.name}"
+    else
+      parameter.name
+    end
+     }.join(', ') %>);
 <% if method.exceptions.size > 0 -%>
     }
 <% method.exceptions.each do |exception| -%>
