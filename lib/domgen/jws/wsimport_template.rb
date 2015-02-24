@@ -63,17 +63,17 @@ module Domgen
 
       def wsdl2java(base_dir, service_name, output_package, target_version, wsdl_filename, wsdl_location)
         command = []
-        command << "wsimport"
-        command << "-keep"
-        command << "-Xnocompile"
-        command << "-target"
+        command << 'wsimport'
+        command << '-keep'
+        command << '-Xnocompile'
+        command << '-target'
         command << target_version
-        command << "-s"
+        command << '-s'
         command << base_dir
-        command << "-p"
+        command << '-p'
         command << output_package
         if wsdl_location
-          command << "-wsdllocation"
+          command << '-wsdllocation'
           command << wsdl_location
         end
         command << wsdl_filename
