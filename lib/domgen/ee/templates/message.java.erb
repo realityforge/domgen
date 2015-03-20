@@ -2,7 +2,7 @@
 package <%= to_package(message.ee.qualified_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2", "DLS_DEAD_LOCAL_STORE"})
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UselessParentheses" } )
 public class <%= message.ee.name %>
   implements java.io.Serializable
