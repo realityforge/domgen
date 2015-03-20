@@ -872,8 +872,8 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       override = false
       if characteristic_map[name.to_s]
-        Domgen.error("Attempting to override non abstract attribute #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
-        # nil out atribute so the characteristic container will not complain about it overriding an existing value
+        Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}") if !characteristic_map[name.to_s].abstract?
+        # nil out attribute so the characteristic container will not complain about it overriding an existing value
         characteristic_map[name.to_s] = nil
         override = true
       end
@@ -891,9 +891,9 @@ module Domgen
         end
       end
 
-      Domgen.error("Entity #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
+      Domgen.error("Entity #{qualified_name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
       attributes.each do |a|
-        Domgen.error("Abstract attribute #{a.name} on non abstract object type #{name}") if !abstract? && a.abstract?
+        Domgen.error("Abstract attribute #{a.name} on non abstract object type #{qualified_name}") if !abstract? && a.abstract?
       end
     end
 
