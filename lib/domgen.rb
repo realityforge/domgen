@@ -136,3 +136,7 @@ require 'domgen/auto_bean/generator'
 # Database level auditing
 require 'domgen/audit/model'
 require 'domgen/audit/generator'
+
+# Database level synchronization
+require 'domgen/sync/model'
+require 'domgen/sync/generator'

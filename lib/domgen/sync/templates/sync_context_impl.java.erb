@@ -1,0 +1,96 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.sync.qualified_sync_context_impl_name) %>;
+
+/**
+
+ Base class to extend to customize the synchronization process.
+
+<code>
+<pre>
+@Singleton( name = SynchronizationContext.NAME )
+@TransactionManagement( TransactionManagementType.BEAN )
+@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
+@Local( SynchronizationContext.class )
+public class SynchronizationContextEJB
+  extends AbstractSynchronizationContext
+{
+}
+</pre>
+</code>
+ */
+public abstract class <%= data_module.sync.sync_context_impl_name %>
+  implements <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>
+{
+<% data_module.sync.entities_to_synchronize.each do |entity| -%>
+<% entity.attributes.select{|a| a.sync? && a.sync.custom_transform? }.each do |attribute| -%>
+  <%= nullability_annotation(attribute.nullable?) %>
+  @java.lang.Override
+  public <%= attribute.jpa.java_type(:boundary) %> transform<%= entity.data_module.name %><%= entity.name %><%= attribute.name %>( <%= nullability_annotation(attribute.nullable?) %> final <%= attribute.jpa.java_type(:boundary) %> value )
+  {
+<% if attribute.sync.custom_transform? || !attribute.reference? -%>
+    return value;
+<% else -%>
+<% if attribute.nullable? -%>
+    if ( null == value )
+    {
+      return null;
+    }
+    else
+    {
+<% end -%>
+      return (Integer) _entityManager.
+        createNativeQuery( "SELECT <%= entity.sync.master_entity.attribute_by_name( attribute.primary_key? ? attribute.entity.name : attribute.name ).sql.quoted_column_name %> FROM <%= entity.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('MasterID') %> = ?1" ).
+        setParameter( 1, value ).
+        getSingleResult();
+<% if attribute.nullable? -%>
+    }
+<% end -%>
+<% end -%>
+  }
+
+<% end -%>
+
+  @javax.annotation.Nonnull
+  protected String get<%= entity.data_module.name %><%= entity.name %>Columns( @javax.annotation.Nullable final String prefix )
+  {
+    return
+<% entity.attributes.select{|a| a.sync? && a.sql? && a.jpa? }.each do |a| -%>
+      ( null == prefix ? "" : prefix + "." ) + "<%= entity.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.name : a.name ).sql.quoted_column_name %>, " +
+<% end -%>
+      ( null == prefix ? "" : prefix + "." ) + "<%= data_module.sql.dialect.quote('MasterID') %>";
+  }
+
+  @javax.annotation.Nonnull
+  protected String get<%= entity.data_module.name %><%= entity.name %>MasterTable()
+  {
+    return "<%= entity.sync.master_entity.sql.qualified_table_name %>";
+  }
+
+  @javax.annotation.Nonnull
+  protected String get<%= entity.data_module.name %><%= entity.name %>MasterTableCriteria( @javax.annotation.Nonnull final String prefix, @javax.annotation.Nonnull final String dataSourceCode )
+  {
+    return prefix + ".<%= data_module.sql.dialect.quote('MasterSynchronized') %> = 0 AND " + prefix + ".<%= data_module.sql.dialect.quote('MappingSourceCode') %> = ?";
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToUpdate( @javax.annotation.Nonnull final String dataSourceCode )
+  {
+    return
+      "SELECT " + get<%= entity.data_module.name %><%= entity.name %>Columns( "M" ) + " " +
+      "FROM " + get<%= entity.data_module.name %><%= entity.name %>MasterTable() + " M " +
+      "WHERE " + get<%= entity.data_module.name %><%= entity.name %>MasterTableCriteria( "M", dataSourceCode ) + " AND M.<%= data_module.sql.dialect.quote('DeletedAt') %> IS NULL";
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToRemove( @javax.annotation.Nonnull final String dataSourceCode )
+  {
+    return
+      "SELECT M.<%= data_module.sql.dialect.quote('MasterID') %>, M.<%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> " +
+      "FROM " + get<%= entity.data_module.name %><%= entity.name %>MasterTable() + " M " +
+      "WHERE " + get<%= entity.data_module.name %><%= entity.name %>MasterTableCriteria( "M", dataSourceCode ) + " AND M.<%= data_module.sql.dialect.quote('DeletedAt') %> IS NOT NULL";
+  }
+
+<% end -%>
+}
