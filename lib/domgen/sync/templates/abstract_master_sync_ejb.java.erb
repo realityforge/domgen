@@ -82,7 +82,7 @@ attr_to_sync = entity.sync.master_entity.attributes.select{|a| a.sync? && !a.pri
    reference_index += 1
 -%>
       " <%= a.nullable? ? 'LEFT ' : '' %>JOIN <%= a.referenced_entity.sql.qualified_table_name %> R<%= reference_index %> ON " +
-      "     R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(a.name).sql.quoted_column_name %> AND " +
+      "     R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND " +
       "     R<%= reference_index %>.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
 <% end -%>
       " WHERE " +
@@ -93,7 +93,7 @@ attr_to_sync = entity.sync.master_entity.attributes.select{|a| a.sync? && !a.pri
     reference_index += 1
     next unless a.nullable?
 -%>
-      "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name(a.name).sql.quoted_column_name %> IS NULL OR R<%= reference_index %>.<%= entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name %> IS NOT NULL) AND " +
+      "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NULL OR R<%= reference_index %>.<%= entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name %> IS NOT NULL) AND " +
 <% end -%>
       "   (" +
 <%
@@ -134,7 +134,7 @@ is_recursive = attr_to_sync.any?{|a| a.reference? && a.referenced_entity.name ==
    reference_index += 1
 -%>
       " <%= a.nullable? ? 'LEFT ' : '' %>JOIN <%= a.referenced_entity.sql.qualified_table_name %> R<%= reference_index %> ON " +
-      "     R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(a.name).sql.quoted_column_name %> AND " +
+      "     R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND " +
       "     R<%= reference_index %>.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
 <% end -%>
       " WHERE " +
@@ -145,7 +145,7 @@ is_recursive = attr_to_sync.any?{|a| a.reference? && a.referenced_entity.name ==
     reference_index += 1
     next unless a.nullable?
 -%>
-      "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name(a.name).sql.quoted_column_name %> IS NULL OR R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NOT NULL) AND " +
+      "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NULL OR R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NOT NULL) AND " +
 <% end -%>
       "   T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?";
 <% java_command = "getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, dataSourceCode ).executeUpdate()" -%>

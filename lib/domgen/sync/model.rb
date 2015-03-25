@@ -207,11 +207,11 @@ module Domgen
           self.entity.sync.sync_temp_entity = e
           e.sync.sync_temp = true
 
-          e.string(:MappingID, 50, :primary_key => true, :description => 'The ID of entity in originating system')
+          e.integer(:SyncTempID, :primary_key => true)
+
+          e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
 
           e.reference("#{self.master_data_module}.DataSource", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
-
-          e.sql.index([:MappingID, :MappingSource], :unique => true)
 
           self.entity.attributes.each do |a|
             next if a.primary_key?
@@ -220,13 +220,18 @@ module Domgen
 
             Domgen.error("Can not yet synchronize entity structs as in #{a.qualified_name}") if a.struct?
 
+            name = a.name
+            attribute_type = a.attribute_type
+
             options = {}
 
             options[:collection_type] = a.collection_type
             options[:nullable] = a.nullable?
 
             if a.reference?
-              options[:referenced_entity] = a.referenced_entity.name
+              attribute_type = :text
+              name = "#{name}MappingID"
+              options[:length] = 50
             elsif a.enumeration?
               options[:enumeration] = a.enumeration
               options[:length] = a.length if a.enumeration.textual_values?
@@ -236,7 +241,7 @@ module Domgen
               options[:allow_blank] = a.allow_blank?
             end
 
-            e.attribute(a.name, a.attribute_type, options)
+            e.attribute(name, attribute_type, options)
           end
         end
 
