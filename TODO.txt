@@ -18,14 +18,27 @@
 * Add unique constraints in jpa ala
 - http://lucasterdev.altervista.org/wordpress/2012/07/28/unique-constraint-validation-part-1/
 * Use javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
+* Generate an error when you disable a facet (i.e. json) but it is referenced by a different element
+  with a facet that requires the presence of the disabled facet (i.e. the gwt_rpc facet requires the
+  json facet if a struct is referenced from a gwt_rpc enabled method)
+* Add a disable_all_but(facet_array for facets that will respect dependencies and will not disable
+  required facets for the facets passed in the parameter.
+* Convert service layer to using json+http services.
+
+= Domgen/Replicant
+
 * In the imit facet, the server side code for collecting objects in a graph can generate lot's of
   instances. Every flush requires every one of those instances be dirty-checked. Every database
   operation results in a flush atm. This results in very very very very very slow loads. Of particular
   concern is loads such as planners MetaData graph that takes an extremely long time. In planner we
   we cache the output so the problem is mitigated, but in Acal/Calendar there is no caching and this
   problem is amplified when scaling up.
-* Generate an error when you disable a facet (i.e. json) but it is referenced by a different element
-  with a facet that requires the presence of the disabled facet (i.e. the gwt_rpc facet requires the
-  json facet if a struct is referenced from a gwt_rpc enabled method)
-* Add a disable_all_but(facet_array for facets that will respect dependencies and will not disable
-  required facets for the facets passed in the parameter.
+* Add validator the checks that the replication graphs are valid.
+* Avoid sending out "changes" for entities that have not changed. Do this by caching entity on load
+  and comparing to cached copy on write? Make it opt-in for each replicant system?
+* After above is implemented consider incremental changes. (Or may need both Full and partial updates
+  recorded so different messages are routed to different listeners?)
+* Race condition; Shutdown of session can disconnect mid-poll resulting in exception in poller
+* force unload when entity moves outside filter
+* Merge multiple update channels into on replicant session. i.e. How to merge AppConfig into ODS stream?
+* Merge identical filters in output format.
