@@ -290,7 +290,7 @@ module Domgen
 
     def characteristic_by_name(name)
       characteristic = characteristic_map[name.to_s]
-      Domgen.error("Unable to find #{characteristic_kind} named #{name} on type #{self.name}. Available #{characteristic_kind} set = #{attributes.collect { |a| a.name }.join(', ')}") unless characteristic
+      Domgen.error("Unable to find #{characteristic_kind} named #{name} on type #{self.qualified_name}. Available #{characteristic_kind} set = #{attributes.collect { |a| a.name }.join(', ')}") unless characteristic
       characteristic
     end
 
