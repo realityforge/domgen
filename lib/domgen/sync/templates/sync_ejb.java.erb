@@ -150,7 +150,7 @@ public class <%= data_module.sync.sync_ejb_name %>
 <% attr.each_with_index do |a, i| -%>
         final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = (<%= a.jpa.java_type(:boundary) %>) result[ <%= i %> ];
 <% end -%>
-        final int v_MasterID = (int) result[ <%= attr.size %> ];
+        final String v_MappingID = (String) result[ <%= attr.size %> ];
 
         final <%= entity.jpa.qualified_name %> entity;
         if( null == v_<%= entity.primary_key.name %> )
@@ -201,7 +201,7 @@ public class <%= data_module.sync.sync_ejb_name %>
           {
 <% end -%>
             final <%= a.jpa.java_type(:boundary) %> v = (<%= a.jpa.java_type(:boundary) %>) _entityManager.
-              createNativeQuery( "SELECT <%= entity.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.name : a.name ).sql.quoted_column_name %> FROM <%= entity.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
+              createNativeQuery( "SELECT <%= entity.sync.master_entity.attribute_by_name( a.entity.name ).sql.quoted_column_name %> FROM <%= entity.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
                 setParameter( 1, v_<%= a.name %> ).
                 getSingleResult();
             entity.set<%= a.name %>( _<%= a.referenced_entity.data_module.name %><%= a.referenced_entity.name %>Repository.getBy<%= a.referenced_entity.primary_key.name %>( v ) );
@@ -217,19 +217,19 @@ public class <%= data_module.sync.sync_ejb_name %>
         {
           _<%= entity.data_module.name %><%= entity.name %>Repository.persist( entity );
           _entityManager.
-            createNativeQuery( "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET <%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> = ?, <%= data_module.sql.dialect.quote('MasterSynchronized') %> = ? WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
+            createNativeQuery( "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET <%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> = ?, <%= data_module.sql.dialect.quote('MasterSynchronized') %> = ? WHERE <%= data_module.sql.dialect.quote('MappingID') %> = ?" ).
             setParameter( 1, entity.<%= getter_for(entity.primary_key) %> ).
             setParameter( 2, true ).
-            setParameter( 3, v_MasterID ).
+            setParameter( 3, v_MappingID ).
             executeUpdate();
           recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount", 1 );
         }
         else
         {
           _entityManager.
-            createNativeQuery( "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET <%= data_module.sql.dialect.quote('MasterSynchronized') %> = ? WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
+            createNativeQuery( "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET <%= data_module.sql.dialect.quote('MasterSynchronized') %> = ? WHERE <%= data_module.sql.dialect.quote('MappingID') %> = ?" ).
             setParameter( 1, true ).
-            setParameter( 2, v_MasterID ).
+            setParameter( 2, v_MappingID ).
             executeUpdate();
           recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount", 1 );
         }
