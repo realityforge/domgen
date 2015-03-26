@@ -27,6 +27,7 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
 
 <% end -%>
 <% data_module.entities.select{|e|e.imit?}.each do |entity| -%>
+<% if !entity.abstract? -%>
   @javax.annotation.Nonnull
   public final <%= entity.imit.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.imit? && a.imit.client_side?}.collect{|a| "#{annotated_type(a, :imit, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
   {
@@ -45,6 +46,7 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
     return $_;
   }
 
+<% end -%>
 <% entity.attributes.select{|a|a.imit? && a.imit.client_side? && !a.immutable?}.each do |a| -%>
   public final void set<%= a.name %>( @javax.annotation.Nonnull final <%= entity.imit.qualified_name %> $_, <%= annotated_type(a, :imit, :default, :final => true) %> <%= Domgen::Naming.camelize(a.name) %> )
   {
