@@ -50,6 +50,7 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
   {
 <% if a.reference? -%>
     $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Domgen::Naming.camelize(a.name)} ? null :" : '' %><%= Domgen::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() );
+    $_.link();
 <% elsif a.enumeration? -%>
     $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Domgen::Naming.camelize(a.name)} ? null :" : '' %><%= Domgen::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
 <% else -%>
