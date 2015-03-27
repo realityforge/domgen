@@ -13,6 +13,53 @@ public class <%= service.gwt_rpc.servlet_name %>
 
   private transient final org.codehaus.jackson.map.ObjectMapper _jsonMapper = new org.codehaus.jackson.map.ObjectMapper();
 
+  private int _codeServerPort;
+  private String _gwtModulePath;
+  private String _codeServerHost;
+
+  @java.lang.Override
+  public void init( final javax.servlet.ServletConfig config )
+    throws javax.servlet.ServletException
+  {
+    super.init( config );
+    _codeServerPort = getCodeServerPort();
+    _gwtModulePath = System.getProperty( "gwt.codeserver.module" );
+    _codeServerHost = System.getProperty( "gwt.codeserver.host", "localhost" );
+  }
+
+  private int getCodeServerPort()
+    throws javax.servlet.ServletException
+  {
+    final String value = System.getProperty( "gwt.codeserver.port" );
+    if ( null == value )
+    {
+      return 0;
+    }
+
+    try
+    {
+      final int port = Integer.parseInt( value );
+      if ( port >= 0 && port < 65536 )
+      {
+        return port;
+      }
+    }
+    catch ( final java.lang.NumberFormatException nfe )
+    {
+      // fall through
+    }
+    throw new javax.servlet.ServletException( "Invalid value of gwt.codeserver.port system property; expected an integer in the range [1-65535] but got: " + value );
+  }
+
+  protected String getCodeServerPolicyUrl( final String strongName )
+  {
+    if ( null == _gwtModulePath || _codeServerPort <= 0 )
+    {
+      return null;
+    }
+    return "http://" + _codeServerHost + ":" + _codeServerPort + "/" + _gwtModulePath + "/" + strongName + ".gwt.rpc";
+  }
+
   @javax.inject.Inject
   private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
