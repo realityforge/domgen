@@ -143,6 +143,7 @@ public class <%= data_module.sync.sync_ejb_name %>
     {
       // Start Replication "Hook"
       _transaction.begin();
+      _entityManager.flush();
       try
       {
         org.realityforge.replicant.server.ee.ReplicationRequestUtil.startReplication( _registry, "synchronize<%= entity.data_module.name %><%= entity.name %>Updates", null, null );
