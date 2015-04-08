@@ -244,7 +244,9 @@ module Domgen
       def cacheable?
         return @cacheable unless @cacheable.nil?
         return true if entity.read_only?
-        entity.attributes.all?{|a| a.immutable? || a.primary_key? }
+        # Eclipselink caches entity instances so all referenced and referencing entities must also be cacheable
+        # This is to expensive to calculate so we require explicit configuration except in the most obvious of cases
+        entity.referencing_attributes.empty? && entity.attributes.all?{|a| (a.immutable? || a.primary_key?) && !a.reference?  }
       end
 
       attr_writer :detachable
