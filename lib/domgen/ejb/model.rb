@@ -13,6 +13,43 @@
 #
 
 module Domgen
+  module Ejb
+    class Schedule < Domgen.ParentedElement(:method)
+      def initialize(method, options = {}, &block)
+        @second = "0"
+        @minute = "0"
+        @hour = "0"
+        @day_of_month = "*"
+        @month = "*"
+        @day_of_week = "*"
+        @year = "*"
+        @timezone = ""
+        @persistent = false
+        super(method, options, &block)
+      end
+
+      attr_accessor :second
+      attr_accessor :minute
+      attr_accessor :hour
+      attr_accessor :day_of_month
+      attr_accessor :month
+      attr_accessor :day_of_week
+      attr_accessor :year
+      attr_accessor :timezone
+      attr_writer :persistent
+
+      def persistent?
+        !!@persistent
+      end
+
+      attr_writer :info
+
+      def info
+        @info || method.qualified_name.gsub('#','.')
+      end
+    end
+  end
+
   FacetManager.facet(:ejb => [:ee]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
@@ -112,6 +149,21 @@ module Domgen
 
       def standard_implementation=(standard_implementation)
         @standard_implementation = standard_implementation
+      end
+    end
+
+    facet.enhance(Method) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :scheduler, :service, :server, :ee, '#{method.service.name}#{method.name}ScheduleEJB', :sub_package => 'internal'
+
+      def schedule
+        raise "Attempted to access a schedule on #{method.qualified_name} when method has multiple parameters" unless method.parameters.empty?
+        @schedule ||= Domgen::Ejb::Schedule.new(method)
+      end
+
+      def schedule?
+        !@schedule.nil?
       end
     end
 

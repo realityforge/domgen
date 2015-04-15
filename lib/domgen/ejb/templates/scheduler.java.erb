@@ -1,0 +1,28 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(method.ejb.qualified_scheduler_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.NOT_SUPPORTED )
+@javax.ejb.Startup
+@javax.ejb.Singleton( name = "<%= method.qualified_name.gsub('#','.') %>Scheduler" )
+@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+public class <%= method.ejb.scheduler_name %>
+{
+  @javax.annotation.Resource
+  private javax.ejb.TimerService _timerService;
+  @javax.inject.Inject
+  private <%= method.service.ejb.generate_boundary? ? method.service.ejb.qualified_boundary_interface_name : method.service.ejb.qualified_service_name %> _service;
+
+  @javax.ejb.Schedule( info = "<%= method.ejb.schedule.info %>", year = "<%= method.ejb.schedule.year %>", month = "<%= method.ejb.schedule.month %>", dayOfMonth = "<%= method.ejb.schedule.day_of_month %>", dayOfWeek = "<%= method.ejb.schedule.day_of_week %>", hour = "<%= method.ejb.schedule.hour %>", minute = "<%= method.ejb.schedule.minute %>", second = "<%= method.ejb.schedule.second %>", timezone = "<%= method.ejb.schedule.timezone %>", persistent = <%= method.ejb.schedule.persistent? %>  )
+  public void trigger()
+  {
+    _timerService.createSingleActionTimer( 0, new javax.ejb.TimerConfig( "<%= method.ejb.schedule.info %>.Worker", false ) );
+  }
+
+  @javax.ejb.Timeout
+  public void processTimeout()
+    throws Exception
+  {
+    _service.<%= Domgen::Naming.camelize(method.name) %>();
+  }
+}

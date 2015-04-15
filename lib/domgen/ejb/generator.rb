@@ -53,6 +53,12 @@ Domgen.template_set(:ejb_service_facades => [:ejb_services]) do |template_set|
                         'main/java/#{service.ejb.qualified_boundary_implementation_name.gsub(".","/")}.java',
                         Domgen::Generator::EJB::HELPERS,
                         :guard => 'service.ejb.generate_boundary?')
+  template_set.template(Domgen::Generator::EJB::FACETS,
+                        :method,
+                        "#{Domgen::Generator::EJB::TEMPLATE_DIRECTORY}/scheduler.java.erb",
+                        'main/java/#{method.ejb.qualified_scheduler_name.gsub(".","/")}.java',
+                        Domgen::Generator::EJB::HELPERS,
+                        :guard => 'method.ejb.schedule?')
 end
 Domgen.template_set(:ejb_glassfish_config_assets) do |template_set|
   template_set.template(Domgen::Generator::EJB::FACETS,
