@@ -16,6 +16,10 @@ public class <%= method.ejb.scheduler_name %>
   @javax.ejb.Schedule( info = "<%= method.ejb.schedule.info %>", year = "<%= method.ejb.schedule.year %>", month = "<%= method.ejb.schedule.month %>", dayOfMonth = "<%= method.ejb.schedule.day_of_month %>", dayOfWeek = "<%= method.ejb.schedule.day_of_week %>", hour = "<%= method.ejb.schedule.hour %>", minute = "<%= method.ejb.schedule.minute %>", second = "<%= method.ejb.schedule.second %>", timezone = "<%= method.ejb.schedule.timezone %>", persistent = <%= method.ejb.schedule.persistent? %> )
   public void trigger()
   {
+    /*
+     * Schedule another timer immediately so that a call to the method has no way of rolling back the transaction and thus removing the timer.
+     * See http://it-result.me/reliable-ejb-timers-in-jee6/
+     */
     _timerService.createSingleActionTimer( 0, new javax.ejb.TimerConfig( "<%= method.ejb.schedule.info %>.Worker", false ) );
   }
 
