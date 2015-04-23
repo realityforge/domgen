@@ -4,6 +4,7 @@ package <%= to_package(method.jms.qualified_mdb_name) %>;
 <%
 
 config_properties = {}
+config_properties['destinationLookup'] = method.jms.destination_resource_name
 config_properties['destinationType'] = method.jms.destination_type
 config_properties['messageSelector'] = method.jms.message_selector if method.jms.message_selector
 config_properties['acknowledgeMode'] = method.jms.acknowledge_mode
@@ -18,7 +19,6 @@ end
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.MessageDriven( name = "<%= method.jms.resource_name %>",
-                          mappedName = "<%= method.jms.destination_resource_name %>",
                           activationConfig =
                             {
 <%
