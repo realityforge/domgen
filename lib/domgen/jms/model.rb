@@ -14,6 +14,16 @@
 
 module Domgen
   FacetManager.facet(:jms => [:ejb, :jaxb, :ee]) do |facet|
+    facet.enhance(Repository) do
+      def connection_factory_resource_name=(connection_factory_resource_name)
+        @connection_factory_resource_name = connection_factory_resource_name
+      end
+
+      def connection_factory_resource_name
+        @connection_factory_resource_name || "#{Domgen::Naming.underscore(repository.name)}/jms/ConnectionFactory"
+      end
+    end
+
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
 

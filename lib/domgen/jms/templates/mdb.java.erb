@@ -4,6 +4,7 @@ package <%= to_package(method.jms.qualified_mdb_name) %>;
 <%
 
 config_properties = {}
+config_properties['connectionFactoryLookup'] = method.service.data_module.repository.jms.connection_factory_resource_name
 config_properties['destinationLookup'] = method.jms.destination_resource_name
 config_properties['destinationType'] = method.jms.destination_type
 config_properties['messageSelector'] = method.jms.message_selector if method.jms.message_selector
