@@ -582,6 +582,9 @@ module Domgen
         end
         repository.service_by_name(self.subscription_manager).tap do |s|
           s.ejb.standard_implementation = false
+
+          s.method(:RemoveIdleSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30')
+
           repository.imit.graphs.each do |graph|
             filter_options = {}
             if graph.filtered? && graph.filter_parameter.filter_type == :struct
