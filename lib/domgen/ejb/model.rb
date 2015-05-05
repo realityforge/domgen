@@ -16,14 +16,14 @@ module Domgen
   module Ejb
     class Schedule < Domgen.ParentedElement(:method)
       def initialize(method, options = {}, &block)
-        @second = "0"
-        @minute = "0"
-        @hour = "0"
-        @day_of_month = "*"
-        @month = "*"
-        @day_of_week = "*"
-        @year = "*"
-        @timezone = ""
+        @second = '0'
+        @minute = '0'
+        @hour = '0'
+        @day_of_month = '*'
+        @month = '*'
+        @day_of_week = '*'
+        @year = '*'
+        @timezone = ''
         @persistent = false
         super(method, options, &block)
       end
