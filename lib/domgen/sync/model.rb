@@ -21,6 +21,12 @@ module Domgen
   FacetManager.facet(:sync => [:sql]) do |facet|
     facet.enhance(Repository) do
 
+      attr_writer :mapping_source_attribute
+
+      def mapping_source_attribute
+        @mapping_source_attribute || 'MappingSource'
+      end
+
       attr_writer :master_data_module
 
       def master_data_module
@@ -43,16 +49,16 @@ module Domgen
           repository.data_module(self.sync_temp_data_module)
         end
 
-        master_data_module.entity(:DataSource) do |t|
+        master_data_module.entity(self.mapping_source_attribute) do |t|
           t.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
           t.sync.synchronize = false
           t.string(:Code, 5, :primary_key => true)
-        end unless master_data_module.entity_by_name?(:DataSource)
+        end unless master_data_module.entity_by_name?(self.mapping_source_attribute)
 
         master_data_module.service(:SynchronizationService) do |s|
           s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
-          s.method(:SynchronizeDataSource) do |m|
-            m.text(:DataSourceCode)
+          s.method(:SynchronizeMappingSource) do |m|
+            m.text(:MappingSourceCode)
             m.returns('iris.syncrecord.server.data_type.SyncStatusDTO')
           end
         end unless master_data_module.service_by_name?(:SynchronizationService)
@@ -61,11 +67,11 @@ module Domgen
           s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
           master_data_module.sync.entities_to_synchronize.each do |entity|
             s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToUpdate") do |m|
-              m.text(:DataSourceCode)
+              m.text(:MappingSourceCode)
               m.returns(:text)
             end
             s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToRemove") do |m|
-              m.text(:DataSourceCode)
+              m.text(:MappingSourceCode)
               m.returns(:text)
             end
             entity.attributes.select { |a| a.sync? && a.sync.custom_transform? }.each do |attribute|
@@ -211,7 +217,7 @@ module Domgen
 
           e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
 
-          e.reference("#{self.master_data_module}.DataSource", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
+          e.reference("#{self.master_data_module}.#{self.entity.data_module.repository.sync.mapping_source_attribute}", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
 
           self.entity.attributes.each do |a|
             next if a.primary_key?
@@ -253,7 +259,7 @@ module Domgen
 
           e.integer(:ID, :primary_key => true)
           e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
-          e.reference(:DataSource, :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
+          e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
 
           e.sql.index([:MappingID, :MappingSource], :unique => true, :filter => 'DeletedAt IS NULL')
 

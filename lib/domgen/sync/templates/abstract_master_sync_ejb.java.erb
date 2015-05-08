@@ -6,7 +6,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 {
   protected static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= data_module.sync.abstract_master_sync_ejb_name %>.class.getName() );
 
-  protected void syncControl( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final boolean forceSync )
+  protected void syncControl( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final boolean forceSync )
   {
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
     recorder.incMetric( "<%= entity.qualified_name %>.Total.Original", 0 );
@@ -17,35 +17,35 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 <% end -%>
 <% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
     log( recorder, "Reset SyncTemp for <%= entity.qualified_name %>" );
-    reset<%= entity.qualified_name.gsub('.','') %>SyncTemp( dataSourceCode, at, recorder );
+    reset<%= entity.qualified_name.gsub('.','') %>SyncTemp( mappingSourceCode, at, recorder );
 <% end -%>
 
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-    sync<%= entity.qualified_name.gsub('.','') %>( dataSourceCode, at, recorder, forceSync );
+    sync<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, at, recorder, forceSync );
 <% end -%>
   }
 
   protected abstract javax.persistence.EntityManager getEntityManager();
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
 
-  protected abstract void populate<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder );
+  protected abstract void populate<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder );
 
-  protected void reset<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  protected void reset<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
-    getEntityManager().createNativeQuery( "DELETE FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, dataSourceCode ).executeUpdate();
+    getEntityManager().createNativeQuery( "DELETE FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, mappingSourceCode ).executeUpdate();
   }
 
-  protected int count<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String dataSourceCode )
+  protected int count<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
   {
-    return (java.lang.Integer) getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, dataSourceCode ).getSingleResult();
+    return (java.lang.Integer) getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, mappingSourceCode ).getSingleResult();
   }
 
-  protected int count<%= entity.qualified_name.gsub('.','') %>Master( @javax.annotation.Nonnull final java.lang.String dataSourceCode )
+  protected int count<%= entity.qualified_name.gsub('.','') %>Master( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
   {
-    return (java.lang.Integer) getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= entity.sync.master_entity.sql.qualified_table_name %> WHERE <%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, dataSourceCode ).getSingleResult();
+    return (java.lang.Integer) getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= entity.sync.master_entity.sql.qualified_table_name %> WHERE <%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, mappingSourceCode ).getSingleResult();
   }
 
-  protected void finalize<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  protected void finalize<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
   }
 
@@ -71,18 +71,18 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
   }
 
   @java.lang.SuppressWarnings( "ConstantConditions" )
-  protected boolean verify<%= entity.qualified_name.gsub('.','') %>ViaSql( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final java.lang.String sql, @javax.annotation.Nonnull final java.lang.String validation, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  protected boolean verify<%= entity.qualified_name.gsub('.','') %>ViaSql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String sql, @javax.annotation.Nonnull final java.lang.String validation, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
     try ( final java.sql.PreparedStatement statement = getEntityManager().unwrap( java.sql.Connection.class ).prepareStatement( sql ) )
     {
-      statement.setString( 1, dataSourceCode );
+      statement.setString( 1, mappingSourceCode );
       return !printInvalid<%= entity.qualified_name.gsub('.','') %>Rows( "Failed to validate " + validation + " for entity <%= entity.qualified_name %>.", statement, recorder );
     }
   }
 
   @java.lang.SuppressWarnings( "ConstantConditions" )
-  protected void verify<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  protected void verify<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
     boolean validationFailed = false;
     try
@@ -94,7 +94,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
           "   <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS S " +
           " LEFT JOIN <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS O ON O.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> AND O.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> AND O.SyncTempID != S.SyncTempID " +
           " WHERE O.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NOT NULL AND S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?";
-        if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( dataSourceCode, sql, "MappingID Uniqueness", recorder ) )
+        if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "MappingID Uniqueness", recorder ) )
         {
           validationFailed = true;
         }
@@ -111,7 +111,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
           " LEFT JOIN <%= a.referenced_entity.sync.master_entity.sql.qualified_table_name %> AS O ON O.<%= a.referenced_entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND O.<%= a.referenced_entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> AND O.<%= a.referenced_entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name %> IS NULL" +
 <% end -%>
           " WHERE O.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL AND S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NOT NULL AND S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?";
-        if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( dataSourceCode, sql, "<%= a.name %> ForeignKey", recorder ) )
+        if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "<%= a.name %> ForeignKey", recorder ) )
         {
           validationFailed = true;
         }
@@ -125,11 +125,11 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
     //TODO: Check constraints
     if ( validationFailed )
     {
-      throw new IllegalStateException( "Failed to validate <%= entity.qualified_name %> instances for dataSource " + dataSourceCode );
+      throw new IllegalStateException( "Failed to validate <%= entity.qualified_name %> instances for mappingSource " + mappingSourceCode );
     }
   }
 
-  protected int sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final java.util.Date at )
+  protected int sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
     final String sql =
       "UPDATE M " +
@@ -137,10 +137,10 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
       " FROM <%= entity.sync.master_entity.sql.qualified_table_name %> AS M " +
       " LEFT JOIN <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS S ON M.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
       " WHERE S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ? AND M.<%= entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name %> IS NULL";
-    return getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, dataSourceCode ).executeUpdate();
+    return getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, mappingSourceCode ).executeUpdate();
   }
 
-  protected int sync<%= entity.qualified_name.gsub('.','') %>UpdatesToMaster( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final java.util.Date at )
+  protected int sync<%= entity.qualified_name.gsub('.','') %>UpdatesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
 <%
 attr_to_sync = entity.sync.master_entity.attributes.select{|a| a.sync? && !a.primary_key? && ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) && !(a.reference? && !a.referenced_entity.sync.master?)}
@@ -185,10 +185,10 @@ attr_to_sync = entity.sync.master_entity.attributes.select{|a| a.sync? && !a.pri
 <% end -%>
       "     1 = 0 " +
       "   )";
-    return getEntityManager().createNativeQuery( sql ).setParameter( 1, dataSourceCode ).executeUpdate();
+    return getEntityManager().createNativeQuery( sql ).setParameter( 1, mappingSourceCode ).executeUpdate();
   }
 
-  protected int sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final java.util.Date at )
+  protected int sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
 <%
 attr_to_sync = entity.sync.master_entity.attributes.select{|a| a.sync? && !a.primary_key? && ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) && !(a.reference? && !a.referenced_entity.sync.master?)}
@@ -223,7 +223,7 @@ is_recursive = attr_to_sync.any?{|a| a.reference? && a.referenced_entity.name ==
       "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NULL OR R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NOT NULL) AND " +
 <% end -%>
       "   T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?";
-<% java_command = "getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, dataSourceCode ).executeUpdate()" -%>
+<% java_command = "getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, mappingSourceCode ).executeUpdate()" -%>
 <% if is_recursive -%>
     // Handle recursive tables
     int count = <%= java_command -%>;
@@ -239,21 +239,21 @@ is_recursive = attr_to_sync.any?{|a| a.reference? && a.referenced_entity.name ==
 <% end -%>
   }
 
-  protected void sync<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String dataSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final boolean forceSync )
+  protected void sync<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final boolean forceSync )
   {
     log( recorder, "Beginning synchronization of <%= entity.qualified_name %>" );
 
     log( recorder, "Populating SyncTemp for <%= entity.qualified_name %>" );
-    populate<%= entity.qualified_name.gsub('.','') %>SyncTemp( dataSourceCode, at, recorder );
+    populate<%= entity.qualified_name.gsub('.','') %>SyncTemp( mappingSourceCode, at, recorder );
 
     log( recorder, "Finalizing SyncTemp for <%= entity.qualified_name %>" );
-    finalize<%= entity.qualified_name.gsub('.','') %>SyncTemp( dataSourceCode, at, recorder );
+    finalize<%= entity.qualified_name.gsub('.','') %>SyncTemp( mappingSourceCode, at, recorder );
 
     log( recorder, "Verifying SyncTemp for <%= entity.qualified_name %>" );
-    verify<%= entity.qualified_name.gsub('.','') %>SyncTemp( dataSourceCode, recorder );
+    verify<%= entity.qualified_name.gsub('.','') %>SyncTemp( mappingSourceCode, recorder );
 
-    final int newCount = count<%= entity.qualified_name.gsub('.','') %>SyncTemp( dataSourceCode );
-    final int oldCount = count<%= entity.qualified_name.gsub('.','') %>Master( dataSourceCode );
+    final int newCount = count<%= entity.qualified_name.gsub('.','') %>SyncTemp( mappingSourceCode );
+    final int oldCount = count<%= entity.qualified_name.gsub('.','') %>Master( mappingSourceCode );
     final int diff = Math.abs( newCount - oldCount );
 
     recorder.incMetric( "<%= entity.qualified_name %>.Total.Original", oldCount );
@@ -267,17 +267,17 @@ is_recursive = attr_to_sync.any?{|a| a.reference? && a.referenced_entity.name ==
     }
 
     log( recorder, "Synchronizing deletes for <%= entity.qualified_name %>" );
-    final int deleteCount = sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( dataSourceCode, at );
+    final int deleteCount = sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( mappingSourceCode, at );
     recorder.incMetric( "<%= entity.qualified_name %>.RemoveCount", deleteCount );
     log( recorder, "Deleted " + deleteCount + " records for <%= entity.qualified_name %>" );
 
     log( recorder, "Synchronizing updates for <%= entity.qualified_name %>" );
-    final int updateCount = sync<%= entity.qualified_name.gsub('.','') %>UpdatesToMaster( dataSourceCode, at );
+    final int updateCount = sync<%= entity.qualified_name.gsub('.','') %>UpdatesToMaster( mappingSourceCode, at );
     recorder.incMetric( "<%= entity.qualified_name %>.UpdateCount", updateCount );
     log( recorder, "Updated " + updateCount + " records for <%= entity.qualified_name %>" );
 
     log( recorder, "Synchronizing creates for <%= entity.qualified_name %>" );
-    final int createCount = sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( dataSourceCode, at );
+    final int createCount = sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( mappingSourceCode, at );
     recorder.incMetric( "<%= entity.qualified_name %>.AddCount", createCount );
     log( recorder, "Created " + createCount + " records for <%= entity.qualified_name %>" );
 

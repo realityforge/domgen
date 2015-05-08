@@ -31,20 +31,20 @@ public class <%= data_module.sync.sync_ejb_name %>
 
   @java.lang.Override
   @javax.annotation.Nonnull
-  public iris.syncrecord.server.data_type.SyncStatusDTO synchronizeDataSource( @javax.annotation.Nonnull final String dataSourceCode )
+  public iris.syncrecord.server.data_type.SyncStatusDTO synchronizeMappingSource( @javax.annotation.Nonnull final String mappingSourceCode )
   {
     if ( !_inSync )
     {
       _inSync = true;
       try
       {
-        if ( isFeatureEnabled( dataSourceCode + ".syncEnabled" ) )
+        if ( isFeatureEnabled( mappingSourceCode + ".syncEnabled" ) )
         {
-          return performSynchronization( dataSourceCode );
+          return performSynchronization( mappingSourceCode );
         }
         else
         {
-          return createDisabledSyncStatus( dataSourceCode );
+          return createDisabledSyncStatus( mappingSourceCode );
         }
       }
       finally
@@ -54,13 +54,13 @@ public class <%= data_module.sync.sync_ejb_name %>
     }
     else
     {
-      return createAlreadyActiveSyncStatus( dataSourceCode );
+      return createAlreadyActiveSyncStatus( mappingSourceCode );
     }
   }
 
-  private iris.syncrecord.server.data_type.SyncStatusDTO performSynchronization( @javax.annotation.Nonnull final String dataSourceCode )
+  private iris.syncrecord.server.data_type.SyncStatusDTO performSynchronization( @javax.annotation.Nonnull final String mappingSourceCode )
   {
-    final iris.syncrecord.server.service.SynchronizationRecorder recorder = startSynchronization( dataSourceCode );
+    final iris.syncrecord.server.service.SynchronizationRecorder recorder = startSynchronization( mappingSourceCode );
 
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
     recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount", 0 );
@@ -68,33 +68,33 @@ public class <%= data_module.sync.sync_ejb_name %>
     recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount", 0 );
 <% end -%>
 
-    log( dataSourceCode, "Synchronizing data" );
+    log( mappingSourceCode, "Synchronizing data" );
     try
     {
 <% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
       {
-        log( dataSourceCode, "Synchronizing <%= entity.data_module.name %>.<%= entity.name %> removals" );
-        synchronize<%= entity.data_module.name %><%= entity.name %>Removals( dataSourceCode, recorder );
+        log( mappingSourceCode, "Synchronizing <%= entity.data_module.name %>.<%= entity.name %> removals" );
+        synchronize<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
         final int removeCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveCount" ).get();
-        log( dataSourceCode, "Removed " + removeCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
+        log( mappingSourceCode, "Removed " + removeCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
       }
 <% end -%>
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
       {
-        log( dataSourceCode, "Synchronizing <%= entity.data_module.name %>.<%= entity.name %> adds and updates" );
-        synchronize<%= entity.data_module.name %><%= entity.name %>Updates( dataSourceCode, recorder );
+        log( mappingSourceCode, "Synchronizing <%= entity.data_module.name %>.<%= entity.name %> adds and updates" );
+        synchronize<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
         final int addCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount" ).get();
         final int updateCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount" ).get();
-        log( dataSourceCode, "Added " + addCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
-        log( dataSourceCode, "Updated " + updateCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
+        log( mappingSourceCode, "Added " + addCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
+        log( mappingSourceCode, "Updated " + updateCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
       }
 <% end -%>
-      log( dataSourceCode, "Successfully synchronized data" );
+      log( mappingSourceCode, "Successfully synchronized data" );
     }
     catch ( final Throwable e )
     {
       recordSyncError( recorder, SYNC_ERROR_CODE, e );
-      log( dataSourceCode, "Synchronisation of data failed", e );
+      log( mappingSourceCode, "Synchronisation of data failed", e );
     }
     finally
     {
@@ -103,29 +103,29 @@ public class <%= data_module.sync.sync_ejb_name %>
     return toSyncStatus( recorder );
   }
 
-  private void log( final String dataSourceCode, final String message )
+  private void log( final String mappingSourceCode, final String message )
   {
-    log( dataSourceCode, message, null );
+    log( mappingSourceCode, message, null );
   }
 
-  private void log( final String dataSourceCode, final String message, final Throwable t )
+  private void log( final String mappingSourceCode, final String message, final Throwable t )
   {
-    final String prefix = dataSourceCode + ": ";
+    final String prefix = mappingSourceCode + ": ";
     LOG.log( java.util.logging.Level.INFO, prefix + message, t );
   }
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
 
   @java.lang.SuppressWarnings( "unchecked" )
   @javax.annotation.Nonnull
-  private java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String dataSourceCode )
+  private java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode )
     throws Exception
   {
     _transaction.begin();
     try
     {
-      final String sql = _context.getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToUpdate( dataSourceCode );
+      final String sql = _context.getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToUpdate( mappingSourceCode );
       final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
-      query.setParameter( 1, dataSourceCode );
+      query.setParameter( 1, mappingSourceCode );
       return query.getResultList();
     }
     finally
@@ -134,10 +134,10 @@ public class <%= data_module.sync.sync_ejb_name %>
     }
   }
 
-  private void synchronize<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String dataSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  private void synchronize<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
-    final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Updates( dataSourceCode );
+    final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode );
 
     for ( final Object[] result : results )
     {
@@ -250,15 +250,15 @@ public class <%= data_module.sync.sync_ejb_name %>
 
   @java.lang.SuppressWarnings( "unchecked" )
   @javax.annotation.Nonnull
-  private java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String dataSourceCode )
+  private java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode )
     throws Exception
   {
     _transaction.begin();
     try
     {
-      final String sql = _context.getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToRemove( dataSourceCode );
+      final String sql = _context.getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToRemove( mappingSourceCode );
       final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
-      query.setParameter( 1, dataSourceCode );
+      query.setParameter( 1, mappingSourceCode );
       return query.getResultList();
     }
     finally
@@ -267,10 +267,10 @@ public class <%= data_module.sync.sync_ejb_name %>
     }
   }
 
-  private void synchronize<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String dataSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  private void synchronize<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
-    final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Removals( dataSourceCode );
+    final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode );
     for ( final Object[] result : results )
     {
       // Start Replication "Hook"
