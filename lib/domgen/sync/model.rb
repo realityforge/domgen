@@ -57,7 +57,7 @@ module Domgen
 
         master_data_module.service(:SynchronizationService) do |s|
           s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
-          s.method(:SynchronizeMappingSource) do |m|
+          s.method(:SynchronizeDataSource) do |m|
             m.text(:MappingSourceCode)
             m.returns('iris.syncrecord.server.data_type.SyncStatusDTO')
           end
