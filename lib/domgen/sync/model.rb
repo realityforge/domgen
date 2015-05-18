@@ -213,14 +213,17 @@ module Domgen
           self.entity.sync.sync_temp_entity = e
           e.sync.sync_temp = true
           e.abstract = self.entity.abstract?
+          e.extends = self.entity.extends
 
-          e.integer(:SyncTempID, :primary_key => true)
+          if self.entity.extends.nil?
+            e.integer(:SyncTempID, :primary_key => true)
 
-          e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
+            e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
 
-          e.reference("#{self.master_data_module}.#{self.entity.data_module.repository.sync.mapping_source_attribute}", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
+            e.reference("#{self.master_data_module}.#{self.entity.data_module.repository.sync.mapping_source_attribute}", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
+          end
 
-          self.entity.attributes.each do |a|
+          self.entity.attributes.select { |a| !a.inherited? }.each do |a|
             next if a.primary_key?
             next if [:CreatedAt, :DeletedAt].include?(a.name)
             next unless a.sync?
@@ -247,6 +250,7 @@ module Domgen
               options[:min_length] = a.min_length
               options[:allow_blank] = a.allow_blank?
             end
+            options[:abstract] = a.abstract?
 
             e.attribute(name, attribute_type, options)
           end
@@ -258,16 +262,19 @@ module Domgen
           self.entity.sync.master_entity = e
           e.sync.master = true
           e.abstract = self.entity.abstract?
+          e.extends = self.entity.extends
 
-          e.integer(:ID, :primary_key => true)
-          e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
-          e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
+          if self.entity.extends.nil?
+            e.integer(:ID, :primary_key => true)
+            e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
+            e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
 
-          e.sql.index([:MappingID, :MappingSource], :unique => true, :filter => 'DeletedAt IS NULL')
+            e.sql.index([:MappingID, :MappingSource], :unique => true, :filter => 'DeletedAt IS NULL')
 
-          e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
+            e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
+          end
 
-          self.entity.attributes.each do |a|
+          self.entity.attributes.select { |a| !a.inherited? || a.primary_key? }.each do |a|
             next unless a.sync?
 
             options = {}
@@ -277,11 +284,15 @@ module Domgen
             attribute_type = a.attribute_type
 
             if a.primary_key?
-              name = a.entity.name
+              name = a.entity.root_entity.name
               attribute_type = :reference
               options[:referenced_entity] = a.entity.qualified_name
               options[:nullable] = true
               options['sql.on_delete'] = :set_null
+              options[:abstract] = self.entity.abstract?
+              options[:override] = !self.entity.extends.nil?
+            else
+              options[:abstract] = a.abstract?
             end
 
             if a.enumeration?

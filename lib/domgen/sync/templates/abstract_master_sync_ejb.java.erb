@@ -107,10 +107,23 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
           "   <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS S " +
 <% if a.referenced_entity.name == entity.name -%>
           " LEFT JOIN <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS O ON O.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND O.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>" +
+<% elsif a.referenced_entity.abstract? -%>
+<% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each_with_index do |subtype, index| -%>
+          " LEFT JOIN <%= subtype.sync.master_entity.sql.qualified_table_name %> AS O<%= index %> ON O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> AND O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name %> IS NULL" +
+<% end -%>
 <% else -%>
           " LEFT JOIN <%= a.referenced_entity.sync.master_entity.sql.qualified_table_name %> AS O ON O.<%= a.referenced_entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND O.<%= a.referenced_entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> AND O.<%= a.referenced_entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name %> IS NULL" +
 <% end -%>
-          " WHERE O.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL AND S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NOT NULL AND S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?";
+          " WHERE S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NOT NULL AND S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ? AND " +
+<% if a.referenced_entity.abstract? -%>
+          "(" +
+<% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each_with_index do |subtype, index| -%>
+            "O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL OR " +
+<% end -%>
+          " 1 = 0 )";
+<% else -%>
+          " O.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL";
+<% end -%>
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "<%= a.name %> ForeignKey", recorder ) )
         {
           validationFailed = true;
@@ -156,9 +169,17 @@ attr_to_sync = entity.sync.master_entity.attributes.select{|a| a.sync? && !a.pri
   attr_to_sync.select{|a| a.reference? }.each do |a|
    reference_index += 1
 -%>
+<% if a.referenced_entity.abstract? -%>
+<% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each_with_index do |subtype, index| -%>
+      " LEFT JOIN <%= subtype.sql.qualified_table_name %> R<%= reference_index %><%= index %> ON " +
+      "     R<%= reference_index %><%= index %>.<%= subtype.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND " +
+      "     R<%= reference_index %><%= index %>.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
+<% end -%>
+<% else -%>
       " <%= a.nullable? ? 'LEFT ' : '' %>JOIN <%= a.referenced_entity.sql.qualified_table_name %> R<%= reference_index %> ON " +
       "     R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND " +
       "     R<%= reference_index %>.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
+<% end -%>
 <% end -%>
       " WHERE " +
       "   M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ? AND " +
@@ -168,7 +189,16 @@ attr_to_sync = entity.sync.master_entity.attributes.select{|a| a.sync? && !a.pri
     reference_index += 1
     next unless a.nullable?
 -%>
+<% if a.referenced_entity.abstract? -%>
+      "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NULL OR (" +
+<% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each_with_index do |subtype, index| -%>
+  "R<%= reference_index %><%= index %>.<%= entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name %> IS NOT NULL AND " +
+<% end -%>
+      " 1 = 1 )" +
+      "   ) AND " +
+<% else -%>
       "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NULL OR R<%= reference_index %>.<%= entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name %> IS NOT NULL) AND " +
+<% end -%>
 <% end -%>
       "   (" +
 <%
@@ -208,9 +238,17 @@ is_recursive = attr_to_sync.any?{|a| a.reference? && a.referenced_entity.name ==
   attr_to_sync.select{|a| a.reference? }.each do |a|
    reference_index += 1
 -%>
+<% if a.referenced_entity.abstract? -%>
+<% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each_with_index do |subtype, index| -%>
+      " LEFT JOIN <%= subtype.sql.qualified_table_name %> R<%= reference_index %><%= index %> ON " +
+      "     R<%= reference_index %><%= index %>.<%= subtype.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND " +
+      "     R<%= reference_index %><%= index %>.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
+<% end -%>
+<% else -%>
       " <%= a.nullable? ? 'LEFT ' : '' %>JOIN <%= a.referenced_entity.sql.qualified_table_name %> R<%= reference_index %> ON " +
       "     R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND " +
       "     R<%= reference_index %>.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
+<% end -%>
 <% end -%>
       " WHERE " +
       "   M.<%= entity.sync.master_entity.attribute_by_name(:ID).sql.quoted_column_name %> IS NULL AND " +
@@ -220,7 +258,15 @@ is_recursive = attr_to_sync.any?{|a| a.reference? && a.referenced_entity.name ==
     reference_index += 1
     next unless a.nullable?
 -%>
-      "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NULL OR R<%= reference_index %>.<%= a.referenced_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NOT NULL) AND " +
+<% if a.referenced_entity.abstract? -%>
+<% else -%>
+      "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NULL OR (" +
+<% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each_with_index do |subtype, index| -%>
+  "R<%= reference_index %><%= index %>.<%= subtype.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NOT NULL AND " +
+<% end -%>
+      " 1 = 1 )" +
+  ") AND " +
+<% end -%>
 <% end -%>
       "   T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?";
 <% java_command = "getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, mappingSourceCode ).executeUpdate()" -%>
@@ -283,11 +329,30 @@ is_recursive = attr_to_sync.any?{|a| a.reference? && a.referenced_entity.name ==
 
     log( recorder, "Completed synchronization of <%= entity.qualified_name %>" );
   }
+
+  protected void insert<%= entity.qualified_name.gsub('.','') %>IntoSyncTempBySql( @javax.annotation.Nonnull final String selectSql )
+  {
+    final String sql =
+      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= attr_to_sync.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }.join(', ') %>) " +
+      selectSql;
+    executeUpdate( sql );
+  }
 <% end -%>
 
   protected void log( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final String message )
   {
     LOG.info( message );
     recorder.addMessage( message );
+  }
+
+  protected void insertMasterDataSourceIfRequired( @javax.annotation.Nonnull final String dataSource )
+  {
+    executeUpdate( "INSERT INTO Master.tblMappingSource(Code) " +
+                   "  SELECT '" + dataSource + "' " +
+                   "  WHERE 0 = (SELECT COUNT(*) FROM Master.tblMappingSource WHERE Code = '" + dataSource + "')" );
+  }
+  protected int executeUpdate( @javax.annotation.Nonnull final String sql )
+  {
+    return getEntityManager().createNativeQuery( sql ).executeUpdate();
   }
 }

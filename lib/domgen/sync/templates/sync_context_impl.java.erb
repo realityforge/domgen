@@ -59,7 +59,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   {
     return
 <% entity.attributes.select{|a| a.sync? && a.sql? && a.jpa? }.each do |a| -%>
-      ( null == prefix ? "" : prefix + "." ) + "<%= entity.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.name : a.name ).sql.quoted_column_name %>, " +
+      ( null == prefix ? "" : prefix + "." ) + "<%= entity.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.root_entity.name : a.name ).sql.quoted_column_name %>, " +
 <% end -%>
       ( null == prefix ? "" : prefix + "." ) + "<%= data_module.sql.dialect.quote('MappingID') %>";
   }
@@ -118,7 +118,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   {
 <% if recursive_attributes.size == 0 -%>
     return
-      "SELECT M.<%= data_module.sql.dialect.quote('MappingID') %>, M.<%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> " +
+      "SELECT M.<%= data_module.sql.dialect.quote('MappingID') %>, M.<%= entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name %> " +
       "FROM " + get<%= fn %>MasterTable() + " M " +
       "WHERE " + get<%= fn %>MasterTableCriteria( "M", mappingSourceCode ) + " AND M.<%= data_module.sql.dialect.quote('DeletedAt') %> IS NOT NULL";
 <% elsif recursive_attributes.size == 1 -%>
