@@ -4,6 +4,7 @@ package <%= to_package(data_module.sync.qualified_sync_ejb_name) %>;
 @javax.ejb.Singleton( name = <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_name %>.NAME )
 @javax.ejb.TransactionManagement( javax.ejb.TransactionManagementType.BEAN )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+@SuppressWarnings( "ConstantConditions" )
 public class <%= data_module.sync.sync_ejb_name %>
   extends iris.syncrecord.server.service.StandardSyncService
   implements <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_name %>
