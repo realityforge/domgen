@@ -452,6 +452,7 @@ module Domgen
       attr_accessor :force_overflow_for_large_objects
 
       def table_name
+        raise "sql.table_name invoked on abstract entity #{entity.qualified_name}" if entity.abstract?
         @table_name ||= sql_name(:table, entity.name)
       end
 
