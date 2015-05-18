@@ -184,15 +184,15 @@ module Domgen
       '{' + ary.join(", ") + '}'
     end
 
-    def update hsh2
+    def update(hsh2)
       hsh2.each { |k, v| self[k] = v }
       self
     end
 
     alias :merge! update
 
-    def merge hsh2
-      self.dup update(hsh2)
+    def merge(hsh2)
+      self.dup.update(hsh2)
     end
 
     def select
