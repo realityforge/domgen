@@ -154,7 +154,7 @@ public class <%= data_module.sync.sync_ejb_name %>
 <% elsif a.enumeration? -%>
         final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == result[ #{i} ] ? null : " : '' %><%= a.jpa.java_type(:boundary) %>.values()[ (java.lang.Integer) result[ <%= i %> ] ];
 <% else -%>
-        final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = (<%= a.jpa.java_type(:boundary) %>) result[ <%= i %> ];
+        final <%= a.jpa.non_primitive_java_type(:boundary) %> v_<%= a.name %> = (<%= a.jpa.non_primitive_java_type(:boundary) %>) result[ <%= i %> ];
 <% end -%>
 <% end -%>
         final String v_MappingID = (String) result[ <%= attr.size %> ];
