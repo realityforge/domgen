@@ -684,8 +684,6 @@ module Domgen
     attr_reader :cycle_constraints
     attr_reader :referencing_attributes
     attr_reader :queries
-    attr_accessor :extends
-    attr_accessor :subtypes
 
     include GenerateFacet
     include InheritableCharacteristicContainer
@@ -700,9 +698,7 @@ module Domgen
       @cycle_constraints = Domgen::OrderedHash.new
       @queries = Domgen::OrderedHash.new
       @referencing_attributes = []
-      @subtypes = []
       data_module.send :register_entity, name, self
-      perform_extend(data_module, options[:extends])
       super(data_module, options, &block)
     end
 
@@ -712,6 +708,14 @@ module Domgen
 
     def non_abstract_superclass?
       extends.nil? ? false : !data_module.entity_by_name(extends).abstract?
+    end
+
+    # Return the root entity in the hierarchy
+    #
+    # This means the current entity if it does not extend any other entity, else it means the root of the inheritance tree.
+    #
+    def root_entity
+      self.extends.nil? ? self : data_module.entity_by_name(self.extends).root_entity
     end
 
     attr_writer :read_only
@@ -847,7 +851,7 @@ module Domgen
     # Assume single column pk
     def primary_key
       primary_key = attributes.find { |a| a.primary_key? }
-      Domgen.error("Unable to locate primary key for #{self.name}, attributes => #{attributes.collect { |a| a.name }}") unless primary_key
+      Domgen.error("Unable to locate primary key for #{self.qualified_name}, attributes: #{attributes.collect { |a| a.name }.inspect}") unless primary_key
       primary_key
     end
 
@@ -1092,7 +1096,6 @@ module Domgen
     def initialize(data_module, name, options, &block)
       @name = name
       data_module.send :register_exception, name, self
-      perform_extend(data_module, options[:extends])
       super(data_module, options, &block)
     end
 
@@ -1836,24 +1839,6 @@ module Domgen
                 other_entity.direct_subtypes.each { |st| other_entities << st }
                 other_entity.referencing_attributes << attribute
               end
-            end
-          end
-        end
-      end
-      # generate lists of subtypes for entity types
-      Logger.debug "Repository #{name}: Generate lists of subtypes for entities"
-      self.data_modules.each do |data_module|
-        data_module.entities.select { |entity| !entity.final? }.each do |entity|
-          subtypes = entity.subtypes
-          to_process = [entity]
-          completed = []
-          while to_process.size > 0
-            ot = to_process.pop
-            ot.direct_subtypes.each do |subtype|
-              next if completed.include?(subtype)
-              subtypes << subtype
-              to_process << subtype
-              completed << subtype
             end
           end
         end

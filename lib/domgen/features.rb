@@ -352,7 +352,15 @@ module Domgen
   module InheritableCharacteristicContainer
     include CharacteristicContainer
 
-    attr_accessor :extends
+    attr_reader :extends
+
+    def extends=(extends)
+      return if self.extends == extends
+      raise "#{self.qualified_name} already defined extends '#{self.extends}' and can not unset it" if !self.extends.nil? && extends.nil?
+      raise "#{self.qualified_name} already defined extends '#{self.extends}' and can not unset it" unless self.extends.nil?
+      self.data_module.entity_by_name(extends).perform_extend(self) if extends
+      @extends = extends
+    end
 
     def direct_subtypes
       @direct_subtypes ||= []
@@ -368,6 +376,25 @@ module Domgen
 
     def final?
       @final.nil? ? !abstract? : @final
+    end
+
+    def subtypes
+      if subtypes_obsolete? || @subtypes.nil?
+        @subtypes = []
+        to_process = [self]
+        completed = []
+        while to_process.size > 0
+          ot = to_process.pop
+          ot.direct_subtypes.each do |subtype|
+            next if completed.include?(subtype)
+            @subtypes << subtype
+            to_process << subtype
+            completed << subtype
+          end
+        end
+        @subtypes_obsolete = false
+      end
+      @subtypes
     end
 
     protected
@@ -429,11 +456,20 @@ module Domgen
       raise 'container_kind not specified for inhertiable container'
     end
 
-    def perform_extend(data_module, extends)
-      return unless extends
-      base_type = data_module.send :"#{container_kind}_by_name", extends
-      Domgen.error("#{container_kind} #{name} attempting to extend final #{container_kind} #{extends}") if base_type.final?
-      base_type.direct_subtypes << self
+    def mark_subtypes_as_obsolete
+      @subtypes_obsolete = true
+      self.data_module.send(:"#{container_kind}_by_name", self.extends).mark_subtypes_as_obsolete if self.extends
+    end
+
+    def subtypes_obsolete?
+      !!@subtypes_obsolete
+    end
+
+    ## Called on the parent by the child class
+    def perform_extend(subtype)
+      Domgen.error("#{container_kind} #{name} attempting to extend final #{container_kind} #{extends}") if self.final?
+      self.mark_subtypes_as_obsolete
+      self.direct_subtypes << subtype
     end
   end
 end
