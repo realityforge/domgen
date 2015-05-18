@@ -702,7 +702,7 @@ module Domgen
       @referencing_attributes = []
       @subtypes = []
       data_module.send :register_entity, name, self
-      perform_extend(data_module, :entity, options[:extends]) if options[:extends]
+      perform_extend(data_module, options[:extends])
       super(data_module, options, &block)
     end
 
@@ -725,7 +725,7 @@ module Domgen
     end
 
     def inherited_attributes
-      inherited_characteristics
+      inherited_characteristics.values
     end
 
     def attributes
@@ -871,10 +871,8 @@ module Domgen
 
     def new_characteristic(name, type, options, &block)
       override = false
-      if characteristic_map[name.to_s]
-        Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}") if !characteristic_map[name.to_s].abstract?
-        # nil out attribute so the characteristic container will not complain about it overriding an existing value
-        characteristic_map[name.to_s] = nil
+      if characteristic_exists?(name)
+        Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}") unless characteristic_by_name(name).abstract?
         override = true
       end
       Attribute.new(self, name, type, {:override => override}.merge(options), &block)
@@ -898,6 +896,10 @@ module Domgen
     end
 
     private
+
+    def container_kind
+      :entity
+    end
 
     def add_unique_to_set(type, constraint, set)
       Domgen.error("Only 1 #{type} constraint with name #{constraint.name} should be defined") if set[constraint.name]
@@ -1090,7 +1092,7 @@ module Domgen
     def initialize(data_module, name, options, &block)
       @name = name
       data_module.send :register_exception, name, self
-      perform_extend(data_module, :exception, options[:extends]) if options[:extends]
+      perform_extend(data_module, options[:extends])
       super(data_module, options, &block)
     end
 
@@ -1124,12 +1126,14 @@ module Domgen
 
     protected
 
+    def container_kind
+      :exception
+    end
+
     def new_characteristic(name, type, options, &block)
       override = false
-      if characteristic_map[name.to_s]
-        Domgen.error("Attempting to override non abstract parameter #{name} on #{self.name}") if !characteristic_map[name.to_s].abstract?
-        # nil out atribute so the characteristic container will not complain about it overriding an existing value
-        characteristic_map[name.to_s] = nil
+      if characteristic_exists?(name)
+        Domgen.error("Attempting to override non abstract parameter #{name} on #{self.name}") unless characteristic_by_name(name).abstract?
         override = true
       end
 
@@ -1218,7 +1222,7 @@ module Domgen
     end
 
     def parameters
-      characteristic_map.values
+      characteristics
     end
 
     def parameter(name, type, options = {}, &block)
