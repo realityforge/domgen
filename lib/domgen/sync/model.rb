@@ -212,6 +212,7 @@ module Domgen
 
           self.entity.sync.sync_temp_entity = e
           e.sync.sync_temp = true
+          e.abstract = self.entity.abstract?
 
           e.integer(:SyncTempID, :primary_key => true)
 
@@ -256,6 +257,7 @@ module Domgen
 
           self.entity.sync.master_entity = e
           e.sync.master = true
+          e.abstract = self.entity.abstract?
 
           e.integer(:ID, :primary_key => true)
           e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
