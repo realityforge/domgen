@@ -98,7 +98,7 @@ module Domgen
       def entities_to_synchronize
         raise 'entities_to_synchronize invoked when not master_data_module' unless master_data_module?
         data_module.repository.data_modules.select { |d| d.sync? }.collect do |dm|
-          dm.entities.select { |e| e.sync? && e.sync.synchronize? }
+          dm.entities.select { |e| !e.abstract? && e.sync? && e.sync.synchronize? }
         end.flatten
       end
 
