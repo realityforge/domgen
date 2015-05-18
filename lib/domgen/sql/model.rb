@@ -441,7 +441,6 @@ module Domgen
         @sequence_table.nil? ? false : !!@sequence_table
       end
 
-      attr_writer :table_name
       attr_accessor :partition_scheme
 
       #+force_overflow_for_large_objects+ if set to true will force the native *VARCHAR(max) and XML datatypes (i.e.
@@ -450,6 +449,11 @@ module Domgen
       # should be set to false unless the data columns are infrequently accessed relative to the other columns
       # TODO: MSSQL Specific
       attr_accessor :force_overflow_for_large_objects
+
+      def table_name=(table_name)
+        raise "sql.table_name= invoked on abstract entity #{entity.qualified_name}" if entity.abstract?
+        @table_name = table_name
+      end
 
       def table_name
         raise "sql.table_name invoked on abstract entity #{entity.qualified_name}" if entity.abstract?
