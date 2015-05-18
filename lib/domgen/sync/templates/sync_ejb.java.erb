@@ -150,7 +150,7 @@ public class <%= data_module.sync.sync_ejb_name %>
 <% attr = entity.attributes.select{|a| a.sql? && a.jpa? && a.sync? } -%>
 <% attr.each_with_index do |a, i| -%>
 <% if a.enumeration? && a.enumeration.textual_values? -%>
-        final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == result[ #{i} ] ? null : " : ''  %><%= a.jpa.java_type(:boundary) %>).valueOf( (java.lang.String) result[ <%= i %> ] );
+        final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == result[ #{i} ] ? null : " : ''  %><%= a.jpa.java_type(:boundary) %>.valueOf( (java.lang.String) result[ <%= i %> ] );
 <% elsif a.enumeration? -%>
         final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == result[ #{i} ] ? null : " : '' %><%= a.jpa.java_type(:boundary) %>.values()[ (java.lang.Integer) result[ <%= i %> ] ];
 <% else -%>
