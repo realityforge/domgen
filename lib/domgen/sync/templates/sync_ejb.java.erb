@@ -176,11 +176,33 @@ public class <%= data_module.sync.sync_ejb_name %>
           else
           {
 <% end -%>
+<% if a.referenced_entity.abstract? -%>
+            <%= a.jpa.java_type %> <%= a.name %>_ctor = null;
+<% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each do |subtype| -%>
+            if( null == <%= a.name %>_ctor )
+            {
+              final java.util.List r = _entityManager.
+                createNativeQuery( "SELECT <%= subtype.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.name : subtype.name ).sql.quoted_column_name %> FROM <%= subtype.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
+                setParameter( 1, v_<%= a.name %> ).
+                getResultList();
+              if( !r.isEmpty() )
+              {
+                <%= a.name %>_ctor = _<%= subtype.data_module.name %><%= subtype.name %>Repository.getBy<%= subtype.primary_key.name %>( (<%= a.jpa.java_type(:boundary) %>) r.get( 0 ) );
+              }
+            }
+<% end -%>
+            if( null == <%= a.name %>_ctor )
+            {
+              throw new IllegalStateException( "Unable to locate <%= a.referenced_entity.qualified_name %> referenced by <%= a.qualified_name %> with value " + v_<%= a.name %> );
+            }
+            v_<%= a.name %>_ctor = <%= a.name %>_ctor;
+<% else -%>
             final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %>_ctorID = (<%= a.jpa.java_type(:boundary) %>) _entityManager.
               createNativeQuery( "SELECT <%= a.referenced_entity.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.name : a.referenced_entity.name ).sql.quoted_column_name %> FROM <%= a.referenced_entity.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
                 setParameter( 1, v_<%= a.name %> ).
                 getSingleResult();
             v_<%= a.name %>_ctor = _<%= a.referenced_entity.data_module.name %><%= a.referenced_entity.name %>Repository.getBy<%= a.referenced_entity.primary_key.name %>( v_<%= a.name %>_ctorID );
+<% end -%>
 <% if a.nullable? -%>
           }
 <% end -%>
@@ -208,11 +230,33 @@ public class <%= data_module.sync.sync_ejb_name %>
           else
           {
 <% end -%>
+<% if a.referenced_entity.abstract? -%>
+            <%= a.jpa.java_type %> <%= a.name %>_ref = null;
+<% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each do |subtype| -%>
+            if( null == <%= a.name %>_ref )
+            {
+              final java.util.List r = _entityManager.
+                createNativeQuery( "SELECT <%= subtype.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.name : subtype.name ).sql.quoted_column_name %> FROM <%= subtype.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
+                setParameter( 1, v_<%= a.name %> ).
+                getResultList();
+              if( !r.isEmpty() )
+              {
+                <%= a.name %>_ref = _<%= subtype.data_module.name %><%= subtype.name %>Repository.getBy<%= subtype.primary_key.name %>( (<%= a.jpa.java_type(:boundary) %>) r.get( 0 ) );
+              }
+            }
+<% end -%>
+            if( null == <%= a.name %>_ref )
+            {
+              throw new IllegalStateException( "Unable to locate <%= a.referenced_entity.qualified_name %> referenced by <%= a.qualified_name %> with value " + v_<%= a.name %> );
+            }
+            entity.set<%= a.name %>( <%= a.name %>_ref );
+<% else -%>
             final <%= a.jpa.java_type(:boundary) %> v = (<%= a.jpa.java_type(:boundary) %>) _entityManager.
               createNativeQuery( "SELECT <%= a.referenced_entity.sync.master_entity.attribute_by_name( a.referenced_entity.name ).sql.quoted_column_name %> FROM <%= a.referenced_entity.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
                 setParameter( 1, v_<%= a.name %> ).
                 getSingleResult();
             entity.set<%= a.name %>( _<%= a.referenced_entity.data_module.name %><%= a.referenced_entity.name %>Repository.getBy<%= a.referenced_entity.primary_key.name %>( v ) );
+<% end -%>
 <% if a.nullable? -%>
           }
 <% end -%>
