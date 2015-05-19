@@ -197,8 +197,8 @@ module Domgen
       def pre_complete
         return unless synchronize?
 
-        self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_by_name?(:CreatedAt)
-        self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_by_name?(:DeletedAt)
+        self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_exists?(:CreatedAt)
+        self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_exists?(:DeletedAt)
         self.entity.jpa.detachable = true
 
         master_data_module = entity.data_module.repository.data_module_by_name(entity.data_module.repository.sync.master_data_module)

@@ -740,7 +740,7 @@ module Domgen
       characteristic(name, type, options, &block)
     end
 
-    def attribute_by_name?(name)
+    def attribute_exists?(name)
       characteristic_exists?(name)
     end
 
