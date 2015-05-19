@@ -855,14 +855,6 @@ module Domgen
       primary_key
     end
 
-    def attribute_by_name(name)
-      characteristic_by_name(name)
-    end
-
-    def attribute_exists?(name)
-      characteristic_exists?(name)
-    end
-
     def to_s
       "Entity[#{self.qualified_name}]"
     end
