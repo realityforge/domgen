@@ -213,6 +213,7 @@ module Domgen
           self.entity.sync.sync_temp_entity = e
           e.sync.sync_temp = true
           e.abstract = self.entity.abstract?
+          e.final = self.entity.final?
           e.extends = self.entity.extends
 
           if self.entity.extends.nil?
@@ -262,6 +263,7 @@ module Domgen
           self.entity.sync.master_entity = e
           e.sync.master = true
           e.abstract = self.entity.abstract?
+          e.final = self.entity.final?
           e.extends = self.entity.extends
 
           if self.entity.extends.nil?
