@@ -217,7 +217,7 @@ module Domgen
           e.extends = self.entity.extends
 
           if self.entity.extends.nil?
-            e.integer(:SyncTempID, :primary_key => true)
+            e.integer(:SyncTempID, :primary_key => true, :generated_value => true)
 
             e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
 
@@ -267,7 +267,7 @@ module Domgen
           e.extends = self.entity.extends
 
           if self.entity.extends.nil?
-            e.integer(:ID, :primary_key => true)
+            e.integer(:ID, :primary_key => true, :generated_value => true)
             e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
             e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
 
