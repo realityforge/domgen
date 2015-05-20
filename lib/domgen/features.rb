@@ -269,7 +269,7 @@ module Domgen
     def reference(other_type, options = {}, &block)
       name = options.delete(:name)
       if name.nil?
-        if other_type.to_s.include? "."
+        if other_type.to_s.include?('.')
           name = other_type.to_s.sub(/.+\./, '').to_sym
         else
           name = other_type
