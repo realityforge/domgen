@@ -55,7 +55,7 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
        end
      end
    end %>
-<% entity.referencing_attributes.each do |attribute|
+<% entity.referencing_attributes.select{ |a| a.inverse.traversable? }.each do |attribute|
     if attribute.inverse.multiplicity == :many
 %>
   has_many :<%= Domgen::Naming.pluralize(Domgen::Naming.underscore(attribute.inverse.name)) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
