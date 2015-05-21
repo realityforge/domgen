@@ -358,7 +358,7 @@ module Domgen
       return if self.extends == extends
       raise "#{self.qualified_name} already defined extends '#{self.extends}' and can not unset it" if !self.extends.nil? && extends.nil?
       raise "#{self.qualified_name} already defined extends '#{self.extends}' and can not unset it" unless self.extends.nil?
-      self.data_module.entity_by_name(extends).perform_extend(self) if extends
+      self.data_module.send("#{container_kind}_by_name", extends).perform_extend(self) if extends
       @extends = extends
     end
 
