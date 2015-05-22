@@ -26,6 +26,7 @@ module Domgen
 
     def complete
       extension_point(:pre_complete)
+      extension_point(:perform_complete)
       extension_point(:post_complete)
     end
 
