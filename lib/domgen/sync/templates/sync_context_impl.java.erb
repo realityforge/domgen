@@ -53,6 +53,16 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   }
 
 <% end -%>
+<% if !entity.primary_key.generated_value? && entity.primary_key.attribute_type == :text
+  s = data_module.service_by_name(:SynchronizationContext)
+  m = s.method_by_name("Generate#{entity.data_module.name}#{entity.name}Key")
+  -%>
+  @javax.annotation.Nonnull
+  public <%= m.return_value.ejb.java_type(:boundary) %> generate<%= entity.data_module.name %><%= entity.name %>Key(<%= m.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
+  {
+    return java.util.UUID.randomUUID().toString();
+  }
+<% end -%>
 
   @javax.annotation.Nonnull
   protected String get<%= fn %>Columns( @javax.annotation.Nullable final String prefix )

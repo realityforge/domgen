@@ -66,6 +66,32 @@ module Domgen
         master_data_module.service(:SynchronizationContext) do |s|
           s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
           master_data_module.sync.entities_to_synchronize.each do |entity|
+            unless entity.primary_key.generated_value?
+              s.method("Generate#{entity.data_module.name}#{entity.name}Key") do |m|
+                entity.attributes.select { |a| !a.primary_key? && a.sql? && a.jpa? && a.sync? }.each do |a|
+                  options = {}
+                  options[:collection_type] = a.collection_type
+                  options[:nullable] = a.nullable?
+
+                  attribute_type = a.attribute_type
+                  if a.reference?
+                    attribute_type = a.referenced_entity.primary_key.attribute_type
+                  elsif a.enumeration?
+                    options[:enumeration] = a.enumeration
+                    options[:length] = a.length if a.enumeration.textual_values?
+                  elsif a.text?
+                    options[:length] = a.length
+                    options[:min_length] = a.min_length
+                    options[:allow_blank] = a.allow_blank?
+                  end
+
+                  m.parameter(a.name, attribute_type, options)
+                end
+                # TODO Should probably support reference primary keys by passing other options
+                m.returns(entity.primary_key.attribute_type)
+              end
+            end
+
             s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToUpdate") do |m|
               m.text(:MappingSourceCode)
               m.returns(:text)

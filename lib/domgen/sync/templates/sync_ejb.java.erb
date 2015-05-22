@@ -208,7 +208,7 @@ public class <%= data_module.sync.sync_ejb_name %>
           }
 <% end -%>
 <% else -%>
-          v_<%= a.name %>_ctor = v_<%= a.name %>;
+          v_<%= a.name %>_ctor = <% if a.primary_key? -%>_context.generate<%= entity.qualified_name.to_s.gsub('.','') %>Key( <%= attr.select{|a| !a.primary_key?}.collect{|a| "v_#{a.name}"}.join(', ') %> )<% else -%>v_<%= a.name %><% end -%>;
 <% end -%>
 <% end -%>
           entity = new <%= entity.jpa.qualified_name %>(<%= attr.select{|a|a.immutable? && !a.generated_value?}.collect{|a| "v_#{a.name}_ctor"}.join(", ") %>);
