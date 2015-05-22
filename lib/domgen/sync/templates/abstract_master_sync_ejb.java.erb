@@ -118,9 +118,9 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 <% if a.referenced_entity.abstract? -%>
           "(" +
 <% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each_with_index do |subtype, index| -%>
-            "O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL OR " +
+            "O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL AND " +
 <% end -%>
-          " 1 = 0 )";
+          " 1 = 1 )";
 <% else -%>
           " O.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL";
 <% end -%>
