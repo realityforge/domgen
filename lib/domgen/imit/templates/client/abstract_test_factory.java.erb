@@ -8,7 +8,7 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
   private final <%= data_module.repository.imit.qualified_test_factory_set_name %> _factorySet;
   private final com.google.inject.Injector _injector;
 
-  protected <%= data_module.jpa.abstract_test_factory_name %>( @javax.annotation.Nonnull final <%= data_module.repository.imit.qualified_test_factory_set_name %> factorySet, @javax.annotation.Nonnull final com.google.inject.Injector injector )
+  protected <%= data_module.imit.abstract_test_factory_name %>( @javax.annotation.Nonnull final <%= data_module.repository.imit.qualified_test_factory_set_name %> factorySet, @javax.annotation.Nonnull final com.google.inject.Injector injector )
   {
     _factorySet = factorySet;
     _injector = injector;
