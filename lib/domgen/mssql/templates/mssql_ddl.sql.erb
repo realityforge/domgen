@@ -2,9 +2,8 @@
 <%= banner("DDL for Data Module '#{data_module.name}'") %>
 
 <% if data_module.repository.mssql.supports_sequences? -%>
-<% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| -%>
-<% entity.attributes.select {|a| a.sql.sequence?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote(a.sql.sequence_name) %> AS <%= a.sql.sql_type %> start with 1 increment by 1;
-<% end -%>
+<% data_module.sql.sequences.each do |sequence| -%>
+CREATE SEQUENCE <%= data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote(sequence.name) %> AS <%= sequence.sql_type %> start with 1 increment by 1;
 <% end -%>
 <% end -%>
 GO

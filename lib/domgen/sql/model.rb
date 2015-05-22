@@ -14,6 +14,17 @@
 
 module Domgen
   module Sql
+    class Sequence < Domgen.ParentedElement(:schema)
+      def initialize(schema, name, options, &block)
+        @name = name
+        schema.send(:register_sequence, name, self)
+        super(schema, options, &block)
+      end
+
+      attr_reader :name
+      attr_accessor :sql_type
+    end
+
     class Index < Domgen.ParentedElement(:table)
       attr_accessor :attribute_names
       attr_accessor :include_attribute_names
@@ -417,6 +428,34 @@ module Domgen
 
       def quoted_schema
         self.dialect.quote(self.schema)
+      end
+
+      def sequence(name, options = {}, &block)
+        Domgen::Sql::Sequence.new(self, name, options, &block)
+      end
+
+      def sequences
+        sequence_map.values
+      end
+
+      def sequence_by_name(name)
+        sequence = sequence_map[name.to_s]
+        raise "Unable to lcoate sequence #{name} in #{data_module.name}" unless sequence
+        sequence
+      end
+
+      def sequence_exists?(name)
+        !!sequence_map[name.to_s]
+      end
+
+      protected
+
+      def sequence_map
+        @sequences ||= Domgen::OrderedHash.new
+      end
+
+      def register_sequence(name, sequence)
+        sequence_map[name.to_s] = sequence
       end
     end
 
@@ -917,6 +956,15 @@ SQL
         @sequence_name = sequence_name
       end
 
+      def sequence
+        Domgen.error("sequence called on #{attribute.qualified_name} when not a sequence") unless self.sequence?
+        if attribute.entity.data_module.sql.sequence_exists?(self.sequence_name)
+          attribute.entity.data_module.sql.sequence_by_name(self.sequence_name)
+        else
+          attribute.entity.data_module.sql.sequence(self.sequence_name, 'sql_type' => self.sql_type)
+        end
+      end
+
       # TODO: MSSQL Specific
       attr_writer :sparse
 
@@ -964,6 +1012,10 @@ SQL
       end
 
       attr_accessor :default_value
+
+      def perform_complete
+        self.sequence if self.sequence?
+      end
     end
   end
 end
