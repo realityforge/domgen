@@ -293,7 +293,17 @@ module Domgen
           e.extends = self.entity.extends
 
           if self.entity.extends.nil?
-            e.integer(:ID, :primary_key => true, :generated_value => true)
+
+            if self.entity.direct_subtypes.empty?
+              e.integer(:ID, :primary_key => true, :generated_value => true)
+            else
+              e.integer(:ID,
+                        :primary_key => true,
+                        :generated_value => true,
+                        'sql.generator_type' => :sequence,
+                        'sql.sequence_name' => "#{self.entity.qualified_name.gsub('.', '')}Seq")
+            end
+
             e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
             e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
 
