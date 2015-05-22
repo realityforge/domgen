@@ -801,7 +801,7 @@ SQL
         end
 
         if self.entity.read_only?
-          trigger_name = "ReadOnlyCheck"
+          trigger_name = 'ReadOnlyCheck'
           unless trigger?(trigger_name)
             trigger(trigger_name) do |trigger|
               trigger.description("Ensure that #{self.entity.name} is read only.")
@@ -928,7 +928,7 @@ SQL
       attr_accessor :calculation
 
       def persistent_calculation=(persistent_calculation)
-        Domgen.error("Non calculated column can not be persistent") unless @calculation
+        Domgen.error('Non calculated column can not be persistent') unless @calculation
         @persistent_calculation = persistent_calculation
       end
 
