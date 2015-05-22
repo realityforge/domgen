@@ -1296,6 +1296,16 @@ module Domgen
       @methods[name.to_s] = method
       method
     end
+
+    def method_by_name(name)
+      m = @methods[name.to_s]
+      Domgen.error("Attempting to retrieve non-existent method #{name} on #{self.name}") unless m
+      m
+    end
+
+    def method_by_name?(name)
+      !!@methods[name.to_s]
+    end
   end
 
   class DataModule <  self.FacetedElement(:repository)
