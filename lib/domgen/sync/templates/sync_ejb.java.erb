@@ -130,9 +130,22 @@ public class <%= data_module.sync.sync_ejb_name %>
       query.setParameter( 1, mappingSourceCode );
       return query.getResultList();
     }
+    catch ( final Exception e )
+    {
+      recordSyncError( recorder, 1, "Error retrieving set of <%= entity.qualified_name %> to update", e );
+      _transaction.setRollbackOnly();
+      throw e;
+    }
     finally
     {
-      _transaction.commit();
+      if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
+      {
+        _transaction.rollback();
+      }
+      else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
+      {
+        _transaction.commit();
+      }
     }
   }
 
@@ -291,7 +304,9 @@ public class <%= data_module.sync.sync_ejb_name %>
       }
       catch ( final Exception e )
       {
+        recordSyncError( recorder, 1, "Error synchronizing <%= entity.qualified_name %> updates", e );
         _transaction.setRollbackOnly();
+        throw e;
       }
       finally
       {
@@ -301,7 +316,7 @@ public class <%= data_module.sync.sync_ejb_name %>
         {
           _transaction.rollback();
         }
-        else
+        else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
         {
           _transaction.commit();
         }
@@ -324,9 +339,22 @@ public class <%= data_module.sync.sync_ejb_name %>
       query.setParameter( 1, mappingSourceCode );
       return query.getResultList();
     }
+    catch ( final Exception e )
+    {
+      recordSyncError( recorder, 1, "Error retrieving set of <%= entity.qualified_name %> to remove", e );
+      _transaction.setRollbackOnly();
+      throw e;
+    }
     finally
     {
-      _transaction.commit();
+      if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
+      {
+        _transaction.rollback();
+      }
+      else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
+      {
+        _transaction.commit();
+      }
     }
   }
 
@@ -359,11 +387,24 @@ public class <%= data_module.sync.sync_ejb_name %>
           }
         }
       }
+      catch ( final Exception e )
+      {
+        recordSyncError( recorder, 1, "Error synchronizng <%= entity.qualified_name %> removals", e );
+        _transaction.setRollbackOnly();
+        throw e;
+      }
       finally
       {
-        org.realityforge.replicant.server.ee.ReplicationRequestUtil.completeReplication( _registry, _entityManager, _endpoint );
         // End Replication "Hook"
-        _transaction.commit();
+        org.realityforge.replicant.server.ee.ReplicationRequestUtil.completeReplication( _registry, _entityManager, _endpoint );
+        if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
+        {
+          _transaction.rollback();
+        }
+        else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
+        {
+          _transaction.commit();
+        }
       }
     }
   }
