@@ -183,7 +183,7 @@ public class <%= data_module.sync.sync_ejb_name %>
             if( null == <%= a.name %>_ctor )
             {
               final java.util.List r = _entityManager.
-                createNativeQuery( "SELECT <%= subtype.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.root_entity.name : subtype.root_entity.name ).sql.quoted_column_name %> FROM <%= subtype.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
+                createNativeQuery( "SELECT <%= subtype.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.root_entity.name : subtype.root_entity.name ).sql.quoted_column_name %> FROM <%= subtype.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('MappingID') %> = ?" ).
                 setParameter( 1, v_<%= a.name %> ).
                 getResultList();
               if( !r.isEmpty() )
@@ -199,7 +199,7 @@ public class <%= data_module.sync.sync_ejb_name %>
             v_<%= a.name %>_ctor = <%= a.name %>_ctor;
 <% else -%>
             final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %>_ctorID = (<%= a.jpa.java_type(:boundary) %>) _entityManager.
-              createNativeQuery( "SELECT <%= a.referenced_entity.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.root_entity.name : a.referenced_entity.root_entity.name ).sql.quoted_column_name %> FROM <%= a.referenced_entity.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
+              createNativeQuery( "SELECT <%= a.referenced_entity.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.root_entity.name : a.referenced_entity.root_entity.name ).sql.quoted_column_name %> FROM <%= a.referenced_entity.sync.master_entity.sql.qualified_table_name %> WHERE <%= data_module.sql.dialect.quote('MappingID') %> = ?" ).
                 setParameter( 1, v_<%= a.name %> ).
                 getSingleResult();
             v_<%= a.name %>_ctor = _<%= a.referenced_entity.data_module.name %><%= a.referenced_entity.name %>Repository.getBy<%= a.referenced_entity.primary_key.name %>( v_<%= a.name %>_ctorID );
