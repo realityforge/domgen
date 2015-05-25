@@ -76,10 +76,10 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     if a.reference?
       ref_index += 1
       if a.referenced_entity.abstract?
-        subtype_index = 0
-        "COALESCE(#{a.referenced_entity.subtypes.select{|a| !a.abstract? }.collect do |subtype, index| "R#{ref_index}#{subtype_index+=1}.#{data_module.sql.dialect.quote('MappingID')}" end.join(', ')})"
+        index = -1
+        "COALESCE(#{a.referenced_entity.subtypes.select{|a| !a.abstract? }.collect do |subtype| "R#{ref_index}#{index += 1}.#{subtype.sync.master_entity.attribute_by_name( subtype.root_entity.name ).sql.quoted_column_name}" end.join(', ')})"
       else
-        "R#{ref_index}.#{data_module.sql.dialect.quote('MappingID')}"
+        "R#{ref_index}.#{a.referenced_entity.sync.master_entity.attribute_by_name( a.referenced_entity.root_entity.name ).sql.quoted_column_name}"
       end
     else
       "M.#{entity.sync.master_entity.attribute_by_name( a.primary_key? ? a.entity.root_entity.name : a.name ).sql.quoted_column_name}"
