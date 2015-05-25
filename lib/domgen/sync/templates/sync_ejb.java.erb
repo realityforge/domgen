@@ -289,11 +289,22 @@ public class <%= data_module.sync.sync_ejb_name %>
         _entityManager.flush();
         _<%= entity.data_module.name %><%= entity.name %>Repository.detach( entity );
       }
+      catch ( final Exception e )
+      {
+        _transaction.setRollbackOnly();
+      }
       finally
       {
-        org.realityforge.replicant.server.ee.ReplicationRequestUtil.completeReplication( _registry, _entityManager, _endpoint );
         // End Replication "Hook"
-        _transaction.commit();
+        org.realityforge.replicant.server.ee.ReplicationRequestUtil.completeReplication( _registry, _entityManager, _endpoint );
+        if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
+        {
+          _transaction.rollback();
+        }
+        else
+        {
+          _transaction.commit();
+        }
       }
     }
   }
