@@ -344,7 +344,7 @@ module Domgen
             end
             options[:collection_type] = a.collection_type
             options[:nullable] = a.nullable? || a.primary_key?
-            options[:immutable] = a.immutable?
+            options[:immutable] = !a.primary_key? && a.immutable?
             options[:set_once] = a.set_once?
             options[:unique] = a.unique?
 
