@@ -435,6 +435,11 @@ module Domgen
         base_type = self.data_module.send(:"#{container_kind}_by_name", self.extends)
         Domgen.error("#{container_kind} #{name} attempting to extend final #{container_kind} #{self.extends}") if base_type.final?
         mod_count = base_type.characteristic_modify_count
+        t = base_type
+        while t.extends
+          t = self.data_module.send(:"#{container_kind}_by_name", t.extends)
+          mod_count += t.characteristic_modify_count
+        end
         if @inherited_characteristics.nil? || @inherited_characteristics_mod_count != mod_count
           @inherited_characteristics_mod_count = mod_count
           @inherited_characteristics = Domgen::OrderedHash.new
