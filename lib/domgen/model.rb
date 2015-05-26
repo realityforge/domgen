@@ -729,7 +729,7 @@ module Domgen
     end
 
     def inherited_attributes
-      inherited_characteristics.values
+      inherited_characteristics
     end
 
     def attributes
