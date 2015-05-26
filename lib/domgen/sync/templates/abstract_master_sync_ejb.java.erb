@@ -166,7 +166,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
           "SELECT S.* " +
           " FROM " +
           "   <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS S " +
-          "JOIN ( SELECT SyncTempID FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE NOT (<%= constraint.sql %>) ) J ON J.SyncTempID = S.SyncTempID;
+          "JOIN ( SELECT SyncTempID FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE NOT (<%= constraint.sql.gsub("\n",' ').gsub('  ',' ') %>) ) J ON J.SyncTempID = S.SyncTempID";
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to violate constraint <%= constraint.qualified_constraint_name %>", recorder ) )
         {
           validationFailed = true;
