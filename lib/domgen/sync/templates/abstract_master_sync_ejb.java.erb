@@ -150,7 +150,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 <%
   refs = []
   a.referenced_entity.subtypes.select{|a| !a.abstract? }.each_with_index do |subtype, index|
-    refs << "R#{index}"
+    refs << "R#{index}.ID"
 -%>
           " LEFT JOIN <%= subtype.sync.master_entity.sql.qualified_table_name %> AS R<%= index %> ON R<%= index %>.MappingID = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND R<%= index %>.MappingSource = S.MappingSource AND R<%= index %>.DeletedAt IS NULL " +
 <% end
