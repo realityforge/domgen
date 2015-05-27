@@ -271,6 +271,7 @@ public class <%= data_module.sync.sync_ejb_name %>
           recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount", 1 );
         }
         _entityManager.flush();
+        // TODO: Consider _entityManager.getEntityManagerFactory().getCache().evictAll();
         _<%= entity.data_module.name %><%= entity.name %>Repository.detach( entity );
       }
       catch ( final Exception e )
