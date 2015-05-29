@@ -1,10 +1,29 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(data_module.sync.qualified_abstract_master_sync_ejb_name) %>;
 
-public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
+public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H extends <%= data_module.sync.qualified_sync_temp_factory_name %>>
   extends iris.syncrecord.server.service.StandardSyncService
 {
   protected static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= data_module.sync.abstract_master_sync_ejb_name %>.class.getName() );
+
+  private H _st;
+
+  @javax.annotation.Nonnull
+  protected final H st()
+  {
+    if( null == _st )
+    {
+      _st = createSyncTempFactory();
+    }
+    return _st;
+  }
+
+  @java.lang.SuppressWarnings( "unchecked" )
+  @javax.annotation.Nonnull
+  protected H createSyncTempFactory()
+  {
+    return (H) new <%= data_module.sync.qualified_sync_temp_factory_name %>( getEntityManager() );
+  }
 
   protected void syncControl( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final boolean forceSync )
   {
@@ -51,7 +70,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 
   protected void reset<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
-    getEntityManager().createNativeQuery( "DELETE FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, mappingSourceCode ).executeUpdate();
+    st(). deleteAll<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode );
   }
 
   protected int count<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
@@ -278,13 +297,10 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 
   protected int sync<%= entity.qualified_name.gsub('.','') %>UpdatesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
-<%
-attr_to_sync = entity.sync.master_entity.attributes.select{|a| a.sync? && !a.primary_key? && ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) && !(a.reference? && !a.referenced_entity.sync.master?)}
- -%>
 <% reference_index = 0 -%>
     final String sql =
       "UPDATE M " +
-      " SET <%= entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name %> = 0, <%= attr_to_sync.collect{|a| "#{entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name} = #{
+      " SET <%= entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name %> = 0, <%= entity.sync.attributes_to_synchronize.collect{|a| "#{entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name} = #{
 if a.reference?
   reference_index += 1
   col_name = entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name
@@ -306,7 +322,7 @@ end
       " JOIN <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> T ON M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> " +
 <% reference_index = 0 -%>
 <%
-  attr_to_sync.select{|a| a.reference? }.each do |a|
+  entity.sync.attributes_to_synchronize.select{|a| a.reference? }.each do |a|
    reference_index += 1
 -%>
 <% if a.referenced_entity.abstract? -%>
@@ -325,7 +341,7 @@ end
       "   M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ? AND " +
 <%
   reference_index = 0
-  attr_to_sync.select{|a| a.reference? }.each do |a|
+  entity.sync.attributes_to_synchronize.select{|a| a.reference? }.each do |a|
     reference_index += 1
     next unless a.nullable?
 -%>
@@ -343,7 +359,7 @@ end
       "   (" +
 <%
   reference_index = 0
-  attr_to_sync.each do |a|
+  entity.sync.attributes_to_synchronize.each do |a|
    reference_value = if a.reference?
       reference_index += 1
       col_name = entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name
@@ -376,13 +392,12 @@ end
   protected int sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
 <%
-attr_to_sync = entity.sync.master_entity.attributes.select{|a| a.sync? && !a.primary_key? && ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) && !(a.reference? && !a.referenced_entity.sync.master?)}
-is_recursive = attr_to_sync.any?{|a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name}
+is_recursive = entity.sync.attributes_to_synchronize.any?{|a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name}
  -%>
 <% reference_index = 0 -%>
     final String sql =
-      "INSERT INTO <%= entity.sync.master_entity.sql.qualified_table_name %>(<%= entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name %>, <%= entity.sync.master_entity.attribute_by_name(:CreatedAt).sql.quoted_column_name %>, <%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= attr_to_sync.collect{|a| a.sql.quoted_column_name }.join(', ') %>) " +
-      " SELECT 0, ?, T.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= attr_to_sync.collect{|a|
+      "INSERT INTO <%= entity.sync.master_entity.sql.qualified_table_name %>(<%= entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name %>, <%= entity.sync.master_entity.attribute_by_name(:CreatedAt).sql.quoted_column_name %>, <%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= entity.sync.attributes_to_synchronize.collect{|a| a.sql.quoted_column_name }.join(', ') %>) " +
+      " SELECT 0, ?, T.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= entity.sync.attributes_to_synchronize.collect{|a|
 if a.reference?
   reference_index += 1
   col_name = entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name
@@ -407,7 +422,7 @@ end
       "     M.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
 <% reference_index = 0 -%>
 <%
-  attr_to_sync.select{|a| a.reference? }.each do |a|
+  entity.sync.attributes_to_synchronize.select{|a| a.reference? }.each do |a|
    reference_index += 1
 -%>
 <% if a.referenced_entity.abstract? -%>
@@ -426,7 +441,7 @@ end
       "   M.<%= entity.sync.master_entity.attribute_by_name(:ID).sql.quoted_column_name %> IS NULL AND " +
 <%
   reference_index = 0
-  attr_to_sync.select{|a| a.reference? }.each do |a|
+  entity.sync.attributes_to_synchronize.select{|a| a.reference? }.each do |a|
     reference_index += 1
     next unless a.nullable?
 -%>
@@ -540,14 +555,6 @@ end
 
     log( recorder, "Completed synchronization of <%= entity.qualified_name %>" );
   }
-
-  protected void insert<%= entity.qualified_name.gsub('.','') %>IntoSyncTempBySql( @javax.annotation.Nonnull final String selectSql )
-  {
-    final String sql =
-      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= attr_to_sync.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }.join(', ') %>) " +
-      selectSql;
-    executeUpdate( sql );
-  }
 <% end -%>
 
   protected void log( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final String message )
@@ -556,12 +563,6 @@ end
     recorder.addMessage( message );
   }
 
-  protected void insertMasterDataSourceIfRequired( @javax.annotation.Nonnull final String dataSource )
-  {
-    executeUpdate( "INSERT INTO Master.tblMappingSource(Code) " +
-                   "  SELECT '" + dataSource + "' " +
-                   "  WHERE 0 = (SELECT COUNT(*) FROM Master.tblMappingSource WHERE Code = '" + dataSource + "')" );
-  }
   protected int executeUpdate( @javax.annotation.Nonnull final String sql )
   {
     return getEntityManager().createNativeQuery( sql ).executeUpdate();

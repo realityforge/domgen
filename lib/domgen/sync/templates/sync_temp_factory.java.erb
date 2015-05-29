@@ -1,0 +1,77 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.sync.qualified_sync_temp_factory_name) %>;
+
+public class <%= data_module.sync.sync_temp_factory_name %>
+{
+  private final javax.persistence.EntityManager _entityManager;
+
+  protected <%= data_module.sync.sync_temp_factory_name %>( final javax.persistence.EntityManager entityManager )
+  {
+    if( null == entityManager )
+    {
+      throw new IllegalArgumentException( "entityManager is null" );
+    }
+    _entityManager = entityManager;
+  }
+
+  protected final javax.persistence.EntityManager getEntityManager()
+  {
+    return _entityManager;
+  }
+<% data_module.sync.entities_to_synchronize.each do |entity|
+
+  sync_attribtues = entity.sync.attributes_to_synchronize.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name) }
+-%>
+
+  public int deleteAll<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
+  {
+    return getEntityManager().createNativeQuery( "DELETE FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, mappingSourceCode ).executeUpdate();
+  }
+
+  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final String selectSql )
+  {
+    final String sql =
+      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= sync_attribtues.collect{|a| a.sql.quoted_column_name }.join(', ') %>) " +
+      selectSql;
+    return executeUpdate( sql );
+  }
+
+  public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
+
+  attribute_names = entity.sync.attributes_to_synchronize.collect{|a| a.name.to_s}
+
+  entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
+    if a.reference?
+      sa = entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID")
+      "#{nullability_annotation(sa.nullable?)} final java.lang.String #{Domgen::Naming.camelize(sa.name)}"
+    else
+      sa = entity.sync.sync_temp_entity.attribute_by_name(a.name)
+      "#{annotated_type(a, :jpa, :boundary, :final => true)} #{Domgen::Naming.camelize(sa.name)}"
+    end
+  end.join(', ')
+%> )
+  {
+    final String sql =
+      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %>, <%= entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }.join(', ') %>) VALUES (?,?,<%= entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| '?'}.join(',') %>)";
+    return getEntityManager().createNativeQuery( sql ).
+      setParameter( 1, mappingSourceCode ).
+      setParameter( 2, mappingID ).
+<% entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.each_with_index do |a, i| -%>
+      setParameter( <%= i + 3 %>, <%= Domgen::Naming.camelize((a.reference? ? entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID") : entity.sync.sync_temp_entity.attribute_by_name(a.name)).name) %> ).
+<% end -%>
+      executeUpdate();
+  }
+<% end -%>
+
+  public void insertMasterDataSourceIfRequired( @javax.annotation.Nonnull final String dataSource )
+  {
+    executeUpdate( "INSERT INTO <%= data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name %>(Code) " +
+                   "  SELECT '" + dataSource + "' " +
+                   "  WHERE 0 = (SELECT COUNT(*) FROM <%= data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name %> WHERE [Code] = '" + dataSource + "')" );
+  }
+
+  protected int executeUpdate( @javax.annotation.Nonnull final String sql )
+  {
+    return getEntityManager().createNativeQuery( sql ).executeUpdate();
+  }
+}

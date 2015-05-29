@@ -118,6 +118,7 @@ module Domgen
       include Domgen::Java::EEClientServerJavaPackage
 
       java_artifact :sync_ejb, :service, :server, :sync, 'SynchronizationServiceEJB'
+      java_artifact :sync_temp_factory, :service, :server, :sync, 'SyncTempFactory'
       java_artifact :abstract_master_sync_ejb, :service, :server, :sync, 'AbstractMasterSyncServiceEJB'
       java_artifact :sync_context_impl, :service, :server, :sync, 'AbstractSynchronizationContext'
 
@@ -210,6 +211,13 @@ module Domgen
 
       def entity_prefix
         @entity_prefix || entity.data_module.sync.entity_prefix
+      end
+
+      def attributes_to_synchronize
+        entity.sync.master_entity.attributes.select do |a|
+          a.sync? && !a.primary_key? && ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) &&
+            !(a.reference? && !a.referenced_entity.sync.master?)
+        end
       end
 
       def master_data_module
