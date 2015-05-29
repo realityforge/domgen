@@ -94,6 +94,7 @@ public class <%= data_module.sync.sync_ejb_name %>
         final long entityStartAt = System.currentTimeMillis();
         log( mappingSourceCode, "Synchronizing <%= entity.qualified_name %> adds and updates" );
         synchronize<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
+        mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( mappingSourceCode, recorder );
         final int addCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount" ).get();
         final int updateCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount" ).get();
         log( mappingSourceCode, "Added " + addCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
@@ -314,6 +315,39 @@ public class <%= data_module.sync.sync_ejb_name %>
     catch ( final Exception e )
     {
       recordSyncError( recorder, 1, "Error retrieving set of <%= entity.qualified_name %> to remove", e );
+      _transaction.setRollbackOnly();
+      throw e;
+    }
+    finally
+    {
+      if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
+      {
+        _transaction.rollback();
+      }
+      else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
+      {
+        _transaction.commit();
+      }
+    }
+  }
+
+  @java.lang.SuppressWarnings( "unchecked" )
+  private int mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+    throws Exception
+  {
+    _transaction.begin();
+    try
+    {
+      final String sql = "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET <%= data_module.sql.dialect.quote('MasterSynchronized') %> = 1 WHERE <%= data_module.sql.dialect.quote('MasterSynchronized') %> = 0 AND <%= entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name %> IS NULL AND <%= data_module.sql.dialect.quote('MappingSource') %> = ?";
+      final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
+      query.setParameter( 1, mappingSourceCode );
+      final int count = query.executeUpdate();
+      recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UnsyncRemovals", count );
+      return count;
+    }
+    catch ( final Exception e )
+    {
+      recordSyncError( recorder, 1, "Error updating unsynchronized and removed <%= entity.qualified_name %> instances", e );
       _transaction.setRollbackOnly();
       throw e;
     }
