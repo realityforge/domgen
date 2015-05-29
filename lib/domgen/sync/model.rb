@@ -117,10 +117,12 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::EEClientServerJavaPackage
 
+       # Artifacts to sync out of Master
       java_artifact :sync_ejb, :service, :server, :sync, 'SynchronizationServiceEJB'
+      java_artifact :sync_context_impl, :service, :server, :sync, 'AbstractSynchronizationContext'
+       # Artifacts to sync into Master
       java_artifact :sync_temp_factory, :service, :server, :sync, 'SyncTempFactory'
       java_artifact :abstract_master_sync_ejb, :service, :server, :sync, 'AbstractMasterSyncServiceEJB'
-      java_artifact :sync_context_impl, :service, :server, :sync, 'AbstractSynchronizationContext'
 
       def entities_to_synchronize
         raise 'entities_to_synchronize invoked when not master_data_module' unless master_data_module?
