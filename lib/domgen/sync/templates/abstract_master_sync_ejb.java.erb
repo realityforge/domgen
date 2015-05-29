@@ -386,14 +386,24 @@ end
 <% end -%>
       "     1 = 0 " +
       "   )";
-    return getEntityManager().createNativeQuery( sql ).setParameter( 1, mappingSourceCode ).executeUpdate();
+<% java_command = "getEntityManager().createNativeQuery( sql ).setParameter( 1, mappingSourceCode ).executeUpdate()" -%>
+<% if entity.sync.recursive? -%>
+    // Handle recursive tables
+    int count = <%= java_command -%>;
+    int total = count;
+    while( count  > 0 )
+    {
+      count = <%= java_command -%>;
+      total += count;
+    }
+    return total;
+<% else -%>
+    return <%= java_command -%>;
+<% end -%>
   }
 
   protected int sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
-<%
-is_recursive = entity.sync.attributes_to_synchronize.any?{|a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name}
- -%>
 <% reference_index = 0 -%>
     final String sql =
       "INSERT INTO <%= entity.sync.master_entity.sql.qualified_table_name %>(<%= entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name %>, <%= entity.sync.master_entity.attribute_by_name(:CreatedAt).sql.quoted_column_name %>, <%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= entity.sync.attributes_to_synchronize.collect{|a| a.sql.quoted_column_name }.join(', ') %>) " +
@@ -457,7 +467,7 @@ end
 <% end -%>
       "   T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?";
 <% java_command = "getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, mappingSourceCode ).executeUpdate()" -%>
-<% if is_recursive -%>
+<% if entity.sync.recursive? -%>
     // Handle recursive tables
     int count = <%= java_command -%>;
     int total = count;

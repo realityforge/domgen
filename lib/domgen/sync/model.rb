@@ -180,6 +180,14 @@ module Domgen
         @master.nil? ? false : @master
       end
 
+      attr_writer :recursive
+
+      # Is the entity recursive?
+      # i.e. Do the sync operations need to repeat until 0 actions
+      def recursive?
+        @recursive.nil? ? (entity.sync.attributes_to_synchronize.any?{|a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name}) : @recursive
+      end
+
       def sync_temp_entity=(sync_temp_entity)
         @sync_temp_entity = sync_temp_entity
       end

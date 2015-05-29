@@ -167,8 +167,16 @@ public class <%= data_module.sync.sync_ejb_name %>
   private void synchronize<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
+<% if entity.sync.recursive? -%>
+    // loop to handle recursive entities
+    while( true )
+    {
+<% end -%>
     final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
-
+    if ( results.isEmpty() )
+    {
+      return;
+    }
     for ( final Object[] result : results )
     {
       // Start Replication "Hook"
@@ -295,6 +303,9 @@ public class <%= data_module.sync.sync_ejb_name %>
         }
       }
     }
+<% if entity.sync.recursive? -%>
+    }
+<% end -%>
   }
 <% end -%>
 <% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
@@ -367,7 +378,16 @@ public class <%= data_module.sync.sync_ejb_name %>
   private void synchronize<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
+<% if entity.sync.recursive? -%>
+    // loop to handle recursive entities
+    while( true )
+    {
+<% end -%>
     final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
+    if ( results.isEmpty() )
+    {
+      return;
+    }
     for ( final Object[] result : results )
     {
       // Start Replication "Hook"
@@ -413,6 +433,9 @@ public class <%= data_module.sync.sync_ejb_name %>
         }
       }
     }
+<% if entity.sync.recursive? -%>
+    }
+<% end -%>
   }
 <% end -%>
 }
