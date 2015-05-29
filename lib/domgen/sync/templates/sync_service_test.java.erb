@@ -1,0 +1,83 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.sync.qualified_sync_service_test_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= data_module.sync.sync_service_test_name %><H extends <%= data_module.sync.qualified_master_factory_name %>>
+  extends <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_test_name %>
+{
+  @javax.annotation.Nonnull
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
+  protected H m;
+
+  @org.testng.annotations.BeforeMethod
+  @java.lang.Override
+  public void preTest()
+    throws Exception
+  {
+    super.preTest();
+    m = createMasterFactory();
+  }
+
+  @java.lang.SuppressWarnings( "unchecked" )
+  @javax.annotation.Nonnull
+  protected H createMasterFactory()
+  {
+    return (H) new <%= data_module.sync.qualified_master_factory_name %>( em() );
+  }
+
+  @javax.annotation.Nonnull
+  protected final iris.syncrecord.server.entity.Synchronization doSyncAndLoadResults( @javax.annotation.Nonnull final String dataSource, @javax.annotation.Nonnull final String statusCode )
+  {
+    final iris.syncrecord.server.data_type.SyncStatusDTO status = doSync( dataSource );
+    org.testng.Assert.assertEquals( statusCode, status.getStatus() );
+    org.testng.Assert.assertEquals( dataSource, status.getDataSourceCode() );
+
+    return ensureSynchronization( status );
+  }
+
+  @javax.annotation.Nonnull
+  protected final iris.syncrecord.server.data_type.SyncStatusDTO doSync( @javax.annotation.Nonnull final String dataSource )
+  {
+    s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( org.realityforge.replicant.shared.transport.ReplicantContext.REPLICATION_INVOCATION_KEY, null );
+    return service().synchronizeDataSource( dataSource );
+  }
+
+  protected final void assertEntityMetrics( @javax.annotation.Nonnull final iris.syncrecord.server.entity.Synchronization synchronization,
+                                            final String entity,
+                                            final int addCount,
+                                            final int updateCount,
+                                            final int removeCount )
+  {
+    assertMetric( synchronization, entity + ".AddCount", addCount );
+    assertMetric( synchronization, entity + ".UpdateCount", updateCount );
+    assertMetric( synchronization, entity + ".RemoveCount", removeCount );
+  }
+
+  protected final void assertMetric( final iris.syncrecord.server.entity.Synchronization synchronization,
+                                     final String key,
+                                     final int value )
+  {
+    org.testng.Assert.assertEquals( getMetric( synchronization, key ), value, "Expected metric '" + key + "' to be equal to " + value );
+  }
+
+  @javax.annotation.Nonnull
+  protected final iris.syncrecord.server.entity.Synchronization ensureSynchronization( @javax.annotation.Nonnull final iris.syncrecord.server.data_type.SyncStatusDTO syncStatus )
+  {
+    final Integer synchronizationID = syncStatus.getSynchronization();
+    org.testng.Assert.assertNotNull( synchronizationID );
+    return s( iris.syncrecord.server.service.SyncRecordService.class ).loadSynchronization( synchronizationID );
+  }
+
+  protected final int getMetric( final iris.syncrecord.server.entity.Synchronization synchronization, final String key )
+  {
+    for ( final iris.syncrecord.server.entity.Metric metric : synchronization.getMetrics() )
+    {
+      if ( metric.getCode().equals( key ) )
+      {
+        return metric.getValue();
+      }
+    }
+    return -1;
+  }
+}
