@@ -120,6 +120,8 @@ module Domgen
        # Artifacts to sync out of Master
       java_artifact :sync_ejb, :service, :server, :sync, 'SynchronizationServiceEJB'
       java_artifact :sync_context_impl, :service, :server, :sync, 'AbstractSynchronizationContext'
+      java_artifact :master_factory, :service, :server, :sync, 'MasterFactory'
+
        # Artifacts to sync into Master
       java_artifact :sync_temp_factory, :service, :server, :sync, 'SyncTempFactory'
       java_artifact :abstract_master_sync_ejb, :service, :server, :sync, 'AbstractMasterSyncServiceEJB'
