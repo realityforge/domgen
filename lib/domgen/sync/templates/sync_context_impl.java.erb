@@ -69,7 +69,9 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   public String getSqlToRetrieve<%= fn %>ListToUpdate( @javax.annotation.Nonnull final String mappingSourceCode )
   {
 <%
-  criteria = "M.#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = 0 AND M.#{entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = ? AND M.#{entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL"
+  common_criteria = "M.#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = 0 AND M.#{entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = ?"
+  criteria = "#{common_criteria} AND M.#{entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL"
+  remove_criteria = "#{common_criteria} AND M.#{entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL"
   create_criteria = ''
 
   ref_index = 0
@@ -165,14 +167,16 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <%= cte -%>
       "SELECT M.<%= entity.sync.master_entity.primary_key.sql.quoted_column_name %>, M.<%= entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name %> " +
       "FROM <%= table %> M " +
-      "WHERE <%= criteria %> AND M.<%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> IS NOT NULL " +
+      "JOIN <%= entity.sql.qualified_table_name %> O ON M.<%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> = O.<%= entity.primary_key.sql.quoted_column_name %> " +
+      "WHERE <%= remove_criteria %> " +
       "<%= order_by %>";
 <% else -%>
     /*
     return
       "SELECT M.<%= entity.sync.master_entity.primary_key.sql.quoted_column_name %>, M.<%= entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name %> " +
       "FROM <%= table %> M " +
-      "WHERE <%= criteria %> AND M.<%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> IS NOT NULL " +
+      "JOIN <%= entity.sql.qualified_table_name %> O ON M.<%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> = O.<%= entity.primary_key.sql.quoted_column_name %> " +
+      "WHERE <%= remove_criteria %> " +
       "<%= order_by %>";
     */
     throw new IllegalStateException( "Override getSqlToRetrieve<%= fn %>ListToRemove() due to multiple recursive attributes." );
