@@ -18,51 +18,96 @@ public class <%= data_module.sync.master_factory_name %>
   {
     return _entityManager;
   }
-<% data_module.sync.entities_to_synchronize.each do |entity|
 
-  sync_attribtues = entity.sync.attributes_to_synchronize.collect{|a| entity.sync.master_entity.attribute_by_name(a.name) }
--%>
+<% data_module.sync.entities_to_synchronize.each do |entity| -%>
 
-  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final String selectSql )
+  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String selectSql )
   {
     final String sql =
-      "INSERT INTO <%= entity.sync.master_entity.sql.qualified_table_name %>(<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= sync_attribtues.collect{|a| a.sql.quoted_column_name }.join(', ') %>) " +
+      "INSERT INTO <%= entity.sync.master_entity.sql.qualified_table_name %>(<%= entity.sync.master_entity.attributes.select{|a|!a.primary_key?}.collect{|a| a.sql.quoted_column_name }.join(', ') %>) " +
       selectSql;
-    return executeUpdate( sql );
+    return executeUpdate( sql.replace( "@@MAPPING_SOURCE@@", "'" + mappingSourceCode + "'" ) );
   }
 
-  public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
-
-  attribute_names = entity.sync.attributes_to_synchronize.collect{|a| a.name.to_s}
-
-  entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
-      "#{annotated_type(a, :jpa, :boundary, :final => true)} #{Domgen::Naming.camelize(a.name)}"
-  end.join(', ')
+  public int insert<%= entity.qualified_name.gsub('.','') %>(<%=
+  entity.sync.master_entity.attributes.
+    select{|a|!a.primary_key? && (entity.attribute_exists?(a.name) || %w(MappingID MappingSource).include?(a.name.to_s))}.
+    collect do |a|
+      type =
+        if entity.attribute_exists?(a.name)
+          annotated_type(entity.attribute_by_name(a.name), :jpa, :transport, :final => true)
+        elsif %w(MappingID MappingSource).include?(a.name.to_s)
+          "#{nullability_annotation(false)} final java.lang.String"
+        else
+          raise "unknown attribute #{a.name}"
+        end
+      "#{type} #{Domgen::Naming.camelize(a.reference? ? a.referencing_link_name : a.name)}"
+    end.
+    join(', ')
 %> )
   {
+    return insert<%= entity.qualified_name.gsub('.','') %>(<%=
+
+  entity.sync.master_entity.attributes.
+    select{|a|!a.primary_key? }.
+    collect do |a|
+      if entity.attribute_exists?(a.name) || %w(MappingID MappingSource).include?(a.name.to_s)
+        Domgen::Naming.camelize(a.reference? ? a.referencing_link_name : a.name)
+      elsif a.name.to_s == 'CreatedAt'
+        "new java.util.Date()"
+      elsif a.name.to_s == 'MasterSynchronized'
+        "false"
+      else
+        "null"
+      end
+    end.
+    join(', ')
+%>);
+  }
+
+  public int insert<%= entity.qualified_name.gsub('.','') %>(<%=
+
+  entity.sync.master_entity.attributes.
+    select{|a|!a.primary_key? }.
+    collect do |a|
+      type =
+        if entity.attribute_exists?(a.name)
+          annotated_type(entity.attribute_by_name(a.name), :jpa, :transport, :final => true)
+        elsif entity.root_entity.name.to_s == a.name.to_s
+          annotated_type(entity.primary_key, :jpa, :transport, :final => true, :nullable => true)
+        elsif %w(MasterSynchronized).include?(a.name.to_s)
+          "final boolean"
+        elsif %w(MappingID MappingSource).include?(a.name.to_s)
+          "#{nullability_annotation(false)} final java.lang.String"
+        else
+          "#{nullability_annotation('DeletedAt' == a.name.to_s)} final java.util.Date"
+        end
+      "#{type} #{Domgen::Naming.camelize(a.reference? ? a.referencing_link_name : a.name)}"
+    end.
+    join(', ')
+%>)
+  {
     final String sql =
-      "INSERT INTO <%= entity.sync.master_entity.sql.qualified_table_name %>([MasterSynchronized],[CreatedAt],<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= entity.sync.attributes_to_synchronize.collect{|a| entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name }.join(', ') %>) OUTPUT INSERTED.[ID] AS [ID] VALUES (0, GETDATE(), ?,?,<%= entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| '?'}.join(',') %>)";
+      "INSERT INTO <%= entity.sync.master_entity.sql.qualified_table_name %>(<%= entity.sync.master_entity.attributes.select{|a|!a.primary_key?}.collect{|a| a.sql.quoted_column_name }.join(', ') %>) OUTPUT INSERTED.[ID] AS [ID] VALUES (<%= entity.sync.master_entity.attributes.select{|a|!a.primary_key?}.collect{|a| '?' }.join(', ') %>)";
     return (Integer) getEntityManager().createNativeQuery( sql ).
-      setParameter( 1, mappingSourceCode ).
-      setParameter( 2, mappingID ).
-<% entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.each_with_index do |a, i| -%>
-      setParameter( <%= i + 3 %>, <%= Domgen::Naming.camelize(a.name) %> ).
+<% entity.sync.master_entity.attributes.select{|a|!a.primary_key?}.each_with_index do |a, i| -%>
+      setParameter( <%= i + 1 %>, <%= Domgen::Naming.camelize(a.reference? ? a.referencing_link_name : a.name) %> ).
 <% end -%>
       getResultList().get( 0 );
   }
 
-
-  public int update<%= entity.qualified_name.gsub('.','') %>( final int id, <%=
+  public int update<%= entity.qualified_name.gsub('.','') %>( final int id<%=
 
   attribute_names = entity.sync.attributes_to_synchronize.select{|a| !a.immutable? }.collect{|a| a.name.to_s}
 
-  entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
+  s = entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
       "#{annotated_type(a, :jpa, :boundary, :final => true)} #{Domgen::Naming.camelize(a.name)}"
   end.join(', ')
+  s.size > 0 ? ", #{s}" : ''
 %> )
   {
     final String sql =
-      "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET [MasterSynchronized] = 0, <%= entity.sync.attributes_to_synchronize.select{|a| !a.immutable? && a.name.to_s != 'MappingID'}.collect{|a| "#{entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name} = ?" }.join(', ') %> WHERE ID = ?";
+      "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET [MasterSynchronized] = 0<%= s = entity.sync.attributes_to_synchronize.select{|a| !a.immutable? && a.name.to_s != 'MappingID'}.collect{|a| "#{entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name} = ?" }.join(', '); s.size > 0 ? ", #{s}" : ''  %> WHERE ID = ?";
     return getEntityManager().createNativeQuery( sql ).
 <% attr = entity.attributes.select{|a| !a.immutable? && attribute_names.include?(a.name.to_s) } -%>
 <% attr.each_with_index do |a, i| -%>

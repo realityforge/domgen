@@ -183,12 +183,20 @@ module Domgen
         @master.nil? ? false : @master
       end
 
+      def transaction_time=(transaction_time)
+        @transaction_time = transaction_time
+      end
+
+      def transaction_time?
+        @transaction_time.nil? ? false : !!@transaction_time
+      end
+
       attr_writer :recursive
 
       # Is the entity recursive?
       # i.e. Do the sync operations need to repeat until 0 actions
       def recursive?
-        @recursive.nil? ? (entity.sync.attributes_to_synchronize.any?{|a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name}) : @recursive
+        @recursive.nil? ? (entity.sync.attributes_to_synchronize.any?{|a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name}) : !!@recursive
       end
 
       def sync_temp_entity=(sync_temp_entity)
@@ -244,8 +252,10 @@ module Domgen
       def pre_complete
         return unless synchronize?
 
-        self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_exists?(:CreatedAt)
-        self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_exists?(:DeletedAt)
+        if entity.sync.transaction_time?
+          self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_exists?(:CreatedAt)
+          self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_exists?(:DeletedAt)
+        end
         self.entity.jpa.detachable = true
 
         master_data_module = entity.data_module.repository.data_module_by_name(entity.data_module.repository.sync.master_data_module)
@@ -266,9 +276,8 @@ module Domgen
           if self.entity.extends.nil?
             e.integer(:SyncTempID, :primary_key => true, :generated_value => true)
 
-            e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
-
             e.reference("#{self.master_data_module}.#{self.entity.data_module.repository.sync.mapping_source_attribute}", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
+            e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
           end
 
           self.entity.attributes.select { |a| !a.inherited? }.each do |a|
@@ -325,12 +334,11 @@ module Domgen
                         'sql.sequence_name' => "#{self.entity.qualified_name.gsub('.', '')}Seq")
             end
 
-            e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
             e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
-
-            e.sql.index([:MappingID, :MappingSource], :unique => true, :filter => 'DeletedAt IS NULL')
-
+            e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
             e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
+
+            e.sql.index([:MappingSource, :MappingID], :unique => true, :filter => 'DeletedAt IS NULL')
           end
 
           self.entity.attributes.select { |a| !a.inherited? || a.primary_key? }.each do |a|
@@ -377,6 +385,11 @@ module Domgen
           end
           self.entity.unique_constraints.each do |constraint|
             e.sql.index(constraint.attribute_names, :unique => true, :filter => 'DeletedAt IS NULL')
+          end
+
+          unless entity.sync.transaction_time?
+            e.datetime(:CreatedAt, :immutable => true) unless entity.attribute_exists?(:CreatedAt)
+            e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_exists?(:DeletedAt)
           end
         end
       end
