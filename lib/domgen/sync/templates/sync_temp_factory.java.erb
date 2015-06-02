@@ -54,7 +54,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
       "#{nullability_annotation(sa.nullable?)} final java.lang.String #{Domgen::Naming.camelize(sa.name)}"
     else
       sa = entity.sync.sync_temp_entity.attribute_by_name(a.name)
-      "#{annotated_type(a, :jpa, :boundary, :final => true)} #{Domgen::Naming.camelize(sa.name)}"
+      "#{annotated_type(a, :jpa, :transport, :final => true)} #{Domgen::Naming.camelize(sa.name)}"
     end
   end.join(', ')
 %> )
