@@ -136,9 +136,15 @@ public class <%= data_module.sync.master_factory_name %>
 
   public void insertMasterDataSourceIfRequired( @javax.annotation.Nonnull final String dataSource )
   {
-    executeUpdate( "INSERT INTO <%= data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name %>(Code) " +
-                   "  SELECT '" + dataSource + "' " +
-                   "  WHERE 0 = (SELECT COUNT(*) FROM <%= data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name %> WHERE [Code] = '" + dataSource + "')" );
+    executeUpdate( dataSource,
+                   "INSERT INTO <%= data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name %>(Code) " +
+                   "  SELECT @@MAPPING_SOURCE@@ " +
+                   "  WHERE 0 = (SELECT COUNT(*) FROM <%= data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name %> WHERE [Code] = @@MAPPING_SOURCE@@)" );
+  }
+
+  protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String sql )
+  {
+    return executeUpdate( sql.replace( "@@MAPPING_SOURCE@@", "'" + mappingSourceCode + "'" ) );
   }
 
   protected int executeUpdate( @javax.annotation.Nonnull final String sql )
