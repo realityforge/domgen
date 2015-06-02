@@ -72,6 +72,12 @@ public class <%= data_module.sync.sync_temp_factory_name %>
 
   protected int executeUpdate( @javax.annotation.Nonnull final String sql )
   {
-    return getEntityManager().createNativeQuery( sql ).executeUpdate();
+    return getEntityManager().createNativeQuery( interpolateSql( sql ) ).executeUpdate();
+  }
+
+  @javax.annotation.Nonnull
+  protected String interpolateSql( @javax.annotation.Nonnull final String sql )
+  {
+    return sql;
   }
 }
