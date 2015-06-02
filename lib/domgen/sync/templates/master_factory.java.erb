@@ -35,7 +35,11 @@ public class <%= data_module.sync.master_factory_name %>
     collect do |a|
       type =
         if entity.attribute_exists?(a.name)
-          annotated_type(entity.attribute_by_name(a.name), :jpa, :transport, :final => true)
+          if a.reference?
+          "#{nullability_annotation(a.nullable?)} final java.lang.Integer"
+          else
+            annotated_type(entity.attribute_by_name(a.name), :jpa, :transport, :final => true)
+          end
         elsif %w(MappingID MappingSource).include?(a.name.to_s)
           "#{nullability_annotation(false)} final java.lang.String"
         else
@@ -72,7 +76,11 @@ public class <%= data_module.sync.master_factory_name %>
     collect do |a|
       type =
         if entity.attribute_exists?(a.name)
-          annotated_type(entity.attribute_by_name(a.name), :jpa, :transport, :final => true)
+          if a.reference?
+          "#{nullability_annotation(a.nullable?)} final java.lang.Integer"
+          else
+            annotated_type(entity.attribute_by_name(a.name), :jpa, :transport, :final => true)
+          end
         elsif entity.root_entity.name.to_s == a.name.to_s
           annotated_type(entity.primary_key, :jpa, :transport, :final => true, :nullable => true)
         elsif %w(MasterSynchronized).include?(a.name.to_s)
@@ -101,7 +109,13 @@ public class <%= data_module.sync.master_factory_name %>
   attribute_names = entity.sync.attributes_to_synchronize.select{|a| !a.immutable? }.collect{|a| a.name.to_s}
 
   s = entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
-      "#{annotated_type(a, :jpa, :boundary, :final => true)} #{Domgen::Naming.camelize(a.name)}"
+    type =
+      if a.reference?
+      "#{nullability_annotation(a.nullable?)} final java.lang.Integer"
+      else
+        annotated_type(a, :jpa, :transport, :final => true)
+      end
+    "#{type} #{Domgen::Naming.camelize(a.name)}"
   end.join(', ')
   s.size > 0 ? ", #{s}" : ''
 %> )
