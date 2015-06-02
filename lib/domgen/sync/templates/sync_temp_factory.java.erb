@@ -36,6 +36,14 @@ public class <%= data_module.sync.sync_temp_factory_name %>
     return executeUpdate( sql );
   }
 
+  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String selectSql )
+  {
+    final String sql =
+      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= sync_attribtues.collect{|a| a.sql.quoted_column_name }.join(', ') %>) " +
+      selectSql;
+    return executeUpdate( mappingSourceCode, sql );
+  }
+
   public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
 
   attribute_names = entity.sync.attributes_to_synchronize.collect{|a| a.name.to_s}
