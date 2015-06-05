@@ -39,6 +39,16 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( $_ );
     return $_;
   }
+<% if entity.attributes.any?{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?} -%>
+
+  public final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  {
+<% entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
+    entity.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
+<% end -%>
+    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( entity );
+  }
+<% end -%>
 <% end -%>
 <% end -%>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
