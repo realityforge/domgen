@@ -527,6 +527,10 @@ module Domgen
       elsif base_name =~ /^[iI]nsert.+$/
         self.query_type = :insert if @query_type.nil?
         return base_name
+      elsif base_name =~ /^[cC]ount.+$/
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :one if @multiplicity.nil?
+        return base_name
       elsif self.query_type == :select
         if self.multiplicity == :many
           :"FindAllBy#{base_name}"
