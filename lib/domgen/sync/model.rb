@@ -14,7 +14,7 @@
 
 module Domgen
   class Sync
-    VALID_MASTER_FACETS = [:sql, :mssql, :ee, :ejb, :java, :sync]
+    VALID_MASTER_FACETS = [:sql, :mssql, :ee, :ejb, :java, :jpa, :sync]
     VALID_SYNC_TEMP_FACETS = [:sql, :mssql, :sync]
   end
 
@@ -313,6 +313,8 @@ module Domgen
           end
         end
 
+        dao = master_data_module.dao_by_name?(:MasterDAO) ? master_data_module.dao_by_name(:MasterDAO) : master_data_module.dao(:MasterDAO)
+
         master_data_module.entity("#{self.entity.sync.entity_prefix}#{self.entity.name}") do |e|
           e.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
 
@@ -390,6 +392,27 @@ module Domgen
           unless entity.sync.transaction_time?
             e.datetime(:CreatedAt, :immutable => true) unless entity.attribute_exists?(:CreatedAt)
             e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_exists?(:DeletedAt)
+          end
+
+          unless e.abstract?
+            e.query(:FindByMappingSourceAndMappingID)
+            e.query(:GetByMappingSourceAndMappingID)
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
+            e.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+            e.jpa.test_update_default(e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingID => nil, :CreatedAt => nil, :DeletedAt => nil)
+            e.jpa.test_update_default(e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingID => nil)
+            e.jpa.test_update_default(:CreatedAt => nil, :DeletedAt => nil)
+            dao.query("Count#{e.name}ByMappingSource") do |q|
+              q.jpa.sql ="SELECT COUNT(*) FROM #{e.sql.qualified_table_name} WHERE #{e.attribute_by_name(:MappingSource).sql.quoted_column_name} = :MappingSource"
+              q.reference(:MappingSource)
+              q.result_type = :integer
+            end
+            dao.query("CountUnsynchronized#{e.name}ByMappingSource") do |q|
+              q.jpa.sql ="SELECT COUNT(*) FROM #{e.sql.qualified_table_name} WHERE #{e.attribute_by_name(:MappingSource).sql.quoted_column_name} = :MappingSource AND [MasterSynchronized] = 0"
+              q.reference(:MappingSource)
+              q.result_type = :integer
+            end
           end
         end
       end

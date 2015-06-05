@@ -7,23 +7,22 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
   extends <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_test_name %>
 {
   @javax.annotation.Nonnull
-  @javax.annotation.Nonnull
-  protected final iris.syncrecord.server.entity.Synchronization doSyncAndLoadResults( @javax.annotation.Nonnull final String dataSource, @javax.annotation.Nonnull final String statusCode )
+  protected final iris.syncrecord.server.entity.Synchronization doSyncAndLoadResults( @javax.annotation.Nonnull final String mappingSource, @javax.annotation.Nonnull final String statusCode )
   {
-    return iris.syncrecord.server.test.util.SyncAssert.ensureSynchronization( doSync( dataSource ), dataSource, statusCode, s( iris.syncrecord.server.service.SyncRecordService.class ) );
+    return iris.syncrecord.server.test.util.SyncAssert.ensureSynchronization( doSync( mappingSource ), mappingSource, statusCode, s( iris.syncrecord.server.service.SyncRecordService.class ) );
   }
 
   @javax.annotation.Nonnull
-  protected final iris.syncrecord.server.data_type.SyncStatusDTO doSync( @javax.annotation.Nonnull final String dataSource )
+  protected final iris.syncrecord.server.data_type.SyncStatusDTO doSync( @javax.annotation.Nonnull final String mappingSource )
   {
     s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( org.realityforge.replicant.shared.transport.ReplicantContext.REPLICATION_INVOCATION_KEY, null );
-    return service().synchronizeDataSource( dataSource );
+    return service().synchronizeDataSource( mappingSource );
   }
 
-  protected final void assertNoUnsynchronized( @javax.annotation.Nonnull final String dataSource )
+  protected final void assertNoUnsynchronized( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource )
   {
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-    org.testng.Assert.assertEquals( 0, m.countUnsynchronized<%= entity.qualified_name.gsub('.','') %>( dataSource ) );
+    org.testng.Assert.assertEquals( (Integer) 0, s( <%= data_module.dao_by_name(:MasterDAO).jpa.qualified_dao_service_name %>.class ).countUnsynchronized<%= entity.name %>ByMappingSource( mappingSource ) );
 <% end -%>
   }
 }
