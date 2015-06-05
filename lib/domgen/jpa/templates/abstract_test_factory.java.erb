@@ -49,6 +49,11 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( entity );
   }
 <% end -%>
+
+  public final void remove<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  {
+    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().remove( entity );
+  }
 <% end -%>
 <% end -%>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
