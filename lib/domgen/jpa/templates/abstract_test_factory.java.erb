@@ -59,7 +59,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
 
   @javax.annotation.Nonnull
-  protected final <%= entity.dao.jpa.qualified_dao_service_name %> <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>()
+  public final <%= entity.dao.jpa.qualified_dao_service_name %> <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>()
   {
     return s( <%= entity.dao.jpa.qualified_dao_service_name %>.class );
   }
