@@ -46,12 +46,6 @@ Domgen.template_set(:sync_core_ejb) do |template_set|
                         'test/java/#{data_module.sync.qualified_master_sync_service_test_name.gsub(".","/")}.java',
                         Domgen::Generator::Sync::HELPERS,
                         :guard => 'data_module.sync.master_data_module?')
-  template_set.template(Domgen::Generator::Sync::FACETS,
-                        :data_module,
-                        "#{Domgen::Generator::Sync::TEMPLATE_DIRECTORY}/master_factory.java.erb",
-                        'test/java/#{data_module.sync.qualified_master_factory_name.gsub(".","/")}.java',
-                        Domgen::Generator::Sync::HELPERS,
-                        :guard => 'data_module.sync.master_data_module?')
 end
 Domgen.template_set(:sync_master_ejb) do |template_set|
   template_set.template(Domgen::Generator::Sync::FACETS,

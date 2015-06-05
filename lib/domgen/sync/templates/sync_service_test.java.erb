@@ -3,29 +3,10 @@ package <%= to_package(data_module.sync.qualified_sync_service_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
-public abstract class <%= data_module.sync.sync_service_test_name %><H extends <%= data_module.sync.qualified_master_factory_name %>>
+public abstract class <%= data_module.sync.sync_service_test_name %>
   extends <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_test_name %>
 {
   @javax.annotation.Nonnull
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
-  protected H m;
-
-  @org.testng.annotations.BeforeMethod
-  @java.lang.Override
-  public void preTest()
-    throws Exception
-  {
-    super.preTest();
-    m = createMasterFactory();
-  }
-
-  @java.lang.SuppressWarnings( "unchecked" )
-  @javax.annotation.Nonnull
-  protected H createMasterFactory()
-  {
-    return (H) new <%= data_module.sync.qualified_master_factory_name %>( em() );
-  }
-
   @javax.annotation.Nonnull
   protected final iris.syncrecord.server.entity.Synchronization doSyncAndLoadResults( @javax.annotation.Nonnull final String dataSource, @javax.annotation.Nonnull final String statusCode )
   {
