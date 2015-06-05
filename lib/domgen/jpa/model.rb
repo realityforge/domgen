@@ -33,6 +33,39 @@ end
 
 module Domgen
   module JPA
+    class DefaultValues < Domgen.ParentedElement(:entity)
+      def initialize(entity, defaults, options = {}, &block)
+        raise "Attempted to define test_default on abstract entity #{entity.qualified_name}" if entity.abstract?
+        raise "Attempted to define test_default on #{entity.qualified_name} with no values" if defaults.empty?
+        defaults.keys.each do |key|
+          raise "Attempted to define test_default on #{entity.qualified_name} with key '#{key}' that is not an attribute value" unless entity.attribute_exists?(key)
+          a = entity.attribute_by_name(key)
+          raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute has no jpa facet defined. Defaults = #{defaults.inspect}" unless a.jpa?
+          raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute when non persistent. Defaults = #{defaults.inspect}" unless a.jpa.persistent?
+          raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute when generated. Defaults = #{defaults.inspect}" if a.generated_value?
+        end
+        values = {}
+        defaults.each_pair do |k, v|
+          values[k.to_s] = v
+        end
+        @values = values
+
+        super(entity, options, &block)
+      end
+
+      def has_attribute?(name)
+        @values.keys.include?(name.to_s)
+      end
+
+      def value_for(name)
+        @values[name.to_s]
+      end
+
+      def values
+        @values.dup
+      end
+    end
+
     module BaseJpaField
       def cascade
         @cascade || []
@@ -257,6 +290,22 @@ module Domgen
 
       def entity_listeners
         @entity_listeners ||= []
+      end
+
+      def test_create_default(defaults)
+        (@test_create_defaults ||= []) << Domgen::JPA::DefaultValues.new(entity, defaults)
+      end
+
+      def test_create_defaults
+        @test_create_defaults.nil? ? [] : @test_create_defaults.dup
+      end
+
+      def test_update_default(defaults)
+        (@test_update_defaults ||= []) << Domgen::JPA::DefaultValues.new(entity, defaults)
+      end
+
+      def test_update_defaults
+        @test_update_defaults.nil? ? [] : @test_update_defaults.dup
       end
 
       def pre_verify
