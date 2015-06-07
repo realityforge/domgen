@@ -1,0 +1,145 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on https://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen">
+  <link rel="stylesheet" href="stylesheets/github-dark.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Domgen</title>
+  <meta name="description" content="A generator that will produce ActiveRecord (ruby) and Hibernate (java) persistent objects from a schema definition">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Domgen</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">A generator that will produce ActiveRecord (ruby) and Hibernate (java) persistent objects from a schema definition</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/realityforge/domgen/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/realityforge/domgen/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/realityforge/domgen" class="code">View Domgen on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <p>h1. Domgen</p>
+
+<p>A generator that can produce several persistent object artifacts from a common schema definition.</p>
+
+<p>Currently supported output formats are:</p>
+
+<ul>
+<li>ActiveRecord (Ruby on Rails)</li>
+<li>Plain Ruby classes</li>
+<li>JPA/Hibernate Beans (Java)</li>
+<li>Plain Javabeans (Java)</li>
+<li>SQL DDL (MS-SQL Specific)</li>
+</ul>
+
+<p>h1. Schema Definition</p>
+
+<p>The common schema is defined in a common file, @schema_set.rb@.</p>
+
+<p>h2. Example:</p>
+
+<p>bc..</p>
+
+<ol>
+<li> Domgen.define_schema_set(:myapp) do |ss|</li>
+<li>    ss.define_generator(:sql)
+3.</li>
+<li>    ss.define_schema("Core") do |s|</li>
+<li>      s.sql.schema = 'dbo'</li>
+<li>      s.java.package = 'my.application.model'
+7.</li>
+<li>      s.define_generator(:jpa)</li>
+<li>      s.define_generator(:active_record)
+10.
+
+<ol>
+<li>      s.define_object_type(:User) do |t|</li>
+<li>        t.integer(:ID, :primary_key =&gt; true)</li>
+<li>        t.string(:Login, 20, :unique =&gt; true, :allow_nil =&gt; false, :allow_blank =&gt; false)</li>
+<li>        t.string(:Nickname, 1..30, :unique =&gt; true)</li>
+<li>        t.string(:Signature, 255)</li>
+<li>      end
+17.</li>
+<li>      s.define_object_type(:Post) do |t|</li>
+<li>        t.integer(:ID, :primary_key =&gt; true)</li>
+<li>        t.reference(:User, :name =&gt; :PostedBy, :inverse_traversable =&gt; false)</li>
+<li>        t.string(:Subject, 1..50, :allow_blank =&gt; false)</li>
+<li>        t.datetime(:PostedAt)</li>
+<li>        t.boolean(:StickyPost)</li>
+<li>        t.text(:Content, :allow_nil =&gt; true)
+25.</li>
+<li>        t.sql.index([:PostedAt])</li>
+<li>      end
+28.</li>
+<li>      s.define_object_type(:Comment) do |t|</li>
+<li>        t.integer(:ID, :primary_key =&gt; true)</li>
+<li>        t.reference(:Post, :immutable =&gt; true, :inverse_multiplicity =&gt; :one)</li>
+<li>        t.reference(:User, :name =&gt; :PostedBy, :inverse_traversable =&gt; false)</li>
+<li>        t.text(:Content, :allow_nil =&gt; true)</li>
+<li>     end
+35.</li>
+<li>    end</li>
+<li> end</li>
+</ol>
+</li>
+</ol>
+
+<p>h3. Example Explanation</p>
+
+<ul>
+<li><p>@Domgen.define_schema_set(:myapp) do |ss|@  (Line 1) := Defines the schema set.</p></li>
+<li><p>@ss.define_generator(:sql)@  (Line 2) := Tells domgen to create schema SQL DDL files for this schema set.</p></li>
+<li><p>@ss.define_schema("Core") do |s|@  (Line 4) := Defines a schema inside the schema set. in this case, called <a href="https://github.com/Core" class="user-mention">@Core</a>@.</p></li>
+<li><p><a href="https://github.com/s" class="user-mention">@s</a>.sql.schema = 'dbo'@  (Line 5) := Defines the database schema for this schema.</p></li>
+<li><p>@s.java.package = 'my.application.model'@  (Line 6) := Defines the java package in which to generate java model classes.</p></li>
+<li><p>@s.define_generator(:jpa)@  (Line 8) := Tells domgen to generate JPA beans.</p></li>
+<li><p>@s.define_generator(:active_record)@  (Line 9) := Tells domgen to generate ActiveRecord model classes.</p></li>
+<li><p>@s.define_object_type(:User) do |t|@  (Line 11) := Defines a <a href="https://github.com/User" class="user-mention">@User</a>@ table and corresponding model object.</p></li>
+<li><p>@t.integer(:ID, :primary_key =&gt; true)@  (Line 12) := Column/field definition for the primary key.</p></li>
+<li><p><a href="https://github.com/t" class="user-mention">@t</a>.string(:Login, 20, :unique =&gt; true, :allow_nil =&gt; false, :allow_blank =&gt; false)@  (Line 13) := Column/field definition for a string type, with a max length of 20, disallowing <a href="https://github.com/NULL" class="user-mention">@NULL</a>@, blank values (i.e. length less than 1) and must be unique.</p></li>
+<li><p><a href="https://github.com/t" class="user-mention">@t</a>.string(:Nickname, 1..30, :unique =&gt; true)@  (Line 14) := Another string column. The <a href="https://github.com/1" class="user-mention">@1</a>..30@ defines the minimum and maximum lengths. A minumum of more than zero implies @:allow_blank =&gt; false@.</p></li>
+<li><p>@t.reference(:User, :name =&gt; :PostedBy, :inverse_traversable =&gt; false)@  (Line 20) := A reference to another object, in this case, back to @<a href="mailto:User@">User@</a>. The @:inverse_traversable =&gt; false@ indicated that the inverse relationship <em>back</em> to <a href="https://github.com/Post" class="user-mention">@Post</a>@ will <em>not</em> be created on the <a href="https://github.com/User" class="user-mention">@User</a>@ class. @:name =&gt; :PostedBy@ gives a custom name to both the model field and the database column.</p></li>
+<li><p><a href="https://github.com/t" class="user-mention">@t</a>.sql.index[:PostedAt]@ (Line 26) := Creates an SQL index on that column.</p></li>
+<li><p>@t.reference(:Post, :immutable =&gt; true, :inverse_multiplicity =&gt; :many)@ (Line 31) := A relationship from <a href="https://github.com/Comment" class="user-mention">@Comment</a>@ to @<a href="mailto:Post@">Post@</a>. The @:inverse_relationship =&gt; :has_many@ creates a collection model association from <a href="https://github.com/Post" class="user-mention">@Post</a>@ to <a href="https://github.com/Comment" class="user-mention">@Comment</a>@, i.e <em>Posts have many comments</em> .</p></li>
+</ul>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/realityforge" class="avatar"><img src="https://avatars3.githubusercontent.com/u/11840?v=3&amp;s=60" width="48" height="48"></a> <a href="https://github.com/realityforge">realityforge</a> maintains <a href="https://github.com/realityforge/domgen">Domgen</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/realityforge/domgen/tarball/master" class="tar">tar</a><a href="https://github.com/realityforge/domgen/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
