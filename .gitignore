@@ -1,0 +1,7 @@
+/_site
+.DS_Store
+/*.iml
+/*.ipr
+/*.iws
+/.rakeTasks
+/Gemfile.lock
