@@ -36,7 +36,11 @@ public <%= struct.abstract? ? "abstract " : "" %>class <%= struct.ee.name %>
 <% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join(", ") %>})<% end -%>
   public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Domgen::Naming.camelize(field.name)}" }.join(", ") %> )
   {
-<% struct.fields.each do |field|
+<% if struct.extends
+%>    super( <%=struct.fields.select{ |field| field.inherited? }.collect{ |field| "#{Domgen::Naming.camelize(field.name)}" }.join(", ") %> );
+<% end
+%>
+<% struct.fields.select{ |field| !field.inherited? }.each do |field|
      null_protection = field.nullable? ? "#{Domgen::Naming.camelize(field.name)} == null ? null : " : ""
      if :sequence == field.collection_type
 %>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.ee.java_component_type %>>( <%= Domgen::Naming.camelize(field.name) %> ) );
@@ -47,7 +51,7 @@ public <%= struct.abstract? ? "abstract " : "" %>class <%= struct.ee.name %>
 <%   end
    end
 %>  }
-<% struct.fields.each do |field|
+<% struct.fields.select{ |field| !field.inherited? }.each do |field|
 %>
   <%= annotated_type(field, :ee, :boundary, :public => true, :final => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
