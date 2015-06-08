@@ -481,8 +481,8 @@ p.tagline {
 .download-bar {
   background: #222;
   border: 5px solid #444;
-  padding: 10px;
-  margin: 0 -35px 20px;
+  padding: 4px;
+  margin: 0 -35px 25px;
   position: relative;
 }
 
@@ -552,7 +552,7 @@ p.tagline {
 .download-bar a.code {
   background: transparent url(../images/code.png) no-repeat 0 2px;
   padding-left: 35px;
-  margin-top: 8px;
+  margin-top: 0;
   display: block;
   float: left;
   text-indent: 0;
