@@ -7,7 +7,7 @@ package <%= to_package(struct.ee.qualified_name) %>;
 <%= jackson_class_annotations(struct) if struct.jackson? -%>
 <%= jaxb_class_annotations(struct) if struct.jaxb? -%>
 
-public class <%= struct.ee.name %>
+public <%= struct.abstract? ? "abstract " : "" %>class <%= struct.ee.name %>
   implements java.io.Serializable
 {
   private static final long serialVersionUID = 1;
