@@ -8,7 +8,9 @@ package <%= to_package(struct.ee.qualified_name) %>;
 <%= jaxb_class_annotations(struct) if struct.jaxb? -%>
 
 public <%= struct.abstract? ? "abstract " : "" %>class <%= struct.ee.name %>
-  implements java.io.Serializable
+<%= struct.extends ?
+  "    extends #{struct.data_module.struct_by_name(struct.extends).ee.qualified_name}\n" :
+  "    implements java.io.Serializable" %>
 {
   private static final long serialVersionUID = 1;
 

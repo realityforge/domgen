@@ -909,7 +909,7 @@ module Domgen
   end
 
   class StructField < Domgen.FacetedElement(:struct)
-    include Characteristic
+    include InheritableCharacteristic
 
     attr_reader :field_type
     attr_reader :component_name
@@ -940,11 +940,12 @@ module Domgen
 
   class Struct < self.FacetedElement(:data_module)
     include GenerateFacet
-    include CharacteristicContainer
+    include InheritableCharacteristicContainer
 
     def initialize(data_module, name, options, &block)
       @name = name
       data_module.send :register_struct, name, self
+      perform_extend(data_module, :struct, options[:extends]) if options[:extends]
       super(data_module, options, &block)
     end
 
