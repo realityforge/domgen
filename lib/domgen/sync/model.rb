@@ -390,8 +390,8 @@ module Domgen
           end
 
           unless entity.sync.transaction_time?
-            e.datetime(:CreatedAt, :immutable => true) unless entity.attribute_exists?(:CreatedAt)
-            e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_exists?(:DeletedAt)
+            e.datetime(:CreatedAt, :immutable => true) unless e.attribute_exists?(:CreatedAt)
+            e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless e.attribute_exists?(:DeletedAt)
           end
 
           unless e.abstract?
