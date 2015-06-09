@@ -359,7 +359,7 @@ module Domgen
               options[:nullable] = true
               options['sql.on_delete'] = :set_null
               options['jpa.persistent'] = true
-              options[:abstract] = self.entity.abstract?
+              options[:abstract] = a.entity.abstract?
               options[:override] = !a.entity.extends.nil?
             else
               options[:abstract] = a.abstract?
