@@ -1121,7 +1121,7 @@ module Domgen
     end
 
     def characteristic_kind
-      "parameter"
+      'parameter'
     end
 
     protected
