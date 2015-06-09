@@ -359,7 +359,7 @@ module Domgen
               options[:nullable] = true
               options['sql.on_delete'] = :set_null
               options[:abstract] = self.entity.abstract?
-              options[:override] = !self.entity.extends.nil?
+              options[:override] = !a.entity.extends.nil?
             else
               options[:abstract] = a.abstract?
             end
