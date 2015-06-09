@@ -207,7 +207,7 @@ public class <%= data_module.sync.sync_ejb_name %>
 <% end -%>
 <% if a.referenced_entity.abstract? -%>
             <%= a.jpa.java_type %> <%= a.name %>_ref = null;
-<% a.referenced_entity.subtypes.select{|a| !a.abstract? }.each do |subtype| -%>
+<% a.referenced_entity.subtypes.select{|st| !st.abstract? }.each do |subtype| -%>
             if( null == <%= a.name %>_ref )
             {
               <%= a.name %>_ref = _<%= subtype.data_module.name %><%= subtype.name %>Repository.findBy<%= subtype.primary_key.name %>( v_<%= a.name %> );
