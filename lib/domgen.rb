@@ -16,6 +16,7 @@ require 'erb'
 require 'fileutils'
 require 'logger'
 
+require 'domgen/version'
 require 'domgen/orderedhash'
 require 'domgen/naming'
 
