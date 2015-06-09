@@ -872,7 +872,8 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       override = false
       if characteristic_exists?(name)
-        Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}") unless characteristic_by_name(name).abstract?
+        c = characteristic_by_name(name)
+        Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}") unless (c.abstract? || c.override?)
         override = true
       end
       Attribute.new(self, name, type, {:override => override}.merge(options), &block)
@@ -1132,7 +1133,8 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       override = false
       if characteristic_exists?(name)
-        Domgen.error("Attempting to override non abstract parameter #{name} on #{self.name}") unless characteristic_by_name(name).abstract?
+        c = characteristic_by_name(name)
+        Domgen.error("Attempting to override non abstract parameter #{name} on #{self.name}") unless (c.abstract? || c.override?)
         override = true
       end
 

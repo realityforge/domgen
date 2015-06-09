@@ -303,7 +303,7 @@ module Domgen
       if characteristic_exists?(name)
         o = characteristic_by_name(name)
         if o.respond_to?(:abstract?)
-          unless o.abstract? && characteristic.override?
+          unless (o.abstract? || o.override?) && characteristic.override?
             Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}")
           end
         else
