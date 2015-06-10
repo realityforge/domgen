@@ -319,6 +319,7 @@ module Domgen
           query_text = $1 if query.name =~ /^[fF]indBy(.+)$/
           query_text = $1 if query.name =~ /^[gG]etBy(.+)$/
           query_text = $1 if query.name =~ /^[dD]eleteBy(.+)$/
+          query_text = $1 if query.name =~ /^[cC]ountBy(.+)$/
           next unless query_text
 
           entity_prefix = 'O.'
@@ -570,10 +571,18 @@ module Domgen
           q = self.ql
         elsif self.query_spec == :criteria
           if query.query_type == :select
-            if self.native?
-              q = "SELECT O.* FROM #{derive_table_name} O #{criteria_clause}#{order_by_clause}"
+            if query.name =~ /^[cC]ount(.+)$/
+              if self.native?
+                q = "SELECT COUNT(O.*) FROM #{derive_table_name} O #{criteria_clause}"
+              else
+                q = "SELECT COUNT(O) FROM #{derive_table_name} O #{criteria_clause}"
+              end
             else
-              q = "SELECT O FROM #{derive_table_name} O #{criteria_clause}#{order_by_clause}"
+              if self.native?
+                q = "SELECT O.* FROM #{derive_table_name} O #{criteria_clause}#{order_by_clause}"
+              else
+                q = "SELECT O FROM #{derive_table_name} O #{criteria_clause}#{order_by_clause}"
+              end
             end
           elsif query.query_type == :update
             Domgen.error('The combination of query.query_type == :update and query_spec == :criteria is not supported')
