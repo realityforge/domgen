@@ -531,6 +531,7 @@ module Domgen
       elsif base_name =~ /^[cC]ount.+$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :one if @multiplicity.nil?
+        self.result_type = :long if @result_type.nil?
         return base_name
       elsif self.query_type == :select
         if self.multiplicity == :many
