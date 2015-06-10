@@ -219,7 +219,7 @@ module Domgen
           end
         end
         dependent_features[object.class].each do |sub_feature_key|
-          next if !handle_sub_feature?(object, sub_feature_key)
+          next unless handle_sub_feature?(object, sub_feature_key)
           children = child_features(object, sub_feature_key)
           children.each do |child|
             extension_point(child, action)
@@ -244,7 +244,7 @@ module Domgen
         object.send(:disabled_facets).delete(facet_key)
 
         dependent_features[object.class].each do |sub_feature_key|
-          next if !handle_sub_feature?(object, sub_feature_key)
+          next unless handle_sub_feature?(object, sub_feature_key)
           children = child_features(object, sub_feature_key)
           children.each do |child|
             activate_facet(facet_key, child)
@@ -253,9 +253,9 @@ module Domgen
       end
 
       def deactivate_facet(facet_key, object)
-        return if !facet_enabled?(facet_key, object)
+        return unless facet_enabled?(facet_key, object)
         dependent_features[object.class].each do |sub_feature_key|
-          next if !handle_sub_feature?(object, sub_feature_key)
+          next unless handle_sub_feature?(object, sub_feature_key)
           children = child_features(object, sub_feature_key)
           children.each do |child|
             deactivate_facet(facet_key, child)
