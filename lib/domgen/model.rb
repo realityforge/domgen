@@ -480,6 +480,7 @@ module Domgen
     end
 
     def entity
+      return self.dao.entity if dao.repository?
       Domgen.error("entity called on #{qualified_name} before being specified") unless @entity
       @entity
     end
