@@ -22,7 +22,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
   protected final void assertNoUnsynchronized( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource )
   {
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-    org.testng.Assert.assertEquals( (Integer) 0, s( <%= data_module.dao_by_name(:MasterDAO).jpa.qualified_dao_service_name %>.class ).countUnsynchronized<%= entity.name %>ByMappingSource( mappingSource ) );
+    org.testng.Assert.assertEquals( (Long) 0, s( <%= entity.sync.master_entity.dao.jpa.qualified_dao_service_name %>.class ).countUnsynchronizedByMappingSource( mappingSource ) );
 <% end -%>
   }
 }
