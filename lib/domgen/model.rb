@@ -603,8 +603,10 @@ module Domgen
 
     def query(name, options = {}, &block)
       Domgen.error("Attempting to override query #{name} on #{self.name}") if @queries[name.to_s]
-      params = repository? ? options.merge(:result_entity => entity) : options.dup
-      query = Query.new(self, name, params, &block)
+      query = Query.new(self, name, options, &block)
+      if repository?
+        query.result_entity = entity unless query.result_type?
+      end
       @queries[name.to_s] = query
       query
     end
