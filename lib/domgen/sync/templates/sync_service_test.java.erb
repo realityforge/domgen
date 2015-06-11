@@ -15,7 +15,9 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
   @javax.annotation.Nonnull
   protected final iris.syncrecord.server.data_type.SyncStatusDTO doSync( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource )
   {
+<% if data_module.repository.imit? -%>
     s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( org.realityforge.replicant.shared.transport.ReplicantContext.REPLICATION_INVOCATION_KEY, null );
+<% end -%>
     return service().synchronizeDataSource( mappingSource.getCode() );
   }
 
