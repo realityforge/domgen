@@ -31,15 +31,15 @@ module Domgen
 
     def self.is_in_data_module?(data_module_name, artifact_type, artifact)
       (artifact_type == :repository) ||
-        (artifact_type == :data_module && artifact.name == data_module_name) ||
-        (artifact_type == :dao && artifact.data_module.name == data_module_name) ||
-        (artifact_type == :entity && artifact.data_module.name == data_module_name) ||
-        (artifact_type == :enumeration && artifact.data_module.name == data_module_name) ||
-        (artifact_type == :method && artifact.service.data_module.name == data_module_name) ||
-        (artifact_type == :exception && artifact.data_module.name == data_module_name) ||
-        (artifact_type == :message && artifact.data_module.name == data_module_name) ||
-        (artifact_type == :service && artifact.data_module.name == data_module_name) ||
-        (artifact_type == :struct && artifact.data_module.name == data_module_name)
+        (artifact_type == :data_module && artifact.name.to_s == data_module_name.to_s) ||
+        (artifact_type == :dao && artifact.data_module.name.to_s == data_module_name.to_s) ||
+        (artifact_type == :entity && artifact.data_module.name.to_s == data_module_name.to_s) ||
+        (artifact_type == :enumeration && artifact.data_module.name.to_s == data_module_name.to_s) ||
+        (artifact_type == :method && artifact.service.data_module.name.to_s == data_module_name.to_s) ||
+        (artifact_type == :exception && artifact.data_module.name.to_s == data_module_name.to_s) ||
+        (artifact_type == :message && artifact.data_module.name.to_s == data_module_name.to_s) ||
+        (artifact_type == :service && artifact.data_module.name.to_s == data_module_name.to_s) ||
+        (artifact_type == :struct && artifact.data_module.name.to_s == data_module_name.to_s)
     end
   end
 end
