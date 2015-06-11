@@ -139,7 +139,6 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
       }
 <% entity.sql.indexes.select{|index| index.unique?}.each do |index|
    column_names = index.attribute_names.collect {|attr_name| a = entity.attribute_by_name(attr_name); entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }
-   check_name = index.index_name
 -%>
       {
         final String sql =
