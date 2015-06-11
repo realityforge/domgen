@@ -137,7 +137,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
           validationFailed = true;
         }
       }
-<% entity.sql.indexes.select{|index| index.unique?}.each do |index|
+<% entity.sql.indexes.select{|index| index.unique? && !index.attribute_names.any?{|k| %w(CreatedAt DeletedAt).include?(k.to_s)}}.each do |index|
    column_names = index.attribute_names.collect {|attr_name| a = entity.attribute_by_name(attr_name); entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }
 -%>
       {
