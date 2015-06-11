@@ -14,7 +14,7 @@ public <%= struct.abstract? ? "abstract " : "" %>class <%= struct.ee.name %>
 {
   private static final long serialVersionUID = 1;
 
-<% struct.fields.each do |field| -%>
+<% struct.fields.select{ |f| !f.inherited? }.each do |field| -%>
 <%= "  " + jackson_field_annotation(field) if field.jackson? -%>
 <%= "  " + jaxb_field_annotation(field) if field.jaxb? -%>
   <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= Domgen::Naming.camelize(field.name) %>;
@@ -37,10 +37,10 @@ public <%= struct.abstract? ? "abstract " : "" %>class <%= struct.ee.name %>
   public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Domgen::Naming.camelize(field.name)}" }.join(", ") %> )
   {
 <% if struct.extends
-%>    super( <%=struct.fields.select{ |field| field.inherited? }.collect{ |field| "#{Domgen::Naming.camelize(field.name)}" }.join(", ") %> );
+%>    super( <%=struct.fields.select{ |f| f.inherited? }.collect{ |field| "#{Domgen::Naming.camelize(field.name)}" }.join(", ") %> );
 <% end
 %>
-<% struct.fields.select{ |field| !field.inherited? }.each do |field|
+<% struct.fields.select{ |f| !f.inherited? }.each do |field|
      null_protection = field.nullable? ? "#{Domgen::Naming.camelize(field.name)} == null ? null : " : ""
      if :sequence == field.collection_type
 %>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.ee.java_component_type %>>( <%= Domgen::Naming.camelize(field.name) %> ) );
@@ -51,7 +51,7 @@ public <%= struct.abstract? ? "abstract " : "" %>class <%= struct.ee.name %>
 <%   end
    end
 %>  }
-<% struct.fields.select{ |field| !field.inherited? }.each do |field|
+<% struct.fields.select{ |f| !f.inherited? }.each do |field|
 %>
   <%= annotated_type(field, :ee, :boundary, :public => true, :final => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
@@ -72,14 +72,21 @@ public <%= struct.abstract? ? "abstract " : "" %>class <%= struct.ee.name %>
       return false;
     }
 
+<% if struct.extends -%>
+    if( !super.equals( o ) )
+    {
+      return false;
+    }
+
+<% end -%>
     final <%= struct.ee.name %> that = (<%= struct.ee.name %>) o;
-<% struct.fields.select{|f|!f.collection?}.each do |field| -%>
+<% struct.fields.select{|f|!f.collection? && !f.inherited?}.each do |field| -%>
     if ( <%= field.ee.primitive?(:boundary) ? "#{Domgen::Naming.camelize(field.name)} != that.#{Domgen::Naming.camelize(field.name)}" : "#{field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? null != that.#{Domgen::Naming.camelize(field.name)} : " : ''}!#{Domgen::Naming.camelize(field.name)}.equals( that.#{Domgen::Naming.camelize(field.name)} )" %> )
     {
       return false;
     }
 <% end -%>
-<% struct.fields.select{|f|f.collection?}.each do |field| -%>
+<% struct.fields.select{|f|f.collection? && !f.inherited?}.each do |field| -%>
 <% if field.nullable? -%>
     if ( (null ==  <%= Domgen::Naming.camelize(field.name) %> && null !=  that.<%= Domgen::Naming.camelize(field.name) %>) || (null !=  <%= Domgen::Naming.camelize(field.name) %> && null ==  that.<%= Domgen::Naming.camelize(field.name) %>) )
     {
@@ -108,9 +115,13 @@ public <%= struct.abstract? ? "abstract " : "" %>class <%= struct.ee.name %>
   public int hashCode()
   {
     int result = 0;
-<% struct.fields.each do |field| -%>
+<% if struct.extends -%>
+    result += super.hashCode();
+<% end -%>
+<% struct.fields.select{ |f| !f.inherited? }.each do |field| -%>
     result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Domgen::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Domgen::Naming.camelize(field.name)})" : field.long? ? "(int)(#{Domgen::Naming.camelize(field.name)})" : Domgen::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? 0 : " : ''}#{Domgen::Naming.camelize(field.name)}.hashCode()" %>);
 <% end -%>
     return result;
   }
 }
+
