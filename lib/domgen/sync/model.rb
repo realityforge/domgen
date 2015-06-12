@@ -403,10 +403,8 @@ module Domgen
             e.jpa.test_update_default(e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingID => nil)
             e.jpa.test_update_default(:CreatedAt => nil, :DeletedAt => nil)
             e.query(:CountByMappingSource)
-            e.query(:CountUnsynchronizedByMappingSource) do |q|
-              q.jpa.jpql = 'O.mappingSource = :MappingSource AND O.masterSynchronized = false'
-              q.reference(:MappingSource)
-            end
+            e.query(:CountUnsynchronizedByMappingSource,
+                    'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
           end
         end
       end
