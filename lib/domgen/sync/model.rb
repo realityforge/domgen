@@ -256,7 +256,7 @@ module Domgen
           self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_exists?(:CreatedAt)
           self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_exists?(:DeletedAt)
         end
-        self.entity.jpa.detachable = true
+        self.entity.jpa.detachable = true if self.entity.jpa?
 
         master_data_module = entity.data_module.repository.data_module_by_name(entity.data_module.repository.sync.master_data_module)
         master_data_module.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
