@@ -39,6 +39,12 @@ module Domgen
         @sync_temp_data_module || 'SyncTemp'
       end
 
+      def sync_out_of_master?
+        @sync_out_of_master.nil? ? true : !!@sync_out_of_master
+      end
+
+      attr_writer :sync_out_of_master
+
       def pre_complete
         unless repository.data_module_by_name?(self.master_data_module)
           repository.data_module(self.master_data_module)
@@ -55,61 +61,63 @@ module Domgen
           t.string(:Code, 5, :primary_key => true)
         end unless master_data_module.entity_by_name?(self.mapping_source_attribute)
 
-        master_data_module.service(:SynchronizationService) do |s|
-          s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
-          s.method(:SynchronizeDataSource) do |m|
-            m.text(:MappingSourceCode)
-            m.returns('iris.syncrecord.server.data_type.SyncStatusDTO')
-          end
-        end unless master_data_module.service_by_name?(:SynchronizationService)
+        if self.sync_out_of_master?
+          master_data_module.service(:SynchronizationService) do |s|
+            s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+            s.method(:SynchronizeDataSource) do |m|
+              m.text(:MappingSourceCode)
+              m.returns('iris.syncrecord.server.data_type.SyncStatusDTO')
+            end
+          end unless master_data_module.service_by_name?(:SynchronizationService)
 
-        master_data_module.service(:SynchronizationContext) do |s|
-          s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
-          master_data_module.sync.entities_to_synchronize.each do |entity|
-            unless entity.primary_key.generated_value?
-              s.method("Generate#{entity.data_module.name}#{entity.name}Key") do |m|
-                entity.attributes.select { |a| !a.primary_key? && a.sql? && a.jpa? && a.sync? }.each do |a|
-                  options = {}
-                  options[:collection_type] = a.collection_type
-                  options[:nullable] = a.nullable?
+          master_data_module.service(:SynchronizationContext) do |s|
+            s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+            master_data_module.sync.entities_to_synchronize.each do |entity|
+              unless entity.primary_key.generated_value?
+                s.method("Generate#{entity.data_module.name}#{entity.name}Key") do |m|
+                  entity.attributes.select { |a| !a.primary_key? && a.sql? && a.jpa? && a.sync? }.each do |a|
+                    options = {}
+                    options[:collection_type] = a.collection_type
+                    options[:nullable] = a.nullable?
 
-                  attribute_type = a.attribute_type
-                  if a.reference?
-                    attribute_type = a.referenced_entity.primary_key.attribute_type
-                  elsif a.enumeration?
-                    options[:enumeration] = a.enumeration
-                    options[:length] = a.length if a.enumeration.textual_values?
-                  elsif a.text?
-                    options[:length] = a.length
-                    options[:min_length] = a.min_length
-                    options[:allow_blank] = a.allow_blank?
+                    attribute_type = a.attribute_type
+                    if a.reference?
+                      attribute_type = a.referenced_entity.primary_key.attribute_type
+                    elsif a.enumeration?
+                      options[:enumeration] = a.enumeration
+                      options[:length] = a.length if a.enumeration.textual_values?
+                    elsif a.text?
+                      options[:length] = a.length
+                      options[:min_length] = a.min_length
+                      options[:allow_blank] = a.allow_blank?
+                    end
+
+                    m.parameter(a.name, attribute_type, options)
                   end
-
-                  m.parameter(a.name, attribute_type, options)
+                  # TODO Should probably support reference primary keys by passing other options
+                  m.returns(entity.primary_key.attribute_type)
                 end
-                # TODO Should probably support reference primary keys by passing other options
-                m.returns(entity.primary_key.attribute_type)
               end
-            end
 
-            s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToUpdate") do |m|
-              m.text(:MappingSourceCode)
-              m.returns(:text)
-            end
-            s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToRemove") do |m|
-              m.text(:MappingSourceCode)
-              m.returns(:text)
-            end
-            entity.attributes.select { |a| a.sync? && a.sync.custom_transform? }.each do |attribute|
-              s.method(:"Transform#{entity.data_module.name}#{entity.name}#{attribute.name}") do |m|
-                options = {:nullable => attribute.nullable?}
-                attribute_type = attribute.reference? ? attribute.referenced_entity.primary_key.attribute_type : attribute.attribute_type
-                m.parameter(:Value, attribute_type, options)
-                m.returns(attribute_type, options)
+              s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToUpdate") do |m|
+                m.text(:MappingSourceCode)
+                m.returns(:text)
+              end
+              s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToRemove") do |m|
+                m.text(:MappingSourceCode)
+                m.returns(:text)
+              end
+              entity.attributes.select { |a| a.sync? && a.sync.custom_transform? }.each do |attribute|
+                s.method(:"Transform#{entity.data_module.name}#{entity.name}#{attribute.name}") do |m|
+                  options = {:nullable => attribute.nullable?}
+                  attribute_type = attribute.reference? ? attribute.referenced_entity.primary_key.attribute_type : attribute.attribute_type
+                  m.parameter(:Value, attribute_type, options)
+                  m.returns(attribute_type, options)
+                end
               end
             end
-          end
-        end unless master_data_module.service_by_name?(:SynchronizationContext)
+          end unless master_data_module.service_by_name?(:SynchronizationContext)
+        end
       end
     end
 
