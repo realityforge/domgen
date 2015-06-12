@@ -117,12 +117,12 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::EEClientServerJavaPackage
 
-       # Artifacts to sync out of Master
+      # Artifacts to sync out of Master
       java_artifact :sync_ejb, :service, :server, :sync, 'SynchronizationServiceEJB'
       java_artifact :sync_service_test, :service, :server, :sync, 'AbstractExtendedSynchronizationServiceEJBTest'
       java_artifact :sync_context_impl, :service, :server, :sync, 'AbstractSynchronizationContext'
 
-       # Artifacts to sync into Master
+      # Artifacts to sync into Master
       java_artifact :sync_temp_factory, :service, :server, :sync, 'SyncTempFactory'
       java_artifact :abstract_master_sync_ejb, :service, :server, :sync, 'AbstractMasterSyncServiceEJB'
       java_artifact :master_sync_service_test, :service, :server, :sync, 'AbstractMasterSyncServiceEJBTest'
@@ -196,7 +196,7 @@ module Domgen
       # Is the entity recursive?
       # i.e. Do the sync operations need to repeat until 0 actions
       def recursive?
-        @recursive.nil? ? (entity.sync.attributes_to_synchronize.any?{|a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name}) : !!@recursive
+        @recursive.nil? ? (entity.sync.attributes_to_synchronize.any? { |a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name }) : !!@recursive
       end
 
       def sync_temp_entity=(sync_temp_entity)
