@@ -13,7 +13,7 @@ public class <%= repository.jpa.test_factory_set_name %>
   public <%= repository.jpa.test_factory_set_name %>( @javax.annotation.Nonnull final com.google.inject.Injector injector )
   {
 <% data_modules.each do |data_module| -%>
-    _<%= Domgen::Naming.camelize(data_module.name) %> = new <%=data_module.jpa.qualified_test_factory_name %>( this, injector );
+    _<%= Domgen::Naming.camelize(data_module.name) %> = new <%= data_module.jpa.qualified_test_factory_name %>( this, injector );
 <% end -%>
   }
 <% data_modules.each do |data_module| -%>
