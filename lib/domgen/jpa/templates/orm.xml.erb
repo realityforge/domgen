@@ -47,7 +47,7 @@
   <sql-result-set-mapping name="<%= query.qualified_name %>">
     <constructor-result target-class="<%= query.struct.ee.qualified_name %>">
 <% query.struct.fields.each do |parameter| -%>
-      <column name="<%= parameter.name %>" class="<%= parameter.ee.non_primitive_java_type %>" />
+      <column name="<%= parameter.name %>" class="<%= parameter.ee.java_type %>" />
 <% end -%>
     </constructor-result>
   </sql-result-set-mapping>
