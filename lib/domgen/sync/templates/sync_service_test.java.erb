@@ -15,14 +15,16 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
   @javax.annotation.Nonnull
   protected final iris.syncrecord.server.data_type.SyncStatusDTO doSync( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource )
   {
+<% if data_module.repository.imit? -%>
     s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( org.realityforge.replicant.shared.transport.ReplicantContext.REPLICATION_INVOCATION_KEY, null );
+<% end -%>
     return service().synchronizeDataSource( mappingSource.getCode() );
   }
 
   protected final void assertNoUnsynchronized( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource )
   {
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-    org.testng.Assert.assertEquals( (Integer) 0, s( <%= data_module.dao_by_name(:MasterDAO).jpa.qualified_dao_service_name %>.class ).countUnsynchronized<%= entity.name %>ByMappingSource( mappingSource ) );
+    org.testng.Assert.assertEquals( (Long) 0L, s( <%= entity.sync.master_entity.dao.jpa.qualified_dao_service_name %>.class ).countUnsynchronizedByMappingSource( mappingSource ) );
 <% end -%>
   }
 }

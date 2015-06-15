@@ -480,6 +480,7 @@ module Domgen
     end
 
     def entity
+      return self.dao.entity if dao.repository?
       Domgen.error("entity called on #{qualified_name} before being specified") unless @entity
       @entity
     end
@@ -530,6 +531,7 @@ module Domgen
       elsif base_name =~ /^[cC]ount.+$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :one if @multiplicity.nil?
+        self.result_type = :long if @result_type.nil?
         return base_name
       elsif self.query_type == :select
         if self.multiplicity == :many
@@ -601,8 +603,10 @@ module Domgen
 
     def query(name, options = {}, &block)
       Domgen.error("Attempting to override query #{name} on #{self.name}") if @queries[name.to_s]
-      params = repository? ? options.merge(:result_entity => entity) : options.dup
-      query = Query.new(self, name, params, &block)
+      query = Query.new(self, name, options, &block)
+      if repository?
+        query.result_entity = entity unless query.result_type?
+      end
       @queries[name.to_s] = query
       query
     end
@@ -872,7 +876,8 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       override = false
       if characteristic_exists?(name)
-        Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}") unless characteristic_by_name(name).abstract?
+        c = characteristic_by_name(name)
+        Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}") unless (c.abstract? || c.override?)
         override = true
       end
       Attribute.new(self, name, type, {:override => override}.merge(options), &block)
@@ -1120,7 +1125,7 @@ module Domgen
     end
 
     def characteristic_kind
-      "parameter"
+      'parameter'
     end
 
     protected
@@ -1132,7 +1137,8 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       override = false
       if characteristic_exists?(name)
-        Domgen.error("Attempting to override non abstract parameter #{name} on #{self.name}") unless characteristic_by_name(name).abstract?
+        c = characteristic_by_name(name)
+        Domgen.error("Attempting to override non abstract parameter #{name} on #{self.name}") unless (c.abstract? || c.override?)
         override = true
       end
 

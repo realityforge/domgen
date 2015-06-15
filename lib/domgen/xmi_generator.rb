@@ -13,6 +13,18 @@
 #
 
 module Domgen
+  class Build
+    def self.define_generate_xmi_task(options = {}, &block)
+      buildr_project = options[:buildr_project]
+
+      if buildr_project.nil? && Buildr.application.current_scope.size > 0
+        buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
+      end
+
+      Domgen::Xmi::GenerateXMITask.new(options[:repository_key], options[:key], options[:filename], buildr_project, &block)
+    end
+  end
+
   module Xmi
     class GenerateXMITask
       attr_accessor :description
@@ -24,14 +36,19 @@ module Domgen
 
       attr_reader :task_name
 
-      def initialize(repository_key, key, filename)
-        @repository_key, @key, @filename = repository_key, key, filename
+      def initialize(repository_key = nil, key = nil, filename = nil, buildr_project = nil)
+        @repository_key, @filename, @buildr_project = repository_key, filename, buildr_project
+        @key = key || :xmi
         @namespace_key = :domgen
         yield self if block_given?
         define
       end
 
       private
+
+      def full_task_name
+        "#{self.namespace_key}:#{self.key}"
+      end
 
       def define
         # Need to init emf now otherwise Buildr will not have jars loaded into classpath
@@ -41,8 +58,40 @@ module Domgen
             begin
               Domgen::Xmi.init_emf
 
+              if self.repository_key
+                repository = Domgen.repository_by_name(self.repository_key)
+                if Domgen.repositorys.size == 1
+                  Domgen.warn("Domgen task #{full_task_name} specifies a repository_key parameter but it can be be derived as there is only a single repository. The parameter should be removed.")
+                end
+              elsif self.repository_key.nil?
+                repositorys = Domgen.repositorys
+                if repositorys.size == 1
+                  repository = repositorys[0]
+                else
+                  Domgen.error("Domgen task #{full_task_name} does not specify a repository_key parameter and it can not be derived. Candidate repositories include #{repositorys.collect { |r| r.name }.inspect}")
+                end
+              end
+
+              filename = self.filename
+
+              if filename.nil?
+                local_filename = "#{Domgen::Naming.underscore(repository.name)}.xmi"
+                if @buildr_project.nil?
+                  top_level_projects = Buildr.projects.select{|p| !(p.name =~ /:/) }
+                  if top_level_projects.size == 1
+                    filename = top_level_projects[0]._(:reports, 'domgen', local_filename)
+                  end
+                else
+                  filename = @buildr_project._(:reports, 'domgen', local_filename)
+                end
+              end
+
+              if filename.nil?
+                Domgen.error('Domgen::Build.define_generate_xmi_task should specify a filename as it can not be derived from the context.')
+              end
+
               FileUtils.mkdir_p File.dirname(filename)
-              Domgen::Xmi.generate_xmi(self.repository_key, self.filename)
+              Domgen::Xmi.generate_xmi(repository.name, filename)
             rescue Exception => e
               print "An error occurred generating the xmi\n"
               puts $!

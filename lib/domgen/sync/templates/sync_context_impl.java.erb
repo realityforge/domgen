@@ -97,7 +97,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     ref_index += 1
     if a.referenced_entity.abstract?
       ids = []
-      a.referenced_entity.subtypes.select{|a| !a.abstract? }.each_with_index do |subtype, index|
+      a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index|
         joins += "      \" LEFT JOIN #{subtype.sql.qualified_table_name} R#{ref_index}#{index} ON R#{ref_index}#{index}.#{subtype.primary_key.sql.quoted_column_name} = M.#{a.sql.quoted_column_name} \" +\n"
         ids << "R#{ref_index}.#{a.referenced_entity.primary_key.sql.quoted_column_name}"
       end

@@ -384,6 +384,7 @@ module Domgen
       end
 
       def pre_complete
+        # TODO: This will re-enable disabled sql facets which seems sub-par
         self.repository.enable_facet(:mssql) if !self.repository.mssql? && !self.repository.pgsql?
       end
 
