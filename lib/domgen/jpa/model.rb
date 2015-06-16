@@ -327,20 +327,35 @@ module Domgen
           while true
             if query_text =~ /(.+)(And|Or)(.+)/
               parameter_name = $3
-              query_text = $1
-              if !entity.attribute_exists?(parameter_name)
-                jpql = nil
-                break
-              end
               operation = $2.upcase
-              jpql = "#{operation} #{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
+              query_text = $1
+              if entity.attribute_exists?(parameter_name)
+                jpql = "#{operation} #{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
+              else
+                # Handle parameters that are the primary keys of related entities
+                found = false
+                entity.attributes.select{|a|a.reference? && a.referencing_link_name == parameter_name }.each do |a|
+                  jpql = "#{operation} #{entity_prefix}#{Domgen::Naming.camelize(a.name)}.#{Domgen::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
+                  found = true
+                end
+                unless found
+                  jpql = nil
+                  break
+                end
+              end
             else
               parameter_name = query_text
-              if !entity.attribute_exists?(parameter_name)
-                jpql = nil
-                break
+              if entity.attribute_exists?(parameter_name)
+                jpql = "#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
+              else
+                # Handle parameters that are the primary keys of related entities
+                found = false
+                entity.attributes.select{|a|a.reference? && a.referencing_link_name == parameter_name }.each do |a|
+                  jpql = "#{entity_prefix}#{Domgen::Naming.camelize(a.name)}.#{Domgen::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
+                  found = true
+                end
+                jpql = nil unless found
               end
-              jpql = "#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
               break
             end
           end
@@ -466,12 +481,24 @@ module Domgen
 
         expected_parameters = query_parameters.uniq
         expected_parameters.each do |parameter_name|
-          if !query.parameter_exists?(parameter_name) && query.entity.attribute_exists?(parameter_name)
-            attribute = query.entity.attribute_by_name(parameter_name)
-            characteristic_options = {}
-            characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
-            characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
-            query.parameter(attribute.name, attribute.attribute_type, characteristic_options)
+          unless query.parameter_exists?(parameter_name)
+            if query.entity.attribute_exists?(parameter_name)
+              attribute = query.entity.attribute_by_name(parameter_name)
+              characteristic_options = {}
+              characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
+              characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
+              query.parameter(attribute.name, attribute.attribute_type, characteristic_options)
+            else
+              # Handle parameters that are the primary keys of related entities
+              query.entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
+                attribute = a.referenced_entity.primary_key
+                characteristic_options = {}
+                characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
+                characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
+                a.referenced_entity.primary_key
+                query.parameter(parameter_name, attribute.attribute_type, characteristic_options)
+              end
+            end
           end
         end
 
