@@ -41,7 +41,7 @@ Domgen.template_set(:sync_core_ejb) do |template_set|
                         Domgen::Generator::Sync::HELPERS,
                         :guard => 'data_module.sync.master_data_module? && data_module.repository.sync.sync_out_of_master?')
 end
-Domgen.template_set(:sync_master_ejb) do |template_set|
+Domgen.template_set(:sync_master_ejb_impl) do |template_set|
   template_set.template(Domgen::Generator::Sync::FACETS,
                         :data_module,
                         "#{Domgen::Generator::Sync::TEMPLATE_DIRECTORY}/sync_temp_factory.java.erb",
@@ -54,12 +54,17 @@ Domgen.template_set(:sync_master_ejb) do |template_set|
                         'main/java/#{data_module.sync.qualified_abstract_master_sync_ejb_name.gsub(".","/")}.java',
                         Domgen::Generator::Sync::HELPERS,
                         :guard => 'data_module.sync.master_data_module?')
-  template_set.template(Domgen::Generator::Sync::FACETS,
-                        :data_module,
-                        "#{Domgen::Generator::Sync::TEMPLATE_DIRECTORY}/master_sync_service_test.java.erb",
-                        'test/java/#{data_module.sync.qualified_master_sync_service_test_name.gsub(".","/")}.java',
-                        Domgen::Generator::Sync::HELPERS,
-                        :guard => 'data_module.sync.master_data_module?')
+end
+%w(test main).each do |type|
+  Domgen.template_set(:"sync_master_#{type}_qa") do |template_set|
+    template_set.template(Domgen::Generator::Sync::FACETS,
+                          :data_module,
+                          "#{Domgen::Generator::Sync::TEMPLATE_DIRECTORY}/master_sync_service_test.java.erb",
+                          type + '/java/#{data_module.sync.qualified_master_sync_service_test_name.gsub(".","/")}.java',
+                          Domgen::Generator::Sync::HELPERS,
+                          :guard => 'data_module.sync.master_data_module?')
+  end
 end
 
+Domgen.template_set(:sync_master_ejb => [:sync_master_ejb_impl, :sync_master_test_qa])
 Domgen.template_set(:sync_ejb => [:sync_core_ejb, :sync_master_ejb])
