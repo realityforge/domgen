@@ -72,6 +72,12 @@ module Domgen
       def factory_method_name
         @factory_method_name.nil? ? "update#{entity.name}" : @factory_method_name
       end
+
+      def force_refresh?
+        @force_refresh.nil? ? false : !!@force_refresh
+      end
+
+      attr_writer :force_refresh
     end
 
     module BaseJpaField
