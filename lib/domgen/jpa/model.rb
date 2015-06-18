@@ -66,6 +66,14 @@ module Domgen
       end
     end
 
+    class UpdateDefaultValues < DefaultValues
+      attr_writer :factory_method_name
+
+      def factory_method_name
+        @factory_method_name.nil? ? "update#{entity.name}" : @factory_method_name
+      end
+    end
+
     module BaseJpaField
       def cascade
         @cascade || []
@@ -300,8 +308,10 @@ module Domgen
         @test_create_defaults.nil? ? [] : @test_create_defaults.dup
       end
 
-      def test_update_default(defaults)
-        (@test_update_defaults ||= []) << Domgen::JPA::DefaultValues.new(entity, defaults)
+      def test_update_default(defaults, options = {})
+        test_config = Domgen::JPA::UpdateDefaultValues.new(entity, defaults, options)
+        (@test_update_defaults ||= []) << test_config
+        test_config
       end
 
       def test_update_defaults

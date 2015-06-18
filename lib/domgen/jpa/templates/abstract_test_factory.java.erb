@@ -52,21 +52,21 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     non_default_attr = attr.select{|a| !defaults.has_attribute?(a.name)}
   -%>
 
-  public final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> )
+  public final void <%= defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> )
   {
 <% attr.each do |a| -%>
     $_.set<%= a.name %>( <%= defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) %> );
 <% end -%>
-    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( entity );
+    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( $_ );
   }
 <% end -%>
 
-  public final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  public final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
   {
 <% entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
-    entity.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
+    $_.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
 <% end -%>
-    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( entity );
+    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( $_ );
   }
 <% end -%>
 
