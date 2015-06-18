@@ -407,9 +407,16 @@ module Domgen
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
             e.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
-            e.jpa.test_update_default(e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingID => nil, :CreatedAt => nil, :DeletedAt => nil)
-            e.jpa.test_update_default(e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingID => nil)
-            e.jpa.test_update_default(:CreatedAt => nil, :DeletedAt => nil)
+            e.jpa.test_update_default({e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingID => nil, :CreatedAt => nil, :DeletedAt => nil}, :force_refresh => true)
+            e.jpa.test_update_default({e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingID => nil}, :force_refresh => true)
+            e.jpa.test_update_default({:CreatedAt => nil, :DeletedAt => nil}, :force_refresh => true)
+            delete_defaults = {}
+            e.attributes.each do |a|
+              delete_defaults[a.name] = nil unless a.generated_value? || a.immutable? || !a.jpa?
+            end
+            delete_defaults[:MasterSynchronized] = 'false'
+            delete_defaults[:DeletedAt] = 'new java.util.Date()'
+            e.jpa.test_update_default(delete_defaults, :force_refresh => true, :factory_method_name => "mark#{e.name}AsDeleted")
             e.query(:CountByMappingSource)
             e.query(:CountUnsynchronizedByMappingSource,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
