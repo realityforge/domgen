@@ -55,7 +55,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   public final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> )
   {
 <% attr.each do |a| -%>
-    entity.set<%= a.name %>( <%= defaults.has_attribute?(a.name) ? !defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) %> );
+    $_.set<%= a.name %>( <%= defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) %> );
 <% end -%>
     <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( entity );
   }
