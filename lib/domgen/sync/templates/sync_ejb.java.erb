@@ -186,7 +186,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       _entityManager.flush();
       try
       {
-<% if entity.imit? -%>
+<% if entity.imit? || entity.attributes.any?{|a| a.reference? && a.referenced_entity.imit? } -%>
         org.realityforge.replicant.server.ee.ReplicationRequestUtil.startReplication( _registry, "synchronize<%= entity.data_module.name %><%= entity.name %>Updates", null, null );
 <% end -%>
 <% attr = entity.attributes.select{|a| a.sql? && a.jpa? && a.sync? } -%>
@@ -296,7 +296,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       finally
       {
         // End Replication "Hook"
-<% if entity.imit? -%>
+<% if entity.imit? || entity.attributes.any?{|a| a.reference? && a.referenced_entity.imit? } -%>
         org.realityforge.replicant.server.ee.ReplicationRequestUtil.completeReplication( _registry, _entityManager, _endpoint );
 <% end -%>
         if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
@@ -400,7 +400,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       _transaction.begin();
       try
       {
-<% if entity.imit? -%>
+<% if entity.imit? || entity.attributes.any?{|a| a.reference? && a.referenced_entity.imit? } -%>
         org.realityforge.replicant.server.ee.ReplicationRequestUtil.startReplication( _registry, "synchronize<%= entity.data_module.name %><%= entity.name %>Removals", null, null );
 <% end -%>
 
@@ -430,7 +430,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       finally
       {
         // End Replication "Hook"
-<% if entity.imit? -%>
+<% if entity.imit? || entity.attributes.any?{|a| a.reference? && a.referenced_entity.imit? } -%>
         org.realityforge.replicant.server.ee.ReplicationRequestUtil.completeReplication( _registry, _entityManager, _endpoint );
 <% end -%>
         if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
