@@ -34,7 +34,7 @@ Domgen.template_set(:jws_client_service) do |template_set|
   template = Domgen::JWS::WsimportTemplate.new(template_set,
                                                Domgen::Generator::JWS::FACETS,
                                                :service,
-                                               "wsimport",
+                                               'wsimport',
                                                '#{service.jws.api_package}',
                                                Domgen::Generator::JWS::HELPERS)
   template_set.register_template(template)
