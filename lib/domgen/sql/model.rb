@@ -102,11 +102,11 @@ module Domgen
     class ForeignKey < Domgen.ParentedElement(:table)
       ACTION_MAP =
         {
-          :cascade => "CASCADE",
-          :restrict => "RESTRICT",
-          :set_null => "SET NULL",
-          :set_default => "SET DEFAULT",
-          :no_action => "NO ACTION"
+          :cascade => 'CASCADE',
+          :restrict => 'RESTRICT',
+          :set_null => 'SET NULL',
+          :set_default => 'SET DEFAULT',
+          :no_action => 'NO ACTION'
         }.freeze
 
       attr_accessor :attribute_names
