@@ -423,7 +423,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       }
       catch ( final Exception e )
       {
-        recordSyncError( recorder, 1, "Error synchronizng <%= entity.qualified_name %> removals", e );
+        recordSyncError( recorder, 1, "Error synchronizing <%= entity.qualified_name %> removals", e );
         _transaction.setRollbackOnly();
         throw e;
       }
