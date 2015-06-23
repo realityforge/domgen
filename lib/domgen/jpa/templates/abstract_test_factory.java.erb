@@ -101,6 +101,12 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 
   @javax.annotation.Nonnull
+  protected <T> T s( @javax.annotation.Nonnull final String name, @javax.annotation.Nonnull final Class<T> type )
+  {
+    return getInjector().getInstance( com.google.inject.Key.get( type, com.google.inject.name.Names.named( name ) ) );
+  }
+
+  @javax.annotation.Nonnull
   protected final com.google.inject.Injector getInjector()
   {
     return _injector;
