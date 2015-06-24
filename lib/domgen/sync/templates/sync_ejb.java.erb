@@ -79,18 +79,6 @@ public class <%= data_module.sync.sync_ejb_name %>
     final long syncStartAt = System.currentTimeMillis();
     try
     {
-<% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
-      {
-        final long entityStartAt = System.currentTimeMillis();
-        log( mappingSourceCode, "Synchronizing <%= entity.data_module.name %>.<%= entity.name %> removals" );
-        synchronize<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
-        final int removeCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveCount" ).get();
-        log( mappingSourceCode, "Removed " + removeCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
-        final long entityEndAt = System.currentTimeMillis();
-        log( mappingSourceCode, "Synchronization of <%= entity.qualified_name %> removals completed in " + ( entityEndAt - entityStartAt ) + "ms" );
-        recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveDuration", (int) ( entityEndAt - entityStartAt ) );
-      }
-<% end -%>
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
       {
         final long entityStartAt = System.currentTimeMillis();
@@ -104,6 +92,18 @@ public class <%= data_module.sync.sync_ejb_name %>
         final long entityEndAt = System.currentTimeMillis();
         log( mappingSourceCode, "Synchronization of <%= entity.qualified_name %> adds and updated completed in " + ( entityEndAt - entityStartAt ) + "ms" );
         recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateDuration", (int) ( entityEndAt - entityStartAt ) );
+      }
+<% end -%>
+<% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
+      {
+        final long entityStartAt = System.currentTimeMillis();
+        log( mappingSourceCode, "Synchronizing <%= entity.data_module.name %>.<%= entity.name %> removals" );
+        synchronize<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
+        final int removeCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveCount" ).get();
+        log( mappingSourceCode, "Removed " + removeCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
+        final long entityEndAt = System.currentTimeMillis();
+        log( mappingSourceCode, "Synchronization of <%= entity.qualified_name %> removals completed in " + ( entityEndAt - entityStartAt ) + "ms" );
+        recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveDuration", (int) ( entityEndAt - entityStartAt ) );
       }
 <% end -%>
       log( mappingSourceCode, "Successfully synchronized data" );
