@@ -690,7 +690,6 @@ module Domgen
     attr_reader :incompatible_constraints
     attr_reader :dependency_constraints
     attr_reader :cycle_constraints
-    attr_reader :referencing_attributes
     attr_reader :queries
 
     include GenerateFacet
@@ -705,9 +704,43 @@ module Domgen
       @relationship_constraints = Domgen::OrderedHash.new
       @cycle_constraints = Domgen::OrderedHash.new
       @queries = Domgen::OrderedHash.new
-      @referencing_attributes = []
+      @referencing_attributes = nil
       data_module.send :register_entity, name, self
       super(data_module, options, &block)
+    end
+
+    def referencing_attributes
+      self.inherited_referencing_attributes + self.direct_referencing_attributes
+    end
+
+    def direct_referencing_attributes
+      @direct_referencing_attributes ||= []
+    end
+
+    def add_direct_referencing_attribute(attribute)
+      return if attribute.abstract?
+      raise "Attempting to add non-reference attribute to referencing attribute list on #{entity.qualified_name}" unless attribute.reference?
+      self.direct_referencing_attributes << attribute
+    end
+
+    def inherited_referencing_attributes
+      if self.extends
+        base_type = self.data_module.send(:"#{container_kind}_by_name", self.extends)
+        mod_count = base_type.characteristic_modify_count
+        t = base_type
+        while t.extends
+          t = self.data_module.send(:"#{container_kind}_by_name", t.extends)
+          mod_count += t.characteristic_modify_count
+        end
+        if @inherited_referencing_attributes.nil? || @inherited_referencing_attributes_mod_count != mod_count
+          @inherited_referencing_attributes_mod_count = mod_count
+          @inherited_referencing_attributes = base_type.referencing_attributes
+        else
+          @inherited_referencing_attributes
+        end
+      else
+        []
+      end
     end
 
     def qualified_name
@@ -1838,23 +1871,6 @@ module Domgen
     def post_repository_definition
       # Run hooks in all the modules that can generate other model elements
       self.complete
-
-      # Add back links for all references
-      Logger.debug "Repository #{name}: Adding back links for all references"
-      self.data_modules.each do |data_module|
-        data_module.entities.each do |entity|
-          entity.attributes.each do |attribute|
-            if attribute.reference? && !attribute.abstract? && !attribute.inherited?
-              other_entities = [attribute.referenced_entity]
-              while !other_entities.empty?
-                other_entity = other_entities.pop
-                other_entity.direct_subtypes.each { |st| other_entities << st }
-                other_entity.referencing_attributes << attribute
-              end
-            end
-          end
-        end
-      end
       self.verify
     end
   end

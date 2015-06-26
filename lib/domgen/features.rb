@@ -313,6 +313,9 @@ module Domgen
 
       characteristic_map[name.to_s] = characteristic
       @characteristic_modify_count = (@characteristic_modify_count || 0) + 1
+      if characteristic.reference? && self.is_a?(Entity)
+        characteristic.referenced_entity.add_direct_referencing_attribute(characteristic)
+      end
       characteristic
     end
 
