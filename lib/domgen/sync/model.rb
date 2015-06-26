@@ -72,6 +72,17 @@ module Domgen
 
           master_data_module.service(:SynchronizationContext) do |s|
             s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+
+            master_data_module.sync.entities_to_synchronize.collect do |e|
+              # Assume that the synchronization process will correctly handle
+              # deletion of referenced entities and thus no special handling required
+              e.sync.references_requiring_manual_sync.each do |a|
+                s.method("Remove#{a.entity.data_module.name}#{a.entity.name}RelatedTo#{a.referenced_entity.data_module.name}#{a.referenced_entity.name}Via#{a.name}") do |m|
+                  m.reference(e.qualified_name)
+                end
+              end
+            end
+
             master_data_module.sync.entities_to_synchronize.each do |entity|
               unless entity.primary_key.generated_value?
                 s.method("Generate#{entity.data_module.name}#{entity.name}Key") do |m|
@@ -171,6 +182,15 @@ module Domgen
       def custom_transform=(custom_transform)
         @custom_transform = custom_transform
       end
+
+      def manual_sync=(manual_sync)
+        raise "Attempted to invoke manual_sync= on #{attribute.qualified_name}, but not valid as it is not a reference" unless attribute.reference?
+        @manual_sync = !!manual_sync
+      end
+
+      def manual_sync?
+        @manual_sync.nil? ? false : @manual_sync
+      end
     end
 
     facet.enhance(Entity) do
@@ -197,6 +217,10 @@ module Domgen
 
       def transaction_time?
         @transaction_time.nil? ? false : !!@transaction_time
+      end
+
+      def references_requiring_manual_sync
+        entity.referencing_attributes.select {|a| (!a.sync? || a.sync.manual_sync?) && a.referenced_entity.sql? }
       end
 
       attr_writer :recursive
