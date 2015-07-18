@@ -45,9 +45,10 @@ public class <%= method.jms.mdb_name %>
   parameter = method.parameters.empty? ? nil : method.parameters[0]
   if parameter
    Domgen.error("parameters for #{method.qualified_name} should only have 1 parameter") unless method.parameters.size == 1
-   encoded_type = "#{parameter.name}Message"
+   encoded_type = parameter.non_standard_type? ? parameter.parameter_type : "#{parameter.name}Message"
    boundary_type = parameter.ejb.java_component_type(:boundary)
    in_container = !(parameter.struct? && !parameter.collection?)
+   unless parameter.non_standard_type?
 -%>
   @javax.xml.bind.annotation.XmlRootElement( name = "<%= parameter.xml.name %>" )
   @javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
@@ -70,6 +71,7 @@ public class <%= method.jms.mdb_name %>
 <% end -%>
   }
 <% end -%>
+<% end -%>
 
   public void onMessage( final javax.jms.Message message )
   {
@@ -88,7 +90,7 @@ public class <%= method.jms.mdb_name %>
 
         final <%= encoded_type %> decoded = (<%= encoded_type %>) marshaller.unmarshal( reader );
 
-        final <%= boundary_type %> parameter = <%= (parameter.struct? && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
+        final <%= boundary_type %> parameter = <%= ((parameter.struct? || parameter.non_standard_type?) && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
 <% end -%>
         _service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
       }
