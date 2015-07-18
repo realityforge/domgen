@@ -105,6 +105,18 @@ module Domgen
       self.characteristic_type_key == :geometry
     end
 
+    def non_standard_type?
+      !standard_type?
+    end
+
+    def standard_type?
+      Characteristic.standard_types.include?(self.characteristic_type_key)
+    end
+
+    def self.standard_types
+      [:integer, :long, :datetime, :date, :real, :text, :boolean, :reference, :struct]
+    end
+
     def characteristic_type
       Domgen::TypeDB.characteristic_type?(self.characteristic_type_key) ?
         Domgen::TypeDB.characteristic_type_by_name(self.characteristic_type_key) :
