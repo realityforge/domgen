@@ -355,7 +355,7 @@ public class <%= data_module.sync.sync_ejb_name %>
     _transaction.begin();
     try
     {
-      final String sql = "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET <%= data_module.sql.dialect.quote('MasterSynchronized') %> = 1 WHERE <%= data_module.sql.dialect.quote('MasterSynchronized') %> = 0 AND <%= entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name %> IS NULL AND <%= data_module.sql.dialect.quote('MappingSource') %> = ?";
+      final String sql = "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET <%= data_module.sql.dialect.quote('MasterSynchronized') %> = 1 WHERE <%= data_module.sql.dialect.quote('MasterSynchronized') %> = 0 AND <%= entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name %> IS NOT NULL AND <%= entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name %> IS NULL AND <%= data_module.sql.dialect.quote('MappingSource') %> = ?";
       final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
       query.setParameter( 1, mappingSourceCode );
       final int count = query.executeUpdate();
