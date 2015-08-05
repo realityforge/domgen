@@ -64,6 +64,7 @@ module Domgen
         if self.sync_out_of_master?
           master_data_module.service(:SynchronizationService) do |s|
             s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+            s.ejb.generate_boundary = false if s.ejb?
             s.method(:SynchronizeDataSource) do |m|
               m.text(:MappingSourceCode)
               m.returns('iris.syncrecord.server.data_type.SyncStatusDTO')
@@ -72,6 +73,7 @@ module Domgen
 
           master_data_module.service(:SynchronizationContext) do |s|
             s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+            s.ejb.generate_boundary = false if s.ejb?
 
             master_data_module.sync.entities_to_synchronize.collect do |e|
               # Assume that the synchronization process will correctly handle
