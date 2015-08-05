@@ -98,6 +98,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       {
         final long entityStartAt = System.currentTimeMillis();
         log( mappingSourceCode, "Synchronizing <%= entity.data_module.name %>.<%= entity.name %> removals" );
+        mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( mappingSourceCode, recorder );
         synchronize<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
         final int removeCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveCount" ).get();
         log( mappingSourceCode, "Removed " + removeCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
