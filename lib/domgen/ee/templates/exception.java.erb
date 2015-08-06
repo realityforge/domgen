@@ -7,7 +7,7 @@ package <%= to_package(exception.ee.qualified_name) %>;
 <% if exception.ejb? %>@javax.ejb.ApplicationException( rollback = <%= exception.ejb.rollback? %>, inherited = true )<% end %>
 public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
 {
-<% exception.parameters.each do |parameter| %>
+<% exception.declared_parameters.each do |parameter| %>
   <%= annotated_type(parameter, :ee, :boundary, :private => true) %> <%= parameter.name %>;
 <% end %>
 <%
@@ -41,7 +41,7 @@ inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? 
    end
 %>  }
 
-<% exception.parameters.each do |parameter|
+<% exception.declared_parameters.each do |parameter|
 %>
 <%= annotated_type(parameter, :ee, :boundary, :public => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
   {
