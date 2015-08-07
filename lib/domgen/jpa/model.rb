@@ -186,7 +186,7 @@ module Domgen
       attr_writer :data_source
 
       def data_source
-        @data_source || "jdbc/#{repository.name}"
+        @data_source || "#{Domgen::Naming.underscore(repository.name)}/jdbc/#{repository.name}"
       end
 
       attr_writer :exclude_unlisted_classes
