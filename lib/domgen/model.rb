@@ -30,6 +30,8 @@ module Domgen
 
     attr_accessor :current_filename
 
+    attr_accessor :current_repository
+
     private
 
     def register_repository(name, repository)
@@ -1767,7 +1769,9 @@ module Domgen
       Domgen.send :register_repository, name, self
       Logger.info 'Repository definition started'
       self.activate_facets
+      Domgen.current_repository = self
       super(options, &block)
+      Domgen.current_repository = nil
       post_repository_definition
       Logger.info 'Model Checking started.'
       @model_checks.values.each do |model_check|
