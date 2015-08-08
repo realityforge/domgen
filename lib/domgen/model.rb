@@ -19,7 +19,7 @@ module Domgen
     end
 
     def repository(name, options = {}, &block)
-      Domgen::Repository.new(name, options, &block)
+      Domgen::Repository.new(name, self.current_filename, options, &block)
     end
 
     def repository_by_name(name)
@@ -27,6 +27,8 @@ module Domgen
       Domgen.error("Unable to locate repository #{name}") unless repository
       repository
     end
+
+    attr_accessor :current_filename
 
     private
 
@@ -1754,9 +1756,11 @@ module Domgen
 
   class Repository <  BaseTaggableElement
     attr_reader :name
+    attr_reader :source_file
 
-    def initialize(name, options, &block)
+    def initialize(name, source_file, options, &block)
       @name = name
+      @source_file = source_file
       @data_modules = Domgen::OrderedHash.new
       @model_checks = Domgen::OrderedHash.new
       Domgen::TypeDB.mark_as_initialized

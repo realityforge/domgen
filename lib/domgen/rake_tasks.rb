@@ -270,6 +270,7 @@ module Domgen
           old_level = Domgen::Logger.level
           begin
             Domgen::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
+            Domgen.current_filename = self.filename
             require self.filename
           rescue Exception => e
             print "An error occurred loading respository\n"
@@ -277,6 +278,7 @@ module Domgen
             puts $@
             raise e
           ensure
+            Domgen.current_filename = nil
             Domgen::Logger.level = old_level
           end
         end
