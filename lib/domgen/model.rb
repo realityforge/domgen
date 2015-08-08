@@ -1786,6 +1786,11 @@ module Domgen
       "Repository[#{self.name}]"
     end
 
+    def resolve_file(filename)
+      return filename unless self.source_file
+      filename =~ /^\// ? filename : File.expand_path("#{File.dirname(self.source_file)}/#{filename}")
+    end
+
     def data_module(name, options = {}, &block)
       pre_data_module_create(name)
       data_module = Domgen::DataModule.new(self, name, options, &block)
