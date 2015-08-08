@@ -207,8 +207,20 @@ module Domgen
         @persistence_file_fragments ||= []
       end
 
+      def resolved_persistence_file_fragments
+        self.persistence_file_fragments.collect do |fragment|
+          repository.resolve_file(fragment)
+        end
+      end
+
       def orm_file_fragments
         @orm_file_fragments ||= []
+      end
+
+      def resolved_orm_file_fragments
+        self.orm_file_fragments.collect do |fragment|
+          repository.resolve_file(fragment)
+        end
       end
     end
 

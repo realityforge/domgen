@@ -37,7 +37,7 @@
 <% end -%>
 <% end -%>
 
-<% repository.jpa.orm_file_fragments.each do |fragment| -%>
+<% repository.jpa.resolved_orm_file_fragments.each do |fragment| -%>
 <%= IO.read(fragment) -%>
 <% end -%>
 
