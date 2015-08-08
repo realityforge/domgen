@@ -195,7 +195,11 @@ module Domgen
         @exclude_unlisted_classes.nil? ? true : @exclude_unlisted_classes
       end
 
-      attr_accessor :provider
+      attr_writer :provider
+
+      def provider
+        @provider.nil? ? :eclipselink : @provider
+      end
 
       def provider_class
         return 'org.eclipse.persistence.jpa.PersistenceProvider' if provider == :eclipselink
