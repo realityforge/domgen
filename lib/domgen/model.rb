@@ -1761,16 +1761,16 @@ module Domgen
       @model_checks = Domgen::OrderedHash.new
       Domgen::TypeDB.mark_as_initialized
       Domgen.send :register_repository, name, self
-      Logger.info "Repository definition started"
+      Logger.info 'Repository definition started'
       self.activate_facets
       super(options, &block)
       post_repository_definition
-      Logger.info "Model Checking started."
+      Logger.info 'Model Checking started.'
       @model_checks.values.each do |model_check|
         model_check.check_model
       end
-      Logger.info "Model Checking completed."
-      Logger.info "Repository definition completed"
+      Logger.info 'Model Checking completed.'
+      Logger.info 'Repository definition completed'
       Domgen.repositorys << self
     end
 
