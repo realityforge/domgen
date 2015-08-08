@@ -32,6 +32,15 @@ module Domgen
 
     attr_accessor :current_repository
 
+    def _(filename)
+      raise 'No current repository' unless self.current_repository
+      self.current_repository.resolve_file(filename)
+    end
+
+    def read(filename)
+      IO.read(_(filename))
+    end
+
     private
 
     def register_repository(name, repository)
