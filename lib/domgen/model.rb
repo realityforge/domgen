@@ -819,7 +819,7 @@ module Domgen
     end
 
     def unique_constraint(attribute_names, options = {}, &block)
-      Domgen.error("Must have at least 1 or more attribute names for uniqueness constraint") if attribute_names.empty?
+      Domgen.error('Must have at least 1 or more attribute names for uniqueness constraint') if attribute_names.empty?
       constraint = UniqueConstraint.new(self, attribute_names, options, &block)
       add_unique_to_set("unique", constraint, @unique_constraints)
     end
