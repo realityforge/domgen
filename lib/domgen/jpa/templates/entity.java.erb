@@ -48,6 +48,8 @@ end
 @javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? "true" : "false" %> )
 <% if entity.data_module.repository.ee.version != '6' %>@javax.enterprise.inject.Vetoed
 <% end -%>
+<% entity.xor_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
 <% entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
 <% entity.dependency_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
@@ -134,6 +136,21 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 -%>
 <%= validation_prefix(c.name, entity) %>
         if( !(( <%= attributes.collect {|a| "object.#{getter_for(a)} == null"}.join(" && ") %> ) || (<%= attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(" && ") %>) ) )
+        {
+          return false;
+        }
+<%= validation_suffix() %>
+<% end -%>
+<%
+      entity.xor_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
+        attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
+-%>
+<%= validation_prefix(c.name, entity) %>
+        int count = 0;
+<% attributes.each do |a| -%>
+        count += (object.<%= getter_for(a) %> == null ? 0 : 1);
+<% end -%>
+        if( 1 != count )
         {
           return false;
         }

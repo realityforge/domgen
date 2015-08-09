@@ -695,6 +695,28 @@ module Domgen
           copy_tags(c, constraint_by_name(c.name))
         end
 
+        entity.xor_constraints.each do |c|
+          unless constraint_by_name(c.name)
+            sql = []
+            c.attribute_names.each_with_index do |name, index|
+              s = "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND " +
+                "#{c.attribute_names.select { |n| n != name }.collect do |n|
+                  "#{entity.attribute_by_name(n).sql.quoted_column_name} IS NULL"
+                end.join(' AND ')}"
+              sql << "(#{s})"
+            end
+            constraint(c.name, :sql => sql.join(' OR '))
+          end
+          copy_tags(c, constraint_by_name(c.name))
+        end
+        entity.dependency_constraints.each do |c|
+          constraint(c.name, :sql => <<SQL) unless constraint_by_name(c.name)
+#{entity.attribute_by_name(c.attribute_name).sql.quoted_column_name} IS NULL OR
+( #{c.dependent_attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ") } )
+SQL
+          copy_tags(c, constraint_by_name(c.name))
+        end
+
         entity.codependent_constraints.each do |c|
           constraint(c.name, :sql => <<SQL) unless constraint_by_name(c.name)
 ( #{c.attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(" AND ")} ) OR

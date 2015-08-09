@@ -588,7 +588,7 @@ JAVADOC
 
       def jpa_validation_in_jpa?(constraint)
         entity = constraint.entity
-        if constraint.is_a?(CodependentConstraint) || constraint.is_a?(IncompatibleConstraint)
+        if constraint.is_a?(CodependentConstraint) || constraint.is_a?(XorConstraint) || constraint.is_a?(IncompatibleConstraint)
           return constraint.attribute_names.all? { |attribute_name| a = entity.attribute_by_name(attribute_name); a.jpa? && a.jpa.persistent? }
         elsif constraint.is_a?(RelationshipConstraint)
           lhs = entity.attribute_by_name(constraint.lhs_operand)

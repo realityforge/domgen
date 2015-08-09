@@ -78,6 +78,12 @@ module Domgen
     end
   end
 
+  class XorConstraint < AttributeSetConstraint
+    def initialize(entity, attribute_names, options, &block)
+      super(entity, "#{attribute_names_to_key(entity, attribute_names)}_Xor", attribute_names, options, &block)
+    end
+  end
+
   class CodependentConstraint < AttributeSetConstraint
     def initialize(entity, attribute_names, options, &block)
       super(entity, "#{attribute_names_to_key(entity, attribute_names)}_CoDep", attribute_names, options, &block)
@@ -712,6 +718,7 @@ module Domgen
       @name = name
       @unique_constraints = Domgen::OrderedHash.new
       @codependent_constraints = Domgen::OrderedHash.new
+      @xor_constraints = Domgen::OrderedHash.new
       @incompatible_constraints = Domgen::OrderedHash.new
       @dependency_constraints = Domgen::OrderedHash.new
       @relationship_constraints = Domgen::OrderedHash.new
@@ -859,6 +866,19 @@ module Domgen
         Domgen.error("Codependent constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
       add_unique_to_set('codependent', constraint, @codependent_constraints)
+    end
+
+    def xor_constraints
+      @xor_constraints.values
+    end
+
+    # Check that one and only one of the attributes is not null
+    def xor_constraint(attribute_names, options = {}, &block)
+      constraint = XorConstraint.new(self, attribute_names, options, &block)
+      attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
+        Domgen.error("Xor constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") unless a.nullable?
+      end
+      add_unique_to_set('xor', constraint, @xor_constraints)
     end
 
     def incompatible_constraints
