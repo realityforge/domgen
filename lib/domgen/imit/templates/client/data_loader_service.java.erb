@@ -194,6 +194,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
     }
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "DLS_DEAD_LOCAL_STORE" } )
   @java.lang.Override
   protected final void requestUpdateSubscription( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
                                                   @javax.annotation.Nullable final Object id,
