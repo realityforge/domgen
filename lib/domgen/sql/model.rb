@@ -388,7 +388,7 @@ module Domgen
         self.repository.enable_facet(:mssql) if !self.repository.mssql? && !self.repository.pgsql?
       end
 
-      def pre_verify
+      def perform_verify
         self.repository.data_modules.select { |data_module| data_module.sql? }.each do |dm|
           self.repository.data_modules.select { |data_module| data_module.sql? }.each do |other|
             if dm != other && dm.sql.schema.to_s == other.sql.schema.to_s
