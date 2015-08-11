@@ -1030,7 +1030,6 @@ SQL
       end
 
       def self.change_actions
-        #{ :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
         [:cascade, :restrict, :set_null, :set_default, :no_action]
       end
 
