@@ -2,7 +2,7 @@
 package <%= to_package(method.ejb.qualified_scheduler_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.NOT_SUPPORTED )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
 @javax.ejb.Startup
 @javax.ejb.Singleton( name = "<%= method.qualified_name.gsub('#','.') %>Scheduler" )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
