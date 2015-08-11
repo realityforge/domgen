@@ -816,7 +816,7 @@ module Domgen
         end
       end
 
-      def post_verify
+      def pre_verify
         if entity.data_module.repository.imit.auto_register_change_listener? && entity.jpa?
           entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_listener_name
         end
