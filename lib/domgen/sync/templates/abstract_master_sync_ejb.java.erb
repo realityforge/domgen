@@ -179,7 +179,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
           "LEFT JOIN <%= a.referenced_entity.sync.master_entity.sql.qualified_table_name %> AS R ON R.MappingID = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND R.MappingSource = S.MappingSource AND R.DeletedAt IS NULL " +
 <% end -%>
 <% end -%>
-          "JOIN <%= entity.sync.master_entity.sql.qualified_table_name %> AS M ON M.DeletedAt IS NULL AND M.MappingID = S.MappingID AND M.MappingSource = S.MappingSource AND M.<%= entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name %> <> <%= a.reference? ? ref_id : "S.#{entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name}" %> " +
+          "JOIN <%= entity.sync.master_entity.sql.qualified_table_name %> AS M ON M.DeletedAt IS NULL AND M.MappingKey = S.MappingKey AND M.MappingID = S.MappingID AND M.MappingSource = S.MappingSource AND M.<%= entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name %> <> <%= a.reference? ? ref_id : "S.#{entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name}" %> " +
           "WHERE S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?";
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to modify immutable attribute <%= a.qualified_name %>", recorder ) )
         {
@@ -213,7 +213,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
           "LEFT JOIN <%= a.referenced_entity.sync.master_entity.sql.qualified_table_name %> AS R ON R.MappingID = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND R.MappingSource = S.MappingSource AND R.DeletedAt IS NULL " +
 <% end -%>
 <% end -%>
-          "JOIN <%= entity.sync.master_entity.sql.qualified_table_name %> AS M ON M.DeletedAt IS NULL AND M.MappingID = S.MappingID AND M.MappingSource = S.MappingSource AND M.<%= entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name %> IS NOT NULL AND M.<%= entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name %> <> <%= a.reference? ? ref_id : "S.#{entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name}" %> " +
+          "JOIN <%= entity.sync.master_entity.sql.qualified_table_name %> AS M ON M.DeletedAt IS NULL AND M.MappingKey = S.MappingKey AND M.MappingID = S.MappingID AND M.MappingSource = S.MappingSource AND M.<%= entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name %> IS NOT NULL AND M.<%= entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name %> <> <%= a.reference? ? ref_id : "S.#{entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name}" %> " +
           "WHERE S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?";
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to modify set once attribute <%= a.qualified_name %>", recorder ) )
         {
@@ -289,7 +289,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
       "UPDATE M " +
       " SET <%= entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name %> = ?, <%= entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name %> = 0 " +
       " FROM <%= entity.sync.master_entity.sql.qualified_table_name %> AS M " +
-      " LEFT JOIN <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS S ON M.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
+      " LEFT JOIN <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS S ON M.<%= entity.sync.master_entity.attribute_by_name(:MappingKey).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name %> AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
       " WHERE S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ? AND M.<%= entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name %> IS NULL";
     return getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, mappingSourceCode ).executeUpdate();
   }
@@ -299,7 +299,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
 <% reference_index = 0 -%>
     final String sql =
       "UPDATE M " +
-      " SET <%= entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name %> = 0, <%= entity.sync.attributes_to_synchronize.collect{|a| "#{entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name} = #{
+      " SET <%= entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name %> = 0, <%= entity.sync.attributes_to_synchronize.select{|a| ![:MappingKey, :MappingID].include?(a.name)}.collect{|a| "#{entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name} = #{
 if a.reference?
   reference_index += 1
   col_name = entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name
@@ -318,7 +318,7 @@ else
 end
 }"}.join(', ') %> " +
       " FROM <%= entity.sync.master_entity.sql.qualified_table_name %> M " +
-      " JOIN <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> T ON M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> " +
+      " JOIN <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> T ON M.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingKey).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name %> AND M.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> " +
 <% reference_index = 0 -%>
 <%
   entity.sync.attributes_to_synchronize.select{|a| a.reference? }.each do |a|
@@ -358,7 +358,7 @@ end
       "   (" +
 <%
   reference_index = 0
-  entity.sync.attributes_to_synchronize.each do |a|
+  entity.sync.attributes_to_synchronize.select{|a| ![:MappingKey, :MappingID].include?(a.name)}.each do |a|
    reference_value = if a.reference?
       reference_index += 1
       col_name = entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name
@@ -428,6 +428,7 @@ end
       " LEFT JOIN <%= entity.sync.master_entity.sql.qualified_table_name %> M ON " +
       "     M.<%= entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name %> IS NULL AND " +
       "     M.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> AND " +
+      "     M.<%= entity.sync.master_entity.attribute_by_name(:MappingKey).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name %> AND " +
       "     M.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
 <% reference_index = 0 -%>
 <%

@@ -311,6 +311,7 @@ module Domgen
             e.integer(:SyncTempID, :primary_key => true, :generated_value => true)
 
             e.reference("#{self.master_data_module}.#{self.entity.data_module.repository.sync.mapping_source_attribute}", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
+            e.string(:MappingKey, 255, :immutable => true, :description => 'Change to cause an instance with the same MappingID and MappingSource, to be recreated in Master.')
             e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
           end
 
@@ -368,8 +369,9 @@ module Domgen
                         'sql.sequence_name' => "#{self.entity.qualified_name.gsub('.', '')}Seq")
             end
 
-            e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
-            e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
+            e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, :immutable => true, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
+            e.string(:MappingKey, 255, :immutable => true, :description => 'Uniquely defines an instance with same MappingID and MappingSource.')
+            e.string(:MappingID, 50, :immutable => true, :description => 'The ID of entity in originating system')
             e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
 
             e.sql.index([:MappingSource, :MappingID], :unique => true, :filter => 'DeletedAt IS NULL')
@@ -431,10 +433,12 @@ module Domgen
             e.query(:FindByMappingSourceAndMappingID)
             e.query(:GetByMappingSourceAndMappingID)
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingID', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingID')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
             e.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
-            e.jpa.test_update_default({e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingID => nil, :CreatedAt => nil, :DeletedAt => nil}, :force_refresh => true)
-            e.jpa.test_update_default({e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingID => nil}, :force_refresh => true)
+            e.jpa.test_update_default({e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingID => nil, :CreatedAt => nil, :DeletedAt => nil}, :force_refresh => true)
+            e.jpa.test_update_default({e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingID => nil}, :force_refresh => true)
             e.jpa.test_update_default({:CreatedAt => nil, :DeletedAt => nil}, :force_refresh => true)
             delete_defaults = {}
             e.attributes.each do |a|

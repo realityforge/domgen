@@ -44,7 +44,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
     return executeUpdate( mappingSourceCode, sql );
   }
 
-  public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
+  public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingKey, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
 
   attribute_names = entity.sync.attributes_to_synchronize.collect{|a| a.name.to_s}
 
@@ -60,12 +60,13 @@ public class <%= data_module.sync.sync_temp_factory_name %>
 %> )
   {
     final String sql =
-      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %>, <%= entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }.join(', ') %>) VALUES (?,?,<%= entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| '?'}.join(',') %>)";
+      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name %>, <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %>, <%= entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID' && a.name.to_s != 'MappingKey'}.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }.join(', ') %>) VALUES (?,?,<%= entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| '?'}.join(',') %>)";
     return getEntityManager().createNativeQuery( sql ).
       setParameter( 1, mappingSourceCode ).
-      setParameter( 2, mappingID ).
+      setParameter( 2, mappingKey ).
+      setParameter( 3, mappingID ).
 <% entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.each_with_index do |a, i| -%>
-      setParameter( <%= i + 3 %>, <%= Domgen::Naming.camelize((a.reference? ? entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID") : entity.sync.sync_temp_entity.attribute_by_name(a.name)).name) %> ).
+      setParameter( <%= i + 4 %>, <%= Domgen::Naming.camelize((a.reference? ? entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID") : entity.sync.sync_temp_entity.attribute_by_name(a.name)).name) %> ).
 <% end -%>
       executeUpdate();
   }
