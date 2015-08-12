@@ -21,6 +21,14 @@ module Domgen
   FacetManager.facet(:sync => [:sql]) do |facet|
     facet.enhance(Repository) do
 
+      def transaction_time=(transaction_time)
+        @transaction_time = transaction_time
+      end
+
+      def transaction_time?
+        @transaction_time.nil? ? false : !!@transaction_time
+      end
+
       attr_writer :mapping_source_attribute
 
       def mapping_source_attribute
@@ -135,6 +143,15 @@ module Domgen
     end
 
     facet.enhance(DataModule) do
+      def transaction_time=(transaction_time)
+        @transaction_time = transaction_time
+      end
+
+      def transaction_time?
+        @transaction_time.nil? ? data_module.repository.sync.transaction_time? : !!@transaction_time
+      end
+
+
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::EEClientServerJavaPackage
 
@@ -218,7 +235,7 @@ module Domgen
       end
 
       def transaction_time?
-        @transaction_time.nil? ? false : !!@transaction_time
+        @transaction_time.nil? ? entity.data_module.sync.transaction_time? : !!@transaction_time
       end
 
       def references_requiring_manual_sync
