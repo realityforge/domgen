@@ -44,6 +44,30 @@ public class <%= data_module.sync.sync_temp_factory_name %>
     return executeUpdate( mappingSourceCode, sql );
   }
 
+  public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
+
+  attribute_names = entity.sync.attributes_to_synchronize.collect{|a| a.name.to_s}
+
+  attrs = []
+
+  entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
+    if a.reference?
+      sa = entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID")
+      attr_name = Domgen::Naming.camelize(sa.name)
+      attrs << attr_name
+      "#{nullability_annotation(sa.nullable?)} final java.lang.String #{attr_name}"
+    else
+      sa = entity.sync.sync_temp_entity.attribute_by_name(a.name)
+      attr_name = Domgen::Naming.camelize(sa.name)
+      attrs << attr_name
+      "#{annotated_type(a, :jpa, :transport, :final => true)} #{attr_name}"
+    end
+  end.join(', ')
+%> )
+  {
+    return insert<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, mappingID, mappingID, <%= attrs.join(', ') %> );
+  }
+
   public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingKey, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
 
   attribute_names = entity.sync.attributes_to_synchronize.collect{|a| a.name.to_s}
