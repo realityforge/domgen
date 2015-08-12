@@ -342,8 +342,8 @@ module Domgen
 
       def pre_verify
         entity.query(:FindAll, 'jpa.standard_query' => true)
-        entity.query("FindBy#{entity.primary_key.name}", 'jpa.standard_query' => true)
-        entity.query("GetBy#{entity.primary_key.name}", 'jpa.standard_query' => true)
+        entity.query("FindBy#{entity.primary_key.name}")
+        entity.query("GetBy#{entity.primary_key.name}")
         entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
           jpql = ''
           query_text = nil
