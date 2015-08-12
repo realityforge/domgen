@@ -226,6 +226,8 @@ module Domgen
           repository.resolve_file(fragment)
         end
       end
+
+      attr_accessor :default_jpql_criterion
     end
 
     facet.enhance(DataModule) do
@@ -260,6 +262,12 @@ module Domgen
 
       def server_internal_dao_entity_package
         "#{server_entity_package}.dao.internal"
+      end
+
+      attr_writer :default_jpql_criterion
+
+      def default_jpql_criterion
+        @default_jpql_criterion.nil? ? data_module.repository.jpa.default_jpql_criterion : @default_jpql_criterion
       end
     end
 
@@ -340,8 +348,14 @@ module Domgen
         @test_update_defaults.nil? ? [] : @test_update_defaults.dup
       end
 
+      attr_writer :default_jpql_criterion
+
+      def default_jpql_criterion
+        @default_jpql_criterion.nil? ? entity.data_module.jpa.default_jpql_criterion : @default_jpql_criterion
+      end
+
       def pre_verify
-        entity.query(:FindAll, 'jpa.standard_query' => true)
+        entity.query(:FindAll, 'jpa.standard_query' => true, 'jpa.jpql' => self.default_jpql_criterion)
         entity.query("FindBy#{entity.primary_key.name}")
         entity.query("GetBy#{entity.primary_key.name}")
         entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
@@ -392,6 +406,7 @@ module Domgen
             end
           end
           if jpql
+            jpql = "(#{jpql}) AND (#{self.default_jpql_criterion})" if self.default_jpql_criterion
             query.jpa.jpql = jpql
             query.jpa.standard_query = true
           end
