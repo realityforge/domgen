@@ -624,11 +624,11 @@ module Domgen
 
       def query_string
         order_by_clause = order_by ? " ORDER BY #{order_by}" : ""
-        criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
         q = nil
         if self.query_spec == :statement
           q = self.ql
         elsif self.query_spec == :criteria
+          criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
           if query.query_type == :select
             if query.name =~ /^[cC]ount(.+)$/
               if self.native?
