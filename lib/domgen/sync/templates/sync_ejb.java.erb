@@ -411,10 +411,15 @@ public class <%= data_module.sync.sync_ejb_name %>
           final <%= entity.jpa.qualified_name %> entity = _<%= entity.data_module.name %><%= entity.name %>Repository.findBy<%= entity.primary_key.name %>( ( <%= entity.primary_key.jpa.java_type(:boundary) %> ) result[ 1 ] );
           if( null != entity )
           {
+<% if entity.sync.transaction_time? -%>
+            entity.setDeletedAt( new java.util.Date() );
+<% end -%>
 <% entity.sync.references_requiring_manual_sync.each do |a| -%>
             _context.remove<%= a.entity.data_module.name %><%= a.entity.name %>RelatedTo<%= a.referenced_entity.data_module.name %><%= a.referenced_entity.name %>Via<%= a.name %>( entity );
 <% end -%>
+<% unless entity.sync.transaction_time? -%>
             _<%= entity.data_module.name %><%= entity.name %>Repository.remove( entity );
+<% end -%>
             _entityManager.
               createNativeQuery( "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET <%= data_module.sql.dialect.quote('MasterSynchronized') %> = ? WHERE <%= data_module.sql.dialect.quote('ID') %> = ?" ).
               setParameter( 1, true ).

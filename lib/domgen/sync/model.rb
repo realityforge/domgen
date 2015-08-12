@@ -306,6 +306,7 @@ module Domgen
         if entity.sync.transaction_time?
           self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_exists?(:CreatedAt)
           self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_exists?(:DeletedAt)
+          self.entity.jpa.default_jpql_criterion = 'O.deletedAt IS NULL'
         end
         self.entity.jpa.detachable = true if self.entity.jpa?
 
@@ -467,6 +468,10 @@ module Domgen
             e.query(:CountByMappingSource)
             e.query(:CountUnsynchronizedByMappingSource,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
+          end
+
+          if entity.sync.transaction_time?
+            entity.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
           end
         end
       end
