@@ -277,7 +277,7 @@ module Domgen
       end
 
       def get_attribute_name_from_path_element?(path_element)
-        is_path_element_recursive?(path_element) ? path_element[1,path_element.length] : path_element
+        is_path_element_recursive?(path_element) ? path_element[1, path_element.length] : path_element
       end
 
       # The name of the attribute that is used in referenced entity. This
@@ -676,7 +676,7 @@ module Domgen
       attr_writer :short_test_code
 
       def short_test_code
-        Domgen::Naming.split_into_words(data_module.name.to_s).collect{|w|w[0,1]}.join.downcase
+        Domgen::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
       end
 
       java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
@@ -685,7 +685,7 @@ module Domgen
       attr_writer :test_factory_name
 
       def test_factory_name
-        @test_factory_name || abstract_test_factory_name.gsub(/^Abstract/,'')
+        @test_factory_name || abstract_test_factory_name.gsub(/^Abstract/, '')
       end
 
       def qualified_test_factory_name
@@ -801,7 +801,7 @@ module Domgen
         entity.data_module.repository.imit.graphs.select do |graph|
           (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
             (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s)) ||
-            entity.attributes.any? { |a| a.imit? && a.imit.routing_keys.any?{|routing_key|routing_key.graph.name.to_s == graph.name.to_s} }
+            entity.attributes.any? { |a| a.imit? && a.imit.routing_keys.any? { |routing_key| routing_key.graph.name.to_s == graph.name.to_s } }
         end
       end
 
@@ -850,7 +850,7 @@ module Domgen
 
       def routing_key(graph, options = {})
         params = options.dup
-        name = params.delete(:name) || attribute.qualified_name.gsub('.','_')
+        name = params.delete(:name) || attribute.qualified_name.gsub('.', '_')
         routing_keys_map["#{graph}#{name}"] = Domgen::Imit::RoutingKey.new(self, name, graph, params)
       end
 
