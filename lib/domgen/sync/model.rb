@@ -468,10 +468,10 @@ module Domgen
             e.query(:CountByMappingSource)
             e.query(:CountUnsynchronizedByMappingSource,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
-          end
 
-          if entity.sync.transaction_time?
-            entity.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+            if entity.sync.transaction_time?
+              entity.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+            end
           end
         end
       end
