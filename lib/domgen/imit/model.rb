@@ -207,7 +207,7 @@ module Domgen
         @path = path
       end
 
-      def perform_verify
+      def post_verify
         entity = self.imit_attribute.attribute.referenced_entity
 
         # Need to make sure that the path is valid
@@ -888,9 +888,9 @@ module Domgen
 
       include Domgen::Java::ImitJavaCharacteristic
 
-      def perform_verify
+      def post_verify
         self.graph_links.each do |graph_link|
-          graph_link.perform_verify
+          graph_link.post_verify
         end
       end
 
