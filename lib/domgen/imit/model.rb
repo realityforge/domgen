@@ -18,6 +18,7 @@ module Domgen
       def initialize(application, name, options, &block)
         @name = name
         @type_roots = []
+        @required_type_graphs = []
         @instance_root = nil
         @outward_graph_links = Domgen::OrderedHash.new
         @inward_graph_links = Domgen::OrderedHash.new
@@ -123,6 +124,23 @@ module Domgen
 
       def unfiltered?
         @filter.nil?
+      end
+
+      def required_type_graphs
+        @required_type_graphs.dup
+      end
+
+      def require_type_graphs=(require_type_graphs)
+        require_type_graphs.each do |graph_key|
+          require_type_graph(graph_key)
+        end
+      end
+
+      def require_type_graph(graph_key)
+        graph = application.repository.imit.graph_by_name(graph_key)
+        Domgen.error("Graph '#{self.name}' requires type graph #{graph_key} but required graph is not a type graph.") if graph.instance_root?
+        Domgen.error("Graph '#{self.name}' requires type graph #{graph_key} multiple times.") if @required_type_graphs.include?(graph)
+        @required_type_graphs << graph
       end
 
       def post_verify
