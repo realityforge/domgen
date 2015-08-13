@@ -162,6 +162,32 @@ module Domgen
             Domgen.error("Graph '#{self.name}' has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' but has a different filter. This is not supported.")
           end
         end if self.instance_root?
+
+        rtgs = self.required_type_graphs
+
+        entities = self.included_entities
+
+        entities.each do |entity_name|
+          entity = application.repository.entity_by_name(entity_name)
+          entity.attributes.select { |a| a.reference? && a.imit? && a.imit.client_side? && a.imit.graph_links.empty? }.each do |a|
+            referenced_entity = a.referenced_entity
+
+            # Unclear on how to handle this next scenario. Assume a subtype is visible?
+            next if referenced_entity.abstract?
+
+            # If linked entity is part of current graph then all is ok.
+            next if entities.any? { |e| e == referenced_entity.qualified_name }
+
+            # If entity is part of required type graphs then all is ok
+            next if rtgs.any? { |g| g.type_roots.include?(referenced_entity.qualified_name) }
+
+            next if self.instance_root? && self.inward_graph_links.all? do |graph_link|
+              graph_link.target_graph.included_entities.any? { |e| e == referenced_entity.qualified_name }
+            end
+
+            Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not part of any of the dependent type graphs: #{rtgs.collect { |e| e.name }.inspect} and not in current graph #{entities.inspect}.")
+          end
+        end
       end
 
       protected
