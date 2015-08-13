@@ -471,6 +471,7 @@ module Domgen
 
             if entity.sync.transaction_time?
               entity.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+              entity.imit.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null') if entity.imit?
             end
           end
         end
