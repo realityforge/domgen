@@ -19,6 +19,7 @@ module Domgen
         @name = name
         @type_roots = []
         @required_type_graphs = []
+        @dependent_type_graphs = []
         @instance_root = nil
         @outward_graph_links = Domgen::OrderedHash.new
         @inward_graph_links = Domgen::OrderedHash.new
@@ -126,6 +127,10 @@ module Domgen
         @filter.nil?
       end
 
+      def dependent_type_graphs
+        @dependent_type_graphs.dup
+      end
+
       def required_type_graphs
         @required_type_graphs.dup
       end
@@ -142,6 +147,7 @@ module Domgen
         Domgen.error("Graph '#{self.name}' requires self which is invalid.") if self.name.to_s == graph_key.to_s
         Domgen.error("Graph '#{self.name}' requires type graph #{graph_key} multiple times.") if @required_type_graphs.include?(graph)
         @required_type_graphs << graph
+        graph.send(:add_dependent_type_graph, self)
       end
 
       def post_verify
@@ -159,6 +165,10 @@ module Domgen
       end
 
       protected
+
+      def add_dependent_type_graph(graph)
+        @dependent_type_graphs << graph
+      end
 
       def register_routing_key(routing_key)
         key = routing_key.name.to_s
