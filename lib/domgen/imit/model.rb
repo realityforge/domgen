@@ -139,6 +139,7 @@ module Domgen
       def require_type_graph(graph_key)
         graph = application.repository.imit.graph_by_name(graph_key)
         Domgen.error("Graph '#{self.name}' requires type graph #{graph_key} but required graph is not a type graph.") if graph.instance_root?
+        Domgen.error("Graph '#{self.name}' requires self which is invalid.") if self.name.to_s == graph_key.to_s
         Domgen.error("Graph '#{self.name}' requires type graph #{graph_key} multiple times.") if @required_type_graphs.include?(graph)
         @required_type_graphs << graph
       end
