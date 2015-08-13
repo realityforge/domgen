@@ -24,6 +24,24 @@ data += <<DATA
 DATA
    data += elements.collect{|e| "   *   <li>#{e}</li>"}.join("\n")
    data += "\n   * </ul>\n"
+   if g.required_type_graphs.size > 0
+     data += "   * <p>It links to the following type graphs:</p>\n"
+     data += "   * <ul>\n"
+     g.required_type_graphs.each do |graph|
+       data += "   *   <li>The #{graph.name} graph</li>\n"
+     end
+     data += "   * </ul>\n"
+   end
+
+   if g.dependent_type_graphs.size > 0
+     data += "   * <p>It is linked from the following type graphs:</p>\n"
+     data += "   * <ul>\n"
+     g.dependent_type_graphs.each do |graph|
+       data += "   *   <li>The #{graph.name} graph</li>\n"
+     end
+     data += "   * </ul>\n"
+   end
+
    if g.instance_root? && g.outward_graph_links.size > 0
      data += "   * <p>It links to the following instance graphs:</p>\n"
      data += "   * <ul>\n"
