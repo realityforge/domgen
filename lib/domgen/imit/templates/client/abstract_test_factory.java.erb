@@ -33,6 +33,14 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
     repository().deregisterEntity( <%= entity.imit.qualified_name %>.class, $_.get<%= entity.primary_key.name %>() );
   }
 
+<% entity.imit.test_create_defaults.each do |defaults| -%>
+  @javax.annotation.Nonnull
+  public final <%= entity.imit.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.imit? && a.imit.client_side? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :imit, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  {
+    return create<%= entity.name %>( <%= entity.attributes.select{|a|a.imit? && a.imit.client_side?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) }.join(', ') %> );
+  }
+
+<% end -%>
   @javax.annotation.Nonnull
   public final <%= entity.imit.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.imit? && a.imit.client_side?}.collect{|a| "#{annotated_type(a, :imit, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
   {
