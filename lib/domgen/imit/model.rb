@@ -361,6 +361,13 @@ module Domgen
         end
         return !a.nullable?
       end
+
+      def post_verify
+        Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that is not instance based.") unless self.graph.instance_root?
+        Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that is not filtered.") unless self.graph.filtered?
+
+        Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that entity is not currently part of.") unless self.graph.included_entities.include?(self.imit_attribute.attribute.entity.qualified_name)
+      end
     end
 
     class FilterParameter < Domgen.ParentedElement(:graph)
@@ -902,6 +909,9 @@ module Domgen
       def post_verify
         self.graph_links.each do |graph_link|
           graph_link.post_verify
+        end
+        self.routing_keys.each do |routing_key|
+          routing_key.post_verify
         end
       end
 
