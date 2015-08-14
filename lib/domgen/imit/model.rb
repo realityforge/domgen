@@ -616,7 +616,7 @@ module Domgen
       end
 
       def subscription_manager
-        @subscription_manager
+        @subscription_manager || "#{self.imit_control_data_module}.SubscriptionService"
       end
 
       def invalid_session_exception=(invalid_session_exception)
@@ -625,7 +625,7 @@ module Domgen
       end
 
       def invalid_session_exception
-        @invalid_session_exception
+        @invalid_session_exception || "#{self.imit_control_data_module}.BadSession"
       end
 
       def imit_control_data_module=(imit_control_data_module)
