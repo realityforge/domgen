@@ -611,6 +611,7 @@ module Domgen
       end
 
       def subscription_manager=(subscription_manager)
+        Domgen.error('subscription_manager invalid. Expected to be in format DataModule.ServiceName') if self.subscription_manager.to_s.split('.').length != 2
         @subscription_manager = subscription_manager
       end
 
@@ -619,6 +620,7 @@ module Domgen
       end
 
       def invalid_session_exception=(invalid_session_exception)
+        Domgen.error('invalid_session_exception invalid. Expected to be in format DataModule.Exception') if invalid_session_exception.to_s.split('.').length != 2
         @invalid_session_exception = invalid_session_exception
       end
 
