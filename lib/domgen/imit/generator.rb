@@ -214,6 +214,11 @@ Domgen.template_set(:imit_server_service) do |template_set|
                         Domgen::Generator::Imit::SERVER_HELPERS)
   template_set.template(Domgen::Generator::Imit::SERVER_FACETS,
                         :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/abstract_session_context_impl.java.erb",
+                        'main/java/#{repository.imit.qualified_abstract_session_context_impl_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::SERVER_HELPERS)
+  template_set.template(Domgen::Generator::Imit::SERVER_FACETS,
+                        :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/replication_interceptor.java.erb",
                         'main/java/#{repository.imit.qualified_replication_interceptor_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::SERVER_HELPERS)

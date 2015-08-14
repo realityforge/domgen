@@ -556,6 +556,14 @@ module Domgen
         "#{qualified_client_session_context_name}Impl"
       end
 
+      def abstract_session_context_impl_name
+        qualified_abstract_session_context_impl_name.gsub(/^.*\.([^.]+)$/, '\1')
+      end
+
+      def qualified_abstract_session_context_impl_name
+        "#{repository.service_by_name(self.session_context_service).ejb.qualified_service_name.gsub(/^(.*)\.([^.]+$)/, '\1.Abstract\2Impl')}"
+      end
+
       def extra_test_modules
         @extra_test_modules ||= []
       end
