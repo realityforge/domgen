@@ -1861,6 +1861,11 @@ module Domgen
       data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional, &block)
     end
 
+    def enumeration(name, enumeration_type, options = {}, &block)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).enumeration(name_parts[1], enumeration_type, options, &block)
+    end
+
     def exception_by_name(name, optional = false, &block)
       name_parts = split_name(name)
       data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional, &block)
@@ -1870,6 +1875,11 @@ module Domgen
       name_parts = split_name(name)
       data_module_by_name?(name_parts[0]) &&
         data_module_by_name(name_parts[0]).local_exception_by_name?(name_parts[1])
+    end
+
+    def exception(name, options = {}, &block)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).exception(name_parts[1], options, &block)
     end
 
     def entity_by_name?(name)
@@ -1883,6 +1893,11 @@ module Domgen
       data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional, &block)
     end
 
+    def entity(name, options = {}, &block)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).entity(name_parts[1], options, &block)
+    end
+
     def service_by_name?(name)
       name_parts = split_name(name)
       data_module_by_name?(name_parts[0]) &&
@@ -1892,6 +1907,11 @@ module Domgen
     def service_by_name(name, optional = false, &block)
       name_parts = split_name(name)
       data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional, &block)
+    end
+
+    def service(name, options = {}, &block)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).service(name_parts[1], options, &block)
     end
 
     def struct_by_name?(name)
@@ -1905,6 +1925,11 @@ module Domgen
       data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional, &block)
     end
 
+    def struct(name, struct_key, options = {}, &block)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).struct(name_parts[1], struct_key, options, &block)
+    end
+
     def message_by_name?(name)
       name_parts = split_name(name)
       data_module_by_name?(name_parts[0]) &&
@@ -1914,6 +1939,11 @@ module Domgen
     def message_by_name(name, optional = false, &block)
       name_parts = split_name(name)
       data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1], optional, &block)
+    end
+
+    def message(name, options = {}, &block)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).message(name_parts[1], options, &block)
     end
 
     include GenerateFacet
