@@ -147,6 +147,10 @@ module Domgen
         @filter ||= FilterParameter.new(self, filter_type, options, &block)
       end
 
+      def filter_parameter?
+        !@filter.nil?
+      end
+
       def filter_parameter
         @filter
       end
