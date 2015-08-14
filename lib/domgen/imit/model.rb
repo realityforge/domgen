@@ -679,10 +679,6 @@ module Domgen
           s.method(:RemoveIdleSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30')
 
           repository.imit.graphs.each do |graph|
-            filter_options = {}
-            if graph.filtered? && graph.filter_parameter.filter_type == :struct
-              filter_options[:referenced_struct] = graph.filter_parameter.referenced_struct
-            end
             s.method(:"SubscribeTo#{graph.name}") do |m|
               m.string(:ClientID, 50)
               if graph.cacheable?
@@ -691,14 +687,14 @@ module Domgen
                 m.returns(:boolean)
               end
               m.reference(graph.instance_root) if graph.instance_root?
-              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options) if graph.filtered?
+              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filtered?
               m.exception(self.invalid_session_exception)
             end
             if graph.filtered? && !graph.filter_parameter.immutable?
               s.method(:"Update#{graph.name}Subscription") do |m|
                 m.string(:ClientID, 50)
                 m.reference(graph.instance_root) if graph.instance_root?
-                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options)
+                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
                 m.exception(self.invalid_session_exception)
               end
             end
@@ -756,6 +752,21 @@ module Domgen
       end
 
       private
+
+      def filter_options(graph)
+        filter_options = {}
+        if graph.filter_parameter?
+          filter_options =
+            {
+              :collection_type => graph.filter_parameter.collection_type,
+              :nullable => graph.filter_parameter.nullable?
+            }
+          filter_options[:referenced_entity] = graph.filter_parameter.referenced_entity if graph.filter_parameter.reference?
+          filter_options[:referenced_struct] = graph.filter_parameter.referenced_struct if graph.filter_parameter.struct?
+        end
+        filter_options
+      end
+
 
       def register_graph(name, graph)
         graph_map[name.to_s] = graph
