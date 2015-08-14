@@ -55,11 +55,11 @@ entities.uniq.each do |entity| -%>
   {
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     getLock().readLock().lock();
-    final java.util.Map<String, <%= repository.imit.qualified_session_name %>> sessions = getSessions();
+    final java.util.Map<String, <%= repository.imit.qualified_session_name %>> sessionMap = getSessions();
     final org.realityforge.replicant.server.ChangeAccumulator accumulator = new org.realityforge.replicant.server.ChangeAccumulator();
     try
     {
-      final java.util.Collection<<%= repository.imit.qualified_session_name %>> values = sessions.values();
+      final java.util.Collection<<%= repository.imit.qualified_session_name %>> sessions = sessionMap.values();
       for ( final org.realityforge.replicant.server.EntityMessage message : messages )
       {
         final java.util.Map<String, java.io.Serializable> routingKeys = message.getRoutingKeys();
@@ -92,7 +92,7 @@ entities.uniq.each do |entity| -%>
     extra_interest_filter = "&& _context.is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}#{graph.instance_root? ? ", session.getInterestedIn#{graph.name}().get( #{graph.name} )" : '' }#{extra_interest_filter} ) "
   end
 -%>
-          for ( final <%= repository.imit.qualified_session_name %> session : values )
+          for ( final <%= repository.imit.qualified_session_name %> session : sessions )
           {
             if ( session.<%= graph.instance_root? ? "is#{graph.name}Interesting" : "isInterestedIn#{graph.name}" %>(<%= param %> ) <%= extra_interest_filter %>)
             {
@@ -146,7 +146,7 @@ entities.uniq.each do |entity| -%>
 <% if graph.cacheable? && !graph.external_cache_management? -%>
           _auto<%= graph.name %>RuntimeIndex++;
 <% end -%>
-          for ( final <%= repository.imit.qualified_session_name %> session : values )
+          for ( final <%= repository.imit.qualified_session_name %> session : sessions )
           {
             if ( session.<%= graph.instance_root? ? "is#{graph.name}Interesting" : "isInterestedIn#{graph.name}" %>(<%= param %> ) <%= extra_interest_filter %>)
             {
