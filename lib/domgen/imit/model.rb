@@ -632,7 +632,7 @@ module Domgen
       end
 
       def imit_control_data_module
-        @imit_control_data_module
+        @imit_control_data_module || (self.repository.data_module_by_name?(self.repository.name) ? self.repository.name : Domgen.error('imit_control_data_module unspecified and unable to derive default.'))
       end
 
       def pre_verify
