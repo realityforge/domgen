@@ -114,7 +114,6 @@ entities.uniq.each do |entity| -%>
 
   param = ''
   type = 'Boolean'
-  instance_root = nil
   if graph.instance_root?
     # Names are fully qualified so take any random data module
     instance_root = repository.entity_by_name(graph.instance_root)
