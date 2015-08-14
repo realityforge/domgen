@@ -214,11 +214,6 @@ Domgen.template_set(:imit_server_service) do |template_set|
                         Domgen::Generator::Imit::SERVER_HELPERS)
   template_set.template(Domgen::Generator::Imit::SERVER_FACETS,
                         :repository,
-                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/session_context.java.erb",
-                        'main/java/#{repository.imit.qualified_server_session_context_name.gsub(".","/")}.java',
-                        Domgen::Generator::Imit::SERVER_HELPERS)
-  template_set.template(Domgen::Generator::Imit::SERVER_FACETS,
-                        :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/replication_interceptor.java.erb",
                         'main/java/#{repository.imit.qualified_replication_interceptor_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::SERVER_HELPERS)
@@ -244,11 +239,6 @@ Domgen.template_set(:imit_server_qa) do |template_set|
                         :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/net_module.java.erb",
                         'test/java/#{repository.imit.qualified_server_net_module_name.gsub(".","/")}.java',
-                        Domgen::Generator::Imit::SERVER_HELPERS)
-  template_set.template(Domgen::Generator::Imit::SERVER_FACETS,
-                        :repository,
-                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/session_context_test.java.erb",
-                        'test/java/#{repository.imit.qualified_server_session_context_test_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::SERVER_HELPERS)
 end
 

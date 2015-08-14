@@ -531,8 +531,6 @@ module Domgen
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
       java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerEJB'
-      java_artifact :server_session_context, :comm, :server, :imit, '#{repository.name}SessionContext'
-      java_artifact :server_session_context_test, :comm, :server, :imit, 'Abstract#{repository.name}SessionContextEJBTest'
       java_artifact :session_exception_mapper, :rest, :server, :imit, '#{repository.name}BadSessionExceptionMapper'
       java_artifact :router_interface, :comm, :server, :imit, '#{repository.name}Router'
       java_artifact :router_impl, :comm, :server, :imit, '#{repository.name}RouterImpl'
@@ -627,6 +625,15 @@ module Domgen
         @invalid_session_exception || "#{self.imit_control_data_module}.BadSession"
       end
 
+      def session_context_service=(session_context_service)
+        Domgen.error('invalid_session_exception invalid. Expected to be in format DataModule.SessionContext') if session_context_service.to_s.split('.').length != 2
+        @session_context_service = session_context_service
+      end
+
+      def session_context_service
+        @session_context_service || "#{self.imit_control_data_module}.SessionContext"
+      end
+
       def imit_control_data_module=(imit_control_data_module)
         @imit_control_data_module = imit_control_data_module
       end
@@ -640,40 +647,131 @@ module Domgen
         if self.graphs.size == 0
           Domgen.error('imit facet enabled but no graphs defined')
         end
-        if self.imit_control_data_module.nil? && self.repository.data_module_by_name?(self.repository.name)
-          self.imit_control_data_module = self.repository.name
-        end
-        if self.subscription_manager.nil?
-          if self.imit_control_data_module
-            self.subscription_manager = "#{self.imit_control_data_module}.SubscriptionService"
-          else
-            Domgen.error('subscription_manager not specified (and unable to be derived) when graphs defined')
-          end
-        end
-        sm_name_parts = self.subscription_manager.to_s.split('.')
-        Domgen.error('subscription_manager invalid. Expected to be in format DataModule.ServiceName') if sm_name_parts.length != 2
-        self.repository.data_module_by_name(sm_name_parts[0]).service(sm_name_parts[1]) do |s|
-          (s.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
-            s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
+
+        self.repository.exception(self.invalid_session_exception) unless self.repository.exception_by_name?(self.invalid_session_exception)
+        self.repository.exception_by_name(self.invalid_session_exception).tap do |e|
+          e.ejb.rollback = false
+          (e.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
+            e.disable_facet(facet_key) if e.facet_enabled?(facet_key)
           end
         end
 
-        if self.invalid_session_exception.nil?
-          if self.imit_control_data_module
-            self.invalid_session_exception = "#{self.imit_control_data_module}.BadSession"
-          else
-            Domgen.error('invalid_session_exception not specified (and unable to be derived) when graphs defined')
+        self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)
+        self.repository.service_by_name(self.session_context_service).tap do |s|
+          (s.all_enabled_facets - [:java, :ee, :ejb]).each do |facet_key|
+            s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
+          end
+          repository.imit.graphs.each do |graph|
+            s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
+              m.parameter(:Message, 'org.realityforge.replicant.server.EntityMessage')
+              m.parameter(:Session, self.repository.imit.qualified_session_name)
+              if graph.instance_root?
+                entity = repository.entity_by_name(graph.instance_root)
+                m.parameter("#{entity.name}#{entity.primary_key.name}", entity.primary_key.jpa.non_primitive_java_type)
+              end
+              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
+
+              if graph.filtered?
+                graph.routing_keys.each do |routing_key|
+                  options =
+                    {
+                      :collection_type => routing_key.multivalued? ? :sequence : :none,
+                      :nullable => !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
+                    }
+                  options[:referenced_entity] = routing_key.target_attribute.referenced_entity if routing_key.target_attribute.reference?
+                  options[:referenced_struct] = routing_key.target_attribute.referenced_struct if routing_key.target_attribute.struct?
+                  m.parameter(routing_key.target_attribute.qualified_name.gsub('.', ''),
+                              routing_key.target_attribute.attribute_type,
+                              options)
+                end
+              end
+
+              m.returns('org.realityforge.replicant.server.EntityMessage', :nullable => true)
+            end
+          end
+
+          repository.imit.graphs.each do |graph|
+            if !graph.instance_root?
+              if graph.cacheable? && graph.external_cache_management?
+                s.method("Get#{graph.name}CacheKey") do |m|
+                  m.returns(:text, :nullable => true)
+                end
+              end
+              if graph.filter_parameter? && !graph.filter_parameter.immutable?
+                s.method("CollectForFilterChange#{graph.name}") do |m|
+                  m.parameter(:Messages, 'org.realityforge.replicant.server.EntityMessageSet')
+                  m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                  m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                end
+              end
+              if graph.external_data_load? || graph.filter_parameter?
+                s.method("Collect#{graph.name}") do |m|
+                  m.parameter(:Messages, 'org.realityforge.replicant.server.EntityMessageSet')
+                  m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+                end
+              end
+            else
+              if graph.filter_parameter?
+                unless graph.filter_parameter.immutable?
+                  s.method("CollectForFilterChange#{graph.name}") do |m|
+                    m.parameter(:Messages, 'org.realityforge.replicant.server.EntityMessageSet')
+                    m.reference(graph.instance_root, :name => :Entity)
+                    m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                    m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                  end
+                end
+
+                graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+                  outgoing_links = entity.referencing_attributes.select { |a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
+                  outgoing_links.each do |a|
+                    if a.inverse.multiplicity == :many
+                      s.method("Get#{Domgen::Naming.pluralize(a.inverse.name)}In#{graph.name}Graph") do |m|
+                        m.reference(a.referenced_entity.qualified_name, :name => :Entity)
+                        m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+                        m.returns(:reference, :referenced_entity => a.entity.qualified_name)
+                      end
+                    elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
+                      s.method("Get#{a.inverse.name}In#{graph.name}Graph") do |m|
+                        m.reference(a.referenced_entity.qualified_name, :name => :Entity)
+                        m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+                        m.returns(:reference, :referenced_entity => a.entity.qualified_name, :nullable => (a.inverse.multiplicity == :zero_or_one))
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          processed = []
+          repository.imit.graphs.select { |g| g.instance_root? }.collect { |g| g.inward_graph_links }.flatten.each do |graph_link|
+            source_graph = repository.imit.graph_by_name(graph_link.source_graph)
+            target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+            next unless target_graph.filtered?
+            key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+            next if processed.include?(key)
+            processed << key
+            instance_root = repository.entity_by_name(target_graph.instance_root)
+
+            s.method(:"ShouldFollowLinkFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
+              m.reference(instance_root.qualified_name, :name => :Entity)
+              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+              m.returns(:boolean)
+            end
+
+            s.method(:"GetLinksToUpdateFor#{graph_link.source_graph}To#{target_graph.name}") do |m|
+              m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => :Entity)
+              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+              m.returns(:reference, :referenced_entity => instance_root, :collection_type => :sequence)
+            end
           end
         end
-        e_name_parts = self.invalid_session_exception.to_s.split('.')
-        Domgen.error('invalid_session_exception invalid. Expected to be in format DataModule.Exception') if e_name_parts.length != 2
-        exception_data_module = self.repository.data_module_by_name(e_name_parts[0])
-        e = exception_data_module.exception_by_name?(e_name_parts[1]) ? exception_data_module.exception_by_name(e_name_parts[1]) : exception_data_module.exception(e_name_parts[1])
-        e.ejb.rollback = false
-        (e.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
-          e.disable_facet(facet_key) if e.facet_enabled?(facet_key)
-        end
-        repository.service_by_name(self.subscription_manager).tap do |s|
+
+        self.repository.service(self.subscription_manager) unless self.repository.service_by_name?(self.subscription_manager)
+        self.repository.service_by_name(self.subscription_manager).tap do |s|
+          (s.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
+            s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
+          end
           s.ejb.standard_implementation = false
 
           s.method(:RemoveIdleSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30')
