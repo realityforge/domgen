@@ -531,7 +531,6 @@ module Domgen
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
       java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerEJB'
-      # TODO: Consider making server_session_context a regular ejb service created in pre_verify
       java_artifact :server_session_context, :comm, :server, :imit, '#{repository.name}SessionContext'
       java_artifact :server_session_context_test, :comm, :server, :imit, 'Abstract#{repository.name}SessionContextEJBTest'
       java_artifact :session_exception_mapper, :rest, :server, :imit, '#{repository.name}BadSessionExceptionMapper'
