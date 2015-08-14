@@ -1850,6 +1850,12 @@ module Domgen
       Domgen::ModelCheck.new(self, name, options, &block)
     end
 
+    def enumeration_by_name?(name)
+      name_parts = split_name(name)
+      data_module_by_name?(name_parts[0]) &&
+        data_module_by_name(name_parts[0]).local_enumeration_by_name?(name_parts[1])
+    end
+
     def enumeration_by_name(name, optional = false, &block)
       name_parts = split_name(name)
       data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional, &block)
@@ -1860,9 +1866,27 @@ module Domgen
       data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional, &block)
     end
 
+    def exception_by_name?(name)
+      name_parts = split_name(name)
+      data_module_by_name?(name_parts[0]) &&
+        data_module_by_name(name_parts[0]).local_exception_by_name?(name_parts[1])
+    end
+
+    def entity_by_name?(name)
+      name_parts = split_name(name)
+      data_module_by_name?(name_parts[0]) &&
+        data_module_by_name(name_parts[0]).local_entity_by_name?(name_parts[1])
+    end
+
     def entity_by_name(name, optional = false, &block)
       name_parts = split_name(name)
       data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional, &block)
+    end
+
+    def service_by_name?(name)
+      name_parts = split_name(name)
+      data_module_by_name?(name_parts[0]) &&
+        data_module_by_name(name_parts[0]).local_service_by_name?(name_parts[1])
     end
 
     def service_by_name(name, optional = false, &block)
@@ -1870,9 +1894,21 @@ module Domgen
       data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional, &block)
     end
 
+    def struct_by_name?(name)
+      name_parts = split_name(name)
+      data_module_by_name?(name_parts[0]) &&
+        data_module_by_name(name_parts[0]).local_struct_by_name?(name_parts[1])
+    end
+
     def struct_by_name(name, optional = false, &block)
       name_parts = split_name(name)
       data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional, &block)
+    end
+
+    def message_by_name?(name)
+      name_parts = split_name(name)
+      data_module_by_name?(name_parts[0]) &&
+        data_module_by_name(name_parts[0]).local_message_by_name?(name_parts[1])
     end
 
     def message_by_name(name, optional = false, &block)
