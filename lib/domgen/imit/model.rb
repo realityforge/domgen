@@ -829,7 +829,7 @@ module Domgen
         end
       end
 
-      def post_verify
+      def post_complete
         index = 0
         repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
           data_module.entities.each do |entity|
