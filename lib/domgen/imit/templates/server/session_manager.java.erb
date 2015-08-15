@@ -101,7 +101,7 @@ entities.uniq.each do |entity| -%>
               final org.realityforge.replicant.server.EntityMessage m = _context.filterMessageOfInterestIn<%= graph.name %>Graph( message<%= customize_filter %> );
               if( null != m )
               {
-                if( null != m && m.isDelete() && <%= repository.imit.qualified_message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeID() )
+                if( m.isDelete() && <%= repository.imit.qualified_message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeID() )
                 {
                   doUnsubscribeFrom<%= graph.name %>( accumulator, session<%= param.size > 0 ? ", #{param}" : "" %> );
                 }
