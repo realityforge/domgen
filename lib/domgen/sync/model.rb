@@ -471,7 +471,15 @@ module Domgen
 
             if entity.sync.transaction_time?
               entity.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
-              entity.imit.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null') if entity.imit?
+               if entity.imit?
+                 attributes = entity.attributes.select{|a|%w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit? }.collect{|a|a.name.to_s}
+                 if attributes.size > 0
+                   defaults = {}
+                   defaults[:CreatedAt] = 'new java.util.Date()' if attributes.include?('CreatedAt')
+                   defaults[:DeletedAt] = 'null' if attributes.include?('DeletedAt')
+                   entity.imit.test_create_default(defaults)
+                 end
+               end
             end
           end
         end
