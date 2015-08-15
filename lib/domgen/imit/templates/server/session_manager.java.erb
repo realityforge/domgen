@@ -88,17 +88,23 @@ entities.uniq.each do |entity| -%>
     end
   end
 
-  if !extra_interest_filter.empty?
-    extra_interest_filter = "&& _context.is#{graph.name}Interesting( session#{graph.instance_root? ? ", #{graph.name}" : ''}#{graph.instance_root? ? ", session.getInterestedIn#{graph.name}().get( #{graph.name} )" : '' }#{extra_interest_filter} ) "
+  customize_filter = ", session#{graph.instance_root? ? ", #{graph.name}" : ''}"
+  if graph.filter_parameter?
+    customize_filter = "#{customize_filter}, session.#{graph.instance_root? ? "getInterestedIn#{graph.name}().get( #{graph.name} )" : "get#{graph.name}Parameter()" }"
   end
+  customize_filter = "#{customize_filter}#{extra_interest_filter}"
 -%>
           for ( final <%= repository.imit.qualified_session_name %> session : sessions )
           {
-            if ( session.<%= graph.instance_root? ? "is#{graph.name}Interesting" : "isInterestedIn#{graph.name}" %>(<%= param %> ) <%= extra_interest_filter %>)
+            if ( session.<%= graph.instance_root? ? "is#{graph.name}Interesting" : "isInterestedIn#{graph.name}" %>(<%= param %> ) )
             {
-              if( message.isDelete() && <%= repository.imit.qualified_message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(instance_root.name.to_s) %> == message.getTypeID() )
+              final org.realityforge.replicant.server.EntityMessage m = _context.filterMessageOfInterestIn<%= graph.name %>Graph( message<%= customize_filter %> );
+              if( null != m )
               {
-                doUnsubscribeFrom<%= graph.name %>( accumulator, session<%= param.size > 0 ? ", #{param}" : "" %> );
+                if( null != m && m.isDelete() && <%= repository.imit.qualified_message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeID() )
+                {
+                  doUnsubscribeFrom<%= graph.name %>( accumulator, session<%= param.size > 0 ? ", #{param}" : "" %> );
+                }
               }
             }
           }
