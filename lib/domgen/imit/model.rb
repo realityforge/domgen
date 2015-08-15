@@ -763,13 +763,13 @@ module Domgen
 
             s.method(:"ShouldFollowLinkFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
               m.reference(instance_root.qualified_name, :name => :Entity)
-              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+              m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
               m.returns(:boolean)
             end
 
             s.method(:"GetLinksToUpdateFor#{graph_link.source_graph}To#{target_graph.name}") do |m|
               m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => :Entity)
-              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+              m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
               m.returns(:reference, :referenced_entity => instance_root, :collection_type => :sequence)
             end
           end
