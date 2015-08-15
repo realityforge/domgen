@@ -736,7 +736,7 @@ module Domgen
                       s.method("Get#{Domgen::Naming.pluralize(a.inverse.name)}In#{graph.name}Graph") do |m|
                         m.reference(a.referenced_entity.qualified_name, :name => :Entity)
                         m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
-                        m.returns(:reference, :referenced_entity => a.entity.qualified_name)
+                        m.returns(:reference, :referenced_entity => a.entity.qualified_name, :collection_type => :sequence)
                       end
                     elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
                       s.method("Get#{a.inverse.name}In#{graph.name}Graph") do |m|
