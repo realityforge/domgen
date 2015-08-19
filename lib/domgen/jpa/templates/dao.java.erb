@@ -35,7 +35,7 @@ public class <%= dao.jpa.dao_name %>
       param_suffix = ".#{getter_for(p.referenced_entity.primary_key)}"
     elsif p.enumeration? && p.enumeration.textual_values?
       param_suffix = ".name()"
-    elsif p.enumeration? && p.enumeration.numeric_value?
+    elsif p.enumeration? && p.enumeration.numeric_values?
       param_suffix = ".ordinal()"
     end
     param_value = "#{p.name}#{param_suffix}"
