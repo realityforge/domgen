@@ -33,7 +33,6 @@
   concern is loads such as planners MetaData graph that takes an extremely long time. In planner we
   we cache the output so the problem is mitigated, but in Acal/Calendar there is no caching and this
   problem is amplified when scaling up.
-* Add validator the checks that the replication graphs are valid.
 * Avoid sending out "changes" for entities that have not changed. Do this by caching entity on load
   and comparing to cached copy on write? Make it opt-in for each replicant system?
 * After above is implemented consider incremental changes. (Or may need both Full and partial updates
