@@ -298,7 +298,9 @@ module Domgen
       attr_writer :table_name
 
       def table_name
-        @table_name || entity.sql.table_name
+        return @table_name unless @table_name.nil?
+        Domgen.error("Attempted to call 'jpa.table_name' on subclass #{entity.qualified_name}") unless entity.extends.nil?
+        entity.sql.view? ? entity.sql.view_name : entity.sql.table_name
       end
 
       attr_writer :jpql_name
