@@ -496,8 +496,8 @@ module Domgen
       end
 
       def table_name
-        raise "sql.table_name invoked on abstract entity #{entity.qualified_name}" if entity.abstract?
-        @table_name ||= sql_name(:table, entity.name)
+        Domgen.error("sql.table_name invoked on abstract entity #{entity.qualified_name}") if entity.abstract?
+        @table_name || sql_name(:table, entity.name)
       end
 
       def quoted_table_name
@@ -506,6 +506,78 @@ module Domgen
 
       def qualified_table_name
         "#{entity.data_module.sql.quoted_schema}.#{quoted_table_name}"
+      end
+
+      def view?
+        entity.direct_subtypes.size != 0
+      end
+
+      # A view is created for any entity that has subtypes, and the view abstracts over all subclasses
+      def view_name=(view_name)
+        Domgen.error("sql.view_name= invoked on entity #{entity.qualified_name} with no subtypes") if entity.direct_subtypes.size == 0
+        @view_name = view_name
+      end
+
+      def view_name
+        Domgen.error("sql.view_name invoked on entity #{entity.qualified_name} with no subtypes") if entity.direct_subtypes.size == 0
+        @view_name || sql_name(:view, entity.name)
+      end
+
+      def view_insert_trigger
+        Domgen.error("sql.view_insert_trigger invoked on entity #{entity.qualified_name} with no subtypes") if entity.direct_subtypes.size == 0
+        sql_name(:trigger, "#{entity.name}Insert")
+      end
+
+      def quoted_view_insert_trigger
+        self.dialect.quote(view_insert_trigger)
+      end
+
+      def qualified_view_insert_trigger
+        "#{entity.data_module.sql.quoted_schema}.#{quoted_view_insert_trigger}"
+      end
+
+      def view_update_trigger
+        Domgen.error("sql.view_update_trigger invoked on entity #{entity.qualified_name} with no subtypes") if entity.direct_subtypes.size == 0
+        sql_name(:trigger, "#{entity.name}Update")
+      end
+
+      def quoted_view_update_trigger
+        self.dialect.quote(view_update_trigger)
+      end
+
+      def qualified_view_update_trigger
+        "#{entity.data_module.sql.quoted_schema}.#{quoted_view_update_trigger}"
+      end
+
+      def view_delete_trigger
+        Domgen.error("sql.view_delete_trigger invoked on entity #{entity.qualified_name} with no subtypes") if entity.direct_subtypes.size == 0
+        sql_name(:trigger, "#{entity.name}Delete")
+      end
+
+      def quoted_view_delete_trigger
+        self.dialect.quote(view_delete_trigger)
+      end
+
+      def qualified_view_delete_trigger
+        "#{entity.data_module.sql.quoted_schema}.#{quoted_view_delete_trigger}"
+      end
+
+      def quoted_view_name
+        self.dialect.quote(view_name)
+      end
+
+      def qualified_view_name
+        "#{entity.data_module.sql.quoted_schema}.#{quoted_view_name}"
+      end
+
+      def discriminator=(discriminator)
+        Domgen.error("Attempted to call 'sql.discriminator=' on non-subclass #{entity.qualified_name}") if entity.extends.nil?
+        @discriminator = discriminator
+      end
+
+      def discriminator
+        Domgen.error("Attempted to call 'sql.discriminator' on non-subclass #{entity.qualified_name}") if entity.extends.nil?
+        @discriminator || entity.qualified_name.to_s
       end
 
       def constraint_values

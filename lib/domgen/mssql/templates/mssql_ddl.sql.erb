@@ -201,6 +201,78 @@ GO
     end
   end
 %>
+<% data_module.entities.select{|entity| entity.direct_subtypes.size != 0 && entity.sql?}.each do |entity| %>
+CREATE VIEW <%= entity.sql.qualified_view_name %>
+WITH SCHEMABINDING
+AS
+<%
+subtypes = entity.compatible_concrete_types
+columns = {}
+subtypes.each do |subtype|
+  subtype.attributes.each do |a|
+    if a.sql?
+      column_name = a.sql.quoted_column_name
+      columns[a.name] = column_name unless columns[a.name]
+    end
+  end
+end
+
+subtypes.each_with_index do |subtype, i| -%>
+<% if 0 != i -%>
+UNION ALL
+<% end -%>
+SELECT
+  '<%= subtype.sql.discriminator %>' AS <%= subtype.data_module.repository.sql.dialect.quote('_type_') %>, <%= columns.collect do |name, column|
+    a = subtype.attribute_by_name?(name) ? subtype.attribute_by_name(name) : nil
+    a = nil unless a && a.sql?
+    a.nil? ? "NULL AS #{column}" : column
+  end.join(", ") %>
+FROM <%= subtype.sql.qualified_table_name %>
+<% end -%>
+GO
+
+CREATE TRIGGER <%= entity.sql.qualified_view_insert_trigger %>
+  ON <%= entity.sql.qualified_view_name %>
+  INSTEAD OF INSERT
+AS
+<% entity.compatible_concrete_types.each do |subtype|
+ columns = subtype.attributes.select{|a|a.sql?}.collect{|a|a.sql.quoted_column_name}
+ -%>
+  INSERT INTO <%= subtype.sql.qualified_table_name %>(<%= columns.join(", ") %>)
+    SELECT <%= columns.join(", ") %>
+    FROM inserted I
+    WHERE I.<%= subtype.data_module.repository.sql.dialect.quote('_type_') %> = '<%= subtype.sql.discriminator %>';
+<% end -%>
+GO
+
+CREATE TRIGGER <%= entity.sql.qualified_view_update_trigger %>
+  ON <%= entity.sql.qualified_view_name %>
+  INSTEAD OF UPDATE
+AS
+<% entity.compatible_concrete_types.each do |subtype|
+ columns = subtype.attributes.select{|a|a.sql?}.collect{|a|a.sql.quoted_column_name}
+ -%>
+  UPDATE <%= subtype.sql.qualified_table_name %>
+    SET <%= columns.collect{|c| "#{c} = I.#{c}" }.join(', ') %>
+    FROM inserted I
+    WHERE I.<%= subtype.data_module.repository.sql.dialect.quote('_type_') %> = '<%= subtype.sql.discriminator %>' AND <%= subtype.sql.qualified_table_name %>.<%= subtype.primary_key.sql.quoted_column_name %> = I.<%= subtype.primary_key.sql.quoted_column_name %>;
+<% end -%>
+GO
+
+CREATE TRIGGER <%= entity.sql.qualified_view_delete_trigger %>
+  ON <%= entity.sql.qualified_view_name %>
+  INSTEAD OF DELETE
+AS
+<% entity.compatible_concrete_types.each do |subtype|
+ columns = subtype.attributes.select{|a|a.sql?}.collect{|a|a.sql.quoted_column_name}
+ -%>
+  DELETE <%= subtype.sql.qualified_table_name %>
+    FROM <%= subtype.sql.qualified_table_name %>
+    JOIN inserted I ON <%= subtype.sql.qualified_table_name %>.<%= subtype.primary_key.sql.quoted_column_name %> = I.<%= subtype.primary_key.sql.quoted_column_name %>
+    WHERE I.<%= subtype.data_module.repository.sql.dialect.quote('_type_') %> = '<%= subtype.sql.discriminator %>';
+<% end -%>
+GO
+<% end %>
 
 CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.spCheckConstraints
 (
