@@ -38,7 +38,7 @@ module Domgen
         raise "Attempted to define test_default on abstract entity #{entity.qualified_name}" if entity.abstract?
         raise "Attempted to define test_default on #{entity.qualified_name} with no values" if defaults.empty?
         defaults.keys.each do |key|
-          raise "Attempted to define test_default on #{entity.qualified_name} with key '#{key}' that is not an attribute value" unless entity.attribute_exists?(key)
+          raise "Attempted to define test_default on #{entity.qualified_name} with key '#{key}' that is not an attribute value" unless entity.attribute_by_name?(key)
           a = entity.attribute_by_name(key)
           raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute has no jpa facet defined. Defaults = #{defaults.inspect}" unless a.jpa?
           raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute when non persistent. Defaults = #{defaults.inspect}" unless a.jpa.persistent?
@@ -375,7 +375,7 @@ module Domgen
               parameter_name = $3
               operation = $2.upcase
               query_text = $1
-              if entity.attribute_exists?(parameter_name)
+              if entity.attribute_by_name?(parameter_name)
                 jpql = "#{operation} #{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
@@ -391,7 +391,7 @@ module Domgen
               end
             else
               parameter_name = query_text
-              if entity.attribute_exists?(parameter_name)
+              if entity.attribute_by_name?(parameter_name)
                 jpql = "#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
@@ -528,8 +528,8 @@ module Domgen
 
         expected_parameters = query_parameters.uniq
         expected_parameters.each do |parameter_name|
-          unless query.parameter_exists?(parameter_name)
-            if query.entity.attribute_exists?(parameter_name)
+          unless query.parameter_by_name?(parameter_name)
+            if query.entity.attribute_by_name?(parameter_name)
               attribute = query.entity.attribute_by_name(parameter_name)
               characteristic_options = {}
               characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?

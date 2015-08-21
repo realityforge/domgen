@@ -445,7 +445,7 @@ module Domgen
         sequence
       end
 
-      def sequence_exists?(name)
+      def sequence_by_name?(name)
         !!sequence_map[name.to_s]
       end
 
@@ -981,7 +981,7 @@ SQL
 
       def sequence
         Domgen.error("sequence called on #{attribute.qualified_name} when not a sequence") unless self.sequence?
-        if attribute.entity.data_module.sql.sequence_exists?(self.sequence_name)
+        if attribute.entity.data_module.sql.sequence_by_name?(self.sequence_name)
           attribute.entity.data_module.sql.sequence_by_name(self.sequence_name)
         else
           attribute.entity.data_module.sql.sequence(self.sequence_name, 'sql_type' => self.sql_type)

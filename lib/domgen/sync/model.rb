@@ -304,8 +304,8 @@ module Domgen
         return unless synchronize?
 
         if entity.sync.transaction_time?
-          self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_exists?(:CreatedAt)
-          self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_exists?(:DeletedAt)
+          self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_by_name?(:CreatedAt)
+          self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_by_name?(:DeletedAt)
           self.entity.jpa.default_jpql_criterion = 'O.deletedAt IS NULL'
         end
         self.entity.jpa.detachable = true if self.entity.jpa?
@@ -443,8 +443,8 @@ module Domgen
           end
 
           unless entity.sync.transaction_time?
-            e.datetime(:CreatedAt, :immutable => true) unless e.attribute_exists?(:CreatedAt)
-            e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless e.attribute_exists?(:DeletedAt)
+            e.datetime(:CreatedAt, :immutable => true) unless e.attribute_by_name?(:CreatedAt)
+            e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless e.attribute_by_name?(:DeletedAt)
           end
 
           unless e.abstract?

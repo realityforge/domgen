@@ -424,8 +424,8 @@ module Domgen
       characteristic_by_name(name)
     end
 
-    def parameter_exists?(name)
-      characteristic_exists?(name)
+    def parameter_by_name?(name)
+      characteristic_by_name?(name)
     end
 
     def parameter(name, type, options = {}, &block)
@@ -801,8 +801,8 @@ module Domgen
       characteristic(name, type, options, &block)
     end
 
-    def attribute_exists?(name)
-      characteristic_exists?(name)
+    def attribute_by_name?(name)
+      characteristic_by_name?(name)
     end
 
     def attribute_by_name(name)
@@ -941,7 +941,7 @@ module Domgen
 
     def new_characteristic(name, type, options, &block)
       override = false
-      if characteristic_exists?(name)
+      if characteristic_by_name?(name)
         c = characteristic_by_name(name)
         Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}") unless (c.abstract? || c.override?)
         override = true
@@ -1202,7 +1202,7 @@ module Domgen
 
     def new_characteristic(name, type, options, &block)
       override = false
-      if characteristic_exists?(name)
+      if characteristic_by_name?(name)
         c = characteristic_by_name(name)
         Domgen.error("Attempting to override non abstract parameter #{name} on #{self.name}") unless (c.abstract? || c.override?)
         override = true

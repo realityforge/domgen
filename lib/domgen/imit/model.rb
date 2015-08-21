@@ -19,7 +19,7 @@ module Domgen
         raise "Attempted to define test_default on abstract entity #{entity.qualified_name}" if entity.abstract?
         raise "Attempted to define test_default on #{entity.qualified_name} with no values" if defaults.empty?
         defaults.keys.each do |key|
-          raise "Attempted to define test_default on #{entity.qualified_name} with key '#{key}' that is not an attribute value" unless entity.attribute_exists?(key)
+          raise "Attempted to define test_default on #{entity.qualified_name} with key '#{key}' that is not an attribute value" unless entity.attribute_by_name?(key)
           a = entity.attribute_by_name(key)
           raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute has no imit facet defined. Defaults = #{defaults.inspect}" unless a.imit?
           raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute when not client side. Defaults = #{defaults.inspect}" unless a.imit.client_side?
@@ -355,7 +355,7 @@ module Domgen
           path.each do |path_key|
             self.multivalued = true if is_path_element_recursive?(path_key)
             path_element = get_attribute_name_from_path_element?(path_key)
-            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribtue of #{a.referenced_entity.qualified_name}") unless a.referenced_entity.attribute_exists?(path_element)
+            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribtue of #{a.referenced_entity.qualified_name}") unless a.referenced_entity.attribute_by_name?(path_element)
             a = a.referenced_entity.attribute_by_name(path_element)
             Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
           end

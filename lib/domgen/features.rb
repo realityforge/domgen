@@ -306,13 +306,13 @@ module Domgen
       characteristic
     end
 
-    def characteristic_exists?(name)
+    def characteristic_by_name?(name)
       !!characteristic_map[name.to_s]
     end
 
     def characteristic(name, type, options, &block)
       characteristic = new_characteristic(name, type, options, &block)
-      if characteristic_exists?(name)
+      if characteristic_by_name?(name)
         o = characteristic_by_name(name)
         if o.respond_to?(:abstract?)
           unless (o.abstract? || o.override?) && characteristic.override?
@@ -420,7 +420,7 @@ module Domgen
       characteristic
     end
 
-    def characteristic_exists?(name)
+    def characteristic_by_name?(name)
       !!inherited_characteristics_map[name.to_s] ||
         !!characteristic_map[name.to_s]
     end
