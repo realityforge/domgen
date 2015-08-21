@@ -24,6 +24,8 @@
   required facets for the facets passed in the parameter.
 * Convert service layer to using json+http services.
 
+* Convert Sync code to use the generated views for joins against non-final entities
+
 = Domgen/Replicant
 
 * Avoid sending out "changes" for entities that have not changed. Do this by caching entity on load
