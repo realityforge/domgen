@@ -90,7 +90,7 @@ public class <%= repository.imit.router_impl_name %>
 -%>
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
-  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+  data_module.entities.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
     outgoing_links = entity.attributes.select {|a| a.reference? && a.imit? && a.inverse.imit.traversable? && a.imit.client_side? && a.referenced_entity.imit?}
  -%>
 

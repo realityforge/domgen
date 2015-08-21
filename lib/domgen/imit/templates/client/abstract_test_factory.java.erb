@@ -27,7 +27,7 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
 
 <% end -%>
 <% data_module.entities.select{|e|e.imit?}.each do |entity| -%>
-<% if !entity.abstract? -%>
+<% if entity.concrete? -%>
   public final void delete<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.qualified_name %> $_ )
   {
     repository().deregisterEntity( <%= entity.imit.qualified_name %>.class, $_.get<%= entity.primary_key.name %>() );

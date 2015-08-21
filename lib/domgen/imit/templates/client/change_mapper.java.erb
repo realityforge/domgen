@@ -28,7 +28,7 @@ public final class <%= repository.imit.change_mapper_name %>
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.each do |entity|
-    if entity.imit? && !entity.abstract?
+    if entity.imit? && entity.concrete?
 %>      case <%= entity.imit.qualified_name %>.TRANSPORT_ID: return _<%= entity.data_module.name %>.applyChangeTo<%= entity.name %>( change );
 <%
     end

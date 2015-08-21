@@ -167,7 +167,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
 <% elsif a.referenced_entity.abstract? -%>
 <%
   refs = []
-  a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index|
+  a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index|
     refs << "R#{index}.ID"
 -%>
           " LEFT JOIN <%= subtype.sync.master_entity.sql.qualified_table_name %> AS R<%= index %> ON R<%= index %>.MappingID = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND R<%= index %>.MappingSource = S.MappingSource AND R<%= index %>.DeletedAt IS NULL " +
@@ -201,7 +201,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
 <% elsif a.referenced_entity.abstract? -%>
 <%
   refs = []
-  a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index|
+  a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index|
     refs << "R#{index}"
 -%>
           " LEFT JOIN <%= subtype.sync.master_entity.sql.qualified_table_name %> AS R<%= index %> ON R<%= index %>.MappingID = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND R<%= index %>.MappingSource = S.MappingSource AND R<%= index %>.DeletedAt IS NULL " +
@@ -250,7 +250,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
 <% if a.referenced_entity.name == entity.name -%>
           " LEFT JOIN <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS O ON O.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND O.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>" +
 <% elsif a.referenced_entity.abstract? -%>
-<% a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index| -%>
+<% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
           " LEFT JOIN <%= subtype.sync.master_entity.sql.qualified_table_name %> AS O<%= index %> ON O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> AND O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name %> IS NULL" +
 <% end -%>
 <% else -%>
@@ -259,7 +259,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
           " WHERE S.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NOT NULL AND S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ? AND " +
 <% if a.referenced_entity.abstract? -%>
           "(" +
-<% a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index| -%>
+<% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
             "O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NULL AND " +
 <% end -%>
           " 1 = 1 )";
@@ -305,7 +305,7 @@ if a.reference?
   col_name = entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name
   ref_prefix = "R#{reference_index}"
   if a.referenced_entity.abstract?
-    s = a.referenced_entity.subtypes.select{|st| !st.abstract? }.size
+    s = a.referenced_entity.concrete_subtypes.size
     cols = (0...(s)).collect do |index|
       "#{ref_prefix}#{index}.#{col_name}"
     end.join(", ")
@@ -325,7 +325,7 @@ end
    reference_index += 1
 -%>
 <% if a.referenced_entity.abstract? -%>
-<% a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index| -%>
+<% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
       " LEFT JOIN <%= subtype.sql.qualified_table_name %> R<%= reference_index %><%= index %> ON " +
       "     R<%= reference_index %><%= index %>.<%= subtype.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND " +
       "     R<%= reference_index %><%= index %>.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
@@ -346,7 +346,7 @@ end
 -%>
 <% if a.referenced_entity.abstract? -%>
       "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NULL OR (" +
-<% a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index| -%>
+<% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
   "R<%= reference_index %><%= index %>.<%= entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name %> IS NOT NULL AND " +
 <% end -%>
       " 1 = 1 )" +
@@ -364,7 +364,7 @@ end
       col_name = entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name
       ref_prefix = "R#{reference_index}"
       if a.referenced_entity.abstract?
-        s = a.referenced_entity.subtypes.select{|st| !st.abstract? }.size
+        s = a.referenced_entity.concrete_subtypes.size
         cols = (0...(s)).collect do |index|
           "#{ref_prefix}#{index}.#{col_name}"
         end.join(", ")
@@ -412,7 +412,7 @@ if a.reference?
   col_name = entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name
   ref_prefix = "R#{reference_index}"
   if a.referenced_entity.abstract?
-    s = a.referenced_entity.subtypes.select{|st| !st.abstract? }.size
+    s = a.referenced_entity.concrete_subtypes.size
     cols = (0...(s)).collect do |index|
       "#{ref_prefix}#{index}.#{col_name}"
     end.join(", ")
@@ -436,7 +436,7 @@ end
    reference_index += 1
 -%>
 <% if a.referenced_entity.abstract? -%>
-<% a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index| -%>
+<% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
       " LEFT JOIN <%= subtype.sql.qualified_table_name %> R<%= reference_index %><%= index %> ON " +
       "     R<%= reference_index %><%= index %>.<%= subtype.attribute_by_name(:MappingID).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> AND " +
       "     R<%= reference_index %><%= index %>.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = T.<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> " +
@@ -458,7 +458,7 @@ end
 <% if a.referenced_entity.abstract? -%>
 <% else -%>
       "   (T.<%= entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name %> IS NULL OR (" +
-<% a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index| -%>
+<% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
   "R<%= reference_index %><%= index %>.<%= subtype.attribute_by_name(:MappingID).sql.quoted_column_name %> IS NOT NULL AND " +
 <% end -%>
       " 1 = 1 )" +

@@ -26,7 +26,7 @@ public class <%= data_module.imit.mapper_name %>
   }
 
 <% data_module.entities.select { |entity| entity.imit? }.each do |entity| %>
-<% if !entity.abstract? %>
+<% if entity.concrete? %>
   public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.Change change )
   {
 <%

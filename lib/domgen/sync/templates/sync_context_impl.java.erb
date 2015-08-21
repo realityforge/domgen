@@ -82,7 +82,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       ref_index += 1
       if a.referenced_entity.abstract?
         index = -1
-        "COALESCE(#{a.referenced_entity.subtypes.select{|a| !a.abstract? }.collect do |subtype| "R#{ref_index}#{index += 1}.#{subtype.attribute_by_name(subtype.root_entity.name).sql.quoted_column_name}" end.join(', ')})"
+        "COALESCE(#{a.referenced_entity.concrete_subtypes.collect do |subtype| "R#{ref_index}#{index += 1}.#{subtype.attribute_by_name(subtype.root_entity.name).sql.quoted_column_name}" end.join(', ')})"
       else
         "R#{ref_index}.#{a.referenced_entity.attribute_by_name(a.referenced_entity.root_entity.name).sql.quoted_column_name}"
       end
@@ -97,7 +97,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     ref_index += 1
     if a.referenced_entity.abstract?
       ids = []
-      a.referenced_entity.subtypes.select{|st| !st.abstract? }.each_with_index do |subtype, index|
+      a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index|
         joins += "      \" LEFT JOIN #{subtype.sql.qualified_table_name} R#{ref_index}#{index} ON R#{ref_index}#{index}.#{subtype.primary_key.sql.quoted_column_name} = M.#{a.sql.quoted_column_name} AND R#{ref_index}#{index}.#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = 1 \" +\n"
         ids << "R#{ref_index}.#{a.referenced_entity.primary_key.sql.quoted_column_name}"
       end

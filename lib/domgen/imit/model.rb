@@ -729,7 +729,7 @@ module Domgen
                   end
                 end
 
-                graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+                graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
                   outgoing_links = entity.referencing_attributes.select { |a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
                   outgoing_links.each do |a|
                     if a.inverse.multiplicity == :many
@@ -833,7 +833,7 @@ module Domgen
         index = 0
         repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
           data_module.entities.each do |entity|
-            if entity.imit? && !entity.abstract?
+            if entity.imit? && entity.concrete?
               entity.imit.transport_id = index
               index += 1
             end

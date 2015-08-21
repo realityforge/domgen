@@ -15,7 +15,7 @@ public class <%= repository.imit.jpa_encoder_name %>
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.each do |entity|
-    if entity.imit? && !entity.abstract?
+    if entity.imit? && entity.concrete?
 -%>
 
   public static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nullable final String subChannelColumn )
@@ -96,7 +96,7 @@ end
 -%>
 <% repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module| -%>
 <% data_module.entities.select { |entity| entity.imit?  }.each do |entity| -%>
-<% if !entity.abstract? -%>
+<% if entity.concrete? -%>
 
   public static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( final <%= entity.jpa.qualified_name %> entity )
   {

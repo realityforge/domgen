@@ -660,7 +660,7 @@ module Domgen
 
     def generated_value?
       return @generated_value unless @generated_value.nil?
-      return self.primary_key? && self.integer? && !entity.abstract? && entity.final? && entity.extends.nil?
+      return self.primary_key? && self.integer? && entity.concrete? && entity.final? && entity.extends.nil?
     end
 
     attr_writer :primary_key
@@ -768,7 +768,7 @@ module Domgen
     end
 
     def non_abstract_superclass?
-      extends.nil? ? false : !data_module.entity_by_name(extends).abstract?
+      extends.nil? ? false : data_module.entity_by_name(extends).concrete?
     end
 
     # Return the root entity in the hierarchy
@@ -962,7 +962,7 @@ module Domgen
 
       Domgen.error("Entity #{qualified_name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
       attributes.each do |a|
-        Domgen.error("Abstract attribute #{a.name} on non abstract object type #{qualified_name}") if !abstract? && a.abstract?
+        Domgen.error("Abstract attribute #{a.name} on non abstract object type #{qualified_name}") if concrete? && a.abstract?
       end
     end
 

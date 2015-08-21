@@ -837,7 +837,7 @@ SQL
         if abstract_relationships.size > 0
           abstract_relationships.each do |attribute|
             concrete_subtypes = {}
-            attribute.referenced_entity.subtypes.select { |subtype| !subtype.abstract? }.each_with_index do |subtype, index|
+            attribute.referenced_entity.concrete_subtypes.each_with_index do |subtype, index|
               concrete_subtypes["C#{index}"] = subtype
             end
             names = concrete_subtypes.keys

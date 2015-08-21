@@ -7,7 +7,7 @@ CREATE SEQUENCE <%= data_module.sql.quoted_schema %>.<%= data_module.sql.dialect
 <% end -%>
 <% end -%>
 GO
-<% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| %>
+<% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
 <% if entity.sql.partition_scheme %>
 IF CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Enterprise Edition%'
 BEGIN
@@ -219,7 +219,7 @@ BEGIN
     ConstraintName VARCHAR(500),
     ViewSQL VARCHAR(MAX) NULL
   );
-<% data_module.entities.select{|entity| !entity.abstract? && entity.sql?}.each do |entity| %>
+<% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
 <%
    constraints = entity.sql.constraints + entity.sql.function_constraints
    constraints.select{|constraint| constraint.invariant?}.each do |constraint| %>

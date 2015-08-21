@@ -10,7 +10,7 @@ public class <%= repository.imit.repository_debugger_name %>
   {
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
-  data_module.entities.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+  data_module.entities.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
 -%>
     outputType( repository, <%= entity.imit.qualified_name %>.class );
 <%

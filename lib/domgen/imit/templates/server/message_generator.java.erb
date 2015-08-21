@@ -25,7 +25,7 @@ public class <%= repository.imit.message_generator_name %>
     <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.each do |entity|
-    if entity.imit? && !entity.abstract?
+    if entity.imit? && entity.concrete?
 
       links = entity.attributes.select{|a|a.imit? && a.imit.graph_links.size > 0}.collect{|a| a.imit.graph_links }.flatten
 

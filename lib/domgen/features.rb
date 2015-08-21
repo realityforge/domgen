@@ -387,6 +387,10 @@ module Domgen
       @abstract.nil? ? false : @abstract
     end
 
+    def concrete?
+      !abstract?
+    end
+
     attr_writer :final
 
     def final?
@@ -410,6 +414,14 @@ module Domgen
         @subtypes_obsolete = false
       end
       @subtypes
+    end
+
+    def concrete_subtypes
+      self.subtypes.select { |subtype| subtype.concrete? }
+    end
+
+    def compatible_concrete_types
+      self.concrete_subtypes + (self.concrete? ? [self] : [])
     end
 
     protected

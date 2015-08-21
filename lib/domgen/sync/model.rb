@@ -168,7 +168,7 @@ module Domgen
       def entities_to_synchronize
         raise 'entities_to_synchronize invoked when not master_data_module' unless master_data_module?
         data_module.repository.data_modules.select { |d| d.sync? }.collect do |dm|
-          dm.entities.select { |e| !e.abstract? && e.sync? && e.sync.synchronize? }
+          dm.entities.select { |e| e.concrete? && e.sync? && e.sync.synchronize? }
         end.flatten
       end
 
@@ -447,7 +447,7 @@ module Domgen
             e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless e.attribute_by_name?(:DeletedAt)
           end
 
-          unless e.abstract?
+          if e.concrete?
             e.query(:FindByMappingSourceAndMappingID)
             e.query(:GetByMappingSourceAndMappingID)
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')

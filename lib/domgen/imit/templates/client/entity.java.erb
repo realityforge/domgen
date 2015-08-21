@@ -13,7 +13,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   "    implements org.realityforge.replicant.client.Linkable, org.realityforge.replicant.client.Verifiable" %>
 {
   public static final String TYPE_KEY = "<%= entity.qualified_name %>";
-<% if !entity.abstract? %>
+<% if entity.concrete? %>
   public static final int TRANSPORT_ID = <%= entity.imit.transport_id %>;
 <% end %>
 <% entity.declared_attributes.select{ |attribute| attribute.imit? && attribute.imit.client_side? }.each do |attribute|
@@ -392,7 +392,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   }
 <% end %>
 
-<% if !entity.abstract? %>
+<% if entity.concrete? %>
   @java.lang.Override
   public boolean equals( final Object o )
   {
