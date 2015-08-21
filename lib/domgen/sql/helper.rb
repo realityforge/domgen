@@ -26,7 +26,7 @@ def s(string)
   string.to_s.gsub('[].:', '')
 end
 
-SQL_PREFIX_MAP = {:table => 'tbl', :trigger => 'trg'}
+SQL_PREFIX_MAP = {:table => 'tbl', :trigger => 'trg', :view => 'vw'}
 
 def sql_name(type, name)
   "#{SQL_PREFIX_MAP[type]}#{name}"
