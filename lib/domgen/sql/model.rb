@@ -714,7 +714,7 @@ module Domgen
 
       def index(attribute_names, options = {}, skip_if_present = false, &block)
         index = Domgen::Sql::Index.new(self, attribute_names, options, &block)
-        return if index_values[index.index_name] && skip_if_present
+        return index_values[index.index_name] if index_values[index.index_name] && skip_if_present
         Domgen.error("Index named #{index.index_name} already defined on table #{qualified_table_name}") if index_values[index.index_name]
         index_values[index.index_name] = index
         index
