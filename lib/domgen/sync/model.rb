@@ -307,6 +307,12 @@ module Domgen
           self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_by_name?(:CreatedAt)
           self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_by_name?(:DeletedAt)
           self.entity.jpa.default_jpql_criterion = 'O.deletedAt IS NULL'
+
+          self.entity.unique_constraints.each do |constraint|
+            # Force the creation of the index with filter specified. Parallels behavious in sql facet.
+            index = self.entity.sql.index(constraint.attribute_names, :unique => true)
+            index.filter = 'DeletedAt IS NULL'
+          end
         end
         self.entity.jpa.detachable = true if self.entity.jpa?
 
