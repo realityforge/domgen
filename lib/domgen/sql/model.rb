@@ -366,7 +366,7 @@ module Domgen
     facet.enhance(Repository) do
 
       def dialect
-        @dialect ||= (repository.mssql? ? Domgen::Mssql::MssqlDialect.new : repository.pgsql? ? Domgen::Pgsql::PgsqlDialect.new  : (raise 'Unable to determine the dialect in use') )
+        @dialect ||= (repository.mssql? ? Domgen::Mssql::MssqlDialect.new : repository.pgsql? ? Domgen::Pgsql::PgsqlDialect.new  : (Domgen.error('Unable to determine the dialect in use')) )
       end
 
       def error_handler
@@ -408,7 +408,7 @@ module Domgen
             elsif self.repository.mssql?
               'net.sourceforge.jtds.jdbc.Driver'
             else
-              raise 'No default SQL driver available, specify one with repository.sql.sql_driver = "your.driver.here"'
+              Domgen.error('No default SQL driver available, specify one with repository.sql.sql_driver = "your.driver.here"')
             end
         end
         @sql_driver
@@ -441,7 +441,7 @@ module Domgen
 
       def sequence_by_name(name)
         sequence = sequence_map[name.to_s]
-        raise "Unable to lcoate sequence #{name} in #{data_module.name}" unless sequence
+        Domgen.error("Unable to locate sequence #{name} in #{data_module.name}") unless sequence
         sequence
       end
 
@@ -491,7 +491,7 @@ module Domgen
       attr_accessor :force_overflow_for_large_objects
 
       def table_name=(table_name)
-        raise "sql.table_name= invoked on abstract entity #{entity.qualified_name}" if entity.abstract?
+        Domgen.error("sql.table_name= invoked on abstract entity #{entity.qualified_name}") if entity.abstract?
         @table_name = table_name
       end
 
