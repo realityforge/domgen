@@ -37,7 +37,7 @@ module Domgen
         "mdb/#{mdb_name}"
       end
 
-      java_artifact :mdb, :service, :server, :ee, '#{method.name}#{method.service.name}MDB'
+      java_artifact :mdb, :service, :server, :ee, '#{method.name}#{method.service.name}MDB', :sub_package => 'internal'
 
       def mdb_name=(mdb_name)
         self.mdb = true
