@@ -250,7 +250,7 @@ CREATE TRIGGER <%= entity.sql.qualified_view_update_trigger %>
   INSTEAD OF UPDATE
 AS
 <% entity.compatible_concrete_types.each do |subtype|
- columns = subtype.attributes.select{|a|a.sql?}.collect{|a|a.sql.quoted_column_name}
+ columns = subtype.attributes.select{|a|a.sql? && !a.sql.identity?}.collect{|a|a.sql.quoted_column_name}
  -%>
   UPDATE <%= subtype.sql.qualified_table_name %>
     SET <%= columns.collect{|c| "#{c} = I.#{c}" }.join(', ') %>
