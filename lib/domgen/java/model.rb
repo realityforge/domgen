@@ -260,7 +260,7 @@ module Domgen
 
       GROUP_TYPE_MAP = {
         :ee => GroupType.new(:jpa, :ee, :ee),
-        :imit => GroupType.new(:imit, :gwt, :gwt)
+        :gwt => GroupType.new(:imit, :gwt, :gwt)
       }
 
       MODALITIES = [:default, :boundary, :transport]
@@ -336,7 +336,7 @@ module Domgen
       protected
 
       def group_type
-        :imit
+        :gwt
       end
     end
 
@@ -468,7 +468,7 @@ module Domgen
       protected
 
       def facet_key
-        :imit
+        :gwt
       end
     end
 
