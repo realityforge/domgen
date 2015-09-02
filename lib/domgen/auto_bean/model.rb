@@ -13,7 +13,7 @@
 #
 
 module Domgen
-  FacetManager.facet(:auto_bean => [:jackson, :imit]) do |facet|
+  FacetManager.facet(:auto_bean => [:gwt]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::JavaClientServerApplication
       include Domgen::Java::BaseJavaGenerator
