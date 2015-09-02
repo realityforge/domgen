@@ -19,7 +19,7 @@ public interface <%= repository.imit.client_session_interface_name %>
   update_param = param.dup
   if graph.filter_parameter
     p = graph.filter_parameter
-    java_type = "#{nullability_annotation(p.nullable?)}  #{Domgen::Java.java_type(p, :imit, :default)}"
+    java_type = "#{nullability_annotation(p.nullable?)}  #{Domgen::Java.java_type(p, :gwt, :default)}"
     update_param = "#{update_param}, " if update_param.size > 0
     filter_param = "#{java_type} filter"
     update_param = "#{update_param}#{filter_param}"

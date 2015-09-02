@@ -23,6 +23,6 @@ public interface <%= repository.imit.client_session_context_name %>
       end
     end
 -%>
-  boolean does<%= graph.name %>MatchEntity( @javax.annotation.Nonnull <%= Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %> filter, @javax.annotation.Nonnull Object entity<%= extra_interest_filter %> );
+  boolean does<%= graph.name %>MatchEntity( @javax.annotation.Nonnull <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, @javax.annotation.Nonnull Object entity<%= extra_interest_filter %> );
 <% end -%>
 }

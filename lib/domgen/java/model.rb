@@ -39,7 +39,7 @@ Domgen::TypeDB.config_element(:java) do
   end
 end
 
-Domgen::TypeDB.config_element(:"java.imit") do
+Domgen::TypeDB.config_element('java.gwt') do
   def primitive_type?
     root.java.primitive_type?
   end
@@ -65,7 +65,7 @@ Domgen::TypeDB.enhance(:void, 'java.primitive_type' => 'void', 'java.object_type
 Domgen::TypeDB.enhance(:integer, 'java.primitive_type' => 'int', 'java.object_type' => 'java.lang.Integer', 'java.fixture_value' => '42')
 Domgen::TypeDB.enhance(:long, 'java.primitive_type' => 'long', 'java.object_type' => 'java.lang.Long', 'java.fixture_value' => '42L')
 Domgen::TypeDB.enhance(:real, 'java.primitive_type' => 'float', 'java.object_type' => 'java.lang.Float', 'java.fixture_value' => '3.14F')
-Domgen::TypeDB.enhance(:date, 'java.object_type' => 'java.util.Date', 'java.imit.object_type' => 'org.realityforge.gwt.datatypes.client.date.RDate', 'java.fixture_value' => 'new java.util.Date(114, 3, 1)', 'java.imit.fixture_value' => 'new org.realityforge.gwt.datatypes.client.date.RDate(2014, 3, 1)')
+Domgen::TypeDB.enhance(:date, 'java.object_type' => 'java.util.Date', 'java.gwt.object_type' => 'org.realityforge.gwt.datatypes.client.date.RDate', 'java.fixture_value' => 'new java.util.Date(114, 3, 1)', 'java.gwt.fixture_value' => 'new org.realityforge.gwt.datatypes.client.date.RDate(2014, 3, 1)')
 Domgen::TypeDB.enhance(:datetime, 'java.object_type' => 'java.util.Date', 'java.fixture_value' => 'new java.util.Date(114, 14, 3, 10, 9)')
 Domgen::TypeDB.enhance(:boolean, 'java.primitive_type' => 'boolean', 'java.object_type' => 'java.lang.Boolean', 'java.fixture_value' => 'true')
 Domgen::TypeDB.enhance(:text, 'java.object_type' => 'java.lang.String', 'java.fixture_value' => '"Hello Space!"')
@@ -147,9 +147,9 @@ module Domgen
           end
         elsif characteristic.geometry?
           return Domgen::TypeDB.characteristic_type_by_name(characteristic.geometry.geometry_type).java.object_type
-        elsif characteristic.date? && group_type == :imit
+        elsif characteristic.date? && group_type == :gwt
           # TODO: Fix Hackity hack
-          return characteristic.characteristic_type.java.imit.object_type
+          return characteristic.characteristic_type.java.gwt.object_type
         else
           characteristic_type = characteristic.characteristic_type
           if characteristic_type
@@ -189,9 +189,9 @@ module Domgen
           end
         elsif characteristic.geometry?
           return Domgen::TypeDB.characteristic_type_by_name(characteristic.geometry.geometry_type).java.fixture_value
-        elsif characteristic.date? && group_type == :imit
+        elsif characteristic.date? && group_type == :gwt
           # TODO: Fix Hackity hack
-          return characteristic.characteristic_type.java.imit.fixture_value
+          return characteristic.characteristic_type.java.gwt.fixture_value
         else
           characteristic_type = characteristic.characteristic_type
           if characteristic_type
