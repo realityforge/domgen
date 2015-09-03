@@ -48,7 +48,7 @@ public class <%= service.gwt_rpc.proxy_name %>
        if parameter.enumeration?
          "entity.#{parameter.enumeration.numeric_values? ? "ordinal()" : "name()"}"
        else
-         if parameter.method.service.gwt_rpc.use_autobean_structs?
+         if parameter.referenced_struct.gwt.auto_bean?
          "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( entity ) ).getPayload()"
          else
          "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( entity )"
@@ -85,7 +85,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   elsif parameter.enumeration? && parameter.enumeration.textual_values?
     param_value = "#{parameter.name}.name()"
   elsif parameter.struct?
-    if parameter.method.service.gwt_rpc.use_autobean_structs?
+    if parameter.referenced_struct.auto_bean?
     param_value = "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( #{parameter.name} ) ).getPayload()"
     else
     param_value = "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( #{parameter.name} )"
@@ -157,7 +157,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
      elsif method.return_value.enumeration? && method.return_value.enumeration.textual_values?
        result_string = "#{method.return_value.gwt_rpc.java_type}.valueOf( result )"
      elsif method.return_value.struct?
-       if method.service.gwt_rpc.use_autobean_structs?
+       if method.return_value.referenced_struct.auto_bean?
        result_string = "com.google.web.bindery.autobean.shared.AutoBeanCodex.decode( _factory, #{method.return_value.referenced_struct.auto_bean.qualified_name}.class, result ).as()"
        else
        result_string = "#{method.return_value.referenced_struct.gwt.qualified_factory_name}.as#{method.return_value.referenced_struct.name}( result )"
@@ -185,7 +185,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
              "#{method.return_value.gwt_rpc.java_component_type}.valueOf( id )" :
              "#{method.return_value.gwt_rpc.java_component_type}.values()[ id ]"
          else
-           if method.service.gwt_rpc.use_autobean_structs?
+           if method.return_value.referenced_struct.auto_bean?
            "com.google.web.bindery.autobean.shared.AutoBeanCodex.decode( _factory, #{method.return_value.referenced_struct.auto_bean.qualified_name}.class, id ).as()"
            else
            "#{method.return_value.referenced_struct.gwt.qualified_factory_name}.as#{method.return_value.referenced_struct.name}( id )"
