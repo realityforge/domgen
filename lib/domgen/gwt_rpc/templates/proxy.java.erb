@@ -48,7 +48,7 @@ public class <%= service.gwt_rpc.proxy_name %>
        if parameter.enumeration?
          "entity.#{parameter.enumeration.numeric_values? ? "ordinal()" : "name()"}"
        else
-         if parameter.referenced_struct.gwt.auto_bean?
+         if parameter.referenced_struct.auto_bean?
          "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( entity ) ).getPayload()"
          else
          "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( entity )"
