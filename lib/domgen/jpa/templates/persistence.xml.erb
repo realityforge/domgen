@@ -50,11 +50,8 @@ end
 <%
 repository.jpa.properties.each_pair do |key, value|
 %>      <property name="<%= key %>" value="<%= value %>"/>
-<%
-end
-%>
+<% end -%>
     </properties>
-
   </persistence-unit>
 <% repository.jpa.resolved_persistence_file_fragments.each do |fragment| -%>
 <%= IO.read(fragment) -%>
