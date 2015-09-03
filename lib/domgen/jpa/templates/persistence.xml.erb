@@ -17,11 +17,16 @@
 <% end %>
     <jta-data-source><%= repository.jpa.data_source %></jta-data-source>
 
-    <!-- entities -->
 <%
 converters = []
+entities = []
 repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
-  data_module.entities.select{|entity| entity.jpa?}.each do |entity|
+  entities += data_module.entities.select{|entity| entity.jpa?}
+end
+  if entities.size > 0
+%>    <!-- entities -->
+<%
+    entities.each do |entity|
 %>    <class><%= entity.jpa.qualified_name %></class>
 <%
     entity.attributes.select{|attribute| attribute.jpa?}.each do |attribute|
