@@ -115,10 +115,6 @@ module Domgen
         !service.imit?
       end
 
-      def use_autobean_structs?
-        service.data_module.facet_enabled?(:auto_bean)
-      end
-
       attr_writer :xsrf_protected
 
       def xsrf_protected?
