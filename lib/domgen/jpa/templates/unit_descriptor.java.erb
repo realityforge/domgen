@@ -6,7 +6,9 @@ package <%= to_package(repository.jpa.qualified_unit_descriptor_name) %>;
 public final class <%= repository.jpa.unit_descriptor_name %>
 {
   public static final String NAME = "<%= repository.jpa.unit_name %>";
+<% if repository.jpa.standalone? -%>
   public static final String RESOURCE_NAME = "<%= repository.jpa.data_source %>";
+<% end -%>
 
   private <%= repository.jpa.unit_descriptor_name %>()
   {

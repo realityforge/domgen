@@ -183,6 +183,12 @@ module Domgen
         @base_entity_test_name || abstract_entity_test_name.gsub(/^Abstract/,'')
       end
 
+      attr_writer :standalone
+
+      def standalone?
+        @standalone.nil? ? true : !!@standalone
+      end
+
       attr_writer :data_source
 
       def data_source
