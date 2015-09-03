@@ -849,7 +849,7 @@ module Domgen
       @relationship_constraints.values
     end
 
-    # Check that either the attribute is null or the attribute and all the dependents are not null
+    # Check that the lhs_operand is related to rhs_operand by specified operator
     def relationship_constraint(operator, lhs_operand, rhs_operand, options = {}, &block)
       constraint = RelationshipConstraint.new(self, operator, lhs_operand, rhs_operand, options, &block)
       add_unique_to_set('relationship', constraint, @relationship_constraints)
