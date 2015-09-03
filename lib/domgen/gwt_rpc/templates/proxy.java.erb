@@ -18,7 +18,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   @javax.inject.Inject
   private com.google.gwt.user.client.rpc.AsyncCallback _callback;
 
-<% if service.gwt_rpc.use_autobean_structs? %>
+<% if service.methods.any?{|m| m.parameters.any?{|p| p.struct? && p.referenced_struct.auto_bean? } || (m.return_value.struct? && m.return_value.referenced_struct.auto_bean?) } %>
   @javax.inject.Inject
   private <%= service.data_module.repository.auto_bean.qualified_factory_name %> _factory;
 <% end %>
