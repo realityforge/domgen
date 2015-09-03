@@ -40,22 +40,26 @@ Domgen.template_set(:gwt_client_jso) do |template_set|
                         :struct,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct.java.erb",
                         'main/java/#{struct.gwt.qualified_interface_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
+                        Domgen::Generator::GWT::HELPERS,
+                        :guard => 'struct.gwt.generate_overlay?')
   template_set.template(Domgen::Generator::GWT::FACETS + [:json],
                         :struct,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct_factory.java.erb",
                         'main/java/#{struct.gwt.qualified_factory_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
+                        Domgen::Generator::GWT::HELPERS,
+                        :guard => 'struct.gwt.generate_overlay?')
   template_set.template(Domgen::Generator::GWT::FACETS + [:json],
                         :struct,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
                         'main/java/#{struct.gwt.qualified_jso_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
+                        Domgen::Generator::GWT::HELPERS,
+                        :guard => 'struct.gwt.generate_overlay?')
   template_set.template(Domgen::Generator::GWT::FACETS + [:json],
                         :struct,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/java_struct.java.erb",
                         'main/java/#{struct.gwt.qualified_java_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
+                        Domgen::Generator::GWT::HELPERS,
+                        :guard => 'struct.gwt.generate_overlay?')
 end
 
 Domgen.template_set(:gwt_client_callback) do |template_set|

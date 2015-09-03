@@ -80,6 +80,12 @@ module Domgen
         self.qualified_interface_name
       end
 
+      attr_writer :generate_overlay
+
+      def generate_overlay?
+        @generate_overlay.nil? ? true : !!@generate_overlay
+      end
+
       java_artifact :interface, :data_type, :client, :gwt, '#{struct.name}'
       java_artifact :jso, :data_type, :client, :gwt, 'Jso#{struct.name}'
       java_artifact :java, :data_type, :client, :gwt, 'Java#{struct.name}'
