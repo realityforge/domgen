@@ -70,7 +70,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %><H ex
 
   protected void reset<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
-    st(). deleteAll<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode );
+    st().deleteAll<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode );
   }
 
   protected int count<%= entity.qualified_name.gsub('.','') %>SyncTemp( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
