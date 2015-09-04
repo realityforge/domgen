@@ -25,7 +25,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
 
   public int resetIdentity<%= entity.qualified_name.gsub('.','') %>()
   {
-    return getEntityManager().createNativeQuery( "DBCC CHECKIDENT ( '<%= entity.sync.sync_temp_entity.sql.qualified_table_name %>', NORESEED )" ).executeUpdate();
+    return getEntityManager().createNativeQuery( "DBCC CHECKIDENT ( '<%= entity.sync.sync_temp_entity.sql.qualified_table_name %>', RESEED )" ).executeUpdate();
   }
 
   public int deleteAll<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
