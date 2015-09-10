@@ -12,6 +12,8 @@ def java_characteristic_fixture(p, parent_context = nil)
   v =
     if p.integer?
       "42"
+    elsif p.long?
+      "42L"
     elsif p.reference?
       java_characteristic_fixture(p.referenced_entity.primary_key)
     elsif p.boolean?
@@ -47,6 +49,8 @@ def jws_characteristic_fixture(service, p, force_singular = false)
   v =
     if p.integer?
       "new java.math.BigInteger( \"42\" )"
+    elsif p.long?
+      "42L"
     elsif p.reference?
       jws_characteristic_fixture(service, p.referenced_entity.primary_key)
     elsif p.boolean?
