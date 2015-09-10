@@ -4,7 +4,7 @@ package <%= to_package(repository.jpa.qualified_dao_module_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 public class <%= repository.jpa.dao_module_name %>
-  extends com.google.inject.AbstractModule
+  extends org.realityforge.guiceyloops.shared.AbstractModule
 {
   @java.lang.Override
   protected void configure()
@@ -13,10 +13,23 @@ public class <%= repository.jpa.dao_module_name %>
   repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
     data_module.daos.select{|dao| dao.jpa? && (!dao.repository? || dao.entity.jpa?)}.each do |dao|
 -%>
-    bind( <%= dao.jpa.qualified_dao_service_name %>.class ).to( <%= dao.jpa.qualified_dao_name %>.class ).in( javax.inject.Singleton.class );
+    bind<%= dao.qualified_name.to_s.gsub('.','') %>();
 <%
     end
   end
 -%>
   }
+<%
+  repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
+    data_module.daos.select{|dao| dao.jpa? && (!dao.repository? || dao.entity.jpa?)}.each do |dao|
+-%>
+
+  protected void bind<%= dao.qualified_name.to_s.gsub('.','') %>()
+  {
+    bind( <%= dao.jpa.qualified_dao_service_name %>.class ).to( <%= dao.jpa.qualified_dao_name %>.class ).in( javax.inject.Singleton.class );
+  }
+<%
+    end
+  end
+-%>
 }
