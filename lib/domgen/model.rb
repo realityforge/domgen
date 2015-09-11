@@ -74,7 +74,8 @@ module Domgen
 
   class UniqueConstraint < AttributeSetConstraint
     def initialize(entity, attribute_names, options, &block)
-      super(entity, attribute_names_to_key(entity, attribute_names), attribute_names, options, &block)
+      constraint_name = options.delete(:name) || attribute_names_to_key(entity, attribute_names)
+      super(entity, constraint_name, attribute_names, options, &block)
     end
   end
 
@@ -86,13 +87,15 @@ module Domgen
 
   class CodependentConstraint < AttributeSetConstraint
     def initialize(entity, attribute_names, options, &block)
-      super(entity, "#{attribute_names_to_key(entity, attribute_names)}_CoDep", attribute_names, options, &block)
+      constraint_name = options.delete(:name) || "#{attribute_names_to_key(entity, attribute_names)}_CoDep"
+      super(entity, constraint_name, attribute_names, options, &block)
     end
   end
 
   class IncompatibleConstraint < AttributeSetConstraint
     def initialize(entity, attribute_names, options, &block)
-      super(entity, "#{attribute_names_to_key(entity, attribute_names)}_Incompat", attribute_names, options, &block)
+      constraint_name = options.delete(:name) || "#{attribute_names_to_key(entity, attribute_names)}_Incompat"
+      super(entity, constraint_name, attribute_names, options, &block)
     end
   end
 
