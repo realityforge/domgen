@@ -547,7 +547,7 @@ module Domgen
       elsif base_name =~ /^[iI]nsert.+$/
         self.query_type = :insert if @query_type.nil?
         return base_name
-      elsif base_name =~ /^[cC]ount.+$/
+      elsif base_name =~ /^[cC]ount.*$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :one if @multiplicity.nil?
         self.result_type = :long if @result_type.nil?

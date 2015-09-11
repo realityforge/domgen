@@ -653,7 +653,7 @@ module Domgen
         elsif self.query_spec == :criteria
           criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
           if query.query_type == :select
-            if query.name =~ /^[cC]ount(.+)$/
+            if query.name =~ /^[cC]ount(.*)$/
               if self.native?
                 q = "SELECT COUNT(O.*) FROM #{derive_table_name} O #{criteria_clause}"
               else
