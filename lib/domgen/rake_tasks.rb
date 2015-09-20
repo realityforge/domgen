@@ -97,7 +97,7 @@ module Domgen
           end
           buildr_project.compile.from main_java_dir
           # Need to force this as it may have already been cached and thus will not recalculate
-          buildr_project.iml.main_source_directories << main_java_dir if buildr_project.iml?
+          buildr_project.iml.main_generated_source_directories << main_java_dir if buildr_project.iml?
         end
 
         # Is there resources generated in project?
@@ -116,7 +116,7 @@ module Domgen
               end
             end
           end
-          buildr_project.iml.main_source_directories << main_resources_dir if buildr_project.iml?
+          buildr_project.iml.main_generated_resource_directories << main_resources_dir if buildr_project.iml?
         end
 
         # Is there assets generated in project?
@@ -136,7 +136,7 @@ module Domgen
           end
           buildr_project.test.compile.from test_java_dir
           # Need to force this as it may have already been cached and thus will not recalculate
-          buildr_project.iml.test_source_directories << test_java_dir if buildr_project.iml?
+          buildr_project.iml.test_generated_source_directories << test_java_dir if buildr_project.iml?
         end
 
         # Is there resources generated in project?
@@ -155,7 +155,7 @@ module Domgen
               end
             end
           end
-          buildr_project.iml.test_source_directories << test_resources_dir if buildr_project.iml?
+          buildr_project.iml.test_generated_resource_directories << test_resources_dir if buildr_project.iml?
         end
       end
     end
