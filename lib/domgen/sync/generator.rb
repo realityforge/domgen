@@ -55,6 +55,14 @@ Domgen.template_set(:sync_master_ejb_impl) do |template_set|
                         Domgen::Generator::Sync::HELPERS,
                         :guard => 'data_module.sync.master_data_module?')
 end
+Domgen.template_set(:sync_sql) do |template_set|
+  template_set.template(Domgen::Generator::Sync::FACETS + [:mssql],
+                        :data_module,
+                        "#{Domgen::Generator::Sync::TEMPLATE_DIRECTORY}/mssql_reseed_procs.sql.erb",
+                        '#{data_module.name}/stored-procedures/reseed_procs.sql',
+                        Domgen::Generator::Sync::HELPERS,
+                        :guard => 'data_module.sync.sync_temp_data_module?')
+end
 %w(test main).each do |type|
   Domgen.template_set(:"sync_master_#{type}_qa") do |template_set|
     template_set.template(Domgen::Generator::Sync::FACETS,
