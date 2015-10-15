@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<%
+ referenced_modules = data_module.xml.referenced_data_modules
+%>
 <xs:schema targetNamespace="<%= data_module.xml.namespace %>"
            version="1.0"
-<% data_module.repository.data_modules.select{|dm| dm.xml?}.each do |dm| -%>
+<% ([data_module] + referenced_modules).each do |dm| -%>
            xmlns:<%= dm.xml.prefix %>="<%= dm.xml.namespace %>"
 <% end -%>
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
-<% data_module.repository.data_modules.select{|dm| dm.name != data_module.name && dm.xml?}.each do |dm| -%>
+<% referenced_modules.each do |dm| -%>
   <xs:import namespace="<%= dm.xml.namespace %>"/>
 <% end -%>
 <% data_module.enumerations.each do |enum| -%>

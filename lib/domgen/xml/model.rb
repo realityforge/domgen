@@ -87,6 +87,42 @@ module Domgen
         "#{data_module.repository.name}/#{schema_name}.xsd"
       end
 
+      def referenced_data_modules
+        data_modules = []
+
+        data_module.structs.select { |e| e.xml? }.each do |struct|
+          struct.fields.each do |f|
+            if f.struct? && f.xml? && f.referenced_struct.data_module.name != data_module.name
+              data_modules << f.referenced_struct.data_module
+            elsif f.enumeration? && f.xml? && f.enumeration.data_module.name != data_module.name
+              data_modules << f.enumeration.data_module
+            end
+          end
+        end
+        data_module.exceptions.select { |e| e.xml? }.each do |exception|
+          exception.parameters.each do |p|
+            if p.struct? && p.xml? && p.referenced_struct.data_module.name != data_module.name
+              data_modules << p.referenced_struct.data_module
+            elsif p.enumeration? && p.xml? && p.enumeration.data_module.name != data_module.name
+              data_modules << p.enumeration.data_module
+            end
+          end
+        end
+        data_module.services.select { |s| s.xml? }.each do |service|
+          service.methods.select { |m| m.xml? }.each do |method|
+            method.parameters.each do |p|
+              if p.struct? && p.xml? && p.referenced_struct.data_module.name != data_module.name
+                data_modules << p.referenced_struct.data_module
+              elsif p.enumeration? && p.xml? && p.enumeration.data_module.name != data_module.name
+                data_modules << p.enumeration.data_module
+              end
+            end
+          end
+        end
+
+        data_modules.sort.uniq
+      end
+
       def resource_xsd_name
         "META-INF/xsd/#{xsd_name}"
       end

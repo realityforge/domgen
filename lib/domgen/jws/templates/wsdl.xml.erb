@@ -1,7 +1,7 @@
 <%
    methods = service.methods.select{|m| m.jws?}
    exceptions = methods.collect{|m|m.exceptions}.flatten.uniq
-   data_modules = service.data_module.repository.data_modules.select{|data_module| data_module.xml?}
+   data_modules = [service.data_module] + service.data_module.xml.referenced_data_modules
 -%>
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- DO NOT EDIT: File is auto-generated -->
