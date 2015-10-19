@@ -103,7 +103,7 @@ public class <%= repository.jws.fake_server_name %>
 
   private String getServiceAddress( final Class type )
   {
-    return "http://" + _hostAddress + ":" + _port + "/" + type.getSimpleName();
+    return "http://" + _hostAddress + ":" + _port + "/" + type.getCanonicalName();
   }
 
   public static void main( final String[] args )
