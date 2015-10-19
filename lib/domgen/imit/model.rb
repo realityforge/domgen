@@ -890,7 +890,7 @@ module Domgen
       attr_writer :short_test_code
 
       def short_test_code
-        Domgen::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
+        @short_test_code || Domgen::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
       end
 
       java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
