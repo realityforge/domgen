@@ -263,9 +263,11 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   end
   update_param = param.dup
   update_param_value = param_value.dup
+  filter_param = nil
   if graph.filter_parameter
     p = graph.filter_parameter
-    update_param << "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter"
+    filter_param = "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter"
+    update_param << filter_param
     update_param_value << 'filter'
   end
   param = param.join(', ')
@@ -358,6 +360,80 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
     return false;
 <% end -%>
   }
+<% if graph.instance_root?
+
+  root_type = Domgen::Java.java_type(instance_root.primary_key, :ee, :default)
+-%>
+
+  public void subscribeToMultiple<%= graph.name %>( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final java.util.List<<%= root_type %>> roots<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
+  {
+    final <%= repository.imit.qualified_session_name %> session = ensureSession( sessionID );
+    if ( roots.isEmpty() )
+    {
+      return;
+    }
+    final java.util.ArrayList<<%= root_type %>> newInstanceRoots = new java.util.ArrayList<>();
+<% if graph.filtered? -%>
+    final java.util.Map<<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>, java.util.ArrayList<<%= root_type %>>> updatedInstanceRoots = new java.util.HashMap<>();
+<% end -%>
+
+    for ( final <%= root_type %> root : roots )
+    {
+      if ( !session.is<%= graph.name %>Interesting( root ) )
+      {
+        newInstanceRoots.add( root );
+      }
+<% if graph.filtered? -%>
+      else
+      {
+        final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> parameter = session.get<%= graph.name %>Parameter( root );
+        if ( !parameter.equals( filter ) )
+        {
+          java.util.ArrayList<<%= root_type %>> existing = updatedInstanceRoots.get( parameter );
+          if ( null == existing )
+          {
+            existing = new java.util.ArrayList<>();
+            updatedInstanceRoots.put( parameter, existing );
+          }
+          existing.add( root );
+        }
+      }
+<% end -%>
+    }
+
+<% if graph.filtered? -%>
+    for ( final java.util.Map.Entry<<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>, java.util.ArrayList<<%= root_type %>>> entry : updatedInstanceRoots.entrySet() )
+    {
+      updateMultiple<%= graph.name %>Subscriptions( session, filter, entry.getKey(), entry.getValue() );
+    }
+<% end -%>
+
+    if ( !newInstanceRoots.isEmpty() )
+    {
+      addMultiple<%= graph.name %>Subscriptions( session<% if graph.filtered? -%>, filter<% end -%>, newInstanceRoots );
+    }
+  }
+
+  private void addMultiple<%= graph.name %>Subscriptions( @javax.annotation.Nonnull final <%= repository.imit.qualified_session_name %> session<% if graph.filtered? -%>, @javax.annotation.Nonnull <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end -%>, @javax.annotation.Nonnull final java.util.ArrayList<<%= root_type %>> roots )
+  {
+    final org.realityforge.replicant.server.ChangeSet changeSet = org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges();
+    for ( final <%= root_type %> root : roots )
+    {
+      changeSet.addAction( new org.realityforge.replicant.server.ChannelAction( new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), root ), org.realityforge.replicant.server.ChannelAction.Action.ADD, <%= graph.filtered? ? 'toJsonObject( filter )' : 'null' %> ) );
+      session.registerInterestIn<%= graph.name %>( root<% if graph.filtered? -%>, filter<% end -%> );
+    }
+
+  }
+
+<% if graph.filtered? -%>
+  private void updateMultiple<%= graph.name %>Subscriptions( @javax.annotation.Nonnull final <%= repository.imit.qualified_session_name %> session, @javax.annotation.Nonnull <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter, @javax.annotation.Nonnull <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, @javax.annotation.Nonnull final java.util.ArrayList<<%= root_type %>> newInstanceRoots )
+  {
+
+  }
+
+<% end -%>
+<% end -%>
 <% if !graph.instance_root? && !graph.external_data_load? -%>
   private void collect<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages )
   {
