@@ -51,7 +51,7 @@ module Domgen
             Logger.debug "Skipped generation of #{self.name} for #{element_type} #{object_name} to #{output_package} as no changes to wsdl"
           else
             target_version = '7' == element.data_module.repository.ee.version ? '2.2' : '2.1'
-            wsdl2java(base_dir, element.name, output_package, target_version, wsdl_filename, element.jws.system_id)
+            wsdl2java(base_dir, element.jws.web_service_name, output_package, target_version, wsdl_filename, element.jws.system_id)
 
             File.open(digest_filename, 'w') { |f| f.write(digest) }
             Logger.debug "Generated #{self.name} for #{element_type} #{object_name} to #{output_package}"
