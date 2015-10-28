@@ -28,7 +28,7 @@ public abstract class <%= repository.jws.abstract_fake_server_test_name %>
 -%>
     _<%= service.data_module.name %><%= service.name %> = org.mockito.Mockito.mock( <%= service.jws.qualified_java_service_name %>.class );
     _server.set<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>( _<%= service.data_module.name %><%= service.name %> );
-    _<%= service.data_module.name %><%= service.name %>Client = new <%= service.jws.qualified_api_endpoint_name %>( getClass().getResource( "/META-INF/wsdl/<%= service.jws.wsdl_name %>" ) ).get<%= service.name %>Port( new com.sun.xml.ws.developer.SchemaValidationFeature() );
+    _<%= service.data_module.name %><%= service.name %>Client = new <%= service.jws.qualified_api_endpoint_name %>( getClass().getResource( "/META-INF/wsdl/<%= service.jws.wsdl_name %>" ) ).get<%= service.jws.port_name %>( new com.sun.xml.ws.developer.SchemaValidationFeature() );
     ( (javax.xml.ws.BindingProvider) _<%= service.data_module.name %><%= service.name %>Client ).getRequestContext().put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, _server.get<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>Address() );
 <%
     end
