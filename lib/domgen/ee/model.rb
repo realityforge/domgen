@@ -29,6 +29,22 @@ module Domgen
         !!@use_cdi
       end
 
+      attr_writer :web_metadata_complete
+
+      def web_metadata_complete?
+        @web_metadata_complete.nil? ? false : @web_metadata_complete
+      end
+
+      def web_xml_fragments
+        @web_xml_fragments ||= []
+      end
+
+      def resolved_web_xml_fragments
+        self.web_xml_fragments.collect do |fragment|
+          repository.resolve_file(fragment)
+        end
+      end
+
       attr_writer :server_event_package
 
       def server_event_package
