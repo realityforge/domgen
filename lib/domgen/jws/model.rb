@@ -118,6 +118,12 @@ module Domgen
         @url || "#{service.data_module.jws.url}/#{web_service_name}"
       end
 
+      attr_writer :servlet_name
+
+      def servlet_name
+        @servlet_name || "#{service.qualified_name.to_s.gsub('.','')}Servlet"
+      end
+
       attr_writer :port_type_name
 
       def port_type_name
