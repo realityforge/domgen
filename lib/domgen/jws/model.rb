@@ -49,7 +49,7 @@ module Domgen
       attr_writer :base_url
 
       def base_url
-        @base_url || "/api/soap"
+        @base_url || '/api/soap'
       end
 
       attr_writer :url
