@@ -101,7 +101,7 @@ module Domgen
       end
 
       def qualified_api_endpoint_name
-        "#{api_package}.#{service.name}Service"
+        "#{api_package}.#{web_service_name}Service"
       end
 
       def api_package
