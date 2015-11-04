@@ -14,7 +14,7 @@ public class <%= dao.jpa.dao_name %>
   private static final String <%= Domgen::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <% end %>
 <% end -%>
-  @javax.persistence.PersistenceContext( unitName = <%= dao.data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  @javax.persistence.PersistenceContext( unitName = <%= dao.jpa.persistence_unit_name.nil? ? "#{dao.data_module.repository.jpa.qualified_unit_descriptor_name}.NAME" : "\"#{dao.jpa.persistence_unit_name}\"" %> )
   private javax.persistence.EntityManager em;
 
 <% dao.queries.each do |query| -%>

@@ -280,6 +280,8 @@ module Domgen
     facet.enhance(DataAccessObject) do
       include Domgen::Java::BaseJavaGenerator
 
+      attr_accessor :persistence_unit_name
+
       def transaction_type
         @transaction_type || :mandatory
       end
