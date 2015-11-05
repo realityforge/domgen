@@ -30,7 +30,7 @@ module Domgen
     end
 
     def self.underscore(camel_cased_word)
-      word = split_into_words(camel_cased_word).join("_")
+      word = split_into_words(camel_cased_word).join('_')
       word.downcase!
       word
     end
@@ -39,8 +39,8 @@ module Domgen
       word = camel_cased_word.to_s.dup
       word.gsub!(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
       word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
-      word.tr!("-", "_")
-      word.split("_")
+      word.tr!('-', '_')
+      word.split('_')
     end
 
     def self.uppercase_constantize(camel_cased_word)
@@ -48,7 +48,7 @@ module Domgen
     end
 
     def self.xmlize(camel_cased_word)
-      underscore(camel_cased_word).tr("_", "-")
+      underscore(camel_cased_word).tr('_', '-')
     end
 
     def self.jsonize(camel_cased_word)
