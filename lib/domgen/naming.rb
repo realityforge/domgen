@@ -22,6 +22,11 @@ module Domgen
       word
     end
 
+    def self.pascal_case?(word)
+      word_parts = split_into_words(word)
+      word_parts.all? { |part| part[0...1].upcase == part[0...1] }
+    end
+
     def self.pascal_case(camel_cased_word)
       word_parts = split_into_words(camel_cased_word).collect{|part| part[0...1].upcase + part[1..-1]}
       return word_parts[0] if (word_parts.size == 1 && word_parts[0] == word_parts[0].upcase)

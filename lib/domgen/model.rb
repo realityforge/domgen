@@ -1795,6 +1795,7 @@ module Domgen
     def initialize(name, source_file, options, &block)
       @name = name
       @source_file = source_file
+      @default_model_checks = true
       @data_modules = Domgen::OrderedHash.new
       @model_checks = Domgen::OrderedHash.new
       Domgen::TypeDB.mark_as_initialized
@@ -1805,6 +1806,11 @@ module Domgen
       super(options, &block)
       Domgen.current_repository = nil
       post_repository_definition
+
+      if default_model_checks?
+        Domgen::ModelChecks.name_check(self)
+      end
+
       Logger.info 'Model Checking started.'
       self.model_checks.each do |model_check|
         model_check.check_model
@@ -1812,6 +1818,12 @@ module Domgen
       Logger.info 'Model Checking completed.'
       Logger.info 'Repository definition completed'
       Domgen.repositorys << self
+    end
+
+    attr_writer :default_model_checks
+
+    def default_model_checks?
+      !!@default_model_checks
     end
 
     def qualified_name
