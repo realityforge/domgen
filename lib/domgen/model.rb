@@ -1806,7 +1806,7 @@ module Domgen
       Domgen.current_repository = nil
       post_repository_definition
       Logger.info 'Model Checking started.'
-      @model_checks.values.each do |model_check|
+      self.model_checks.each do |model_check|
         model_check.check_model
       end
       Logger.info 'Model Checking completed.'
@@ -1851,6 +1851,21 @@ module Domgen
 
     def model_check(name, options = {}, &block)
       Domgen::ModelCheck.new(self, name, options, &block)
+    end
+
+    def model_check_by_name?(name)
+      !!@model_checks[name.to_s]
+    end
+
+    def model_checks
+      @model_checks.values
+    end
+
+    def model_check_by_name(name)
+      model_check = @model_checks[name.to_s]
+      Domgen.error("Unable to locate model_check #{name}") unless model_check
+      yield model_check if block_given?
+      model_check
     end
 
     def enumeration_by_name?(name)
