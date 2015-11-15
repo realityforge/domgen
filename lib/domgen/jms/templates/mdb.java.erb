@@ -41,13 +41,13 @@ public class <%= method.jms.mdb_name %>
   @javax.inject.Inject
   private <%= method.service.ejb.generate_boundary? ? method.service.ejb.qualified_boundary_interface_name : method.service.ejb.qualified_service_name %> _service;
 
-
 <%
   parameter = method.parameters.empty? ? nil : method.parameters[0]
   if parameter
    Domgen.error("parameters for #{method.qualified_name} should only have 1 parameter") unless method.parameters.size == 1
    encoded_type = parameter.non_standard_type? ? parameter.parameter_type : "#{parameter.name}Message"
    boundary_type = parameter.ejb.java_component_type(:boundary)
+   demarshalled_type = parameter.struct? ? boundary_type : encoded_type
    in_container = !(parameter.struct? && !parameter.collection?)
    unless parameter.non_standard_type?
 -%>
@@ -64,6 +64,12 @@ public class <%= method.jms.mdb_name %>
     <%= boundary_type %> Value;
 <% else -%>
 <% if parameter.referenced_struct.fields.size != 0 %>
+  @java.lang.SuppressWarnings( "deprecation" )
+  public <%= encoded_type %>()
+  {
+    super();
+  }
+
   public <%= encoded_type %>( <%= parameter.referenced_struct.fields.collect {|field| "final #{annotated_type(field, :ee, :boundary)} #{field.name}" }.join(", ") %> )
   {
     super( <%= parameter.referenced_struct.fields.collect {|field| field.name.to_s }.join(", ") %> );
@@ -89,7 +95,7 @@ public class <%= method.jms.mdb_name %>
         final javax.xml.bind.Unmarshaller marshaller = context.createUnmarshaller();
         final java.io.StringReader reader = new java.io.StringReader( text );
 
-        final <%= encoded_type %> decoded = (<%= encoded_type %>) marshaller.unmarshal( reader );
+        final <%= demarshalled_type %> decoded = (<%= demarshalled_type %>) marshaller.unmarshal( reader );
 
         final <%= boundary_type %> parameter = <%= ((parameter.struct? || parameter.non_standard_type?) && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
 <% end -%>
