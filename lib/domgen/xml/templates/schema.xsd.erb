@@ -26,7 +26,7 @@
 <% data_module.structs.select{|s|s.xml?}.each do |struct| -%>
   <xs:element name="<%= struct.xml.name %>" type="<%= data_module.xml.prefix %>:<%= struct.name %>"/>
   <xs:complexType name="<%= struct.name %>">
-<% if !struct.fields.select{|f| f.collection? || f.struct?}.empty? -%>
+<% if !struct.fields.select{|f| f.collection? || f.struct? || f.xml.element?}.empty? -%>
     <xs:sequence>
 <% struct.fields.each do |field| -%>
 <% if field.collection? -%>
@@ -43,13 +43,15 @@
       </xs:element>
 <% elsif field.struct? -%>
       <xs:element name="<%= field.xml.name %>" type="<%= field.referenced_struct.data_module.xml.prefix %>:<%= field.referenced_struct.name %>" <%= xsd_element_occurrences(field) %>/>
+<% elsif field.xml.element? -%>
+      <xs:element name="<%= field.xml.name %>" <%= xsd_type(field) %> <%= xsd_element_occurrences(field) %>/>
 <% end -%>
 <% end -%>
     </xs:sequence>
 <% else -%>
     <xs:sequence/>
 <% end -%>
-<% struct.fields.select{|f| !f.collection? && !f.struct?}.each do |field| -%>
+<% struct.fields.select{|f| !f.collection? && !f.struct? && !f.xml.element?}.each do |field| -%>
     <xs:attribute name="<%= field.xml.name %>" <%= xsd_type(field) %> <%= xsd_attribute_use(field) %>/>
 <% end -%>
   </xs:complexType>
