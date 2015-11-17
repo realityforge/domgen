@@ -425,6 +425,11 @@ module Domgen
     end
 
     facet.enhance(EnumerationSet) do
+      def converter_name
+        raise "converter_name invoked for #{enumeration.qualified_name} when no converter required" unless requires_converter?
+        "#{enumeration.ee.qualified_name}$Converter"
+      end
+
       def requires_converter?
         enumeration.textual_values? && enumeration.values.any?{|v| v.name != v.value}
       end
@@ -450,7 +455,7 @@ module Domgen
 
       def converter
         return nil if attribute.reference?
-        return "#{attribute.enumeration.ee.qualified_name}$Converter" if attribute.enumeration? && attribute.enumeration.jpa.requires_converter?
+        return attribute.enumeration.jpa.converter_name if attribute.enumeration? && attribute.enumeration.jpa.requires_converter?
         return nil if attribute.enumeration?
         @converter ||
           attribute.characteristic_type.jpa.converter ||
