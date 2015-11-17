@@ -480,8 +480,20 @@ module Domgen
 
     def result_type=(result_type)
       Domgen.error("Attempt to reassign result_type on #{qualified_name} from #{@result_type} to #{result_type}") if @result_type
-      Domgen.error("Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}") unless ([:reference, :struct] + self.class.supported_scalar_types).include?(result_type)
+      Domgen.error("Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}") unless self.class.supported_types.include?(result_type)
       @result_type = result_type
+    end
+
+    def basic_result_type?
+      !result_type? || self.class.supported_basic_types.include?(self.result_type)
+    end
+
+    def self.supported_types
+      (self.supported_basic_types + Domgen::TypeDB.characteristic_types.collect{|ct| ct.name}).sort.uniq
+    end
+
+    def self.supported_basic_types
+      [:reference, :struct] + self.supported_scalar_types
     end
 
     def self.supported_scalar_types
