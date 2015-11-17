@@ -21,7 +21,11 @@ Domgen::TypeDB.config_element('jpa.pgsql') do
 end
 
 Domgen::TypeDB.config_element('jpa') do
-  attr_accessor :converter
+  attr_writer :converter
+
+  def converter(dialect)
+    @converter || (dialect.is_a?(Domgen::Mssql::MssqlDialect) ? self.mssql.converter : self.pgsql.converter)
+  end
 end
 
 [:point, :multipoint, :linestring, :multilinestring, :polygon, :multipolygon, :geometry,
@@ -457,11 +461,7 @@ module Domgen
         return nil if attribute.reference?
         return attribute.enumeration.jpa.converter_name if attribute.enumeration? && attribute.enumeration.jpa.requires_converter?
         return nil if attribute.enumeration?
-        @converter ||
-          attribute.characteristic_type.jpa.converter ||
-          (attribute.sql.dialect.is_a?(Domgen::Mssql::MssqlDialect) ?
-            attribute.characteristic_type.jpa.mssql.converter :
-            attribute.characteristic_type.jpa.pgsql.converter)
+        @converter || attribute.characteristic_type.jpa.converter(attribute.sql.dialect)
       end
 
       def field_name
