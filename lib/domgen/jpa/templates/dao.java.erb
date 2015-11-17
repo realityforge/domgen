@@ -74,7 +74,7 @@ public class <%= dao.jpa.dao_name %>
     <%= return_clause %>query.getResultList();
 <% if requires_result_conversion -%>
     final java.util.ArrayList<<%= method_result_java_type %>> $result = new java.util.ArrayList<<%= method_result_java_type %>>();
-    for ( final <%= method_result_java_type %> $v : $result )
+    for ( final java.lang.Object $v : result )
     {
       $result.add( <%= converter_clause.gsub('XXXX', '$v') %> );
     }
