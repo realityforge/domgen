@@ -733,13 +733,13 @@ module Domgen
                   outgoing_links = entity.referencing_attributes.select { |a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
                   outgoing_links.each do |a|
                     if a.inverse.multiplicity == :many
-                      s.method("Get#{Domgen::Naming.pluralize(a.inverse.name)}In#{graph.name}Graph") do |m|
+                      s.method("Get#{a.inverse.attribute.qualified_name.gsub('.','')}In#{graph.name}Graph") do |m|
                         m.reference(a.referenced_entity.qualified_name, :name => :Entity)
                         m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
                         m.returns(:reference, :referenced_entity => a.entity.qualified_name, :collection_type => :sequence)
                       end
                     elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
-                      s.method("Get#{a.inverse.name}In#{graph.name}Graph") do |m|
+                      s.method("Get#{a.inverse.attribute.qualified_name.gsub('.','')}In#{graph.name}Graph") do |m|
                         m.reference(a.referenced_entity.qualified_name, :name => :Entity)
                         m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
                         m.returns(:reference, :referenced_entity => a.entity.qualified_name, :nullable => (a.inverse.multiplicity == :zero_or_one))
