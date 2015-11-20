@@ -505,7 +505,7 @@ module Domgen
     end
 
     def result_entity?
-      self.result_type == :reference
+      self.result_type? && self.result_type == :reference
     end
 
     def result_entity=(entity)
@@ -520,7 +520,7 @@ module Domgen
     end
 
     def result_struct?
-      self.result_type == :struct
+      self.result_type? && self.result_type == :struct
     end
 
     def result_struct=(struct)
