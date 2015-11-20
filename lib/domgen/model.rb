@@ -585,7 +585,7 @@ module Domgen
     end
 
     def characteristic_kind
-      "parameter"
+      'parameter'
     end
 
     def new_characteristic(name, type, options, &block)
