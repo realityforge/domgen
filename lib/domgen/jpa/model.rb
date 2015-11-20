@@ -543,7 +543,7 @@ module Domgen
 
         expected_parameters = query_parameters.uniq
         expected_parameters.each do |parameter_name|
-          unless query.parameter_by_name?(parameter_name)
+          if !query.parameter_by_name?(parameter_name) && (query.dao.repository? || query.result_entity?)
             if query.entity.attribute_by_name?(parameter_name)
               attribute = query.entity.attribute_by_name(parameter_name)
               characteristic_options = {}
