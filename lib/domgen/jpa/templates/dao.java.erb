@@ -32,7 +32,7 @@ public class <%= dao.jpa.dao_name %>
   db_result_java_type = method_result_java_type || (dao.repository? ? query.entity.jpa.qualified_name : 'java.lang.Object')
   -%>
   @java.lang.Override
-  public <%= query_result_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
+  public <%= query_result_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p|  "#{annotated_type(p, :jpa, :default, :final => true)} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
     final javax.persistence.TypedQuery<<%= db_result_java_type %>> query =
       em.createNamedQuery( <%= dao.repository? ? "#{query.entity.jpa.qualified_name}." : '' %><%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= db_result_java_type %>.class );
