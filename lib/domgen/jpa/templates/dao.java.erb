@@ -29,7 +29,7 @@ public class <%= dao.jpa.dao_name %>
 <%
   requires_result_conversion = !query.basic_result_type?
   method_result_java_type = query.result_type? ? query_component_result_type(query) : nil
-  db_result_java_type = requires_result_conversion ? 'java.lang.Object' : method_result_java_type
+  db_result_java_type = method_result_java_type || (dao.repository? ? query.entity.jpa.qualified_name : 'java.lang.Object')
   -%>
   @java.lang.Override
   public <%= query_result_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "final #{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
