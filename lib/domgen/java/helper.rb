@@ -21,7 +21,7 @@ module Domgen
       end
 
       def nullability_annotation(is_nullable)
-        is_nullable ? "@javax.annotation.Nullable" : "@javax.annotation.Nonnull"
+        is_nullable ? '@javax.annotation.Nullable' : '@javax.annotation.Nonnull'
       end
 
       def supports_nullable?(extension, modality = :default)
