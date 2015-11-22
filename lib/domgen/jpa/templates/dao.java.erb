@@ -19,18 +19,17 @@ public class <%= dao.jpa.dao_name %>
   if converter
 -%>
   private final <%= converter %> _<%= result_type %>Converter = new <%= converter %>();
+<% end %>
 <% end -%>
-<% end -%>
-
   @javax.persistence.PersistenceContext( unitName = <%= dao.jpa.persistence_unit_name.nil? ? "#{dao.data_module.repository.jpa.qualified_unit_descriptor_name}.NAME" : "\"#{dao.jpa.persistence_unit_name}\"" %> )
   private javax.persistence.EntityManager em;
-
 <% dao.queries.each do |query| -%>
 <%
   requires_result_conversion = !query.basic_result_type?
   method_result_java_type = query.result_type? ? query_component_result_type(query) : nil
   db_result_java_type = method_result_java_type || (dao.repository? ? query.entity.jpa.qualified_name : 'java.lang.Object')
   -%>
+
   @java.lang.Override
   public <%= query_result_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p|  "#{annotated_type(p, :jpa, :default, :final => true)} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
@@ -104,10 +103,10 @@ public class <%= dao.jpa.dao_name %>
     return query.executeUpdate();
 <% end -%>
   }
-
 <% end -%>
 <% if dao.repository? -%>
 <% if dao.entity.jpa.detachable? -%>
+
   @java.lang.Override
   public void detach( final <%= dao.entity.jpa.qualified_name %> entity )
   {
