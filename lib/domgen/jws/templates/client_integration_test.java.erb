@@ -71,7 +71,7 @@ def jws_characteristic_fixture(service, p, force_singular = false)
   return v if !p.collection? || force_singular
 
   # Collections in generated api are always lists
-  "java.util.Arrays.asList( #{v} )"
+  "java.util.Collections.singletonList( #{v} )"
 end
 
 def jws_create_struct(service, struct)

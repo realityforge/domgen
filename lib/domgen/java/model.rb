@@ -214,9 +214,9 @@ module Domgen
         if :none == characteristic.collection_type
           component_type
         elsif :sequence == characteristic.collection_type
-          "java.util.Arrays.asList( #{component_type} )"
+          "java.util.Collections.singletonList( #{component_type} )"
         else #if :set == characteristic.collection_type
-          "new java.util.HashSet<>( java.util.Arrays.asList( #{component_type} ) )"
+          "new java.util.HashSet<>( java.util.Collections.singletonList( #{component_type} ) )"
           set_type(component_type)
         end
       end
