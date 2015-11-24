@@ -658,6 +658,7 @@ module Domgen
 
         self.repository.exception(self.invalid_session_exception) unless self.repository.exception_by_name?(self.invalid_session_exception)
         self.repository.exception_by_name(self.invalid_session_exception).tap do |e|
+          e.java.exception_category = :runtime
           e.ejb.rollback = false
           (e.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
             e.disable_facet(facet_key) if e.facet_enabled?(facet_key)
