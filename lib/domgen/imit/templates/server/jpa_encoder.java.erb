@@ -36,12 +36,12 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% entity.attributes.select{|a| a.imit?}.each do |attribute|
     a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
     type_suffix = 'Object'
-    type_suffix = 'Int' if a.integer? && !a.nullable?
-    type_suffix = 'Long' if a.long? && !a.nullable?
-    type_suffix = 'Boolean' if a.boolean? && !a.nullable?
-    type_suffix = 'Date' if a.datetime? || a.date?
+    type_suffix = 'Int' if a.integer? && !attribute.nullable?
+    type_suffix = 'Long' if a.long? && !attribute.nullable?
+    type_suffix = 'Boolean' if a.boolean? && !attribute.nullable?
+    type_suffix = 'Date' if a.datetime? || attribute.date?
     type_suffix = 'String' if a.text?
-    type_suffix = 'Double' if a.real? && !a.nullable?
+    type_suffix = 'Double' if a.real? && !attribute.nullable?
 
     db_type = attribute.jpa.java_type(:boundary)
 
