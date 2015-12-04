@@ -8,12 +8,23 @@ package <%= to_package(data_module.sync.qualified_sync_context_impl_name) %>;
 <code>
 <pre>
 @Singleton( name = SynchronizationContext.NAME )
-@TransactionManagement( TransactionManagementType.BEAN )
+@TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
 @ConcurrencyManagement( ConcurrencyManagementType.BEAN )
 @Local( SynchronizationContext.class )
 public class SynchronizationContextEJB
   extends AbstractSynchronizationContext
 {
+<%
+data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).sync.entities_to_synchronize.collect do |e|
+  e.sync.references_requiring_manual_sync.each do |a|
+%>
+  @TransactionAttribute( TransactionAttributeType.REQUIRED )
+  @Override
+  public void remove<%= a.entity.data_module.name %><%= a.entity.name %>RelatedTo<%= a.referenced_entity.data_module.name %><%= a.referenced_entity.name %>Via<%= a.name %>(...) {...}
+<%
+  end
+end
+%>
 }
 </pre>
 </code>
