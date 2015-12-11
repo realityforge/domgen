@@ -716,7 +716,7 @@ module Domgen
               if graph.external_data_load? || graph.filter_parameter?
                 s.method("Collect#{graph.name}") do |m|
                   m.parameter(:Messages, 'org.realityforge.replicant.server.EntityMessageSet')
-                  m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+                  m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                 end
               end
             else
