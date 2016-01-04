@@ -54,6 +54,12 @@ Domgen.template_set(:sync_master_ejb_impl) do |template_set|
                         'main/java/#{data_module.sync.qualified_abstract_master_sync_ejb_name.gsub(".","/")}.java',
                         Domgen::Generator::Sync::HELPERS,
                         :guard => 'data_module.sync.master_data_module?')
+  template_set.template(Domgen::Generator::Sync::FACETS,
+                        :data_module,
+                        "#{Domgen::Generator::Sync::TEMPLATE_DIRECTORY}/abstract_sync_temp_population_impl.java.erb",
+                        'main/java/#{data_module.sync.qualified_abstract_sync_temp_population_impl_name.gsub(".","/")}.java',
+                        Domgen::Generator::Sync::HELPERS,
+                        :guard => 'data_module.sync.master_data_module?')
 end
 Domgen.template_set(:sync_sql) do |template_set|
   template_set.template(Domgen::Generator::Sync::FACETS + [:mssql],

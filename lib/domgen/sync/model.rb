@@ -79,6 +79,44 @@ module Domgen
             end
           end unless master_data_module.service_by_name?(:SynchronizationService)
 
+          master_data_module.service(:SyncTempPopulationService) do |s|
+            s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+            if s.ejb?
+              s.ejb.generate_boundary = false
+              s.ejb.standard_implementation = false
+            end
+
+            s.method(:PreSync) do |m|
+              m.text(:MappingSourceCode)
+            end
+
+            master_data_module.sync.entities_to_synchronize.collect do |entity|
+              s.method("Count#{entity.qualified_name.gsub('.', '')}") do |m|
+                m.text(:MappingSourceCode)
+                m.returns(:integer)
+              end
+              s.method("Verify#{entity.qualified_name.gsub('.', '')}") do |m|
+                m.text(:MappingSourceCode)
+                m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
+              end
+              s.method("Populate#{entity.qualified_name.gsub('.', '')}") do |m|
+                m.text(:MappingSourceCode)
+                m.datetime(:At)
+                m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
+              end
+              s.method("Reset#{entity.qualified_name.gsub('.', '')}") do |m|
+                m.text(:MappingSourceCode)
+                m.datetime(:At)
+                m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
+              end
+              s.method("Finalize#{entity.qualified_name.gsub('.', '')}") do |m|
+                m.text(:MappingSourceCode)
+                m.datetime(:At)
+                m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
+              end
+            end
+          end unless master_data_module.service_by_name?(:SyncTempPopulationService)
+
           master_data_module.service(:SynchronizationContext) do |s|
             s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
             s.ejb.generate_boundary = false if s.ejb?
@@ -163,6 +201,7 @@ module Domgen
       # Artifacts to sync into Master
       java_artifact :sync_temp_factory, :service, :server, :sync, 'SyncTempFactory'
       java_artifact :abstract_master_sync_ejb, :service, :server, :sync, 'AbstractMasterSyncServiceEJB'
+      java_artifact :abstract_sync_temp_population_impl, :service, :server, :sync, 'AbstractSyncTempPopulationServiceEJB'
       java_artifact :master_sync_service_test, :service, :server, :sync, 'AbstractMasterSyncServiceEJBTest'
 
       def entities_to_synchronize
