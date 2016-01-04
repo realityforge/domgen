@@ -23,8 +23,6 @@ module Domgen
       Proc.new { |artifact_type, artifact| is_in_data_module?(data_module_name, artifact_type, artifact) }
     end
 
-    private
-
     def self.is_in_data_modules?(data_module_names, artifact_type, artifact)
       data_module_names.any? { |data_module_name| is_in_data_module?(data_module_name, artifact_type, artifact) }
     end
