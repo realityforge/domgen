@@ -49,6 +49,11 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     st().insertMasterDataSourceIfRequired( mappingSourceCode );
   }
 
+  @java.lang.Override
+  public void postSync( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
+  {
+  }
+
   protected abstract javax.persistence.EntityManager getEntityManager();
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
 

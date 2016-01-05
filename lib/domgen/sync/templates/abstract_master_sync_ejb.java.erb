@@ -48,6 +48,8 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
       recorder.incMetric( "<%= entity.qualified_name %>.TotalSyncDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 <% end -%>
+
+    _syncTempPopulationService.postSync( mappingSourceCode );
   }
 
   protected abstract javax.persistence.EntityManager getEntityManager();

@@ -89,6 +89,9 @@ module Domgen
             s.method(:PreSync) do |m|
               m.text(:MappingSourceCode)
             end
+            s.method(:PostSync) do |m|
+              m.text(:MappingSourceCode)
+            end
 
             master_data_module.sync.entities_to_synchronize.collect do |entity|
               s.method("Count#{entity.qualified_name.gsub('.', '')}") do |m|
