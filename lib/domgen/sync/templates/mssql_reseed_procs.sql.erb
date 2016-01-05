@@ -4,7 +4,7 @@
 CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote("spReseed#{entity.name}") %>
 WITH EXECUTE AS OWNER
 AS
-DBCC CHECKIDENT ( '<%= entity.sql.qualified_table_name %>', RESEED, 0 ) WITH NO_INFOMSGS
+DBCC CHECKIDENT ( '<%= entity.sql.qualified_table_name %>', RESEED ) WITH NO_INFOMSGS
 
 GO
 
