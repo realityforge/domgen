@@ -6,12 +6,12 @@ package <%= to_package(data_module.sync.qualified_abstract_sync_temp_population_
 
 <code>
 <pre>
-@Singleton( name = SyncTempPopulationService.NAME )
-@TransactionAttribute( TransactionAttributeType.REQUIRES_NEW )
-@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
-@Local( SyncTempPopulationService.class )
-public class SyncTempPopulationServiceEJB
-  extends AbstractSyncTempPopulationServiceEJB<SyncTempFactory>
+@Transactional( Transactional.TxType.REQUIRES_NEW )
+@ApplicationScoped
+@Typed( <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_service_name %>.class )
+public class SyncTempPopulationServiceImpl
+  extends AbstractSyncTempPopulationServiceImpl<SyncTempFactory>
+  implements <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_service_name %>
 {
    ...
 }
@@ -27,7 +27,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   private H _st;
 
   @javax.annotation.Nonnull
-  protected final H st()
+  protected H st()
   {
     if( null == _st )
     {
