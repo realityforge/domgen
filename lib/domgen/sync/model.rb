@@ -204,7 +204,7 @@ module Domgen
       # Artifacts to sync into Master
       java_artifact :sync_temp_factory, :service, :server, :sync, 'SyncTempFactory'
       java_artifact :abstract_master_sync_ejb, :service, :server, :sync, 'AbstractMasterSyncServiceEJB'
-      java_artifact :abstract_sync_temp_population_impl, :service, :server, :sync, 'AbstractSyncTempPopulationServiceEJB'
+      java_artifact :abstract_sync_temp_population_impl, :service, :server, :sync, 'AbstractSyncTempPopulationServiceImpl'
       java_artifact :master_sync_service_test, :service, :server, :sync, 'AbstractMasterSyncServiceEJBTest'
 
       def entities_to_synchronize
