@@ -4,8 +4,9 @@
 CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote("spReseed#{entity.name}") %>
 WITH EXECUTE AS OWNER
 AS
-DBCC CHECKIDENT ( '<%= entity.sql.qualified_table_name %>', RESEED ) WITH NO_INFOMSGS
-
+  DECLARE @NewSeq INTEGER
+  SELECT @NewSeq = COALESCE(MAX([SyncTempID]),0) FROM <%= entity.sql.qualified_table_name %>
+  DBCC CHECKIDENT ( '<%= entity.sql.qualified_table_name %>', RESEED, @NewSeq ) WITH NO_INFOMSGS
 GO
 
 <% end %>
