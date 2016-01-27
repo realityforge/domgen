@@ -440,7 +440,7 @@ module Domgen
             e.string(:MappingID, 50, :immutable => true, :description => 'The ID of entity in originating system')
             e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
 
-            e.sql.index([:MappingSource, :MappingID], :unique => true, :filter => 'DeletedAt IS NULL')
+            e.sql.index([:MappingID, :MappingKey, :MappingSource], :unique => true, :filter => 'DeletedAt IS NULL')
           end
 
           self.entity.attributes.select { |a| !a.inherited? || a.primary_key? }.each do |a|
