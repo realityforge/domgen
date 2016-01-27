@@ -3,7 +3,7 @@
 
 <% if data_module.repository.mssql.supports_sequences? -%>
 <% data_module.sql.sequences.each do |sequence| -%>
-CREATE SEQUENCE <%= data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote(sequence.name) %> AS <%= sequence.sql_type %> start with 1 increment by 1;
+CREATE SEQUENCE <%= sequence.qualified_sequence_name %> AS <%= sequence.sql_type %> start with 1 increment by 1;
 <% end -%>
 <% end -%>
 GO
