@@ -23,6 +23,14 @@ module Domgen
 
       attr_reader :name
       attr_accessor :sql_type
+
+      def quoted_sequence_name
+        schema.dialect.quote(self.name)
+      end
+
+      def qualified_sequence_name
+        "#{schema.quoted_schema}.#{quoted_sequence_name}"
+      end
     end
 
     class Index < Domgen.ParentedElement(:table)
