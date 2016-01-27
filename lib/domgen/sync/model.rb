@@ -374,7 +374,11 @@ module Domgen
           e.extends = self.entity.extends
 
           if self.entity.extends.nil?
-            e.integer(:SyncTempID, :primary_key => true, :generated_value => true)
+            e.integer(:SyncTempID,
+                      :primary_key => true,
+                      :generated_value => true,
+                      'sql.generator_type' => :sequence,
+                      'sql.sequence_name' => "#{sql_name(:table, self.entity.name)}Seq")
 
             e.reference("#{self.master_data_module}.#{self.entity.data_module.repository.sync.mapping_source_attribute}", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
             e.string(:MappingKey, 255, :immutable => true, :description => 'Change to cause an instance with the same MappingID and MappingSource, to be recreated in Master.')
@@ -424,16 +428,11 @@ module Domgen
           e.extends = self.entity.extends
 
           if self.entity.extends.nil?
-
-            if self.entity.direct_subtypes.empty?
-              e.integer(:ID, :primary_key => true, :generated_value => true)
-            else
-              e.integer(:ID,
-                        :primary_key => true,
-                        :generated_value => true,
-                        'sql.generator_type' => :sequence,
-                        'sql.sequence_name' => "#{self.entity.qualified_name.gsub('.', '')}Seq")
-            end
+            e.integer(:ID,
+                      :primary_key => true,
+                      :generated_value => true,
+                      'sql.generator_type' => :sequence,
+                      'sql.sequence_name' => "#{sql_name(:table, self.entity.name)}Seq")
 
             e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, :immutable => true, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
             e.string(:MappingKey, 255, :immutable => true, :description => 'Uniquely defines an instance with same MappingID and MappingSource.')

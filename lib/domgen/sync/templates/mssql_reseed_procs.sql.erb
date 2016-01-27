@@ -6,7 +6,7 @@ WITH EXECUTE AS OWNER
 AS
   DECLARE @NewSeq INTEGER
   SELECT @NewSeq = COALESCE(MAX([SyncTempID]),0) FROM <%= entity.sql.qualified_table_name %>
-  DBCC CHECKIDENT ( '<%= entity.sql.qualified_table_name %>', RESEED, @NewSeq ) WITH NO_INFOMSGS
+  EXEC( 'ALTER SEQUENCE <%= entity.primary_key.sql.sequence.qualified_sequence_name %> RESTART WITH ' + @NewSeq)
 GO
 
 <% end %>
