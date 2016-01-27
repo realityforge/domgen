@@ -484,6 +484,11 @@ module Domgen
             if a.primary_key?
               e.sql.index([name], :unique => true, :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL")
             end
+
+            if a.reference? && a.nullable?
+              # Create an index to speed up validity checking when column is sparsely populated
+              e.sql.index([name], :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND DeletedAt IS NULL")
+            end
           end
           self.entity.unique_constraints.each do |constraint|
             e.sql.index(constraint.attribute_names, :unique => true, :filter => 'DeletedAt IS NULL')
