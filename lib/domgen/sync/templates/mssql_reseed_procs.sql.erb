@@ -10,7 +10,7 @@ AS
   WHERE <%= entity.sql.qualified_table_name %>.[SyncTempID] = F.[SyncTempID]
 
   DECLARE @NewSeq INTEGER
-  SELECT @NewSeq = COALESCE(MAX([SyncTempID]),0) FROM <%= entity.sql.qualified_table_name %>
+  SELECT @NewSeq = COALESCE(MAX([SyncTempID] + 1),0) FROM <%= entity.sql.qualified_table_name %>
   EXEC( 'ALTER SEQUENCE <%= entity.primary_key.sql.sequence.qualified_sequence_name %> RESTART WITH ' + @NewSeq)
 GO
 
