@@ -116,6 +116,14 @@ module Domgen
         "RAISERROR ('#{error_message}', 16, 1) WITH SETERROR"
       end
 
+      def true_sql
+        '1'
+      end
+
+      def false_sql
+        '0'
+      end
+
       def immuter_guard(entity, immutable_attributes)
         immutable_attributes.collect { |a| "UPDATE(#{a.sql.quoted_column_name})" }.join(" OR ")
       end
@@ -137,6 +145,14 @@ module Domgen
         end.join(" OR\n") }
           )
         SQL
+      end
+
+      def execute_sql
+        'EXEC'
+      end
+
+      def wrap_store_proc_params(params)
+        params
       end
 
       def set_once_sql(attribute)

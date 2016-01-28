@@ -14,8 +14,8 @@
 
 module Domgen
   class Sync
-    VALID_MASTER_FACETS = [:sql, :mssql, :ee, :ejb, :java, :jpa, :sync]
-    VALID_SYNC_TEMP_FACETS = [:sql, :mssql, :sync]
+    VALID_MASTER_FACETS = [:sql, :mssql, :pgsql, :ee, :ejb, :java, :jpa, :sync]
+    VALID_SYNC_TEMP_FACETS = [:sql, :mssql, :pgsql, :sync]
   end
 
   FacetManager.facet(:sync => [:sql]) do |facet|
@@ -353,7 +353,7 @@ module Domgen
           self.entity.unique_constraints.each do |constraint|
             # Force the creation of the index with filter specified. Parallels behavious in sql facet.
             index = self.entity.sql.index(constraint.attribute_names, :unique => true)
-            index.filter = 'DeletedAt IS NULL'
+            index.filter = "#{self.entity.sql.dialect.quote(:DeletedAt)} IS NULL"
           end
         end
         self.entity.jpa.detachable = true if self.entity.jpa?
@@ -439,7 +439,7 @@ module Domgen
             e.string(:MappingID, 50, :immutable => true, :description => 'The ID of entity in originating system')
             e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
 
-            e.sql.index([:MappingID, :MappingKey, :MappingSource], :unique => true, :filter => 'DeletedAt IS NULL')
+            e.sql.index([:MappingID, :MappingKey, :MappingSource], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
           end
 
           self.entity.attributes.select { |a| !a.inherited? || a.primary_key? }.each do |a|
@@ -487,11 +487,11 @@ module Domgen
 
             if a.reference? && a.nullable?
               # Create an index to speed up validity checking when column is sparsely populated
-              e.sql.index([name], :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND DeletedAt IS NULL")
+              e.sql.index([name], :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND #{e.sql.dialect.quote(:DeletedAt)} IS NULL")
             end
           end
           self.entity.unique_constraints.each do |constraint|
-            e.sql.index(constraint.attribute_names, :unique => true, :filter => 'DeletedAt IS NULL')
+            e.sql.index(constraint.attribute_names, :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
           end
 
           unless entity.sync.transaction_time?
