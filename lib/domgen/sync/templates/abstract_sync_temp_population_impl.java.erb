@@ -315,7 +315,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     return sql;
   }
 
-  private int getTransactionIsolation()
+  protected int getTransactionIsolation()
   {
     try
     {
@@ -327,7 +327,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     }
   }
 
-  private void setTransactionIsolation( final int transactionIsolationLevel )
+  protected void setTransactionIsolation( final int transactionIsolationLevel )
   {
     try
     {
