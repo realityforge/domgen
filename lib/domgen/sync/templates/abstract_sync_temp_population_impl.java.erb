@@ -70,7 +70,12 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @java.lang.Override
   public int count<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
   {
-    return ( (java.lang.Long) getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name.gsub('"','\"') %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name.gsub('"','\"') %> = ?" ).setParameter( 1, mappingSourceCode ).getSingleResult() ).intValue();
+    final Object result = getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name.gsub('"','\"') %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name.gsub('"','\"') %> = ?" ).setParameter( 1, mappingSourceCode ).getSingleResult();
+    if( result instanceof java.lang.Long )
+    {
+      return ( (java.lang.Long) result ).intValue();
+    }
+    return ( (java.lang.Integer) result ).intValue();
   }
 
   @java.lang.Override
