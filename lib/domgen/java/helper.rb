@@ -102,6 +102,10 @@ JAVADOC
         end
         transform
       end
+
+      def j_escape_string( str )
+        str.gsub('"', '\"')
+      end
     end
   end
 end

@@ -70,7 +70,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @java.lang.Override
   public int count<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
   {
-    final Object result = getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name.gsub('"','\"') %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name.gsub('"','\"') %> = ?" ).setParameter( 1, mappingSourceCode ).getSingleResult();
+    final Object result = getEntityManager().createNativeQuery( "<%=j_escape_string("SELECT COUNT(*) FROM #{ entity.sync.sync_temp_entity.sql.qualified_table_name } WHERE #{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } " )%> = ?" ).setParameter( 1, mappingSourceCode ).getSingleResult();
     if( result instanceof java.lang.Long )
     {
       return ( (java.lang.Long) result ).intValue();
@@ -139,26 +139,26 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     {
       {
         final String sql =
-     "<%=("SELECT S.* " +
+          "SELECT S.* " +
           " FROM " +
-          "   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S " +
-          " LEFT JOIN #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS O ON O.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name } AND O.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND O.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name } <> S.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name } " +
-          " WHERE O.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } IS NOT NULL AND S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?").gsub('"','\"')%>";
+          "<%=j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ")%>" +
+          "<%=j_escape_string(" LEFT JOIN #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS O ON O.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name } AND O.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND O.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name } <> S.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name } ")%>" +
+          "<%=j_escape_string(" WHERE O.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } IS NOT NULL AND S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?")%>";
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "MappingID Uniqueness", recorder ) )
         {
           validationFailed = true;
         }
       }
 <% entity.sql.indexes.select{|index| index.unique? && !index.attribute_names.any?{|k| %w(CreatedAt DeletedAt).include?(k.to_s)}}.each do |index|
-   column_names = index.attribute_names.collect {|attr_name| a = entity.attribute_by_name(attr_name); entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? a.name.to_s + 'MappingID' : a.name).sql.quoted_column_name }
+   column_names = index.attribute_names.collect {|attr_name| a = entity.attribute_by_name(attr_name); entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }
 -%>
       {
         final String sql =
-     "<%=("SELECT S.* " +
+          "SELECT S.* " +
           "FROM " +
-          "  #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S " +
-          "JOIN ( SELECT #{ column_names.join(',') } FROM #{ entity.sync.sync_temp_entity.sql.qualified_table_name } GROUP BY #{ column_names.join(',') } HAVING COUNT(*) > 1 ) J ON #{ column_names.collect{|c| 'J.' + c + ' = S.' + c}.join(' AND ') } " +
-          "WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?").gsub('"','\"')%>";
+          "<%=j_escape_string("  #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ")%>" +
+          "<%=j_escape_string("JOIN ( SELECT #{ column_names.join(',') } FROM #{ entity.sync.sync_temp_entity.sql.qualified_table_name } GROUP BY #{ column_names.join(',') } HAVING COUNT(*) > 1 ) J ON #{ column_names.collect{|c| 'J.' + c + ' = S.' + c}.join(' AND ') } ")%>" +
+          "<%=j_escape_string("WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?")%>";
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Found duplicate rows for <%= entity.qualified_name.gsub('.','') %> that violate uniqueness across <%= index.attribute_names.join(',') %> defined by index <%= index.index_name %>", recorder ) )
         {
           validationFailed = true;
@@ -170,31 +170,31 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
         final String sql =
           "SELECT S.* " +
           " FROM " +
-          "   <%= entity.sync.sync_temp_entity.sql.qualified_table_name.gsub('"','\"') %> AS S " +
+          "<%=j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ")%>" +
 <% if a.reference?
   ref_id = 'R.ID'
 -%>
 <% if a.referenced_entity.name == entity.name -%>
-          "<%="LEFT JOIN #{ a.referenced_entity.sync.sync_temp_entity.sql.qualified_table_name } AS R ON R.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } AND R.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ".gsub('"','\"')%>" +
+          "<%=j_escape_string(" LEFT JOIN #{ a.referenced_entity.sync.sync_temp_entity.sql.qualified_table_name } AS R ON R.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } AND R.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ")%>" +
 <% elsif a.referenced_entity.abstract? -%>
 <%
   refs = []
   a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index|
     refs << "R#{index}.ID"
 -%>
-       "<%=" LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R#{index} ON R#{index}.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } AND R#{index}.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND R#{index}.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ".gsub('"','\"')%>" +
+           "<%=j_escape_string(" LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R#{index} ON R#{index}.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } AND R#{index}.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND R#{index}.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ")%>" +
 <% end
   ref_id = "COALESCE(#{refs.join(',')})"
 -%>
 
 <% else -%>
-       "<%="LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R ON R.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ".gsub('"','\"')%>" +
+           "<%=j_escape_string(" LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R ON R.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ")%>" +
 <% end -%>
 <% end -%>
-     "<%=("JOIN #{ entity.sync.master_entity.sql.qualified_table_name } AS M ON M.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL AND M.#{ entity.sync.master_entity.attribute_by_name(:MappingKey).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name } " +
-          " AND M.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name }  AND " +
-          "M.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }  AND M.#{ entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name } <> #{ a.reference? ? "R.#{ entity.sync.master_entity.attribute_by_name(:ID).sql.quoted_column_name }" : "S.#{entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? a.name.to_s + 'MappingID' : a.name).sql.quoted_column_name}" } " +
-          "WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?").gsub('"','\"')%>";
+          "<%=j_escape_string("JOIN #{ entity.sync.master_entity.sql.qualified_table_name } AS M ON M.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL AND M.#{ entity.sync.master_entity.attribute_by_name(:MappingKey).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name } ")%>" +
+          "<%=j_escape_string(" AND M.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name }  AND ")%>" +
+          "<%=j_escape_string(" M.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }  AND M.#{ entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name } <> #{ a.reference? ? "R.#{ entity.sync.master_entity.attribute_by_name(:ID).sql.quoted_column_name }" : "S.#{entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name}" } ")%>" +
+          "<%=j_escape_string("WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?")%>";
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to modify immutable attribute <%= a.qualified_name %>", recorder ) )
         {
           validationFailed = true;
@@ -206,29 +206,29 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
         final String sql =
           "SELECT S.* " +
           " FROM " +
-          "   <%= entity.sync.sync_temp_entity.sql.qualified_table_name.gsub('"','\"') %> AS S " +
+          "<%=j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ")%>" +
 <% if a.reference?
   ref_id = 'R.ID'
 -%>
 <% if a.referenced_entity.name == entity.name -%>
-      "<%="LEFT JOIN #{ a.referenced_entity.sync.sync_temp_entity.sql.qualified_table_name } AS R ON R.MappingID = S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } AND R.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ".gsub('"','\"') %>" +
+          "<%=j_escape_string(" LEFT JOIN #{ a.referenced_entity.sync.sync_temp_entity.sql.qualified_table_name } AS R ON R.MappingID = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } AND R.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ")%>" +
 <% elsif a.referenced_entity.abstract? -%>
 <%
   refs = []
   a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index|
     refs << "R#{index}"
 -%>
-      "<%=" LEFT JOIN #{ subtype.sync.master_entity.sql.qualified_table_name } AS R#{ index } ON R#{ index }.MappingID = S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } AND R#{ index }.MappingSource = S.MappingSource AND R#{ index }.DeletedAt IS NULL ".gsub('"','\"') %>" +
+         "<%=j_escape_string(" LEFT JOIN #{ subtype.sync.master_entity.sql.qualified_table_name } AS R#{ index } ON R#{ index }.MappingID = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } AND R#{ index }.MappingSource = S.MappingSource AND R#{ index }.DeletedAt IS NULL ")%>" +
 <% end
   ref_id = "COALESCE(#{refs.join(',')})"
 -%>
 
 <% else -%>
-      "<%="LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R ON R.MappingID = S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } AND R.MappingSource = S.MappingSource AND R.DeletedAt IS NULL ".gsub('"','\"') %>" +
+         "<%=j_escape_string(" LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R ON R.MappingID = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } AND R.MappingSource = S.MappingSource AND R.DeletedAt IS NULL ")%>" +
 <% end -%>
 <% end -%>
-     "<%=("JOIN #{ entity.sync.master_entity.sql.qualified_table_name } AS M ON M.DeletedAt IS NULL AND M.MappingKey = S.MappingKey AND M.MappingID = S.MappingID AND M.MappingSource = S.MappingSource AND M.#{ entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name } IS NOT NULL AND M.#{ entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name } <> #{ a.reference? ? ref_id : "S.#{entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? a.name.to_s + 'MappingID' : a.name).sql.quoted_column_name}" } " +
-          "WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?").gsub('"','\"') %>";
+         "<%=j_escape_string(" JOIN #{ entity.sync.master_entity.sql.qualified_table_name } AS M ON M.DeletedAt IS NULL AND M.MappingKey = S.MappingKey AND M.MappingID = S.MappingID AND M.MappingSource = S.MappingSource AND M.#{ entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name } IS NOT NULL AND M.#{ entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name } <> #{ a.reference? ? ref_id : "S.#{entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name}" } ")%>" +
+         "<%=j_escape_string(" WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?")%>";
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to modify set once attribute <%= a.qualified_name %>", recorder ) )
         {
           validationFailed = true;
@@ -240,16 +240,16 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
         final String sql =
           "SELECT S.* " +
           " FROM " +
-          "   <%= entity.sync.sync_temp_entity.sql.qualified_table_name.gsub('"','\"') %> AS S " +
-          "JOIN ( SELECT <%= entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name.gsub('"','\"') %> FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name.gsub('"','\"') %> WHERE NOT (<%=
+          "<%=j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ")%>" +
+          "<%=j_escape_string(" JOIN ( SELECT #{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name } FROM #{ entity.sync.sync_temp_entity.sql.qualified_table_name } WHERE NOT (#{
   sql = constraint.sql.gsub("\n",' ').gsub('  ',' ')
   entity.attributes.select{|a| !a.primary_key? && a.sql? && a.name.to_s != 'CreatedAt' && a.name.to_s != 'DeletedAt' }.each do |a|
-    sql = sql.gsub(/#{Regexp.escape(a.sql.quoted_column_name)}/, entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? a.name.to_s + 'MappingID' : a.name).sql.quoted_column_name )
+    sql = sql.gsub(/#{Regexp.escape(a.sql.quoted_column_name)}/, entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name )
   end
-  sql.gsub('"','\"')
--%>) ) J ON J.<%= entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name.gsub('"','\"') %> = S.<%= entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name.gsub('"','\"') %> " +
-          "WHERE S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name.gsub('"','\"') %> = ?";
-        if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to violate constraint <%= constraint.qualified_constraint_name.gsub('"','\"') %>", recorder ) )
+  sql
+}) ) J ON J.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name } " +
+          "#{"WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?"}")%>";
+        if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to violate constraint <%= j_escape_string(constraint.qualified_constraint_name) %>", recorder ) )
         {
           validationFailed = true;
         }
@@ -260,25 +260,25 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
         final String sql =
           "SELECT S.* " +
           " FROM " +
-          "   <%= entity.sync.sync_temp_entity.sql.qualified_table_name.gsub('"','\"') %> AS S " +
+          "<%=j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ")%>" +
 <% if a.referenced_entity.name == entity.name -%>
-      "<%=" LEFT JOIN #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS O ON O.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } AND O.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }".gsub('"','\"') %>" +
+          "<%=j_escape_string(" LEFT JOIN #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS O ON O.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } AND O.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ")%>" +
 <% elsif a.referenced_entity.abstract? -%>
 <% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
-      "<%=" LEFT JOIN #{ subtype.sync.sync_temp_entity.sql.qualified_table_name } AS O#{ index } ON O#{ index }.#{ subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } AND O#{ index }.#{ subtype.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ".gsub('"','\"') %>" +
+          "<%=j_escape_string(" LEFT JOIN #{ subtype.sync.sync_temp_entity.sql.qualified_table_name } AS O#{ index } ON O#{ index }.#{ subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } AND O#{ index }.#{ subtype.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ")%>" +
 <% end -%>
 <% else -%>
-      "<%=" LEFT JOIN #{ a.referenced_entity.sync.sync_temp_entity.sql.qualified_table_name } AS O ON O.#{ a.referenced_entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } AND O.#{ a.referenced_entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ".gsub('"','\"') %>" +
+          "<%=j_escape_string(" LEFT JOIN #{ a.referenced_entity.sync.sync_temp_entity.sql.qualified_table_name } AS O ON O.#{ a.referenced_entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } AND O.#{ a.referenced_entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ")%>" +
 <% end -%>
-      "<%=" WHERE S.#{ entity.sync.sync_temp_entity.attribute_by_name(a.name.to_s + 'MappingID').sql.quoted_column_name } IS NOT NULL AND S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ? AND ".gsub('"','\"') %>" +
+          "<%=j_escape_string("WHERE S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } IS NOT NULL AND S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ? AND ")%>" +
 <% if a.referenced_entity.abstract? -%>
           "(" +
 <% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
-            "O<%= index %>.<%= subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name.gsub('"','\"') %> IS NULL AND " +
+          "<%=j_escape_string(" O#{ index }.#{ subtype.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } IS NULL AND ")%>" +
 <% end -%>
           " 1 = 1 )";
 <% else -%>
-          " O.<%= entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name.gsub('"','\"') %> IS NULL";
+          "<%=j_escape_string(" O.#{ entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } IS NULL")%>";
 <% end -%>
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "<%= a.name %> ForeignKey", recorder ) )
         {
