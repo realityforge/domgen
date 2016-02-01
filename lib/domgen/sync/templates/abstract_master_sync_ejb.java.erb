@@ -57,12 +57,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 
   protected int count<%= entity.qualified_name.gsub('.','') %>Master( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
   {
-    final Object result = getEntityManager().createNativeQuery( "<%= j_escape_string("SELECT COUNT(*) FROM #{entity.sync.master_entity.sql.qualified_table_name} WHERE #{entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = ?") %>" ).setParameter( 1, mappingSourceCode ).getSingleResult();
-    if( result instanceof java.lang.Long )
-    {
-      return ( (java.lang.Long) result ).intValue();
-    }
-    return ( (java.lang.Integer) result ).intValue();
+    return ((java.lang.Number) getEntityManager().createNativeQuery( "<%= j_escape_string("SELECT COUNT(*) FROM #{entity.sync.master_entity.sql.qualified_table_name} WHERE #{entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = ?") %>" ).setParameter( 1, mappingSourceCode ).getSingleResult() ).intValue();
   }
 
   protected int sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
