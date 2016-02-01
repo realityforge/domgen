@@ -70,6 +70,20 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @java.lang.Override
   public int count<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
   {
+    final int transactionIsolationLevel = getTransactionIsolation();
+    try
+    {
+      setTransactionIsolation( java.sql.Connection.TRANSACTION_READ_UNCOMMITTED );
+      return doCount<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode );
+    }
+    finally
+    {
+      setTransactionIsolation( transactionIsolationLevel );
+    }
+  }
+
+  private int doCount<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
+  {
     return (java.lang.Integer) getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, mappingSourceCode ).getSingleResult();
   }
 
