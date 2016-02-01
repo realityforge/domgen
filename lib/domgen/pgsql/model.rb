@@ -100,6 +100,19 @@ module Domgen
         "RAISE EXCEPTION '#{error_message}';"
       end
 
+      def true_sql
+        'true'
+      end
+
+      def false_sql
+        'false'
+      end
+
+      # Specifies if this database requires the table name to be specified in the UPDATE statement as well as the alias.
+      def requires_table_name_for_update
+        true
+      end
+
       def immuter_guard(entity, immutable_attributes)
         nil
       end
@@ -118,6 +131,14 @@ module Domgen
                     end.join(" OR\n") }
           )
         SQL
+      end
+
+      def execute_sql
+        'SELECT'
+      end
+
+      def wrap_store_proc_params(params)
+        "(#{params})"
       end
 
       def set_once_sql(attribute)
