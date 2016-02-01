@@ -10,7 +10,8 @@
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
-%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema + "." + data_module.sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") }'::text) " : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema }.#{ data_module.sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") }'::text) " :
+                                                              a.sql.sequence? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema }.#{ data_module.sql.dialect.quote(a.sql.sequence_name) }'::text) " : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>  CONSTRAINT <%= data_module.sql.dialect.quote("PK_#{entity.name}") %> PRIMARY KEY (<%= entity.primary_key.sql.quoted_column_name %>)
 );

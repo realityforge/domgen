@@ -23,20 +23,20 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   sync_attribtues = entity.sync.attributes_to_synchronize.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name) }
 -%>
 
-  public int resetIdentity<%= entity.qualified_name.gsub('.','') %>()
+  public void resetIdentity<%= entity.qualified_name.gsub('.','') %>()
   {
-    return getEntityManager().createNativeQuery( "EXEC <%= entity.sync.sync_temp_entity.data_module.sql.quoted_schema %>.<%= entity.sync.sync_temp_entity.data_module.sql.dialect.quote("spReseed#{entity.name}") %>" ).executeUpdate();
+    getEntityManager().createStoredProcedureQuery( "<%=j_escape_string( "#{entity.sync.sync_temp_entity.data_module.sql.quoted_schema}.#{entity.sync.sync_temp_entity.data_module.sql.dialect.quote("spReseed#{ entity.name }")}")%>" ).execute();
   }
 
   public int deleteAll<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
   {
-    return getEntityManager().createNativeQuery( "DELETE FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, mappingSourceCode ).executeUpdate();
+    return getEntityManager().createNativeQuery( "<%=j_escape_string( "DELETE FROM #{entity.sync.sync_temp_entity.sql.qualified_table_name} WHERE #{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = ?")%>" ).setParameter( 1, mappingSourceCode ).executeUpdate();
   }
 
   public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final String selectSql )
   {
     final String sql =
-      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= sync_attribtues.collect{|a| a.sql.quoted_column_name }.join(', ') %>) " +
+      "<%=j_escape_string( "INSERT INTO #{entity.sync.sync_temp_entity.sql.qualified_table_name} (#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }, #{sync_attribtues.collect{|a| a.sql.quoted_column_name }.join(', ') })")%>" +
       selectSql;
     return executeUpdate( sql );
   }
@@ -44,7 +44,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String selectSql )
   {
     final String sql =
-      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= sync_attribtues.collect{|a| a.sql.quoted_column_name }.join(', ') %>) " +
+      "<%=j_escape_string( "INSERT INTO #{entity.sync.sync_temp_entity.sql.qualified_table_name} (#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name}, #{sync_attribtues.collect{|a| a.sql.quoted_column_name }.join(', ')})")%>" +
       selectSql;
     return executeUpdate( mappingSourceCode, sql );
   }
@@ -89,7 +89,8 @@ public class <%= data_module.sync.sync_temp_factory_name %>
 %> )
   {
     final String sql =
-      "INSERT INTO <%= entity.sync.sync_temp_entity.sql.qualified_table_name %>(<%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name %>, <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name %>, <%= entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID' && a.name.to_s != 'MappingKey'}.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }.join(', ') %>) VALUES (?,?,<%= entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| '?'}.join(',') %>)";
+      "<%=j_escape_string("INSERT INTO #{entity.sync.sync_temp_entity.sql.qualified_table_name} (#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name}, #{entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name}, #{entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name}, #{entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID' && a.name.to_s != 'MappingKey'}.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name }.join(', ')}) VALUES (?,?,#{entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| '?'}.join(',')})")%>";
+
     return getEntityManager().createNativeQuery( sql ).
       setParameter( 1, mappingSourceCode ).
       setParameter( 2, mappingKey ).
@@ -104,9 +105,9 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   public void insertMasterDataSourceIfRequired( @javax.annotation.Nonnull final String dataSource )
   {
     executeUpdate( dataSource,
-                   "INSERT INTO <%= data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name %>(Code) " +
+                   "<%=j_escape_string("INSERT INTO #{data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name}(#{data_module.sql.dialect.quote(:Code)}) ")%>" +
                    "  SELECT @@MAPPING_SOURCE@@ " +
-                   "  WHERE 0 = (SELECT COUNT(*) FROM <%= data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name %> WHERE [Code] = @@MAPPING_SOURCE@@)" );
+                   "<%=j_escape_string("  WHERE 0 = (SELECT COUNT(*) FROM #{data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name } WHERE #{data_module.sql.dialect.quote(:Code)} = @@MAPPING_SOURCE@@)")%>" );
   }
 
   protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String sql )
