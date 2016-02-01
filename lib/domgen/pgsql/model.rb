@@ -108,6 +108,11 @@ module Domgen
         'false'
       end
 
+      # Specifies if this database requires the table name to be specified in the UPDATE statement as well as the alias.
+      def requires_table_name_for_update
+        false
+      end
+
       def immuter_guard(entity, immutable_attributes)
         nil
       end

@@ -68,7 +68,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
   protected int sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
     final String sql =
-      "<%=j_escape_string("UPDATE #{entity.sync.master_entity.sql.qualified_table_name}")%>" +
+      "<%=j_escape_string("UPDATE #{entity.sql.dialect.requires_table_name_for_update ? "#{entity.sync.master_entity.sql.qualified_table_name} AS" : ""} M" )%>" +
       "<%=j_escape_string(" SET #{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} = ?, #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql} ")%>" +
       "<%=j_escape_string(" FROM #{entity.sync.master_entity.sql.qualified_table_name} AS M ")%>" +
       "<%=j_escape_string(" LEFT JOIN #{entity.sync.sync_temp_entity.sql.qualified_table_name} AS S ON M.#{entity.sync.master_entity.attribute_by_name(:MappingKey).sql.quoted_column_name} = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name} AND M.#{entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name} = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name} AND M.#{entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} ")%>" +
@@ -80,7 +80,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
   {
 <% reference_index = 0 -%>
     final String sql =
-      "<%=j_escape_string("UPDATE #{entity.sync.master_entity.sql.qualified_table_name}")%>" +
+      "<%=j_escape_string("UPDATE #{entity.sql.dialect.requires_table_name_for_update ? "#{entity.sync.master_entity.sql.qualified_table_name} AS" : ""} M")%>" +
       "<%=j_escape_string(" SET #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql}, ")%>" +
       "<%=j_escape_string("     #{entity.sync.attributes_to_synchronize.select{|a| ![:MappingKey, :MappingID].include?(a.name)}.collect{|a| "#{entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name} = #{
 if a.reference?
