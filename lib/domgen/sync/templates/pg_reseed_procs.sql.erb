@@ -3,7 +3,7 @@
 <% data_module.entities.select{|e|e.sync? && !e.abstract?}.each do |entity| -%>
 CREATE OR REPLACE FUNCTION <%= data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote("spReseed#{entity.name}") %>() RETURNS VOID AS '
     BEGIN
-        ALTER SEQUENCE <%= data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote("tbl#{entity.name}SyncTempIDSeq") %> RESTART;
+        ALTER SEQUENCE <%= entity.primary_key.sql.sequence.qualified_sequence_name %> RESTART;
     END;
 ' LANGUAGE plpgsql;
 
