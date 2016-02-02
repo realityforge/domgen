@@ -8,4 +8,9 @@ modules: !omap
 <% tables.each do |entity| -%>
          - "<%= entity.sql.qualified_table_name.gsub('"',"\\\"") %>"
 <% end -%>
+<% sequences = data_module.sql.sequences.collect { |sequence| sequence.qualified_sequence_name } -%>
+      sequences:<%= sequences.empty? ? ' []' : '' %>
+<% sequences.each do |sequence| -%>
+         - "<%= sequence %>"
+<% end -%>
 <% end -%>
