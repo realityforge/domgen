@@ -415,6 +415,11 @@ module Domgen
             options[:abstract] = a.abstract?
 
             e.attribute(name, attribute_type, options)
+
+            if a.reference?
+              filter = a.nullable? ? "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" : nil
+                e.sql.index([:MappingSource, name], :filter => filter, :include_attribute_names => [:MappingKey, :MappingID])
+            end
           end
         end
 
@@ -485,9 +490,10 @@ module Domgen
               e.sql.index([name], :unique => true, :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL")
             end
 
-            if a.reference? && a.nullable?
+            if a.reference?
               # Create an index to speed up validity checking when column is sparsely populated
-              e.sql.index([name], :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND #{e.sql.dialect.quote(:DeletedAt)} IS NULL")
+              prefix = a.nullable? ? "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND " : ''
+              e.sql.index([name], :filter => "#{prefix}#{e.sql.dialect.quote(:DeletedAt)} IS NULL", :include_attribute_names => [:MappingKey, :MappingID])
             end
           end
           self.entity.unique_constraints.each do |constraint|
