@@ -445,6 +445,7 @@ module Domgen
             e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
 
             e.sql.index([:MappingID, :MappingKey, :MappingSource], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
+            e.sql.index([:MappingSource, :MappingID], :include_attribute_names => [:ID], :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
           end
 
           self.entity.attributes.select { |a| !a.inherited? || a.primary_key? }.each do |a|
