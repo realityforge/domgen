@@ -64,6 +64,12 @@ end
 Domgen.template_set(:sync_sql) do |template_set|
   template_set.template(Domgen::Generator::Sync::FACETS + [:mssql],
                         :data_module,
+                        "#{Domgen::Generator::Sync::TEMPLATE_DIRECTORY}/binary_to_base64.sql.erb",
+                        '#{data_module.name}/functions/#{data_module.name}.fnConvertBinaryToBase64.sql',
+                        Domgen::Generator::Sync::HELPERS,
+                        :guard => 'data_module.sync.sync_temp_data_module?')
+  template_set.template(Domgen::Generator::Sync::FACETS + [:mssql],
+                        :data_module,
                         "#{Domgen::Generator::Sync::TEMPLATE_DIRECTORY}/mssql_reseed_procs.sql.erb",
                         '#{data_module.name}/stored-procedures/reseed_procs.sql',
                         Domgen::Generator::Sync::HELPERS,
