@@ -450,7 +450,7 @@ module Domgen
 
       def generator_name
         Domgen.error('generator_name invoked on non-sequence') if !sequence? && !table_sequence?
-        "#{attribute.entity.name}#{attribute.name}Generator"
+        "#{attribute.entity.data_module.name}#{attribute.entity.name}#{attribute.name}Generator"
       end
 
       include Domgen::Java::EEJavaCharacteristic
