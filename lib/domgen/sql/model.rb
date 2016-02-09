@@ -1038,6 +1038,7 @@ SQL
 
       def generator_type=(generator_type)
         Domgen.error("generator_type supplied #{generator_type} not valid") unless [:none, :identity, :sequence].include?(generator_type)
+        attribute.generated_value = true
         @generator_type = generator_type
       end
 
