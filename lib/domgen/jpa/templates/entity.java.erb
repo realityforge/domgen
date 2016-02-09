@@ -209,16 +209,18 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         first_attribute_step = self.entity.attribute_by_name(c.attribute_name_path[0])
         scoping_attribute = target_attribute.referenced_entity.attribute_by_name(c.scoping_attribute)
 
+        last_is_primitive = false
         current_entity = entity
         elements = c.attribute_name_path.collect do |element_name|
           new_attr = current_entity.attribute_by_name(element_name)
           current_entity = new_attr.referenced_entity
+          last_is_primitive = current_entity.primary_key.jpa.primitive?(:default, :assume_generated => true)
           new_attr
         end
 
 -%>
 <%= validation_prefix(c.name, entity) %>
-        if( <% if target_attribute.nullable? %>null != object.<%= getter_for(target_attribute) %> && <% end %><% if first_attribute_step.nullable? %>null != object.<%= getter_for(first_attribute_step) %> && <% end %>!((object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %>.<%= getter_for(scoping_attribute.entity.primary_key) %>.equals(object.<%= elements.collect{|e|getter_for(e)}.join('.') %>.<%= getter_for(elements.last.entity.primary_key) %> ) ) ) )
+        if( <% if target_attribute.nullable? %>null != object.<%= getter_for(target_attribute) %> && <% end %><% if first_attribute_step.nullable? %>null != object.<%= getter_for(first_attribute_step) %> && <% end %>!((object.<%= getter_for(target_attribute) %>.<%= getter_for(scoping_attribute) %>.<%= getter_for(scoping_attribute.entity.primary_key) %> <%= last_is_primitive ? ' == ' : '.equals' %>(object.<%= elements.collect{|e|getter_for(e)}.join('.') %>.<%= getter_for(elements.last.entity.primary_key) %> ) ) ) )
         {
           return false;
         }

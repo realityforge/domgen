@@ -95,7 +95,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
          "#{value}.name().equals( value )"
        elsif attribute.reference?
          lhs = "#{value}.#{getter_prefix(attribute.referenced_entity.primary_key)}#{attribute.referenced_entity.primary_key.name}()"
-         attribute.imit.primitive?(:transport) ? "#{lhs} == value" : "#{lhs}.equals(value)"
+         attribute.referenced_entity.primary_key.imit.primitive?(:transport, :assume_generated => true) ? "#{lhs} == value" : "#{lhs}.equals(value)"
        else
          "#{value}.equals( value )"
        end

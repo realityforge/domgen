@@ -104,19 +104,20 @@ module Domgen
         end
       end
 
-      def primitive?(characteristic, group_type, modality = :default)
+      def primitive?(characteristic, group_type, modality = :default, options = {})
         check_modality(modality)
         return false if characteristic.collection?
         return false if characteristic.nullable?
-        return false if (characteristic.respond_to?(:generated_value?) && characteristic.generated_value?)
+        return false if !options[:assume_generated] && (characteristic.respond_to?(:generated_value?) && characteristic.generated_value?)
         return true if :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
 
         characteristic_type = characteristic.characteristic_type
         return true if characteristic_type && characteristic.characteristic_type.java.primitive_type?
 
-        return false unless characteristic.reference? && :default != modality
+        return false unless characteristic.reference?
+        return false if :default == modality
 
-        return primitive?(characteristic.referenced_entity.primary_key, group_type, modality)
+        return primitive?(characteristic.referenced_entity.primary_key, group_type, modality, options)
       end
 
       def java_component_type(characteristic, group_type, modality = :default)
@@ -297,8 +298,8 @@ module Domgen
         Domgen::Java.non_primitive_java_type(characteristic, group_type, modality)
       end
 
-      def primitive?(modality = :default)
-        Domgen::Java.primitive?(characteristic, group_type, modality)
+      def primitive?(modality = :default, options = {})
+        Domgen::Java.primitive?(characteristic, group_type, modality, options)
       end
 
       def primitive_java_type(modality = :default)
