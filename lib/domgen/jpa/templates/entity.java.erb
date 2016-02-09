@@ -178,19 +178,19 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         op_prefix = ''
         if lhs.date? || lhs.datetime?
           if '=' == op
-            op = ".equals"
+            op = '.equals'
           elsif '!=' == op
-            op = ".equals"
+            op = '.equals'
             op_prefix = '!'
           elsif '>' == op
-            op = ".after"
+            op = '.after'
           elsif '<=' == op
-            op = ".after"
+            op = '.after'
             op_prefix = '!'
           elsif '<' == op
-            op = ".before"
+            op = '.before'
           elsif '>=' == op
-            op = ".before"
+            op = '.before'
             op_prefix = '!'
           end
         end
