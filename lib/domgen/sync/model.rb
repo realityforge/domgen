@@ -69,6 +69,47 @@ module Domgen
           t.string(:Code, 5, :primary_key => true)
         end unless master_data_module.entity_by_name?(self.mapping_source_attribute)
 
+        master_data_module.service(:SyncTempPopulationService) do |s|
+          s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+          if s.ejb?
+            s.ejb.generate_boundary = false
+            s.ejb.standard_implementation = false
+          end
+
+          s.method(:PreSync) do |m|
+            m.text(:MappingSourceCode)
+          end
+          s.method(:PostSync) do |m|
+            m.text(:MappingSourceCode)
+          end
+
+          master_data_module.sync.entities_to_synchronize.collect do |entity|
+            s.method("Count#{entity.qualified_name.gsub('.', '')}") do |m|
+              m.text(:MappingSourceCode)
+              m.returns(:integer)
+            end
+            s.method("Verify#{entity.qualified_name.gsub('.', '')}") do |m|
+              m.text(:MappingSourceCode)
+              m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
+            end
+            s.method("Populate#{entity.qualified_name.gsub('.', '')}") do |m|
+              m.text(:MappingSourceCode)
+              m.datetime(:At)
+              m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
+            end
+            s.method("Reset#{entity.qualified_name.gsub('.', '')}") do |m|
+              m.text(:MappingSourceCode)
+              m.datetime(:At)
+              m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
+            end
+            s.method("Finalize#{entity.qualified_name.gsub('.', '')}") do |m|
+              m.text(:MappingSourceCode)
+              m.datetime(:At)
+              m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
+            end
+          end
+        end unless master_data_module.service_by_name?(:SyncTempPopulationService)
+
         if self.sync_out_of_master?
           master_data_module.service(:SynchronizationService) do |s|
             s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
@@ -78,47 +119,6 @@ module Domgen
               m.returns('iris.syncrecord.server.data_type.SyncStatusDTO')
             end
           end unless master_data_module.service_by_name?(:SynchronizationService)
-
-          master_data_module.service(:SyncTempPopulationService) do |s|
-            s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
-            if s.ejb?
-              s.ejb.generate_boundary = false
-              s.ejb.standard_implementation = false
-            end
-
-            s.method(:PreSync) do |m|
-              m.text(:MappingSourceCode)
-            end
-            s.method(:PostSync) do |m|
-              m.text(:MappingSourceCode)
-            end
-
-            master_data_module.sync.entities_to_synchronize.collect do |entity|
-              s.method("Count#{entity.qualified_name.gsub('.', '')}") do |m|
-                m.text(:MappingSourceCode)
-                m.returns(:integer)
-              end
-              s.method("Verify#{entity.qualified_name.gsub('.', '')}") do |m|
-                m.text(:MappingSourceCode)
-                m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
-              end
-              s.method("Populate#{entity.qualified_name.gsub('.', '')}") do |m|
-                m.text(:MappingSourceCode)
-                m.datetime(:At)
-                m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
-              end
-              s.method("Reset#{entity.qualified_name.gsub('.', '')}") do |m|
-                m.text(:MappingSourceCode)
-                m.datetime(:At)
-                m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
-              end
-              s.method("Finalize#{entity.qualified_name.gsub('.', '')}") do |m|
-                m.text(:MappingSourceCode)
-                m.datetime(:At)
-                m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
-              end
-            end
-          end unless master_data_module.service_by_name?(:SyncTempPopulationService)
 
           master_data_module.service(:SynchronizationContext) do |s|
             s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
