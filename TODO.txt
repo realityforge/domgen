@@ -23,6 +23,9 @@
   required facets for the facets passed in the parameter.
 * Convert service layer to using json+http services.
 
+= Sync
+
+* Complete the bulk sync action when don't care about replication or in memory activity
 * Convert Sync code to use the generated views for joins against non-final entities
 
 = Domgen/Replicant

@@ -165,6 +165,25 @@ module Domgen
                 m.text(:MappingSourceCode)
                 m.returns(:text)
               end
+              if entity.sync.update_via_sync?
+                # The following methods are an in progress implementation of bulk sync actions
+                s.method(:"GetSqlToDirectlyUpdate#{entity.data_module.name}#{entity.name}") do |m|
+                  m.text(:MappingSourceCode)
+                  m.returns(:text)
+                end
+                s.method(:"GetSqlToMarkUpdated#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
+                  m.text(:MappingSourceCode)
+                  m.returns(:text)
+                end
+              end
+              s.method(:"GetSqlToDirectlyDelete#{entity.data_module.name}#{entity.name}") do |m|
+                m.text(:MappingSourceCode)
+                m.returns(:text)
+              end
+              s.method(:"GetSqlToMarkDeleted#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
+                m.text(:MappingSourceCode)
+                m.returns(:text)
+              end
               s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToRemove") do |m|
                 m.text(:MappingSourceCode)
                 m.returns(:text)

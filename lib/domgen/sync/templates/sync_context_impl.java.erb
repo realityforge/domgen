@@ -144,6 +144,69 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   end
 
 -%>
+<% if entity.sync.update_via_sync? -%>
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getSqlToDirectlyUpdate<%= fn %>( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+<%   attr_set = entity.sync.attributes_to_update.collect {|a| a.sql.quoted_column_name } -%>
+    return
+      "UPDATE O\n" +
+      "SET\n" +
+      "  <%= j_escape_string(attr_set.collect{|a| "#{a} = M.#{a}"}.join(", ")) -%>\n" +
+      "FROM <%= j_escape_string( entity.sql.qualified_table_name ) %> O \n" +
+      "JOIN ( \n" +
+      getSqlToRetrieve<%= fn %>ListToUpdate( mappingSourceCode ) + "\n" +
+      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getSqlToMarkUpdated<%= fn %>AsSynchronized( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+    return
+      "UPDATE O\n" +
+      "SET\n" +
+      "  <%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql}") -%>\n" +
+      "FROM <%= j_escape_string( table ) %> O \n" +
+      "JOIN ( \n" +
+      getSqlToRetrieve<%= fn %>ListToUpdate( mappingSourceCode ) + "\n" +
+      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
+  }
+
+<% end -%>
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getSqlToDirectlyDelete<%= fn %>( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+    return
+<% if entity.sync.transaction_time? -%>
+      "UPDATE O\n" +
+      "SET\n" +
+      "  <%= j_escape_string(entity.attribute_by_name(:DeletedAt).sql.quoted_column_name) %> = GETDATE()\n" +
+<% else -%>
+      "DELETE O\n" +
+<% end -%>
+      "FROM <%= j_escape_string( entity.sql.qualified_table_name ) %> O \n" +
+      "JOIN ( \n" +
+      getSqlToRetrieve<%= fn %>ListToRemove( mappingSourceCode ) + "\n" +
+      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getSqlToMarkDeleted<%= fn %>AsSynchronized( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+    return
+      "UPDATE O\n" +
+      "SET\n" +
+      "  <%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql}") -%>\n" +
+      "FROM <%= j_escape_string( table ) %> O \n" +
+      "JOIN ( \n" +
+      getSqlToRetrieve<%= fn %>ListToRemove( mappingSourceCode ) + "\n" +
+      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
+  }
+
   @javax.annotation.Nonnull
   @java.lang.Override
   public String getSqlToRetrieve<%= fn %>ListToUpdate( @javax.annotation.Nonnull final String mappingSourceCode )
