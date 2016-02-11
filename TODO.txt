@@ -1,4 +1,3 @@
-* Imit: Generate events for subscriptions starting and completing on the client side.
 * JWS: Add ability to document wsdl
 * Generate documentation indicating the template groups, contained artifacts, facet list, facet configurations
   etc from metadata attached to code.
@@ -28,6 +27,7 @@
 
 = Domgen/Replicant
 
+* Imit: Generate events for subscriptions starting and completing on the client side.
 * Avoid sending out "changes" for entities that have not changed. Do this by caching entity on load
   and comparing to cached copy on write? Make it opt-in for each replicant system?
 * After above is implemented consider incremental changes. (Or may need both Full and partial updates
