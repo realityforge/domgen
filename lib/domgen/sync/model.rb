@@ -348,8 +348,7 @@ module Domgen
 
       def attributes_to_synchronize
         entity.sync.master_entity.attributes.select do |a|
-          a.sync? && !a.primary_key? && ![:MasterSynchronized].include?(a.name) &&
-          (!entity.sync.transaction_time? || ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name)) &&
+          a.sync? && !a.primary_key? && ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) &&
             !(a.reference? && !a.referenced_entity.sync.master?)
         end
       end
