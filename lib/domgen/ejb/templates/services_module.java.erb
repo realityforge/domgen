@@ -39,7 +39,7 @@ public class <%= repository.ejb.services_module_name %>
 
   protected void bind<%= service.qualified_name.to_s.gsub('.','') %>()
   {
-    bindService( "<%= service.ejb.qualified_service_name %>", "<%= service.ejb.qualified_service_name %>EJB" );
+    bindService( "<%= service.ejb.qualified_service_name %>", "<%= service.ejb.qualified_service_implementation_name %>" );
   }
 <%
       end

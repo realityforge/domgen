@@ -100,11 +100,16 @@ module Domgen
         "#{service.data_module.repository.name}.#{service.ejb.boundary_name}"
       end
 
+      def implementation_suffix
+        service.data_module.repository.ee.use_cdi? ? 'Impl' : 'EJB'
+      end
+
       java_artifact :service, :service, :server, :ee, '#{service.name}'
+      java_artifact :service_implementation, :service, :server, :ee, '#{service.name}#{implementation_suffix}'
       java_artifact :boundary_interface, :service, :server, :ee, 'Local#{service_name}Boundary'
       java_artifact :remote_service, :service, :server, :ee, 'Remote#{service_name}'
-      java_artifact :boundary_implementation, :service, :server, :ee, '#{service_name}BoundaryEJB', :sub_package => 'internal'
-      java_artifact :service_test, :service, :server, :ee, 'Abstract#{service_name}EJBTest'
+      java_artifact :boundary_implementation, :service, :server, :ee, '#{service_name}Boundary#{implementation_suffix}', :sub_package => 'internal'
+      java_artifact :service_test, :service, :server, :ee, 'Abstract#{service_name}#{implementation_suffix}Test'
 
       def qualified_concrete_service_test_name
         "#{qualified_service_test_name.gsub(/\.Abstract/,'.')}"

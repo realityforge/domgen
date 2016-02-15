@@ -16,8 +16,8 @@ public abstract class <%= service.ejb.service_test_name %>
     return s( <%= service.ejb.qualified_service_name %>.class );
   }
 
-  protected final <%= service.ejb.qualified_service_name %>EJB ejb()
+  protected final <%= service.ejb.qualified_service_implementation_name %> <%= service.data_module.repository.ee.use_cdi? ? 'impl' : 'ejb' -%>()
   {
-    return toObject( <%= service.ejb.qualified_service_name %>EJB.class, service() );
+    return toObject( <%= service.ejb.qualified_service_implementation_name %>.class, service() );
   }
 }
