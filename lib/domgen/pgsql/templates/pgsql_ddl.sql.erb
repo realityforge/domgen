@@ -25,8 +25,7 @@ ALTER TABLE <%= entity.sql.qualified_table_name %> ALTER COLUMN <%= a.sql.quoted
 <% end %>
 <% entity.sql.indexes.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %>INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %><%= index.gist? ? ' USING GIST ' : '' %>
-(<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(",") %>
-)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(",") %> )<% end %>
+(<%= (index.attribute_names + index.include_attribute_names).collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(",") %>)
 <% if index.filter %>WHERE <%= index.filter %><% end %>;
 
 <% if index.cluster? %>
