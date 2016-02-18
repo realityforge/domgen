@@ -96,7 +96,7 @@ else
 end
 }"}.join(', ') }") %> " +
       "<%= j_escape_string(" FROM #{ entity.sync.master_entity.sql.qualified_table_name } M ") %>" +
-      "<%= j_escape_string(" JOIN #{ entity.sync.sync_temp_entity.sql.qualified_table_name } T ON M.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND M.#{ entity.sync.master_entity.attribute_by_name(:MappingKey).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name} AND M.#{entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name }") %>" +
+      "<%= j_escape_string(" JOIN #{ entity.sync.sync_temp_entity.sql.qualified_table_name } T ON M.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND M.#{ entity.sync.master_entity.attribute_by_name(:MappingKey).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name} AND M.#{entity.sync.master_entity.attribute_by_name(:MappingID).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name } AND M.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ") %>" +
 <% reference_index = 0 -%>
 <%
   entity.sync.attributes_to_synchronize.select{|a| a.reference? }.each do |a|
