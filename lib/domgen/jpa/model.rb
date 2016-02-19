@@ -311,6 +311,14 @@ module Domgen
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
+      def track_changes?
+        @track_changes.nil? ? entity.imit? && entity.attributes.any?{|a|!a.immutable?} : !!@track_changes
+      end
+
+      def track_changes=(track_changes)
+        @track_changes = track_changes
+      end
+
       attr_writer :table_name
 
       def table_name

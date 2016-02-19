@@ -75,6 +75,8 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 
 <% if !entity.extends %>
   @javax.persistence.Transient
+  private boolean _loaded;
+  @javax.persistence.Transient
   private boolean _removed;
 <% end %>
 <% entity.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= Domgen::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
@@ -82,6 +84,14 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
   end
    entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? }.each do |attribute| %>
 <%= j_jpa_field_attributes(attribute) -%>  private <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>;
+<% if !attribute.immutable? && entity.jpa.track_changes? -%>
+  @javax.persistence.Transient
+  private <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>Original;
+<% if attribute.jpa.fetch_type == :lazy -%>
+  @javax.persistence.Transient
+  private boolean <%= attribute.jpa.field_name %>Recorded;
+<% end -%>
+<% end -%>
 <% end %>
 <% entity.referencing_attributes.
   select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa? && attribute.inverse.jpa.traversable? }.
@@ -91,7 +101,12 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= j_declared_attribute_and_relation_accessors(entity) %>
 <%= j_equals_method(entity) %>
 <%= j_to_string_methods(entity) -%>
+
 <% if !entity.extends -%>
+  protected final boolean loaded()
+  {
+    return _loaded;
+  }
 
   protected final boolean removed()
   {
@@ -104,6 +119,49 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
     {
       throw new IllegalStateException( "Attempting to manipulate entity that has been removed" );
     }
+  }
+<% end -%>
+
+<% if entity.jpa.track_changes? -%>
+  @javax.persistence.PostLoad
+  protected void postLoad()
+  {
+<% if entity.extends -%>
+    super.postLoad();
+<% else -%>
+    _loaded = true;
+<% end -%>
+<% entity.declared_attributes.select { |a| !a.immutable? && !a.abstract? && a.jpa? && a.jpa.persistent? && a.jpa.fetch_type == :eager }.each do |attribute| -%>
+    <%= attribute.jpa.field_name %>Original = <%= attribute.jpa.field_name %>;
+<% end -%>
+  }
+
+  public boolean unmodified()
+  {
+    return
+      loaded() &&
+<% if entity.extends -%>
+      super.unmodified() &&
+<% end -%>
+<% entity.declared_attributes.select { |a| !a.immutable? && !a.abstract? && a.jpa? && a.jpa.persistent? && a.jpa.fetch_type == :eager }.each do |attribute| -%>
+<% if attribute.nullable? -%>
+      ((<%= attribute.jpa.field_name %>Original == null &&  <%= attribute.jpa.field_name %> == null) || (<%= attribute.jpa.field_name %>Original != null && <%= attribute.jpa.field_name %>Original.equals( <%= attribute.jpa.field_name %> ) ) &&
+<% elsif attribute.text? || attribute.date? || attribute.datetime? || attribute.geometry? -%>
+      <%= attribute.jpa.field_name %>Original.equals( <%= attribute.jpa.field_name %> ) &&
+<% else -%>
+      <%= attribute.jpa.field_name %>Original == <%= attribute.jpa.field_name %> &&
+<% end -%>
+<% end -%>
+<% entity.declared_attributes.select { |a| !a.immutable? && !a.abstract? && a.jpa? && a.jpa.persistent? && a.jpa.fetch_type == :lazy }.each do |attribute| -%>
+<% if attribute.nullable? -%>
+      (!<%= attribute.jpa.field_name %>Recorded || ((<%= attribute.jpa.field_name %>Original == null &&  <%= attribute.jpa.field_name %> == null) || (<%= attribute.jpa.field_name %>Original != null && <%= attribute.jpa.field_name %>Original.equals( <%= attribute.jpa.field_name %> ) ) ) &&
+<% elsif attribute.text? || attribute.date? || attribute.datetime? || attribute.geometry? -%>
+      (!<%= attribute.jpa.field_name %>Recorded || <%= attribute.jpa.field_name %>Original.equals( <%= attribute.jpa.field_name %> ) ) &&
+<% else -%>
+      (!<%= attribute.jpa.field_name %>Recorded || <%= attribute.jpa.field_name %>Original == <%= attribute.jpa.field_name %> ) &&
+<% end -%>
+<% end -%>
+      true;
   }
 <% end -%>
 

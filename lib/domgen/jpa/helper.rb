@@ -291,8 +291,22 @@ JAVA
 JAVA
 
         end
-        java << <<JAVA
+        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy
+          java << <<JAVA
+     final #{type} value = doGet#{name}();
+     if( !#{attribute.jpa.field_name}Recorded )
+     {
+       #{attribute.jpa.field_name}Original = value;
+       #{attribute.jpa.field_name}Recorded = true;
+     }
+     return value;
+JAVA
+        else
+          java << <<JAVA
      return doGet#{name}();
+JAVA
+        end
+        java << <<JAVA
   }
 
   protected #{type} doGet#{name}()
