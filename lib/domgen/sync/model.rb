@@ -368,10 +368,11 @@ module Domgen
 
       def update_via_sync?
         entity.attributes.select do |a|
-          a.sync? && !a.primary_key? &&
-          (!entity.sync.transaction_time? || ![:CreatedAt, :DeletedAt].include?(a.name)) &&
-            !(a.reference? && !a.referenced_entity.sync.master?)
-        end
+          a.sync? &&
+            !a.primary_key? &&
+            ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) &&
+            !(a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.synchronize?)
+        end.size > 0
       end
 
       def master_data_module
