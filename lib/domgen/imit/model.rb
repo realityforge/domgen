@@ -781,7 +781,8 @@ module Domgen
           (s.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
             s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
           end
-          s.ejb.standard_implementation = false
+          s.ejb.bind_in_tests = false
+          s.ejb.generate_base_test = false
 
           s.method(:RemoveIdleSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30')
 

@@ -148,12 +148,20 @@ module Domgen
         end
       end
 
-      def standard_implementation?
-        @standard_implementation.nil? ? true : !!@standard_implementation
+      def bind_in_tests?
+        @bind_in_tests.nil? ? true : !!@bind_in_tests
       end
 
-      def standard_implementation=(standard_implementation)
-        @standard_implementation = standard_implementation
+      def bind_in_tests=(bind_in_tests)
+        @bind_in_tests = bind_in_tests
+      end
+
+      def generate_base_test?
+        @generate_base_test.nil? ? true : !!@generate_base_test
+      end
+
+      def generate_base_test=(generate_base_test)
+        @generate_base_test = generate_base_test
       end
     end
 
