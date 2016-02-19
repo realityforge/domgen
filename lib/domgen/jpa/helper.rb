@@ -324,7 +324,6 @@ JAVA
       end
 
       def j_add_to_inverse(attribute)
-        name = attribute.jpa.name
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.name
         if !attribute.inverse.jpa.java_traversable?
