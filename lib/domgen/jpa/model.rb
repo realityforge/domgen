@@ -103,7 +103,11 @@ module Domgen
       end
 
       def fetch_type
-        @fetch_type || :lazy
+        @fetch_type || default_fetch_type
+      end
+
+      def default_fetch_type
+        raise 'default_fetch_type not overridden'
       end
 
       def fetch_type=(fetch_type)
@@ -442,6 +446,10 @@ module Domgen
     facet.enhance(Attribute) do
       include Domgen::JPA::BaseJpaField
 
+      def default_fetch_type
+        attribute.reference? ? :lazy : :eager
+      end
+
       attr_writer :persistent
 
       def persistent?
@@ -512,6 +520,10 @@ module Domgen
 
     facet.enhance(InverseElement) do
       include Domgen::JPA::BaseJpaField
+
+      def default_fetch_type
+        :lazy
+      end
 
       attr_writer :orphan_removal
 
