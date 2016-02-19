@@ -73,7 +73,8 @@ module Domgen
           s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
           if s.ejb?
             s.ejb.generate_boundary = false
-            s.ejb.standard_implementation = false
+            s.ejb.bind_in_tests = false
+            s.ejb.generate_base_test = false
           end
 
           s.method(:PreSync) do |m|
@@ -122,7 +123,10 @@ module Domgen
 
           master_data_module.service(:SynchronizationContext) do |s|
             s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
-            s.ejb.generate_boundary = false if s.ejb?
+            if s.ejb?
+              s.ejb.generate_boundary = false
+              s.ejb.generate_base_test = false
+            end
 
             master_data_module.sync.entities_to_synchronize.collect do |e|
               # Assume that the synchronization process will correctly handle
