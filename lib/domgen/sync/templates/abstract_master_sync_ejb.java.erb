@@ -70,6 +70,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
       "<%= j_escape_string(" WHERE S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingID).sql.quoted_column_name} IS NULL AND M.#{entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = ? AND M.#{entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL") %>";
     return getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, mappingSourceCode ).executeUpdate();
   }
+<% if entity.sync.update_via_sync? %>
 
   protected int sync<%= entity.qualified_name.gsub('.','') %>UpdatesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
@@ -180,6 +181,7 @@ end
     return <%= java_command -%>;
 <% end -%>
   }
+<% end %>
 
   protected int sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
@@ -325,6 +327,7 @@ end
       recorder.incMetric( "<%= entity.qualified_name %>.RemoveDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 
+<% if entity.sync.update_via_sync? %>
     {
       final long entityStartAt = System.currentTimeMillis();
       log( recorder, "Synchronizing updates for <%= entity.qualified_name %>" );
@@ -335,6 +338,7 @@ end
       recorder.incMetric( "<%= entity.qualified_name %>.UpdateDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 
+<% end %>
     {
       final long entityStartAt = System.currentTimeMillis();
       log( recorder, "Synchronizing creates for <%= entity.qualified_name %>" );
