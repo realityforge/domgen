@@ -103,8 +103,32 @@ public class <%= dao.jpa.dao_name %>
     return query.executeUpdate();
 <% end -%>
   }
+
 <% end -%>
 <% if dao.repository? -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  public <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> )
+  {
+    final <%= dao.entity.jpa.qualified_name %> $_ = new <%= dao.entity.jpa.qualified_name %>( <%= dao.entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Domgen::Naming.camelize(a.name)}.join(', ') %> );
+<% dao.entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
+    $_.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
+<% end -%>
+    persist( $_ );
+    return $_;
+  }
+
+<% if dao.entity.attributes.any?{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?} -%>
+  @java.lang.Override
+  public void update( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> $_, <%= dao.entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  {
+<% dao.entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
+    $_.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
+<% end -%>
+    persist( $_ );
+  }
+
+<% end -%>
 <% if dao.entity.jpa.detachable? -%>
 
   @java.lang.Override

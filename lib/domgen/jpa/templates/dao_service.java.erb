@@ -10,6 +10,15 @@ public interface <%= dao.jpa.dao_service_name %>
 
 <% end -%>
 <% if dao.repository? -%>
+  /** Create the <%= dao.entity.jpa.qualified_name %> with specified parameters. */
+  @javax.annotation.Nonnull
+  <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> );
+
+<% if dao.entity.attributes.any?{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?} -%>
+  /** Update the <%= dao.entity.jpa.qualified_name %> with specified parameters. */
+  void update( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_, <%= dao.entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>);
+
+<% end -%>
 <% if dao.entity.jpa.detachable? -%>
   /** Remove the given  <%= dao.entity.jpa.qualified_name %> from the persistence context, causing a managed entity to become detached. */
   void detach( <%= dao.entity.jpa.qualified_name %> entity );
