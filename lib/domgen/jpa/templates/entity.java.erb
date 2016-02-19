@@ -90,9 +90,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <%= j_constructors(entity) %>
 <%= j_declared_attribute_and_relation_accessors(entity) %>
 <%= j_equals_method(entity) %>
-<%= j_to_string_methods(entity) %>
+<%= j_to_string_methods(entity) -%>
+<% if !entity.extends -%>
 
-<% if !entity.extends %>
   protected final boolean removed()
   {
     return _removed;
@@ -105,7 +105,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
       throw new IllegalStateException( "Attempting to manipulate entity that has been removed" );
     }
   }
-<% end %>
+<% end -%>
 
   @javax.persistence.PostRemove
   protected void postRemove()
@@ -114,11 +114,11 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
     {
       throw new IllegalStateException( "Attempting to remove already removed entity" );
     }
-<% if entity.extends %>
+<% if entity.extends -%>
     super.postRemove();
-<% else %>
+<% else -%>
     _removed = true;
-<% end %>
+<% end -%>
   }
 
   @javax.persistence.PreRemove
@@ -132,7 +132,6 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         <%= attribute.jpa.field_name %>.remove<%= attribute.inverse.name %>( this );
       }
 <% end %>  }
-
 <%
       entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
