@@ -48,7 +48,7 @@ module Domgen
       end
 
       def getter_prefix(attribute)
-        attribute.boolean? ? "is" : "get"
+        attribute.boolean? ? 'is' : 'get'
       end
 
       def getter_for( attribute, name = nil )
@@ -56,7 +56,7 @@ module Domgen
         "#{getter_prefix(attribute)}#{name}()"
       end
 
-      def description_javadoc_for(element, depth = "  ")
+      def description_javadoc_for(element, depth = '  ')
         description = element.tags[:Description]
         return '' unless description
         return <<JAVADOC
