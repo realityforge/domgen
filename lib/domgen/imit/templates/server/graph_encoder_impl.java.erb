@@ -102,7 +102,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
   {
     if ( null != object )
     {
-      final org.realityforge.replicant.server.EntityMessage message = _messageGenerator.convertToEntityMessage( object, true );
+      final org.realityforge.replicant.server.EntityMessage message = _messageGenerator.convertToEntityMessage( object, true, true );
       if ( null != message )
       {
         messages.merge( message, true );
