@@ -198,7 +198,7 @@ module Domgen
             Logger.debug "Generated #{self.name} for #{element_type} #{object_name} to #{output_filename}"
           end
         rescue => e
-          raise GeneratorError.new("Error generating #{self.name} for #{element_type} #{object_name}", e)
+          raise GeneratorError.new("Error generating #{self.name} for #{element_type} #{object_name} due to '#{e}'", e)
         end
       end
 
