@@ -38,8 +38,8 @@ module Domgen
         s << gen_relation_annotation(attribute, true) if attribute.reference?
         s << gen_column_annotation(attribute)
         s << "  @javax.persistence.Basic( optional = #{attribute.nullable?}, fetch = javax.persistence.FetchType.#{attribute.jpa.fetch_type.to_s.upcase} )\n" unless attribute.reference?
-        s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? "ORDINAL" : "STRING"} )\n" if attribute.enumeration?
-        s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? "TIMESTAMP" : "DATE"} )\n" if attribute.datetime? || attribute.date?
+        s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? 'ORDINAL' : 'STRING'} )\n" if attribute.enumeration?
+        s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? 'TIMESTAMP' : 'DATE'} )\n" if attribute.datetime? || attribute.date?
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
         converter = attribute.jpa.converter
         s << "  @javax.persistence.Convert( converter = #{converter.gsub('$','.')}.class )\n" if converter
@@ -89,7 +89,7 @@ module Domgen
           parameters << "length = #{attribute.length}"
         end
 
-        annotation = attribute.reference? ? "JoinColumn" : "Column"
+        annotation = attribute.reference? ? 'JoinColumn' : 'Column'
         "  @javax.persistence.#{annotation}( #{parameters.join(', ')} )\n"
       end
 
@@ -117,11 +117,11 @@ module Domgen
         #noinspection RubyUnusedLocalVariable
         annotation = nil
         if attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          annotation = "OneToOne"
+          annotation = 'OneToOne'
         elsif declaring_relationship
-          annotation = "ManyToOne"
+          annotation = 'ManyToOne'
         else
-          annotation = "OneToMany"
+          annotation = 'OneToMany'
         end
 
         "  @javax.persistence.#{annotation}( #{parameters.join(", ")} )\n"
@@ -280,7 +280,7 @@ JAVA
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
   {
-     #{attribute.primary_key? ? "":"verifyNotRemoved();"}
+     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
 JAVA
         if attribute.generated_value? && !attribute.nullable?
           java << <<JAVA
