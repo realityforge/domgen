@@ -574,7 +574,14 @@ module Domgen
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
 
             if entity.sync.transaction_time?
-              entity.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+              entity.jpa.create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+              entity.jpa.update_default(:DeletedAt => nil)
+              entity.jpa.update_defaults.each do |defaults|
+                entity.jpa.update_default(defaults.values.merge(:DeletedAt => nil)) do |new_default|
+                  new_default.factory_method_name = defaults.factory_method_name
+                end
+                entity.jpa.remove_update_default(defaults)
+              end
                if entity.imit?
                  attributes = entity.attributes.select{|a|%w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit? }.collect{|a|a.name.to_s}
                  if attributes.size > 0

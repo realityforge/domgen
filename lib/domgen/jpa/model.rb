@@ -39,14 +39,14 @@ module Domgen
   module JPA
     class DefaultValues < Domgen.ParentedElement(:entity)
       def initialize(entity, defaults, options = {}, &block)
-        raise "Attempted to define test_default on abstract entity #{entity.qualified_name}" if entity.abstract?
-        raise "Attempted to define test_default on #{entity.qualified_name} with no values" if defaults.empty?
+        raise "Attempted to define #{default_type} on abstract entity #{entity.qualified_name}" if entity.abstract?
+        raise "Attempted to define #{default_type} on #{entity.qualified_name} with no values" if defaults.empty?
         defaults.keys.each do |key|
-          raise "Attempted to define test_default on #{entity.qualified_name} with key '#{key}' that is not an attribute value" unless entity.attribute_by_name?(key)
+          raise "Attempted to define #{default_type} on #{entity.qualified_name} with key '#{key}' that is not an attribute value" unless entity.attribute_by_name?(key)
           a = entity.attribute_by_name(key)
-          raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute has no jpa facet defined. Defaults = #{defaults.inspect}" unless a.jpa?
-          raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute when non persistent. Defaults = #{defaults.inspect}" unless a.jpa.persistent?
-          raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute when generated. Defaults = #{defaults.inspect}" if a.generated_value?
+          raise "Attempted to define #{default_type} on #{entity.qualified_name} for attribute '#{key}' when attribute has no jpa facet defined. Defaults = #{defaults.inspect}" unless a.jpa?
+          raise "Attempted to define #{default_type} on #{entity.qualified_name} for attribute '#{key}' when attribute when non persistent. Defaults = #{defaults.inspect}" unless a.jpa.persistent?
+          raise "Attempted to define #{default_type} on #{entity.qualified_name} for attribute '#{key}' when attribute when generated. Defaults = #{defaults.inspect}" if a.generated_value?
         end
         values = {}
         defaults.each_pair do |k, v|
@@ -68,13 +68,49 @@ module Domgen
       def values
         @values.dup
       end
+
+      def default_type
+        'default'
+      end
+    end
+
+    class TestDefaultValues < DefaultValues
+      def initialize(entity, defaults, options = {}, &block)
+        super(entity, defaults, options, &block)
+      end
+
+      def default_type
+        'test_default'
+      end
     end
 
     class UpdateDefaultValues < DefaultValues
+      def initialize(entity, defaults, options = {}, &block)
+        super(entity, defaults, options, &block)
+      end
+
       attr_writer :factory_method_name
 
       def factory_method_name
-        @factory_method_name.nil? ? "update#{entity.name}" : @factory_method_name
+        @factory_method_name.nil? ? self.default_factory_method_name : @factory_method_name
+      end
+
+      def default_factory_method_name
+        'update'
+      end
+    end
+
+    class TestUpdateDefaultValues < UpdateDefaultValues
+      def initialize(entity, defaults, options = {}, &block)
+        super(entity, defaults, options, &block)
+      end
+
+      def default_type
+        'test_default'
+      end
+
+      def default_factory_method_name
+        "update#{entity.name}"
       end
 
       def force_refresh?
@@ -356,22 +392,52 @@ module Domgen
         @entity_listeners ||= []
       end
 
-      def test_create_default(defaults)
-        (@test_create_defaults ||= []) << Domgen::JPA::DefaultValues.new(entity, defaults)
+      def test_create_default(defaults, options = {}, &block)
+        default_values = Domgen::JPA::TestDefaultValues.new(entity, defaults, options, &block)
+        (@test_create_defaults ||= []) << default_values
+        default_values
       end
 
       def test_create_defaults
         @test_create_defaults.nil? ? [] : @test_create_defaults.dup
       end
 
-      def test_update_default(defaults, options = {})
-        test_config = Domgen::JPA::UpdateDefaultValues.new(entity, defaults, options)
-        (@test_update_defaults ||= []) << test_config
-        test_config
+      def test_update_default(defaults, options = {}, &block)
+        default_values = Domgen::JPA::TestUpdateDefaultValues.new(entity, defaults, options, &block)
+        (@test_update_defaults ||= []) << default_values
+        default_values
       end
 
       def test_update_defaults
         @test_update_defaults.nil? ? [] : @test_update_defaults.dup
+      end
+
+      def create_default(defaults, options = {}, &block)
+        default_values = Domgen::JPA::DefaultValues.new(entity, defaults, options, &block)
+        (@create_defaults ||= []) << default_values
+        default_values
+      end
+
+      def create_defaults
+        @create_defaults.nil? ? [] : @create_defaults.dup
+      end
+
+      def remove_create_defaults(defaults)
+        @create_defaults.delete(defaults)
+      end
+
+      def update_default(defaults, options = {}, &block)
+        default_values = Domgen::JPA::UpdateDefaultValues.new(entity, defaults, options, &block)
+        (@update_defaults ||= []) << default_values
+        default_values
+      end
+
+      def update_defaults
+        @update_defaults.nil? ? [] : @update_defaults.dup
+      end
+
+      def remove_update_default(defaults)
+        @update_defaults.delete(defaults)
       end
 
       attr_writer :default_jpql_criterion
