@@ -96,9 +96,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       {
         final long entityStartAt = System.currentTimeMillis();
         log( mappingSourceCode, "Synchronizing <%= entity.qualified_name %> adds and updates" );
-<% if entity.sync.update_via_sync? -%>
         synchronize<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
-<% end -%>
         mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( mappingSourceCode, recorder );
         final int addCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount" ).get();
         log( mappingSourceCode, "Added " + addCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
@@ -137,7 +135,7 @@ public class <%= data_module.sync.sync_ejb_name %>
     final String prefix = mappingSourceCode + ": ";
     LOG.log( java.util.logging.Level.INFO, prefix + message, t );
   }
-<% data_module.sync.entities_to_synchronize.select{|e|e.sync.update_via_sync?}.each do |entity| -%>
+<% data_module.sync.entities_to_synchronize.each do |entity| -%>
 
   @java.lang.SuppressWarnings( "unchecked" )
   @javax.annotation.Nonnull
@@ -254,7 +252,11 @@ public class <%= data_module.sync.sync_ejb_name %>
         }
         else
         {
+<% if entity.sync.update_via_sync? -%>
           entity = _<%= entity.data_module.name %><%= entity.name %>Repository.getBy<%= entity.primary_key.name %>( v_<%= entity.primary_key.name %> );
+<% else -%>
+          throw new java.lang.IllegalStateException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
+<% end -%>
         }
 <% attr.select{|a|!a.immutable?}.each do |a| -%>
         {
@@ -282,6 +284,7 @@ public class <%= data_module.sync.sync_ejb_name %>
         }
         else
         {
+<% if entity.sync.update_via_sync? -%>
           _entityManager.
             createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('MappingID') } = ? AND #{ data_module.sql.dialect.quote('MappingSource') } = ?") %>" ).
             setParameter( 1, true ).
@@ -289,6 +292,9 @@ public class <%= data_module.sync.sync_ejb_name %>
             setParameter( 3, mappingSourceCode ).
             executeUpdate();
           recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount", 1 );
+<% else -%>
+          throw new java.lang.IllegalStateException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
+<% end -%>
         }
         _entityManager.flush();
         _entityManager.getEntityManagerFactory().getCache().evictAll();
