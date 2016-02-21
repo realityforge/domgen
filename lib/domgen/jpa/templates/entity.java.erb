@@ -178,19 +178,23 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
     _removed = true;
 <% end -%>
   }
+<%
+  attributes_to_delink_in_remove =
+    entity.declared_attributes.select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.java_traversable? && attribute.inverse.jpa.traversable? }
+  if attributes_to_delink_in_remove.size > 0
+%>
 
   @javax.persistence.PreRemove
   protected void preRemove()
   {
-<% entity.declared_attributes.
-  select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.java_traversable? && attribute.inverse.jpa.traversable? }.
-  each do |attribute|
-%>    if ( null != <%= attribute.jpa.field_name %> )
+<% attributes_to_delink_in_remove.each do |attribute| -%>
+      if ( null != <%= attribute.jpa.field_name %> )
       {
         <%= attribute.jpa.field_name %>.remove<%= attribute.inverse.name %>( this );
       }
 <% end -%>
   }
+<% end -%>
 <%
       entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
