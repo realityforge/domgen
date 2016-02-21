@@ -189,7 +189,8 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
       {
         <%= attribute.jpa.field_name %>.remove<%= attribute.inverse.name %>( this );
       }
-<% end %>  }
+<% end -%>
+  }
 <%
       entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
