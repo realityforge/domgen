@@ -31,14 +31,14 @@ public class <%= dao.jpa.dao_name %>
   db_result_java_type = method_result_java_type || (dao.repository? ? query.entity.jpa.qualified_name : 'java.lang.Object')
   -%>
   @java.lang.Override
-  public <%= query_result_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p|  "#{annotated_type(p, :jpa, :default, :final => true)} #{p.name}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
+  public <%= query_result_type(query) %> <%= Domgen::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p|  "#{annotated_type(p, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(p.name)}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
     final javax.persistence.TypedQuery<<%= db_result_java_type %>> query =
       em.createNamedQuery( <%= dao.repository? ? "#{query.entity.jpa.qualified_name}." : '' %><%= Domgen::Naming.uppercase_constantize(query.name) %>, <%= db_result_java_type %>.class );
 <%
    if !query.jpa.native?
     query.parameters.each do |p|
-%>    query.setParameter( <%= "\"#{p.name}\"" %>, <%= p.name %> );
+%>    query.setParameter( <%= "\"#{p.name}\"" %>, <%= Domgen::Naming.camelize(p.name) %> );
 <%  end
    else -%>
 <%  query.parameters.each_with_index do |p, index|
@@ -50,9 +50,9 @@ public class <%= dao.jpa.dao_name %>
     elsif p.enumeration? && p.enumeration.numeric_values?
       param_suffix = ".ordinal()"
     end
-    param_value = "#{p.name}#{param_suffix}"
+    param_value = "#{Domgen::Naming.camelize(p.name)}#{param_suffix}"
     if param_suffix && p.nullable?
-      param_value = "null == #{p.name} ? null : #{param_value}"
+      param_value = "null == #{Domgen::Naming.camelize(p.name)} ? null : #{param_value}"
     end
 -%>
     query.setParameter( <%= index + 1 %>, <%= param_value %> );
