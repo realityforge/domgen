@@ -154,7 +154,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 <% end -%>
 <% entity.declared_attributes.select { |a| !a.immutable? && !a.abstract? && a.jpa? && a.jpa.persistent? && a.jpa.fetch_type == :lazy }.each do |attribute| -%>
 <% if attribute.nullable? -%>
-      (!<%= attribute.jpa.field_name %>Recorded || ((<%= attribute.jpa.field_name %>Original == null &&  <%= attribute.jpa.field_name %> == null) || (<%= attribute.jpa.field_name %>Original != null && <%= attribute.jpa.field_name %>Original.equals( <%= attribute.jpa.field_name %> ) ) ) &&
+      (!<%= attribute.jpa.field_name %>Recorded || ((<%= attribute.jpa.field_name %>Original == null &&  <%= attribute.jpa.field_name %> == null) || (<%= attribute.jpa.field_name %>Original != null && <%= attribute.jpa.field_name %>Original.equals( <%= attribute.jpa.field_name %> ) ) ) ) &&
 <% elsif attribute.text? || attribute.date? || attribute.datetime? || attribute.geometry? -%>
       (!<%= attribute.jpa.field_name %>Recorded || <%= attribute.jpa.field_name %>Original.equals( <%= attribute.jpa.field_name %> ) ) &&
 <% else -%>
