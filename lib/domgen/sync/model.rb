@@ -473,6 +473,7 @@ module Domgen
 
           self.entity.sync.master_entity = e
           e.sync.core_entity = self
+          e.sync.transaction_time = self.entity.sync.transaction_time?
           e.abstract = self.entity.abstract?
           e.final = self.entity.final?
           e.extends = self.entity.extends
