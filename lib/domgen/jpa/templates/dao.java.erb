@@ -21,6 +21,10 @@ public class <%= dao.jpa.dao_name %>
   private final <%= converter %> _<%= result_type %>Converter = new <%= converter %>();
 <% end -%>
 <% end -%>
+<% dao.entity.referencing_attributes.select{|a|a.jpa? && a.entity != dao.entity}.collect{|a|a.entity}.uniq.sort{|a,b| a.qualified_name.to_s <=> b.qualified_name.to_s }.each do |entity| -%>
+  @javax.inject.Inject
+  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Domgen::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository;
+<% end -%>
   @javax.persistence.PersistenceContext( unitName = <%= dao.jpa.persistence_unit_name.nil? ? "#{dao.data_module.repository.jpa.qualified_unit_descriptor_name}.NAME" : "\"#{dao.jpa.persistence_unit_name}\"" %> )
   private javax.persistence.EntityManager em;
 
@@ -116,6 +120,46 @@ public class <%= dao.jpa.dao_name %>
 <% end -%>
     persist( $_ );
     return $_;
+  }
+
+  @java.lang.Override
+  public void delete( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> $_ )
+  {
+<% dao.entity.referencing_attributes.select{|a|a.jpa? && a.inverse.multiplicity != :many}.each do |a|
+  repository_prefix = a.entity == dao.entity ? '' : "_#{Domgen::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
+-%>
+    {
+      final <%= a.entity.jpa.qualified_name %> other = <%= a.inverse.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}find#{a.entity.sync? && a.entity.sync.transaction_time? ? 'Undeleted' : ''}By#{a.inverse.name}( $_ )" -%>;
+      if( null != other )
+      {
+<% if a.nullable? && !a.immutable? && !a.set_once? -%>
+        other.set<%= a.name %>( null );
+<% else -%>
+        <%= repository_prefix %>delete( other );
+<% end -%>
+      }
+    }
+<% end -%>
+<% dao.entity.referencing_attributes.select{|a|a.jpa? && a.inverse.multiplicity == :many}.each do |a|
+  repository_prefix = a.entity == dao.entity ? '' : "_#{Domgen::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
+-%>
+    {
+      for ( final <%= a.entity.jpa.qualified_name %> other : new java.util.ArrayList<>( <%= a.inverse.traversable? ? "$_.#{getter_for(a, Domgen::Naming.pluralize(a.inverse.name))}" : "#{repository_prefix}findAll#{a.entity.sync? && a.entity.sync.transaction_time? ? 'Undeleted' : ''}By#{a.name}( $_ )" -%> ) )
+      {
+<% if a.nullable? && !a.immutable? && !a.set_once? -%>
+        other.set<%= a.name %>( null );
+<% else -%>
+        <%= repository_prefix %>delete( other );
+<% end -%>
+      }
+    }
+<% end -%>
+<% if dao.entity.sync? && dao.entity.sync.transaction_time? -%>
+    $_.setDeletedAt( new java.util.Date() );
+    persist( $_ );
+<% else -%>
+    remove( $_ );
+<% end -%>
   }
 
 <% dao.entity.jpa.create_defaults.each do |defaults| -%>

@@ -14,6 +14,9 @@ public interface <%= dao.jpa.dao_service_name %>
   @javax.annotation.Nonnull
   <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> );
 
+  /** Delete the <%= dao.entity.jpa.qualified_name %>, recursivly nulling references/deleting dependent entities. */
+  void delete( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_ );
+
 <% dao.entity.jpa.create_defaults.each do |defaults| -%>
   @javax.annotation.Nonnull
   <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> );
