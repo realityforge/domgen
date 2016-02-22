@@ -21,9 +21,11 @@ public class <%= dao.jpa.dao_name %>
   private final <%= converter %> _<%= result_type %>Converter = new <%= converter %>();
 <% end -%>
 <% end -%>
+<% if dao.repository? -%>
 <% dao.entity.referencing_attributes.select{|a|a.jpa? && a.entity != dao.entity}.collect{|a|a.entity}.uniq.sort{|a,b| a.qualified_name.to_s <=> b.qualified_name.to_s }.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Domgen::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository;
+<% end -%>
 <% end -%>
   @javax.persistence.PersistenceContext( unitName = <%= dao.jpa.persistence_unit_name.nil? ? "#{dao.data_module.repository.jpa.qualified_unit_descriptor_name}.NAME" : "\"#{dao.jpa.persistence_unit_name}\"" %> )
   private javax.persistence.EntityManager em;
