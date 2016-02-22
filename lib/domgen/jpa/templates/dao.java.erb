@@ -22,7 +22,7 @@ public class <%= dao.jpa.dao_name %>
 <% end -%>
 <% end -%>
 <% if dao.repository? -%>
-<% dao.entity.referencing_attributes.select{|a|a.jpa? && a.entity != dao.entity}.collect{|a|a.entity}.uniq.sort{|a,b| a.qualified_name.to_s <=> b.qualified_name.to_s }.each do |entity| -%>
+<% dao.entity.referencing_attributes.select{|a|a.jpa? && a.entity != dao.entity}.collect{|a|a.entity.concrete? ? [a.entity] : [a.entity] + a.entity.subtypes.select{|st|st.concrete? && st.jpa?}}.flatten.uniq.sort{|a,b| a.qualified_name.to_s <=> b.qualified_name.to_s }.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Domgen::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository;
 <% end -%>
@@ -112,6 +112,7 @@ public class <%= dao.jpa.dao_name %>
 
 <% end -%>
 <% if dao.repository? -%>
+<% if dao.entity.concrete? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   public <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> )
@@ -131,13 +132,26 @@ public class <%= dao.jpa.dao_name %>
   repository_prefix = a.entity == dao.entity ? '' : "_#{Domgen::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
 -%>
     {
-      final <%= a.entity.jpa.qualified_name %> other = <%= a.inverse.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}find#{a.entity.sync? && a.entity.sync.transaction_time? ? 'Undeleted' : ''}By#{a.inverse.name}( $_ )" -%>;
+      final <%= a.entity.jpa.qualified_name %> other = <%= a.inverse.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}find#{a.entity.sync? && a.entity.sync.transaction_time? ? 'Undeleted' : ''}By#{a.name}( $_ )" -%>;
       if( null != other )
       {
 <% if a.nullable? && !a.immutable? && !a.set_once? -%>
         other.set<%= a.name %>( null );
 <% else -%>
+<% if a.entity.abstract? -%>
+        <% a.entity.subtypes.select{|st|st.concrete? && st.jpa?}.each do |st|
+repository_prefix = st == dao.entity ? '' : "_#{Domgen::Naming.camelize(st.qualified_name.gsub('.',''))}Repository."
+  -%>if( other instanceof <%= st.jpa.qualified_name %> )
+        {
+          <%= repository_prefix %>delete( (<%= st.jpa.qualified_name %>) other );
+        }
+        else <% end %>
+        {
+          throw new java.lang.IllegalStateException( "Unknown subtype: " + other.getClass().getName() + " instance: " + other );
+        }
+<% else -%>
         <%= repository_prefix %>delete( other );
+<% end -%>
 <% end -%>
       }
     }
@@ -151,7 +165,20 @@ public class <%= dao.jpa.dao_name %>
 <% if a.nullable? && !a.immutable? && !a.set_once? -%>
         other.set<%= a.name %>( null );
 <% else -%>
+<% if a.entity.abstract? -%>
+        <% a.entity.subtypes.select{|st|st.concrete? && st.jpa?}.each do |st|
+repository_prefix = st == dao.entity ? '' : "_#{Domgen::Naming.camelize(st.qualified_name.gsub('.',''))}Repository."
+  -%>if( other instanceof <%= st.jpa.qualified_name %> )
+        {
+          <%= repository_prefix %>delete( (<%= st.jpa.qualified_name %>) other );
+        }
+        else <% end %>
+        {
+          throw new java.lang.IllegalStateException( "Unknown subtype: " + other.getClass().getName() + " instance: " + other );
+        }
+<% else -%>
         <%= repository_prefix %>delete( other );
+<% end -%>
 <% end -%>
       }
     }
@@ -195,6 +222,7 @@ public class <%= dao.jpa.dao_name %>
 <% end -%>
     persist( $_ );
   }
+<% end -%>
 <% end -%>
 <% end -%>
 <% if dao.entity.jpa.detachable? -%>

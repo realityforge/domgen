@@ -10,6 +10,7 @@ public interface <%= dao.jpa.dao_service_name %>
 
 <% end -%>
 <% if dao.repository? -%>
+<% if dao.entity.concrete? -%>
   /** Create the <%= dao.entity.jpa.qualified_name %> with specified parameters. */
   @javax.annotation.Nonnull
   <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> );
@@ -33,6 +34,7 @@ public interface <%= dao.jpa.dao_service_name %>
   /** Update the <%= dao.entity.jpa.qualified_name %> with specified parameters. */
   void <%= defaults.factory_method_name %>( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> );
 
+<% end -%>
 <% end -%>
 <% end -%>
 <% if dao.entity.jpa.detachable? -%>
