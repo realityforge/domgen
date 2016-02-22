@@ -173,7 +173,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
         }
       }
 <% end -%>
-<% entity.attributes.select{|a| a.immutable? && !a.primary_key? && a.name != :CreatedAt}.each do |a| %>
+<% entity.attributes.select{|a| a.sync? && a.immutable? && !a.primary_key? && a.name != :CreatedAt}.each do |a| %>
       {
         final String sql =
           "SELECT S.* " +
@@ -207,7 +207,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
         }
       }
 <% end -%>
-<% entity.attributes.select{|a| a.set_once? && !a.primary_key? && a.name != :DeletedAt}.each do |a| %>
+<% entity.attributes.select{|a| a.sync? && a.set_once? && !a.primary_key? && a.name != :DeletedAt}.each do |a| %>
       {
         final String sql =
           "SELECT S.* " +
@@ -261,7 +261,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
         }
       }
 <% end -%>
-<% entity.attributes.select{|a| a.reference?}.each do |a| -%>
+<% entity.attributes.select{|a| a.sync? && a.reference?}.each do |a| -%>
       {
         final String sql =
           "SELECT S.* " +
