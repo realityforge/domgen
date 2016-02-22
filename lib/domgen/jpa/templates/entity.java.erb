@@ -68,17 +68,18 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
   "    implements java.io.Serializable" %>
 {
-<% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_max_length? }.each do |attribute| %>
+<% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
   public static final int <%= Domgen::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
-<% end %>
+<% end -%>
+
   private static final long serialVersionUID = 1;
 
-<% if !entity.extends %>
+<% if !entity.extends -%>
   @javax.persistence.Transient
   private boolean _loaded;
   @javax.persistence.Transient
   private boolean _removed;
-<% end %>
+<% end -%>
 <% entity.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= Domgen::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <%
   end
