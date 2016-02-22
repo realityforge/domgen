@@ -291,7 +291,7 @@ JAVA
 JAVA
 
         end
-        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy
+        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
           java << <<JAVA
      final #{type} value = doGet#{name}();
      if( !#{attribute.jpa.field_name}Recorded )
