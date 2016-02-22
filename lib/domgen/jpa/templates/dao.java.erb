@@ -19,7 +19,7 @@ public class <%= dao.jpa.dao_name %>
   if converter
 -%>
   private final <%= converter %> _<%= result_type %>Converter = new <%= converter %>();
-<% end %>
+<% end -%>
 <% end -%>
   @javax.persistence.PersistenceContext( unitName = <%= dao.jpa.persistence_unit_name.nil? ? "#{dao.data_module.repository.jpa.qualified_unit_descriptor_name}.NAME" : "\"#{dao.jpa.persistence_unit_name}\"" %> )
   private javax.persistence.EntityManager em;
