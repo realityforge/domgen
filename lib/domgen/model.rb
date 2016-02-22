@@ -635,6 +635,10 @@ module Domgen
       @queries.values
     end
 
+    def query_by_name?(name)
+      !!@queries[name.to_s]
+    end
+
     def query(name, options = {}, &block)
       Domgen.error("Attempting to override query #{name} on #{self.name}") if @queries[name.to_s]
       query = Query.new(self, name, options, &block)
@@ -826,6 +830,10 @@ module Domgen
 
     def queries
       dao.queries
+    end
+
+    def query_by_name?(name)
+      dao.query_by_name?(name)
     end
 
     def query(name, options = {}, &block)
