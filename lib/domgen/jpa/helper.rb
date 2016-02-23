@@ -313,7 +313,7 @@ JAVA
         java << <<JAVA
   }
 
-  private #{type} doGet#{name}()
+  protected #{type} doGet#{name}()
   {
 JAVA
         if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
