@@ -474,7 +474,7 @@ module Domgen
           entity_prefix = 'O.'
 
           while true
-            if query_text =~ /(.+[a-z0-9_])(And|Or)([A-Z].*)/
+            if query_text =~ /(.+)(And|Or)([A-Z].*)/
               parameter_name = $3
               operation = $2.upcase
               query_text = $1
