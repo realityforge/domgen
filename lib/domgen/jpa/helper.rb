@@ -229,10 +229,14 @@ JAVA
         j_declared_attribute_accessors(entity) + relation_methods.compact.join("\n")
       end
 
-      def j_return_if_value_same(name, primitive, nullable)
+      def j_return_if_value_same(attribute, field_name, primitive, nullable)
+        accessor = "this.#{field_name}"
+        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy
+          accessor = "doGet#{attribute.name}()"
+        end
         if primitive
           return <<JAVA
-     if( #{name} == value )
+     if( #{accessor} == value )
      {
        return;
      }
@@ -242,25 +246,25 @@ JAVA
      //noinspection ConstantConditions
      if( null == value )
      {
-       throw new NullPointerException( "#{name} parameter is not nullable" );
+       throw new NullPointerException( "#{field_name} parameter is not nullable" );
      }
 
-     if( value.equals( this.#{name} ) )
+     if( value.equals( #{accessor} ) )
      {
        return;
      }
 JAVA
         else
           return <<JAVA
-     if( null != this.#{name} && this.#{name}.equals( value ) )
+     if( null != #{accessor} && #{accessor}.equals( value ) )
      {
        return;
      }
-     else if( null != value && value.equals( this.#{name} ) )
+     else if( null != value && value.equals( #{accessor} ) )
      {
        return;
      }
-     else if( null == this.#{name} && null == value )
+     else if( null == #{accessor} && null == value )
      {
        return;
      }
@@ -309,7 +313,7 @@ JAVA
         java << <<JAVA
   }
 
-  protected #{type} doGet#{name}()
+  private #{type} doGet#{name}()
   {
 JAVA
         if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
@@ -329,7 +333,7 @@ JAVA
           java << <<JAVA
   public void set#{name}( final #{type} value )
   {
-#{j_return_if_value_same(field_name, attribute.jpa.primitive?, attribute.nullable?)}
+#{j_return_if_value_same(attribute, field_name, attribute.jpa.primitive?, attribute.nullable?)}
         this.#{field_name} = value;
   }
 JAVA
@@ -358,8 +362,6 @@ JAVA
       end
 
       def j_reference_attribute(attribute)
-        name = attribute.jpa.name
-        field_name = attribute.jpa.field_name
         type = nullable_annotate(attribute, attribute.jpa.java_type, false)
         java = description_javadoc_for attribute
         java << <<JAVA
@@ -371,18 +373,33 @@ JAVA
 
   protected #{type} doGet#{attribute.jpa.name}()
   {
-    return #{field_name};
+JAVA
+        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
+          java << <<JAVA
+     if( !#{attribute.jpa.field_name}Recorded )
+     {
+       #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
+       #{attribute.jpa.field_name}Recorded = true;
+     }
+     return #{attribute.jpa.field_name};
+JAVA
+        else
+          java << <<JAVA
+    return #{attribute.jpa.field_name};
+JAVA
+        end
+          java << <<JAVA
   }
 
 JAVA
         if attribute.updatable?
           java << <<JAVA
   @java.lang.SuppressWarnings( { "deprecation" } )
-  public void set#{name}( final #{type} value )
+  public void set#{attribute.jpa.name}( final #{type} value )
   {
- #{j_return_if_value_same(field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
+ #{j_return_if_value_same(attribute, attribute.jpa.field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
         #{j_remove_from_inverse(attribute)}
-        this.#{field_name} = value;
+        this.#{attribute.jpa.field_name} = value;
  #{j_add_to_inverse(attribute)}
   }
 JAVA
