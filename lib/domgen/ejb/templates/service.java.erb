@@ -7,9 +7,10 @@ package <%= to_package(service.ejb.qualified_service_name) %>;
 @javax.ejb.Local
 <% end -%>
 public interface <%= service.ejb.service_name %>
-{
-  String NAME = "<%= service.ejb.service_ejb_name %>";
+{<% unless service.data_module.repository.ee.use_cdi? -%>
 
+  String NAME = "<%= service.ejb.service_ejb_name %>";
+<% end -%>
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)
 %>  <%= annotated_type(method.return_value, :ejb, :default) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)<%=
