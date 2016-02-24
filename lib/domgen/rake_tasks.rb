@@ -95,6 +95,7 @@ module Domgen
           file(main_java_dir => [task_name]) do
             mkdir_p main_java_dir
           end
+          buildr_project.compile.using :javac
           buildr_project.compile.from main_java_dir
           # Need to force this as it may have already been cached and thus will not recalculate
           buildr_project.iml.main_generated_source_directories << main_java_dir if buildr_project.iml?
