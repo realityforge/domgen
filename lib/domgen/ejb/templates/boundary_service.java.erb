@@ -7,9 +7,10 @@ package <%= to_package(service.ejb.qualified_boundary_interface_name) %>;
 @javax.ejb.Local
 <% end -%>
 public interface <%= service.ejb.boundary_interface_name %>
-{
-  String NAME = "<%= service.ejb.boundary_ejb_name %>";
+{<% unless service.data_module.repository.ee.use_cdi? -%>
 
+  String NAME = "<%= service.ejb.boundary_ejb_name %>";
+<% end -%>
 <% service.methods.each do |method|
 %><%= description_javadoc_for(method)
 %>  <%= annotated_type(method.return_value, :ejb, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :boundary)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)<%=
