@@ -4,7 +4,7 @@ package <%= to_package(exception.ee.qualified_name) %>;
 <%= description_javadoc_for(exception, "") %>@javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-<% if exception.ejb? && !service.data_module.repository.ee.use_cdi? -%>@javax.ejb.ApplicationException( rollback = <%= exception.ejb.rollback? %>, inherited = true )<% end %>
+<% if exception.ejb? && !exception.data_module.repository.ee.use_cdi? -%>@javax.ejb.ApplicationException( rollback = <%= exception.ejb.rollback? %>, inherited = true )<% end %>
 public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
 {
 <% exception.declared_parameters.each do |parameter| %>
