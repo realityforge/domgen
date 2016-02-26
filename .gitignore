@@ -1,7 +1,7 @@
-/*.iml
+*.iml
 /*.ipr
 /*.iws
 /.rakeTasks
+/patch.diff
 /pkg
 /rdoc
-/patch.diff
