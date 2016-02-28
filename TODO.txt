@@ -23,6 +23,8 @@
   required facets for the facets passed in the parameter.
 * Convert service layer to using json+http services.
 
+* Display WARNING when generators overlap and when generators produce no artifacts - at least if warning mode is enabled.
+
 = Sync
 
 * Complete the bulk sync action when don't care about replication or in memory activity
