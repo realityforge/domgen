@@ -74,7 +74,7 @@ public class <%= repository.imit.client_router_impl_name %>
 -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  public java.util.Map<String, java.io.Serializable> route( @javax.annotation.Nonnull Object entity )
+  public java.util.Map<String, java.io.Serializable> route( @javax.annotation.Nonnull final Object entity )
   {
   <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
@@ -100,7 +100,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 
   @java.lang.Override
   @javax.annotation.Nonnull
-  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull <%= entity.imit.qualified_name %> entity )
+  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.qualified_name %> entity )
   {
     final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<>();
 <% entity.imit.replication_graphs.each do |graph| -%>
@@ -110,7 +110,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   }
 <% entity.imit.replication_graphs.each do |graph| -%>
 
-  private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull <%= entity.imit.qualified_name %> entity )
+  private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull final <%= entity.imit.qualified_name %> entity )
   {
 <% if graph.filtered? -%>
 <%
