@@ -2,7 +2,7 @@
 package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( "unchecked" )
+@java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField" } )
 @javax.ejb.Singleton( name = <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 @javax.ejb.Local( { org.realityforge.replicant.server.ee.rest.ReplicantPollSource.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.ssf.SessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
@@ -46,7 +46,7 @@ entities.uniq.each do |entity| -%>
     }
   }
 
-  @java.lang.SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+  @java.lang.SuppressWarnings( { "PMD.UnusedLocalVariable", "SynchronizationOnLocalVariableOrMethodParameter" })
   @java.lang.Override
   public boolean saveEntityMessages( @javax.annotation.Nullable final String sessionID,
                                      @javax.annotation.Nullable final String requestID,
@@ -197,6 +197,7 @@ entities.uniq.each do |entity| -%>
     return new <%= repository.imit.qualified_session_name %>( java.util.UUID.randomUUID().toString() );
   }
 
+  @java.lang.SuppressWarnings( "PMD.WhileLoopsMustUseBraces" )
   protected void expandLinks( @javax.annotation.Nonnull final <%= repository.imit.qualified_session_name %> session, final org.realityforge.replicant.server.ChangeSet changeSet )
   {
     while( expandLink( session, changeSet) );
@@ -382,6 +383,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   }
 <% end -%>
 
+  @java.lang.SuppressWarnings( "PMD.UnusedFormalParameter" )
   private void populateChangeSetFor<%= graph.name %>( @javax.annotation.Nonnull final <%= repository.imit.qualified_session_name %> session, @javax.annotation.Nullable final java.io.Serializable subChannelID, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final org.realityforge.replicant.server.EntityMessageSet messages<%= graph.filter_parameter.nil? ? '' : ", #{Domgen::Java.java_type(graph.filter_parameter, :ee, :default)} filter" %> )
   {
     changeSet.mergeAll( org.realityforge.replicant.server.ChangeUtil.toChanges( messages.getEntityMessages(), <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>.ordinal(), null == subChannelID ? 0 : subChannelID ) );

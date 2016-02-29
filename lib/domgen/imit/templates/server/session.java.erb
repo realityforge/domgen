@@ -2,6 +2,7 @@
 package <%= to_package(repository.imit.qualified_session_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( "PMD.UnusedPrivateField" )
 public class <%= repository.imit.session_name %>
   extends org.realityforge.replicant.server.transport.ReplicantSession
 {
@@ -169,6 +170,7 @@ else
 %>
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "DE_MIGHT_IGNORE" )
+  @java.lang.SuppressWarnings( "PMD.UnusedLocalVariable" )
   @java.lang.Override
   public void emitStatus( @javax.annotation.Nonnull final javax.json.stream.JsonGenerator g, @javax.annotation.Nonnull final org.realityforge.rest.field_filter.FieldFilter filter )
   {
