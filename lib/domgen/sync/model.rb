@@ -374,6 +374,7 @@ module Domgen
         entity.attributes.select do |a|
           a.sync? &&
             !a.primary_key? &&
+            !a.immutable? &&
             ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) &&
             !(a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.synchronize?)
         end.size > 0
