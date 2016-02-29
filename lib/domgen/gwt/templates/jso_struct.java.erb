@@ -103,7 +103,7 @@ public final class <%= struct.gwt.jso_name %>
         else nil
       end
 %>
-  <%= annotated_type(field, :gwt, :boundary, :final => true, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
+  <%= annotated_type(field, :gwt, :boundary, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
 <% if field.nullable? -%>
     if ( is<%= field.name %>Null0() )
@@ -125,23 +125,23 @@ public final class <%= struct.gwt.jso_name %>
 <% end %>
   }
 
-  private final native com.google.gwt.core.client.JsArray<%= gwt_type_suffix %> <%= getter_prefix(field) %><%= field.name %>0() /*-{
+  private native com.google.gwt.core.client.JsArray<%= gwt_type_suffix %> <%= getter_prefix(field) %><%= field.name %>0() /*-{
     return this.<%= field.json.name %>;
   }-*/;
 
 <% if field.nullable? -%>
-  private final native boolean is<%= field.name %>Null0() /*-{
+  private native boolean is<%= field.name %>Null0() /*-{
     return this.<%= field.json.name %> == null;
   }-*/;
 
 <% end -%>
-  private final native void set<%= field.name %>( com.google.gwt.core.client.JsArray<%= gwt_type_suffix %> value ) /*-{
+  private native void set<%= field.name %>( com.google.gwt.core.client.JsArray<%= gwt_type_suffix %> value ) /*-{
     this.<%= field.json.name %> = value;
   }-*/;
 <%
    elsif field.date?
 %>
-  <%= annotated_type(field, :gwt, :boundary, :final => true, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
+  <%= annotated_type(field, :gwt, :boundary, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
 <% if field.nullable? -%>
     if ( is<%= field.name %>Null0() )
@@ -152,23 +152,23 @@ public final class <%= struct.gwt.jso_name %>
     return org.realityforge.gwt.datatypes.client.date.RDate.parse( <%= getter_prefix(field) %><%= field.name %>0() );
   }
 
-  private final native String <%= getter_prefix(field) %><%= field.name %>0() /*-{
+  private native String <%= getter_prefix(field) %><%= field.name %>0() /*-{
     return this.<%= field.json.name %>;
   }-*/;
 
 <% if field.nullable? -%>
-  private final native boolean is<%= field.name %>Null0() /*-{
+  private native boolean is<%= field.name %>Null0() /*-{
     return this.<%= field.json.name %> == null;
   }-*/;
 
 <% end -%>
-  private final native void set<%= field.name %>( String value ) /*-{
+  private native void set<%= field.name %>( String value ) /*-{
     this.<%= field.json.name %> = value;
   }-*/;
 <%
    elsif field.enumeration?
 %>
-  <%= annotated_type(field, :gwt, :boundary, :final => true, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
+  <%= annotated_type(field, :gwt, :boundary, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
 <% if field.nullable? -%>
     if ( is<%= field.name %>Null0() )
@@ -180,23 +180,23 @@ public final class <%= struct.gwt.jso_name %>
     return <%= field.gwt.java_type %>.<%= field.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{transport_value} ]" %>;
   }
 
-  private final native <%= field.enumeration.textual_values? ? "String" : "int" %> <%= getter_prefix(field) %><%= field.name %>0() /*-{
+  private native <%= field.enumeration.textual_values? ? "String" : "int" %> <%= getter_prefix(field) %><%= field.name %>0() /*-{
     return this.<%= field.json.name %>;
   }-*/;
 
 <% if field.nullable? -%>
-  private final native boolean is<%= field.name %>Null0() /*-{
+  private native boolean is<%= field.name %>Null0() /*-{
     return this.<%= field.json.name %> == null;
   }-*/;
 
 <% end -%>
-  private final native void set<%= field.name %>( <%= field.enumeration.textual_values? ? "String" : "int" %> value ) /*-{
+  private native void set<%= field.name %>( <%= field.enumeration.textual_values? ? 'String':'int'%> value ) /*-{
     this.<%= field.json.name %> = value;
   }-*/;
 <%
    elsif field.integer? && field.nullable?
 %>
-  <%= annotated_type(field, :gwt, :boundary, :final => true, :native => true, :public => true) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
+  <%= annotated_type(field, :gwt, :boundary, :native => true, :public => true) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
     return this.<%= field.json.name %> ? @java.lang.Integer::valueOf(I)( this.<%= field.json.name %> ) : null
   }-*/;
 
@@ -211,7 +211,7 @@ public final class <%= struct.gwt.jso_name %>
 <%
    else
 %>
-  <%= annotated_type(field, :gwt, :boundary, :public => true, :final => true, :native => true) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
+  <%= annotated_type(field, :gwt, :boundary, :public => true, :native => true) %> <%= getter_prefix(field) %><%= field.name %>() /*-{
     return this.<%= field.json.name %>;
   }-*/;
 
