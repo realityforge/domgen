@@ -41,7 +41,7 @@ module Domgen
           raise Domgen::Generator::GeneratorError.new("Missing wsdl #{wsdl_filename} generating #{self.name} for #{element_type} #{object_name}") unless File.exist?(wsdl_filename)
 
           digest = Digest::MD5.hexdigest(IO.read(wsdl_filename))
-          output_dir = "#{base_dir}/#{output_package.gsub(".", "/")}"
+          output_dir = "#{base_dir}/#{output_package.gsub('.', '/')}"
           digest_filename = "#{output_dir}/#{element.name}.wsdl.md5"
           unprocessed_files.delete_if{|f| f =~ /^#{output_dir}\/.*/ }
           unprocessed_files.delete(output_dir)
