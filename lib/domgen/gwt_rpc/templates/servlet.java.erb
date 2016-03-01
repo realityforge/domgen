@@ -2,7 +2,7 @@
 package <%= to_package(service.gwt_rpc.qualified_servlet_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SE_TRANSIENT_FIELD_NOT_RESTORED"})
 @javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.gwt_rpc.api_url %>" } )
 public class <%= service.gwt_rpc.servlet_name %>

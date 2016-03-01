@@ -2,7 +2,7 @@
 package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField" } )
+@java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.CollapsibleIfStatements" } )
 @javax.ejb.Singleton( name = <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 @javax.ejb.Local( { org.realityforge.replicant.server.ee.rest.ReplicantPollSource.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.ssf.SessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )

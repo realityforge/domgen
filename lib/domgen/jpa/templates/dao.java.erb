@@ -3,6 +3,7 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "PMD.UnusedPrivateField" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.<%= Domgen::Naming.uppercase_constantize(dao.jpa.transaction_type.to_s) %> )
 @javax.enterprise.inject.Typed( <%= dao.jpa.qualified_dao_service_name %>.class )

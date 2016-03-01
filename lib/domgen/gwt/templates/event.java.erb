@@ -2,6 +2,7 @@
 package <%= to_package(message.gwt.qualified_event_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "PMD.AddEmptyString" } )
 public final class <%= message.gwt.event_name %>
   extends com.google.gwt.event.shared.GwtEvent<<%= message.gwt.event_name %>.Handler>
 {

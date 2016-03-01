@@ -216,6 +216,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% end %>
   }
 
+  @java.lang.SuppressWarnings( { "PMD.UselessOverridingMethod" } )
   @java.lang.Override
   public void verify()
     throws Exception
@@ -247,6 +248,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 %>
   }
 
+  @java.lang.SuppressWarnings( { "PMD.UselessOverridingMethod" } )
   public void invalidate()
   {
 <% if entity.extends.nil?
