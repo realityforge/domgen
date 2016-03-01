@@ -27,6 +27,7 @@ public enum <%= enumeration.ee.name %>
     return super.ordinal();
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "SIC_INNER_SHOULD_BE_STATIC" } )
   class Deserializer
     extends org.codehaus.jackson.map.JsonDeserializer<<%= enumeration.ee.name %>>
   {
