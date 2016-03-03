@@ -34,7 +34,7 @@ module Domgen
       end
 
       def resource_name
-        "#{Domgen::Naming.underscore(repository.name)}/jms/#{mdb_name}"
+        "#{Domgen::Naming.underscore(method.service.data_module.repository.name)}/jms/#{mdb_name}"
       end
 
       java_artifact :mdb, :service, :server, :ee, '#{method.name}#{method.service.name}MDB', :sub_package => 'internal'
