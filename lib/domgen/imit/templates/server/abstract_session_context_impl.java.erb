@@ -14,8 +14,8 @@ repository.imit.graphs.each do |graph|
       nullable = !graph.instance_root?||!(routing_key.imit_attribute.attribute.entity.qualified_name==graph.instance_root)
       type = Domgen::Java.java_type(routing_key.imit_attribute.attribute, :ee, :boundary)
       type = "java.util.List<#{type}>" if routing_key.multivalued?
-      extra_params += ", #{nullability_annotation(nullable)} final #{type} #{Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))}"
-      extra_args += ", #{Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))}"
+      extra_params += ", #{nullability_annotation(nullable)} final #{type} #{Domgen::Naming.camelize(routing_key.name)}"
+      extra_args += ", #{Domgen::Naming.camelize(routing_key.name)}"
     end
   end
   %>

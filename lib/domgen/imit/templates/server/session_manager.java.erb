@@ -78,7 +78,7 @@ entities.uniq.each do |entity| -%>
   extra_interest_filter = ''
   if graph.filtered?
     graph.routing_keys.each do |routing_key|
-      var_name = Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))
+      var_name = Domgen::Naming.camelize(routing_key.name)
       extra_interest_filter << ", #{var_name}"
       param_type = routing_key.target_attribute.jpa.non_primitive_java_type
       param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
@@ -134,7 +134,7 @@ entities.uniq.each do |entity| -%>
   extra_interest_filter = ''
   if graph.filtered?
     graph.routing_keys.each do |routing_key|
-      var_name = Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))
+      var_name = Domgen::Naming.camelize(routing_key.name)
       extra_interest_filter << ", #{var_name}"
       param_type = routing_key.target_attribute.jpa.non_primitive_java_type
       param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?

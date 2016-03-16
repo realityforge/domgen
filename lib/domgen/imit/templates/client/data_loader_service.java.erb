@@ -79,7 +79,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 <%
   if graph.filtered?
     graph.routing_keys.each do |routing_key|
-      var_name = Domgen::Naming.camelize(routing_key.target_attribute.qualified_name.gsub('.',''))
+      var_name = Domgen::Naming.camelize(routing_key.name)
       nullable = !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
       param_type = routing_key.target_attribute.imit.non_primitive_java_type
       param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
