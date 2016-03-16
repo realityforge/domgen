@@ -301,7 +301,7 @@ module Domgen
 
         # Need to make sure both graphs are instance graphs
         prefix = "Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.name}'"
-        Domgen.error("#{prefix} must have an instance graph on the LHS") unless source_graph.instance_root?
+        Domgen.error("#{prefix} must have an instance graph on the LHS if target graph has filter as we assume filter is propagated") unless source_graph.instance_root? || target_graph.unfiltered?
         Domgen.error("#{prefix} must have an instance graph on the RHS") unless target_graph.instance_root?
 
         # Need to make sure that the other side is the root of the graph
