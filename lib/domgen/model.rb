@@ -1120,6 +1120,10 @@ module Domgen
       super(data_module, options, &block)
     end
 
+    def any_non_standard_types?
+      characteristics_non_standard_types?
+    end
+
     def qualified_name
       "#{data_module.name}.#{self.name}"
     end
