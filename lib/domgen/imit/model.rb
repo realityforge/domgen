@@ -519,6 +519,12 @@ module Domgen
 
       attr_writer :shared_comm_package
 
+      attr_writer :model_module
+
+      def model_module
+        @model_module || "#{repository.java.base_package}/#{repository.name}Model"
+      end
+
       java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
       java_artifact :data_loader_service, :comm, :client, :imit, '#{repository.name}DataLoaderServiceImpl'
