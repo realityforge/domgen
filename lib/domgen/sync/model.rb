@@ -550,6 +550,16 @@ module Domgen
               prefix = a.nullable? ? "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND " : ''
               e.sql.index([name], :filter => "#{prefix}#{e.sql.dialect.quote(:DeletedAt)} IS NULL", :include_attribute_names => [:MappingKey, :MappingID])
             end
+
+            if a.unique?
+              existing_constraint = self.entity.unique_constraints.find do |uq|
+                uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
+              end
+              # Add index filtering out logically deleted entities
+              if existing_constraint.nil?
+                e.sql.index([a.name], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
+              end
+            end
           end
           self.entity.unique_constraints.each do |constraint|
             e.sql.index(constraint.attribute_names, :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
