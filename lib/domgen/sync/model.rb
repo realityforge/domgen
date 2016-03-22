@@ -313,7 +313,7 @@ module Domgen
       end
 
       def references_requiring_manual_sync
-        entity.referencing_attributes.select {|a| (!a.sync? || a.sync.manual_sync?) && a.referenced_entity.sql? }
+        entity.referencing_attributes.select { |a| (!a.sync? || a.sync.manual_sync?) && a.referenced_entity.sql? }
       end
 
       attr_writer :recursive
@@ -367,7 +367,7 @@ module Domgen
       end
 
       def attributes_to_update
-        attributes_to_synchronize.select{|a|!a.immutable?}
+        attributes_to_synchronize.select { |a| !a.immutable? }
       end
 
       def update_via_sync?
@@ -464,7 +464,7 @@ module Domgen
 
             if a.reference?
               filter = a.nullable? ? "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" : nil
-                e.sql.index([:MappingSource, name], :filter => filter, :include_attribute_names => [:MappingKey, :MappingID])
+              e.sql.index([:MappingSource, name], :filter => filter, :include_attribute_names => [:MappingKey, :MappingID])
             end
           end
         end
@@ -591,15 +591,15 @@ module Domgen
                 end
                 entity.jpa.remove_update_default(defaults)
               end
-               if entity.imit?
-                 attributes = entity.attributes.select{|a|%w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit? }.collect{|a|a.name.to_s}
-                 if attributes.size > 0
-                   defaults = {}
-                   defaults[:CreatedAt] = 'new java.util.Date()' if attributes.include?('CreatedAt')
-                   defaults[:DeletedAt] = 'null' if attributes.include?('DeletedAt')
-                   entity.imit.test_create_default(defaults)
-                 end
-               end
+              if entity.imit?
+                attributes = entity.attributes.select { |a| %w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit? }.collect { |a| a.name.to_s }
+                if attributes.size > 0
+                  defaults = {}
+                  defaults[:CreatedAt] = 'new java.util.Date()' if attributes.include?('CreatedAt')
+                  defaults[:DeletedAt] = 'null' if attributes.include?('DeletedAt')
+                  entity.imit.test_create_default(defaults)
+                end
+              end
             end
           end
         end
