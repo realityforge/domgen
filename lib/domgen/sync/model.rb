@@ -559,10 +559,33 @@ module Domgen
               if existing_constraint.nil?
                 e.sql.index([a.name], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
               end
+
+              # Also add it to the original entity, if it is a transaction time entity
+              if entity.sync.transaction_time?
+                existing_constraint = self.entity.unique_constraints.find do |uq|
+                  uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
+                end
+                if existing_constraint.nil?
+                  self.entity.sql.index([a.name], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
+                end
+              end
             end
           end
           self.entity.unique_constraints.each do |constraint|
             e.sql.index(constraint.attribute_names, :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
+          end
+
+          # update indexes in the original entity, if it is a transaction time entity so filtering can be specified
+          if entity.sync.transaction_time?
+            self.entity.sql.indexes.each do |index|
+              next if index.cluster?
+
+              unless index.attribute_names.include?(:DeletedAt) || index.attribute_names.include?(:CreatedAt)
+                unless index.filter && (index.filter =~ Regexp.new(Regexp.escape(e.sql.dialect.quote(:DeletedAt))) || index.filter =~ Regexp.new(Regexp.escape(e.sql.dialect.quote(:CreatedAt))))
+                  index.filter = (index.filter.nil? ? '' : "(#{index.filter}) AND ") + "#{entity.sql.dialect.quote(:DeletedAt)} IS NULL"
+                end
+              end
+            end
           end
 
           unless entity.sync.transaction_time?
