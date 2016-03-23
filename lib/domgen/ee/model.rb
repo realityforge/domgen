@@ -45,6 +45,16 @@ module Domgen
         end
       end
 
+      def beans_xml_fragments
+        @beans_xml_fragments ||= []
+      end
+
+      def resolved_beans_xml_fragments
+        self.beans_xml_fragments.collect do |fragment|
+          repository.resolve_file(fragment)
+        end
+      end
+
       attr_writer :server_event_package
 
       def server_event_package

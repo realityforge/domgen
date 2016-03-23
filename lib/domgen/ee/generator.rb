@@ -59,4 +59,12 @@ Domgen.template_set(:ee_web_xml) do |template_set|
                         Domgen::Generator::EE::HELPERS)
 end
 
+Domgen.template_set(:ee_beans_xml) do |template_set|
+  template_set.template(Domgen::Generator::EE::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/beans.xml.erb",
+                        'main/webapp/WEB-INF/beans.xml',
+                        Domgen::Generator::EE::HELPERS)
+end
+
 Domgen.template_set(:ee => [:jaxrs, :jpa, :ejb, :jmx, :jws, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
