@@ -301,7 +301,7 @@ module Domgen
     protected
 
     def characteristics_non_standard_types?
-      characteristics.all?{|a|a.non_standard_type?}
+      !characteristics.empty? && characteristics.all?{|a|a.non_standard_type?}
     end
 
     def characteristic_by_name(name)
