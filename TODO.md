@@ -26,6 +26,9 @@
   paramater/attribute/etc instances that reference struct.
 * Add a disable_all_but(facet_array for facets that will respect dependencies and will not disable
   required facets for the facets passed in the parameter.
+* Change struct method in domgen to derive name from type and allow override of name, thus eliminating need
+  for the first parameter in most cases.
+* Rename messages in domgen to events as that is more reflective of actual intent. (i.e. Application internal signalling).
 
 ### Services
 
@@ -40,6 +43,7 @@
 
 ### Replicant
 
+* Backport bulk loads from calendar project.
 * Imit: Generate events for subscriptions starting and completing on the client side.
 * After above is implemented consider incremental changes. (Or may need both Full and partial updates
   recorded so different messages are routed to different listeners?)
