@@ -2,9 +2,9 @@
 
 ### General
 
-* JWS: Add ability to document wsdl
 * Generate documentation indicating the template groups, contained artifacts, facet list, facet configurations
   etc from metadata attached to code.
+* Display WARNING when generators overlap and when generators produce no artifacts - at least if warning mode is enabled.
 * When we define the artifacts in the model files, we should also be able to define the "template_group" and
   "artifact type" (ie, main/java vs test/java vs main/resources etc). This would allow us to remove the need
   for generator.rb files.
@@ -26,11 +26,12 @@
   paramater/attribute/etc instances that reference struct.
 * Add a disable_all_but(facet_array for facets that will respect dependencies and will not disable
   required facets for the facets passed in the parameter.
+
+### Services
+
 * Convert service layer to using json+http services.
-
-* Display WARNING when generators overlap and when generators produce no artifacts - at least if warning mode is enabled.
-
 * Add Validation annotations to all service interfaces, including DAO/repositories
+* JWS: Add ability to document wsdl
 
 ### Sync
 
