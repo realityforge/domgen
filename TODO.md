@@ -1,3 +1,7 @@
+## TODO
+
+### General
+
 * JWS: Add ability to document wsdl
 * Generate documentation indicating the template groups, contained artifacts, facet list, facet configurations
   etc from metadata attached to code.
@@ -13,8 +17,7 @@
   generate abstract service with required dependencies and update the uml generated.
 * Add state machine (based on rails gem or erlang library?)
 * Add validation annotations; @NotNull, @Pattern, @Past
-* Add unique constraints in jpa ala
-- http://lucasterdev.altervista.org/wordpress/2012/07/28/unique-constraint-validation-part-1/
+* Add unique constraints in jpa ala - http://lucasterdev.altervista.org/wordpress/2012/07/28/unique-constraint-validation-part-1/
 * Use javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
 * Generate an error when you disable a facet (i.e. json) but it is referenced by a different element
   with a facet that requires the presence of the disabled facet (i.e. the gwt_rpc facet requires the
@@ -29,12 +32,12 @@
 
 * Add Validation annotations to all service interfaces, including DAO/repositories
 
-= Sync
+### Sync
 
 * Complete the bulk sync action when don't care about replication or in memory activity
 * Convert Sync code to use the generated views for joins against non-final entities
 
-= Domgen/Replicant
+### Replicant
 
 * Imit: Generate events for subscriptions starting and completing on the client side.
 * After above is implemented consider incremental changes. (Or may need both Full and partial updates
