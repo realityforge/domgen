@@ -18,7 +18,9 @@
 * Use javax.xml.bind.annotation.XmlSeeAlso in inheritance hierarchies ala Exception/Entity
 * Generate an error when you disable a facet (i.e. json) but it is referenced by a different element
   with a facet that requires the presence of the disabled facet (i.e. the gwt_rpc facet requires the
-  json facet if a struct is referenced from a gwt_rpc enabled method)
+  json facet if a struct is referenced from a gwt_rpc enabled method). Also consider disable facets
+  on referencing elements. i.e. if a facet is disabled on a struct then disable the facet on all the
+  paramater/attribute/etc instances that reference struct.
 * Add a disable_all_but(facet_array for facets that will respect dependencies and will not disable
   required facets for the facets passed in the parameter.
 * Convert service layer to using json+http services.
