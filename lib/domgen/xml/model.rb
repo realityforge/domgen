@@ -61,7 +61,7 @@ module Domgen
       attr_writer :base_namespace
 
       def base_namespace
-        @base_namespace || "http://example.com"
+        @base_namespace || 'http://example.com'
       end
     end
 
