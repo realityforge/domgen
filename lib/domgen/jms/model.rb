@@ -24,6 +24,10 @@ module Domgen
       end
     end
 
+    facet.enhance(Parameter) do
+      attr_accessor :object_factory
+    end
+
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
 
