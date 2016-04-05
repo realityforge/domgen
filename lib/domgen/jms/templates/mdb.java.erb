@@ -1,6 +1,5 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(method.jms.qualified_mdb_name) %>;
-
 <%
 
 config_properties = {}
@@ -89,7 +88,7 @@ public class <%= method.jms.mdb_name %>
 <%
   if parameter
 -%>
-        final javax.jms.TextMessage textMessage = (javax.jms.TextMessage)message;
+        final javax.jms.TextMessage textMessage = (javax.jms.TextMessage) message;
         final String text = textMessage.getText();
         final javax.xml.bind.JAXBContext context = javax.xml.bind.JAXBContext.newInstance( <%= encoded_type %>.class );
         final javax.xml.bind.Unmarshaller marshaller = context.createUnmarshaller();
