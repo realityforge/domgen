@@ -537,7 +537,18 @@ module Domgen
             options[:nullable] = a.nullable? || a.primary_key?
             options[:immutable] = !a.primary_key? && a.immutable?
             options[:set_once] = a.set_once?
-            options[:unique] = a.unique?
+
+            # We can not guarantee that fields will be unique as the ordering of
+            # updates in the synchronization process will not guarantee this condition.
+            # However we generate checks in sync code so this should never happen.
+            # However we can get problems synchronizing from Master into non-Master tables
+            # as ordering can still lead to uniqueness constraints being violated during
+            # the sync process and aborting the sync action. However sync_ejb.java.erb will
+            # continue synchronization for all entities in a type so that hopefully the next
+            # synchronization will allow all entities to flow through. This will not work if
+            # entities have multiple unique fields and there is no ordering of operations that
+            # will allow it to proceed. In this case, administrator intervention is required.
+            options[:unique] = false
 
             e.attribute(name, attribute_type, options)
 
@@ -552,15 +563,7 @@ module Domgen
             end
 
             if a.unique?
-              existing_constraint = self.entity.unique_constraints.find do |uq|
-                uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
-              end
-              # Add index filtering out logically deleted entities
-              if existing_constraint.nil?
-                e.sql.index([a.name], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
-              end
-
-              # Also add it to the original entity, if it is a transaction time entity
+              # If entity is a transaction time entity, and an uniqueness index that filters out logically deleted entities
               if entity.sync.transaction_time?
                 existing_constraint = self.entity.unique_constraints.find do |uq|
                   uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
@@ -570,9 +573,6 @@ module Domgen
                 end
               end
             end
-          end
-          self.entity.unique_constraints.each do |constraint|
-            e.sql.index(constraint.attribute_names, :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
           end
 
           # update indexes in the original entity, if it is a transaction time entity so filtering can be specified

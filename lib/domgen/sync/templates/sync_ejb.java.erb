@@ -172,6 +172,7 @@ public class <%= data_module.sync.sync_ejb_name %>
   private void synchronize<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
+    Exception lastException = null;
 <% if entity.sync.recursive? -%>
     // loop to handle recursive entities
     while( true )
@@ -180,6 +181,12 @@ public class <%= data_module.sync.sync_ejb_name %>
     final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
     if ( results.isEmpty() )
     {
+<% if entity.sync.recursive? -%>
+      if ( null != lastException )
+      {
+        throw lastException;
+      }
+<% end -%>
       return;
     }
     for ( final Object[] result : results )
@@ -303,7 +310,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       {
         recordSyncError( recorder, 1, "Error synchronizing <%= entity.qualified_name %> updates", e );
         _transaction.setRollbackOnly();
-        throw e;
+        lastException = e;
       }
       finally
       {
@@ -322,6 +329,11 @@ public class <%= data_module.sync.sync_ejb_name %>
       }
     }
 <% if entity.sync.recursive? -%>
+    }
+<% else -%>
+    if ( null != lastException )
+    {
+      throw lastException;
     }
 <% end -%>
   }
