@@ -185,7 +185,6 @@ repository_prefix = st == dao.entity ? '' : "_#{Domgen::Naming.camelize(st.quali
 <% end -%>
 <% if dao.entity.sync? && dao.entity.sync.transaction_time? -%>
     $_.setDeletedAt( new java.util.Date() );
-    persist( $_ );
 <% else -%>
     remove( $_ );
 <% end -%>
@@ -207,7 +206,6 @@ repository_prefix = st == dao.entity ? '' : "_#{Domgen::Naming.camelize(st.quali
 <% dao.entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
     $_.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
 <% end -%>
-    persist( $_ );
   }
 <% dao.entity.jpa.update_defaults.each do |defaults|
     attr = dao.entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent? && (!defaults.has_attribute?(a.name) || !defaults.value_for(a.name).nil?)}
@@ -220,7 +218,6 @@ repository_prefix = st == dao.entity ? '' : "_#{Domgen::Naming.camelize(st.quali
 <% attr.each do |a| -%>
     $_.set<%= a.name %>( <%= defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) %> );
 <% end -%>
-    persist( $_ );
   }
 <% end -%>
 <% end -%>
