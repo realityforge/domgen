@@ -79,6 +79,7 @@ public class <%= service.gwt_rpc.servlet_name %>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
     <%= annotated_type(parameter, :ejb, :boundary, :final => true) %> $<%= parameter.name %>;
 <% end %>
+    java.lang.Throwable cause = null;
     try
   {
 <% if method.parameters.any?{|p| p.struct?}
@@ -165,6 +166,7 @@ LOOP
 %>    }
     catch ( final java.io.IOException ioe )
     {
+      cause = ioe;
       throw new IllegalArgumentException( ioe.getMessage(), ioe );
     }
 <% end %>
@@ -196,6 +198,7 @@ end.join(', ') %>);
 <% method.exceptions.each do |exception| %>
     catch ( final <%= exception.ee.qualified_name %> e )
     {
+      cause = e;
       throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
     }
 <% end %>
@@ -204,6 +207,7 @@ end.join(', ') %>);
     {
       // If the transaction has rolled back there will be no messages arriving
       getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, "1" );
+      cause = e;
       throw e;
     }
 <% end %>
@@ -218,7 +222,7 @@ end.join(', ') %>);
       else
       {
         final String message = "Unable to find completion flag " + org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY + " in ReplicantContextHolder. Servlet expects to invoke service with replication interceptor enabled.";
-        throw new IllegalStateException( message );
+        throw new IllegalStateException( message, cause );
       }
 <% end -%>
     }
