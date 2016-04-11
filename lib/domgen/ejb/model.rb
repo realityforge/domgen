@@ -126,6 +126,10 @@ module Domgen
         @boundary_interceptors ||= []
       end
 
+      def boundary_annotations
+        @boundary_annotations ||= []
+      end
+
       attr_writer :local
 
       def local?
