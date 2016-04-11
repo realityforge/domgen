@@ -833,7 +833,11 @@ module Domgen
 
         repository.data_modules.select { |data_module| data_module.ejb? }.each do |data_module|
           data_module.services.select { |service| service.ejb? && service.ejb.generate_boundary? }.each do |service|
-            service.ejb.boundary_interceptors << repository.imit.qualified_replication_interceptor_name
+            if repository.ee.use_cdi?
+              service.ejb.boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
+            else
+              service.ejb.boundary_interceptors << repository.imit.qualified_replication_interceptor_name
+            end
           end
         end
       end
