@@ -3,9 +3,15 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.CollapsibleIfStatements", "PMD.UnusedFormalParameter" } )
+<% if repository.ee.use_cdi? -%>
+@javax.enterprise.context.ApplicationScoped
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
+@javax.enterprise.inject.Typed( { org.realityforge.replicant.server.ee.rest.ReplicantPollSource.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.ssf.SessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
+<% else -%>
 @javax.ejb.Singleton( name = <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 @javax.ejb.Local( { org.realityforge.replicant.server.ee.rest.ReplicantPollSource.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.ssf.SessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
+<% end -%>
 public class <%= repository.imit.session_manager_name %>
   extends org.realityforge.replicant.server.transport.Replicant<% if repository.imit.poll_replicate_mode? -%>Json<% end -%>SessionManager<<%= repository.imit.qualified_session_name %>>
   implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %><% if repository.imit.poll_replicate_mode? %>, org.realityforge.replicant.server.ee.rest.ReplicantPollSource<% end %>
@@ -472,7 +478,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   }
 <% end -%>
 
-  protected final <%= repository.imit.qualified_session_name %> ensureSession( @javax.annotation.Nonnull final String sessionID )
+  protected <%= repository.imit.qualified_session_name %> ensureSession( @javax.annotation.Nonnull final String sessionID )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
     final <%= repository.imit.qualified_session_name %> session = getSession( sessionID );
@@ -486,7 +492,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 
   @java.lang.Override
   @javax.annotation.Nullable
-  public final String poll( @javax.annotation.Nonnull final String clientID, final int lastSequenceAcked )
+  public String poll( @javax.annotation.Nonnull final String clientID, final int lastSequenceAcked )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
     return pollJsonData( ensureSession( clientID ), lastSequenceAcked );

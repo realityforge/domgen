@@ -73,10 +73,6 @@ module Domgen
       def base_service_test_name
         @base_service_test_name || abstract_service_test_name.gsub(/^Abstract/,'')
       end
-
-      def implementation_suffix
-        repository.ee.use_cdi? ? 'Impl' : 'EJB'
-      end
     end
 
     facet.enhance(DataModule) do
@@ -105,7 +101,7 @@ module Domgen
       end
 
       def implementation_suffix
-        service.data_module.repository.ejb.implementation_suffix
+        service.data_module.repository.ee.use_cdi? ? 'Impl' : 'EJB'
       end
 
       java_artifact :service, :service, :server, :ee, '#{service.name}'
