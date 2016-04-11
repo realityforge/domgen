@@ -57,6 +57,7 @@ module Domgen
 
       java_artifact :complete_module, :test, :server, :ejb, '#{repository.name}Module', :sub_package => 'util'
       java_artifact :services_module, :test, :server, :ejb, '#{repository.name}ServicesModule', :sub_package => 'util'
+      java_artifact :cdi_types_test, :test, :server, :ejb, '#{repository.name}CdiTypesTest', :sub_package => 'util'
       java_artifact :aggregate_service_test, :test, :server, :ejb, '#{repository.name}AggregateServiceTest', :sub_package => 'util'
       java_artifact :abstract_service_test, :test, :server, :ejb, 'Abstract#{repository.name}ServiceTest', :sub_package => 'util'
 
@@ -72,6 +73,10 @@ module Domgen
 
       def base_service_test_name
         @base_service_test_name || abstract_service_test_name.gsub(/^Abstract/,'')
+      end
+
+      def implementation_suffix
+        repository.ee.use_cdi? ? 'Impl' : 'EJB'
       end
     end
 
@@ -101,7 +106,7 @@ module Domgen
       end
 
       def implementation_suffix
-        service.data_module.repository.ee.use_cdi? ? 'Impl' : 'EJB'
+        service.data_module.repository.ejb.implementation_suffix
       end
 
       java_artifact :service, :service, :server, :ee, '#{service.name}'
