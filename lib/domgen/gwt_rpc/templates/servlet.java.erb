@@ -200,7 +200,7 @@ end.join(', ') %>);
     }
 <% end %>
 <% if method.imit? -%>
-    catch ( final javax.ejb.EJBException e )
+    catch ( final java.lang.Throwable e )
     {
       // If the transaction has rolled back there will be no messages arriving
       getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, "1" );
