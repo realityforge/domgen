@@ -537,6 +537,7 @@ module Domgen
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
       java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManager#{repository.ejb.implementation_suffix}'
+      java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
       java_artifact :session_exception_mapper, :rest, :server, :imit, '#{repository.name}BadSessionExceptionMapper'
       java_artifact :router_interface, :comm, :server, :imit, '#{repository.name}Router'
       java_artifact :router_impl, :comm, :server, :imit, '#{repository.name}RouterImpl'

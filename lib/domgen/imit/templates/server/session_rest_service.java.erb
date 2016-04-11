@@ -1,0 +1,19 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_session_rest_service_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.ws.rs.Path( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_URL_FRAGMENT )
+@javax.ws.rs.Produces( javax.ws.rs.core.MediaType.APPLICATION_JSON )
+@javax.enterprise.context.ApplicationScoped
+public class <%= repository.imit.session_rest_service_name %>
+  extends org.realityforge.replicant.server.ee.rest.AbstractSessionRestService
+{
+  @javax.inject.Inject
+  private org.realityforge.ssf.SessionManager<<%= repository.imit.qualified_session_name %>> _sessionManager;
+
+  @java.lang.Override
+  protected org.realityforge.ssf.SessionManager getSessionManager()
+  {
+    return _sessionManager;
+  }
+}
