@@ -134,7 +134,7 @@ LOOP
          return_postfix = "return returnValue;"
        end
        if method.return_value.struct?
-         return_postfix = "try {\n #{return_postfix} \n} catch ( final java.io.IOException ioe ) { throw new IllegalArgumentException( ioe.getMessage(), ioe ); }"
+         return_postfix = "try {\n #{return_postfix} \n} catch ( final java.io.IOException ioe ) { cause = ioe; throw new IllegalArgumentException( ioe.getMessage(), ioe ); }"
        end
    end
 %>
