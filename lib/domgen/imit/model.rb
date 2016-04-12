@@ -519,6 +519,7 @@ module Domgen
 
       attr_writer :shared_comm_package
 
+      # TODO: Consider moving this to gwt?
       attr_writer :model_module
 
       def model_module
