@@ -11,7 +11,7 @@ public final class <%= struct.gwt.jso_name %>
   {
   }
 
-  protected static <%= struct.gwt.jso_name %> create( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{field.name}" }.join(", ") %> )
+  protected static <%= struct.gwt.jso_name %> create( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Domgen::Naming.camelize(field.name)}" }.join(", ") %> )
   {
     final <%= struct.gwt.jso_name %> entity = com.google.gwt.core.client.JavaScriptObject.createObject().cast();
 <%
@@ -52,11 +52,11 @@ public final class <%= struct.gwt.jso_name %>
     creators_used << gwt_creator unless creators_used.include?(gwt_creator)
 %>
 <% if field.nullable? -%>
-    if( null != <%= field.name %> )
+    if( null != <%= Domgen::Naming.camelize(field.name) %> )
     {
 <% end -%>
     final <%= gwt_type %> $<%= field.name %> = newNative<%= gwt_creator %>();
-    for ( final <%= field.gwt.java_component_type %> v : <%= field.name %> )
+    for ( final <%= field.gwt.java_component_type %> v : <%= Domgen::Naming.camelize(field.name) %> )
     {
       $<%= field.name %>.push( <%= converted_value.call("v") %> );
     }
