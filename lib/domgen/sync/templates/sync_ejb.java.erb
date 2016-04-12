@@ -1,9 +1,14 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(data_module.sync.qualified_sync_ejb_name) %>;
 
+<% if data_module.service_by_name(:SynchronizationService).data_module.repository.ee.use_cdi? -%>
+@javax.enterprise.context.ApplicationScoped
+@javax.enterprise.inject.Typed( <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_name %>.class )
+<% else -%>
 @javax.ejb.Singleton( name = <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_name %>.NAME )
 @javax.ejb.TransactionManagement( javax.ejb.TransactionManagementType.BEAN )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+<% end -%>
 @SuppressWarnings( "ConstantConditions" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "NP_ALWAYS_NULL", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", "NP_LOAD_OF_KNOWN_NULL_VALUE" } )
 public class <%= data_module.sync.sync_ejb_name %>
