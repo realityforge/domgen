@@ -27,7 +27,7 @@ public final class <%= struct.gwt.jso_name %>
       end
     end
      if :none == field.collection_type
-%>    entity.set<%= field.name %>( <%= converted_value.call(field.name) %> );
+%>    entity.set<%= field.name %>( <%= field.nullable? ? "#{Domgen::Naming.camelize(field.name)} == null ? null : " : '' %><%= converted_value.call(Domgen::Naming.camelize(field.name)) %> );
 <%     else
     gwt_type =
       case
@@ -189,10 +189,30 @@ public final class <%= struct.gwt.jso_name %>
     return this.<%= field.json.name %> == null;
   }-*/;
 
+  private native void set<%= field.name %>Null0() /*-{
+    this.<%= field.json.name %> = null;
+  }-*/;
+
 <% end -%>
-  private native void set<%= field.name %>( <%= field.enumeration.textual_values? ? 'String':'int'%> value ) /*-{
+<% if field.enumeration.textual_values? %>
+  private native void set<%= field.name %>( final java.lang.String value ) /*-{
     this.<%= field.json.name %> = value;
   }-*/;
+<% else %>
+  private native void set<%= field.name %>0( final int value ) /*-{
+    this.<%= field.json.name %> = value;
+  }-*/;
+
+  private void set<%= field.name %>( final Integer value )
+  {
+<% if field.nullable? -%>
+    if( null != value ) set<%= field.name %>0( value.intValue() );
+    else set<%= field.name %>Null0();
+<% else -%>
+    set<%= field.name %>0( value.intValue() );
+<% end -%>
+  }
+<% end -%>
 <%
    elsif field.integer? && field.nullable?
 %>
@@ -203,7 +223,12 @@ public final class <%= struct.gwt.jso_name %>
   private void set<%= field.name %>( <%= annotated_type(field, :gwt, :boundary, :final => true) %> value )
   {
     if( null != value ) set<%= field.name %>0( value.intValue() );
+    else set<%= field.name %>Null0();
   }
+
+  private native void set<%= field.name %>Null0() /*-{
+    this.<%= field.json.name %> = null;
+  }-*/;
 
   private native void set<%= field.name %>0( int value ) /*-{
     this.<%= field.json.name %> = value;
