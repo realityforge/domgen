@@ -5,6 +5,25 @@
   <inherits name="com.google.gwt.json.JSON"/>
   <inherits name="org.realityforge.replicant.Replicant"/>
 
-  <source path='client'/>
-  <source path='shared'/>
+<%
+packages =
+  [
+    repository.gwt.client_data_type_package,
+    repository.gwt.client_event_package,
+    repository.gwt.client_entity_package,
+    repository.gwt.client_service_package,
+    repository.gwt.shared_data_type_package,
+    repository.gwt.shared_service_package,
+    repository.imit.client_ioc_package,
+    repository.imit.client_comm_package,
+    repository.imit.shared_comm_package
+  ]
+
+  prefix = repository.imit.model_module.gsub(/\.[^\.]+$/,'')
+%>
+  <source path=''>
+<% packages.select{|p|p =~ /^#{Regexp.escape(prefix)}/}.each do |pkg| -%>
+    <include name="<%= pkg.gsub("#{prefix}.",'').gsub('.','/') %>/**/*.java"/>
+<% end -%>
+  </source>
 </module>
