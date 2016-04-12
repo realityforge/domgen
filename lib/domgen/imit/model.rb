@@ -522,7 +522,7 @@ module Domgen
       attr_writer :model_module
 
       def model_module
-        @model_module || "#{repository.java.base_package}/#{repository.name}Model"
+        @model_module || "#{repository.java.base_package}.#{repository.name}Model"
       end
 
       java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
