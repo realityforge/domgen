@@ -8,17 +8,33 @@ public class <%= repository.ejb.complete_module_name %>
 {
   @javax.annotation.Nonnull
   private final org.realityforge.guiceyloops.server.Flushable _flushable;
+  @javax.annotation.Nullable
+  private final String _databasePrefix;
+  @javax.annotation.Nullable
+  private final java.util.Properties _additionalProperties;
 
   public <%= repository.ejb.complete_module_name %>( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.Flushable flushable )
   {
+    this( flushable, null );
+  }
+
+  public <%= repository.ejb.complete_module_name %>( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.Flushable flushable, @javax.annotation.Nullable final String databasePrefix )
+  {
+    this( flushable, databasePrefix, null );
+  }
+
+  public <%= repository.ejb.complete_module_name %>( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.Flushable flushable, @javax.annotation.Nullable final String databasePrefix, @javax.annotation.Nullable final java.util.Properties additionalProperties )
+  {
     _flushable = flushable;
+    _databasePrefix = databasePrefix;
+    _additionalProperties = additionalProperties;
   }
 
   @Override
   protected void configure()
   {
 <% if repository.jpa? -%>
-    install( new <%= repository.jpa.qualified_persistent_test_module_name %>() );
+    install( new <%= repository.jpa.qualified_persistent_test_module_name %>( _databasePrefix, _additionalProperties ) );
     install( new <%= repository.jpa.qualified_dao_module_name %>() );
 <% end -%>
     install( new <%= repository.ejb.qualified_services_module_name %>( _flushable ) );
