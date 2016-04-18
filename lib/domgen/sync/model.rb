@@ -124,51 +124,35 @@ module Domgen
           master_data_module.service(:SynchronizationContext) do |s|
             s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
             if s.ejb?
-              s.ejb.generate_boundary = false
+              s.ejb.generate_boundary = true
               s.ejb.generate_base_test = false
             end
 
-            master_data_module.sync.entities_to_synchronize.collect do |e|
-              # Assume that the synchronization process will correctly handle
-              # deletion of referenced entities and thus no special handling required
-              e.sync.references_requiring_manual_sync.each do |a|
-                s.method("Remove#{a.entity.data_module.name}#{a.entity.name}RelatedTo#{a.referenced_entity.data_module.name}#{a.referenced_entity.name}Via#{a.name}") do |m|
-                  m.reference(e.qualified_name)
-                end
-              end
-            end
-
             master_data_module.sync.entities_to_synchronize.each do |entity|
-              unless entity.primary_key.generated_value?
-                s.method("Generate#{entity.data_module.name}#{entity.name}Key") do |m|
-                  entity.attributes.select { |a| !a.primary_key? && a.sql? && a.jpa? && a.sync? }.each do |a|
-                    options = {}
-                    options[:collection_type] = a.collection_type
-                    options[:nullable] = a.nullable?
-
-                    attribute_type = a.attribute_type
-                    if a.reference?
-                      attribute_type = a.referenced_entity.primary_key.attribute_type
-                    elsif a.enumeration?
-                      options[:enumeration] = a.enumeration
-                      options[:length] = a.length if a.enumeration.textual_values?
-                    elsif a.text?
-                      options[:length] = a.length
-                      options[:min_length] = a.min_length
-                      options[:allow_blank] = a.allow_blank?
-                    end
-
-                    m.parameter(a.name, attribute_type, options)
-                  end
-                  # TODO Should probably support reference primary keys by passing other options
-                  m.returns(entity.primary_key.attribute_type)
-                end
-              end
-
-              s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToUpdate") do |m|
+              s.method(:"Query#{entity.data_module.name}#{entity.name}Updates") do |m|
                 m.text(:MappingSourceCode)
-                m.returns(:text)
+                m.returns('java.lang.Object[]', :collection_type => :sequence)
               end
+              s.method(:"Query#{entity.data_module.name}#{entity.name}Removals") do |m|
+                m.text(:MappingSourceCode)
+                m.returns('java.lang.Object[]', :collection_type => :sequence)
+              end
+
+              s.method(:"CreateOrUpdate#{entity.data_module.name}#{entity.name}") do |m|
+                m.text(:MappingSourceCode)
+                m.parameter(:Record, 'java.lang.Object[]')
+                m.returns(:boolean, :description => 'Return true on create, false on update')
+              end
+              s.method(:"Remove#{entity.data_module.name}#{entity.name}") do |m|
+                m.integer(:MappingID)
+                m.parameter(:ID, entity.primary_key.jpa.java_type(:boundary), :nullable => true)
+                m.returns(:boolean, :description => 'Return true on removalfrom non-master, false if not required')
+              end
+              s.method(:"Mark#{entity.data_module.name}#{entity.name}RemovalsPreSync") do |m|
+                m.text(:MappingSourceCode)
+                m.returns(:integer, :description => 'The number of records changed')
+              end
+
               if entity.sync.update_via_sync?
                 # The following methods are an in progress implementation of bulk sync actions
                 s.method(:"GetSqlToDirectlyUpdate#{entity.data_module.name}#{entity.name}") do |m|
@@ -187,18 +171,6 @@ module Domgen
               s.method(:"GetSqlToMarkDeleted#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
                 m.text(:MappingSourceCode)
                 m.returns(:text)
-              end
-              s.method(:"GetSqlToRetrieve#{entity.data_module.name}#{entity.name}ListToRemove") do |m|
-                m.text(:MappingSourceCode)
-                m.returns(:text)
-              end
-              entity.attributes.select { |a| a.sync? && a.sync.custom_transform? }.each do |attribute|
-                s.method(:"Transform#{entity.data_module.name}#{entity.name}#{attribute.name}") do |m|
-                  options = {:nullable => attribute.nullable?}
-                  attribute_type = attribute.reference? ? attribute.referenced_entity.primary_key.attribute_type : attribute.attribute_type
-                  m.parameter(:Value, attribute_type, options)
-                  m.returns(attribute_type, options)
-                end
               end
             end
           end unless master_data_module.service_by_name?(:SynchronizationContext)

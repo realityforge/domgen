@@ -3,6 +3,7 @@ package <%= to_package(data_module.sync.qualified_sync_ejb_name) %>;
 
 <% if data_module.service_by_name(:SynchronizationService).data_module.repository.ee.use_cdi? -%>
 @javax.enterprise.context.ApplicationScoped
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.NOT_SUPPORTED )
 @javax.enterprise.inject.Typed( <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_name %>.class )
 <% else -%>
 @javax.ejb.Singleton( name = <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_name %>.NAME )
@@ -19,22 +20,8 @@ public class <%= data_module.sync.sync_ejb_name %>
 
   private static final int SYNC_ERROR_CODE = 42;
 
-  @javax.persistence.PersistenceContext( unitName = <%= data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME )
-  private javax.persistence.EntityManager _entityManager;
-  @javax.annotation.Resource
-  private javax.transaction.UserTransaction _transaction;
-<% data_module.sync.entities_to_synchronize.each do |entity| -%>
   @javax.inject.Inject
-  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= entity.data_module.name %><%= entity.name %>Repository;
-<% end -%>
-  @javax.annotation.Resource
-  private javax.transaction.TransactionSynchronizationRegistry _registry;
-<% if data_module.repository.imit? -%>
-  @javax.inject.Inject
-  private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
-<% end -%>
-  @javax.inject.Inject
-  private <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %> _context;
+  private <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_boundary_interface_name %> _context;
 
   private volatile boolean _inSync;
 
@@ -102,7 +89,6 @@ public class <%= data_module.sync.sync_ejb_name %>
         final long entityStartAt = System.currentTimeMillis();
         log( mappingSourceCode, "Synchronizing <%= entity.qualified_name %> adds and updates" );
         synchronize<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
-        mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( mappingSourceCode, recorder );
         final int addCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount" ).get();
         log( mappingSourceCode, "Added " + addCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
 <% if entity.sync.update_via_sync? -%>
@@ -147,30 +133,14 @@ public class <%= data_module.sync.sync_ejb_name %>
   private java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
-    _transaction.begin();
     try
     {
-      final String sql = _context.getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToUpdate( mappingSourceCode );
-      final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
-      query.setParameter( 1, mappingSourceCode );
-      return query.getResultList();
+      return _context.query<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode );
     }
     catch ( final Exception e )
     {
       recordSyncError( recorder, 1, "Error retrieving set of <%= entity.qualified_name %> to update", e );
-      _transaction.setRollbackOnly();
       throw e;
-    }
-    finally
-    {
-      if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
-      {
-        _transaction.rollback();
-      }
-      else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
-      {
-        _transaction.commit();
-      }
     }
   }
 
@@ -196,141 +166,21 @@ public class <%= data_module.sync.sync_ejb_name %>
     }
     for ( final Object[] result : results )
     {
-      // Start Replication "Hook"
-      _transaction.begin();
-      _entityManager.flush();
       try
       {
-<% if entity.imit? || entity.attributes.any?{|a| a.reference? && a.referenced_entity.imit? } -%>
-        org.realityforge.replicant.server.ee.ReplicationRequestUtil.startReplication( _registry, "synchronize<%= entity.data_module.name %><%= entity.name %>Updates", null, null );
-<% end -%>
-<% attr = entity.attributes.select{|a| a.sql? && a.jpa? && a.sync? } -%>
-<% attr.each_with_index do |a, i| -%>
-<% if a.enumeration? && a.enumeration.textual_values? -%>
-        final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == result[ #{i} ] ? null : " : ''  %><%= a.jpa.java_type(:boundary) %>.valueOf( (java.lang.String) result[ <%= i %> ] );
-<% elsif a.enumeration? -%>
-        final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == result[ #{i} ] ? null : " : '' %><%= a.jpa.java_type(:boundary) %>.values()[ (java.lang.Integer) result[ <%= i %> ] ];
-<% else -%>
-        final <%= a.jpa.non_primitive_java_type(:boundary) %> v_<%= a.name %> = (<%= a.jpa.non_primitive_java_type(:boundary) %>) result[ <%= i %> ];
-<% end -%>
-<% end -%>
-<% attr.select{|a|a.reference?}.each do |a| -%>
-        <%= a.jpa.non_primitive_java_type %> v_<%= a.name %>_ref = null;
-<% if a.nullable? -%>
-          if ( null == v_<%= a.name %> )
-          {
-            v_<%= a.name %>_ref = null;
-          }
-          else
-          {
-<% end -%>
-<% if a.referenced_entity.abstract? -%>
-            <%= a.jpa.java_type %> <%= a.name %>_ref = null;
-<% a.referenced_entity.concrete_subtypes.each do |subtype| -%>
-            if( null == <%= a.name %>_ref )
-            {
-              <%= a.name %>_ref = _<%= subtype.data_module.name %><%= subtype.name %>Repository.findBy<%= subtype.primary_key.name %>( v_<%= a.name %> );
-            }
-<% end -%>
-            if( null == <%= a.name %>_ref )
-            {
-              throw new IllegalStateException( "Unable to locate <%= a.referenced_entity.qualified_name %> referenced by <%= a.qualified_name %> with value " + v_<%= a.name %> );
-            }
-            v_<%= a.name %>_ref = <%= a.name %>_ref;
-<% else -%>
-            v_<%= a.name %>_ref = _<%= a.referenced_entity.data_module.name %><%= a.referenced_entity.name %>Repository.getBy<%= a.referenced_entity.primary_key.name %>( v_<%= a.name %> );
-<% end -%>
-<% if a.nullable? -%>
-          }
-<% end -%>
-<% end -%>
-
-        final String v_MappingID = (String) result[ <%= attr.size %> ];
-
-        final <%= entity.jpa.qualified_name %> entity;
-        if( null == v_<%= entity.primary_key.name %> )
+        if( _context.createOrUpdate<%= entity.data_module.name %><%= entity.name %>( mappingSourceCode, result ) )
         {
-<% attr.select{|a|a.immutable? && !a.generated_value?}.each do |a| %>
-          final <%= a.jpa.java_type %> v_<%= a.name %>_ctor;
-<% if a.sync.custom_transform? -%>
-          v_<%= a.name %>_ctor = _context.transform<%= entity.data_module.name %><%= entity.name %><%= a.name %>( v_<%= a.name %> );
-<% elsif a.reference? -%>
-          v_<%= a.name %>_ctor = v_<%= a.name %>_ref;
-<% else -%>
-          v_<%= a.name %>_ctor = <% if a.primary_key? -%>_context.generate<%= entity.qualified_name.to_s.gsub('.','') %>Key( <%= attr.select{|a| !a.primary_key?}.collect{|a| "v_#{a.name}"}.join(', ') %> )<% else -%>v_<%= a.name %><% end -%>;
-<% end -%>
-<% end -%>
-          entity = new <%= entity.jpa.qualified_name %>(<%= attr.select{|a|a.immutable? && !a.generated_value?}.collect{|a| "v_#{a.name}_ctor"}.join(", ") %>);
-        }
-        else
-        {
-<% if entity.sync.update_via_sync? -%>
-          entity = _<%= entity.data_module.name %><%= entity.name %>Repository.getBy<%= entity.primary_key.name %>( v_<%= entity.primary_key.name %> );
-<% else -%>
-          throw new java.lang.IllegalStateException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
-<% end -%>
-        }
-<% attr.select{|a|!a.immutable?}.each do |a| -%>
-        {
-<% if a.sync.custom_transform? -%>
-          final <%= a.jpa.java_type(:boundary) %> v = _context.transform<%= entity.data_module.name %><%= entity.name %><%= a.name %>( v_<%= a.name %> );
-          entity.set<%= a.name %>( v );
-<% elsif a.reference? -%>
-          entity.set<%= a.name %>( v_<%= a.name %>_ref );
-<% else -%>
-          entity.set<%= a.name %>( v_<%= a.name %> );
-<% end -%>
-        }
-<% end -%>
-        if( null == v_<%= entity.primary_key.name %> )
-        {
-          _<%= entity.data_module.name %><%= entity.name %>Repository.persist( entity );
-          _entityManager.
-            createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name } = ?, #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('MappingID') } = ? AND #{ data_module.sql.dialect.quote('MappingSource') } = ? AND #{ data_module.sql.dialect.quote('MasterSynchronized') } = #{entity.sql.dialect.false_sql}") %>" ).
-            setParameter( 1, entity.<%= getter_for(entity.primary_key) %> ).
-            setParameter( 2, true ).
-            setParameter( 3, v_MappingID ).
-            setParameter( 4, mappingSourceCode ).
-            executeUpdate();
           recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount", 1 );
         }
         else
         {
-<% if entity.sync.update_via_sync? -%>
-          _entityManager.
-            createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('MappingID') } = ? AND #{ data_module.sql.dialect.quote('MappingSource') } = ?") %>" ).
-            setParameter( 1, true ).
-            setParameter( 2, v_MappingID ).
-            setParameter( 3, mappingSourceCode ).
-            executeUpdate();
           recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount", 1 );
-<% else -%>
-          throw new java.lang.IllegalStateException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
-<% end -%>
         }
-        _entityManager.flush();
-        _entityManager.getEntityManagerFactory().getCache().evictAll();
       }
       catch ( final Exception e )
       {
         recordSyncError( recorder, 1, "Error synchronizing <%= entity.qualified_name %> updates", e );
-        _transaction.setRollbackOnly();
         lastException = e;
-      }
-      finally
-      {
-        // End Replication "Hook"
-<% if entity.imit? || entity.attributes.any?{|a| a.reference? && a.referenced_entity.imit? } -%>
-        org.realityforge.replicant.server.ee.ReplicationRequestUtil.completeReplication( _registry, _entityManager, _endpoint );
-<% end -%>
-        if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
-        {
-          _transaction.rollback();
-        }
-        else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
-        {
-          _transaction.commit();
-        }
       }
     }
 <% if entity.sync.recursive? -%>
@@ -350,30 +200,14 @@ public class <%= data_module.sync.sync_ejb_name %>
   private java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
-    _transaction.begin();
     try
     {
-      final String sql = _context.getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToRemove( mappingSourceCode );
-      final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
-      query.setParameter( 1, mappingSourceCode );
-      return query.getResultList();
+      return _context.query<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode );
     }
     catch ( final Exception e )
     {
       recordSyncError( recorder, 1, "Error retrieving set of <%= entity.qualified_name %> to remove", e );
-      _transaction.setRollbackOnly();
       throw e;
-    }
-    finally
-    {
-      if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
-      {
-        _transaction.rollback();
-      }
-      else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
-      {
-        _transaction.commit();
-      }
     }
   }
 
@@ -381,40 +215,16 @@ public class <%= data_module.sync.sync_ejb_name %>
   private int mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
-    _transaction.begin();
     try
     {
-
-      final String sql =
-        "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } ") %>" +
-        "<%= j_escape_string(" SET #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql} ") %>" +
-        "<%= j_escape_string(" WHERE #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql} ") %> AND" +
-        "<%= j_escape_string("   #{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL ") %> AND" +
-        "<%= j_escape_string("   #{ entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name } IS NULL ") %> AND" +
-        "<%= j_escape_string("   #{ data_module.sql.dialect.quote('MappingSource') } = ?") %>";
-
-      final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
-      query.setParameter( 1, mappingSourceCode );
-      final int count = query.executeUpdate();
+      final int count = _context.mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( mappingSourceCode );
       recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UnsyncRemovals", count );
       return count;
     }
     catch ( final Exception e )
     {
       recordSyncError( recorder, 1, "Error updating unsynchronized and removed <%= entity.qualified_name %> instances", e );
-      _transaction.setRollbackOnly();
       throw e;
-    }
-    finally
-    {
-      if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
-      {
-        _transaction.rollback();
-      }
-      else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
-      {
-        _transaction.commit();
-      }
     }
   }
 
@@ -433,58 +243,17 @@ public class <%= data_module.sync.sync_ejb_name %>
     }
     for ( final Object[] result : results )
     {
-      // Start Replication "Hook"
-      _transaction.begin();
       try
       {
-<% if entity.imit? || entity.attributes.any?{|a| a.reference? && a.referenced_entity.imit? } -%>
-        org.realityforge.replicant.server.ee.ReplicationRequestUtil.startReplication( _registry, "synchronize<%= entity.data_module.name %><%= entity.name %>Removals", null, null );
-<% end -%>
-        if( null != result[ 1 ] )
+        if ( _context.remove<%= entity.data_module.name %><%= entity.name %>( (Integer) result[ 0 ], ( <%= entity.primary_key.jpa.java_type(:boundary) %> ) result[ 1 ] ) )
         {
-          final <%= entity.jpa.qualified_name %> entity = _<%= entity.data_module.name %><%= entity.name %>Repository.findBy<%= entity.primary_key.name %>( ( <%= entity.primary_key.jpa.java_type(:boundary) %> ) result[ 1 ] );
-          if( null != entity )
-          {
-<% if entity.sync.transaction_time? -%>
-            entity.setDeletedAt( new java.util.Date() );
-<% end -%>
-<% entity.sync.references_requiring_manual_sync.each do |a| -%>
-            _context.remove<%= a.entity.data_module.name %><%= a.entity.name %>RelatedTo<%= a.referenced_entity.data_module.name %><%= a.referenced_entity.name %>Via<%= a.name %>( entity );
-<% end -%>
-<% unless entity.sync.transaction_time? -%>
-            _<%= entity.data_module.name %><%= entity.name %>Repository.remove( entity );
-<% end -%>
-            _entityManager.
-              createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('ID') } = ?") %>" ).
-              setParameter( 1, true ).
-              setParameter( 2, result[ 0 ] ).
-              executeUpdate();
-            recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveCount", 1 );
-            _entityManager.flush();
-            _<%= entity.data_module.name %><%= entity.name %>Repository.detach( entity );
-          }
+          recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveCount", 1 );
         }
       }
       catch ( final Exception e )
       {
         recordSyncError( recorder, 1, "Error synchronizing <%= entity.qualified_name %> removals", e );
-        _transaction.setRollbackOnly();
         throw e;
-      }
-      finally
-      {
-        // End Replication "Hook"
-<% if entity.imit? || entity.attributes.any?{|a| a.reference? && a.referenced_entity.imit? } -%>
-        org.realityforge.replicant.server.ee.ReplicationRequestUtil.completeReplication( _registry, _entityManager, _endpoint );
-<% end -%>
-        if( javax.transaction.Status.STATUS_MARKED_ROLLBACK == _transaction.getStatus() )
-        {
-          _transaction.rollback();
-        }
-        else if( javax.transaction.Status.STATUS_ACTIVE == _transaction.getStatus() )
-        {
-          _transaction.commit();
-        }
       }
     }
 <% if entity.sync.recursive? -%>

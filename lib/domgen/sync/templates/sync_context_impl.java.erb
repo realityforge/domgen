@@ -7,41 +7,66 @@ package <%= to_package(data_module.sync.qualified_sync_context_impl_name) %>;
 
 <code>
 <pre>
+<% if data_module.repository.ee.use_cdi? -%>
+@ApplicationScoped
+@Transactional( Transactional.TxType.REQUIRES_NEW )
+@Typed( <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>.class )
+<% else -%>
 @Singleton( name = SynchronizationContext.NAME )
-@TransactionAttribute( TransactionAttributeType.NOT_SUPPORTED )
+@TransactionAttribute( TransactionAttributeType.REQUIRES_NEW )
 @ConcurrencyManagement( ConcurrencyManagementType.BEAN )
-@Local( SynchronizationContext.class )
+@Local( <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>.class )
+<% end -%>
 public class <%= data_module.sync.sync_context_impl_name.gsub(/^Abstract/,'') %>
   extends <%= data_module.sync.sync_context_impl_name %>
 {
 <%
 data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).sync.entities_to_synchronize.collect do |e|
   e.sync.references_requiring_manual_sync.each do |a|
-%>
-  @TransactionAttribute( TransactionAttributeType.REQUIRED )
+-%>
   @Override
-  public void remove<%= a.entity.data_module.name %><%= a.entity.name %>RelatedTo<%= a.referenced_entity.data_module.name %><%= a.referenced_entity.name %>Via<%= a.name %>(...) {...}
+  protected void remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>(...) {...}
 <%
   end
 end
-%>
+-%>
 }
 </pre>
 </code>
  */
-@java.lang.SuppressWarnings( { "PMD.AddEmptyString" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "NP_LOAD_OF_KNOWN_NULL_VALUE" } )
+@java.lang.SuppressWarnings( { "unchecked", "UnusedParameters", "PMD.AddEmptyString" } )
 public abstract class <%= data_module.sync.sync_context_impl_name %>
   implements <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>
 {
+  @javax.persistence.PersistenceContext( unitName = <%= data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  private javax.persistence.EntityManager _entityManager;
+<% data_module.sync.entities_to_synchronize.each do |entity| -%>
+  @javax.inject.Inject
+  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Domgen::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository;
+<% end -%>
+
+<%
+            data_module.sync.entities_to_synchronize.collect do |e|
+              # Assume that the synchronization process will correctly handle
+              # deletion of referenced entities and thus no special handling required
+              e.sync.references_requiring_manual_sync.each do |a|
+-%>
+  protected abstract void remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( @javax.annotation.Nonnull final <%= e.jpa.qualified_name %> <%= Domgen::Naming.camelize(e.jpa.name) %> );
+
+<%
+              end
+            end
+-%>
 <% data_module.sync.entities_to_synchronize.each do |entity|
      fn = "#{entity.data_module.name}#{entity.name}"
      recursive_attributes = entity.attributes.select{|a| a.sync? }.select{|a| a.reference? && a.referenced_entity.qualified_name == entity.qualified_name}
 
      entity.attributes.select{|a| a.sync? &&a.sync.custom_transform? }.each do |attribute|
 -%>
+
   <%= nullability_annotation(attribute.nullable?) %>
-  @java.lang.Override
-  public <%= attribute.jpa.java_type(:boundary) %> transform<%= fn %><%= attribute.name %>( <%= nullability_annotation(attribute.nullable?) %> final <%= attribute.jpa.java_type(:boundary) %> value )
+  protected <%= attribute.jpa.java_type(:boundary) %> transform<%= fn %><%= attribute.name %>( <%= nullability_annotation(attribute.nullable?) %> final <%= attribute.jpa.java_type(:boundary) %> value )
   {
 <% if attribute.sync.custom_transform? || !attribute.reference? -%>
     return value;
@@ -63,19 +88,18 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% end -%>
 <% end -%>
   }
-
 <% end -%>
 <% if !entity.primary_key.generated_value? && entity.primary_key.attribute_type == :text
   s = data_module.service_by_name(:SynchronizationContext)
   m = s.method_by_name("Generate#{entity.data_module.name}#{entity.name}Key")
   -%>
   @javax.annotation.Nonnull
-  public <%= m.return_value.ejb.java_type(:boundary) %> generate<%= entity.data_module.name %><%= entity.name %>Key(<%= m.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
+  protected <%= m.return_value.ejb.java_type(:boundary) %> generate<%= entity.data_module.name %><%= entity.name %>Key(<%= m.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
   {
     return java.util.UUID.randomUUID().toString();
   }
-<% end -%>
 
+<% end -%>
 <%
   common_criteria = "M.#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql} AND M.#{entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = ?"
   criteria = "#{common_criteria} AND M.#{entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL"
@@ -145,6 +169,181 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   end
 
 -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  public java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+    final String sql = getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToUpdate( mappingSourceCode );
+    final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
+    query.setParameter( 1, mappingSourceCode );
+    return query.getResultList();
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  public java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+    final String sql = getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToRemove( mappingSourceCode );
+    final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
+    query.setParameter( 1, mappingSourceCode );
+    return query.getResultList();
+  }
+
+  @java.lang.Override
+  public boolean createOrUpdate<%= entity.data_module.name %><%= entity.name %>( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final java.lang.Object[] record )
+  {
+<% attr = entity.attributes.select{|a| a.sql? && a.jpa? && a.sync? } -%>
+<% attr.each_with_index do |a, i| -%>
+<% if a.enumeration? && a.enumeration.textual_values? -%>
+    final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : ''  %><%= a.jpa.java_type(:boundary) %>.valueOf( (java.lang.String) record[ <%= i %> ] );
+<% elsif a.enumeration? -%>
+    final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : '' %><%= a.jpa.java_type(:boundary) %>.values()[ (java.lang.Integer) record[ <%= i %> ] ];
+<% else -%>
+    final <%= a.jpa.non_primitive_java_type(:boundary) %> v_<%= a.name %> = (<%= a.jpa.non_primitive_java_type(:boundary) %>) record[ <%= i %> ];
+<% end -%>
+<% end -%>
+<% attr.select{|a|a.reference?}.each do |a| -%>
+    <%= a.jpa.non_primitive_java_type %> v_<%= a.name %>_ref = null;
+<% if a.nullable? -%>
+    if ( null == v_<%= a.name %> )
+    {
+      v_<%= a.name %>_ref = null;
+    }
+    else
+    {
+<% end -%>
+<% if a.referenced_entity.abstract? -%>
+      <%= a.jpa.java_type %> <%= a.name %>_ref = null;
+<% a.referenced_entity.concrete_subtypes.each do |subtype| -%>
+      if( null == <%= a.name %>_ref )
+      {
+        <%= a.name %>_ref = _<%= Domgen::Naming.camelize(entity.data_module.name) %><%= subtype.name %>Repository.findBy<%= subtype.primary_key.name %>( v_<%= a.name %> );
+      }
+<% end -%>
+      if( null == <%= a.name %>_ref )
+      {
+        throw new IllegalStateException( "Unable to locate <%= a.referenced_entity.qualified_name %> referenced by <%= a.qualified_name %> with value " + v_<%= a.name %> );
+      }
+      v_<%= a.name %>_ref = <%= a.name %>_ref;
+<% else -%>
+      v_<%= a.name %>_ref = _<%= Domgen::Naming.camelize(a.referenced_entity.data_module.name) %><%= a.referenced_entity.name %>Repository.getBy<%= a.referenced_entity.primary_key.name %>( v_<%= a.name %> );
+<% end -%>
+<% if a.nullable? -%>
+    }
+<% end -%>
+<% end -%>
+
+    final String v_MappingID = (String) record[ <%= attr.size %> ];
+
+    final <%= entity.jpa.qualified_name %> entity;
+    if( null == v_<%= entity.primary_key.name %> )
+    {
+<% attr.select{|a|a.immutable? && !a.generated_value?}.each do |a| %>
+      final <%= a.jpa.java_type %> v_<%= a.name %>_ctor;
+<% if a.sync.custom_transform? -%>
+      v_<%= a.name %>_ctor = transform<%= entity.data_module.name %><%= entity.name %><%= a.name %>( v_<%= a.name %> );
+<% elsif a.reference? -%>
+      v_<%= a.name %>_ctor = v_<%= a.name %>_ref;
+<% else -%>
+      v_<%= a.name %>_ctor = <% if a.primary_key? -%>generate<%= entity.qualified_name.to_s.gsub('.','') %>Key( <%= attr.select{|a| !a.primary_key?}.collect{|a| "v_#{a.name}"}.join(', ') %> )<% else -%>v_<%= a.name %><% end -%>;
+<% end -%>
+<% end -%>
+      entity = new <%= entity.jpa.qualified_name %>(<%= attr.select{|a|a.immutable? && !a.generated_value?}.collect{|a| "v_#{a.name}_ctor"}.join(", ") %>);
+    }
+    else
+    {
+<% if entity.sync.update_via_sync? -%>
+      entity = _<%= Domgen::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.getBy<%= entity.primary_key.name %>( v_<%= entity.primary_key.name %> );
+<% else -%>
+      throw new java.lang.IllegalStateException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
+<% end -%>
+    }
+<% attr.select{|a|!a.immutable?}.each do |a| -%>
+    {
+<% if a.sync.custom_transform? -%>
+      final <%= a.jpa.java_type(:boundary) %> v = transform<%= entity.data_module.name %><%= entity.name %><%= a.name %>( v_<%= a.name %> );
+      entity.set<%= a.name %>( v );
+<% elsif a.reference? -%>
+      entity.set<%= a.name %>( v_<%= a.name %>_ref );
+<% else -%>
+      entity.set<%= a.name %>( v_<%= a.name %> );
+<% end -%>
+    }
+<% end -%>
+    if( null == v_<%= entity.primary_key.name %> )
+    {
+      _<%= Domgen::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.persist( entity );
+      _entityManager.
+        createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name } = ?, #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('MappingID') } = ? AND #{ data_module.sql.dialect.quote('MappingSource') } = ? AND #{ data_module.sql.dialect.quote('MasterSynchronized') } = #{entity.sql.dialect.false_sql}") %>" ).
+        setParameter( 1, entity.<%= getter_for(entity.primary_key) %> ).
+        setParameter( 2, true ).
+        setParameter( 3, v_MappingID ).
+        setParameter( 4, mappingSourceCode ).
+        executeUpdate();
+      return true;
+    }
+    else
+    {
+<% if entity.sync.update_via_sync? -%>
+      _entityManager.
+        createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('MappingID') } = ? AND #{ data_module.sql.dialect.quote('MappingSource') } = ?") %>" ).
+        setParameter( 1, true ).
+        setParameter( 2, v_MappingID ).
+        setParameter( 3, mappingSourceCode ).
+        executeUpdate();
+      return false;
+<% else -%>
+      throw new java.lang.IllegalStateException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
+<% end -%>
+    }
+  }
+
+  @java.lang.Override
+  public boolean remove<%= entity.data_module.name %><%= entity.name %>( final int mappingID, @javax.annotation.Nullable final <%= entity.primary_key.jpa.java_type(:boundary) %> id )
+  {
+    if( null != id )
+    {
+      final <%= entity.jpa.qualified_name %> entity = _<%= Domgen::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.findBy<%= entity.primary_key.name %>( ( <%= entity.primary_key.jpa.java_type(:boundary) %> ) id );
+      if( null != entity )
+      {
+<% if entity.sync.transaction_time? -%>
+        entity.setDeletedAt( new java.util.Date() );
+<% end -%>
+<% entity.sync.references_requiring_manual_sync.each do |a| -%>
+        remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( entity );
+<% end -%>
+<% unless entity.sync.transaction_time? -%>
+        _<%= Domgen::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.remove( entity );
+<% end -%>
+        _entityManager.
+          createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('ID') } = ?") %>" ).
+          setParameter( 1, true ).
+          setParameter( 2, mappingID ).
+          executeUpdate();
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  @java.lang.SuppressWarnings( "unchecked" )
+  @java.lang.Override
+  public int mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+    final String sql =
+      "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } ") %>" +
+      "<%= j_escape_string(" SET #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql} ") %>" +
+      "<%= j_escape_string(" WHERE #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql} ") %> AND" +
+      "<%= j_escape_string("   #{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL ") %> AND" +
+      "<%= j_escape_string("   #{ entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name } IS NULL ") %> AND" +
+      "<%= j_escape_string("   #{ data_module.sql.dialect.quote('MappingSource') } = ?") %>";
+
+    final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
+    query.setParameter( 1, mappingSourceCode );
+    return query.executeUpdate();
+  }
+
 <% if entity.sync.update_via_sync? -%>
   @javax.annotation.Nonnull
   @java.lang.Override
@@ -209,8 +408,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   }
 
   @javax.annotation.Nonnull
-  @java.lang.Override
-  public String getSqlToRetrieve<%= fn %>ListToUpdate( @javax.annotation.Nonnull final String mappingSourceCode )
+  protected String getSqlToRetrieve<%= fn %>ListToUpdate( @javax.annotation.Nonnull final String mappingSourceCode )
   {
     return
 <% if recursive_attributes.size <= 1 -%>
@@ -234,8 +432,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   }
 
   @javax.annotation.Nonnull
-  @java.lang.Override
-  public String getSqlToRetrieve<%= fn %>ListToRemove( @javax.annotation.Nonnull final String mappingSourceCode )
+  protected String getSqlToRetrieve<%= fn %>ListToRemove( @javax.annotation.Nonnull final String mappingSourceCode )
   {
 <% if recursive_attributes.size <= 1 -%>
     return
