@@ -21,6 +21,12 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module| -%>
     <%= data_module.jpa.short_test_code %> = factorySet.<%= Domgen::Naming.camelize(data_module.name) %>();
 <% end -%>
+<%
+  # TODO - there should be a better way of doing this. Perhaps Runnables/Actions that are added by facets?
+  if repository.imit?
+-%>
+    s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( "ReplicationActive", "Test" );
+<% end -%>
   }
 
   @javax.annotation.Nullable
