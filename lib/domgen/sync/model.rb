@@ -272,6 +272,10 @@ module Domgen
         @master_entity
       end
 
+      def core?
+        !self.master? && !self.sync_temp?
+      end
+
       def master?
         self.core_entity?
       end
