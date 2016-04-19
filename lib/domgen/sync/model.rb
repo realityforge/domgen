@@ -292,6 +292,10 @@ module Domgen
         entity.referencing_attributes.select { |a| (!a.sync? || a.sync.manual_sync?) && a.referenced_entity.sql? }
       end
 
+      def references_not_requiring_manual_sync
+        entity.referencing_attributes.select { |a| !a.set_once? && !a.immutable? && a.sync? && a.entity.sync.core? && !a.sync.manual_sync? && a.referenced_entity.sql? }
+      end
+
       attr_writer :recursive
 
       # Is the entity recursive?
@@ -561,6 +565,10 @@ module Domgen
                   index.filter = (index.filter.nil? ? '' : "(#{index.filter}) AND ") + "#{entity.sql.dialect.quote(:DeletedAt)} IS NULL"
                 end
               end
+            end
+
+            entity.sync.references_not_requiring_manual_sync.each do |a|
+              a.entity.query("FindAllBy#{a.name}")
             end
           end
 
