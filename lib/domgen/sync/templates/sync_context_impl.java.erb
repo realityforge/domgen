@@ -9,7 +9,7 @@ package <%= to_package(data_module.sync.qualified_sync_context_impl_name) %>;
 <pre>
 <% if data_module.repository.ee.use_cdi? -%>
 @ApplicationScoped
-@Transactional( Transactional.TxType.REQUIRES_NEW )
+@Transactional( Transactional.TxType.REQUIRED )
 @Typed( <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>.class )
 <% else -%>
 @Singleton( name = SynchronizationContext.NAME )
