@@ -568,7 +568,7 @@ module Domgen
             end
 
             entity.sync.references_not_requiring_manual_sync.each do |a|
-              a.entity.query("FindAllBy#{a.name}")
+              a.entity.query("FindAllBy#{a.name}") unless a.entity.query_by_name?("FindAllBy#{a.name}")
             end
           end
 
