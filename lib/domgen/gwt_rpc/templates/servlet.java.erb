@@ -204,9 +204,9 @@ end.join(', ') %>);
     }
 <% end %>
 <% if method.imit? -%>
-    catch ( final java.lang.Throwable e )
+    catch ( final java.lang.RuntimeException e )
     {
-      // If the transaction has rolled back there will be no messages arriving
+      // Assume RuntimeExceptions cause a rollback and if the transaction has rolled back there will be no messages arriving
       getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, "1" );
       headerSet = true;
       cause = e;
