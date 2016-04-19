@@ -313,7 +313,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
         remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( entity );
 <% end -%>
 <% if entity.sync.transaction_time? -%>
-<% entity.sync.references_not_requiring_manual_sync.each do |a| -%>
+<% entity.sync.references_not_requiring_manual_sync.select{|a| a.entity.qualified_name == entity.qualified_name }.each do |a| -%>
         {
           final java.util.List<<%= a.entity.jpa.qualified_name %>> incomingReferences = _<%= Domgen::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllBy<%= a.name %>( entity );
           for ( final <%= a.entity.jpa.qualified_name %> other : incomingReferences )
