@@ -328,7 +328,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
              * is no more elements in deferred changes list. This serves as a brute force mechanism via which entity
              * changes can be applied assuming that there is at least one valid order in which changes can be applied.
              */
-<% raise "This scenario has yet to be fuilly implemented. Can be imeplemented when the first application requires it." -%>
+            throw new <%= data_module.exception_by_name(:BadSyncSequence).ee.qualified_name %>( "Failed to synchronize <%= entity.qualified_name %> with <%= entity.primary_key.name %> " + id + " as non-nullable references exist from <%= a.entity.qualified_name %>.<%= a.name %>" );
 <% end -%>
           }
         }

@@ -121,6 +121,12 @@ module Domgen
             end
           end unless master_data_module.service_by_name?(:SynchronizationService)
 
+          unless master_data_module.exception_by_name?(:BadSyncSequence)
+            master_data_module.exception(:BadSyncSequence, 'java.exception_category' => :runtime) do |e|
+              e.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+            end
+          end
+
           master_data_module.service(:SynchronizationContext) do |s|
             s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
             if s.ejb?

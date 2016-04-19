@@ -177,6 +177,12 @@ public class <%= data_module.sync.sync_ejb_name %>
             recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount", 1 );
           }
         }
+        catch ( final <%= data_module.exception_by_name(:BadSyncSequence).ee.qualified_name %> e )
+        {
+          // Not an error as hopefully another ordering of updates will allow this to proceed
+          errors.add( result );
+          lastException = e;
+        }
         catch ( final Exception e )
         {
           errors.add( result );
