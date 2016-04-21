@@ -1,0 +1,13 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.appcache.qualified_manifest_servlet_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.servlet.annotation.WebServlet( urlPatterns = { "/<%= repository.gwt.module_name %>.appcache" } )
+public class <%= repository.appcache.manifest_servlet_name %>
+  extends org.realityforge.gwt.appcache.server.AbstractManifestServlet
+{
+  public <%= repository.appcache.manifest_servlet_name %>()
+  {
+    addPropertyProvider( new org.realityforge.gwt.appcache.server.propertyprovider.UserAgentPropertyProvider() );
+  }
+}
