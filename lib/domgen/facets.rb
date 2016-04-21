@@ -75,9 +75,33 @@ module Domgen
       self.activate_facet(key)
     end
 
+    def enable_facets!(keys)
+      keys.each do |key|
+        enable_facet(key)
+      end
+    end
+
+    def enable_facets(keys)
+      keys.each do |key|
+        self.activate_facet(key) unless self.facet_enabled?(key)
+      end
+    end
+
     def disable_facet(key)
       Domgen.error("Facet #{key} not enabled.") unless self.facet_enabled?(key)
       self.deactivate_facet(key)
+    end
+
+    def disable_facets!(keys)
+      keys.each do |key|
+        disable_facet(key)
+      end
+    end
+
+    def disable_facets(keys)
+      keys.each do |key|
+        disable_facet(key)
+      end
     end
 
     def disable_facets_not_in(facets)
