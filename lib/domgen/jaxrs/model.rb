@@ -63,7 +63,7 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       def short_service_name
-        service.name.to_s =~ /^(.*)Service/ ? service.name.to_s[0..-7] : service.name
+        service.name.to_s =~ /^(.*)Service/ ? service.name.to_s[0..-8] : service.name
       end
 
       java_artifact :service, :service, :server, :ee, '#{short_service_name}RestService'
