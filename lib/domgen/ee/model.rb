@@ -35,6 +35,10 @@ module Domgen
         @web_metadata_complete.nil? ? false : @web_metadata_complete
       end
 
+      def web_xml_content_fragments
+        @web_xml_content_fragments ||= []
+      end
+
       def web_xml_fragments
         @web_xml_fragments ||= []
       end
