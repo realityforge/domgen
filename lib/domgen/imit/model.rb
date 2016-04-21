@@ -652,6 +652,14 @@ module Domgen
         @imit_control_data_module || (self.repository.data_module_by_name?(self.repository.name) ? self.repository.name : Domgen.error('imit_control_data_module unspecified and unable to derive default.'))
       end
 
+      def pre_complete
+        if repository.jaxrs?
+          repository.jaxrs.extensions << self.qualified_session_rest_service_name
+          repository.jaxrs.extensions << self.qualified_session_exception_mapper_name
+          repository.jaxrs.extensions << 'org.realityforge.replicant.server.ee.rest.ReplicantPollResource'
+        end
+      end
+
       def pre_verify
         repository.ejb.extra_test_modules << self.qualified_server_net_module_name if repository.ejb?
         if self.graphs.size == 0
