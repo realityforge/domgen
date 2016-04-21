@@ -136,7 +136,7 @@ module Domgen
       object.instance_eval("def #{self.key}; Domgen.error(\"Facet #{self.key} has been disabled\"); end")
       object.instance_eval("def #{self.key}?; return false; end")
       object.send(:remove_instance_variable, :"@#{self.key}") rescue
-      Logger.debug "Facet '#{key}' disabled for #{object.class} by removing extension #{extension_class}"
+        Logger.debug "Facet '#{key}' disabled for #{object.class} by removing extension #{extension_class}"
     end
   end
 
