@@ -401,6 +401,7 @@ module Domgen
             java_package :data_type, :scope => scope
             java_package :entity, :scope => scope
             java_package :service, :scope => scope, :sub_packages => ['internal']
+            java_package :rest, :scope => scope, :sub_packages => ['internal']
             java_package :test, :scope => scope, :sub_packages => ['util']
           end
         end
@@ -499,6 +500,7 @@ module Domgen
               java_package :data_type, :scope => scope
               java_package :entity, :scope => scope
               java_package :service, :scope => scope, :sub_packages => ['internal']
+              java_package :rest, :scope => scope, :sub_packages => ['internal']
               java_package :test, :scope => scope, :sub_packages => ['util']
             end
           end
