@@ -142,3 +142,6 @@ require 'domgen/audit/generator'
 # Database level synchronization
 require 'domgen/sync/model'
 require 'domgen/sync/generator'
+
+# Some caching for gwt apps
+require 'domgen/gwt_cache_filter/model'
