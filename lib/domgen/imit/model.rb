@@ -501,12 +501,6 @@ module Domgen
         @server_comm_package || "#{server_package}.net"
       end
 
-      attr_writer :server_rest_package
-
-      def server_rest_package
-        @server_rest_package || "#{server_package}.rest"
-      end
-
       attr_writer :client_comm_package
 
       def client_comm_package
