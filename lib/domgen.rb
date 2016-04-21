@@ -149,3 +149,6 @@ require 'domgen/gwt_cache_filter/model'
 # Some appcache generation for gwt apps
 require 'domgen/appcache/model'
 require 'domgen/appcache/generator'
+
+# timerstatus monitoring library
+require 'domgen/timerstatus/model'
