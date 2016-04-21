@@ -38,7 +38,6 @@ module Domgen
 <!-- gwt_cache_filter fragment end -->
 XML
       end
-
     end
   end
 end
