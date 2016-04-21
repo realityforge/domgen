@@ -154,3 +154,5 @@ require 'domgen/appcache/generator'
 require 'domgen/timerstatus/model'
 
 require 'domgen/appconfig/model'
+
+require 'domgen/syncrecord/model'
