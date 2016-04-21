@@ -33,7 +33,7 @@ module Domgen
       attr_writer :api_url
 
       def api_url
-        @api_url || "#{self.base_api_url}/#{self.module_name}"
+        @api_url || "#{self.base_api_url}/#{repository.gwt.module_name}"
       end
 
       java_artifact :rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}RpcRequestBuilder'

@@ -18,6 +18,12 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      attr_writer :module_name
+
+      def module_name
+        @module_name || Domgen::Naming.underscore(repository.name)
+      end
+
       attr_writer :client_event_package
 
       def client_event_package
