@@ -55,7 +55,7 @@ module Domgen
         @path || 'api'
       end
 
-      java_artifact :abstract_application, :service, :server, :ee, '#{repository.name}JaxRsApplication'
+      java_artifact :abstract_application, :rest, :server, :ee, 'Abstract#{repository.name}JaxRsApplication'
 
       def extensions
         @extensions ||= []
@@ -70,8 +70,8 @@ module Domgen
         service.name.to_s =~ /^(.*)Service/ ? service.name.to_s[0..-8] : service.name
       end
 
-      java_artifact :service, :service, :server, :ee, '#{short_service_name}RestService'
-      java_artifact :boundary, :service, :server, :ee, '#{service_name}Impl'
+      java_artifact :service, :rest, :server, :ee, '#{short_service_name}RestService'
+      java_artifact :boundary, :rest, :server, :ee, '#{service_name}Impl', :sub_package => 'internal'
 
       attr_accessor :boundary_extends
 
