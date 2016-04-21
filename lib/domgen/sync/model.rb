@@ -14,11 +14,11 @@
 
 module Domgen
   class Sync
-    VALID_MASTER_FACETS = [:sql, :mssql, :pgsql, :ee, :ejb, :java, :jpa, :sync]
-    VALID_SYNC_TEMP_FACETS = [:sql, :mssql, :pgsql, :sync]
+    VALID_MASTER_FACETS = [:sql, :mssql, :pgsql, :ee, :ejb, :java, :jpa, :sync, :syncrecord, :appconfig]
+    VALID_SYNC_TEMP_FACETS = [:sql, :mssql, :pgsql, :sync, :syncrecord, :appconfig]
   end
 
-  FacetManager.facet(:sync => [:sql]) do |facet|
+  FacetManager.facet(:sync => [:syncrecord, :sql]) do |facet|
     facet.enhance(Repository) do
 
       def transaction_time=(transaction_time)
