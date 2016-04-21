@@ -3,12 +3,6 @@
 <% repository.ee.beans_xml_content_fragments.each do |fragment| -%>
 <%= fragment -%>
 <% end -%>
-<% if repository.gwt? %>
-  <scan>
-    <exclude name="<%= repository.gwt.client_package %>.**"/>
-  </scan>
-<% end %>
-
 <% repository.ee.resolved_beans_xml_fragments.each do |fragment| -%>
 <%= IO.read(fragment) -%>
 <% end -%>

@@ -33,6 +33,16 @@ module Domgen
       java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
       java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
 
+      def pre_complete
+        repository.ee.beans_xml_content_fragments << <<XML
+<!-- gwt fragment is auto-generated -->
+  <scan>
+    <exclude name="#{repository.gwt.client_package}.**"/>
+  </scan>
+<!-- gwt fragment end -->
+XML
+      end
+
       protected
 
       def facet_key
