@@ -152,3 +152,5 @@ require 'domgen/appcache/generator'
 
 # timerstatus monitoring library
 require 'domgen/timerstatus/model'
+
+require 'domgen/appconfig/model'
