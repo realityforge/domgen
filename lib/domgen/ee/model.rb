@@ -49,6 +49,10 @@ module Domgen
         end
       end
 
+      def beans_xml_content_fragments
+        @beans_xml_content_fragments ||= []
+      end
+
       def beans_xml_fragments
         @beans_xml_fragments ||= []
       end
