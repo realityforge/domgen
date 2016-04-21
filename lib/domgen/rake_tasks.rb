@@ -267,9 +267,13 @@ module Domgen
     end
 
     def define
-      desc self.description
       namespace self.namespace_key do
-        task :load => [self.filename] do
+        task :preload
+
+        task :postload
+
+        desc self.description
+        task :load => [:preload, self.filename] do
           old_level = Domgen::Logger.level
           begin
             Domgen::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
@@ -284,6 +288,7 @@ module Domgen
             Domgen.current_filename = nil
             Domgen::Logger.level = old_level
           end
+          task("#{self.namespace_key}:postload").invoke
         end
         Domgen::TaskRegistry.get_aggregate_task(self.namespace_key)
       end
