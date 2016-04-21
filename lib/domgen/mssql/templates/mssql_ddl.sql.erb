@@ -305,6 +305,27 @@ BEGIN
 <%
    end
 %>
+<%
+   entity.sql.foreign_keys.each do |foreign_key|
+     join_cols = []
+     source_cols = []
+     foreign_key.attribute_names.each_with_index do |a, index|
+      join_cols << "E.#{entity.attribute_by_name(a).sql.quoted_column_name} = O.#{foreign_key.referenced_entity.attribute_by_name(foreign_key.referenced_attribute_names[index]).sql.quoted_column_name}"
+      source_cols << "E.#{entity.attribute_by_name(a).sql.quoted_column_name} IS NOT NULL"
+     end
+     check_sql = "SELECT * FROM #{entity.sql.qualified_table_name} E LEFT JOIN #{foreign_key.referenced_entity.sql.qualified_table_name} O ON #{join_cols.join(' AND ')} WHERE O.#{foreign_key.referenced_entity.primary_key.sql.quoted_column_name} IS NULL AND (#{source_cols.join(' AND ')})"
+%>
+  IF @PrintProgress = 1 PRINT 'Checking foreign key <%= foreign_key.quoted_foreign_key_name %>'
+  SELECT @Ignored = 1 WHERE EXISTS ( <%= check_sql %> )
+  IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
+  BEGIN
+    IF @ShowErrors = 1 PRINT 'Foreign key <%= foreign_key.quoted_foreign_key_name %> has errors'
+    INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
+      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','<%= foreign_key.foreign_key_name %>','<%= check_sql %>')
+  END
+<%
+   end
+%>
 <% entity.sql.validations.select{|validation| !validation.invariant_negative_sql.nil?}.each do |validation| %>
   ;<%= validation.common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.invariant_negative_sql %>)
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
