@@ -56,6 +56,10 @@ module Domgen
       end
 
       java_artifact :abstract_application, :service, :server, :ee, '#{repository.name}JaxRsApplication'
+
+      def extensions
+        @extensions ||= []
+      end
     end
 
     facet.enhance(Service) do
