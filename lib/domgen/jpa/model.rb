@@ -257,6 +257,10 @@ module Domgen
         return nil if provider.nil?
       end
 
+      def persistence_file_content_fragments
+        @persistence_file_content_fragments ||= []
+      end
+
       def persistence_file_fragments
         @persistence_file_fragments ||= []
       end
