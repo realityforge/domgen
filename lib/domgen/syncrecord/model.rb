@@ -17,6 +17,30 @@ module Domgen
     facet.enhance(Repository) do
       def pre_complete
         repository.jaxrs.extensions << 'iris.syncrecord.server.rest.SyncStatusService' if repository.jaxrs?
+
+        if repository.jpa?
+          repository.jpa.persistence_file_content_fragments << <<FRAGMENT
+<!-- syncrecord fragment is auto-generated -->
+<persistence-unit name="SyncRecord" transaction-type="JTA">
+  <jta-data-source>#{repository.jpa.data_source}</jta-data-source>
+
+  <class>iris.syncrecord.server.entity.Synchronization</class>
+  <class>iris.syncrecord.server.entity.Message</class>
+  <class>iris.syncrecord.server.entity.Metric</class>
+
+  <exclude-unlisted-classes>true</exclude-unlisted-classes>
+  <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+  <validation-mode>AUTO</validation-mode>
+
+  <properties>
+    <property name="eclipselink.logging.logger" value="JavaLogger"/>
+    <property name="eclipselink.session-name" value="#{repository.name}SyncRecord"/>
+    <property name="eclipselink.temporal.mutable" value="false"/>
+  </properties>
+</persistence-unit>
+<!-- syncrecord fragment end -->
+FRAGMENT
+        end
       end
     end
   end

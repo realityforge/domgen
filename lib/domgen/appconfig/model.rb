@@ -17,6 +17,28 @@ module Domgen
     facet.enhance(Repository) do
       def pre_complete
         repository.jaxrs.extensions << 'iris.appconfig.server.rest.SystemSettingRestService' if repository.jaxrs?
+
+        if repository.jpa?
+          repository.jpa.persistence_file_content_fragments << <<FRAGMENT
+<!-- appconfig fragment is auto-generated -->
+<persistence-unit name="AppConfig" transaction-type="JTA">
+  <jta-data-source>#{repository.jpa.data_source}</jta-data-source>
+
+  <class>iris.appconfig.server.entity.SystemSetting</class>
+
+  <exclude-unlisted-classes>true</exclude-unlisted-classes>
+  <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+  <validation-mode>AUTO</validation-mode>
+
+  <properties>
+    <property name="eclipselink.logging.logger" value="JavaLogger"/>
+    <property name="eclipselink.session-name" value="#{repository.name}AppConfig"/>
+    <property name="eclipselink.temporal.mutable" value="false"/>
+  </properties>
+</persistence-unit>
+<!-- appconfig fragment end -->
+FRAGMENT
+        end
       end
     end
   end
