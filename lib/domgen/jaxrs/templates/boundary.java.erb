@@ -8,14 +8,13 @@ package <%= to_package(service.jaxrs.qualified_boundary_name) %>;
 @javax.ejb.Singleton( name = <%= service.jaxrs.boundary_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 public class <%= service.jaxrs.boundary_name %>
-<%= service.jaxrs.boundary_extends ? "  extends #{service.jaxrs.boundary_extends}" : "" %>
+<%= service.jaxrs.boundary_extends ? "  extends #{service.jaxrs.boundary_extends}\n" : "" -%>
   implements <%= service.jaxrs.qualified_service_name %>
 {
   public static final String NAME = "<%= service.jaxrs.service_name %>";
 
   @javax.inject.Inject
   private <%= service.ejb.qualified_boundary_interface_name %> _service;
-
 <% service.methods.select{|method| method.jaxrs?}.each do |method|
 %>
   public <%= annotated_type(method.return_value, :jaxrs, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jaxrs, :boundary)} #{Domgen::Naming.camelize(p.name)}" }.join(", ") %>)<%=
@@ -25,5 +24,4 @@ public class <%= service.jaxrs.boundary_name %>
   {
     <%= method.return_value.return_type != :void ? 'return ' : '' %>_service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(", ") %>);
   }
-
 <% end %>}
