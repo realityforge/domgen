@@ -13,7 +13,7 @@ package <%= to_package(data_module.sync.qualified_sync_context_impl_name) %>;
 @Typed( <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>.class )
 <% else -%>
 @Singleton( name = SynchronizationContext.NAME )
-@TransactionAttribute( TransactionAttributeType.REQUIRES_NEW )
+@TransactionAttribute( TransactionAttributeType.REQUIRED )
 @ConcurrencyManagement( ConcurrencyManagementType.BEAN )
 @Local( <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>.class )
 <% end -%>
