@@ -51,3 +51,7 @@
 * Race condition; Shutdown of session can disconnect mid-poll resulting in exception in poller
 * Merge multiple update channels into on replicant session. i.e. How to merge AppConfig into ODS stream?
 * Merge identical filters in output format.
+
+### JPA
+
+* add domgen feature that can have persistence.xml without persistence-unit for domgen aspects
