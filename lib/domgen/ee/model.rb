@@ -26,7 +26,7 @@ module Domgen
       end
 
       def use_cdi?
-        !!@use_cdi
+        @use_cdi.nil? ? true : false
       end
 
       attr_writer :web_metadata_complete
