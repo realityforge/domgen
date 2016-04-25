@@ -1,0 +1,45 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.mail.qualified_mail_queue_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.enterprise.context.ApplicationScoped
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
+@javax.enterprise.inject.Typed( iris.mail.server.service.MailQueueService.class )
+public class <%= repository.mail.mail_queue_name %>
+  extends iris.mail.server.service.AbstractMailQueueServiceImpl
+  implements iris.mail.server.service.MailQueueService
+{
+  @javax.annotation.Resource( name = "<%= repository.mail.resource_name %>" )
+  private javax.mail.Session _session;
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected javax.mail.Session getSession()
+  {
+    return _session;
+  }
+
+  @java.lang.Override
+  protected boolean persistOnSend()
+  {
+    return <%= repository.mail.persist_on_send? %>;
+  }
+
+  @java.lang.Override
+  protected boolean clearMessageOnSend()
+  {
+    return <%= repository.mail.clear_message_on_send? %>;
+  }
+
+  @java.lang.Override
+  protected boolean persistOnError()
+  {
+    return <%= repository.mail.persist_on_error? %>;
+  }
+
+  @java.lang.Override
+  protected boolean clearErrorOnSend()
+  {
+    return <%= repository.mail.clear_error_on_send? %>;
+  }
+}

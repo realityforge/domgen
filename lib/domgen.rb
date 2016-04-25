@@ -156,3 +156,6 @@ require 'domgen/timerstatus/model'
 require 'domgen/appconfig/model'
 
 require 'domgen/syncrecord/model'
+
+require 'domgen/mail/model'
+require 'domgen/mail/generator'
