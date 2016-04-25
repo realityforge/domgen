@@ -15,6 +15,7 @@
 module Domgen
   FacetManager.facet(:ee => [:java]) do |facet|
     facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
       def version
@@ -74,6 +75,8 @@ module Domgen
         Domgen.error("Unknown version '#{version}'") unless %w(6 7).include?(version)
         @version = version
       end
+
+      java_artifact :abstract_filter, :filter, :server, :ee, 'Abstract#{repository.name}Filter'
     end
 
     facet.enhance(DataModule) do

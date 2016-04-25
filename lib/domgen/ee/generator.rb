@@ -67,4 +67,12 @@ Domgen.template_set(:ee_beans_xml) do |template_set|
                         Domgen::Generator::EE::HELPERS)
 end
 
+Domgen.template_set(:ee_filter) do |template_set|
+  template_set.template(Domgen::Generator::EE::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/abstract_filter.java.erb",
+                        'main/java/#{repository.ee.qualified_abstract_filter_name.gsub(".","/")}.java',
+                        Domgen::Generator::EE::HELPERS)
+end
+
 Domgen.template_set(:ee => [:jaxrs, :jpa, :ejb, :jmx, :jws, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
