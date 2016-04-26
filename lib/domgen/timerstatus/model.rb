@@ -15,6 +15,23 @@
 module Domgen
   FacetManager.facet(:timerstatus) do |facet|
     facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
+
+      java_artifact :integration_test, :rest, :server, :timerstatus, '#{repository.name}TimerstatusTest'
+
+      def timers
+        timers = []
+        repository.data_modules.select{|data_module| data_module.ejb?}.each do |data_module|
+          data_module.services.select{|service| service.ejb?}.each do |service|
+            service.methods.select{|method|method.ejb? && method.ejb.schedule?}.each do |method|
+              timers << method.ejb.schedule.info
+            end
+          end
+        end
+        timers
+      end
+
       def pre_complete
         repository.jaxrs.extensions << 'iris.timerstatus.server.service.TimerStatusService' if repository.jaxrs?
       end

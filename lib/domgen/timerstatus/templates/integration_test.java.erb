@@ -1,0 +1,19 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.timerstatus.qualified_integration_test_name) %>;
+
+public class <%= repository.timerstatus.integration_test_name %>
+  extends <%= repository.ee.qualified_base_integration_test %>
+{
+  @org.testng.annotations.Test
+  public void checkTimersExposed()
+    throws Exception
+  {
+<%
+  timers = repository.timerstatus.timers
+  timers.each do |timer|
+  -%>
+    org.testng.Assert.assertEquals( httpGet( "/api/timers/<%= timer %>", javax.json.JsonObject.class ).getString( "info", "" ), "<%= timer %>" );
+<% end -%>
+    org.testng.Assert.assertEquals( httpGet( "/api/timers", javax.json.JsonArray.class ).size(), <%= timers.size %> );
+  }
+}
