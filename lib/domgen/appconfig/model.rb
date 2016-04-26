@@ -15,6 +15,11 @@
 module Domgen
   FacetManager.facet(:appconfig) do |facet|
     facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
+
+      java_artifact :integration_test, :rest, :server, :appconfig, '#{repository.name}AppconfigTest'
+
       def pre_complete
         repository.jaxrs.extensions << 'iris.appconfig.server.rest.SystemSettingRestService' if repository.jaxrs?
 

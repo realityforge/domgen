@@ -1,0 +1,24 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.appconfig.qualified_integration_test_name) %>;
+
+public class <%= repository.appconfig.integration_test_name %>
+  extends <%= repository.ee.qualified_base_integration_test %>
+{
+  @org.testng.annotations.Test
+  public void checkSettingsExposed()
+    throws Exception
+  {
+    // TODO: Verify any settings we expect to be present
+    final int initialCount = httpGet( "/api/settings", javax.json.JsonArray.class ).size();
+    final javax.persistence.EntityTransaction transaction = getInstance( iris.appconfig.server.entity.AppConfigPersistenceUnit.NAME, javax.persistence.EntityManager.class ).getTransaction();
+    transaction.begin();
+    final String key = java.util.UUID.randomUUID().toString();
+    final String value = java.util.UUID.randomUUID().toString();
+    s( iris.appconfig.server.service.SystemSettingService.class ).setSetting( key, value );
+    transaction.commit();
+    org.testng.Assert.assertEquals( httpGet( "/api/settings", javax.json.JsonArray.class ).size(), initialCount + 1 );
+    final javax.json.JsonObject jsonObject = httpGet( "/api/settings/" + key, javax.json.JsonObject.class );
+    org.testng.Assert.assertEquals( jsonObject.getString( "code" ), key );
+    org.testng.Assert.assertEquals( jsonObject.getString( "value" ), value );
+  }
+}

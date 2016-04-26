@@ -155,6 +155,7 @@ require 'domgen/timerstatus/model'
 require 'domgen/timerstatus/generator'
 
 require 'domgen/appconfig/model'
+require 'domgen/appconfig/generator'
 
 require 'domgen/syncrecord/model'
 
