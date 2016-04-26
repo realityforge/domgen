@@ -13,6 +13,19 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     return "/" + APP_NAME;
   }
 
+<%
+  repository.data_modules.select{|dm|dm.jws?}.each do |data_module|
+    data_module.services.select{|s|s.jws?}.each do |service|
+-%>
+  public final String get<%= service.data_module.name %><%= service.name %>EndpointAddress()
+  {
+    return getSiteURL() + "<%= service.jws.url %>";
+  }
+<%
+    end
+  end
+-%>
+
 <% if repository.jpa? -%>
   @java.lang.Override
   protected void configureGlassFish( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.glassfish.GlassFishContainer glassfish )
