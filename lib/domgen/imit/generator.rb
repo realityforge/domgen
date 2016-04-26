@@ -24,6 +24,14 @@ module Domgen
   end
 end
 
+Domgen.template_set(:imit_integration_qa) do |template_set|
+  template_set.template(Domgen::Generator::Imit::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/integration_module.java.erb",
+                        'main/java/#{repository.imit.qualified_integration_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::HELPERS)
+end
+
 Domgen.template_set(:imit_metadata) do |template_set|
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :repository,
@@ -260,4 +268,4 @@ end
 Domgen.template_set(:imit_shared => [:imit_metadata])
 Domgen.template_set(:imit_server => [:imit_server_service, :imit_server_entity, :imit_server_qa])
 Domgen.template_set(:imit_client => [:imit_client_test_qa, :imit_client_service, :imit_client_entity])
-Domgen.template_set(:imit => [:imit_client, :imit_server, :imit_shared])
+Domgen.template_set(:imit => [:imit_client, :imit_server, :imit_shared, :imit_integration_qa])
