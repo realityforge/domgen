@@ -36,6 +36,20 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
 <% else -%>
     glassfish.createPostgresJdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
 <% end -%>
+<% if repository.jms? -%>
+    // iiop required for JMS
+    glassfish.createLocalIiopListener( "<%= Domgen::Naming.underscore(repository.name) %>/iiop_listener" );
+    glassfish.deleteDefaultIiopListeners();
+
+    glassfish.setDefaultJmsHost( "<%= Domgen::Naming.underscore(repository.name) %>/jms/host", getOpenMQContainer() );
+    glassfish.createJmsConnectionFactory( "<%= repository.jms.connection_factory_resource_name %>", getOpenMQContainer() );
+
+<%
+    # Currently guiceyloops does not support creation of topics so just skip it
+  repository.jms.endpoint_methods.select{|method| method.jms.destination_type == 'javax.jms.Queue'}.each do |method| -%>
+    glassfish.createJmsQueue( "<%= method.jms.destination_resource_name %>", "<%= method.jms.physical_resource_name %>" );
+<% end -%>
+<% end -%>
   }
 
 <% end -%>

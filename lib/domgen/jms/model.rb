@@ -22,6 +22,14 @@ module Domgen
       def connection_factory_resource_name
         @connection_factory_resource_name || "#{Domgen::Naming.underscore(repository.name)}/jms/ConnectionFactory"
       end
+
+      def endpoint_methods
+        repository.data_modules.select{|data_module| data_module.jms?}.collect do |data_module|
+          data_module.services.select{|service| service.jms?}.collect do |service|
+            service.methods.select{|method| method.jms? && method.jms.mdb?}
+          end
+        end.flatten
+      end
     end
 
     facet.enhance(Parameter) do
@@ -55,6 +63,15 @@ module Domgen
 
       def destination_resource_name
         @destination_resource_name || "#{Domgen::Naming.underscore(method.service.data_module.repository.name)}/jms/#{method.qualified_name.gsub('#', '.')}"
+      end
+
+      def physical_resource_name=(physical_resource_name)
+        self.mdb = true
+        @physical_resource_name = physical_resource_name
+      end
+
+      def physical_resource_name
+        @physical_resource_name || destination_resource_name.gsub(/.*\/jms\//,'')
       end
 
       def destination_type=(destination_type)
