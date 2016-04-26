@@ -5,7 +5,7 @@ package <%= to_package(repository.ee.qualified_abstract_app_server_name) %>;
 public abstract class <%= repository.ee.abstract_app_server_name %>
   extends org.realityforge.guiceyloops.server.glassfish.AbstractAppServer
 {
-  private static final String APP_NAME = "<%= repository.name %>";
+  private static final String APP_NAME = "<%= Domgen::Naming.underscore(repository.name) %>";
 
   @java.lang.Override
   protected String getContextRoot()
