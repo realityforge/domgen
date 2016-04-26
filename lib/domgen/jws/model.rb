@@ -30,6 +30,7 @@ module Domgen
       end
 
       java_artifact :fake_server, :service, :fake, :jws, 'Fake#{repository.name}Server'
+      java_artifact :fake_server_factory, :service, :fake, :jws, 'Fake#{repository.name}ServerFactory'
       java_artifact :abstract_fake_server_test, :service, :fake, :jws, 'AbstractFake#{repository.name}ServerTest'
       java_artifact :client_integration_test, :service, :fake, :jws, '#{repository.name}ClientIntegrationTest'
 
