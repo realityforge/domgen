@@ -81,6 +81,16 @@ module Domgen
       java_artifact :app_server_factory, :test, :server, :ee, '#{repository.name}AppServerFactory', :sub_package => 'util'
       java_artifact :abstract_integration_test, :test, :server, :ee, 'Abstract#{repository.name}GlassFishTest', :sub_package => 'util'
 
+      def qualified_base_integration_test
+        "#{server_util_test_package}.#{base_integration_test}"
+      end
+
+      attr_writer :base_integration_test
+
+      def base_integration_test
+        @base_integration_test || abstract_integration_test_name.gsub(/^Abstract/,'')
+      end
+
       def qualified_app_server_name
         "#{server_util_test_package}.#{app_server_name}"
       end
