@@ -86,6 +86,11 @@ Domgen.template_set(:ee_integration) do |template_set|
                         "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/app_server_factory.java.erb",
                         'main/java/#{repository.ee.qualified_app_server_factory_name.gsub(".","/")}.java',
                         Domgen::Generator::EE::HELPERS)
+  template_set.template(Domgen::Generator::EE::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/abstract_integration_test.java.erb",
+                        'main/java/#{repository.ee.qualified_abstract_integration_test_name.gsub(".","/")}.java',
+                        Domgen::Generator::EE::HELPERS)
 end
 
 Domgen.template_set(:ee => [:jaxrs, :jpa, :ejb, :jmx, :jws, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
