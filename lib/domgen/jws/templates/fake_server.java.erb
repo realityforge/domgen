@@ -44,6 +44,11 @@ public class <%= repository.jws.fake_server_name %>
     _<%= data_module.name %>_<%= service.name %>.setDelegate( service );
   }
 
+  public String get<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>WsdlAddress()
+  {
+    return getServiceWsdlAddress( <%= service.jws.qualified_java_service_name %>.class );
+  }
+
   public String get<%= "#{data_module.name.to_s == repository.name.to_s ? '' : data_module.name}#{service.name}" %>Address()
   {
     return getServiceAddress( <%= service.jws.qualified_java_service_name %>.class );
@@ -99,6 +104,11 @@ public class <%= repository.jws.fake_server_name %>
     end
   end
 %>
+  }
+
+  private String getServiceWsdlAddress( final Class type )
+  {
+    return getServiceAddress( type ) + "?WSDL";
   }
 
   private String getServiceAddress( final Class type )
