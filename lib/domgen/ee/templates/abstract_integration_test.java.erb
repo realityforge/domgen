@@ -18,6 +18,14 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
     getAppServer().tearDown();
   }
 
+  @org.testng.annotations.BeforeMethod
+  public void preTest()
+    throws Exception
+  {
+    super.preTest();
+    usesTransaction();
+  }
+
   @javax.annotation.Nonnull
   protected final <%= repository.ee.qualified_app_server_name %> getAppServer()
   {
