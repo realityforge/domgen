@@ -12,7 +12,7 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
   public void setUpServices()
     throws Exception
   {
-<% if repository.imit? -%>
+<% if repository.jms? -%>
     getAppServer().enableOpenMQ();
 <% end -%>
     getAppServer().setUp();
