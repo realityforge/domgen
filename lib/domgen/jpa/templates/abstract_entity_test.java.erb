@@ -51,11 +51,27 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% end -%>
     addModule( modules, new<%= repository.name %>DaoModule() );
     addModule( modules, new<%= repository.name %>PersistentTestModule() );
+<% if repository.appconfig? -%>
+    addModule( modules, newAppConfigPersistenceEntityModule() );
+    addModule( modules, new iris.appconfig.server.test.util.AppConfigRepositoryModule() );
+    addModule( modules, new iris.appconfig.server.test.util.AppConfigServicesModule( this ) );
 <% if repository.syncrecord? -%>
     addModule( modules, new iris.syncrecord.server.test.util.SyncRecordModule( this ) );
 <% end -%>
+<% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
+
+<% if repository.appconfig? -%>
+  /**
+   * This should be overridden in integration tests so flags can be set and persistent during test.
+   */
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newAppConfigPersistenceEntityModule()
+  {
+    return new iris.appconfig.server.test.util.AppConfigPersistenceTestModule();
+  }
+<% end -%>
 
   @javax.annotation.Nullable
   @java.lang.Override
