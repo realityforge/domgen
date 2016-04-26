@@ -5,6 +5,9 @@ package <%= to_package(repository.ee.qualified_abstract_integration_test_name) %
 public abstract class <%= repository.ee.abstract_integration_test_name %>
   extends <%= repository.jpa? ? repository.jpa.qualified_base_entity_test_name : 'org.realityforge.guiceyloops.server.AbstractServerTest' %>
 {
+  // Arbitrarily large enough for most requests
+  private static final int SOCKET_TIMEOUT = 20000;
+
   @org.testng.annotations.BeforeSuite
   public void setUpServices()
     throws Exception
@@ -84,4 +87,31 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
     return new NoDeleteAppConfigPersistenceTestModule();
   }
 <% end -%>
+
+  protected <T> T httpGet( @javax.annotation.Nonnull final String urlFragment, @javax.annotation.Nonnull final Class<T> type )
+    throws java.lang.Exception
+  {
+    return toWebTarget( urlFragment ).request().get( type );
+  }
+
+  @javax.annotation.Nonnull
+  protected javax.ws.rs.client.WebTarget toWebTarget( @javax.annotation.Nonnull final String urlFragment )
+  {
+    return newClient().target( toURL( urlFragment ) );
+  }
+
+  @javax.annotation.Nonnull
+  protected String toURL( @javax.annotation.Nonnull final String urlFragment )
+  {
+    return getAppServer().getSiteURL() + urlFragment;
+  }
+
+  @javax.annotation.Nonnull
+  protected javax.ws.rs.client.Client newClient()
+  {
+    return javax.ws.rs.client.ClientBuilder.newBuilder().
+      property( "jersey.config.client.connectTimeout", SOCKET_TIMEOUT ).
+      property( "jersey.config.client.readTimeout", SOCKET_TIMEOUT ).
+      build();
+  }
 }
