@@ -11,6 +11,10 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
   protected <%= data_module.jpa.qualified_test_factory_name %> <%= data_module.jpa.short_test_code %>;
 <% end -%>
+<% if repository.appconfig? -%>
+  @javax.annotation.Nonnull
+  protected iris.appconfig.server.test.util.AppConfigFactory ac;
+<% end -%>
 
   @org.testng.annotations.BeforeMethod
   public void preTest()
@@ -26,6 +30,9 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   if repository.imit?
 -%>
     s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( "ReplicationActive", "Test" );
+<% end -%>
+<% if repository.appconfig? -%>
+    ac = new iris.appconfig.server.test.util.AppConfigFactorySet( getInjector() ).appConfig();
 <% end -%>
   }
 
