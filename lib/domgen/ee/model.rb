@@ -77,6 +77,18 @@ module Domgen
       end
 
       java_artifact :abstract_filter, :filter, :server, :ee, 'Abstract#{repository.name}Filter'
+      java_artifact :abstract_app_server, :test, :server, :ee, 'Abstract#{repository.name}AppServer', :sub_package => 'util'
+      java_artifact :app_server_factory, :test, :server, :ee, '#{repository.name}AppServerFactory', :sub_package => 'util'
+
+      def qualified_app_server_name
+        "#{server_util_test_package}.#{app_server_name}"
+      end
+
+      attr_writer :app_server_name
+
+      def app_server_name
+        @app_server_name || abstract_app_server_name.gsub(/^Abstract/,'')
+      end
     end
 
     facet.enhance(DataModule) do

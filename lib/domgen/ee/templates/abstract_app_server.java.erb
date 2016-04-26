@@ -1,0 +1,35 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.ee.qualified_abstract_app_server_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= repository.ee.abstract_app_server_name %>
+  extends org.realityforge.guiceyloops.server.glassfish.AbstractAppServer
+{
+  private static final String APP_NAME = "<%= repository.name %>";
+
+  @java.lang.Override
+  protected String getContextRoot()
+  {
+    return "/" + APP_NAME;
+  }
+
+<% if repository.jpa? -%>
+  @java.lang.Override
+  protected void configureGlassFish( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.glassfish.GlassFishContainer glassfish )
+    throws Exception
+  {
+<% if repository.mssql? -%>
+    glassfish.createSqlServerJdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
+<% else -%>
+    glassfish.createPostgresJdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
+<% end -%>
+  }
+
+<% end -%>
+  @java.lang.Override
+  protected void performDeploy()
+    throws Exception
+  {
+    getGlassfish().deploy( getContextRoot(), APP_NAME, org.realityforge.guiceyloops.server.glassfish.GlassFishContainerUtil.getWarFile() );
+  }
+}
