@@ -2,7 +2,7 @@
 package <%= to_package(repository.appconfig.qualified_integration_test_name) %>;
 
 public class <%= repository.appconfig.integration_test_name %>
-  extends <%= repository.ee.qualified_base_integration_test %>
+  extends <%= repository.ee.qualified_base_integration_test_name %>
 {
   @org.testng.annotations.Test
   public void checkSettingsExposed()
