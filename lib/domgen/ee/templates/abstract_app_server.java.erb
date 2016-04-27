@@ -57,7 +57,14 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     glassfish.createJmsQueue( "<%= method.jms.destination_resource_name %>", "<%= method.jms.physical_resource_name %>" );
 <% end -%>
     // JMS Configuration Ende
+
 <% end -%>
+<% if repository.mail? -%>
+
+    // Mail Configuration Start
+    // TODO: Consider sending mail to greenmail
+    glassfish.createJavamailResource( "<%= repository.mail.resource_name %>", "mail.example.com", "bob", "bob@example.com" );
+    // Mail Configuration Ende
 
 <% end -%>
   }

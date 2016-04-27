@@ -16,6 +16,11 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
   protected iris.appconfig.server.test.util.AppConfigFactory ac;
 <% end -%>
+<% if repository.mail? -%>
+  @javax.annotation.Nonnull
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
+  protected iris.mail.server.test.util.MailFactory <%= repository.mail.short_test_code %>;
+<% end -%>
 
   @org.testng.annotations.BeforeMethod
   public void preTest()
@@ -34,6 +39,9 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% end -%>
 <% if repository.appconfig? -%>
     ac = new iris.appconfig.server.test.util.AppConfigFactorySet( getInjector() ).appConfig();
+<% end -%>
+<% if repository.mail? -%>
+    <%= repository.mail.short_test_code %> = new iris.mail.server.test.util.MailFactorySet( getInjector() ).mail();
 <% end -%>
   }
 
@@ -66,6 +74,9 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% if repository.syncrecord? -%>
     addModule( modules, new iris.syncrecord.server.test.util.SyncRecordModule( this ) );
 <% end -%>
+<% if repository.mail? -%>
+    addModule( modules, newMailPersistenceEntityModule() );
+    addModule( modules, newMailRepositoryModule() );
 <% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
@@ -78,6 +89,20 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   protected com.google.inject.Module newAppConfigPersistenceEntityModule()
   {
     return new iris.appconfig.server.test.util.AppConfigPersistenceTestModule();
+  }
+<% end -%>
+<% if repository.mail? -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newMailRepositoryModule()
+  {
+    return new iris.mail.server.test.util.MailRepositoryModule();
+  }
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newMailPersistenceEntityModule()
+  {
+    return new iris.mail.server.test.util.MailPersistenceTestModule();
   }
 <% end -%>
 

@@ -21,6 +21,11 @@ module Domgen
       java_artifact :mail_queue, :service, :server, :mail, '#{repository.name}MailQueueServiceImpl'
       java_artifact :test_module, :test, :server, :mail, '#{repository.name}MailTestModule', :sub_package => 'util'
 
+      attr_writer :short_test_code
+
+      def short_test_code
+        @short_test_code || 'm'
+      end
 
       attr_writer :resource_name
 
