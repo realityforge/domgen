@@ -30,4 +30,12 @@ Domgen.template_set(:mail_mail_queue) do |template_set|
                         Domgen::Generator::Mail::HELPERS)
 end
 
-Domgen.template_set(:mail => [:mail_mail_queue])
+Domgen.template_set(:mail_test_module) do |template_set|
+  template_set.template(Domgen::Generator::Mail::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Mail::TEMPLATE_DIRECTORY}/test_module.java.erb",
+                        'test/java/#{repository.mail.qualified_test_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::Mail::HELPERS)
+end
+
+Domgen.template_set(:mail => [:mail_mail_queue, :mail_test_module])

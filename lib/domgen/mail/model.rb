@@ -19,6 +19,8 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :mail_queue, :service, :server, :mail, '#{repository.name}MailQueueServiceImpl'
+      java_artifact :test_module, :test, :server, :mail, '#{repository.name}MailTestModule', :sub_package => 'util'
+
 
       attr_writer :resource_name
 
