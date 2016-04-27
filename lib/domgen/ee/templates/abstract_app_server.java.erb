@@ -26,11 +26,11 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
   end
 -%>
 
-<% if repository.jpa? -%>
   @java.lang.Override
   protected void configureGlassFish( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.glassfish.GlassFishContainer glassfish )
     throws Exception
   {
+<% if repository.jpa? -%>
 <% if repository.mssql? -%>
     glassfish.createSqlServerJdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
 <% else -%>
@@ -50,9 +50,10 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     glassfish.createJmsQueue( "<%= method.jms.destination_resource_name %>", "<%= method.jms.physical_resource_name %>" );
 <% end -%>
 <% end -%>
-  }
 
 <% end -%>
+  }
+
   @java.lang.Override
   protected void performDeploy()
     throws Exception
