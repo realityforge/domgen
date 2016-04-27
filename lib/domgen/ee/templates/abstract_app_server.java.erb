@@ -31,12 +31,19 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     throws Exception
   {
 <% if repository.jpa? -%>
+
+    // Database Configuration Start
 <% if repository.mssql? -%>
     glassfish.createSqlServerJdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
 <% else -%>
     glassfish.createPostgresJdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
 <% end -%>
+    // Database Configuration Ende
+
+<% end -%>
 <% if repository.jms? -%>
+
+    // JMS Configuration Start
     // iiop required for JMS
     glassfish.createLocalIiopListener( "<%= Domgen::Naming.underscore(repository.name) %>/iiop_listener" );
     glassfish.deleteDefaultIiopListeners();
@@ -49,6 +56,7 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
   repository.jms.endpoint_methods.select{|method| method.jms.destination_type == 'javax.jms.Queue'}.each do |method| -%>
     glassfish.createJmsQueue( "<%= method.jms.destination_resource_name %>", "<%= method.jms.physical_resource_name %>" );
 <% end -%>
+    // JMS Configuration Ende
 <% end -%>
 
 <% end -%>
