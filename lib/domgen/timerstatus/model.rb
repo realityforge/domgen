@@ -20,6 +20,10 @@ module Domgen
 
       java_artifact :integration_test, :rest, :server, :timerstatus, '#{repository.name}TimerstatusTest'
 
+      def additional_timers
+        @additional_timers ||= []
+      end
+
       def timers
         timers = []
         repository.data_modules.select{|data_module| data_module.ejb?}.each do |data_module|
@@ -29,7 +33,7 @@ module Domgen
             end
           end
         end
-        timers
+        timers + additional_timers
       end
 
       def pre_complete
