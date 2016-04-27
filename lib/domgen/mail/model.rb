@@ -56,6 +56,31 @@ module Domgen
       def clear_error_on_send?
         @clear_error_on_send.nil? ? true : !!@clear_error_on_send
       end
+
+      def pre_complete
+        if repository.jpa?
+          repository.jpa.persistence_file_content_fragments << <<FRAGMENT
+<!-- iris-mail fragment is auto-generated -->
+<persistence-unit name="Mail" transaction-type="JTA">
+  <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+  <jta-data-source>#{repository.jpa.data_source}</jta-data-source>
+
+  <class>iris.mail.server.entity.MailEntry</class>
+
+  <exclude-unlisted-classes>true</exclude-unlisted-classes>
+  <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+  <validation-mode>AUTO</validation-mode>
+
+  <properties>
+    <property name="eclipselink.logging.logger" value="JavaLogger"/>
+    <property name="eclipselink.session-name" value="#{repository.name}Mail"/>
+    <property name="eclipselink.temporal.mutable" value="false"/>
+  </properties>
+</persistence-unit>
+<!-- iris-mail fragment end -->
+FRAGMENT
+        end
+      end
     end
   end
 end
