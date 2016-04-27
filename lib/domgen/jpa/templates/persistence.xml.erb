@@ -11,6 +11,7 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
 <% end %>
+<% if repository.jpa.include_default_unit? -%>
   <persistence-unit name="<%= repository.jpa.unit_name %>" transaction-type="JTA">
 <% if repository.jpa.provider_class
 %>    <provider><%= repository.jpa.repository.jpa.provider_class %></provider>
@@ -58,6 +59,7 @@ repository.jpa.properties.each_pair do |key, value|
 <% end -%>
     </properties>
   </persistence-unit>
+<% end -%>
 <% repository.jpa.persistence_file_content_fragments.each do |fragment| -%>
 <%= fragment -%>
 <% end -%>

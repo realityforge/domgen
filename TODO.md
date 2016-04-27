@@ -52,10 +52,6 @@
 * Merge multiple update channels into on replicant session. i.e. How to merge AppConfig into ODS stream?
 * Merge identical filters in output format.
 
-### JPA
-
-* add domgen feature that can have persistence.xml without persistence-unit for domgen aspects
-
 ### AppConfig/SyncRecord
 
 * Add ability to mark methods as syncrecord "sync" methods and generate base classes with

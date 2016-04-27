@@ -52,12 +52,14 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     <%= repository.mail.short_test_code %> = new iris.mail.server.test.util.MailFactorySet( getInjector() ).mail();
 <% end -%>
   }
+<% if repository.jpa.include_default_unit? -%>
 
   @javax.annotation.Nullable
   protected com.google.inject.Module new<%= repository.name %>PersistentTestModule()
   {
     return new <%= repository.jpa.qualified_persistent_test_module_name %>();
   }
+<% end -%>
 
   @javax.annotation.Nullable
   protected com.google.inject.Module new<%= repository.name %>DaoModule()
@@ -74,7 +76,9 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     modules.add( new <%= test_module %>() );
 <% end -%>
     addModule( modules, new<%= repository.name %>DaoModule() );
+<% if repository.jpa.include_default_unit? -%>
     addModule( modules, new<%= repository.name %>PersistentTestModule() );
+<% end -%>
 <% if repository.appconfig? -%>
     addModule( modules, newAppConfigPersistenceEntityModule() );
     addModule( modules, newAppConfigRepositoryModule() );
@@ -141,6 +145,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     return new iris.mail.server.test.util.MailPersistenceTestModule();
   }
 <% end -%>
+<% if repository.jpa.include_default_unit? -%>
 
   @javax.annotation.Nullable
   @java.lang.Override
@@ -148,4 +153,5 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   {
     return <%= repository.jpa.qualified_unit_descriptor_name %>.NAME;
   }
+<% end -%>
 }

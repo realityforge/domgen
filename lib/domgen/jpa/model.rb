@@ -182,6 +182,12 @@ module Domgen
         @version = version
       end
 
+      attr_writer :include_default_unit
+
+      def include_default_unit?
+        @include_default_unit.nil? ? true : !!@include_default_unit
+      end
+
       attr_writer :unit_name
 
       def unit_name
@@ -282,6 +288,16 @@ module Domgen
       end
 
       attr_accessor :default_jpql_criterion
+
+      def perform_verify
+        unless include_default_unit?
+          persistent_entities =
+            repository.data_modules.collect { |data_module| data_module.entities.select { |entity| entity.jpa? } }.flatten
+          if persistent_entities.size > 0
+            Domgen.error("Attempted to set repository.jpa.include_default_unit = false but persistent entities exist: #{persistent_entities.collect{|e|e.qualified_name}}")
+          end
+        end
+      end
     end
 
     facet.enhance(DataModule) do

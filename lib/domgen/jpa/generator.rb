@@ -26,7 +26,8 @@ Domgen.template_set(:jpa_model) do |template_set|
                         :repository,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/unit_descriptor.java.erb",
                         'main/java/#{repository.jpa.qualified_unit_descriptor_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS)
+                        Domgen::Generator::JPA::HELPERS,
+                        :guard => 'repository.jpa.include_default_unit?')
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :entity,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity.java.erb",
@@ -51,7 +52,8 @@ end
                           :repository,
                           "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/persistent_test_module.java.erb",
                           type + '/java/#{repository.jpa.qualified_persistent_test_module_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS)
+                          Domgen::Generator::JPA::HELPERS,
+                          :guard => 'repository.jpa.include_default_unit?')
     template_set.template(Domgen::Generator::JPA::FACETS,
                           :repository,
                           "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_module.java.erb",
