@@ -58,6 +58,9 @@ module Domgen
       end
 
       def pre_complete
+        if repository.timerstatus?
+          repository.timerstatus.additional_timers << 'Mail.MailQueueService.TransmitQueuedMail'
+        end
         if repository.jpa?
           repository.jpa.persistence_file_content_fragments << <<FRAGMENT
 <!-- iris-mail fragment is auto-generated -->
