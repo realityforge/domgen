@@ -20,6 +20,12 @@ module Domgen
 
       java_artifact :integration_test, :rest, :server, :appconfig, '#{repository.name}AppconfigTest'
 
+      attr_writer :short_test_code
+
+      def short_test_code
+        @short_test_code || 'ac'
+      end
+
       def pre_complete
         repository.jaxrs.extensions << 'iris.appconfig.server.rest.SystemSettingRestService' if repository.jaxrs?
 

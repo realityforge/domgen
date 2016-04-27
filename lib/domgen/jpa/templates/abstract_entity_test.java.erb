@@ -14,7 +14,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% if repository.appconfig? -%>
   @javax.annotation.Nonnull
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
-  protected iris.appconfig.server.test.util.AppConfigFactory ac;
+  protected iris.appconfig.server.test.util.AppConfigFactory <%= repository.appconfig.short_test_code %>;
 <% end -%>
 <% if repository.mail? -%>
   @javax.annotation.Nonnull
@@ -38,7 +38,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( "ReplicationActive", "Test" );
 <% end -%>
 <% if repository.appconfig? -%>
-    ac = new iris.appconfig.server.test.util.AppConfigFactorySet( getInjector() ).appConfig();
+    <%= repository.appconfig.short_test_code %> = new iris.appconfig.server.test.util.AppConfigFactorySet( getInjector() ).appConfig();
 <% end -%>
 <% if repository.mail? -%>
     <%= repository.mail.short_test_code %> = new iris.mail.server.test.util.MailFactorySet( getInjector() ).mail();
