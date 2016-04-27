@@ -77,8 +77,8 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     addModule( modules, new<%= repository.name %>PersistentTestModule() );
 <% if repository.appconfig? -%>
     addModule( modules, newAppConfigPersistenceEntityModule() );
-    addModule( modules, new iris.appconfig.server.test.util.AppConfigRepositoryModule() );
-    addModule( modules, new iris.appconfig.server.test.util.AppConfigServicesModule( this ) );
+    addModule( modules, newAppConfigRepositoryModule() );
+    addModule( modules, newAppConfigServicesModule() );
 <% if repository.syncrecord? -%>
     addModule( modules, newSyncRecordPersistenceEntityModule() );
     addModule( modules, newSyncRecordRepositoryModule() );
@@ -96,9 +96,21 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
    * This should be overridden in integration tests so flags can be set and persistent during test.
    */
   @javax.annotation.Nullable
+  protected com.google.inject.Module newAppConfigRepositoryModule()
+  {
+    return new iris.appconfig.server.test.util.AppConfigRepositoryModule();
+  }
+
+  @javax.annotation.Nullable
   protected com.google.inject.Module newAppConfigPersistenceEntityModule()
   {
     return new iris.appconfig.server.test.util.AppConfigPersistenceTestModule();
+  }
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newAppConfigServicesModule()
+  {
+    return new iris.appconfig.server.test.util.AppConfigServicesModule( this );
   }
 <% end -%>
 <% if repository.syncrecord? -%>
