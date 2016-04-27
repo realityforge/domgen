@@ -60,6 +60,13 @@ module Domgen
       java_artifact :cdi_types_test, :test, :server, :ejb, '#{repository.name}CdiTypesTest', :sub_package => 'util'
       java_artifact :aggregate_service_test, :test, :server, :ejb, '#{repository.name}AggregateServiceTest', :sub_package => 'util'
       java_artifact :abstract_service_test, :test, :server, :ejb, 'Abstract#{repository.name}ServiceTest', :sub_package => 'util'
+      java_artifact :server_test_module, :test, :server, :ejb, '#{repository.name}ServerModule', :sub_package => 'util'
+
+      attr_writer :include_server_test_module
+
+      def include_server_test_module?
+        @include_server_test_module.nil? ? true : !!@include_server_test_module
+      end
 
       def extra_test_modules
         @extra_test_modules ||= []

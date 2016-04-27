@@ -21,11 +21,22 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
     modules.add( new <%= test_module %>() );
 <% end -%>
     addModule( modules, new<%= repository.name %>ServicesModule() );
+<% if repository.ejb.include_server_test_module? -%>
+    addModule( modules, new<%= repository.name %>ServerModule() );
+<% end -%>
 <% if repository.mail? -%>
     addModule( modules, newMailServicesModule() );
 <% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
+<% if repository.ejb.include_server_test_module? -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module new<%= repository.name %>ServerModule()
+  {
+    return new <%= repository.ejb.qualified_server_test_module_name %>();
+  }
+<% end -%>
 <% if repository.mail? -%>
 
   @java.lang.Override
