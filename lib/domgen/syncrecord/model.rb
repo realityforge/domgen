@@ -15,6 +15,12 @@
 module Domgen
   FacetManager.facet(:syncrecord => [:appconfig]) do |facet|
     facet.enhance(Repository) do
+      attr_writer :short_test_code
+
+      def short_test_code
+        @short_test_code || 'sr'
+      end
+
       def pre_complete
         repository.jaxrs.extensions << 'iris.syncrecord.server.rest.SyncStatusService' if repository.jaxrs?
 

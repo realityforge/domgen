@@ -24,6 +24,9 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% if repository.ejb.include_server_test_module? -%>
     addModule( modules, new<%= repository.name %>ServerModule() );
 <% end -%>
+<% if repository.syncrecord? -%>
+    addModule( modules, newSyncRecordServicesModule() );
+<% end -%>
 <% if repository.mail? -%>
     addModule( modules, newMailServicesModule() );
 <% end -%>
@@ -35,6 +38,14 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   protected com.google.inject.Module new<%= repository.name %>ServerModule()
   {
     return new <%= repository.ejb.qualified_server_test_module_name %>();
+  }
+<% end -%>
+<% if repository.syncrecord? -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newSyncRecordServicesModule()
+  {
+    return new iris.syncrecord.server.test.util.SyncRecordServicesModule( this );
   }
 <% end -%>
 <% if repository.mail? -%>
