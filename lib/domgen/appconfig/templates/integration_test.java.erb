@@ -8,14 +8,6 @@ public class <%= repository.appconfig.integration_test_name %>
   public void checkSettingsExposed()
     throws Exception
   {
-<% repository.appconfig.feature_flags.each do |feature_flag| -%>
-    {
-      final String key = <%= repository.appconfig.qualified_feature_flag_container_name %>.<%= Domgen::Naming.uppercase_constantize(feature_flag.key) %>;
-      final javax.json.JsonObject jsonObject = httpGet( "/api/settings/" + key, javax.json.JsonObject.class );
-      org.testng.Assert.assertEquals( jsonObject.getString( "code" ), key );
-      org.testng.Assert.assertFalse( jsonObject.isNull( "value" ) );
-    }
-<% end -%>
     final int initialCount = httpGet( "/api/settings", javax.json.JsonArray.class ).size();
     final javax.persistence.EntityTransaction transaction = getInstance( iris.appconfig.server.entity.AppConfigPersistenceUnit.NAME, javax.persistence.EntityManager.class ).getTransaction();
     transaction.begin();
