@@ -56,5 +56,3 @@
 
 * Add ability to mark methods as syncrecord "sync" methods and generate base classes with
   required infrastructure/glue code.
-* Register all feature flags used in SyncRecord in ApPConfig facet and generate sql that auto
-  populates them with 1 if unpopulated during an create and/or import 
