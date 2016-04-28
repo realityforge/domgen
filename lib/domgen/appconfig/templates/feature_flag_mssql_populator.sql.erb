@@ -1,0 +1,6 @@
+/* DO NOT EDIT: File is auto-generated */
+<% repository.appconfig.feature_flags.each do |feature_flag| -%>
+INSERT INTO [AppConfig].[tblSystemSetting]([Code],[Value])
+  SELECT '<%= feature_flag.key_value %>', '<%= feature_flag.initial_value ? repository.sql.dialect.true_sql : repository.sql.dialect.false_sql %>'
+  WHERE 0 = (SELECT COUNT(*) FROM [AppConfig].[tblSystemSetting] WHERE [Code] = '<%= feature_flag.key_value %>')
+<% end -%>

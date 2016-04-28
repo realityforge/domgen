@@ -30,4 +30,31 @@ Domgen.template_set(:appconfig_integration_test) do |template_set|
                         Domgen::Generator::Appconfig::HELPERS)
 end
 
+Domgen.template_set(:appconfig_feature_flag_container) do |template_set|
+  template_set.template(Domgen::Generator::Appconfig::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Appconfig::TEMPLATE_DIRECTORY}/feature_flag_container.java.erb",
+                        'main/java/#{repository.appconfig.qualified_feature_flag_container_name.gsub(".","/")}.java',
+                        Domgen::Generator::Appconfig::HELPERS,
+                        :guard => 'repository.appconfig.feature_flags?')
+end
+
+Domgen.template_set(:appconfig_mssql) do |template_set|
+  template_set.template(Domgen::Generator::Appconfig::FACETS + [:mssql],
+                        :repository,
+                        "#{Domgen::Generator::Appconfig::TEMPLATE_DIRECTORY}/feature_flag_mssql_populator.sql.erb",
+                        'import-hooks/post/#{repository.name}_FeatureFlagPopulator.sql',
+                        Domgen::Generator::Appconfig::HELPERS,
+                        :guard => 'repository.appconfig.feature_flags?')
+end
+
+Domgen.template_set(:appconfig_pgsql) do |template_set|
+  template_set.template(Domgen::Generator::Appconfig::FACETS + [:mssql],
+                        :repository,
+                        "#{Domgen::Generator::Appconfig::TEMPLATE_DIRECTORY}/feature_flag_populator.sql.erb",
+                        'import-hooks/post/#{repository.name}_FeatureFlagPopulator.sql',
+                        Domgen::Generator::Appconfig::HELPERS,
+                        :guard => 'repository.appconfig.feature_flags?')
+end
+
 Domgen.template_set(:appconfig => [:appconfig_integration_test])
