@@ -112,7 +112,7 @@ module Domgen
   end
 
   def self.FacetedElement(parent_key)
-    type = self.ParentedElement(parent_key, "self.activate_facets")
+    type = self.ParentedElement(parent_key, 'self.activate_facets')
     type.send :include, Domgen::Faceted
     type
   end
