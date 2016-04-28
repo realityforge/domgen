@@ -27,7 +27,7 @@ module Domgen
 
       # Key used to access flag in database
       def key_value
-        @key_value.nil? ? self.key.to_s : !!@key_value
+        @key_value.nil? ? self.key.to_s : @key_value
       end
 
       attr_writer :initial_value
