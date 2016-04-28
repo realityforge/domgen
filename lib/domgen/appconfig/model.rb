@@ -36,6 +36,12 @@ module Domgen
       def initial_value
         @initial_value.nil? ? true : !!@initial_value
       end
+
+      attr_writer :disable_in_integration_test
+
+      def disable_in_integration_test?
+        @disable_in_integration_test.nil? ? false : !!@disable_in_integration_test
+      end
     end
   end
 
