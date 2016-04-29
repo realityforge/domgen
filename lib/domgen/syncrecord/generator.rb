@@ -61,4 +61,11 @@ Domgen.template_set(:syncrecord_datasources) do |template_set|
                         :guard => 'repository.syncrecord.data_sources?')
 end
 
+Domgen.template_set(:syncrecord_integration_test) do |template_set|
+  template_set.template(Domgen::Generator::Syncrecord::FACETS + [:jaxrs],
+                        :repository,
+                        "#{Domgen::Generator::Syncrecord::TEMPLATE_DIRECTORY}/status_integration_test.java.erb",
+                        'test/java/#{repository.syncrecord.qualified_status_integration_test_name.gsub(".","/")}.java',
+                        Domgen::Generator::Syncrecord::HELPERS)
+end
 Domgen.template_set(:syncrecord => [:syncrecord_datasources])

@@ -42,6 +42,7 @@ module Domgen
       java_artifact :sync_record_locks, :service, :server, :syncrecord, '#{repository.name}SyncRecordLocks'
       java_artifact :control_rest_service, :rest, :server, :syncrecord, '#{repository.name}SyncControlRestService'
       java_artifact :test_module, :test, :server, :syncrecord, '#{repository.name}SyncRecordTestModule', :sub_package => 'util'
+      java_artifact :status_integration_test, :rest, :server, :syncrecord, '#{repository.name}SyncRecordStatusTest'
 
       attr_writer :short_test_code
 
