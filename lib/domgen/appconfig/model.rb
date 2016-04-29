@@ -14,13 +14,13 @@
 
 module Domgen
   module Appconfig
-    class FeatureFlag < Domgen.ParentedElement(:appconfig_repository_facet)
+    class FeatureFlag < Domgen.ParentedElement(:appconfig_repository)
       attr_reader :key
 
-      def initialize(appconfig_repository_facet, key, options = {}, &block)
+      def initialize(appconfig_repository, key, options = {}, &block)
         @key = key
-        appconfig_repository_facet.send(:register_feature_flag, self)
-        super(appconfig_repository_facet, options, &block)
+        appconfig_repository.send(:register_feature_flag, self)
+        super(appconfig_repository, options, &block)
       end
 
       attr_writer :key_value
