@@ -13,16 +13,79 @@
 #
 
 module Domgen
+  module Syncrecord
+    class DataSource < Domgen.ParentedElement(:syncrecord_repository)
+      attr_reader :key
+
+      def initialize(syncrecord_repository, key, options = {}, &block)
+        @key = key
+        raise "Supplied key for datasource has non alphanumeric and non underscore characters. key = '#{key}'" unless key.to_s.gsub(/[^0-9A-Za-z_]/,'') == key.to_s
+        syncrecord_repository.send(:register_data_source, self)
+        super(syncrecord_repository, options, &block)
+      end
+
+      attr_writer :key_value
+
+      # Key used to access flag in database
+      def key_value
+        @key_value.nil? ? self.key.to_s : @key_value
+      end
+    end
+  end
+
   FacetManager.facet(:syncrecord => [:appconfig]) do |facet|
     facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
+
+      java_artifact :datasources, nil, :shared, :syncrecord, '#{repository.name}DataSources'
+      java_artifact :control_rest_service, :rest, :server, :syncrecord, '#{repository.name}SyncControlRestService'
+
       attr_writer :short_test_code
 
       def short_test_code
         @short_test_code || 'sr'
       end
 
+      def data_source(key, options = {}, &block)
+        Domgen::Syncrecord::DataSource.new(self, key, options, &block)
+      end
+
+      def data_source_by_name?(key)
+        data_source_map[key.to_s]
+      end
+
+      def data_source_by_name(key)
+        data_source = data_source_map[key.to_s]
+        Domgen.error("Unable to locate feature flag #{key}") unless data_source
+        data_source
+      end
+
+      def data_sources?
+        data_source_map.size > 0
+      end
+
+      def data_sources
+        data_source_map.values
+      end
+
+      def sync_methods?
+        self.sync_methods.size > 0
+      end
+
+      def sync_methods
+        repository.data_modules.select{|d|d.syncrecord?}.collect do |data_module|
+          data_module.services.select{|s|s.syncrecord?}.collect do |service|
+            service.syncrecord.sync_methods
+          end
+        end.flatten
+      end
+
       def pre_complete
-        repository.jaxrs.extensions << 'iris.syncrecord.server.rest.SyncStatusService' if repository.jaxrs?
+        if repository.jaxrs?
+          repository.jaxrs.extensions << 'iris.syncrecord.server.rest.SyncStatusService'
+          repository.jaxrs.extensions << repository.syncrecord.qualified_control_rest_service_name
+        end
 
         if repository.jpa?
           repository.jpa.persistence_file_content_fragments << <<FRAGMENT
@@ -47,6 +110,108 @@ module Domgen
 <!-- syncrecord fragment end -->
 FRAGMENT
         end
+      end
+
+      protected
+
+      def register_data_source(data_source)
+        Domgen.error("Attempting to redefine data source '#{data_source.key}'") if data_source_map[data_source.key.to_s]
+        data_source_map[data_source.key.to_s] = data_source
+      end
+
+      def data_source_map
+        @data_sources ||= Domgen::OrderedHash.new
+      end
+    end
+
+    facet.enhance(DataModule) do
+      include Domgen::Java::EEClientServerJavaPackage
+    end
+
+    facet.enhance(Service) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :abstract_service, :service, :server, :syncrecord, 'Abstract#{service.name}#{service.ejb.implementation_suffix}'
+
+      def sync_methods?
+        self.sync_methods.size > 0
+      end
+
+      def sync_methods
+        service.methods.select{|m|m.syncrecord? && m.syncrecord.sync?}
+      end
+
+    end
+    facet.enhance(Method) do
+      include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :sync
+
+      def sync?
+        @sync.nil? ? false : !!@sync
+      end
+
+      def data_source_is_parameter?
+        !method.parameters.empty?
+      end
+
+      def data_source
+        raise "Attempted to access data_source on #{method.qualified_name} when method is not a sync method" unless sync?
+        raise "Attempted to access data_source on #{method.qualified_name} when data_source is specified by parameter" if data_source_is_parameter?
+        @data_source ||= data_source_by_name(method.qualified_name.to_s.gsub('#','.'))
+      end
+
+      def data_source=(data_source)
+        self.sync = true
+        @data_source = data_source_by_name(data_source)
+      end
+
+      def feature_flag
+        raise "Attempted to access feature_flag on #{method.qualified_name} when method is not a sync method" unless sync?
+        @feature_flag ||= feature_flag_by_name(method.qualified_name.to_s.gsub('#','.'))
+      end
+
+      def feature_flag=(feature_flag)
+        self.sync = true
+        @feature_flag = feature_flag_by_name(feature_flag)
+      end
+
+      protected
+
+      def pre_verify
+        unless sync?
+          method.disable_facet(:syncrecord)
+          return
+        end
+
+        # For creation of feature flag if not explicitly specified
+        self.feature_flag
+        # For creation of data source if not explicitly specified
+        self.data_source unless data_source_is_parameter?
+      end
+
+      def perform_verify
+        if method.return_value.return_type.to_s != 'iris.syncrecord.server.data_type.SyncStatusDTO'
+          Domgen.error("Expected return type of #{method.qualified_name} to be 'iris.syncrecord.server.data_type.SyncStatusDTO' as it is syncrecord.sync method. Actual return type is '#{method.return_value.return_type}'")
+        end
+        if method.exceptions.size != 0
+          Domgen.error("Expected no exceptions on #{method.qualified_name} as it is syncrecord.sync method.")
+        end
+        if method.parameters.size > 1 || (method.parameters.size == 1 && method.parameters[0].parameter_type != :text)
+          Domgen.error("Expected 0 parameters or one parameter specifying data source on #{method.qualified_name} as it is syncrecord.sync method.")
+        end
+      end
+
+      def data_source_by_name(data_source)
+        syncrecord = method.data_module.repository.syncrecord
+        name = data_source.gsub(/[#\.]/,'_')
+        syncrecord.data_source_by_name?(name) ? syncrecord.data_source_by_name(name) : syncrecord.data_source(name, :key_value => data_source)
+      end
+
+      def feature_flag_by_name(feature_flag)
+        appconfig = method.data_module.repository.appconfig
+        name = feature_flag.gsub(/[#\.]/,'_')
+        appconfig.feature_flag_by_name?(name) ? appconfig.feature_flag_by_name(name) : appconfig.feature_flag(name, :key_value => feature_flag)
       end
     end
   end

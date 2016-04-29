@@ -1,0 +1,94 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(service.syncrecord.qualified_abstract_service_name) %>;
+
+/**
+
+ Base class to extend to customize the sync action.
+
+<code>
+<pre>
+<% if service.data_module.repository.ee.use_cdi? -%>
+@ApplicationScoped
+@Typed( <%= service.ejb.service_name %>.class )
+<% else -%>
+@Singleton( name = <%= service.ejb.service_name %>.NAME )
+@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
+@Local( <%= service.ejb.service_name %>.class )
+<% end -%>
+public class <%= service.syncrecord.qualified_abstract_service_name.gsub(/^Abstract/,'') %>
+  extends <%= service.syncrecord.qualified_abstract_service_name %>
+  implements <%= service.ejb.service_name %>
+{
+   ...
+}
+</pre>
+</code>
+ */
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public abstract class <%= service.syncrecord.abstract_service_name %>
+  extends iris.syncrecord.server.service.StandardSyncService
+  implements <%= service.ejb.service_name %>
+{
+  private final java.util.concurrent.atomic.AtomicBoolean _active = new java.util.concurrent.atomic.AtomicBoolean( false );
+
+<% service.syncrecord.sync_methods.each do |method|
+  datasource =
+    method.parameters.empty? ?
+    "#{service.data_module.repository.syncrecord.qualified_datasources_name}.#{Domgen::Naming.uppercase_constantize(method.syncrecord.data_source.key)}" :
+    "#{Domgen::Naming.camelize(method.parameters[0].name)}"
+-%>
+  @java.lang.Override
+  <%= annotated_type(method.return_value, :ejb, :default, :public => true) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
+  {
+    if ( _active.compareAndSet( false, true ) )
+    {
+      try
+      {
+        if ( isFeatureEnabled( <%= service.data_module.repository.appconfig.qualified_feature_flag_container_name %>.<%= Domgen::Naming.uppercase_constantize(method.syncrecord.feature_flag.key) %> ) )
+        {
+          return do<%= method.name %>(<%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %>);
+        }
+        else
+        {
+          return createDisabledSyncStatus( <%= datasource %> );
+        }
+      }
+      finally
+      {
+        _active.set( false );
+      }
+    }
+    else
+    {
+      return createAlreadyActiveSyncStatus( <%= datasource %> );
+    }
+  }
+
+  <%= annotated_type(method.return_value, :ejb, :default, :private => true) %> do<%= method.name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
+  {
+    final iris.syncrecord.server.service.SynchronizationRecorder recorder = startSynchronization( <%= datasource %> );
+    prepare<%= method.name %>( recorder );
+    try
+    {
+      perform<%= method.name %>( recorder<%= method.parameters.size > 0 ? ', ' : '' %><%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %>);
+    }
+    catch ( final Throwable e )
+    {
+      recordSyncError( recorder, 1, e );
+    }
+    finally
+    {
+      completeSynchronization( recorder );
+      logSummary( recorder, java.util.logging.Level.INFO );
+    }
+    return toSyncStatus( recorder );
+  }
+
+  protected abstract void perform<%= method.name %>( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder<%= method.parameters.size > 0 ? ', ' : '' %><%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
+    throws Exception;
+
+  protected void prepare<%= method.name %>( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  {
+  }
+<% end %>}

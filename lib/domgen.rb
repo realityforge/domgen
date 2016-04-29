@@ -158,6 +158,7 @@ require 'domgen/appconfig/model'
 require 'domgen/appconfig/generator'
 
 require 'domgen/syncrecord/model'
+require 'domgen/syncrecord/generator'
 
 require 'domgen/mail/model'
 require 'domgen/mail/generator'
