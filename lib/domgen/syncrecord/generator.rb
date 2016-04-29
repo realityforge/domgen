@@ -29,6 +29,18 @@ Domgen.template_set(:syncrecord_abstract_service) do |template_set|
                         'main/java/#{service.syncrecord.qualified_abstract_service_name.gsub(".","/")}.java',
                         Domgen::Generator::Syncrecord::HELPERS,
                         :guard => 'service.syncrecord.sync_methods?')
+  template_set.template(Domgen::Generator::Syncrecord::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Syncrecord::TEMPLATE_DIRECTORY}/sync_record_locks.java.erb",
+                        'main/java/#{repository.syncrecord.qualified_sync_record_locks_name.gsub(".","/")}.java',
+                        Domgen::Generator::Syncrecord::HELPERS,
+                        :guard => 'repository.syncrecord.sync_methods?')
+  template_set.template(Domgen::Generator::Syncrecord::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Syncrecord::TEMPLATE_DIRECTORY}/test_module.java.erb",
+                        'test/java/#{repository.syncrecord.qualified_test_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::Syncrecord::HELPERS,
+                        :guard => 'repository.syncrecord.sync_methods?')
 end
 
 Domgen.template_set(:syncrecord_control_rest_service) do |template_set|

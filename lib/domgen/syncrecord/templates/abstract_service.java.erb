@@ -30,8 +30,12 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
   extends <%= service.syncrecord.extends %>
   implements <%= service.ejb.service_name %>
 {
-  private final java.util.concurrent.atomic.AtomicBoolean _active = new java.util.concurrent.atomic.AtomicBoolean( false );
-
+<% service.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
+-%>
+  @javax.inject.Named( "<%= lock_name %>" )
+  @javax.inject.Inject
+  private java.util.concurrent.locks.Lock _<%= Domgen::Naming.camelize(lock_name.to_s.gsub('.','')) %>;
+<% end %>
 <% service.syncrecord.sync_methods.each do |method|
   datasource =
     method.parameters.empty? ?
@@ -41,7 +45,7 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
   @java.lang.Override
   <%= annotated_type(method.return_value, :ejb, :default, :public => true) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
   {
-    if ( _active.compareAndSet( false, true ) )
+    if ( _<%= Domgen::Naming.camelize(method.syncrecord.lock_name.to_s.gsub('.','')) %>.tryLock() )
     {
       try
       {
@@ -56,7 +60,7 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
       }
       finally
       {
-        _active.set( false );
+        _<%= Domgen::Naming.camelize(method.syncrecord.lock_name.to_s.gsub('.','')) %>.unlock();
       }
     }
     else

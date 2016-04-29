@@ -1,0 +1,14 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.syncrecord.qualified_sync_record_locks_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.enterprise.context.ApplicationScoped
+public final class <%= repository.syncrecord.sync_record_locks_name %>
+{
+<% repository.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
+-%>
+  @javax.inject.Named( "<%= lock_name %>" )
+  @javax.enterprise.inject.Produces
+  private java.util.concurrent.locks.Lock _<%= Domgen::Naming.camelize(lock_name.to_s.gsub('.','')) %> = new java.util.concurrent.locks.ReentrantLock( true );
+<% end %>
+}

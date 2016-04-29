@@ -39,7 +39,9 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :datasources, nil, :shared, :syncrecord, '#{repository.name}DataSources'
+      java_artifact :sync_record_locks, :service, :server, :syncrecord, '#{repository.name}SyncRecordLocks'
       java_artifact :control_rest_service, :rest, :server, :syncrecord, '#{repository.name}SyncControlRestService'
+      java_artifact :test_module, :test, :server, :syncrecord, '#{repository.name}SyncRecordTestModule', :sub_package => 'util'
 
       attr_writer :short_test_code
 
@@ -86,6 +88,12 @@ module Domgen
           repository.jaxrs.extensions << 'iris.syncrecord.server.rest.SyncStatusService'
           if repository.syncrecord.sync_methods?
             repository.jaxrs.extensions << repository.syncrecord.qualified_control_rest_service_name
+          end
+        end
+
+        if repository.ejb?
+          if repository.syncrecord.sync_methods?
+            repository.ejb.extra_test_modules << repository.syncrecord.qualified_test_module_name
           end
         end
 
@@ -155,6 +163,7 @@ FRAGMENT
 
       attr_accessor :custom_extends
     end
+
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
 
@@ -162,6 +171,15 @@ FRAGMENT
 
       def sync?
         @sync.nil? ? false : !!@sync
+      end
+
+      def lock_name=(lock_name)
+        self.sync = true
+        @lock_name = lock_name
+      end
+
+      def lock_name
+        @lock_name || method.qualified_name.to_s.gsub('#','.')
       end
 
       def data_source_is_parameter?
