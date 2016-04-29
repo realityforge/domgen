@@ -68,4 +68,5 @@ Domgen.template_set(:syncrecord_integration_test) do |template_set|
                         'test/java/#{repository.syncrecord.qualified_status_integration_test_name.gsub(".","/")}.java',
                         Domgen::Generator::Syncrecord::HELPERS)
 end
-Domgen.template_set(:syncrecord => [:syncrecord_datasources])
+
+Domgen.template_set(:syncrecord => [:syncrecord_datasources, :syncrecord_control_rest_service, :syncrecord_abstract_service])
