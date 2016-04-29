@@ -12,9 +12,9 @@ public class <%= repository.timerstatus.integration_test_name %>
   timers = repository.timerstatus.timers
   timers.each do |timer|
   -%>
-    org.testng.Assert.assertEquals( httpGet( "/api/timers/<%= timer %>", javax.json.JsonObject.class ).getString( "info", "" ), "<%= timer %>" );
+    org.testng.Assert.assertEquals( httpGet( "/<%= repository.jaxrs.path %>/timers/<%= timer %>", javax.json.JsonObject.class ).getString( "info", "" ), "<%= timer %>" );
 <% end -%>
-    final javax.json.JsonArray values = httpGet( "/api/timers?fields=info", javax.json.JsonArray.class );
+    final javax.json.JsonArray values = httpGet( "/<%= repository.jaxrs.path %>/timers?fields=info", javax.json.JsonArray.class );
     final java.util.List<java.lang.String> workers = new java.util.ArrayList<>();
 <% timers.each do |timer| -%>
     workers.add( "<%= timer %>.Worker" );
