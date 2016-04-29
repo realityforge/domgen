@@ -143,6 +143,17 @@ FRAGMENT
         service.methods.select{|m|m.syncrecord? && m.syncrecord.sync?}
       end
 
+      def multi_sync?
+        @multi_sync.nil? ? false : @multi_sync
+      end
+
+      attr_writer :multi_sync
+
+      def extends
+        self.custom_extends || "iris.syncrecord.server.service.#{multi_sync? ? 'StandardMultiSyncService' : 'StandardSyncService'}"
+      end
+
+      attr_accessor :custom_extends
     end
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
