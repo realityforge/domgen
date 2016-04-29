@@ -52,7 +52,7 @@ Domgen.template_set(:appconfig_pgsql) do |template_set|
   template_set.template(Domgen::Generator::Appconfig::FACETS + [:mssql],
                         :repository,
                         "#{Domgen::Generator::Appconfig::TEMPLATE_DIRECTORY}/feature_flag_populator.sql.erb",
-                        'import-hooks/post/#{repository.name}_FeatureFlagPopulator.sql',
+                        'db-hooks/post/#{repository.name}_FeatureFlagPopulator.sql',
                         Domgen::Generator::Appconfig::HELPERS,
                         :guard => 'repository.appconfig.feature_flags?')
 end
