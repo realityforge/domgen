@@ -51,7 +51,7 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
         }
         else
         {
-          return createDisabledSyncStatus( <%= datasource %> );
+          return createDisabledSyncStatus( java.util.logging.Level.FINE, <%= datasource %> );
         }
       }
       finally
@@ -61,7 +61,7 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
     }
     else
     {
-      return createAlreadyActiveSyncStatus( <%= datasource %> );
+      return createAlreadyActiveSyncStatus( java.util.logging.Level.FINE, <%= datasource %> );
     }
   }
 
