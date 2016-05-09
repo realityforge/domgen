@@ -120,14 +120,20 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     put_<%= graph.name %>_<%= routing_key.name %>( map, entity.<%= getter_for(routing_key.imit_attribute.attribute) %> );
 <% elsif routing_key.target_nullsafe?
     a = routing_key.imit_attribute.attribute
-    path = [getter_for(a)]
+    v = ''
+    path = ["entity.#{getter_for(a)}"]
+    v = "#{path.join('.')} == null ? null : " if a.nullable?
     routing_key.path.each do |path_element|
       a = a.referenced_entity.attribute_by_name(routing_key.get_attribute_name_from_path_element?(path_element))
       path << getter_for(a)
+      if a.nullable?
+        v = "#{v}#{path.join('.')} == null ? null : "
+      end
     end
     path << getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name))
+    v = "#{v}#{path.join('.')}"
 -%>
-    put_<%= graph.name %>_<%= routing_key.name %>( map, entity.<%= path.join('.') %> );
+    put_<%= graph.name %>_<%= routing_key.name %>( map, <%= v %> );
 <% else -%>
     route_<%= graph.name %>_<%= routing_key.name %>_0( map, entity.<%= getter_for(routing_key.imit_attribute.attribute) %> );
 <% end -%>
