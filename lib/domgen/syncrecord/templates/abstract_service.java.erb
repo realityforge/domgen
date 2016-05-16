@@ -36,6 +36,14 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
   @javax.inject.Inject
   private java.util.concurrent.locks.Lock _<%= Domgen::Naming.camelize(lock_name.to_s.gsub('.','')) %>;
 <% end %>
+<% service.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
+-%>
+  @javax.annotation.Nonnull
+  protected java.util.concurrent.locks.Lock get<%= Domgen::Naming.pascal_case(lock_name.to_s.gsub('.','')) %>Lock()
+  {
+    return _<%= Domgen::Naming.camelize(lock_name.to_s.gsub('.','')) %>;
+  }
+<% end %>
 <% service.syncrecord.sync_methods.each do |method|
   datasource =
     method.parameters.empty? ?
