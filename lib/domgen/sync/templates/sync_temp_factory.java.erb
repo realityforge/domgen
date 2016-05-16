@@ -45,7 +45,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
       ")\n" +
       "<%= j_escape_string( "INSERT INTO #{entity.sync.sync_temp_entity.sql.qualified_table_name} (#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }, #{sync_attributes.collect{|a| a.sql.quoted_column_name }.join(', ') })") %>\n" +
       "  SELECT \n" +
-      "    <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %>, \n" +
+      "    <%= j_escape_string( entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name ) %>, \n" +
 <%
   sync_attributes.each_with_index do |a, i|
  comma = i == sync_attributes.size - 1 ? '' : ','
