@@ -127,6 +127,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @java.lang.Override
   public void verify<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
+<% unless data_module.repository.pgsql? -%>
     final int transactionIsolationLevel = getTransactionIsolation();
     try
     {
@@ -137,6 +138,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     {
       setTransactionIsolation( transactionIsolationLevel );
     }
+<% end -%>
   }
 
   @java.lang.SuppressWarnings( "ConstantConditions" )
@@ -328,6 +330,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 
   protected int getTransactionIsolation()
   {
+<% unless data_module.repository.pgsql? -%>
     try
     {
       return getEntityManager().unwrap( java.sql.Connection.class ).getTransactionIsolation();
@@ -336,10 +339,15 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     {
       throw new javax.persistence.PersistenceException( "Failed to get Transaction Isolation Level", e );
     }
+<% end -%>
+<% if data_module.repository.pgsql? -%>
+    return 0;
+<% end -%>
   }
 
   protected void setTransactionIsolation( final int transactionIsolationLevel )
   {
+<% unless data_module.repository.pgsql? -%>
     try
     {
       getEntityManager().unwrap( java.sql.Connection.class ).setTransactionIsolation( transactionIsolationLevel );
@@ -348,5 +356,6 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     {
       throw new javax.persistence.PersistenceException( "Failed to set Transaction Isolation Level", e );
     }
+<% end -%>
   }
 }
