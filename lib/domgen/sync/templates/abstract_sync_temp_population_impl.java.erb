@@ -84,7 +84,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 
   private int doCount<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
   {
-    return ((java.lang.Number) getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> WHERE <%= entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?" ).setParameter( 1, mappingSourceCode ).getSingleResult() ).intValue();
+    return ((java.lang.Number) getEntityManager().createNativeQuery( "SELECT COUNT(*) FROM <%= j_escape_string(entity.sync.sync_temp_entity.sql.qualified_table_name) %> WHERE <%= j_escape_string(entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name )%> = ?" ).setParameter( 1, mappingSourceCode ).getSingleResult() ).intValue();
   }
 
   @java.lang.Override
