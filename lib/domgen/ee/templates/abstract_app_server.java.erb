@@ -51,10 +51,11 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     glassfish.setDefaultJmsHost( "<%= Domgen::Naming.underscore(repository.name) %>/jms/host", getOpenMQContainer() );
     glassfish.createJmsConnectionFactory( "<%= repository.jms.connection_factory_resource_name %>", getOpenMQContainer() );
 
-<%
-    # Currently guiceyloops does not support creation of topics so just skip it
-  repository.jms.endpoint_methods.select{|method| method.jms.destination_type == 'javax.jms.Queue'}.each do |method| -%>
+<% repository.jms.endpoint_methods.select{|method| method.jms.destination_type == 'javax.jms.Queue'}.each do |method| -%>
     glassfish.createJmsQueue( "<%= method.jms.destination_resource_name %>", "<%= method.jms.physical_resource_name %>" );
+<% end -%>
+<% repository.jms.endpoint_methods.select{|method| method.jms.destination_type == 'javax.jms.Topic'}.each do |method| -%>
+    glassfish.createJmsTopic( "<%= method.jms.destination_resource_name %>", "<%= method.jms.physical_resource_name %>" );
 <% end -%>
     // JMS Configuration Ende
 
