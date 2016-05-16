@@ -93,4 +93,12 @@ Domgen.template_set(:ee_integration) do |template_set|
                         Domgen::Generator::EE::HELPERS)
 end
 
+Domgen.template_set(:ee_integration_test) do |template_set|
+  template_set.template(Domgen::Generator::EE::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/deploy_test.java.erb",
+                        'test/java/#{repository.ee.qualified_deploy_test_name.gsub(".","/")}.java',
+                        Domgen::Generator::EE::HELPERS)
+end
+
 Domgen.template_set(:ee => [:jaxrs, :jpa, :ejb, :jmx, :jws, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
