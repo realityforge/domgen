@@ -15,7 +15,7 @@ package <%= to_package(service.syncrecord.qualified_abstract_service_name) %>;
 @ConcurrencyManagement( ConcurrencyManagementType.BEAN )
 @Local( <%= service.ejb.service_name %>.class )
 <% end -%>
-public class <%= service.syncrecord.qualified_abstract_service_name.gsub(/^Abstract/,'') %>
+public class <%= service.syncrecord.qualified_abstract_service_name.to_s.gsub(/^Abstract/,'') %>
   extends <%= service.syncrecord.qualified_abstract_service_name %>
   implements <%= service.ejb.service_name %>
 {
