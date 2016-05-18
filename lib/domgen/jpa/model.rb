@@ -398,7 +398,7 @@ module Domgen
 <persistence-unit name="#{unit.unit_name}" transaction-type="JTA">
   <jta-data-source>#{unit.data_source}</jta-data-source>
 
-  <exclude-unlisted-classes>#{repository.jpa.exclude_unlisted_classes?}</exclude-unlisted-classes>
+  <exclude-unlisted-classes>#{unit.exclude_unlisted_classes?}</exclude-unlisted-classes>
   <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
   <validation-mode>AUTO</validation-mode>
 
