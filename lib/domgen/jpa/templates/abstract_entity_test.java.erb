@@ -164,5 +164,12 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   {
     return <%= repository.jpa.qualified_unit_descriptor_name %>.NAME;
   }
+<% else -%>
+
+  @Override
+  public void flush()
+  {
+    //No default persistence unit so no need to flush
+  }
 <% end -%>
 }
