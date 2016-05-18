@@ -365,11 +365,11 @@ module Domgen
       end
 
       def data_source=(data_source)
-        self.default_persistence_unit.data_source = data_source
+        self.safe_default_persistence_unit.data_source = data_source
       end
 
       def data_source
-        self.default_persistence_unit.data_source
+        self.safe_default_persistence_unit.data_source
       end
 
       def exclude_unlisted_classes=(exclude_unlisted_classes)
@@ -394,7 +394,7 @@ module Domgen
 
       def default_persistence_unit
         raise 'Attempting to access the default persistence_unit when no default unit included' unless self.include_default_unit?
-        @default_persistence_unit ||= Domgen::JPA::PersistenceUnitDescriptor.new(self)
+        self.safe_default_persistence_unit
       end
 
       def pre_complete
@@ -431,6 +431,10 @@ FRAGMENT
       end
 
       protected
+
+      def safe_default_persistence_unit
+        @default_persistence_unit ||= Domgen::JPA::PersistenceUnitDescriptor.new(self)
+      end
 
       def standalone_persistence_unit_map
         @standalone_persistence_units ||= {}
