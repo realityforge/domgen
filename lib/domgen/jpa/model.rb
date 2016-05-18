@@ -206,7 +206,7 @@ module Domgen
         if provider.nil? || provider == :eclipselink
           {
             'eclipselink.logging.logger' => 'JavaLogger',
-            'eclipselink.session-name' => jpa_repository.repository.name,
+            'eclipselink.session-name' => self.unit_name,
             'eclipselink.temporal.mutable' => 'false'
           }
         else
