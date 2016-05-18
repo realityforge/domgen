@@ -331,6 +331,11 @@ module Domgen
         self.standalone_persistence_unit_map[name.to_s] = Domgen::JPA::PersistenceUnitDescriptor.new(self, {:short_name => short_name, :unit_name => name}.merge(options), &block)
       end
 
+      def standalone_persistence_unit?(short_name)
+        name = "#{self.include_default_unit? ? self.unit_name : self.jpa_repository.repository.name}#{short_name}"
+        !!self.standalone_persistence_unit_map[name.to_s]
+      end
+
       def standalone_persistence_units?
         !standalone_persistence_units.empty?
       end
@@ -493,6 +498,14 @@ FRAGMENT
 
       def qualified_concrete_dao_test_name
         "#{qualified_dao_test_name.gsub(/\.Abstract/, '.')}"
+      end
+
+      def perform_verify
+        unless persistence_unit_name.nil?
+          unless dao.data_module.repository.jpa.standalone_persistence_unit?(persistence_unit_name)
+            Domgen.error("Defined a dao #{dao.name} that does not reference a standalone_persistence_unit but references non-existent #{persistence_unit_name}")
+          end
+        end
       end
     end
 
