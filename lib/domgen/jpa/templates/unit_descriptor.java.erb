@@ -5,9 +5,11 @@ package <%= to_package(repository.jpa.qualified_unit_descriptor_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public final class <%= repository.jpa.unit_descriptor_name %>
 {
+<% if repository.jpa.include_default_unit? -%>
   public static final String NAME = "<%= repository.jpa.unit_name %>";
 <% if repository.jpa.standalone? -%>
   public static final String RESOURCE_NAME = "<%= repository.jpa.data_source %>";
+<% end -%>
 <% end -%>
 <% repository.jpa.standalone_persistence_units.each do |unit| -%>
   public static final String <%= Domgen::Naming.uppercase_constantize(unit.short_name) %>_NAME = "<%= unit.unit_name %>";

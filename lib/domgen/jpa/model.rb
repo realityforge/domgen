@@ -331,6 +331,10 @@ module Domgen
         self.standalone_persistence_unit_map[name.to_s] = Domgen::JPA::PersistenceUnitDescriptor.new(self, {:short_name => short_name, :unit_name => name}.merge(options), &block)
       end
 
+      def standalone_persistence_units?
+        !standalone_persistence_units.empty?
+      end
+
       def standalone_persistence_units
         standalone_persistence_unit_map.values
       end
