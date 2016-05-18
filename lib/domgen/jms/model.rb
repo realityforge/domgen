@@ -106,10 +106,16 @@ module Domgen
         !!@durable
       end
 
-      #TODO: Validate that at max one parameter and no return
 
       def valid_destination_types
         %w(javax.jms.Queue javax.jms.Topic)
+      end
+
+      def perform_verify
+        if self.mdb?
+          raise "Method #{method.qualified_name} is marked as a mdb but has a return value" unless method.return_value.return_type == :void
+          raise "Method #{method.qualified_name} is marked as a mdb but has more than 1 parameter. Parameters: #{method.parameters.collect{|p|p.name}.inspect}" if method.parameters.size > 1
+        end
       end
     end
   end
