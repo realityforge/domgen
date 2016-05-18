@@ -53,9 +53,8 @@ end
     <validation-mode>AUTO</validation-mode>
 
     <properties>
-<%
-repository.jpa.properties.each_pair do |key, value|
-%>      <property name="<%= key %>" value="<%= value %>"/>
+<% repository.jpa.properties.each_pair do |key, value| -%>
+      <property name="<%= key %>" value="<%= value %>"/>
 <% end -%>
     </properties>
   </persistence-unit>
