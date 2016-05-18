@@ -28,4 +28,10 @@ Domgen.template_set(:jms) do |template_set|
                         'main/java/#{method.jms.qualified_mdb_name.gsub(".","/")}.java',
                         Domgen::Generator::JMS::HELPERS,
                         :guard => 'method.jms.mdb?')
+  template_set.template(Domgen::Generator::JMS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JMS::TEMPLATE_DIRECTORY}/abstract_router.java.erb",
+                        'main/java/#{service.jms.qualified_abstract_router_name.gsub(".","/")}.java',
+                        Domgen::Generator::JMS::HELPERS,
+                        :guard => 'service.jms.router?')
 end

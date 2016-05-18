@@ -32,6 +32,22 @@ module Domgen
       end
     end
 
+    facet.enhance(DataModule) do
+      include Domgen::Java::EEClientServerJavaPackage
+    end
+
+    facet.enhance(Service) do
+      include Domgen::Java::BaseJavaGenerator
+
+      attr_accessor :router_extends
+
+      java_artifact :abstract_router, :service, :server, :jms, 'Abstract#{service.ejb.service_name}Impl'
+
+      def router?
+        service.methods.any?{|m|m.jms.router?}
+      end
+    end
+
     facet.enhance(Parameter) do
       attr_accessor :object_factory
     end
@@ -43,6 +59,12 @@ module Domgen
 
       def mdb?
         @mdb.nil? ? false : @mdb
+      end
+
+      attr_writer :router
+
+      def router?
+        @router.nil? ? false : @router
       end
 
       def resource_name
@@ -106,6 +128,23 @@ module Domgen
         !!@durable
       end
 
+      def route_to_destination_resource_name=(route_to_destination_resource_name)
+        self.router = true
+        @route_to_destination_resource_name = route_to_destination_resource_name
+      end
+
+      def route_to_destination_resource_name
+        @route_to_destination_resource_name
+      end
+
+      def route_to_destination_type=(route_to_destination_type)
+        Domgen.error("Invalid route to destination type #{route_to_destination_type}") unless valid_destination_types.include?(route_to_destination_type)
+        @route_to_destination_type = route_to_destination_type
+      end
+
+      def route_to_destination_type
+        @route_to_destination_type || 'javax.jms.Queue'
+      end
 
       def valid_destination_types
         %w(javax.jms.Queue javax.jms.Topic)
@@ -115,6 +154,10 @@ module Domgen
         if self.mdb?
           raise "Method #{method.qualified_name} is marked as a mdb but has a return value" unless method.return_value.return_type == :void
           raise "Method #{method.qualified_name} is marked as a mdb but has more than 1 parameter. Parameters: #{method.parameters.collect{|p|p.name}.inspect}" if method.parameters.size > 1
+        end
+        if self.router?
+          raise "Method #{method.qualified_name} is marked as a router but has a return value" unless method.return_value.return_type == :void
+          raise "Method #{method.qualified_name} is marked as a router but has more than 1 parameter. Parameters: #{method.parameters.collect{|p|p.name}.inspect}" if method.parameters.size > 1
         end
       end
     end

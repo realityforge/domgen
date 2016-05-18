@@ -1,0 +1,61 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(service.jms.qualified_abstract_router_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= service.jms.abstract_router_name %>
+<%= service.jms.router_extends.nil? ? '' : "  extends #{service.jms.router_extends}\n" -%>
+  implements <%= service.ejb.qualified_service_name %>
+{
+  @javax.inject.Inject
+  @javax.jms.JMSConnectionFactory( "<%= service.data_module.repository.jms.connection_factory_resource_name %>" )
+  private javax.jms.JMSContext _context;
+
+<% service.methods.select{|m|m.jms? && m.jms.router?}.each do |m| -%>
+  @javax.annotation.Resource( lookup = "<%= m.jms.route_to_destination_resource_name %>" )
+  private <%= m.jms.route_to_destination_type %> _<%= Domgen::Naming.camelize(m.name)%>Target;
+<% end -%>
+
+<% service.methods.select{|m|m.jms? && m.jms.router?}.each do |method| -%>
+  <%=
+
+  parameter = method.parameters.empty? ? nil : method.parameters[0]
+  encoded_type = parameter.parameter_type
+
+  annotated_type(method.return_value, :ejb, :default, :public => true) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)<%=
+    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
+-%>
+
+  {
+    final String text = <% if parameter -%>convert<%= method.name %>ToText( <%= Domgen::Naming.camelize(parameter.name) %> )<% else -%>""<% end -%>;
+    send<%= method.name %>Message( _context.createTextMessage( text ) );
+  }
+
+<% if parameter -%>
+  protected String convert<%= method.name %>ToText( <%= annotated_type(parameter, :ejb) %> <%= Domgen::Naming.camelize(parameter.name) %> )
+  {
+    try
+    {
+      final javax.xml.bind.JAXBContext context = javax.xml.bind.JAXBContext.newInstance( <%= parameter.jms.object_factory ? parameter.jms.object_factory : encoded_type %>.class );
+      final javax.xml.bind.Marshaller marshaller = context.createMarshaller();
+      final java.io.StringWriter writer = new java.io.StringWriter();
+      marshaller.marshal( <%= Domgen::Naming.camelize(parameter.name) %>, writer );
+      return writer.toString();
+    }
+    catch ( final java.lang.Throwable t )
+    {
+      throw new RuntimeException( "Error converting message " + <%= Domgen::Naming.camelize(parameter.name) %>.getClass(), t );
+    }
+  }
+
+<% end -%>
+  protected void send<%= method.name %>Message( @javax.annotation.Nonnull final javax.jms.Message message )
+  {
+    getJMSContext().createProducer().send( _<%= Domgen::Naming.camelize(method.name) %>Target, message );
+  }
+<% end -%>
+
+  protected javax.jms.JMSContext getJMSContext()
+  {
+    return _context;
+  }
+}
