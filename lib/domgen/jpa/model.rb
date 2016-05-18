@@ -166,6 +166,90 @@ module Domgen
         [:select, :join, :subselect]
       end
     end
+
+    class PersistenceUnitDescriptor < Domgen.ParentedElement(:jpa_repository)
+      def initialize(jpa_repository, options = {}, &block)
+        super(jpa_repository, options, &block)
+      end
+
+      attr_writer :unit_name
+
+      def unit_name
+        @unit_name || jpa_repository.repository.name
+      end
+
+      attr_writer :short_name
+
+      def short_name
+        @short_name || unit_name
+      end
+
+      attr_writer :provider
+
+      def provider
+        @provider.nil? ? :eclipselink : @provider
+      end
+
+      def provider_class
+        return 'org.eclipse.persistence.jpa.PersistenceProvider' if self.provider == :eclipselink
+        return 'org.hibernate.ejb.HibernatePersistence' if self.provider == :hibernate
+        return nil if self.provider.nil?
+      end
+
+      attr_writer :properties
+
+      def properties
+        @properties ||= default_properties
+      end
+
+      def default_properties
+        if provider.nil? || provider == :eclipselink
+          {
+            'eclipselink.logging.logger' => 'JavaLogger',
+            'eclipselink.session-name' => jpa_repository.repository.name,
+            'eclipselink.temporal.mutable' => 'false'
+          }
+        else
+          {}
+        end
+      end
+
+      attr_writer :data_source
+
+      def data_source
+        @data_source || "#{Domgen::Naming.underscore(jpa_repository.repository.name)}/jdbc/#{self.short_name}"
+      end
+
+      attr_writer :exclude_unlisted_classes
+
+      def exclude_unlisted_classes?
+        @exclude_unlisted_classes.nil? ? true : @exclude_unlisted_classes
+      end
+
+      def valid_test_modes
+        [:manual, :mock]
+      end
+
+      # The test_mode determines how the framework manages units in test
+      # - :manual framework does nothing, user does all
+      # - :mock framework creates a mock persistence unit in tests
+      def test_mode
+        @test_mode || :manual
+      end
+
+      def test_mode=(test_mode)
+        raise "Invalid test_mode (#{test_mode.inspect}) supplied to persistence unit #{unit_name}. Valid modes #{valid_test_modes.inspect}" unless self.valid_test_modes.include?(test_mode)
+        @test_mode = test_mode
+      end
+
+      def manual_test_mode?
+        self.test_mode == :manual
+      end
+
+      def mock_test_mode?
+        self.test_mode == :manual
+      end
+    end
   end
 
   FacetManager.facet(:jpa => [:sql, :ee]) do |facet|
@@ -186,30 +270,6 @@ module Domgen
 
       def include_default_unit?
         @include_default_unit.nil? ? true : !!@include_default_unit
-      end
-
-      attr_writer :unit_name
-
-      def unit_name
-        @unit_name || repository.name
-      end
-
-      attr_writer :properties
-
-      def properties
-        @properties ||= default_properties
-      end
-
-      def default_properties
-        if provider.nil? || provider == :eclipselink
-          {
-            'eclipselink.logging.logger' => 'JavaLogger',
-            'eclipselink.session-name' => repository.name,
-            'eclipselink.temporal.mutable' => 'false'
-          }
-        else
-          {}
-        end
       end
 
       java_artifact :unit_descriptor, :entity, :server, :jpa, '#{repository.name}PersistenceUnit'
@@ -237,30 +297,6 @@ module Domgen
 
       def standalone?
         @standalone.nil? ? true : !!@standalone
-      end
-
-      attr_writer :data_source
-
-      def data_source
-        @data_source || "#{Domgen::Naming.underscore(repository.name)}/jdbc/#{repository.name}"
-      end
-
-      attr_writer :exclude_unlisted_classes
-
-      def exclude_unlisted_classes?
-        @exclude_unlisted_classes.nil? ? true : @exclude_unlisted_classes
-      end
-
-      attr_writer :provider
-
-      def provider
-        @provider.nil? ? :eclipselink : @provider
-      end
-
-      def provider_class
-        return 'org.eclipse.persistence.jpa.PersistenceProvider' if provider == :eclipselink
-        return 'org.hibernate.ejb.HibernatePersistence' if provider == :hibernate
-        return nil if provider.nil?
       end
 
       def persistence_file_content_fragments

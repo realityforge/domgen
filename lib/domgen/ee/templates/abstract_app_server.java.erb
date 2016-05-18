@@ -36,6 +36,9 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
 <% if repository.jpa.include_default_unit? -%>
     glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
 <% end -%>
+<% repository.jpa.standalone_persistence_units.each do |unit| -%>
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Domgen::Naming.uppercase_constantize(unit.short_name) %>_RESOURCE_NAME, glassfish.toGlassFishPropertiesString( org.realityforge.guiceyloops.server.DatabaseUtil.getGlassFishDataSourceProperties( "<%= Domgen::Naming.underscore(unit.short_name) %>" ) ) );
+<% end -%>
     // Database Configuration Ende
 
 <% end -%>
