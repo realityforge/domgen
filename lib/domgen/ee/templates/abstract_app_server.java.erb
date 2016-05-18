@@ -30,13 +30,11 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
   protected void configureGlassFish( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.glassfish.GlassFishContainer glassfish )
     throws Exception
   {
-<% if repository.jpa? && repository.jpa.include_default_unit? -%>
+<% if repository.jpa? -%>
 
     // Database Configuration Start
-<% if repository.mssql? -%>
-    glassfish.createSqlServerJdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
-<% else -%>
-    glassfish.createPostgresJdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
+<% if repository.jpa.include_default_unit? -%>
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
 <% end -%>
     // Database Configuration Ende
 
