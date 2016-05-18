@@ -75,7 +75,7 @@ module Domgen
       end
 
       def destination_type=(destination_type)
-        Domgen.error("Invalid destination type #{destination_type}") unless %w(javax.jms.Queue javax.jms.Topic).include?(destination_type)
+        Domgen.error("Invalid destination type #{destination_type}") unless valid_destination_types.include?(destination_type)
         self.mdb = true
         @destination_type = destination_type
       end
@@ -107,6 +107,10 @@ module Domgen
       end
 
       #TODO: Validate that at max one parameter and no return
+
+      def valid_destination_types
+        %w(javax.jms.Queue javax.jms.Topic)
+      end
     end
   end
 end
