@@ -62,4 +62,12 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
     return new iris.mail.server.test.util.MailServicesModule( this );
   }
 <% end -%>
+<% unless repository.jpa? -%>
+
+  @Override
+  public void flush()
+  {
+    //No default persistence unit so no need to flush
+  }
+<% end -%>
 }
