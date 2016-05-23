@@ -30,6 +30,15 @@ module Domgen
         @use_cdi.nil? ? true : false
       end
 
+      def bean_discovery_mode=(mode)
+        Domgen.error("Unknown bean discovery mode '#{mode}'") unless %w(all annotated none).include?(mode)
+        @bean_discovery_mode = mode
+      end
+
+      def bean_discovery_mode
+        @bean_discovery_mode ||= 'annotated'
+      end
+
       attr_writer :web_metadata_complete
 
       def web_metadata_complete?
