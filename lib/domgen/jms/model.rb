@@ -30,6 +30,14 @@ module Domgen
           end
         end.flatten
       end
+
+      def router_methods
+        repository.data_modules.select{|data_module| data_module.jms?}.collect do |data_module|
+          data_module.services.select{|service| service.jms?}.collect do |service|
+            service.methods.select{|method| method.jms? && method.jms.router?}
+          end
+        end.flatten
+      end
     end
 
     facet.enhance(DataModule) do
@@ -144,6 +152,15 @@ module Domgen
 
       def route_to_destination_type
         @route_to_destination_type || 'javax.jms.Queue'
+      end
+
+      def route_to_physical_resource_name=(physical_resource_name)
+        self.router = true
+        @route_to_physical_resource_name = physical_resource_name
+      end
+
+      def route_to_physical_resource_name
+        @route_to_physical_resource_name || route_to_destination_resource_name.gsub(/.*\/jms\//,'')
       end
 
       def valid_destination_types
