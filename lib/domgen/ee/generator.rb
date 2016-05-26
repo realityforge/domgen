@@ -51,6 +51,14 @@ Domgen.template_set(:ee_exceptions) do |template_set|
                         Domgen::Generator::EE::HELPERS)
 end
 
+Domgen.template_set(:ee_redfish) do |template_set|
+  template_set.ruby_template(Domgen::Generator::EE::FACETS,
+                             :repository,
+                             "#{Domgen::Generator::EE::TEMPLATE_DIRECTORY}/redfish.rb",
+                             'main/etc/#{repository.name}.redfish.fragment.json',
+                             Domgen::Generator::EE::HELPERS)
+end
+
 Domgen.template_set(:ee_web_xml) do |template_set|
   template_set.template(Domgen::Generator::EE::FACETS,
                         :repository,
