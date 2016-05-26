@@ -44,6 +44,9 @@ module Domgen
     end
   end
 
+  module TemplateSet
+  end
+
   module Generator
     class TemplateSet < BaseElement
       attr_reader :name
@@ -65,8 +68,13 @@ module Domgen
         register_template(template)
       end
 
-      def xml_template(facets, scope, template_filename, output_filename_pattern, helpers = [], options = {})
-        template = XmlTemplate.new(self, facets, scope, template_filename, output_filename_pattern, helpers, options)
+      def ruby_template(facets, scope, template_filename, output_filename_pattern, helpers = [], options = {})
+        template = RubyTemplate.new(self, facets, scope, template_filename, output_filename_pattern, helpers, options)
+        register_template(template)
+      end
+
+      def xml_template(facets, scope, template_class, output_filename_pattern, helpers = [], options = {})
+        template = XmlTemplate.new(self, facets, scope, template_class, output_filename_pattern, helpers, options)
         register_template(template)
       end
 
@@ -137,10 +145,14 @@ module Domgen
       end
 
       def name
-        @name ||= "#{self.template_set.name}:#{self.template_key.gsub(/.*\/templates\/(.*)\.erb/,'\1')}"
+        @name ||= "#{self.template_set.name}:#{self.template_key.gsub(/.*\/templates\/(.*)\.#{template_extension}$/,'\1')}"
       end
 
       protected
+
+      def template_extension
+        ''
+      end
 
       def generate!(target_basedir, element_type, element, unprocessed_files)
         Domgen.error('generate not implemented')
@@ -218,11 +230,50 @@ module Domgen
         self.erb_instance.result(context_binding)
       end
 
+      def template_extension
+        'erb'
+      end
+
       def erb_instance
         unless @template
           Domgen.error("Unable to locate file #{template_filename} for template #{name}") unless File.exist?(template_filename)
           @template = ERB.new(IO.read(template_filename), nil, '-')
           @template.filename = template_filename
+        end
+        @template
+      end
+    end
+
+    class RubyTemplate < SingleFileOutputTemplate
+      def template_filename
+        template_key
+      end
+
+      protected
+
+      def template_extension
+        'rb'
+      end
+
+      def render_to_string(context_binding)
+        context_binding.eval("#{ruby_instance.name}.generate(#{scope})")
+      end
+
+      def ruby_instance
+        unless @template
+          Domgen.error("Unable to locate file #{template_filename} for template #{name}") unless File.exist?(template_filename)
+
+          template_name = Domgen::Naming.pascal_case(template_filename.gsub(/.*\/([^\/]+)\/templates\/(.+)\.rb$/, '\1_\2').gsub('.','_').gsub('/','_'))
+
+          ::Domgen::TemplateSet.class_eval "module #{template_name}\n end"
+          template = ::Domgen::TemplateSet.const_get(template_name)
+          template.class_eval <<-CODE
+            class << self
+              #{IO.read(template_filename)}
+            end
+          CODE
+
+          @template = template
         end
         @template
       end
