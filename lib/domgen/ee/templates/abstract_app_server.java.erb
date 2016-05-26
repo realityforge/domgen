@@ -52,11 +52,18 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     glassfish.setDefaultJmsHost( "<%= Domgen::Naming.underscore(repository.name) %>/jms/host", getOpenMQContainer() );
     glassfish.createJmsConnectionFactory( "<%= repository.jms.connection_factory_resource_name %>", getOpenMQContainer() );
 
-<% repository.jms.endpoint_methods.select{|method| method.jms.destination_type == 'javax.jms.Queue'}.each do |method| -%>
-    glassfish.createJmsQueue( "<%= method.jms.destination_resource_name %>", "<%= method.jms.physical_resource_name %>" );
-<% end -%>
-<% repository.jms.endpoint_methods.select{|method| method.jms.destination_type == 'javax.jms.Topic'}.each do |method| -%>
-    glassfish.createJmsTopic( "<%= method.jms.destination_resource_name %>", "<%= method.jms.physical_resource_name %>" );
+<%
+  destinations = {}
+  repository.jms.endpoint_methods.each do |method|
+    destinations[method.jms.destination_resource_name] = {'type' => method.jms.destination_type, 'physical_name' => method.jms.physical_resource_name}
+  end
+  repository.jms.router_methods.each do |method|
+    destinations[method.jms.route_to_destination_resource_name] =
+      {'type' => method.jms.route_to_destination_type, 'physical_name' => method.jms.route_to_physical_resource_name}
+  end
+-%>
+<% destinations.each_pair do |name, config| -%>
+    glassfish.createJms<%= 'javax.jms.Topic' == config['type'] ? 'Topic' : 'Queue' %>( "<%= name %>", "<%= confg['physical_name'] %>" );
 <% end -%>
     // JMS Configuration Ende
 
