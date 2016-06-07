@@ -63,7 +63,7 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
   end
 -%>
 <% destinations.each_pair do |name, config| -%>
-    glassfish.createJms<%= 'javax.jms.Topic' == config['type'] ? 'Topic' : 'Queue' %>( "<%= name %>", "<%= confg['physical_name'] %>" );
+    glassfish.createJms<%= 'javax.jms.Topic' == config['type'] ? 'Topic' : 'Queue' %>( "<%= name %>", "<%= config['physical_name'] %>" );
 <% end -%>
     // JMS Configuration Ende
 
