@@ -18,7 +18,16 @@ def generate(repository)
     end
   end
 
-  data['jms_resources'][repository.jms.connection_factory_resource_name] = {'restype' => 'javax.jms.ConnectionFactory'}
+  constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
+  data['jms_resources'][repository.jms.connection_factory_resource_name] =
+    {
+      'restype' => 'javax.jms.ConnectionFactory',
+      'properties' => {
+        'ClientId' => repository.jms.client_id,
+        'UserName' => "${#{constant_prefix}_BROKER_USERNAME}",
+        'Password' => "${#{constant_prefix}_BROKER_PASSWORD}"
+      }
+    }
 
   ::JSON.pretty_generate(data)
 end
