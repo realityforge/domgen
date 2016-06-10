@@ -128,7 +128,11 @@ module Domgen
 
       attr_accessor :client_id
 
-      attr_accessor :subscription_name
+      attr_writer :subscription_name
+
+      def subscription_name
+        self.durable? ? method.service.data_module.repository.name : nil
+      end
 
       attr_accessor :durable
 
