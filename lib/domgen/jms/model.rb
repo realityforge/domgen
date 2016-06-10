@@ -141,13 +141,13 @@ module Domgen
       attr_writer :client_id
 
       def client_id
-        @client_id || method.service.data_module.repository.jms.client_id
+        @client_id || (self.durable? ? method.service.data_module.repository.name : nil)
       end
 
       attr_writer :subscription_name
 
       def subscription_name
-        self.durable? ? method.service.data_module.repository.name : nil
+        @subscription_name || (self.durable? ? method.qualified_name.gsub(/[#.]/, '') : nil)
       end
 
       attr_accessor :durable
@@ -188,6 +188,11 @@ module Domgen
       end
 
       def perform_verify
+        unless self.durable?
+          raise "Method #{method.qualified_name} is not a durable subscriber but a subscription name is specified." unless self.subscription_name.nil?
+          raise "Method #{method.qualified_name} is not a durable subscriber but a client_id is specified." unless self.subscription_name.nil?
+        end
+
         if self.mdb?
           raise "Method #{method.qualified_name} is marked as a mdb but has a return value" unless method.return_value.return_type == :void
           raise "Method #{method.qualified_name} is marked as a mdb but has more than 1 parameter. Parameters: #{method.parameters.collect{|p|p.name}.inspect}" if method.parameters.size > 1
