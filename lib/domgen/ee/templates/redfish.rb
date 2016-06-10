@@ -29,7 +29,6 @@ def generate(repository)
     {
       'restype' => 'javax.jms.ConnectionFactory',
       'properties' => {
-        'ClientId' => repository.jms.client_id,
         'UserName' => "${#{constant_prefix}_BROKER_USERNAME}",
         'Password' => "${#{constant_prefix}_BROKER_PASSWORD}"
       }

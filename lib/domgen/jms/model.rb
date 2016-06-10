@@ -29,12 +29,6 @@ module Domgen
         @default_username || Domgen::Naming.underscore(repository.name)
       end
 
-      attr_writer :client_id
-
-      def client_id
-        @client_id || repository.name
-      end
-
       def endpoint_methods
         repository.data_modules.select { |data_module| data_module.jms? }.collect do |data_module|
           data_module.services.select { |service| service.jms? }.collect do |service|
