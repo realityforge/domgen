@@ -23,6 +23,12 @@ module Domgen
         @connection_factory_resource_name || "#{Domgen::Naming.underscore(repository.name)}/jms/ConnectionFactory"
       end
 
+      attr_writer :default_username
+
+      def default_username
+        @default_username || Domgen::Naming.underscore(repository.name)
+      end
+
       attr_writer :client_id
 
       def client_id

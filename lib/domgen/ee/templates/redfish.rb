@@ -19,6 +19,12 @@ def generate(repository)
   end
 
   constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
+  data['environment_vars'] =
+    {
+      "#{constant_prefix}_BROKER_USERNAME" => repository.jms.default_username,
+      "#{constant_prefix}_BROKER_PASSWORD" => ''
+    }
+
   data['jms_resources'][repository.jms.connection_factory_resource_name] =
     {
       'restype' => 'javax.jms.ConnectionFactory',
