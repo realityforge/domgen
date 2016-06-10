@@ -23,6 +23,12 @@ module Domgen
         @connection_factory_resource_name || "#{Domgen::Naming.underscore(repository.name)}/jms/ConnectionFactory"
       end
 
+      attr_writer :client_id
+
+      def client_id
+        @client_id || repository.name
+      end
+
       def endpoint_methods
         repository.data_modules.select{|data_module| data_module.jms?}.collect do |data_module|
           data_module.services.select{|service| service.jms?}.collect do |service|
@@ -126,7 +132,11 @@ module Domgen
         @acknowledge_mode || 'Auto-acknowledge'
       end
 
-      attr_accessor :client_id
+      attr_writer :client_id
+
+      def client_id
+        @client_id || method.service.data_module.repository.jms.client_id
+      end
 
       attr_writer :subscription_name
 
