@@ -1,5 +1,6 @@
 def generate(repository)
   constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
+
   data = {}
   if repository.jms?
     data['jms_resources'] = {}
