@@ -21,18 +21,19 @@ def generate(repository)
     destinations.each_pair do |name, config|
       data['jms_resources'][name] = {'restype' => config['type'], 'properties' => {'Name' => config['physical_name']}}
     end
-  end
 
     data['environment_vars']["#{constant_prefix}_BROKER_USERNAME"] = repository.jms.default_username
     data['environment_vars']["#{constant_prefix}_BROKER_PASSWORD"] = ''
-  data['jms_resources'][repository.jms.connection_factory_resource_name] =
-    {
-      'restype' => 'javax.jms.ConnectionFactory',
-      'properties' => {
-        'UserName' => "${#{constant_prefix}_BROKER_USERNAME}",
-        'Password' => "${#{constant_prefix}_BROKER_PASSWORD}"
+
+    data['jms_resources'][repository.jms.connection_factory_resource_name] =
+      {
+        'restype' => 'javax.jms.ConnectionFactory',
+        'properties' => {
+          'UserName' => "${#{constant_prefix}_BROKER_USERNAME}",
+          'Password' => "${#{constant_prefix}_BROKER_PASSWORD}"
+        }
       }
-    }
+  end
 
   ::JSON.pretty_generate(data)
 end
