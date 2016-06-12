@@ -214,6 +214,24 @@ module Domgen
         end
       end
 
+      attr_writer :xa_data_source
+
+      def xa_data_source?
+        @xa_data_source.nil? ? false : !!@xa_data_source
+      end
+
+      attr_writer :socket_timeout
+
+      def socket_timeout
+        @socket_timeout || '1200'
+      end
+
+      attr_writer :login_timeout
+
+      def login_timeout
+        @login_timeout || '60'
+      end
+
       attr_writer :data_source
 
       def data_source
@@ -264,6 +282,12 @@ module Domgen
       def version=(version)
         Domgen.error("Unknown version '#{version}'") unless %w(2.0 2.1).include?(version)
         @version = version
+      end
+
+      attr_writer :default_username
+
+      def default_username
+        @default_username || Domgen::Naming.underscore(repository.name)
       end
 
       attr_writer :include_default_unit
