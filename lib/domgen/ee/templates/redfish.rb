@@ -1,4 +1,5 @@
 def generate(repository)
+  constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
   data = {}
   if repository.jms?
     data['jms_resources'] = {}
@@ -18,7 +19,6 @@ def generate(repository)
     end
   end
 
-  constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
   data['environment_vars'] =
     {
       "#{constant_prefix}_BROKER_USERNAME" => repository.jms.default_username,
