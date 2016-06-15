@@ -47,6 +47,7 @@ def generate(repository)
     units.each do |unit|
       name = unit.short_name
       cname = Domgen::Naming.uppercase_constantize(name)
+      prefix = cname == constant_prefix ? constant_prefix : "#{constant_prefix}_#{cname}"
       resource = unit.data_source
       connection_pool = "#{resource}ConnectionPool"
 
@@ -68,22 +69,19 @@ def generate(repository)
       data['jdbc_connection_pools'][connection_pool]['resources'][resource] = {}
       data['jdbc_connection_pools'][connection_pool]['resources'][resource]['description'] = "#{name} resource for application #{application}"
 
-      data['environment_vars']["#{constant_prefix}_#{cname}_DB_HOST"] = nil
-      data['environment_vars']["#{constant_prefix}_#{cname}_DB_PORT"] = repository.mssql? ? 1433 : repository.pgsql? ? 5432 : nil
-      data['environment_vars']["#{constant_prefix}_#{cname}_DB_DATABASE"] = nil
-      data['environment_vars']["#{constant_prefix}_#{cname}_DB_USERNAME"] = repository.jpa.default_username
-      data['environment_vars']["#{constant_prefix}_#{cname}_DB_PASSWORD"] = nil
+      data['environment_vars']["#{prefix}_DB_HOST"] = nil
+      data['environment_vars']["#{prefix}_DB_PORT"] = repository.mssql? ? 1433 : repository.pgsql? ? 5432 : nil
+      data['environment_vars']["#{prefix}_DB_DATABASE"] = nil
+      data['environment_vars']["#{prefix}_DB_USERNAME"] = repository.jpa.default_username
+      data['environment_vars']["#{prefix}_DB_PASSWORD"] = nil
 
-      data['jdbc_connection_pools'][connection_pool]['properties']['ServerName'] = "${#{constant_prefix}_#{cname}_DB_HOST}"
-      data['jdbc_connection_pools'][connection_pool]['properties']['User'] = "${#{constant_prefix}_#{cname}_DB_USERNAME}"
-      data['jdbc_connection_pools'][connection_pool]['properties']['Password'] = "${#{constant_prefix}_#{cname}_DB_PASSWORD}"
-      data['jdbc_connection_pools'][connection_pool]['properties']['PortNumber'] = "${#{constant_prefix}_#{cname}_DB_PORT}"
-      data['jdbc_connection_pools'][connection_pool]['properties']['DatabaseName'] = "${#{constant_prefix}_#{cname}_DB_DATABASE}"
+      data['jdbc_connection_pools'][connection_pool]['properties']['ServerName'] = "${#{prefix}_DB_HOST}"
+      data['jdbc_connection_pools'][connection_pool]['properties']['User'] = "${#{prefix}_DB_USERNAME}"
+      data['jdbc_connection_pools'][connection_pool]['properties']['Password'] = "${#{prefix}_DB_PASSWORD}"
+      data['jdbc_connection_pools'][connection_pool]['properties']['PortNumber'] = "${#{prefix}_DB_PORT}"
+      data['jdbc_connection_pools'][connection_pool]['properties']['DatabaseName'] = "${#{prefix}_DB_DATABASE}"
 
       if repository.mssql?
-        data['environment_vars']["#{constant_prefix}_#{cname}_DB_INSTANCE"] = nil
-        data['jdbc_connection_pools'][connection_pool]['properties']['Instance'] = "${#{constant_prefix}_#{cname}_DB_INSTANCE}"
-
         # Standard DataSource configuration
         data['jdbc_connection_pools'][connection_pool]['properties']['AppName'] = application
         data['jdbc_connection_pools'][connection_pool]['properties']['ProgName'] = 'GlassFish'
