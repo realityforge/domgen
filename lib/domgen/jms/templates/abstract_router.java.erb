@@ -14,6 +14,10 @@ public abstract class <%= service.jms.abstract_router_name %>
   @javax.annotation.Resource( lookup = "<%= m.jms.route_to_destination_resource_name %>" )
   private <%= m.jms.route_to_destination_type %> _<%= Domgen::Naming.camelize(m.name)%>Target;
 <% end -%>
+<% service.methods.select{|m|m.jms? && m.jms.router?}.each do |m| -%>
+  // Use a per-thread marshaller as creating a marshaller is expensive, but they are not thread safe.
+  private java.lang.ThreadLocal<javax.xml.bind.Marshaller> _<%= Domgen::Naming.camelize(m.name)%>Marshallers = new java.lang.ThreadLocal<>();
+<% end -%>
 
 <% service.methods.select{|m|m.jms? && m.jms.router?}.each do |method| -%>
   <%=
@@ -35,16 +39,33 @@ public abstract class <%= service.jms.abstract_router_name %>
   {
     try
     {
-      final javax.xml.bind.JAXBContext context = javax.xml.bind.JAXBContext.newInstance( <%= parameter.jms.object_factory ? parameter.jms.object_factory : encoded_type %>.class );
-      final javax.xml.bind.Marshaller marshaller = context.createMarshaller();
       final java.io.StringWriter writer = new java.io.StringWriter();
-      marshaller.marshal( <%= Domgen::Naming.camelize(parameter.name) %>, writer );
+      get<%= method.name %>Marshaller().marshal( <%= Domgen::Naming.camelize(parameter.name) %>, writer );
       return writer.toString();
     }
     catch ( final java.lang.Throwable t )
     {
       throw new RuntimeException( "Error converting message " + <%= Domgen::Naming.camelize(parameter.name) %>.getClass(), t );
     }
+  }
+
+  private javax.xml.bind.Marshaller get<%= method.name %>Marshaller()
+    throws javax.xml.bind.JAXBException
+  {
+    javax.xml.bind.Marshaller marshaller = _<%= Domgen::Naming.camelize(method.name)%>Marshallers.get();
+    if ( null == marshaller )
+    {
+      marshaller = new<%= method.name %>JAXBContext().createMarshaller();
+      marshaller.setProperty( "jaxb.formatted.output", Boolean.TRUE );
+      _<%= Domgen::Naming.camelize(method.name)%>Marshallers.set( marshaller );
+    }
+    return marshaller;
+  }
+
+  protected javax.xml.bind.JAXBContext new<%= method.name %>JAXBContext()
+    throws javax.xml.bind.JAXBException
+  {
+    return javax.xml.bind.JAXBContext.newInstance( <%= parameter.jms.object_factory ? parameter.jms.object_factory : encoded_type %>.class );
   }
 
 <% end -%>
