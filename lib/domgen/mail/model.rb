@@ -69,6 +69,7 @@ module Domgen
   <jta-data-source>#{repository.jpa.data_source}</jta-data-source>
 
   <class>iris.mail.server.entity.MailEntry</class>
+  <class>iris.mail.server.entity.Attachment</class>
 
   <exclude-unlisted-classes>true</exclude-unlisted-classes>
   <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
