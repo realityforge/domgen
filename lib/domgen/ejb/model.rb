@@ -159,7 +159,7 @@ module Domgen
             service.jws? ||
             service.jaxrs? ||
             service.imit? ||
-            service.methods.any? { |method| method.parameters.any? { |parameter| parameter.reference? } }
+            service.methods.any? { |method| method.parameters.any? { |parameter| parameter.reference? } || method.return_value.reference? }
         else
           return @generate_boundary
         end
