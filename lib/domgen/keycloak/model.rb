@@ -19,6 +19,7 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :keycloak_filter, :filter, :server, :keycloak, '#{repository.name}KeycloakFilter'
+      java_artifact :abstract_keycloak_filter, :filter, :server, :keycloak, 'Abstract#{repository.name}KeycloakFilter'
       java_artifact :keycloak_config_resolver, :filter, :server, :keycloak, '#{repository.name}KeycloakConfigResolver'
 
       attr_writer :protected_url_patterns

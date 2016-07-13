@@ -1,0 +1,50 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_abstract_keycloak_filter_name) %>;
+
+/**
+ * Base class to extend to define filter.
+ *
+ * <code>
+ * @javax.enterprise.context.ApplicationScoped
+ * @javax.enterprise.inject.Typed( org.realityforge.keycloak.domgen.KeycloakUrlFilter.class )
+ * public class <%= repository.keycloak.abstract_keycloak_filter_name.gsub(/^Abstract/,'') %> extends <%= repository.keycloak.abstract_keycloak_filter_name %>
+ * {
+ *   ...
+ * }
+ * </code>
+ */
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= repository.keycloak.abstract_keycloak_filter_name %>
+  implements org.realityforge.keycloak.domgen.KeycloakUrlFilter
+{
+  @Override
+  public boolean shouldProtectRequest( @javax.annotation.Nonnull final javax.servlet.ServletRequest request )
+  {
+    final javax.servlet.http.HttpServletRequest httpRequest = (javax.servlet.http.HttpServletRequest) request;
+    final String path = httpRequest.getRequestURI().substring( httpRequest.getContextPath().length() );
+    return isPathProtected( path );
+  }
+
+  protected boolean isPathProtected( @javax.annotation.Nonnull final String path )
+  {
+<% if repository.appconfig? -%>
+    if ( path.startsWith( <%= repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + iris.appconfig.server.rest.SystemSettingRestService.PATH_PREFIX ) )
+    {
+      return false;
+    }
+<% end -%>
+<% if repository.timerstatus? -%>
+    if ( path.startsWith( <%= repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + iris.timerstatus.server.service.TimerStatusService.PATH_PREFIX ) )
+    {
+      return false;
+    }
+<% end -%>
+<% if repository.syncrecord? -%>
+    if ( path.startsWith( <%= repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + "/status/sync" ) )
+    {
+      return false;
+    }
+<% end -%>
+    return true;
+  }
+}
