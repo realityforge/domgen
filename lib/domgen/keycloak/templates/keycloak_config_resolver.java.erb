@@ -1,0 +1,13 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_keycloak_config_resolver_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.keycloak.keycloak_config_resolver_name %>
+  extends org.realityforge.keycloak.domgen.AbstractJndiBasedKeycloakConfigResolver
+{
+  @javax.annotation.Nonnull
+  protected String getRootJndiPath()
+  {
+    return "<%= repository.keycloak.jndi_config_base %>";
+  }
+}

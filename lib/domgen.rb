@@ -154,6 +154,10 @@ require 'domgen/appcache/generator'
 require 'domgen/timerstatus/model'
 require 'domgen/timerstatus/generator'
 
+# Keycloak authentication integration
+require 'domgen/keycloak/model'
+require 'domgen/keycloak/generator'
+
 require 'domgen/appconfig/model'
 require 'domgen/appconfig/generator'
 

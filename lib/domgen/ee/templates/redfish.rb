@@ -1,3 +1,10 @@
+def define_custom_resource(data, key, value)
+    data['custom_resources'] ||= {}
+    data['custom_resources'][key] = {}
+    data['custom_resources'][key]['properties'] = {}
+    data['custom_resources'][key]['properties']['value'] = value
+end
+
 def generate(repository)
   application = Domgen::Naming.underscore(repository.name)
   constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
@@ -5,6 +12,20 @@ def generate(repository)
   data = {}
 
   data['environment_vars'] = {}
+
+  if repository.keycloak?
+    prefix = repository.keycloak.jndi_config_base
+    data['environment_vars']["#{constant_prefix}_KEYCLOAK_REALM"] = ''
+    data['environment_vars']["#{constant_prefix}_KEYCLOAK_REALM_PUBLIC_KEY"] = ''
+    data['environment_vars']["#{constant_prefix}_KEYCLOAK_AUTH_SERVER_URL"] = ''
+
+    define_custom_resource(data, "#{prefix}/realm", "${#{constant_prefix}_KEYCLOAK_REALM}")
+    define_custom_resource(data, "#{prefix}/realm-public-key", "${#{constant_prefix}_KEYCLOAK_REALM_PUBLIC_KEY}")
+    define_custom_resource(data, "#{prefix}/auth-server-url", "${#{constant_prefix}_KEYCLOAK_AUTH_SERVER_URL}")
+    define_custom_resource(data, "#{prefix}/ssl-required", 'external')
+    define_custom_resource(data, "#{prefix}/resource", repository.name)
+    define_custom_resource(data, "#{prefix}/public-client", true)
+  end
 
   if repository.jms?
     data['jms_resources'] = {}

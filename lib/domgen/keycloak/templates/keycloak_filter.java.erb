@@ -1,0 +1,27 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_keycloak_filter_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.servlet.annotation.WebFilter( asyncSupported = true, initParams = { @javax.servlet.annotation.WebInitParam( name = "keycloak.config.resolver", value = "<%= repository.keycloak.qualified_keycloak_config_resolver_name %>" ) }, urlPatterns = { <%= repository.keycloak.protected_url_patterns.collect{|p|"\"#{p}\""}.join( ', ' )  %> } )
+public class <%= repository.keycloak.keycloak_filter_name %>
+  extends org.keycloak.adapters.servlet.KeycloakOIDCFilter
+{
+  @javax.inject.Inject
+  private org.realityforge.keycloak.domgen.KeycloakUrlFilter _urlFilter;
+
+  @java.lang.Override
+  public void doFilter( final javax.servlet.ServletRequest request,
+                        final javax.servlet.ServletResponse response,
+                        final javax.servlet.FilterChain chain )
+    throws java.io.IOException, javax.servlet.ServletException
+  {
+    if ( _urlFilter.shouldProtectRequest( request ) )
+    {
+      super.doFilter( request, response, chain );
+    }
+    else
+    {
+      chain.doFilter( request, response );
+    }
+  }
+}
