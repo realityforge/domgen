@@ -13,7 +13,7 @@
 #
 
 module Domgen
-  FacetManager.facet(:jackson => [:json, :java]) do |facet|
+  FacetManager.facet(:jackson => [:json, :ee]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
 
