@@ -1,0 +1,162 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.jackson.qualified_date_util_name) %>;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Utility class for serialization and deserialization of dates matching format YYYY-MM-DD for jackson.
+ *
+ * Note: this is "generated" to avoid reliance on an external library.
+ */
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public final class <%= repository.jackson.date_util_name %>
+{
+  private <%= repository.jackson.date_util_name %>()
+  {
+  }
+
+  public static final class DateDeserializer
+    extends JsonDeserializer<Date>
+  {
+    @Override
+    public Date deserialize( final JsonParser parser, final DeserializationContext context )
+      throws IOException
+    {
+      return parse( newDateFormatter(), parser.getText() );
+    }
+  }
+
+  public static final class DateListDeserializer
+    extends JsonDeserializer<List<Date>>
+  {
+    @Override
+    public List<Date> deserialize( final JsonParser parser, final DeserializationContext context )
+      throws IOException
+    {
+      return deserializeCollection( parser, context, List.class, new ArrayList<Date>() );
+    }
+  }
+
+  public static final class DateListSerializer
+    extends JsonSerializer<List<Date>>
+  {
+    @Override
+    public void serialize( final List<Date> dates,
+                           final JsonGenerator generator,
+                           final SerializerProvider provider )
+      throws IOException
+    {
+      generator.writeStartArray();
+      writeDates( dates, generator );
+      generator.writeEndArray();
+    }
+  }
+
+  public static final class DateSerializer
+    extends JsonSerializer<Date>
+  {
+    @Override
+    public void serialize( final Date date,
+                           final JsonGenerator generator,
+                           final SerializerProvider provider )
+      throws IOException
+    {
+      generator.writeString( newDateFormatter().format( date ) );
+    }
+  }
+
+  public static final class DateSetDeserializer
+    extends JsonDeserializer<Set<Date>>
+  {
+    @Override
+    public Set<Date> deserialize( final JsonParser parser, final DeserializationContext context )
+      throws IOException
+    {
+      return deserializeCollection( parser, context, Set.class, new HashSet<Date>() );
+    }
+  }
+
+  public static final class DateSetSerializer
+    extends JsonSerializer<Set<Date>>
+  {
+    @Override
+    public void serialize( final Set<Date> dates,
+                           final JsonGenerator generator,
+                           final SerializerProvider provider )
+      throws IOException
+    {
+      generator.writeStartArray();
+      writeDates( dates, generator );
+      generator.writeEndArray();
+    }
+  }
+
+  static void writeDates( final Collection<Date> dates, final JsonGenerator generator )
+    throws IOException
+  {
+    final DateFormat formatter = newDateFormatter();
+    for ( final Date date : dates )
+    {
+      generator.writeString( formatter.format( date ) );
+    }
+  }
+
+  static Date parse( final DateFormat formatter, final String source )
+    throws IOException
+  {
+    try
+    {
+      return formatter.parse( source );
+    }
+    catch ( final ParseException pe )
+    {
+      throw new IOException( pe.getMessage(), pe );
+    }
+  }
+
+  static DateFormat newDateFormatter()
+  {
+    return new SimpleDateFormat( "yyyy-MM-dd" );
+  }
+
+  static <T extends Collection<Date>> T deserializeCollection( final JsonParser parser,
+                                                               final DeserializationContext context,
+                                                               final Class<?> type,
+                                                               final T result )
+    throws IOException
+  {
+    if ( !parser.isExpectedStartArrayToken() )
+    {
+      throw context.mappingException( type );
+    }
+
+    final DateFormat formatter = newDateFormatter();
+    JsonToken token;
+    while ( JsonToken.END_ARRAY != ( token = parser.nextToken() ) )
+    {
+      if ( JsonToken.VALUE_NULL == token )
+      {
+        throw context.mappingException( Set.class );
+      }
+      result.add( parse( formatter, parser.getText() ) );
+    }
+    return result;
+  }
+}

@@ -13,5 +13,12 @@
 #
 
 module Domgen
-  FacetManager.facet(:jackson => [:json, :java])
+  FacetManager.facet(:jackson => [:json, :java]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :date_util, :data_type, :server, :ee, '#{repository.name}DateUtil', :sub_package => 'internal'
+      java_artifact :marshalling_test, :data_type, :server, :ee, '#{repository.name}JacksonMarshallingTest'
+    end
+  end
 end

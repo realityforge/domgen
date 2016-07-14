@@ -1,0 +1,79 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.jackson.qualified_marshalling_test_name) %>;
+
+@java.lang.SuppressWarnings( "deprecation" )
+public class <%= repository.jackson.marshalling_test_name %>
+{
+<%
+  repository.data_modules.select{|dm|dm.jackson?}.each do |data_module|
+    data_module.enumerations.select{|e|e.jackson?}.each do |enumeration|
+-%>
+  @org.testng.annotations.Test
+  public void marshal<%= data_module.name %><%= enumeration.name %>()
+    throws Exception
+  {
+    final java.io.StringWriter json = new java.io.StringWriter();
+    final <%= enumeration.ee.qualified_name %> input = <%= enumeration.ee.qualified_name %>.<%= enumeration.values[0].name %>;
+    new com.fasterxml.jackson.databind.ObjectMapper().writeValue( json, input );
+    final String data = json.toString();
+    org.testng.Assert.assertEquals( data, "<%= enumeration.numeric_values? ? '0' : enumeration.values[0].name %>" );
+    final <%= enumeration.ee.qualified_name %> output = new com.fasterxml.jackson.databind.ObjectMapper().readValue( data, <%= enumeration.ee.qualified_name %>.class );
+    org.testng.Assert.assertEquals( output, input );
+  }
+<%
+    end
+
+def create_parameter_value(p, parent_context = nil)
+  type_spec = ''
+  v =
+    if p.integer?
+      "1"
+    elsif p.reference?
+      create_parameter_value(p.referenced_entity.primary_key)
+    elsif p.boolean?
+      "true"
+    elsif p.enumeration?
+      "#{p.enumeration.ee.qualified_name}.#{p.enumeration.values[0].name}"
+    elsif p.struct?
+      if parent_context == p.referenced_struct
+        type_spec = "<#{p.referenced_struct.ee.qualified_name}>"
+        ''
+      else
+        create_struct(p.referenced_struct, p.characteristic_container)
+      end
+    elsif p.datetime?
+      "new java.util.Date(77, 11, 3, 22, 32)"
+    elsif p.date?
+      "new java.util.Date(77, 11, 3)"
+    elsif p.text?
+      "\"HelloWorld\""
+    else
+      Domgen.error("Unknown parameter type for #{p.qualified_name}")
+    end
+  !p.collection? ? v : (p.collection_type == :sequence) ? "java.util.Arrays.#{type_spec}asList( #{v} )" : "new java.util.HashSet<>( java.util.Arrays.#{type_spec}asList( #{v} ) )"
+end
+
+def create_struct(struct, context)
+  result = "new #{struct.ee.qualified_name}("
+  result << struct.fields.collect { |p| create_parameter_value(p, context) }.join(", ")
+  result << ")"
+end
+
+    data_module.structs.select{|s|s.jackson?}.each do |struct|
+-%>
+  @org.testng.annotations.Test
+  public void marshal<%= data_module.name %><%= struct.name %>()
+    throws Exception
+  {
+    final java.io.StringWriter json = new java.io.StringWriter();
+    final <%= struct.ee.qualified_name %> input = <%= create_struct(struct, nil) %>;
+    new com.fasterxml.jackson.databind.ObjectMapper().writeValue( json, input );
+    final String data = json.toString();
+    final <%= struct.ee.qualified_name %> output = new com.fasterxml.jackson.databind.ObjectMapper().readValue( data, <%= struct.ee.qualified_name %>.class );
+    org.testng.Assert.assertEquals( output, input );
+  }
+<%
+    end
+  end
+-%>
+}

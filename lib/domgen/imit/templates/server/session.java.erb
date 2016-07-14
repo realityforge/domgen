@@ -8,7 +8,7 @@ public class <%= repository.imit.session_name %>
 {
   private static final long serialVersionUID = 1;
 <% if repository.imit.graphs.any?{|graph| !graph.filter_parameter.nil? && !Domgen::Java.primitive?(graph.filter_parameter, :ee, :default)} -%>
-  private transient static final org.codehaus.jackson.map.ObjectMapper c_jsonMapper = new org.codehaus.jackson.map.ObjectMapper();
+  private transient static final com.fasterxml.jackson.databind.ObjectMapper c_jsonMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 <% end -%>
 
 <%

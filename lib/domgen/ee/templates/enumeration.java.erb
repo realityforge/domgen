@@ -21,7 +21,7 @@ public enum <%= enumeration.ee.name %>
   end.join(",\n  ") %>;
 
 <% if enumeration.jackson? && enumeration.numeric_values? -%>
-  @org.codehaus.jackson.annotate.JsonValue
+  @com.fasterxml.jackson.annotation.JsonValue
   public int value()
   {
     return super.ordinal();
@@ -31,10 +31,10 @@ public enum <%= enumeration.ee.name %>
   @java.lang.SuppressWarnings( { "PMD.UnusedModifier" } )
   // Needs to be public static as jackson was unable to instantiate if not
   public static class Deserializer
-    extends org.codehaus.jackson.map.JsonDeserializer<<%= enumeration.ee.name %>>
+    extends com.fasterxml.jackson.databind.JsonDeserializer<<%= enumeration.ee.name %>>
   {
     @java.lang.Override
-    public <%= enumeration.ee.name %> deserialize( final org.codehaus.jackson.JsonParser parser, final org.codehaus.jackson.map.DeserializationContext context )
+    public <%= enumeration.ee.name %> deserialize( final com.fasterxml.jackson.core.JsonParser parser, final com.fasterxml.jackson.databind.DeserializationContext context )
       throws java.io.IOException
     {
       final int typeCode = parser.getValueAsInt();

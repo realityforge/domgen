@@ -69,6 +69,7 @@ require 'domgen/jaxb/generator'
 # Jackson (JSon deserialization)
 require 'domgen/jackson/model'
 require 'domgen/jackson/helper'
+require 'domgen/jackson/generator'
 
 # JPA
 require 'domgen/jpa/model'

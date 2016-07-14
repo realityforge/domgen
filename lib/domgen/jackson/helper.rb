@@ -17,33 +17,34 @@ module Domgen
     module Helper
       def jackson_class_annotations(struct)
         s = ''
-        s << "@org.codehaus.jackson.annotate.JsonAutoDetect( value = org.codehaus.jackson.annotate.JsonMethod.NONE )\n"
-        s << "@org.codehaus.jackson.annotate.JsonTypeName( \"#{struct.json.name}\" )\n"
-        s << "@org.codehaus.jackson.annotate.JsonPropertyOrder({#{struct.fields.collect{|field| "\"#{Domgen::Naming.camelize(field.name)}\""}.join(", ")}})"
+        s << "@com.fasterxml.jackson.annotation.JsonAutoDetect( fieldVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY, getterVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE, setterVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE, isGetterVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE, creatorVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE )\n"
+        s << "@com.fasterxml.jackson.annotation.JsonTypeName( \"#{struct.json.name}\" )\n"
+        s << "@com.fasterxml.jackson.annotation.JsonPropertyOrder({#{struct.fields.collect{|field| "\"#{Domgen::Naming.camelize(field.name)}\""}.join(", ")}})"
         s
       end
 
       def jackson_field_annotation(field)
         s = ''
-        s << "@org.codehaus.jackson.annotate.JsonProperty(\"#{field.json.name}\")\n"
+        s << "@com.fasterxml.jackson.annotation.JsonProperty(\"#{field.json.name}\")\n"
         if field.enumeration? && field.enumeration.numeric_values?
           if field.collection?
-            Domgen.error("Attempted to use a collection of enumerations which is currently unsupported")
+            Domgen.error('Attempted to use a collection of enumerations which is currently unsupported')
           else
-            s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = #{field.enumeration.ee.qualified_name}.Deserializer.class )\n"
+            s << "  @com.fasterxml.jackson.databind.annotation.JsonDeserialize( using = #{field.enumeration.ee.qualified_name}.Deserializer.class )\n"
           end
         elsif field.date?
+          date_util_name = field.struct.data_module.repository.jackson.qualified_date_util_name
           if field.collection?
             if field.collection_type == :sequence
-              s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateListSerializer.class )\n"
-              s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateListDeserializer.class )\n"
+              s << "  @com.fasterxml.jackson.databind.annotation.JsonSerialize( using = #{date_util_name}.DateListSerializer.class )\n"
+              s << "  @com.fasterxml.jackson.databind.annotation.JsonDeserialize( using = #{date_util_name}.DateListDeserializer.class )\n"
             else
-              s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateSetSerializer.class )\n"
-              s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateSetDeserializer.class )\n"
+              s << "  @com.fasterxml.jackson.databind.annotation.JsonSerialize( using = #{date_util_name}.DateSetSerializer.class )\n"
+              s << "  @com.fasterxml.jackson.databind.annotation.JsonDeserialize( using = #{date_util_name}.DateSetDeserializer.class )\n"
             end
           else
-            s << "  @org.codehaus.jackson.map.annotate.JsonSerialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateSerializer.class )\n"
-            s << "  @org.codehaus.jackson.map.annotate.JsonDeserialize( using = org.realityforge.gwt.datatypes.server.date.jackson.DateDeserializer.class )\n"
+            s << "  @com.fasterxml.jackson.databind.annotation.JsonSerialize( using = #{date_util_name}.DateSerializer.class )\n"
+            s << "  @com.fasterxml.jackson.databind.annotation.JsonDeserialize( using = #{date_util_name}.DateDeserializer.class )\n"
           end
         end
         s
