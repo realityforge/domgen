@@ -1,0 +1,20 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.timerstatus.qualified_blocking_filter_name) %>;
+
+/**
+ * Make sure the "standard" GlassFish timer app is not accessible.
+ */
+@javax.annotation.Generated( "Domgen" )
+@javax.servlet.annotation.WebFilter( urlPatterns = { "/ejb-timer-service-app/*" }, asyncSupported = true )
+public class <%= repository.timerstatus.blocking_filter_name %>
+  extends <%= repository.ee.qualified_abstract_filter_name %>
+{
+  @Override
+  public void doFilter( final javax.servlet.ServletRequest request,
+                        final javax.servlet.ServletResponse response,
+                        final javax.servlet.FilterChain chain )
+    throws java.io.IOException, javax.servlet.ServletException
+  {
+    ( (javax.servlet.http.HttpServletResponse) response ).sendError( 404 );
+  }
+}
