@@ -16,7 +16,7 @@ public class <%= repository.jackson.marshalling_test_name %>
     final <%= enumeration.ee.qualified_name %> input = <%= enumeration.ee.qualified_name %>.<%= enumeration.values[0].name %>;
     new com.fasterxml.jackson.databind.ObjectMapper().writeValue( json, input );
     final String data = json.toString();
-    org.testng.Assert.assertEquals( data, "<%= enumeration.numeric_values? ? '0' : enumeration.values[0].name %>" );
+    org.testng.Assert.assertEquals( data, "<%= enumeration.numeric_values? ? '0' : "\\\"#{enumeration.values[0].name}\\\"" %>" );
     final <%= enumeration.ee.qualified_name %> output = new com.fasterxml.jackson.databind.ObjectMapper().readValue( data, <%= enumeration.ee.qualified_name %>.class );
     org.testng.Assert.assertEquals( output, input );
   }
