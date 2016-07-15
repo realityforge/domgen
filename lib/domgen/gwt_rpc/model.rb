@@ -13,7 +13,7 @@
 #
 
 module Domgen
-  FacetManager.facet(:gwt_rpc => [:gwt]) do |facet|
+  FacetManager.facet(:gwt_rpc => [:gwt, :jackson]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
