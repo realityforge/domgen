@@ -6,3 +6,4 @@
 /.rakeTasks
 /Gemfile.lock
 /tmp
+/patch.*
