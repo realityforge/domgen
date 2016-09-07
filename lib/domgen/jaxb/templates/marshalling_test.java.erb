@@ -34,6 +34,8 @@ def create_parameter_value(p, parent_context = nil)
   v =
     if p.integer?
       "1"
+    elsif p.real?
+      "1.1F"
     elsif p.reference?
       create_parameter_value(p.referenced_entity.primary_key)
     elsif p.boolean?
