@@ -585,6 +585,8 @@ module Domgen
 
           if e.concrete?
             e.query(:FindByMappingSourceAndMappingID)
+            e.query(:FindUndeletedByMappingSourceAndMappingID,
+              'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.mappingID = :MappingID and O.deletedAt IS NULL')
             e.query(:GetByMappingSourceAndMappingID)
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingID', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
