@@ -110,7 +110,7 @@ module Domgen
           end
         end
       end
-      Logger.info "Generator completed"
+      Logger.info 'Generator completed'
     end
 
     class GeneratorError < StandardError
