@@ -109,6 +109,25 @@ module Domgen
         self.disable_facet(facet_key) if self.facet_enabled?(facet_key)
       end
     end
+
+    # Collect all generation targets. This is a map of type to an array of all elements of that type
+    # i.e.
+    #
+    # {
+    #   :repository => [repository],
+    #   :data_module => [module1, module2],
+    #   :entity => [entity1, entity2],
+    #   ...
+    # }
+    #
+    def collect_generation_targets(targets)
+      self_type = FacetManager.valid_source_classes[self.class] || (raise "Unable to determine key for element #{self} of type #{self.class}")
+      (targets[self_type] ||= []) << self
+
+      FacetManager.each_dependent_sub_feature(self) do |child|
+        child.collect_generation_targets(targets) if child.respond_to?(:collect_generation_targets)
+      end
+    end
   end
 
   def self.FacetedElement(parent_key)
@@ -242,12 +261,8 @@ module Domgen
             end
           end
         end
-        dependent_features[object.class].each do |sub_feature_key|
-          next unless handle_sub_feature?(object, sub_feature_key)
-          children = child_features(object, sub_feature_key)
-          children.each do |child|
-            extension_point(child, action)
-          end
+        each_dependent_sub_feature(object) do |child|
+          extension_point(child, action)
         end
       end
 
@@ -267,23 +282,15 @@ module Domgen
         object.send(:enabled_facets) << facet_key
         object.send(:disabled_facets).delete(facet_key)
 
-        dependent_features[object.class].each do |sub_feature_key|
-          next unless handle_sub_feature?(object, sub_feature_key)
-          children = child_features(object, sub_feature_key)
-          children.each do |child|
-            activate_facet(facet_key, child)
-          end
+        each_dependent_sub_feature(object) do |child|
+          activate_facet(facet_key, child)
         end
       end
 
       def deactivate_facet(facet_key, object)
         return unless facet_enabled?(facet_key, object)
-        dependent_features[object.class].each do |sub_feature_key|
-          next unless handle_sub_feature?(object, sub_feature_key)
-          children = child_features(object, sub_feature_key)
-          children.each do |child|
-            deactivate_facet(facet_key, child)
-          end
+        each_dependent_sub_feature(object) do |child|
+          deactivate_facet(facet_key, child)
         end
 
         facet_map.values.each do |facet|
@@ -299,6 +306,16 @@ module Domgen
       def facet_enabled?(facet_key, object)
         method_name = :"#{facet_key}?"
         object.respond_to?(method_name) ? object.send(method_name) : false
+      end
+
+      def each_dependent_sub_feature(object)
+        dependent_features[object.class].each do |sub_feature_key|
+          next unless handle_sub_feature?(object, sub_feature_key)
+          children = child_features(object, sub_feature_key)
+          children.each do |child|
+            yield child
+          end
+        end
       end
 
       private
