@@ -16,7 +16,7 @@ module Domgen
   module Generator
     def self.generate(repository, directory, templates, filter, unprocessed_files)
 
-      Logger.debug "Templates to process: #{templates.collect{|t|t.name}.inspect}"
+      Logger.debug "Templates to process: #{templates.collect { |t| t.name }.inspect}"
 
       templates.each do |template|
         Logger.debug "Evaluating template: #{template.name}"
