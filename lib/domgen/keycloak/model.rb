@@ -31,7 +31,7 @@ module Domgen
       attr_writer :root_url
 
       def root_url
-        @root_url || "http://#{Domgen::Naming.underscore(keycloak_repository.repository.name)}.example.com"
+        @root_url || "{{APPLICATION_URL}}"
       end
 
       attr_writer :base_url
