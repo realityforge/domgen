@@ -17,8 +17,8 @@ module Domgen
     class WsimportTemplate < Domgen::Generator::Template
       attr_reader :output_package_pattern
 
-      def initialize(template_set, facets, scope, template_key, output_package_pattern, helpers, options = {})
-        super(template_set, facets, scope, template_key, helpers, options)
+      def initialize(template_set, facets, target, template_key, output_package_pattern, helpers, options = {})
+        super(template_set, facets, target, template_key, helpers, options)
         @output_package_pattern = output_package_pattern
       end
 

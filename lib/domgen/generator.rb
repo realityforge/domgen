@@ -23,11 +23,12 @@ module Domgen
 
       templates.each do |template|
         Logger.debug "Evaluating template: #{template.name}"
-        elements = targets[template.scope]
+        elements = targets[template.target]
 
-        elements.each do |element|
-          if template.applicable?(element) && (filter.nil? || filter.call(template.scope, element))
-            template.generate(directory, template.scope, element, unprocessed_files)
+        elements.each do |element_pair|
+          element = element_pair[1]
+          if template.applicable?(element_pair[0]) && (filter.nil? || filter.call(template.target, element))
+            template.generate(directory, template.target, element, unprocessed_files)
           end
         end if elements
       end
