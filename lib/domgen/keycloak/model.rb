@@ -153,6 +153,8 @@ module Domgen
         client_map.values
       end
 
+      TargetManager.register_target('keycloak.client', :repository, :keycloak, :clients)
+
       def pre_verify
         default_client
       end
