@@ -40,4 +40,12 @@ Domgen.template_set(:keycloak_filter) do |template_set|
                         Domgen::Generator::Keycloak::HELPERS)
 end
 
+Domgen.template_set(:keycloak_client_config) do |template_set|
+  template_set.ruby_template(Domgen::Generator::Keycloak::FACETS,
+                             'keycloak.client',
+                             "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/client.rb",
+                             'main/etc/#{client.key}-client.json',
+                             Domgen::Generator::Keycloak::HELPERS)
+end
+
 Domgen.template_set(:Keycloak => [:keycloak_filter])
