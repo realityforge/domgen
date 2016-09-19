@@ -14,6 +14,46 @@
 
 module Domgen
   module Keycloak
+
+    class Claim < Domgen.ParentedElement(:client)
+      def initialize(client, name, options = {}, &block)
+        @name = name
+        super(client, options, &block)
+      end
+
+      attr_reader :name
+
+      attr_writer :protocol
+
+      def protocol
+        @protocol || 'openid-connect'
+      end
+
+      attr_writer :protocol_mapper
+
+      def protocol_mapper
+        @protocol_mapper || 'oidc-usermodel-property-mapper'
+      end
+
+      attr_writer :consent_required
+
+      def consent_required?
+        @consent_required.nil? ? true : !!@consent_required
+      end
+
+      attr_writer :consent_text
+
+      def consent_text
+        @consent_text || (consent_required? ? "${#{Domgen::Naming.camelize(name.to_s.gsub(' ', '_'))}}" : '')
+      end
+
+      attr_writer :config
+
+      def config
+        @config || {}
+      end
+    end
+
     class Client < Domgen.ParentedElement(:keycloak_repository)
       def initialize(keycloak_repository, key, options = {}, &block)
         @key = key
@@ -105,6 +145,100 @@ module Domgen
       def redirect_uris
         @redirect_uris ||= ["#{root_url}/*"]
       end
+
+      def claim(name, options = {}, &block)
+        raise "Claim with name '#{name}' already defined for client #{self.name}" if claim_map[name.to_s]
+        claim_map[name.to_s] = Claim.new(self, name, options, &block)
+      end
+
+      def claims
+        claim_map.values
+      end
+
+      def claim_by_name?(name)
+        !!claim_map[name.to_s]
+      end
+
+      def claim_by_name(name)
+        raise "Claim with name '#{name}' not defined for client #{self.name}" unless claim_map[name.to_s]
+        claim_map[name.to_s]
+      end
+
+      attr_writer :standard_claims
+
+      def standard_claims
+        @standard_claims || [:username]
+      end
+
+      def pre_verify
+        standard_claims.each do |claim_type|
+          self.send("add_#{claim_type}_claim") unless claim_by_name?(claim_type)
+        end
+      end
+
+      def add_username_claim
+        claim(:username,
+              :config =>
+                {
+                  'user.attribute' => 'username',
+                  'id.token.claim' => 'true',
+                  'access.token.claim' => 'true',
+                  'claim.name' => 'preferred_username',
+                  'jsonType.label' => 'String'
+                })
+      end
+
+      def add_given_name_claim
+        claim('given name',
+              :config =>
+                {
+                  'user.attribute' => 'firstName',
+                  'id.token.claim' => 'false',
+                  'access.token.claim' => 'true',
+                  'claim.name' => 'given_name',
+                  'jsonType.label' => 'String'
+                })
+      end
+
+      def add_family_name_claim
+        claim('family name',
+              :config =>
+                {
+                  'user.attribute' => 'lastName',
+                  'id.token.claim' => 'false',
+                  'access.token.claim' => 'true',
+                  'claim.name' => 'family_name',
+                  'jsonType.label' => 'String'
+                })
+      end
+
+      def add_full_name_claim
+        claim('full name',
+              :protocol_mapper => 'oidc-full-name-mapper',
+              :config =>
+                {
+                  'id.token.claim' => 'false',
+                  'access.token.claim' => 'true'
+                })
+      end
+
+      def add_email_claim
+        claim('email',
+              :config =>
+                {
+                  'user.attribute' => 'email',
+                  'id.token.claim' => 'false',
+                  'access.token.claim' => 'true',
+                  'claim.name' => 'email',
+                  'jsonType.label' => 'String'
+                })
+      end
+
+      private
+
+      def claim_map
+        @claim_map ||= {}
+      end
     end
   end
 
@@ -157,6 +291,10 @@ module Domgen
 
       def pre_verify
         default_client
+
+        clients.each do |client|
+          client.pre_verify
+        end
       end
 
       private
