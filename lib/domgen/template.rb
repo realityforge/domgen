@@ -165,7 +165,7 @@ module Domgen
       end
 
       def applicable?(faceted_object)
-        self.facets.all? {|facet_key| faceted_object.facet_enabled?(facet_key) }
+        self.facets.all? { |facet_key| faceted_object.facet_enabled?(facet_key) }
       end
 
       def output_path
@@ -187,7 +187,7 @@ module Domgen
       end
 
       def name
-        @name ||= "#{self.template_set.name}:#{self.template_key.gsub(/.*\/templates\/(.*)\.#{template_extension}$/,'\1')}"
+        @name ||= "#{self.template_set.name}:#{self.template_key.gsub(/.*\/templates\/(.*)\.#{template_extension}$/, '\1')}"
       end
 
       protected
@@ -301,7 +301,7 @@ module Domgen
         unless @template
           Domgen.error("Unable to locate file #{template_filename} for template #{name}") unless File.exist?(template_filename)
 
-          template_name = Domgen::Naming.pascal_case(template_filename.gsub(/.*\/([^\/]+)\/templates\/(.+)\.rb$/, '\1_\2').gsub('.','_').gsub('/','_'))
+          template_name = Domgen::Naming.pascal_case(template_filename.gsub(/.*\/([^\/]+)\/templates\/(.+)\.rb$/, '\1_\2').gsub('.', '_').gsub('/', '_'))
 
           ::Domgen::TemplateSet.class_eval "module #{template_name}\n end"
           template = ::Domgen::TemplateSet.const_get(template_name)
