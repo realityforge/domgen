@@ -129,6 +129,12 @@ module Domgen
         @jndi_config_base || "#{Domgen::Naming.underscore(repository.name)}/keycloak"
       end
 
+      def default_client
+        key = Domgen::Naming.underscore(repository.name.to_s)
+        client(key) unless client_by_key?(key)
+        client_by_key(key)
+      end
+
       def client_by_key?(key)
         !!client_map[key.to_s]
       end
@@ -145,6 +151,10 @@ module Domgen
 
       def clients
         client_map.values
+      end
+
+      def pre_verify
+        default_client
       end
 
       private
