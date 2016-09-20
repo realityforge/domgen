@@ -71,7 +71,7 @@ module Domgen
       attr_writer :root_url
 
       def root_url
-        @root_url || "{{APPLICATION_URL}}"
+        @root_url || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}"
       end
 
       attr_writer :base_url
