@@ -3,7 +3,7 @@ require 'securerandom'
 def generate(client)
   data = {
     'id' => SecureRandom.uuid.to_s,
-    'clientId' => client.key,
+    'clientId' => client.client_id,
     'name' => client.name,
     'rootUrl' => client.root_url,
     'baseUrl' => client.base_url,

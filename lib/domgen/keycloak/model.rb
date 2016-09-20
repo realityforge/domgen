@@ -62,6 +62,12 @@ module Domgen
 
       attr_reader :key
 
+      attr_writer :client_id
+
+      def client_id
+        "{{#{Domgen::Naming.uppercase_constantize(key)}_NAME}}"
+      end
+
       attr_writer :name
 
       def name
