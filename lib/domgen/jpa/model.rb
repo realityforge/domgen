@@ -647,7 +647,7 @@ FRAGMENT
         entity.attributes.select { |a| a.jpa? && a.reference? && !a.abstract? }.each do |a|
           if entity.sync? && entity.sync.transaction_time?
             query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}UndeletedBy#{a.name}"
-            entity.query(query_name, 'jpa.jpql' => "O.#{a.jpa.field_name} = :#{a.name} AND O.deletedAt IS NULL") unless entity.query_by_name?(query_name)
+            entity.query(query_name, 'jpa.jpql' => "O.#{a.jpa.field_name} = :#{a.name} AND O.deletedAt IS NULL", 'jpa.standard_query' => true) unless entity.query_by_name?(query_name)
           else
             query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}By#{a.name}"
             entity.query(query_name) unless entity.query_by_name?(query_name)
