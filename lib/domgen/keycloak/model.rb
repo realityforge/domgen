@@ -66,8 +66,12 @@ module Domgen
 
       def client_id
         repository_name = keycloak_repository.repository.name
-        is_default = Domgen::Naming.underscore(repository_name) == repository_name
-        "{{#{Domgen::Naming.uppercase_constantize(repository_name)}#{is_default ? '' : "_#{Domgen::Naming.uppercase_constantize(key)}"}_NAME}}"
+        "{{#{Domgen::Naming.uppercase_constantize(repository_name)}#{default_client? ? '' : "_#{Domgen::Naming.uppercase_constantize(key)}"}_NAME}}"
+      end
+
+      def default_client?
+        repository_name = keycloak_repository.repository.name
+        Domgen::Naming.underscore(repository_name) == key.to_s
       end
 
       attr_writer :name
