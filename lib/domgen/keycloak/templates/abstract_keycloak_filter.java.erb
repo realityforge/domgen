@@ -40,7 +40,7 @@ public abstract class <%= repository.keycloak.abstract_keycloak_filter_name %>
     }
 <% end -%>
 <% if repository.syncrecord? -%>
-    if ( path.startsWith( <%= repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + "/status/sync" ) )
+    if ( path.startsWith( <%= repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + iris.syncrecord.server.rest.SyncStatusService.PATH_PREFIX ) )
     {
       return false;
     }
