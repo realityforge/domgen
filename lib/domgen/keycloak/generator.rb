@@ -44,7 +44,7 @@ Domgen.template_set(:keycloak_client_config) do |template_set|
   template_set.ruby_template(Domgen::Generator::Keycloak::FACETS,
                              'keycloak.client',
                              "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/client.rb",
-                             'main/etc/keycloak/#{client.key}-client.json',
+                             'main/etc/keycloak/#{client.key}.json',
                              Domgen::Generator::Keycloak::HELPERS)
 end
 
