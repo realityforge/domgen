@@ -18,12 +18,13 @@ def generate(repository)
     data['environment_vars']["#{constant_prefix}_KEYCLOAK_REALM"] = ''
     data['environment_vars']["#{constant_prefix}_KEYCLOAK_REALM_PUBLIC_KEY"] = ''
     data['environment_vars']["#{constant_prefix}_KEYCLOAK_AUTH_SERVER_URL"] = ''
+    data['environment_vars']["#{constant_prefix}_KEYCLOAK_CLIENT_NAME"] = ''
 
     define_custom_resource(data, "#{prefix}/realm", "${#{constant_prefix}_KEYCLOAK_REALM}")
     define_custom_resource(data, "#{prefix}/realm-public-key", "${#{constant_prefix}_KEYCLOAK_REALM_PUBLIC_KEY}")
     define_custom_resource(data, "#{prefix}/auth-server-url", "${#{constant_prefix}_KEYCLOAK_AUTH_SERVER_URL}")
     define_custom_resource(data, "#{prefix}/ssl-required", 'external')
-    define_custom_resource(data, "#{prefix}/resource", repository.name)
+    define_custom_resource(data, "#{prefix}/resource", "${#{constant_prefix}_KEYCLOAK_CLIENT_NAME}")
     define_custom_resource(data, "#{prefix}/public-client", true)
   end
 
