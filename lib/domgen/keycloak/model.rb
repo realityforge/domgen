@@ -83,13 +83,14 @@ module Domgen
       attr_writer :root_url
 
       def root_url
-        @root_url || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}"
+        @root_url
       end
 
       attr_writer :base_url
 
       def base_url
-        @base_url || '/'
+        @base_url || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}"
+      end
       end
 
       attr_writer :standard_flow
