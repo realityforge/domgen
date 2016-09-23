@@ -7,6 +7,7 @@ def generate(client)
     'name' => client.name,
     'rootUrl' => client.root_url,
     'baseUrl' => client.base_url,
+    'adminUrl' => client.admin_url,
     'surrogateAuthRequired' => client.surrogate_auth_required?,
     'enabled' => true,
     'clientAuthenticatorType' => 'client-secret',

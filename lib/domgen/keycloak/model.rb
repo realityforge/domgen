@@ -91,6 +91,11 @@ module Domgen
       def base_url
         @base_url || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}"
       end
+
+      attr_writer :admin_url
+
+      def admin_url
+        @admin_url || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}/.keycloak"
       end
 
       attr_writer :standard_flow
