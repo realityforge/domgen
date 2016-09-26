@@ -161,7 +161,7 @@ module Domgen
       attr_writer :redirect_uris
 
       def redirect_uris
-        @redirect_uris ||= ["#{root_url}/*"]
+        @redirect_uris ||= ["#{base_url}/*"]
       end
 
       def claim(name, options = {}, &block)
