@@ -83,7 +83,7 @@ module Domgen
       attr_writer :root_url
 
       def root_url
-        @root_url
+        @root_url || ''
       end
 
       attr_writer :base_url
