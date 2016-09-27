@@ -86,6 +86,8 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     glassfish.createCustomResource( APP_NAME + "/keycloak/ssl-required", "external" );
     glassfish.createCustomResource( APP_NAME + "/keycloak/resource", "<%= repository.name %>" );
     glassfish.createCustomResource( APP_NAME + "/keycloak/public-client", true );
+    // This disables keycloak filter. Useful during testing. Should be fixed properly at some point.
+    glassfish.createCustomResource( APP_NAME + "/keycloak_debug", true );
     // Keycloak Configuration Ende
 
 <% end -%>

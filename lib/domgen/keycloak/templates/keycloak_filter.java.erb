@@ -9,13 +9,30 @@ public class <%= repository.keycloak.keycloak_filter_name %>
   @javax.inject.Inject
   private org.realityforge.keycloak.domgen.KeycloakUrlFilter _urlFilter;
 
+  private boolean _disabled;
+
+  @java.lang.Override
+  public void init( final javax.servlet.FilterConfig filterConfig )
+    throws javax.servlet.ServletException
+  {
+    try
+    {
+      _disabled = new javax.naming.InitialContext().lookup( "irk/keycloak_debug" ) == Boolean.TRUE;
+    }
+    catch ( final java.lang.Exception e )
+    {
+      //Ignored.
+    }
+    super.init( filterConfig );
+  }
+
   @java.lang.Override
   public void doFilter( final javax.servlet.ServletRequest request,
                         final javax.servlet.ServletResponse response,
                         final javax.servlet.FilterChain chain )
     throws java.io.IOException, javax.servlet.ServletException
   {
-    if ( _urlFilter.shouldProtectRequest( request ) )
+    if ( !_disabled && _urlFilter.shouldProtectRequest( request ) )
     {
       super.doFilter( request, response, chain );
     }
