@@ -18,7 +18,7 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
-      java_artifact :blocking_filter, :filter, :server, :timerstatus, '#{repository.name}BlockingFilter'
+      java_artifact :blocking_filter, :filter, :server, :timerstatus, '#{repository.name}TimerAppBlockingFilter'
       java_artifact :integration_test, :rest, :server, :timerstatus, '#{repository.name}TimerstatusTest'
 
       def additional_timers
