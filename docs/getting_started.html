@@ -1,0 +1,59 @@
+---
+layout: default
+title: Getting Started
+---
+
+<h2>Getting Started</h2>
+
+<p>
+  Domgen is most commonly used when building Java EE projects using the
+  <a href="http://buildr.apache.org">Buildr</a> build tool so that is what
+  is described in the quick start guide.
+</p>
+
+<p>
+  Typically developers <a href="http://cristibalan.github.io/braid/">braid</a> in a copy of
+  domgen to <code>vendor/plugins/domgen</code> using a command such as;
+</p>
+
+<code>
+{% highlight sh %}
+ $ braid add https://github.com/realityforge/domgen.git vendor/plugins/domgen
+{% endhighlight %}
+</code>
+
+<p>
+  Assuming the projects uses <code>bundler</code> for managing ruby dependencies and thus has
+  a <code>Gemfile</code> in the root directory. Add the following line to <code>Gemfile</code>
+  and re-run <code>bundle install</code>.
+</p>
+
+<figure>
+{% highlight ruby %}
+gem 'domgen', '= 0.19.0.dev', :path => 'vendor/tools/domgen'
+{% endhighlight %}
+</figure>
+
+<p>
+  Then define a <code>tasks/domgen.rake</code> file that loads the repository and generates
+  sql for the project.
+</p>
+
+<figure>
+  <figcaption><code>tasks/domgen.rake</code></figcaption>{% highlight ruby %}
+# Load domgen
+require 'domgen'
+
+# Define the task "domgen:load" that loads the reposiory from the file "../architecture.rb"
+Domgen::Build.define_load_task
+
+# Define the "domgen:sql" task to generate SQL Server sql into database/generated directory
+Domgen::Build.define_generate_task([:mssql], :key => :sql, :target_dir => 'database/generated')
+{% endhighlight %}
+</figure>
+
+<h4>Define architecture.rb</h4>
+
+<p>
+  TODO
+</p>

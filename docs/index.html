@@ -1,0 +1,51 @@
+---
+layout: default
+title: Overview
+---
+
+<p>
+  Domgen generates code from a <i>simple</i> domain model leaving the developer to focus on
+  implementing high-value features of the application. The domain model is described using a
+  domain specific language (DSL). Domgen then provides tasks that generate artifacts based on
+  the domain model.
+</p>
+
+<p>
+  i.e. A developer may define a persistent entity in the DSL. A task could then be used to
+  generate zero or more of the following artifacts from the domain model.
+</p>
+
+<ul>
+  <li>
+    The SQL Server sql or Postgres sql to define the associated database table, keys, constraints,
+    indexes and triggers.
+  </li>
+  <li>
+    Ruby ActiveRecord definitions that define the columns, constraints and relationships.
+  </li>
+  <li>
+    Java JPA entities that define fields for each attribute, constraints, relationships etc.
+  </li>
+  <li>
+    Java CDI beans that for querying and updating entities from and to the database.
+  </li>
+</ul>
+
+<p>
+  This enables the user to get on with developing the application, and avoid focusing on the minutae
+  of how to persist an entity to the database until there is a need. When the developer needs to customize
+  how an entity is realized in the generated artifacts, the developer can annotate the domain model to
+  guide the domgen generators.
+</p>
+
+<p>
+  Domgen also allows the developer to define the service layer and application messaging.
+</p>
+
+<p>
+  In summary Domgen consists of; <a href="model_elements.html">Model Elements</a> that define the types of
+  things that domgen models, <a href="generators.html">Generators</a> that control generate artifacts from
+  the model elements and <a href="facets.html">Facets</a> that allow customization of the generation process.
+  The generation process is typically integrated with <a href="buildr_integration.html">Buildr</a>. Start
+  with the <a href="getting_started.html">Getting Started</a> guide.
+</p>
