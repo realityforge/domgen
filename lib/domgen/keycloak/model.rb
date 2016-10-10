@@ -60,13 +60,36 @@ module Domgen
         super(keycloak_repository, options, &block)
       end
 
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :keycloak_filter, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakFilter'
+      java_artifact :abstract_keycloak_filter, :filter, :server, :keycloak, 'Abstract#{qualified_class_name}KeycloakUrlFilter'
+      java_artifact :keycloak_config_resolver, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakConfigResolver'
+
+      def qualified_class_name
+        "#{Domgen::Naming.pascal_case(name)}Client"
+      end
+
+      attr_writer :jndi_config_base
+
+      def jndi_config_base
+        @jndi_config_base || "#{keycloak_repository.jndi_config_base}/#{name}"
+      end
+
+      def jndi_debug_key
+        "#{jndi_config_base}_debug"
+      end
+
       attr_reader :key
 
       attr_writer :client_id
 
       def client_id
-        repository_name = keycloak_repository.repository.name
-        "{{#{Domgen::Naming.uppercase_constantize(repository_name)}#{default_client? ? '' : "_#{Domgen::Naming.uppercase_constantize(key)}"}_NAME}}"
+        "{{#{client_constant_prefix}_NAME}}"
+      end
+
+      def client_constant_prefix
+        "#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}#{default_client? ? '' : "_#{Domgen::Naming.uppercase_constantize(key)}"}"
       end
 
       def default_client?
@@ -92,10 +115,29 @@ module Domgen
         @base_url || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}"
       end
 
+      # Local url for clients capabilities
+      attr_writer :local_client_url
+
+      def local_client_url
+        @local_client_url || "#{keycloak_repository.base_keycloak_client_url}/#{name}"
+      end
+
+      attr_writer :local_config_url
+
+      def local_config_url
+        @local_config_url || "#{local_client_url}/keycloak.json"
+      end
+
+      attr_writer :local_admin_url
+
+      def local_admin_url
+        @local_admin_url || "#{local_client_url}/admin"
+      end
+
       attr_writer :admin_url
 
       def admin_url
-        @admin_url || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}/.keycloak"
+        @admin_url || "#{base_url}/#{local_admin_url}"
       end
 
       attr_writer :standard_flow
@@ -271,20 +313,26 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
-      java_artifact :keycloak_filter, :filter, :server, :keycloak, '#{repository.name}KeycloakFilter'
-      java_artifact :abstract_keycloak_filter, :filter, :server, :keycloak, 'Abstract#{repository.name}KeycloakUrlFilter'
-      java_artifact :keycloak_config_resolver, :filter, :server, :keycloak, '#{repository.name}KeycloakConfigResolver'
+      java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
+      java_artifact :config_service, :rest, :server, :keycloak, '#{repository.name}KeycloakConfigJaxRsActivator'
 
       attr_writer :protected_url_patterns
 
       def protected_url_patterns
-        @protected_url_patterns ||= %w(/.keycloak/*)
+        @protected_url_patterns ||= clients.collect{|client| "/#{client.local_admin_url}"}
       end
 
       attr_writer :jndi_config_base
 
       def jndi_config_base
         @jndi_config_base || "#{Domgen::Naming.underscore(repository.name)}/keycloak"
+      end
+
+      # Relative url for base of all keycloak configuration
+      attr_writer :base_keycloak_client_url
+
+      def base_keycloak_client_url
+        @base_keycloak_client_url || '.keycloak'
       end
 
       def default_client
@@ -314,8 +362,6 @@ module Domgen
       TargetManager.register_target('keycloak.client', :repository, :keycloak, :clients)
 
       def pre_verify
-        default_client
-
         clients.each do |client|
           client.pre_verify
         end
@@ -324,7 +370,11 @@ module Domgen
       private
 
       def client_map
-        @clients ||= {}
+        unless @clients
+          @clients = {}
+          default_client
+        end
+        @clients
       end
     end
   end

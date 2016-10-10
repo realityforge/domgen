@@ -1,11 +1,12 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.keycloak.qualified_keycloak_filter_name) %>;
+package <%= to_package(client.qualified_keycloak_filter_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@javax.servlet.annotation.WebFilter( asyncSupported = true, initParams = { @javax.servlet.annotation.WebInitParam( name = "keycloak.config.resolver", value = "<%= repository.keycloak.qualified_keycloak_config_resolver_name %>" ) }, urlPatterns = { <%= repository.keycloak.protected_url_patterns.collect{|p|"\"#{p}\""}.join( ', ' )  %> } )
-public class <%= repository.keycloak.keycloak_filter_name %>
+@javax.servlet.annotation.WebFilter( asyncSupported = true, initParams = { @javax.servlet.annotation.WebInitParam( name = "keycloak.config.resolver", value = "<%= client.qualified_keycloak_config_resolver_name %>" ) }, urlPatterns = { <%= client.keycloak_repository.repository.keycloak.protected_url_patterns.collect{|p|"\"#{p}\""}.join( ', ' )  %> } )
+public class <%= client.keycloak_filter_name %>
   extends org.keycloak.adapters.servlet.KeycloakOIDCFilter
 {
+  @javax.inject.Named( <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME )
   @javax.inject.Inject
   private org.realityforge.keycloak.domgen.KeycloakUrlFilter _urlFilter;
 
@@ -17,7 +18,7 @@ public class <%= repository.keycloak.keycloak_filter_name %>
   {
     try
     {
-      _disabled = new javax.naming.InitialContext().lookup( "irk/keycloak_debug" ) == Boolean.TRUE;
+      _disabled = new javax.naming.InitialContext().lookup( "<%= client.jndi_debug_key %>" ) == Boolean.TRUE;
     }
     catch ( final java.lang.Exception e )
     {

@@ -1,0 +1,15 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_client_definitions_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public final class <%= repository.keycloak.client_definitions_name %>
+{
+<% repository.keycloak.clients.each do |client| -%>
+  public static final String <%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME = "<%= client.name %>";
+<% end -%>
+
+  private <%= repository.keycloak.client_definitions_name %>()
+  {
+  }
+}

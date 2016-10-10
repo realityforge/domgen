@@ -1,0 +1,31 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_config_service_name) %>;
+
+@javax.ws.rs.ApplicationPath( "/" )
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.keycloak.config_service_name %>
+  extends javax.ws.rs.core.Application
+{
+  @javax.ws.rs.Path( "/" )
+  @javax.ws.rs.Produces( javax.ws.rs.core.MediaType.APPLICATION_JSON )
+  public static class ConfigurationRestService
+  {
+<% repository.keycloak.clients.select{|client| client.public_client?}.each do |client| -%>
+    @javax.ws.rs.GET
+    @javax.ws.rs.Path( "<%= client.local_config_url %>" )
+    public javax.json.JsonObject get<%= client.key %>Configuration()
+      throws Exception
+    {
+      return org.realityforge.keycloak.domgen.JndiUtil.buildJsonFromContext( new javax.naming.InitialContext(),
+                                                                             "<%= client.jndi_config_base %>" );
+    }
+<% end -%>
+  }
+
+  @Override
+  public java.util.Set<Class<?>> getClasses()
+  {
+    return new java.util.HashSet<>( java.util.Collections.<Class<?>>singletonList( ConfigurationRestService.class ) );
+  }
+}
