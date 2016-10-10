@@ -200,6 +200,12 @@ module Domgen
     facet.enhance(Parameter) do
       include Domgen::Java::EEJavaCharacteristic
 
+      def ignore_default_criteria?
+        @ignore_default_criteria.nil? ? false : !!@ignore_default_criteria
+      end
+
+      attr_writer :ignore_default_criteria
+
       protected
 
       def characteristic
