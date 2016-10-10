@@ -12,7 +12,7 @@ def generate(client)
     'enabled' => true,
     'clientAuthenticatorType' => 'client-secret',
     'redirectUris' => client.redirect_uris,
-    'webOrigins' => [],
+    'webOrigins' => client.web_origins,
     'notBefore' => 0,
     'bearerOnly' => client.bearer_only?,
     'consentRequired' => client.consent_required?,

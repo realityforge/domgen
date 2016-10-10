@@ -164,6 +164,12 @@ module Domgen
         @redirect_uris ||= ["#{base_url}/*"]
       end
 
+      attr_writer :web_origins
+
+      def web_origins
+        @web_origins ||= (keycloak_repository.repository.gwt? ? ["#{base_url}/*"] : [])
+      end
+
       def claim(name, options = {}, &block)
         raise "Claim with name '#{name}' already defined for client #{self.name}" if claim_map[name.to_s]
         claim_map[name.to_s] = Claim.new(self, name, options, &block)
