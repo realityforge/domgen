@@ -79,15 +79,19 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
 <% if repository.keycloak? -%>
 
     // Keycloak Configuration Start
-    // Assume integration tests are not against a real keycloak server at this stage
-    glassfish.createCustomResource( APP_NAME + "/keycloak/realm", "<%= repository.name %>Realm" );
-    glassfish.createCustomResource( APP_NAME + "/keycloak/realm-public-key", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAic34zD00ZQmia/O4peUJyO1g9lnY/p9vi+dxfbFdAilsbsHj2gfFuxiPInk75yIZR7C7DPNS34PWhA6e4EWuero0MhyzyBDM8IS2577EgdlCtPnANbqe4HI/k6Zm/rd3liwl44tVD3Z9Yv7Ax4h7ChvDTYqFojeD5SE1cNK67MjNWCdlQbudSayUKetSK/PDuBUTNdHxoyqvWrUl+r5dO1XH+ItyliSdThFI9rcGuDWZWfNxMCHmLlDFAnPiYUuUWXkS3EpPCNN2RVAao7yb5ZJ52ijZKqftht7Cu4NwaTjgtyhbvvQQ7W6nhRtQJEt4+eD6KLTUAQLtOvHRtNkfrwIDAQAB" );
-    glassfish.createCustomResource( APP_NAME + "/keycloak/auth-server-url", "http://id.<%= repository.name %>.example.com" );
-    glassfish.createCustomResource( APP_NAME + "/keycloak/ssl-required", "external" );
-    glassfish.createCustomResource( APP_NAME + "/keycloak/resource", "<%= repository.name %>" );
-    glassfish.createCustomResource( APP_NAME + "/keycloak/public-client", true );
-    // This disables keycloak filter. Useful during testing. Should be fixed properly at some point.
 <% repository.keycloak.clients.each do |client| -%>
+
+    // Client <%= client.key %>
+
+    // Assume integration tests are not against a real keycloak server at this stage
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm", "<%= client.key %>Realm" );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm-public-key", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAic34zD00ZQmia/O4peUJyO1g9lnY/p9vi+dxfbFdAilsbsHj2gfFuxiPInk75yIZR7C7DPNS34PWhA6e4EWuero0MhyzyBDM8IS2577EgdlCtPnANbqe4HI/k6Zm/rd3liwl44tVD3Z9Yv7Ax4h7ChvDTYqFojeD5SE1cNK67MjNWCdlQbudSayUKetSK/PDuBUTNdHxoyqvWrUl+r5dO1XH+ItyliSdThFI9rcGuDWZWfNxMCHmLlDFAnPiYUuUWXkS3EpPCNN2RVAao7yb5ZJ52ijZKqftht7Cu4NwaTjgtyhbvvQQ7W6nhRtQJEt4+eD6KLTUAQLtOvHRtNkfrwIDAQAB" );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/auth-server-url", "http://id.<%= repository.name %>.example.com/<%= client.key %>" );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/ssl-required", "external" );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/resource", "<%= client.name %>" );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/public-client", true );
+
+    // This disables keycloak filter. Useful during testing. Should be fixed properly at some point.
     glassfish.createCustomResource( "<%= client.jndi_debug_key %>", true );
 
 <% end -%>
