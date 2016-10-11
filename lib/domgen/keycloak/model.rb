@@ -65,6 +65,7 @@ module Domgen
       java_artifact :keycloak_filter, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakFilter'
       java_artifact :abstract_keycloak_filter, :filter, :server, :keycloak, 'Abstract#{qualified_class_name}KeycloakUrlFilter'
       java_artifact :keycloak_config_resolver, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakConfigResolver'
+      java_artifact :config_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakConfigServlet'
 
       def qualified_class_name
         "#{Domgen::Naming.pascal_case(name)}Client"
@@ -125,7 +126,7 @@ module Domgen
       attr_writer :local_config_url
 
       def local_config_url
-        @local_config_url || "#{local_client_url}/keycloak.json"
+        @local_config_url || "/#{local_client_url}/keycloak.json"
       end
 
       attr_writer :local_admin_url
@@ -314,7 +315,6 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
-      java_artifact :config_service, :rest, :server, :keycloak, '#{repository.name}KeycloakConfigJaxRsActivator'
 
       attr_writer :protected_url_patterns
 

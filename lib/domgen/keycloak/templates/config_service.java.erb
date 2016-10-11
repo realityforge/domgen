@@ -1,31 +1,29 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.keycloak.qualified_config_service_name) %>;
+package <%= to_package(client.qualified_config_service_name) %>;
 
-@javax.ws.rs.ApplicationPath( "/" )
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= repository.keycloak.config_service_name %>
-  extends javax.ws.rs.core.Application
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SE_TRANSIENT_FIELD_NOT_RESTORED"})
+@javax.servlet.annotation.WebServlet( urlPatterns = { "<%= client.local_config_url %>" } )
+public class <%= client.config_service_name %>
+  extends javax.servlet.http.HttpServlet
 {
-  @javax.ws.rs.Path( "/" )
-  @javax.ws.rs.Produces( javax.ws.rs.core.MediaType.APPLICATION_JSON )
-  public static class ConfigurationRestService
-  {
-<% repository.keycloak.clients.select{|client| client.public_client?}.each do |client| -%>
-    @javax.ws.rs.GET
-    @javax.ws.rs.Path( "<%= client.local_config_url %>" )
-    public javax.json.JsonObject get<%= client.key %>Configuration()
-      throws Exception
-    {
-      return org.realityforge.keycloak.domgen.JndiUtil.buildJsonFromContext( new javax.naming.InitialContext(),
-                                                                             "<%= client.jndi_config_base %>" );
-    }
-<% end -%>
-  }
+  private static final long serialVersionUID = 1;
 
   @Override
-  public java.util.Set<Class<?>> getClasses()
+  protected void doGet( final javax.servlet.http.HttpServletRequest request,
+                        final javax.servlet.http.HttpServletResponse response )
+    throws javax.servlet.ServletException, java.io.IOException
   {
-    return new java.util.HashSet<>( java.util.Collections.<Class<?>>singletonList( ConfigurationRestService.class ) );
+    try
+    {
+      response.setContentType( javax.ws.rs.core.MediaType.APPLICATION_JSON );
+      javax.json.Json.createWriter( response.getOutputStream() ).
+        writeObject( org.realityforge.keycloak.domgen.JndiUtil.buildJsonFromContext( new javax.naming.InitialContext(), "<%= client.jndi_config_base %>" ) );
+    }
+    catch ( final java.lang.Exception e )
+    {
+      throw new javax.servlet.ServletException( e );
+    }
   }
 }

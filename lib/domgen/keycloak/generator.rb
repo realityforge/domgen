@@ -42,9 +42,9 @@ end
 
 Domgen.template_set(:keycloak_config_service) do |template_set|
   template_set.template(Domgen::Generator::Keycloak::FACETS,
-                        :repository,
+                        'keycloak.client',
                         "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/config_service.java.erb",
-                        'main/java/#{repository.keycloak.qualified_config_service_name.gsub(".","/")}.java',
+                        'main/java/#{client.qualified_config_service_name.gsub(".","/")}.java',
                         Domgen::Generator::Keycloak::HELPERS)
 end
 
