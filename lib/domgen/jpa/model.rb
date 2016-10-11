@@ -710,7 +710,7 @@ FRAGMENT
           end
           if jpql
             if self.default_jpql_criterion && !query.jpa.ignore_default_criteria?
-              jpql = "(#{jpql})" + " AND (#{self.default_jpql_criterion})"
+              jpql = "(#{jpql}) AND (#{self.default_jpql_criterion})"
             end
             query.jpa.jpql = jpql
             query.jpa.standard_query = true
