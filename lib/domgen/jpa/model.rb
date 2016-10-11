@@ -205,9 +205,9 @@ module Domgen
       def default_properties
         if provider.nil? || provider == :eclipselink
           {
-              'eclipselink.logging.logger' => 'JavaLogger',
-              'eclipselink.session-name' => self.unit_name,
-              'eclipselink.temporal.mutable' => 'false'
+            'eclipselink.logging.logger' => 'JavaLogger',
+            'eclipselink.session-name' => self.unit_name,
+            'eclipselink.temporal.mutable' => 'false'
           }
         else
           {}
