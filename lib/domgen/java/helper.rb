@@ -62,7 +62,7 @@ module Domgen
         return <<JAVADOC
 #{depth}/**
 #{depth} * #{description.gsub(/\n+\Z/,"").gsub("\n\n","\n<br />\n").gsub("\n","\n#{depth} * ")}
-        #{depth} */
+#{depth} */
 JAVADOC
       end
 
