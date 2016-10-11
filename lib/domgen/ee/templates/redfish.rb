@@ -1,8 +1,9 @@
-def define_custom_resource(data, key, value)
+def define_custom_resource(data, key, value, restype = nil)
     data['custom_resources'] ||= {}
     data['custom_resources'][key] = {}
     data['custom_resources'][key]['properties'] = {}
     data['custom_resources'][key]['properties']['value'] = value
+    data['custom_resources'][key]['properties']['restype'] = restype if restype
 end
 
 def generate(repository)
@@ -27,7 +28,7 @@ def generate(repository)
       define_custom_resource(data, "#{prefix}/auth-server-url", "${#{client_prefix}_KEYCLOAK_AUTH_SERVER_URL}")
       define_custom_resource(data, "#{prefix}/ssl-required", 'external')
       define_custom_resource(data, "#{prefix}/resource", "${#{client_prefix}_KEYCLOAK_CLIENT_NAME}")
-      define_custom_resource(data, "#{prefix}/public-client", true)
+      define_custom_resource(data, "#{prefix}/public-client", true, 'java.lang.Boolean')
     end
   end
 
