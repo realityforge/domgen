@@ -643,6 +643,11 @@ FRAGMENT
         entity.query(:FindAll, 'jpa.standard_query' => true, 'jpa.jpql' => self.default_jpql_criterion)
         entity.query("FindBy#{entity.primary_key.name}")
         entity.query("GetBy#{entity.primary_key.name}")
+        if self.default_jpql_criterion
+          entity.query(:FindAllIgnoringDefaultCriteria, 'jpa.standard_query' => true)
+          entity.query("FindBy#{entity.primary_key.name}IgnoringDefaultCriteria")
+          entity.query("GetBy#{entity.primary_key.name}IgnoringDefaultCriteria")
+        end
 
         entity.attributes.select { |a| a.jpa? && a.reference? && !a.abstract? }.each do |a|
           if entity.sync? && entity.sync.transaction_time?
@@ -655,13 +660,15 @@ FRAGMENT
         end
 
         entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
+          query.jpa.ignore_default_criteria = (query.name =~ /IgnoringDefaultCriteria$/)
+          tmp_query_name = query.name.chomp('IgnoringDefaultCriteria')
           jpql = ''
           query_text = nil
-          query_text = $1 if query.name =~ /^[fF]indAllBy(.+)$/
-          query_text = $1 if query.name =~ /^[fF]indBy(.+)$/
-          query_text = $1 if query.name =~ /^[gG]etBy(.+)$/
-          query_text = $1 if query.name =~ /^[dD]eleteBy(.+)$/
-          query_text = $1 if query.name =~ /^[cC]ountBy(.+)$/
+          query_text = $1 if tmp_query_name =~ /^[fF]indAllBy(.+)$/
+          query_text = $1 if tmp_query_name =~ /^[fF]indBy(.+)$/
+          query_text = $1 if tmp_query_name =~ /^[gG]etBy(.+)$/
+          query_text = $1 if tmp_query_name =~ /^[dD]eleteBy(.+)$/
+          query_text = $1 if tmp_query_name =~ /^[cC]ountBy(.+)$/
           next unless query_text
 
           entity_prefix = 'O.'
@@ -702,7 +709,9 @@ FRAGMENT
             end
           end
           if jpql
-            jpql = "(#{jpql}) AND (#{self.default_jpql_criterion})" if self.default_jpql_criterion
+            if self.default_jpql_criterion && !query.jpa.ignore_default_criteria?
+              jpql = "(#{jpql})" + " AND (#{self.default_jpql_criterion})"
+            end
             query.jpa.jpql = jpql
             query.jpa.standard_query = true
           end
@@ -868,6 +877,12 @@ FRAGMENT
       def query_spec
         @query_spec || :criteria
       end
+
+      def ignore_default_criteria?
+        @ignore_default_criteria.nil? ? false : !!@ignore_default_criteria
+      end
+
+      attr_writer :ignore_default_criteria
 
       def default_hints
         hints = {}
