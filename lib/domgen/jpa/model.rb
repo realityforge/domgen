@@ -447,7 +447,7 @@ FRAGMENT
       def perform_verify
         unless include_default_unit?
           persistent_entities =
-              repository.data_modules.collect { |data_module| data_module.entities.select { |entity| entity.jpa? } }.flatten
+            repository.data_modules.collect { |data_module| data_module.entities.select { |entity| entity.jpa? } }.flatten
           if persistent_entities.size > 0
             Domgen.error("Attempted to set repository.jpa.include_default_unit = false but persistent entities exist: #{persistent_entities.collect { |e| e.qualified_name }}")
           end
@@ -660,9 +660,8 @@ FRAGMENT
         end
 
         entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
-          ignore_deleted_at_str = 'IgnoringDefaultCriteria'
-          query.jpa.ignore_default_criteria = query.name.include?(ignore_deleted_at_str)
-          tmp_query_name = query.name.chomp(ignore_deleted_at_str)
+          query.jpa.ignore_default_criteria = (query.name =~ /IgnoringDefaultCriteria$/)
+          tmp_query_name = query.name.chomp('IgnoringDefaultCriteria')
           jpql = ''
           query_text = nil
           query_text = $1 if tmp_query_name =~ /^[fF]indAllBy(.+)$/
@@ -710,8 +709,9 @@ FRAGMENT
             end
           end
           if jpql
-            jpql = "(#{jpql})"
-            jpql << " AND (#{self.default_jpql_criterion})" if self.default_jpql_criterion && !query.jpa.ignore_default_criteria?
+            if self.default_jpql_criterion && !query.jpa.ignore_default_criteria?
+              jpql = "(#{jpql})" + " AND (#{self.default_jpql_criterion})"
+            end
             query.jpa.jpql = jpql
             query.jpa.standard_query = true
           end
