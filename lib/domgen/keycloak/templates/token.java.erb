@@ -1,0 +1,22 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(client.qualified_token_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= client.token_name %>
+  extends com.google.gwt.core.client.JavaScriptObject
+{
+  protected <%= client.token_name %>()
+  {
+  }
+
+  public final native String getID() /*-{
+    return this["sub"];
+  }-*/;
+<% client.claims.select{|claim| claim.config['claim.name'] && claim.config['access.token.claim'].to_s == 'true'}.each do |claim| -%>
+
+  public final native String get<%= Domgen::Naming.pascal_case(claim.name.to_s.gsub(' ','_')) %>() /*-{
+    return this.<%= claim.config['claim.name'] %>;
+  }-*/;
+<% end -%>
+}

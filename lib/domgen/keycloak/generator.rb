@@ -64,4 +64,17 @@ Domgen.template_set(:keycloak_client_config) do |template_set|
                              Domgen::Generator::Keycloak::HELPERS)
 end
 
+Domgen.template_set(:keycloak_gwt_jso) do |template_set|
+  template_set.template(Domgen::Generator::Keycloak::FACETS + [:gwt],
+                        'keycloak.client',
+                        "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/token.java.erb",
+                        'main/java/#{client.qualified_token_name.gsub(".","/")}.java',
+                        Domgen::Generator::Keycloak::HELPERS)
+  template_set.template(Domgen::Generator::Keycloak::FACETS + [:gwt],
+                        'keycloak.client',
+                        "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/id_token.java.erb",
+                        'main/java/#{client.qualified_id_token_name.gsub(".","/")}.java',
+                        Domgen::Generator::Keycloak::HELPERS)
+end
+
 Domgen.template_set(:Keycloak => [:keycloak_filter])
