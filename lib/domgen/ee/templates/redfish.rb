@@ -3,7 +3,7 @@ def define_custom_resource(data, key, value, restype = nil)
     data['custom_resources'][key] = {}
     data['custom_resources'][key]['properties'] = {}
     data['custom_resources'][key]['properties']['value'] = value
-    data['custom_resources'][key]['properties']['restype'] = restype if restype
+    data['custom_resources'][key]['restype'] = restype if restype
 end
 
 def generate(repository)
