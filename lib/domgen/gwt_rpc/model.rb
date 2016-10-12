@@ -55,6 +55,18 @@ module Domgen
 
       attr_writer :services_module_name
 
+      attr_writer :secure_services
+
+      def secure_services?
+        @secure_services.nil? ? repository.keycloak? : !!@secure_services
+      end
+
+      def pre_verify
+        if secure_services? && repository.keycloak?
+          repository.keycloak.default_client.protected_url_patterns << "/#{base_api_url}/*"
+        end
+      end
+
       protected
 
       def facet_key
