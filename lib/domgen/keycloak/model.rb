@@ -101,7 +101,7 @@ module Domgen
       attr_writer :name
 
       def name
-        Domgen::Naming.underscore(key.to_s)
+        @name || Domgen::Naming.underscore(key.to_s)
       end
 
       attr_writer :root_url
