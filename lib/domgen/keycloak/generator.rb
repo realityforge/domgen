@@ -48,6 +48,14 @@ Domgen.template_set(:keycloak_config_service) do |template_set|
                         Domgen::Generator::Keycloak::HELPERS)
 end
 
+Domgen.template_set(:keycloak_js_service) do |template_set|
+  template_set.template(Domgen::Generator::Keycloak::FACETS,
+                        'keycloak.client',
+                        "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/js_service.java.erb",
+                        'main/java/#{client.qualified_js_service_name.gsub(".","/")}.java',
+                        Domgen::Generator::Keycloak::HELPERS)
+end
+
 Domgen.template_set(:keycloak_client_definitions) do |template_set|
   template_set.template(Domgen::Generator::Keycloak::FACETS,
                         :repository,

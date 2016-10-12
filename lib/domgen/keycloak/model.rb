@@ -66,6 +66,7 @@ module Domgen
       java_artifact :abstract_keycloak_filter, :filter, :server, :keycloak, 'Abstract#{qualified_class_name}KeycloakUrlFilter'
       java_artifact :keycloak_config_resolver, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakConfigResolver'
       java_artifact :config_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakConfigServlet'
+      java_artifact :js_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakJsServlet'
       java_artifact :token, :data_type, :client, :keycloak, '#{qualified_class_name}Token'
       java_artifact :id_token, :data_type, :client, :keycloak, '#{qualified_class_name}IDToken'
 

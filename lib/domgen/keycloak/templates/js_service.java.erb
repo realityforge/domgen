@@ -1,0 +1,21 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(client.qualified_js_service_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SE_TRANSIENT_FIELD_NOT_RESTORED"})
+@javax.servlet.annotation.WebServlet( urlPatterns = { "/js/keycloak/<%= client.key %>/keycloak.js" }, loadOnStartup = 1 )
+public class <%= client.js_service_name %>
+  extends org.realityforge.proxy_servlet.AbstractProxyServlet
+{
+  private static final long serialVersionUID = 1;
+
+  @javax.annotation.Resource( lookup = "<%= client.jndi_config_base %>/auth-server-url" )
+  private String _authServer;
+
+  @java.lang.Override
+  protected String getProxyURL()
+  {
+    return _authServer + "/js/keycloak.js";
+  }
+}
