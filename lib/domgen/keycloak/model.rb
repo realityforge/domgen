@@ -73,6 +73,12 @@ module Domgen
         "#{Domgen::Naming.pascal_case(name)}Client"
       end
 
+      attr_writer :protected_url_patterns
+
+      def protected_url_patterns
+        @protected_url_patterns ||= ["/#{local_admin_url}"]
+      end
+
       attr_writer :jndi_config_base
 
       def jndi_config_base
@@ -317,12 +323,6 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
-
-      attr_writer :protected_url_patterns
-
-      def protected_url_patterns
-        @protected_url_patterns ||= clients.collect{|client| "/#{client.local_admin_url}"}
-      end
 
       attr_writer :jndi_config_base
 
