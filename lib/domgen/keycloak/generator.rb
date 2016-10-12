@@ -76,5 +76,3 @@ Domgen.template_set(:keycloak_gwt_jso) do |template_set|
                         'main/java/#{client.qualified_id_token_name.gsub(".","/")}.java',
                         Domgen::Generator::Keycloak::HELPERS)
 end
-
-Domgen.template_set(:Keycloak => [:keycloak_filter])
