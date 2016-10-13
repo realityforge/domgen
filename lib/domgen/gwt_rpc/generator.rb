@@ -48,6 +48,12 @@ Domgen.template_set(:gwt_rpc_client_service) do |template_set|
                         :guard => 'repository.imit?')
   template_set.template(Domgen::Generator::GwtRpc::FACETS,
                         :repository,
+                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/keycloak_rpc_request_builder.java.erb",
+                        'main/java/#{repository.gwt_rpc.qualified_keycloak_rpc_request_builder_name.gsub(".","/")}.java',
+                        Domgen::Generator::GwtRpc::HELPERS,
+                        :guard => 'repository.keycloak? && repository.gwt_rpc.secure_services?')
+  template_set.template(Domgen::Generator::GwtRpc::FACETS,
+                        :repository,
                         "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_services_module.java.erb",
                         'main/java/#{repository.gwt_rpc.qualified_rpc_services_module_name.gsub(".","/")}.java',
                         Domgen::Generator::GwtRpc::HELPERS)
