@@ -223,6 +223,28 @@ module Domgen
         @web_origins ||= (keycloak_repository.repository.gwt? ? ["#{base_url}/*"] : [])
       end
 
+      def ssl_required=(ssl_required)
+        valid_values = %w(all external none)
+        raise "ssl_required value '#{ssl_required}' is invalid. Must be one of #{valid_values.inspect}" unless valid_values.include?(ssl_required)
+        @ssl_required = ssl_required
+      end
+
+      def ssl_required
+        @ssl_required || 'external'
+      end
+
+      def enable_cors?
+        @enable_cors.nil? ? true : !!@enable_cors
+      end
+
+      attr_writer :enable_cors
+
+      attr_accessor :cors_max_age
+
+      attr_accessor :cors_allowed_methods
+
+      attr_accessor :cors_allowed_headers
+
       def claim(name, options = {}, &block)
         raise "Claim with name '#{name}' already defined for client #{self.name}" if claim_map[name.to_s]
         claim_map[name.to_s] = Claim.new(self, name, options, &block)

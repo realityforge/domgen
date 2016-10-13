@@ -5,6 +5,25 @@ package <%= to_package(client.qualified_keycloak_config_resolver_name) %>;
 public class <%= client.keycloak_config_resolver_name %>
   extends org.realityforge.keycloak.domgen.AbstractJndiBasedKeycloakConfigResolver
 {
+  @java.lang.Override
+  protected void customizeConfiguration( @javax.annotation.Nonnull final javax.json.JsonObjectBuilder builder )
+  {
+    builder.add( "ssl-required", "<%= client.ssl_required %>" );
+    builder.add( "public-client", <%= client.public_client? %> );
+    builder.add( "bearer-only", <%= client.bearer_only? %> );
+    builder.add( "enable-cors", <%= client.enable_cors? %> );
+<% if client.cors_max_age -%>
+    builder.add( "cors-max-age", <%= client.cors_max_age %> );
+<% end -%>
+<% if client.cors_allowed_methods -%>
+    builder.add( "cors-allowed-methods", "<%= client.cors_allowed_methods %>" );
+<% end -%>
+<% if client.cors_allowed_headers -%>
+    builder.add( "cors-allowed-headers", "<%= client.cors_allowed_headers %>" );
+<% end -%>
+  }
+
+  @java.lang.Override
   @javax.annotation.Nonnull
   protected String getRootJndiPath()
   {
