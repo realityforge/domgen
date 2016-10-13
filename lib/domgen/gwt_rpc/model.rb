@@ -63,7 +63,12 @@ module Domgen
 
       def pre_verify
         if secure_services? && repository.keycloak?
-          repository.keycloak.default_client.protected_url_patterns << "/#{base_api_url}/*"
+          client =
+            repository.keycloak.client_by_key?(:api) ?
+              repository.keycloak.client_by_key(:api) :
+              repository.keycloak.client(:api)
+          client.bearer_only = true
+          client.protected_url_patterns << "/#{base_api_url}/*"
         end
       end
 
