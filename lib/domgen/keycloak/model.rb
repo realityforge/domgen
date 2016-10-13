@@ -63,6 +63,7 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :keycloak_filter, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakFilter'
+      java_artifact :keycloak_filter_interface, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakUrlFilter'
       java_artifact :abstract_keycloak_filter, :filter, :server, :keycloak, 'Abstract#{qualified_class_name}KeycloakUrlFilter'
       java_artifact :keycloak_config_resolver, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakConfigResolver'
       java_artifact :config_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakConfigServlet'

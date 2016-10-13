@@ -6,9 +6,8 @@ package <%= to_package(client.qualified_keycloak_filter_name) %>;
 public class <%= client.keycloak_filter_name %>
   extends org.keycloak.adapters.servlet.KeycloakOIDCFilter
 {
-  @javax.inject.Named( <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME )
   @javax.inject.Inject
-  private org.realityforge.keycloak.domgen.KeycloakUrlFilter _urlFilter;
+  private <%= client.qualified_keycloak_filter_interface_name %> _urlFilter;
 
   private boolean _disabled;
 

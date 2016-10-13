@@ -6,8 +6,7 @@ package <%= to_package(client.qualified_abstract_keycloak_filter_name) %>;
  *
  * <code>
  * @javax.enterprise.context.ApplicationScoped
- * @javax.inject.Named( <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME )
- * @javax.enterprise.inject.Typed( org.realityforge.keycloak.domgen.KeycloakUrlFilter.class )
+ * @javax.enterprise.inject.Typed( <%= client.qualified_keycloak_filter_interface_name %>.class )
  * public class <%= client.abstract_keycloak_filter_name.gsub(/^Abstract/,'') %> extends <%= client.abstract_keycloak_filter_name %>
  * {
  *   ...
@@ -16,7 +15,7 @@ package <%= to_package(client.qualified_abstract_keycloak_filter_name) %>;
  */
 @javax.annotation.Generated( "Domgen" )
 public abstract class <%= client.abstract_keycloak_filter_name %>
-  implements org.realityforge.keycloak.domgen.KeycloakUrlFilter
+  implements <%= client.qualified_keycloak_filter_interface_name %>
 {
   @Override
   public boolean shouldProtectRequest( @javax.annotation.Nonnull final javax.servlet.ServletRequest request )

@@ -25,6 +25,11 @@ end
 Domgen.template_set(:keycloak_filter) do |template_set|
   template_set.template(Domgen::Generator::Keycloak::FACETS,
                         'keycloak.client',
+                        "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/keycloak_filter_interface.java.erb",
+                        'main/java/#{client.qualified_keycloak_filter_interface_name.gsub(".","/")}.java',
+                        Domgen::Generator::Keycloak::HELPERS)
+  template_set.template(Domgen::Generator::Keycloak::FACETS,
+                        'keycloak.client',
                         "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/abstract_keycloak_filter.java.erb",
                         'main/java/#{client.qualified_abstract_keycloak_filter_name.gsub(".","/")}.java',
                         Domgen::Generator::Keycloak::HELPERS)
