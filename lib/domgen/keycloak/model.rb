@@ -201,7 +201,7 @@ module Domgen
       attr_writer :full_scope_allowed
 
       def full_scope_allowed?
-        @full_scope_allowed.nil? ? true : !!@full_scope_allowed
+        @full_scope_allowed.nil? ? false : !!@full_scope_allowed
       end
 
       attr_writer :surrogate_auth_required
