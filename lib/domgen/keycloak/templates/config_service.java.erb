@@ -17,9 +17,10 @@ public class <%= client.config_service_name %>
   {
     try
     {
+      final javax.json.JsonObjectBuilder builder = javax.json.Json.createObjectBuilder();
+      org.realityforge.keycloak.domgen.JndiUtil.buildJsonFromContext( builder, new javax.naming.InitialContext(), "<%= client.jndi_config_base %>" );
       response.setContentType( javax.ws.rs.core.MediaType.APPLICATION_JSON );
-      javax.json.Json.createWriter( response.getOutputStream() ).
-        writeObject( org.realityforge.keycloak.domgen.JndiUtil.buildJsonFromContext( new javax.naming.InitialContext(), "<%= client.jndi_config_base %>" ) );
+      javax.json.Json.createWriter( response.getOutputStream() ).writeObject( builder.build() );
     }
     catch ( final java.lang.Exception e )
     {
