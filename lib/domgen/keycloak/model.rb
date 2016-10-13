@@ -71,7 +71,7 @@ module Domgen
       java_artifact :id_token, :data_type, :client, :keycloak, '#{qualified_class_name}IDToken'
 
       def qualified_class_name
-        "#{Domgen::Naming.pascal_case(name)}Client"
+        "#{default_client? ? '' : Domgen::Naming.pascal_case(keycloak_repository.repository.name)}#{Domgen::Naming.pascal_case(name)}Client"
       end
 
       attr_writer :protected_url_patterns
