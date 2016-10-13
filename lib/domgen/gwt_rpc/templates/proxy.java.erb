@@ -59,7 +59,7 @@ public class <%= service.gwt_rpc.proxy_name %>
     }
     <% if parameter.nullable? %>}<% end %>
   <% end %>
-<% if method.imit? %>
+<% if method.imit? -%>
   final org.realityforge.replicant.client.transport.ClientSession session = <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().getSession();
   final org.realityforge.replicant.client.transport.RequestEntry request;
   if( null != session )
@@ -75,7 +75,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   {
     request = null;
   }
-<% end %>
+<% end -%>
   _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect do |parameter|
   param_value = parameter.name
   if parameter.collection? && (parameter.enumeration? || parameter.struct?)
@@ -111,7 +111,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
           _callback.onFailure( caught );
         }
       };
-<% if method.imit? %>
+<% if method.imit? -%>
       if( null != request && LOG.isLoggable( LOG_LEVEL ) )
       {
         LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception: RequestID=" + request.getRequestID() );
@@ -125,10 +125,10 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         }
       }
       else
-<% end %>
+<% end -%>
       {
         runnable.run();
-<% if method.imit? %>
+<% if method.imit? -%>
         if ( null != session )
         {
           session.removeRequest( request.getRequestID() );
@@ -137,14 +137,14 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
             LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception and no change set or already arrived: RequestID=" + request.getRequestID() );
           }
         }
-<% end %>
+<% end -%>
       }
-<% if method.imit? %>
+<% if method.imit? -%>
       if( LOG.isLoggable( LOG_LEVEL ) )
       {
         LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception." );
       }
-<% end %>
+<% end -%>
     }
 
     public void onSuccess( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
@@ -195,7 +195,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
       $result.add( <%= param_value %> );
       }
     }
-  <% end %>
+  <% end -%>
       final Runnable runnable = new Runnable()
       {
         @java.lang.Override
@@ -208,7 +208,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
           _callback.onSuccess( result );
         }
       };
-<% if method.imit? %>
+<% if method.imit? -%>
       if( null != request && LOG.isLoggable( LOG_LEVEL ) )
       {
         LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally: RequestID=" + request.getRequestID() );
@@ -222,10 +222,10 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         }
       }
       else
-<% end %>
+<% end -%>
       {
         runnable.run();
-<% if method.imit? %>
+<% if method.imit? -%>
         if ( null != session )
         {
           session.removeRequest( request.getRequestID() );
@@ -238,13 +238,13 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         {
           LOG.log( LOG_LEVEL, <%= Domgen::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally." );
         }
-<% end %>
+<% end -%>
       }
     }
     });
-<% if method.imit? %>
+<% if method.imit? -%>
     <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setRequest( null );
-<% end %>
+<% end -%>
   }
 
 <% end %>}
