@@ -26,9 +26,7 @@ def generate(repository)
       define_custom_resource(data, "#{prefix}/realm", "${#{client_prefix}_KEYCLOAK_REALM}")
       define_custom_resource(data, "#{prefix}/realm-public-key", "${#{client_prefix}_KEYCLOAK_REALM_PUBLIC_KEY}")
       define_custom_resource(data, "#{prefix}/auth-server-url", "${#{client_prefix}_KEYCLOAK_AUTH_SERVER_URL}")
-      define_custom_resource(data, "#{prefix}/ssl-required", 'external')
       define_custom_resource(data, "#{prefix}/resource", "${#{client_prefix}_KEYCLOAK_CLIENT_NAME}")
-      define_custom_resource(data, "#{prefix}/public-client", true, 'java.lang.Boolean')
     end
   end
 
