@@ -90,3 +90,11 @@ Domgen.template_set(:keycloak_gwt_jso) do |template_set|
                         'main/java/#{client.qualified_id_token_name.gsub(".","/")}.java',
                         Domgen::Generator::Keycloak::HELPERS)
 end
+
+Domgen.template_set(:keycloak_gwt_app) do |template_set|
+  template_set.template(Domgen::Generator::Keycloak::FACETS + [:gwt],
+                        'keycloak.client',
+                        "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/abstract_application.java.erb",
+                        'main/java/#{client.qualified_abstract_application_name.gsub(".","/")}.java',
+                        Domgen::Generator::Keycloak::HELPERS)
+end
