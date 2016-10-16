@@ -32,6 +32,7 @@ module Domgen
 
       java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
       java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
+      java_artifact :abstract_application, nil, :client, :gwt, 'Abstract#{repository.name}App'
 
       def pre_complete
         repository.ee.beans_xml_content_fragments << <<XML

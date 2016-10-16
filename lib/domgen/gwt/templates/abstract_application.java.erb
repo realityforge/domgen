@@ -1,0 +1,142 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.gwt.qualified_abstract_application_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= repository.gwt.abstract_application_name %>
+{
+<% if repository.keycloak? -%>
+  private final org.realityforge.gwt.keycloak.Keycloak _keycloak;
+<% end -%>
+  private final String _applicationURL;
+  private final String _serverUrl;
+
+  protected <%= repository.gwt.abstract_application_name %>(<% if repository.keycloak? -%> @javax.annotation.Nonnull final String keycloakClient <% end -%>)
+  {
+    _applicationURL = com.google.gwt.core.client.GWT.getHostPageBaseURL();
+    _serverUrl = _applicationURL.substring( 0, _applicationURL.indexOf( '/', _applicationURL.indexOf( "://" ) ) );
+<% if repository.keycloak? -%>
+    _keycloak = new org.realityforge.gwt.keycloak.Keycloak( keycloakClient, _applicationURL + "/.keycloak/" + keycloakClient + "/keycloak.json" );
+
+    getKeycloak().setListener( new org.realityforge.gwt.keycloak.KeycloakListenerAdapter()
+    {
+      @Override
+      public void onReady( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak, final boolean authenticated )
+      {
+        if ( authenticated )
+        {
+          start();
+        }
+        else
+        {
+          keycloak.login();
+        }
+      }
+    } );
+<% end -%>
+  }
+
+  public String getApplicationURL()
+  {
+    return _applicationURL;
+  }
+
+  public String getServerUrl()
+  {
+    return _serverUrl;
+  }
+<% if repository.keycloak? -%>
+
+  public void login()
+  {
+    getKeycloak().login();
+  }
+
+  public void logout()
+  {
+    getKeycloak().logout();
+  }
+
+  @javax.annotation.Nonnull
+  public org.realityforge.gwt.keycloak.Keycloak getKeycloak()
+  {
+    return _keycloak;
+  }
+<% end -%>
+
+  public void init()
+  {
+<% if repository.gwt_rpc? -%>
+    initGwtRpcServices();
+<% end -%>
+
+<% if repository.keycloak? -%>
+    getKeycloak().init();
+<% end -%>
+  }
+
+  public void start()
+  {
+    preStart();
+<% if repository.appcache? -%>
+    setupAppCache();
+<% end -%>
+    setupUncaughtExceptionHandler();
+    prepareServices();
+    prepareUI();
+    postStart();
+  }
+
+  private void setupUncaughtExceptionHandler()
+  {
+    com.google.gwt.core.client.GWT.setUncaughtExceptionHandler( new com.google.gwt.core.client.GWT.UncaughtExceptionHandler()
+    {
+      @Override
+      public void onUncaughtException( final Throwable e )
+      {
+        AbstractPlannerApp.this.onUncaughtException( e );
+      }
+    } );
+  }
+<% if repository.appcache? -%>
+
+  private void setupAppCache()
+  {
+    final org.realityforge.gwt.appcache.client.ApplicationCache cache = org.realityforge.gwt.appcache.client.ApplicationCache.getApplicationCacheIfSupported();
+    if ( null != cache )
+    {
+      cache.addUpdateReadyHandler( new org.realityforge.gwt.appcache.client.event.UpdateReadyEvent.Handler()
+      {
+        @java.lang.Override
+        public void onUpdateReadyEvent( @javax.annotation.Nonnull final org.realityforge.gwt.appcache.client.event.UpdateReadyEvent event )
+        {
+          cache.swapCache();
+          onAppcacheUpdateReadyEvent();
+        }
+      } );
+    }
+  }
+
+  protected abstract void onAppcacheUpdateReadyEvent();
+<% end -%>
+
+  protected abstract void postStart();
+
+  protected abstract void preStart();
+
+  protected abstract void prepareServices();
+
+  protected abstract void prepareUI();
+
+  protected abstract void onUncaughtException( Throwable e );
+<% if repository.gwt_rpc? -%>
+
+  protected void initGwtRpcServices()
+  {
+<% if repository.keycloak? -%>
+    <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.setKeycloak( getKeycloak() );
+<% end -%>
+    <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setBaseURL( getApplicationURL() );
+    <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.initialize();
+  }
+<% end -%>
+}

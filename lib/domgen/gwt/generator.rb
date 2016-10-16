@@ -75,5 +75,13 @@ Domgen.template_set(:gwt_client_callback) do |template_set|
                         Domgen::Generator::GWT::HELPERS)
 end
 
+Domgen.template_set(:gwt_client_app) do |template_set|
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/abstract_application.java.erb",
+                        'main/java/#{repository.gwt.qualified_abstract_application_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
+end
+
 Domgen.template_set(:gwt_client => [:gwt_client_event, :gwt_client_jso, :gwt_client_callback])
 Domgen.template_set(:gwt => [:gwt_client])
