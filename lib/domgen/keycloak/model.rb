@@ -126,6 +126,12 @@ module Domgen
         @base_url || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}"
       end
 
+      attr_writer :origin
+
+      def origin
+        @origin || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_ORIGIN}}"
+      end
+
       # Local url for clients capabilities
       attr_writer :local_client_url
 
@@ -220,7 +226,7 @@ module Domgen
       attr_writer :web_origins
 
       def web_origins
-        @web_origins ||= (keycloak_repository.repository.gwt? ? ["#{base_url}/*"] : [])
+        @web_origins ||= (keycloak_repository.repository.gwt? ? [origin] : [])
       end
 
       def ssl_required=(ssl_required)
