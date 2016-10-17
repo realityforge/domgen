@@ -34,6 +34,12 @@ module Domgen
       java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
       java_artifact :abstract_application, nil, :client, :gwt, 'Abstract#{repository.name}App'
 
+      attr_writer :client_ioc_package
+
+      def client_ioc_package
+        @client_ioc_package || "#{client_package}.ioc"
+      end
+
       def pre_complete
         repository.ee.beans_xml_content_fragments << <<XML
 <!-- gwt fragment is auto-generated -->

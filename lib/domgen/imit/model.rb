@@ -492,7 +492,7 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       def client_ioc_package
-        repository.gwt_rpc.client_ioc_package
+        repository.gwt.client_ioc_package
       end
 
       attr_writer :server_comm_package

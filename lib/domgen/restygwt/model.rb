@@ -24,10 +24,8 @@ module Domgen
         @module_name || Domgen::Naming.underscore(repository.name)
       end
 
-      attr_writer :client_ioc_package
-
       def client_ioc_package
-        @client_ioc_package || "#{client_package}.ioc"
+        repository.gwt.client_ioc_package
       end
 
       java_artifact :services_module, :ioc, :client, :gwt, '#{repository.name}RestyGwtServicesModule'

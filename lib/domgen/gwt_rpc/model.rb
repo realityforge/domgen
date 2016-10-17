@@ -42,10 +42,8 @@ module Domgen
       java_artifact :mock_services_module, :test, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule', :sub_package => 'util'
       java_artifact :services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtServicesModule'
 
-      attr_writer :client_ioc_package
-
       def client_ioc_package
-        @client_ioc_package || "#{client_package}.ioc"
+        repository.gwt.client_ioc_package
       end
 
       attr_writer :server_servlet_package
