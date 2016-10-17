@@ -75,6 +75,14 @@ Domgen.template_set(:gwt_client_callback) do |template_set|
                         Domgen::Generator::GWT::HELPERS)
 end
 
+Domgen.template_set(:gwt_client_module) do |template_set|
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/aggregate_module.java.erb",
+                        'main/java/#{repository.gwt.qualified_aggregate_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
+end
+
 Domgen.template_set(:gwt_client_app) do |template_set|
   template_set.template(Domgen::Generator::GWT::FACETS,
                         :repository,
