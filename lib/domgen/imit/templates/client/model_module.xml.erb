@@ -4,6 +4,9 @@
 
   <inherits name="com.google.gwt.json.JSON"/>
   <inherits name="org.realityforge.replicant.Replicant"/>
+<% if repository.keycloak? -%>
+  <inherits name="org.realityforge.gwt.keycloak.Keycloak"/>
+<% end -%>
 
 <%
 packages =
