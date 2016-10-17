@@ -40,6 +40,12 @@ module Domgen
         @client_ioc_package || "#{client_package}.ioc"
       end
 
+      attr_writer :enable_entrypoints
+
+      def enable_entrypoints?
+        @enable_entrypoints.nil? ? true : !!@enable_entrypoints
+      end
+
       def pre_complete
         repository.ee.beans_xml_content_fragments << <<XML
 <!-- gwt fragment is auto-generated -->
