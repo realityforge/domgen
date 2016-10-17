@@ -5,9 +5,14 @@ package <%= to_package(client.qualified_abstract_application_name) %>;
 public abstract class <%= client.abstract_application_name %>
   extends <%= client.keycloak_repository.repository.gwt.qualified_abstract_application_name %>
 {
+  private static final String AUTH_TOKEN = <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME + ".auth_token";
+  private static final String REFRESH_TOKEN = <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME + ".refresh_token";
+
   protected <%= client.abstract_application_name %>()
   {
     super( <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME );
+    getKeycloak().getInitOptions().setToken( getSavedToken( AUTH_TOKEN ) );
+    getKeycloak().getInitOptions().setRefreshToken( getSavedToken( REFRESH_TOKEN ) );
   }
 
   public <%= client.qualified_token_name %> getKeycloakToken()
@@ -18,5 +23,87 @@ public abstract class <%= client.abstract_application_name %>
   public <%= client.qualified_id_token_name %> getParsedIDToken()
   {
     return getKeycloak().getParsedIDToken();
+  }
+
+  @Override
+  public void onAuthRefreshSuccess( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
+  {
+    super.onAuthRefreshSuccess( keycloak );
+    saveTokens();
+  }
+
+  @Override
+  public void onAuthSuccess( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
+  {
+    super.onAuthSuccess( keycloak );
+    saveTokens();
+  }
+
+  @Override
+  public void onReady( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak, final boolean authenticated )
+  {
+    super.onReady( keycloak, authenticated );
+    if( authenticated )
+    {
+      saveTokens();
+    }
+  }
+
+  @Override
+  public void beforeAuthLogout( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
+  {
+    super.beforeAuthLogout( keycloak );
+    resetSavedTokens();
+  }
+
+  @Override
+  public void onAuthLogout( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
+  {
+    super.onAuthLogout( keycloak );
+    resetSavedTokens();
+  }
+
+  private void saveTokens()
+  {
+    setSavedToken( AUTH_TOKEN, getKeycloak().getToken() );
+    setSavedToken( REFRESH_TOKEN, getKeycloak().getRefreshToken() );
+  }
+
+  private void resetSavedTokens()
+  {
+    setSavedToken( AUTH_TOKEN, null );
+    setSavedToken( REFRESH_TOKEN, null );
+  }
+
+  private void setSavedToken( @javax.annotation.Nonnull final String key, @javax.annotation.Nullable final String value )
+  {
+    com.google.gwt.storage.client.Storage storage = com.google.gwt.storage.client.Storage.getLocalStorageIfSupported();
+    if( null == storage )
+    {
+      storage = com.google.gwt.storage.client.Storage.getSessionStorageIfSupported();
+    }
+    if( null == storage )
+    {
+      return;
+    }
+    if( null == value )
+    {
+      storage.removeItem( key );
+    }
+    else
+    {
+      storage.setItem( key, value );
+    }
+  }
+
+  @javax.annotation.Nullable
+  private String getSavedToken( @javax.annotation.Nonnull final String key )
+  {
+    com.google.gwt.storage.client.Storage storage = com.google.gwt.storage.client.Storage.getLocalStorageIfSupported();
+    if( null == storage )
+    {
+      storage = com.google.gwt.storage.client.Storage.getSessionStorageIfSupported();
+    }
+    return ( null != storage ) ? storage.getItem( key ) : null;
   }
 }
