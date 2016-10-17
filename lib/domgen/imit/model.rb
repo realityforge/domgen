@@ -289,8 +289,8 @@ module Domgen
           self.path.to_s.split.each_with_index do |attribute_name_path_element, i|
             other = entity.attribute_by_name(attribute_name_path_element)
             Domgen.error("#{prefix} #{attribute_name_path_element} is nullable") if other.nullable? && i != 0
-            Domgen.error("#{prefix} #{attribute_name_path_element} is not immutable") if !other.immutable?
-            Domgen.error("#{prefix} #{attribute_name_path_element} is not a reference") if !other.reference?
+            Domgen.error("#{prefix} #{attribute_name_path_element} is not immutable") unless other.immutable?
+            Domgen.error("#{prefix} #{attribute_name_path_element} is not a reference") unless other.reference?
             entity = other.referenced_entity
           end
         end
@@ -860,7 +860,7 @@ module Domgen
           entity_list = [repository.entity_by_name(graph.instance_root)]
           while entity_list.size > 0
             entity = entity_list.pop
-            if !graph.reachable_entities.include?(entity.qualified_name.to_s)
+            unless graph.reachable_entities.include?(entity.qualified_name.to_s)
               graph.reachable_entities << entity.qualified_name.to_s
               entity.referencing_attributes.each do |a|
                 if a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
