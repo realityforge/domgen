@@ -1,0 +1,43 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(entrypoint.qualified_entrypoint_module_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public class <%= entrypoint.entrypoint_module_name %>
+  extends com.google.gwt.inject.client.AbstractGinModule
+{
+  private static <%= entrypoint.qualified_application_name %> c_app;
+
+  public static void setApp( @javax.annotation.Nonnull final <%= entrypoint.qualified_application_name %> app )
+  {
+    c_app = app;
+  }
+
+  public static class AppProvider
+    implements javax.inject.Provider<<%= entrypoint.qualified_application_name %>>
+  {
+    @Override
+    public <%= entrypoint.qualified_application_name %> get()
+    {
+      if( null == c_app )
+      {
+        throw new IllegalStateException( "Missing application of type <%= entrypoint.qualified_application_name %> from injection");
+      }
+      return c_app;
+    }
+  }
+
+  protected void configure()
+  {
+    install( new <%= entrypoint.gwt_repository.repository.gwt.qualified_aggregate_module_name %>() );
+    bind( <%= entrypoint.qualified_application_name %>.class ).toProvider( AppProvider.class ).asEagerSingleton();
+  }
+<% if entrypoint.gwt_repository.repository.keycloak? -%>
+
+  @com.google.inject.Provides
+  @javax.inject.Singleton
+  public org.realityforge.gwt.keycloak.Keycloak getKeycloak( @javax.annotation.Nonnull final <%= entrypoint.qualified_application_name %> app )
+  {
+    return app.getKeycloak();
+  }
+<% end -%>
+}

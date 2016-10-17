@@ -1,0 +1,22 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(entrypoint.qualified_entrypoint_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public final class <%= entrypoint.entrypoint_name %>
+  implements com.google.gwt.core.client.EntryPoint
+{
+  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= entrypoint.entrypoint_name %>.class.getName() );
+
+  public void onModuleLoad()
+  {
+    try
+    {
+      new <%= entrypoint.qualified_application_name %>().init();
+    }
+    catch ( final Exception e )
+    {
+      LOG.log( java.util.logging.Level.SEVERE, "Unexpected problem initializing the <%= entrypoint.gwt_repository.repository.name %> application", e );
+      com.google.gwt.user.client.Window.alert( "Error: " + e.getMessage() );
+    }
+  }
+}

@@ -90,6 +90,18 @@ Domgen.template_set(:gwt_client_app) do |template_set|
                         'main/java/#{repository.gwt.qualified_abstract_application_name.gsub(".","/")}.java',
                         Domgen::Generator::GWT::HELPERS,
                         :guard => 'repository.gwt.enable_entrypoints?')
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        'gwt.entrypoint',
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/entrypoint.java.erb",
+                        'main/java/#{entrypoint.qualified_entrypoint_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS,
+                        :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        'gwt.entrypoint',
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/entrypoint_module.java.erb",
+                        'main/java/#{entrypoint.qualified_entrypoint_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS,
+                        :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
 end
 
 Domgen.template_set(:gwt_client => [:gwt_client_event, :gwt_client_jso, :gwt_client_callback])
