@@ -174,6 +174,8 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      java_artifact :raw_test_module, :test, :server, :jpa, '#{jpa_repository.repository.name}#{short_name}PersistenceTestModule', :sub_package => 'util'
+
       TargetManager.register_target('jpa.persistence_unit', :repository, :jpa, :standalone_persistence_units)
 
       attr_writer :unit_name
@@ -253,14 +255,15 @@ module Domgen
       end
 
       def valid_test_modes
-        [:manual, :mock]
+        [:manual, :raw, :mock]
       end
 
       # The test_mode determines how the framework manages units in test
       # - :manual framework does nothing, user does all
+      # - :raw framework creates a persistence unit that contains no entities but does give access to underlying database
       # - :mock framework creates a mock persistence unit in tests
       def test_mode
-        @test_mode || :manual
+        @test_mode || :raw
       end
 
       def test_mode=(test_mode)
@@ -270,6 +273,10 @@ module Domgen
 
       def manual_test_mode?
         self.test_mode == :manual
+      end
+
+      def raw_test_mode?
+        self.test_mode == :raw
       end
 
       def mock_test_mode?

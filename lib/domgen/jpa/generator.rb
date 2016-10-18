@@ -55,6 +55,12 @@ end
                           Domgen::Generator::JPA::HELPERS,
                           :guard => 'repository.jpa.include_default_unit?')
     template_set.template(Domgen::Generator::JPA::FACETS,
+                          'jpa.persistence_unit',
+                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/raw_test_module.java.erb",
+                          type + '/java/#{persistence_unit.qualified_raw_test_module_name.gsub(".","/")}.java',
+                          Domgen::Generator::JPA::HELPERS,
+                          :guard => 'persistence_unit.raw_test_mode?')
+    template_set.template(Domgen::Generator::JPA::FACETS,
                           :repository,
                           "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_module.java.erb",
                           type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java',

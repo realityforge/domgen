@@ -1,0 +1,35 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(persistence_unit.qualified_raw_test_module_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= persistence_unit.raw_test_module_name %>
+  extends org.realityforge.guiceyloops.server.PersistenceTestModule
+{
+  public <%= persistence_unit.raw_test_module_name %>()
+  {
+    this( "<%= Domgen::Naming.underscore(persistence_unit.short_name) %>" );
+  }
+
+  public <%= persistence_unit.raw_test_module_name %>( @javax.annotation.Nullable final String databasePrefix )
+  {
+    this( databasePrefix, null );
+  }
+
+  public <%= persistence_unit.raw_test_module_name %>( @javax.annotation.Nullable final String databasePrefix, @javax.annotation.Nullable final java.util.Properties additionalProperties )
+  {
+    super( <%= persistence_unit.jpa_repository.repository.jpa.qualified_unit_descriptor_name %>.<%= Domgen::Naming.uppercase_constantize(persistence_unit.short_name) %>_NAME, new String[ 0 ], databasePrefix, mergeProperties( additionalProperties ) );
+  }
+
+  @javax.annotation.Nonnull
+  private static java.util.Properties mergeProperties( @javax.annotation.Nullable final java.util.Properties additionalProperties )
+  {
+    final java.util.Properties properties = new java.util.Properties();
+    properties.put( "javax.persistence.jdbc.driver", "<%= persistence_unit.jpa_repository.repository.sql.sql_driver %>" );
+    if ( null != additionalProperties )
+    {
+      properties.putAll( additionalProperties );
+    }
+    return properties;
+  }
+}

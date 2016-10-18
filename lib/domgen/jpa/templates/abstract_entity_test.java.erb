@@ -105,6 +105,14 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     return new org.realityforge.guiceyloops.server.MockPersistenceTestModule( <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Domgen::Naming.uppercase_constantize(unit.short_name) %>_NAME );
   }
 <% end -%>
+<% repository.jpa.standalone_persistence_units.select{|unit| unit.raw_test_mode?}.each do |unit| -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module new<%= unit.unit_name %>PersistenceModule()
+  {
+    return new <%= unit.qualified_raw_test_module_name %>();
+  }
+<% end -%>
 <% if repository.appconfig? -%>
 
   /**
