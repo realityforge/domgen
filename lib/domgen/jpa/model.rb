@@ -171,11 +171,19 @@ module Domgen
       def initialize(jpa_repository, options = {}, &block)
         super(jpa_repository, options, &block)
       end
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
+
+      TargetManager.register_target('jpa.persistence_unit', :repository, :jpa, :standalone_persistence_units)
 
       attr_writer :unit_name
 
       def unit_name
         @unit_name || jpa_repository.repository.name
+      end
+
+      def name
+        unit_name
       end
 
       attr_writer :short_name
