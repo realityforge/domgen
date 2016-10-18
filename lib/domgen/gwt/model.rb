@@ -92,6 +92,7 @@ module Domgen
       end
 
       def entrypoints
+        return [] unless enable_entrypoints?
         entrypoint_map.values
       end
 
