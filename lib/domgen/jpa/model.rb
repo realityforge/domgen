@@ -265,7 +265,7 @@ module Domgen
       end
 
       def mock_test_mode?
-        self.test_mode == :manual
+        self.test_mode == :mock
       end
     end
   end
