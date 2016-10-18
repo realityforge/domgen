@@ -97,5 +97,5 @@ Domgen.template_set(:keycloak_gwt_app) do |template_set|
                         "#{Domgen::Generator::Keycloak::TEMPLATE_DIRECTORY}/abstract_application.java.erb",
                         'main/java/#{client.qualified_abstract_application_name.gsub(".","/")}.java',
                         Domgen::Generator::Keycloak::HELPERS,
-                        :guard => 'client.keycloak_repository.repository.gwt.enable_entrypoints?')
+                        :guard => '!client.bearer_only? && client.keycloak_repository.repository.gwt.enable_entrypoints?')
 end
