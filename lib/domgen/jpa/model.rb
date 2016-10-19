@@ -223,11 +223,15 @@ module Domgen
         @properties ||= default_properties
       end
 
+      def session_prefix
+        ''
+      end
+
       def default_properties
         if provider.nil? || provider == :eclipselink
           {
             'eclipselink.logging.logger' => 'JavaLogger',
-            'eclipselink.session-name' => self.unit_name,
+            'eclipselink.session-name' => "{{session_prefix}}#{self.unit_name}",
             'eclipselink.temporal.mutable' => 'false'
           }
         else
@@ -373,6 +377,43 @@ module Domgen
         end
       end
 
+      # The server_persistence_* and server_orm_* are generated into the persistence.xml files
+      # that are used by the application and not necessarily shipped as a template persistence.xml
+      # distributed as part of artifact.
+
+      def server_persistence_xml?
+        !server_persistence_file_content_fragments.empty?||
+          !server_persistence_file_fragments.empty?
+      end
+
+      def server_persistence_file_content_fragments
+        @server_persistence_file_content_fragments ||= []
+      end
+
+      def server_persistence_file_fragments
+        @server_persistence_file_fragments ||= []
+      end
+
+      def resolved_server_persistence_file_fragments
+        self.server_persistence_file_fragments.collect do |fragment|
+          repository.resolve_file(fragment)
+        end
+      end
+
+      def server_orm_xml?
+        !server_orm_file_fragments.empty?
+      end
+
+      def server_orm_file_fragments
+        @server_orm_file_fragments ||= []
+      end
+
+      def resolved_server_orm_file_fragments
+        self.server_orm_file_fragments.collect do |fragment|
+          repository.resolve_file(fragment)
+        end
+      end
+
       attr_accessor :default_jpql_criterion
 
       def add_standalone_persistence_unit(short_name, options = {}, &block)
@@ -408,6 +449,10 @@ module Domgen
 
       def properties
         self.default_persistence_unit.properties
+      end
+
+      def resolved_properties
+        self.default_persistence_unit.resolved_properties
       end
 
       def default_properties

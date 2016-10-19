@@ -41,10 +41,6 @@
 <%= IO.read(fragment) -%>
 <% end -%>
 
-<% repository.jpa.resolved_server_orm_file_fragments.each do |fragment| -%>
-<%= IO.read(fragment) -%>
-<% end -%>
-
 <% repository.data_modules.each do |data_module| -%>
 <% data_module.daos.select{|dao| !dao.repository?}.each do |dao| -%>
 <% dao.queries.select{|query|query.jpa? && query.jpa.native? && query.result_struct?}.each do |query| -%>

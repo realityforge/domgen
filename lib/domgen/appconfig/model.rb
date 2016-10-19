@@ -86,7 +86,7 @@ module Domgen
         repository.jaxrs.extensions << 'iris.appconfig.server.rest.SystemSettingRestService' if repository.jaxrs?
 
         if repository.jpa?
-          repository.jpa.persistence_file_content_fragments << <<FRAGMENT
+          repository.jpa.server_persistence_file_content_fragments << <<FRAGMENT
 <!-- appconfig fragment is auto-generated -->
 <persistence-unit name="AppConfig" transaction-type="JTA">
   <jta-data-source>#{repository.jpa.data_source}</jta-data-source>

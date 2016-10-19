@@ -62,7 +62,7 @@ module Domgen
           repository.timerstatus.additional_timers << 'Mail.MailQueueService.TransmitQueuedMail'
         end
         if repository.jpa?
-          repository.jpa.persistence_file_content_fragments << <<FRAGMENT
+          repository.jpa.server_persistence_file_content_fragments << <<FRAGMENT
 <!-- iris-mail fragment is auto-generated -->
 <persistence-unit name="Mail" transaction-type="JTA">
   <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
