@@ -208,6 +208,17 @@ module Domgen
 
       attr_writer :properties
 
+      def resolved_properties
+        unit = self
+        results = {}
+        properties.each do |k, v|
+          results[k] = v.to_s.gsub(/\{\{([^\}]+)\}\}/) do |m|
+            unit.instance_eval($1)
+          end
+        end
+        results
+      end
+
       def properties
         @properties ||= default_properties
       end
