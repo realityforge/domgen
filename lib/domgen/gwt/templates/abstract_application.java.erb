@@ -163,7 +163,7 @@ public abstract class <%= repository.gwt.abstract_application_name %>
       @Override
       public void onUncaughtException( final Throwable e )
       {
-        AbstractPlannerApp.this.onUncaughtException( e );
+        <%= repository.gwt.abstract_application_name %>.this.onUncaughtException( e );
       }
     } );
   }
