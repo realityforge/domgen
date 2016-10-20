@@ -13,7 +13,9 @@ public final class <%= repository.jpa.unit_descriptor_name %>
 <% end -%>
 <% repository.jpa.standalone_persistence_units.each do |unit| -%>
   public static final String <%= Domgen::Naming.uppercase_constantize(unit.short_name) %>_NAME = "<%= unit.unit_name %>";
+<% unless repository.application.model_library? -%>
   public static final String <%= Domgen::Naming.uppercase_constantize(unit.short_name) %>_RESOURCE_NAME = "<%= unit.data_source %>";
+<% end -%>
 <% end -%>
 
   private <%= repository.jpa.unit_descriptor_name %>()
