@@ -40,6 +40,9 @@
 <% repository.jpa.resolved_orm_file_fragments.each do |fragment| -%>
 <%= fragment -%>
 <% end -%>
+<% repository.jpa.resolved_application_orm_file_fragments.each do |fragment| -%>
+<%= fragment -%>
+<% end -%>
 
 <% repository.data_modules.each do |data_module| -%>
 <% data_module.daos.select{|dao| !dao.repository?}.each do |dao| -%>

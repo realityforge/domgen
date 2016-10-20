@@ -347,71 +347,76 @@ module Domgen
         @base_entity_test_name || abstract_entity_test_name.gsub(/^Abstract/, '')
       end
 
-      attr_writer :standalone
+      # There are 3 different variants of the persistence.xml and orm.xml that can be generated from domgen
+      # depending on the context.
+      #
+      # * Template Variant: The template variant includes all the persistence orm fragments required for the
+      #   model. This includes any native queries added to support DAOs, any standalone units added etc. However
+      #   the output files may have values that need to be interpolated for deployment specific configuration
+      #   such as the JNDI name and session name. It is typically in META-INF/domgen/templates directory in the
+      #   model jar and only generated if repository.application.model_library?
+      # * Application Variant: This includes everything from the template variant, with the interpolated values
+      #   replaced with actual values. It may also include other fragments required for the application to run
+      #   such as appconfig and syncrecord fragments. These must be specifically added. It is typically generated
+      #   in the server jar if !repository.application.service_library?
+      # * Test Variant: This is used to add test specific dependencies or if application is a service library.
+      #   If repository.application.service_library? is true it will also include the complete contents the
+      #   application variant. It may also include specifically defined fragments required
+      #   to test the application. It is typically generated in the test directory of server jar.
+      #
+      # The helper methods have no prefix for template variant, 'application_' prefix for application variant and
+      # 'test_' for test variant.
+      #
 
-      def standalone?
-        @standalone.nil? ? true : !!@standalone
+      ['', 'application_', 'test_'].each do |prefix|
+
+        class_eval <<-RUBY
+          def #{prefix}persistence_file_content_fragments
+            @#{prefix}persistence_file_content_fragments ||= []
+          end
+
+          def #{prefix}persistence_file_fragments
+            @#{prefix}persistence_file_fragments ||= []
+          end
+
+          def resolved_#{prefix}persistence_file_fragments
+            self.#{prefix}persistence_file_fragments.collect do |fragment|
+              repository.read_file(fragment)
+            end + #{prefix}persistence_file_content_fragments
+          end
+
+          def #{prefix}orm_file_content_fragments
+            @#{prefix}orm_file_content_fragments ||= []
+          end
+
+          def #{prefix}orm_file_fragments
+            @#{prefix}orm_file_fragments ||= []
+          end
+
+          def resolved_#{prefix}orm_file_fragments
+            self.#{prefix}orm_file_fragments.collect do |fragment|
+              repository.read_file(fragment)
+            end + #{prefix}orm_file_content_fragments
+          end
+        RUBY
       end
 
-      def persistence_file_content_fragments
-        @persistence_file_content_fragments ||= []
+      # Should domgen generate template xmls for model?
+      def template_xmls?
+        repository.application.model_library?
       end
 
-      def persistence_file_fragments
-        @persistence_file_fragments ||= []
+      # Should domgen generate application xmls?
+      def application_xmls?
+        !repository.application.service_library?
       end
 
-      def resolved_persistence_file_fragments
-        self.persistence_file_fragments.collect do |fragment|
-          repository.resolve_file(fragment)
-        end
-      end
-
-      def orm_file_fragments
-        @orm_file_fragments ||= []
-      end
-
-      def resolved_orm_file_fragments
-        self.orm_file_fragments.collect do |fragment|
-          repository.resolve_file(fragment)
-        end
-      end
-
-      # The server_persistence_* and server_orm_* are generated into the persistence.xml files
-      # that are used by the application and not necessarily shipped as a template persistence.xml
-      # distributed as part of artifact.
-
-      def server_persistence_xml?
-        !server_persistence_file_content_fragments.empty?||
-          !server_persistence_file_fragments.empty?
-      end
-
-      def server_persistence_file_content_fragments
-        @server_persistence_file_content_fragments ||= []
-      end
-
-      def server_persistence_file_fragments
-        @server_persistence_file_fragments ||= []
-      end
-
-      def resolved_server_persistence_file_fragments
-        self.server_persistence_file_fragments.collect do |fragment|
-          repository.resolve_file(fragment)
-        end
-      end
-
-      def server_orm_xml?
-        !server_orm_file_fragments.empty?
-      end
-
-      def server_orm_file_fragments
-        @server_orm_file_fragments ||= []
-      end
-
-      def resolved_server_orm_file_fragments
-        self.server_orm_file_fragments.collect do |fragment|
-          repository.resolve_file(fragment)
-        end
+      # Should domgen generate test xmls?
+      def test_xmls?
+        repository.application.service_library? ||
+          !test_persistence_file_content_fragments.empty?||
+          !test_persistence_file_fragments.empty? ||
+          !test_orm_file_fragments.empty?
       end
 
       attr_accessor :default_jpql_criterion

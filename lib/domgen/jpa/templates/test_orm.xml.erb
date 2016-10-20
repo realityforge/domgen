@@ -15,6 +15,7 @@
     </persistence-unit-defaults>
   </persistence-unit-metadata>
 
+<% if repository.application.service_library? -%>
 <% repository.data_modules.each do |data_module| -%>
 <% data_module.daos.select{|dao| !dao.repository?}.each do |dao| -%>
 <% dao.queries.select{|query|query.jpa? && !query.jpa.native?}.each do |query| -%>
@@ -38,11 +39,10 @@
 <% end -%>
 
 <% repository.jpa.resolved_orm_file_fragments.each do |fragment| -%>
-<%= IO.read(fragment) -%>
+<%= fragment -%>
 <% end -%>
-
-<% repository.jpa.resolved_server_orm_file_fragments.each do |fragment| -%>
-<%= IO.read(fragment) -%>
+<% repository.jpa.resolved_application_orm_file_fragments.each do |fragment| -%>
+<%= fragment -%>
 <% end -%>
 
 <% repository.data_modules.each do |data_module| -%>
@@ -57,6 +57,11 @@
   </sql-result-set-mapping>
 <% end -%>
 <% end -%>
+<% end -%>
+<% end -%>
+
+<% repository.jpa.resolved_test_orm_file_fragments.each do |fragment| -%>
+<%= fragment -%>
 <% end -%>
 
 </entity-mappings>

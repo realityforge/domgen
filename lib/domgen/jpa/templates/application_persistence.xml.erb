@@ -59,16 +59,10 @@ end
     </properties>
   </persistence-unit>
 <% end -%>
-<% repository.jpa.persistence_file_content_fragments.each do |fragment| -%>
-<%= fragment -%>
-<% end -%>
 <% repository.jpa.resolved_persistence_file_fragments.each do |fragment| -%>
-<%= IO.read(fragment) -%>
-<% end -%>
-<% repository.jpa.server_persistence_file_content_fragments.each do |fragment| -%>
 <%= fragment -%>
 <% end -%>
-<% repository.jpa.resolved_server_persistence_file_fragments.each do |fragment| -%>
-<%= IO.read(fragment) -%>
+<% repository.jpa.resolved_application_persistence_file_fragments.each do |fragment| -%>
+<%= fragment -%>
 <% end -%>
 </persistence>

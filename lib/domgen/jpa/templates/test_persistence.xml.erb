@@ -11,12 +11,13 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
 <% end %>
+<% if repository.application.service_library? -%>
 <% if repository.jpa.include_default_unit? -%>
   <persistence-unit name="<%= repository.jpa.unit_name %>" transaction-type="JTA">
 <% if repository.jpa.provider_class
 %>    <provider><%= repository.jpa.repository.jpa.provider_class %></provider>
 <% end %>
-    <jta-data-source>{{jta_data_source}}</jta-data-source>
+    <jta-data-source><%= repository.jpa.data_source %></jta-data-source>
 
 <%
 converters = []
@@ -53,13 +54,20 @@ end
     <validation-mode>AUTO</validation-mode>
 
     <properties>
-<% repository.jpa.properties.each_pair do |key, value| -%>
+<% repository.jpa.resolved_properties.each_pair do |key, value| -%>
       <property name="<%= key %>" value="<%= value %>"/>
 <% end -%>
     </properties>
   </persistence-unit>
 <% end -%>
 <% repository.jpa.resolved_persistence_file_fragments.each do |fragment| -%>
+<%= fragment -%>
+<% end -%>
+<% repository.jpa.resolved_application_persistence_file_fragments.each do |fragment| -%>
+<%= fragment -%>
+<% end -%>
+<% end -%>
+<% repository.jpa.resolved_test_persistence_file_fragments.each do |fragment| -%>
 <%= fragment -%>
 <% end -%>
 </persistence>
