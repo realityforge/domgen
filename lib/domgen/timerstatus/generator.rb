@@ -27,7 +27,8 @@ Domgen.template_set(:timerstatus_integration_test) do |template_set|
                         :repository,
                         "#{Domgen::Generator::Timerstatus::TEMPLATE_DIRECTORY}/integration_test.java.erb",
                         'test/java/#{repository.timerstatus.qualified_integration_test_name.gsub(".","/")}.java',
-                        Domgen::Generator::Timerstatus::HELPERS)
+                        Domgen::Generator::Timerstatus::HELPERS,
+                        :guard => 'repository.application.code_deployable?')
 end
 
 Domgen.template_set(:timerstatus_filter) do |template_set|

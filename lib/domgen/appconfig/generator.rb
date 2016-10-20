@@ -27,7 +27,8 @@ Domgen.template_set(:appconfig_integration_test) do |template_set|
                         :repository,
                         "#{Domgen::Generator::Appconfig::TEMPLATE_DIRECTORY}/integration_test.java.erb",
                         'test/java/#{repository.appconfig.qualified_integration_test_name.gsub(".","/")}.java',
-                        Domgen::Generator::Appconfig::HELPERS)
+                        Domgen::Generator::Appconfig::HELPERS,
+                        :guard => 'repository.application.code_deployable?')
 end
 
 Domgen.template_set(:appconfig_feature_flag_container) do |template_set|

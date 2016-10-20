@@ -66,7 +66,8 @@ Domgen.template_set(:syncrecord_integration_test) do |template_set|
                         :repository,
                         "#{Domgen::Generator::Syncrecord::TEMPLATE_DIRECTORY}/status_integration_test.java.erb",
                         'test/java/#{repository.syncrecord.qualified_status_integration_test_name.gsub(".","/")}.java',
-                        Domgen::Generator::Syncrecord::HELPERS)
+                        Domgen::Generator::Syncrecord::HELPERS,
+                        :guard => 'repository.application.code_deployable?')
 end
 
 Domgen.template_set(:syncrecord => [:syncrecord_datasources, :syncrecord_control_rest_service, :syncrecord_abstract_service])
