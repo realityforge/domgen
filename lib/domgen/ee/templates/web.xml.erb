@@ -33,7 +33,7 @@
 <%= fragment -%>
 <% end -%>
 <% repository.ee.resolved_web_xml_fragments.each do |fragment| -%>
-<%= IO.read(fragment) -%>
+<%= fragment -%>
 <% end -%>
 
 </web-app>

@@ -4,6 +4,6 @@
 <%= fragment -%>
 <% end -%>
 <% repository.ee.resolved_beans_xml_fragments.each do |fragment| -%>
-<%= IO.read(fragment) -%>
+<%= fragment -%>
 <% end -%>
 </beans>

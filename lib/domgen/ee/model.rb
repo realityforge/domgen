@@ -55,7 +55,7 @@ module Domgen
 
       def resolved_web_xml_fragments
         self.web_xml_fragments.collect do |fragment|
-          repository.resolve_file(fragment)
+          repository.read_file(fragment)
         end
       end
 
@@ -69,7 +69,7 @@ module Domgen
 
       def resolved_beans_xml_fragments
         self.beans_xml_fragments.collect do |fragment|
-          repository.resolve_file(fragment)
+          repository.read_file(fragment)
         end
       end
 

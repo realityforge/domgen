@@ -38,7 +38,8 @@ module Domgen
     end
 
     def read(filename)
-      IO.read(_(filename))
+      raise 'No current repository' unless self.current_repository
+      self.current_repository.read_file(filename)
     end
 
     private
@@ -1856,6 +1857,10 @@ module Domgen
 
     def to_s
       "Repository[#{self.name}]"
+    end
+
+    def read_file(filename)
+      IO.read(resolve_file(filename))
     end
 
     def resolve_file(filename)
