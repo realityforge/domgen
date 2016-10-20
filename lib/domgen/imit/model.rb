@@ -671,14 +671,14 @@ module Domgen
         self.repository.exception_by_name(self.invalid_session_exception).tap do |e|
           e.java.exception_category = :runtime
           e.ejb.rollback = false
-          (e.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
+          (e.all_enabled_facets - [:application, :java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
             e.disable_facet(facet_key) if e.facet_enabled?(facet_key)
           end
         end
 
         self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)
         self.repository.service_by_name(self.session_context_service).tap do |s|
-          (s.all_enabled_facets - [:java, :ee, :ejb]).each do |facet_key|
+          (s.all_enabled_facets - [:application, :java, :ee, :ejb]).each do |facet_key|
             s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
           end
           repository.imit.graphs.each do |graph|
@@ -789,7 +789,7 @@ module Domgen
 
         self.repository.service(self.subscription_manager) unless self.repository.service_by_name?(self.subscription_manager)
         self.repository.service_by_name(self.subscription_manager).tap do |s|
-          (s.all_enabled_facets - [:java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
+          (s.all_enabled_facets - [:application, :java, :ee, :ejb, :gwt, :gwt_rpc, :json, :jackson, :imit]).each do |facet_key|
             s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
           end
           s.ejb.bind_in_tests = false
