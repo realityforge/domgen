@@ -18,7 +18,7 @@ module Domgen
 
       # return true if the model code for repository can be included in separate project as a library
       def model_library?
-        @model_library.nil? ? false : !!@model_library
+        @model_library.nil? ? true : !!@model_library
       end
 
       attr_writer :model_library
