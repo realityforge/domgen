@@ -70,7 +70,7 @@ def generate(repository)
       name = unit.short_name
       cname = Domgen::Naming.uppercase_constantize(name)
       prefix = cname == constant_prefix ? constant_prefix : "#{constant_prefix}_#{cname}"
-      resource = unit.data_source
+      resource = unit.resolved_data_source
       connection_pool = "#{resource}ConnectionPool"
 
       data['jdbc_connection_pools'][connection_pool] = {}
