@@ -209,7 +209,7 @@ module Domgen
       attr_writer :properties
 
       def application_scope
-        ''
+        Domgen::Naming.underscore(jpa_repository.repository.name)
       end
 
       def resolved_properties
@@ -264,6 +264,10 @@ module Domgen
 
       def data_source
         @data_source || "{{application_scope}}/jdbc/#{self.short_name}"
+      end
+
+      def resolved_data_source
+        interpolate(data_source)
       end
 
       attr_writer :exclude_unlisted_classes
