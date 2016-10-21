@@ -16,7 +16,7 @@
 <% if repository.jpa.provider_class
 %>    <provider><%= repository.jpa.repository.jpa.provider_class %></provider>
 <% end %>
-    <jta-data-source><%= repository.jpa.data_source %></jta-data-source>
+    <jta-data-source><%= repository.jpa.resolved_data_source %></jta-data-source>
 
 <%
 converters = []

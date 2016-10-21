@@ -489,6 +489,10 @@ module Domgen
         self.safe_default_persistence_unit.data_source
       end
 
+      def resolved_data_source
+        interpolate(data_source)
+      end
+
       def exclude_unlisted_classes=(exclude_unlisted_classes)
         self.default_persistence_unit.exclude_unlisted_classes = exclude_unlisted_classes
       end
