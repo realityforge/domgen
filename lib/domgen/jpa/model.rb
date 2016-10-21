@@ -208,6 +208,10 @@ module Domgen
 
       attr_writer :properties
 
+      def application_scope
+        ''
+      end
+
       def resolved_properties
         unit = self
         results = {}
@@ -223,15 +227,11 @@ module Domgen
         @properties ||= default_properties
       end
 
-      def session_prefix
-        ''
-      end
-
       def default_properties
         if provider.nil? || provider == :eclipselink
           {
             'eclipselink.logging.logger' => 'JavaLogger',
-            'eclipselink.session-name' => "{{session_prefix}}#{self.unit_name}",
+            'eclipselink.session-name' => "{{application_scope}}#{self.unit_name}",
             'eclipselink.temporal.mutable' => 'false'
           }
         else
@@ -260,7 +260,7 @@ module Domgen
       attr_writer :data_source
 
       def data_source
-        @data_source || "#{Domgen::Naming.underscore(jpa_repository.repository.name)}/jdbc/#{self.short_name}"
+        @data_source || "{{application_scope}}/jdbc/#{self.short_name}"
       end
 
       attr_writer :exclude_unlisted_classes
@@ -347,6 +347,16 @@ module Domgen
         @base_entity_test_name || abstract_entity_test_name.gsub(/^Abstract/, '')
       end
 
+      def interpolate(content)
+        content.gsub(/\{\{([^\}]+)\}\}/) do |m|
+          self.instance_eval($1)
+        end
+      end
+
+      def application_scope
+        ''
+      end
+
       # There are 3 different variants of the persistence.xml and orm.xml that can be generated from domgen
       # depending on the context.
       #
@@ -379,10 +389,12 @@ module Domgen
             @#{prefix}persistence_file_fragments ||= []
           end
 
-          def resolved_#{prefix}persistence_file_fragments
-            self.#{prefix}persistence_file_fragments.collect do |fragment|
+          def resolved_#{prefix}persistence_file_fragments(interpolate = true)
+            fragments = self.#{prefix}persistence_file_fragments.collect do |fragment|
               repository.read_file(fragment)
-            end + #{prefix}persistence_file_content_fragments
+            end
+            fragments += #{prefix}persistence_file_content_fragments
+            fragments.collect { |f| interpolate ? self.interpolate(f) : f }
           end
 
           def #{prefix}orm_file_content_fragments
@@ -393,10 +405,12 @@ module Domgen
             @#{prefix}orm_file_fragments ||= []
           end
 
-          def resolved_#{prefix}orm_file_fragments
-            self.#{prefix}orm_file_fragments.collect do |fragment|
+          def resolved_#{prefix}orm_file_fragments(interpolate = true)
+            fragments = self.#{prefix}orm_file_fragments.collect do |fragment|
               repository.read_file(fragment)
-            end + #{prefix}orm_file_content_fragments
+            end
+            fragments += #{prefix}orm_file_content_fragments
+            fragments.collect { |f| interpolate ? self.interpolate(f) : f }
           end
         RUBY
       end

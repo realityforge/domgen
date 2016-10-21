@@ -16,7 +16,7 @@
 <% if repository.jpa.provider_class
 %>    <provider><%= repository.jpa.provider_class %></provider>
 <% end %>
-    <jta-data-source>{{jta_data_source}}</jta-data-source>
+    <jta-data-source>{{application_scope}}/jdbc/<%= repository.jpa.default_persistence_unit.short_name %></jta-data-source>
 
 <%
 converters = []
@@ -59,7 +59,7 @@ end
     </properties>
   </persistence-unit>
 <% end -%>
-<% repository.jpa.resolved_persistence_file_fragments.each do |fragment| -%>
+<% repository.jpa.resolved_persistence_file_fragments(false).each do |fragment| -%>
 <%= fragment -%>
 <% end -%>
 </persistence>

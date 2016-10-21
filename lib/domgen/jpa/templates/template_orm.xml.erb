@@ -37,7 +37,7 @@
 <% end -%>
 <% end -%>
 
-<% repository.jpa.resolved_orm_file_fragments.each do |fragment| -%>
+<% repository.jpa.resolved_orm_file_fragments(false).each do |fragment| -%>
 <%= fragment -%>
 <% end -%>
 
