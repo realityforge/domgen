@@ -213,14 +213,17 @@ module Domgen
       end
 
       def resolved_properties
-        unit = self
         results = {}
         properties.each do |k, v|
-          results[k] = v.to_s.gsub(/\{\{([^\}]+)\}\}/) do |m|
-            unit.instance_eval($1)
-          end
+          results[k] = interpolate(v.to_s)
         end
         results
+      end
+
+      def interpolate(content)
+        content.gsub(/\{\{([^\}]+)\}\}/) do |m|
+          self.instance_eval($1)
+        end
       end
 
       def properties
