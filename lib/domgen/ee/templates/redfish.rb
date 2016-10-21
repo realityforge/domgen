@@ -62,9 +62,7 @@ def generate(repository)
 
   if repository.jpa?
     units = []
-    if repository.jpa.include_default_unit? && !repository.application.model_library?
-      units << repository.jpa.default_persistence_unit
-    end
+    units << repository.jpa.default_persistence_unit if repository.jpa.include_default_unit?
     units += repository.jpa.standalone_persistence_units
 
     data['jdbc_connection_pools'] = {}
