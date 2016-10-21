@@ -357,7 +357,7 @@ module Domgen
       end
 
       def application_scope
-        ''
+        Domgen::Naming.underscore(repository.name)
       end
 
       # There are 3 different variants of the persistence.xml and orm.xml that can be generated from domgen
