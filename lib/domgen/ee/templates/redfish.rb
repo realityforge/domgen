@@ -14,6 +14,21 @@ def generate(repository)
 
   data['environment_vars'] = {}
 
+  if repository.mail?
+    data['environment_vars']["#{constant_prefix}_MAIL_HOST"] = ''
+    data['environment_vars']["#{constant_prefix}_MAIL_USER"] = ''
+    data['environment_vars']["#{constant_prefix}_MAIL_FROM"] = ''
+
+    data['javamail_resources'] = {}
+
+    data['javamail_resources'][repository.mail.resource_name] =
+      {
+        'host' => "${#{constant_prefix}_MAIL_HOST}",
+        'user' => "${#{constant_prefix}_MAIL_USER}",
+        'from' => "${#{constant_prefix}_MAIL_FROM}"
+      }
+  end
+
   if repository.keycloak?
     repository.keycloak.clients.each do |client|
       prefix = client.jndi_config_base
