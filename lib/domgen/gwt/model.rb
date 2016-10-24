@@ -24,6 +24,11 @@ module Domgen
 
       java_artifact :entrypoint, nil, :client, :gwt, '#{qualified_name}'
       java_artifact :entrypoint_module, :ioc, :client, :gwt, '#{qualified_name}EntrypointModule'
+      java_artifact :gwt_module, :modules, nil, :gwt, '#{qualified_name}EntrypointSupport'
+
+      def modules_package
+        entrypoint.gwt_repository.modules_package
+      end
 
       def qualified_application_name
         "#{gwt_repository.repository.gwt.client_package}.#{qualified_name}App"
@@ -58,6 +63,16 @@ module Domgen
       java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
       java_artifact :abstract_application, nil, :client, :gwt, 'Abstract#{repository.name}App'
       java_artifact :aggregate_module, :ioc, :client, :gwt, '#{repository.name}Module'
+
+      java_artifact :dev_module, :modules, nil, :gwt, '#{repository.name}DevSupport'
+      java_artifact :prod_module, :modules, nil, :gwt, '#{repository.name}ProdSupport'
+      java_artifact :app_module, nil, nil, :gwt, '#{repository.name}AppSupport'
+
+      attr_writer :modules_package
+
+      def modules_package
+        @modules_package || "#{repository.java.base_package}.modules"
+      end
 
       attr_writer :client_ioc_package
 

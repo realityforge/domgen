@@ -83,6 +83,30 @@ Domgen.template_set(:gwt_client_module) do |template_set|
                         Domgen::Generator::GWT::HELPERS)
 end
 
+Domgen.template_set(:gwt_client_gwt_modules) do |template_set|
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/app_module.xml.erb",
+                        'main/resources/#{repository.gwt.qualified_app_module_name.gsub(".","/")}.gwt.xml',
+                        Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/dev_module.xml.erb",
+                        'main/resources/#{repository.gwt.qualified_dev_module_name.gsub(".","/")}.gwt.xml',
+                        Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/prod_module.xml.erb",
+                        'main/resources/#{repository.gwt.qualified_prod_module_name.gsub(".","/")}.gwt.xml',
+                        Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        'gwt.entrypoint',
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/entrypoint_module.xml.erb",
+                        'main/resources/#{entrypoint.qualified_gwt_module_name.gsub(".","/")}.gwt.xml',
+                        Domgen::Generator::GWT::HELPERS,
+                        :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
+end
+
 Domgen.template_set(:gwt_client_app) do |template_set|
   template_set.template(Domgen::Generator::GWT::FACETS,
                         :repository,
