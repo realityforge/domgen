@@ -3,6 +3,9 @@
 <module>
   <inherits name="org.realityforge.gwt.lognice.Lognice"/>
   <inherits name="com.google.gwt.logging.LoggingDisabled"/>
+<% if repository.appcache? -%>
+  <inherits name="org.realityforge.gwt.appcache.Appcache"/>
+<% end -%>
 
   <set-configuration-property name="CssResource.enableGss" value="true" />
   <set-configuration-property name="CssResource.legacy" value="true" />
