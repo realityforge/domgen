@@ -465,6 +465,7 @@ module Domgen
         repository.application.service_library? ||
           !test_persistence_file_content_fragments.empty?||
           !test_persistence_file_fragments.empty? ||
+          !test_artifact_fragments.empty? ||
           !test_orm_file_fragments.empty?
       end
 
