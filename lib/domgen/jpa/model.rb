@@ -388,6 +388,10 @@ module Domgen
       ['', 'application_', 'test_'].each do |prefix|
 
         class_eval <<-RUBY
+          def #{prefix}artifact_fragments
+            @#{prefix}artifact_fragments ||= []
+          end
+
           def #{prefix}persistence_file_content_fragments
             @#{prefix}persistence_file_content_fragments ||= []
           end
@@ -401,6 +405,7 @@ module Domgen
               repository.read_file(fragment)
             end
             fragments += #{prefix}persistence_file_content_fragments
+            fragments += resolve_persistence_artifact_fragments(self.#{prefix}artifact_fragments)
             fragments.collect { |f| interpolate ? self.interpolate(f) : f }
           end
 
@@ -417,9 +422,24 @@ module Domgen
               repository.read_file(fragment)
             end
             fragments += #{prefix}orm_file_content_fragments
+            fragments += resolve_orm_artifact_fragments(self.#{prefix}artifact_fragments)
             fragments.collect { |f| interpolate ? self.interpolate(f) : f }
           end
         RUBY
+      end
+
+      def resolve_persistence_artifact_fragments(artifacts)
+        resolve_artifact_fragments(artifacts, 'META-INF/domgen/templates/persistence.xml')
+      end
+
+      def resolve_orm_artifact_fragments(artifacts)
+        resolve_artifact_fragments(artifacts, 'META-INF/domgen/templates/orm.xml')
+      end
+
+      def resolve_artifact_fragments(artifacts, filename)
+        artifacts.collect do |artifact_spec|
+          interpolate(Domgen::Util.extract_template_from_artifact(artifact_spec, filename))
+        end
       end
 
       # Should domgen generate template xmls for model?
