@@ -242,13 +242,14 @@ end
     next unless a.nullable?
 -%>
 <% if a.referenced_entity.abstract? -%>
-<% else -%>
   "<%= j_escape_string("   (T.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } IS NULL OR (") %>" +
 <% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
   "<%= j_escape_string("R#{ reference_index }#{ index }.#{ subtype.attribute_by_name(:MappingID).sql.quoted_column_name } IS NOT NULL AND ") %>" +
 <% end -%>
       " 1 = 1 )" +
       ") AND " +
+<% else -%>
+      "<%= j_escape_string("   (T.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID").sql.quoted_column_name } IS NULL OR R#{ reference_index }.#{ entity.sync.master_entity.attribute_by_name(a.name).referenced_entity.primary_key.sql.quoted_column_name } IS NOT NULL) AND ") %>" +
 <% end -%>
 <% end -%>
       "<%= j_escape_string("   T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?") %>";
