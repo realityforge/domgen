@@ -32,6 +32,8 @@ require 'domgen/render_context'
 require 'domgen/generator'
 require 'domgen/filters'
 
+ # Integration utilities
+require 'domgen/zip_util'
 # Json
 require 'domgen/json/model'
 
