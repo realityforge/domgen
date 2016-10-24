@@ -19,7 +19,7 @@ module Domgen
 
       def initialize(appconfig_repository, key, options = {}, &block)
         @key = key
-        raise "Supplied key for feature flag has non alphanumeric and non underscore characters. key = '#{key}'" unless key.to_s.gsub(/[^0-9A-Za-z_]/,'') == key.to_s
+        raise "Supplied key for feature flag has non alphanumeric and non underscore characters. key = '#{key}'" unless key.to_s.gsub(/[^0-9A-Za-z_]/, '') == key.to_s
         appconfig_repository.send(:register_feature_flag, self)
         super(appconfig_repository, options, &block)
       end
