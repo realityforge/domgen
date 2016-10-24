@@ -212,6 +212,10 @@ module Domgen
         Domgen::Naming.underscore(jpa_repository.repository.name)
       end
 
+      def applicationScope
+        jpa_repository.repository.name
+      end
+
       def resolved_properties
         results = {}
         properties.each do |k, v|
@@ -234,7 +238,7 @@ module Domgen
         if provider.nil? || provider == :eclipselink
           {
             'eclipselink.logging.logger' => 'JavaLogger',
-            'eclipselink.session-name' => "{{application_scope}}#{self.unit_name}",
+            'eclipselink.session-name' => "{{applicationScope}}#{self.unit_name}",
             'eclipselink.temporal.mutable' => 'false'
           }
         else
@@ -362,6 +366,10 @@ module Domgen
 
       def application_scope
         Domgen::Naming.underscore(repository.name)
+      end
+
+      def applicationScope
+        repository.name
       end
 
       # There are 3 different variants of the persistence.xml and orm.xml that can be generated from domgen
