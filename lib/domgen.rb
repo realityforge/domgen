@@ -34,6 +34,7 @@ require 'domgen/filters'
 
  # Integration utilities
 require 'domgen/zip_util'
+require 'domgen/buildr_integration'
 # Json
 require 'domgen/json/model'
 

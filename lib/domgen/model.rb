@@ -1873,6 +1873,11 @@ module Domgen
       filename
     end
 
+    def resolve_artifact(artifact_spec)
+      # Hook method that can be replaced to translate artifact into file
+      artifact_spec
+    end
+
     def data_module(name, options = {}, &block)
       pre_data_module_create(name)
       data_module = Domgen::DataModule.new(self, name, options, &block)
