@@ -34,7 +34,7 @@ module Domgen
 
     def _(filename)
       raise 'No current repository' unless self.current_repository
-      self.current_repository.resolve_file(filename)
+      self.current_repository.resolve_filename(filename)
     end
 
     def read(filename)
@@ -1860,12 +1860,17 @@ module Domgen
     end
 
     def read_file(filename)
-      IO.read(resolve_file(filename))
+      IO.read(resolve_file(resolve_filename(filename)))
+    end
+
+    def resolve_filename(filename)
+      return filename unless self.source_file
+      filename =~ /^\// ? filename : File.expand_path("#{File.dirname(self.source_file)}/#{filename}")
     end
 
     def resolve_file(filename)
-      return filename unless self.source_file
-      filename =~ /^\// ? filename : File.expand_path("#{File.dirname(self.source_file)}/#{filename}")
+      # Hook method that can be replaced to ensure file is present
+      filename
     end
 
     def data_module(name, options = {}, &block)
