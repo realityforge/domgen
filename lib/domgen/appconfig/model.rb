@@ -84,7 +84,7 @@ module Domgen
 
       def pre_complete
         repository.jaxrs.extensions << 'iris.appconfig.server.rest.SystemSettingRestService' if repository.jaxrs?
-        repository.jpa.application_artifact_fragments << 'iris.appconfig:app-config-server' if repository.jpa?
+        repository.jpa.application_artifact_fragments << "iris.appconfig#{repository.pgsql? ? '.pg': ''}:app-config-server" if repository.jpa?
       end
 
       protected
