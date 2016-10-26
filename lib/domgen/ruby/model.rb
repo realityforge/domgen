@@ -13,7 +13,7 @@
 #
 
 module Domgen
-  FacetManager.facet(:ruby) do |facet|
+  FacetManager.facet(:ruby => [:application]) do |facet|
     facet.enhance(DataModule) do
       attr_writer :module_name
 
