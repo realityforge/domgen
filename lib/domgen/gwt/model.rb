@@ -67,6 +67,7 @@ module Domgen
       java_artifact :dev_module, :modules, nil, :gwt, '#{repository.name}DevSupport'
       java_artifact :prod_module, :modules, nil, :gwt, '#{repository.name}ProdSupport'
       java_artifact :app_module, :modules, nil, :gwt, '#{repository.name}AppSupport'
+      java_artifact :model_module, :modules, nil, :gwt, '#{repository.name}ModelSupport'
 
       attr_writer :modules_package
 

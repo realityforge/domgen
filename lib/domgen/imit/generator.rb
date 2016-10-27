@@ -53,11 +53,6 @@ Domgen.template_set(:imit_client_entity) do |template_set|
                         Domgen::Generator::Imit::HELPERS)
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :repository,
-                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/model_module.xml.erb",
-                        'main/resources/#{repository.imit.model_module.gsub(".","/")}.gwt.xml',
-                        Domgen::Generator::Imit::HELPERS)
-  template_set.template(Domgen::Generator::Imit::FACETS,
-                        :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/data_loader_service.java.erb",
                         'main/java/#{repository.imit.qualified_data_loader_service_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::HELPERS)

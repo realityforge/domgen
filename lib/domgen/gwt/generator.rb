@@ -86,6 +86,11 @@ end
 Domgen.template_set(:gwt_client_gwt_modules) do |template_set|
   template_set.template(Domgen::Generator::GWT::FACETS,
                         :repository,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/model_module.xml.erb",
+                        'main/resources/#{repository.gwt.qualified_model_module_name.gsub(".","/")}.gwt.xml',
+                        Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        :repository,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/app_module.xml.erb",
                         'main/resources/#{repository.gwt.qualified_app_module_name.gsub(".","/")}.gwt.xml',
                         Domgen::Generator::GWT::HELPERS)

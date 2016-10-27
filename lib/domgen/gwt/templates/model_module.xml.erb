@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DO NOT EDIT: File is auto-generated -->
+<module>
+  <inherits name='org.realityforge.gwt.datatypes.Datatypes'/>
+
+<% if repository.imit? -%>
+  <inherits name="com.google.gwt.json.JSON"/>
+  <inherits name="org.realityforge.replicant.Replicant"/>
+<% end -%>
+<% if repository.keycloak? -%>
+  <inherits name="org.realityforge.gwt.keycloak.Keycloak"/>
+<% end -%>
+</module>
