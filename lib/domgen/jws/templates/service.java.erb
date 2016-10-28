@@ -21,7 +21,7 @@ public interface <%= service.jws.java_service_name %>
     String LOCAL_JAR_WSDL_LOCATION = "META-INF/wsdl/<%= service.jws.wsdl_name %>";
   }
 
-<% service.methods.each do |method|
+<% service.methods.select{|m| m.jws?}.each do |method|
 %>  @javax.jws.WebMethod( operationName = "<%= method.name %>" )
   @javax.xml.ws.RequestWrapper( localName = "<%= method.name %>", targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, className = "<%= service.jws.qualified_java_service_name %>$<%= method.name %>" )
   @javax.xml.ws.ResponseWrapper( localName = "<%= method.name %>Response", targetNamespace = <%= service.jws.java_service_name %>.MetaData.NAMESPACE, className = "<%= service.jws.qualified_java_service_name %>$<%= method.name %>Response" )
