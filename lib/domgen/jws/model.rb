@@ -122,7 +122,7 @@ module Domgen
       attr_writer :servlet_name
 
       def servlet_name
-        @servlet_name || "#{service.qualified_name.to_s.gsub('.','')}Servlet"
+        @servlet_name || "#{service.qualified_name.to_s.gsub('.', '')}Servlet"
       end
 
       attr_writer :port_type_name
