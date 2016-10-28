@@ -1320,6 +1320,10 @@ module Domgen
       "Method[#{self.qualified_name}]"
     end
 
+    def any_non_standard_types?
+      characteristics_non_standard_types?
+    end
+
     def parameters
       characteristics
     end
