@@ -163,6 +163,16 @@ module Domgen
       java_artifact :java_service, :service, :server, :jws, '#{web_service_name}WS', :sub_package => 'ws'
       java_artifact :boundary_implementation, :service, :server, :jws, '#{web_service_name}WSBoundaryEJB', :sub_package => 'ws.internal'
       java_artifact :fake_implementation, :service, :fake, :jws, 'Fake#{web_service_name}'
+
+      def post_complete
+        jws_active = false
+        service.methods.each do |method|
+          next unless method.jws?
+          next unless method.jws.compatible?
+          jws_active = true
+        end
+        service.disable_facet(:jws) unless jws_active
+      end
     end
 
     facet.enhance(Method) do
@@ -176,6 +186,32 @@ module Domgen
 
       def output_action
         "#{method.service.jws.namespace}/#{method.service.jws.web_service_name}/#{method.name}Response"
+      end
+
+      # Return true if this methods parameters are all compatible with soap protocol
+      def compatible?
+        compatible = true
+
+        method.parameters.each do |parameter|
+          compatible = false unless characteristic_compatible?(parameter)
+          break unless compatible
+        end
+
+        compatible = false unless characteristic_compatible?(method.return_value)
+
+        compatible
+      end
+
+      private
+
+      def characteristic_compatible?(characteristic)
+        return false unless characteristic.jws?
+
+        return false if characteristic.non_standard_type?
+        return false if characteristic.enumeration? && !characteristic.enumeration.jws?
+        return false if characteristic.reference? && !characteristic.referenced_entity.jws?
+        return false if characteristic.struct? && !characteristic.referenced_struct.jws?
+        true
       end
     end
 
