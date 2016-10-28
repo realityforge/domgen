@@ -208,6 +208,23 @@ module Domgen
         Facet.new(key, extension_map, required_facets)
       end
 
+      # Return an array of facet and any required_facets (transitively resovling requirements)
+      def dependent_facet_keys(*keys)
+        keys.each do |key|
+          Domgen.error("Attempting to retrieve dependent_facet_keys for non existent facet #{key}") unless facet?(key)
+        end
+        facets = []
+        to_process = keys.dup
+        until to_process.empty?
+          element = to_process.pop
+          next if facets.include?(element)
+          facets << element
+          to_process += facet_by_name(element).required_facets
+        end
+
+        facets
+      end
+
       def register_facet(facet)
         Domgen.error("Attempting to redefine facet #{facet.key}") if facet_map[facet.key.to_s]
         facet_map[facet.key.to_s] = facet
