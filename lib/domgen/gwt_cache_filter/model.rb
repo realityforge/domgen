@@ -15,6 +15,12 @@
 module Domgen
   FacetManager.facet(:gwt_cache_filter => [:gwt]) do |facet|
     facet.enhance(Repository) do
+      def pre_verify
+        if repository.application? && !repository.application.user_experience?
+          raise ':gwt_cache_filter facet enabled but repository.application.user_experience? = false'
+        end
+      end
+
       def pre_complete
         repository.ee.web_xml_content_fragments << <<XML
 

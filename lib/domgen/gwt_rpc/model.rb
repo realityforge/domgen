@@ -63,7 +63,7 @@ module Domgen
       attr_writer :keycloak_client
 
       def keycloak_client
-        @keycloak_client || :api
+        @keycloak_client || (repository.application? && !repository.application.user_experience? ? repository.keycloak.default_client.key : :api)
       end
 
       def pre_verify

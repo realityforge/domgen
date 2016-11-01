@@ -31,6 +31,13 @@ module Domgen
 
       attr_writer :service_library
 
+      # return true if the application has a UI to be presented to humans.
+      def user_experience?
+        @user_experience.nil? ? true : !!@user_experience
+      end
+
+      attr_writer :user_experience
+
       # return true if the database scripts for repository is independently deployable.
       def db_deployable?
         repository.sql? && (@db_deployable.nil? ? code_deployable? : !!@db_deployable)
