@@ -622,7 +622,7 @@ module Domgen
       end
 
       def subscription_manager
-        @subscription_manager || "#{self.imit_control_data_module}.SubscriptionService"
+        @subscription_manager || "#{self.imit_control_data_module}.#{repository.name}SubscriptionService"
       end
 
       def invalid_session_exception=(invalid_session_exception)
@@ -631,7 +631,7 @@ module Domgen
       end
 
       def invalid_session_exception
-        @invalid_session_exception || "#{self.imit_control_data_module}.BadSession"
+        @invalid_session_exception || "#{self.imit_control_data_module}.#{repository.name}BadSession"
       end
 
       def session_context_service=(session_context_service)
@@ -640,7 +640,7 @@ module Domgen
       end
 
       def session_context_service
-        @session_context_service || "#{self.imit_control_data_module}.SessionContext"
+        @session_context_service || "#{self.imit_control_data_module}.#{repository.name}SessionContext"
       end
 
       def imit_control_data_module=(imit_control_data_module)
