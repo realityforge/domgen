@@ -486,7 +486,7 @@ module Domgen
     end
   end
 
-  FacetManager.facet(:imit => [:gwt_rpc]) do |facet|
+  FacetManager.facet(:imit => [:ce, :gwt_rpc]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication

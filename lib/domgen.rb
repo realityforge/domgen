@@ -121,6 +121,10 @@ require 'domgen/jaxrs/generator'
 require 'domgen/ee/model'
 require 'domgen/ee/generator'
 
+# CE (Client edition ... stuff shared between gwt and ee client side applications)
+require 'domgen/ce/model'
+require 'domgen/ce/generator'
+
 # GWT
 require 'domgen/gwt/model'
 require 'domgen/gwt/generator'
