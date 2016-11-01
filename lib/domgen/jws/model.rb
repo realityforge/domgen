@@ -113,6 +113,10 @@ module Domgen
         "#{service.data_module.repository.name}.#{service.data_module.name}.#{service.jws.java_service_name}"
       end
 
+      def qualified_exception_name(exception)
+        "#{api_package}.#{exception.ee.name}"
+      end
+
       attr_writer :url
 
       def url
