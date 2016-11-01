@@ -1,8 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_data_loader_service_name) %>;
+package <%= to_package(repository.imit.qualified_gwt_data_loader_service_name) %>;
 
 @java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable" } )
-public class <%= repository.imit.data_loader_service_name %>
+public class <%= repository.imit.gwt_data_loader_service_name %>
   extends org.realityforge.replicant.client.gwt.<%= repository.imit.poll_replicate_mode? ? 'WebPoller' : 'Gwt' %>DataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_data_loader_service_interface_name %>
 {
@@ -13,7 +13,7 @@ public class <%= repository.imit.data_loader_service_name %>
   private final <%= repository.imit.qualified_client_router_interface_name %> _router;
 
   @javax.inject.Inject
-  public <%= repository.imit.data_loader_service_name %>( @javax.annotation.Nonnull final <%= repository.imit.qualified_change_mapper_name %> changeMapper, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker changeBroker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionService, @javax.annotation.Nonnull final com.google.web.bindery.event.shared.EventBus eventBus, @javax.annotation.Nonnull final org.realityforge.replicant.client.gwt.ReplicantConfig replicantConfig, @javax.annotation.Nonnull <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> remoteSubscriptionService, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
+  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final <%= repository.imit.qualified_change_mapper_name %> changeMapper, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker changeBroker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionService, @javax.annotation.Nonnull final com.google.web.bindery.event.shared.EventBus eventBus, @javax.annotation.Nonnull final org.realityforge.replicant.client.gwt.ReplicantConfig replicantConfig, @javax.annotation.Nonnull <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> remoteSubscriptionService, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
   {
     super( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext(), changeMapper, changeBroker, repository, cacheService, subscriptionService, eventBus, replicantConfig );
     _remoteSubscriptionService = remoteSubscriptionService;
@@ -40,13 +40,6 @@ public class <%= repository.imit.data_loader_service_name %>
   protected Class<<%= repository.imit.qualified_graph_enum_name %>> getGraphType()
   {
     return <%= repository.imit.qualified_graph_enum_name %>.class;
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected String getSystemKey()
-  {
-    return "<%= repository.name %>";
   }
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )

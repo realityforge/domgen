@@ -515,7 +515,7 @@ module Domgen
 
       java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
-      java_artifact :data_loader_service, :comm, :client, :imit, '#{repository.name}DataLoaderServiceImpl'
+      java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{repository.name}GwtDataLoaderServiceImpl'
       java_artifact :client_session_context, :comm, :client, :imit, '#{repository.name}SessionContext'
       java_artifact :client_session, :comm, :client, :imit, '#{repository.name}ClientSessionImpl'
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'

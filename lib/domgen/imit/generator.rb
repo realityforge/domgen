@@ -53,11 +53,6 @@ Domgen.template_set(:imit_client_entity) do |template_set|
                         Domgen::Generator::Imit::HELPERS)
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :repository,
-                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/data_loader_service.java.erb",
-                        'main/java/#{repository.imit.qualified_data_loader_service_name.gsub(".","/")}.java',
-                        Domgen::Generator::Imit::HELPERS)
-  template_set.template(Domgen::Generator::Imit::FACETS,
-                        :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/data_loader_service_interface.java.erb",
                         'main/java/#{repository.imit.qualified_data_loader_service_interface_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::HELPERS)
@@ -95,6 +90,14 @@ Domgen.template_set(:imit_client_entity) do |template_set|
                         :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/repository_debugger.java.erb",
                         'main/java/#{repository.imit.qualified_repository_debugger_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::HELPERS)
+end
+
+Domgen.template_set(:imit_client_entity_gwt) do |template_set|
+  template_set.template(Domgen::Generator::Imit::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/gwt_data_loader_service.java.erb",
+                        'main/java/#{repository.imit.qualified_gwt_data_loader_service_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::HELPERS)
 end
 
@@ -262,5 +265,5 @@ end
 
 Domgen.template_set(:imit_shared => [:imit_metadata])
 Domgen.template_set(:imit_server => [:imit_server_service, :imit_server_entity, :imit_server_qa])
-Domgen.template_set(:imit_client => [:imit_client_test_qa, :imit_client_service, :imit_client_entity])
+Domgen.template_set(:imit_client => [:imit_client_test_qa, :imit_client_service, :imit_client_entity, :imit_client_entity_gwt])
 Domgen.template_set(:imit => [:imit_client, :imit_server, :imit_shared, :imit_integration_qa])
