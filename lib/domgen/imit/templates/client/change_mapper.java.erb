@@ -10,14 +10,13 @@ public final class <%= repository.imit.change_mapper_name %>
   implements org.realityforge.replicant.client.ChangeMapper
 {
 <% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module|
-%>  private final <%= data_module.imit.qualified_mapper_name %> _<%= data_module.name %>;
+%>  private final <%= data_module.imit.qualified_mapper_name %> _<%= Domgen::Naming.camelize(data_module.name) %>;
 <% end %>
   @javax.inject.Inject
-  public <%= repository.imit.change_mapper_name%>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "final #{data_module.imit.qualified_mapper_name} #{data_module.name}" }.join(", ") %>
-)
+  public <%= repository.imit.change_mapper_name%>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "final #{data_module.imit.qualified_mapper_name} #{Domgen::Naming.camelize(data_module.name)}" }.join(", ") %> )
   {
 <% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module|
-%>    _<%= data_module.name %> = <%= data_module.name %>;
+%>    _<%= Domgen::Naming.camelize(data_module.name) %> = <%= Domgen::Naming.camelize(data_module.name) %>;
 <% end %>
   }
 
@@ -29,7 +28,7 @@ public final class <%= repository.imit.change_mapper_name %>
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.each do |entity|
     if entity.imit? && entity.concrete?
-%>      case <%= entity.imit.qualified_name %>.TRANSPORT_ID: return _<%= entity.data_module.name %>.applyChangeTo<%= entity.name %>( change );
+%>      case <%= entity.imit.qualified_name %>.TRANSPORT_ID: return _<%= Domgen::Naming.camelize(entity.data_module.name) %>.applyChangeTo<%= entity.name %>( change );
 <%
     end
   end
