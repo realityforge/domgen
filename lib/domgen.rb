@@ -106,6 +106,7 @@ require 'domgen/ejb/generator'
 require 'domgen/jws/model'
 require 'domgen/jws/wsimport_template'
 require 'domgen/jws/generator'
+require 'domgen/jws/helper'
 
 # JMX
 require 'domgen/jmx/model'
