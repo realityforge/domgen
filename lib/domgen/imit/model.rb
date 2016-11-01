@@ -521,6 +521,7 @@ module Domgen
       java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
       java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{repository.name}GwtDataLoaderServiceImpl'
+      java_artifact :ee_data_loader_service, :comm, :client, :imit, '#{repository.name}EeDataLoaderServiceImpl'
       java_artifact :client_session_context, :comm, :client, :imit, '#{repository.name}SessionContext'
       java_artifact :client_session, :comm, :client, :imit, '#{repository.name}ClientSessionImpl'
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
@@ -665,6 +666,24 @@ module Domgen
       # Facets that can be on client/server pairs of generated components
       def component_facets
         self.server_component_facets + [:imit]
+      end
+
+      attr_writer :ee_client_jndi_prefix
+
+      def ee_client_jndi_prefix
+        @ee_client_jndi_prefix || "#{Domgen::Naming.underscore(repository.name)}/replicant/client"
+      end
+
+      attr_writer :subscription_manager_endpoint_jndi_name
+
+      def subscription_manager_endpoint_jndi_name
+        @subscription_manager_endpoint_jndi_name || "#{ee_client_jndi_prefix}/soap/SubscriptionManager"
+      end
+
+      attr_writer :scheduler_jndi_name
+
+      def scheduler_jndi_name
+        @scheduler_jndi_name || "#{ee_client_jndi_prefix}/concurrent/ManagedScheduledExecutorService"
       end
 
       def pre_complete

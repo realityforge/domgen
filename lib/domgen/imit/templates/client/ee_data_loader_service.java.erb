@@ -1,0 +1,291 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_ee_data_loader_service_name) %>;
+
+@java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable" } )
+public class <%= repository.imit.ee_data_loader_service_name %>
+  extends org.realityforge.replicant.client.ee.<%= repository.imit.poll_replicate_mode? ? 'WebPoller' : 'Ee' %>DataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
+  implements <%= repository.imit.qualified_data_loader_service_interface_name %>
+{
+  @javax.annotation.Resource( lookup = "<%= repository.imit.subscription_manager_endpoint_jndi_name %>" )
+  private String _endpointAddress;
+  @javax.annotation.Resource( lookup = "<%= repository.imit.scheduler_jndi_name %>" )
+  private javax.enterprise.concurrent.ManagedScheduledExecutorService _executorService;
+
+  private <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_api_interface_name %> _remoteSubscriptionService;
+
+  @javax.inject.Inject
+  private <%= repository.imit.qualified_client_session_context_name %> _context;
+  @javax.annotation.Nonnull
+  private final <%= repository.imit.qualified_client_router_interface_name %> _router = new <%= repository.imit.qualified_client_router_impl_name %>();
+
+  public <%= repository.imit.ee_data_loader_service_name %>()
+  {
+    super( new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" ) );
+  }
+
+  @javax.annotation.PostConstruct
+  public void setupEndpoint()
+  {
+    _remoteSubscriptionService = new iris.rose.api.rose_subscription.RoseSubscriptionServiceService().getRoseSubscriptionServicePort();
+    ( (javax.xml.ws.BindingProvider) _remoteSubscriptionService ).getRequestContext().
+      put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, _endpointAddress );
+    setBaseURL( getSessionContext().getBaseURL() + getEndpointOffset() );
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected javax.enterprise.concurrent.ManagedScheduledExecutorService getManagedScheduledExecutorService()
+  {
+    return _executorService;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected org.realityforge.replicant.client.ChangeMapper newChangeMapper()
+  {
+    return new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getChangeBroker(), getSubscriptionManager() )" }.join(", ") %> );
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected  <%= repository.imit.client_session_name %> ensureSession()
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
+  {
+    final <%= repository.imit.client_session_name %> session = getSession();
+    if ( null == session )
+    {
+      throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>( "Missing session." );
+    }
+    return session;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected Class<<%= repository.imit.qualified_graph_enum_name %>> getGraphType()
+  {
+    return <%= repository.imit.qualified_graph_enum_name %>.class;
+  }
+
+  @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
+  @java.lang.Override
+  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor,
+                                           @javax.annotation.Nullable final Object rawFilter,
+                                           @javax.annotation.Nonnull final Class<?> entityType,
+                                           @javax.annotation.Nonnull final Object entityID )
+  {
+    <% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
+if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
+    {
+      final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) rawFilter;
+      assert null != filter;
+      final Object entity = getRepository().getByID( entityType, entityID );
+<% if graph.instance_root? || (graph.filtered? && graph.routing_keys.size > 0) -%>
+      final java.util.Map<java.lang.String, java.io.Serializable> route = _router.route( entity );
+<% end -%>
+<%
+  extra_interest_filter = ''
+  if graph.instance_root?
+    entity = repository.entity_by_name(graph.instance_root)
+    var_name = Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
+    extra_interest_filter = ", #{var_name}"
+-%>
+      @javax.annotation.Nonnull
+      final <%= entity.primary_key.imit.non_primitive_java_type %> <%= var_name %> = (<%= entity.primary_key.imit.non_primitive_java_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY );
+      assert null != <%= var_name %>;
+<% end -%>
+<%
+  if graph.filtered?
+    graph.routing_keys.each do |routing_key|
+      var_name = Domgen::Naming.camelize(routing_key.name)
+      nullable = !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
+      param_type = routing_key.target_attribute.imit.non_primitive_java_type
+      param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
+      extra_interest_filter << ", #{var_name}"
+-%>
+      <%= nullability_annotation(nullable) %>
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+<% if !nullable -%>
+      assert null != <%= var_name %>;
+<% end -%>
+<%
+    end
+  end
+-%>
+      return _context.does<%= graph.name %>MatchEntity( filter, entity<%= extra_interest_filter %> );
+    }
+    else <% end -%>
+
+    {
+      throw new java.lang.IllegalStateException();
+    }
+  }
+
+  @javax.annotation.Nonnull
+  protected <%= repository.imit.qualified_client_session_name %> createSession( @javax.annotation.Nonnull final String sessionID )
+  {
+    return new <%= repository.imit.qualified_client_session_name %>( this, sessionID );
+  }
+
+  protected <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_api_interface_name %> getRemoteSubscriptionService()
+  {
+    return _remoteSubscriptionService;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected <%= repository.imit.qualified_graph_enum_name %> channelToGraph( final int channel )
+    throws IllegalArgumentException
+  {
+    return <%= repository.imit.qualified_graph_enum_name %>.values()[ channel ];
+  }
+
+  @java.lang.Override
+  protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
+  {
+<% filtered_graphs = repository.imit.graphs.select{|g| g.filtered? } -%>
+<% if filtered_graphs.size > 0 -%>
+    try
+    {
+<% end -%>
+      <% filtered_graphs.each do |graph|
+-%>if( entry.getDescriptor().getGraph() == <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> )
+      {
+        int removedEntities = 0;
+<% graph.included_entities.reverse.each do |entity| -%>
+        {
+          final java.util.Map<Object, org.realityforge.replicant.client.EntitySubscriptionEntry> map = entry.getEntities().get( <%= repository.entity_by_name(entity).imit.qualified_name %>.class );
+          if( null != map )
+          {
+            removedEntities += updateSubscriptionForFilteredEntities( entry, filter, map.values() );
+          }
+        }
+<% end -%>
+        return removedEntities;
+      }
+      else <% end
+-%>
+
+      {
+        throw new IllegalStateException();
+      }
+<% if filtered_graphs.size > 0 -%>
+    }
+    catch ( final <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_exception_name(repository.exception_by_name(repository.imit.invalid_session_exception)) %> e )
+    {
+      throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
+    }
+<% end -%>
+  }
+
+  @java.lang.Override
+  protected <%= repository.imit.qualified_repository_debugger_name %> getEntityRepositoryDebugger()
+  {
+    return new <%= repository.imit.qualified_repository_debugger_name %>();
+  }
+
+  @java.lang.Override
+  protected final void requestSubscribeToGraph( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
+                                                @javax.annotation.Nullable final Object id,
+                                                @javax.annotation.Nullable final Object filterParameter,
+                                                @javax.annotation.Nullable final String eTag,
+                                                @javax.annotation.Nullable final java.lang.Runnable cacheAction,
+                                                @javax.annotation.Nonnull final java.lang.Runnable completionAction )
+  {
+    try
+    {
+      <% repository.imit.graphs.each do |graph|
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
+      {
+<% if graph.instance_root? -%>
+        assert null != id;
+        <%= jws_wrap_characteristic(repository.entity_by_name(graph.instance_root).primary_key, "(#{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type}) id", '$id') %>
+<% end -%>
+<% if graph.filtered? -%>
+        assert null != filterParameter;
+<% end -%>
+        <% if graph.cacheable? -%> final java.lang.Boolean $result = <% end %>_remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, $id<% end -%><% if graph.filtered? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter<% end -%> );
+<% if graph.cacheable? -%>
+        if ( $result )
+        {
+          completionAction.run();
+        }
+        else
+        {
+          if ( null != cacheAction )
+          {
+            cacheAction.run();
+          }
+        }
+<% else -%>
+        completionAction.run();
+<% end -%>
+      }
+      else <% end %>
+      {
+        throw new IllegalStateException();
+      }
+    }
+    catch ( final <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_exception_name(repository.exception_by_name(repository.imit.invalid_session_exception)) %> e )
+    {
+      throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
+    }
+  }
+
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "DLS_DEAD_LOCAL_STORE" } )
+  @java.lang.Override
+  protected final void requestUpdateSubscription( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
+                                                  @javax.annotation.Nullable final Object id,
+                                                  @javax.annotation.Nonnull final Object filterParameter,
+                                                  @javax.annotation.Nonnull final java.lang.Runnable completionAction )
+  {
+    <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph|
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
+    {
+<% if graph.instance_root? -%>
+      assert null != id;
+        <%= jws_wrap_characteristic(repository.entity_by_name(graph.instance_root).primary_key, "(#{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type}) id", '$id') %>
+<% end -%>
+      _remoteSubscriptionService.update<%= graph.name %>Subscription( getSessionID()<% if graph.instance_root? -%>, $id<% end -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter );
+      completionAction.run();
+    }
+    else <% end %>
+    {
+      throw new IllegalStateException();
+    }
+  }
+
+  @java.lang.Override
+  protected final void requestUnsubscribeFromGraph( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
+                                                    @javax.annotation.Nullable final Object id,
+                                                    @javax.annotation.Nonnull final java.lang.Runnable completionAction )
+  {
+    try
+    {
+      <% repository.imit.graphs.each do |graph|
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
+      {
+<% if graph.instance_root? -%>
+        assert null != id;
+        <%= jws_wrap_characteristic(repository.entity_by_name(graph.instance_root).primary_key, "(#{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type}) id", '$id') %>
+<% end -%>
+        _remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, $id<% end -%> );
+         completionAction.run();
+      }
+      else <% end %>
+      {
+        throw new IllegalStateException();
+      }
+    }
+    catch ( final <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_exception_name(repository.exception_by_name(repository.imit.invalid_session_exception)) %> e )
+    {
+      throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
+    }
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getJndiPrefix()
+  {
+    return "<%= repository.imit.ee_client_jndi_prefix %>";
+  }
+}

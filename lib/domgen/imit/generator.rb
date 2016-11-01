@@ -109,6 +109,14 @@ Domgen.template_set(:imit_client_entity_gwt) do |template_set|
                         Domgen::Generator::Imit::HELPERS)
 end
 
+Domgen.template_set(:imit_client_entity_ee) do |template_set|
+  template_set.template(Domgen::Generator::Imit::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/ee_data_loader_service.java.erb",
+                        'main/java/#{repository.imit.qualified_ee_data_loader_service_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::HELPERS + [Domgen::Jws::Helper])
+end
+
 Domgen.template_set(:imit_client_service) do |template_set|
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :service,
