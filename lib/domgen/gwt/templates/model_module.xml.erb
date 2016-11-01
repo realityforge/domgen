@@ -2,10 +2,8 @@
 <!-- DO NOT EDIT: File is auto-generated -->
 <module>
   <inherits name='org.realityforge.gwt.datatypes.Datatypes'/>
-
 <% if repository.imit? -%>
-  <inherits name="com.google.gwt.json.JSON"/>
-  <inherits name="org.realityforge.replicant.Replicant"/>
+  <inherits name="<%= repository.imit.qualified_replicant_module_name %>"/>
 <% end -%>
 <% if repository.keycloak? -%>
   <inherits name="org.realityforge.gwt.keycloak.Keycloak"/>

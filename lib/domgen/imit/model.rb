@@ -513,6 +513,11 @@ module Domgen
 
       attr_writer :shared_comm_package
 
+      def modules_package
+        repository.gwt.modules_package
+      end
+
+      java_artifact :replicant_module, :modules, nil, :gwt, '#{repository.name}ReplicantSupport'
       java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
       java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{repository.name}GwtDataLoaderServiceImpl'
