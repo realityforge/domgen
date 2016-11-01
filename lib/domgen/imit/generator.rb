@@ -93,6 +93,14 @@ Domgen.template_set(:imit_client_entity) do |template_set|
                         Domgen::Generator::Imit::HELPERS)
 end
 
+Domgen.template_set(:imit_client_entity_gwt_module) do |template_set|
+  template_set.template(Domgen::Generator::Imit::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/replicant_module.xml.erb",
+                        'main/resources/#{repository.imit.qualified_replicant_module_name.gsub(".","/")}.gwt.xml',
+                        Domgen::Generator::Imit::HELPERS)
+end
+
 Domgen.template_set(:imit_client_entity_gwt) do |template_set|
   template_set.template(Domgen::Generator::Imit::FACETS,
                         :repository,
