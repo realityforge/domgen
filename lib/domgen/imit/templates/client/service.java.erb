@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.imit.qualified_name) %>;
 
-<%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
+@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= service.imit.name %>
 {
@@ -13,14 +13,11 @@ public interface <%= service.imit.name %>
    normal_callback = "@javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback"
    non_normal_callback = "@javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"
 
-%><%= description_javadoc_for(method)
 %>  void <%= method_name %>(<%= (parameters + [normal_callback, non_normal_callback]).join(', ') %>);
 
-<%= description_javadoc_for(method)
-%>  void <%= method_name %>(<%= (parameters + [normal_callback]).join(', ') %>);
+  void <%= method_name %>(<%= (parameters + [normal_callback]).join(', ') %>);
 
 
-<%= description_javadoc_for(method)
-%>  void <%= method_name %>(<%= parameters.join(', ') %>);
+  void <%= method_name %>(<%= parameters.join(', ') %>);
 
 <% end %>}

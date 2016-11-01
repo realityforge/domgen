@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.jmx.qualified_service_name) %>;
 
-<%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
+@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.management.MXBean
 public interface <%= service.jmx.service_name %>
@@ -9,7 +9,6 @@ public interface <%= service.jmx.service_name %>
     String OBJECT_NAME = "<%= service.data_module.repository.jmx.domain_name %>:name=<%= service.qualified_name %>";
 
 <% service.methods.select{|method| method.jmx?}.each do |method|
-%><%= description_javadoc_for(method)
 %>
   <%= annotated_type(method.return_value, :jmx, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jmx, :boundary)} #{Domgen::Naming.camelize(p.name)}" }.join(", ") %>)<%=
     exceptions = method.exceptions.collect{|e| e.ee.qualified_name}

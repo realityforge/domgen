@@ -7,7 +7,6 @@ package <%= to_package(service.ejb.qualified_remote_service_name) %>;
 public interface <%= service.ejb.remote_service_name %>
 {
 <% service.methods.each do |method|
-%><%= description_javadoc_for(method)
 %>  <%= annotated_type(method.return_value, :ejb, :boundary, :final => true) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :boundary)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)<%=
     exceptions = ["java.rmi.RemoteException"] + method.exceptions.collect{|e| e.ee.qualified_name}
     "\n    throws #{exceptions.join(', ')}"

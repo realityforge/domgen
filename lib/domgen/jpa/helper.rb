@@ -189,8 +189,7 @@ JAVA
             field_name = Domgen::Naming.camelize( name )
             type = nullable_annotate(attribute, attribute.entity.jpa.qualified_name, false, true)
 
-            java = description_javadoc_for attribute
-            java << <<JAVA
+            java = <<JAVA
   public #{type} #{getter_for(attribute, name)}
   {
      #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
@@ -280,8 +279,7 @@ JAVA
         else
           type = nullable_annotate(attribute, attribute.jpa.java_type, false)
         end
-        java = description_javadoc_for attribute
-        java << <<JAVA
+        java = <<JAVA
   public #{type} #{getter_for(attribute)}
   {
      #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
@@ -363,8 +361,7 @@ JAVA
 
       def j_reference_attribute(attribute)
         type = nullable_annotate(attribute, attribute.jpa.java_type, false)
-        java = description_javadoc_for attribute
-        java << <<JAVA
+        java = <<JAVA
   public #{type} #{getter_for(attribute)}
   {
      #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
@@ -432,8 +429,7 @@ STR
         plural_name = Domgen::Naming.pluralize(name)
         field_name = Domgen::Naming.camelize(plural_name)
         type = attribute.entity.jpa.qualified_name
-        java = description_javadoc_for attribute
-        java << <<STR
+        java = <<STR
   public java.util.List<#{type}> get#{plural_name}()
   {
     return java.util.Collections.unmodifiableList( safeGet#{plural_name}() );
@@ -598,17 +594,6 @@ JAVA
 JAVA
         end
         s
-      end
-
-
-      def description_javadoc_for(element, depth = "  ")
-        description = element.tags[:Description]
-        return '' unless description
-        return <<JAVADOC
-#{depth}/**
-#{depth} * #{description.gsub(/\n+\Z/,"").gsub("\n\n","\n<br />\n").gsub("\n","\n#{depth} * ")}
-#{depth} */
-JAVADOC
       end
 
       def validation_name(constraint_name)

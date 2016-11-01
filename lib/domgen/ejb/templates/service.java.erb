@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.ejb.qualified_service_name) %>;
 
-<%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
+@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% unless service.data_module.repository.ee.use_cdi? -%>
 @javax.ejb.Local
@@ -12,7 +12,6 @@ public interface <%= service.ejb.service_name %>
   String NAME = "<%= service.ejb.service_ejb_name %>";
 <% end -%>
 <% service.methods.each do |method|
-%><%= description_javadoc_for(method)
 %>
   <%= annotated_type(method.return_value, :ejb, :default) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"

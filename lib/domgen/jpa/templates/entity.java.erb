@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(entity.jpa.qualified_name) %>;
 
-<%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
+@@javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField" } )
 <%
@@ -80,7 +80,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
   @javax.persistence.Transient
   private boolean _removed;
 <% end -%>
-<% entity.queries.each do |query| %><%= description_javadoc_for(query) %>  public static final String <%= Domgen::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
+<% entity.queries.each do |query| %>  public static final String <%= Domgen::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <%
   end
    entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? }.each do |attribute| %>

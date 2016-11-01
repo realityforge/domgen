@@ -4,7 +4,7 @@ package <%= to_package(entity.imit.qualified_name) %>;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 
-<%= description_javadoc_for(entity, "") %>@javax.annotation.Generated( "Domgen" )
+@@javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.IfStmtsMustUseBraces" } )
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
@@ -138,7 +138,6 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
         if attribute.inverse.multiplicity == :many
           plural_name = Domgen::Naming.pluralize(name)
 %>
-  <%= description_javadoc_for(attribute) %>
   @javax.annotation.Nonnull
   public final java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= plural_name %>()
   {

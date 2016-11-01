@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.gwt_rpc.qualified_facade_service_name) %>;
 
-<%= description_javadoc_for(service, "") %>@javax.annotation.Generated( "Domgen" )
+@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= service.gwt_rpc.facade_service_name %>
 {
@@ -13,14 +13,10 @@ public interface <%= service.gwt_rpc.facade_service_name %>
    normal_callback = "@javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback"
    non_normal_callback = "@javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"
 
-%><%= description_javadoc_for(method)
 %>  void <%= method_name %>(<%= (parameters + [normal_callback, non_normal_callback]).join(', ') %>);
 
-<%= description_javadoc_for(method)
-%>  void <%= method_name %>(<%= (parameters + [normal_callback]).join(', ') %>);
+  void <%= method_name %>(<%= (parameters + [normal_callback]).join(', ') %>);
 
-
-<%= description_javadoc_for(method)
-%>  void <%= method_name %>(<%= parameters.join(', ') %>);
+  void <%= method_name %>(<%= parameters.join(', ') %>);
 
 <% end %>}
