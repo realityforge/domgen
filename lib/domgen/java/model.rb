@@ -501,6 +501,7 @@ module Domgen
             scopes.each do |scope|
               java_package :data_type, :scope => scope, :sub_packages => ['internal']
               java_package :entity, :scope => scope
+              java_package :event, :scope => scope
               java_package :service, :scope => scope, :sub_packages => ['internal']
               java_package :rest, :scope => scope, :sub_packages => ['internal']
               java_package :filter, :scope => scope, :sub_packages => ['internal']
