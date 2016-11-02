@@ -4,7 +4,7 @@ package <%= to_package(entity.imit.qualified_name) %>;
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
 
-@@javax.annotation.Generated( "Domgen" )
+@javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.IfStmtsMustUseBraces" } )
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
