@@ -1,16 +1,58 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_ee_data_loader_service_name) %>;
+package <%= to_package(repository.imit.qualified_abstract_ee_data_loader_service_name) %>;
 
-@java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable" } )
+/**
+ A base class from which to derice a create replicant client. A basic client will look like;
+
+<code>
+@ApplicationScoped
+@Transactional( Transactional.TxType.NOT_SUPPORTED )
+@Typed( <%= repository.imit.data_loader_service_interface_name %>.class )
 public class <%= repository.imit.ee_data_loader_service_name %>
-  extends org.realityforge.replicant.client.ee.<%= repository.imit.poll_replicate_mode? ? 'WebPoller' : 'Ee' %>DataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
+  extends <%= repository.imit.abstract_ee_data_loader_service_name %>
+{
+  @Resource( lookup = "myapp/replicant/client/<%= Domgen::Naming.camelize(repository.name) %>/ApplicationEndpoint" )
+  private String _webEndpointAddress;
+  @Resource( lookup = "myapp/replicant/client/<%= Domgen::Naming.camelize(repository.name) %>/SubscriptionManagerEndpoint" )
+  private String _endpointAddress;
+  @Resource( lookup = "myapp/replicant/client/<%= Domgen::Naming.camelize(repository.name) %>/ManagedScheduledExecutorService" )
+  private ManagedScheduledExecutorService _executorService;
+
+  @Nonnull
+  @Override
+  protected String getWebEndpointAddress()
+  {
+    return _webEndpointAddress;
+  }
+
+  @Nonnull
+  @Override
+  protected ManagedScheduledExecutorService getManagedScheduledExecutorService()
+  {
+    return _executorService;
+  }
+
+  @Nonnull
+  @Override
+  protected String getSubscriptionServerAddress()
+  {
+    return _endpointAddress;
+  }
+
+  @Nonnull
+  @Override
+  protected String getJndiPrefix()
+  {
+    return "myapp/replicant/client/<%= Domgen::Naming.camelize(repository.name) %>";
+  }
+}
+</code>
+ */
+@java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable" } )
+public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %>
+  extends org.realityforge.replicant.client.ee.<%= repository.imit.poll_replicate_mode? ? 'EeWebPoller' : 'Ee' %>DataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_data_loader_service_interface_name %>
 {
-  @javax.annotation.Resource( lookup = "<%= repository.imit.subscription_manager_endpoint_jndi_name %>" )
-  private String _endpointAddress;
-  @javax.annotation.Resource( lookup = "<%= repository.imit.scheduler_jndi_name %>" )
-  private javax.enterprise.concurrent.ManagedScheduledExecutorService _executorService;
-
   private <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_api_interface_name %> _remoteSubscriptionService;
 
   @javax.inject.Inject
@@ -18,7 +60,7 @@ public class <%= repository.imit.ee_data_loader_service_name %>
   @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_client_router_interface_name %> _router = new <%= repository.imit.qualified_client_router_impl_name %>();
 
-  public <%= repository.imit.ee_data_loader_service_name %>()
+  public <%= repository.imit.abstract_ee_data_loader_service_name %>()
   {
     super( new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" ) );
   }
@@ -28,17 +70,24 @@ public class <%= repository.imit.ee_data_loader_service_name %>
   {
     _remoteSubscriptionService = new iris.rose.api.rose_subscription.RoseSubscriptionServiceService().getRoseSubscriptionServicePort();
     ( (javax.xml.ws.BindingProvider) _remoteSubscriptionService ).getRequestContext().
-      put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, _endpointAddress );
-    setBaseURL( getSessionContext().getBaseURL() + getEndpointOffset() );
+      put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, getSubscriptionServerAddress() );
+    getSessionContext().setBaseURL( getWebEndpointAddress() );
   }
 
   @javax.annotation.Nonnull
-  @java.lang.Override
-  protected javax.enterprise.concurrent.ManagedScheduledExecutorService getManagedScheduledExecutorService()
+  protected abstract String getWebEndpointAddress();
+
+  @javax.annotation.Nonnull
+  protected abstract String getSubscriptionServerAddress();
+
+<% if repository.jaxrs? -%>
+  @javax.annotation.Nonnull
+  protected String getEndpointOffset()
   {
-    return _executorService;
+    return "/<%= repository.jaxrs.path -%>";
   }
 
+<% end -%>
   @javax.annotation.Nonnull
   @java.lang.Override
   protected org.realityforge.replicant.client.ChangeMapper newChangeMapper()
@@ -184,12 +233,12 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   }
 
   @java.lang.Override
-  protected final void requestSubscribeToGraph( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
-                                                @javax.annotation.Nullable final Object id,
-                                                @javax.annotation.Nullable final Object filterParameter,
-                                                @javax.annotation.Nullable final String eTag,
-                                                @javax.annotation.Nullable final java.lang.Runnable cacheAction,
-                                                @javax.annotation.Nonnull final java.lang.Runnable completionAction )
+  protected void requestSubscribeToGraph( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
+                                          @javax.annotation.Nullable final Object id,
+                                          @javax.annotation.Nullable final Object filterParameter,
+                                          @javax.annotation.Nullable final String eTag,
+                                          @javax.annotation.Nullable final java.lang.Runnable cacheAction,
+                                          @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     try
     {
@@ -233,10 +282,10 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "DLS_DEAD_LOCAL_STORE" } )
   @java.lang.Override
-  protected final void requestUpdateSubscription( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
-                                                  @javax.annotation.Nullable final Object id,
-                                                  @javax.annotation.Nonnull final Object filterParameter,
-                                                  @javax.annotation.Nonnull final java.lang.Runnable completionAction )
+  protected void requestUpdateSubscription( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
+                                            @javax.annotation.Nullable final Object id,
+                                            @javax.annotation.Nonnull final Object filterParameter,
+                                            @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
@@ -255,9 +304,9 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   }
 
   @java.lang.Override
-  protected final void requestUnsubscribeFromGraph( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
-                                                    @javax.annotation.Nullable final Object id,
-                                                    @javax.annotation.Nonnull final java.lang.Runnable completionAction )
+  protected void requestUnsubscribeFromGraph( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph,
+                                              @javax.annotation.Nullable final Object id,
+                                              @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     try
     {
@@ -280,12 +329,5 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
     {
       throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
     }
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected String getJndiPrefix()
-  {
-    return "<%= repository.imit.ee_client_jndi_prefix %>";
   }
 }
