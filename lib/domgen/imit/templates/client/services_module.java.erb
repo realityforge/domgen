@@ -9,7 +9,6 @@ public class <%= repository.imit.services_module_name %>
   @java.lang.Override
   protected void configure()
   {
-    bind( <%= repository.imit.qualified_change_mapper_name %>.class ).asEagerSingleton();
     bind( <%= repository.imit.qualified_client_router_interface_name %>.class ).to( <%= repository.imit.qualified_client_router_impl_name %>.class ).asEagerSingleton();
     bind( <%= repository.imit.qualified_data_loader_service_interface_name %>.class ).to( <%= repository.imit.qualified_gwt_data_loader_service_name %>.class ).asEagerSingleton();
     bind( <%= repository.imit.qualified_client_session_context_name %>.class ).to( <%= repository.imit.qualified_client_session_context_impl_name %>.class ).asEagerSingleton();
