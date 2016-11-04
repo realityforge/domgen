@@ -40,6 +40,14 @@ Domgen.template_set(:jws_client_service) do |template_set|
   template_set.register_template(template)
 end
 
+Domgen.template_set(:jws_client_handler) do |template_set|
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/handler_resolver.java.erb",
+                        'main/java/#{repository.jws.qualified_handler_resolver_name.gsub(".","/")}.java',
+                        Domgen::Generator::JWS::HELPERS)
+end
+
 Domgen.template_set(:jws_server_service) do |template_set|
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :service,
@@ -124,5 +132,5 @@ end
 
 Domgen.template_set(:jws_server => [:jws_server_boundary, :jws_server_service, :jws_wsdl_assets, :xml_xsd_assets])
 Domgen.template_set(:jws_fake_server => [:jws_fakes, :jws_server_service, :jws_wsdl_resources, :xml_xsd_resources])
-Domgen.template_set(:jws_client => [:jws_wsdl_resources, :xml_xsd_resources, :jws_client_service])
+Domgen.template_set(:jws_client => [:jws_wsdl_resources, :xml_xsd_resources, :jws_client_service, :jws_client_handler])
 Domgen.template_set(:jws => [:jws_server, :jws_client])

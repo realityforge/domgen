@@ -1,0 +1,18 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.jws.qualified_handler_resolver_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= repository.jws.handler_resolver_name %>
+  implements javax.xml.ws.handler.HandlerResolver
+{
+  @Override
+  public java.util.List<javax.xml.ws.handler.Handler> getHandlerChain( final javax.xml.ws.handler.PortInfo portInfo )
+  {
+    final java.util.ArrayList<javax.xml.ws.handler.Handler> chain = new java.util.ArrayList<>();
+<% repository.jws.handlers.each do |handler| -%>
+    chain.add( new <%= handler %>() );
+<% end -%>
+    return chain;
+  }
+}

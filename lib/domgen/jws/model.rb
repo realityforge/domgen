@@ -33,6 +33,7 @@ module Domgen
       java_artifact :fake_server_factory, :service, :fake, :jws, 'Fake#{repository.name}ServerFactory'
       java_artifact :abstract_fake_server_test, :service, :fake, :jws, 'AbstractFake#{repository.name}ServerTest'
       java_artifact :client_integration_test, :service, :fake, :jws, '#{repository.name}ClientIntegrationTest'
+      java_artifact :handler_resolver, nil, :api, :jws, '#{repository.name}HandlerResolver'
 
       attr_writer :service_name
 
@@ -57,6 +58,10 @@ module Domgen
 
       def url
         @url || "#{base_url}/#{repository.name}"
+      end
+
+      def handlers
+        @handlers ||= []
       end
     end
 
