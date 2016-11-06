@@ -522,6 +522,7 @@ module Domgen
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
       java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{repository.name}GwtDataLoaderServiceImpl'
       java_artifact :abstract_ee_data_loader_service, :comm, :client, :imit, 'Abstract#{repository.name}EeDataLoaderServiceImpl'
+      java_artifact :ee_data_loader_service, :comm, :client, :imit, '#{repository.name}EeDataLoaderServiceImpl'
       java_artifact :client_session_context, :comm, :shared, :imit, '#{repository.name}SessionContext'
       java_artifact :client_session, :comm, :client, :imit, '#{repository.name}ClientSessionImpl'
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
@@ -553,10 +554,6 @@ module Domgen
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :test_factory_set, :test, :client, :imit, '#{repository.name}FactorySet', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
-
-      def ee_data_loader_service_name
-        abstract_ee_data_loader_service_name.gsub(/^Abstract/,'')
-      end
 
       def qualified_client_session_context_impl_name
         "#{qualified_client_session_context_name}Impl"
