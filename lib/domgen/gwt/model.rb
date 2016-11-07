@@ -117,6 +117,9 @@ module Domgen
       def pre_complete
         if repository.ee?
           repository.ee.cdi_scan_excludes << "#{repository.gwt.client_package}.**"
+          repository.ee.cdi_scan_excludes << 'org.realityforge.gwt.**'
+          repository.ee.cdi_scan_excludes << 'com.google.web.**'
+          repository.ee.cdi_scan_excludes << 'com.google.gwt.**'
         end
       end
 

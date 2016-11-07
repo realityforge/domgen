@@ -404,6 +404,17 @@ module Domgen
         end
       end
 
+      def pre_complete
+        if repository.ee?
+          repository.ee.cdi_scan_excludes << 'org.bouncycastle.**'
+          repository.ee.cdi_scan_excludes << 'org.jboss.logging.**'
+          repository.ee.cdi_scan_excludes << 'org.keycloak.**'
+          repository.ee.cdi_scan_excludes << 'org.apache.commons.codec.**'
+          repository.ee.cdi_scan_excludes << 'org.apache.commons.logging.**'
+          repository.ee.cdi_scan_excludes << 'org.apache.http.**'
+        end
+      end
+
       private
 
       def client_map

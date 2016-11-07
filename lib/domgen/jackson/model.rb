@@ -19,6 +19,14 @@ module Domgen
 
       java_artifact :date_util, :data_type, :server, :ee, '#{repository.name}DateUtil', :sub_package => 'internal'
       java_artifact :marshalling_test, :data_type, :server, :ee, '#{repository.name}JacksonMarshallingTest'
+
+      def pre_complete
+        if repository.ee?
+          repository.ee.cdi_scan_excludes << 'com.fasterxml.jackson.annotation.**'
+          repository.ee.cdi_scan_excludes << 'com.fasterxml.jackson.core.**'
+          repository.ee.cdi_scan_excludes << 'com.fasterxml.jackson.databind.**'
+        end
+      end
     end
   end
 end

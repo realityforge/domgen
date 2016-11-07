@@ -63,6 +63,10 @@ module Domgen
       def handlers
         @handlers ||= []
       end
+
+      def pre_complete
+        repository.ee.cdi_scan_excludes << "#{api_package}.**" if repository.ee?
+      end
     end
 
     facet.enhance(DataModule) do
