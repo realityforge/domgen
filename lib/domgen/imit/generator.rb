@@ -259,6 +259,11 @@ Domgen.template_set(:imit_server_service) do |template_set|
                         Domgen::Generator::Imit::SERVER_HELPERS)
   template_set.template(Domgen::Generator::Imit::SERVER_FACETS,
                         :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/poll_service.java.erb",
+                        'main/java/#{repository.imit.qualified_poll_service_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::SERVER_HELPERS)
+  template_set.template(Domgen::Generator::Imit::SERVER_FACETS,
+                        :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/session_manager.java.erb",
                         'main/java/#{repository.imit.qualified_session_manager_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::SERVER_HELPERS)
@@ -271,6 +276,11 @@ Domgen.template_set(:imit_server_service) do |template_set|
                         :repository,
                         "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/session_rest_service.java.erb",
                         'main/java/#{repository.imit.qualified_session_rest_service_name.gsub(".","/")}.java',
+                        Domgen::Generator::Imit::SERVER_HELPERS)
+  template_set.template(Domgen::Generator::Imit::SERVER_FACETS,
+                        :repository,
+                        "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/server/poll_rest_service.java.erb",
+                        'main/java/#{repository.imit.qualified_poll_rest_service_name.gsub(".","/")}.java',
                         Domgen::Generator::Imit::SERVER_HELPERS)
 end
 

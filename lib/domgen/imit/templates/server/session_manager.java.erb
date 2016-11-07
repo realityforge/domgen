@@ -6,15 +6,15 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 <% if repository.ee.use_cdi? -%>
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
-@javax.enterprise.inject.Typed( { org.realityforge.replicant.server.ee.rest.ReplicantPollSource.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.ssf.SessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
+@javax.enterprise.inject.Typed( { <%= repository.imit.qualified_poll_service_name %>.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.ssf.SessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
 <% else -%>
 @javax.ejb.Singleton( name = <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
-@javax.ejb.Local( { org.realityforge.replicant.server.ee.rest.ReplicantPollSource.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.ssf.SessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
+@javax.ejb.Local( { <%= repository.imit.qualified_poll_service_name %>.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.ssf.SessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
 <% end -%>
 public class <%= repository.imit.session_manager_name %>
   extends org.realityforge.replicant.server.transport.Replicant<% if repository.imit.poll_replicate_mode? -%>Json<% end -%>SessionManager<<%= repository.imit.qualified_session_name %>>
-  implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %><% if repository.imit.poll_replicate_mode? %>, org.realityforge.replicant.server.ee.rest.ReplicantPollSource<% end %>
+  implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %><% if repository.imit.poll_replicate_mode? %>, <%= repository.imit.qualified_poll_service_name %><% end %>
 {
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
 <% if repository.imit.graphs.any?{|g| !g.filter_parameter.nil? } -%>
@@ -39,6 +39,13 @@ entities.uniq.each do |entity| -%>
   private <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %> _context;
   @javax.annotation.Resource
   private javax.transaction.TransactionSynchronizationRegistry _registry;
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected javax.transaction.TransactionSynchronizationRegistry getRegistry()
+  {
+    return _registry;
+  }
 
   /**
    * Remove idle session changes. This is called by a scheduler.

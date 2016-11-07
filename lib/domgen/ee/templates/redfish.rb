@@ -80,6 +80,27 @@ def generate(repository)
       }
   end
 
+  if repository.imit?
+    data['managed_scheduled_executor_services'] = {}
+
+    data['managed_scheduled_executor_services'][repository.imit.executor_service_jndi] = {
+      'enabled' => 'true',
+      'context_info_enabled' => 'true',
+      'context_info' => 'Classloader,JNDI,Security,WorkArea',
+      'deployment_order' => 100,
+      'thread_priority' => 5
+    }
+
+    data['context_services'] = {}
+
+    data['context_services'][repository.imit.context_service_jndi] = {
+      'enabled' => 'true',
+      'context_info_enabled' => 'true',
+      'context_info' => 'Classloader,JNDI,Security,WorkArea',
+      'deployment_order' => 100
+    }
+  end
+
   if repository.keycloak?
     repository.keycloak.clients.each do |client|
       prefix = client.jndi_config_base
@@ -110,7 +131,7 @@ def generate(repository)
     end
 
     destinations.each_pair do |name, config|
-      data['jms_resources'][name] = {'restype' => config['type'], 'properties' => {'Name' => config['physical_name']}}
+      data['jms_resources'][repository.imit.context_service_jndi] = {'restype' => config['type'], 'properties' => {'Name' => config['physical_name']}}
     end
 
     data['environment_vars']["#{constant_prefix}_BROKER_USERNAME"] = repository.jms.default_username

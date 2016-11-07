@@ -14,6 +14,16 @@ public class <%= repository.imit.replication_interceptor_name %>
   @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
   private javax.persistence.EntityManager _entityManager;
 
+  @javax.annotation.Resource
+  private javax.transaction.TransactionSynchronizationRegistry _registry;
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected javax.transaction.TransactionSynchronizationRegistry getRegistry()
+  {
+    return _registry;
+  }
+
   @java.lang.Override
   protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
   {

@@ -16,4 +16,11 @@ public class <%= repository.imit.session_rest_service_name %>
   {
     return _sessionManager;
   }
+
+  @java.lang.Override
+  @javax.annotation.PostConstruct
+  public void postConstruct()
+  {
+    super.postConstruct();
+  }
 }

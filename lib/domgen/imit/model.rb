@@ -534,6 +534,8 @@ module Domgen
       java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManager#{repository.ejb.implementation_suffix}'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
+      java_artifact :poll_rest_service, :rest, :server, :imit, '#{repository.name}ReplicantPollRestService'
+      java_artifact :poll_service, :rest, :server, :imit, '#{repository.name}ReplicantPollService'
       java_artifact :session_exception_mapper, :rest, :server, :imit, '#{repository.name}BadSessionExceptionMapper'
       java_artifact :router_interface, :comm, :server, :imit, '#{repository.name}Router'
       java_artifact :router_impl, :comm, :server, :imit, '#{repository.name}RouterImpl'
@@ -666,11 +668,24 @@ module Domgen
         self.server_component_facets + [:imit]
       end
 
+      attr_writer :executor_service_jndi
+
+      def executor_service_jndi
+        @executor_service_jndi || "#{Domgen::Naming.underscore(repository.name)}/concurrent/replicant/#{Domgen::Naming.underscore(repository.name)}/ManagedScheduledExecutorService"
+      end
+
+      attr_writer :context_service_jndi
+
+      def context_service_jndi
+        @context_service_jndi || "#{Domgen::Naming.underscore(repository.name)}/concurrent/replicant/#{Domgen::Naming.underscore(repository.name)}/ContextService"
+      end
+
+
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
+          repository.jaxrs.extensions << self.qualified_poll_rest_service_name
           repository.jaxrs.extensions << self.qualified_session_exception_mapper_name
-          repository.jaxrs.extensions << 'org.realityforge.replicant.server.ee.rest.ReplicantPollResource'
         end
         if repository.ee?
           repository.ee.cdi_scan_excludes << 'org.realityforge.replicant.**'

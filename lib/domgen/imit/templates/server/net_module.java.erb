@@ -16,7 +16,7 @@ public class <%= repository.imit.server_net_module_name %>
     bind( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>.class ).to( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_implementation_name %>.class ).in( javax.inject.Singleton.class );
     multiBind( <%= repository.imit.qualified_session_manager_name %>.class,
 <% if repository.imit.poll_replicate_mode? -%>
-               org.realityforge.replicant.server.ee.rest.ReplicantPollSource.class,
+               <%= repository.imit.qualified_poll_service_name %>.class,
 <% end -%>
                org.realityforge.replicant.server.EntityMessageEndpoint.class,
                org.realityforge.ssf.SessionManager.class,
