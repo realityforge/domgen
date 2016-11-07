@@ -59,6 +59,10 @@ module Domgen
         end
       end
 
+      def cdi_scan_excludes
+        @cdi_scan_excludes ||= []
+      end
+
       def beans_xml_content_fragments
         @beans_xml_content_fragments ||= []
       end

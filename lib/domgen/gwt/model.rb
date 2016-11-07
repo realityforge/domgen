@@ -115,13 +115,9 @@ module Domgen
       TargetManager.register_target('gwt.entrypoint', :repository, :gwt, :entrypoints)
 
       def pre_complete
-        repository.ee.beans_xml_content_fragments << <<XML
-<!-- gwt fragment is auto-generated -->
-  <scan>
-    <exclude name="#{repository.gwt.client_package}.**"/>
-  </scan>
-<!-- gwt fragment end -->
-XML
+        if repository.ee?
+          repository.ee.cdi_scan_excludes << "#{repository.gwt.client_package}.**"
+        end
       end
 
       protected
