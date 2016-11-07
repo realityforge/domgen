@@ -60,7 +60,7 @@ module Domgen
 
       def data_source_by_name(key)
         data_source = data_source_map[key.to_s]
-        Domgen.error("Unable to locate feature flag #{key}") unless data_source
+        Domgen.error("Unable to locate data source #{key}") unless data_source
         data_source
       end
 
