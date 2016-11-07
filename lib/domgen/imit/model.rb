@@ -672,6 +672,9 @@ module Domgen
           repository.jaxrs.extensions << self.qualified_session_exception_mapper_name
           repository.jaxrs.extensions << 'org.realityforge.replicant.server.ee.rest.ReplicantPollResource'
         end
+        if repository.ee?
+          repository.ee.cdi_scan_excludes << 'org.realityforge.replicant.**'
+        end
       end
 
       def pre_verify
