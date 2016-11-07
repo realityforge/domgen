@@ -14,6 +14,8 @@
 
 module Domgen
   FacetManager.facet(:application) do |facet|
+    facet.suggested_facets << :robots
+
     facet.enhance(Repository) do
 
       # return true if the model code for repository can be included in separate project as a library

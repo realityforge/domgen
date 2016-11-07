@@ -1,0 +1,7 @@
+# DO NOT EDIT: File is auto-generated
+<% repository.robots.user_agents.each do |user_agent| -%>
+User-agent: <%= user_agent.name %>
+<% user_agent.disallows.each do |disallow| -%>
+Disallow: <%= disallow %>
+<% end -%>
+<% end -%>

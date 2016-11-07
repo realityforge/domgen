@@ -179,3 +179,6 @@ require 'domgen/mail/model'
 require 'domgen/mail/generator'
 
 require 'domgen/application/model'
+
+require 'domgen/robots/model'
+require 'domgen/robots/generator'
