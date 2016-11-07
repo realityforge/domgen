@@ -155,6 +155,7 @@ module Domgen
     attr_reader :key
     attr_reader :extension_map
     attr_reader :required_facets
+    attr_reader :suggested_facets
 
     def initialize(key, extension_map, required_facets, options = {}, &block)
       extension_map.each_pair do |source_class, extension_class|
@@ -165,6 +166,7 @@ module Domgen
       @key = key
       @extension_map = extension_map
       @required_facets = required_facets
+      @suggested_facets = []
       FacetManager.send :register_facet, self
       super(options, &block)
     end
@@ -308,6 +310,9 @@ module Domgen
         return if facet_enabled?(facet_key, object)
         facet = facet_by_name(facet_key)
         facet.required_facets.each do |required_facet_key|
+          activate_facet(required_facet_key, object)
+        end
+        facet.suggested_facets.each do |required_facet_key|
           activate_facet(required_facet_key, object)
         end
         facet.enable_on(object)
