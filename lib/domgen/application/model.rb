@@ -31,7 +31,10 @@ module Domgen
         @service_library.nil? ? false : !!@service_library
       end
 
-      attr_writer :service_library
+      def service_library=(service_library)
+        @service_library = service_library
+        repository.disable_facet(:robots) if service_library && repository.robots?
+      end
 
       # return true if the application has a UI to be presented to humans.
       def user_experience?
