@@ -55,7 +55,10 @@ module Domgen
         !service_library? && (@code_deployable.nil? ? true : !!@code_deployable)
       end
 
-      attr_writer :code_deployable
+      def code_deployable=(code_deployable)
+        @code_deployable = code_deployable
+        disable_deployment_facets unless code_deployable
+      end
 
       private
 
