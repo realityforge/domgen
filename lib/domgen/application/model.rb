@@ -33,7 +33,7 @@ module Domgen
 
       def service_library=(service_library)
         @service_library = service_library
-        repository.disable_facet(:robots) if service_library && repository.robots?
+        disable_deployment_facets if service_library
       end
 
       # return true if the application has a UI to be presented to humans.
@@ -56,6 +56,14 @@ module Domgen
       end
 
       attr_writer :code_deployable
+
+      private
+
+      def disable_deployment_facets
+        repository.disable_facet(:robots) if repository.robots?
+        repository.disable_facet(:appcache) if repository.appcache?
+        repository.disable_facet(:gwt_cache_filter) if repository.gwt_cache_filter?
+      end
     end
   end
 end
