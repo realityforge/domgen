@@ -131,7 +131,7 @@ def generate(repository)
     end
 
     destinations.each_pair do |name, config|
-      data['jms_resources'][repository.imit.context_service_jndi] = {'restype' => config['type'], 'properties' => {'Name' => config['physical_name']}}
+      data['jms_resources'][name] = {'restype' => config['type'], 'properties' => {'Name' => config['physical_name']}}
     end
 
     data['environment_vars']["#{constant_prefix}_BROKER_USERNAME"] = repository.jms.default_username
