@@ -1,0 +1,56 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_gwt_client_session_name) %>;
+
+public class <%= repository.imit.gwt_client_session_name %>
+  extends org.realityforge.replicant.client.transport.ClientSession<<%= repository.imit.gwt_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
+  implements <%= repository.imit.qualified_gwt_client_session_interface_name %>
+{
+  public <%= repository.imit.gwt_client_session_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.AbstractDataLoaderService<<%= repository.imit.gwt_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>> dataLoaderService, @javax.annotation.Nonnull final String sessionID )
+  {
+    super( dataLoaderService, sessionID );
+  }
+
+<%
+  repository.imit.graphs.each do |graph|
+  key = "#{repository.imit.qualified_graph_enum_name}.#{Domgen::Naming.uppercase_constantize(graph.name)}"
+  graph_id = "null"
+  cache_key = "null"
+  graph_id_param = nil
+  if graph.instance_root?
+    entity = repository.entity_by_name(graph.instance_root)
+    graph_id = "#{Domgen::Naming.camelize(entity.name)}#{entity.primary_key.name}"
+    graph_id_param = "final #{Domgen::Java.java_type(entity.primary_key, :gwt, :default)} #{graph_id}"
+  elsif graph.cacheable?
+    cache_key = "#{key}.name()"
+  end
+  filter_type = graph.filter_parameter ? "#{nullability_annotation(graph.filter_parameter.nullable?)} final #{Domgen::Java.java_type(graph.filter_parameter, :gwt, :default)}" : nil
+  filter_var = filter_type ? 'filter': 'null'
+  filter_param = filter_type ? "#{filter_type} #{filter_var}" : nil
+  std_param = "@javax.annotation.Nullable final Runnable action"
+-%>
+  @java.lang.Override
+  public boolean isSubscribedTo<%= graph.name %>(<%= graph_id_param %>)
+  {
+    return isSubscribed( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> );
+  }
+
+  @java.lang.Override
+  public void subscribeTo<%= graph.name %>(<%= [graph_id_param, filter_param, std_param].compact.join(", ") %>)
+  {
+    requestSubscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
+  }
+
+<% if graph.filter_parameter -%>
+  public void update<%= graph.name %>Subscription(<%= [graph_id_param, filter_param, std_param].compact.join(", ") %>)
+  {
+    requestSubscriptionUpdate( <%= key %>, <%= graph_id %>, filter, action );
+  }
+
+<% end -%>
+  @java.lang.Override
+  public void unsubscribeFrom<%= graph.name %>(<%= [graph_id_param, std_param].compact.join(", ") %>)
+  {
+    requestUnsubscribe( <%= key %>, <%= graph_id %>, action );
+  }
+<% end -%>
+}

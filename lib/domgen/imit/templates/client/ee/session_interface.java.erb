@@ -1,9 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_client_session_interface_name) %>;
+package <%= to_package(repository.imit.qualified_ee_client_session_interface_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public interface <%= repository.imit.client_session_interface_name %>
+public interface <%= repository.imit.ee_client_session_interface_name %>
 {
   @javax.annotation.Nonnull
   String getSessionID();
@@ -19,7 +19,7 @@ public interface <%= repository.imit.client_session_interface_name %>
   update_param = param.dup
   if graph.filter_parameter
     p = graph.filter_parameter
-    java_type = "#{nullability_annotation(p.nullable?)}  #{Domgen::Java.java_type(p, :gwt, :default)}"
+    java_type = "#{nullability_annotation(p.nullable?)}  #{Domgen::Java.java_type(p, :ee, :default)}"
     update_param = "#{update_param}, " if update_param.size > 0
     filter_param = "#{java_type} filter"
     update_param = "#{update_param}#{filter_param}"

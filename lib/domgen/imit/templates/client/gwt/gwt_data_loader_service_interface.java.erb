@@ -1,0 +1,14 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_gwt_data_loader_service_interface_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public interface <%= repository.imit.gwt_data_loader_service_interface_name %>
+{
+  boolean isConnected();
+
+  void connect( @javax.annotation.Nullable java.lang.Runnable runnable );
+
+  void disconnect( @javax.annotation.Nullable java.lang.Runnable runnable );
+
+  <%= repository.imit.qualified_gwt_client_session_interface_name %> getSession();
+}

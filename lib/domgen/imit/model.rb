@@ -523,13 +523,17 @@ module Domgen
       java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{repository.name}GwtDataLoaderServiceImpl'
       java_artifact :abstract_ee_data_loader_service, :comm, :client, :imit, 'Abstract#{repository.name}EeDataLoaderServiceImpl'
       java_artifact :ee_data_loader_service, :comm, :client, :imit, '#{repository.name}EeDataLoaderServiceImpl'
-      java_artifact :client_session_context, :comm, :shared, :imit, '#{repository.name}SessionContext'
-      java_artifact :client_session_context_gwt_impl, :comm, :client, :imit, '#{repository.name}SessionContextImpl'
-      java_artifact :client_session, :comm, :client, :imit, '#{repository.name}ClientSessionImpl'
+      java_artifact :ee_client_session_context, :comm, :client, :imit, '#{repository.name}EeSessionContext'
+      java_artifact :ee_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}EeDataLoaderService'
+      java_artifact :ee_client_session_interface, :comm, :client, :imit, '#{repository.name}EeClientSession'
+      java_artifact :ee_client_session, :comm, :client, :imit, '#{ee_client_session_interface_name}Impl'
+      java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
+      java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{repository.name}GwtSessionContextImpl'
+      java_artifact :gwt_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}GwtDataLoaderService'
+      java_artifact :gwt_client_session_interface, :comm, :client, :imit, '#{repository.name}GwtClientSession'
+      java_artifact :gwt_client_session, :comm, :client, :imit, '#{repository.name}ClientSessionImpl'
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
       java_artifact :client_router_impl, :comm, :client, :imit, '#{repository.name}ClientRouterImpl'
-      java_artifact :data_loader_service_interface, :comm, :client, :imit, '#{repository.name}DataLoaderService'
-      java_artifact :client_session_interface, :comm, :client, :imit, '#{repository.name}ClientSession'
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
       java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManager#{repository.ejb.implementation_suffix}'
@@ -689,6 +693,39 @@ module Domgen
         end
         if repository.ee?
           repository.ee.cdi_scan_excludes << 'org.realityforge.replicant.**'
+        end
+        toprocess = []
+        self.graphs.each do |graph|
+          if graph.filtered?
+            if graph.filter_parameter.enumeration?
+              graph.filter_parameter.enumeration.part_of_filter = true
+            elsif graph.filter_parameter.struct?
+              struct = graph.filter_parameter.referenced_struct
+              toprocess << struct unless toprocess.include?(struct)
+            end
+          end
+        end
+
+        process_filter_structs([], toprocess)
+      end
+
+      def process_filter_structs(processed, toprocess)
+        until toprocess.empty?
+          struct = toprocess.pop
+          process_filter_struct(processed, toprocess, struct)
+        end
+      end
+
+      def process_filter_struct(processed, toprocess, struct)
+        return if processed.include?(struct)
+        struct.imit.part_of_filter = true
+        struct.fields.select{|field| field.imit?}.each do |field|
+          if field.enumeration?
+            field.enumeration.imit.part_of_filter = true
+          elsif field.struct?
+            struct = field.referenced_struct
+            toprocess << struct unless toprocess.include?(struct)
+          end
         end
       end
 
@@ -1187,7 +1224,21 @@ module Domgen
       end
     end
 
+    facet.enhance(EnumerationSet) do
+      def part_of_filter?
+        !!@part_of_filter
+      end
+
+      attr_writer :part_of_filter
+    end
+
     facet.enhance(Struct) do
+      def part_of_filter?
+        !!@part_of_filter
+      end
+
+      attr_writer :part_of_filter
+
       def filter_for_graph(graph_key, options = {})
         struct.data_module.repository.imit.graph_by_name(graph_key).filter(:struct, options.merge(:referenced_struct => struct.qualified_name))
       end

@@ -1,11 +1,11 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_client_session_name) %>;
+package <%= to_package(repository.imit.qualified_ee_client_session_name) %>;
 
-public class <%= repository.imit.client_session_name %>
-  extends org.realityforge.replicant.client.transport.ClientSession<<%= repository.imit.client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
-  implements <%= repository.imit.qualified_client_session_interface_name %>
+public class <%= repository.imit.ee_client_session_name %>
+  extends org.realityforge.replicant.client.transport.ClientSession<<%= repository.imit.ee_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
+  implements <%= repository.imit.qualified_ee_client_session_interface_name %>
 {
-  public <%= repository.imit.client_session_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.AbstractDataLoaderService<<%= repository.imit.client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>> dataLoaderService, @javax.annotation.Nonnull final String sessionID )
+  public <%= repository.imit.ee_client_session_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.AbstractDataLoaderService<<%= repository.imit.ee_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>> dataLoaderService, @javax.annotation.Nonnull final String sessionID )
   {
     super( dataLoaderService, sessionID );
   }
@@ -23,7 +23,7 @@ public class <%= repository.imit.client_session_name %>
   elsif graph.cacheable?
     cache_key = "#{key}.name()"
   end
-  filter_type = graph.filter_parameter ? "#{nullability_annotation(graph.filter_parameter.nullable?)} final #{Domgen::Java.java_type(graph.filter_parameter, :gwt, :default)}" : nil
+  filter_type = graph.filter_parameter ? "#{nullability_annotation(graph.filter_parameter.nullable?)} final #{Domgen::Java.java_type(graph.filter_parameter, :ee, :default)}" : nil
   filter_var = filter_type ? 'filter': 'null'
   filter_param = filter_type ? "#{filter_type} #{filter_var}" : nil
   std_param = "@javax.annotation.Nullable final Runnable action"

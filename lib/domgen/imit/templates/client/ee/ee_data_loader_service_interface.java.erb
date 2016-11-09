@@ -1,8 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_data_loader_service_interface_name) %>;
+package <%= to_package(repository.imit.qualified_ee_data_loader_service_interface_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public interface <%= repository.imit.data_loader_service_interface_name %>
+public interface <%= repository.imit.ee_data_loader_service_interface_name %>
 {
   boolean isConnected();
 
@@ -10,5 +10,5 @@ public interface <%= repository.imit.data_loader_service_interface_name %>
 
   void disconnect( @javax.annotation.Nullable java.lang.Runnable runnable );
 
-  <%= repository.imit.qualified_client_session_interface_name %> getSession();
+  <%= repository.imit.qualified_ee_client_session_interface_name %> getSession();
 }
