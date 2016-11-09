@@ -162,12 +162,12 @@ end
 
 %w(main test).each do |type|
   Domgen.template_set(:"imit_client_#{type}_qa") do |template_set|
-    template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
+    template_set.template(Domgen::Generator::Imit::FACETS,
                           :data_module,
                           "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/abstract_test_factory.java.erb",
                           type + '/java/#{data_module.imit.qualified_abstract_test_factory_name.gsub(".","/")}.java',
                           Domgen::Generator::Imit::HELPERS)
-    template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
+    template_set.template(Domgen::Generator::Imit::FACETS,
                           :repository,
                           "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/test_factory_set.java.erb",
                           type + '/java/#{repository.imit.qualified_test_factory_set_name.gsub(".","/")}.java',
