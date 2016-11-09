@@ -507,6 +507,12 @@ module Domgen
         @client_comm_package || "#{client_package}.net"
       end
 
+      attr_writer :client_ee_comm_package
+
+      def client_ee_comm_package
+        @client_ee_comm_package || "#{client_comm_package}.ee"
+      end
+
       def shared_comm_package
         @shared_comm_package || "#{shared_package}.net"
       end
@@ -520,13 +526,12 @@ module Domgen
       java_artifact :replicant_module, :modules, nil, :gwt, '#{repository.name}ReplicantSupport'
       java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
-      java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{repository.name}GwtDataLoaderServiceImpl'
-      java_artifact :abstract_ee_data_loader_service, :comm, :client, :imit, 'Abstract#{repository.name}EeDataLoaderServiceImpl'
-      java_artifact :ee_data_loader_service, :comm, :client, :imit, '#{repository.name}EeDataLoaderServiceImpl'
-      java_artifact :ee_client_session_context, :comm, :client, :imit, '#{repository.name}EeSessionContext'
-      java_artifact :ee_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}EeDataLoaderService'
-      java_artifact :ee_client_session_interface, :comm, :client, :imit, '#{repository.name}EeClientSession'
-      java_artifact :ee_client_session, :comm, :client, :imit, '#{ee_client_session_interface_name}Impl'
+      java_artifact :ee_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}EeDataLoaderService', :sub_package => 'ee'
+      java_artifact :ee_data_loader_service, :comm, :client, :imit, '#{ee_data_loader_service_interface_name}Impl', :sub_package => 'ee'
+      java_artifact :abstract_ee_data_loader_service, :comm, :client, :imit, 'Abstract#{ee_data_loader_service_name}', :sub_package => 'ee'
+      java_artifact :ee_client_session_context, :comm, :client, :imit, '#{repository.name}EeSessionContext', :sub_package => 'ee'
+      java_artifact :ee_client_session_interface, :comm, :client, :imit, '#{repository.name}EeClientSession', :sub_package => 'ee'
+      java_artifact :ee_client_session, :comm, :client, :imit, '#{ee_client_session_interface_name}Impl', :sub_package => 'ee'
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :gwt_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}GwtDataLoaderService'
