@@ -24,7 +24,7 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   @javax.annotation.Nonnull
   protected String getEndpointOffset()
   {
-    return "/<%= repository.jaxrs? ? repository.jaxrs.path : 'api' -%>";
+    return "<%= repository.jaxrs? ? repository.jaxrs.path : 'api' -%>";
   }
 
   @javax.annotation.Nonnull
