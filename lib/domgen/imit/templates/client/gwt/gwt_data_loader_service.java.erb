@@ -51,7 +51,7 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   }
 
   @java.lang.Override
-  protected void doDisconnect( @javax.annotation.Nonnull final PlannerClientSessionImpl session, @javax.annotation.Nullable final Runnable runnable )
+  protected void doDisconnect( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_name %> session, @javax.annotation.Nullable final Runnable runnable )
   {
     <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().updateToken( 10, new java.lang.Runnable()
     {
