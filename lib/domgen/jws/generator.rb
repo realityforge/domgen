@@ -17,7 +17,7 @@ module Domgen
     module JWS
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       FACETS = [:jws]
-      HELPERS = [Domgen::Java::Helper, Domgen::Xml::Helper, Domgen::JAXB::Helper]
+      HELPERS = [Domgen::Java::Helper, Domgen::Xml::Helper, Domgen::JAXB::Helper, Domgen::Jws::Helper]
     end
   end
 end
@@ -45,6 +45,14 @@ Domgen.template_set(:jws_client_handler) do |template_set|
                         :repository,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/handler_resolver.java.erb",
                         'main/java/#{repository.jws.qualified_handler_resolver_name.gsub(".","/")}.java',
+                        Domgen::Generator::JWS::HELPERS)
+end
+
+Domgen.template_set(:jws_type_converter) do |template_set|
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/type_converter.java.erb",
+                        'main/java/#{service.jws.qualified_type_converter_name.gsub(".","/")}.java',
                         Domgen::Generator::JWS::HELPERS)
 end
 

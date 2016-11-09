@@ -106,6 +106,8 @@ module Domgen
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
+      java_artifact :type_converter, nil, :api, :jws, '#{service.name}TypeConverter'
+
       def qualified_api_interface_name
         "#{api_package}.#{web_service_name}"
       end
@@ -170,6 +172,32 @@ module Domgen
 
       def namespace
         @namespace || "#{service.data_module.jws.namespace}/#{web_service_name}"
+      end
+
+      def referenced_structs
+        structs = []
+
+        service.methods.select{|method| method.jws?}.each do |method|
+          method.parameters.select{|field| field.struct?}.each do |field|
+            structs << field.referenced_struct
+          end
+          structs << method.return_value.referenced_struct if method.return_value.struct?
+        end
+        structs = structs.uniq
+
+        to_process = structs.dup
+        processed = []
+
+        until to_process.empty?
+          struct = to_process.pop
+          next if processed.include?(struct)
+          processed << struct
+          struct.fields.select{|field| field.struct?}.each do |field|
+            structs << field.referenced_struct
+          end
+        end
+
+        structs.uniq
       end
 
       java_artifact :service, :service, :server, :ee, '#{web_service_name}Service'
