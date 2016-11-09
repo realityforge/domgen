@@ -34,6 +34,37 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
     return new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getChangeBroker(), getSubscriptionManager() )" }.join(", ") %> );
   }
 
+<% if repository.keycloak? -%>
+
+  @java.lang.Override
+  protected void doConnect( @javax.annotation.Nullable final java.lang.Runnable runnable )
+  {
+    <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().updateToken( 10, new java.lang.Runnable()
+    {
+      @java.lang.Override
+      public void run()
+      {
+        <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setAuthenticationToken( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().getToken() );
+        <%= repository.imit.gwt_data_loader_service_name %>.super.doConnect( runnable );
+      }
+    } );
+  }
+
+  @java.lang.Override
+  protected void doDisconnect( @javax.annotation.Nonnull final PlannerClientSessionImpl session, @javax.annotation.Nullable final Runnable runnable )
+  {
+    <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().updateToken( 10, new java.lang.Runnable()
+    {
+      @java.lang.Override
+      public void run()
+      {
+        <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setAuthenticationToken( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().getToken() );
+        <%= repository.imit.gwt_data_loader_service_name %>.super.doDisconnect( session, runnable );
+      }
+    } );
+  }
+<% end -%>
+
   @javax.annotation.Nonnull
   @java.lang.Override
   protected  <%= repository.imit.gwt_client_session_name %> ensureSession()
