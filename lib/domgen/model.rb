@@ -1282,7 +1282,7 @@ module Domgen
     end
 
     def name
-      "Return"
+      'Return'
     end
 
     def qualified_name
