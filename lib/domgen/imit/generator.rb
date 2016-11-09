@@ -172,13 +172,18 @@ end
                           "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/test_factory_set.java.erb",
                           type + '/java/#{repository.imit.qualified_test_factory_set_name.gsub(".","/")}.java',
                           Domgen::Generator::Imit::HELPERS)
+    template_set.template(Domgen::Generator::Imit::FACETS,
+                          :repository,
+                          "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/abstract_client_test.java.erb",
+                          type + '/java/#{repository.imit.qualified_abstract_client_test_name.gsub(".","/")}.java',
+                          Domgen::Generator::Imit::HELPERS)
   end
 
   Domgen.template_set(:"imit_client_#{type}_gwt_qa") do |template_set|
     template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
                           :repository,
-                          "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/abstract_client_test.java.erb",
-                          type + '/java/#{repository.imit.qualified_abstract_client_test_name.gsub(".","/")}.java',
+                          "#{Domgen::Generator::Imit::TEMPLATE_DIRECTORY}/client/gwt/abstract_gwt_client_test.java.erb",
+                          type + '/java/#{repository.imit.qualified_abstract_gwt_client_test_name.gsub(".","/")}.java',
                           Domgen::Generator::Imit::HELPERS)
     template_set.template(Domgen::Generator::Imit::FACETS + [:gwt_rpc],
                           :repository,
