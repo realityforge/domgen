@@ -138,9 +138,10 @@ public abstract class <%= repository.gwt.abstract_application_name %>
 <% if repository.gwt_rpc? -%>
     initGwtRpcServices();
 <% end -%>
-
 <% if repository.keycloak? -%>
     getKeycloak().init();
+<% else -%>
+    start();
 <% end -%>
   }
 
