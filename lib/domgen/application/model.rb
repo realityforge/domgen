@@ -38,7 +38,7 @@ module Domgen
 
       # return true if the application has a UI to be presented to humans.
       def user_experience?
-        @user_experience.nil? ? repository.gwt? : !!@user_experience
+        !service_library? && @user_experience.nil? ? repository.gwt? : !!@user_experience
       end
 
       attr_writer :user_experience
