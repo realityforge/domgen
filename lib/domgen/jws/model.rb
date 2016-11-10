@@ -248,6 +248,7 @@ module Domgen
       def characteristic_compatible?(characteristic)
         return false unless characteristic.jws?
 
+        return true if !characteristic.characteristic_type.nil? && characteristic.characteristic_type.name == :void
         return false if characteristic.non_standard_type?
         return false if characteristic.enumeration? && !characteristic.enumeration.jws?
         return false if characteristic.reference? && !characteristic.referenced_entity.jws?
