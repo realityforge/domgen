@@ -23,6 +23,12 @@ module Domgen
         @connection_factory_resource_name || "#{Domgen::Naming.underscore(repository.name)}/jms/ConnectionFactory"
       end
 
+      def additional_connection_factory_properties
+        @additional_connection_factory_properties ||= {
+          'transaction_support' => 'LocalTransaction'
+        }
+      end
+
       attr_writer :default_username
 
       def default_username

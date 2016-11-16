@@ -140,10 +140,10 @@ def generate(repository)
     data['jms_resources'][repository.jms.connection_factory_resource_name] =
       {
         'restype' => 'javax.jms.ConnectionFactory',
-        'properties' => {
+        'properties' => repository.jms.additional_connection_factory_properties.merge(
           'UserName' => "${#{constant_prefix}_BROKER_USERNAME}",
           'Password' => "${#{constant_prefix}_BROKER_PASSWORD}"
-        }
+        )
       }
   end
 
