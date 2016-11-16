@@ -25,7 +25,7 @@ module Domgen
 
       def additional_connection_factory_properties
         @additional_connection_factory_properties ||= {
-          'transaction_support' => 'LocalTransaction'
+          'transaction_support' => 'NoTransaction'
         }
       end
 
