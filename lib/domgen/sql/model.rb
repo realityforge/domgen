@@ -111,7 +111,6 @@ module Domgen
       ACTION_MAP =
         {
           :cascade => 'CASCADE',
-          :restrict => 'RESTRICT',
           :set_null => 'SET NULL',
           :set_default => 'SET DEFAULT',
           :no_action => 'NO ACTION'
