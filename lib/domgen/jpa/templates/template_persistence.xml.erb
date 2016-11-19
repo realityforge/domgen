@@ -16,7 +16,7 @@
 <% if repository.jpa.provider_class
 %>    <provider><%= repository.jpa.provider_class %></provider>
 <% end %>
-    <jta-data-source>{{application_scope}}/jdbc/<%= repository.application.service_library? ? '{{applicationScope}}' : repository.jpa.default_persistence_unit.short_name %></jta-data-source>
+    <jta-data-source>{{application_scope}}/jdbc/<%= !repository.application.db_deployable? ? '{{applicationScope}}' : repository.jpa.default_persistence_unit.short_name %></jta-data-source>
 
 <%
 converters = []
