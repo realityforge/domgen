@@ -74,7 +74,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
 
   private static final long serialVersionUID = 1;
 
-<% if !entity.extends -%>
+<% unless entity.extends -%>
   @javax.persistence.Transient
   private boolean _loaded;
   @javax.persistence.Transient
