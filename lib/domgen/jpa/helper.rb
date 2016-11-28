@@ -274,7 +274,8 @@ JAVA
       def j_simple_attribute(attribute)
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
-        if attribute.generated_value? && !attribute.nullable?
+        non_full_generated = attribute.generated_value? && !attribute.nullable?
+        if non_full_generated
           type = "#{nullability_annotation(false)} #{attribute.jpa.java_type}"
         else
           type = nullable_annotate(attribute, attribute.jpa.java_type, false)
@@ -311,7 +312,7 @@ JAVA
         java << <<JAVA
   }
 
-  protected #{type} doGet#{name}()
+  protected #{non_full_generated ? attribute.jpa.java_type : type} doGet#{name}()
   {
 JAVA
         if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
