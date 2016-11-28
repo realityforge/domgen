@@ -66,7 +66,7 @@ entities.uniq.each do |entity| -%>
   public boolean saveEntityMessages( @javax.annotation.Nullable final String sessionID,
                                      @javax.annotation.Nullable final String requestID,
                                      @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.EntityMessage> messages,
-                                     @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet sessionChanges )
+                                     @javax.annotation.Nullable final org.realityforge.replicant.server.ChangeSet sessionChanges )
   {
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     getLock().readLock().lock();
