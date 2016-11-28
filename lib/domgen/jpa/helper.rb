@@ -369,7 +369,7 @@ JAVA
      return doGet#{attribute.jpa.name}();
   }
 
-  protected #{type} doGet#{attribute.jpa.name}()
+  protected #{attribute.jpa.java_type} doGet#{attribute.jpa.name}()
   {
 JAVA
         if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
