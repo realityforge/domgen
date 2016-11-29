@@ -51,8 +51,3 @@
 * Race condition; Shutdown of session can disconnect mid-poll resulting in exception in poller
 * Merge multiple update channels into on replicant session. i.e. How to merge AppConfig into ODS stream?
 * Merge identical filters in output format.
-
-### AppConfig/SyncRecord
-
-* Add ability to mark methods as syncrecord "sync" methods and generate base classes with
-  required infrastructure/glue code.
