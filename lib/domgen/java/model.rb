@@ -179,14 +179,14 @@ module Domgen
             if characteristic.enumeration.textual_values?
               return "\"#{characteristic.enumeration.values[0].name}\""
             else
-              return "0"
+              return '0'
             end
           end
         elsif characteristic.struct?
           if :default == modality || :boundary == modality
             return "new #{characteristic.referenced_struct.send(characteristic_group.struct_key).qualified_name}(#{characteristic.referenced_struct.fields.collect { |p| java_fixture_value(p) }.join(", ")})"
           else #if :transport == modality
-            raise "Unable to determine fixture type for transport struct type"
+            raise 'Unable to determine fixture type for transport struct type'
           end
         elsif characteristic.geometry?
           return Domgen::TypeDB.characteristic_type_by_name(characteristic.geometry.geometry_type).java.fixture_value
