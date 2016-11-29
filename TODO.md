@@ -46,7 +46,7 @@
 
 * Backport bulk loads from calendar project.
 * Imit: Generate events for subscriptions starting and completing on the client side.
-* After above is implemented consider incremental changes. (Or may need both Full and partial updates
+* Consider incremental changes. (Or may need both Full and partial updates
   recorded so different messages are routed to different listeners?)
 * Merge multiple update channels into on replicant session. i.e. How to merge AppConfig into ODS stream?
 * Merge identical filters in output format.
