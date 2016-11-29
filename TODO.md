@@ -48,6 +48,5 @@
 * Imit: Generate events for subscriptions starting and completing on the client side.
 * After above is implemented consider incremental changes. (Or may need both Full and partial updates
   recorded so different messages are routed to different listeners?)
-* Race condition; Shutdown of session can disconnect mid-poll resulting in exception in poller
 * Merge multiple update channels into on replicant session. i.e. How to merge AppConfig into ODS stream?
 * Merge identical filters in output format.
