@@ -224,6 +224,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
               cacheAction.run();
             }
           }
+          getEventBus().fireEvent( new <%= graph.subscribe_completed_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
         }
       };
 <% else -%>
@@ -233,9 +234,12 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
         public void onSuccess( final java.lang.Void result )
         {
           completionAction.run();
+
+          getEventBus().fireEvent( new <%= graph.subscribe_completed_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
         }
       };
 <% end -%>
+      getEventBus().fireEvent( new <%= graph.subscribe_started_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id <% end %>) );
       _remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id<% end -%><% if graph.filtered? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter<% end -%>, callback );
     }
     else <% end %>
@@ -251,20 +255,22 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
                                                   @javax.annotation.Nonnull final Object filterParameter,
                                                   @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
-    final <%= repository.gwt.qualified_async_callback_name %><Void> callback = new <%= repository.gwt.qualified_async_callback_name %><Void>()
-    {
-      @java.lang.Override
-      public void onSuccess( final Void result )
-      {
-        completionAction.run();
-      }
-    };
     <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
     {
 <% if graph.instance_root? -%>
       assert null != id;
 <% end -%>
+      final <%= repository.gwt.qualified_async_callback_name %><Void> callback = new <%= repository.gwt.qualified_async_callback_name %><Void>()
+      {
+        @java.lang.Override
+        public void onSuccess( final Void result )
+        {
+          completionAction.run();
+          getEventBus().fireEvent( new <%= graph.update_completed_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
+        }
+      };
+      getEventBus().fireEvent( new <%= graph.update_started_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
       _remoteSubscriptionService.update<%= graph.name %>Subscription( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id<% end -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter, callback );
     }
     else <% end %>
@@ -278,20 +284,22 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
                                                     @javax.annotation.Nullable final Object id,
                                                     @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
-    final <%= repository.gwt.qualified_async_callback_name %><Void> callback = new <%= repository.gwt.qualified_async_callback_name %><Void>()
-    {
-      @java.lang.Override
-      public void onSuccess( final Void result )
-      {
-        completionAction.run();
-      }
-    };
     <% repository.imit.graphs.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
     {
 <% if graph.instance_root? -%>
       assert null != id;
 <% end -%>
+      final <%= repository.gwt.qualified_async_callback_name %><Void> callback = new <%= repository.gwt.qualified_async_callback_name %><Void>()
+      {
+        @java.lang.Override
+        public void onSuccess( final Void result )
+        {
+          completionAction.run();
+          getEventBus().fireEvent( new <%= graph.unsubscribe_completed_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id <% end %>) );
+        }
+      };
+      getEventBus().fireEvent( new <%= graph.subscribe_started_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id <% end %>) );
       _remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id<% end -%>, callback );
     }
     else <% end %>

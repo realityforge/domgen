@@ -186,6 +186,36 @@ module Domgen
         graph.send(:add_dependent_type_graph, self)
       end
 
+      def subscribe_started_message(create = false)
+        graph_message('SubscribeStarted', create)
+      end
+
+      def subscribe_completed_message(create = false)
+        graph_message('SubscribeCompleted', create)
+      end
+
+      def update_started_message(create = false)
+        graph_message('UpdateStarted', create)
+      end
+
+      def update_completed_message(create = false)
+        graph_message('UpdateCompleted', create)
+      end
+
+      def unsubscribe_started_message(create = false)
+        graph_message('UnsubscribeStarted', create)
+      end
+
+      def unsubscribe_completed_message(create = false)
+        graph_message('UnsubscribeCompleted', create)
+      end
+
+      def graph_message(suffix, create)
+        data_module = application.repository.data_module_by_name(application.repository.imit.imit_control_data_module)
+        name = :"#{self.name}#{suffix}"
+        create ? data_module.message(name) : data_module.message_by_name(name)
+      end
+
       def post_verify
         if cacheable? && (filter_parameter || instance_root?)
           Domgen.error("Graph #{self.name} can not be marked as cacheable as cacheable graphs are not supported for instance based or filterable graphs")
@@ -711,6 +741,25 @@ module Domgen
               toprocess << struct unless toprocess.include?(struct)
             end
           end
+          subscribe_started_message = graph.subscribe_started_message(true)
+          subscribe_completed_message = graph.subscribe_completed_message(true)
+          update_started_message = graph.update_started_message(true)
+          update_completed_message = graph.update_completed_message(true)
+          unsubscribe_started_message = graph.unsubscribe_started_message(true)
+          unsubscribe_completed_message = graph.unsubscribe_completed_message(true)
+
+          if graph.instance_root?
+            root = repository.entity_by_name(graph.instance_root)
+            attribute_type = root.primary_key.attribute_type
+
+            subscribe_started_message.parameter(:ID, attribute_type)
+            subscribe_completed_message.reference(root.qualified_name)
+            update_started_message.reference(root.qualified_name)
+            update_completed_message.reference(root.qualified_name)
+            unsubscribe_started_message.parameter(:ID, attribute_type)
+            unsubscribe_completed_message.parameter(:ID, attribute_type)
+          end
+
         end
 
         process_filter_structs([], toprocess)
