@@ -17,9 +17,9 @@ require 'fileutils'
 require 'logger'
 
 require 'reality/naming'
+require 'reality/orderedhash'
 
 require 'domgen/version'
-require 'domgen/orderedhash'
 
 # Core components
 require 'domgen/core'

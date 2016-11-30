@@ -395,7 +395,7 @@ module Domgen
 
       # Map a facet key to a map. The map maps types to extension classes
       def facet_map
-        @facets ||= Domgen::OrderedHash.new
+        @facets ||= Reality::OrderedHash.new
       end
     end
   end

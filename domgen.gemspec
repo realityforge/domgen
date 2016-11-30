@@ -26,4 +26,5 @@ Gem::Specification.new do |s|
   s.rdoc_options       = %w(--line-numbers --inline-source --title domgen)
 
   s.add_dependency 'reality-naming', '= 1.4.0'
+  s.add_dependency 'reality-orderedhash', '= 1.0.0'
 end

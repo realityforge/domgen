@@ -40,7 +40,7 @@ module Domgen
     private
 
     def template_set_map
-      @template_sets ||= Domgen::OrderedHash.new
+      @template_sets ||= Reality::OrderedHash.new
     end
   end
 
@@ -134,7 +134,7 @@ module Domgen
       private
 
       def template_map
-        @templates ||= Domgen::OrderedHash.new
+        @templates ||= Reality::OrderedHash.new
       end
     end
 

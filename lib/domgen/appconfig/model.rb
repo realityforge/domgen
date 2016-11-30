@@ -95,7 +95,7 @@ module Domgen
       end
 
       def feature_flag_map
-        @feature_flag ||= Domgen::OrderedHash.new
+        @feature_flag ||= Reality::OrderedHash.new
       end
     end
   end

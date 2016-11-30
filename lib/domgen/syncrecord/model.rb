@@ -109,7 +109,7 @@ module Domgen
       end
 
       def data_source_map
-        @data_sources ||= Domgen::OrderedHash.new
+        @data_sources ||= Reality::OrderedHash.new
       end
     end
 

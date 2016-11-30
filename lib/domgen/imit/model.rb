@@ -53,9 +53,9 @@ module Domgen
         @required_type_graphs = []
         @dependent_type_graphs = []
         @instance_root = nil
-        @outward_graph_links = Domgen::OrderedHash.new
-        @inward_graph_links = Domgen::OrderedHash.new
-        @routing_keys = Domgen::OrderedHash.new
+        @outward_graph_links = Reality::OrderedHash.new
+        @inward_graph_links = Reality::OrderedHash.new
+        @routing_keys = Reality::OrderedHash.new
         application.send :register_graph, name, self
         super(application, options, &block)
       end
@@ -1022,7 +1022,7 @@ module Domgen
       end
 
       def graph_map
-        @graphs ||= Domgen::OrderedHash.new
+        @graphs ||= Reality::OrderedHash.new
       end
     end
 
