@@ -14,7 +14,7 @@
 
 module Domgen
 
-  class CharacteristicType < BaseElement
+  class CharacteristicType < Reality::BaseElement
     attr_reader :name
 
     def initialize(name, options, &block)

@@ -151,7 +151,7 @@ module Domgen
     type
   end
 
-  class Facet < BaseElement
+  class Facet < Reality::BaseElement
     attr_reader :key
     attr_reader :extension_map
     attr_reader :required_facets

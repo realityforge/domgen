@@ -90,7 +90,7 @@ module Domgen
   end
 
   module Generator
-    class TemplateSet < BaseElement
+    class TemplateSet < Reality::BaseElement
       attr_reader :name
       attr_accessor :required_template_sets
       attr_accessor :description
@@ -138,7 +138,7 @@ module Domgen
       end
     end
 
-    class Template < BaseElement
+    class Template < Reality::BaseElement
       attr_reader :template_set
       attr_reader :template_key
       attr_reader :guard

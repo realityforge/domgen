@@ -16,6 +16,7 @@ require 'erb'
 require 'fileutils'
 require 'logger'
 
+require 'reality/core'
 require 'reality/naming'
 require 'reality/orderedhash'
 
