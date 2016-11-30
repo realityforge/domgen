@@ -34,7 +34,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     super.preTest();
     final <%= repository.jpa.qualified_test_factory_set_name %> factorySet = new <%= repository.jpa.qualified_test_factory_set_name %>( getInjector() );
 <% repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module| -%>
-    <%= data_module.jpa.short_test_code %> = factorySet.<%= Domgen::Naming.camelize(data_module.name) %>();
+    <%= data_module.jpa.short_test_code %> = factorySet.<%= Reality::Naming.camelize(data_module.name) %>();
 <% end -%>
 <%
   # TODO - there should be a better way of doing this. Perhaps Runnables/Actions that are added by facets?
@@ -102,7 +102,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   @javax.annotation.Nullable
   protected com.google.inject.Module new<%= unit.unit_name %>PersistenceModule()
   {
-    return new org.realityforge.guiceyloops.server.MockPersistenceTestModule( <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Domgen::Naming.uppercase_constantize(unit.short_name) %>_NAME );
+    return new org.realityforge.guiceyloops.server.MockPersistenceTestModule( <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(unit.short_name) %>_NAME );
   }
 <% end -%>
 <% repository.jpa.standalone_persistence_units.select{|unit| unit.raw_test_mode?}.each do |unit| -%>

@@ -7,10 +7,10 @@ def define_custom_resource(data, key, value, restype = nil)
 end
 
 def define_persistence_unit(data, repository, name, resource, options = {})
-  application = Domgen::Naming.underscore(repository.name)
-  constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
+  application = Reality::Naming.underscore(repository.name)
+  constant_prefix = Reality::Naming.uppercase_constantize(repository.name)
 
-  cname = Domgen::Naming.uppercase_constantize(name)
+  cname = Reality::Naming.uppercase_constantize(name)
   prefix = cname == constant_prefix ? constant_prefix : "#{constant_prefix}_#{cname}"
   connection_pool = "#{resource}ConnectionPool"
 
@@ -58,8 +58,8 @@ def define_persistence_unit(data, repository, name, resource, options = {})
 end
 
 def generate(repository)
-  application = Domgen::Naming.underscore(repository.name)
-  constant_prefix = Domgen::Naming.uppercase_constantize(repository.name)
+  application = Reality::Naming.underscore(repository.name)
+  constant_prefix = Reality::Naming.uppercase_constantize(repository.name)
 
   data = {}
 

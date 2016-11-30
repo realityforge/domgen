@@ -59,7 +59,7 @@ DATA
      data += "   * </ul>\n"
    end
    data += "   */\n"
-   data += "  #{Domgen::Naming.uppercase_constantize(g.name)}"
+   data += "  #{Reality::Naming.uppercase_constantize(g.name)}"
    data
   end.join(",\n\n") %>
 }

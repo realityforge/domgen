@@ -24,4 +24,6 @@ Gem::Specification.new do |s|
 
   s.has_rdoc           = false
   s.rdoc_options       = %w(--line-numbers --inline-source --title domgen)
+
+  s.add_dependency 'reality-naming', '= 1.0.0'
 end

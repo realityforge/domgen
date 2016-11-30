@@ -117,7 +117,7 @@ module Domgen
       end
 
       def api_package
-        "#{service.data_module.jws.api_package}.#{Domgen::Naming.underscore(web_service_name.gsub(/Service$/, ''))}"
+        "#{service.data_module.jws.api_package}.#{Reality::Naming.underscore(web_service_name.gsub(/Service$/, ''))}"
       end
 
       def boundary_ejb_name
@@ -218,7 +218,7 @@ module Domgen
 
     facet.enhance(Method) do
       def name
-        Domgen::Naming.camelize(method.name)
+        Reality::Naming.camelize(method.name)
       end
 
       def input_action
@@ -259,7 +259,7 @@ module Domgen
 
     facet.enhance(Parameter) do
       def name
-        Domgen::Naming.camelize(parameter.name)
+        Reality::Naming.camelize(parameter.name)
       end
 
       include Domgen::Java::EEJavaCharacteristic

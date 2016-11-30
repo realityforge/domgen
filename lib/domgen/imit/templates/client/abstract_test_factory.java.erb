@@ -20,9 +20,9 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
   }
 
 <% data_module.repository.data_modules.select{|dm|dm.imit? && dm.name != data_module.name}.each do |dm| -%>
-  protected final <%= dm.imit.qualified_test_factory_name %> <%= Domgen::Naming.camelize(dm.name) %>()
+  protected final <%= dm.imit.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
   {
-    return getFactorySet().<%= Domgen::Naming.camelize(dm.name) %>();
+    return getFactorySet().<%= Reality::Naming.camelize(dm.name) %>();
   }
 
 <% end -%>
@@ -35,23 +35,23 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
 
 <% entity.imit.test_create_defaults.each do |defaults| -%>
   @javax.annotation.Nonnull
-  public final <%= entity.imit.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.imit? && a.imit.client_side? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :imit, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  public final <%= entity.imit.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.imit? && a.imit.client_side? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :imit, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    return create<%= entity.name %>( <%= entity.attributes.select{|a|a.imit? && a.imit.client_side?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) }.join(', ') %> );
+    return create<%= entity.name %>( <%= entity.attributes.select{|a|a.imit? && a.imit.client_side?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Reality::Naming.camelize(a.name) }.join(', ') %> );
   }
 
 <% end -%>
   @javax.annotation.Nonnull
-  public final <%= entity.imit.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.imit? && a.imit.client_side?}.collect{|a| "#{annotated_type(a, :imit, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  public final <%= entity.imit.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.imit? && a.imit.client_side?}.collect{|a| "#{annotated_type(a, :imit, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
     final <%= entity.imit.qualified_name %> $_ = new <%= entity.imit.qualified_name %>( repository(), broker() );
 <% entity.attributes.select{|a|a.imit? && a.imit.client_side?}.each do |a| -%>
 <% if a.reference? -%>
-    $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Domgen::Naming.camelize(a.name)} ? null :" : '' %><%= Domgen::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() );
+    $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() );
 <% elsif a.enumeration? -%>
-    $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Domgen::Naming.camelize(a.name)} ? null :" : '' %><%= Domgen::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
+    $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
 <% else -%>
-    $_.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
+    $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> );
 <% end -%>
 <% end -%>
     repository().registerEntity( <%= entity.imit.qualified_name %>.class, $_.get<%= entity.primary_key.name %>(), $_ );
@@ -61,15 +61,15 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
 
 <% end -%>
 <% entity.attributes.select{|a|a.imit? && a.imit.client_side? && !a.immutable?}.each do |a| -%>
-  public final void set<%= a.name %>( @javax.annotation.Nonnull final <%= entity.imit.qualified_name %> $_, <%= annotated_type(a, :imit, :default, :final => true) %> <%= Domgen::Naming.camelize(a.name) %> )
+  public final void set<%= a.name %>( @javax.annotation.Nonnull final <%= entity.imit.qualified_name %> $_, <%= annotated_type(a, :imit, :default, :final => true) %> <%= Reality::Naming.camelize(a.name) %> )
   {
 <% if a.reference? -%>
-    $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Domgen::Naming.camelize(a.name)} ? null :" : '' %><%= Domgen::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() );
+    $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() );
     $_.link();
 <% elsif a.enumeration? -%>
-    $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Domgen::Naming.camelize(a.name)} ? null :" : '' %><%= Domgen::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
+    $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
 <% else -%>
-    $_.set<%= a.name %>( <%= Domgen::Naming.camelize(a.name) %> );
+    $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> );
 <% end -%>
   }
 

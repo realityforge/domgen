@@ -44,7 +44,7 @@ module Domgen
       attr_writer :consent_text
 
       def consent_text
-        @consent_text || (consent_required? ? "${#{Domgen::Naming.camelize(name.to_s.gsub(' ', '_'))}}" : '')
+        @consent_text || (consent_required? ? "${#{Reality::Naming.camelize(name.to_s.gsub(' ', '_'))}}" : '')
       end
 
       attr_writer :config
@@ -73,7 +73,7 @@ module Domgen
       java_artifact :abstract_application, nil, :client, :keycloak, 'AbstractKeycloak#{qualified_type_name}App'
 
       def qualified_type_name
-        "#{default_client? ? '' : Domgen::Naming.pascal_case(keycloak_repository.repository.name)}#{Domgen::Naming.pascal_case(name)}"
+        "#{default_client? ? '' : Reality::Naming.pascal_case(keycloak_repository.repository.name)}#{Reality::Naming.pascal_case(name)}"
       end
 
       def qualified_class_name
@@ -105,18 +105,18 @@ module Domgen
       end
 
       def client_constant_prefix
-        "#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}#{default_client? ? '' : "_#{Domgen::Naming.uppercase_constantize(key)}"}"
+        "#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}#{default_client? ? '' : "_#{Reality::Naming.uppercase_constantize(key)}"}"
       end
 
       def default_client?
         repository_name = keycloak_repository.repository.name
-        Domgen::Naming.underscore(repository_name) == key.to_s
+        Reality::Naming.underscore(repository_name) == key.to_s
       end
 
       attr_writer :name
 
       def name
-        @name || Domgen::Naming.underscore(key.to_s)
+        @name || Reality::Naming.underscore(key.to_s)
       end
 
       attr_writer :root_url
@@ -128,13 +128,13 @@ module Domgen
       attr_writer :base_url
 
       def base_url
-        @base_url || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}"
+        @base_url || "{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}"
       end
 
       attr_writer :origin
 
       def origin
-        @origin || "{{#{Domgen::Naming.uppercase_constantize(keycloak_repository.repository.name)}_ORIGIN}}"
+        @origin || "{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_ORIGIN}}"
       end
 
       # Local url for clients capabilities
@@ -362,7 +362,7 @@ module Domgen
       attr_writer :jndi_config_base
 
       def jndi_config_base
-        @jndi_config_base || "#{Domgen::Naming.underscore(repository.name)}/keycloak"
+        @jndi_config_base || "#{Reality::Naming.underscore(repository.name)}/keycloak"
       end
 
       # Relative url for base of all keycloak configuration
@@ -373,7 +373,7 @@ module Domgen
       end
 
       def default_client
-        key = Domgen::Naming.underscore(repository.name.to_s)
+        key = Reality::Naming.underscore(repository.name.to_s)
         client(key) unless client_by_key?(key)
         client_by_key(key)
       end

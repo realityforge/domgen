@@ -209,7 +209,7 @@ module Domgen
       attr_writer :properties
 
       def application_scope
-        Domgen::Naming.underscore(jpa_repository.repository.name)
+        Reality::Naming.underscore(jpa_repository.repository.name)
       end
 
       def applicationScope
@@ -328,7 +328,7 @@ module Domgen
       attr_writer :default_username
 
       def default_username
-        @default_username || Domgen::Naming.underscore(repository.name)
+        @default_username || Reality::Naming.underscore(repository.name)
       end
 
       attr_writer :include_default_unit
@@ -366,7 +366,7 @@ module Domgen
       end
 
       def application_scope
-        Domgen::Naming.underscore(repository.name)
+        Reality::Naming.underscore(repository.name)
       end
 
       def applicationScope
@@ -603,7 +603,7 @@ FRAGMENT
       attr_writer :short_test_code
 
       def short_test_code
-        @short_test_code || Domgen::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
+        @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
       end
 
       java_artifact :abstract_test_factory, :test, :server, :jpa, 'Abstract#{data_module.name}Factory', :sub_package => 'util'
@@ -810,12 +810,12 @@ FRAGMENT
               operation = $2.upcase
               query_text = $1
               if entity.attribute_by_name?(parameter_name)
-                jpql = "#{operation} #{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
+                jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
-                  jpql = "#{operation} #{entity_prefix}#{Domgen::Naming.camelize(a.name)}.#{Domgen::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
+                  jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
                   found = true
                 end
                 unless found
@@ -826,12 +826,12 @@ FRAGMENT
             else
               parameter_name = query_text
               if entity.attribute_by_name?(parameter_name)
-                jpql = "#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
+                jpql = "#{entity_prefix}#{Reality::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
-                  jpql = "#{entity_prefix}#{Domgen::Naming.camelize(a.name)}.#{Domgen::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
+                  jpql = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
                   found = true
                 end
                 jpql = nil unless found
@@ -891,7 +891,7 @@ FRAGMENT
       end
 
       def field_name
-        Domgen::Naming.camelize(name)
+        Reality::Naming.camelize(name)
       end
 
       def generated_value_strategy

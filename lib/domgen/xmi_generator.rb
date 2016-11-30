@@ -75,7 +75,7 @@ module Domgen
               filename = self.filename
 
               if filename.nil?
-                local_filename = "#{Domgen::Naming.underscore(repository.name)}.xmi"
+                local_filename = "#{Reality::Naming.underscore(repository.name)}.xmi"
                 if @buildr_project.nil?
                   top_level_projects = Buildr.projects.select{|p| !(p.name =~ /:/) }
                   if top_level_projects.size == 1

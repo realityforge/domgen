@@ -11,7 +11,7 @@ public class <%= service.imit.proxy_name %>
   private org.realityforge.replicant.client.EntityRepository _repository;
 
 <% service.methods.select{|method| method.imit?}.each do |method|
-   method_name = Domgen::Naming.camelize(method.name)
+   method_name = Reality::Naming.camelize(method.name)
    parameters = method.parameters.select{|parameter| !parameter.imit.environmental?}
 %>
   public void <%= method_name %>(<%= parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" }.join(', ') %>)

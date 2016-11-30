@@ -49,8 +49,8 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
 %>  validates_length_of :<%= a.sql.column_name %>, :maximum => <%= a.length %>, :allow_nil => <%= a.nullable? %>, :allow_blank => <%= a.allow_blank? %>
 <%       end
          if a.reference?
-%>  belongs_to :<%= Domgen::Naming.underscore(a.name) %>, :class_name => '<%= a.referenced_entity.ruby.qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
-  validates_reference_exists :<%= a.sql.column_name %>, <%= a.referenced_entity.ruby.qualified_name %>, :association_name => :<%= Domgen::Naming.underscore(a.name) %>, :allow_nil => true
+%>  belongs_to :<%= Reality::Naming.underscore(a.name) %>, :class_name => '<%= a.referenced_entity.ruby.qualified_name %>', :foreign_key => '<%= a.sql.column_name %>'
+  validates_reference_exists :<%= a.sql.column_name %>, <%= a.referenced_entity.ruby.qualified_name %>, :association_name => :<%= Reality::Naming.underscore(a.name) %>, :allow_nil => true
 <%       end
        end
      end
@@ -58,12 +58,12 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
 <% entity.referencing_attributes.select{ |a| a.inverse.traversable? }.each do |attribute|
     if attribute.inverse.multiplicity == :many
 %>
-  has_many :<%= Domgen::Naming.pluralize(Domgen::Naming.underscore(attribute.inverse.name)) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
-  has_count_of :<%= Domgen::Naming.pluralize(Domgen::Naming.underscore(attribute.inverse.name)) %>
+  has_many :<%= Reality::Naming.pluralize(Reality::Naming.underscore(attribute.inverse.name)) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_count_of :<%= Reality::Naming.pluralize(Reality::Naming.underscore(attribute.inverse.name)) %>
 <%
     elsif [:one, :zero_or_one].include? attribute.inverse.multiplicity
 %>
-  has_one :<%= Domgen::Naming.underscore(attribute.inverse.name) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
+  has_one :<%= Reality::Naming.underscore(attribute.inverse.name) %>, :class_name => '<%= attribute.entity.ruby.qualified_name %>', :foreign_key => '<%= attribute.sql.column_name %>', :dependent => :destroy
 <%
     end
   end
@@ -90,7 +90,7 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
   target_attribute = entity.attribute_by_name(c.attribute_name)
 %>
   validate do |record|
-    if !record.<%= target_attribute.name %>.nil? && record.<%= Domgen::Naming.underscore(target_attribute.name) %>.<%= c.scoping_attribute %> != record<%= c.attribute_name_path[0,c.attribute_name_path.length-1].collect{|a|".#{Domgen::Naming.underscore(a)}"}.join('') %>.<%= c.attribute_name_path.last %>
+    if !record.<%= target_attribute.name %>.nil? && record.<%= Reality::Naming.underscore(target_attribute.name) %>.<%= c.scoping_attribute %> != record<%= c.attribute_name_path[0,c.attribute_name_path.length-1].collect{|a|".#{Reality::Naming.underscore(a)}"}.join('') %>.<%= c.attribute_name_path.last %>
       record.errors.add(:<%= target_attribute.name %>, 'must be one of the values in scope')
     end
   end

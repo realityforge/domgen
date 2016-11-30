@@ -33,7 +33,7 @@ public interface <%= service.jws.java_service_name %>
 <% if method.return_value.return_type != :void -%>
   @javax.jws.WebResult( targetNamespace = "" )
 <% end -%>
-  <%= annotated_type(method.return_value, :jws, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "@javax.jws.WebParam( name = \"#{p.name}\", mode = javax.jws.WebParam.Mode.IN, header = false, targetNamespace = \"\" ) #{annotated_type(p, :jws, :boundary)} #{p.name}" }.join(', ') %>)<%=
+  <%= annotated_type(method.return_value, :jws, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "@javax.jws.WebParam( name = \"#{p.name}\", mode = javax.jws.WebParam.Mode.IN, header = false, targetNamespace = \"\" ) #{annotated_type(p, :jws, :boundary)} #{p.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.jws.qualified_name}.join(', ')}"
 %>;
 

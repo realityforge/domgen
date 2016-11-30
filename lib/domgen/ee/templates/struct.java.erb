@@ -15,7 +15,7 @@ public class <%= struct.ee.name %>
 <% struct.fields.each do |field| -%>
 <%= "  " + jackson_field_annotation(field) if field.jackson? -%>
 <%= "  " + jaxb_field_annotation(field) if field.jaxb? -%>
-  <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= Domgen::Naming.camelize(field.name) %>;
+  <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= Reality::Naming.camelize(field.name) %>;
 <% end -%>
 
 <% if struct.fields.size != 0 %>
@@ -32,16 +32,16 @@ public class <%= struct.ee.name %>
 <% end %>
 
 <% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join(", ") %>})<% end -%>
-  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Domgen::Naming.camelize(field.name)}" }.join(", ") %> )
+  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(", ") %> )
   {
 <% struct.fields.each do |field|
-     null_protection = field.nullable? ? "#{Domgen::Naming.camelize(field.name)} == null ? null : " : ""
+     null_protection = field.nullable? ? "#{Reality::Naming.camelize(field.name)} == null ? null : " : ""
      if :sequence == field.collection_type
-%>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.ee.java_component_type %>>( <%= Domgen::Naming.camelize(field.name) %> ) );
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.ee.java_component_type %>>( <%= Reality::Naming.camelize(field.name) %> ) );
 <%     elsif :set == field.collection_type
-%>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.ee.java_component_type %>>( <%= Domgen::Naming.camelize(field.name) %> ) );
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.ee.java_component_type %>>( <%= Reality::Naming.camelize(field.name) %> ) );
   <%     else
-%>    this.<%= Domgen::Naming.camelize(field.name) %> = <%= Domgen::Naming.camelize(field.name) %>;
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= Reality::Naming.camelize(field.name) %>;
 <%   end
    end
 %>  }
@@ -49,7 +49,7 @@ public class <%= struct.ee.name %>
 %>
   <%= annotated_type(field, :ee, :boundary, :public => true, :final => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
-    return <%= Domgen::Naming.camelize(field.name) %>;
+    return <%= Reality::Naming.camelize(field.name) %>;
   }
 <% end
 %>
@@ -68,27 +68,27 @@ public class <%= struct.ee.name %>
 
     final <%= struct.ee.name %> that = (<%= struct.ee.name %>) o;
 <% struct.fields.select{|f|!f.collection?}.each do |field| -%>
-    if ( <%= field.ee.primitive?(:boundary) ? "#{Domgen::Naming.camelize(field.name)} != that.#{Domgen::Naming.camelize(field.name)}" : "#{field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? null != that.#{Domgen::Naming.camelize(field.name)} : " : ''}!#{Domgen::Naming.camelize(field.name)}.equals( that.#{Domgen::Naming.camelize(field.name)} )" %> )
+    if ( <%= field.ee.primitive?(:boundary) ? "#{Reality::Naming.camelize(field.name)} != that.#{Reality::Naming.camelize(field.name)}" : "#{field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? null != that.#{Reality::Naming.camelize(field.name)} : " : ''}!#{Reality::Naming.camelize(field.name)}.equals( that.#{Reality::Naming.camelize(field.name)} )" %> )
     {
       return false;
     }
 <% end -%>
 <% struct.fields.select{|f|f.collection?}.each do |field| -%>
 <% if field.nullable? -%>
-    if ( (null ==  <%= Domgen::Naming.camelize(field.name) %> && null !=  that.<%= Domgen::Naming.camelize(field.name) %>) || (null !=  <%= Domgen::Naming.camelize(field.name) %> && null ==  that.<%= Domgen::Naming.camelize(field.name) %>) )
+    if ( (null ==  <%= Reality::Naming.camelize(field.name) %> && null !=  that.<%= Reality::Naming.camelize(field.name) %>) || (null !=  <%= Reality::Naming.camelize(field.name) %> && null ==  that.<%= Reality::Naming.camelize(field.name) %>) )
     {
       return false;
     }
-    else if ( null != <%= Domgen::Naming.camelize(field.name) %> )
+    else if ( null != <%= Reality::Naming.camelize(field.name) %> )
 <% end -%>
     {
-      if ( <%= Domgen::Naming.camelize(field.name) %>.size() != that.<%= Domgen::Naming.camelize(field.name) %>.size() )
+      if ( <%= Reality::Naming.camelize(field.name) %>.size() != that.<%= Reality::Naming.camelize(field.name) %>.size() )
       {
         return false;
       }
-      for ( final <%= field.ee.java_component_type %> v : <%= Domgen::Naming.camelize(field.name) %> )
+      for ( final <%= field.ee.java_component_type %> v : <%= Reality::Naming.camelize(field.name) %> )
       {
-        if ( !that.<%= Domgen::Naming.camelize(field.name) %>.contains( v ) )
+        if ( !that.<%= Reality::Naming.camelize(field.name) %>.contains( v ) )
         {
           return false;
         }
@@ -103,7 +103,7 @@ public class <%= struct.ee.name %>
   {
     int result = 0;
 <% struct.fields.each do |field| -%>
-    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Domgen::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Domgen::Naming.camelize(field.name)})" : field.long? ? "(int)(#{Domgen::Naming.camelize(field.name)})" : Domgen::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Domgen::Naming.camelize(field.name)} ? 0 : " : ''}#{Domgen::Naming.camelize(field.name)}.hashCode()" %>);
+    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Reality::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Reality::Naming.camelize(field.name)})" : field.long? ? "(int)(#{Reality::Naming.camelize(field.name)})" : Reality::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? 0 : " : ''}#{Reality::Naming.camelize(field.name)}.hashCode()" %>);
 <% end -%>
     return result;
   }

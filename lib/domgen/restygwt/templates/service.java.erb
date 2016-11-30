@@ -16,7 +16,7 @@ public interface <%= service.restygwt.service_name %>
   @javax.ws.rs.<%= method.jaxrs.http_method %>
 <%= jaxrs_produces(method.jaxrs, '  ') -%>
 <%= jaxrs_consumes(method.jaxrs, '  ') -%>
-  void <%= Domgen::Naming.camelize(method.name) %>(<%= (method.parameters.collect{|p| jaxrs_paramater(p) } + [restygwt_return_type(method)]).join(", ") %>)<%=
+  void <%= Reality::Naming.camelize(method.name) %>(<%= (method.parameters.collect{|p| jaxrs_paramater(p) } + [restygwt_return_type(method)]).join(", ") %>)<%=
     exceptions = method.exceptions.collect{|e| e.restygwt.qualified_name}
     exceptions.empty? ? "" : "\n    throws #{exceptions.join(', ')}"
 %>;

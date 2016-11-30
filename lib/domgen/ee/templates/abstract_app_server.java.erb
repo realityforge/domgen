@@ -5,7 +5,7 @@ package <%= to_package(repository.ee.qualified_abstract_app_server_name) %>;
 public abstract class <%= repository.ee.abstract_app_server_name %>
   extends org.realityforge.guiceyloops.server.glassfish.AbstractAppServer
 {
-  private static final String APP_NAME = "<%= Domgen::Naming.underscore(repository.name) %>";
+  private static final String APP_NAME = "<%= Reality::Naming.underscore(repository.name) %>";
 
   @java.lang.Override
   protected String getContextRoot()
@@ -37,7 +37,7 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( "<%= repository.jpa.resolved_data_source -%>" );
 <% end -%>
 <% repository.jpa.standalone_persistence_units.each do |unit| -%>
-    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( "<%= unit.resolved_data_source -%>", glassfish.toGlassFishPropertiesString( org.realityforge.guiceyloops.server.DatabaseUtil.getGlassFishDataSourceProperties( "<%= Domgen::Naming.underscore(unit.short_name) %>" ) ) );
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( "<%= unit.resolved_data_source -%>", glassfish.toGlassFishPropertiesString( org.realityforge.guiceyloops.server.DatabaseUtil.getGlassFishDataSourceProperties( "<%= Reality::Naming.underscore(unit.short_name) %>" ) ) );
 <% end -%>
     // Database Configuration Ende
 
@@ -46,10 +46,10 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
 
     // JMS Configuration Start
     // iiop required for JMS
-    glassfish.createLocalIiopListener( "<%= Domgen::Naming.underscore(repository.name) %>/iiop_listener" );
+    glassfish.createLocalIiopListener( "<%= Reality::Naming.underscore(repository.name) %>/iiop_listener" );
     glassfish.deleteDefaultIiopListeners();
 
-    glassfish.setDefaultJmsHost( "<%= Domgen::Naming.underscore(repository.name) %>/jms/host", getOpenMQContainer() );
+    glassfish.setDefaultJmsHost( "<%= Reality::Naming.underscore(repository.name) %>/jms/host", getOpenMQContainer() );
     glassfish.createJmsConnectionFactory( "<%= repository.jms.connection_factory_resource_name %>", getOpenMQContainer() );
 
 <%

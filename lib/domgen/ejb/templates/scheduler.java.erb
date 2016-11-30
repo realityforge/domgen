@@ -27,6 +27,6 @@ public class <%= method.ejb.scheduler_name %>
   public void processTimeout()
     throws Exception
   {
-    _service.<%= Domgen::Naming.camelize(method.name) %>();
+    _service.<%= Reality::Naming.camelize(method.name) %>();
   }
 }

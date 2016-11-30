@@ -20,7 +20,7 @@ module Domgen
       end
 
       def connection_factory_resource_name
-        @connection_factory_resource_name || "#{Domgen::Naming.underscore(repository.name)}/jms/ConnectionFactory"
+        @connection_factory_resource_name || "#{Reality::Naming.underscore(repository.name)}/jms/ConnectionFactory"
       end
 
       def additional_connection_factory_properties
@@ -32,7 +32,7 @@ module Domgen
       attr_writer :default_username
 
       def default_username
-        @default_username || Domgen::Naming.underscore(repository.name)
+        @default_username || Reality::Naming.underscore(repository.name)
       end
 
       def endpoint_methods
@@ -88,7 +88,7 @@ module Domgen
       end
 
       def resource_name
-        "#{Domgen::Naming.underscore(method.service.data_module.repository.name)}/jms/#{mdb_name}"
+        "#{Reality::Naming.underscore(method.service.data_module.repository.name)}/jms/#{mdb_name}"
       end
 
       java_artifact :mdb, :service, :server, :ee, '#{method.name}#{method.service.name}MDB', :sub_package => 'internal'
@@ -104,7 +104,7 @@ module Domgen
       end
 
       def destination_resource_name
-        @destination_resource_name || "#{Domgen::Naming.underscore(method.service.data_module.repository.name)}/jms/#{method.qualified_name.gsub('#', '.')}"
+        @destination_resource_name || "#{Reality::Naming.underscore(method.service.data_module.repository.name)}/jms/#{method.qualified_name.gsub('#', '.')}"
       end
 
       def physical_resource_name=(physical_resource_name)

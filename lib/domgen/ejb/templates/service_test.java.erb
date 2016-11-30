@@ -7,7 +7,7 @@ public abstract class <%= service.ejb.service_test_name %>
   extends <%= service.data_module.repository.ejb.qualified_base_service_test_name %>
 {
 <% service.methods.select{|m|m.ejb?}.each do |method| -%>
-  public abstract void <%= Domgen::Naming.camelize(method.name) %>()
+  public abstract void <%= Reality::Naming.camelize(method.name) %>()
     throws Exception;
 
 <% end -%>

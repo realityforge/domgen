@@ -423,7 +423,7 @@ module Domgen
       end
 
       def package_key
-        Domgen::Naming.underscore(data_module.name)
+        Reality::Naming.underscore(data_module.name)
       end
     end
 
@@ -556,7 +556,7 @@ module Domgen
       attr_writer :base_package
 
       def base_package
-        @base_package || Domgen::Naming.underscore(repository.name)
+        @base_package || Reality::Naming.underscore(repository.name)
       end
     end
 

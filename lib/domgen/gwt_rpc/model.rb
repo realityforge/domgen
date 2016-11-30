@@ -21,7 +21,7 @@ module Domgen
       attr_writer :module_name
 
       def module_name
-        @module_name || Domgen::Naming.underscore(repository.name)
+        @module_name || Reality::Naming.underscore(repository.name)
       end
 
       attr_writer :base_api_url
@@ -96,7 +96,7 @@ module Domgen
       attr_writer :api_url
 
       def api_url
-        @api_url || (data_module.name == data_module.repository.name) ? data_module.repository.gwt_rpc.api_url : "#{data_module.repository.gwt_rpc.api_url}/#{Domgen::Naming.underscore(data_module.name)}"
+        @api_url || (data_module.name == data_module.repository.name) ? data_module.repository.gwt_rpc.api_url : "#{data_module.repository.gwt_rpc.api_url}/#{Reality::Naming.underscore(data_module.name)}"
       end
 
       protected
@@ -161,7 +161,7 @@ module Domgen
 
     facet.enhance(Method) do
       def name
-        Domgen::Naming.camelize(method.name)
+        Reality::Naming.camelize(method.name)
       end
 
       attr_writer :cancelable

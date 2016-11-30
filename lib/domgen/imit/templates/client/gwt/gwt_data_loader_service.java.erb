@@ -93,7 +93,7 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
                                            @javax.annotation.Nonnull final Object entityID )
   {
     <% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
-if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
+if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
     {
       final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) rawFilter;
       assert null != filter;
@@ -105,24 +105,24 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   extra_interest_filter = ''
   if graph.instance_root?
     entity = repository.entity_by_name(graph.instance_root)
-    var_name = Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
+    var_name = Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
     extra_interest_filter = ", #{var_name}"
 -%>
       @javax.annotation.Nonnull
-      final <%= entity.primary_key.imit.non_primitive_java_type %> <%= var_name %> = (<%= entity.primary_key.imit.non_primitive_java_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY );
+      final <%= entity.primary_key.imit.non_primitive_java_type %> <%= var_name %> = (<%= entity.primary_key.imit.non_primitive_java_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY );
       assert null != <%= var_name %>;
 <% end -%>
 <%
   if graph.filtered?
     graph.routing_keys.each do |routing_key|
-      var_name = Domgen::Naming.camelize(routing_key.name)
+      var_name = Reality::Naming.camelize(routing_key.name)
       nullable = !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
       param_type = routing_key.target_attribute.imit.non_primitive_java_type
       param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
       extra_interest_filter << ", #{var_name}"
 -%>
       <%= nullability_annotation(nullable) %>
-      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <% if !nullable -%>
       assert null != <%= var_name %>;
 <% end -%>
@@ -162,7 +162,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
   protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
   {
     <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
--%>if( entry.getDescriptor().getGraph() == <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> )
+-%>if( entry.getDescriptor().getGraph() == <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> )
     {
       int removedEntities = 0;
 <% graph.included_entities.reverse.each do |entity| -%>
@@ -199,7 +199,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
                                                 @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     <% repository.imit.graphs.each do |graph|
--%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
     {
 <% if graph.instance_root? -%>
       assert null != id;
@@ -256,7 +256,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
                                                   @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph|
--%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
     {
 <% if graph.instance_root? -%>
       assert null != id;
@@ -285,7 +285,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.upperca
                                                     @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     <% repository.imit.graphs.each do |graph|
--%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> == graph )
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
     {
 <% if graph.instance_root? -%>
       assert null != id;

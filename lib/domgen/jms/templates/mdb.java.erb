@@ -98,7 +98,7 @@ public class <%= method.jms.mdb_name %>
 
         final <%= boundary_type %> parameter = <%= ((parameter.struct? || parameter.non_standard_type?) && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
 <% end -%>
-        _service.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
+        _service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
       }
       else
       {

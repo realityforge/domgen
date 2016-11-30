@@ -21,7 +21,7 @@ end
 
   public void output<%= graph.name %>Graph( final org.realityforge.replicant.client.EntityRepository repository, final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager )
   {
-    outputSubscription( repository, subscriptionManager, <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %>, new Class[]{ <%= (graph.instance_root? ? graph.reachable_entities : graph.type_roots ).collect{|e| repository.entity_by_name(e)}.collect {|entity| "#{entity.imit.qualified_name}.class"}.join(', ') -%> } );
+    outputSubscription( repository, subscriptionManager, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, new Class[]{ <%= (graph.instance_root? ? graph.reachable_entities : graph.type_roots ).collect{|e| repository.entity_by_name(e)}.collect {|entity| "#{entity.imit.qualified_name}.class"}.join(', ') -%> } );
   }
 <% end -%>
 }

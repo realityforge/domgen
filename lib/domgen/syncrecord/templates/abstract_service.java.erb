@@ -32,34 +32,34 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
 {
 <% service.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
 -%>
-  @javax.inject.Named( <%= service.data_module.repository.syncrecord.qualified_sync_record_locks_name %>.<%= Domgen::Naming.uppercase_constantize(lock_name.to_s.gsub('.','_')) %> )
+  @javax.inject.Named( <%= service.data_module.repository.syncrecord.qualified_sync_record_locks_name %>.<%= Reality::Naming.uppercase_constantize(lock_name.to_s.gsub('.','_')) %> )
   @javax.inject.Inject
-  private java.util.concurrent.locks.Lock _<%= Domgen::Naming.camelize(lock_name.to_s.gsub('.','')) %>;
+  private java.util.concurrent.locks.Lock _<%= Reality::Naming.camelize(lock_name.to_s.gsub('.','')) %>;
 <% end %>
 <% service.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
 -%>
   @javax.annotation.Nonnull
-  protected java.util.concurrent.locks.Lock get<%= Domgen::Naming.pascal_case(lock_name.to_s.gsub('.','')) %>Lock()
+  protected java.util.concurrent.locks.Lock get<%= Reality::Naming.pascal_case(lock_name.to_s.gsub('.','')) %>Lock()
   {
-    return _<%= Domgen::Naming.camelize(lock_name.to_s.gsub('.','')) %>;
+    return _<%= Reality::Naming.camelize(lock_name.to_s.gsub('.','')) %>;
   }
 <% end %>
 <% service.syncrecord.sync_methods.each do |method|
   datasource =
     method.parameters.empty? ?
-    "#{service.data_module.repository.syncrecord.qualified_datasources_name}.#{Domgen::Naming.uppercase_constantize(method.syncrecord.data_source.key)}" :
-    "#{Domgen::Naming.camelize(method.parameters[0].name)}"
+    "#{service.data_module.repository.syncrecord.qualified_datasources_name}.#{Reality::Naming.uppercase_constantize(method.syncrecord.data_source.key)}" :
+    "#{Reality::Naming.camelize(method.parameters[0].name)}"
 -%>
   @java.lang.Override
-  <%= annotated_type(method.return_value, :ejb, :default, :public => true) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
+  <%= annotated_type(method.return_value, :ejb, :default, :public => true) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)
   {
-    if ( _<%= Domgen::Naming.camelize(method.syncrecord.lock_name.to_s.gsub('.','')) %>.tryLock() )
+    if ( _<%= Reality::Naming.camelize(method.syncrecord.lock_name.to_s.gsub('.','')) %>.tryLock() )
     {
       try
       {
-        if ( isFeatureEnabled( <%= service.data_module.repository.appconfig.qualified_feature_flag_container_name %>.<%= Domgen::Naming.uppercase_constantize(method.syncrecord.feature_flag.key) %> ) )
+        if ( isFeatureEnabled( <%= service.data_module.repository.appconfig.qualified_feature_flag_container_name %>.<%= Reality::Naming.uppercase_constantize(method.syncrecord.feature_flag.key) %> ) )
         {
-          return do<%= method.name %>(<%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %>);
+          return do<%= method.name %>(<%= method.parameters.collect{|p| Reality::Naming.camelize(p.name) }.join(', ') %>);
         }
         else
         {
@@ -68,7 +68,7 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
       }
       finally
       {
-        _<%= Domgen::Naming.camelize(method.syncrecord.lock_name.to_s.gsub('.','')) %>.unlock();
+        _<%= Reality::Naming.camelize(method.syncrecord.lock_name.to_s.gsub('.','')) %>.unlock();
       }
     }
     else
@@ -77,13 +77,13 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
     }
   }
 
-  <%= annotated_type(method.return_value, :ejb, :default, :private => true) %> do<%= method.name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
+  <%= annotated_type(method.return_value, :ejb, :default, :private => true) %> do<%= method.name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)
   {
     final iris.syncrecord.server.service.SynchronizationRecorder recorder = startSynchronization( <%= datasource %> );
     prepare<%= method.name %>( recorder );
     try
     {
-      perform<%= method.name %>( recorder<%= method.parameters.size > 0 ? ', ' : '' %><%= method.parameters.collect{|p| Domgen::Naming.camelize(p.name) }.join(', ') %>);
+      perform<%= method.name %>( recorder<%= method.parameters.size > 0 ? ', ' : '' %><%= method.parameters.collect{|p| Reality::Naming.camelize(p.name) }.join(', ') %>);
     }
     catch ( final Throwable e )
     {
@@ -97,7 +97,7 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
     return toSyncStatus( recorder );
   }
 
-  protected abstract void perform<%= method.name %>( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder<%= method.parameters.size > 0 ? ', ' : '' %><%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Domgen::Naming.camelize(p.name)}" }.join(', ') %>)
+  protected abstract void perform<%= method.name %>( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder<%= method.parameters.size > 0 ? ', ' : '' %><%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)
     throws Exception;
 
   protected void prepare<%= method.name %>( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )

@@ -19,7 +19,7 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || Domgen::Naming.jsonize(#{parent_key}.name)
+        @name || Reality::Naming.jsonize(#{parent_key}.name)
       end
       RUBY
     end
@@ -36,7 +36,7 @@ module Domgen
       # Override name to strip out DTO/VO suffix
       def name
         return @name if @name
-        candidate = Domgen::Naming.jsonize(struct.name)
+        candidate = Reality::Naming.jsonize(struct.name)
         return candidate[0, candidate.size-4] if candidate =~ /_dto$/
         return candidate[0, candidate.size-3] if candidate =~ /_vo$/
         return candidate

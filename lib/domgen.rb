@@ -16,9 +16,10 @@ require 'erb'
 require 'fileutils'
 require 'logger'
 
+require 'reality/naming'
+
 require 'domgen/version'
 require 'domgen/orderedhash'
-require 'domgen/naming'
 
 # Core components
 require 'domgen/core'

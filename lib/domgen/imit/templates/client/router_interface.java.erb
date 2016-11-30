@@ -6,7 +6,7 @@ public interface <%= repository.imit.client_router_interface_name %>
 {
 <%
   repository.imit.graphs.each do |graph|
-    key = "#{Domgen::Naming.uppercase_constantize(graph.name)}_KEY"
+    key = "#{Reality::Naming.uppercase_constantize(graph.name)}_KEY"
 -%>
   String <%= key %> = "<%= repository.name %>.<%= graph.name %>";
 <% end -%>
@@ -14,7 +14,7 @@ public interface <%= repository.imit.client_router_interface_name %>
   repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
     graph.routing_keys.each do |routing_key|
 -%>
-  String <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY = "<%= repository.name %>.<%= graph.name %>.<%= routing_key.name %>";
+  String <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY = "<%= repository.name %>.<%= graph.name %>.<%= routing_key.name %>";
 <%
     end
   end

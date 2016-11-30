@@ -712,13 +712,13 @@ module Domgen
       attr_writer :executor_service_jndi
 
       def executor_service_jndi
-        @executor_service_jndi || "#{Domgen::Naming.underscore(repository.name)}/concurrent/replicant/#{Domgen::Naming.underscore(repository.name)}/ManagedScheduledExecutorService"
+        @executor_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/#{Reality::Naming.underscore(repository.name)}/ManagedScheduledExecutorService"
       end
 
       attr_writer :context_service_jndi
 
       def context_service_jndi
-        @context_service_jndi || "#{Domgen::Naming.underscore(repository.name)}/concurrent/replicant/#{Domgen::Naming.underscore(repository.name)}/ContextService"
+        @context_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/#{Reality::Naming.underscore(repository.name)}/ContextService"
       end
 
 
@@ -1033,7 +1033,7 @@ module Domgen
       attr_writer :short_test_code
 
       def short_test_code
-        @short_test_code || Domgen::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
+        @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
       end
 
       java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'

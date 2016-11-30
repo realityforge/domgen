@@ -19,7 +19,7 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || Domgen::Naming.xmlize(#{parent_key}.name)
+        @name || Reality::Naming.xmlize(#{parent_key}.name)
       end
       RUBY
     end
@@ -29,7 +29,7 @@ module Domgen
       Domgen::XML.include_xml(self, :#{parent_key})
 
       def component_name
-        Domgen::Naming.xmlize(#{parent_key}.component_name)
+        Reality::Naming.xmlize(#{parent_key}.component_name)
       end
 
       attr_writer :required
@@ -76,7 +76,7 @@ module Domgen
 
       # xml prefix
       def prefix
-        Domgen::Naming.underscore(data_module.name)
+        Reality::Naming.underscore(data_module.name)
       end
 
       def schema_name
@@ -158,7 +158,7 @@ module Domgen
       # Override name to strip out DTO/VO suffix
       def name
         return @name if @name
-        candidate = Domgen::Naming.xmlize(struct.name)
+        candidate = Reality::Naming.xmlize(struct.name)
         return candidate[0, candidate.size-4] if candidate =~ /-dto$/
         return candidate[0, candidate.size-3] if candidate =~ /-vo$/
         candidate

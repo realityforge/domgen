@@ -5,7 +5,7 @@ package <%= to_package(repository.syncrecord.qualified_datasources_name) %>;
 public final class <%= repository.syncrecord.datasources_name %>
 {
 <% repository.syncrecord.data_sources.each do |data_source| -%>
-  public static final java.lang.String <%= Domgen::Naming.uppercase_constantize(data_source.key) %> = "<%= data_source.key_value %>";
+  public static final java.lang.String <%= Reality::Naming.uppercase_constantize(data_source.key) %> = "<%= data_source.key_value %>";
 <% end -%>
 
   private <%= repository.syncrecord.datasources_name %>()

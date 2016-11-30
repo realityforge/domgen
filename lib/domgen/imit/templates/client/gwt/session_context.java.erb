@@ -10,12 +10,12 @@ public interface <%= repository.imit.gwt_client_session_context_name %>
     if graph.instance_root?
       entity = repository.entity_by_name(graph.instance_root)
       type = entity.primary_key.imit.non_primitive_java_type
-      extra_interest_filter = ", @javax.annotation.Nonnull #{type} #{Domgen::Naming.camelize("#{entity.name}#{entity.primary_key.name}")}"
+      extra_interest_filter = ", @javax.annotation.Nonnull #{type} #{Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}")}"
     end
 
     if graph.filtered?
       graph.routing_keys.each do |routing_key|
-        var_name = Domgen::Naming.camelize(routing_key.name)
+        var_name = Reality::Naming.camelize(routing_key.name)
         nullable = !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
         param_type = routing_key.target_attribute.imit.non_primitive_java_type
         param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?

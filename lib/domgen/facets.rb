@@ -251,7 +251,7 @@ module Domgen
         excluded_elements = options[:excluded_elements] || []
         extension_map = {}
 
-        module_name = ::Domgen::Naming.pascal_case(key)
+        module_name = ::Reality::Naming.pascal_case(key)
         ::Domgen::Facets.class_eval "module #{module_name}\n end"
         module_instance = ::Domgen::Facets.const_get(module_name)
 

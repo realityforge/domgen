@@ -5,12 +5,12 @@ package <%= to_package(client.qualified_abstract_application_name) %>;
 public abstract class <%= client.abstract_application_name %>
   extends <%= client.keycloak_repository.repository.gwt.qualified_abstract_application_name %>
 {
-  private static final String AUTH_TOKEN = <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME + ".auth_token";
-  private static final String REFRESH_TOKEN = <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME + ".refresh_token";
+  private static final String AUTH_TOKEN = <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Reality::Naming.uppercase_constantize(client.name) %>_NAME + ".auth_token";
+  private static final String REFRESH_TOKEN = <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Reality::Naming.uppercase_constantize(client.name) %>_NAME + ".refresh_token";
 
   protected <%= client.abstract_application_name %>()
   {
-    super( <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Domgen::Naming.uppercase_constantize(client.name) %>_NAME );
+    super( <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Reality::Naming.uppercase_constantize(client.name) %>_NAME );
     getKeycloak().getInitOptions().setToken( getSavedToken( AUTH_TOKEN ) );
     getKeycloak().getInitOptions().setRefreshToken( getSavedToken( REFRESH_TOKEN ) );
   }

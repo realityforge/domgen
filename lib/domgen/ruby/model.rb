@@ -43,7 +43,7 @@ module Domgen
 
       def filename
         fqn = qualified_name.gsub(/::/, '/')
-        Domgen::Naming.underscore(fqn[1..fqn.length])
+        Reality::Naming.underscore(fqn[1..fqn.length])
       end
 
       facet.enhance(Attribute) do

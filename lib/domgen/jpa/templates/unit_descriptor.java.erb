@@ -9,7 +9,7 @@ public final class <%= repository.jpa.unit_descriptor_name %>
   public static final String NAME = "<%= repository.jpa.unit_name %>";
 <% end -%>
 <% repository.jpa.standalone_persistence_units.each do |unit| -%>
-  public static final String <%= Domgen::Naming.uppercase_constantize(unit.short_name) %>_NAME = "<%= unit.unit_name %>";
+  public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_NAME = "<%= unit.unit_name %>";
 <% end -%>
 
   private <%= repository.jpa.unit_descriptor_name %>()

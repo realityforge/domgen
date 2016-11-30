@@ -8,13 +8,13 @@ public final class <%= repository.syncrecord.sync_record_locks_name %>
 {
 <% repository.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
 -%>
-  public static final String <%= Domgen::Naming.uppercase_constantize(lock_name.to_s.gsub('.','_')) %> = "<%= lock_name %>";
+  public static final String <%= Reality::Naming.uppercase_constantize(lock_name.to_s.gsub('.','_')) %> = "<%= lock_name %>";
 <% end %>
 <% repository.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
 -%>
-  @javax.inject.Named( <%= Domgen::Naming.uppercase_constantize(lock_name.to_s.gsub('.','_')) %> )
+  @javax.inject.Named( <%= Reality::Naming.uppercase_constantize(lock_name.to_s.gsub('.','_')) %> )
   @javax.enterprise.inject.Produces
   @javax.enterprise.context.ApplicationScoped
-  private java.util.concurrent.locks.Lock _<%= Domgen::Naming.camelize(lock_name.to_s.gsub('.','')) %> = new java.util.concurrent.locks.ReentrantLock( true );
+  private java.util.concurrent.locks.Lock _<%= Reality::Naming.camelize(lock_name.to_s.gsub('.','')) %> = new java.util.concurrent.locks.ReentrantLock( true );
 <% end %>
 }

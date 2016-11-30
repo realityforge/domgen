@@ -28,9 +28,9 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 <% data_module.repository.data_modules.select{|dm|dm.jpa? && dm.name != data_module.name}.each do |dm| -%>
 
-  protected final <%= dm.jpa.qualified_test_factory_name %> <%= Domgen::Naming.camelize(dm.name) %>()
+  protected final <%= dm.jpa.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
   {
-    return getFactorySet().<%= Domgen::Naming.camelize(dm.name) %>();
+    return getFactorySet().<%= Reality::Naming.camelize(dm.name) %>();
   }
 
 <% end -%>
@@ -38,24 +38,24 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% if entity.concrete? -%>
 <% entity.jpa.create_defaults.each do |defaults| -%>
   @javax.annotation.Nonnull
-  public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    return <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().create( <%= entity.attributes.select{|a|!a.generated_value? && a.jpa? && a.jpa.persistent?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) }.join(', ') %> );
+    return <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().create( <%= entity.attributes.select{|a|!a.generated_value? && a.jpa? && a.jpa.persistent?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Reality::Naming.camelize(a.name) }.join(', ') %> );
   }
 
 <% end -%>
 <% entity.jpa.test_create_defaults.each do |defaults| -%>
   @javax.annotation.Nonnull
-  public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    return create<%= entity.name %>( <%= entity.attributes.select{|a|!a.generated_value? && a.jpa? && a.jpa.persistent?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) }.join(', ') %> );
+    return create<%= entity.name %>( <%= entity.attributes.select{|a|!a.generated_value? && a.jpa? && a.jpa.persistent?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Reality::Naming.camelize(a.name) }.join(', ') %> );
   }
 
 <% end -%>
   @javax.annotation.Nonnull
-  public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> )
+  public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
-    return <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().create( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Domgen::Naming.camelize(a.name)}.join(', ') %> );
+    return <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().create( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
   }
 <% if entity.attributes.any?{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?} -%>
 <% entity.jpa.update_defaults.each do |defaults|
@@ -63,9 +63,9 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     non_default_attr = attr.select{|a| !defaults.has_attribute?(a.name)}
   -%>
 
-  public final void <%= defaults.factory_method_name == 'update' ? "update#{entity.name}" : defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> )
+  public final void <%= defaults.factory_method_name == 'update' ? "update#{entity.name}" : defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
-    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().update( $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| Domgen::Naming.camelize(a.name)}.join(', ') %> );
+    <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().update( $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
   }
 <% end -%>
 <% entity.jpa.test_update_defaults.each do |defaults|
@@ -73,34 +73,34 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     non_default_attr = attr.select{|a| !defaults.has_attribute?(a.name)}
   -%>
 
-  public final void <%= defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %> )
+  public final void <%= defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
 <% if defaults.force_refresh? -%>
     em().refresh( $_ );
 <% end -%>
 <% attr.each do |a| -%>
-    $_.set<%= a.name %>( <%= defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Domgen::Naming.camelize(a.name) %> );
+    $_.set<%= a.name %>( <%= defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Reality::Naming.camelize(a.name) %> );
 <% end -%>
-    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( $_ );
+    <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().persist( $_ );
   }
 <% end -%>
 
-  public final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Domgen::Naming.camelize(a.name)}"}.join(', ') %>)
+  public final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().update( $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Domgen::Naming.camelize(a.name)}.join(', ') %> );
+    <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().update( $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
   }
 <% end -%>
 
   public final void remove<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
   {
-    <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>().remove( entity );
+    <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().remove( entity );
   }
 <% end -%>
 <% end -%>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
 
   @javax.annotation.Nonnull
-  public final <%= entity.dao.jpa.qualified_dao_service_name %> <%= Domgen::Naming.camelize(entity.dao.jpa.dao_service_name) %>()
+  public final <%= entity.dao.jpa.qualified_dao_service_name %> <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>()
   {
     return s( <%= entity.dao.jpa.qualified_dao_service_name %>.class );
   }

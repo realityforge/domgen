@@ -7,20 +7,20 @@ package <%= to_package(repository.imit.qualified_test_factory_set_name) %>;
 public class <%= repository.imit.test_factory_set_name %>
 {
 <% data_modules.each do |data_module| -%>
-  private final <%= data_module.imit.qualified_test_factory_name %> _<%= Domgen::Naming.camelize(data_module.name) %>;
+  private final <%= data_module.imit.qualified_test_factory_name %> _<%= Reality::Naming.camelize(data_module.name) %>;
 <% end -%>
 
   public <%= repository.imit.test_factory_set_name %>( @javax.annotation.Nonnull final com.google.inject.Injector injector )
   {
 <% data_modules.each do |data_module| -%>
-    _<%= Domgen::Naming.camelize(data_module.name) %> = new <%=data_module.imit.qualified_test_factory_name %>( this, injector );
+    _<%= Reality::Naming.camelize(data_module.name) %> = new <%=data_module.imit.qualified_test_factory_name %>( this, injector );
 <% end -%>
   }
 <% data_modules.each do |data_module| -%>
 
-  public <%= data_module.imit.qualified_test_factory_name %> <%= Domgen::Naming.camelize(data_module.name) %>()
+  public <%= data_module.imit.qualified_test_factory_name %> <%= Reality::Naming.camelize(data_module.name) %>()
   {
-    return _<%= Domgen::Naming.camelize(data_module.name) %>;
+    return _<%= Reality::Naming.camelize(data_module.name) %>;
   }
 <% end -%>
 }

@@ -16,11 +16,11 @@ public class <%= service.jws.fake_implementation_name %>
   }
 
 <% service.methods.select{|m| m.jws?}.each do |method|
-%>  public <%= annotated_type(method.return_value, :jws, :boundary) %> <%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jws, :boundary, :final => true)} #{p.name}" }.join(', ') %>)<%=
+%>  public <%= annotated_type(method.return_value, :jws, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jws, :boundary, :final => true)} #{p.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.jws.qualified_name}.join(', ')}"
 %>
   {
-    <%= method.return_value.return_type == :void ? '' : 'return '  %>_delegate.<%= Domgen::Naming.camelize(method.name) %>(<%= method.parameters.collect {|parameter| parameter.name }.join(', ') %>);
+    <%= method.return_value.return_type == :void ? '' : 'return '  %>_delegate.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect {|parameter| parameter.name }.join(', ') %>);
   }
 
 <% end %>}

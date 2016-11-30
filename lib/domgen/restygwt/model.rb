@@ -21,7 +21,7 @@ module Domgen
       attr_writer :module_name
 
       def module_name
-        @module_name || Domgen::Naming.underscore(repository.name)
+        @module_name || Reality::Naming.underscore(repository.name)
       end
 
       def client_ioc_package

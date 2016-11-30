@@ -15,7 +15,7 @@ public class <%= client.id_token_name %>
   }-*/;
 <% client.claims.select{|claim| claim.config['claim.name'] && claim.config['id.token.claim'].to_s == 'true'}.each do |claim| -%>
 
-  public final native String get<%= Domgen::Naming.pascal_case(claim.name.to_s.gsub(' ','_')) %>() /*-{
+  public final native String get<%= Reality::Naming.pascal_case(claim.name.to_s.gsub(' ','_')) %>() /*-{
     return this.<%= claim.config['claim.name'] %>;
   }-*/;
 <% end -%>

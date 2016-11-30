@@ -35,7 +35,7 @@ module Domgen
       end
 
       def qualified_name
-        Domgen::Naming.pascal_case(name)
+        Reality::Naming.pascal_case(name)
       end
 
       attr_reader :name
@@ -50,7 +50,7 @@ module Domgen
       attr_writer :module_name
 
       def module_name
-        @module_name || Domgen::Naming.underscore(repository.name)
+        @module_name || Reality::Naming.underscore(repository.name)
       end
 
       attr_writer :client_event_package
@@ -88,7 +88,7 @@ module Domgen
       end
 
       def default_entrypoint
-        key = Domgen::Naming.underscore(repository.name.to_s)
+        key = Reality::Naming.underscore(repository.name.to_s)
         entrypoint(key) unless entrypoint_by_name?(key)
         entrypoint_by_key(key)
       end

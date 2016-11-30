@@ -10,7 +10,7 @@ public class <%= message.ee.name %>
   private static final long serialVersionUID = 1;
 
 <% message.parameters.each do |parameter| -%>
-  <%= annotated_type(parameter, :ee, :default, :private => true) %> <%= Domgen::Naming.camelize(parameter.name) %>;
+  <%= annotated_type(parameter, :ee, :default, :private => true) %> <%= Reality::Naming.camelize(parameter.name) %>;
 <% end -%>
 
 <% if message.parameters.size != 0 %>
@@ -26,16 +26,16 @@ public class <%= message.ee.name %>
   }
 <% end %>
 
-  public <%= message.name %>( <%= message.parameters.collect {|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Domgen::Naming.camelize(parameter.name)}" }.join(", ") %> )
+  public <%= message.name %>( <%= message.parameters.collect {|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Reality::Naming.camelize(parameter.name)}" }.join(", ") %> )
   {
 <% message.parameters.each do |parameter|
-     null_protection = parameter.nullable? ? "#{Domgen::Naming.camelize(parameter.name)} == null ? null : " : ""
+     null_protection = parameter.nullable? ? "#{Reality::Naming.camelize(parameter.name)} == null ? null : " : ""
      if :sequence == parameter.collection_type
-%>    this.<%= Domgen::Naming.camelize(parameter.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.ee.java_component_type %>>( <%= Domgen::Naming.camelize(parameter.name) %> ) );
+%>    this.<%= Reality::Naming.camelize(parameter.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.ee.java_component_type %>>( <%= Reality::Naming.camelize(parameter.name) %> ) );
 <%     elsif :set == parameter.collection_type
-%>    this.<%= Domgen::Naming.camelize(parameter.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= parameter.ee.java_component_type %>>( <%= Domgen::Naming.camelize(parameter.name) %> ) );
+%>    this.<%= Reality::Naming.camelize(parameter.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= parameter.ee.java_component_type %>>( <%= Reality::Naming.camelize(parameter.name) %> ) );
   <%     else
-%>    this.<%= Domgen::Naming.camelize(parameter.name) %> = <%= Domgen::Naming.camelize(parameter.name) %>;
+%>    this.<%= Reality::Naming.camelize(parameter.name) %> = <%= Reality::Naming.camelize(parameter.name) %>;
 <%   end
    end
 %>  }
@@ -43,7 +43,7 @@ public class <%= message.ee.name %>
 %>
   <%= annotated_type(parameter, :ee, :default, :public => true, :final => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
   {
-    return <%= Domgen::Naming.camelize(parameter.name) %>;
+    return <%= Reality::Naming.camelize(parameter.name) %>;
   }
 <% end
 %>
@@ -62,27 +62,27 @@ public class <%= message.ee.name %>
 
     final <%= message.ee.name %> that = (<%= message.ee.name %>) o;
 <% message.parameters.select{|f|!f.collection?}.each do |parameter| -%>
-    if ( <%= parameter.ee.primitive?(:default) ? "#{Domgen::Naming.camelize(parameter.name)} != that.#{Domgen::Naming.camelize(parameter.name)}" : "#{parameter.nullable? ? "null == #{Domgen::Naming.camelize(parameter.name)} ? null != that.#{Domgen::Naming.camelize(parameter.name)} : " : ''}!#{Domgen::Naming.camelize(parameter.name)}.equals( that.#{Domgen::Naming.camelize(parameter.name)} )" %> )
+    if ( <%= parameter.ee.primitive?(:default) ? "#{Reality::Naming.camelize(parameter.name)} != that.#{Reality::Naming.camelize(parameter.name)}" : "#{parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? null != that.#{Reality::Naming.camelize(parameter.name)} : " : ''}!#{Reality::Naming.camelize(parameter.name)}.equals( that.#{Reality::Naming.camelize(parameter.name)} )" %> )
     {
       return false;
     }
 <% end -%>
 <% message.parameters.select{|f|f.collection?}.each do |parameter| -%>
 <% if parameter.nullable? -%>
-    if ( (null ==  <%= Domgen::Naming.camelize(parameter.name) %> && null !=  that.<%= Domgen::Naming.camelize(parameter.name) %>) || (null !=  <%= Domgen::Naming.camelize(parameter.name) %> && null ==  that.<%= Domgen::Naming.camelize(parameter.name) %>) )
+    if ( (null ==  <%= Reality::Naming.camelize(parameter.name) %> && null !=  that.<%= Reality::Naming.camelize(parameter.name) %>) || (null !=  <%= Reality::Naming.camelize(parameter.name) %> && null ==  that.<%= Reality::Naming.camelize(parameter.name) %>) )
     {
       return false;
     }
-    else if ( null != <%= Domgen::Naming.camelize(parameter.name) %> )
+    else if ( null != <%= Reality::Naming.camelize(parameter.name) %> )
 <% end -%>
     {
-      if ( <%= Domgen::Naming.camelize(parameter.name) %>.size() != that.<%= Domgen::Naming.camelize(parameter.name) %>.size() )
+      if ( <%= Reality::Naming.camelize(parameter.name) %>.size() != that.<%= Reality::Naming.camelize(parameter.name) %>.size() )
       {
         return false;
       }
-      for ( final <%= parameter.ee.java_component_type %> v : <%= Domgen::Naming.camelize(parameter.name) %> )
+      for ( final <%= parameter.ee.java_component_type %> v : <%= Reality::Naming.camelize(parameter.name) %> )
       {
-        if ( !that.<%= Domgen::Naming.camelize(parameter.name) %>.contains( v ) )
+        if ( !that.<%= Reality::Naming.camelize(parameter.name) %>.contains( v ) )
         {
           return false;
         }
@@ -97,7 +97,7 @@ public class <%= message.ee.name %>
   {
     int result = 0;
 <% message.parameters.each do |parameter| -%>
-    result = 31 * result + (<%= parameter.ee.primitive?(:default) ? (parameter.boolean? ? "#{Domgen::Naming.camelize(parameter.name)} ? 1 : 0": parameter.real? ? "Float.floatToIntBits(#{Domgen::Naming.camelize(parameter.name)})" : parameter.long? ? "(int)(#{Domgen::Naming.camelize(parameter.name)})" : Domgen::Naming.camelize(parameter.name)) : "#{parameter.nullable? ? "null == #{Domgen::Naming.camelize(parameter.name)} ? 0 : " : ''}#{Domgen::Naming.camelize(parameter.name)}.hashCode()" %>);
+    result = 31 * result + (<%= parameter.ee.primitive?(:default) ? (parameter.boolean? ? "#{Reality::Naming.camelize(parameter.name)} ? 1 : 0": parameter.real? ? "Float.floatToIntBits(#{Reality::Naming.camelize(parameter.name)})" : parameter.long? ? "(int)(#{Reality::Naming.camelize(parameter.name)})" : Reality::Naming.camelize(parameter.name)) : "#{parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? 0 : " : ''}#{Reality::Naming.camelize(parameter.name)}.hashCode()" %>);
 <% end -%>
     return result;
   }

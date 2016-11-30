@@ -301,7 +301,7 @@ module Domgen
         unless @template
           Domgen.error("Unable to locate file #{template_filename} for template #{name}") unless File.exist?(template_filename)
 
-          template_name = Domgen::Naming.pascal_case(template_filename.gsub(/.*\/([^\/]+)\/templates\/(.+)\.rb$/, '\1_\2').gsub('.', '_').gsub('/', '_'))
+          template_name = Reality::Naming.pascal_case(template_filename.gsub(/.*\/([^\/]+)\/templates\/(.+)\.rb$/, '\1_\2').gsub('.', '_').gsub('/', '_'))
 
           ::Domgen::TemplateSet.class_eval "module #{template_name}\n end"
           template = ::Domgen::TemplateSet.const_get(template_name)

@@ -10,7 +10,7 @@ public class <%= repository.imit.router_impl_name %>
 {
 <%
   repository.imit.graphs.each do |graph|
-    key = "#{Domgen::Naming.uppercase_constantize(graph.name)}_KEY"
+    key = "#{Reality::Naming.uppercase_constantize(graph.name)}_KEY"
 -%>
   public static final String <%= key %> = "<%= repository.name %>.<%= graph.name %>";
 <% end -%>
@@ -18,7 +18,7 @@ public class <%= repository.imit.router_impl_name %>
   repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
     graph.routing_keys.each do |routing_key|
 -%>
-  public static final String <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY = "<%= repository.name %>.<%= graph.name %>.<%= routing_key.name %>";
+  public static final String <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY = "<%= repository.name %>.<%= graph.name %>.<%= routing_key.name %>";
 <%
     end
   end
@@ -31,15 +31,15 @@ public class <%= repository.imit.router_impl_name %>
   private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, final <%= routing_key.target_attribute.jpa.non_primitive_java_type %> value )
   {
 <% if routing_key.multivalued? -%>
-    java.util.ArrayList<<%= routing_key.target_attribute.jpa.non_primitive_java_type %>> keys = (java.util.ArrayList<<%= routing_key.target_attribute.jpa.non_primitive_java_type %>>) map.get( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+    java.util.ArrayList<<%= routing_key.target_attribute.jpa.non_primitive_java_type %>> keys = (java.util.ArrayList<<%= routing_key.target_attribute.jpa.non_primitive_java_type %>>) map.get( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
     if( null == keys )
     {
       keys = new java.util.ArrayList<<%= routing_key.target_attribute.jpa.non_primitive_java_type %>>();
-      map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, keys );
+      map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, keys );
     }
     keys.add( value );
 <% else -%>
-    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_<%= Domgen::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
+    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
 <% end -%>
   }
 <%
@@ -135,7 +135,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
-    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
+    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif graph.instance_root? -%>
 <% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
@@ -151,7 +151,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
 <% else -%>
-    map.put( <%= Domgen::Naming.uppercase_constantize(graph.name) %>_KEY, Boolean.TRUE );
+    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY, Boolean.TRUE );
 <% end -%>
   }
 <% end -%>

@@ -30,7 +30,7 @@ module Domgen
       attr_writer :resource_name
 
       def resource_name
-        @resource_name || "#{Domgen::Naming.underscore(repository.name)}/mail/session"
+        @resource_name || "#{Reality::Naming.underscore(repository.name)}/mail/session"
       end
 
       attr_writer :persist_on_send

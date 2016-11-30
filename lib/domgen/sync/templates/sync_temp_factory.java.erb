@@ -83,12 +83,12 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
     if a.reference?
       sa = entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID")
-      attr_name = Domgen::Naming.camelize(sa.name)
+      attr_name = Reality::Naming.camelize(sa.name)
       attrs << attr_name
       "#{nullability_annotation(sa.nullable?)} final java.lang.String #{attr_name}"
     else
       sa = entity.sync.sync_temp_entity.attribute_by_name(a.name)
-      attr_name = Domgen::Naming.camelize(sa.name)
+      attr_name = Reality::Naming.camelize(sa.name)
       attrs << attr_name
       "#{annotated_type(a, :jpa, :transport, :final => true)} #{attr_name}"
     end
@@ -105,10 +105,10 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
     if a.reference?
       sa = entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID")
-      "#{nullability_annotation(sa.nullable?)} final java.lang.String #{Domgen::Naming.camelize(sa.name)}"
+      "#{nullability_annotation(sa.nullable?)} final java.lang.String #{Reality::Naming.camelize(sa.name)}"
     else
       sa = entity.sync.sync_temp_entity.attribute_by_name(a.name)
-      "#{annotated_type(a, :jpa, :transport, :final => true)} #{Domgen::Naming.camelize(sa.name)}"
+      "#{annotated_type(a, :jpa, :transport, :final => true)} #{Reality::Naming.camelize(sa.name)}"
     end
   end.join(', ')
 %> )
@@ -120,7 +120,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
       setParameter( 2, mappingKey ).
       setParameter( 3, mappingID ).
 <% entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.each_with_index do |a, i| -%>
-      setParameter( <%= i + 4 %>, <%= Domgen::Naming.camelize((a.reference? ? entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID") : entity.sync.sync_temp_entity.attribute_by_name(a.name)).name) %> ).
+      setParameter( <%= i + 4 %>, <%= Reality::Naming.camelize((a.reference? ? entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID") : entity.sync.sync_temp_entity.attribute_by_name(a.name)).name) %> ).
 <% end -%>
       executeUpdate();
   }

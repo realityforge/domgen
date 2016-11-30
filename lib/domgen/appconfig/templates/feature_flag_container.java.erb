@@ -5,7 +5,7 @@ package <%= to_package(repository.appconfig.qualified_feature_flag_container_nam
 public final class <%= repository.appconfig.feature_flag_container_name %>
 {
 <% repository.appconfig.feature_flags.each do |feature_flag| -%>
-  public static final java.lang.String <%= Domgen::Naming.uppercase_constantize(feature_flag.key) %> = "<%= feature_flag.key_value %>";
+  public static final java.lang.String <%= Reality::Naming.uppercase_constantize(feature_flag.key) %> = "<%= feature_flag.key_value %>";
 <% end -%>
 
   private <%= repository.appconfig.feature_flag_container_name %>()

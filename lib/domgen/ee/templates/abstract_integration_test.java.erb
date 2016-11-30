@@ -49,7 +49,7 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
 
   protected java.lang.String[] getFeatureFlagsToDisable()
   {
-    return new java.lang.String[] {<%= repository.appconfig.feature_flags.select{|f|f.disable_in_integration_test?}.collect{|f| "#{repository.appconfig.qualified_feature_flag_container_name}.#{Domgen::Naming.uppercase_constantize(f.key)}"}.join(', ') -%>} ;
+    return new java.lang.String[] {<%= repository.appconfig.feature_flags.select{|f|f.disable_in_integration_test?}.collect{|f| "#{repository.appconfig.qualified_feature_flag_container_name}.#{Reality::Naming.uppercase_constantize(f.key)}"}.join(', ') -%>} ;
   }
 
   @java.lang.Override
