@@ -66,7 +66,7 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Reality::Naming.pluralize(Reality::Naming.camelize(attribute.inverse.name))};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
           s << "  private #{attribute.entity.jpa.qualified_name} #{Reality::Naming.camelize(attribute.inverse.name)};\n"
         end
