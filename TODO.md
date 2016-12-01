@@ -29,6 +29,7 @@
 * Change struct method in domgen to derive name from type and allow override of name, thus eliminating need
   for the first parameter in most cases.
 * Rename messages in domgen to events as that is more reflective of actual intent. (i.e. Application internal signalling).
+* Remove BaseTaggableElement and move tags to being attributes inside mssql facet to reflect that their only use is extended attributes.
 
 ### Services
 
