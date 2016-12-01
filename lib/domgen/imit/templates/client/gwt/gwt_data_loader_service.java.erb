@@ -229,7 +229,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
                 public void run()
                 {
                   perform( next );
-                  getEventBus().fireEvent( new iris.planner.client.event.MetaDataSubscribeCompletedEvent() );
+                  getEventBus().fireEvent( new <%= graph.subscribe_completed_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
                 }
               } );
               cacheAction.run();
