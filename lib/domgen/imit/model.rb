@@ -824,7 +824,7 @@ module Domgen
                     }
                   options[:referenced_entity] = routing_key.target_attribute.referenced_entity if routing_key.target_attribute.reference?
                   options[:referenced_struct] = routing_key.target_attribute.referenced_struct if routing_key.target_attribute.struct?
-                  m.parameter(routing_key.name,
+                  m.parameter(routing_key.name.gsub('_',''),
                               routing_key.target_attribute.attribute_type,
                               options)
                 end
