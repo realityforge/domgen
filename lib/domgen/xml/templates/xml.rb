@@ -26,7 +26,7 @@ module Domgen
         attr_reader :doc
 
         def visit_repository(repository)
-          doc.tag!("repository", :name => repository.name) do
+          doc.tag!('repository', :name => repository.name) do
             add_tags(repository)
             repository.data_modules.each do |data_module|
               visit_data_module(data_module)
@@ -35,7 +35,7 @@ module Domgen
         end
 
         def visit_data_module(data_module)
-          doc.tag!("data-module", :name => data_module.name) do
+          doc.tag!('data-module', :name => data_module.name) do
             add_tags(data_module)
             data_module.entities.each do |entity|
               visit_entity(entity)
@@ -44,7 +44,7 @@ module Domgen
         end
 
         def visit_entity(entity)
-          doc.tag!("entity", collect_attributes(entity, %w(name qualified_name))) do
+          doc.tag!('entity', collect_attributes(entity, %w(name qualified_name))) do
             add_tags(entity)
 
             tag_each(entity, :attributes) do |attribute|
@@ -62,9 +62,9 @@ module Domgen
             end
 
             tag_each(entity, :dependency_constraints) do |constraint|
-              doc.tag!("dependency-constraint") do
+              doc.tag!('dependency-constraint') do
                 attribute_ref(entity, constraint.attribute_name)
-                doc.tag!("dependent-attributes") do
+                doc.tag!('dependent-attributes') do
                   constraint.dependent_attribute_names.each do |name|
                     attribute_ref(entity, name)
                   end
@@ -73,15 +73,15 @@ module Domgen
             end
 
             tag_each(entity, :cycle_constraints) do |constraint|
-              doc.tag!("cycle-constraint") do
+              doc.tag!('cycle-constraint') do
                 attribute_ref(entity, constraint.attribute_name)
-                doc.tag!("path") do
+                doc.tag!('path') do
                   constraint.attribute_name_path.reduce entity do |path_entity, attribute_name|
                     attribute_ref(path_entity, attribute_name)
                     path_entity.attribute_by_name(attribute_name).referenced_entity
                   end
                 end
-                doc.tag!("scoping-attribute") do
+                doc.tag!('scoping-attribute') do
                   attribute_ref(entity, constraint.scoping_attribute)
                 end
               end
@@ -95,7 +95,7 @@ module Domgen
           attribute_names = %w(abstract? override? reference? set_once? generated_value?
                            enumeration? primary_key? allow_blank? unique? nullable? immutable?
                            updatable? allow_blank? qualified_name length min_length name)
-          doc.attribute({"entity" => attribute.entity.qualified_name},
+          doc.attribute({'entity' => attribute.entity.qualified_name},
                         collect_attributes(attribute, attribute_names)) do
             add_tags(attribute)
 
@@ -108,11 +108,11 @@ module Domgen
             end
 
             if attribute.reference?
-              doc.reference("referenced-entity" => attribute.referenced_entity.qualified_name,
-                            "polymorphic" => attribute.polymorphic?.to_s,
-                            "inverse-multiplicity" => attribute.inverse.multiplicity.to_s,
-                            "inverse-traversable" => attribute.inverse.traversable?.to_s,
-                            "inverse-relationship" => attribute.inverse.name.to_s)
+              doc.reference('referenced-entity' => attribute.referenced_entity.qualified_name,
+                            'polymorphic' => attribute.polymorphic?.to_s,
+                            'inverse-multiplicity' => attribute.inverse.multiplicity.to_s,
+                            'inverse-traversable' => attribute.inverse.traversable?.to_s,
+                            'inverse-relationship' => attribute.inverse.name.to_s)
             end
 
             attributes = collect_attributes(attribute.sql, %w(column_name identity? sparse? calculation))
@@ -127,11 +127,11 @@ module Domgen
           doc.table(collect_attributes(table, table_attributes)) do
             constraint_attributes = %w(name constraint_name qualified_constraint_name invariant?)
             tag_each(table, :constraints) do |constraint|
-              doc.tag!("sql-constraint", collect_attributes(constraint, constraint_attributes))
+              doc.tag!('sql-constraint', collect_attributes(constraint, constraint_attributes))
             end
 
             tag_each(table, :function_constraints) do |constraint|
-              doc.tag!("function-constraint",
+              doc.tag!('function-constraint',
                        collect_attributes(constraint, constraint_attributes)) do
                 tag_each(constraint, :parameters) do |parameter|
                   doc.parameter(:name => parameter)
@@ -149,7 +149,7 @@ module Domgen
                   doc.after(:condition => after)
                 end
                 tag_each(trigger, :instead_of) do |instead_of|
-                  doc.tag!("instead-of", :condition => instead_of)
+                  doc.tag!('instead-of', :condition => instead_of)
                 end
               end
             end
@@ -169,8 +169,8 @@ module Domgen
 
             key_attributes = %w(name constraint_name)
             tag_each(table, :foreign_keys) do |key|
-              doc.tag!("foreign-key", {:table => table.table_name}, collect_attributes(key, key_attributes)) do
-                doc.tag!("referencing-columns") do
+              doc.tag!('foreign-key', {:table => table.table_name}, collect_attributes(key, key_attributes)) do
+                doc.tag!('referencing-columns') do
                   key.attribute_names.zip(key.referenced_attribute_names) do |attribute, referenced|
                     doc.column(:from => attribute, :to => referenced)
                   end
@@ -183,7 +183,7 @@ module Domgen
 
         def add_tags(item)
           unless item.tags.empty?
-            doc.tag!("tags") do
+            doc.tag!('tags') do
               item.tags.each_pair do |key, value|
                 doc.tag!(key) do |v|
                   if [:Description].include?(key)
@@ -233,7 +233,7 @@ module Domgen
 
         ENTITY_EXPANDSION_MAP =
           {
-            "ldquo" => "#8220",
+            'ldquo' => '#8220',
           }
       end
     end
