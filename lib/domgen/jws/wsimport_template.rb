@@ -28,9 +28,9 @@ module Domgen
 
       protected
 
-      def generate!(target_basedir, element_type, element, unprocessed_files)
+      def generate!(target_basedir, element, unprocessed_files)
         object_name = name_for_element(element)
-        render_context = create_context(element_type, element)
+        render_context = create_context(element)
         context_binding = render_context.context_binding
         begin
           output_package = eval("\"#{self.output_package_pattern}\"", context_binding, "#{self.template_key}#Filename")
@@ -38,7 +38,7 @@ module Domgen
           FileUtils.mkdir_p base_dir
 
           wsdl_filename = "#{target_basedir}/main/resources/META-INF/wsdl/#{element.jws.wsdl_name}"
-          raise Reality::Generators::GeneratorError.new("Missing wsdl #{wsdl_filename} generating #{self.name} for #{element_type} #{object_name}") unless File.exist?(wsdl_filename)
+          raise Reality::Generators::GeneratorError.new("Missing wsdl #{wsdl_filename} generating #{self.name} for #{self.target} #{object_name}") unless File.exist?(wsdl_filename)
 
           digest = Digest::MD5.hexdigest(IO.read(wsdl_filename))
           output_dir = "#{base_dir}/#{output_package.gsub('.', '/')}"
@@ -48,16 +48,16 @@ module Domgen
 
           FileUtils.mkdir_p File.dirname(digest_filename) unless File.directory?(File.dirname(digest_filename))
           if File.exist?(digest_filename) && IO.read(digest_filename) == digest
-            Logger.debug "Skipped generation of #{self.name} for #{element_type} #{object_name} to #{output_package} as no changes to wsdl"
+            Logger.debug "Skipped generation of #{self.name} for #{self.target} #{object_name} to #{output_package} as no changes to wsdl"
           else
             target_version = '7' == element.data_module.repository.ee.version ? '2.2' : '2.1'
             wsdl2java(base_dir, element.jws.web_service_name, output_package, target_version, wsdl_filename, element.jws.system_id)
 
             File.open(digest_filename, 'w') { |f| f.write(digest) }
-            Logger.debug "Generated #{self.name} for #{element_type} #{object_name} to #{output_package}"
+            Logger.debug "Generated #{self.name} for #{self.target} #{object_name} to #{output_package}"
           end
         rescue => e
-          raise Reality::Generators::GeneratorError.new("Error generating #{self.name} for #{element_type} #{object_name}", e)
+          raise Reality::Generators::GeneratorError.new("Error generating #{self.name} for #{self.target} #{object_name}", e)
         end
       end
 
