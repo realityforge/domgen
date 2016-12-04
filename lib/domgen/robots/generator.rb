@@ -23,10 +23,10 @@ module Domgen
 end
 
 Domgen.template_set(:robots) do |template_set|
-  template_set.template(Domgen::Generator::Robots::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::Robots::TEMPLATE_DIRECTORY}/robots.txt.erb",
-                        'main/webapp/robots.txt',
-                        Domgen::Generator::Robots::HELPERS,
-                        :guard => 'repository.robots.generate_robots?')
+  template_set.erb_template(Domgen::Generator::Robots::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::Robots::TEMPLATE_DIRECTORY}/robots.txt.erb",
+                            'main/webapp/robots.txt',
+                            Domgen::Generator::Robots::HELPERS,
+                            :guard => 'repository.robots.generate_robots?')
 end

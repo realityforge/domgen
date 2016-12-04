@@ -193,6 +193,7 @@ module Domgen
       namespace self.namespace_key do
         t = task self.key => ["#{self.namespace_key}:load"] do
           old_level = Domgen::Logger.level
+          old_generators_level = Reality::Generators::Logger.level
           begin
             unprocessed_files = FileList["#{self.target_dir}/**/{*.*,*}"].uniq
 
@@ -212,6 +213,7 @@ module Domgen
             end
 
             Domgen::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
+            Reality::Generators::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
             Logger.info "Generator started: Generating #{self.generator_keys.inspect}"
             Domgen::Generator.generate(repository,
                                        self.target_dir,
@@ -229,7 +231,7 @@ module Domgen
                 FileUtils.rm_f file
               end
             end
-          rescue Domgen::Generator::GeneratorError => e
+          rescue Reality::Generators::GeneratorError => e
             puts e.message
             if e.cause
               puts e.cause.class.name.to_s
@@ -238,6 +240,7 @@ module Domgen
             raise e.message
           ensure
             Domgen::Logger.level = old_level
+            Reality::Generators::Logger.level = old_generators_level
           end
         end
         @task_name = t.name
@@ -275,8 +278,10 @@ module Domgen
         desc self.description
         task :load => [:preload, self.filename] do
           old_level = Domgen::Logger.level
+          old_generators_level = Reality::Generators::Logger.level
           begin
             Domgen::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
+            Reality::Generators::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
             Domgen.current_filename = self.filename
             require self.filename
           rescue Exception => e
@@ -287,6 +292,7 @@ module Domgen
           ensure
             Domgen.current_filename = nil
             Domgen::Logger.level = old_level
+            Reality::Generators::Logger.level = old_generators_level
           end
           task("#{self.namespace_key}:postload").invoke
         end

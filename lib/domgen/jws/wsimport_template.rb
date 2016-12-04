@@ -14,7 +14,7 @@
 
 module Domgen
   module JWS
-    class WsimportTemplate < Domgen::Generator::Template
+    class WsimportTemplate < Reality::Generators::Template
       attr_reader :output_package_pattern
 
       def initialize(template_set, facets, target, template_key, output_package_pattern, helpers, options = {})
@@ -38,7 +38,7 @@ module Domgen
           FileUtils.mkdir_p base_dir
 
           wsdl_filename = "#{target_basedir}/main/resources/META-INF/wsdl/#{element.jws.wsdl_name}"
-          raise Domgen::Generator::GeneratorError.new("Missing wsdl #{wsdl_filename} generating #{self.name} for #{element_type} #{object_name}") unless File.exist?(wsdl_filename)
+          raise Reality::Generators::GeneratorError.new("Missing wsdl #{wsdl_filename} generating #{self.name} for #{element_type} #{object_name}") unless File.exist?(wsdl_filename)
 
           digest = Digest::MD5.hexdigest(IO.read(wsdl_filename))
           output_dir = "#{base_dir}/#{output_package.gsub('.', '/')}"
@@ -57,7 +57,7 @@ module Domgen
             Logger.debug "Generated #{self.name} for #{element_type} #{object_name} to #{output_package}"
           end
         rescue => e
-          raise Domgen::Generator::GeneratorError.new("Error generating #{self.name} for #{element_type} #{object_name}", e)
+          raise Reality::Generators::GeneratorError.new("Error generating #{self.name} for #{element_type} #{object_name}", e)
         end
       end
 

@@ -23,19 +23,19 @@ module Domgen
 end
 
 Domgen.template_set(:jackson_date_util) do |template_set|
-  template_set.template(Domgen::Generator::Jackson::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::Jackson::TEMPLATE_DIRECTORY}/date_util.java.erb",
-                        'main/java/#{repository.jackson.qualified_date_util_name.gsub(".","/")}.java',
-                        Domgen::Generator::Jackson::HELPERS)
+  template_set.erb_template(Domgen::Generator::Jackson::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::Jackson::TEMPLATE_DIRECTORY}/date_util.java.erb",
+                            'main/java/#{repository.jackson.qualified_date_util_name.gsub(".","/")}.java',
+                            Domgen::Generator::Jackson::HELPERS)
 end
 
 Domgen.template_set(:jackson_marshalling_tests) do |template_set|
-  template_set.template(Domgen::Generator::Jackson::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::Jackson::TEMPLATE_DIRECTORY}/marshalling_test.java.erb",
-                        'test/java/#{repository.jackson.qualified_marshalling_test_name.gsub(".","/")}.java',
-                        Domgen::Generator::Jackson::HELPERS)
+  template_set.erb_template(Domgen::Generator::Jackson::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::Jackson::TEMPLATE_DIRECTORY}/marshalling_test.java.erb",
+                            'test/java/#{repository.jackson.qualified_marshalling_test_name.gsub(".","/")}.java',
+                            Domgen::Generator::Jackson::HELPERS)
 end
 
 Domgen.template_set(:jackson => [:jackson_date_util, :jackson_marshalling_tests])

@@ -22,74 +22,74 @@ module Domgen
   end
 end
 Domgen.template_set(:gwt_rpc_shared_service) do |template_set|
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :service,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_service.java.erb",
-                        'main/java/#{service.gwt_rpc.qualified_rpc_service_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :service,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/async_rpc_service.java.erb",
-                        'main/java/#{service.gwt_rpc.qualified_async_rpc_service_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :exception,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/exception.java.erb",
-                        'main/java/#{exception.gwt_rpc.qualified_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :service,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_service.java.erb",
+                            'main/java/#{service.gwt_rpc.qualified_rpc_service_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS)
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :service,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/async_rpc_service.java.erb",
+                            'main/java/#{service.gwt_rpc.qualified_async_rpc_service_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS)
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :exception,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/exception.java.erb",
+                            'main/java/#{exception.gwt_rpc.qualified_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS)
 end
 
 Domgen.template_set(:gwt_rpc_client_service) do |template_set|
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_request_builder.java.erb",
-                        'main/java/#{repository.gwt_rpc.qualified_rpc_request_builder_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS,
-                        :guard => 'repository.imit?')
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/keycloak_rpc_request_builder.java.erb",
-                        'main/java/#{repository.gwt_rpc.qualified_keycloak_rpc_request_builder_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS,
-                        :guard => 'repository.keycloak? && repository.gwt_rpc.secure_services?')
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_services_module.java.erb",
-                        'main/java/#{repository.gwt_rpc.qualified_rpc_services_module_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :service,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/facade_service.java.erb",
-                        'main/java/#{service.gwt_rpc.qualified_facade_service_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :service,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/proxy.java.erb",
-                        'main/java/#{service.gwt_rpc.qualified_proxy_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_request_builder.java.erb",
+                            'main/java/#{repository.gwt_rpc.qualified_rpc_request_builder_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS,
+                            :guard => 'repository.imit?')
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/keycloak_rpc_request_builder.java.erb",
+                            'main/java/#{repository.gwt_rpc.qualified_keycloak_rpc_request_builder_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS,
+                            :guard => 'repository.keycloak? && repository.gwt_rpc.secure_services?')
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/rpc_services_module.java.erb",
+                            'main/java/#{repository.gwt_rpc.qualified_rpc_services_module_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS)
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :service,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/facade_service.java.erb",
+                            'main/java/#{service.gwt_rpc.qualified_facade_service_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS)
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :service,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/proxy.java.erb",
+                            'main/java/#{service.gwt_rpc.qualified_proxy_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS)
 end
 Domgen.template_set(:gwt_rpc_test_module) do |template_set|
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/mock_services_module.java.erb",
-                        'test/java/#{repository.gwt_rpc.qualified_mock_services_module_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/mock_services_module.java.erb",
+                            'test/java/#{repository.gwt_rpc.qualified_mock_services_module_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS)
 end
 
 Domgen.template_set(:gwt_rpc_module) do |template_set|
-  template_set.template(Domgen::Generator::GwtRpc::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/mock_services_module.java.erb",
-                        'main/java/#{repository.gwt_rpc.qualified_mock_services_module_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/mock_services_module.java.erb",
+                            'main/java/#{repository.gwt_rpc.qualified_mock_services_module_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS)
 end
 
 Domgen.template_set(:gwt_rpc_server_service) do |template_set|
-  template_set.template(Domgen::Generator::GwtRpc::FACETS + [:ejb],
-                        :service,
-                        "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/servlet.java.erb",
-                        'main/java/#{service.gwt_rpc.qualified_servlet_name.gsub(".","/")}.java',
-                        Domgen::Generator::GwtRpc::HELPERS)
+  template_set.erb_template(Domgen::Generator::GwtRpc::FACETS + [:ejb],
+                            :service,
+                            "#{Domgen::Generator::GwtRpc::TEMPLATE_DIRECTORY}/servlet.java.erb",
+                            'main/java/#{service.gwt_rpc.qualified_servlet_name.gsub(".","/")}.java',
+                            Domgen::Generator::GwtRpc::HELPERS)
 end
 
 Domgen.template_set(:gwt_rpc_shared => [:gwt_rpc_shared_service])

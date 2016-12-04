@@ -396,7 +396,7 @@ module Domgen
         client_map.values
       end
 
-      TargetManager.register_target('keycloak.client', :repository, :keycloak, :clients)
+      Domgen.target_manager.target(:client, :repository, :facet_key => :keycloak)
 
       def pre_verify
         clients.each do |client|

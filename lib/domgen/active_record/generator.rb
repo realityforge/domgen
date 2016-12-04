@@ -21,9 +21,9 @@ module Domgen
   end
 end
 Domgen.template_set(:active_record) do |template_set|
-  template_set.template(Domgen::Generator::ActiveRecord::FACETS,
-                        :entity,
-                        "#{Domgen::Generator::ActiveRecord::TEMPLATE_DIRECTORY}/entity.rb.erb",
-                        'main/ruby/#{entity.ruby.filename}.rb',
-                        [Domgen::Ruby::Helper])
+  template_set.erb_template(Domgen::Generator::ActiveRecord::FACETS,
+                            :entity,
+                            "#{Domgen::Generator::ActiveRecord::TEMPLATE_DIRECTORY}/entity.rb.erb",
+                            'main/ruby/#{entity.ruby.filename}.rb',
+                            [Domgen::Ruby::Helper])
 end

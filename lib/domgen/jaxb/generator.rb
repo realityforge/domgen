@@ -23,9 +23,9 @@ module Domgen
 end
 
 Domgen.template_set(:jaxb_marshalling_tests) do |template_set|
-  template_set.template(Domgen::Generator::JAXB::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::JAXB::TEMPLATE_DIRECTORY}/marshalling_test.java.erb",
-                        'test/java/#{repository.jaxb.qualified_marshalling_test_name.gsub(".","/")}.java',
-                        Domgen::Generator::JAXB::HELPERS)
+  template_set.erb_template(Domgen::Generator::JAXB::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::JAXB::TEMPLATE_DIRECTORY}/marshalling_test.java.erb",
+                            'test/java/#{repository.jaxb.qualified_marshalling_test_name.gsub(".","/")}.java',
+                            Domgen::Generator::JAXB::HELPERS)
 end

@@ -22,9 +22,9 @@ module Domgen
   end
 end
 Domgen.template_set(:jmx) do |template_set|
-  template_set.template(Domgen::Generator::JMX::FACETS,
-                        :service,
-                        "#{Domgen::Generator::JMX::TEMPLATE_DIRECTORY}/service.java.erb",
-                        'main/java/#{service.jmx.qualified_service_name.gsub(".","/")}.java',
-                        Domgen::Generator::JMX::HELPERS)
+  template_set.erb_template(Domgen::Generator::JMX::FACETS,
+                            :service,
+                            "#{Domgen::Generator::JMX::TEMPLATE_DIRECTORY}/service.java.erb",
+                            'main/java/#{service.jmx.qualified_service_name.gsub(".","/")}.java',
+                            Domgen::Generator::JMX::HELPERS)
 end

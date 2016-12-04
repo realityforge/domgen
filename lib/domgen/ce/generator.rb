@@ -23,9 +23,9 @@ module Domgen
 end
 
 Domgen.template_set(:ce_data_types) do |template_set|
-  template_set.template(Domgen::Generator::CE::FACETS,
-                        :enumeration,
-                        "#{Domgen::Generator::CE::TEMPLATE_DIRECTORY}/enumeration.java.erb",
-                        'main/java/#{enumeration.ce.qualified_name.gsub(".","/")}.java',
-                        Domgen::Generator::CE::HELPERS)
+  template_set.erb_template(Domgen::Generator::CE::FACETS,
+                            :enumeration,
+                            "#{Domgen::Generator::CE::TEMPLATE_DIRECTORY}/enumeration.java.erb",
+                            'main/java/#{enumeration.ce.qualified_name.gsub(".","/")}.java',
+                            Domgen::Generator::CE::HELPERS)
 end

@@ -23,112 +23,112 @@ module Domgen
 end
 
 Domgen.template_set(:gwt_client_event) do |template_set|
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :message,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/event.java.erb",
-                        'main/java/#{message.gwt.qualified_event_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            :message,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/event.java.erb",
+                            'main/java/#{message.gwt.qualified_event_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS)
 end
 
 Domgen.template_set(:gwt_client_jso) do |template_set|
-  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
-                        :struct,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct.java.erb",
-                        'main/java/#{struct.gwt.qualified_interface_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS,
-                        :guard => 'struct.gwt.generate_overlay?')
-  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
-                        :struct,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct_factory.java.erb",
-                        'main/java/#{struct.gwt.qualified_factory_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS,
-                        :guard => 'struct.gwt.generate_overlay?')
-  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
-                        :struct,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
-                        'main/java/#{struct.gwt.qualified_jso_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS,
-                        :guard => 'struct.gwt.generate_overlay?')
-  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
-                        :struct,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/java_struct.java.erb",
-                        'main/java/#{struct.gwt.qualified_java_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS,
-                        :guard => 'struct.gwt.generate_overlay?')
+  template_set.erb_template(Domgen::Generator::GWT::FACETS + [:json],
+                            :struct,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct.java.erb",
+                            'main/java/#{struct.gwt.qualified_interface_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS,
+                            :guard => 'struct.gwt.generate_overlay?')
+  template_set.erb_template(Domgen::Generator::GWT::FACETS + [:json],
+                            :struct,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct_factory.java.erb",
+                            'main/java/#{struct.gwt.qualified_factory_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS,
+                            :guard => 'struct.gwt.generate_overlay?')
+  template_set.erb_template(Domgen::Generator::GWT::FACETS + [:json],
+                            :struct,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
+                            'main/java/#{struct.gwt.qualified_jso_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS,
+                            :guard => 'struct.gwt.generate_overlay?')
+  template_set.erb_template(Domgen::Generator::GWT::FACETS + [:json],
+                            :struct,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/java_struct.java.erb",
+                            'main/java/#{struct.gwt.qualified_java_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS,
+                            :guard => 'struct.gwt.generate_overlay?')
 end
 
 Domgen.template_set(:gwt_client_callback) do |template_set|
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/async_callback.java.erb",
-                        'main/java/#{repository.gwt.qualified_async_callback_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/async_error_callback.java.erb",
-                        'main/java/#{repository.gwt.qualified_async_error_callback_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/async_callback.java.erb",
+                            'main/java/#{repository.gwt.qualified_async_callback_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS)
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/async_error_callback.java.erb",
+                            'main/java/#{repository.gwt.qualified_async_error_callback_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS)
 end
 
 Domgen.template_set(:gwt_client_module) do |template_set|
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/aggregate_module.java.erb",
-                        'main/java/#{repository.gwt.qualified_aggregate_module_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS)
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/aggregate_module.java.erb",
+                            'main/java/#{repository.gwt.qualified_aggregate_module_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS)
 end
 
 Domgen.template_set(:gwt_client_gwt_model_module) do |template_set|
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/model_module.xml.erb",
-                        'main/resources/#{repository.gwt.qualified_model_module_name.gsub(".","/")}.gwt.xml',
-                        Domgen::Generator::GWT::HELPERS)
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/model_module.xml.erb",
+                            'main/resources/#{repository.gwt.qualified_model_module_name.gsub(".","/")}.gwt.xml',
+                            Domgen::Generator::GWT::HELPERS)
 end
 
 Domgen.template_set(:gwt_client_gwt_modules) do |template_set|
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/app_module.xml.erb",
-                        'main/resources/#{repository.gwt.qualified_app_module_name.gsub(".","/")}.gwt.xml',
-                        Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/dev_module.xml.erb",
-                        'main/resources/#{repository.gwt.qualified_dev_module_name.gsub(".","/")}.gwt.xml',
-                        Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/prod_module.xml.erb",
-                        'main/resources/#{repository.gwt.qualified_prod_module_name.gsub(".","/")}.gwt.xml',
-                        Domgen::Generator::GWT::HELPERS)
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        'gwt.entrypoint',
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/entrypoint_module.xml.erb",
-                        'main/resources/#{entrypoint.qualified_gwt_module_name.gsub(".","/")}.gwt.xml',
-                        Domgen::Generator::GWT::HELPERS,
-                        :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/app_module.xml.erb",
+                            'main/resources/#{repository.gwt.qualified_app_module_name.gsub(".","/")}.gwt.xml',
+                            Domgen::Generator::GWT::HELPERS)
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/dev_module.xml.erb",
+                            'main/resources/#{repository.gwt.qualified_dev_module_name.gsub(".","/")}.gwt.xml',
+                            Domgen::Generator::GWT::HELPERS)
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/prod_module.xml.erb",
+                            'main/resources/#{repository.gwt.qualified_prod_module_name.gsub(".","/")}.gwt.xml',
+                            Domgen::Generator::GWT::HELPERS)
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            'gwt.entrypoint',
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/entrypoint_module.xml.erb",
+                            'main/resources/#{entrypoint.qualified_gwt_module_name.gsub(".","/")}.gwt.xml',
+                            Domgen::Generator::GWT::HELPERS,
+                            :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
 end
 
 Domgen.template_set(:gwt_client_app) do |template_set|
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/abstract_application.java.erb",
-                        'main/java/#{repository.gwt.qualified_abstract_application_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS,
-                        :guard => 'repository.gwt.enable_entrypoints?')
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        'gwt.entrypoint',
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/entrypoint.java.erb",
-                        'main/java/#{entrypoint.qualified_entrypoint_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS,
-                        :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
-  template_set.template(Domgen::Generator::GWT::FACETS,
-                        'gwt.entrypoint',
-                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/entrypoint_module.java.erb",
-                        'main/java/#{entrypoint.qualified_entrypoint_module_name.gsub(".","/")}.java',
-                        Domgen::Generator::GWT::HELPERS,
-                        :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/abstract_application.java.erb",
+                            'main/java/#{repository.gwt.qualified_abstract_application_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS,
+                            :guard => 'repository.gwt.enable_entrypoints?')
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            'gwt.entrypoint',
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/entrypoint.java.erb",
+                            'main/java/#{entrypoint.qualified_entrypoint_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS,
+                            :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
+  template_set.erb_template(Domgen::Generator::GWT::FACETS,
+                            'gwt.entrypoint',
+                            "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/entrypoint_module.java.erb",
+                            'main/java/#{entrypoint.qualified_entrypoint_module_name.gsub(".","/")}.java',
+                            Domgen::Generator::GWT::HELPERS,
+                            :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
 end
 
 Domgen.template_set(:gwt_client => [:gwt_client_event, :gwt_client_jso, :gwt_client_callback])

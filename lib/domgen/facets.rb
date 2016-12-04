@@ -132,7 +132,7 @@ module Domgen
         child.collect_generation_targets(targets) if child.respond_to?(:collect_generation_targets)
       end
 
-      TargetManager.non_standard_targets.select { |target| target.parent_element == self_type }.each do |target|
+      Domgen.target_manager.targets_by_container(self_type).each do |target|
         if self.facet_enabled?(target.facet_key)
           elements = self.send(target.facet_key).send(target.access_method)
           next unless elements

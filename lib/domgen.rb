@@ -17,6 +17,7 @@ require 'fileutils'
 require 'logger'
 
 require 'reality/core'
+require 'reality/generators'
 require 'reality/naming'
 require 'reality/orderedhash'
 
@@ -30,8 +31,6 @@ require 'domgen/features'
 require 'domgen/model'
 require 'domgen/model_checks'
 require 'domgen/template'
-require 'domgen/render_context'
-require 'domgen/generator'
 require 'domgen/filters'
 
  # Integration utilities

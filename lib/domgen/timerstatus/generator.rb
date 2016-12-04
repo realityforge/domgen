@@ -23,20 +23,20 @@ module Domgen
 end
 
 Domgen.template_set(:timerstatus_integration_test) do |template_set|
-  template_set.template(Domgen::Generator::Timerstatus::FACETS + [:jaxrs],
-                        :repository,
-                        "#{Domgen::Generator::Timerstatus::TEMPLATE_DIRECTORY}/integration_test.java.erb",
-                        'test/java/#{repository.timerstatus.qualified_integration_test_name.gsub(".","/")}.java',
-                        Domgen::Generator::Timerstatus::HELPERS,
-                        :guard => 'repository.application.code_deployable?')
+  template_set.erb_template(Domgen::Generator::Timerstatus::FACETS + [:jaxrs],
+                            :repository,
+                            "#{Domgen::Generator::Timerstatus::TEMPLATE_DIRECTORY}/integration_test.java.erb",
+                            'test/java/#{repository.timerstatus.qualified_integration_test_name.gsub(".","/")}.java',
+                            Domgen::Generator::Timerstatus::HELPERS,
+                            :guard => 'repository.application.code_deployable?')
 end
 
 Domgen.template_set(:timerstatus_filter) do |template_set|
-  template_set.template(Domgen::Generator::Timerstatus::FACETS + [:jaxrs],
-                        :repository,
-                        "#{Domgen::Generator::Timerstatus::TEMPLATE_DIRECTORY}/blocking_filter.java.erb",
-                        'main/java/#{repository.timerstatus.qualified_blocking_filter_name.gsub(".","/")}.java',
-                        Domgen::Generator::Timerstatus::HELPERS)
+  template_set.erb_template(Domgen::Generator::Timerstatus::FACETS + [:jaxrs],
+                            :repository,
+                            "#{Domgen::Generator::Timerstatus::TEMPLATE_DIRECTORY}/blocking_filter.java.erb",
+                            'main/java/#{repository.timerstatus.qualified_blocking_filter_name.gsub(".","/")}.java',
+                            Domgen::Generator::Timerstatus::HELPERS)
 end
 
 Domgen.template_set(:timerstatus => [:timerstatus_filter, :timerstatus_integration_test])

@@ -112,7 +112,7 @@ module Domgen
         entrypoint_map.values
       end
 
-      TargetManager.register_target('gwt.entrypoint', :repository, :gwt, :entrypoints)
+      Domgen.target_manager.target(:entrypoint, :repository, :facet_key => :gwt)
 
       def pre_complete
         if repository.ee?

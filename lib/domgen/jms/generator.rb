@@ -22,16 +22,16 @@ module Domgen
   end
 end
 Domgen.template_set(:jms) do |template_set|
-  template_set.template(Domgen::Generator::JMS::FACETS,
-                        :method,
-                        "#{Domgen::Generator::JMS::TEMPLATE_DIRECTORY}/mdb.java.erb",
-                        'main/java/#{method.jms.qualified_mdb_name.gsub(".","/")}.java',
-                        Domgen::Generator::JMS::HELPERS,
-                        :guard => 'method.jms.mdb?')
-  template_set.template(Domgen::Generator::JMS::FACETS,
-                        :service,
-                        "#{Domgen::Generator::JMS::TEMPLATE_DIRECTORY}/abstract_router.java.erb",
-                        'main/java/#{service.jms.qualified_abstract_router_name.gsub(".","/")}.java',
-                        Domgen::Generator::JMS::HELPERS,
-                        :guard => 'service.jms.router?')
+  template_set.erb_template(Domgen::Generator::JMS::FACETS,
+                            :method,
+                            "#{Domgen::Generator::JMS::TEMPLATE_DIRECTORY}/mdb.java.erb",
+                            'main/java/#{method.jms.qualified_mdb_name.gsub(".","/")}.java',
+                            Domgen::Generator::JMS::HELPERS,
+                            :guard => 'method.jms.mdb?')
+  template_set.erb_template(Domgen::Generator::JMS::FACETS,
+                            :service,
+                            "#{Domgen::Generator::JMS::TEMPLATE_DIRECTORY}/abstract_router.java.erb",
+                            'main/java/#{service.jms.qualified_abstract_router_name.gsub(".","/")}.java',
+                            Domgen::Generator::JMS::HELPERS,
+                            :guard => 'service.jms.router?')
 end

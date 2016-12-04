@@ -23,11 +23,11 @@ module Domgen
 end
 
 Domgen.template_set(:appcache_manifest_servlet) do |template_set|
-  template_set.template(Domgen::Generator::Appcache::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::Appcache::TEMPLATE_DIRECTORY}/manifest_servlet.java.erb",
-                        'main/java/#{repository.appcache.qualified_manifest_servlet_name.gsub(".","/")}.java',
-                        Domgen::Generator::Appcache::HELPERS)
+  template_set.erb_template(Domgen::Generator::Appcache::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::Appcache::TEMPLATE_DIRECTORY}/manifest_servlet.java.erb",
+                            'main/java/#{repository.appcache.qualified_manifest_servlet_name.gsub(".","/")}.java',
+                            Domgen::Generator::Appcache::HELPERS)
 end
 
 Domgen.template_set(:appcache => [:appcache_manifest_servlet])

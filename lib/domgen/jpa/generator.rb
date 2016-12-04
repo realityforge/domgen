@@ -22,163 +22,163 @@ module Domgen
   end
 end
 Domgen.template_set(:jpa_model) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/unit_descriptor.java.erb",
-                        'main/java/#{repository.jpa.qualified_unit_descriptor_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS,
-                        :guard => 'repository.jpa.include_default_unit? || repository.jpa.standalone_persistence_units?')
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :entity,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity.java.erb",
-                        'main/java/#{entity.jpa.qualified_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS)
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :entity,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/metamodel.java.erb",
-                        'main/java/#{entity.jpa.qualified_metamodel_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS)
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :data_module,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity_package_info.java.erb",
-                        'main/java/#{data_module.jpa.server_entity_package.gsub(".","/")}/package-info.java',
-                        Domgen::Generator::JPA::HELPERS,
-                        :guard => 'data_module.entities.any?{|e|e.jpa?}')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/unit_descriptor.java.erb",
+                            'main/java/#{repository.jpa.qualified_unit_descriptor_name.gsub(".","/")}.java',
+                            Domgen::Generator::JPA::HELPERS,
+                            :guard => 'repository.jpa.include_default_unit? || repository.jpa.standalone_persistence_units?')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :entity,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity.java.erb",
+                            'main/java/#{entity.jpa.qualified_name.gsub(".","/")}.java',
+                            Domgen::Generator::JPA::HELPERS)
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :entity,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/metamodel.java.erb",
+                            'main/java/#{entity.jpa.qualified_metamodel_name.gsub(".","/")}.java',
+                            Domgen::Generator::JPA::HELPERS)
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :data_module,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity_package_info.java.erb",
+                            'main/java/#{data_module.jpa.server_entity_package.gsub(".","/")}/package-info.java',
+                            Domgen::Generator::JPA::HELPERS,
+                            :guard => 'data_module.entities.any?{|e|e.jpa?}')
 end
 
 %w(main test).each do |type|
   Domgen.template_set(:"jpa_#{type}_qa_external") do |template_set|
-    template_set.template(Domgen::Generator::JPA::FACETS,
-                          :repository,
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/persistent_test_module.java.erb",
-                          type + '/java/#{repository.jpa.qualified_persistent_test_module_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS,
-                          :guard => 'repository.jpa.include_default_unit?')
-    template_set.template(Domgen::Generator::JPA::FACETS,
-                          'jpa.persistence_unit',
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/raw_test_module.java.erb",
-                          type + '/java/#{persistence_unit.qualified_raw_test_module_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS,
-                          :guard => 'persistence_unit.raw_test_mode?')
-    template_set.template(Domgen::Generator::JPA::FACETS,
-                          :repository,
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_module.java.erb",
-                          type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS)
-    template_set.template(Domgen::Generator::JPA::FACETS,
-                          :repository,
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/test_factory_set.java.erb",
-                          type + '/java/#{repository.jpa.qualified_test_factory_set_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS)
-    template_set.template(Domgen::Generator::JPA::FACETS,
-                          :data_module,
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/abstract_test_factory.java.erb",
-                          type + '/java/#{data_module.jpa.qualified_abstract_test_factory_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS)
+    template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                              :repository,
+                              "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/persistent_test_module.java.erb",
+                              type + '/java/#{repository.jpa.qualified_persistent_test_module_name.gsub(".","/")}.java',
+                              Domgen::Generator::JPA::HELPERS,
+                              :guard => 'repository.jpa.include_default_unit?')
+    template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                              'jpa.persistence_unit',
+                              "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/raw_test_module.java.erb",
+                              type + '/java/#{persistence_unit.qualified_raw_test_module_name.gsub(".","/")}.java',
+                              Domgen::Generator::JPA::HELPERS,
+                              :guard => 'persistence_unit.raw_test_mode?')
+    template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                              :repository,
+                              "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_module.java.erb",
+                              type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java',
+                              Domgen::Generator::JPA::HELPERS)
+    template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                              :repository,
+                              "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/test_factory_set.java.erb",
+                              type + '/java/#{repository.jpa.qualified_test_factory_set_name.gsub(".","/")}.java',
+                              Domgen::Generator::JPA::HELPERS)
+    template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                              :data_module,
+                              "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/abstract_test_factory.java.erb",
+                              type + '/java/#{data_module.jpa.qualified_abstract_test_factory_name.gsub(".","/")}.java',
+                              Domgen::Generator::JPA::HELPERS)
   end
   Domgen.template_set(:"jpa_#{type}_qa") do |template_set|
-    template_set.template(Domgen::Generator::JPA::FACETS,
-                          :repository,
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/abstract_entity_test.java.erb",
-                          type + '/java/#{repository.jpa.qualified_abstract_entity_test_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS)
-    template_set.template(Domgen::Generator::JPA::FACETS,
-                          :repository,
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/standalone_entity_test.java.erb",
-                          type + '/java/#{repository.jpa.qualified_standalone_entity_test_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS)
+    template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                              :repository,
+                              "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/abstract_entity_test.java.erb",
+                              type + '/java/#{repository.jpa.qualified_abstract_entity_test_name.gsub(".","/")}.java',
+                              Domgen::Generator::JPA::HELPERS)
+    template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                              :repository,
+                              "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/standalone_entity_test.java.erb",
+                              type + '/java/#{repository.jpa.qualified_standalone_entity_test_name.gsub(".","/")}.java',
+                              Domgen::Generator::JPA::HELPERS)
   end
   Domgen.template_set(:"jpa_#{type}_qa_aggregate") do |template_set|
-    template_set.template(Domgen::Generator::JPA::FACETS,
-                          :repository,
-                          "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/aggregate_entity_test.java.erb",
-                          type + '/java/#{repository.jpa.qualified_aggregate_entity_test_name.gsub(".","/")}.java',
-                          Domgen::Generator::JPA::HELPERS)
+    template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                              :repository,
+                              "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/aggregate_entity_test.java.erb",
+                              type + '/java/#{repository.jpa.qualified_aggregate_entity_test_name.gsub(".","/")}.java',
+                              Domgen::Generator::JPA::HELPERS)
   end
 end
 
 Domgen.template_set(:jpa_dao_test) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :dao,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_test.java.erb",
-                        'test/java/#{dao.jpa.qualified_dao_test_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS,
-                        :guard => 'dao.queries.any?{|q|!q.jpa.standard_query?}')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :dao,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_test.java.erb",
+                            'test/java/#{dao.jpa.qualified_dao_test_name.gsub(".","/")}.java',
+                            Domgen::Generator::JPA::HELPERS,
+                            :guard => 'dao.queries.any?{|q|!q.jpa.standard_query?}')
 end
 
 Domgen.template_set(:jpa_ejb_dao) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :dao,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao.java.erb",
-                        'main/java/#{dao.jpa.qualified_dao_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS,
-                        :guard => '!dao.repository? || dao.entity.jpa?')
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :dao,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_service.java.erb",
-                        'main/java/#{dao.jpa.qualified_dao_service_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS,
-                        :guard => '!dao.repository? || dao.entity.jpa?')
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :data_module,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_package_info.java.erb",
-                        'main/java/#{data_module.jpa.server_dao_entity_package.gsub(".","/")}/package-info.java',
-                        Domgen::Generator::JPA::HELPERS,
-                        :guard => 'data_module.entities.any?{|e|e.jpa?}')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :dao,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao.java.erb",
+                            'main/java/#{dao.jpa.qualified_dao_name.gsub(".","/")}.java',
+                            Domgen::Generator::JPA::HELPERS,
+                            :guard => '!dao.repository? || dao.entity.jpa?')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :dao,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_service.java.erb",
+                            'main/java/#{dao.jpa.qualified_dao_service_name.gsub(".","/")}.java',
+                            Domgen::Generator::JPA::HELPERS,
+                            :guard => '!dao.repository? || dao.entity.jpa?')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :data_module,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/dao_package_info.java.erb",
+                            'main/java/#{data_module.jpa.server_dao_entity_package.gsub(".","/")}/package-info.java',
+                            Domgen::Generator::JPA::HELPERS,
+                            :guard => 'data_module.entities.any?{|e|e.jpa?}')
 end
 
 Domgen.template_set(:jpa_application_persistence_xml) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/application_persistence.xml.erb",
-                        'main/resources/META-INF/persistence.xml',
-                        [],
-                        :guard => 'repository.jpa.application_xmls?')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/application_persistence.xml.erb",
+                            'main/resources/META-INF/persistence.xml',
+                            [],
+                            :guard => 'repository.jpa.application_xmls?')
 end
 
 Domgen.template_set(:jpa_application_orm_xml) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/application_orm.xml.erb",
-                        'main/resources/META-INF/orm.xml',
-                        [],
-                        :guard => 'repository.jpa.application_xmls?')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/application_orm.xml.erb",
+                            'main/resources/META-INF/orm.xml',
+                            [],
+                            :guard => 'repository.jpa.application_xmls?')
 end
 
 Domgen.template_set(:jpa_template_persistence_xml) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/template_persistence.xml.erb",
-                        'main/resources/META-INF/domgen/templates/persistence.xml',
-                        [],
-                        :guard => 'repository.jpa.template_xmls?')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/template_persistence.xml.erb",
+                            'main/resources/META-INF/domgen/templates/persistence.xml',
+                            [],
+                            :guard => 'repository.jpa.template_xmls?')
 end
 
 Domgen.template_set(:jpa_template_orm_xml) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/template_orm.xml.erb",
-                        'main/resources/META-INF/domgen/templates/orm.xml',
-                        [],
-                        :guard => 'repository.jpa.template_xmls?')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/template_orm.xml.erb",
+                            'main/resources/META-INF/domgen/templates/orm.xml',
+                            [],
+                            :guard => 'repository.jpa.template_xmls?')
 end
 
 Domgen.template_set(:jpa_test_persistence_xml) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/test_persistence.xml.erb",
-                        'test/resources/META-INF/persistence.xml',
-                        [],
-                        :guard => 'repository.jpa.test_xmls?')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/test_persistence.xml.erb",
+                            'test/resources/META-INF/persistence.xml',
+                            [],
+                            :guard => 'repository.jpa.test_xmls?')
 end
 
 Domgen.template_set(:jpa_test_orm_xml) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/test_orm.xml.erb",
-                        'test/resources/META-INF/orm.xml',
-                        [],
-                        :guard => 'repository.jpa.test_xmls?')
+  template_set.erb_template(Domgen::Generator::JPA::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/test_orm.xml.erb",
+                            'test/resources/META-INF/orm.xml',
+                            [],
+                            :guard => 'repository.jpa.test_xmls?')
 end
 
 Domgen.template_set(:jpa => [:jpa_application_orm_xml, :jpa_application_persistence_xml, :jpa_model])

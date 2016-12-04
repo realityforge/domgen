@@ -176,7 +176,7 @@ module Domgen
 
       java_artifact :raw_test_module, :test, :server, :jpa, '#{jpa_repository.repository.name}#{short_name}PersistenceTestModule', :sub_package => 'util'
 
-      TargetManager.register_target('jpa.persistence_unit', :repository, :jpa, :standalone_persistence_units)
+      Domgen.target_manager.target(:persistence_unit, :repository, :facet_key => :jpa, :access_method => :standalone_persistence_units)
 
       attr_writer :unit_name
 

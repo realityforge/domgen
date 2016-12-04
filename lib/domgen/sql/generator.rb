@@ -22,8 +22,8 @@ module Domgen
 end
 
 Domgen.template_set(:sql_dbt_config) do |template_set|
-  template_set.template(Domgen::Generator::Sql::FACETS,
-                        :repository,
-                        "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/repository.yml.erb",
-                        'repository.yml')
+  template_set.erb_template(Domgen::Generator::Sql::FACETS,
+                            :repository,
+                            "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/repository.yml.erb",
+                            'repository.yml')
 end
