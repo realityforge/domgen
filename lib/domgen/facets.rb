@@ -138,7 +138,7 @@ module Domgen
           next unless elements
           elements = [elements] unless elements.is_a?(Array)
           elements.each do |element|
-            (targets[target.key] ||= []) << [self, element]
+            (targets[target.qualified_key] ||= []) << [self, element]
           end
         end
       end
