@@ -1846,7 +1846,6 @@ module Domgen
       end
       Domgen.info 'Model Checking completed.'
       Domgen.info 'Repository definition completed'
-      Domgen.repositorys << self
     end
 
     attr_writer :default_model_checks
