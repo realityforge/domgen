@@ -12,8 +12,8 @@
 # limitations under the License.
 #
 
-module Domgen
-  class Build
+module Domgen #nodoc
+  class Build #nodoc
     def self.define_load_task(filename = nil, &block)
       base_directory = File.dirname(Buildr.application.buildfile.to_s)
       candidate_file = File.expand_path("#{base_directory}/architecture.rb")
