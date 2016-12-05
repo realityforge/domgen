@@ -82,103 +82,11 @@ module Domgen
       @target_dir = target_dir
       yield self if block_given?
       define
-      load_templates(generator_keys)
-      if buildr_project.nil?
-        task('clean') do
-          rm_rf target_dir
-        end
-      else
-        buildr_project.clean { rm_rf target_dir }
-        file(File.expand_path(target_dir) => [task_name])
-
-        # Is there java source generated in project?
-        if templates.any?{|template| template.output_path =~ /^main\/java\/.*/}
-          main_java_dir = "#{target_dir}/main/java"
-          file(main_java_dir => [task_name]) do
-            mkdir_p main_java_dir
-          end
-          buildr_project.compile.using :javac
-          buildr_project.compile.from main_java_dir
-          # Need to force this as it may have already been cached and thus will not recalculate
-          buildr_project.iml.main_generated_source_directories << main_java_dir if buildr_project.iml?
-        end
-
-        # Is there resources generated in project?
-        if templates.any?{|template| template.output_path =~ /^main\/resources\/.*/}
-          main_resources_dir = "#{target_dir}/main/resources"
-          file(main_resources_dir => [task_name]) do
-            mkdir_p main_resources_dir
-          end
-          buildr_project.resources.enhance([task_name])
-          buildr_project.resources.filter.into buildr_project.path_to(:target, :main, :resources) unless buildr_project.resources.target
-          buildr_project.resources do |t|
-            t.enhance do
-              if File.exist?(main_resources_dir)
-                FileUtils.mkdir_p buildr_project.resources.target.to_s
-                FileUtils.cp_r "#{main_resources_dir}/.", buildr_project.resources.target.to_s
-              end
-            end
-          end
-          buildr_project.iml.main_generated_resource_directories << main_resources_dir if buildr_project.iml?
-        end
-
-        # Is there assets generated in project?
-        if templates.any? { |template| template.output_path =~ /^main\/webapp\/.*/ }
-          webapp_dir = File.expand_path("#{target_dir}/main/webapp")
-          buildr_project.assets.enhance([task_name])
-          buildr_project.assets.paths << file(webapp_dir => [task_name]) do
-            mkdir_p webapp_dir
-          end
-        end
-
-        # Is there test java source generated in project?
-        if templates.any? { |template| template.output_path =~ /^test\/java\/.*/ }
-          test_java_dir = "#{target_dir}/test/java"
-          file(test_java_dir => [task_name]) do
-            mkdir_p test_java_dir
-          end
-          buildr_project.test.compile.from test_java_dir
-          # Need to force this as it may have already been cached and thus will not recalculate
-          buildr_project.iml.test_generated_source_directories << test_java_dir if buildr_project.iml?
-        end
-
-        # Is there resources generated in project?
-        if templates.any? { |template| template.output_path =~ /^test\/resources\/.*/ }
-          test_resources_dir = "#{target_dir}/test/resources"
-          file(test_resources_dir => [task_name]) do
-            mkdir_p test_resources_dir
-          end
-          buildr_project.test.resources.enhance([task_name])
-          buildr_project.test.resources.filter.into buildr_project.path_to(:target, :test, :resources) unless buildr_project.test.resources.target
-          buildr_project.test.resources do |t|
-            t.enhance do
-              if File.exist?(test_resources_dir)
-                FileUtils.mkdir_p buildr_project.test.resources.target.to_s
-                FileUtils.cp_r "#{test_resources_dir}/.", buildr_project.test.resources.target.to_s
-              end
-            end
-          end
-          buildr_project.iml.test_generated_resource_directories << test_resources_dir if buildr_project.iml?
-        end
-      end
-    end
-
-    def templates
-      @template_map.values
+      @templates = Reality::Generators::Generator.load_templates_from_template_sets(Domgen, generator_keys)
+      Reality::Generators::Generator.configure_buildr_project(buildr_project, task_name, @templates, target_dir)
     end
 
     private
-
-    def load_templates(names, processed_template_sets = [])
-      names.select { |name| !processed_template_sets.include?(name) }.each do |name|
-        template_set = Domgen.template_set_by_name(name)
-        processed_template_sets << name
-        load_templates(template_set.required_template_sets, processed_template_sets)
-        template_set.templates.each do |template|
-          @template_map[template.name] = template
-        end
-      end
-    end
 
     def verbose?
       !!@verbose
@@ -195,7 +103,6 @@ module Domgen
           old_level = Domgen::Logger.level
           old_generators_level = Reality::Generators::Logger.level
           begin
-            unprocessed_files = FileList["#{self.target_dir}/**/{*.*,*}"].uniq
 
             repository = nil
             if self.repository_key
@@ -215,22 +122,12 @@ module Domgen
             Domgen::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
             Reality::Generators::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
             Logger.info "Generator started: Generating #{self.generator_keys.inspect}"
-            Domgen::Generator.generate(repository,
-                                       self.target_dir,
-                                       self.templates,
-                                       self.filter,
-                                       unprocessed_files)
-            unprocessed_files.sort.reverse.each do |file|
-              if File.directory?(file)
-                if (Dir.entries(file) - %w(. ..)).empty?
-                  Logger.debug "Removing #{file} as no longer generated by domgen"
-                  FileUtils.rmdir file
-                end
-              else
-                Logger.debug "Removing #{file} as no longer generated by domgen"
-                FileUtils.rm_f file
-              end
-            end
+            Reality::Generators::Generator.generate(Domgen,
+                                                    :repository,
+                                                    repository,
+                                                    self.target_dir,
+                                                    @templates,
+                                                    self.filter)
           rescue Reality::Generators::GeneratorError => e
             puts e.message
             if e.cause

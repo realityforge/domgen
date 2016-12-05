@@ -109,40 +109,6 @@ module Domgen
         self.disable_facet(facet_key) if self.facet_enabled?(facet_key)
       end
     end
-
-    # Collect all generation targets. This is a map of type to an array of element pairs of that type.
-    # The element pair includes two elements, the "parent" standard element that is facet as per normal
-    # and the actual element that is used for generation. The first element is used when checking if
-    # element is applicable? to be generated while the second is basis of generation.
-    # i.e.
-    #
-    # {
-    #   :repository => [ [repository, repository] ],
-    #   :data_module => [ [module1, module1], [module2, module2]],
-    #   :entity => [[entity1, entity1], [entity2, entity2]],
-    #   :'keycloak.client' => [[repository, client]],
-    #   ...
-    # }
-    #
-    def collect_generation_targets(targets)
-      self_type = FacetManager.valid_source_classes[self.class] || (raise "Unable to determine key for element #{self} of type #{self.class}")
-      (targets[self_type] ||= []) << [self, self]
-
-      FacetManager.each_dependent_sub_feature(self) do |child|
-        child.collect_generation_targets(targets) if child.respond_to?(:collect_generation_targets)
-      end
-
-      Domgen.target_manager.targets_by_container(self_type).each do |target|
-        if self.facet_enabled?(target.facet_key)
-          elements = self.send(target.facet_key).send(target.access_method)
-          next unless elements
-          elements = [elements] unless elements.is_a?(Array)
-          elements.each do |element|
-            (targets[target.qualified_key] ||= []) << [self, element]
-          end
-        end
-      end
-    end
   end
 
   def self.FacetedElement(parent_key)

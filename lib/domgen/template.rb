@@ -38,27 +38,6 @@ module Domgen
 
   module Generator
     class << self
-      def generate(repository, directory, templates, filter, unprocessed_files)
-
-        Logger.debug "Templates to process: #{templates.collect { |t| t.name }.inspect}"
-
-        targets = {}
-        repository.collect_generation_targets(targets)
-
-        templates.each do |template|
-          Logger.debug "Evaluating template: #{template.name}"
-          elements = targets[template.target]
-
-          elements.each do |element_pair|
-            element = element_pair[1]
-            if template.applicable?(element_pair[0]) && (filter.nil? || filter.call(template.target, element))
-              template.generate(directory, element, unprocessed_files)
-            end
-          end if elements
-        end
-        Logger.info 'Generator completed'
-      end
-
       def current_facets
         facets_stack.last
       end
