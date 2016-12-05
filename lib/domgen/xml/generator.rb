@@ -12,47 +12,34 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module Xml
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:xml]
-      HELPERS = [Domgen::Xml::Helper]
-    end
+Domgen::Generator.define([:xml],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [Domgen::Xml::Helper]) do |g|
+  g.template_set(:xml_xsd_assets) do |template_set|
+    template_set.erb_template(:data_module,
+                              'schema.xsd.erb',
+                              'main/webapp/WEB-INF/xsd/#{data_module.xml.xsd_name}',
+                              :name => 'WEB-INF/schema.xsd')
   end
-end
 
-Domgen.template_set(:xml_xsd_assets) do |template_set|
-  template_set.erb_template(Domgen::Generator::Xml::FACETS,
-                            :data_module,
-                            "#{Domgen::Generator::Xml::TEMPLATE_DIRECTORY}/schema.xsd.erb",
-                            'main/webapp/WEB-INF/xsd/#{data_module.xml.xsd_name}',
-                            Domgen::Generator::Xml::HELPERS,
-                            :name => 'WEB-INF/schema.xsd')
-end
+  g.template_set(:xml_xsd_resources) do |template_set|
+    template_set.erb_template(:data_module,
+                              'schema.xsd.erb',
+                              'main/resources/#{data_module.xml.resource_xsd_name}',
+                              :name => 'META-INF/schema.xsd')
+  end
 
-Domgen.template_set(:xml_xsd_resources) do |template_set|
-  template_set.erb_template(Domgen::Generator::Xml::FACETS,
-                            :data_module,
-                            "#{Domgen::Generator::Xml::TEMPLATE_DIRECTORY}/schema.xsd.erb",
-                            'main/resources/#{data_module.xml.resource_xsd_name}',
-                            Domgen::Generator::Xml::HELPERS,
-                            :name => 'META-INF/schema.xsd')
-end
+  g.template_set(:xml_public_xsd_webapp) do |template_set|
+    template_set.erb_template(:data_module,
+                              'schema.xsd.erb',
+                              'main/webapp/formats/#{data_module.repository.name}/#{data_module.xml.xsd_name}',
+                              :name => 'formats/schema.xsd')
+  end
 
-Domgen.template_set(:xml_public_xsd_webapp) do |template_set|
-  template_set.erb_template(Domgen::Generator::Xml::FACETS,
-                            :data_module,
-                            "#{Domgen::Generator::Xml::TEMPLATE_DIRECTORY}/schema.xsd.erb",
-                            'main/webapp/formats/#{data_module.repository.name}/#{data_module.xml.xsd_name}',
-                            Domgen::Generator::Xml::HELPERS,
-                            :name => 'formats/schema.xsd')
-end
-
-Domgen.template_set(:xml_doc) do |template_set|
-  template_set.xml_template([],
-                            :repository,
-                            Domgen::Xml::Templates::Xml,
-                            '#{repository.name}.xml',
-                            [Domgen::Xml::Helper])
+  g.template_set(:xml_doc) do |template_set|
+    template_set.xml_template(:repository,
+                              Domgen::Xml::Templates::Xml,
+                              '#{repository.name}.xml',
+                              :facets => [])
+  end
 end

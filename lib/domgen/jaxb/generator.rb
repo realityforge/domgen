@@ -12,20 +12,12 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module JAXB
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:jaxb]
-      HELPERS = [Domgen::Java::Helper, Domgen::Xml::Helper, Domgen::JAXB::Helper]
-    end
+Domgen::Generator.define([:jaxb],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [Domgen::Java::Helper]) do |g|
+  g.template_set(:jaxb_marshalling_tests) do |template_set|
+    template_set.erb_template(:repository,
+                              'marshalling_test.java.erb',
+                              'test/java/#{repository.jaxb.qualified_marshalling_test_name.gsub(".","/")}.java')
   end
-end
-
-Domgen.template_set(:jaxb_marshalling_tests) do |template_set|
-  template_set.erb_template(Domgen::Generator::JAXB::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::JAXB::TEMPLATE_DIRECTORY}/marshalling_test.java.erb",
-                            'test/java/#{repository.jaxb.qualified_marshalling_test_name.gsub(".","/")}.java',
-                            Domgen::Generator::JAXB::HELPERS)
 end

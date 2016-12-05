@@ -12,27 +12,12 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module Mssql
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:mssql]
-    end
+Domgen::Generator.define([:mssql],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [::Domgen::Mssql::Helper]) do |g|
+  g.template_set(:mssql => [:sql_dbt_config]) do |template_set|
+    template_set.erb_template(:repository, 'mssql_database_setup.sql.erb', 'db-hooks/pre/database_setup.sql')
+    template_set.erb_template(:data_module, 'mssql_ddl.sql.erb', '#{data_module.name}/schema.sql')
+    template_set.erb_template(:data_module, 'mssql_finalize.sql.erb', '#{data_module.name}/finalize/schema_finalize.sql')
   end
-end
-Domgen.template_set(:mssql => [:sql_dbt_config]) do |template_set|
-  template_set.erb_template(Domgen::Generator::Mssql::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::Mssql::TEMPLATE_DIRECTORY}/mssql_database_setup.sql.erb",
-                            'db-hooks/pre/database_setup.sql')
-  template_set.erb_template(Domgen::Generator::Mssql::FACETS,
-                            :data_module,
-                            "#{Domgen::Generator::Mssql::TEMPLATE_DIRECTORY}/mssql_ddl.sql.erb",
-                            '#{data_module.name}/schema.sql',
-                            [::Domgen::Ruby::MssqlHelper])
-  template_set.erb_template(Domgen::Generator::Mssql::FACETS,
-                            :data_module,
-                            "#{Domgen::Generator::Mssql::TEMPLATE_DIRECTORY}/mssql_finalize.sql.erb",
-                            '#{data_module.name}/finalize/schema_finalize.sql',
-                            [::Domgen::Ruby::MssqlHelper])
 end

@@ -12,37 +12,23 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module RestGWT
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:restygwt]
-      HELPERS = [Domgen::Java::Helper, Domgen::JaxRS::Helper, Domgen::RestGWT::Helper]
-    end
+Domgen::Generator.define([:restygwt],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [Domgen::Java::Helper, Domgen::JaxRS::Helper, Domgen::RestGWT::Helper]) do |g|
+  g.template_set(:restygwt_client_service) do |template_set|
+    template_set.erb_template(:exception,
+                              'exception.java.erb',
+                              'main/java/#{exception.restygwt.qualified_name.gsub(".","/")}.java')
+    template_set.erb_template(:service,
+                              'service.java.erb',
+                              'main/java/#{service.restygwt.qualified_service_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'services_module.java.erb',
+                              'main/java/#{repository.restygwt.qualified_services_module_name.gsub(".","/")}.java')
+    template_set.erb_template(:service,
+                              'facade_service.java.erb',
+                              'main/java/#{service.restygwt.qualified_facade_service_name.gsub(".","/")}.java')
   end
-end
 
-Domgen.template_set(:restygwt_client_service) do |template_set|
-  template_set.erb_template(Domgen::Generator::RestGWT::FACETS,
-                            :exception,
-                            "#{Domgen::Generator::RestGWT::TEMPLATE_DIRECTORY}/exception.java.erb",
-                            'main/java/#{exception.restygwt.qualified_name.gsub(".","/")}.java',
-                            Domgen::Generator::RestGWT::HELPERS)
-  template_set.erb_template(Domgen::Generator::RestGWT::FACETS,
-                            :service,
-                            "#{Domgen::Generator::RestGWT::TEMPLATE_DIRECTORY}/service.java.erb",
-                            'main/java/#{service.restygwt.qualified_service_name.gsub(".","/")}.java',
-                            Domgen::Generator::RestGWT::HELPERS)
-  template_set.erb_template(Domgen::Generator::RestGWT::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::RestGWT::TEMPLATE_DIRECTORY}/services_module.java.erb",
-                            'main/java/#{repository.restygwt.qualified_services_module_name.gsub(".","/")}.java',
-                            Domgen::Generator::RestGWT::HELPERS)
-  template_set.erb_template(Domgen::Generator::RestGWT::FACETS,
-                            :service,
-                            "#{Domgen::Generator::RestGWT::TEMPLATE_DIRECTORY}/facade_service.java.erb",
-                            'main/java/#{service.restygwt.qualified_facade_service_name.gsub(".","/")}.java',
-                            Domgen::Generator::RestGWT::HELPERS)
+  g.template_set(:restygwt => [:restygwt_client_service])
 end
-
-Domgen.template_set(:restygwt => [:restygwt_client_service])

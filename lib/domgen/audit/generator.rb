@@ -12,33 +12,29 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module Audit
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:audit]
-    end
+Domgen::Generator.define([:audit],
+                         "#{File.dirname(__FILE__)}/templates",
+                         []) do |g|
+
+  g.template_set(:audit_psql) do |template_set|
+    template_set.erb_template(:entity,
+                              'psql_view.sql.erb',
+                              '#{entity.data_module.name}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql',
+                              :additional_facets => [:pgsql])
   end
-end
 
-Domgen.template_set(:audit_psql) do |template_set|
-  template_set.erb_template(Domgen::Generator::Audit::FACETS + [:pgsql],
-                            :entity,
-                            "#{Domgen::Generator::Audit::TEMPLATE_DIRECTORY}/psql_view.sql.erb",
-                            '#{entity.data_module.name}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql')
-end
-
-Domgen.template_set(:audit_mssql) do |template_set|
-  template_set.erb_template(Domgen::Generator::Audit::FACETS + [:mssql],
-                            :entity,
-                            "#{Domgen::Generator::Audit::TEMPLATE_DIRECTORY}/mssql_view.sql.erb",
-                            '#{entity.data_module.name}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql')
-  template_set.erb_template(Domgen::Generator::Audit::FACETS + [:mssql],
-                            :entity,
-                            "#{Domgen::Generator::Audit::TEMPLATE_DIRECTORY}/mssql_finalize.sql.erb",
-                            '#{entity.data_module.name}/finalize/#{entity.data_module.sql.schema}.vw#{entity.name}_finalize.sql')
-  template_set.erb_template(Domgen::Generator::Audit::FACETS + [:mssql],
-                            :entity,
-                            "#{Domgen::Generator::Audit::TEMPLATE_DIRECTORY}/mssql_triggers.sql.erb",
-                            '#{entity.data_module.name}/triggers/#{entity.data_module.sql.schema}.vw#{entity.name}_triggers.sql')
+  g.template_set(:audit_mssql) do |template_set|
+    template_set.erb_template(:entity,
+                              'mssql_view.sql.erb',
+                              '#{entity.data_module.name}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql',
+                              :additional_facets => [:mssql])
+    template_set.erb_template(:entity,
+                              "mssql_finalize.sql.erb",
+                              '#{entity.data_module.name}/finalize/#{entity.data_module.sql.schema}.vw#{entity.name}_finalize.sql',
+                              :additional_facets => [:mssql])
+    template_set.erb_template(:entity,
+                              "mssql_triggers.sql.erb",
+                              '#{entity.data_module.name}/triggers/#{entity.data_module.sql.schema}.vw#{entity.name}_triggers.sql',
+                              :additional_facets => [:mssql])
+  end
 end

@@ -12,29 +12,18 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module JaxRS
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:jaxrs]
-      HELPERS = [Domgen::Java::Helper, Domgen::JaxRS::Helper]
-    end
+Domgen::Generator.define([:jaxrs],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [Domgen::Java::Helper, Domgen::JaxRS::Helper]) do |g|
+  g.template_set(:jaxrs) do |template_set|
+    template_set.erb_template(:repository,
+                              'abstract_application.java.erb',
+                              'main/java/#{repository.jaxrs.qualified_abstract_application_name.gsub(".","/")}.java')
+    template_set.erb_template(:service,
+                              'service.java.erb',
+                              'main/java/#{service.jaxrs.qualified_service_name.gsub(".","/")}.java')
+    template_set.erb_template(:service,
+                              'boundary.java.erb',
+                              'main/java/#{service.jaxrs.qualified_boundary_name.gsub(".","/")}.java')
   end
-end
-Domgen.template_set(:jaxrs) do |template_set|
-  template_set.erb_template(Domgen::Generator::JaxRS::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::JaxRS::TEMPLATE_DIRECTORY}/abstract_application.java.erb",
-                            'main/java/#{repository.jaxrs.qualified_abstract_application_name.gsub(".","/")}.java',
-                            Domgen::Generator::JaxRS::HELPERS)
-  template_set.erb_template(Domgen::Generator::JaxRS::FACETS,
-                            :service,
-                            "#{Domgen::Generator::JaxRS::TEMPLATE_DIRECTORY}/service.java.erb",
-                            'main/java/#{service.jaxrs.qualified_service_name.gsub(".","/")}.java',
-                            Domgen::Generator::JaxRS::HELPERS)
-  template_set.erb_template(Domgen::Generator::JaxRS::FACETS,
-                            :service,
-                            "#{Domgen::Generator::JaxRS::TEMPLATE_DIRECTORY}/boundary.java.erb",
-                            'main/java/#{service.jaxrs.qualified_boundary_name.gsub(".","/")}.java',
-                            Domgen::Generator::JaxRS::HELPERS)
 end

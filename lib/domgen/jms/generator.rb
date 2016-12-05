@@ -12,26 +12,17 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module JMS
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:jms]
-      HELPERS = [Domgen::Java::Helper, Domgen::JAXB::Helper]
-    end
+Domgen::Generator.define([:jms],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [Domgen::Java::Helper, Domgen::JAXB::Helper]) do |g|
+  g.template_set(:jms) do |template_set|
+    template_set.erb_template(:method,
+                              'mdb.java.erb',
+                              'main/java/#{method.jms.qualified_mdb_name.gsub(".","/")}.java',
+                              :guard => 'method.jms.mdb?')
+    template_set.erb_template(:service,
+                              'abstract_router.java.erb',
+                              'main/java/#{service.jms.qualified_abstract_router_name.gsub(".","/")}.java',
+                              :guard => 'service.jms.router?')
   end
-end
-Domgen.template_set(:jms) do |template_set|
-  template_set.erb_template(Domgen::Generator::JMS::FACETS,
-                            :method,
-                            "#{Domgen::Generator::JMS::TEMPLATE_DIRECTORY}/mdb.java.erb",
-                            'main/java/#{method.jms.qualified_mdb_name.gsub(".","/")}.java',
-                            Domgen::Generator::JMS::HELPERS,
-                            :guard => 'method.jms.mdb?')
-  template_set.erb_template(Domgen::Generator::JMS::FACETS,
-                            :service,
-                            "#{Domgen::Generator::JMS::TEMPLATE_DIRECTORY}/abstract_router.java.erb",
-                            'main/java/#{service.jms.qualified_abstract_router_name.gsub(".","/")}.java',
-                            Domgen::Generator::JMS::HELPERS,
-                            :guard => 'service.jms.router?')
 end

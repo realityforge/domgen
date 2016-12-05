@@ -12,21 +12,13 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module Robots
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:robots]
-      HELPERS = []
-    end
+Domgen::Generator.define([:robots],
+                         "#{File.dirname(__FILE__)}/templates",
+                         []) do |g|
+  g.template_set(:robots) do |template_set|
+    template_set.erb_template(:repository,
+                              'robots.txt.erb',
+                              'main/webapp/robots.txt',
+                              :guard => 'repository.robots.generate_robots?')
   end
-end
-
-Domgen.template_set(:robots) do |template_set|
-  template_set.erb_template(Domgen::Generator::Robots::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::Robots::TEMPLATE_DIRECTORY}/robots.txt.erb",
-                            'main/webapp/robots.txt',
-                            Domgen::Generator::Robots::HELPERS,
-                            :guard => 'repository.robots.generate_robots?')
 end

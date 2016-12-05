@@ -12,30 +12,20 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module Jackson
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:jackson]
-      HELPERS = [Domgen::Java::Helper]
-    end
+Domgen::Generator.define([:jackson],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [Domgen::Java::Helper]) do |g|
+  g.template_set(:jackson_date_util) do |template_set|
+    template_set.erb_template(:repository,
+                              'date_util.java.erb',
+                              'main/java/#{repository.jackson.qualified_date_util_name.gsub(".","/")}.java')
   end
-end
 
-Domgen.template_set(:jackson_date_util) do |template_set|
-  template_set.erb_template(Domgen::Generator::Jackson::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::Jackson::TEMPLATE_DIRECTORY}/date_util.java.erb",
-                            'main/java/#{repository.jackson.qualified_date_util_name.gsub(".","/")}.java',
-                            Domgen::Generator::Jackson::HELPERS)
-end
+  g.template_set(:jackson_marshalling_tests) do |template_set|
+    template_set.erb_template(:repository,
+                              'marshalling_test.java.erb',
+                              'test/java/#{repository.jackson.qualified_marshalling_test_name.gsub(".","/")}.java')
+  end
 
-Domgen.template_set(:jackson_marshalling_tests) do |template_set|
-  template_set.erb_template(Domgen::Generator::Jackson::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::Jackson::TEMPLATE_DIRECTORY}/marshalling_test.java.erb",
-                            'test/java/#{repository.jackson.qualified_marshalling_test_name.gsub(".","/")}.java',
-                            Domgen::Generator::Jackson::HELPERS)
+  g.template_set(:jackson => [:jackson_date_util, :jackson_marshalling_tests])
 end
-
-Domgen.template_set(:jackson => [:jackson_date_util, :jackson_marshalling_tests])

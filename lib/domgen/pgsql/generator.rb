@@ -12,26 +12,18 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module Pgsql
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:pgsql]
-    end
+Domgen::Generator.define([:pgsql],
+                         "#{File.dirname(__FILE__)}/templates",
+                         []) do |g|
+  g.template_set(:pgsql => [:sql_dbt_config]) do |template_set|
+    template_set.erb_template(:repository,
+                              'pgsql_database_setup.sql.erb',
+                              'db-hooks/pre/database_setup.sql')
+    template_set.erb_template(:data_module,
+                              'pgsql_ddl.sql.erb',
+                              '#{data_module.name}/schema.sql')
+    template_set.erb_template(:data_module,
+                              'pgsql_finalize.sql.erb',
+                              '#{data_module.name}/finalize/schema_finalize.sql')
   end
-end
-
-Domgen.template_set(:pgsql => [:sql_dbt_config]) do |template_set|
-  template_set.erb_template(Domgen::Generator::Pgsql::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::Pgsql::TEMPLATE_DIRECTORY}/pgsql_database_setup.sql.erb",
-                            'db-hooks/pre/database_setup.sql')
-  template_set.erb_template(Domgen::Generator::Pgsql::FACETS,
-                            :data_module,
-                            "#{Domgen::Generator::Pgsql::TEMPLATE_DIRECTORY}/pgsql_ddl.sql.erb",
-                            '#{data_module.name}/schema.sql')
-  template_set.erb_template(Domgen::Generator::Pgsql::FACETS,
-                            :data_module,
-                            "#{Domgen::Generator::Pgsql::TEMPLATE_DIRECTORY}/pgsql_finalize.sql.erb",
-                            '#{data_module.name}/finalize/schema_finalize.sql')
 end

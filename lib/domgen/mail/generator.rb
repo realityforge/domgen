@@ -12,30 +12,20 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module Mail
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:mail]
-      HELPERS = [Domgen::Java::Helper]
-    end
+Domgen::Generator.define([:mail],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [Domgen::Java::Helper]) do |g|
+  g.template_set(:mail_mail_queue) do |template_set|
+    template_set.erb_template(:repository,
+                              'mail_queue.java.erb',
+                              'main/java/#{repository.mail.qualified_mail_queue_name.gsub(".","/")}.java')
   end
-end
 
-Domgen.template_set(:mail_mail_queue) do |template_set|
-  template_set.erb_template(Domgen::Generator::Mail::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::Mail::TEMPLATE_DIRECTORY}/mail_queue.java.erb",
-                            'main/java/#{repository.mail.qualified_mail_queue_name.gsub(".","/")}.java',
-                            Domgen::Generator::Mail::HELPERS)
-end
+  g.template_set(:mail_test_module) do |template_set|
+    template_set.erb_template(:repository,
+                              'test_module.java.erb',
+                              'test/java/#{repository.mail.qualified_test_module_name.gsub(".","/")}.java')
+  end
 
-Domgen.template_set(:mail_test_module) do |template_set|
-  template_set.erb_template(Domgen::Generator::Mail::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::Mail::TEMPLATE_DIRECTORY}/test_module.java.erb",
-                            'test/java/#{repository.mail.qualified_test_module_name.gsub(".","/")}.java',
-                            Domgen::Generator::Mail::HELPERS)
+  g.template_set(:mail => [:mail_mail_queue, :mail_test_module])
 end
-
-Domgen.template_set(:mail => [:mail_mail_queue, :mail_test_module])

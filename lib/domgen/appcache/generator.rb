@@ -12,22 +12,15 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module Appcache
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:appcache]
-      HELPERS = [Domgen::Java::Helper]
-    end
+Domgen::Generator.define([:appcache],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [Domgen::Java::Helper]) do |g|
+
+  g.template_set(:appcache_manifest_servlet) do |template_set|
+    template_set.erb_template(:repository,
+                              'manifest_servlet.java.erb',
+                              'main/java/#{repository.appcache.qualified_manifest_servlet_name.gsub(".","/")}.java')
   end
-end
 
-Domgen.template_set(:appcache_manifest_servlet) do |template_set|
-  template_set.erb_template(Domgen::Generator::Appcache::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::Appcache::TEMPLATE_DIRECTORY}/manifest_servlet.java.erb",
-                            'main/java/#{repository.appcache.qualified_manifest_servlet_name.gsub(".","/")}.java',
-                            Domgen::Generator::Appcache::HELPERS)
+  g.template_set(:appcache => [:appcache_manifest_servlet])
 end
-
-Domgen.template_set(:appcache => [:appcache_manifest_servlet])

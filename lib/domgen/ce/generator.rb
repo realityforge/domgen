@@ -12,20 +12,12 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module CE
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:ce]
-      HELPERS = [Domgen::Java::Helper]
-    end
+Domgen::Generator.define([:ce],
+                         "#{File.dirname(__FILE__)}/templates",
+                         [Domgen::Java::Helper]) do |g|
+  g.template_set(:ce_data_types) do |template_set|
+    template_set.erb_template(:enumeration,
+                              'enumeration.java.erb',
+                              'main/java/#{enumeration.ce.qualified_name.gsub(".","/")}.java')
   end
-end
-
-Domgen.template_set(:ce_data_types) do |template_set|
-  template_set.erb_template(Domgen::Generator::CE::FACETS,
-                            :enumeration,
-                            "#{Domgen::Generator::CE::TEMPLATE_DIRECTORY}/enumeration.java.erb",
-                            'main/java/#{enumeration.ce.qualified_name.gsub(".","/")}.java',
-                            Domgen::Generator::CE::HELPERS)
 end

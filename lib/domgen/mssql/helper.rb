@@ -13,8 +13,8 @@
 #
 
 module Domgen
-  module Ruby
-    module MssqlHelper
+  module Mssql
+    module Helper
       # Change tags named Description to MS_Description when making into an extended property as
       # that is the MS standard for documentation properties
       def sql_extended_property_key(name)

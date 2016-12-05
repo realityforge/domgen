@@ -12,18 +12,10 @@
 # limitations under the License.
 #
 
-module Domgen
-  module Generator
-    module Sql
-      TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
-      FACETS = [:sql]
-    end
+Domgen::Generator.define([:timerstatus],
+                         "#{File.dirname(__FILE__)}/templates",
+                         []) do |g|
+  g.template_set(:sql_dbt_config) do |template_set|
+    template_set.erb_template(:repository, 'repository.yml.erb', 'repository.yml')
   end
-end
-
-Domgen.template_set(:sql_dbt_config) do |template_set|
-  template_set.erb_template(Domgen::Generator::Sql::FACETS,
-                            :repository,
-                            "#{Domgen::Generator::Sql::TEMPLATE_DIRECTORY}/repository.yml.erb",
-                            'repository.yml')
 end
