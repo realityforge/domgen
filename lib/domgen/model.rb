@@ -14,7 +14,7 @@
 
 module Domgen
   class << self
-    def repositorys
+    def repositories
       repository_map.values
     end
 
@@ -49,7 +49,7 @@ module Domgen
     end
 
     def repository_map
-      @repositorys ||= Reality::OrderedHash.new
+      @repositories ||= Reality::OrderedHash.new
     end
   end
 
