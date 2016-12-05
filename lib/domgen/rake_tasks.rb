@@ -182,7 +182,7 @@ module Domgen #nodoc
             Domgen.current_filename = self.filename
             require self.filename
           rescue Exception => e
-            print "An error occurred loading respository\n"
+            print "An error occurred loading repository\n"
             puts $!
             puts $@
             raise e
