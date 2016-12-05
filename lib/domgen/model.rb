@@ -1432,9 +1432,9 @@ module Domgen
       @exceptions = Reality::OrderedHash.new
       @daos = Reality::OrderedHash.new
       @elements = Reality::OrderedHash.new
-      Logger.info "DataModule '#{name}' definition started"
+      Domgen.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
-      Logger.info "DataModule '#{name}' definition completed"
+      Domgen.info "DataModule '#{name}' definition completed"
     end
 
     def qualified_name
@@ -1691,11 +1691,11 @@ module Domgen
     end
 
     def pre_dao_create(name)
-      Logger.debug "DataAccessObject '#{name}' definition started"
+      Domgen.debug "DataAccessObject '#{name}' definition started"
     end
 
     def post_dao_create(name)
-      Logger.debug "DataAccessObject '#{name}' definition completed"
+      Domgen.debug "DataAccessObject '#{name}' definition completed"
     end
 
     def register_dao(name, dao)
@@ -1705,11 +1705,11 @@ module Domgen
 
     def pre_enumeration_create(name)
       Domgen.error("Attempting to redefine Enumeration '#{name}'") if @enumerations[name.to_s]
-      Logger.debug "Enumeration '#{name}' definition started"
+      Domgen.debug "Enumeration '#{name}' definition started"
     end
 
     def post_enumeration_create(name)
-      Logger.debug "Enumeration '#{name}' definition completed"
+      Domgen.debug "Enumeration '#{name}' definition completed"
     end
 
     def register_enumeration(name, enumeration)
@@ -1719,11 +1719,11 @@ module Domgen
 
     def pre_exception_create(name)
       Domgen.error("Attempting to redefine Exception '#{name}'") if @exceptions[name.to_s]
-      Logger.debug "Exception '#{name}' definition started"
+      Domgen.debug "Exception '#{name}' definition started"
     end
 
     def post_exception_create(name)
-      Logger.debug "Exception '#{name}' definition completed"
+      Domgen.debug "Exception '#{name}' definition completed"
     end
 
     def register_exception(name, exception)
@@ -1733,11 +1733,11 @@ module Domgen
 
     def pre_struct_create(name)
       Domgen.error("Attempting to redefine Struct '#{name}'") if @structs[name.to_s]
-      Logger.debug "Struct '#{name}' definition started"
+      Domgen.debug "Struct '#{name}' definition started"
     end
 
     def post_struct_create(name)
-      Logger.debug "Struct '#{name}' definition completed"
+      Domgen.debug "Struct '#{name}' definition completed"
     end
 
     def register_struct(name, struct)
@@ -1747,11 +1747,11 @@ module Domgen
 
     def pre_entity_create(name)
       Domgen.error("Attempting to redefine Entity '#{name}'") if @entities[name.to_s]
-      Logger.debug "Entity '#{name}' definition started"
+      Domgen.debug "Entity '#{name}' definition started"
     end
 
     def post_entity_create(name)
-      Logger.debug "Entity '#{name}' definition completed"
+      Domgen.debug "Entity '#{name}' definition completed"
     end
 
     def register_entity(name, entity)
@@ -1761,11 +1761,11 @@ module Domgen
 
     def pre_service_create(name)
       Domgen.error("Attempting to redefine Service '#{name}'") if @services[name.to_s]
-      Logger.debug "Service '#{name}' definition started"
+      Domgen.debug "Service '#{name}' definition started"
     end
 
     def post_service_create(name)
-      Logger.debug "Service '#{name}' definition completed"
+      Domgen.debug "Service '#{name}' definition completed"
     end
 
     def register_service(name, service)
@@ -1775,11 +1775,11 @@ module Domgen
 
     def pre_message_create(name)
       Domgen.error("Attempting to redefine Message '#{name}'") if @messages[name.to_s]
-      Logger.debug "Message '#{name}' definition started"
+      Domgen.debug "Message '#{name}' definition started"
     end
 
     def post_message_create(name)
-      Logger.debug "Message '#{name}' definition completed"
+      Domgen.debug "Message '#{name}' definition completed"
     end
 
     def register_message(name, message)
@@ -1797,10 +1797,10 @@ module Domgen
       @repository = repository
       repository.send :register_model_check, name, self
       @name = name
-      Logger.info "Model Check '#{name}' definition started"
+      Domgen.info "Model Check '#{name}' definition started"
       super(options, &block)
       Domgen.error("Model Check '#{name}' defines no check.") unless @check
-      Logger.info "Model Check '#{name}' definition completed"
+      Domgen.info "Model Check '#{name}' definition completed"
     end
 
     def to_s
@@ -1811,7 +1811,7 @@ module Domgen
       begin
         @check.call(self.repository)
       rescue
-        Logger.error "Model Check '#{name}' failed."
+        Domgen.error "Model Check '#{name}' failed."
         raise
       end
     end
@@ -1829,7 +1829,7 @@ module Domgen
       @model_checks = Reality::OrderedHash.new
       Domgen::TypeDB.mark_as_initialized
       Domgen.send :register_repository, name, self
-      Logger.info 'Repository definition started'
+      Domgen.info 'Repository definition started'
       self.activate_facets
       Domgen.current_repository = self
       super(options, &block)
@@ -1840,12 +1840,12 @@ module Domgen
         Domgen::ModelChecks.name_check(self)
       end
 
-      Logger.info 'Model Checking started.'
+      Domgen.info 'Model Checking started.'
       self.model_checks.each do |model_check|
         model_check.check_model
       end
-      Logger.info 'Model Checking completed.'
-      Logger.info 'Repository definition completed'
+      Domgen.info 'Model Checking completed.'
+      Domgen.info 'Repository definition completed'
       Domgen.repositorys << self
     end
 
@@ -2026,11 +2026,11 @@ module Domgen
 
     def pre_data_module_create(name)
       Domgen.error("Attempting to redefine DataModule '#{name}'") if @data_modules[name.to_s]
-      Logger.debug "DataModule '#{name}' definition started"
+      Domgen.debug "DataModule '#{name}' definition started"
     end
 
     def post_data_module_create(name)
-      Logger.debug "DataModule '#{name}' definition completed"
+      Domgen.debug "DataModule '#{name}' definition completed"
     end
 
     private
