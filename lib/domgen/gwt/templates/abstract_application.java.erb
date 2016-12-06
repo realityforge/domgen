@@ -16,7 +16,8 @@ public abstract class <%= repository.gwt.abstract_application_name %>
   protected <%= repository.gwt.abstract_application_name %>(<% if repository.keycloak? -%> @javax.annotation.Nonnull final String keycloakClient <% end -%>)
   {
     _applicationURL = com.google.gwt.core.client.GWT.getHostPageBaseURL();
-    _serverUrl = _applicationURL.substring( 0, _applicationURL.indexOf( '/', _applicationURL.indexOf( "://" ) ) );
+    _serverUrl = _applicationURL.substring( _applicationURL.indexOf( '/' ),
+                                            _applicationURL.indexOf( '/', _applicationURL.indexOf( "://" ) + 3 ) );
 <% if repository.keycloak? -%>
     _keycloak = new org.realityforge.gwt.keycloak.Keycloak( keycloakClient, _applicationURL + "/.keycloak/" + keycloakClient + "/keycloak.json" );
     getKeycloak().setListener( this );
