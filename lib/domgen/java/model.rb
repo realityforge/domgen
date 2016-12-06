@@ -414,7 +414,7 @@ module Domgen
       end
 
       def facet_key
-        raise "facet_key unimplemented"
+        raise 'facet_key unimplemented'
       end
 
       def parent_facet(facet_key = nil)
