@@ -121,7 +121,6 @@ module Domgen
           additional_helpers = options.delete(:additional_helpers) || []
           helpers = Domgen::Generator.current_helpers + additional_helpers
         end
-
         raise 'No helpers configured' if helpers.nil?
         helpers
       end
@@ -132,7 +131,6 @@ module Domgen
           additional_facets = options.delete(:additional_facets) || []
           facets = Domgen::Generator.current_facets + additional_facets
         end
-
         raise 'No facets configured' if facets.nil?
         facets
       end
