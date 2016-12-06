@@ -90,7 +90,6 @@ require 'domgen/jms/generator'
 require 'domgen/active_record/generator'
 
 # Docbook
-require 'domgen/xml/templates/xml'
 require 'domgen/xml/generator'
 
 # Rake Tasks

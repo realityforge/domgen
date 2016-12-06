@@ -37,9 +37,8 @@ Domgen::Generator.define([:xml],
   end
 
   g.template_set(:xml_doc) do |template_set|
-    template_set.xml_template(:repository,
-                              Domgen::Xml::Templates::Xml,
-                              '#{repository.name}.xml',
-                              :facets => [])
+    template_set.ruby_template(:repository,
+                               'xmldoc.rb',
+                               'main/etc/#{repository.name}.doc.xml')
   end
 end

@@ -107,14 +107,6 @@ module Domgen
         Reality::Generators::RubyTemplate.new(self, facets, target.to_sym, template_filename, output_filename_pattern, helpers, options)
       end
 
-      def xml_template(target, template_class, output_filename_pattern, options = {})
-        options = options.dup
-        facets = get_facets(options)
-        helpers = get_helpers(options)
-
-        XmlTemplate.new(self, facets, target.to_sym, template_class, output_filename_pattern, helpers, options)
-      end
-
       private
 
       def get_template_filename(template_filename)
@@ -143,17 +135,6 @@ module Domgen
 
         raise 'No facets configured' if facets.nil?
         facets
-      end
-
-    end
-
-    class XmlTemplate < Reality::Generators::SingleFileOutputTemplate
-      def initialize(template_set, facets, target, render_class, output_filename_pattern, helpers, options = {})
-        super(template_set, facets, target, render_class.name, output_filename_pattern, helpers + [render_class], options)
-      end
-
-      def render_to_string(context_binding)
-        context_binding.eval('generate')
       end
     end
   end
