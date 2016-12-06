@@ -385,8 +385,7 @@ module Domgen
           raise "Sub-packages #{sub_packages.inspect} expected to be an array" unless sub_packages.is_a?(Array)
 
           key = scope.nil? ? :"#{package_key}_package" : "#{scope}_#{package_key}_package"
-          facet_key = options[:facet_key]
-          idefine_getter(key, Proc.new { self.resolve_package(key, parent_facet(facet_key)) })
+          idefine_getter(key, Proc.new { self.resolve_package(key, parent_facet) })
           idefine_setter(key)
           sub_packages.each do |sub_package|
             sub_package_ruby_name = sub_package.split('.').reverse.join('_')
@@ -417,9 +416,9 @@ module Domgen
         raise 'facet_key unimplemented'
       end
 
-      def parent_facet(facet_key = nil)
+      def parent_facet
         return nil unless parent.respond_to?(:parent, true)
-        parent.send(:parent).facet(facet_key || self.facet_key)
+        parent.send(:parent).facet(self.facet_key)
       end
 
       def package_key
