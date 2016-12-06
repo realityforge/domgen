@@ -13,6 +13,28 @@
 #
 
 module Domgen
+
+  module Faceted
+    def complete
+      extension_point(:pre_complete)
+      extension_point(:perform_complete)
+      extension_point(:post_complete)
+    end
+
+    def verify
+      extension_point(:pre_verify)
+      extension_point(:perform_verify)
+      extension_point(:post_verify)
+    end
+  end
+
+  def self.FacetedElement(parent_key)
+    type = self.ParentedElement(parent_key, 'Domgen::FacetManager.target_manager.apply_extension(self)')
+    type.send :include, Domgen::Faceted
+    type
+  end
+
+
   class << self
     def repositories
       repository_map.values
@@ -272,35 +294,33 @@ module Domgen
     attr_reader :srid
   end
 
-  class EnumerationValue < self.FacetedElement(:enumeration_set)
+  class EnumerationValue < self.FacetedElement(:enumeration)
     attr_reader :name
-    attr_reader :enumeration_set
+    attr_reader :enumeration
 
-    def initialize(enumeration_set, name, options = {}, &block)
+    def initialize(enumeration, name, options = {}, &block)
       @name = name
-      enumeration_set.send :register_enumeration_value, name, self
-      super(enumeration_set, options, &block)
+      enumeration.send :register_enumeration_value, name, self
+      super(enumeration, options, &block)
     end
 
     def value=(value)
-      raise "value= invoked on #{name} enumeration value of #{enumeration_set.qualified_name} when not a text value" unless enumeration_set.textual_values?
+      raise "value= invoked on #{name} enumeration value of #{enumeration.qualified_name} when not a text value" unless enumeration.textual_values?
       @value = value
     end
 
     def value
-      raise "value invoked on #{name} enumeration value of #{enumeration_set.qualified_name} when not a text value" unless enumeration_set.textual_values?
+      raise "value invoked on #{name} enumeration value of #{enumeration.qualified_name} when not a text value" unless enumeration.textual_values?
       @value.nil? ? name.to_s : @value
     end
   end
 
   class EnumerationSet < self.FacetedElement(:data_module)
-    include GenerateFacet
-
     attr_reader :name
     attr_reader :enumeration_type
 
     def initialize(data_module, name, enumeration_type, options = {}, &block)
-      Domgen.error("Unknown enumeration type #{enumeration_type}") if !self.class.enumeration_types.include?(enumeration_type)
+      Domgen.error("Unknown enumeration type #{enumeration_type}") unless self.class.enumeration_types.include?(enumeration_type)
       @name = name
       @enumeration_type = enumeration_type
       data_module.send :register_enumeration, name, self
@@ -408,7 +428,6 @@ module Domgen
   end
 
   class Query < self.FacetedElement(:dao)
-    include GenerateFacet
     include Domgen::CharacteristicContainer
 
     attr_reader :name
@@ -597,8 +616,6 @@ module Domgen
   class DataAccessObject < self.FacetedElement(:data_module)
     attr_reader :name
 
-    include GenerateFacet
-
     def initialize(data_module, name, options, &block)
       @name = name
       @queries = Reality::OrderedHash.new
@@ -652,8 +669,6 @@ module Domgen
   end
 
   class Attribute < self.FacetedElement(:entity)
-    include GenerateFacet
-
     include InheritableCharacteristic
 
     attr_reader :attribute_type
@@ -731,7 +746,6 @@ module Domgen
     attr_reader :cycle_constraints
     attr_reader :queries
 
-    include GenerateFacet
     include InheritableCharacteristicContainer
 
     def initialize(data_module, name, options, &block)
@@ -1034,7 +1048,6 @@ module Domgen
   end
 
   class Struct < self.FacetedElement(:data_module)
-    include GenerateFacet
     include CharacteristicContainer
 
     def initialize(data_module, name, options, &block)
@@ -1112,7 +1125,6 @@ module Domgen
   end
 
   class Message < self.FacetedElement(:data_module)
-    include GenerateFacet
     include CharacteristicContainer
 
     def initialize(data_module, name, options, &block)
@@ -1184,7 +1196,6 @@ module Domgen
 
   class Exception < Domgen.FacetedElement(:data_module)
     include InheritableCharacteristicContainer
-    include GenerateFacet
 
     attr_reader :name
 
@@ -1304,7 +1315,6 @@ module Domgen
 
   class Method < self.FacetedElement(:service)
     include CharacteristicContainer
-    include GenerateFacet
 
     def initialize(service, name, options, &block)
       @name = name
@@ -1377,8 +1387,6 @@ module Domgen
     attr_reader :name
     attr_reader :methods
 
-    include GenerateFacet
-
     def initialize(data_module, name, options, &block)
       @name = name
       @methods = Reality::OrderedHash.new
@@ -1418,8 +1426,6 @@ module Domgen
 
   class DataModule < self.FacetedElement(:repository)
     attr_reader :name
-
-    include GenerateFacet
 
     def initialize(repository, name, options, &block)
       repository.send :register_data_module, name, self
@@ -1830,7 +1836,7 @@ module Domgen
       Domgen::TypeDB.mark_as_initialized
       Domgen.send :register_repository, name, self
       Domgen.info 'Repository definition started'
-      self.activate_facets
+      Domgen::FacetManager.target_manager.apply_extension(self)
       Domgen.current_repository = self
       super(options, &block)
       Domgen.current_repository = nil
@@ -2018,7 +2024,6 @@ module Domgen
       data_module_by_name(name_parts[0]).message(name_parts[1], options, &block)
     end
 
-    include GenerateFacet
     include Faceted
 
     protected
