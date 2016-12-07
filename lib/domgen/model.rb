@@ -296,7 +296,6 @@ module Domgen
 
   class EnumerationValue < self.FacetedElement(:enumeration)
     attr_reader :name
-    attr_reader :enumeration
 
     def initialize(enumeration, name, options = {}, &block)
       @name = name
