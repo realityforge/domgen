@@ -721,7 +721,7 @@ module Domgen
     end
 
     def inverse
-      Domgen.error("inverse called on #{name} is invalid as attribute is not a reference") unless reference?
+      Domgen.error("inverse called on #{qualified_name} is invalid as attribute is not a reference") unless reference?
       @inverse ||= InverseElement.new(self, {})
     end
 
