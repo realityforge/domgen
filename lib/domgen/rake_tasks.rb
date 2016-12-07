@@ -115,7 +115,7 @@ module Domgen #nodoc
               if repositories.size == 1
                 repository = repositories[0]
               else
-                Domgen.error("Domgen task #{full_task_name} does not specify a repository_key parameter and it can not be derived. Candidate repositories include #{repositories.collect{|r|r.name}.inspect}")
+                Domgen.error("Domgen task #{full_task_name} does not specify a repository_key parameter and it can not be derived. Candidate repositories include #{repositories.collect { |r| r.name }.inspect}")
               end
             end
 
