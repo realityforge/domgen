@@ -48,13 +48,13 @@ module Domgen
 
           FileUtils.mkdir_p File.dirname(digest_filename) unless File.directory?(File.dirname(digest_filename))
           if File.exist?(digest_filename) && IO.read(digest_filename) == digest
-            Logger.debug "Skipped generation of #{self.name} for #{self.target} #{object_name} to #{output_package} as no changes to wsdl"
+            Domgen.debug "Skipped generation of #{self.name} for #{self.target} #{object_name} to #{output_package} as no changes to wsdl"
           else
             target_version = '7' == element.data_module.repository.ee.version ? '2.2' : '2.1'
             wsdl2java(base_dir, element.jws.web_service_name, output_package, target_version, wsdl_filename, element.jws.system_id)
 
             File.open(digest_filename, 'w') { |f| f.write(digest) }
-            Logger.debug "Generated #{self.name} for #{self.target} #{object_name} to #{output_package}"
+            Domgen.debug "Generated #{self.name} for #{self.target} #{object_name} to #{output_package}"
           end
         rescue => e
           raise Reality::Generators::GeneratorError.new("Error generating #{self.name} for #{self.target} #{object_name}", e)
@@ -78,7 +78,7 @@ module Domgen
         end
         command << wsdl_filename
 
-        Logger.debug "Executing generator #{command.join(' ')}"
+        Domgen.debug "Executing generator #{command.join(' ')}"
         output = `#{command.join(' ')}`
         if $? != 0
           puts output
