@@ -21,6 +21,10 @@ module Domgen
     def new_template_set(name, options, &block)
       Domgen::Generator::TemplateSet.new(self, name.to_s, options, &block)
     end
+
+    def new_generator
+      Domgen::DomgenGenerator
+    end
   end
 
   Domgen.target_manager.target(:repository)
@@ -35,6 +39,17 @@ module Domgen
   Domgen.target_manager.target(:exception, :data_module)
   Domgen.target_manager.target(:message, :data_module)
   Domgen.target_manager.target(:enumeration, :data_module)
+  module DomgenGenerator
+    class << self
+      include Reality::Generators::Generator
+
+      # A hook to control whether certain paths in model should
+      # be follow when collecting generation targets
+      def handle_subelement?(object, sub_feature_key)
+        Domgen::FacetManager.handle_sub_feature?(object, sub_feature_key)
+      end
+    end
+  end
 
   module Generator
     class << self

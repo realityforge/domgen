@@ -82,8 +82,8 @@ module Domgen #nodoc
       @target_dir = target_dir
       yield self if block_given?
       define
-      @templates = Reality::Generators::Generator.load_templates_from_template_sets(Domgen, generator_keys)
-      Reality::Generators::Generator.configure_buildr_project(buildr_project, task_name, @templates, target_dir)
+      @templates = Domgen.generator.load_templates_from_template_sets(Domgen, generator_keys)
+      Domgen.generator.configure_buildr_project(buildr_project, task_name, @templates, target_dir)
     end
 
     private
@@ -122,12 +122,7 @@ module Domgen #nodoc
             Domgen::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
             Reality::Generators::Logger.level = verbose? ? ::Logger::DEBUG : ::Logger::WARN
             Logger.info "Generator started: Generating #{self.generator_keys.inspect}"
-            Reality::Generators::Generator.generate(Domgen,
-                                                    :repository,
-                                                    repository,
-                                                    self.target_dir,
-                                                    @templates,
-                                                    self.filter)
+            Domgen.generator.generate(Domgen, :repository, repository, self.target_dir, @templates, self.filter)
           rescue Reality::Generators::GeneratorError => e
             puts e.message
             if e.cause
