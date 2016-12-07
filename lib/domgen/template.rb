@@ -27,18 +27,10 @@ module Domgen
     end
   end
 
-  Domgen.target_manager.target(:repository)
-  Domgen.target_manager.target(:data_module, :repository)
-  Domgen.target_manager.target(:dao, :data_module)
-  Domgen.target_manager.target(:query, :dao)
-  Domgen.target_manager.target(:entity, :data_module)
-  Domgen.target_manager.target(:attribute, :entity)
-  Domgen.target_manager.target(:struct, :data_module)
-  Domgen.target_manager.target(:service, :data_module)
-  Domgen.target_manager.target(:method, :service)
-  Domgen.target_manager.target(:exception, :data_module)
-  Domgen.target_manager.target(:message, :data_module)
-  Domgen.target_manager.target(:enumeration, :data_module)
+  Domgen::FacetManager.target_manager.targets.each do |target|
+    Domgen.target_manager.target(target.key, target.container_key, :access_method => target.access_method)
+  end
+
   module DomgenGenerator
     class << self
       include Reality::Generators::Generator
