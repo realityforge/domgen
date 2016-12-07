@@ -795,16 +795,12 @@ module Domgen
         self.repository.exception_by_name(self.invalid_session_exception).tap do |e|
           e.java.exception_category = :runtime
           e.ejb.rollback = false
-          (e.all_enabled_facets - FacetManager.dependent_facet_keys(*self.component_facets)).each do |facet_key|
-            e.disable_facet(facet_key) if e.facet_enabled?(facet_key)
-          end
+          e.disable_facets_not_in(*self.component_facets)
         end
 
         self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)
         self.repository.service_by_name(self.session_context_service).tap do |s|
-          (s.all_enabled_facets - FacetManager.dependent_facet_keys(:ejb)).each do |facet_key|
-            s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
-          end
+          s.disable_facets_not_in(:ejb)
           repository.imit.graphs.each do |graph|
             s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
               m.parameter(:Message, 'org.realityforge.replicant.server.EntityMessage')
@@ -913,9 +909,7 @@ module Domgen
 
         self.repository.service(self.subscription_manager) unless self.repository.service_by_name?(self.subscription_manager)
         self.repository.service_by_name(self.subscription_manager).tap do |s|
-          (s.all_enabled_facets - FacetManager.dependent_facet_keys(*self.component_facets)).each do |facet_key|
-            s.disable_facet(facet_key) if s.facet_enabled?(facet_key)
-          end
+          s.disable_facets_not_in(*self.component_facets)
           s.ejb.bind_in_tests = false
           s.ejb.generate_base_test = false
 
