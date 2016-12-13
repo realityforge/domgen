@@ -1125,6 +1125,7 @@ module Domgen
         Domgen.error("#{replication_type.inspect} is not of a known type") unless [:instance, :type].include?(replication_type)
         graph = entity.data_module.repository.imit.graph_by_name(graph)
         k = entity.qualified_name
+        Domgen.error("Attempting to override instance graph root '#{graph.instance_root}' with '#{k}' is not allowed.") if :instance == replication_type && graph.instance_root?
         graph.instance_root = k if :instance == replication_type
         graph.type_roots.concat([k.to_s]) if :type == replication_type
       end
