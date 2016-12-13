@@ -251,7 +251,7 @@ module Domgen
               application.repository.imit.graph_by_name(graph_link.target_graph).included_entities.any? { |e| e == referenced_entity.qualified_name }
             end
 
-            Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not part of any of the dependent type graphs: #{rtgs.collect { |e| e.name }.inspect} and not in current graph #{entities.inspect}.")
+            Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not part of any of the dependent type graphs: #{rtgs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
           end
         end
       end
