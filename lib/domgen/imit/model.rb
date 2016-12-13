@@ -304,10 +304,8 @@ module Domgen
       attr_reader :source_graph
       attr_reader :target_graph
 
-      attr_reader :path
+      attr_accessor :path
 
-      def path=(path)
-        @path = path
       end
 
       def post_verify
