@@ -270,7 +270,6 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   pk_accessor = ''
   instance_root = nil
   if graph.instance_root?
-    # Names are fully qualified so take any random data module
     instance_root = repository.entity_by_name(graph.instance_root)
     param << "@javax.annotation.Nonnull final #{instance_root.jpa.qualified_name} entity"
     param_value << 'entity'
