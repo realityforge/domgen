@@ -220,7 +220,7 @@ module Domgen
         if cacheable? && (filter_parameter || instance_root?)
           Domgen.error("Graph #{self.name} can not be marked as cacheable as cacheable graphs are not supported for instance based or filterable graphs")
         end
-        self.outward_graph_links.each do |graph_link|
+        self.outward_graph_links.select { |graph_link| graph_link.auto? }.each do |graph_link|
           target_graph = application.repository.imit.graph_by_name(graph_link.target_graph)
           if target_graph.filtered? && self.unfiltered?
             Domgen.error("Graph '#{self.name}' is an unfiltered graph but has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}'. This is not supported.")
@@ -235,7 +235,7 @@ module Domgen
 
         entities.each do |entity_name|
           entity = application.repository.entity_by_name(entity_name)
-          entity.attributes.select { |a| a.reference? && a.imit? && a.imit.client_side? && a.imit.graph_links.empty? }.each do |a|
+          entity.attributes.select { |a| a.reference? && a.imit? && a.imit.client_side? && a.imit.auto_graph_links.empty? }.each do |a|
             referenced_entity = a.referenced_entity
 
             # Unclear on how to handle this next scenario. Assume a subtype is visible?
@@ -247,9 +247,11 @@ module Domgen
             # If entity is part of required type graphs then all is ok
             next if rtgs.any? { |g| g.type_roots.include?(referenced_entity.qualified_name) }
 
-            next if self.instance_root? && self.inward_graph_links.all? do |graph_link|
-              application.repository.imit.graph_by_name(graph_link.target_graph).included_entities.any? { |e| e == referenced_entity.qualified_name }
-            end
+            next if self.instance_root? &&
+              !self.inward_graph_links.empty? &&
+              self.inward_graph_links.all? do |graph_link|
+                application.repository.imit.graph_by_name(graph_link.source_graph).included_entities.any? { |e| e == referenced_entity.qualified_name }
+              end
 
             Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not part of any of the dependent type graphs: #{rtgs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
           end
@@ -282,7 +284,7 @@ module Domgen
     end
 
     class GraphLink < Domgen.ParentedElement(:imit_attribute)
-      def initialize(imit_attribute, source_graph, target_graph, options, &block)
+      def initialize(imit_attribute, name, source_graph, target_graph, options, &block)
         repository = imit_attribute.attribute.entity.data_module.repository
         unless repository.imit.graph_by_name?(source_graph)
           Domgen.error("Source graph '#{source_graph}' specified for link on #{imit_attribute.attribute.name} does not exist")
@@ -290,26 +292,33 @@ module Domgen
         unless repository.imit.graph_by_name?(target_graph)
           Domgen.error("Target graph '#{target_graph}' specified for link on #{imit_attribute.attribute.name} does not exist")
         end
-        unless imit_attribute.attribute.reference?
-          Domgen.error("Attempted to define a graph link on non-reference attribute '#{imit_attribute.attribute.qualified_name}'")
+        unless imit_attribute.attribute.reference? || imit_attribute.attribute.primary_key?
+          Domgen.error("Attempted to define a graph link on non-reference, non-primary key attribute '#{imit_attribute.attribute.qualified_name}'")
         end
+        @name = name
         @source_graph = source_graph
         @target_graph = target_graph
+        @auto = !imit_attribute.attribute.primary_key?
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(source_graph).send :register_outward_graph_link, self
         repository.imit.graph_by_name(target_graph).send :register_inward_graph_link, self, source_graph
-        self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph
+        self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph unless self.auto?
       end
 
+      attr_reader :name
       attr_reader :source_graph
       attr_reader :target_graph
 
       attr_accessor :path
 
+      attr_writer :auto
+
+      def auto?
+        !!@auto
       end
 
       def post_verify
-        entity = self.imit_attribute.attribute.referenced_entity
+        entity = self.imit_attribute.attribute.primary_key? ? self.imit_attribute.attribute.entity : self.imit_attribute.attribute.referenced_entity
 
         # Need to make sure that the path is valid
         if self.path
@@ -882,7 +891,7 @@ module Domgen
           end
 
           processed = []
-          repository.imit.graphs.select { |g| g.instance_root? }.collect { |g| g.inward_graph_links }.flatten.each do |graph_link|
+          repository.imit.graphs.select { |g| g.instance_root? }.collect { |g| g.inward_graph_links.select { |graph_link| graph_link.auto? } }.flatten.each do |graph_link|
             source_graph = repository.imit.graph_by_name(graph_link.source_graph)
             target_graph = repository.imit.graph_by_name(graph_link.target_graph)
             next unless target_graph.filtered?
@@ -1212,8 +1221,8 @@ module Domgen
         routing_keys_map["#{graph}#{name}"] = Domgen::Imit::RoutingKey.new(self, name, graph, params)
       end
 
-      def graph_links_map
-        @graph_links ||= {}
+      def auto_graph_links
+        graph_links_map.values.select { |graph_link| graph_link.auto? }
       end
 
       def graph_links
@@ -1223,7 +1232,7 @@ module Domgen
       def graph_link(source_graph, target_graph, options = {}, &block)
         key = "#{source_graph}->#{target_graph}"
         Domgen.error("Graph link already defined between #{source_graph} and #{target_graph} on attribute '#{attribute.qualified_name}'") if graph_links_map[key]
-        graph_links_map[key] = Domgen::Imit::GraphLink.new(self, source_graph, target_graph, options, &block)
+        graph_links_map[key] = Domgen::Imit::GraphLink.new(self, "#{key}:#{attribute.qualified_name}", source_graph, target_graph, options, &block)
       end
 
       include Domgen::Java::ImitJavaCharacteristic
@@ -1235,6 +1244,12 @@ module Domgen
         self.routing_keys.each do |routing_key|
           routing_key.post_verify
         end
+      end
+
+      protected
+
+      def graph_links_map
+        @graph_links ||= {}
       end
 
       def characteristic

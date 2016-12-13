@@ -28,7 +28,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   data_module.entities.each do |entity|
     if entity.imit? && entity.concrete?
 
-      links = entity.attributes.select{|a|a.imit? && a.imit.graph_links.size > 0}.collect{|a| a.imit.graph_links }.flatten
+      links = entity.attributes.collect{|a| a.imit? ? a.imit.auto_graph_links : [] }.flatten
 
 %>if( <%= entity.jpa.qualified_name %>.class.isInstance( object ) )
     {
@@ -51,7 +51,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   links.each do |graph_link|
     source_graph = repository.imit.graph_by_name(graph_link.source_graph)
     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
-    entity = graph_link.imit_attribute.attribute.referenced_entity
+    entity = graph_link.imit_attribute.attribute.primary_key? ? graph_link.imit_attribute.attribute.entity : graph_link.imit_attribute.attribute.referenced_entity
     getter_path = [getter_for(graph_link.imit_attribute.attribute)]
     if graph_link.path
       graph_link.path.to_s.split.each_with_index do |attribute_name_path_element, i|

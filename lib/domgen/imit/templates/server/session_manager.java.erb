@@ -227,7 +227,7 @@ entities.uniq.each do |entity| -%>
       {
         for ( final org.realityforge.replicant.server.ChannelLink link : links )
         {
-          <% repository.imit.graphs.select{|g| g.instance_root? }.collect{|g| g.inward_graph_links }.flatten.each do |graph_link|
+          <% repository.imit.graphs.select{|g| g.instance_root? }.collect{|g| g.inward_graph_links.select{|graph_link| graph_link.auto?} }.flatten.each do |graph_link|
            graph = repository.imit.graph_by_name(graph_link.target_graph)
            source_graph = repository.imit.graph_by_name(graph_link.source_graph)
            entity = repository.entity_by_name(graph.instance_root)
@@ -418,7 +418,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
     org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges().mergeAll( org.realityforge.replicant.server.ChangeUtil.toChanges( messages.getEntityMessages(), <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? pk_accessor : 0 %> ) );
 <%
   processed = []
-  graph.outward_graph_links.each do |graph_link|
+  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
      next unless target_graph.filtered?
      key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
