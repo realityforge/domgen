@@ -775,7 +775,7 @@ module Domgen
       def process_filter_struct(processed, toprocess, struct)
         return if processed.include?(struct)
         struct.imit.part_of_filter = true
-        struct.fields.select{|field| field.imit?}.each do |field|
+        struct.fields.select { |field| field.imit? }.each do |field|
           if field.enumeration?
             field.enumeration.imit.part_of_filter = true
           elsif field.struct?
@@ -820,7 +820,7 @@ module Domgen
                     }
                   options[:referenced_entity] = routing_key.target_attribute.referenced_entity if routing_key.target_attribute.reference?
                   options[:referenced_struct] = routing_key.target_attribute.referenced_struct if routing_key.target_attribute.struct?
-                  m.parameter(routing_key.name.gsub('_',''),
+                  m.parameter(routing_key.name.gsub('_', ''),
                               routing_key.target_attribute.attribute_type,
                               options)
                 end
@@ -865,13 +865,13 @@ module Domgen
                   outgoing_links = entity.referencing_attributes.select { |a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
                   outgoing_links.each do |a|
                     if a.inverse.multiplicity == :many
-                      s.method("Get#{a.inverse.attribute.qualified_name.gsub('.','')}In#{graph.name}Graph") do |m|
+                      s.method("Get#{a.inverse.attribute.qualified_name.gsub('.', '')}In#{graph.name}Graph") do |m|
                         m.reference(a.referenced_entity.qualified_name, :name => :Entity)
                         m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
                         m.returns(:reference, :referenced_entity => a.entity.qualified_name, :collection_type => :sequence)
                       end
                     elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
-                      s.method("Get#{a.inverse.attribute.qualified_name.gsub('.','')}In#{graph.name}Graph") do |m|
+                      s.method("Get#{a.inverse.attribute.qualified_name.gsub('.', '')}In#{graph.name}Graph") do |m|
                         m.reference(a.referenced_entity.qualified_name, :name => :Entity)
                         m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
                         m.returns(:reference, :referenced_entity => a.entity.qualified_name, :nullable => (a.inverse.multiplicity == :zero_or_one))
