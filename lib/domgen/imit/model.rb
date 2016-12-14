@@ -302,7 +302,7 @@ module Domgen
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(source_graph).send :register_outward_graph_link, self
         repository.imit.graph_by_name(target_graph).send :register_inward_graph_link, self, source_graph
-        self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph unless self.auto?
+        self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph if self.auto?
       end
 
       attr_reader :name
