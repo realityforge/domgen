@@ -27,9 +27,7 @@ module Domgen
     end
   end
 
-  Domgen::FacetManager.target_manager.targets.each do |target|
-    Domgen.target_manager.target(target.key, target.container_key, :access_method => target.access_method)
-  end
+  Reality::Facets.copy_targets_from_generator_target_manager(Domgen, Domgen::FacetManager)
 
   module DomgenGenerator
     class << self
