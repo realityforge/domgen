@@ -276,7 +276,8 @@ module Domgen
         @outward_graph_links[key] = graph_link
       end
 
-      def register_inward_graph_link(graph_link, from_graph)
+      def register_inward_graph_link(graph_link)
+        from_graph = graph_link.source_graph
         key = "#{from_graph}-#{graph_link.imit_attribute.attribute.qualified_name.to_s}"
         Domgen.error("Attempted to register duplicate inward graph link on attribute '#{graph_link.imit_attribute.attribute.qualified_name}' on graph '#{self.name}' from graph '#{from_graph}'") if @inward_graph_links[key]
         @inward_graph_links[key] = graph_link
@@ -301,7 +302,7 @@ module Domgen
         @auto = !imit_attribute.attribute.primary_key?
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(source_graph).send(:register_outward_graph_link, self)
-        repository.imit.graph_by_name(target_graph).send :register_inward_graph_link, self, source_graph
+        repository.imit.graph_by_name(target_graph).send(:register_inward_graph_link, self)
         self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph if self.auto?
       end
 
