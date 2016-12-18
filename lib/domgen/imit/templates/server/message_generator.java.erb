@@ -65,7 +65,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
         if( null != entity.<%= getter_path.join('.') %> )
 <% end -%>
         {
-          links.add(new org.realityforge.replicant.server.ChannelLink(new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>.ordinal(),routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>_KEY)),new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>.ordinal(),entity.<%= getter_path.join('.') %>.<%= getter_for(entity.primary_key) %> )));
+          links.add(new org.realityforge.replicant.server.ChannelLink(new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>.ordinal(), <% if source_graph.instance_root? -%>routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>_KEY )<% else -%>null<% end -%> ),new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>.ordinal(),entity.<%= getter_path.join('.') %>.<%= getter_for(entity.primary_key) %> )));
         }
 <% end -%>
       }
