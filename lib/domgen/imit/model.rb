@@ -300,7 +300,7 @@ module Domgen
         @target_graph = target_graph
         @auto = !imit_attribute.attribute.primary_key?
         super(imit_attribute, options, &block)
-        repository.imit.graph_by_name(source_graph).send :register_outward_graph_link, self
+        repository.imit.graph_by_name(source_graph).send(:register_outward_graph_link, self)
         repository.imit.graph_by_name(target_graph).send :register_inward_graph_link, self, source_graph
         self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph if self.auto?
       end
