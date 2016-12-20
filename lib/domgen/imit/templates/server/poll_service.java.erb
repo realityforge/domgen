@@ -3,8 +3,8 @@ package <%= to_package(repository.imit.qualified_poll_service_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 public interface <%= repository.imit.poll_service_name %>
-  {
-    @javax.annotation.Nullable
-    String poll( @javax.annotation.Nonnull String sessionID, int rxSequence )
-      throws Exception;
-  }
+{
+  @javax.annotation.Nullable
+  String poll( @javax.annotation.Nonnull String sessionID, int rxSequence )
+    throws Exception;
+}
