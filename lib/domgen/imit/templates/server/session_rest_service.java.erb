@@ -9,10 +9,10 @@ public class <%= repository.imit.session_rest_service_name %>
   extends org.realityforge.replicant.server.ee.rest.AbstractSessionRestService
 {
   @javax.inject.Inject
-  private org.realityforge.ssf.SessionManager<<%= repository.imit.qualified_session_name %>> _sessionManager;
+  private org.realityforge.replicant.server.transport.ReplicantSessionManager _sessionManager;
 
   @java.lang.Override
-  protected org.realityforge.ssf.SessionManager getSessionManager()
+  protected org.realityforge.replicant.server.transport.ReplicantSessionManager getSessionManager()
   {
     return _sessionManager;
   }

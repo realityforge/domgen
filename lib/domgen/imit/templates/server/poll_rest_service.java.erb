@@ -12,7 +12,7 @@ public class <%= repository.imit.poll_rest_service_name %>
   @javax.inject.Inject
   private <%= repository.imit.qualified_poll_service_name %> _pollService;
   @javax.inject.Inject
-  private org.realityforge.ssf.SessionManager<<%= repository.imit.qualified_session_name %>> _sessionManager;
+  private org.realityforge.replicant.server.transport.ReplicantSessionManager _sessionManager;
   @javax.annotation.Resource( lookup = "<%= repository.imit.executor_service_jndi %>" )
   private javax.enterprise.concurrent.ManagedScheduledExecutorService _executorService;
   @javax.annotation.Resource( lookup = "<%= repository.imit.context_service_jndi %>" )
