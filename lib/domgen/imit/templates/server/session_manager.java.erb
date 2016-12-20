@@ -97,9 +97,7 @@ entities.uniq.each do |entity| -%>
   end
 
   customize_filter = ", session#{graph.instance_root? ? ", #{graph.name}" : ''}"
-  if graph.filter_parameter?
-    customize_filter = "#{customize_filter}, session.#{graph.instance_root? ? "getInterestedIn#{graph.name}().get( #{graph.name} )" : "get#{graph.name}Parameter()" }"
-  end
+  customize_filter = "#{customize_filter}, (#{Domgen::Java.java_type(graph.filter_parameter, :ee, :default)}) entry.getFilter()" if graph.filter_parameter?
   customize_filter = "#{customize_filter}#{extra_interest_filter}"
 -%>
       for ( final org.realityforge.replicant.server.transport.ReplicantSession session : sessions )
