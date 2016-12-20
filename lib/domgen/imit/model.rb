@@ -579,7 +579,6 @@ module Domgen
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
       java_artifact :client_router_impl, :comm, :client, :imit, '#{client_router_interface_name}Impl'
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
-      java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManager#{repository.ejb.implementation_suffix}'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
       java_artifact :poll_rest_service, :rest, :server, :imit, '#{repository.name}ReplicantPollRestService'
@@ -812,7 +811,7 @@ module Domgen
           repository.imit.graphs.each do |graph|
             s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
               m.parameter(:Message, 'org.realityforge.replicant.server.EntityMessage')
-              m.parameter(:Session, self.repository.imit.qualified_session_name)
+              m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
               if graph.instance_root?
                 entity = repository.entity_by_name(graph.instance_root)
                 m.parameter("#{entity.name}#{entity.primary_key.name}", entity.primary_key.jpa.non_primitive_java_type)
@@ -854,7 +853,8 @@ module Domgen
               end
               if graph.external_data_load? || graph.filter_parameter?
                 s.method("Collect#{graph.name}") do |m|
-                  m.parameter(:Messages, 'org.realityforge.replicant.server.EntityMessageSet')
+                  m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor')
+                  m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                   m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                 end
               end
