@@ -859,6 +859,14 @@ module Domgen
                 end
               end
             else
+              s.method("BulkCollectDataFor#{graph.name}") do |m|
+                m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor', :collection_type => :sequence)
+                m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
+                m.boolean(:ExplicitSubscribe)
+                m.returns(:boolean)
+              end
               if graph.filter_parameter?
                 unless graph.filter_parameter.immutable?
                   s.method("CollectForFilterChange#{graph.name}") do |m|
@@ -866,6 +874,14 @@ module Domgen
                     m.reference(graph.instance_root, :name => :Entity)
                     m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                     m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                  end
+                  s.method("BulkCollectDataFor#{graph.name}Update") do |m|
+                    m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                    m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor', :collection_type => :sequence)
+                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                    m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                    m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                    m.returns(:boolean)
                   end
                 end
 
@@ -937,10 +953,69 @@ module Domgen
               m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filtered?
               m.exception(self.invalid_session_exception)
             end
+            if graph.instance_root?
+              s.method(:"SubscribeToMultiple#{Reality::Naming.pluralize(graph.name)}") do |m|
+                m.string(:ClientID, 50)
+                options = {}
+                pk = repository.entity_by_name(graph.instance_root).primary_key
+                if pk.enumeration?
+                  options[:enumeration] = pk.enumeration
+                  options[:length] = pk.length
+                end
+                if pk.text?
+                  options[:length] = pk.length
+                  options[:min_length] = pk.min_length
+                  options[:allow_blank] = pk.allow_blank?
+                end
+                options[:collection_type] = :sequence
+                options[:nullable] = pk.nullable?
+                m.parameter(pk.name, pk.attribute_type, options)
+                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filtered?
+                m.exception(self.invalid_session_exception)
+              end
+
+              s.method(:"UnsubscribeFromMultiple#{Reality::Naming.pluralize(graph.name)}") do |m|
+                m.string(:ClientID, 50)
+                options = {}
+                pk = repository.entity_by_name(graph.instance_root).primary_key
+                if pk.enumeration?
+                  options[:enumeration] = pk.enumeration
+                  options[:length] = pk.length
+                end
+                if pk.text?
+                  options[:length] = pk.length
+                  options[:min_length] = pk.min_length
+                  options[:allow_blank] = pk.allow_blank?
+                end
+                options[:collection_type] = :sequence
+                options[:nullable] = pk.nullable?
+                m.parameter(pk.name, pk.attribute_type, options)
+                m.exception(self.invalid_session_exception)
+              end
+            end
             if graph.filtered? && !graph.filter_parameter.immutable?
               s.method(:"Update#{graph.name}Subscription") do |m|
                 m.string(:ClientID, 50)
                 m.reference(graph.instance_root) if graph.instance_root?
+                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+                m.exception(self.invalid_session_exception)
+              end
+              s.method(:"UpdateMultiple#{graph.name}Subscriptions") do |m|
+                m.string(:ClientID, 50)
+                options = {}
+                pk = repository.entity_by_name(graph.instance_root).primary_key
+                if pk.enumeration?
+                  options[:enumeration] = pk.enumeration
+                  options[:length] = pk.length
+                end
+                if pk.text?
+                  options[:length] = pk.length
+                  options[:min_length] = pk.min_length
+                  options[:allow_blank] = pk.allow_blank?
+                end
+                options[:collection_type] = :sequence
+                options[:nullable] = pk.nullable?
+                m.parameter(pk.name, pk.attribute_type, options)
                 m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
                 m.exception(self.invalid_session_exception)
               end

@@ -187,9 +187,11 @@ entities.uniq.each do |entity| -%>
   end
   update_param = param.dup
   update_param_value = param_value.dup
+  filter_param = nil
   if graph.filter_parameter
     p = graph.filter_parameter
-    update_param << "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter"
+    filter_param = "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter"
+    update_param << filter_param
     update_param_value << 'filter'
   end
   param = param.join(', ')
@@ -208,7 +210,76 @@ entities.uniq.each do |entity| -%>
     return status != CacheStatus.USE;
 <% end -%>
   }
+<% if graph.instance_root?
+
+  root_type = Domgen::Java.java_type(instance_root.primary_key, :ee, :default)
+-%>
+
+  public void subscribeToMultiple<%= Reality::Naming.pluralize(graph.name) %>( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final java.util.List<<%= root_type %>> roots<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
+  {
+    bulkSubscribe( sessionID, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), (java.util.Collection<java.io.Serializable>) (java.util.Collection) roots, filter, true );
+  }
+
+  public void unsubscribeFromMultiple<%= Reality::Naming.pluralize(graph.name) %>( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final java.util.List<<%= root_type %>> roots )
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
+  {
+    bulkUnsubscribe( sessionID, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), (java.util.Collection<java.io.Serializable>) (java.util.Collection) roots, true );
+  }
+<% end -%>
+<% if !graph.instance_root? && !graph.external_data_load? -%>
+  private void collect<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages )
+  {
+    // Add to a list so that when routing we limit the number of new entities that are loaded during routing
+    final java.util.LinkedList<Object> objects = new java.util.LinkedList<>();
+<% graph.type_roots.each do |type_root_name|
+  type = repository.entity_by_name(type_root_name)
+-%>
+    objects.addAll( _<%= Reality::Naming.camelize("#{type.data_module.name}#{type.name}") %>Repository.findAll() );
+<% end -%>
+    _encoder.encodeObjects( messages, objects );
+  }
+
+<% end -%>
+<% if graph.instance_root? -%>
+
+  private org.realityforge.replicant.server.EntityMessageSet encode<%= graph.name %>( @javax.annotation.Nonnull final <%= repository.entity_by_name(graph.instance_root).jpa.qualified_name %> entity<%= graph.filter_parameter.nil? ? '' : ", #{Domgen::Java.java_type(graph.filter_parameter, :ee, :default)} filter" %> )
+  {
+    final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
+    _encoder.encode<%= graph.name %>( messages, entity<%= graph.filter_parameter.nil? ? '' : ", filter" %> );
+    return messages;
+  }
+<% end -%>
 <% if graph.filter_parameter && !graph.filter_parameter.immutable? -%>
+
+  @java.lang.Override
+  public void updateMultiple<%= graph.name %>Subscriptions( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final java.util.List<<%= root_type %>> roots, <%= filter_param %> )
+    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
+  {
+    bulkUpdateSubscription( sessionID, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), (java.util.Collection<java.io.Serializable>) (java.util.Collection) roots, filter );
+<%
+  processed = []
+  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+     next unless target_graph.filtered?
+     key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+     next if processed.include?(key)
+     processed << key
+     instance_root = repository.entity_by_name(target_graph.instance_root)
+     entity = repository.entity_by_name(graph.instance_root)
+-%>
+    for ( final <%= root_type %> id : roots )
+    {
+      final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
+      //Propogate the filter from <%= graph.name %> to downstream graph <%= target_graph.name %>
+      for ( final <%= instance_root.jpa.qualified_name %> downstreamEntity : _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( entity, filter ) )
+      {
+        subscribeTo<%= target_graph.name %>( sessionID, downstreamEntity, filter );
+      }
+    }
+<% end if graph.instance_root? -%>
+  }
+
   @java.lang.Override
   public void update<%= graph.name %>Subscription( @javax.annotation.Nonnull final String sessionID<%= update_param %> )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
