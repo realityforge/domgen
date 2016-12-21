@@ -295,12 +295,10 @@ entities.uniq.each do |entity| -%>
       processed << key
       instance_root = repository.entity_by_name(target_graph.instance_root)
 -%>
+    //Propogate the filter from <%= graph.name %> to downstream graph <%= target_graph.name %>
+    for ( final <%= instance_root.jpa.qualified_name %> downstreamEntity : _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( entity, filter ) )
     {
-      final java.util.List<<%= instance_root.jpa.qualified_name %>> links = _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( entity, filter );
-      for ( final <%= instance_root.jpa.qualified_name %> link : links )
-      {
-        subscribeTo<%= target_graph.name %>( sessionID, link, filter );
-      }
+      subscribeTo<%= target_graph.name %>( sessionID, downstreamEntity, filter );
     }
 <% end if graph.instance_root? -%>
   }
