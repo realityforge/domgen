@@ -1000,24 +1000,26 @@ module Domgen
                 m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
                 m.exception(self.invalid_session_exception)
               end
-              s.method(:"UpdateMultiple#{graph.name}Subscriptions") do |m|
-                m.string(:ClientID, 50)
-                options = {}
-                pk = repository.entity_by_name(graph.instance_root).primary_key
-                if pk.enumeration?
-                  options[:enumeration] = pk.enumeration
-                  options[:length] = pk.length
+              if graph.instance_root?
+                s.method(:"UpdateMultiple#{graph.name}Subscriptions") do |m|
+                  m.string(:ClientID, 50)
+                  options = {}
+                  pk = repository.entity_by_name(graph.instance_root).primary_key
+                  if pk.enumeration?
+                    options[:enumeration] = pk.enumeration
+                    options[:length] = pk.length
+                  end
+                  if pk.text?
+                    options[:length] = pk.length
+                    options[:min_length] = pk.min_length
+                    options[:allow_blank] = pk.allow_blank?
+                  end
+                  options[:collection_type] = :sequence
+                  options[:nullable] = pk.nullable?
+                  m.parameter(pk.name, pk.attribute_type, options)
+                  m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+                  m.exception(self.invalid_session_exception)
                 end
-                if pk.text?
-                  options[:length] = pk.length
-                  options[:min_length] = pk.min_length
-                  options[:allow_blank] = pk.allow_blank?
-                end
-                options[:collection_type] = :sequence
-                options[:nullable] = pk.nullable?
-                m.parameter(pk.name, pk.attribute_type, options)
-                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
-                m.exception(self.invalid_session_exception)
               end
             end
             s.method(:"UnsubscribeFrom#{graph.name}") do |m|

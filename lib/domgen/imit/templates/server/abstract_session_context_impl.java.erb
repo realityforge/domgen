@@ -18,7 +18,7 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   }
 
 <% end -%>
-<% repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph| -%>
+<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.filtered?}.each do |graph| -%>
 <% if repository.ee.use_cdi? -%>
   @javax.transaction.Transactional( javax.transaction.Transactional.TxType.NOT_SUPPORTED )
 <% else -%>
