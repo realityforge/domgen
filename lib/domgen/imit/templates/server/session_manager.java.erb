@@ -364,10 +364,11 @@ entities.uniq.each do |entity| -%>
   {
     unsubscribe( sessionID, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? pk_accessor : 'null' %> ) );
   }
-<% end %>
+
+<% end -%>
 
   @java.lang.Override
-  protected java.lang.String collectDataForSubscribe( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session,@javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelDescriptor descriptor,@javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet,@javax.annotation.Nullable final Object filter )
+  protected java.lang.String collectDataForSubscribe( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelDescriptor descriptor,@javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet,@javax.annotation.Nullable final Object filter )
   {
     <%
   repository.imit.graphs.each do |graph|
