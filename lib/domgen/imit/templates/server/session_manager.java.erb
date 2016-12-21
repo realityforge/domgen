@@ -299,8 +299,6 @@ entities.uniq.each do |entity| -%>
       final java.util.List<<%= instance_root.jpa.qualified_name %>> links = _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( entity, filter );
       for ( final <%= instance_root.jpa.qualified_name %> link : links )
       {
-        //TODO: Implement this by non-explicit subscribes
-    X
         subscribeTo<%= target_graph.name %>( sessionID, link, filter );
       }
     }
