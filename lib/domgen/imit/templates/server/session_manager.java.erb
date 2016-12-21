@@ -456,7 +456,7 @@ entities.uniq.each do |entity| -%>
          source_graph = repository.imit.graph_by_name(graph_link.source_graph)
          entity = repository.entity_by_name(graph.instance_root)
          if graph.filter_parameter && graph.instance_root? && source_graph.instance_root?
-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal() == source.getChannelID() && <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal() == source.getChannelID() )
+%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>.ordinal() == source.getChannelID() && <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal() == target.getChannelID() )
     {
       final <%= entity.primary_key.jpa.java_type %> targetID = (<%= entity.primary_key.jpa.java_type %>) target.getSubChannelID();
       final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getByID( targetID );
