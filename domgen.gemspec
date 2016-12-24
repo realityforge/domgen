@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.has_rdoc           = false
   s.rdoc_options       = %w(--line-numbers --inline-source --title domgen)
 
-  s.add_dependency 'reality-core', '>= 1.5.0'
+  s.add_dependency 'reality-core', '>= 1.6.0'
   s.add_dependency 'reality-facets', '>= 1.3.0'
   s.add_dependency 'reality-generators', '>= 1.3.0'
   s.add_dependency 'reality-naming', '>= 1.6.0'
