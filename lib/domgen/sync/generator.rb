@@ -65,7 +65,7 @@ Domgen::Generator.define([:sync],
   %w(test main).each do |type|
     g.template_set(:"sync_master_#{type}_qa") do |template_set|
       template_set.erb_template(:data_module,
-                                "master_sync_service_test.java.erb",
+                                'master_sync_service_test.java.erb',
                                 type + '/java/#{data_module.sync.qualified_master_sync_service_test_name.gsub(".","/")}.java',
                                 :guard => 'data_module.sync.master_data_module?')
     end
