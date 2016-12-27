@@ -1,10 +1,8 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path('../lib', __FILE__)
-require 'domgen/version'
 
 Gem::Specification.new do |s|
   s.name               = %q{domgen}
-  s.version            = Domgen::VERSION
+  s.version            = '0.19.0.dev'
   s.platform           = Gem::Platform::RUBY
 
   s.authors            = ['Peter Donald']

@@ -22,8 +22,6 @@ require 'reality/generators'
 require 'reality/naming'
 require 'reality/orderedhash'
 
-require 'domgen/version'
-
 # Core components
 require 'domgen/core'
 require 'domgen/typedb'
