@@ -16,30 +16,20 @@ module Domgen
   class << self
     include Reality::Generators::TemplateSetContainer
 
+    # A hook to control whether certain paths in model should
+    # be follow when collecting generation targets
+    def handle_subelement?(object, sub_feature_key)
+      Domgen::FacetManager.handle_sub_feature?(object, sub_feature_key)
+    end
+
     protected
 
     def new_template_set(name, options, &block)
       Domgen::Generator::TemplateSet.new(self, name.to_s, options, &block)
     end
-
-    def new_generator
-      Domgen::DomgenGenerator
-    end
   end
 
-  Reality::Facets.copy_targets_from_generator_target_manager(Domgen, Domgen::FacetManager)
-
-  module DomgenGenerator
-    class << self
-      include Reality::Generators::Generator
-
-      # A hook to control whether certain paths in model should
-      # be follow when collecting generation targets
-      def handle_subelement?(object, sub_feature_key)
-        Domgen::FacetManager.handle_sub_feature?(object, sub_feature_key)
-      end
-    end
-  end
+  Reality::Facets.copy_targets_to_generator_target_manager(Domgen, Domgen::FacetManager)
 
   module Generator
     class << self
