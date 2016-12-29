@@ -20,6 +20,8 @@ module Domgen
 
   FacetManager.facet(:sync => [:syncrecord, :sql]) do |facet|
     facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
 
       def transaction_time=(transaction_time)
         @transaction_time = transaction_time
