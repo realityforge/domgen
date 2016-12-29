@@ -16,6 +16,7 @@ module Domgen
   FacetManager.facet(:jws => [:jaxb]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
 
       attr_writer :api_package
 
