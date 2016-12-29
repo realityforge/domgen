@@ -193,7 +193,6 @@ module Domgen
         @transaction_time.nil? ? data_module.repository.sync.transaction_time? : !!@transaction_time
       end
 
-
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::EEClientServerJavaPackage
 
