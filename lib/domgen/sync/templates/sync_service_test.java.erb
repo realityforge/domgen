@@ -18,4 +18,16 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
     org.testng.Assert.assertEquals( (Long) 0L, s( <%= entity.sync.master_entity.dao.jpa.qualified_dao_service_name %>.class ).countUnsynchronizedByMappingSource( mappingSource ) );
 <% end -%>
   }
+
+  protected final void verifyNoChangesSync( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource )
+  {
+    assertNoChanges( doSyncAndLoadResults( mappingSource, "OK" ) );
+  }
+
+  protected final void assertNoChanges( @javax.annotation.Nonnull final iris.syncrecord.server.entity.Synchronization synchronization )
+  {
+<% data_module.sync.entities_to_synchronize.each do |entity| -%>
+    iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, 0, 0 );
+<% end -%>
+  }
 }
