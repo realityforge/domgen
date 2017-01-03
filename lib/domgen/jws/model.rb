@@ -178,8 +178,8 @@ module Domgen
       def referenced_structs
         structs = []
 
-        service.methods.select{|method| method.jws?}.each do |method|
-          method.parameters.select{|field| field.struct?}.each do |field|
+        service.methods.select { |method| method.jws? }.each do |method|
+          method.parameters.select { |field| field.struct? }.each do |field|
             structs << field.referenced_struct
           end
           structs << method.return_value.referenced_struct if method.return_value.struct?
@@ -193,7 +193,7 @@ module Domgen
           struct = to_process.pop
           next if processed.include?(struct)
           processed << struct
-          struct.fields.select{|field| field.struct?}.each do |field|
+          struct.fields.select { |field| field.struct? }.each do |field|
             structs << field.referenced_struct
           end
         end
