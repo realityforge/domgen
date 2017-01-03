@@ -151,6 +151,7 @@ require 'domgen/audit/generator'
 
 # Database level synchronization
 require 'domgen/sync/model'
+require 'domgen/sync/helper'
 require 'domgen/sync/generator'
 
 # Some caching for gwt apps

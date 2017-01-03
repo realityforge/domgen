@@ -27,7 +27,8 @@ Domgen::Generator.define([:sync],
     template_set.erb_template(:data_module,
                               'sync_service_test.java.erb',
                               'test/java/#{data_module.sync.qualified_sync_service_test_name.gsub(".","/")}.java',
-                              :guard => 'data_module.sync.master_data_module? && data_module.repository.sync.sync_out_of_master?')
+                              :guard => 'data_module.sync.master_data_module? && data_module.repository.sync.sync_out_of_master?',
+                              :additional_helpers => [Domgen::Sync::SyncTestHelper])
   end
   g.template_set(:sync_master_ejb_impl) do |template_set|
     template_set.erb_template(:data_module,
