@@ -150,6 +150,12 @@ module Domgen
 
     facet.enhance(ExceptionParameter) do
       Domgen::XML.include_data_element_xml(self, :parameter)
+
+      def pre_complete
+        if parameter.struct? && !parameter.referenced_struct.xml? || parameter.enumeration? && !parameter.enumeration.xml?
+          parameter.exception.disable_facet(:xml)
+        end
+      end
     end
 
     facet.enhance(Struct) do
@@ -171,6 +177,12 @@ module Domgen
 
     facet.enhance(StructField) do
       Domgen::XML.include_data_element_xml(self, :field)
+
+      def pre_complete
+        if parameter.struct? && !parameter.referenced_struct.xml? || parameter.enumeration? && !parameter.enumeration.xml?
+          parameter.exception.disable_facet(:xml)
+        end
+      end
     end
   end
 end
