@@ -13,7 +13,7 @@
 #
 
 module Domgen
-  class Sync
+  module Sync
     VALID_MASTER_FACETS = [:application, :sql, :mssql, :pgsql, :ee, :ejb, :java, :jpa, :sync, :syncrecord, :appconfig]
     VALID_SYNC_TEMP_FACETS = [:application, :sql, :mssql, :pgsql, :sync, :syncrecord, :appconfig]
   end
