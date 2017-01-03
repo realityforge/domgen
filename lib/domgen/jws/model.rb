@@ -210,7 +210,6 @@ module Domgen
         jws_active = false
         service.methods.each do |method|
           next unless method.jws?
-          next unless method.jws.compatible?
           jws_active = true
         end
         service.disable_facet(:jws) unless jws_active
@@ -242,6 +241,10 @@ module Domgen
         compatible = false unless characteristic_compatible?(method.return_value)
 
         compatible
+      end
+
+      def pre_complete
+        method.disable_facet(:jws) unless compatible?
       end
 
       private
