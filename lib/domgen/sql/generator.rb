@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 
-Domgen::Generator.define([:timerstatus],
+Domgen::Generator.define([:sql],
                          "#{File.dirname(__FILE__)}/templates",
                          []) do |g|
   g.template_set(:sql_dbt_config) do |template_set|
