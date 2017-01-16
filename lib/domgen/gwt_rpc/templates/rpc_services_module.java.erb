@@ -38,6 +38,7 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
 
 <% else -%>
   private static String c_baseURL;
+  private static String c_authenticationToken;
 
   public static void setBaseURL( @javax.annotation.Nonnull final String baseURL )
   {
@@ -49,6 +50,15 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
     return c_baseURL;
   }
 
+  public static String getAuthenticationToken()
+  {
+    return c_authenticationToken;
+  }
+
+  public static void setAuthenticationToken( @javax.annotation.Nullable final String authenticationToken )
+  {
+    c_authenticationToken = authenticationToken;
+  }
 <% end -%>
 <%
   needs_xsrf =
