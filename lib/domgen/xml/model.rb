@@ -179,8 +179,8 @@ module Domgen
       Domgen::XML.include_data_element_xml(self, :field)
 
       def pre_complete
-        if parameter.struct? && !parameter.referenced_struct.xml? || parameter.enumeration? && !parameter.enumeration.xml?
-          parameter.exception.disable_facet(:xml)
+        if field.struct? && !field.referenced_struct.xml? || field.enumeration? && !field.enumeration.xml?
+          field.exception.disable_facet(:xml)
         end
       end
     end
