@@ -70,7 +70,7 @@ entities.uniq.each do |entity| -%>
   }
 
   @java.lang.Override
-  protected void processDeleteMessages( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message, @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.transport.ReplicantSession> sessions )
+  protected void processDeleteMessages( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message, @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.transport.ReplicantSession> sessions, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeAccumulator accumulator )
   {
     final java.util.Map<String, java.io.Serializable> routingKeys = message.getRoutingKeys();
 <%
@@ -111,7 +111,7 @@ entities.uniq.each do |entity| -%>
           {
             if( m.isDelete() && <%= repository.imit.qualified_message_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeID() )
             {
-              performUnsubscribe( session, entry, true );
+              performUnsubscribe( session, entry, true, accumulator.getChangeSet( session ) );
             }
           }
         }
@@ -121,7 +121,7 @@ entities.uniq.each do |entity| -%>
   }
 
   @java.lang.Override
-  protected void processUpdateMessages( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message, @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.transport.ReplicantSession> sessions, @javax.annotation.Nonnull org.realityforge.replicant.server.ChangeAccumulator accumulator )
+  protected void processUpdateMessages( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message, @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.transport.ReplicantSession> sessions, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeAccumulator accumulator )
   {
     final java.util.Map<String, java.io.Serializable> routingKeys = message.getRoutingKeys();
 <%
@@ -206,7 +206,7 @@ entities.uniq.each do |entity| -%>
   public <%= graph.cacheable? ? 'boolean': 'void' %> subscribeTo<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= update_param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
-    <%= graph.cacheable? ? 'final CacheStatus status = ': '' %>subscribe( sessionID, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? "#{pk_accessor}" : 'null' %> ), <%= graph.filter_parameter.nil? ? 'null' : 'filter' %>, <%= graph.cacheable? ? 'cacheKey' : 'null' %> );
+    <%= graph.cacheable? ? 'final CacheStatus status = ': '' %>subscribe( sessionID, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? "#{pk_accessor}" : 'null' %> ), <%= graph.filter_parameter.nil? ? 'null' : 'filter' %>, <%= graph.cacheable? ? 'cacheKey' : 'null' %>, org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
 <% if graph.cacheable? -%>
     return status != CacheStatus.USE;
 <% end -%>
@@ -219,13 +219,13 @@ entities.uniq.each do |entity| -%>
   public void subscribeToMultiple<%= Reality::Naming.pluralize(graph.name) %>( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final java.util.List<<%= root_type %>> roots<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
-    bulkSubscribe( sessionID, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), (java.util.Collection<java.io.Serializable>) (java.util.Collection) roots, <%= filter_param.nil? ? 'null' : 'filter' %>, true );
+    bulkSubscribe( sessionID, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), (java.util.Collection<java.io.Serializable>) (java.util.Collection) roots, <%= filter_param.nil? ? 'null' : 'filter' %>, true, org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
   }
 
   public void unsubscribeFromMultiple<%= Reality::Naming.pluralize(graph.name) %>( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final java.util.List<<%= root_type %>> roots )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
-    bulkUnsubscribe( sessionID, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), (java.util.Collection<java.io.Serializable>) (java.util.Collection) roots, true );
+    bulkUnsubscribe( sessionID, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), (java.util.Collection<java.io.Serializable>) (java.util.Collection) roots, true, org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
   }
 <% end -%>
 <% if !graph.instance_root? && !graph.external_data_load? -%>
@@ -257,7 +257,7 @@ entities.uniq.each do |entity| -%>
   public void updateMultiple<%= graph.name %>Subscriptions( @javax.annotation.Nonnull final String sessionID, @javax.annotation.Nonnull final java.util.List<<%= root_type %>> roots, <%= filter_param %> )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
-    bulkUpdateSubscription( sessionID, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), (java.util.Collection<java.io.Serializable>) (java.util.Collection) roots, filter );
+    bulkUpdateSubscription( sessionID, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), (java.util.Collection<java.io.Serializable>) (java.util.Collection) roots, filter, org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
 <%
   processed = []
   graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
@@ -286,7 +286,7 @@ entities.uniq.each do |entity| -%>
   public void update<%= graph.name %>Subscription( @javax.annotation.Nonnull final String sessionID<%= update_param %> )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
-    updateSubscription( sessionID, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? pk_accessor : 'null' %> ), filter );
+    updateSubscription( sessionID, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? pk_accessor : 'null' %> ), filter, org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
 <%
   processed = []
   graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
@@ -360,7 +360,7 @@ entities.uniq.each do |entity| -%>
   public void unsubscribeFrom<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= param %> )
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
-    unsubscribe( sessionID, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? pk_accessor : 'null' %> ) );
+    unsubscribe( sessionID, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? pk_accessor : 'null' %> ), org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
   }
 
 <% end -%>
