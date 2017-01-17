@@ -393,7 +393,7 @@ module Domgen
           path.each do |path_key|
             self.multivalued = true if is_path_element_recursive?(path_key)
             path_element = get_attribute_name_from_path_element?(path_key)
-            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribtue of #{a.referenced_entity.qualified_name}") unless a.referenced_entity.attribute_by_name?(path_element)
+            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribute of #{a.referenced_entity.qualified_name}") unless a.referenced_entity.attribute_by_name?(path_element)
             a = a.referenced_entity.attribute_by_name(path_element)
             Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
           end
