@@ -92,6 +92,6 @@ repository.imit.graphs.each do |graph|
   @javax.annotation.Nonnull
   protected org.realityforge.replicant.server.EntityMessage convertToDeleteMessage( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message )
   {
-    return new org.realityforge.replicant.server.EntityMessage( message.getID(), message.getTypeID(), message.getTimestamp(), message.getRoutingKeys(), null, null );
+    return new org.realityforge.replicant.server.EntityMessage( message.getID(), message.getTypeID(), message.getTimestamp(), message.getRoutingKeys(), null, message.getLinks() );
   }
 }

@@ -109,9 +109,13 @@ entities.uniq.each do |entity| -%>
           final org.realityforge.replicant.server.EntityMessage m = _context.filterMessageOfInterestIn<%= graph.name %>Graph( message<%= customize_filter %> );
           if( null != m )
           {
-            if( m.isDelete() && <%= repository.imit.qualified_message_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeID() )
+            if( m.isDelete() )
             {
-              performUnsubscribe( session, entry, true, accumulator.getChangeSet( session ) );
+              if( <%= repository.imit.qualified_message_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeID() )
+              {
+                performUnsubscribe( session, entry, true, accumulator.getChangeSet( session ) );
+              }
+              delinkDownstreamSubscriptions( session, entry, m, accumulator );
             }
           }
         }
