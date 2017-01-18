@@ -524,7 +524,8 @@ module Domgen
     end
   end
 
-  FacetManager.facet(:imit => [:ce, :gwt_rpc]) do |facet|
+  # timerstatus is required due to timers being exposed
+  FacetManager.facet(:imit => [:ce, :gwt_rpc, :timerstatus]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
