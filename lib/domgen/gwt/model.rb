@@ -112,6 +112,16 @@ module Domgen
         entrypoint_map.values
       end
 
+      attr_writer :css_obfuscation_prefix
+
+      def css_obfuscation_prefix
+        if @css_obfuscation_prefix.nil?
+          words = Reality::Naming.split_into_words(repository.name.to_s)
+          @css_obfuscation_prefix = (words.size == 1 ? repository.name.to_s : words.collect { |w| w[0, 1] }.join).downcase[0, 2]
+        end
+        @css_obfuscation_prefix
+      end
+
       Domgen.target_manager.target(:entrypoint, :repository, :facet_key => :gwt)
 
       def pre_complete
