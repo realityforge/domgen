@@ -114,7 +114,7 @@ module Domgen
     end
 
     def self.standard_types
-      [:integer, :long, :datetime, :date, :real, :text, :boolean, :reference, :struct]
+      [:integer, :long, :datetime, :date, :real, :text, :boolean, :reference, :struct, :enumeration]
     end
 
     def characteristic_type
