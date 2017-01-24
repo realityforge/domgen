@@ -4,6 +4,9 @@
   <inherits name='org.realityforge.gwt.datatypes.Datatypes'/>
 <% if repository.imit? -%>
   <inherits name="<%= repository.imit.qualified_replicant_module_name %>"/>
+<% else -%>
+  <inherits name="com.google.gwt.json.JSON"/>
+  <inherits name="com.google.gwt.inject.Inject"/>
 <% end -%>
 <% if repository.keycloak? -%>
   <inherits name="org.realityforge.gwt.keycloak.Keycloak"/>
