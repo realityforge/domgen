@@ -83,6 +83,34 @@ module Domgen
       end
     end
 
+    facet.enhance(Exception) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :exception_mapper, :rest, :server, :ee, '#{exception.name}ExceptionMapper'
+
+      attr_writer :internal_code
+
+      def internal_code
+        @internal_code || "#{exception.data_module.name}.#{exception.name}"
+      end
+
+      attr_writer :http_code
+
+      def http_code
+        @http_code || exception.java.normal? ? 400 : 500
+      end
+    end
+
+    facet.enhance(ExceptionParameter) do
+      include Domgen::Java::EEJavaCharacteristic
+
+      protected
+
+      def characteristic
+        parameter
+      end
+    end
+
     facet.enhance(Method) do
       include Domgen::JaxRS::MediaTypeEnabled
 

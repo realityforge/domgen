@@ -16,6 +16,10 @@ Domgen::Generator.define([:jaxrs],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper, Domgen::JaxRS::Helper]) do |g|
   g.template_set(:jaxrs) do |template_set|
+    template_set.erb_template(:exception,
+                              'exception_mapper.java.erb',
+                              'main/java/#{exception.jaxrs.qualified_exception_mapper_name.gsub(".","/")}.java',
+                              :guard => 'exception.concrete?')
     template_set.erb_template(:repository,
                               'abstract_application.java.erb',
                               'main/java/#{repository.jaxrs.qualified_abstract_application_name.gsub(".","/")}.java')

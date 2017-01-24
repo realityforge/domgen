@@ -1,0 +1,50 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(exception.jaxrs.qualified_exception_mapper_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.ws.rs.ext.Provider
+public class <%= exception.jaxrs.exception_mapper_name %>
+  implements javax.ws.rs.ext.ExceptionMapper<<%= exception.ee.qualified_name %>>
+{
+
+  @java.lang.Override
+  public javax.ws.rs.core.Response toResponse( final <%= exception.ee.qualified_name %> e )
+  {
+    final java.io.StringWriter writer = new java.io.StringWriter();
+    final javax.json.stream.JsonGenerator g = javax.json.Json.createGenerator( writer );
+
+    g.writeStartObject();
+    g.write( "code", <%= exception.jaxrs.http_code %> );
+    g.write( "internalCode", "<%= exception.jaxrs.internal_code %>" );
+    final String message = e.getMessage();
+    if ( null != message )
+    {
+      g.write( "message", message );
+    }
+<% parameters = exception.parameters.select{|p| p.jaxrs?} -%>
+<% unless parameters.empty? -%>
+    g.writeStartObject( "parameters" );
+<% parameters.each do |p| -%>
+<% if p.collection? -%>
+    g.writeStartArray( "<%= Reality::Naming.camelize(p.name) %>" );
+    for ( final <%= p.ee.java_component_type %> v : e.<%= getter_for(p) %> )
+    {
+      g.write( v<%= p.enumeration? ? '.name()' : '' %> );
+    }
+    g.writeEnd();
+<% else -%>
+    g.write( "<%= Reality::Naming.camelize(p.name) %>", e.<%= getter_for(p) %><%= p.enumeration? ? '.name()' : '' %> );
+<% end -%>
+<% end -%>
+    g.writeEnd();
+<% end -%>
+    g.writeEnd();
+    g.close();
+
+    return javax.ws.rs.core.Response.
+      status( <%= exception.jaxrs.http_code %> ).
+      type( javax.ws.rs.core.MediaType.APPLICATION_JSON ).
+      entity( writer.toString() ).
+      build();
+  }
+}
