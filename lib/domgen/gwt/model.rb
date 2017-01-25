@@ -42,7 +42,7 @@ module Domgen
     end
   end
 
-  FacetManager.facet(:gwt => [:java, :json]) do |facet|
+  FacetManager.facet(:gwt => [:java, :json, :ce]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
