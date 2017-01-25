@@ -4,6 +4,7 @@ package <%= to_package(enumeration.ce.qualified_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public enum <%= enumeration.ce.name %>
+  implements java.io.Serializable
 {
   <%= enumeration.values.collect {|k| "#{k.name}" } .join(",\n  ") %>
 }
