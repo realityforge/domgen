@@ -217,7 +217,7 @@ public abstract class <%= repository.gwt.abstract_application_name %>
 <% if repository.keycloak? -%>
     <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.setKeycloak( getKeycloak() );
 <% end -%>
-    <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setBaseURL( getApplicationURL() );
+    <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.<% if repository.imit? -%>getSessionContext().<% end -%>setBaseURL( getApplicationURL() );
     <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.initialize();
   }
 <% end -%>
