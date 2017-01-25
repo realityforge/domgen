@@ -15,12 +15,6 @@
 Domgen::Generator.define([:auto_bean],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper]) do |g|
-  g.template_set(:auto_bean_enumeration) do |template_set|
-    template_set.erb_template(:enumeration,
-                              'enumeration.java.erb',
-                              'main/java/#{enumeration.auto_bean.qualified_name.gsub(".","/")}.java')
-  end
-
   g.template_set(:auto_bean_struct) do |template_set|
     template_set.erb_template(:struct,
                               'struct.java.erb',
@@ -30,5 +24,5 @@ Domgen::Generator.define([:auto_bean],
                               'main/java/#{repository.auto_bean.qualified_factory_name.gsub(".","/")}.java')
   end
 
-  g.template_set(:auto_bean => [:auto_bean_enumeration, :auto_bean_struct])
+  g.template_set(:auto_bean => [:auto_bean_struct])
 end

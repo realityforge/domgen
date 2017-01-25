@@ -25,12 +25,6 @@ module Domgen
       include Domgen::Java::ImitJavaPackage
     end
 
-    facet.enhance(EnumerationSet) do
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :name, :data_type, :client, :auto_bean, '#{enumeration.name}'
-    end
-
     facet.enhance(Struct) do
       include Domgen::Java::BaseJavaGenerator
 
