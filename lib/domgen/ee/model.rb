@@ -30,15 +30,6 @@ module Domgen
         @use_cdi.nil? ? true : false
       end
 
-      def bean_discovery_mode=(mode)
-        Domgen.error("Unknown bean discovery mode '#{mode}'") unless %w(all annotated none).include?(mode)
-        @bean_discovery_mode = mode
-      end
-
-      def bean_discovery_mode
-        @bean_discovery_mode ||= 'annotated'
-      end
-
       attr_writer :web_metadata_complete
 
       def web_metadata_complete?
@@ -66,6 +57,15 @@ module Domgen
       # A beans.xml is created in both the model and server components
       ['', 'model_'].each do |prefix|
         class_eval <<-RUBY
+          def #{prefix}bean_discovery_mode=(mode)
+            Domgen.error("Unknown #{prefix}bean discovery mode '#{mode}'") unless %w(all annotated none).include?(mode)
+            @#{prefix}bean_discovery_mode = mode
+          end
+
+          def #{prefix}bean_discovery_mode
+            @#{prefix}bean_discovery_mode ||= 'annotated'
+          end
+
           def #{prefix}beans_xml_content_fragments
             @#{prefix}beans_xml_content_fragments ||= []
           end
