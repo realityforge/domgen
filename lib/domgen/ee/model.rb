@@ -63,18 +63,23 @@ module Domgen
         @cdi_scan_excludes ||= []
       end
 
-      def beans_xml_content_fragments
-        @beans_xml_content_fragments ||= []
-      end
+      # A beans.xml is created in both the model and server components
+      ['', 'model_'].each do |prefix|
+        class_eval <<-RUBY
+          def #{prefix}beans_xml_content_fragments
+            @#{prefix}beans_xml_content_fragments ||= []
+          end
 
-      def beans_xml_fragments
-        @beans_xml_fragments ||= []
-      end
+          def #{prefix}beans_xml_fragments
+            @#{prefix}beans_xml_fragments ||= []
+          end
 
-      def resolved_beans_xml_fragments
-        self.beans_xml_fragments.collect do |fragment|
-          repository.read_file(fragment)
-        end
+          def resolved_#{prefix}beans_xml_fragments
+            self.#{prefix}beans_xml_fragments.collect do |fragment|
+              repository.read_file(fragment)
+            end
+          end
+        RUBY
       end
 
       attr_writer :server_event_package
@@ -82,7 +87,6 @@ module Domgen
       def server_event_package
         @server_event_package || "#{server_package}.event"
       end
-
 
       def version=(version)
         Domgen.error("Unknown version '#{version}'") unless %w(6 7).include?(version)
@@ -102,7 +106,7 @@ module Domgen
       attr_writer :base_integration_test_name
 
       def base_integration_test_name
-        @base_integration_test_name || abstract_integration_test_name.gsub(/^Abstract/,'')
+        @base_integration_test_name || abstract_integration_test_name.gsub(/^Abstract/, '')
       end
 
       def qualified_app_server_name
@@ -112,7 +116,7 @@ module Domgen
       attr_writer :app_server_name
 
       def app_server_name
-        @app_server_name || abstract_app_server_name.gsub(/^Abstract/,'')
+        @app_server_name || abstract_app_server_name.gsub(/^Abstract/, '')
       end
     end
 

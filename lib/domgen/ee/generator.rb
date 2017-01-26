@@ -52,6 +52,10 @@ Domgen::Generator.define([:ee],
     template_set.erb_template(:repository, 'beans.xml.erb', 'main/webapp/WEB-INF/beans.xml')
   end
 
+  g.template_set(:ee_model_beans_xml) do |template_set|
+    template_set.erb_template(:repository, 'model_beans.xml.erb', 'main/resources/beans.xml')
+  end
+
   g.template_set(:ee_filter) do |template_set|
     template_set.erb_template(:repository,
                               'abstract_filter.java.erb',
