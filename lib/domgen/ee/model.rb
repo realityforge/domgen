@@ -58,7 +58,7 @@ module Domgen
       ['', 'model_'].each do |prefix|
         class_eval <<-RUBY
           def #{prefix}bean_discovery_mode=(mode)
-            Domgen.error("Unknown #{prefix}bean discovery mode '#{mode}'") unless %w(all annotated none).include?(mode)
+            Domgen.error("Unknown \#{prefix}bean discovery mode '\#{mode}'") unless %w(all annotated none).include?(mode)
             @#{prefix}bean_discovery_mode = mode
           end
 
