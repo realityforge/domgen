@@ -21,6 +21,9 @@ public abstract class <%= repository.jaxrs.abstract_application_name %>
 <% repository.jaxrs.extensions.each do |extension| -%>
     classes.add( <%= extension %>.class );
 <% end -%>
+<% if repository.jackson? -%>
+    classes.add( org.glassfish.jersey.jackson.JacksonFeature.class );
+<% end -%>
     return classes;
   }
 }
