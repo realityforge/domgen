@@ -34,6 +34,7 @@ module Domgen #nodoc
                   check_name('Query', query)
                   query.parameters.each do |parameter|
                     check_name('Query Parameter', parameter)
+                    check_no_dto_suffix('Query Parameter', parameter)
                   end
                 end
               end
@@ -44,6 +45,7 @@ module Domgen #nodoc
                   check_name('Method', method)
                   method.parameters.each do |parameter|
                     check_name('Method Parameter', parameter)
+                    check_no_dto_suffix('Method Parameter', parameter)
                   end
                 end
               end
@@ -52,6 +54,7 @@ module Domgen #nodoc
                 check_name('Message', message)
                 message.parameters.each do |parameter|
                   check_name('Message Parameter', parameter)
+                  check_no_dto_suffix('Message Parameter', parameter)
                 end
               end
 
@@ -59,6 +62,7 @@ module Domgen #nodoc
                 check_name('Struct', struct)
                 struct.fields.each do |field|
                   check_name('Field', field)
+                  check_no_dto_suffix('Field', field)
                 end
               end
 
@@ -66,6 +70,7 @@ module Domgen #nodoc
                 check_name('Exception', exception)
                 exception.parameters.each do |parameter|
                   check_name('Exception Parameter', parameter)
+                  check_no_dto_suffix('Exception Parameter', parameter)
                 end
               end
 
@@ -81,6 +86,17 @@ module Domgen #nodoc
       end
 
       private
+
+      def check_no_dto_suffix(type, element)
+        check_no_suffix(type, element, 'DTO')
+        check_no_suffix(type, element, 'VO')
+        check_no_suffix(type, element, Reality::Naming.pluralize('DTO'))
+        check_no_suffix(type, element, Reality::Naming.pluralize('VO'))
+      end
+
+      def check_no_suffix(type, element, suffix)
+        Domgen.error("#{type} '#{element.qualified_name}' does not follow naming convention and should have suffix '#{suffix}'") if element.name.to_s =~ /[a-z0-9_]#{suffix}$/
+      end
 
       def check_name(type, element)
         Domgen.error("#{type} '#{element.qualified_name}' does not follow naming convention and use pascal case name") unless Reality::Naming.pascal_case?(element.name.to_s)
