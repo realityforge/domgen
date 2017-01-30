@@ -42,10 +42,10 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
         end %>
 <% end %>
 <% if entity.extends.nil? %>
-  private boolean _created;
-  private boolean _linking;
-  private boolean _delinking;
-  private boolean _linked;
+  private boolean _$created;
+  private boolean _$linking;
+  private boolean _$delinking;
+  private boolean _$linked;
 <% end %>
   protected <%= entity.imit.name %>( final EntityRepository repository, final EntityChangeBroker broker )
   {
@@ -276,7 +276,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 
   protected void performLink()
   {
-    <%= entity.extends.nil? ? "if( !_linking ) throw new IllegalStateException( \"performLink invoked from outside link\" )" : "super.performLink()" %>;
+    <%= entity.extends.nil? ? "if( !_$linking ) throw new IllegalStateException( \"performLink invoked from outside link\" )" : "super.performLink()" %>;
 <% linkable_attributes.each do |attribute|
 %>      link<%= attribute.imit.name %>();
 <% end %>
@@ -284,7 +284,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 
   protected void performDelink()
   {
-    <%= entity.extends.nil? ? "if( !_delinking ) throw new IllegalStateException( \"performDelink invoked from outside delink\" )" : "super.performDelink()" %>;
+    <%= entity.extends.nil? ? "if( !_$delinking ) throw new IllegalStateException( \"performDelink invoked from outside delink\" )" : "super.performDelink()" %>;
 <% linkable_attributes.each do |attribute|
 %>      delink<%= attribute.imit.name %>();
 <% end %>
@@ -324,7 +324,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 <% if entity.extends.nil? %>
   protected final boolean isCreated()
   {
-    return _created;
+    return _$created;
   }
 
   @java.lang.Override
@@ -344,7 +344,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   protected final void checkLinked()
   {
     checkValidity();
-    if( !_linked )
+    if( !_$linked )
     {
       throw new IllegalStateException( "Method invoked on unlinked imitation of type <%= entity.imit.name %>" );
     }
@@ -354,42 +354,42 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   public final void link()
   {
     checkValidity();
-    _linking = true;
+    _$linking = true;
     try
     {
       performLink();
-      _linked = true;
+      _$linked = true;
     }
     finally
     {
-      _linking = false;
+      _$linking = false;
     }
-    if( !_created )
+    if( !_$created )
     {
       _broker.entityAdded( this );
-      _created = true;
+      _$created = true;
     }
   }
 
   private void delink()
   {
     checkValidity();
-    _delinking = true;
+    _$delinking = true;
     try
     {
       performDelink();
-      _linked = false;
+      _$linked = false;
     }
     finally
     {
-      _delinking = false;
+      _$delinking = false;
     }
   }
 
   @java.lang.Override
   public final boolean isLinked()
   {
-    return _linked;
+    return _$linked;
   }
 <% end %>
 
