@@ -1,6 +1,20 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.imit.qualified_abstract_session_context_impl_name) %>;
 
+/**
+ * Subclass this class using the following conventions.
+ *
+ * <pre>
+ * \@ApplicationScoped
+ * \@Transactional( Transactional.TxType.REQUIRED )
+ * \@Typed( <%= repository.service_by_name(repository.imit.session_context_service).ejb.service_name %>.class )
+ * public class <%= repository.service_by_name(repository.imit.session_context_service).ejb.service_implementation_name %>
+ *   extends <%= repository.imit.abstract_session_context_impl_name %>
+ * {
+ * ...
+ * }
+ * </pre>
+ */
 @javax.annotation.Generated( "Domgen" )
 public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   extends org.realityforge.replicant.server.transport.AbstractSessionContextImpl
