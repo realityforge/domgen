@@ -1106,7 +1106,6 @@ module Domgen
         filter_options
       end
 
-
       def register_graph(name, graph)
         graph_map[name.to_s] = graph
       end

@@ -191,7 +191,6 @@ module Domgen
     end
   end
 
-
   module InheritableCharacteristic
     include Characteristic
 
@@ -215,7 +214,6 @@ module Domgen
       @override.nil? ? false : @override
     end
   end
-
 
   module CharacteristicContainer
     attr_reader :name

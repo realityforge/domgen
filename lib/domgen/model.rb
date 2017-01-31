@@ -34,7 +34,6 @@ module Domgen
     type
   end
 
-
   class << self
     def repositories
       repository_map.values
