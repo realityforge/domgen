@@ -6,6 +6,58 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   extends org.realityforge.replicant.client.gwt.<%= repository.imit.poll_replicate_mode? ? 'GwtWebPoller' : 'Gwt' %>DataLoaderService<<%= repository.imit.qualified_gwt_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_gwt_data_loader_service_interface_name %>
 {
+<% if repository.keycloak? -%>
+  private static class KeycloakWrappedRequest
+    implements org.realityforge.gwt.webpoller.client.Request
+  {
+    private org.realityforge.gwt.webpoller.client.Request _request;
+    private boolean _cancelled;
+
+    void setRequest( final org.realityforge.gwt.webpoller.client.Request request )
+    {
+      _request = request;
+      if ( _cancelled )
+      {
+        cancel();
+      }
+    }
+
+    @Override
+    public void cancel()
+    {
+      if ( null != _request )
+      {
+        _request.cancel();
+        _request = null;
+      }
+      _cancelled = true;
+    }
+  }
+
+  protected class ReplicantRequestFactory
+    extends org.realityforge.replicant.client.gwt.GwtWebPollerDataLoaderService.ReplicantRequestFactory
+  {
+    @javax.annotation.Nonnull
+    @java.lang.Override
+    public org.realityforge.gwt.webpoller.client.Request newRequest( @javax.annotation.Nonnull final org.realityforge.gwt.webpoller.client.RequestContext requestContext )
+      throws Exception
+    {
+      final KeycloakWrappedRequest request = new KeycloakWrappedRequest();
+      <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().updateToken( 10, new java.lang.Runnable()
+      {
+        @java.lang.Override
+        public void run()
+        {
+          <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setAuthenticationToken( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().getToken() );
+          try { request.setRequest( ReplicantRequestFactory.super.newRequest( requestContext ) ); }
+          catch ( final Exception ignored ) {}
+        }
+      } );
+      return request;
+    }
+  }
+
+<% end -%>
   private final <%= repository.service_by_name(repository.imit.subscription_manager).gwt_rpc.qualified_facade_service_name %> _remoteSubscriptionService;
   @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_gwt_client_session_context_name %> _context;
@@ -250,7 +302,19 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
       };
 <% end -%>
       getEventBus().fireEvent( new <%= graph.subscribe_started_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id <% end %>) );
+<% if repository.keycloak? -%>
+      <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().updateToken( 10, new java.lang.Runnable()
+      {
+        @java.lang.Override
+        public void run()
+        {
+          <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setAuthenticationToken( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().getToken() );
+    <% end -%>
       _remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id<% end -%><% if graph.filtered? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter<% end -%>, callback );
+<% if repository.keycloak? -%>
+        }
+      } );
+<% end -%>
     }
     else <% end %>
     {
@@ -281,7 +345,19 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         }
       };
       getEventBus().fireEvent( new <%= graph.update_started_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
+<% if repository.keycloak? -%>
+      <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().updateToken( 10, new java.lang.Runnable()
+      {
+        @java.lang.Override
+        public void run()
+        {
+          <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setAuthenticationToken( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().getToken() );
+    <% end -%>
       _remoteSubscriptionService.update<%= graph.name %>Subscription( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id<% end -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter, callback );
+<% if repository.keycloak? -%>
+        }
+      } );
+<% end -%>
     }
     else <% end %>
     {
@@ -310,11 +386,32 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         }
       };
       getEventBus().fireEvent( new <%= graph.unsubscribe_started_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id <% end %>) );
+<% if repository.keycloak? -%>
+      <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().updateToken( 10, new java.lang.Runnable()
+      {
+        @java.lang.Override
+        public void run()
+        {
+          <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setAuthenticationToken( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().getToken() );
+    <% end -%>
       _remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id<% end -%>, callback );
+<% if repository.keycloak? -%>
+        }
+      } );
+<% end -%>
     }
     else <% end %>
     {
       throw new IllegalStateException();
     }
   }
+<% if repository.keycloak? -%>
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected org.realityforge.gwt.webpoller.client.RequestFactory newRequestFactory()
+  {
+    return new ReplicantRequestFactory();
+  }
+<% end -%>
 }
