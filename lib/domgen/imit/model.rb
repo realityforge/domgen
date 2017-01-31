@@ -729,7 +729,6 @@ module Domgen
         @context_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/#{Reality::Naming.underscore(repository.name)}/ContextService"
       end
 
-
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
