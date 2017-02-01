@@ -36,7 +36,7 @@
 <% end -%>
 
 <% repository.data_modules.each do |data_module| -%>
-<% data_module.daos.select{|dao| !dao.repository?}.each do |dao| -%>
+<% data_module.daos.each do |dao| -%>
 <% dao.queries.select{|query|query.jpa? && query.jpa.native? && query.result_struct?}.each do |query| -%>
   <sql-result-set-mapping name="<%= query.qualified_name %>">
     <constructor-result target-class="<%= query.struct.ee.qualified_name %>">

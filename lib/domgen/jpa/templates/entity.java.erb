@@ -17,6 +17,7 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 <%= native_queries.collect { |q|
   result = ''
   result = ", resultClass = #{entity.jpa.name}.class" if q.jpa.native? && :select == q.query_type && q.result_entity?
+  result = ", resultSetMapping = \"#{q.qualified_name}\"" if q.jpa.native? && :select == q.query_type && q.result_struct?
   "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{result}, hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(", ")}} )"
   }.join(",\n")
         %>
