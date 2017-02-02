@@ -77,12 +77,11 @@ public class <%= service.gwt_rpc.proxy_name %>
   }
 <% end -%>
 <% if method.keycloak? -%>
-  <%= method.service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().updateToken( 10, new java.lang.Runnable()
+  <%= method.service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
   {
     @java.lang.Override
     public void run()
     {
-      <%= method.service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.<% if method.service.data_module.repository.imit? -%>getSessionContext().<% end -%>setAuthenticationToken( <%= method.service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getKeycloak().getToken() );
 <% end -%>
   _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect do |parameter|
   param_value = parameter.name

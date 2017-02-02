@@ -25,6 +25,19 @@ public class <%= repository.gwt_rpc.rpc_services_module_name %>
     c_keycloak = keycloak;
   }
 
+  public static void updateTokenAndExecute( @javax.annotation.Nonnull final java.lang.Runnable action )
+  {
+    getKeycloak().updateToken( 10, new java.lang.Runnable()
+    {
+      @java.lang.Override
+      public void run()
+      {
+        <% if repository.imit? -%>getSessionContext().<% end -%>setAuthenticationToken( getKeycloak().getToken() );
+        action.run();
+      }
+    } );
+  }
+
 <% end -%>
 <% if repository.imit? -%>
   @javax.annotation.Nonnull
