@@ -584,7 +584,6 @@ module Domgen
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
       java_artifact :poll_rest_service, :rest, :server, :imit, '#{repository.name}ReplicantPollRestService'
       java_artifact :poll_service, :rest, :server, :imit, '#{repository.name}ReplicantPollService'
-      java_artifact :session_exception_mapper, :rest, :server, :imit, '#{repository.name}BadSessionExceptionMapper'
       java_artifact :router_interface, :comm, :server, :imit, '#{repository.name}Router'
       java_artifact :router_impl, :comm, :server, :imit, '#{router_interface_name}Impl'
       java_artifact :jpa_encoder, :comm, :server, :imit, '#{repository.name}JpaEncoder'
@@ -733,7 +732,6 @@ module Domgen
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
           repository.jaxrs.extensions << self.qualified_poll_rest_service_name
-          repository.jaxrs.extensions << self.qualified_session_exception_mapper_name
         end
         if repository.ee?
           repository.ee.cdi_scan_excludes << 'org.realityforge.replicant.**'
@@ -813,7 +811,7 @@ module Domgen
         self.repository.exception_by_name(self.invalid_session_exception).tap do |e|
           e.java.exception_category = :runtime
           e.ejb.rollback = false
-          e.disable_facets_not_in(*self.component_facets)
+          e.disable_facets_not_in(*self.component_facets + [:jaxrs])
         end
 
         self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)
