@@ -23,7 +23,7 @@
   with a facet that requires the presence of the disabled facet (i.e. the gwt_rpc facet requires the
   json facet if a struct is referenced from a gwt_rpc enabled method). Also consider disable facets
   on referencing elements. i.e. if a facet is disabled on a struct then disable the facet on all the
-  paramater/attribute/etc instances that reference struct.
+  parameter/attribute/etc instances that reference struct.
 * Add a disable_all_but(facet_array for facets that will respect dependencies and will not disable
   required facets for the facets passed in the parameter.
 * Change struct method in domgen to derive name from type and allow override of name, thus eliminating need
