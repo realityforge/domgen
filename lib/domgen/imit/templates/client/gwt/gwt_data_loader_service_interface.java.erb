@@ -5,5 +5,9 @@ package <%= to_package(repository.imit.qualified_gwt_data_loader_service_interfa
 public interface <%= repository.imit.gwt_data_loader_service_interface_name %>
   extends org.realityforge.replicant.client.transport.DataLoaderService
 {
+  @javax.annotation.Nullable
   <%= repository.imit.qualified_gwt_client_session_interface_name %> getSession();
+
+  @javax.annotation.Nonnull
+  <%= repository.imit.qualified_gwt_client_session_interface_name %> ensureSession();
 }

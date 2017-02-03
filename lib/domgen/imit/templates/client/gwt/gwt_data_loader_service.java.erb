@@ -117,7 +117,7 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected  <%= repository.imit.gwt_client_session_name %> ensureSession()
+  public <%= repository.imit.gwt_client_session_name %> ensureSession()
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).imit.qualified_name %>
   {
     final <%= repository.imit.gwt_client_session_name %> session = getSession();
