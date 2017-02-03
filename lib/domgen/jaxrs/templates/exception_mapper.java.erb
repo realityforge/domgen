@@ -6,7 +6,22 @@ package <%= to_package(exception.jaxrs.qualified_exception_mapper_name) %>;
 public class <%= exception.jaxrs.exception_mapper_name %>
   implements javax.ws.rs.ext.ExceptionMapper<<%= exception.ee.qualified_name %>>
 {
+<% if exception.parameters.select{|p| p.jaxrs? && p.jackson? && p.struct?}.size > 0 -%>
+  private transient final com.fasterxml.jackson.databind.ObjectMapper _jsonMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
+  private javax.json.JsonValue toJsonValue( final Object object )
+  {
+    try
+    {
+      return javax.json.Json.createReader( new java.io.StringReader( _jsonMapper.writeValueAsString( object ) ) ).read();
+    }
+    catch ( final Throwable ignored )
+    {
+      return javax.json.JsonValue.NULL;
+    }
+  }
+
+<% end -%>
   @java.lang.Override
   public javax.ws.rs.core.Response toResponse( final <%= exception.ee.qualified_name %> e )
   {
@@ -29,11 +44,11 @@ public class <%= exception.jaxrs.exception_mapper_name %>
     g.writeStartArray( "<%= Reality::Naming.camelize(p.name) %>" );
     for ( final <%= p.ee.java_component_type %> v : e.<%= getter_for(p) %> )
     {
-      g.write( v<%= p.enumeration? ? '.name()' : '' %> );
+      g.write( <% if p.jackson? && p.struct? -%>toJsonValue( <% end %>v<%= p.enumeration? ? '.name()' : '' %><% if p.jackson? && p.struct? -%> )<% end %> );
     }
     g.writeEnd();
 <% else -%>
-    g.write( "<%= Reality::Naming.camelize(p.name) %>", e.<%= getter_for(p) %><%= p.enumeration? ? '.name()' : '' %> );
+    g.write( "<%= Reality::Naming.camelize(p.name) %>", <% if p.jackson? && p.struct? -%>toJsonValue( <% end %>e.<%= getter_for(p) %><%= p.enumeration? ? '.name()' : '' %><% if p.jackson? && p.struct? -%> )<% end %> );
 <% end -%>
 <% end -%>
     g.writeEnd();
