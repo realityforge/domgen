@@ -30,6 +30,9 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% if repository.mail? -%>
     addModule( modules, newMailServicesModule() );
 <% end -%>
+<% if repository.keycloak? -%>
+    addModule( modules, newKeycloakServerModule() );
+<% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
 <% if repository.ejb.include_server_test_module? -%>
@@ -60,6 +63,14 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   protected com.google.inject.Module newMailServicesModule()
   {
     return new iris.mail.server.test.util.MailServicesModule( this );
+  }
+<% end -%>
+<% if repository.keycloak? -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newKeycloakServerModule()
+  {
+    return new <%= repository.keycloak.qualified_test_module_name %>();
   }
 <% end -%>
 <% unless repository.jpa? -%>

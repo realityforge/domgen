@@ -371,6 +371,7 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
+      java_artifact :test_module, :test, :server, :keycloak, '#{repository.name}KeycloakServicesModule', :sub_package => 'util'
 
       def auth_service_implementation_name
         self.repository.service_by_name(self.auth_service_name).ejb.service_implementation_name
