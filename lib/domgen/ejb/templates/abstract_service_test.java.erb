@@ -70,8 +70,14 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   @javax.annotation.Nullable
   protected com.google.inject.Module newKeycloakServerModule()
   {
-    return new <%= repository.keycloak.qualified_test_module_name %>();
+    return new <%= repository.keycloak.qualified_test_module_name %>( this );
   }
+
+  public void setupAccount( <%= repository.keycloak.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final String #{Reality::Naming.camelize(claim.java_accessor_key)}"}.join(', ') -%> )
+  {
+    toObject( <%= repository.keycloak.qualified_test_auth_service_implementation_name %>.class, s( <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>.class ) ).setupAccount( <%= repository.keycloak.default_client.claims.collect {|claim| Reality::Naming.camelize(claim.java_accessor_key)}.join(', ') -%> );
+  }
+
 <% end -%>
 <% unless repository.jpa? -%>
 

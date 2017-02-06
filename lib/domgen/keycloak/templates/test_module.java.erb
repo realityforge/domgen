@@ -4,10 +4,26 @@ package <%= to_package(repository.keycloak.qualified_test_module_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 public class <%= repository.keycloak.test_module_name %>
-  extends org.realityforge.guiceyloops.shared.AbstractModule
+  extends org.realityforge.guiceyloops.server.FlushingTestModule
 {
+  public <%= repository.keycloak.test_module_name %>( final org.realityforge.guiceyloops.server.Flushable flushable )
+  {
+    super( flushable );
+  }
+
   @java.lang.Override
   protected void configure()
+  {
+    bindHttpServletRequest();
+    bindKeycloakAuthService();
+  }
+
+  protected void bindKeycloakAuthService()
+  {
+    bindService( <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>.class, <%= repository.keycloak.qualified_test_auth_service_implementation_name %>.class );
+  }
+
+  protected void bindHttpServletRequest()
   {
     bindMock( javax.servlet.http.HttpServletRequest.class );
   }

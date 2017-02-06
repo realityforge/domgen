@@ -39,6 +39,10 @@ Domgen::Generator.define([:keycloak],
 
   g.template_set(:keycloak_auth_service_qa) do |template_set|
     template_set.erb_template(:repository,
+                              'test_auth_service_implementation.java.erb',
+                              'test/java/#{repository.keycloak.qualified_test_auth_service_implementation_name.gsub(".","/")}.java',
+                              :additional_facets => [:ejb])
+    template_set.erb_template(:repository,
                               'test_module.java.erb',
                               'test/java/#{repository.keycloak.qualified_test_module_name.gsub(".","/")}.java',
                               :additional_facets => [:ejb])

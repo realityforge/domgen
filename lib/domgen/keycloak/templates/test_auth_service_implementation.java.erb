@@ -1,0 +1,68 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_test_auth_service_implementation_name) %>;
+
+public class <%= repository.keycloak.test_auth_service_implementation_name %>
+  extends <%= repository.keycloak.qualified_auth_service_implementation_name %>
+{
+  private final org.keycloak.representations.IDToken _idToken = new org.keycloak.representations.IDToken();
+  private final org.keycloak.representations.AccessToken _token = new org.keycloak.representations.AccessToken();
+  private final java.security.Principal _principal = new TestPrincipal( org.realityforge.guiceyloops.shared.ValueUtil.randomString() );
+  private org.keycloak.adapters.OidcKeycloakAccount _account;
+
+  @javax.annotation.Nullable
+  @java.lang.Override
+  public org.keycloak.adapters.OidcKeycloakAccount findAccount()
+  {
+    return _account;
+  }
+
+  public void setupAccount( <%= repository.keycloak.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final String #{Reality::Naming.camelize(claim.java_accessor_key)}"}.join(', ') -%> )
+  {
+    _account = new Account();
+<% repository.keycloak.default_client.claims.each do |claim| -%>
+    _token.set<%= claim.token_accessor_key %>( <%= Reality::Naming.camelize(claim.java_accessor_key) %> );
+<% end -%>
+  }
+
+  private class TestPrincipal
+    implements java.security.Principal
+  {
+    private final java.lang.String _name;
+
+    TestPrincipal( final java.lang.String name )
+    {
+      _name = name;
+    }
+
+    @java.lang.Override
+    public java.lang.String getName()
+    {
+      return _name;
+    }
+  }
+
+  private class Account
+    implements org.keycloak.adapters.OidcKeycloakAccount
+  {
+    @java.lang.Override
+    public java.security.Principal getPrincipal()
+    {
+      return _principal;
+    }
+
+    @java.lang.Override
+    public java.util.Set<java.lang.String> getRoles()
+    {
+      return new java.util.HashSet<>();
+    }
+
+    @Override
+    public org.keycloak.KeycloakSecurityContext getKeycloakSecurityContext()
+    {
+      return new org.keycloak.KeycloakSecurityContext( org.realityforge.guiceyloops.shared.ValueUtil.randomString(),
+                                                       _token,
+                                                       org.realityforge.guiceyloops.shared.ValueUtil.randomString(),
+                                                       _idToken );
+    }
+  }
+}

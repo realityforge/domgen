@@ -372,6 +372,7 @@ module Domgen
 
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
       java_artifact :test_module, :test, :server, :keycloak, '#{repository.name}KeycloakServicesModule', :sub_package => 'util'
+      java_artifact :test_auth_service_implementation, :test, :server, :keycloak, 'Test#{repository.keycloak.auth_service_implementation_name}', :sub_package => 'util'
 
       def auth_service_implementation_name
         self.repository.service_by_name(self.auth_service_name).ejb.service_implementation_name
@@ -451,6 +452,7 @@ module Domgen
         if repository.ejb?
           self.repository.service(self.auth_service_name) unless self.repository.service_by_name?(self.auth_service_name)
           self.repository.service_by_name(self.auth_service_name).tap do |s|
+            s.ejb.bind_in_tests = false
             s.disable_facets_not_in(:ejb)
             s.method(:FindAccount) do |m|
               m.returns('org.keycloak.adapters.OidcKeycloakAccount', :nullable => true)
