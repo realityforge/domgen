@@ -1,0 +1,60 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_auth_service_implementation_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.enterprise.context.ApplicationScoped
+@javax.enterprise.inject.Typed( <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>.class )
+public class <%= repository.keycloak.auth_service_implementation_name %>
+  implements <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>
+{
+  @javax.inject.Inject
+  private javax.servlet.http.HttpServletRequest _httpRequest;
+
+  @javax.annotation.Nullable
+  @java.lang.Override
+  public org.keycloak.adapters.OidcKeycloakAccount findAccount()
+  {
+    final org.keycloak.adapters.OidcKeycloakAccount account =
+      (org.keycloak.adapters.OidcKeycloakAccount) _httpRequest.getAttribute( org.keycloak.adapters.spi.KeycloakAccount.class.getName() );
+    if ( null == account )
+    {
+      final javax.servlet.http.HttpSession session = _httpRequest.getSession( false );
+      if ( null != session )
+      {
+        return (org.keycloak.adapters.OidcKeycloakAccount) session.getAttribute( org.keycloak.adapters.spi.KeycloakAccount.class.getName() );
+      }
+      else
+      {
+        return null;
+      }
+    }
+    else
+    {
+      return account;
+    }
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public org.keycloak.adapters.OidcKeycloakAccount getAccount()
+  {
+    final org.keycloak.adapters.OidcKeycloakAccount account = findAccount();
+    if ( null == account )
+    {
+      throw new java.lang.IllegalStateException( "Expected authenticated account but no such account." );
+    }
+    return account;
+  }
+<% repository.keycloak.default_client.claims.each do |claim| -%>
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String get<%= claim.java_accessor_key %>()
+  {
+    final String value = getAccount().getKeycloakSecurityContext().getToken().get<%= claim.token_accessor_key %>();
+    assert null != value;
+    return value;
+  }
+<% end -%>
+}

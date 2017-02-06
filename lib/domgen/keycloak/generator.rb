@@ -30,6 +30,13 @@ Domgen::Generator.define([:keycloak],
                               'main/java/#{client.qualified_keycloak_config_resolver_name.gsub(".","/")}.java')
   end
 
+  g.template_set(:keycloak_auth_service) do |template_set|
+    template_set.erb_template(:repository,
+                              'auth_service_implementation.java.erb',
+                              'main/java/#{repository.keycloak.qualified_auth_service_implementation_name.gsub(".","/")}.java',
+                              :additional_facets => [:ejb])
+  end
+
   g.template_set(:keycloak_config_service) do |template_set|
     template_set.erb_template('keycloak.client',
                               'config_service.java.erb',

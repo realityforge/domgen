@@ -25,6 +25,18 @@ module Domgen
 
       attr_writer :protocol
 
+      attr_writer :java_accessor_key
+
+      def java_accessor_key
+        @java_accessor_key || Reality::Naming.pascal_case(self.name.to_s.gsub(' ', '_'))
+      end
+
+      attr_writer :token_accessor_key
+
+      def token_accessor_key
+        @token_accessor_key || Reality::Naming.pascal_case(self.config['claim.name'] || self.name.to_s.gsub(' ', '_'))
+      end
+
       def protocol
         @protocol || 'openid-connect'
       end
@@ -280,7 +292,7 @@ module Domgen
         @standard_claims || [:username]
       end
 
-      def pre_verify
+      def pre_complete
         standard_claims.each do |claim_type|
           self.send("add_#{claim_type}_claim") unless claim_by_name?(claim_type)
         end
@@ -324,6 +336,7 @@ module Domgen
 
       def add_full_name_claim
         claim('full name',
+              :token_accessor_key => 'Name',
               :protocol_mapper => 'oidc-full-name-mapper',
               :config =>
                 {
@@ -358,6 +371,30 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
+
+      def auth_service_implementation_name
+        self.repository.service_by_name(self.auth_service_name).ejb.service_implementation_name
+      end
+
+      def qualified_auth_service_implementation_name
+        self.repository.service_by_name(self.auth_service_name).ejb.qualified_service_implementation_name
+      end
+
+      attr_writer :auth_service_name
+
+      def auth_service_name
+        @auth_service_name || "#{auth_service_module}.#{repository.name}AuthService"
+      end
+
+      attr_writer :auth_service_module
+
+      def auth_service_module
+        if @auth_service_module.nil?
+          @auth_service_module =
+            repository.data_module_by_name?(repository.name) ? repository.name : repository.data_modules[0].name
+        end
+        @auth_service_module
+      end
 
       attr_writer :jndi_config_base
 
@@ -398,13 +435,10 @@ module Domgen
 
       Domgen.target_manager.target(:client, :repository, :facet_key => :keycloak)
 
-      def pre_verify
-        clients.each do |client|
-          client.pre_verify
-        end
-      end
-
       def pre_complete
+        self.clients.each do |client|
+          client.pre_complete
+        end
         if repository.ee?
           repository.ee.cdi_scan_excludes << 'org.bouncycastle.**'
           repository.ee.cdi_scan_excludes << 'org.jboss.logging.**'
@@ -412,6 +446,23 @@ module Domgen
           repository.ee.cdi_scan_excludes << 'org.apache.commons.codec.**'
           repository.ee.cdi_scan_excludes << 'org.apache.commons.logging.**'
           repository.ee.cdi_scan_excludes << 'org.apache.http.**'
+        end
+        if repository.ejb?
+          self.repository.service(self.auth_service_name) unless self.repository.service_by_name?(self.auth_service_name)
+          self.repository.service_by_name(self.auth_service_name).tap do |s|
+            s.disable_facets_not_in(:ejb)
+            s.method(:FindAccount) do |m|
+              m.returns('org.keycloak.adapters.OidcKeycloakAccount', :nullable => true)
+            end
+            s.method(:GetAccount) do |m|
+              m.returns('org.keycloak.adapters.OidcKeycloakAccount')
+            end
+            self.default_client.claims.each do |claim|
+              s.method("Get#{claim.java_accessor_key}") do |m|
+                m.returns(:text)
+              end
+            end
+          end
         end
       end
 
