@@ -3,12 +3,11 @@ package <%= to_package(repository.imit.qualified_gwt_data_loader_service_interfa
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= repository.imit.gwt_data_loader_service_interface_name %>
+  extends org.realityforge.replicant.client.transport.DataLoaderService
 {
-  boolean isConnected();
-
-  void connect( @javax.annotation.Nullable java.lang.Runnable runnable );
-
-  void disconnect( @javax.annotation.Nullable java.lang.Runnable runnable );
-
+  @javax.annotation.Nullable
   <%= repository.imit.qualified_gwt_client_session_interface_name %> getSession();
+
+  @javax.annotation.Nonnull
+  <%= repository.imit.qualified_gwt_client_session_interface_name %> ensureSession();
 }
