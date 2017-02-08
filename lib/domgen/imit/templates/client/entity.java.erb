@@ -12,6 +12,10 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_name}\n" :
   "    implements org.realityforge.replicant.client.Linkable, org.realityforge.replicant.client.Verifiable" %>
 {
+<% entity.declared_attributes.select { |a| !a.abstract? && a.imit? && a.imit.client_side? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
+  public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
+<% end -%>
+
   public static final String TYPE_KEY = "<%= entity.qualified_name %>";
 <% if entity.concrete? %>
   public static final int TRANSPORT_ID = <%= entity.imit.transport_id %>;
