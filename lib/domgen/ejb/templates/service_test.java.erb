@@ -6,7 +6,7 @@ package <%= to_package(service.ejb.qualified_service_test_name) %>;
 public abstract class <%= service.ejb.service_test_name %>
   extends <%= service.data_module.repository.ejb.qualified_base_service_test_name %>
 {
-<% service.methods.select{|m|m.ejb?}.each do |method| -%>
+<% service.methods.select{|m|m.ejb? && m.ejb.generate_base_test?}.each do |method| -%>
   public abstract void <%= Reality::Naming.camelize(method.name) %>()
     throws Exception;
 

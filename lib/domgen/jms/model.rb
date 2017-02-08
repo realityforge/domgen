@@ -190,6 +190,10 @@ module Domgen
         %w(javax.jms.Queue javax.jms.Topic)
       end
 
+      def pre_complete
+        self.method.ejb.generate_base_test = false if self.router?
+      end
+
       def perform_verify
         unless self.durable?
           raise "Method #{method.qualified_name} is not a durable subscriber but a subscription name is specified." unless self.subscription_name.nil?

@@ -195,6 +195,14 @@ module Domgen
       def schedule?
         !@schedule.nil?
       end
+
+      def generate_base_test?
+        @generate_base_test.nil? ? true : !!@generate_base_test
+      end
+
+      def generate_base_test=(generate_base_test)
+        @generate_base_test = generate_base_test
+      end
     end
 
     facet.enhance(Parameter) do
