@@ -50,25 +50,10 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     glassfish.deleteDefaultIiopListeners();
 
     glassfish.setDefaultJmsHost( "<%= Reality::Naming.underscore(repository.name) %>/jms/host", getOpenMQContainer() );
-    glassfish.createJmsConnectionFactory( "<%= repository.jms.connection_factory_resource_name %>", getOpenMQContainer() );
+    glassfish.createJmsConnectionFactory( <%= repository.jms.qualified_destination_container_name %>.CONNECTION_FACTORY_RESOURCE_NAME, getOpenMQContainer() );
 
-<%
-  destinations = {}
-  repository.jms.endpoint_methods.each do |method|
-    prefix = "#{repository.jms.qualified_destination_container_name}.#{repository.jms.to_constant_prefix(method.jms.destination_resource_name)}_"
-    name = "#{prefix}#{method.jms.destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC'}_RESOURCE_NAME"
-    physical_name = "#{prefix}PHYSICAL_NAME"
-    destinations[name] = {'type' => method.jms.destination_type, 'physical_name' => physical_name}
-  end
-  repository.jms.router_methods.each do |method|
-    prefix = "#{repository.jms.qualified_destination_container_name}.#{repository.jms.to_constant_prefix(method.jms.route_to_destination_resource_name)}_"
-    name = "#{prefix}#{method.jms.route_to_destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC'}_RESOURCE_NAME"
-    physical_name = "#{prefix}PHYSICAL_NAME"
-    destinations[name] ={'type' => method.jms.route_to_destination_type, 'physical_name' => physical_name}
-  end
--%>
-<% destinations.each_pair do |name, config| -%>
-    glassfish.createJms<%= 'javax.jms.Topic' == config['type'] ? 'Topic' : 'Queue' %>( <%= name %>, <%= config['physical_name'] %> );
+<% repository.jms.destinations.each do |destination| -%>
+    glassfish.createJms<%= 'javax.jms.Topic' == destination.destination_type ? 'Topic' : 'Queue' %>( <%= repository.jms.qualified_destination_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_<%= destination.destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC' %>_RESOURCE_NAME, <%= repository.jms.qualified_destination_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME );
 <% end -%>
     // JMS Configuration Ende
 

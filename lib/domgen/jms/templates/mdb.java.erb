@@ -3,15 +3,15 @@ package <%= to_package(method.jms.qualified_mdb_name) %>;
 <%
 
 config_properties = {}
-config_properties['connectionFactoryLookup'] = method.service.data_module.repository.jms.connection_factory_resource_name
-config_properties['destinationLookup'] = method.jms.destination_resource_name
-config_properties['destinationType'] = method.jms.destination_type
-config_properties['messageSelector'] = method.jms.message_selector if method.jms.message_selector
-config_properties['acknowledgeMode'] = method.jms.acknowledge_mode
-config_properties['clientID'] = method.jms.client_id if method.jms.client_id
-config_properties['subscriptionName'] = method.jms.subscription_name if method.jms.subscription_name
-if ( config_properties['destinationType'] == 'javax.jms.Topic' )
-  config_properties['subscriptionDurability'] = method.jms.durable? ? 'Durable' : 'NonDurable'
+config_properties['connectionFactoryLookup'] = "#{method.service.data_module.repository.jms.qualified_destination_container_name}.CONNECTION_FACTORY_RESOURCE_NAME"
+config_properties['destinationLookup'] = "#{method.service.data_module.repository.jms.qualified_destination_container_name}.#{Reality::Naming.uppercase_constantize(method.jms.destination.name)}_#{method.jms.destination.destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC'}_RESOURCE_NAME"
+config_properties['destinationType'] = "\"#{method.jms.destination.destination_type}\""
+config_properties['messageSelector'] = "\"#{method.jms.message_selector}\"" if method.jms.message_selector
+config_properties['acknowledgeMode'] = "\"#{method.jms.acknowledge_mode}\""
+config_properties['clientID'] = "\"#{method.jms.client_id}\"" if method.jms.client_id
+config_properties['subscriptionName'] = "\"#{method.jms.subscription_name}\"" if method.jms.subscription_name
+if config_properties['destinationType']=='javax.jms.Topic'
+  config_properties['subscriptionDurability'] = method.jms.durable? ? '"Durable"' : '"NonDurable"'
 end
 
 -%>
@@ -26,7 +26,7 @@ index = 0
 config_properties.each_pair do |key, value|
  index += 1
  -%>
-                              @javax.ejb.ActivationConfigProperty( propertyName = "<%= key %>", propertyValue = "<%= value %>" )<%= config_properties.size == index ? '' : ',' %>
+                              @javax.ejb.ActivationConfigProperty( propertyName = "<%= key %>", propertyValue = <%= value %> )<%= config_properties.size == index ? '' : ',' %>
 <% end -%>
                             } )
 @javax.ejb.TransactionManagement( javax.ejb.TransactionManagementType.CONTAINER )

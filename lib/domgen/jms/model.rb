@@ -13,12 +13,83 @@
 #
 
 module Domgen
+  module Jms
+    class Destination < Domgen.ParentedElement(:jms_repository)
+      def initialize(jms_repository, name, options = {}, &block)
+        @name = name
+        super(jms_repository, options, &block)
+      end
+
+      include Domgen::Java::BaseJavaGenerator
+
+      attr_accessor :name
+
+      def access_level
+        @access_level || :read
+      end
+
+      def access_level=(access_level)
+        Domgen.error("Bad access level '#{access_level}' specified for jms destination #{name}") unless [:read, :write, :readwrite].include?(access_level)
+        @access_level = access_level
+      end
+
+      attr_accessor :resource_name
+      attr_writer :physical_name
+
+      def resource_name
+        @resource_name || "#{jms_repository.repository.name}/jms/#{default_name}"
+      end
+
+      def physical_name
+        @physical_name || default_name
+      end
+
+      def destination_type
+        @destination_type || 'javax.jms.Queue'
+      end
+
+      def destination_type=(destination_type)
+        Domgen.error("Invalid destination type #{destination_type}") unless valid_destination_types.include?(destination_type)
+        @destination_type = destination_type
+      end
+
+      private
+
+      def default_name
+        "#{jms_repository.repository.name}.#{access_level == :read ? 'Consumer.' : access_level == :write ? 'Producer.' : ''}#{jms_repository.repository.name}.#{name}"
+      end
+
+      def valid_destination_types
+        %w(javax.jms.Queue javax.jms.Topic)
+      end
+    end
+  end
+
   FacetManager.facet(:jms => [:ejb, :jaxb, :ee]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
-      java_artifact :destination_container, nil, :server, :jms, '#{repository.name}Destinations'
+      java_artifact :destination_container, nil, :server, :jms, '#{repository.name}JmsConstants'
+
+      def destination(name, options = {}, &block)
+        Domgen.error("Attempting to register duplicate destination #{name}") if destination_map[name.to_s]
+        destination_map[name.to_s] = Domgen::Jms::Destination.new(self, name, options, &block)
+      end
+
+      def destination_by_name?(name)
+        !!destination_map[name.to_s]
+      end
+
+      def destination_by_name(name)
+        destination = destination_map[name.to_s]
+        Domgen.error("Unable to locate destination #{name}. Valid destinations include #{destination_map.keys.inspect}") unless destination
+        destination
+      end
+
+      def destinations
+        destination_map.values.dup
+      end
 
       def connection_factory_resource_name=(connection_factory_resource_name)
         @connection_factory_resource_name = connection_factory_resource_name
@@ -40,34 +111,10 @@ module Domgen
         @default_username || Reality::Naming.underscore(repository.name)
       end
 
-      def endpoint_methods
-        repository.data_modules.select { |data_module| data_module.jms? }.collect do |data_module|
-          data_module.services.select { |service| service.jms? }.collect do |service|
-            service.methods.select { |method| method.jms? && method.jms.mdb? }
-          end
-        end.flatten
-      end
+      private
 
-      def router_methods
-        repository.data_modules.select { |data_module| data_module.jms? }.collect do |data_module|
-          data_module.services.select { |service| service.jms? }.collect do |service|
-            service.methods.select { |method| method.jms? && method.jms.router? }
-          end
-        end.flatten
-      end
-
-      # Convert specified JNDI resource name to a constant prefix that follows our conventions
-      def to_constant_prefix(resource_name)
-        name = resource_name.
-          # Strip out repository name at start of jndi resource
-          gsub(/^#{Reality::Naming.underscore(repository.name)}\//, '').
-          # Strip out pseudo standard jms/ prefix
-          gsub(/^jms\//, '').
-          # Strip out conventional prefix to indicate consumer queues
-          gsub(/^#{repository.name}\.Consumer\.#{repository.name}\./, '').
-          # Convert separators into underscores
-          gsub(/[\.\/]/, '_')
-        Reality::Naming.uppercase_constantize(name)
+      def destination_map
+        @destinations ||= {}
       end
     end
 
@@ -119,6 +166,17 @@ module Domgen
         @router.nil? ? false : @router
       end
 
+      def destination=(destination_name)
+        self.mdb = true
+        r = method.service.data_module.repository
+        @destination = r.jms.destination_by_name?(destination_name) ? r.jms.destination_by_name(destination_name) : r.jms.destination(destination_name)
+      end
+
+      def destination
+        Domgen.error("destination called on non router method #{method.qualified_name}") if @destination.nil?
+        @destination
+      end
+
       def resource_name
         "#{Reality::Naming.underscore(method.service.data_module.repository.name)}/jms/#{mdb_name}"
       end
@@ -130,38 +188,10 @@ module Domgen
         @mdb_name = mdb_name
       end
 
-      def destination_resource_name=(destination_resource_name)
-        self.mdb = true
-        @destination_resource_name = destination_resource_name
-      end
-
-      def destination_resource_name
-        @destination_resource_name || "#{Reality::Naming.underscore(method.service.data_module.repository.name)}/jms/#{method.qualified_name.gsub('#', '.')}"
-      end
-
-      def physical_resource_name=(physical_resource_name)
-        self.mdb = true
-        @physical_resource_name = physical_resource_name
-      end
-
-      def physical_resource_name
-        @physical_resource_name || destination_resource_name.gsub(/.*\/jms\//, '')
-      end
-
-      def destination_type=(destination_type)
-        Domgen.error("Invalid destination type #{destination_type}") unless valid_destination_types.include?(destination_type)
-        self.mdb = true
-        @destination_type = destination_type
-      end
-
-      def destination_type
-        @destination_type || 'javax.jms.Queue'
-      end
-
       attr_accessor :message_selector
 
       def acknowledge_mode=(acknowledge_mode)
-        raise "Invalid acknowledge_mode #{acknowledge_mode}" unless %w(Auto-acknowledge Dups-ok-acknowledge).include?(acknowledge_mode)
+        Domgen.error("Invalid acknowledge_mode #{acknowledge_mode}") unless %w(Auto-acknowledge Dups-ok-acknowledge).include?(acknowledge_mode)
         self.mdb = true
         @acknowledge_mode = acknowledge_mode
       end
@@ -188,35 +218,15 @@ module Domgen
         !!@durable
       end
 
-      def route_to_destination_resource_name=(route_to_destination_resource_name)
+      def route_to_destination=(destination_name)
         self.router = true
-        @route_to_destination_resource_name = route_to_destination_resource_name
+        r = method.service.data_module.repository
+        @route_to_destination = r.jms.destination_by_name?(destination_name) ? r.jms.destination_by_name(destination_name) : r.jms.destination(destination_name)
       end
 
-      def route_to_destination_resource_name
-        @route_to_destination_resource_name
-      end
-
-      def route_to_destination_type=(route_to_destination_type)
-        Domgen.error("Invalid route to destination type #{route_to_destination_type}") unless valid_destination_types.include?(route_to_destination_type)
-        @route_to_destination_type = route_to_destination_type
-      end
-
-      def route_to_destination_type
-        @route_to_destination_type || 'javax.jms.Queue'
-      end
-
-      def route_to_physical_resource_name=(physical_resource_name)
-        self.router = true
-        @route_to_physical_resource_name = physical_resource_name
-      end
-
-      def route_to_physical_resource_name
-        @route_to_physical_resource_name || route_to_destination_resource_name.gsub(/.*\/jms\//, '')
-      end
-
-      def valid_destination_types
-        %w(javax.jms.Queue javax.jms.Topic)
+      def route_to_destination
+        Domgen.error("route_to_destination called on non router method #{method.qualified_name}") if @route_to_destination.nil?
+        @route_to_destination
       end
 
       def pre_complete
@@ -225,17 +235,17 @@ module Domgen
 
       def perform_verify
         unless self.durable?
-          raise "Method #{method.qualified_name} is not a durable subscriber but a subscription name is specified." unless self.subscription_name.nil?
-          raise "Method #{method.qualified_name} is not a durable subscriber but a client_id is specified." unless self.subscription_name.nil?
+          Domgen.error("Method #{method.qualified_name} is not a durable subscriber but a subscription name is specified.") unless self.subscription_name.nil?
+          Domgen.error("Method #{method.qualified_name} is not a durable subscriber but a client_id is specified.") unless self.subscription_name.nil?
         end
 
         if self.mdb?
-          raise "Method #{method.qualified_name} is marked as a mdb but has a return value" unless method.return_value.return_type == :void
-          raise "Method #{method.qualified_name} is marked as a mdb but has more than 1 parameter. Parameters: #{method.parameters.collect { |p| p.name }.inspect}" if method.parameters.size > 1
+          Domgen.error("Method #{method.qualified_name} is marked as a mdb but has a return value") unless method.return_value.return_type == :void
+          Domgen.error("Method #{method.qualified_name} is marked as a mdb but has more than 1 parameter. Parameters: #{method.parameters.collect { |p| p.name }.inspect}") if method.parameters.size > 1
         end
         if self.router?
-          raise "Method #{method.qualified_name} is marked as a router but has a return value" unless method.return_value.return_type == :void
-          raise "Method #{method.qualified_name} is marked as a router but has more than 1 parameter. Parameters: #{method.parameters.collect { |p| p.name }.inspect}" if method.parameters.size > 1
+          Domgen.error("Method #{method.qualified_name} is marked as a router but has a return value") unless method.return_value.return_type == :void
+          Domgen.error("Method #{method.qualified_name} is marked as a router but has more than 1 parameter. Parameters: #{method.parameters.collect { |p| p.name }.inspect}") if method.parameters.size > 1
         end
       end
     end
