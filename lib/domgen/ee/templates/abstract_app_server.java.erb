@@ -8,7 +8,7 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
   private static final String APP_NAME = "<%= Reality::Naming.underscore(repository.name) %>";
 
   @java.lang.Override
-  protected String getContextRoot()
+  public String getContextRoot()
   {
     return "/" + APP_NAME;
   }
