@@ -114,4 +114,39 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
       property( "jersey.config.client.readTimeout", SOCKET_TIMEOUT ).
       build();
   }
+<% if repository.jms? -%>
+
+  protected final void sendTextMessageToTopic( @javax.annotation.Nonnull final String message, @javax.annotation.Nonnull final String destinationName )
+    throws Exception
+  {
+    sendTextMessageToDestination( message, destinationName, false );
+  }
+
+  protected final void sendTextMessageToQueue( @javax.annotation.Nonnull final String message, @javax.annotation.Nonnull final String destinationName )
+    throws Exception
+  {
+    sendTextMessageToDestination( message, destinationName, true );
+  }
+
+  protected final void sendTextMessageToDestination( @javax.annotation.Nonnull final String message,
+                                                     @javax.annotation.Nonnull final String destinationName,
+                                                     final boolean isQueue )
+    throws Exception
+  {
+    try ( final javax.jms.Connection connection = getAppServer().getOpenMQContainer().createConnection() )
+    {
+      try ( final javax.jms.Session session = connection.createSession() )
+      {
+        final javax.jms.Destination destination =
+          isQueue ?
+          session.createQueue( destinationName ) :
+          session.createTopic( destinationName );
+        try ( final javax.jms.MessageProducer producer = session.createProducer( destination ) )
+        {
+          producer.send( session.createTextMessage( message ) );
+        }
+      }
+    }
+  }
+<% end -%>
 }
