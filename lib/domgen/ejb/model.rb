@@ -157,6 +157,7 @@ module Domgen
         if @generate_boundary.nil?
           return service.jmx? ||
             service.jws? ||
+            service.jms? ||
             service.jaxrs? ||
             service.imit? ||
             service.methods.any? { |method| method.parameters.any? { |parameter| parameter.reference? } || method.return_value.reference? }
