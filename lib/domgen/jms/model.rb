@@ -177,7 +177,7 @@ module Domgen
         @destination
       end
 
-      def resource_name
+      def mdb_resource_name
         "#{Reality::Naming.underscore(method.service.data_module.repository.name)}/jms/#{mdb_name}"
       end
 
