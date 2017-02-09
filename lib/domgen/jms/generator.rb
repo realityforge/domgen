@@ -17,8 +17,8 @@ Domgen::Generator.define([:jms],
                          [Domgen::Java::Helper, Domgen::JAXB::Helper]) do |g|
   g.template_set(:jms_model) do |template_set|
     template_set.erb_template(:repository,
-                              'destination_container.java.erb',
-                              'main/java/#{repository.jms.qualified_destination_container_name.gsub(".","/")}.java')
+                              'constants_container.java.erb',
+                              'main/java/#{repository.jms.qualified_constants_container_name.gsub(".","/")}.java')
   end
 
   g.template_set(:jms_services) do |template_set|

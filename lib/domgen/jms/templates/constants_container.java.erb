@@ -1,8 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.jms.qualified_destination_container_name) %>;
+package <%= to_package(repository.jms.qualified_constants_container_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-public final class <%= repository.jms.destination_container_name %>
+public final class <%= repository.jms.constants_container_name %>
 {
   public static final java.lang.String CONNECTION_FACTORY_RESOURCE_NAME = "<%= repository.jms.connection_factory_resource_name %>";
 <%
@@ -13,7 +13,7 @@ public final class <%= repository.jms.destination_container_name %>
   public static final java.lang.String <%= constant_prefix %>_<%= destination.destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC' %>_RESOURCE_NAME = "<%= destination.resource_name %>";
 <% end -%>
 
-  private <%= repository.jms.destination_container_name %>()
+  private <%= repository.jms.constants_container_name %>()
   {
   }
 }

@@ -70,7 +70,7 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
-      java_artifact :destination_container, nil, :server, :jms, '#{repository.name}JmsConstants'
+      java_artifact :constants_container, nil, :server, :jms, '#{repository.name}JmsConstants'
 
       def destination(name, options = {}, &block)
         Domgen.error("Attempting to register duplicate destination #{name}") if destination_map[name.to_s]
