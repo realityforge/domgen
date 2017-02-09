@@ -160,12 +160,6 @@ module Domgen
         @mdb.nil? ? false : @mdb
       end
 
-      attr_writer :router
-
-      def router?
-        @router.nil? ? false : @router
-      end
-
       def destination=(destination_name)
         self.mdb = true
         r = method.service.data_module.repository
@@ -218,8 +212,11 @@ module Domgen
         !!@durable
       end
 
+      def router?
+        !@route_to_destination.nil?
+      end
+
       def route_to_destination=(destination_name)
-        self.router = true
         r = method.service.data_module.repository
         @route_to_destination = r.jms.destination_by_name?(destination_name) ? r.jms.destination_by_name(destination_name) : r.jms.destination(destination_name)
       end
