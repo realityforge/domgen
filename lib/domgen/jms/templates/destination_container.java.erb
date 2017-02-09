@@ -1,0 +1,26 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.jms.qualified_destination_container_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public final class <%= repository.jms.destination_container_name %>
+{
+<%
+  destinations = {}
+  repository.jms.endpoint_methods.each do |method|
+    destinations[method.jms.destination_resource_name] = {'type' => method.jms.destination_type, 'physical_name' => method.jms.physical_resource_name}
+  end
+  repository.jms.router_methods.each do |method|
+    destinations[method.jms.route_to_destination_resource_name] =
+      {'type' => method.jms.route_to_destination_type, 'physical_name' => method.jms.route_to_physical_resource_name}
+  end
+  destinations.each do |resource_name, config|
+   constant_prefix = repository.jms.to_constant_prefix(resource_name)
+ -%>
+  public static final java.lang.String <%= constant_prefix %>_PHYSICAL_NAME = "<%= config['physical_name'] %>";
+  public static final java.lang.String <%= constant_prefix %>_<%= config['type'] == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC' %>_RESOURCE_NAME = "<%= resource_name %>";
+<% end -%>
+
+  private <%= repository.jms.destination_container_name %>()
+  {
+  }
+}

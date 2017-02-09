@@ -18,6 +18,8 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      java_artifact :destination_container, nil, :server, :jms, '#{repository.name}Destinations'
+
       def connection_factory_resource_name=(connection_factory_resource_name)
         @connection_factory_resource_name = connection_factory_resource_name
       end
@@ -52,6 +54,20 @@ module Domgen
             service.methods.select { |method| method.jms? && method.jms.router? }
           end
         end.flatten
+      end
+
+      # Convert specified JNDI resource name to a constant prefix that follows our conventions
+      def to_constant_prefix(resource_name)
+        name = resource_name.
+          # Strip out repository name at start of jndi resource
+          gsub(/^#{Reality::Naming.underscore(repository.name)}\//, '').
+          # Strip out pseudo standard jms/ prefix
+          gsub(/^jms\//, '').
+          # Strip out conventional prefix to indicate consumer queues
+          gsub(/^#{repository.name}\.Consumer\.#{repository.name}\./, '').
+          # Convert separators into underscores
+          gsub(/[\.\/]/, '_')
+        Reality::Naming.uppercase_constantize(name)
       end
     end
 

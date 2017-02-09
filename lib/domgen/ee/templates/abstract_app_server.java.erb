@@ -55,15 +55,20 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
 <%
   destinations = {}
   repository.jms.endpoint_methods.each do |method|
-    destinations[method.jms.destination_resource_name] = {'type' => method.jms.destination_type, 'physical_name' => method.jms.physical_resource_name}
+    prefix = "#{repository.jms.qualified_destination_container_name}.#{repository.jms.to_constant_prefix(method.jms.destination_resource_name)}_"
+    name = "#{prefix}#{method.jms.destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC'}_RESOURCE_NAME"
+    physical_name = "#{prefix}PHYSICAL_NAME"
+    destinations[name] = {'type' => method.jms.destination_type, 'physical_name' => physical_name}
   end
   repository.jms.router_methods.each do |method|
-    destinations[method.jms.route_to_destination_resource_name] =
-      {'type' => method.jms.route_to_destination_type, 'physical_name' => method.jms.route_to_physical_resource_name}
+    prefix = "#{repository.jms.qualified_destination_container_name}.#{repository.jms.to_constant_prefix(method.jms.route_to_destination_resource_name)}_"
+    name = "#{prefix}#{method.jms.route_to_destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC'}_RESOURCE_NAME"
+    physical_name = "#{prefix}PHYSICAL_NAME"
+    destinations[name] ={'type' => method.jms.route_to_destination_type, 'physical_name' => physical_name}
   end
 -%>
 <% destinations.each_pair do |name, config| -%>
-    glassfish.createJms<%= 'javax.jms.Topic' == config['type'] ? 'Topic' : 'Queue' %>( "<%= name %>", "<%= config['physical_name'] %>" );
+    glassfish.createJms<%= 'javax.jms.Topic' == config['type'] ? 'Topic' : 'Queue' %>( <%= name %>, <%= config['physical_name'] %> );
 <% end -%>
     // JMS Configuration Ende
 

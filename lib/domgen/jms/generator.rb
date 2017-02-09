@@ -15,7 +15,13 @@
 Domgen::Generator.define([:jms],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper, Domgen::JAXB::Helper]) do |g|
-  g.template_set(:jms) do |template_set|
+  g.template_set(:jms_model) do |template_set|
+    template_set.erb_template(:repository,
+                              'destination_container.java.erb',
+                              'main/java/#{repository.jms.qualified_destination_container_name.gsub(".","/")}.java')
+  end
+
+  g.template_set(:jms_services) do |template_set|
     template_set.erb_template(:method,
                               'mdb.java.erb',
                               'main/java/#{method.jms.qualified_mdb_name.gsub(".","/")}.java',
@@ -25,4 +31,5 @@ Domgen::Generator.define([:jms],
                               'main/java/#{service.jms.qualified_abstract_router_name.gsub(".","/")}.java',
                               :guard => 'service.jms.router?')
   end
+  g.template_set(:jms => [:jms_services, :jms_model])
 end
