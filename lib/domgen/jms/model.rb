@@ -69,6 +69,19 @@ module Domgen
       def router?
         service.methods.any? { |m| m.jms.router? }
       end
+
+      def post_complete
+        active = false
+        service.methods.each do |method|
+          next unless method.jms?
+          if method.jms.router? || method.jms.mdb?
+            active = true
+          else
+            method.disable_facet(:jms)
+          end
+        end
+        service.disable_facet(:jms) unless active
+      end
     end
 
     facet.enhance(Parameter) do
