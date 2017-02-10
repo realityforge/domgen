@@ -81,6 +81,12 @@ Domgen::Generator.define([:jws],
                               'main/webapp/WEB-INF/sun-jaxws.xml')
   end
 
+  g.template_set(:jws_service_integration_test) do |template_set|
+    template_set.erb_template(:service,
+                              'service_integration_test.java.erb',
+                              'test/java/#{service.jws.qualified_service_integration_test_name.gsub(".","/")}.java')
+  end
+
   g.template_set(:jws_fakes) do |template_set|
     template_set.erb_template(:service,
                               'fake_implementation.java.erb',

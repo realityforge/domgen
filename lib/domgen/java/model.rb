@@ -452,6 +452,10 @@ module Domgen
     module ClientServerJavaPackage
       include BaseJavaPackage
 
+      java_package :message, :scope => :integration
+      java_package :api, :scope => :integration
+      java_package :rest, :scope => :integration
+      java_package :test, :scope => :integration, :sub_packages => ['util']
       standard_java_packages([:shared, :client, :server])
     end
 
@@ -548,6 +552,7 @@ module Domgen
       context_package(:server)
       context_package(:integration)
       java_package :message, :scope => :integration
+      java_package :api, :scope => :integration
       java_package :rest, :scope => :integration
       java_package :test, :scope => :integration, :sub_packages => ['util']
       standard_java_packages([:shared, :client, :server])

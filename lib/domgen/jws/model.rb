@@ -108,6 +108,7 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :type_converter, nil, :api, :jws, '#{service.name}TypeConverter'
+      java_artifact :service_integration_test, :api, :integration, :jws, 'Abstract#{service.name}IntegrationTest'
 
       def qualified_api_interface_name
         "#{api_package}.#{web_service_name}"
