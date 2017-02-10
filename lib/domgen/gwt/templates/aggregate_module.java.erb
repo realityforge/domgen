@@ -6,6 +6,7 @@ package <%= to_package(repository.gwt.qualified_aggregate_module_name) %>;
 public class <%= repository.gwt.aggregate_module_name %>
   extends com.google.gwt.inject.client.AbstractGinModule
 {
+<% if repository.imit? -%>
   private final boolean _standalone;
 
   public <%= repository.gwt.aggregate_module_name %>()
@@ -18,6 +19,7 @@ public class <%= repository.gwt.aggregate_module_name %>
     _standalone = standalone;
   }
 
+<% end -%>
   @java.lang.Override
   protected void configure()
   {
