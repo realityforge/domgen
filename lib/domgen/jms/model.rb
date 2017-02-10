@@ -22,6 +22,12 @@ module Domgen
 
       include Domgen::Java::BaseJavaGenerator
 
+      java_artifact :message_integration_test, :message, :integration, :jms, 'Abstract#{name}MessageIntegrationTest'
+
+      def qualified_message_integration_test_impl_name
+        qualified_message_integration_test_name.gsub(/\.Abstract([^.]+)$/,'.\1')
+      end
+
       attr_accessor :name
 
       def access_level
@@ -59,6 +65,14 @@ module Domgen
       def destination_type=(destination_type)
         Domgen.error("Invalid destination type #{destination_type}") unless valid_destination_types.include?(destination_type)
         @destination_type = destination_type
+      end
+
+      def generate_base_test?
+        @generate_base_test.nil? ? true : !!@generate_base_test
+      end
+
+      def generate_base_test=(generate_base_test)
+        @generate_base_test = generate_base_test
       end
 
       private

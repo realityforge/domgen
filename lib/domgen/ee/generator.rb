@@ -77,6 +77,12 @@ Domgen::Generator.define([:ee],
                               :guard => 'repository.application.code_deployable?')
   end
 
+  g.template_set(:ee_aggregate_integration_test) do |template_set|
+    template_set.erb_template(:repository,
+                              'aggregate_integration_test.java.erb',
+                              'test/java/#{repository.ee.qualified_aggregate_integration_test_name.gsub(".","/")}.java')
+  end
+
   g.template_set(:ee_integration_test) do |template_set|
     template_set.erb_template(:repository,
                               'deploy_test.java.erb',

@@ -547,6 +547,7 @@ module Domgen
       context_package(:client)
       context_package(:server)
       context_package(:integration)
+      java_package :message, :scope => :integration
       standard_java_packages([:shared, :client, :server])
     end
   end
