@@ -52,7 +52,7 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :feature_flag_container, nil, :shared, :appconfig, '#{repository.name}FeatureFlags'
-      java_artifact :integration_test, :rest, :server, :appconfig, '#{repository.name}AppconfigTest'
+      java_artifact :integration_test, :rest, :integration, :appconfig, '#{repository.name}AppconfigTest'
 
       attr_writer :short_test_code
 

@@ -19,7 +19,7 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :blocking_filter, :filter, :server, :timerstatus, '#{repository.name}TimerAppBlockingFilter'
-      java_artifact :integration_test, :rest, :server, :timerstatus, '#{repository.name}TimerstatusTest'
+      java_artifact :integration_test, :rest, :integration, :timerstatus, '#{repository.name}TimerstatusTest'
 
       def additional_timers
         @additional_timers ||= []
