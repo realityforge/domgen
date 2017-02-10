@@ -33,6 +33,14 @@ module Domgen
         @access_level = access_level
       end
 
+      def read_permitted?
+        self.access_level == :read || self.access_level == :readwrite
+      end
+
+      def write_permitted?
+        self.access_level == :write || self.access_level == :readwrite
+      end
+
       attr_accessor :resource_name
       attr_writer :physical_name
 
