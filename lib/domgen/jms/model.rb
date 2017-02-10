@@ -99,6 +99,8 @@ module Domgen
         destination_map.values.dup
       end
 
+      Domgen.target_manager.target(:destination, :repository, :facet_key => :jms)
+
       def connection_factory_resource_name=(connection_factory_resource_name)
         @connection_factory_resource_name = connection_factory_resource_name
       end
