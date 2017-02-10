@@ -154,20 +154,11 @@ module Domgen
       java_artifact :abstract_router, :service, :server, :jms, 'Abstract#{service.ejb.service_name}Impl'
 
       def router?
-        service.methods.any? { |m| m.jms.router? }
+        service.methods.any? { |m| m.jms? && m.jms.router? }
       end
 
       def post_complete
-        active = false
-        service.methods.each do |method|
-          next unless method.jms?
-          if method.jms.router? || method.jms.mdb?
-            active = true
-          else
-            method.disable_facet(:jms)
-          end
-        end
-        service.disable_facet(:jms) unless active
+        service.disable_facet(:jms) unless service.methods.any? { |m| m.jms? }
       end
     end
 
@@ -246,7 +237,7 @@ module Domgen
           @route_to_destination = r.jms.destination_by_name(destination_name)
           @route_to_destination.access_level = :readwrite if @route_to_destination.access_level == :read
         else
-          @route_to_destination =r.jms.destination(destination_name, :access_level => :write)
+          @route_to_destination = r.jms.destination(destination_name, :access_level => :write)
         end
         @route_to_destination
       end
@@ -258,6 +249,7 @@ module Domgen
 
       def pre_complete
         self.method.ejb.generate_base_test = false if self.router?
+        self.method.disable_facet(:jms) unless self.router? || self.mdb?
       end
 
       def perform_verify
