@@ -101,17 +101,17 @@ module Domgen
       java_artifact :aggregate_integration_test, :test, :integration, :ee, '#{repository.name}AggregateIntegrationTest', :sub_package => 'util'
 
       def qualified_base_integration_test_name
-        "#{server_util_test_package}.#{base_integration_test_name}"
+        "#{integration_util_test_package}.#{base_integration_test_name}"
       end
 
       attr_writer :base_integration_test_name
 
       def base_integration_test_name
-        @base_integration_test_name || abstract_integration_test_name.gsub(/^Abstract/, '')
+        @base_integration_test_name || abstract_integration_test_name.gsub(/^\.Abstract([^.]+)/, '.\1')
       end
 
       def qualified_app_server_name
-        "#{server_util_test_package}.#{app_server_name}"
+        "#{integration_util_test_package}.#{app_server_name}"
       end
 
       attr_writer :app_server_name
