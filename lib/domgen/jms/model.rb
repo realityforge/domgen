@@ -218,7 +218,13 @@ module Domgen
 
       def route_to_destination=(destination_name)
         r = method.service.data_module.repository
-        @route_to_destination = r.jms.destination_by_name?(destination_name) ? r.jms.destination_by_name(destination_name) : r.jms.destination(destination_name)
+        if r.jms.destination_by_name?(destination_name)
+          @route_to_destination = r.jms.destination_by_name(destination_name)
+          @route_to_destination.access_level = :readwrite if @route_to_destination.access_level == :read
+        else
+          @route_to_destination =r.jms.destination(destination_name, :access_level => :write)
+        end
+        @route_to_destination
       end
 
       def route_to_destination
