@@ -10,7 +10,7 @@ public final class <%= repository.jms.constants_container_name %>
    constant_prefix = Reality::Naming.uppercase_constantize(destination.name)
 -%>
   public static final java.lang.String <%= constant_prefix %>_PHYSICAL_NAME = "<%= destination.physical_name %>";
-  public static final java.lang.String <%= constant_prefix %>_<%= destination.destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC' %>_RESOURCE_NAME = "<%= destination.resource_name %>";
+  public static final java.lang.String <%= constant_prefix %>_RESOURCE_NAME = "<%= destination.resource_name %>";
 <% end -%>
 
   private <%= repository.jms.constants_container_name %>()

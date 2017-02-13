@@ -11,7 +11,7 @@ public abstract class <%= service.jms.abstract_router_name %>
   private javax.jms.JMSContext _context;
 
 <% service.methods.select{|m|m.jms? && m.jms.router?}.each do |m| -%>
-  @javax.annotation.Resource( lookup = <%= service.data_module.repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(m.jms.route_to_destination.name) %>_<%= m.jms.route_to_destination.destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC' %>_RESOURCE_NAME )
+  @javax.annotation.Resource( lookup = <%= service.data_module.repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(m.jms.route_to_destination.name) %>_RESOURCE_NAME )
   private <%= m.jms.route_to_destination.destination_type %> _<%= Reality::Naming.camelize(m.name)%>Target;
 <% end -%>
 <% service.methods.select{|m|m.jms? && m.jms.router?}.each do |m| -%>
