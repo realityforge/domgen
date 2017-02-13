@@ -24,6 +24,33 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% end -%>
   }
 
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getPrimaryJmsConnectionFactoryName()
+  {
+    return <%= repository.jms.qualified_constants_container_name %>.CONNECTION_FACTORY_RESOURCE_NAME;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getPrimaryBrokerName()
+  {
+    return "<%= repository.name %>";
+  }
+
+  @org.testng.annotations.BeforeSuite
+  public void setUpServices()
+    throws Exception
+  {
+    <%= repository.jms.qualified_test_broker_factory_name %>.getBroker().start();
+  }
+
+  @org.testng.annotations.AfterSuite
+  public void tearDownServices()
+  {
+    <%= repository.jms.qualified_test_broker_factory_name %>.getBroker().stop();
+  }
+
 <% end -%>
   @javax.annotation.Nullable
   protected com.google.inject.Module new<%= repository.name %>ServicesModule()
@@ -51,6 +78,9 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% end -%>
 <% if repository.keycloak? -%>
     addModule( modules, newKeycloakServerModule() );
+<% end -%>
+<% if repository.jms? -%>
+    addModule( modules, newJmsServerModule() );
 <% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
@@ -95,6 +125,15 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   public void setupAccount( <%= repository.keycloak.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final String #{Reality::Naming.camelize(claim.java_accessor_key)}"}.join(', ') -%> )
   {
     toObject( <%= repository.keycloak.qualified_test_auth_service_implementation_name %>.class, s( <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>.class ) ).setupAccount( <%= repository.keycloak.default_client.claims.collect {|claim| Reality::Naming.camelize(claim.java_accessor_key)}.join(', ') -%> );
+  }
+
+<% end -%>
+<% if repository.jms? -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newJmsServerModule()
+  {
+    return new <%= repository.jms.qualified_test_module_name %>();
   }
 
 <% end -%>

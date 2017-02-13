@@ -38,5 +38,21 @@ Domgen::Generator.define([:jms],
                               'main/java/#{service.jms.qualified_abstract_router_name.gsub(".","/")}.java',
                               :guard => 'service.jms.router?')
   end
+
+  g.template_set(:jms_qa_support) do |template_set|
+    template_set.erb_template(:repository,
+                              'test_module.java.erb',
+                              'test/java/#{repository.jms.qualified_test_module_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'abstract_test_broker.java.erb',
+                              'test/java/#{repository.jms.qualified_abstract_test_broker_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'test_broker_factory.java.erb',
+                              'test/java/#{repository.jms.qualified_test_broker_factory_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'test_broker.java.erb',
+                              'test/java/#{repository.jms.qualified_test_broker_name.gsub(".","/")}.java',
+                              :guard => '!repository.jms.custom_test_broker?')
+  end
   g.template_set(:jms => [:jms_services, :jms_model])
 end

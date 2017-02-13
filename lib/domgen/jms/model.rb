@@ -93,6 +93,16 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :constants_container, nil, :server, :jms, '#{repository.name}JmsConstants'
+      java_artifact :abstract_test_broker, :test, :server, :jms, 'Abstract#{repository.name}Broker', :sub_package => 'util'
+      java_artifact :test_broker, :test, :server, :jms, '#{repository.name}Broker', :sub_package => 'util'
+      java_artifact :test_broker_factory, :test, :server, :jms, '#{repository.name}BrokerFactory', :sub_package => 'util'
+      java_artifact :test_module, :test, :server, :jms, '#{repository.name}ServerModule', :sub_package => 'util'
+
+      attr_writer :custom_test_broker
+
+      def custom_test_broker?
+        @custom_test_broker.nil? ? false : !!@custom_test_broker
+      end
 
       def destination(name, options = {}, &block)
         Domgen.error("Attempting to register duplicate destination #{name}") if destination_map[name.to_s]
