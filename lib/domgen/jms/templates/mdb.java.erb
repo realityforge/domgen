@@ -4,7 +4,7 @@ package <%= to_package(method.jms.qualified_mdb_name) %>;
 
 config_properties = {}
 config_properties['connectionFactoryLookup'] = "#{method.service.data_module.repository.jms.qualified_constants_container_name}.CONNECTION_FACTORY_RESOURCE_NAME"
-config_properties['destinationLookup'] = "#{method.service.data_module.repository.jms.qualified_constants_container_name}.#{Reality::Naming.uppercase_constantize(method.jms.destination.name)}_#{method.jms.destination.destination_type == 'javax.jms.Queue' ? 'QUEUE' : 'TOPIC'}_RESOURCE_NAME"
+config_properties['destinationLookup'] = "#{method.service.data_module.repository.jms.qualified_constants_container_name}.#{Reality::Naming.uppercase_constantize(method.jms.destination.name)}_RESOURCE_NAME"
 config_properties['destinationType'] = "\"#{method.jms.destination.destination_type}\""
 config_properties['messageSelector'] = "\"#{method.jms.message_selector}\"" if method.jms.message_selector
 config_properties['acknowledgeMode'] = "\"#{method.jms.acknowledge_mode}\""
