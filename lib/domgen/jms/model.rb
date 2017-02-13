@@ -51,7 +51,7 @@ module Domgen
       attr_writer :physical_name
 
       def resource_name
-        @resource_name || "#{jms_repository.repository.name}/jms/#{default_name}"
+        @resource_name || "#{Reality::Naming.underscore(jms_repository.repository.name)}/jms/#{default_name}"
       end
 
       def physical_name
