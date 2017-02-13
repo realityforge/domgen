@@ -6,6 +6,25 @@ package <%= to_package(repository.ejb.qualified_abstract_service_test_name) %>;
 public abstract class <%= repository.ejb.abstract_service_test_name %>
   extends <%= repository.jpa? ? repository.jpa.qualified_base_entity_test_name : 'org.realityforge.guiceyloops.server.AbstractServerTest' %>
 {
+<% if repository.jms? -%>
+  @org.testng.annotations.BeforeMethod
+  @java.lang.Override
+  public void preTest()
+    throws Exception
+  {
+    super.preTest();
+    purgeDestinations();
+  }
+
+  protected void purgeDestinations()
+    throws Exception
+  {
+<% repository.jms.destinations.each do |destination| -%>
+    org.realityforge.guiceyloops.server.glassfish.OpenMQUtil.purgeQueue( <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME );
+<% end -%>
+  }
+
+<% end -%>
   @javax.annotation.Nullable
   protected com.google.inject.Module new<%= repository.name %>ServicesModule()
   {
