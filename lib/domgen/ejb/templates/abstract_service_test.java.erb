@@ -16,6 +16,22 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
     purgeDestinations();
   }
 
+  @org.testng.annotations.AfterMethod
+  @java.lang.Override
+  public void postTest()
+  {
+    shutdownJMSContexts();
+    super.postTest();
+  }
+
+  protected final void shutdownJMSContexts()
+  {
+    for ( final com.google.inject.Binding<javax.jms.JMSContext> binding : getInjector().findBindingsByType( com.google.inject.TypeLiteral.get( javax.jms.JMSContext.class ) ) )
+    {
+      binding.getProvider().get().close();
+    }
+  }
+
   protected void purgeDestinations()
     throws Exception
   {
