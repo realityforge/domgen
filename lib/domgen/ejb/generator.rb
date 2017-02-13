@@ -71,6 +71,10 @@ Domgen::Generator.define([:ejb],
                                 'abstract_service_test.java.erb',
                                 type + '/java/#{repository.ejb.qualified_abstract_service_test_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
+                                'base_service_test.java.erb',
+                                type + '/java/#{repository.ejb.qualified_base_service_test_name.gsub(".","/")}.java',
+                                :guard => '!repository.ejb.custom_base_service_test?')
+      template_set.erb_template(:repository,
                                 'cdi_types_test.java.erb',
                                 type + '/java/#{repository.ejb.qualified_cdi_types_test_name.gsub(".","/")}.java',
                                 :guard => 'repository.ee.use_cdi?')

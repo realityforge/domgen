@@ -95,29 +95,17 @@ module Domgen
 
       java_artifact :abstract_filter, :filter, :server, :ee, 'Abstract#{repository.name}Filter'
       java_artifact :abstract_app_server, :test, :integration, :ee, 'Abstract#{repository.name}AppServer', :sub_package => 'util'
+      java_artifact :app_server, :test, :integration, :ee, '#{repository.name}AppServer', :sub_package => 'util'
       java_artifact :app_server_factory, :test, :integration, :ee, '#{repository.name}AppServerFactory', :sub_package => 'util'
       java_artifact :abstract_integration_test, :test, :integration, :ee, 'Abstract#{repository.name}GlassFishTest', :sub_package => 'util'
+      java_artifact :base_integration_test, :test, :integration, :ee, '#{repository.name}GlassFishTest', :sub_package => 'util'
       java_artifact :deploy_test, nil, :integration, :ee, '#{repository.name}DeployTest'
       java_artifact :aggregate_integration_test, :test, :integration, :ee, '#{repository.name}AggregateIntegrationTest', :sub_package => 'util'
 
-      def qualified_base_integration_test_name
-        "#{integration_util_test_package}.#{base_integration_test_name}"
-      end
+      attr_writer :custom_base_integration_test
 
-      attr_writer :base_integration_test_name
-
-      def base_integration_test_name
-        @base_integration_test_name || abstract_integration_test_name.gsub(/^\.Abstract([^.]+)/, '.\1')
-      end
-
-      def qualified_app_server_name
-        "#{integration_util_test_package}.#{app_server_name}"
-      end
-
-      attr_writer :app_server_name
-
-      def app_server_name
-        @app_server_name || abstract_app_server_name.gsub(/^Abstract/, '')
+      def custom_base_integration_test?
+        @custom_base_integration_test.nil? ? false : !!@custom_base_integration_test
       end
     end
 

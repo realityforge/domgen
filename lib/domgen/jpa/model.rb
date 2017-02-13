@@ -340,6 +340,7 @@ module Domgen
       java_artifact :unit_descriptor, :entity, :server, :jpa, '#{repository.name}PersistenceUnit'
       java_artifact :persistent_test_module, :test, :server, :jpa, '#{repository.name}PersistenceTestModule', :sub_package => 'util'
       java_artifact :abstract_entity_test, :test, :server, :jpa, 'Abstract#{repository.name}EntityTest', :sub_package => 'util'
+      java_artifact :base_entity_test, :test, :server, :jpa, 'Abstract#{repository.name}EntityTest', :sub_package => 'util'
       java_artifact :standalone_entity_test, :test, :server, :jpa, 'Standalone#{repository.name}EntityTest', :sub_package => 'util'
       java_artifact :aggregate_entity_test, :test, :server, :jpa, '#{repository.name}AggregateEntityTest', :sub_package => 'util'
       java_artifact :dao_module, :test, :server, :jpa, '#{repository.name}RepositoryModule', :sub_package => 'util'
@@ -349,14 +350,10 @@ module Domgen
         @extra_test_modules ||= []
       end
 
-      def qualified_base_entity_test_name
-        "#{server_util_test_package}.#{base_entity_test_name}"
-      end
+      attr_writer :custom_base_entity_test
 
-      attr_writer :base_entity_test_name
-
-      def base_entity_test_name
-        @base_entity_test_name || abstract_entity_test_name.gsub(/^Abstract/, '')
+      def custom_base_entity_test?
+        @custom_base_entity_test.nil? ? false : !!@custom_base_entity_test
       end
 
       def interpolate(content)
