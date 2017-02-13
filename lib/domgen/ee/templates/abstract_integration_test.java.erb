@@ -9,7 +9,7 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
   private static final int SOCKET_TIMEOUT = 20000;
 
   @org.testng.annotations.BeforeSuite
-  public void setUpServices()
+  public void beforeSuite()
     throws Exception
   {
 <% if repository.jms? -%>
@@ -19,7 +19,7 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
   }
 
   @org.testng.annotations.AfterSuite
-  public void tearDownServices()
+  public void afterSuite()
   {
     getAppServer().tearDown();
   }

@@ -55,14 +55,14 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   }
 
   @org.testng.annotations.BeforeSuite
-  public void setUpServices()
+  public void beforeSuite()
     throws Exception
   {
     <%= repository.jms.qualified_test_broker_factory_name %>.getBroker().start();
   }
 
   @org.testng.annotations.AfterSuite
-  public void tearDownServices()
+  public void afterSuite()
   {
     <%= repository.jms.qualified_test_broker_factory_name %>.getBroker().stop();
   }
