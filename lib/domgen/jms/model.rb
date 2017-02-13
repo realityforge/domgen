@@ -96,7 +96,7 @@ module Domgen
       java_artifact :abstract_test_broker, :test, :server, :jms, 'Abstract#{repository.name}Broker', :sub_package => 'util'
       java_artifact :test_broker, :test, :server, :jms, '#{repository.name}Broker', :sub_package => 'util'
       java_artifact :test_broker_factory, :test, :server, :jms, '#{repository.name}BrokerFactory', :sub_package => 'util'
-      java_artifact :test_module, :test, :server, :jms, '#{repository.name}ServerModule', :sub_package => 'util'
+      java_artifact :test_module, :test, :server, :jms, '#{repository.name}JmsServerModule', :sub_package => 'util'
 
       attr_writer :custom_test_broker
 
