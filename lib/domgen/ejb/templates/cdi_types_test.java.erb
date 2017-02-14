@@ -4,11 +4,11 @@ package <%= to_package(repository.ejb.qualified_cdi_types_test_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 public class <%= repository.ejb.cdi_types_test_name %>
-{
-<%
+{<%
   repository.data_modules.select{|d|d.ejb?}.each do |data_module|
     data_module.services.select{|s|s.ejb? && s.ejb.generate_base_test?}.each do |service|
 -%>
+
   @org.testng.annotations.Test
   public void ensure<%= data_module.name %><%= service.name %>ImplementationIsCdiType()
     throws java.lang.Exception
@@ -19,4 +19,13 @@ public class <%= repository.ejb.cdi_types_test_name %>
     end
   end
 -%>
+<% if repository.imit? -%>
+
+  @org.testng.annotations.Test
+  public void ensureReplicantSessionManagerImplementationIsCdiType()
+    throws java.lang.Exception
+  {
+    org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI(<%=repository.imit.qualified_session_manager_name%>.class );
+  }
+<% end -%>
 }
