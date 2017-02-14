@@ -59,7 +59,7 @@ Domgen::Generator.define([:jpa],
       template_set.erb_template(:repository,
                                 'base_entity_test.java.erb',
                                 type + '/java/#{repository.jpa.qualified_base_entity_test_name.gsub(".","/")}.java',
-                                :guard => 'repository.jpa.custom_base_entity_test?')
+                                :guard => '!repository.jpa.custom_base_entity_test?')
       template_set.erb_template(:repository,
                                 'standalone_entity_test.java.erb',
                                 type + '/java/#{repository.jpa.qualified_standalone_entity_test_name.gsub(".","/")}.java')
