@@ -8,7 +8,7 @@ public class <%= persistence_unit.raw_test_module_name %>
 {
   public <%= persistence_unit.raw_test_module_name %>()
   {
-    this( "<%= Reality::Naming.underscore(persistence_unit.short_name) %>" );
+    this( <%= persistence_unit.jpa_repository.repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(persistence_unit.short_name) %>_KEY );
   }
 
   public <%= persistence_unit.raw_test_module_name %>( @javax.annotation.Nullable final String databasePrefix )
