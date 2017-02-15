@@ -175,8 +175,14 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :raw_test_module, :test, :server, :jpa, '#{jpa_repository.repository.name}#{short_name}PersistenceTestModule', :sub_package => 'util'
+      java_artifact :persistence_unit_test_util, :test, :server, :jpa, '#{jpa_repository.repository.name}#{jpa_repository.repository.name == short_name ? "" : short_name}PersistentUnitTestUtil', :sub_package => 'util'
+      java_artifact :persistence_unit_module, :test, :server, :jpa, '#{jpa_repository.repository.name}#{jpa_repository.repository.name == short_name ? "" : short_name}PersistentUnitTestModule', :sub_package => 'util'
 
-      Domgen.target_manager.target(:persistence_unit, :repository, :facet_key => :jpa, :access_method => :standalone_persistence_units)
+      Domgen.target_manager.target(:persistence_unit, :repository, :facet_key => :jpa, :access_method => :persistence_units)
+
+      def generate_test_util?
+        related_database_keys.size > 0
+      end
 
       attr_writer :unit_name
 
@@ -234,6 +240,15 @@ module Domgen
         @properties ||= default_properties
       end
 
+      def related_database_keys
+        @related_database_keys ||= []
+      end
+
+      def related_database_jndi(key)
+        prefix = jpa_repository.repository.name == short_name ? '' : "#{short_name}/"
+        "#{application_scope}/env/#{prefix}#{key}_database_name"
+      end
+
       def default_properties
         if provider.nil? || provider == :eclipselink
           {
@@ -281,10 +296,11 @@ module Domgen
       end
 
       def valid_test_modes
-        [:manual, :raw, :mock]
+        [:default, :manual, :raw, :mock]
       end
 
       # The test_mode determines how the framework manages units in test
+      # - :default framework handled through normal means, user does nothing.
       # - :manual framework does nothing, user does all
       # - :raw framework creates a persistence unit that contains no entities but does give access to underlying database
       # - :mock framework creates a mock persistence unit in tests
@@ -488,6 +504,10 @@ module Domgen
         standalone_persistence_unit_map.values
       end
 
+      def persistence_units
+        standalone_persistence_units + (self.include_default_unit? ? [self.default_persistence_unit] : [])
+      end
+
       def unit_name=(unit_name)
         self.default_persistence_unit.unit_name = unit_name
       end
@@ -585,7 +605,7 @@ FRAGMENT
       protected
 
       def safe_default_persistence_unit
-        @default_persistence_unit ||= Domgen::JPA::PersistenceUnitDescriptor.new(self)
+        @default_persistence_unit ||= Domgen::JPA::PersistenceUnitDescriptor.new(self, :test_mode => :default)
       end
 
       def standalone_persistence_unit_map

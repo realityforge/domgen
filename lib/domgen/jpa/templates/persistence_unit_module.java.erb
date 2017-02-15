@@ -1,0 +1,23 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(persistence_unit.qualified_persistence_unit_module_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public class <%= persistence_unit.persistence_unit_module_name %>
+  extends org.realityforge.guiceyloops.shared.AbstractModule
+{
+  @java.lang.Override
+  protected void configure()
+  {
+<% persistence_unit.related_database_keys.each do |key| -%>
+    bind<%= persistence_unit.name %>PersistentUnitRelatedDatabase<%= Reality::Naming.pascal_case(key) %>();
+<% end -%>
+  }
+<% persistence_unit.related_database_keys.each do |key| -%>
+
+  protected void bind<%= persistence_unit.name %>PersistentUnitRelatedDatabase<%= Reality::Naming.pascal_case(key) %>()
+  {
+    bindResource( java.lang.String.class, "<%= persistence_unit.related_database_jndi(key) %>", <%= persistence_unit.qualified_persistence_unit_test_util_name %>.get<%= Reality::Naming.pascal_case(key) %>DatabaseName() );
+  }
+<% end -%>
+}

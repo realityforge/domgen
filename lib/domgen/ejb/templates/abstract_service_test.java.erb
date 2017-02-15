@@ -101,6 +101,12 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% if repository.sync? -%>
     addModule( modules, newSyncServerModule() );
 <% end -%>
+<% if repository.jpa? -%>
+<% repository.jpa.persistence_units.select{|persistence_unit| persistence_unit.generate_test_util?}.each do |persistence_unit| -%>
+    addModule( modules, new<%= repository.name %><% persistence_unit.name %>PersistenceUnitModule() );
+<% end -%>
+<% end -%>
+
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
 <% if repository.ejb.include_server_test_module? -%>
@@ -162,6 +168,16 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   {
     return new <%= repository.sync.qualified_test_module_name %>( this );
   }
+<% end -%>
+<% if repository.jpa? -%>
+<% repository.jpa.persistence_units.select{|persistence_unit| persistence_unit.generate_test_util?}.each do |persistence_unit| -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module new<%= repository.name %><% persistence_unit.name %>PersistenceUnitModule()
+  {
+    return new <%= persistence_unit.qualified_persistence_unit_module_name %>();
+  }
+<% end -%>
 <% end -%>
 <% unless repository.jpa? -%>
 

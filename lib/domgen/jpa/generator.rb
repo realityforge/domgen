@@ -42,6 +42,14 @@ Domgen::Generator.define([:jpa],
                                 'raw_test_module.java.erb',
                                 type + '/java/#{persistence_unit.qualified_raw_test_module_name.gsub(".","/")}.java',
                                 :guard => 'persistence_unit.raw_test_mode?')
+      template_set.erb_template('jpa.persistence_unit',
+                                'persistence_unit_test_util.java.erb',
+                                type + '/java/#{persistence_unit.qualified_persistence_unit_test_util_name.gsub(".","/")}.java',
+                                :guard => 'persistence_unit.generate_test_util?')
+      template_set.erb_template('jpa.persistence_unit',
+                                'persistence_unit_module.java.erb',
+                                type + '/java/#{persistence_unit.qualified_persistence_unit_module_name.gsub(".","/")}.java',
+                                :guard => 'persistence_unit.generate_test_util?')
       template_set.erb_template(:repository,
                                 'dao_module.java.erb',
                                 type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java')
