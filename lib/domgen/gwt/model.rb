@@ -22,20 +22,16 @@ module Domgen
 
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :entrypoint, nil, :client, :gwt, '#{qualified_name}'
-      java_artifact :entrypoint_module, :ioc, :client, :gwt, '#{qualified_name}EntrypointModule'
-      java_artifact :gwt_module, :modules, nil, :gwt, '#{qualified_name}EntrypointSupport'
+      java_artifact :entrypoint, nil, :client, :gwt, '#{name}'
+      java_artifact :entrypoint_module, :ioc, :client, :gwt, '#{name}EntrypointModule'
+      java_artifact :gwt_module, :modules, nil, :gwt, '#{name}EntrypointSupport'
 
       def modules_package
         entrypoint.gwt_repository.modules_package
       end
 
       def qualified_application_name
-        "#{gwt_repository.repository.gwt.client_package}.#{qualified_name}App"
-      end
-
-      def qualified_name
-        Reality::Naming.pascal_case(name)
+        "#{gwt_repository.repository.gwt.client_package}.#{name}App"
       end
 
       attr_reader :name
@@ -88,7 +84,7 @@ module Domgen
       end
 
       def default_entrypoint
-        key = Reality::Naming.underscore(repository.name.to_s)
+        key = repository.name.to_s
         entrypoint(key) unless entrypoint_by_name?(key)
         entrypoint_by_key(key)
       end
