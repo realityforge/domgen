@@ -53,7 +53,7 @@ repository.imit.graphs.each do |graph|
   if graph.filtered?
     graph.routing_keys.each do|routing_key|
       nullable = !graph.instance_root?||!(routing_key.imit_attribute.attribute.entity.qualified_name==graph.instance_root)
-      type = Domgen::Java.java_type(routing_key.imit_attribute.attribute, :ee, :boundary)
+      type = Domgen::Java.non_primitive_java_type(routing_key.imit_attribute.attribute, :ee, :boundary)
       type = "java.util.List<#{type}>" if routing_key.multivalued?
       extra_params += ", #{nullability_annotation(nullable)} final #{type} #{Reality::Naming.camelize(routing_key.name)}"
       extra_args += ", #{Reality::Naming.camelize(routing_key.name)}"
