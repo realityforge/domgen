@@ -1816,7 +1816,6 @@ module Domgen
         @check.call(self.repository)
       rescue
         Domgen.error "Model Check '#{name}' failed."
-        raise
       end
     end
   end
