@@ -100,7 +100,7 @@ module Domgen #nodoc
       end
 
       def check_name(type, element)
-        Domgen.error("#{type} '#{element.qualified_name}' does not follow naming convention and use pascal case name") unless Reality::Naming.pascal_case?(element.name.to_s)
+        Domgen.error("#{type} '#{element.respond_to?(:qualified_name) ? element.qualified_name : element.name}' does not follow naming convention and use pascal case name") unless Reality::Naming.pascal_case?(element.name.to_s)
       end
     end
   end
