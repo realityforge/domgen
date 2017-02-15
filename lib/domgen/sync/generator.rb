@@ -69,6 +69,13 @@ Domgen::Generator.define([:sync],
                                 'master_sync_service_test.java.erb',
                                 type + '/java/#{data_module.sync.qualified_master_sync_service_test_name.gsub(".","/")}.java',
                                 :guard => 'data_module.sync.master_data_module?')
+      template_set.erb_template(:repository,
+                                'test_module.java.erb',
+                                type + '/java/#{repository.sync.qualified_test_module_name.gsub(".","/")}.java')
+      template_set.erb_template(:service,
+                                'test_service.java.erb',
+                                type + '/java/#{service.sync.qualified_test_service_name.gsub(".","/")}.java',
+                  :guard => 'service.sync.sync_temp_population_service?')
     end
   end
 

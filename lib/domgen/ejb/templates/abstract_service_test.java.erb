@@ -98,6 +98,9 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% if repository.jms? -%>
     addModule( modules, newJmsServerModule() );
 <% end -%>
+<% if repository.sync? -%>
+    addModule( modules, newSyncServerModule() );
+<% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
 <% if repository.ejb.include_server_test_module? -%>
@@ -150,6 +153,14 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   protected com.google.inject.Module newJmsServerModule()
   {
     return new <%= repository.jms.qualified_test_module_name %>();
+  }
+<% end -%>
+<% if repository.sync? -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newSyncServerModule()
+  {
+    return new <%= repository.sync.qualified_test_module_name %>( this );
   }
 <% end -%>
 <% unless repository.jpa? -%>

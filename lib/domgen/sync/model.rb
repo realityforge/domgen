@@ -23,6 +23,8 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      java_artifact :test_module, :test, :server, :sync, '#{repository.name}SyncServerModule', :sub_package => 'util'
+
       def transaction_time=(transaction_time)
         @transaction_time = transaction_time
       end
@@ -234,6 +236,17 @@ module Domgen
         raise "Attempted to invoke entity_prefix on #{data_module.name}, but not valid as it is the master data_module" if master_data_module?
         raise "Attempted to invoke entity_prefix on #{data_module.name}, but not valid as it is the sync_temp data_module" if sync_temp_data_module?
         @entity_prefix || ''
+      end
+    end
+
+    facet.enhance(Service) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :test_service, :test, :server, :sync, 'TestSyncTempPopulationServiceImpl', :sub_package => 'util'
+
+      def sync_temp_population_service?
+        service.data_module.name.to_s == service.data_module.repository.sync.master_data_module.to_s &&
+          service.name.to_s == 'SyncTempPopulationService'
       end
     end
 
