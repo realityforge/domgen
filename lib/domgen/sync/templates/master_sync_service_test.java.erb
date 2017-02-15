@@ -6,7 +6,7 @@ package <%= to_package(data_module.sync.qualified_master_sync_service_test_name)
 public abstract class <%= data_module.sync.master_sync_service_test_name %>
   extends <%= data_module.repository.ejb.qualified_base_service_test_name %>
 {
-  private iris.rose.server.service.master.SyncTempFactory $syncTempFactory;
+  private <%= data_module.sync.qualified_sync_temp_factory_name %> $syncTempFactory;
 
   @org.testng.annotations.BeforeMethod
   @java.lang.Override
@@ -17,7 +17,7 @@ public abstract class <%= data_module.sync.master_sync_service_test_name %>
     $syncTempFactory = new <%= data_module.sync.qualified_sync_temp_factory_name %>( em() );
   }
 
-  protected iris.rose.server.service.master.SyncTempFactory getSyncTempFactory()
+  protected <%= data_module.sync.qualified_sync_temp_factory_name %> getSyncTempFactory()
   {
     return $syncTempFactory;
   }
