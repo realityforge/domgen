@@ -112,6 +112,9 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
     return javax.ws.rs.client.ClientBuilder.newBuilder().
       property( "jersey.config.client.connectTimeout", SOCKET_TIMEOUT ).
       property( "jersey.config.client.readTimeout", SOCKET_TIMEOUT ).
+<% if repository.jackson? -%>
+      register( org.glassfish.jersey.jackson.JacksonFeature.class ).
+<% end -%>
       build();
   }
 <% if repository.jms? -%>
