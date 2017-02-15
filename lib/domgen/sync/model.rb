@@ -231,11 +231,11 @@ module Domgen
       end
 
       def master_data_module?
-        data_module.repository.sync.master_data_module == data_module.name
+        data_module.repository.sync.master_data_module.to_s == data_module.name.to_s
       end
 
       def sync_temp_data_module?
-        data_module.repository.sync.sync_temp_data_module == data_module.name
+        data_module.repository.sync.sync_temp_data_module.to_s == data_module.name.to_s
       end
 
       def entity_prefix=(entity_prefix)
