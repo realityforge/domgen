@@ -491,9 +491,14 @@ module Domgen
         self.standalone_persistence_unit_map[name.to_s] = Domgen::JPA::PersistenceUnitDescriptor.new(self, {:short_name => short_name, :unit_name => name}.merge(options), &block)
       end
 
-      def standalone_persistence_unit?(short_name)
+      def standalone_persistence_unit_by_name?(short_name)
         name = "#{self.include_default_unit? ? self.unit_name : self.repository.name}#{short_name}"
         !!self.standalone_persistence_unit_map[name.to_s]
+      end
+
+      def standalone_persistence_unit_by_name(short_name)
+        name = "#{self.include_default_unit? ? self.unit_name : self.repository.name}#{short_name}"
+        self.standalone_persistence_unit_map[name.to_s]
       end
 
       def standalone_persistence_units?
@@ -502,6 +507,16 @@ module Domgen
 
       def standalone_persistence_units
         standalone_persistence_unit_map.values
+      end
+
+      def persistence_unit_by_name?(name)
+        return true if self.include_default_unit? && self.unit_name.to_s == name.to_s
+        standalone_persistence_unit_by_name?(name)
+      end
+
+      def persistence_unit_by_name(name)
+        return self.default_persistence_unit if self.include_default_unit? && self.unit_name.to_s == name.to_s
+        standalone_persistence_unit_by_name(name)
       end
 
       def persistence_units
@@ -678,7 +693,7 @@ FRAGMENT
 
       def perform_verify
         unless persistence_unit_name.nil?
-          unless dao.data_module.repository.jpa.standalone_persistence_unit?(persistence_unit_name)
+          unless dao.data_module.repository.jpa.standalone_persistence_unit_by_name?(persistence_unit_name)
             Domgen.error("Defined a dao #{dao.name} that does not reference a standalone_persistence_unit but references non-existent #{persistence_unit_name}")
           end
         end

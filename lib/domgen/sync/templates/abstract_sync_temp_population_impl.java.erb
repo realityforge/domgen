@@ -23,8 +23,24 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   implements <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_service_name %>
 {
   protected static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= data_module.sync.abstract_sync_temp_population_impl_name %>.class.getName() );
-
   private H _st;
+
+<% if data_module.sync.master_sync_persistent_unit -%>
+<% persistent_unit = data_module.repository.jpa.persistence_unit_by_name(data_module.sync.master_sync_persistent_unit) -%>
+  @javax.persistence.PersistenceContext( unitName = <%= data_module.repository.jpa.qualified_unit_descriptor_name %>.<%= persistent_unit.short_name.to_s == data_module.repository.name.to_s ? '' : "#{Reality::Naming.uppercase_constantize(persistent_unit.short_name)}_" %>NAME )
+  private javax.persistence.EntityManager _entityManager;
+<% persistent_unit.related_database_keys.each do |key| -%>
+  @javax.annotation.Resource( lookup = "<%= persistent_unit.related_database_jndi(key) %>" )
+  private String _<%= key %>DatabaseName;
+<% end -%>
+
+  protected javax.persistence.EntityManager getEntityManager()
+  {
+    return _entityManager;
+  }
+<% else -%>
+  protected abstract javax.persistence.EntityManager getEntityManager();
+<% end -%>
 
   @javax.annotation.Nonnull
   protected H st()
@@ -40,7 +56,15 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @javax.annotation.Nonnull
   protected H createSyncTempFactory()
   {
-    return (H) new <%= data_module.sync.qualified_sync_temp_factory_name %>( getEntityManager() );
+    return (H) new <%= data_module.sync.qualified_sync_temp_factory_name %>( getEntityManager() )<% if data_module.sync.master_sync_persistent_unit -%>
+    {
+      @javax.annotation.Nonnull
+      @java.lang.Override
+      protected String interpolateSql( @javax.annotation.Nonnull final String sql )
+      {
+        return <%= data_module.sync.abstract_sync_temp_population_impl_name %>.this.interpolateSql( sql );
+      }
+    }<% end -%>;
   }
 
   @java.lang.Override
@@ -54,7 +78,6 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   {
   }
 
-  protected abstract javax.persistence.EntityManager getEntityManager();
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
 
   public abstract void populate<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder );
@@ -325,7 +348,11 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @javax.annotation.Nonnull
   protected String interpolateSql( @javax.annotation.Nonnull final String sql )
   {
+<% if data_module.sync.master_sync_persistent_unit -%>
+    return sql<%= persistent_unit.related_database_keys.collect{|key| ".replace( \"@@#{Reality::Naming.uppercase_constantize(key)}@@\", \"[\" + _#{key}DatabaseName + \"]\" )"}.join('') %>;
+<% else -%>
     return sql;
+<% end -%>
   }
 
   protected int getTransactionIsolation()

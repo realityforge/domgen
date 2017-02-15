@@ -211,6 +211,18 @@ module Domgen
       java_artifact :abstract_sync_temp_population_impl, :service, :server, :sync, 'AbstractSyncTempPopulationService#{data_module.repository.ejb.implementation_suffix}'
       java_artifact :master_sync_service_test, :service, :server, :sync, 'AbstractMasterSyncService#{data_module.repository.ejb.implementation_suffix}Test'
 
+      def master_sync_persistent_unit
+        raise 'master_sync_persistent_unit invoked when not master_data_module' unless master_data_module?
+        return nil if @master_sync_persistent_unit_nil
+        @master_sync_persistent_unit || data_module.repository.jpa.include_default_unit? ? data_module.repository.name : nil
+      end
+
+      def master_sync_persistent_unit=(master_sync_persistent_unit)
+        raise 'master_sync_persistent_unit= invoked when not master_data_module' unless master_data_module?
+        @master_sync_persistent_unit_nil = master_sync_persistent_unit.nil?
+        @master_sync_persistent_unit = master_sync_persistent_unit
+      end
+
       def entities_to_synchronize
         raise 'entities_to_synchronize invoked when not master_data_module' unless master_data_module?
         data_module.repository.data_modules.select { |d| d.sync? }.collect do |dm|
