@@ -1814,8 +1814,8 @@ module Domgen
     def check_model
       begin
         @check.call(self.repository)
-      rescue
-        Domgen.error "Model Check '#{name}' failed."
+      rescue => e
+        Domgen.error("Model Check '#{self.name}' failed due to: #{e}.")
       end
     end
   end
