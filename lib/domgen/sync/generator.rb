@@ -72,7 +72,7 @@ Domgen::Generator.define([:sync],
       template_set.erb_template(:repository,
                                 'test_module.java.erb',
                                 type + '/java/#{repository.sync.qualified_test_module_name.gsub(".","/")}.java',
-                                :guard => '!repository.sync.standalone?')
+                                :guard => 'repository.sync.standalone?')
       template_set.erb_template(:service,
                                 'test_service.java.erb',
                                 type + '/java/#{service.sync.qualified_test_service_name.gsub(".","/")}.java',
