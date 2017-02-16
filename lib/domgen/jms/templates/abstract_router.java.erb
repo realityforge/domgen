@@ -30,8 +30,21 @@ public abstract class <%= service.jms.abstract_router_name %>
 -%>
 
   {
-    final String text = <% if parameter -%>convert<%= method.name %>ToText( <%= Reality::Naming.camelize(parameter.name) %> )<% else -%>""<% end -%>;
-    send<%= method.name %>Message( _context.createTextMessage( text ) );
+    try
+    {
+      final String text = <% if parameter -%>convert<%= method.name %>ToText( <%= Reality::Naming.camelize(parameter.name) %> )<% else -%>""<% end -%>;
+      send<%= method.name %>Message( process<%= method.name %>( _context.createTextMessage( text ) ) );
+    }
+    catch ( final javax.jms.JMSException e )
+    {
+      throw new javax.jms.JMSRuntimeException( "Error processing message prior to transmission: " + e.getMessage(), "", e );
+    }
+  }
+
+  protected @javax.annotation.Nonnull javax.jms.TextMessage process<%= method.name %>( @javax.annotation.Nonnull final javax.jms.TextMessage message )
+    throws javax.jms.JMSException
+  {
+    return message;
   }
 
 <% if parameter -%>
