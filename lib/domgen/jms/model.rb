@@ -78,7 +78,9 @@ module Domgen
       private
 
       def default_name
-        "#{jms_repository.repository.name}.#{access_level == :read ? 'Consumer.' : access_level == :write ? 'Producer.' : ''}#{jms_repository.repository.name}.#{name}"
+        prefix = self.access_level == :read ? 'Consumer.' : self.access_level == :write ? 'Producer.' : nil
+        prefix = "#{jms_repository.repository.name}.#{prefix}" if prefix
+        "#{prefix}#{jms_repository.repository.name}.#{name}"
       end
 
       def valid_destination_types
