@@ -19,7 +19,7 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
 -%>
   public final String get<%= service.data_module.name %><%= service.name %>EndpointAddress()
   {
-    return getSiteURL() + "<%= service.jws.url %>";
+    return getSiteURL() + <%= repository.jws.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(service.qualified_name.gsub('.','_')) %>_URL;
   }
 <%
     end

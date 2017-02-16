@@ -87,6 +87,13 @@ Domgen::Generator.define([:jws],
                               'test/java/#{service.jws.qualified_service_integration_test_name.gsub(".","/")}.java')
   end
 
+
+  g.template_set(:jws_shared) do |template_set|
+    template_set.erb_template(:repository,
+                              'constants_container.java.erb',
+                              'main/java/#{repository.jws.qualified_constants_container_name.gsub(".","/")}.java')
+  end
+
   g.template_set(:jws_fakes) do |template_set|
     template_set.erb_template(:service,
                               'fake_implementation.java.erb',

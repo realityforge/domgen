@@ -30,6 +30,7 @@ module Domgen
         @fake_service_package || "#{repository.java.base_package}.fake"
       end
 
+      java_artifact :constants_container, nil, :shared, :jws, '#{repository.name}JwsConstants'
       java_artifact :fake_server, :service, :fake, :jws, 'Fake#{repository.name}Server'
       java_artifact :fake_server_factory, :service, :fake, :jws, 'Fake#{repository.name}ServerFactory'
       java_artifact :abstract_fake_server_test, :service, :fake, :jws, 'AbstractFake#{repository.name}ServerTest'
