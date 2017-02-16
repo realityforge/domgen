@@ -7,7 +7,7 @@ public final class <%= repository.jws.constants_container_name %>
 <%
   repository.data_modules.select{|dm| dm.jws?}.each do |data_module|
     data_module.services.select{|s| s.jws?}.each do |service|
-%>
+-%>
   public static final java.lang.String <%= Reality::Naming.uppercase_constantize(service.qualified_name.gsub('.','_')) %>_URL = "<%= service.jws.url %>";
   public static final java.lang.String <%= Reality::Naming.uppercase_constantize(service.qualified_name.gsub('.','_')) %>_WSDL_URL = "<%= service.jws.url %>?WSDL";
 <% end -%>
