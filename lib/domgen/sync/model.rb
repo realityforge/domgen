@@ -33,6 +33,15 @@ module Domgen
         @transaction_time.nil? ? false : !!@transaction_time
       end
 
+      def standalone=(standalone)
+        @standalone = standalone
+      end
+
+      # Return false if the Data => SyncTemp && SyncTemp => Master stages occurs in a separate process
+      def standalone?
+        @standalone.nil? ? true : !!@standalone
+      end
+
       attr_writer :mapping_source_attribute
 
       def mapping_source_attribute
