@@ -54,7 +54,7 @@ module Domgen
 
       def column_type(column)
         if column.calculation
-          sql_type = "AS #{@calculation}"
+          sql_type = "AS #{column.calculation}"
           if column.persistent_calculation?
             sql_type += ' PERSISTED'
           end
