@@ -100,6 +100,13 @@ module Domgen #nodoc
                   check_name('Attribute', attribute)
                 end
               end
+
+              data_module.remote_entities.each do |entity|
+                check_name('Remote Entity', entity)
+                entity.attributes.each do |attribute|
+                  check_name('Attribute', attribute)
+                end
+              end
             end
           end
         end
