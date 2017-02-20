@@ -294,8 +294,7 @@ module Domgen
 
     module JavaCharacteristic
       def name(modality = :default)
-        return characteristic.referencing_link_name if characteristic.reference? && (:boundary == modality || :transport == modality)
-        return characteristic.referencing_link_name if characteristic.remote_reference? && (:boundary == modality || :transport == modality)
+        return characteristic.referencing_link_name if (characteristic.remote_reference? || characteristic.reference?) && (:boundary == modality || :transport == modality)
         return characteristic.name
       end
 
