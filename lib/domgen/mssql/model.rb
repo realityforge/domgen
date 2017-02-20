@@ -56,19 +56,19 @@ module Domgen
         if column.calculation
           sql_type = "AS #{@calculation}"
           if column.persistent_calculation?
-            sql_type += " PERSISTED"
+            sql_type += ' PERSISTED'
           end
           return sql_type
         elsif :reference == column.attribute.attribute_type
           return column.attribute.referenced_entity.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
           if column.attribute.length.nil?
-            return "[VARCHAR](MAX)"
+            return '[VARCHAR](MAX)'
           else
             return "[VARCHAR](#{column.attribute.length})"
           end
         elsif column.attribute.enumeration?
-          column.attribute.enumeration.textual_values? ? "VARCHAR(#{column.attribute.length})" : "INT"
+          column.attribute.enumeration.textual_values? ? "VARCHAR(#{column.attribute.length})" : 'INT'
         else
           return quote(column.attribute.characteristic_type.sql.mssql.sql_type)
         end
