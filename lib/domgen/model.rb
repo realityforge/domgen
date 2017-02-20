@@ -759,7 +759,7 @@ module Domgen
       @name = name
       @attribute_type = attribute_type
       super(entity, options, &block)
-      Domgen.error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !((characteristic_type && characteristic_type.persistent?) || reference? || enumeration?)
+      Domgen.error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !((characteristic_type && characteristic_type.persistent?) || reference? || enumeration? || remote_reference?)
       Domgen.error("Attribute #{self.qualified_name} must not be a collection") if collection?
     end
 

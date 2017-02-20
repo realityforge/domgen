@@ -73,6 +73,10 @@ module Domgen
       self.characteristic_type_key == :reference
     end
 
+    def remote_reference?
+      self.characteristic_type_key == :remote_reference
+    end
+
     def integer?
       self.characteristic_type_key == :integer
     end
@@ -114,7 +118,7 @@ module Domgen
     end
 
     def self.standard_types
-      [:integer, :long, :datetime, :date, :real, :text, :boolean, :reference, :struct, :enumeration]
+      [:integer, :long, :datetime, :date, :real, :text, :boolean, :reference, :struct, :enumeration, :remote_reference]
     end
 
     def characteristic_type
@@ -163,8 +167,19 @@ module Domgen
 
     # The name of the local field appended with PK of foreign entity
     def referencing_link_name
-      Domgen.error("referencing_link_name on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
-      "#{name}#{referenced_entity.primary_key.name}"
+      Domgen.error("referencing_link_name on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference or remote reference") unless reference? || remote_reference?
+      "#{name}#{(remote_reference? ? referenced_remote_entity : referenced_entity).primary_key.name}"
+    end
+
+    def referenced_remote_entity
+      Domgen.error("referenced_remote_entity on #{qualified_name} is invalid as #{characteristic_container.characteristic_kind} is not a remote reference") unless remote_reference?
+      Domgen.error("Calling referenced_remote_entity on #{qualified_name} is invalid as reference not yet specified") unless @referenced_remote_entity
+      @referenced_remote_entity
+    end
+
+    def referenced_remote_entity=(referenced_remote_entity)
+      Domgen.error("referenced_remote_entity= on #{qualified_name} is invalid as #{characteristic_container.characteristic_kind} is not a remote reference") unless remote_reference?
+      @referenced_remote_entity = (referenced_remote_entity.is_a?(Symbol) || referenced_remote_entity.is_a?(String)) ? self.remote_entity_by_name(referenced_remote_entity) : referenced_remote_entity
     end
 
     attr_writer :polymorphic
@@ -180,6 +195,10 @@ module Domgen
 
     def entity_by_name(name)
       self.characteristic_container.data_module.entity_by_name(name)
+    end
+
+    def remote_entity_by_name(name)
+      self.characteristic_container.data_module.remote_entity_by_name(name)
     end
 
     def characteristic_type_key
@@ -287,6 +306,19 @@ module Domgen
       end
 
       characteristic(name.to_s.to_sym, :reference, options.merge({:referenced_entity => other_type}), &block)
+    end
+
+    def remote_reference(other_type, options = {}, &block)
+      name = options.delete(:name)
+      if name.nil?
+        if other_type.to_s.include?('.')
+          name = other_type.to_s.sub(/.+\./, '').to_sym
+        else
+          name = other_type
+        end
+      end
+
+      characteristic(name.to_s.to_sym, :remote_reference, options.merge({:referenced_remote_entity => other_type}), &block)
     end
 
     def struct(name, struct_key, options = {}, &block)

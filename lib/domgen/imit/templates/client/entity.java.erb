@@ -20,37 +20,41 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% if entity.concrete? %>
   public static final int TRANSPORT_ID = <%= entity.imit.transport_id %>;
 <% end %>
-<% entity.declared_attributes.select{ |attribute| attribute.imit? && attribute.imit.client_side? }.each do |attribute|
-%>  public static final String <%= Reality::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
-<% end %>
-<% entity.referencing_attributes.select{ |attribute| attribute.imit? && attribute.imit.client_side? && !attribute.abstract? && attribute.inverse.imit? && attribute.inverse.imit.traversable?}.each do |attribute|
-%>  public static final String <%= Reality::Naming.uppercase_constantize(attribute.inverse.name) %> = "<%= attribute.inverse.name %>";
-<% end %>
+<% entity.declared_attributes.select{ |attribute| attribute.imit? && attribute.imit.client_side? }.each do |attribute| -%>
+  public static final String <%= Reality::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
+<% end -%>
+<% entity.referencing_attributes.select{ |attribute| attribute.imit? && attribute.imit.client_side? && !attribute.abstract? && attribute.inverse.imit? && attribute.inverse.imit.traversable?}.each do |attribute| -%>
+  public static final String <%= Reality::Naming.uppercase_constantize(attribute.inverse.name) %> = "<%= attribute.inverse.name %>";
+<% end -%>
+
 <%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
 %><%= entity.extends.nil? ? "  protected EntityChangeBroker _broker;\n" : ""
 %><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side? }.each do |attribute|
-  if !attribute.reference?
-%>
-  <%= annotated_type(attribute, :imit, :default, :nullable => true, :private => true) %> _<%= Reality::Naming.camelize(attribute.imit.name) %>;
-<% else
-%>  private <%= attribute.imit.java_type %> _<%= Reality::Naming.camelize(attribute.imit.name) %>;
+  if attribute.reference? || attribute.remote_reference? -%>
+  private <%= attribute.imit.java_type %> _<%= Reality::Naming.camelize(attribute.imit.name) %>;
   private <%= "#{nullability_annotation(true)} #{attribute.imit.java_type(:transport)}" %> _<%= Reality::Naming.camelize(attribute.imit.name(:transport)) %>;
+<% else -%>
+  <%= annotated_type(attribute, :imit, :default, :nullable => true, :private => true) %> _<%= Reality::Naming.camelize(attribute.imit.name) %>;
 <%
    end
    end
-%>
-<% entity.imit.referencing_client_side_attributes.each do |attribute| %><%= if attribute.inverse.multiplicity == :many
-          "  private java.util.List<#{attribute.entity.imit.qualified_name}> #{Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name))};\n"
-        else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          "  private #{attribute.entity.imit.qualified_name} #{Reality::Naming.camelize(attribute.inverse.name)};\n"
-        end %>
-<% end %>
-<% if entity.extends.nil? %>
+-%>
+<% entity.imit.referencing_client_side_attributes.each do |attribute|
+    if attribute.inverse.multiplicity == :many -%>
+  private java.util.List<<%= attribute.entity.imit.qualified_name %>> <%= Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) %>;
+<% else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one -%>
+  private <%= attribute.entity.imit.qualified_name %> <%= Reality::Naming.camelize(attribute.inverse.name) %>;
+<%
+    end
+  end
+  -%>
+<% if entity.extends.nil? -%>
   private boolean _$created;
   private boolean _$linking;
   private boolean _$delinking;
   private boolean _$linked;
-<% end %>
+<% end -%>
+
   protected <%= entity.imit.name %>( final EntityRepository repository, final EntityChangeBroker broker )
   {
     <%= entity.extends.nil? ? "_repository = repository;\n    _broker = broker" : "super( repository, broker )" %>;
@@ -65,7 +69,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
 %>  <%= annotated_type(attribute, :imit, :default, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>()
   {
-    <% if !attribute.primary_key? %>check<%= attribute.reference? ? "Linked" : "Validity" %>();<% end %>
+    <% if !attribute.primary_key? %>check<%= attribute.reference? || attribute.remote_reference? ? 'Linked' : 'Validity' %>();<% end %>
 <% if !attribute.primary_key? && !attribute.imit.primitive? && !attribute.nullable? %>
     //TODO: This should be compiled out in non dev - perhaps via gwt-property-source
     if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> )
@@ -75,17 +79,22 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% end %>
     return _<%= Reality::Naming.camelize(attribute.imit.name) %>;
   }
-<% if attribute.attribute_type == :reference
-%>
+<% if attribute.attribute_type == :reference %>
   protected final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
   {
     return _<%= Reality::Naming.camelize(attribute.referencing_link_name) %>;
   }
-<% end %>
+<% end -%>
+<% if attribute.attribute_type == :remote_reference -%>
+  protected final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
+  {
+    return _<%= Reality::Naming.camelize(attribute.referencing_link_name) %>;
+  }
+<% end -%>
   final void set<%= attribute.imit.name(:transport) %>( <%= annotated_type(attribute, :imit, :transport, :final => true) %> value )
   {
     checkValidity();
-<% if attribute.imit.primitive?(:transport) && !attribute.enumeration? && !attribute.reference? %>
+<% if attribute.imit.primitive?(:transport) && !attribute.enumeration? && !attribute.reference? && !attribute.remote_reference? %>
     if( value == _<%= Reality::Naming.camelize(attribute.imit.name) %> )
     {
       return;
@@ -100,6 +109,9 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
        elsif attribute.reference?
          lhs = "#{value}.#{getter_prefix(attribute.referenced_entity.primary_key)}#{attribute.referenced_entity.primary_key.name}()"
          attribute.referenced_entity.primary_key.imit.primitive?(:transport) ? "#{lhs} == value" : "#{lhs}.equals(value)"
+       elsif attribute.remote_reference?
+         lhs = "#{value}.#{getter_prefix(attribute.referenced_remote_entity.primary_key)}#{attribute.referenced_remote_entity.primary_key.name}()"
+         attribute.referenced_remote_entity.primary_key.imit.primitive?(:transport) ? "#{lhs} == value" : "#{lhs}.equals(value)"
        else
          "#{value}.equals( value )"
        end
@@ -112,19 +124,20 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
       return;
     }
 <% end %>
-<% if attribute.reference?
-%>
+<% if attribute.reference? -%>
     _<%= Reality::Naming.camelize(attribute.imit.name) %> = null;
     _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> = value;
-<% elsif attribute.enumeration?
-%>
-<% if !attribute.imit.primitive?(:transport)
-%>    if( null != value )
+<% elsif attribute.remote_reference? -%>
+    _<%= Reality::Naming.camelize(attribute.imit.name) %> = null;
+    _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> = value;
+<% elsif attribute.enumeration? -%>
+<% if !attribute.imit.primitive?(:transport) -%>
+    if( null != value )
     {
-<% end %>
+<% end -%>
     _<%= Reality::Naming.camelize(attribute.imit.name) %> = <%= attribute.imit.java_type %>.<%= attribute.enumeration.textual_values? ? "valueOf( value )" : "values()[value]" %>;
-<% if !attribute.imit.primitive?(:transport)
-%>    }
+<% if !attribute.imit.primitive?(:transport) -%>
+    }
     else
     {
       _<%= Reality::Naming.camelize(attribute.imit.name) %> = null;
@@ -210,13 +223,12 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     {
       throw new IllegalStateException( "Registered entity does not match current entity Registered: " + r + " Current: " + this );
     }
-<% entity.declared_attributes.select{ |a| a.imit? && a.reference? && a.imit.client_side? && a.inverse.traversable? }.
-      each do |attribute| %>
+<% entity.declared_attributes.select{ |a| a.imit? && (a.reference? && a.remote_reference?) && a.imit.client_side? && a.inverse.traversable? }.each do |attribute| -%>
     if( null != _<%= Reality::Naming.camelize(attribute.imit.name) %> )
     {
       _<%= Reality::Naming.camelize(attribute.imit.name) %>.verifySelf();
     }
-<% end %>
+<% end -%>
   }
 
   @java.lang.SuppressWarnings( { "PMD.UselessOverridingMethod" } )
@@ -254,17 +266,15 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   @java.lang.SuppressWarnings( { "PMD.UselessOverridingMethod" } )
   public void invalidate()
   {
-<% if entity.extends.nil?
-%>
-<%    entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side? && attribute.reference? && attribute.inverse.imit.traversable?}.each do |attribute|
-%>    {
+<% if entity.extends.nil? -%>
+<% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side? && attribute.reference? && attribute.inverse.imit.traversable?}.each do |attribute| -%>    {
       if( null != _<%= Reality::Naming.camelize(attribute.imit.name) %> )
       {
         _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Reality::Naming.uppercase_constantize( attribute.inverse.name ) %>, _<%= Reality::Naming.camelize(attribute.imit.name) %> );
       }
     }
-<% end
-%>    _broker.entityRemoved( this );
+<% end -%>
+    _broker.entityRemoved( this );
     delink();
     _repository = null;
     _broker = null;
@@ -273,25 +283,22 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 <% end
 %>
   }
-
-<%
-   linkable_attributes = entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.reference? && attribute.imit? && attribute.imit.client_side?}
-%>
+<% linkable_attributes = entity.declared_attributes.select{|attribute| !attribute.abstract? && (attribute.reference? || attribute.remote_reference?) && attribute.imit? && attribute.imit.client_side?} -%>
 
   protected void performLink()
   {
     <%= entity.extends.nil? ? "if( !_$linking ) throw new IllegalStateException( \"performLink invoked from outside link\" )" : "super.performLink()" %>;
-<% linkable_attributes.each do |attribute|
-%>      link<%= attribute.imit.name %>();
-<% end %>
+<% linkable_attributes.each do |attribute| -%>
+    link<%= attribute.imit.name %>();
+<% end -%>
   }
 
   protected void performDelink()
   {
     <%= entity.extends.nil? ? "if( !_$delinking ) throw new IllegalStateException( \"performDelink invoked from outside delink\" )" : "super.performDelink()" %>;
-<% linkable_attributes.each do |attribute|
-%>      delink<%= attribute.imit.name %>();
-<% end %>
+<% linkable_attributes.each do |attribute| -%>
+    delink<%= attribute.imit.name %>();
+<% end -%>
   }
 
 <% linkable_attributes.each do |attribute|
@@ -301,8 +308,8 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     {
       if( null != _<%= Reality::Naming.camelize(attribute.imit.name) %> )
       {
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= Reality::Naming.camelize(attribute.imit.name) %>.remove<%= attribute.inverse.name %>( this );<% end %>
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= Reality::Naming.camelize(attribute.imit.name) %>.set<%= attribute.inverse.name %>( null );<% end %>
+<% if !attribute.remote_reference? && attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= Reality::Naming.camelize(attribute.imit.name) %>.remove<%= attribute.inverse.name %>( this );<% end -%>
+<% if !attribute.remote_reference? && attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= Reality::Naming.camelize(attribute.imit.name) %>.set<%= attribute.inverse.name %>( null );<% end -%>
         _<%= Reality::Naming.camelize(attribute.imit.name) %> = null;
       }
     }
@@ -312,14 +319,14 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     {
       if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> <%= attribute.nullable? ? "&& null != _#{Reality::Naming.camelize(attribute.referencing_link_name)}" : "" %> )
       {
-        _<%= Reality::Naming.camelize(attribute.imit.name) %> = _repository.findByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
+        _<%= Reality::Naming.camelize(attribute.imit.name) %> = _repository.findByID( <%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).imit.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
         if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> )
         {
-          throw new IllegalStateException( "Unable to locate entity of type '<%= attribute.referenced_entity.imit.qualified_name %>' and id = '" + _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> + "' via '<%= attribute.imit.name %>' attribute on " + this );
+          throw new IllegalStateException( "Unable to locate entity of type '<%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).imit.qualified_name %>' and id = '" + _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> + "' via '<%= attribute.imit.name %>' attribute on " + this );
         }
         if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Reality::Naming.uppercase_constantize( attribute.name ) %>, _<%= Reality::Naming.camelize(attribute.imit.name) %> );
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= Reality::Naming.camelize(attribute.imit.name) %>.add<%= attribute.inverse.name %>( this );<% end %>
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= Reality::Naming.camelize(attribute.imit.name) %>.set<%= attribute.inverse.name %>( this );<% end %>
+<% if !attribute.remote_reference? && attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= Reality::Naming.camelize(attribute.imit.name) %>.add<%= attribute.inverse.name %>( this );<% end -%>
+<% if !attribute.remote_reference? && attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many %>        _<%= Reality::Naming.camelize(attribute.imit.name) %>.set<%= attribute.inverse.name %>( this );<% end -%>
       }
     }
 <% end %>

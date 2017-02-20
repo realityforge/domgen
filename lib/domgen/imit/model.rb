@@ -1187,6 +1187,27 @@ module Domgen
       java_artifact :name, :service, :client, :imit, '#{exception.name}Exception'
     end
 
+    facet.enhance(RemoteEntity) do
+      include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :qualified_name
+
+      def qualified_name
+        Domgen.error("Invoked qualified_name on #{remote_entity.qualified_name} when value not set") unless @qualified_name
+        @qualified_name
+      end
+    end
+
+    facet.enhance(RemoteEntityAttribute) do
+      include Domgen::Java::ImitJavaCharacteristic
+
+      protected
+
+      def characteristic
+        attribute
+      end
+    end
+
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 

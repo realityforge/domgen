@@ -1011,7 +1011,7 @@ SQL
 
       def column_name
         if @column_name.nil?
-          if attribute.reference?
+          if attribute.reference? || attribute.remote_reference?
             @column_name = attribute.referencing_link_name
           else
             @column_name = attribute.name
@@ -1117,6 +1117,28 @@ SQL
 
       def perform_complete
         self.sequence if self.sequence?
+      end
+    end
+
+    facet.enhance(RemoteEntityAttribute) do
+      def dialect
+        attribute.remote_entity.data_module.sql.dialect
+      end
+
+      attr_accessor :column_name
+
+      def column_name
+        @column_name || attribute.name
+      end
+
+      def quoted_column_name
+        self.dialect.quote(self.column_name)
+      end
+
+      attr_writer :sql_type
+
+      def sql_type
+        @sql_type ||= self.dialect.column_type(self)
       end
     end
   end
