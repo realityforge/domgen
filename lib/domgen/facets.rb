@@ -26,6 +26,8 @@ module Domgen #nodoc
 
   FacetManager.target_manager.target(Domgen::Repository, :repository)
   FacetManager.target_manager.target(Domgen::DataModule, :data_module, :repository)
+  FacetManager.target_manager.target(Domgen::RemoteEntity, :remote_entity, :data_module)
+  FacetManager.target_manager.target(Domgen::RemoteEntityAttribute, :remote_entity_attribute, :remote_entity, :access_method => 'attributes', :inverse_access_method => 'attribute')
   FacetManager.target_manager.target(Domgen::Entity, :entity, :data_module)
   FacetManager.target_manager.target(Domgen::Attribute, :attribute, :entity, :access_method => 'declared_attributes', :inverse_access_method => 'attribute')
   FacetManager.target_manager.target(Domgen::InverseElement, :inverse, :attribute, :access_method => 'inverse')
