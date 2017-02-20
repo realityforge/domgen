@@ -274,7 +274,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
           "<%= j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +
           "<%= j_escape_string("JOIN ( SELECT #{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempID).sql.quoted_column_name } FROM #{ entity.sync.sync_temp_entity.sql.qualified_table_name } WHERE NOT (#{
   sql = constraint.sql.gsub("\n",' ').gsub('  ',' ')
-  entity.attributes.select{|a| !a.primary_key? && a.sql? && a.name.to_s != 'CreatedAt' && a.name.to_s != 'DeletedAt' }.each do |a|
+  entity.attributes.select{|a| a.sync? && !a.primary_key? && a.sql? && a.name.to_s != 'CreatedAt' && a.name.to_s != 'DeletedAt' }.each do |a|
     sql = sql.gsub(/#{Regexp.escape(a.sql.quoted_column_name)}/, entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name).sql.quoted_column_name )
   end
   sql
