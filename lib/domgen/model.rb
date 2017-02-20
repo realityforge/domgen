@@ -1158,7 +1158,7 @@ module Domgen
     end
 
     def characteristic_kind
-      "field"
+      'field'
     end
 
     protected
@@ -1828,7 +1828,7 @@ module Domgen
     end
 
     def register_enumeration(name, enumeration)
-      register_type_name(name.to_s, "enumeration", enumeration)
+      register_type_name(name.to_s, 'enumeration', enumeration)
       @enumerations[name.to_s] = enumeration
     end
 
@@ -1842,7 +1842,7 @@ module Domgen
     end
 
     def register_exception(name, exception)
-      register_type_name(name.to_s, "exception", exception)
+      register_type_name(name.to_s, 'exception', exception)
       @exceptions[name.to_s] = exception
     end
 
@@ -1856,7 +1856,7 @@ module Domgen
     end
 
     def register_struct(name, struct)
-      register_type_name(name.to_s, "struct", struct)
+      register_type_name(name.to_s, 'struct', struct)
       @structs[name.to_s] = struct
     end
 
@@ -1884,7 +1884,7 @@ module Domgen
     end
 
     def register_entity(name, entity)
-      register_type_name(name.to_s, "entity", entity)
+      register_type_name(name.to_s, 'entity', entity)
       @entities[name.to_s] = entity
     end
 
@@ -1898,7 +1898,7 @@ module Domgen
     end
 
     def register_service(name, service)
-      register_type_name(name.to_s, "service", service)
+      register_type_name(name.to_s, 'service', service)
       @services[name.to_s] = service
     end
 
@@ -1912,7 +1912,7 @@ module Domgen
     end
 
     def register_message(name, message)
-      register_type_name(name.to_s, "message", message)
+      register_type_name(name.to_s, 'message', message)
       @messages[name.to_s] = message
     end
   end
