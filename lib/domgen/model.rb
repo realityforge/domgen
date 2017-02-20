@@ -739,6 +739,7 @@ module Domgen
       Domgen.error("Remote Entity #{qualified_name} must define exactly one attribute (the remote key)") if attributes.size != 1
       self.attributes.each do |a|
         Domgen.error("Attribute #{a.qualified_name} must be persistable") unless ((a.characteristic_type && a.characteristic_type.persistent?) || a.enumeration?)
+        Domgen.error("Attribute #{a.qualified_name} must not be a collection") if a.collection?
       end
     end
 
