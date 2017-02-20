@@ -373,7 +373,7 @@ module Domgen
     facet.enhance(Repository) do
 
       def dialect
-        @dialect ||= (repository.mssql? ? Domgen::Mssql::MssqlDialect.new : repository.pgsql? ? Domgen::Pgsql::PgsqlDialect.new  : (Domgen.error('Unable to determine the dialect in use')) )
+        @dialect ||= (repository.mssql? ? Domgen::Mssql::MssqlDialect.new : repository.pgsql? ? Domgen::Pgsql::PgsqlDialect.new : (Domgen.error('Unable to determine the dialect in use')))
       end
 
       def error_handler
@@ -759,7 +759,7 @@ module Domgen
         end
 
         entity.unique_constraints.each do |c|
-          index(c.attribute_names, {:unique => true}, true)
+          index(c.attribute_names, { :unique => true }, true)
         end
 
         entity.relationship_constraints.each do |c|
@@ -988,7 +988,7 @@ SQL
           foreign_key([a.name],
                       a.referenced_entity.qualified_name,
                       [a.referenced_entity.primary_key.name],
-                      {:on_update => a.sql.on_update, :on_delete => a.sql.on_delete},
+                      { :on_update => a.sql.on_update, :on_delete => a.sql.on_delete },
                       true)
         end
 
