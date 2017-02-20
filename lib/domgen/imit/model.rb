@@ -797,7 +797,7 @@ module Domgen
               repository.keycloak.client_by_key(repository.gwt_rpc.keycloak_client) :
               repository.keycloak.client(repository.gwt_rpc.keycloak_client)
           client.bearer_only = true
-           prefix = repository.jaxrs? ? "/#{repository.jaxrs.path}" : '/api'
+          prefix = repository.jaxrs? ? "/#{repository.jaxrs.path}" : '/api'
           client.protected_url_patterns << prefix + '/replicant/*'
           client.protected_url_patterns << prefix + '/session/*'
         end
