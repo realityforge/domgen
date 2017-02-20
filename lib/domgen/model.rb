@@ -721,6 +721,10 @@ module Domgen
       characteristic(name, type, options, &block)
     end
 
+    def primary_key
+      attributes[0]
+    end
+
     def characteristic_kind
       'attribute'
     end
@@ -733,6 +737,9 @@ module Domgen
 
     def perform_verify
       Domgen.error("Remote Entity #{qualified_name} must define exactly one attribute (the remote key)") if attributes.size != 1
+      self.attributes.each do |a|
+        Domgen.error("Attribute #{a.qualified_name} must be persistable") unless ((a.characteristic_type && a.characteristic_type.persistent?) || a.enumeration?)
+      end
     end
 
     private
