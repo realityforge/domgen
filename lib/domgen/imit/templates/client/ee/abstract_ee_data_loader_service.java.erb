@@ -11,18 +11,16 @@ package <%= to_package(repository.imit.qualified_abstract_ee_data_loader_service
 public class <%= repository.imit.ee_data_loader_service_name %>
   extends <%= repository.imit.abstract_ee_data_loader_service_name %>
 {
-  @Resource( lookup = "myapp/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/ApplicationEndpoint" )
-  private String _webEndpointAddress;
-  @Resource( lookup = "myapp/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/SubscriptionManagerEndpoint" )
-  private String _endpointAddress;
-  @Resource( lookup = "myapp/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/ManagedScheduledExecutorService" )
+  @Resource( lookup = "myapp" + APPLICATION_URL_JNDI_SUFFIX )
+  private String _applicationURL;
+  @Resource( lookup = "myapp" + EXECUTOR_SERVICE_JNDI_SUFFIX )
   private ManagedScheduledExecutorService _executorService;
 
   @Nonnull
   @Override
-  protected String getWebEndpointAddress()
+  protected String get<%= repository.name %>ApplicationURL()
   {
-    return _webEndpointAddress;
+    return _applicationURL;
   }
 
   @Nonnull
@@ -34,16 +32,9 @@ public class <%= repository.imit.ee_data_loader_service_name %>
 
   @Nonnull
   @Override
-  protected String getSubscriptionServerAddress()
+  protected String getHostApplicationKey()
   {
-    return _endpointAddress;
-  }
-
-  @Nonnull
-  @Override
-  protected String getJndiPrefix()
-  {
-    return "myapp/replicant/client/<%= Reality::Naming.camelize(repository.name) %>";
+    return "myapp";
   }
 }
 </code>
@@ -53,6 +44,9 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   extends org.realityforge.replicant.client.ee.<%= repository.imit.poll_replicate_mode? ? 'EeWebPoller' : 'Ee' %>DataLoaderService<<%= repository.imit.qualified_ee_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
   implements <%= repository.imit.qualified_ee_data_loader_service_interface_name %>
 {
+  public static final String APPLICATION_URL_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/url";
+  public static final String EXECUTOR_SERVICE_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/ManagedScheduledExecutorService";
+
   private <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_api_interface_name %> _remoteSubscriptionService;
 
   @javax.inject.Inject
@@ -75,10 +69,32 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   }
 
   @javax.annotation.Nonnull
-  protected abstract String getWebEndpointAddress();
+  protected abstract String get<%= repository.name %>ApplicationURL();
+
+  /**
+   * Return the short name of host application. Used in retrieving optional configuration from jndi.
+   */
+  @javax.annotation.Nonnull
+  protected abstract String getHostApplicationKey();
 
   @javax.annotation.Nonnull
-  protected abstract String getSubscriptionServerAddress();
+  protected String getWebEndpointAddress()
+  {
+    return get<%= repository.name %>ApplicationURL();
+  }
+
+  @javax.annotation.Nonnull
+  protected String getSubscriptionServerAddress()
+  {
+    return get<%= repository.name %>ApplicationURL() + <%= repository.jws.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(repository.service_by_name(repository.imit.subscription_manager).qualified_name.gsub('.','_')) %>_WSDL_URL;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getJndiPrefix()
+  {
+    return getHostApplicationKey() + "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>";
+  }
 
 <% if repository.jaxrs? -%>
   @javax.annotation.Nonnull
