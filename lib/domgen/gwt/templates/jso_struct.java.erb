@@ -112,7 +112,7 @@ public final class <%= struct.gwt.jso_name %>
     }
 <% end -%>
 <% if conversion_rule.nil? %>
-    return (<%= field.gwt.java_type %>)new org.realityforge.gwt.datatypes.client.collections.JsoReadOnly<%= field.struct? ?'': gwt_type_suffix %><%= field.collection_type == :set ? 'Set' : 'List' %>( <%= getter_prefix(field) %><%= field.name %>0() );
+    return (<%= field.gwt.java_type %>)new org.realityforge.gwt.datatypes.client.collections.JsoReadOnly<%= field.struct? ? '': gwt_type_suffix %><%= field.collection_type == :set ? 'Set' : 'List' %>( <%= getter_prefix(field) %><%= field.name %>0() );
 <% else %>
     final com.google.gwt.core.client.JsArray<%= gwt_type_suffix %> source = <%= getter_prefix(field) %><%= field.name %>0();
     final java.util.<%= collection_type_impl %><<%= field.gwt.java_component_type %>> collection = new java.util.<%= collection_type_impl %><<%= field.gwt.java_component_type %>>();
