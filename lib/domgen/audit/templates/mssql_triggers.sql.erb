@@ -12,7 +12,7 @@ AS
   SET @At = GETDATE()
 
   INSERT INTO <%= entity.sql.qualified_table_name %>(<%= create_columns.join(', ') %>, [AuditStartAt], [AuditLastModifiedAt])
-    SELECT <%= create_columns.collect{|c| "I.#{c}" }.join(", ") %>, @At, @At
+    SELECT <%= create_columns.collect{|c| "I.#{c}" }.join(', ') %>, @At, @At
     FROM inserted I
 
   INSERT INTO <%= entity.data_module.sql.quoted_schema %>.<%= entity.sql.dialect.quote("#{entity.sql.table_name}History") %>([Op], <%= entity.sql.dialect.quote("#{entity.name}#{entity.primary_key.sql.column_name}") %>, <%= update_columns.join(', ') %>, [SnapshotAt])

@@ -23,7 +23,7 @@ final class <%= struct.gwt.java_name %>
   }
 <% end %>
 
-  protected <%= struct.gwt.java_name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Reality::Naming.camelize(field.name)}" }.join(", ") %> )
+  protected <%= struct.gwt.java_name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
 <% struct.fields.each do |field|
      if :sequence == field.collection_type

@@ -15,7 +15,7 @@ public enum <%= enumeration.ee.name %>
   <%=
   index = 0
   enumeration.values.collect do |k|
-   prefix = enumeration.jaxb? ? "@javax.xml.bind.annotation.XmlEnumValue( \"#{enumeration.numeric_values? ? index : k.name}\" ) " : ""
+   prefix = enumeration.jaxb? ? "@javax.xml.bind.annotation.XmlEnumValue( \"#{enumeration.numeric_values? ? index : k.name}\" ) " : ''
    index = index + 1
   "#{prefix}#{k.name}"
   end.join(",\n  ") %>;

@@ -175,7 +175,7 @@ module Domgen
 
         if characteristic.reference?
           if :default == modality
-            raise "Unable to create fixture data for reference in default modality"
+            raise 'Unable to create fixture data for reference in default modality'
           else #if :boundary == modality || :transport == modality
             other = characteristic.referenced_entity.primary_key.facet(characteristic_group.entity_key)
             return java_fixture_value(other, group_type, modality)
@@ -192,7 +192,7 @@ module Domgen
           end
         elsif characteristic.struct?
           if :default == modality || :boundary == modality
-            return "new #{characteristic.referenced_struct.send(characteristic_group.struct_key).qualified_name}(#{characteristic.referenced_struct.fields.collect { |p| java_fixture_value(p) }.join(", ")})"
+            return "new #{characteristic.referenced_struct.send(characteristic_group.struct_key).qualified_name}(#{characteristic.referenced_struct.fields.collect { |p| java_fixture_value(p) }.join(', ')})"
           else #if :transport == modality
             raise 'Unable to determine fixture type for transport struct type'
           end
@@ -269,7 +269,7 @@ module Domgen
         "java.util.Set<#{component_type}>"
       end
 
-      GroupType = ::Struct.new("GroupType", :entity_key, :enumeration_key, :struct_key)
+      GroupType = ::Struct.new('GroupType', :entity_key, :enumeration_key, :struct_key)
 
       GROUP_TYPE_MAP = {
         :ee => GroupType.new(:jpa, :ee, :ee),
@@ -329,7 +329,7 @@ module Domgen
       protected
 
       def characteristic
-        raise "characteristic unimplemented"
+        raise 'characteristic unimplemented'
       end
     end
 

@@ -123,7 +123,7 @@ module Domgen
         base_path = "/#{Reality::Naming.underscore(method.name)}"
         path_parameters = method.parameters.select { |p| p.jaxrs? && :path == p.jaxrs.param_type }
         return base_path if path_parameters.empty?
-        return "#{base_path}/{#{path_parameters.collect { |p| p.jaxrs.param_key }.join("/")}}"
+        return "#{base_path}/{#{path_parameters.collect { |p| p.jaxrs.param_key }.join('/')}}"
       end
 
       def http_method=(http_method)
@@ -135,16 +135,16 @@ module Domgen
         return @http_method if @http_method
         name = method.name.to_s
         if name =~ /^Get[A-Z].*/ || name =~ /^Find[A-Z].*/
-          return "GET"
+          return 'GET'
         elsif name =~ /^Delete[A-Z].*/ || name =~ /^Remove[A-Z].*/
-          return "DELETE"
+          return 'DELETE'
         else
-          return "POST"
+          return 'POST'
         end
       end
 
       def valid_http_method?(http_method)
-        %(GET DELETE PUT POST HEAD OPTIONS).include?(http_method)
+        %w(GET DELETE PUT POST HEAD OPTIONS).include?(http_method)
       end
     end
 

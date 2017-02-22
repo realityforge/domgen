@@ -69,9 +69,9 @@ public class <%= method.jms.mdb_name %>
     super();
   }
 
-  public <%= encoded_type %>( <%= parameter.referenced_struct.fields.collect {|field| "final #{annotated_type(field, :ee, :boundary)} #{field.name}" }.join(", ") %> )
+  public <%= encoded_type %>( <%= parameter.referenced_struct.fields.collect {|field| "final #{annotated_type(field, :ee, :boundary)} #{field.name}" }.join(', ') %> )
   {
-    super( <%= parameter.referenced_struct.fields.collect {|field| field.name.to_s }.join(", ") %> );
+    super( <%= parameter.referenced_struct.fields.collect {|field| field.name.to_s }.join(', ') %> );
   }
 <% end -%>
 <% end -%>

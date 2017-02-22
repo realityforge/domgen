@@ -7,10 +7,10 @@ import org.realityforge.replicant.client.EntityRepository;
 @javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.IfStmtsMustUseBraces" } )
-public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
+public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_name}\n" :
-  "    implements org.realityforge.replicant.client.Linkable, org.realityforge.replicant.client.Verifiable" %>
+  '    implements org.realityforge.replicant.client.Linkable, org.realityforge.replicant.client.Verifiable' %>
 {
 <% entity.declared_attributes.select { |a| !a.abstract? && a.imit? && a.imit.client_side? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
@@ -27,8 +27,8 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   public static final String <%= Reality::Naming.uppercase_constantize(attribute.inverse.name) %> = "<%= attribute.inverse.name %>";
 <% end -%>
 
-<%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
-%><%= entity.extends.nil? ? "  protected EntityChangeBroker _broker;\n" : ""
+<%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ''
+%><%= entity.extends.nil? ? "  protected EntityChangeBroker _broker;\n" : ''
 %><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side? }.each do |attribute|
   if attribute.reference? || attribute.remote_reference? -%>
   private <%= attribute.imit.java_type %> _<%= Reality::Naming.camelize(attribute.imit.name) %>;
@@ -57,7 +57,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 
   protected <%= entity.imit.name %>( final EntityRepository repository, final EntityChangeBroker broker )
   {
-    <%= entity.extends.nil? ? "_repository = repository;\n    _broker = broker" : "super( repository, broker )" %>;
+    <%= entity.extends.nil? ? "_repository = repository;\n    _broker = broker" : 'super( repository, broker )' %>;
   }
 <% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
 %>  <%= annotated_type(attribute, :imit, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>();
@@ -135,7 +135,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     if( null != value )
     {
 <% end -%>
-    _<%= Reality::Naming.camelize(attribute.imit.name) %> = <%= attribute.imit.java_type %>.<%= attribute.enumeration.textual_values? ? "valueOf( value )" : "values()[value]" %>;
+    _<%= Reality::Naming.camelize(attribute.imit.name) %> = <%= attribute.imit.java_type %>.<%= attribute.enumeration.textual_values? ?'valueOf( value )':'values()[value]'%>;
 <% if !attribute.imit.primitive?(:transport) -%>
     }
     else
@@ -287,7 +287,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 
   protected void performLink()
   {
-    <%= entity.extends.nil? ? "if( !_$linking ) throw new IllegalStateException( \"performLink invoked from outside link\" )" : "super.performLink()" %>;
+    <%= entity.extends.nil? ? "if( !_$linking ) throw new IllegalStateException( \"performLink invoked from outside link\" )" : 'super.performLink()' %>;
 <% linkable_attributes.each do |attribute| -%>
     link<%= attribute.imit.name %>();
 <% end -%>
@@ -295,7 +295,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 
   protected void performDelink()
   {
-    <%= entity.extends.nil? ? "if( !_$delinking ) throw new IllegalStateException( \"performDelink invoked from outside delink\" )" : "super.performDelink()" %>;
+    <%= entity.extends.nil? ? "if( !_$delinking ) throw new IllegalStateException( \"performDelink invoked from outside delink\" )" : 'super.performDelink()' %>;
 <% linkable_attributes.each do |attribute| -%>
     delink<%= attribute.imit.name %>();
 <% end -%>
@@ -317,7 +317,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     @java.lang.SuppressWarnings( "deprecation" )
     private void link<%= attribute.imit.name %>()
     {
-      if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> <%= attribute.nullable? ? "&& null != _#{Reality::Naming.camelize(attribute.referencing_link_name)}" : "" %> )
+      if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> <%= attribute.nullable? ? "&& null != _#{Reality::Naming.camelize(attribute.referencing_link_name)}" :'' %> )
       {
         _<%= Reality::Naming.camelize(attribute.imit.name) %> = _repository.findByID( <%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).imit.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
         if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> )

@@ -132,7 +132,7 @@ module Domgen
       end
 
       def immuter_guard(entity, immutable_attributes)
-        immutable_attributes.collect { |a| "UPDATE(#{a.sql.quoted_column_name})" }.join(" OR ")
+        immutable_attributes.collect { |a| "UPDATE(#{a.sql.quoted_column_name})" }.join(' OR ')
       end
 
       def immuter_sql(entity, immutable_attributes)
@@ -192,7 +192,7 @@ module Domgen
     #{entity.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
     RETURN
   END
-#{validation.guard.nil? ? '' : "END" }
+#{validation.guard.nil? ? '' : 'END' }
 SQL
           end
         end

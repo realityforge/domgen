@@ -216,13 +216,13 @@ module Domgen
           entity.attributes.select { |attribute| attribute.reference? }.each do |attribute|
             end1 = name_2_emf_map[attribute.entity.qualified_name]
             end2 = name_2_emf_map[attribute.referenced_entity.qualified_name]
-            name = attribute.name == attribute.referenced_entity.name ? "" : attribute.name.to_s
+            name = attribute.name == attribute.referenced_entity.name ? '' : attribute.name.to_s
 
             aggregation_kind = ak_NONE_LITERAL
             aggregation_kind = ak_SHARED_LITERAL if attribute.inverse.relationship_kind == :aggregation
             aggregation_kind = ak_COMPOSITE_LITERAL if attribute.inverse.relationship_kind == :composition
 
-            createAssociation = end1.getClass().getMethods().find{|m| m.getName() == "createAssociation" }
+            createAssociation = end1.getClass().getMethods().find{|m| m.getName() == 'createAssociation' }
 
             emf_association = createAssociation.invoke(end1,
                                                        [true,
@@ -236,7 +236,7 @@ module Domgen
                                                      '',
                                                      0,
                                                      attribute.inverse.multiplicity == :many ? lit_UNLIMITED : 1])
-            resource.setID(emf_association, attribute.qualified_name.to_s + ".Assoc")
+            resource.setID(emf_association, attribute.qualified_name.to_s + '.Assoc')
             describe(emf_association, attribute)
           end
         end
@@ -318,9 +318,9 @@ module Domgen
     end
 
     def self.primitive_name(attribute_type)
-      return "string" if attribute_type == :text
-      return "int" if attribute_type == :integer
-      return "long" if attribute_type == :long
+      return 'string' if attribute_type == :text
+      return 'int' if attribute_type == :integer
+      return 'long' if attribute_type == :long
       return attribute_type.to_s
     end
 

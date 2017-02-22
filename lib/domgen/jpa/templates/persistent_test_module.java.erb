@@ -21,7 +21,7 @@ public class <%= repository.jpa.persistent_test_module_name %>
       data_module.entities.select{|e| e.concrete? && e.sql? && !e.sql.load_from_fixture? && !e.sql.sequence_table?}.collect do |entity|
         "\"#{entity.sql.qualified_table_name.gsub('"',"\\\"")}\""
       end
-    end.flatten.reverse.join(", ")
+    end.flatten.reverse.join(', ')
 -%>
     super( <%= repository.jpa.qualified_unit_descriptor_name %>.NAME, new String[] {<%= tables %>}, databasePrefix, mergeProperties( additionalProperties ) );
   }

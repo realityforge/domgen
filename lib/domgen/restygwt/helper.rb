@@ -33,7 +33,7 @@ module Domgen
           type = method.return_value.gwt.java_component_type(:boundary)
           s << "org.fusesource.restygwt.client.OverlayCallback<com.google.gwt.core.client.JsArray<#{type}>>"
         elsif method.return_value.return_type.to_s == 'void'
-          s << "org.fusesource.restygwt.client.MethodCallback<Void>"
+          s << 'org.fusesource.restygwt.client.MethodCallback<Void>'
         else
           type = method.return_value.gwt.java_type(:boundary)
           s << "org.fusesource.restygwt.client.MethodCallback<#{type}>"

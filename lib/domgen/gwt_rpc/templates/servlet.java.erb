@@ -6,7 +6,7 @@ package <%= to_package(service.gwt_rpc.qualified_servlet_name) %>;
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SE_TRANSIENT_FIELD_NOT_RESTORED"})
 @javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.gwt_rpc.api_url %>" } )
 public class <%= service.gwt_rpc.servlet_name %>
-  extends com.google.gwt.user.server.rpc.<%= service.gwt_rpc.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
+  extends com.google.gwt.user.server.rpc.<%= service.gwt_rpc.xsrf_protected? ? 'XsrfProtectedServiceServlet' : 'RemoteServiceServlet' %>
   implements <%= service.gwt_rpc.qualified_rpc_service_name %>
 {
   private static final long serialVersionUID = 1;
@@ -94,25 +94,25 @@ public class <%= service.gwt_rpc.servlet_name %>
      return_prefix = "#{annotated_type(method.return_value, :ejb, :boundary, :final => true)} returnValue = "
      transform = nil
      if method.return_value.date?
-       transform = "org.realityforge.gwt.datatypes.client.date.RDate.fromDate( returnValue )"
+       transform = 'org.realityforge.gwt.datatypes.client.date.RDate.fromDate( returnValue )'
      elsif method.return_value.enumeration?
        if method.return_value.enumeration.numeric_values?
-         transform = "returnValue.ordinal()"
+         transform = 'returnValue.ordinal()'
        else
-         transform = "returnValue.name()"
+         transform = 'returnValue.name()'
        end
      elsif method.return_value.struct?
-       transform = "_jsonMapper.writeValueAsString( returnValue )"
+       transform = '_jsonMapper.writeValueAsString( returnValue )'
      end
 
      if !method.return_value.collection?
        if method.return_value.nullable? && transform
          transform = "(null == returnValue ? null : #{transform})"
        end
-       return_postfix = "return #{transform || "returnValue"};"
+       return_postfix = "return #{transform || 'returnValue'};"
      elsif method.return_value.date? || method.return_value.enumeration? || method.return_value.struct?
-       return_postfix = ""
-       return_postfix << "#{annotated_type(method.return_value, :ejb, :transport, :final => true)} $returnValue = #{method.return_value.nullable? ? "null == returnValue ? null : " : '' }new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:transport) }>();\n"
+       return_postfix =''
+       return_postfix << "#{annotated_type(method.return_value, :ejb, :transport, :final => true)} $returnValue = #{method.return_value.nullable? ? 'null == returnValue ? null : ' : '' }new java.util.#{method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' }<#{method.return_value.ejb.java_component_type(:transport) }>();\n"
        return_postfix << "  if( null != returnValue )\n    {\n" if method.return_value.nullable?
        return_postfix << <<LOOP
     for( final #{method.return_value.ejb.java_component_type(:boundary) } k: returnValue )
@@ -120,19 +120,19 @@ public class <%= service.gwt_rpc.servlet_name %>
       $returnValue.add(
 LOOP
          if method.return_value.date?
-           return_postfix << "org.realityforge.gwt.datatypes.client.date.RDate.fromDate( k )"
+           return_postfix << 'org.realityforge.gwt.datatypes.client.date.RDate.fromDate( k )'
          elsif method.return_value.struct?
-           return_postfix << "_jsonMapper.writeValueAsString( k )"
+           return_postfix << '_jsonMapper.writeValueAsString( k )'
          elsif method.return_value.enumeration.numeric_values?
-           return_postfix << "k.ordinal()"
+           return_postfix << 'k.ordinal()'
          elsif method.return_value.enumeration.textual_values?
-           return_postfix << "k.name()"
+           return_postfix << 'k.name()'
          end
          return_postfix << ");\n    }\n"
          return_postfix << "    }\n" if method.return_value.nullable?
          return_postfix << "return $returnValue;\n"
        else
-         return_postfix = "return returnValue;"
+         return_postfix = 'return returnValue;'
        end
        if method.return_value.struct?
          return_postfix = "try {\n #{return_postfix} \n} catch ( final java.io.IOException ioe ) { cause = ioe; throw new IllegalArgumentException( ioe.getMessage(), ioe ); }"
@@ -143,14 +143,14 @@ LOOP
     $<%= parameter.name %> = _jsonMapper.readValue( <%= parameter.name %>, <%= parameter.ejb.java_type %>.class );
 <% end %>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
-    $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.ejb.java_component_type(:boundary) %>>();
+    $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.ejb.java_component_type(:boundary) %>>();
     <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
     for( final <%= parameter.ejb.java_component_type(:transport) %> k: <%= parameter.name %> )
     {
     <%
        param_value =
          if parameter.date?
-           "org.realityforge.gwt.datatypes.client.date.RDate.toDate( k )"
+            'org.realityforge.gwt.datatypes.client.date.RDate.toDate( k )'
          elsif parameter.enumeration?
            parameter.enumeration.numeric_values? ?
              "#{parameter.enumeration.ee.qualified_name}.values()[ k ]" :

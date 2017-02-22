@@ -14,13 +14,13 @@ public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? excep
 param_desc =
   exception.parameters.collect do |parameter|
     "#{annotated_type(parameter, :ee, :boundary, :final => true) } #{parameter.name}"
-  end.join(", ")
+  end.join(', ')
 param_desc_with_suffix = param_desc + (param_desc.size == 0 ? '' : ', ')
 
-param_values = exception.parameters.collect{ |parameter| parameter.name}.join(", ")
+param_values = exception.parameters.collect{ |parameter| parameter.name}.join(', ')
 param_values_with_suffix = param_values + (param_values.size == 0 ? '' : ', ')
 
-inherited_params = exception.inherited_parameters.collect{ |parameter| parameter.name}.join(", ")
+inherited_params = exception.inherited_parameters.collect{ |parameter| parameter.name}.join(', ')
 inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? '' : ', ')
 
       -%>

@@ -32,9 +32,9 @@ public class <%= data_module.imit.mapper_name %>
 <%
    designator_value =
         if entity.primary_key.imit.transport_characteristic_type_key == :integer
-          "change.getDesignatorAsInt()"
+          'change.getDesignatorAsInt()'
         elsif entity.primary_key.imit.transport_characteristic_type_key == :text
-          "change.getDesignatorAsString()"
+          'change.getDesignatorAsString()'
         else
           Domgen.error("Unable to convert data type #{entity.primary_key.imit.transport_characteristic_type_key} on #{entity.primary_key.qualified_name}")
         end

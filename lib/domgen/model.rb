@@ -417,7 +417,7 @@ module Domgen
     end
 
     def characteristic_kind
-      "parameter"
+      'parameter'
     end
 
     def characteristic_container
@@ -952,7 +952,7 @@ module Domgen
     def unique_constraint(attribute_names, options = {}, &block)
       Domgen.error('Must have at least 1 or more attribute names for uniqueness constraint') if attribute_names.empty?
       constraint = UniqueConstraint.new(self, attribute_names, options, &block)
-      add_unique_to_set("unique", constraint, @unique_constraints)
+      add_unique_to_set('unique', constraint, @unique_constraints)
     end
 
     def dependency_constraints

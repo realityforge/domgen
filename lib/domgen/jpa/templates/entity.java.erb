@@ -8,7 +8,7 @@ package <%= to_package(entity.jpa.qualified_name) %>;
    jpa_queries = entity.queries.select {|q| !q.jpa.native? }
    if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
 <%= jpa_queries.collect do |q|
-  "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\", hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(", ")}} )"
+  "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\", hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(', ')}} )"
   end.join(",\n") %>
 } )<% end %>
 <%
@@ -18,7 +18,7 @@ package <%= to_package(entity.jpa.qualified_name) %>;
   result = ''
   result = ", resultClass = #{entity.jpa.name}.class" if q.jpa.native? && :select == q.query_type && q.result_entity?
   result = ", resultSetMapping = \"#{q.qualified_name}\"" if q.jpa.native? && :select == q.query_type && q.result_struct?
-  "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{result}, hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(", ")}} )"
+  "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{result}, hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(', ')}} )"
   }.join(",\n")
         %>
 } )<% end -%>
@@ -37,7 +37,7 @@ package <%= to_package(entity.jpa.qualified_name) %>;
   }.join(",\n                          ")
 %>},
                           indexes = {<%= entity.sql.indexes.collect{|index|
-        "@javax.persistence.Index(name =\"#{index.index_name}\", columnList = \"#{index.attribute_names.collect{|a| "#{entity.attribute_by_name(a).sql.column_name} ASC"}.join(", ")}\", unique = #{index.unique?} /* cluster = #{index.cluster?}, gist = #{index.gist?}, filter = \"#{index.filter}\", includeColumnList = \"#{index.include_attribute_names.collect{|a| "#{entity.attribute_by_name(a).sql.column_name} ASC"}.join(", ")}\",  */)"
+        "@javax.persistence.Index(name =\"#{index.index_name}\", columnList = \"#{index.attribute_names.collect{|a| "#{entity.attribute_by_name(a).sql.column_name} ASC"}.join(', ')}\", unique = #{index.unique?} /* cluster = #{index.cluster?}, gist = #{index.gist?}, filter = \"#{index.filter}\", includeColumnList = \"#{index.include_attribute_names.collect{|a| "#{ entity.attribute_by_name( a).sql.column_name} ASC"}.join(', ')}\",  */)"
         }.join(",\n                   ")
 %>})
 <% else -%>
@@ -47,9 +47,9 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 @org.eclipse.persistence.annotations.ReadOnly
 <% end -%>
 <% if entity.jpa.entity_listeners.size > 0 %>
-@javax.persistence.EntityListeners( { <%= entity.jpa.entity_listeners.collect{|l| "#{l}.class"}.join(", ") %> } )
+@javax.persistence.EntityListeners( { <%= entity.jpa.entity_listeners.collect{|l| "#{l}.class"}.join( ', ' ) % > } )
 <% end -%>
-@javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? "true" : "false" %> )
+@javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? 'true' : 'false' % > )
 <% if entity.data_module.repository.ee.version != '6' %>@javax.enterprise.inject.Vetoed
 <% end -%>
 <% entity.xor_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
@@ -64,10 +64,10 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
 <% entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
-public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
+public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
-  "    implements java.io.Serializable" %>
+  '    implements java.io.Serializable'%>
 {
 <% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
@@ -215,7 +215,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
 -%>
 <%= validation_prefix(c.name, entity) %>
-        if( !(( <%= attributes.collect {|a| "object.#{getter_for(a)} == null"}.join(" && ") %> ) || (<%= attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(" && ") %>) ) )
+        if( !(( <%= attributes.collect {|a| "object.#{getter_for(a)} == null"}.join(' && ') %> ) || (<%= attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(' && ') %>) ) )
         {
           return false;
         }
@@ -241,7 +241,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
 -%>
 <%= validation_prefix(c.name, entity) %>
-        if( (<% attributes.each do |selected| -%>(<%= "null != object.#{getter_for(selected)}" %> && (<%= attributes.collect {|a| a == selected ? nil : "null != object.#{getter_for(a)}"}.compact.join(" || ") %>)) || <% end -%> false) )
+        if( (<% attributes.each do |selected| -%>(<%= "null != object.#{getter_for(selected)}" %> && (<%= attributes.collect {|a| a == selected ? nil : "null != object.#{getter_for(a)}"}.compact.join(' || ') %>)) || <% end -%> false) )
         {
           return false;
         }
@@ -309,7 +309,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.jpa.name %>
         base_attribute = entity.attribute_by_name(c.attribute_name)
 -%>
 <%= validation_prefix(c.name, entity) %>
-        if( !(null == object.<%= getter_for(base_attribute) %> || (<%= dependent_attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(" && ") %>) ) )
+        if( !(null == object.<%= getter_for(base_attribute) %> || (<%= dependent_attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(' && ') %>) ) )
         {
           return false;
         }

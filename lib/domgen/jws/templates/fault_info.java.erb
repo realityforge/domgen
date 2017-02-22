@@ -24,10 +24,10 @@ public class <%= exception.jws.fault_info_name %>
   }
 <% end %>
 
-  public <%= exception.jws.fault_info_name %>( <%= exception.parameters.collect {|parameter| "final #{annotated_type(parameter, :ee, :boundary)} #{parameter.name}" }.join(", ") %> )
+  public <%= exception.jws.fault_info_name %>( <%= exception.parameters.collect {|parameter| "final #{annotated_type(parameter, :ee, :boundary)} #{parameter.name}" }.join(', ') %> )
   {
 <% exception.parameters.each do |parameter|
-     null_protection = parameter.nullable? ? "#{parameter.name} == null ? null : " : ""
+     null_protection = parameter.nullable? ? "#{parameter.name} == null ? null : " : ''
      if :sequence == parameter.collection_type
 %>    this.<%= parameter.name %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
 <%     elsif :set == parameter.collection_type

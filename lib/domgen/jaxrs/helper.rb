@@ -29,12 +29,12 @@ module Domgen
 
       def jaxrs_produces(element, prefix = '')
         return '' if element.produces.nil? || element.produces.empty?
-        "#{prefix}@javax.ws.rs.Produces( {#{element.produces.collect { |p| jaxrs_expanded_media_type(p) }.join(", ")}} )\n"
+        "#{prefix}@javax.ws.rs.Produces( {#{element.produces.collect { |p| jaxrs_expanded_media_type(p) }.join(', ')}} )\n"
       end
 
       def jaxrs_consumes(element, prefix = '')
         return '' if element.consumes.nil? || element.consumes.empty?
-        "#{prefix}@javax.ws.rs.Consumes( {#{element.consumes.collect { |p| jaxrs_expanded_media_type(p) }.join(", ")}} )\n"
+        "#{prefix}@javax.ws.rs.Consumes( {#{element.consumes.collect { |p| jaxrs_expanded_media_type(p) }.join(', ')}} )\n"
       end
 
       def jaxrs_path(element, prefix = '')
@@ -49,7 +49,7 @@ module Domgen
         s << "@javax.ws.rs.PathParam( \"#{parameter.jaxrs.param_key}\" )" if parameter.jaxrs.param_type == :path
         s << "@javax.ws.rs.FormParam( \"#{parameter.jaxrs.param_key}\" )" if parameter.jaxrs.param_type == :form
         s << "@javax.ws.rs.HeaderParam( \"#{parameter.jaxrs.param_key}\" )" if parameter.jaxrs.param_type == :header
-        s << " "
+        s << ' '
         s << "@javax.ws.rs.DefaultValue( \"#{parameter.jaxrs.default_value}\" ) " if parameter.jaxrs.default_value
         s << "#{annotated_type(parameter, :jaxrs, :boundary, :final => true)} #{Reality::Naming.camelize(parameter.name)}"
         s

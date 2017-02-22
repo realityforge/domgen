@@ -29,11 +29,11 @@ Domgen::Generator.define([:audit],
                               '#{entity.data_module.name}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql',
                               :additional_facets => [:mssql])
     template_set.erb_template(:entity,
-                              "mssql_finalize.sql.erb",
+                              'mssql_finalize.sql.erb',
                               '#{entity.data_module.name}/finalize/#{entity.data_module.sql.schema}.vw#{entity.name}_finalize.sql',
                               :additional_facets => [:mssql])
     template_set.erb_template(:entity,
-                              "mssql_triggers.sql.erb",
+                              'mssql_triggers.sql.erb',
                               '#{entity.data_module.name}/triggers/#{entity.data_module.sql.schema}.vw#{entity.name}_triggers.sql',
                               :additional_facets => [:mssql])
   end

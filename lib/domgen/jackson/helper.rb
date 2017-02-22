@@ -19,7 +19,7 @@ module Domgen
         s = ''
         s << "@com.fasterxml.jackson.annotation.JsonAutoDetect( fieldVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY, getterVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE, setterVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE, isGetterVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE, creatorVisibility = com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE )\n"
         s << "@com.fasterxml.jackson.annotation.JsonTypeName( \"#{struct.json.name}\" )\n"
-        s << "@com.fasterxml.jackson.annotation.JsonPropertyOrder({#{struct.fields.collect{|field| "\"#{Reality::Naming.camelize(field.name)}\""}.join(", ")}})"
+        s << "@com.fasterxml.jackson.annotation.JsonPropertyOrder({#{struct.fields.collect{|field| "\"#{Reality::Naming.camelize(field.name)}\""}.join(', ')}})"
         s
       end
 

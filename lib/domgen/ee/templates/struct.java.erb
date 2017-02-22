@@ -13,8 +13,8 @@ public class <%= struct.ee.name %>
   private static final long serialVersionUID = 1;
 
 <% struct.fields.each do |field| -%>
-<%= "  " + jackson_field_annotation(field) if field.jackson? -%>
-<%= "  " + jaxb_field_annotation(field) if field.jaxb? -%>
+<%= '  ' + jackson_field_annotation(field) if field.jackson? -%>
+<%= '  ' + jaxb_field_annotation(field) if field.jaxb? -%>
   <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= Reality::Naming.camelize(field.name) %>;
 <% end -%>
 
@@ -32,8 +32,8 @@ public class <%= struct.ee.name %>
 <% end %>
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
-<% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join(", ") %>})<% end -%>
-  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(", ") %> )
+<% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join( ', ' ) % >})<% end -%>
+  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
 <% struct.fields.select{|field| !field.nullable? && !field.ee.primitive? }.each do |field| -%>
     if ( null == <%= Reality::Naming.camelize(field.name) %> )
@@ -42,7 +42,7 @@ public class <%= struct.ee.name %>
     }
 <% end -%>
 <% struct.fields.each do |field|
-     null_protection = field.nullable? ? "#{Reality::Naming.camelize(field.name)} == null ? null : " : ""
+     null_protection = field.nullable? ? "#{Reality::Naming.camelize(field.name)} == null ? null : " :''
      if :sequence == field.collection_type
 %>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.ee.java_component_type %>>( <%= Reality::Naming.camelize(field.name) %> ) );
 <%     elsif :set == field.collection_type

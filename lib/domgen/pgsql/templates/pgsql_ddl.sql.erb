@@ -2,7 +2,7 @@
 <%= banner("DDL for Data Module '#{data_module.name}'") %>
 <% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
 
-<% entity.attributes.select {|a| a.sql.identity?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") %> start 1 increment 1 maxvalue 2147483647 minvalue 1 cache 1;
+<% entity.attributes.select {|a| a.sql.identity?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + 'Seq') %> start 1 increment 1 maxvalue 2147483647 minvalue 1 cache 1;
 <% end %>
 
 <% entity.attributes.select {|a| a.sql.sequence?}.each do |a| %>CREATE SEQUENCE <%= entity.data_module.sql.quoted_schema %>.<%= data_module.sql.dialect.quote(a.sql.sequence_name) %> start 1 increment 1 maxvalue 2147483647 minvalue 1 cache 1;
@@ -10,7 +10,7 @@
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
-%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema }.#{ data_module.sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + "Seq") }'::text) " :
+%>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema }.#{ data_module.sql.dialect.quote(entity.sql.table_name.to_s + a.sql.column_name.to_s + 'Seq') }'::text) " :
                                                               a.sql.sequence? ? "DEFAULT nextval('#{entity.data_module.sql.quoted_schema }.#{ data_module.sql.dialect.quote(a.sql.sequence_name) }'::text) " : '' %><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>  CONSTRAINT <%= data_module.sql.dialect.quote("PK_#{entity.name}") %> PRIMARY KEY (<%= entity.primary_key.sql.quoted_column_name %>)
@@ -25,7 +25,7 @@ ALTER TABLE <%= entity.sql.qualified_table_name %> ALTER COLUMN <%= a.sql.quoted
 <% end %>
 <% entity.sql.indexes.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %>INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %><%= index.gist? ? ' USING GIST ' : '' %>
-(<%= (index.attribute_names + index.include_attribute_names).collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(",") %>)
+(<%= (index.attribute_names + index.include_attribute_names).collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(',') %>)
 <% if index.filter %>WHERE <%= index.filter %><% end %>;
 
 <% if index.cluster? %>
@@ -86,7 +86,7 @@ ALTER TABLE <%= entity.sql.qualified_table_name %>
     banner("Triggers for #{entity.sql.qualified_table_name}")
 %><%
       entity.sql.triggers.each do |trigger|
-   function_name = "#{trigger.table.entity.data_module.sql.quoted_schema}.#{data_module.sql.dialect.quote(trigger.trigger_name + "Function")}"
+   function_name = "#{trigger.table.entity.data_module.sql.quoted_schema}.#{data_module.sql.dialect.quote(trigger.trigger_name + 'Function')}"
 %>
 CREATE OR REPLACE FUNCTION <%= function_name %>() RETURNS
 TRIGGER AS '
@@ -97,12 +97,12 @@ TRIGGER AS '
 ' LANGUAGE plpgsql;
 
 CREATE TRIGGER <%= trigger.quoted_trigger_name %>
-AFTER <%= trigger.after.collect{|a| a.to_s.upcase }.join(", ") %> ON <%= entity.sql.qualified_table_name %>
+AFTER <%= trigger.after.collect{|a| a.to_s.upcase }.join(', ') %> ON <%= entity.sql.qualified_table_name %>
 FOR EACH ROW EXECUTE PROCEDURE <%= function_name %>();
 
 ALTER TABLE <%= entity.sql.qualified_table_name %> DISABLE TRIGGER <%= trigger.quoted_trigger_name %>;
 
-<% Domgen.error("Postgres does not support instead of triggers. Maybe need to implement as rules?") unless trigger.instead_of.empty? %>
+<% Domgen.error('Postgres does not support instead of triggers. Maybe need to implement as rules?') unless trigger.instead_of.empty? %>
 <%    end
     end
   end

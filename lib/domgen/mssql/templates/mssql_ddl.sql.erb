@@ -65,7 +65,7 @@ GO
 <% entity.sql.indexes.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.gist? ? 'SPATIAL' : index.cluster? ? 'CLUSTERED' : 'NONCLUSTERED' %> INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %>
 (<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(',') %>
-)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(",") %> )<% end %>
+)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(',') %> )<% end %>
 <% if index.filter %>WHERE <%= index.filter %><% end %>
 <%= index.unique? ? 'ON [PRIMARY]' : '' %>
 GO
@@ -169,11 +169,11 @@ GO
 CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified_table_name %>
 <%
   if trigger.after && !trigger.after.empty?
-%>  AFTER <%= trigger.after.collect{|a| a.to_s.upcase }.join(", ") %>
+%>  AFTER <%= trigger.after.collect{|a| a.to_s.upcase }.join(', ') %>
 <%
   end
   if trigger.instead_of && !trigger.instead_of.empty?
-%>  INSTEAD OF <%= trigger.instead_of.collect{|a| a.to_s.upcase }.join(", ") %>
+%>  INSTEAD OF <%= trigger.instead_of.collect{|a| a.to_s.upcase }.join(', ') %>
 <%
   end
 %>AS
@@ -226,7 +226,7 @@ SELECT
     a = subtype.attribute_by_name?(name) ? subtype.attribute_by_name(name) : nil
     a = nil unless a && a.sql?
     a.nil? ? "NULL AS #{column}" : column
-  end.join(", ") %>
+  end.join(', ') %>
 FROM <%= subtype.sql.qualified_table_name %>
 <% end -%>
 GO
@@ -238,8 +238,8 @@ AS
 <% entity.compatible_concrete_types.each do |subtype|
  columns = subtype.attributes.select{|a|a.sql?}.collect{|a|a.sql.quoted_column_name}
  -%>
-  INSERT INTO <%= subtype.sql.qualified_table_name %>(<%= columns.join(", ") %>)
-    SELECT <%= columns.join(", ") %>
+  INSERT INTO <%= subtype.sql.qualified_table_name %>(<%= columns.join(', ') %>)
+    SELECT <%= columns.join(', ') %>
     FROM inserted I
     WHERE I.<%= subtype.data_module.repository.sql.dialect.quote('_type_') %> = '<%= subtype.sql.discriminator %>';
 <% end -%>

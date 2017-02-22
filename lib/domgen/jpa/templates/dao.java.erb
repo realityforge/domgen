@@ -52,9 +52,9 @@ public class <%= dao.jpa.dao_name %>
     if p.reference?
       param_suffix = ".#{getter_for(p.referenced_entity.primary_key)}"
     elsif p.enumeration? && p.enumeration.textual_values?
-      param_suffix = ".name()"
+      param_suffix = '.name()'
     elsif p.enumeration? && p.enumeration.numeric_values?
-      param_suffix = ".ordinal()"
+      param_suffix = '.ordinal()'
     end
     param_value = "#{Reality::Naming.camelize(p.name)}#{param_suffix}"
     if param_suffix && p.nullable?

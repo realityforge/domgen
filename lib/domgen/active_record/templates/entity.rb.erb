@@ -72,7 +72,7 @@ class <%= entity.ruby.classname %> < ActiveRecord::Base
 <% entity.unique_constraints.each do |c|
  attributes = c.attribute_names.collect{|attribute_name| entity.attribute_by_name(attribute_name)}
 %>
-  validates_uniqueness_of :<%= attributes.shift.sql.column_name %><% if !attributes.empty? %>, :scope => [<%= attributes.collect{|a|":#{a.sql.column_name}"}.join(", ") %>]<% end %>
+  validates_uniqueness_of :<%= attributes.shift.sql.column_name %><% if !attributes.empty? %>, :scope => [<%= attributes.collect{|a|":#{a.sql.column_name}"}.join(', ') %>]<% end %>
 <% end %>
 <% entity.codependent_constraints.each do |c| %>
   validates_codependent <%= c.attribute_names.collect{|attribute_name|":#{entity.attribute_by_name(attribute_name).sql.column_name}"}.join(', ') %>

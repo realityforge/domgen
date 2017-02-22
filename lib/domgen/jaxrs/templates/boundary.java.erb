@@ -13,7 +13,7 @@ package <%= to_package(service.jaxrs.qualified_boundary_name) %>;
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 <% end -%>
 public class <%= service.jaxrs.boundary_name %>
-<%= service.jaxrs.boundary_extends ? "  extends #{service.jaxrs.boundary_extends}\n" : "" -%>
+<%= service.jaxrs.boundary_extends ? "  extends #{service.jaxrs.boundary_extends}\n" : '' -%>
   implements <%= service.jaxrs.qualified_service_name %>
 {
 <% unless service.data_module.repository.ee.use_cdi? -%>
@@ -24,11 +24,11 @@ public class <%= service.jaxrs.boundary_name %>
   private <%= service.ejb.qualified_boundary_interface_name %> _service;
 <% service.methods.select{|method| method.jaxrs?}.each do |method|
 %>
-  public <%= annotated_type(method.return_value, :jaxrs, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jaxrs, :boundary)} #{Reality::Naming.camelize(p.name)}" }.join(", ") %>)<%=
+  public <%= annotated_type(method.return_value, :jaxrs, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jaxrs, :boundary)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
     exceptions = method.exceptions.collect{|e| e.ee.qualified_name}
-    exceptions.empty? ? "" : "\n    throws #{exceptions.join(', ')}"
+    exceptions.empty? ? '' : "\n    throws #{exceptions.join(', ')}"
 %>
   {
-    <%= method.return_value.return_type != :void ? 'return ' : '' %>_service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| Reality::Naming.camelize(p.name) }.join(", ") %>);
+    <%= method.return_value.return_type != :void ? 'return ' : '' %>_service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| Reality::Naming.camelize(p.name) }.join(', ') %>);
   }
 <% end %>}

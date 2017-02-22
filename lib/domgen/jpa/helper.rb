@@ -52,7 +52,7 @@ module Domgen
           unless attribute.length.nil? && attribute.min_length.nil?
             s << '  @javax.validation.constraints.Size( '
             s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
-            s << ", " unless attribute.min_length.nil? || !attribute.has_non_max_length?
+            s << ', ' unless attribute.min_length.nil? || !attribute.has_non_max_length?
             s << "max = #{attribute.length} " if attribute.has_non_max_length?
             s << " )\n"
           end
@@ -96,7 +96,7 @@ module Domgen
         parameters = []
         cascade = declaring_relationship ? attribute.jpa.cascade : attribute.inverse.jpa.cascade
         unless cascade.nil? || cascade.empty?
-          parameters << "cascade = { #{cascade.map { |c| "javax.persistence.CascadeType.#{c.to_s.upcase}" }.join(", ")} }"
+          parameters << "cascade = { #{cascade.map { |c| "javax.persistence.CascadeType.#{c.to_s.upcase}" }.join(', ')} }"
         end
 
         fetch_type = declaring_relationship ? attribute.jpa.fetch_type : attribute.inverse.jpa.fetch_type
@@ -123,7 +123,7 @@ module Domgen
           annotation = 'OneToMany'
         end
 
-        "  @javax.persistence.#{annotation}( #{parameters.join(", ")} )\n"
+        "  @javax.persistence.#{annotation}( #{parameters.join(', ')} )\n"
       end
 
       def gen_fetch_mode_if_specified(attribute)
@@ -150,12 +150,12 @@ JAVA
         return java if immutable_attributes.empty?
         java = java + <<JAVA
   @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
-  public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.name}"}.join(", ")})
+  public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.name}"}.join(', ')})
   {
-#{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(", ")});\n"}
+#{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(', ')});\n"}
 #{declared_immutable_attributes.select{|a|!a.nullable? && !a.jpa.primitive?}.collect{|a| "    if( null == #{a.jpa.name} )\n    {\n      throw new NullPointerException( \"#{a.jpa.name} is not nullable\" );\n    }"}.join("\n")}
 #{declared_immutable_attributes.collect { |a| "    this.#{a.jpa.field_name} = #{a.jpa.name};" }.join("\n")}
-#{declared_immutable_attributes.select{|a|a.reference?}.collect { |a| "    " + j_add_to_inverse(a) }.join("\n")}
+#{declared_immutable_attributes.select{|a|a.reference?}.collect { |a| '    ' + j_add_to_inverse(a) }.join("\n")}
   }
 JAVA
         java

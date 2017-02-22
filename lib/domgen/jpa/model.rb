@@ -129,7 +129,7 @@ module Domgen
         value = value.is_a?(Array) ? value : [value]
         invalid_cascades = value.select { |v| !self.class.cascade_types.include?(v) }
         unless invalid_cascades.empty?
-          Domgen.error("cascade_type must be one of #{self.class.cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
+          Domgen.error("cascade_type must be one of #{self.class.cascade_types.join(', ')}, not #{invalid_cascades.join(', ')}")
         end
         @cascade = value
       end
@@ -1144,12 +1144,12 @@ FRAGMENT
       end
 
       def query_string
-        order_by_clause = order_by ? " ORDER BY #{order_by}" : ""
+        order_by_clause = order_by ? " ORDER BY #{order_by}" : ''
         q = nil
         if self.query_spec == :statement
           q = self.ql
         elsif self.query_spec == :criteria
-          criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
+          criteria_clause = "#{no_ql? ? '' : 'WHERE '}#{ql}"
           if query.query_type == :select
             if query.name =~ /^[cC]ount(.*)$/
               if self.native?

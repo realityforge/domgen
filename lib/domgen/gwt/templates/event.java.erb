@@ -17,7 +17,7 @@ public final class <%= message.gwt.event_name %>
 %>  private final <%= parameter.gwt.java_type %> _<%= Reality::Naming.camelize(parameter.name) %>;
 <% end %>
 
-  public <%= message.gwt.event_name %>(<%= message.parameters.collect{|p| "#{annotated_type(p, :gwt, :default, :final => true)} #{Reality::Naming.camelize(p.name)}"}.join(", ") %>)
+  public <%= message.gwt.event_name %>(<%= message.parameters.collect{|p| "#{annotated_type(p, :gwt, :default, :final => true)} #{Reality::Naming.camelize(p.name)}"}.join(', ') %>)
   {
 <% message.parameters.select{|p| !p.nullable? && !p.gwt.primitive?}.each do |parameter| %>
     if( null == <%= Reality::Naming.camelize(parameter.name) %> )
@@ -73,7 +73,7 @@ public final class <%= message.gwt.event_name %>
           value = "#{field_name}.#{getter_prefix(parameter.referenced_entity.primary_key)}#{(parameter.referenced_entity.primary_key.name)}()"
         end
       end
-      %> <%= i != 0 ? " + \"\, \" + " : "" %> "<%= parameter.name %>=" + (<%= parameter.nullable? ? "null == #{field_name} ? null : " : '' %><%= value %>) <%
+      %> <%= i != 0 ? " + \"\, \" + " : '' %> "<%= parameter.name %>=" + (<%= parameter.nullable? ? "null == #{field_name} ? null : " : '' %><%= value %>) <%
     end
     end -%> + "]";
   }

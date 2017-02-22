@@ -13,13 +13,13 @@ package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 <% end -%>
 <% if service.ejb.boundary_interceptors.size > 0 -%>
-@javax.interceptor.Interceptors( { <%= service.ejb.boundary_interceptors.collect{|i| "#{i}.class"}.join(", ") %> } )
+@javax.interceptor.Interceptors( { <%= service.ejb.boundary_interceptors.collect{|i| "#{i}.class"}.join( ', ' ) % > } )
 <% end-%>
 <% service.ejb.boundary_annotations.each do |annotation| -%>
 @<%= annotation %>
 <% end-%>
 public class <%= service.ejb.boundary_implementation_name %>
-<%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}\n" : "" -%>
+<%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}\n" : ''-%>
   implements <%= service.ejb.qualified_boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
 {
 <% if service.jmx? -%>
@@ -70,21 +70,21 @@ public class <%= service.ejb.boundary_implementation_name %>
    transform = ''
    if method.return_value.return_type != :void
      if method.return_value.ejb.java_type == method.return_value.ejb.java_type(:boundary)
-       return_prefix = "return "
+       return_prefix = 'return '
      else
        return_prefix = "#{annotated_type(method.return_value, :ejb)} value = "
        if !method.return_value.collection?
-         transform = "return #{modality_default_to_transport("value", method.return_value, :ejb)};"
+         transform = "return #{modality_default_to_transport('value', method.return_value, :ejb)};"
        else
          return_prefix = "#{annotated_type(method.return_value, :ejb)} result = "
          transform = method.return_value.nullable? ? "if ( null == result ) { return null; }\n" : ''
          transform = transform + <<-JAVA
-        #{annotated_type(method.return_value, :ejb, :boundary, :final => true)} $result = new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:boundary)}>();
+        #{annotated_type(method.return_value, :ejb, :boundary, :final => true)} $result = new java.util.#{method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' }<#{method.return_value.ejb.java_component_type(:boundary)}>();
         for( final #{method.return_value.ejb.java_component_type} k: result )
         {
           $result.add( #{
          method.return_value.reference? ? "k.get#{method.return_value.referenced_entity.primary_key.name}()" :
-           method.return_value.enumeration.numeric_values? ? "k.ordinal()" : "k.name()"
+           method.return_value.enumeration.numeric_values? ? 'k.ordinal()' : 'k.name()'
          } );
         }
         return $result;
@@ -96,7 +96,7 @@ JAVA
 %>
   {
 <% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| -%>
-    <%= annotated_type(parameter, :ejb, :default, :final => true) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.ejb.java_component_type %>>();
+    <%= annotated_type(parameter, :ejb, :default, :final => true) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.ejb.java_component_type %>>();
     for( final <%= parameter.ejb.java_component_type(:boundary) %> id: <%= parameter.name %> )
     {
       $<%= parameter.name %>.add( _<%= Reality::Naming.camelize(parameter.referenced_entity.dao.jpa.dao_service_name) %>.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );

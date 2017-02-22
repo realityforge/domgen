@@ -108,7 +108,7 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   @java.lang.Override
   protected org.realityforge.replicant.client.ChangeMapper newChangeMapper()
   {
-    return new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getChangeBroker(), getSubscriptionManager() )" }.join(", ") %> );
+    return new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getChangeBroker(), getSubscriptionManager() )" }.join(', ') %> );
   }
 
   @javax.annotation.Nonnull

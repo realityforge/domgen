@@ -55,24 +55,24 @@ module Domgen
 
       def column_type(column)
         if column.calculation
-          Domgen.error("Unsupported column type - calculation")
+          Domgen.error('Unsupported column type - calculation')
         elsif column.attribute.reference?
           return column.attribute.referenced_entity.primary_key.sql.sql_type
         elsif column.attribute.text?
           if column.attribute.length.nil?
-            return "text"
+            return 'text'
           else
             return "varchar(#{column.attribute.length})"
           end
         elsif column.attribute.geometry?
           spatial_reference_id = column.attribute.geometry.srid || -1
           if column.attribute.geometry.geometry_type == :geometry
-            return "GEOMETRY"
+            return 'GEOMETRY'
           else
             return "GEOMETRY(#{column.attribute.geometry.geometry_type},#{spatial_reference_id})"
           end
         elsif column.attribute.enumeration?
-          column.attribute.enumeration.textual_values? ? "varchar(#{column.attribute.length})" : "integer"
+          column.attribute.enumeration.textual_values? ? "varchar(#{column.attribute.length})" : 'integer'
         else
           return column.attribute.characteristic_type.sql.pgsql.sql_type
         end
@@ -163,7 +163,7 @@ SQL
     ROLLBACK;
     #{entity.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
   END IF;
-#{validation.guard.nil? ? '' : "END" }
+#{validation.guard.nil? ? '' : 'END' }
 SQL
           end
         end

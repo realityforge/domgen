@@ -26,10 +26,10 @@ public class <%= message.ee.name %>
   }
 <% end %>
 
-  public <%= message.name %>( <%= message.parameters.collect {|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Reality::Naming.camelize(parameter.name)}" }.join(", ") %> )
+  public <%= message.name %>( <%= message.parameters.collect {|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Reality::Naming.camelize(parameter.name)}" }.join(', ') %> )
   {
 <% message.parameters.each do |parameter|
-     null_protection = parameter.nullable? ? "#{Reality::Naming.camelize(parameter.name)} == null ? null : " : ""
+     null_protection = parameter.nullable? ? "#{Reality::Naming.camelize(parameter.name)} == null ? null : " : ''
      if :sequence == parameter.collection_type
 %>    this.<%= Reality::Naming.camelize(parameter.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.ee.java_component_type %>>( <%= Reality::Naming.camelize(parameter.name) %> ) );
 <%     elsif :set == parameter.collection_type

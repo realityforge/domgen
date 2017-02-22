@@ -24,7 +24,7 @@ public interface <%= repository.imit.gwt_client_session_interface_name %>
     filter_param = "#{java_type} filter"
     update_param = "#{update_param}#{filter_param}"
   end
-  suffix = "@javax.annotation.Nullable Runnable runnable"
+  suffix = '@javax.annotation.Nullable Runnable runnable'
 %>
   boolean isSubscribedTo<%= graph.name %>(<%= param %>);
 
