@@ -47,9 +47,9 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 @org.eclipse.persistence.annotations.ReadOnly
 <% end -%>
 <% if entity.jpa.entity_listeners.size > 0 %>
-@javax.persistence.EntityListeners( { <%= entity.jpa.entity_listeners.collect{|l| "#{l}.class"}.join( ', ' ) % > } )
+@javax.persistence.EntityListeners( { <%= entity.jpa.entity_listeners.collect{|l| "#{l}.class"}.join( ', ' ) %> } )
 <% end -%>
-@javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? 'true' : 'false' % > )
+@javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? 'true' : 'false' %> )
 <% if entity.data_module.repository.ee.version != '6' %>@javax.enterprise.inject.Vetoed
 <% end -%>
 <% entity.xor_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
