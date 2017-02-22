@@ -893,6 +893,28 @@ FRAGMENT
       end
     end
 
+    facet.enhance(RemoteEntityAttribute) do
+      include Domgen::Java::EEJavaCharacteristic
+
+      protected
+
+      def characteristic
+        attribute
+      end
+    end
+
+    facet.enhance(RemoteEntity) do
+      include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :qualified_name
+
+      def qualified_name
+        return @qualified_name unless @qualified_name.nil?
+        return remote_entity.imit.qualified_name if remote_entity.imit?
+        Domgen.error("Invoked qualified_name on #{remote_entity.qualified_name} when value not set")
+      end
+    end
+
     facet.enhance(Attribute) do
       include Domgen::JPA::BaseJpaField
 
@@ -917,13 +939,14 @@ FRAGMENT
 
       def converter
         return nil if attribute.reference?
+        return nil if attribute.remote_reference?
         return attribute.enumeration.jpa.converter_name if attribute.enumeration? && attribute.enumeration.jpa.requires_converter?
         return nil if attribute.enumeration?
         @converter || attribute.characteristic_type.jpa.converter(attribute.sql.dialect)
       end
 
-      def field_name
-        Reality::Naming.camelize(name)
+      def field_name(modality = :default)
+        Reality::Naming.camelize(name(modality))
       end
 
       def generated_value_strategy

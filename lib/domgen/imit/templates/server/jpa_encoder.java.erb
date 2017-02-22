@@ -34,7 +34,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     {
       final java.util.HashMap<String, java.io.Serializable> attributeValues = new java.util.HashMap<>();
 <% entity.attributes.select{|a| a.imit?}.each do |attribute|
-    a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
+    a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute.remote_reference? ? attribute.referenced_remote_entity.primary_key : attribute
     type_suffix = 'Object'
     type_suffix = 'Int' if a.integer? && !attribute.nullable?
     type_suffix = 'Long' if a.long? && !attribute.nullable?
@@ -114,7 +114,7 @@ end
     encode<%= other.name %>( entity, attributes );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.imit? && attribute.imit.client_side? && !attribute.abstract? }.each do |attribute|
-    value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": "")
+    value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": attribute.remote_reference? ? ".#{getter_for(attribute.referenced_remote_entity.primary_key)}" : '')
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :datetime
           "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.getTime() )"

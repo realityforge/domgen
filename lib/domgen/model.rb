@@ -735,6 +735,10 @@ module Domgen
       RemoteEntityAttribute.new(self, name, type, options, &block)
     end
 
+    def pre_complete
+      integer(:ID) if self.attributes.empty?
+    end
+
     def perform_verify
       Domgen.error("Remote Entity #{qualified_name} must define exactly one attribute (the remote key)") if attributes.size != 1
       self.attributes.each do |a|

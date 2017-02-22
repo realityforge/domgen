@@ -40,13 +40,12 @@ module Domgen
         s << "  @javax.persistence.Basic( optional = #{attribute.nullable?}, fetch = javax.persistence.FetchType.#{attribute.jpa.fetch_type.to_s.upcase} )\n" unless attribute.reference?
         s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? 'ORDINAL' : 'STRING'} )\n" if attribute.enumeration?
         s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? 'TIMESTAMP' : 'DATE'} )\n" if attribute.datetime? || attribute.date?
-        s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
+        s << "  @javax.validation.constraints.NotNull\n" if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
         converter = attribute.jpa.converter
         s << "  @javax.persistence.Convert( converter = #{converter.gsub('$','.')}.class )\n" if converter
 
         unless jpa_nullable_annotation?(attribute)
-          is_nonnull = !jpa_nullable?(attribute) && attribute.immutable?
-          s << "  #{nullability_annotation(!is_nonnull)}\n"
+          s << "  #{nullability_annotation(jpa_nullable?(attribute))}\n"
         end
 
         if attribute.text?
@@ -295,12 +294,13 @@ JAVA
 
         end
         if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
+          field_name = attribute.remote_reference? ? attribute.jpa.field_name(:transport) : attribute.jpa.field_name
           java << <<JAVA
      final #{type} value = doGet#{name}();
-     if( !#{attribute.jpa.field_name}Recorded )
+     if( !#{field_name}Recorded )
      {
-       #{attribute.jpa.field_name}Original = value;
-       #{attribute.jpa.field_name}Recorded = true;
+       #{field_name}Original = #{field_name};
+       #{field_name}Recorded = true;
      }
      return value;
 JAVA
@@ -323,8 +323,16 @@ JAVA
     }
 JAVA
         end
+        if attribute.remote_reference?
+          java << <<JAVA
+    if ( null != #{attribute.jpa.field_name} && #{attribute.jpa.field_name} instanceof org.realityforge.replicant.client.Linkable && !( (org.realityforge.replicant.client.Linkable) #{attribute.jpa.field_name} ).isValid() )
+    {
+      #{attribute.jpa.field_name} = null;
+    }
+JAVA
+        end
         java << <<JAVA
-    return #{field_name};
+    return #{attribute.jpa.field_name};
   }
 
 JAVA
@@ -332,8 +340,22 @@ JAVA
           java << <<JAVA
   public void set#{name}( final #{type} value )
   {
-#{j_return_if_value_same(attribute, field_name, attribute.jpa.primitive?, attribute.nullable?)}
-        this.#{field_name} = value;
+JAVA
+          if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
+            java << <<JAVA
+    //noinspection ConstantConditions
+    if( null == value )
+    {
+      throw new NullPointerException( "#{field_name} parameter is not nullable" );
+    }
+JAVA
+          end
+          if attribute.remote_reference?
+            java << "    this.#{attribute.jpa.field_name(:transport)} = #{attribute.nullable? ? 'null == value ? null : ' : ''}value.get#{attribute.referenced_remote_entity.primary_key.name}();\n"
+          else
+            java << "    this.#{field_name} = value;\n"
+          end
+          java << <<JAVA
   }
 JAVA
         end
