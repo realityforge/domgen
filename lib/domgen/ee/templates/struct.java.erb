@@ -32,7 +32,7 @@ public class <%= struct.ee.name %>
 <% end %>
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
-<% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join( ', ' ) % >})<% end -%>
+<% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join( ', ') %>})<% end -%>
   public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
 <% struct.fields.select{|field| !field.nullable? && !field.ee.primitive? }.each do |field| -%>
