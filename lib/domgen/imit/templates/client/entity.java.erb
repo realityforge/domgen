@@ -135,7 +135,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
     if( null != value )
     {
 <% end -%>
-    _<%= Reality::Naming.camelize(attribute.imit.name) %> = <%= attribute.imit.java_type %>.<%= attribute.enumeration.textual_values? ?'valueOf( value )':'values()[value]'%>;
+    _<%= Reality::Naming.camelize(attribute.imit.name) %> = <%= attribute.imit.java_type %>.<%= attribute.enumeration.textual_values? ? 'valueOf( value )' : 'values()[value]' %>;
 <% if !attribute.imit.primitive?(:transport) -%>
     }
     else

@@ -39,7 +39,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :boundary, :final => true)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback","final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
   {
   <% method.parameters.select{|parameter| (parameter.enumeration? || parameter.struct?) && parameter.collection?}.each do |parameter| %>
-    <%= annotated_type(parameter, :gwt_rpc, :transport, :final => true) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ?'HashSet':'ArrayList'%><<%= parameter.gwt_rpc.java_component_type(:transport) %>>();
+    <%= annotated_type(parameter, :gwt_rpc, :transport, :final => true) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.gwt_rpc.java_component_type(:transport) %>>();
     <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
     for( final <%= parameter.gwt_rpc.java_component_type %> entity: <%= parameter.name %> )
     {
