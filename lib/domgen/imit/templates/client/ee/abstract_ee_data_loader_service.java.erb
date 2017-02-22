@@ -53,10 +53,14 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   private <%= repository.imit.qualified_ee_client_session_context_name %> _context;
   @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_client_router_interface_name %> _router = new <%= repository.imit.qualified_client_router_impl_name %>();
+  private final org.realityforge.replicant.client.transport.SessionContext _sessionContext = new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" );
+  private final <%= repository.imit.qualified_change_mapper_name %> _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getChangeBroker(), getSubscriptionManager() )" }.join(', ') %> );
 
-  public <%= repository.imit.abstract_ee_data_loader_service_name %>()
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected org.realityforge.replicant.client.transport.SessionContext getSessionContext()
   {
-    super( new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" ) );
+    return _sessionContext;
   }
 
   @javax.annotation.PostConstruct
@@ -106,9 +110,9 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
 <% end -%>
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected org.realityforge.replicant.client.ChangeMapper newChangeMapper()
+  protected org.realityforge.replicant.client.ChangeMapper getChangeMapper()
   {
-    return new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getChangeBroker(), getSubscriptionManager() )" }.join(', ') %> );
+    return _changeMapper;
   }
 
   @javax.annotation.Nonnull
