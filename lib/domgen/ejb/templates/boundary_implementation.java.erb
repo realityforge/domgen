@@ -13,7 +13,7 @@ package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 <% end -%>
 <% if service.ejb.boundary_interceptors.size > 0 -%>
-@javax.interceptor.Interceptors( { <%= service.ejb.boundary_interceptors.collect{|i| "#{i}.class"}.join( ', ' ) % > } )
+@javax.interceptor.Interceptors( { <%= service.ejb.boundary_interceptors.collect{|i| "#{i}.class"}.join(', ') %> } )
 <% end-%>
 <% service.ejb.boundary_annotations.each do |annotation| -%>
 @<%= annotation %>
