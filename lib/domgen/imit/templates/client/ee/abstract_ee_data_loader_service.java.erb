@@ -55,14 +55,6 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   private final <%= repository.imit.qualified_client_router_interface_name %> _router = new <%= repository.imit.qualified_client_router_impl_name %>();
   private final org.realityforge.replicant.client.transport.SessionContext _sessionContext = new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" );
   private <%= repository.imit.qualified_change_mapper_name %> _changeMapper;
-  private final org.realityforge.replicant.client.ee.InMemoryCacheService _cacheService = new org.realityforge.replicant.client.ee.InMemoryCacheService();
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected org.realityforge.replicant.client.transport.CacheService getCacheService()
-  {
-    return _cacheService;
-  }
 
   @javax.annotation.Nonnull
   @java.lang.Override
