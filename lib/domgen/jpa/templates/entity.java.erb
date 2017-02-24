@@ -72,7 +72,10 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
-
+<% if entity.declared_attributes.any? { |a| a.remote_reference? } -%>
+  @javax.persistence.Transient
+  private org.realityforge.replicant.client.EntitySystem _$entitySystem;
+<% end -%>
   private static final long serialVersionUID = 1;
 
 <% unless entity.extends -%>
@@ -314,5 +317,20 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
           return false;
         }
 <%= validation_suffix() %>
+<% end -%>
+<% if  entity.declared_attributes.any? { |a| a.remote_reference? }-%>
+
+  @javax.annotation.Nonnull
+  private org.realityforge.replicant.client.EntitySystem getEntitySystem()
+  {
+    if( null != _$entitySystem )
+    {
+      final javax.enterprise.inject.spi.BeanManager beanManager = javax.enterprise.inject.spi.CDI.current().getBeanManager();
+      final javax.enterprise.inject.spi.Bean<org.realityforge.replicant.client.EntitySystem> bean = (javax.enterprise.inject.spi.Bean<org.realityforge.replicant.client.EntitySystem>) beanManager.getBeans( org.realityforge.replicant.client.EntitySystem.class ).iterator().next();
+      final javax.enterprise.context.spi.CreationalContext<org.realityforge.replicant.client.EntitySystem> context = beanManager.createCreationalContext( bean );
+      _$entitySystem = (org.realityforge.replicant.client.EntitySystem) beanManager.getReference( bean, org.realityforge.replicant.client.EntitySystem.class, context );
+    }
+    return _$entitySystem;
+  }
 <% end -%>
 }
