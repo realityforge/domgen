@@ -367,6 +367,7 @@ module Domgen
         end
         @name = name
         @graph = repository.imit.graph_by_name(graph)
+        Domgen.error("Routing key '#{name}' on #{imit_attribute.attribute.name} is not immutable") unless imit_attribute.attribute.immutable?
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(graph).send :register_routing_key, self
       end
@@ -396,6 +397,7 @@ module Domgen
             Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribute of #{a.referenced_entity.qualified_name}") unless a.referenced_entity.attribute_by_name?(path_element)
             a = a.referenced_entity.attribute_by_name(path_element)
             Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
+            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not immutable #{a.qualified_name}") unless a.immutable?
           end
         end
         @path = path
