@@ -257,23 +257,25 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
                                           @javax.annotation.Nullable final org.realityforge.replicant.client.transport.ChainedAction cacheAction,
                                           @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
-    try
-    {
-      <% repository.imit.graphs.each do |graph|
+    <% repository.imit.graphs.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
-      {
+    {
 <% if graph.instance_root? -%>
-        assert null != id;
-        <%= jws_wrap_characteristic(repository.service_by_name(repository.imit.subscription_manager), repository.entity_by_name(graph.instance_root).primary_key, "(#{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type}) id", '$id') %>
+      assert null != id;
+      <%= jws_wrap_characteristic(repository.service_by_name(repository.imit.subscription_manager), repository.entity_by_name(graph.instance_root).primary_key, "(#{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type}) id", '$id') %>
 <% end -%>
 <% if graph.filtered? -%>
-        assert null != filterParameter;
+      assert null != filterParameter;
 <% end -%>
-        <% if graph.cacheable? -%> final java.lang.Boolean $result = <% end %>_remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, $id<% end -%><% if graph.filtered? %>,<% if graph.filter_parameter.struct? %> <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_type_converter_name %>.convert(<% end %> (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filterParameter<% if graph.filter_parameter.struct? %> )<% end %><% end -%> );
+      fireEvent( new <%= graph.subscribe_started_message.ee.qualified_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id <% end %>) );
+      try
+      {
+        <% if graph.cacheable? -%>final java.lang.Boolean $result = <% end %>_remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, $id<% end -%><% if graph.filtered? %>,<% if graph.filter_parameter.struct? %> <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_type_converter_name %>.convert(<% end %> (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filterParameter<% if graph.filter_parameter.struct? %> )<% end %><% end -%> );
 <% if graph.cacheable? -%>
         if ( $result )
         {
           completionAction.run();
+          fireEvent( new <%= graph.subscribe_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
         }
         else
         {
@@ -281,19 +283,21 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
           {
             cacheAction.run();
           }
+          fireEvent( new <%= graph.subscribe_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
         }
 <% else -%>
         completionAction.run();
+        fireEvent( new <%= graph.subscribe_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
 <% end -%>
       }
-      else <% end %>
+      catch ( final Throwable error )
       {
-        throw new IllegalStateException();
+        fireEvent( new <%= graph.subscribe_failed_message.ee.qualified_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ,<% end %> error ) );
       }
     }
-    catch ( final <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_exception_name(repository.exception_by_name(repository.imit.invalid_session_exception)) %> e )
+    else <% end %>
     {
-      throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
+      throw new IllegalStateException();
     }
   }
 
@@ -304,31 +308,29 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
                                             @javax.annotation.Nonnull final Object filterParameter,
                                             @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
-<% if filtered_graphs.size > 0 -%>
-    try
-    {
-<% end -%>
-      <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph|
+    <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
-      {
+    {
 <% if graph.instance_root? -%>
-        assert null != id;
-          <%= jws_wrap_characteristic(repository.service_by_name(repository.imit.subscription_manager), repository.entity_by_name(graph.instance_root).primary_key, "(#{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type}) id", '$id') %>
+      assert null != id;
+        <%= jws_wrap_characteristic(repository.service_by_name(repository.imit.subscription_manager), repository.entity_by_name(graph.instance_root).primary_key, "(#{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type}) id", '$id') %>
 <% end -%>
+      fireEvent( new <%= graph.update_started_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
+      try
+      {
         _remoteSubscriptionService.update<%= graph.name %>Subscription( getSessionID()<% if graph.instance_root? -%>, $id<% end -%>,<% if graph.filter_parameter.struct? %> <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_type_converter_name %>.convert(<% end %> (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filterParameter<% if graph.filter_parameter.struct? %> )<% end %> );
         completionAction.run();
+        fireEvent( new <%= graph.update_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
       }
-      else <% end %>
+      catch ( final Throwable error )
       {
-        throw new IllegalStateException();
+        fireEvent( new <%= graph.update_failed_message.ee.qualified_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ,<% end %> error ) );
       }
-<% if filtered_graphs.size > 0 -%>
     }
-    catch ( final <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_exception_name(repository.exception_by_name(repository.imit.invalid_session_exception)) %> e )
+    else <% end %>
     {
-      throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
+      throw new IllegalStateException();
     }
-<% end -%>
   }
 
   @java.lang.Override
@@ -336,26 +338,28 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
                                               @javax.annotation.Nullable final Object id,
                                               @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
-    try
-    {
-      <% repository.imit.graphs.each do |graph|
+    <% repository.imit.graphs.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
-      {
+    {
 <% if graph.instance_root? -%>
-        assert null != id;
-        <%= jws_wrap_characteristic(repository.service_by_name(repository.imit.subscription_manager), repository.entity_by_name(graph.instance_root).primary_key, "(#{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type}) id", '$id') %>
+      assert null != id;
+      <%= jws_wrap_characteristic(repository.service_by_name(repository.imit.subscription_manager), repository.entity_by_name(graph.instance_root).primary_key, "(#{repository.entity_by_name(graph.instance_root).primary_key.imit.java_type}) id", '$id') %>
 <% end -%>
-        _remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, $id<% end -%> );
-         completionAction.run();
-      }
-      else <% end %>
+      fireEvent( new <%= graph.unsubscribe_started_message.ee.qualified_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id <% end %>) );
+      try
       {
-        throw new IllegalStateException();
+        _remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, $id<% end -%> );
+        completionAction.run();
+        fireEvent( new <%= graph.unsubscribe_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id <% end %>) );
+      }
+      catch ( final Throwable error )
+      {
+        fireEvent( new <%= graph.unsubscribe_failed_message.ee.qualified_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ,<% end %> error ) );
       }
     }
-    catch ( final <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_exception_name(repository.exception_by_name(repository.imit.invalid_session_exception)) %> e )
+    else <% end %>
     {
-      throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
+      throw new IllegalStateException();
     }
   }
 }
