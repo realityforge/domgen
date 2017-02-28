@@ -213,7 +213,9 @@ module Domgen
       def graph_message(suffix, create)
         data_module = application.repository.data_module_by_name(application.repository.imit.imit_control_data_module)
         name = :"#{self.name}#{suffix}"
-        create ? data_module.message(name) : data_module.message_by_name(name)
+        message = create ? data_module.message(name) : data_module.message_by_name(name)
+        message.imit.subscription_message = true
+        message
       end
 
       def post_verify
@@ -760,9 +762,9 @@ module Domgen
             attribute_type = root.primary_key.attribute_type
 
             subscribe_started_message.parameter(:ID, attribute_type)
-            subscribe_completed_message.reference(root.qualified_name)
-            update_started_message.reference(root.qualified_name)
-            update_completed_message.reference(root.qualified_name)
+            subscribe_completed_message.parameter(root.name, root.imit.qualified_name)
+            update_started_message.parameter(root.name, root.imit.qualified_name)
+            update_completed_message.parameter(root.name, root.imit.qualified_name)
             unsubscribe_started_message.parameter(:ID, attribute_type)
             unsubscribe_completed_message.parameter(:ID, attribute_type)
           end
@@ -1207,6 +1209,16 @@ module Domgen
 
       def characteristic
         attribute
+      end
+    end
+
+    facet.enhance(Message) do
+      def subscription_message=(subscription_message)
+        @subscription_message = subscription_message
+      end
+
+      def subscription_message?
+        @subscription_message.nil? ? false : @subscription_message
       end
     end
 
