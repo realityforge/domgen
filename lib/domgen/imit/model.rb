@@ -194,6 +194,10 @@ module Domgen
         graph_message('SubscribeCompleted', create)
       end
 
+      def subscribe_failed_message(create = false)
+        graph_message('SubscribeFailed', create)
+      end
+
       def update_started_message(create = false)
         graph_message('UpdateStarted', create)
       end
@@ -202,12 +206,20 @@ module Domgen
         graph_message('UpdateCompleted', create)
       end
 
+      def update_failed_message(create = false)
+        graph_message('UpdateFailed', create)
+      end
+
       def unsubscribe_started_message(create = false)
         graph_message('UnsubscribeStarted', create)
       end
 
       def unsubscribe_completed_message(create = false)
         graph_message('UnsubscribeCompleted', create)
+      end
+
+      def unsubscribe_failed_message(create = false)
+        graph_message('UnsubscribeFailed', create)
       end
 
       def graph_message(suffix, create)
@@ -752,10 +764,13 @@ module Domgen
           end
           subscribe_started_message = graph.subscribe_started_message(true)
           subscribe_completed_message = graph.subscribe_completed_message(true)
+          subscribe_failed_message = graph.subscribe_failed_message(true)
           update_started_message = graph.update_started_message(true)
           update_completed_message = graph.update_completed_message(true)
+          update_failed_message = graph.update_failed_message(true)
           unsubscribe_started_message = graph.unsubscribe_started_message(true)
           unsubscribe_completed_message = graph.unsubscribe_completed_message(true)
+          unsubscribe_failed_message = graph.unsubscribe_failed_message(true)
 
           if graph.instance_root?
             root = repository.entity_by_name(graph.instance_root)
@@ -763,12 +778,18 @@ module Domgen
 
             subscribe_started_message.parameter(:ID, attribute_type)
             subscribe_completed_message.parameter(root.name, root.imit.qualified_name)
+            subscribe_failed_message.parameter(:ID, attribute_type)
             update_started_message.parameter(root.name, root.imit.qualified_name)
             update_completed_message.parameter(root.name, root.imit.qualified_name)
+            update_failed_message.parameter(root.name, root.imit.qualified_name)
             unsubscribe_started_message.parameter(:ID, attribute_type)
             unsubscribe_completed_message.parameter(:ID, attribute_type)
+            unsubscribe_failed_message.parameter(:ID, attribute_type)
           end
 
+          subscribe_failed_message.parameter(:Error, 'java.lang.Throwable')
+          update_failed_message.parameter(:Error, 'java.lang.Throwable')
+          unsubscribe_failed_message.parameter(:Error, 'java.lang.Throwable')
         end
 
         process_filter_structs([], toprocess)
