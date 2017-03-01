@@ -155,6 +155,7 @@ JAVA
 #{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(', ')});\n"}
 #{declared_immutable_attributes.select{|a|!a.nullable? && !a.jpa.primitive?}.collect{|a| "    if( null == #{a.jpa.name} )\n    {\n      throw new NullPointerException( \"#{a.jpa.name} is not nullable\" );\n    }"}.join("\n")}
 #{declared_immutable_attributes.collect { |a| "    this.#{a.jpa.field_name} = #{a.jpa.name};" }.join("\n")}
+#{declared_immutable_attributes.select{|a|a.remote_reference?}.collect { |a| "    this.#{a.jpa.field_name(:transport)} = #{a.nullable? ? "null == #{a.jpa.name} ? null : " : ''}#{a.jpa.name}#{a.remote_reference? ? ".#{getter_for(a.referenced_remote_entity.primary_key)}" : '' };" }.join("\n")}
 #{declared_immutable_attributes.select{|a|a.reference?}.collect { |a| '    ' + j_add_to_inverse(a) }.join("\n")}
   }
 JAVA
