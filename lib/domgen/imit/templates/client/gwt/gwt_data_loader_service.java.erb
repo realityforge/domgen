@@ -355,7 +355,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable error )
         {
-          getEventBus().fireEvent( new <%= graph.update_failed_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ,<% end %> error ) );
+          getEventBus().fireEvent( new <%= graph.update_failed_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ),<% end %> error ) );
         }
       };
       getEventBus().fireEvent( new <%= graph.update_started_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
