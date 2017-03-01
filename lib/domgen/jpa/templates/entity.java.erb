@@ -95,14 +95,14 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <% if !attribute.immutable? && entity.jpa.track_changes? -%>
   @javax.persistence.Transient
   private <%= type %> <%= field_name %>Original;
-<% if attribute.remote_reference? -%>
-  @javax.persistence.Transient
-  private <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>;
-<% end -%>
 <% if attribute.jpa.fetch_type == :lazy -%>
   @javax.persistence.Transient
   private boolean <%= field_name %>Recorded;
 <% end -%>
+<% end -%>
+<% if attribute.remote_reference? -%>
+  @javax.persistence.Transient
+  private <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>;
 <% end -%>
 <% end %>
 <% entity.referencing_attributes.
