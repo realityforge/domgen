@@ -333,6 +333,10 @@ module Domgen
         entity.referencing_attributes.select { |a| (!a.sync? || a.sync.manual_sync?) && a.referenced_entity.sql? }
       end
 
+      def managed_references_requiring_manual_sync
+        entity.referencing_attributes.select { |a| a.sync? && !a.sync.manual_sync? && a.entity.sync.core? }
+      end
+
       def references_not_requiring_manual_sync
         entity.referencing_attributes.select { |a| !a.set_once? && !a.immutable? && a.sync? && a.entity.sync.core? && !a.sync.manual_sync? && a.referenced_entity.sql? }
       end
