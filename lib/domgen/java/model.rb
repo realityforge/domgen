@@ -119,7 +119,8 @@ module Domgen
         return false unless characteristic.reference? || characteristic.remote_reference?
         return false if :default == modality
 
-        return primitive?(characteristic.referenced_entity.primary_key, group_type, modality, options)
+        return primitive?(characteristic.referenced_entity.primary_key, group_type, modality, options) if characteristic.reference?
+        return primitive?(characteristic.referenced_remote_entity.primary_key, group_type, modality, options)
       end
 
       def java_component_type(characteristic, group_type, modality = :default)
