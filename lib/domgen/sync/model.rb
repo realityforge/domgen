@@ -165,7 +165,7 @@ module Domgen
               s.method(:"Remove#{entity.data_module.name}#{entity.name}") do |m|
                 m.integer(:MappingID)
                 m.parameter(:ID, entity.primary_key.jpa.java_type(:boundary), :nullable => true)
-                m.returns(:boolean, :description => 'Return true on removalfrom non-master, false if not required')
+                m.returns(:boolean, :description => 'Return true on remove from non-master, false if not required')
               end
               s.method(:"Mark#{entity.data_module.name}#{entity.name}RemovalsPreSync") do |m|
                 m.text(:MappingSourceCode)
