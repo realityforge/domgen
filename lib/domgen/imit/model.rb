@@ -875,7 +875,7 @@ module Domgen
             if !graph.instance_root?
               if graph.cacheable? && graph.external_cache_management?
                 s.method("Get#{graph.name}CacheKey") do |m|
-                  m.returns(:text, :nullable => true)
+                  m.returns(:text)
                 end
               end
               if graph.filter_parameter? && !graph.filter_parameter.immutable?
