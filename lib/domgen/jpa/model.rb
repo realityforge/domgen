@@ -842,12 +842,18 @@ FRAGMENT
               operation = $2.upcase
               query_text = $1
               if entity.attribute_by_name?(parameter_name)
-                jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
+                a = entity.attribute_by_name(parameter_name)
+                jpql_name = a.remote_reference? ? a.referencing_link_name : parameter_name
+                jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(jpql_name)} = :#{parameter_name} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
                   jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
+                  found = true
+                end
+                entity.attributes.select { |a| a.remote_reference? && a.referencing_link_name == parameter_name }.each do |a|
+                  jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)} = :#{parameter_name} #{jpql}"
                   found = true
                 end
                 unless found
@@ -858,12 +864,18 @@ FRAGMENT
             else
               parameter_name = query_text
               if entity.attribute_by_name?(parameter_name)
-                jpql = "#{entity_prefix}#{Reality::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
+                a = entity.attribute_by_name(parameter_name)
+                jpql_name = a.remote_reference? ? a.referencing_link_name : parameter_name
+                jpql = "#{entity_prefix}#{Reality::Naming.camelize(jpql_name)} = :#{parameter_name} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
                   jpql = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
+                  found = true
+                end
+                entity.attributes.select { |a| a.remote_reference? && a.referencing_link_name == parameter_name }.each do |a|
+                  jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)} = :#{parameter_name} #{jpql}"
                   found = true
                 end
                 jpql = nil unless found

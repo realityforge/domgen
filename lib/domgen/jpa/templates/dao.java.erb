@@ -44,13 +44,15 @@ public class <%= dao.jpa.dao_name %>
 <%
    if !query.jpa.native?
     query.parameters.each do |p|
-%>    query.setParameter( <%= "\"#{p.name}\"" %>, <%= Reality::Naming.camelize(p.name) %> );
+%>    query.setParameter( <%= "\"#{p.name}\"" %>, <%= p.remote_reference? ? "#{Reality::Naming.camelize(p.name)}.#{getter_for(p.referenced_remote_entity.primary_key)}" : Reality::Naming.camelize(p.name) %> );
 <%  end
    else -%>
 <%  query.parameters.each_with_index do |p, index|
     param_suffix = nil
     if p.reference?
       param_suffix = ".#{getter_for(p.referenced_entity.primary_key)}"
+    elsif p.remote_reference?
+      param_suffix = ".#{getter_for(p.referenced_remote_entity.primary_key)}"
     elsif p.enumeration? && p.enumeration.textual_values?
       param_suffix = '.name()'
     elsif p.enumeration? && p.enumeration.numeric_values?
