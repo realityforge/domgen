@@ -318,7 +318,7 @@ module Domgen
         end
       end
 
-      characteristic(name.to_s.to_sym, :remote_reference, options.merge({:referenced_remote_entity => other_type}), &block)
+      characteristic(name.to_s.to_sym, :remote_reference, options.merge(:referenced_remote_entity => other_type), &block)
     end
 
     def struct(name, struct_key, options = {}, &block)
