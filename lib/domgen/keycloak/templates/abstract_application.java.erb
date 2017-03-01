@@ -54,6 +54,13 @@ public abstract class <%= client.abstract_application_name %>
   }
 
   @Override
+  public void onAuthRefreshError( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
+  {
+    resetSavedTokens();
+    super.onAuthRefreshError( keycloak );
+  }
+
+  @Override
   public void beforeAuthLogout( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
   {
     super.beforeAuthLogout( keycloak );
@@ -71,12 +78,16 @@ public abstract class <%= client.abstract_application_name %>
   {
     setSavedToken( AUTH_TOKEN, getKeycloak().getToken() );
     setSavedToken( REFRESH_TOKEN, getKeycloak().getRefreshToken() );
+    getKeycloak().getInitOptions().setToken( getKeycloak().getToken() );
+    getKeycloak().getInitOptions().setRefreshToken( getKeycloak().getRefreshToken() );
   }
 
   private void resetSavedTokens()
   {
     setSavedToken( AUTH_TOKEN, null );
     setSavedToken( REFRESH_TOKEN, null );
+    getKeycloak().getInitOptions().setToken( null );
+    getKeycloak().getInitOptions().setRefreshToken( null );
   }
 
   private void setSavedToken( @javax.annotation.Nonnull final String key, @javax.annotation.Nullable final String value )
