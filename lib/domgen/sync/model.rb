@@ -401,7 +401,10 @@ module Domgen
             !a.primary_key? &&
             !a.immutable? &&
             ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) &&
-            !(a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.synchronize?)
+            (
+              !a.reference? ||
+              a.referenced_entity.sync? && a.referenced_entity.sync.synchronize?
+            )
         end.size > 0
       end
 
