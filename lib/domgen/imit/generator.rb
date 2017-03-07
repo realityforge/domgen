@@ -108,7 +108,7 @@ Domgen::Generator.define([:imit],
                                 'server/integration_module.java.erb',
                                 'main/java/#{repository.imit.qualified_integration_module_name.gsub(".","/")}.java')
     end
-    g.template_set(:"imit_client_#{type}_qa") do |template_set|
+    g.template_set(:"imit_client_#{type}_qa_external") do |template_set|
       template_set.erb_template(:data_module,
                                 'client/abstract_test_factory.java.erb',
                                 type + '/java/#{data_module.imit.qualified_abstract_test_factory_name.gsub(".","/")}.java')
@@ -124,7 +124,7 @@ Domgen::Generator.define([:imit],
                                 :guard => '!repository.imit.custom_client_test?')
     end
 
-    g.template_set(:"imit_client_#{type}_gwt_qa") do |template_set|
+    g.template_set(:"imit_client_#{type}_gwt_qa_external") do |template_set|
       template_set.erb_template(:repository,
                                 'client/gwt/abstract_gwt_client_test.java.erb',
                                 type + '/java/#{repository.imit.qualified_abstract_gwt_client_test_name.gsub(".","/")}.java',
