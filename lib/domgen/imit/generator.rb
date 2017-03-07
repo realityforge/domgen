@@ -118,6 +118,10 @@ Domgen::Generator.define([:imit],
       template_set.erb_template(:repository,
                                 'client/abstract_client_test.java.erb',
                                 type + '/java/#{repository.imit.qualified_abstract_client_test_name.gsub(".","/")}.java')
+      template_set.erb_template(:repository,
+                                'client/client_test.java.erb',
+                                type + '/java/#{repository.imit.qualified_client_test_name.gsub(".","/")}.java',
+                                :guard => '!repository.imit.custom_client_test?')
     end
 
     g.template_set(:"imit_client_#{type}_gwt_qa") do |template_set|

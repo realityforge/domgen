@@ -618,9 +618,16 @@ module Domgen
       java_artifact :callback_failure_answer, :test, :client, :imit, '#{repository.name}CallbackFailureAnswer', :sub_package => 'util'
       java_artifact :abstract_gwt_client_test, :test, :client, :imit, 'Abstract#{repository.name}GwtClientTest', :sub_package => 'util'
       java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
+      java_artifact :client_test, :test, :client, :imit, '#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :test_factory_set, :test, :client, :imit, '#{repository.name}FactorySet', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
+
+      attr_writer :custom_client_test
+
+      def custom_client_test?
+        @custom_client_test.nil? ? false : !!@custom_client_test
+      end
 
       def abstract_session_context_impl_name
         qualified_abstract_session_context_impl_name.gsub(/^.*\.([^.]+)$/, '\1')
