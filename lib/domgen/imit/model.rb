@@ -1189,7 +1189,7 @@ module Domgen
       end
 
       def non_standard_queries
-        dao.queries.select{|q|q.imit? && !q.imit.standard_query? && q.query_type == :select }
+        dao.queries.select { |q| q.imit? && !q.imit.standard_query? }
       end
 
       def pre_complete
@@ -1208,17 +1208,46 @@ module Domgen
 
       attr_accessor :standard_query
 
-      def pre_complete
-        query.disable_facet(:imit) if query.result_entity? && !query.entity.imit?
+      def disable_facet_unless_valid
+        disable = false
+        disable = true if query.result_entity? && !query.entity.imit?
+        disable = true unless query.query_type == :select
+        disable = true if query.parameters.size != query.parameters.select { |p| p.imit? }.size
+        if disable
+          puts "Disabling #{query.qualified_name}"
+        end
+        query.disable_facet(:imit) if query.imit? && disable
       end
 
-      def complete
-        query.disable_facet(:imit) if query.imit? && query.parameters.size > 0 && query.parameters.select { |p| p.imit? }.empty?
+      def pre_complete
+        disable_facet_unless_valid
+      end
+
+      def perform_complete
+        disable_facet_unless_valid
+      end
+
+      def perform_verify
+        disable_facet_unless_valid
       end
     end
 
     facet.enhance(QueryParameter) do
       include Domgen::Java::ImitJavaCharacteristic
+
+      def disable_facet_unless_valid
+        disable = false
+        disable = true if parameter.reference? && !parameter.referenced_entity.imit?
+        parameter.disable_facet(:imit) if parameter.imit? && disable
+      end
+
+      def pre_complete
+        disable_facet_unless_valid
+      end
+
+      def pre_verify
+        disable_facet_unless_valid
+      end
 
       protected
 

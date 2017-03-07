@@ -4,7 +4,7 @@ package <%= to_package(dao.imit.qualified_abstract_dao_name) %>;
 @javax.annotation.Generated( "Domgen" )
 public abstract class <%= dao.imit.abstract_dao_name %>
   implements <%= dao.imit.qualified_dao_service_name %>
-{<% dao.queries.select{|q|q.imit? && q.imit.standard_query? && q.query_type == :select }.each do |query| -%>
+{<% dao.queries.select{|q|q.imit? && q.imit.standard_query?}.each do |query| -%>
 
   @java.lang.Override
   public <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= query.parameters.collect {|p| "#{p.imit.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.imit.java_type} #{p.name}"}.join(', ') %>)
