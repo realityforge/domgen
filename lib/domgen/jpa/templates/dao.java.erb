@@ -10,11 +10,11 @@ public class <%= dao.jpa.dao_name %>
   implements <%= dao.jpa.qualified_dao_service_name %>
 {
 <% unless dao.repository? -%>
-<% dao.queries.each do |query| -%>
+<% dao.queries.select{|q| q.jpa?}.each do |query| -%>
   private static final String <%= Reality::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <% end %>
 <% end -%>
-<% dao.queries.select{|q| !q.basic_result_type?}.collect{|q|q.result_type}.sort.uniq.each do |result_type|
+<% dao.queries.select{|q| q.jpa? && !q.basic_result_type?}.collect{|q|q.result_type}.sort.uniq.each do |result_type|
   converter = Domgen::TypeDB.characteristic_type_by_name(result_type).jpa.converter(dao.data_module.sql.dialect)
   if converter
 -%>
@@ -30,7 +30,7 @@ public class <%= dao.jpa.dao_name %>
   @javax.persistence.PersistenceContext( unitName = <%= dao.data_module.repository.jpa.qualified_unit_descriptor_name %>.<%= dao.jpa.persistence_unit_name.nil? ? 'NAME' : "#{Reality::Naming.uppercase_constantize(dao.jpa.persistence_unit_name)}_NAME" %> )
   private javax.persistence.EntityManager em;
 
-<% dao.queries.each do |query| -%>
+<% dao.queries.select{|q| q.jpa?}.each do |query| -%>
 <%
   requires_result_conversion = !query.basic_result_type?
   method_result_java_type = query.result_type? ? query_component_result_type(query) : nil
