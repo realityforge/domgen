@@ -655,6 +655,12 @@ module Domgen
       !!@queries[name.to_s]
     end
 
+    def query_by_name(name)
+      query = @queries[name.to_s]
+      Domgen.error("Unable to locate query named '#{name}' on #{self.name}") unless query
+      query
+    end
+
     def query(name, options = {}, &block)
       Domgen.error("Attempting to override query #{name} on #{self.name}") if @queries[name.to_s]
       query = Query.new(self, name, options, &block)
@@ -935,6 +941,10 @@ module Domgen
 
     def query_by_name?(name)
       dao.query_by_name?(name)
+    end
+
+    def query_by_name(name)
+      dao.query_by_name(name)
     end
 
     def query(name, options = {}, &block)
