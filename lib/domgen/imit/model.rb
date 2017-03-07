@@ -626,10 +626,10 @@ module Domgen
       java_artifact :test_factory_set, :test, :client, :imit, '#{repository.name}FactorySet', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
 
-      attr_writer :custom_client_test
+      attr_writer :custom_base_client_test
 
-      def custom_client_test?
-        @custom_client_test.nil? ? false : !!@custom_client_test
+      def custom_base_client_test?
+        @custom_base_client_test.nil? ? false : !!@custom_base_client_test
       end
 
       def abstract_session_context_impl_name

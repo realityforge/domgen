@@ -149,7 +149,7 @@ Domgen::Generator.define([:imit],
       template_set.erb_template(:repository,
                                 'client/client_test.java.erb',
                                 type + '/java/#{repository.imit.qualified_client_test_name.gsub(".","/")}.java',
-                                :guard => '!repository.imit.custom_client_test?')
+                                :guard => '!repository.imit.custom_base_client_test?')
       template_set.erb_template(:dao,
                                 'client/test_dao.java.erb',
                                 type + '/java/#{dao.imit.qualified_test_dao_name.gsub(".","/")}.java')
