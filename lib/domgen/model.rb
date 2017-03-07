@@ -26,6 +26,12 @@ module Domgen
       extension_point(:perform_verify)
       extension_point(:post_verify)
     end
+
+    define_method(:'-facets=') do |facets|
+      (facets.is_a?(Array) ? facets : [facets]).each do |facet|
+        disable_facet(facet) if facet_enabled?(facet)
+      end
+    end
   end
 
   def self.FacetedElement(parent_key)
