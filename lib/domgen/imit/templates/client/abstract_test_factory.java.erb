@@ -80,6 +80,17 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
 
 <% end -%>
 <% end -%>
+<% data_module.daos.select{|dao| dao.imit? }.each do |dao| -%>
+
+  @javax.annotation.Nonnull
+  protected final <%= dao.imit.qualified_dao_service_name %> <%= Reality::Naming.camelize(dao.name) %>()
+  {
+    return s( <%= dao.imit.qualified_dao_service_name %>.class );
+  }
+<%
+  end
+-%>
+
   @javax.annotation.Nonnull
   protected final org.realityforge.replicant.client.EntityRepository repository()
   {
