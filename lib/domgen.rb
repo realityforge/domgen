@@ -139,6 +139,7 @@ require 'domgen/restygwt/generator'
 
 # Imit
 require 'domgen/imit/model'
+require 'domgen/imit/helper'
 require 'domgen/imit/generator'
 
 # AutoBean

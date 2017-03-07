@@ -578,6 +578,9 @@ module Domgen
         repository.gwt.modules_package
       end
 
+      java_artifact :dao_module, :ioc, :client, :imit, '#{repository.name}ReplicantRepositoryModule'
+      java_artifact :aggregate_dao_test, :test, :client, :imit, '#{repository.name}AggregateDAOTest', :sub_package => 'util'
+      java_artifact :dao_test_module, :test, :client, :imit, '#{repository.name}RepositoryTestModule', :sub_package => 'util'
       java_artifact :replicant_module, :modules, nil, :gwt, '#{repository.name}ReplicantSupport'
       java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
@@ -1166,6 +1169,61 @@ module Domgen
 
       def qualified_test_factory_name
         "#{client_entity_package}.#{test_factory_name}"
+      end
+    end
+
+    facet.enhance(DataAccessObject) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :dao_service, :entity, :client, :imit, '#{dao.name}', :sub_package => 'dao'
+      java_artifact :abstract_dao, :entity, :client, :imit, 'Abstract#{dao_service_name}Impl', :sub_package => 'dao'
+      java_artifact :dao, :entity, :client, :imit, '#{dao_service_name}Impl', :sub_package => 'dao'
+      java_artifact :gwt_dao, :entity, :client, :imit, 'Gwt#{dao_service_name}Impl', :sub_package => 'dao'
+      java_artifact :test_dao, :entity, :client, :imit, 'Test#{dao_service_name}Impl', :sub_package => 'dao'
+      java_artifact :ee_dao, :entity, :client, :imit, 'Ee#{dao_service_name}Impl', :sub_package => 'dao'
+      java_artifact :abstract_dao_test, :entity, :client, :imit, 'Abstract#{dao_service_name}ImplTest', :sub_package => 'dao'
+      java_artifact :dao_test, :entity, :client, :imit, '#{dao_service_name}ImplTest', :sub_package => 'dao'
+
+      def has_non_standard_queries?
+        non_standard_queries.size > 0
+      end
+
+      def non_standard_queries
+        dao.queries.select{|q|q.imit? && !q.imit.standard_query? && q.query_type == :select }
+      end
+
+      def pre_complete
+        dao.disable_facet(:imit) if dao.repository? && !dao.entity.imit?
+      end
+
+      def post_complete
+        dao.disable_facet(:imit) if dao.imit? && dao.queries.select { |q| q.imit? }.empty?
+      end
+    end
+
+    facet.enhance(Query) do
+      def standard_query?
+        @standard_query.nil? ? query.standard_query? : !!@standard_query
+      end
+
+      attr_accessor :standard_query
+
+      def pre_complete
+        query.disable_facet(:imit) if query.result_entity? && !query.entity.imit?
+      end
+
+      def complete
+        query.disable_facet(:imit) if query.imit? && query.parameters.size > 0 && query.parameters.select { |p| p.imit? }.empty?
+      end
+    end
+
+    facet.enhance(QueryParameter) do
+      include Domgen::Java::ImitJavaCharacteristic
+
+      protected
+
+      def characteristic
+        parameter
       end
     end
 

@@ -1,0 +1,11 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(dao.imit.qualified_dao_service_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public interface <%= dao.imit.dao_service_name %>
+{<% dao.queries.select{|q| q.imit?}.each do |query| -%>
+
+  <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= query.parameters.collect {|p| "#{p.imit.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.imit.java_type} #{p.name}"}.join(', ') %>);
+<% end -%>
+}

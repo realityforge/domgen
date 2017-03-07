@@ -1,0 +1,25 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_aggregate_dao_test_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.imit.aggregate_dao_test_name %>
+{
+  @org.testng.annotations.Test
+  public void ensureTestsPresent()
+    throws java.lang.Exception
+  {
+<%
+  repository.data_modules.select{|dm|dm.imit?}.each do |data_module|
+    data_module.daos.select{|d|d.imit? && d.imit.has_non_standard_queries?}.each do |dao|
+-%>
+    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= dao.imit.qualified_dao_test_name %>.class.getModifiers() ) );
+<% dao.imit.non_standard_queries.each do |query| -%>
+    org.testng.Assert.assertNotNull( <%= dao.imit.qualified_dao_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(query.name) %>" ).getAnnotation( org.testng.annotations.Test.class ) );
+<% end -%>
+<%
+    end
+  end
+-%>
+  }
+}

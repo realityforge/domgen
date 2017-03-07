@@ -28,6 +28,13 @@ public abstract class <%= repository.imit.abstract_client_test_name %>
   {
     final java.util.ArrayList<com.google.inject.Module> modules = new java.util.ArrayList<>();
     java.util.Collections.addAll( modules, super.getModules() );
+    addModule( modules, new<%= repository.name %>RepositoryModule() );
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
+  }
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module new<%= repository.name %>RepositoryModule()
+  {
+    return new <%= repository.imit.qualified_dao_test_module_name %>();
   }
 }

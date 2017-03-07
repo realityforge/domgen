@@ -1,0 +1,20 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(dao.imit.qualified_ee_dao_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.enterprise.context.ApplicationScoped
+@javax.enterprise.inject.Typed( <%= dao.imit.qualified_dao_service_name %>.class )
+public class <%= dao.imit.ee_dao_name %>
+  extends <%= dao.imit.qualified_dao_name %>
+{
+  @javax.inject.Inject
+  private org.realityforge.replicant.client.EntitySystem _entitySystem;
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.client.EntityRepository getRepository()
+  {
+    return _entitySystem.getRepository();
+  }
+}

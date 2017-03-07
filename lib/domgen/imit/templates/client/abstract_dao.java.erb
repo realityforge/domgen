@@ -1,0 +1,44 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(dao.imit.qualified_abstract_dao_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= dao.imit.abstract_dao_name %>
+  implements <%= dao.imit.qualified_dao_service_name %>
+{<% dao.queries.select{|q|q.imit? && q.imit.standard_query? && q.query_type == :select }.each do |query| -%>
+
+  @java.lang.Override
+  public <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= query.parameters.collect {|p| "#{p.imit.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.imit.java_type} #{p.name}"}.join(', ') %>)
+  {
+<%
+  if query.multiplicity == :many && query.parameters.empty?
+-%>
+    return getRepository().findAll( <%= query_component_result_type(query) %>.class );
+<%
+  elsif query.multiplicity == :zero_or_one && query.parameters.size == 1 && query.parameters[0].name == query.entity.primary_key.name
+-%>
+    return getRepository().findByID( <%= query_component_result_type(query) %>.class, <%= query.parameters[0].name %> );
+<%
+  elsif query.multiplicity == :one && query.parameters.size == 1 && query.parameters[0].name == query.entity.primary_key.name
+-%>
+    return getRepository().getByID( <%= query_component_result_type(query) %>.class, <%= query.parameters[0].name %> );
+<%
+  elsif query.multiplicity == :zero_or_one
+-%>
+    return getRepository().findByQuery( <%= query_component_result_type(query) %>.class, e -> <%= lambda_query(query) %> );
+<%
+  elsif query.multiplicity == :one
+-%>
+    return getRepository().getByQuery( <%= query_component_result_type(query) %>.class, e -> <%= lambda_query(query) %> );
+<%
+  elsif query.multiplicity == :many
+-%>
+    return getRepository().findAllByQuery( <%= query_component_result_type(query) %>.class, e -> <%= lambda_query(query) %> );
+<%
+  end
+-%>
+  }
+<% end -%>
+
+  @javax.annotation.Nonnull
+  protected abstract org.realityforge.replicant.client.EntityRepository getRepository();
+}

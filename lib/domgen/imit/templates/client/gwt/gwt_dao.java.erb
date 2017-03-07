@@ -1,0 +1,24 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(dao.imit.qualified_gwt_dao_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public class <%= dao.imit.gwt_dao_name %>
+  extends <%= dao.imit.qualified_dao_name %>
+{
+  @javax.annotation.Nonnull
+  private final org.realityforge.replicant.client.EntityRepository _repository;
+
+  @javax.inject.Inject
+  public <%= dao.imit.gwt_dao_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository )
+  {
+    assert null != repository;
+    _repository = repository;
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.client.EntityRepository getRepository()
+  {
+    return _repository;
+  }
+}

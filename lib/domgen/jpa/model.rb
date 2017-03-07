@@ -808,6 +808,8 @@ FRAGMENT
           if entity.sync? && entity.sync.transaction_time?
             query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}UndeletedBy#{a.name}"
             entity.query(query_name, 'jpa.jpql' => "O.#{a.jpa.field_name} = :#{a.name} AND O.deletedAt IS NULL", 'jpa.standard_query' => true) unless entity.query_by_name?(query_name)
+            query = entity.dao.query_by_name(query_name)
+            query.disable_facet(:imit) if query.imit?
           else
             query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}By#{a.name}"
             entity.query(query_name) unless entity.query_by_name?(query_name)
@@ -886,6 +888,9 @@ FRAGMENT
               query.standard_query = true
             end
           end
+        end
+        entity.queries.select { |query| query.jpa? && query.jpa.ignore_default_criteria? }.each do |query|
+          query.disable_facet(:imit) if query.imit?
         end
       end
     end
