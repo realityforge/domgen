@@ -551,6 +551,15 @@ module Domgen
       @struct
     end
 
+    # Return true if this is a "standard" query. A standard query is one that uses the rails conventions
+    # for naming finders and thus the query implementation can be generated.
+    # TODO: Currently the derivation of standard_query is done in jpa but it should be moved to this model!
+    def standard_query?
+      @standard_query.nil? ? false : !!@standard_query
+    end
+
+    attr_accessor :standard_query
+
     protected
 
     def local_name(base_name)

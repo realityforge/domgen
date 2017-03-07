@@ -803,7 +803,7 @@ FRAGMENT
       end
 
       def pre_verify
-        entity.query(:FindAll, 'jpa.standard_query' => true, 'jpa.jpql' => self.default_jpql_criterion)
+        entity.query(:FindAll, :standard_query => true, 'jpa.jpql' => self.default_jpql_criterion)
         entity.query("FindBy#{entity.primary_key.name}")
         entity.query("GetBy#{entity.primary_key.name}")
         if self.default_jpql_criterion
@@ -888,7 +888,11 @@ FRAGMENT
               jpql = "(#{jpql}) AND (#{self.default_jpql_criterion})"
             end
             query.jpa.jpql = jpql
-            query.jpa.standard_query = true
+            if query.jpa.ignore_default_criteria?
+              query.jpa.standard_query = true
+            else
+              query.standard_query = true
+            end
           end
         end
       end
@@ -1120,7 +1124,7 @@ FRAGMENT
       attr_accessor :order_by
 
       def standard_query?
-        @standard_query.nil? ? false : !!@standard_query
+        @standard_query.nil? ? query.standard_query? : !!@standard_query
       end
 
       attr_accessor :standard_query
