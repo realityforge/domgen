@@ -654,14 +654,6 @@ FRAGMENT
         "#{server_util_test_package}.#{test_factory_name}"
       end
 
-      def server_dao_entity_package
-        "#{server_entity_package}.dao"
-      end
-
-      def server_internal_dao_entity_package
-        "#{server_entity_package}.dao.internal"
-      end
-
       attr_writer :default_jpql_criterion
 
       def default_jpql_criterion
