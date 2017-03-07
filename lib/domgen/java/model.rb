@@ -412,11 +412,11 @@ module Domgen
           scopes.each do |scope|
             java_package :data_type, :scope => scope
             java_package :entity, :scope => scope
-            java_package :service, :scope => scope, :sub_packages => ['internal']
-            java_package :rest, :scope => scope, :sub_packages => ['internal']
-            java_package :filter, :scope => scope, :sub_packages => ['internal']
-            java_package :servlet, :scope => scope, :sub_packages => ['internal']
-            java_package :test, :scope => scope, :sub_packages => ['util']
+            java_package :service, :scope => scope, :sub_packages => %w(internal)
+            java_package :rest, :scope => scope, :sub_packages => %w(internal)
+            java_package :filter, :scope => scope, :sub_packages => %w(internal)
+            java_package :servlet, :scope => scope, :sub_packages => %w(internal)
+            java_package :test, :scope => scope, :sub_packages => %w(util)
           end
         end
       end
