@@ -20,6 +20,12 @@ public abstract class <%= repository.imit.abstract_gwt_client_test_name %>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
 
+  @java.lang.SuppressWarnings( { "unchecked", "UnusedParameters" } )
+  protected final <T> java.lang.Class<<%= repository.gwt.qualified_async_callback_name %><T>> asyncResultType( @javax.annotation.Nonnull final java.lang.Class<T> type )
+  {
+    return (Class) <%= repository.gwt.qualified_async_callback_name %>.class;
+  }
+
   @javax.annotation.Nullable
   protected com.google.inject.Module newReplicantGwtClientTestModule()
   {
