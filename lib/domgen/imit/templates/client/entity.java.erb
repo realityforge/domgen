@@ -85,7 +85,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
   }
 <% end -%>
 <% if attribute.attribute_type == :remote_reference -%>
-  protected final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
+  public final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
   {
     return _<%= Reality::Naming.camelize(attribute.referencing_link_name) %>;
   }
