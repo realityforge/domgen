@@ -1213,9 +1213,6 @@ module Domgen
         disable = true if query.result_entity? && !query.entity.imit?
         disable = true unless query.query_type == :select
         disable = true if query.parameters.size != query.parameters.select { |p| p.imit? }.size
-        if disable
-          puts "Disabling #{query.qualified_name}"
-        end
         query.disable_facet(:imit) if query.imit? && disable
       end
 
