@@ -1352,6 +1352,10 @@ module Domgen
 
       java_artifact :name, :entity, :client, :imit, '#{entity.name}'
 
+      def interfaces
+        @interfaces ||= []
+      end
+
       def replication_root?
         entity.data_module.repository.imit.graphs.any? { |g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s }
       end
