@@ -23,7 +23,12 @@ module Domgen
       def process_parameter(entity, parameter_name, javaql, prefix)
         if entity.attribute_by_name?(parameter_name)
           a = entity.attribute_by_name(parameter_name)
-          return "#{prefix} java.util.Objects.equals( e.#{query_getter(a)}, #{parameter_name} ) #{javaql}"
+          value = parameter_name
+          if a.remote_reference?
+            value = "#{value}.#{getter_for(a.referenced_remote_entity.primary_key)}"
+            value = " null == #{parameter_name} ? null : #{value}" if a.nullable?
+          end
+          return "#{prefix} java.util.Objects.equals( e.#{query_getter(a)}, #{value} ) #{javaql}"
         else
           # Handle parameters that are the primary keys of related entities
           entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
