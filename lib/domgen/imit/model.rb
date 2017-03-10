@@ -1193,7 +1193,7 @@ module Domgen
       end
 
       def pre_complete
-        dao.disable_facet(:imit) if dao.repository? && !dao.entity.imit?
+        dao.disable_facet(:imit) if !dao.repository? || !dao.entity.imit?
       end
 
       def post_complete
