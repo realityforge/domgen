@@ -1038,7 +1038,7 @@ FRAGMENT
     end
 
     facet.enhance(Query) do
-      def post_verify
+      def perform_verify
         query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
 
         expected_parameters = query_parameters.uniq
@@ -1050,7 +1050,8 @@ FRAGMENT
               characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
               characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
                 characteristic_options[:referenced_remote_entity] = attribute.referenced_remote_entity if attribute.remote_reference?
-              query.parameter(attribute.name, attribute.attribute_type, characteristic_options)
+              p = query.parameter(attribute.name, attribute.attribute_type, characteristic_options)
+              p.disable_facets_not_in(attribute.enabled_facets)
             else
               # Handle parameters that are the primary keys of related entities
               query.entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
@@ -1059,8 +1060,8 @@ FRAGMENT
                 characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
                 characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
                 characteristic_options[:referenced_remote_entity] = attribute.referenced_remote_entity if attribute.remote_reference?
-                a.referenced_entity.primary_key
-                query.parameter(parameter_name, attribute.attribute_type, characteristic_options)
+                p = query.parameter(parameter_name, attribute.attribute_type, characteristic_options)
+                p.disable_facets_not_in(attribute.enabled_facets)
               end
             end
           end

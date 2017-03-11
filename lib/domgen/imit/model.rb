@@ -1227,6 +1227,10 @@ module Domgen
       def perform_verify
         disable_facet_unless_valid
       end
+
+      def post_verify
+        disable_facet_unless_valid
+      end
     end
 
     facet.enhance(QueryParameter) do
