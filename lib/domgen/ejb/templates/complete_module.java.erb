@@ -41,6 +41,7 @@ public class <%= repository.ejb.complete_module_name %>
   protected void configure()
   {
 <% if repository.jpa? -%>
+    install( new <%= repository.jpa.qualified_test_factory_module_name %>() );
 <% if repository.jpa.include_default_unit? -%>
     install( new <%= repository.jpa.qualified_persistent_test_module_name %>( _databasePrefix, _additionalProperties ) );
 <% end -%>
