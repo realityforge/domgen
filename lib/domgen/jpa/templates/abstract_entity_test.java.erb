@@ -6,15 +6,10 @@ package <%= to_package(repository.jpa.qualified_abstract_entity_test_name) %>;
 public abstract class <%= repository.jpa.abstract_entity_test_name %>
   extends org.realityforge.guiceyloops.server.AbstractServerTest
 {
-<% repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module| -%>
+<% repository.jpa.test_factories.each do |short_code, classname| -%>
   @javax.annotation.Nonnull
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
-  protected <%= data_module.jpa.qualified_test_factory_name %> <%= data_module.jpa.short_test_code %>;
-<% end -%>
-<% if repository.appconfig? -%>
-  @javax.annotation.Nonnull
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
-  protected iris.appconfig.server.test.util.AppConfigFactory <%= repository.appconfig.short_test_code %>;
+  protected <%= classname %> <%= short_code %>;
 <% end -%>
 <% if repository.syncrecord? -%>
   @javax.annotation.Nonnull
@@ -32,17 +27,14 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     throws Exception
   {
     super.preTest();
-<% repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module| -%>
-    <%= data_module.jpa.short_test_code %> = s( <%= data_module.jpa.qualified_test_factory_name %>.class );
+<% repository.jpa.test_factories.each do |short_code, classname| -%>
+    <%= short_code %> = s( <%= classname %>.class );
 <% end -%>
 <%
   # TODO - there should be a better way of doing this. Perhaps Runnables/Actions that are added by facets?
   if repository.imit?
 -%>
     s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( "ReplicationActive", "Test" );
-<% end -%>
-<% if repository.appconfig? -%>
-    <%= repository.appconfig.short_test_code %> = new iris.appconfig.server.test.util.AppConfigFactorySet( getInjector() ).appConfig();
 <% end -%>
 <% if repository.syncrecord? -%>
     <%= repository.syncrecord.short_test_code %> = new iris.syncrecord.server.test.util.SyncRecordFactorySet( getInjector() ).syncRecord();

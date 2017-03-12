@@ -368,6 +368,15 @@ module Domgen
 
       attr_writer :custom_base_entity_test
 
+      def test_factories
+        test_factory_map.dup
+      end
+
+      def add_test_factory(short_code, classname)
+        raise "Attempting to add a test factory '#{classname}' with short_code #{short_code} but one already exists. ('#{test_factory_map[short_code.to_s]}')" if test_factory_map[short_code.to_s]
+        test_factory_map[short_code.to_s] = classname
+      end
+
       def custom_base_entity_test?
         @custom_base_entity_test.nil? ? false : !!@custom_base_entity_test
       end
@@ -617,7 +626,17 @@ FRAGMENT
         end
       end
 
+      def post_verify
+        repository.data_modules.select { |data_module| data_module.jpa? }.each do |data_module|
+          add_test_factory(data_module.jpa.short_test_code, data_module.jpa.qualified_test_factory_name)
+        end
+      end
+
       protected
+
+      def test_factory_map
+        @test_factory_map ||= {}
+      end
 
       def safe_default_persistence_unit
         @default_persistence_unit ||= Domgen::JPA::PersistenceUnitDescriptor.new(self, :test_mode => :default)

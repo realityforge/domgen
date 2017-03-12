@@ -754,6 +754,15 @@ module Domgen
         @context_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/#{Reality::Naming.underscore(repository.name)}/ContextService"
       end
 
+      def test_factories
+        test_factory_map.dup
+      end
+
+      def add_test_factory(short_code, classname)
+        raise "Attempting to add a test factory '#{classname}' with short_code #{short_code} but one already exists. ('#{test_factory_map[short_code.to_s]}')" if test_factory_map[short_code.to_s]
+        test_factory_map[short_code.to_s] = classname
+      end
+
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
@@ -1121,6 +1130,18 @@ module Domgen
           end
         end
         repository.imit.graphs.each { |g| g.post_verify }
+      end
+
+      def post_verify
+        repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+          add_test_factory(data_module.imit.short_test_code, data_module.imit.qualified_test_factory_name)
+        end
+      end
+
+      protected
+
+      def test_factory_map
+        @test_factory_map ||= {}
       end
 
       private
