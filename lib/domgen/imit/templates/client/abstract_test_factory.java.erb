@@ -5,24 +5,17 @@ package <%= to_package(data_module.imit.qualified_abstract_test_factory_name) %>
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public abstract class <%= data_module.imit.abstract_test_factory_name %>
 {
-  private final <%= data_module.repository.imit.qualified_test_factory_set_name %> _factorySet;
   private final com.google.inject.Injector _injector;
 
-  protected <%= data_module.imit.abstract_test_factory_name %>( @javax.annotation.Nonnull final <%= data_module.repository.imit.qualified_test_factory_set_name %> factorySet, @javax.annotation.Nonnull final com.google.inject.Injector injector )
+  protected <%= data_module.imit.abstract_test_factory_name %>( @javax.annotation.Nonnull final com.google.inject.Injector injector )
   {
-    _factorySet = factorySet;
     _injector = injector;
-  }
-
-  protected final <%= data_module.repository.imit.qualified_test_factory_set_name %> getFactorySet()
-  {
-    return _factorySet;
   }
 
 <% data_module.repository.data_modules.select{|dm|dm.imit? && dm.name != data_module.name}.each do |dm| -%>
   protected final <%= dm.imit.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
   {
-    return getFactorySet().<%= Reality::Naming.camelize(dm.name) %>();
+    return s( <%= dm.imit.qualified_test_factory_name %>.class );
   }
 
 <% end -%>

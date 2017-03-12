@@ -1,0 +1,16 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_test_factory_module_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.imit.test_factory_module_name %>
+  extends com.google.inject.AbstractModule
+{
+  @java.lang.Override
+  protected void configure()
+  {
+<% repository.data_modules.select{|data_module| data_module.imit?}.each do |data_module| -%>
+    bind( <%= data_module.imit.qualified_test_factory_name %>.class ).in( javax.inject.Singleton.class );
+<% end -%>
+  }
+}

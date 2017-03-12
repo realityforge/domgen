@@ -5,12 +5,10 @@ package <%= to_package(data_module.jpa.qualified_abstract_test_factory_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 {
-  private final <%= data_module.repository.jpa.qualified_test_factory_set_name %> _factorySet;
   private final com.google.inject.Injector _injector;
 
-  protected <%= data_module.jpa.abstract_test_factory_name %>( @javax.annotation.Nonnull final <%= data_module.repository.jpa.qualified_test_factory_set_name %> factorySet, @javax.annotation.Nonnull final com.google.inject.Injector injector )
+  protected <%= data_module.jpa.abstract_test_factory_name %>( @javax.annotation.Nonnull final com.google.inject.Injector injector )
   {
-    _factorySet = factorySet;
     _injector = injector;
   }
 <% if data_module.repository.jpa.include_default_unit? -%>
@@ -22,15 +20,11 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 <% end -%>
 
-  protected final <%= data_module.repository.jpa.qualified_test_factory_set_name %> getFactorySet()
-  {
-    return _factorySet;
-  }
 <% data_module.repository.data_modules.select{|dm|dm.jpa? && dm.name != data_module.name}.each do |dm| -%>
 
   protected final <%= dm.jpa.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
   {
-    return getFactorySet().<%= Reality::Naming.camelize(dm.name) %>();
+    return s( <%= dm.jpa.qualified_test_factory_name %>.class );
   }
 
 <% end -%>

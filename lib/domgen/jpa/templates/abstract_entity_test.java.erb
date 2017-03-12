@@ -32,9 +32,8 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     throws Exception
   {
     super.preTest();
-    final <%= repository.jpa.qualified_test_factory_set_name %> factorySet = new <%= repository.jpa.qualified_test_factory_set_name %>( getInjector() );
 <% repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module| -%>
-    <%= data_module.jpa.short_test_code %> = factorySet.<%= Reality::Naming.camelize(data_module.name) %>();
+    <%= data_module.jpa.short_test_code %> = s( <%= data_module.jpa.qualified_test_factory_name %>.class );
 <% end -%>
 <%
   # TODO - there should be a better way of doing this. Perhaps Runnables/Actions that are added by facets?
@@ -62,6 +61,12 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% end -%>
 
   @javax.annotation.Nullable
+  protected com.google.inject.Module new<%= repository.name %>FactorySetModule()
+  {
+    return new <%= repository.jpa.test_factory_module_name %>();
+  }
+
+  @javax.annotation.Nullable
   protected com.google.inject.Module new<%= repository.name %>DaoModule()
   {
     return new <%= repository.jpa.qualified_dao_module_name %>();
@@ -75,6 +80,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% repository.jpa.extra_test_modules.each do |test_module| %>
     modules.add( new <%= test_module %>() );
 <% end -%>
+    addModule( modules, new<%= repository.name %>FactorySetModule() );
     addModule( modules, new<%= repository.name %>DaoModule() );
 <% if repository.jpa.include_default_unit? -%>
     addModule( modules, new<%= repository.name %>PersistentTestModule() );

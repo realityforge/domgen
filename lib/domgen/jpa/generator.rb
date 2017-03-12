@@ -54,8 +54,8 @@ Domgen::Generator.define([:jpa],
                                 'dao_module.java.erb',
                                 type + '/java/#{repository.jpa.qualified_dao_module_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
-                                'test_factory_set.java.erb',
-                                type + '/java/#{repository.jpa.qualified_test_factory_set_name.gsub(".","/")}.java')
+                                'test_factory_module.java.erb',
+                                type + '/java/#{repository.jpa.qualified_test_factory_module_name.gsub(".","/")}.java')
       template_set.erb_template(:data_module,
                                 'abstract_test_factory.java.erb',
                                 type + '/java/#{data_module.jpa.qualified_abstract_test_factory_name.gsub(".","/")}.java')

@@ -141,8 +141,8 @@ Domgen::Generator.define([:imit],
                                 'client/abstract_test_factory.java.erb',
                                 type + '/java/#{data_module.imit.qualified_abstract_test_factory_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
-                                'client/test_factory_set.java.erb',
-                                type + '/java/#{repository.imit.qualified_test_factory_set_name.gsub(".","/")}.java')
+                                'client/test_factory_module.java.erb',
+                                type + '/java/#{repository.imit.qualified_test_factory_module_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
                                 'client/abstract_client_test.java.erb',
                                 type + '/java/#{repository.imit.qualified_abstract_client_test_name.gsub(".","/")}.java')
