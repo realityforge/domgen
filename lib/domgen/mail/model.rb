@@ -59,7 +59,11 @@ module Domgen
 
       def pre_complete
         repository.timerstatus.additional_timers << 'Mail.MailQueueService.TransmitQueuedMail' if repository.timerstatus?
-        repository.jpa.application_artifact_fragments << "iris.mail#{repository.pgsql? ? '.pg': ''}:mail-server" if repository.jpa?
+
+        if repository.jpa?
+          repository.jpa.application_artifact_fragments << "iris.mail#{repository.pgsql? ? '.pg' : ''}:mail-server"
+          repository.jpa.add_test_factory(short_test_code, 'iris.mail.server.test.util.MailFactory')
+        end
       end
     end
   end

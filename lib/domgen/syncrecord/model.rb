@@ -98,7 +98,10 @@ module Domgen
           end
         end
 
-        repository.jpa.application_artifact_fragments << "iris.syncrecord#{repository.pgsql? ? '.pg': ''}:sync-record-server" if repository.jpa?
+        if repository.jpa?
+          repository.jpa.application_artifact_fragments << "iris.syncrecord#{repository.pgsql? ? '.pg': ''}:sync-record-server"
+          repository.jpa.add_test_factory(short_test_code, 'iris.syncrecord.server.test.util.SyncRecordFactory')
+        end
       end
 
       protected
