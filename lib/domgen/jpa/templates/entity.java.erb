@@ -323,7 +323,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   @javax.annotation.Nonnull
   private org.realityforge.replicant.client.EntitySystem getEntitySystem()
   {
-    if( null != _$entitySystem )
+    if( null == _$entitySystem )
     {
       final javax.enterprise.inject.spi.BeanManager beanManager = javax.enterprise.inject.spi.CDI.current().getBeanManager();
       final javax.enterprise.inject.spi.Bean<org.realityforge.replicant.client.EntitySystem> bean = (javax.enterprise.inject.spi.Bean<org.realityforge.replicant.client.EntitySystem>) beanManager.getBeans( org.realityforge.replicant.client.EntitySystem.class ).iterator().next();
