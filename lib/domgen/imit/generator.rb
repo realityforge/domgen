@@ -173,6 +173,9 @@ Domgen::Generator.define([:imit],
 
     g.template_set(:"imit_client_#{type}_gwt_qa_external") do |template_set|
       template_set.erb_template(:repository,
+                                'client/gwt/gwt_complete_module.java.erb',
+                                type + '/java/#{repository.imit.qualified_gwt_complete_module_name.gsub(".","/")}.java')
+      template_set.erb_template(:repository,
                                 'client/gwt/abstract_gwt_client_test.java.erb',
                                 type + '/java/#{repository.imit.qualified_abstract_gwt_client_test_name.gsub(".","/")}.java',
                                 :additional_facets => [:gwt_rpc])
@@ -188,6 +191,12 @@ Domgen::Generator.define([:imit],
                                 'client/callback_failure_answer.java.erb',
                                 type + '/java/#{repository.imit.qualified_callback_failure_answer_name.gsub(".","/")}.java',
                                 :additional_facets => [:gwt_rpc])
+    end
+
+    g.template_set(:"imit_client_#{type}_ee_qa_external") do |template_set|
+      template_set.erb_template(:repository,
+                                'client/ee/ee_complete_module.java.erb',
+                                type + '/java/#{repository.imit.qualified_ee_complete_module_name.gsub(".","/")}.java')
     end
   end
 end
