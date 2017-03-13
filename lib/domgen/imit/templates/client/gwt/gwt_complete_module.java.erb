@@ -12,8 +12,6 @@ public class <%= repository.imit.gwt_complete_module_name %>
 <% if repository.gwt_rpc? -%>
     install( new <%= repository.gwt_rpc.qualified_mock_services_module_name %>() );
 <% end -%>
-    install( new <%= repository.imit.qualified_dao_test_module_name %>() );
-    install( new <%= repository.imit.qualified_test_factory_module_name %>() );
     install( new <%= repository.imit.qualified_mock_services_module_name %>() );
   }
 }

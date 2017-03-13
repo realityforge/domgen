@@ -137,6 +137,9 @@ Domgen::Generator.define([:imit],
                                 'main/java/#{repository.imit.qualified_integration_module_name.gsub(".","/")}.java')
     end
     g.template_set(:"imit_client_#{type}_qa_external") do |template_set|
+      template_set.erb_template(:repository,
+                                'client/entity_complete_module.java.erb',
+                                type + '/java/#{repository.imit.qualified_entity_complete_module_name.gsub(".","/")}.java')
       template_set.erb_template(:data_module,
                                 'client/abstract_test_factory.java.erb',
                                 type + '/java/#{data_module.imit.qualified_abstract_test_factory_name.gsub(".","/")}.java')

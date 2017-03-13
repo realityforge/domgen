@@ -1,0 +1,15 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_entity_complete_module_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.imit.entity_complete_module_name %>
+  extends com.google.inject.AbstractModule
+{
+  @Override
+  protected void configure()
+  {
+    install( new <%= repository.imit.qualified_dao_test_module_name %>() );
+    install( new <%= repository.imit.qualified_test_factory_module_name %>() );
+  }
+}

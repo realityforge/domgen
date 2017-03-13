@@ -579,6 +579,7 @@ module Domgen
       end
 
       java_artifact :dao_module, :ioc, :client, :imit, '#{repository.name}ReplicantRepositoryModule'
+      java_artifact :entity_complete_module, :test, :client, :imit, '#{repository.name}EntityModule', :sub_package => 'util'
       java_artifact :ee_complete_module, :test, :client, :imit, '#{repository.name}EeModule', :sub_package => 'util'
       java_artifact :gwt_complete_module, :test, :client, :imit, '#{repository.name}GwtModule', :sub_package => 'util'
       java_artifact :aggregate_dao_test, :test, :client, :imit, '#{repository.name}AggregateDAOTest', :sub_package => 'util'
