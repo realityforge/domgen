@@ -148,6 +148,7 @@ module Domgen
     end
 
     facet.enhance(DataModule) do
+      include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::ClientServerJavaPackage
 
       attr_writer :client_data_type_package
@@ -160,6 +161,25 @@ module Domgen
 
       def client_event_package
         @client_event_package || resolve_package(:client_event_package)
+      end
+
+      def generate_struct_factory?
+        data_module.structs.select{|s|s.gwt? && s.gwt.generate_overlay?}.size > 0
+      end
+
+      attr_writer :short_test_code
+
+      def short_test_code
+        @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
+      end
+
+      java_artifact :struct_test_factory, :test, :client, :gwt, '#{data_module.name}StructFactory', :sub_package => 'util'
+      java_artifact :abstract_struct_test_factory, :test, :client, :gwt, 'Abstract#{data_module.name}StructFactory', :sub_package => 'util'
+
+      def pre_complete
+        if data_module.repository.imit?
+          data_module.repository.imit.add_gwt_test_factory("#{short_test_code}s", qualified_struct_test_factory_name)
+        end
       end
 
       protected

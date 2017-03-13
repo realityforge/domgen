@@ -44,6 +44,15 @@ Domgen::Generator.define([:gwt],
                               :guard => 'struct.gwt.generate_overlay?')
   end
 
+  %w(main test).each do |type|
+    g.template_set(:"gwt_client_#{type}_jso_qa_support") do |template_set|
+      template_set.erb_template(:data_module,
+                                'abstract_struct_test_factory.java.erb',
+                                'main/java/#{data_module.gwt.qualified_abstract_struct_test_factory_name.gsub(".","/")}.java',
+                                :guard => 'data_module.gwt.generate_struct_factory?')
+    end
+  end
+
   g.template_set(:gwt_client_callback) do |template_set|
     template_set.erb_template(:repository,
                               'async_callback.java.erb',

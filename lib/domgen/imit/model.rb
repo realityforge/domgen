@@ -765,6 +765,15 @@ module Domgen
         test_factory_map[short_code.to_s] = classname
       end
 
+      def gwt_test_factories
+        gwt_test_factory_map.dup
+      end
+
+      def add_gwt_test_factory(short_code, classname)
+        raise "Attempting to add a gwt test factory '#{classname}' with short_code #{short_code} but one already exists. ('#{test_factory_map[short_code.to_s]}')" if gwt_test_factory_map[short_code.to_s]
+        gwt_test_factory_map[short_code.to_s] = classname
+      end
+
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
@@ -1141,6 +1150,10 @@ module Domgen
       end
 
       protected
+
+      def gwt_test_factory_map
+        @gwt_test_factory_map ||= {}
+      end
 
       def test_factory_map
         @test_factory_map ||= {}

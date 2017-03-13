@@ -6,6 +6,22 @@ package <%= to_package(repository.imit.qualified_abstract_gwt_client_test_name) 
 public abstract class <%= repository.imit.abstract_gwt_client_test_name %>
   extends <%= repository.imit.qualified_client_test_name %>
 {
+<% repository.imit.gwt_test_factories.each do |short_code, classname| -%>
+  @javax.annotation.Nonnull
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
+  protected <%= classname %> <%= short_code %>;
+<% end -%>
+
+  @org.testng.annotations.BeforeMethod
+  public void preTest()
+    throws Exception
+  {
+    super.preTest();
+<% repository.imit.gwt_test_factories.each do |short_code, classname| -%>
+    <%= short_code %> = s( <%= classname %>.class );
+<% end -%>
+  }
+
   @java.lang.Override
   protected com.google.inject.Module[] getModules()
   {
