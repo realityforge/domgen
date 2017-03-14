@@ -341,6 +341,17 @@ JAVA
   }
 
 JAVA
+        if attribute.remote_reference?
+        java << <<JAVA
+
+  public #{attribute.nullable? ? attribute.referenced_remote_entity.primary_key.jpa.non_primitive_java_type : attribute.referenced_remote_entity.primary_key.jpa.java_type} get#{attribute.jpa.name(:transport)}()
+  {
+    #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
+    return #{attribute.jpa.field_name(:transport)};
+  }
+JAVA
+
+        end
         if attribute.updatable?
           java << <<JAVA
   public void set#{name}( final #{type} value )
