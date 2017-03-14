@@ -60,7 +60,26 @@ module Domgen
         disable_deployment_facets unless code_deployable
       end
 
+      def remote_references_included?
+        @remote_refs.nil? ? any_remote_refs? : @remote_refs
+      end
+
+      def post_complete
+        @remote_refs = any_remote_refs?
+      end
+
       private
+
+      def any_remote_refs?
+        repository.data_modules.each do |data_module|
+          data_module.entities.each do |entity|
+            entity.attributes.each do |attribute|
+              return true if attribute.remote_reference?
+            end
+          end
+        end
+        false
+      end
 
       def disable_deployment_facets
         repository.disable_facet(:robots) if repository.robots?

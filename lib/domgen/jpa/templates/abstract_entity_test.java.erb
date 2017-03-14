@@ -1,5 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.jpa.qualified_abstract_entity_test_name) %>;
+<% remote_refs = repository.application.remote_references_included? -%>
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
@@ -17,6 +18,9 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     throws Exception
   {
     super.preTest();
+<% if remote_refs -%>
+    org.realityforge.replicant.client.test.ee.ReplicantEntityCustomizer.configure( em(), s( org.realityforge.replicant.client.EntitySystem.class ) );
+<% end -%>
 <% repository.jpa.test_factories.each do |short_code, classname| -%>
     <%= short_code %> = s( <%= classname %>.class );
 <% end -%>
@@ -77,6 +81,9 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     addModule( modules, newMailPersistenceEntityModule() );
     addModule( modules, newMailRepositoryModule() );
 <% end -%>
+<% if remote_refs -%>
+    addModule( modules, newReplicantClientTestModule() );
+<% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
 <% repository.jpa.standalone_persistence_units.select{|unit| unit.mock_test_mode?}.each do |unit| -%>
@@ -93,6 +100,14 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   protected com.google.inject.Module new<%= unit.unit_name %>PersistenceModule()
   {
     return new <%= unit.qualified_raw_test_module_name %>();
+  }
+<% end -%>
+<% if remote_refs -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newReplicantClientTestModule()
+  {
+    return new org.realityforge.replicant.client.test.ReplicantClientTestModule();
   }
 <% end -%>
 <% if repository.appconfig? -%>
