@@ -714,6 +714,10 @@ FRAGMENT
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
+      def interfaces
+        @interfaces ||= []
+      end
+
       def track_changes?
         @track_changes.nil? ? entity.imit? && entity.attributes.any? { |a| !a.immutable? } : !!@track_changes
       end
