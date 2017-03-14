@@ -2,7 +2,7 @@
 package <%= to_package(entity.jpa.qualified_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EI_EXPOSE_REP", "EI_EXPOSE_REP2", "BC_VACUOUS_INSTANCEOF" } )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField" } )
 <%
    jpa_queries = entity.queries.select {|q| q.jpa? && !q.jpa.native? }
@@ -73,17 +73,17 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
-<% if entity.declared_attributes.any? { |a| a.remote_reference? } -%>
-  @javax.persistence.Transient
-  private org.realityforge.replicant.client.EntitySystem _$entitySystem;
-<% end -%>
   private static final long serialVersionUID = 1;
 
+<% if entity.declared_attributes.any? { |a| a.remote_reference? } -%>
+  @javax.persistence.Transient
+  private transient org.realityforge.replicant.client.EntitySystem _$entitySystem;
+<% end -%>
 <% unless entity.extends -%>
   @javax.persistence.Transient
-  private boolean _loaded;
+  private transient boolean _loaded;
   @javax.persistence.Transient
-  private boolean _removed;
+  private transient boolean _removed;
 <% end -%>
 <% entity.queries.select{|q| q.jpa?}.each do |query| %>  public static final String <%= Reality::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <%
@@ -95,15 +95,15 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <%= j_jpa_field_attributes(attribute) -%>  private <%= type %> <%= field_name %>;
 <% if !attribute.immutable? && entity.jpa.track_changes? -%>
   @javax.persistence.Transient
-  private <%= type %> <%= field_name %>Original;
+  private transient <%= type %> <%= field_name %>Original;
 <% if attribute.jpa.fetch_type == :lazy -%>
   @javax.persistence.Transient
-  private boolean <%= field_name %>Recorded;
+  private transient boolean <%= field_name %>Recorded;
 <% end -%>
 <% end -%>
 <% if attribute.remote_reference? -%>
   @javax.persistence.Transient
-  private <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>;
+  private transient <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>;
 <% end -%>
 <% end %>
 <% entity.referencing_attributes.
