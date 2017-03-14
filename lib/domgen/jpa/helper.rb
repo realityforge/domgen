@@ -330,7 +330,7 @@ JAVA
     {
       #{attribute.jpa.field_name} = null;
     }
-    if ( null != #{attribute.jpa.field_name} )
+    if ( null == #{attribute.jpa.field_name} #{attribute.nullable? ? "&& null != #{attribute.jpa.field_name(:transport)} " : ''})
     {
       #{attribute.jpa.field_name} = getEntitySystem().getRepository().getByID( #{attribute.jpa.java_type}.class, #{attribute.jpa.field_name(:transport)} );
     }
