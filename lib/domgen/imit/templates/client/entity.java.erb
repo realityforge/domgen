@@ -112,7 +112,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
          raw_value
        end
   %>
-    if( java.util.Objects.equals( value, <%= attribute.nullable? ? "(null == #{raw_value} ? null : #{raw_value})" : value %> ) )
+    if( null != <%= raw_value %> && java.util.Objects.equals( value, <%= attribute.nullable? ? "(null == #{raw_value} ? null : #{raw_value})" : value %> ) )
     {
       return;
     }
