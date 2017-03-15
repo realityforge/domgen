@@ -32,6 +32,7 @@ public class <%= repository.gwt.aggregate_module_name %>
       install( new org.realityforge.replicant.client.gwt.ReplicantGinModule() );
     }
     install( new <%= repository.imit.qualified_services_module_name %>() );
+    install( new <%= repository.imit.qualified_dao_module_name %>() );
 <% end -%>
   }
 }
