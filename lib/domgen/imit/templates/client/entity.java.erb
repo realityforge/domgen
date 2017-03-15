@@ -100,33 +100,24 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
     }
 <%
   else
-    value = "_#{Reality::Naming.camelize(attribute.imit.name)}"
-    check = if attribute.enumeration? && attribute.enumeration.numeric_values?
-         "#{value}.ordinal() == value"
+    raw_value =
+      (attribute.reference? || attribute.remote_reference?) ?
+      "_#{Reality::Naming.camelize(attribute.referencing_link_name)}" :
+      "_#{Reality::Naming.camelize(attribute.imit.name)}"
+    value = if attribute.enumeration? && attribute.enumeration.numeric_values?
+         "_#{Reality::Naming.camelize(attribute.imit.name)}.ordinal()"
        elsif attribute.enumeration? && attribute.enumeration.textual_values?
-         "#{value}.name().equals( value )"
-       elsif attribute.reference?
-         lhs = "#{value}.#{getter_prefix(attribute.referenced_entity.primary_key)}#{attribute.referenced_entity.primary_key.name}()"
-         attribute.referenced_entity.primary_key.imit.primitive?(:transport) ? "#{lhs} == value" : "#{lhs}.equals(value)"
-       elsif attribute.remote_reference?
-         lhs = "#{value}.#{getter_prefix(attribute.referenced_remote_entity.primary_key)}#{attribute.referenced_remote_entity.primary_key.name}()"
-         attribute.referenced_remote_entity.primary_key.imit.primitive?(:transport) ? "#{lhs} == value" : "#{lhs}.equals(value)"
+         "_#{Reality::Naming.camelize(attribute.imit.name)}.name()"
        else
-         "#{value}.equals( value )"
+         raw_value
        end
-    check = attribute.nullable? ?
-        "(null == value && null == #{value}) || (null != #{value} && null != value && #{check} )" :
-        "(null != #{value} && #{check} )"
-%>
-    if( <%= check %> )
+  %>
+    if( java.util.Objects.equals( value, <%= attribute.nullable? ? "(null == #{raw_value} ? null : #{raw_value})" : value %> ) )
     {
       return;
     }
 <% end %>
-<% if attribute.reference? -%>
-    _<%= Reality::Naming.camelize(attribute.imit.name) %> = null;
-    _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> = value;
-<% elsif attribute.remote_reference? -%>
+<% if attribute.reference? || attribute.remote_reference? -%>
     _<%= Reality::Naming.camelize(attribute.imit.name) %> = null;
     _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> = value;
 <% elsif attribute.enumeration? -%>
