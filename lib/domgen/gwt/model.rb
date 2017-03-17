@@ -177,7 +177,7 @@ module Domgen
       java_artifact :abstract_struct_test_factory, :test, :client, :gwt, 'Abstract#{data_module.name}StructFactory', :sub_package => 'util'
 
       def pre_complete
-        if data_module.repository.imit?
+        if data_module.repository.imit? && generate_struct_factory?
           data_module.repository.imit.add_gwt_test_factory("#{short_test_code}s", qualified_struct_test_factory_name)
         end
       end
