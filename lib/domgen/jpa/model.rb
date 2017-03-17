@@ -741,6 +741,7 @@ FRAGMENT
       end
 
       java_artifact :name, :entity, :server, :jpa, '#{entity.name}'
+      java_artifact :base_entity_extension, :entity, :server, :jpa, 'Base#{entity.name}Extension'
       java_artifact :metamodel, :entity, :server, :jpa, '#{name}_'
 
       attr_writer :cacheable

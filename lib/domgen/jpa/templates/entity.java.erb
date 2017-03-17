@@ -70,6 +70,12 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   '' -%>
 <%= (!entity.extends || entity.jpa.interfaces.size > 0) ? '  implements ' : '' -%><%= ((entity.extends ? [] : %w(java.io.Serializable)) + entity.jpa.interfaces).join(", ") %>
 {
+  public interface Extension
+  {
+    @javax.annotation.Nonnull
+    <%= entity.jpa.qualified_name %> self();
+  }
+
 <% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
