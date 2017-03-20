@@ -316,7 +316,7 @@ JAVA
   protected #{non_full_generated ? attribute.jpa.java_type : type} doGet#{name}()
   {
 JAVA
-        if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
+        if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute) && !attribute.remote_reference?
           java << <<JAVA
     if( null == #{field_name} )
     {
