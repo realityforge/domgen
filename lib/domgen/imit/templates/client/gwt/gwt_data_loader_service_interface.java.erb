@@ -3,7 +3,7 @@ package <%= to_package(repository.imit.qualified_gwt_data_loader_service_interfa
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= repository.imit.gwt_data_loader_service_interface_name %>
-  extends org.realityforge.replicant.client.transport.DataLoaderService
+  extends org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>>
 {
   @javax.annotation.Nullable
   <%= repository.imit.qualified_gwt_client_session_interface_name %> getSession();
