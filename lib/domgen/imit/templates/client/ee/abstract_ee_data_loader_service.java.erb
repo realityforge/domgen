@@ -15,12 +15,20 @@ public class <%= repository.imit.ee_data_loader_service_name %>
   private String _applicationURL;
   @Resource( lookup = "myapp" + EXECUTOR_SERVICE_JNDI_SUFFIX )
   private ManagedScheduledExecutorService _executorService;
+  @Resource( lookup = "myapp" + CONTEXT_SERVICE_JNDI_SUFFIX )
+  private ContextService _contextService;
 
   @Nonnull
   @Override
   protected String get<%= repository.name %>ApplicationURL()
   {
     return _applicationURL;
+  }
+
+  @Nonnull
+  protected ContextService getContextService()
+  {
+    return _contextService;
   }
 
   @Nonnull
@@ -46,6 +54,7 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
 {
   public static final String APPLICATION_URL_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/url";
   public static final String EXECUTOR_SERVICE_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/ManagedScheduledExecutorService";
+  public static final String CONTEXT_SERVICE_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/ContextService";
 
   private <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_api_interface_name %> _remoteSubscriptionService;
 
@@ -200,7 +209,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   @javax.annotation.Nonnull
   protected <%= repository.imit.qualified_ee_client_session_name %> createSession( @javax.annotation.Nonnull final String sessionID )
   {
-    return new <%= repository.imit.qualified_ee_client_session_name %>( this, sessionID );
+    return new <%= repository.imit.qualified_ee_client_session_name %>( getContextService().createContextualProxy( this, org.realityforge.replicant.client.transport.DataLoaderService.class ), sessionID );
   }
 
   protected <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_api_interface_name %> getRemoteSubscriptionService()
