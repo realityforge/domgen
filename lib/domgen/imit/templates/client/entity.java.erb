@@ -69,27 +69,38 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
 %>  <%= annotated_type(attribute, :imit, :default, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>()
   {
     <% if !attribute.primary_key? %>check<%= attribute.reference? || attribute.remote_reference? ? 'Linked' : 'Validity' %>();<% end %>
-<% if !attribute.primary_key? && !attribute.imit.primitive? && !attribute.nullable? %>
+<% if attribute.imit.lazy? -%>
+    link<%= attribute.imit.name %>();
+<% end -%>
+<% if !attribute.primary_key? && !attribute.imit.primitive? && !attribute.nullable? && !attribute.reference? && !attribute.remote_reference? -%>
     //TODO: This should be compiled out in non dev - perhaps via gwt-property-source
     if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> )
     {
       throw new IllegalStateException("Attempted to access nonnull <%= attribute.qualified_name %> before it has been assigned a value");
     }
-<% end %>
+<% end -%>
     return _<%= Reality::Naming.camelize(attribute.imit.name) %>;
   }
 <% if attribute.attribute_type == :reference %>
+
   protected final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
   {
     return _<%= Reality::Naming.camelize(attribute.referencing_link_name) %>;
   }
 <% end -%>
 <% if attribute.attribute_type == :remote_reference -%>
+
   public final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
   {
     return _<%= Reality::Naming.camelize(attribute.referencing_link_name) %>;
   }
+
+  public final boolean will<%= attribute.imit.name %>Link()
+  {
+    return <%= attribute.nullable? ? "null == _#{Reality::Naming.camelize(attribute.referencing_link_name)} ? null : " : '' %> null != _repository.findByID( <%= attribute.referenced_remote_entity.imit.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
+  }
 <% end -%>
+
   final void set<%= attribute.imit.name(:transport) %>( <%= annotated_type(attribute, :imit, :transport, :final => true) %> value )
   {
     checkValidity();
@@ -278,7 +289,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   protected void performLink()
   {
     <%= entity.extends.nil? ? "if( !_$linking ) throw new IllegalStateException( \"performLink invoked from outside link\" )" : 'super.performLink()' %>;
-<% linkable_attributes.each do |attribute| -%>
+<% linkable_attributes.select{|attribute| attribute.imit.eager? }.each do |attribute| -%>
     link<%= attribute.imit.name %>();
 <% end -%>
   }

@@ -1478,6 +1478,19 @@ module Domgen
         @client_side.nil? ? (!attribute.reference? || attribute.referenced_entity.imit?) : @client_side
       end
 
+      def eager?
+        !lazy?
+      end
+
+      def lazy=(lazy)
+        Domgen.error("Attempted to make non-reference #{attribute.qualified_name} lazy") if lazy && !(attribute.reference? || attribute.remote_reference?)
+        @lazy = lazy
+      end
+
+      def lazy?
+        (attribute.reference? || attribute.remote_reference?) && (@lazy.nil? ? false : @lazy)
+      end
+
       def filter_in_graphs=(filter_in_graphs)
         Domgen.error('filter_in_graphs should be an array of symbols') unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
         Domgen.error('filter_in_graphs should only contain valid graphs') unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
