@@ -94,11 +94,13 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
   {
     return _<%= Reality::Naming.camelize(attribute.referencing_link_name) %>;
   }
+<% if attribute.imit.lazy? -%>
 
   public final boolean will<%= attribute.imit.name %>Link()
   {
     return <%= attribute.nullable? ? "null == _#{Reality::Naming.camelize(attribute.referencing_link_name)} ? null : " : '' %> null != _repository.findByID( <%= attribute.referenced_remote_entity.imit.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
   }
+<% end -%>
 <% end -%>
 
   final void set<%= attribute.imit.name(:transport) %>( <%= annotated_type(attribute, :imit, :transport, :final => true) %> value )
