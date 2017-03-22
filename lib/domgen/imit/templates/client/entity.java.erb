@@ -98,7 +98,12 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
 
   public final boolean will<%= attribute.imit.name %>Link()
   {
-    return <%= attribute.nullable? ? "null == _#{Reality::Naming.camelize(attribute.referencing_link_name)} ? null : " : '' %> null != _repository.findByID( <%= attribute.referenced_remote_entity.imit.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
+    return <%= attribute.nullable? ? "null == _#{Reality::Naming.camelize(attribute.referencing_link_name)} ? true : " : '' %> null != _repository.findByID( <%= attribute.referenced_remote_entity.imit.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
+  }
+
+  public final boolean is<%= attribute.imit.name %>Linked()
+  {
+    return <%= attribute.nullable? ? "null == _#{Reality::Naming.camelize(attribute.referencing_link_name)} ? true : " : '' %> null != _<%= Reality::Naming.camelize(attribute.imit.name) %>;
   }
 <% end -%>
 <% end -%>
