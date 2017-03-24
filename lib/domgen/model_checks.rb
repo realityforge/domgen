@@ -122,7 +122,7 @@ module Domgen #nodoc
       end
 
       def check_no_suffix(type, element, suffix)
-        Domgen.error("#{type} '#{element.qualified_name}' does not follow naming convention and should have suffix '#{suffix}'") if element.name.to_s =~ /[a-z0-9_]#{suffix}$/
+        Domgen.error("#{type} '#{element.qualified_name}' does not follow naming convention and should not have suffix '#{suffix}'") if element.name.to_s =~ /[a-z0-9_]#{suffix}$/
       end
 
       def check_name(type, element)
