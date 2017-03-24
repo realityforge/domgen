@@ -19,7 +19,7 @@ public final class <%= repository.jms.test_module_name %>
 <% repository.jms.destinations.each do |destination| -%>
       bindResource( <%= destination.destination_type %>.class,
                     <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_RESOURCE_NAME,
-                    broker.createQueueReference( <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME ) );
+                    broker.create<%= destination.destination_type == :queue ? 'Queue' : 'Topic' %>Reference( <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME ) );
 <% end -%>
     }
     catch ( final Exception e )
