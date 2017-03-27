@@ -588,6 +588,7 @@ module Domgen
       java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
       java_artifact :ee_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}EeDataLoaderService', :sub_package => 'ee'
+      java_artifact :ee_data_loader_listener, :comm, :client, :imit, '#{repository.name}EeDataLoaderListener', :sub_package => 'ee'
       java_artifact :ee_data_loader_service, :comm, :client, :imit, '#{ee_data_loader_service_interface_name}Impl', :sub_package => 'ee'
       java_artifact :abstract_ee_data_loader_service, :comm, :client, :imit, 'Abstract#{ee_data_loader_service_name}', :sub_package => 'ee'
       java_artifact :ee_client_session_context, :comm, :client, :imit, '#{repository.name}EeSessionContext', :sub_package => 'ee'
@@ -597,6 +598,7 @@ module Domgen
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :gwt_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}GwtDataLoaderService'
       java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{gwt_data_loader_service_interface_name}Impl'
+      java_artifact :gwt_data_loader_listener, :comm, :client, :imit, '#{repository.name}GwtDataLoaderListener'
       java_artifact :gwt_client_session_interface, :comm, :client, :imit, '#{repository.name}GwtClientSession'
       java_artifact :gwt_client_session, :comm, :client, :imit, '#{gwt_client_session_interface_name}Impl'
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
@@ -796,9 +798,12 @@ module Domgen
           subscribe_started_message = graph.subscribe_started_message(true)
           subscribe_completed_message = graph.subscribe_completed_message(true)
           subscribe_failed_message = graph.subscribe_failed_message(true)
-          update_started_message = graph.update_started_message(true)
-          update_completed_message = graph.update_completed_message(true)
-          update_failed_message = graph.update_failed_message(true)
+
+          if !graph.filter_parameter.nil? && !graph.filter_parameter.immutable?
+            update_started_message = graph.update_started_message(true)
+            update_completed_message = graph.update_completed_message(true)
+            update_failed_message = graph.update_failed_message(true)
+          end
           unsubscribe_started_message = graph.unsubscribe_started_message(true)
           unsubscribe_completed_message = graph.unsubscribe_completed_message(true)
           unsubscribe_failed_message = graph.unsubscribe_failed_message(true)
@@ -810,16 +815,20 @@ module Domgen
             subscribe_started_message.parameter(:ID, attribute_type)
             subscribe_completed_message.parameter(root.name, root.imit.qualified_name)
             subscribe_failed_message.parameter(:ID, attribute_type)
-            update_started_message.parameter(root.name, root.imit.qualified_name)
-            update_completed_message.parameter(root.name, root.imit.qualified_name)
-            update_failed_message.parameter(root.name, root.imit.qualified_name)
+            if !graph.filter_parameter.nil? && !graph.filter_parameter.immutable?
+              update_started_message.parameter(root.name, root.imit.qualified_name)
+              update_completed_message.parameter(root.name, root.imit.qualified_name)
+              update_failed_message.parameter(root.name, root.imit.qualified_name)
+            end
             unsubscribe_started_message.parameter(:ID, attribute_type)
             unsubscribe_completed_message.parameter(:ID, attribute_type)
             unsubscribe_failed_message.parameter(:ID, attribute_type)
           end
 
           subscribe_failed_message.parameter(:Error, 'java.lang.Throwable')
-          update_failed_message.parameter(:Error, 'java.lang.Throwable')
+          if !graph.filter_parameter.nil? && !graph.filter_parameter.immutable?
+            update_failed_message.parameter(:Error, 'java.lang.Throwable')
+          end
           unsubscribe_failed_message.parameter(:Error, 'java.lang.Throwable')
         end
 

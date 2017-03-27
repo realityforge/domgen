@@ -69,6 +69,9 @@ Domgen::Generator.define([:imit],
                               'client/gwt/gwt_data_loader_service_interface.java.erb',
                               'main/java/#{repository.imit.qualified_gwt_data_loader_service_interface_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
+                              'client/gwt/gwt_data_loader_listener.java.erb',
+                              'main/java/#{repository.imit.qualified_gwt_data_loader_listener_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
                               'client/gwt/session_interface.java.erb',
                               'main/java/#{repository.imit.qualified_gwt_client_session_interface_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
@@ -98,6 +101,9 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:repository,
                               'client/ee/session.java.erb',
                               'main/java/#{repository.imit.qualified_ee_client_session_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'client/ee/ee_data_loader_listener.java.erb',
+                              'main/java/#{repository.imit.qualified_ee_data_loader_listener_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'client/ee/ee_data_loader_service_interface.java.erb',
                               'main/java/#{repository.imit.qualified_ee_data_loader_service_interface_name.gsub(".","/")}.java')
