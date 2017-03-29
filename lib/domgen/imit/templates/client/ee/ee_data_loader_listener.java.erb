@@ -13,7 +13,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onSubscribeStarted( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
+  public void onSubscribeStarted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>> service, @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
   {
     switch ( graph )
     {
@@ -26,7 +26,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onSubscribeCompleted( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
+  public void onSubscribeCompleted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>> service, @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
   {
     switch ( graph )
     {
@@ -39,7 +39,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onSubscribeFailed( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id, @javax.annotation.Nonnull final java.lang.Throwable throwable )
+  public void onSubscribeFailed( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>> service, @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id, @javax.annotation.Nonnull final java.lang.Throwable throwable )
   {
     switch ( graph )
     {
@@ -52,7 +52,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onSubscriptionUpdateStarted( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
+  public void onSubscriptionUpdateStarted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>> service, @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
   {
     switch ( graph )
     {
@@ -65,7 +65,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onSubscriptionUpdateCompleted( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
+  public void onSubscriptionUpdateCompleted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>> service, @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
   {
     switch ( graph )
     {
@@ -78,7 +78,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onSubscriptionUpdateFailed( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id, @javax.annotation.Nonnull final java.lang.Throwable throwable )
+  public void onSubscriptionUpdateFailed( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>> service, @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id, @javax.annotation.Nonnull final java.lang.Throwable throwable )
   {
     switch ( graph )
     {
@@ -91,7 +91,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onUnsubscribeStarted( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
+  public void onUnsubscribeStarted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>> service, @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
   {
     switch ( graph )
     {
@@ -104,7 +104,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onUnsubscribeCompleted( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
+  public void onUnsubscribeCompleted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>> service, @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id )
   {
     switch ( graph )
     {
@@ -117,7 +117,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onUnsubscribeFailed( @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id, @javax.annotation.Nonnull final java.lang.Throwable throwable )
+  public void onUnsubscribeFailed( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>> service, @javax.annotation.Nonnull final <%= repository.imit.qualified_graph_enum_name %> graph, @javax.annotation.Nullable final Object id, @javax.annotation.Nonnull final java.lang.Throwable throwable )
   {
     switch ( graph )
     {

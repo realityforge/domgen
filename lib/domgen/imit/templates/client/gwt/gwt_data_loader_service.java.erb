@@ -273,7 +273,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
                 public void run()
                 {
                   perform( next );
-                  getListener().onSubscribeCompleted( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
+                  getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
                 }
               } );
               cacheAction.run();
@@ -289,7 +289,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         {
           completionAction.run();
 
-          getListener().onSubscribeCompleted( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
+          getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
         }
       };
 <% end -%>
@@ -298,10 +298,10 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
-          getListener().onSubscribeFailed( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%>, throwable );
+          getListener().onSubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%>, throwable );
         }
       };
-      getListener().onSubscribeStarted( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
+      getListener().onSubscribeStarted( this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
 <% if repository.keycloak? -%>
       <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
       {
@@ -340,7 +340,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         public void onSuccess( final Void result )
         {
           completionAction.run();
-          getListener().onSubscriptionUpdateCompleted( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
+          getListener().onSubscriptionUpdateCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
         }
       };
       final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback = new <%= repository.gwt.qualified_async_error_callback_name %>()
@@ -348,10 +348,10 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
-          getListener().onSubscriptionUpdateFailed( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%>, throwable );
+          getListener().onSubscriptionUpdateFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%>, throwable );
         }
       };
-      getListener().onSubscriptionUpdateStarted( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
+      getListener().onSubscriptionUpdateStarted( this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
 <% if repository.keycloak? -%>
       <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
       {
@@ -388,7 +388,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         public void onSuccess( final Void result )
         {
           completionAction.run();
-          getListener().onUnsubscribeCompleted( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
+          getListener().onUnsubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
         }
       };
       final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback = new <%= repository.gwt.qualified_async_error_callback_name %>()
@@ -396,10 +396,10 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
-          getListener().onUnsubscribeFailed( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%>, throwable );
+          getListener().onUnsubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%>, throwable );
         }
       };
-      getListener().onUnsubscribeStarted( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
+      getListener().onUnsubscribeStarted( this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
 <% if repository.keycloak? -%>
       <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
       {
