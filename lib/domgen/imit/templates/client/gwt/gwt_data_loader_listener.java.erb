@@ -6,9 +6,9 @@ public class <%= repository.imit.gwt_data_loader_listener_name %>
 {
   private final org.realityforge.replicant.client.EntityRepository _repository;
 
-  public <%= repository.imit.gwt_data_loader_listener_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final com.google.web.bindery.event.shared.EventBus eventBus, @javax.annotation.Nonnull final String key )
+  public <%= repository.imit.gwt_data_loader_listener_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final com.google.web.bindery.event.shared.EventBus eventBus )
   {
-    super( eventBus, key );
+    super( eventBus );
     _repository = java.util.Objects.requireNonNull( repository );
   }
 

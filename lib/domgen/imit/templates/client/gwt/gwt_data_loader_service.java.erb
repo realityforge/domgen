@@ -72,7 +72,7 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
     _remoteSubscriptionService = remoteSubscriptionService;
     _context  = context;
     _router = router;
-    setListener( new <%= repository.imit.qualified_gwt_data_loader_listener_name %>( getRepository(), eventBus, getSessionContext().getKey() ) );
+    setListener( new <%= repository.imit.qualified_gwt_data_loader_listener_name %>( getRepository(), eventBus ) );
   }
 
   @javax.annotation.Nonnull
