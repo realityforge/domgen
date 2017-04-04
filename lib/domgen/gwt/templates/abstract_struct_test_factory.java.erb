@@ -27,12 +27,14 @@ public abstract class <%= data_module.gwt.abstract_struct_test_factory_name %>
   }
 
 <% end -%>
+<% if data_module.imit? -%>
  @javax.annotation.Nonnull
   protected final org.realityforge.replicant.client.EntityRepository repository()
   {
     return s( org.realityforge.replicant.client.EntityRepository.class );
   }
 
+<% end -%>
   @javax.annotation.Nonnull
   protected final <T> T s( @javax.annotation.Nonnull final Class<T> type )
   {
