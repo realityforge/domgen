@@ -272,7 +272,10 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
                 @Override
                 public void run()
                 {
-                  perform( next );
+                  if ( null != next )
+                  {
+                    next.run();
+                  }
                   getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> );
                 }
               } );
