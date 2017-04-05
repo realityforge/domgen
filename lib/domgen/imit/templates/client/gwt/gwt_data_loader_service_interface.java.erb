@@ -3,11 +3,52 @@ package <%= to_package(repository.imit.qualified_gwt_data_loader_service_interfa
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= repository.imit.gwt_data_loader_service_interface_name %>
-  extends org.realityforge.replicant.client.transport.DataLoaderService<<%= repository.imit.qualified_graph_enum_name %>>
+  extends org.realityforge.replicant.client.transport.DataLoaderService
 {
-  @javax.annotation.Nullable
-  <%= repository.imit.qualified_gwt_client_session_interface_name %> getSession();
+<%
+  repository.imit.graphs.each do |graph|
+  key = "#{repository.imit.qualified_graph_enum_name}.#{Reality::Naming.uppercase_constantize(graph.name)}"
+  graph_id = 'null'
+  cache_key = graph.cacheable? ? "#{key}.name()" : 'null'
+  param = ''
+  if graph.instance_root?
+    # Names are fully qualified so take any random data module
+    entity = repository.entity_by_name(graph.instance_root)
+    type = entity.primary_key.imit.java_type
+    param = "#{type} #{Reality::Naming.camelize(entity.name)}#{entity.primary_key.name}"
+  end
+  update_param = param.dup
+  filter_var = 'null'
+  if graph.filter_parameter
+    p = graph.filter_parameter
+    java_type = "#{nullability_annotation(p.nullable?)} final #{Domgen::Java.java_type(p, :gwt, :default)}"
+    update_param = "#{update_param}, " if update_param.size > 0
+    filter_var = 'filter'
+    filter_param = "#{java_type} #{filter_var}"
+    update_param = "#{update_param}#{filter_param}"
+  end
+  suffix = '@javax.annotation.Nullable final Runnable action'
+-%>
+  default boolean isSubscribedTo<%= graph.name %>(<%= param %>)
+  {
+    return isSubscribed( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> );
+  }
 
-  @javax.annotation.Nonnull
-  <%= repository.imit.qualified_gwt_client_session_interface_name %> ensureSession();
+  default void subscribeTo<%= graph.name %>(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>)
+  {
+    ensureSession().requestSubscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
+  }
+
+  default void unsubscribeFrom<%= graph.name %>(<%= param %><%= param.size > 0 ? ", #{suffix}" : suffix %>)
+  {
+    ensureSession().requestUnsubscribe( <%= key %>, <%= graph_id %>, action );
+  }
+<% if graph.filter_parameter -%>
+
+  default void update<%= graph.name %>Subscription(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>)
+  {
+    ensureSession().requestSubscriptionUpdate( <%= key %>, <%= graph_id %>, filter, action );
+  }
+<% end -%>
+<% end -%>
 }

@@ -72,12 +72,6 @@ Domgen::Generator.define([:imit],
                               'client/gwt/gwt_data_loader_listener.java.erb',
                               'main/java/#{repository.imit.qualified_gwt_data_loader_listener_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'client/gwt/session_interface.java.erb',
-                              'main/java/#{repository.imit.qualified_gwt_client_session_interface_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/gwt/session.java.erb',
-                              'main/java/#{repository.imit.qualified_gwt_client_session_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
                               'client/gwt/session_context.java.erb',
                               'main/java/#{repository.imit.qualified_gwt_client_session_context_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,

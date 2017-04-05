@@ -599,8 +599,6 @@ module Domgen
       java_artifact :gwt_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}GwtDataLoaderService'
       java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{gwt_data_loader_service_interface_name}Impl'
       java_artifact :gwt_data_loader_listener, :comm, :client, :imit, '#{repository.name}GwtDataLoaderListener'
-      java_artifact :gwt_client_session_interface, :comm, :client, :imit, '#{repository.name}GwtClientSession'
-      java_artifact :gwt_client_session, :comm, :client, :imit, '#{gwt_client_session_interface_name}Impl'
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
       java_artifact :client_router_impl, :comm, :client, :imit, '#{client_router_interface_name}Impl'
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
