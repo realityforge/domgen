@@ -18,28 +18,27 @@ public interface <%= repository.imit.ee_data_loader_service_interface_name %>
   filter_type = graph.filter_parameter ? "#{nullability_annotation(graph.filter_parameter.nullable?)} final #{Domgen::Java.java_type(graph.filter_parameter, :ee, :default)}" : nil
   filter_var = filter_type ? 'filter': 'null'
   filter_param = filter_type ? "#{filter_type} #{filter_var}" : nil
-  std_param = '@javax.annotation.Nullable final Runnable action'
 -%>
   default boolean isSubscribedTo<%= graph.name %>(<%= graph_id_param %>)
   {
     return isSubscribed( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> );
   }
 
-  default void subscribeTo<%= graph.name %>(<%= [graph_id_param, filter_param, std_param].compact.join(', ') %>)
+  default void subscribeTo<%= graph.name %>(<%= [graph_id_param, filter_param].compact.join(', ') %>)
   {
-    requestSubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), <%= filter_var %>, action);
+    requestSubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), <%= filter_var %> );
   }
 
 <% if graph.filter_parameter -%>
-  default void update<%= graph.name %>Subscription(<%= [graph_id_param, filter_param, std_param].compact.join(', ') %>)
+  default void update<%= graph.name %>Subscription(<%= [graph_id_param, filter_param].compact.join(', ') %>)
   {
-    requestSubscriptionUpdate( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), filter, action );
+    requestSubscriptionUpdate( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), filter );
   }
 
 <% end -%>
-  default void unsubscribeFrom<%= graph.name %>(<%= [graph_id_param, std_param].compact.join(', ') %>)
+  default void unsubscribeFrom<%= graph.name %>(<%= [graph_id_param].compact.join(', ') %>)
   {
-    requestUnsubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), action );
+    requestUnsubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ) );
   }
 <% end -%>
 }

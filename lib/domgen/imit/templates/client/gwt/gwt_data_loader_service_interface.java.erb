@@ -27,27 +27,26 @@ public interface <%= repository.imit.gwt_data_loader_service_interface_name %>
     filter_param = "#{java_type} #{filter_var}"
     update_param = "#{update_param}#{filter_param}"
   end
-  suffix = '@javax.annotation.Nullable final Runnable action'
 -%>
   default boolean isSubscribedTo<%= graph.name %>(<%= param %>)
   {
     return isSubscribed( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> );
   }
 
-  default void subscribeTo<%= graph.name %>(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>)
+  default void subscribeTo<%= graph.name %>(<%= update_param %>)
   {
-    requestSubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), <%= filter_var %>, action);
+    requestSubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), <%= filter_var %> );
   }
 
-  default void unsubscribeFrom<%= graph.name %>(<%= param %><%= param.size > 0 ? ", #{suffix}" : suffix %>)
+  default void unsubscribeFrom<%= graph.name %>(<%= param %>)
   {
-    requestUnsubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), action );
+    requestUnsubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ) );
   }
 <% if graph.filter_parameter -%>
 
-  default void update<%= graph.name %>Subscription(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>)
+  default void update<%= graph.name %>Subscription(<%= update_param %>)
   {
-    requestSubscriptionUpdate( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), filter, action );
+    requestSubscriptionUpdate( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), filter );
   }
 <% end -%>
 <% end -%>

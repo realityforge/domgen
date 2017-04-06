@@ -253,7 +253,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
                                           @javax.annotation.Nullable final Object id,
                                           @javax.annotation.Nullable final Object filterParameter,
                                           @javax.annotation.Nullable final String eTag,
-                                          @javax.annotation.Nullable final org.realityforge.replicant.client.transport.ChainedAction cacheAction,
+                                          @javax.annotation.Nullable final java.lang.Runnable cacheAction,
                                           @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     <% repository.imit.graphs.each do |graph|
