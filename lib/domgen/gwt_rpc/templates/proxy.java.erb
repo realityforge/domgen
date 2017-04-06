@@ -64,7 +64,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   final org.realityforge.replicant.client.transport.RequestEntry request;
   if( null != session )
   {
-    request = session.newRequestRegistration( <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %>, <%= method.imit.graph_to_subscribe.nil? ? 'null' : "#{method.service.data_module.repository.imit.qualified_graph_enum_name}.#{Reality::Naming.uppercase_constantize(method.service.data_module.repository.imit.graph_by_name(method.imit.graph_to_subscribe).name)}.name()" %>, <%= method.imit.bulk_load? %> );
+    request = session.newRequestRegistration( <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %>, <%= method.imit.graph_to_subscribe.nil? ? 'null' : "#{service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name}.getSessionContext().getKey() + \":\" + #{method.service.data_module.repository.imit.qualified_graph_enum_name}.#{Reality::Naming.uppercase_constantize(method.service.data_module.repository.imit.graph_by_name(method.imit.graph_to_subscribe).name)}.name()" %>, <%= method.imit.bulk_load? %> );
     <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setRequest( request );
     if( LOG.isLoggable( LOG_LEVEL ) )
     {
