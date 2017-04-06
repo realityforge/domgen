@@ -14,7 +14,7 @@ public interface <%= repository.imit.ee_data_loader_service_interface_name %>
   if graph.instance_root?
     entity = repository.entity_by_name(graph.instance_root)
     graph_id = "#{Reality::Naming.camelize(entity.name)}#{entity.primary_key.name}"
-    graph_id_param = "final #{Domgen::Java.java_type(entity.primary_key, :gwt, :default)} #{graph_id}"
+    graph_id_param = "@javax.annotation.Nonnull final #{Domgen::Java.java_type(entity.primary_key, :gwt, :default)} #{graph_id}"
   elsif graph.cacheable?
     cache_key = "#{key}.name()"
   end

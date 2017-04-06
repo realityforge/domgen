@@ -15,7 +15,8 @@ public interface <%= repository.imit.gwt_data_loader_service_interface_name %>
     # Names are fully qualified so take any random data module
     entity = repository.entity_by_name(graph.instance_root)
     type = entity.primary_key.imit.java_type
-    param = "#{type} #{Reality::Naming.camelize(entity.name)}#{entity.primary_key.name}"
+    graph_id = "#{Reality::Naming.camelize(entity.name)}#{entity.primary_key.name}"
+    param = "@javax.annotation.Nonnull final #{type} #{graph_id}"
   end
   update_param = param.dup
   filter_var = 'null'
