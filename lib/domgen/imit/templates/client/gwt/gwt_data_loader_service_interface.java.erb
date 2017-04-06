@@ -36,18 +36,18 @@ public interface <%= repository.imit.gwt_data_loader_service_interface_name %>
 
   default void subscribeTo<%= graph.name %>(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>)
   {
-    ensureSession().requestSubscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
+    requestSubscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
   }
 
   default void unsubscribeFrom<%= graph.name %>(<%= param %><%= param.size > 0 ? ", #{suffix}" : suffix %>)
   {
-    ensureSession().requestUnsubscribe( <%= key %>, <%= graph_id %>, action );
+    requestUnsubscribe( <%= key %>, <%= graph_id %>, action );
   }
 <% if graph.filter_parameter -%>
 
   default void update<%= graph.name %>Subscription(<%= update_param %><%= update_param.size > 0 ? ", #{suffix}" : suffix %>)
   {
-    ensureSession().requestSubscriptionUpdate( <%= key %>, <%= graph_id %>, filter, action );
+    requestSubscriptionUpdate( <%= key %>, <%= graph_id %>, filter, action );
   }
 <% end -%>
 <% end -%>
