@@ -30,19 +30,19 @@ public interface <%= repository.imit.ee_data_loader_service_interface_name %>
 
   default void subscribeTo<%= graph.name %>(<%= [graph_id_param, filter_param, std_param].compact.join(', ') %>)
   {
-    ensureSession().requestSubscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
+    requestSubscribe( <%= key %>, <%= graph_id %>, <%= cache_key %>, <%= filter_var %>, action);
   }
 
 <% if graph.filter_parameter -%>
   default void update<%= graph.name %>Subscription(<%= [graph_id_param, filter_param, std_param].compact.join(', ') %>)
   {
-    ensureSession().requestSubscriptionUpdate( <%= key %>, <%= graph_id %>, filter, action );
+    requestSubscriptionUpdate( <%= key %>, <%= graph_id %>, filter, action );
   }
 
 <% end -%>
   default void unsubscribeFrom<%= graph.name %>(<%= [graph_id_param, std_param].compact.join(', ') %>)
   {
-    ensureSession().requestUnsubscribe( <%= key %>, <%= graph_id %>, action );
+    requestUnsubscribe( <%= key %>, <%= graph_id %>, action );
   }
 <% end -%>
 }
