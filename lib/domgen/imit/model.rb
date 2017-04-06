@@ -592,8 +592,6 @@ module Domgen
       java_artifact :ee_data_loader_service, :comm, :client, :imit, '#{ee_data_loader_service_interface_name}Impl', :sub_package => 'ee'
       java_artifact :abstract_ee_data_loader_service, :comm, :client, :imit, 'Abstract#{ee_data_loader_service_name}', :sub_package => 'ee'
       java_artifact :ee_client_session_context, :comm, :client, :imit, '#{repository.name}EeSessionContext', :sub_package => 'ee'
-      java_artifact :ee_client_session_interface, :comm, :client, :imit, '#{repository.name}EeClientSession', :sub_package => 'ee'
-      java_artifact :ee_client_session, :comm, :client, :imit, '#{ee_client_session_interface_name}Impl', :sub_package => 'ee'
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :gwt_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}GwtDataLoaderService'

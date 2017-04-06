@@ -90,12 +90,6 @@ Domgen::Generator.define([:imit],
 
   g.template_set(:imit_client_entity_ee) do |template_set|
     template_set.erb_template(:repository,
-                              'client/ee/session_interface.java.erb',
-                              'main/java/#{repository.imit.qualified_ee_client_session_interface_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/ee/session.java.erb',
-                              'main/java/#{repository.imit.qualified_ee_client_session_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
                               'client/ee/ee_data_loader_listener.java.erb',
                               'main/java/#{repository.imit.qualified_ee_data_loader_listener_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
