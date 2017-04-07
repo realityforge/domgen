@@ -82,7 +82,6 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
     ( (javax.xml.ws.BindingProvider) _remoteSubscriptionService ).getRequestContext().
       put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, getSubscriptionServerAddress() );
     getSessionContext().setBaseURL( getWebEndpointAddress() );
-    setListener( new <%= repository.imit.qualified_ee_data_loader_listener_name %>( _beanManager, new <%= repository.ee.qualified_cdi_qualifier_literal_name %>(), getSessionContext().getKey(), getRepository() ) );
   }
 
   @javax.annotation.Nonnull
