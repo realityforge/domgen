@@ -13,13 +13,13 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onSubscribeStarted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final java.lang.Enum graph, @javax.annotation.Nullable final Object id )
+  public void onSubscribeStarted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor )
   {
-    if ( !(graph instanceof <%= repository.imit.qualified_graph_enum_name %>) )
+    if ( !(descriptor.getGraph() instanceof <%= repository.imit.qualified_graph_enum_name %>) )
     {
       return;
     }
-    switch ( (<%= repository.imit.qualified_graph_enum_name %>) graph )
+    switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
@@ -30,30 +30,30 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onSubscribeCompleted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final java.lang.Enum graph, @javax.annotation.Nullable final Object id )
+  public void onSubscribeCompleted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor )
   {
-    if ( !(graph instanceof <%= repository.imit.qualified_graph_enum_name %>) )
+    if ( !(descriptor.getGraph() instanceof <%= repository.imit.qualified_graph_enum_name %>) )
     {
       return;
     }
-    switch ( (<%= repository.imit.qualified_graph_enum_name %>) graph )
+    switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
-        fireEvent( new <%= graph.subscribe_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
+        fireEvent( new <%= graph.subscribe_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
         break;
 <% end -%>
     }
   }
 
   @java.lang.Override
-  public void onSubscribeFailed( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final java.lang.Enum graph, @javax.annotation.Nullable final Object id, @javax.annotation.Nonnull final java.lang.Throwable throwable )
+  public void onSubscribeFailed( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor, @javax.annotation.Nonnull final java.lang.Throwable throwable )
   {
-    if ( !(graph instanceof <%= repository.imit.qualified_graph_enum_name %>) )
+    if ( !(descriptor.getGraph() instanceof <%= repository.imit.qualified_graph_enum_name %>) )
     {
       return;
     }
-    switch ( (<%= repository.imit.qualified_graph_enum_name %>) graph )
+    switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
@@ -64,64 +64,64 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onSubscriptionUpdateStarted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final java.lang.Enum graph, @javax.annotation.Nullable final Object id )
+  public void onSubscriptionUpdateStarted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor )
   {
-    if ( !(graph instanceof <%= repository.imit.qualified_graph_enum_name %>) )
+    if ( !(descriptor.getGraph() instanceof <%= repository.imit.qualified_graph_enum_name %>) )
     {
       return;
     }
-    switch ( (<%= repository.imit.qualified_graph_enum_name %>) graph )
+    switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
-        fireEvent( new <%= graph.update_started_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
+        fireEvent( new <%= graph.update_started_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
         break;
 <% end -%>
     }
   }
 
   @java.lang.Override
-  public void onSubscriptionUpdateCompleted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final java.lang.Enum graph, @javax.annotation.Nullable final Object id )
+  public void onSubscriptionUpdateCompleted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor )
   {
-    if ( !(graph instanceof <%= repository.imit.qualified_graph_enum_name %>) )
+    if ( !(descriptor.getGraph() instanceof <%= repository.imit.qualified_graph_enum_name %>) )
     {
       return;
     }
-    switch ( (<%= repository.imit.qualified_graph_enum_name %>) graph )
+    switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
-        fireEvent( new <%= graph.update_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ) <% end %>) );
+        fireEvent( new <%= graph.update_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
         break;
 <% end -%>
     }
   }
 
   @java.lang.Override
-  public void onSubscriptionUpdateFailed( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final java.lang.Enum graph, @javax.annotation.Nullable final Object id, @javax.annotation.Nonnull final java.lang.Throwable throwable )
+  public void onSubscriptionUpdateFailed( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor, @javax.annotation.Nonnull final java.lang.Throwable throwable )
   {
-    if ( !(graph instanceof <%= repository.imit.qualified_graph_enum_name %>) )
+    if ( !(descriptor.getGraph() instanceof <%= repository.imit.qualified_graph_enum_name %>) )
     {
       return;
     }
-    switch ( (<%= repository.imit.qualified_graph_enum_name %>) graph )
+    switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
-        fireEvent( new <%= graph.update_failed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id ),<% end %> throwable ) );
+        fireEvent( new <%= graph.update_failed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>)  descriptor.getID() ),<% end %> throwable ) );
         break;
 <% end -%>
     }
   }
 
   @java.lang.Override
-  public void onUnsubscribeStarted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final java.lang.Enum graph, @javax.annotation.Nullable final Object id )
+  public void onUnsubscribeStarted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor )
   {
-    if ( !(graph instanceof <%= repository.imit.qualified_graph_enum_name %>) )
+    if ( !(descriptor.getGraph() instanceof <%= repository.imit.qualified_graph_enum_name %>) )
     {
       return;
     }
-    switch ( (<%= repository.imit.qualified_graph_enum_name %>) graph )
+    switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
@@ -132,13 +132,13 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onUnsubscribeCompleted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final java.lang.Enum graph, @javax.annotation.Nullable final Object id )
+  public void onUnsubscribeCompleted( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor )
   {
-    if ( !(graph instanceof <%= repository.imit.qualified_graph_enum_name %>) )
+    if ( !(descriptor.getGraph() instanceof <%= repository.imit.qualified_graph_enum_name %>) )
     {
       return;
     }
-    switch ( (<%= repository.imit.qualified_graph_enum_name %>) graph )
+    switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
@@ -149,13 +149,13 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
   }
 
   @java.lang.Override
-  public void onUnsubscribeFailed( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final java.lang.Enum graph, @javax.annotation.Nullable final Object id, @javax.annotation.Nonnull final java.lang.Throwable throwable )
+  public void onUnsubscribeFailed( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.DataLoaderService service, @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor, @javax.annotation.Nonnull final java.lang.Throwable throwable )
   {
-    if ( !(graph instanceof <%= repository.imit.qualified_graph_enum_name %>) )
+    if ( !(descriptor.getGraph() instanceof <%= repository.imit.qualified_graph_enum_name %>) )
     {
       return;
     }
-    switch ( (<%= repository.imit.qualified_graph_enum_name %>) graph )
+    switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
