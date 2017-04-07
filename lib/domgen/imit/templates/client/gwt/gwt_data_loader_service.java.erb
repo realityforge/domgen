@@ -201,18 +201,17 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   }
 
   @java.lang.Override
-  protected final void requestSubscribeToGraph( @javax.annotation.Nonnull final java.lang.Enum graph,
-                                                @javax.annotation.Nullable final Object id,
+  protected final void requestSubscribeToGraph( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor,
                                                 @javax.annotation.Nullable final Object filterParameter,
                                                 @javax.annotation.Nullable final String eTag,
                                                 @javax.annotation.Nullable final java.lang.Runnable cacheAction,
                                                 @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     <% repository.imit.graphs.each do |graph|
--%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
     {
 <% if graph.instance_root? -%>
-      assert null != id;
+      assert null != descriptor.getID();
 <% end -%>
 <% if graph.filtered? -%>
       assert null != filterParameter;
@@ -226,7 +225,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
           if ( result )
           {
             completionAction.run();
-            getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ) );
+            getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor );
           }
           else
           {
@@ -234,7 +233,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
             {
               cacheAction.run();
             }
-            getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ) );
+            getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor );
           }
         }
       };
@@ -246,7 +245,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         {
           completionAction.run();
 
-          getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ) );
+          getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor );
         }
       };
 <% end -%>
@@ -255,10 +254,10 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
-          getListener().onSubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ), throwable );
+          getListener().onSubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable );
         }
       };
-      getListener().onSubscribeStarted( this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ) );
+      getListener().onSubscribeStarted( this, descriptor );
 <% if repository.keycloak? -%>
       <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
       {
@@ -266,7 +265,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         public void run()
         {
     <% end -%>
-      _remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id<% end -%><% if graph.filtered? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter<% end -%>, callback, errorCallback );
+      _remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%><% if graph.filtered? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter<% end -%>, callback, errorCallback );
 <% if repository.keycloak? -%>
         }
       } );
@@ -280,16 +279,15 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "DLS_DEAD_LOCAL_STORE" } )
   @java.lang.Override
-  protected final void requestUpdateSubscription( @javax.annotation.Nonnull final java.lang.Enum graph,
-                                                  @javax.annotation.Nullable final Object id,
+  protected final void requestUpdateSubscription( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor,
                                                   @javax.annotation.Nonnull final Object filterParameter,
                                                   @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph|
--%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
     {
 <% if graph.instance_root? -%>
-      assert null != id;
+      assert null != descriptor.getID();
 <% end -%>
       final <%= repository.gwt.qualified_async_callback_name %><Void> callback = new <%= repository.gwt.qualified_async_callback_name %><Void>()
       {
@@ -297,7 +295,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         public void onSuccess( final Void result )
         {
           completionAction.run();
-          getListener().onSubscriptionUpdateCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ) );
+          getListener().onSubscriptionUpdateCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor );
         }
       };
       final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback = new <%= repository.gwt.qualified_async_error_callback_name %>()
@@ -305,10 +303,10 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
-          getListener().onSubscriptionUpdateFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ), throwable );
+          getListener().onSubscriptionUpdateFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable );
         }
       };
-      getListener().onSubscriptionUpdateStarted( this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ) );
+      getListener().onSubscriptionUpdateStarted( this, descriptor );
 <% if repository.keycloak? -%>
       <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
       {
@@ -316,7 +314,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         public void run()
         {
     <% end -%>
-      _remoteSubscriptionService.update<%= graph.name %>Subscription( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id<% end -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter, callback, errorCallback );
+      _remoteSubscriptionService.update<%= graph.name %>Subscription( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter, callback, errorCallback );
 <% if repository.keycloak? -%>
         }
       } );
@@ -329,15 +327,14 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   }
 
   @java.lang.Override
-  protected final void requestUnsubscribeFromGraph( @javax.annotation.Nonnull final java.lang.Enum graph,
-                                                    @javax.annotation.Nullable final Object id,
+  protected final void requestUnsubscribeFromGraph( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor,
                                                     @javax.annotation.Nonnull final java.lang.Runnable completionAction )
   {
     <% repository.imit.graphs.each do |graph|
--%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
     {
 <% if graph.instance_root? -%>
-      assert null != id;
+      assert null != descriptor.getID();
 <% end -%>
       final <%= repository.gwt.qualified_async_callback_name %><Void> callback = new <%= repository.gwt.qualified_async_callback_name %><Void>()
       {
@@ -345,7 +342,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         public void onSuccess( final Void result )
         {
           completionAction.run();
-          getListener().onUnsubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ) );
+          getListener().onUnsubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor );
         }
       };
       final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback = new <%= repository.gwt.qualified_async_error_callback_name %>()
@@ -353,10 +350,10 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
-          getListener().onUnsubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ), throwable );
+          getListener().onUnsubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable );
         }
       };
-      getListener().onUnsubscribeStarted( this, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'id' : 'null' -%> ) );
+      getListener().onUnsubscribeStarted( this, descriptor );
 <% if repository.keycloak? -%>
       <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
       {
@@ -364,7 +361,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         public void run()
         {
     <% end -%>
-      _remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) id<% end -%>, callback, errorCallback );
+      _remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%>, callback, errorCallback );
 <% if repository.keycloak? -%>
         }
       } );
