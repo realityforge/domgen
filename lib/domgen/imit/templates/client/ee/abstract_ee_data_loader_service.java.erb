@@ -204,14 +204,6 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
     return _remoteSubscriptionService;
   }
 
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected <%= repository.imit.qualified_graph_enum_name %> channelToGraph( final int channel )
-    throws IllegalArgumentException
-  {
-    return <%= repository.imit.qualified_graph_enum_name %>.values()[ channel ];
-  }
-
   @java.lang.Override
   protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
   {
