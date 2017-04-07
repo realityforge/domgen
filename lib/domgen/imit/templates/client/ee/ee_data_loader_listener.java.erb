@@ -6,9 +6,9 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
 {
   private final org.realityforge.replicant.client.EntityRepository _repository;
 
-  public <%= repository.imit.ee_data_loader_listener_name %>( @javax.annotation.Nonnull final javax.enterprise.inject.spi.BeanManager beanManager, @javax.annotation.Nonnull final java.lang.annotation.Annotation eventQualifier, @javax.annotation.Nonnull final String key, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository )
+  public <%= repository.imit.ee_data_loader_listener_name %>( @javax.annotation.Nonnull final javax.enterprise.inject.spi.BeanManager beanManager, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository )
   {
-    super( beanManager, eventQualifier, key );
+    super( beanManager, new <%= repository.ee.qualified_cdi_qualifier_literal_name %>(), "<%= repository.name %>" );
     _repository = java.util.Objects.requireNonNull( repository );
   }
 
