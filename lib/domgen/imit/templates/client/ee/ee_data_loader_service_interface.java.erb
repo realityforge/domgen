@@ -21,7 +21,7 @@ public interface <%= repository.imit.ee_data_loader_service_interface_name %>
 -%>
   default boolean isSubscribedTo<%= graph.name %>(<%= graph_id_param %>)
   {
-    return isSubscribed( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> );
+    return isSubscribed( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> ) );
   }
 
   default void subscribeTo<%= graph.name %>(<%= [graph_id_param, filter_param].compact.join(', ') %>)

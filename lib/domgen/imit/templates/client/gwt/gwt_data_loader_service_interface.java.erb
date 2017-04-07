@@ -30,7 +30,7 @@ public interface <%= repository.imit.gwt_data_loader_service_interface_name %>
 -%>
   default boolean isSubscribedTo<%= graph.name %>(<%= param %>)
   {
-    return isSubscribed( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> );
+    return isSubscribed( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> ) );
   }
 
   default void subscribeTo<%= graph.name %>(<%= update_param %>)
