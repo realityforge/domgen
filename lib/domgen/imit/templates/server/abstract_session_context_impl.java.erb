@@ -104,6 +104,36 @@ repository.imit.graphs.each do |graph|
   }
 
 <% end -%>
+<% repository.imit.graphs.each do |graph| -%>
+<%
+  if graph.instance_root? && graph.filtered?
+graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
+  outgoing_links = entity.referencing_attributes.select { |a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
+  outgoing_links.each do |a|
+    if a.inverse.multiplicity == :many
+ -%>
+  @java.lang.Override
+  public java.util.List<<%= a.entity.jpa.qualified_name %>> get<%= a.inverse.attribute.qualified_name.gsub('.', '') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final <%= a.referenced_entity.jpa.qualified_name %> entity, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+  {
+    return entity.get<%= Reality::Naming.pascal_case(Reality::Naming.pluralize(a.inverse.name)) %>();
+  }
+
+<%
+    elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
+ -%>
+  @java.lang.Override
+  public <%= a.entity.jpa.qualified_name %> get<%= a.inverse.attribute.qualified_name.gsub('.', '') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final <%= a.referenced_entity.jpa.qualified_name %> entity, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+  {
+    return entity.get<%= Reality::Naming.pascal_case(a.inverse.name) %>();
+  }
+
+<%
+    end
+  end
+end
+end
+-%>
+<% end -%>
   @javax.annotation.Nonnull
   protected org.realityforge.replicant.server.EntityMessage convertToDeleteMessage( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message )
   {
