@@ -1013,6 +1013,7 @@ module Domgen
 
           s.method(:RemoveIdleSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30') do |m|
             m.disable_facet(:jws) if m.jws?
+            m.disable_facet(:gwt) if m.gwt?
           end
 
           repository.imit.graphs.each do |graph|
