@@ -916,7 +916,9 @@ module Domgen
               end
               if graph.filter_parameter? && !graph.filter_parameter.immutable?
                 s.method("CollectForFilterChange#{graph.name}") do |m|
-                  m.parameter(:Messages, 'org.realityforge.replicant.server.EntityMessageSet')
+                  m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                  m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                  m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor')
                   m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                   m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                 end
@@ -940,7 +942,9 @@ module Domgen
               if graph.filter_parameter?
                 unless graph.filter_parameter.immutable?
                   s.method("CollectForFilterChange#{graph.name}") do |m|
-                    m.parameter(:Messages, 'org.realityforge.replicant.server.EntityMessageSet')
+                    m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                    m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor')
                     m.reference(graph.instance_root, :name => :Entity)
                     m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                     m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
