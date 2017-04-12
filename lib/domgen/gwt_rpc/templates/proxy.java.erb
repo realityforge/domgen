@@ -10,27 +10,28 @@ public class <%= service.gwt_rpc.proxy_name %>
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
 -%>
   private static final String <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> = "<%= service.qualified_name %>.<%= method.name %>";
-<% end %>
+<% end -%>
 
   @javax.inject.Inject
   private <%= service.gwt_rpc.qualified_async_rpc_service_name %> _service;
-  @javax.inject.Named("GLOBAL")
+<% if service.gwt_rpc.default_callback? -%>
+  @javax.inject.Named( "<%= service.gwt_rpc.default_callback_name %>" )
   @javax.inject.Inject
   private com.google.gwt.user.client.rpc.AsyncCallback _callback;
-
-<% if service.methods.any?{|m| m.parameters.any?{|p| p.struct? && p.referenced_struct.auto_bean? } || (m.return_value.struct? && m.return_value.referenced_struct.auto_bean?) } %>
+<% end -%>
+<% if service.methods.any?{|m| m.parameters.any?{|p| p.struct? && p.referenced_struct.auto_bean? } || (m.return_value.struct? && m.return_value.referenced_struct.auto_bean?) } -%>
   @javax.inject.Inject
   private <%= service.data_module.repository.auto_bean.qualified_factory_name %> _factory;
-<% end %>
-
+<% end -%>
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
    method_name = Reality::Naming.camelize(method.name)
-   parameters = method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}
-%>
+   parameters = method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?} -%>
+
   public void <%= method_name %>(<%= parameters.collect{|p| "#{annotated_type(p, :gwt_rpc, :boundary, :final => true)} #{p.name}" }.join(', ') %>)
   {
     <%= method_name %>(<%= (parameters.collect{|p| p.name } + ['null']).join(', ') %>);
   }
+
   public void <%= method_name %>(<%= (parameters.collect{|p| "#{annotated_type(p, :gwt_rpc, :boundary, :final => true)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
   {
     <%= method_name %>(<%= (parameters.collect{|p| p.name } + ['callback','null']).join(', ') %>);
@@ -115,7 +116,9 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
           {
             errorCallback.onFailure( caught );
           }
+<% if service.gwt_rpc.default_callback? -%>
           _callback.onFailure( caught );
+<% end -%>
         }
       };
 <% if method.imit? -%>
@@ -212,7 +215,9 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
           {
             callback.onSuccess( <%= result_string %> );
           }
+<% if service.gwt_rpc.default_callback? -%>
           _callback.onSuccess( result );
+<% end -%>
         }
       };
 <% if method.imit? -%>
@@ -257,5 +262,5 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
     <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setRequest( null );
 <% end -%>
   }
-
-<% end %>}
+<% end -%>
+}
