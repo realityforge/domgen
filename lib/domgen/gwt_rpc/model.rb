@@ -143,6 +143,18 @@ module Domgen
         @xsrf_protected.nil? ? false : @xsrf_protected
       end
 
+      attr_writer :default_callback_name
+
+      def default_callback_name
+        @default_callback_name.nil? ? 'GLOBAL' : @default_callback_name
+      end
+
+      attr_writer :default_callback
+
+      def default_callback?
+        @default_callback.nil? ? true : @default_callback
+      end
+
       attr_writer :facade_service_name
 
       def facade_service_name
