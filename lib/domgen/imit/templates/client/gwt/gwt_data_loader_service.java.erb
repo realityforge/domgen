@@ -205,7 +205,8 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
                                                 @javax.annotation.Nullable final Object filterParameter,
                                                 @javax.annotation.Nullable final String eTag,
                                                 @javax.annotation.Nullable final java.util.function.Consumer<java.lang.Runnable> cacheAction,
-                                                @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> completionAction )
+                                                @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> completionAction,
+                                                @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> failAction )
   {
     <% repository.imit.graphs.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
@@ -248,7 +249,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
-          getListener().onSubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable );
+          failAction.accept( () -> getListener().onSubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable ) );
         }
       };
       getListener().onSubscribeStarted( this, descriptor );
@@ -275,7 +276,8 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   @java.lang.Override
   protected final void requestUpdateSubscription( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor,
                                                   @javax.annotation.Nonnull final Object filterParameter,
-                                                  @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> completionAction )
+                                                  @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> completionAction,
+                                                  @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> failAction )
   {
     <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
@@ -296,7 +298,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
-          getListener().onSubscriptionUpdateFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable );
+          failAction.accept( () -> getListener().onSubscriptionUpdateFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable ) );
         }
       };
       getListener().onSubscriptionUpdateStarted( this, descriptor );
@@ -321,7 +323,8 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
 
   @java.lang.Override
   protected final void requestUnsubscribeFromGraph( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor,
-                                                    @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> completionAction )
+                                                    @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> completionAction,
+                                                    @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> failAction )
   {
     <% repository.imit.graphs.each do |graph|
 -%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
@@ -342,7 +345,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
-          getListener().onUnsubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable );
+          failAction.accept( () -> getListener().onUnsubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable ) );
         }
       };
       getListener().onUnsubscribeStarted( this, descriptor );
