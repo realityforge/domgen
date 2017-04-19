@@ -14,7 +14,7 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 @javax.ejb.Local( { <%= repository.imit.qualified_poll_service_name %>.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.ssf.SessionManager.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
 <% end -%>
 public class <%= repository.imit.session_manager_name %>
-  extends org.realityforge.replicant.server.transport.ReplicantSessionManagerImpl
+  extends org.realityforge.replicant.server.transport.Replicant<%= repository.imit.secured? ? 'Secured' : '' -%>SessionManagerImpl
   implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %><% if repository.imit.poll_replicate_mode? %>, <%= repository.imit.qualified_poll_service_name %><% end %>
 {
 <% repository.imit.graphs.each_with_index do |graph, i| -%>
@@ -22,6 +22,10 @@ public class <%= repository.imit.session_manager_name %>
 <% end -%>
   private static final org.realityforge.replicant.server.transport.ChannelMetaData[] CHANNELS = new org.realityforge.replicant.server.transport.ChannelMetaData[]{<% repository.imit.graphs.each_with_index do |graph, i| -%> $CHANNEL_<%= i %>,<% end %> };
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
+<% if repository.imit.secured? -%>
+  @javax.inject.Inject
+  private org.realityforge.keycloak.sks.SimpleAuthService _authService;
+<% end -%>
   @javax.inject.Inject
   private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
 <%
@@ -491,6 +495,15 @@ entities.uniq.each do |entity| -%>
     throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
     return pollJsonData( ensureSession( clientID ), lastSequenceAcked );
+  }
+<% end -%>
+<% if repository.imit.secured? -%>
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected org.realityforge.keycloak.sks.SimpleAuthService getAuthService()
+  {
+    return _authService;
   }
 <% end -%>
 }

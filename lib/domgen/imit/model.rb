@@ -546,6 +546,12 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      def secured?
+        @secured.nil? ? repository.keycloak? : !!@secured
+      end
+
+      attr_writer :secured
+
       def client_ioc_package
         repository.gwt.client_ioc_package
       end
