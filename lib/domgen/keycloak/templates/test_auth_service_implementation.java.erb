@@ -9,9 +9,9 @@ public class <%= repository.keycloak.test_auth_service_implementation_name %>
   private final java.security.Principal _principal = new TestPrincipal( org.realityforge.guiceyloops.shared.ValueUtil.randomString() );
   private org.keycloak.adapters.OidcKeycloakAccount _account;
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   @java.lang.Override
-  public org.keycloak.adapters.OidcKeycloakAccount findAccount()
+  public org.keycloak.adapters.OidcKeycloakAccount getAccount()
   {
     return _account;
   }

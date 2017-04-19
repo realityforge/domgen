@@ -454,12 +454,6 @@ module Domgen
           self.repository.service_by_name(self.auth_service_name).tap do |s|
             s.ejb.bind_in_tests = false
             s.disable_facets_not_in(:ejb)
-            s.method(:FindAccount) do |m|
-              m.returns('org.keycloak.adapters.OidcKeycloakAccount', :nullable => true)
-            end
-            s.method(:GetAccount) do |m|
-              m.returns('org.keycloak.adapters.OidcKeycloakAccount')
-            end
             self.default_client.claims.each do |claim|
               s.method("Get#{claim.java_accessor_key}") do |m|
                 m.returns(:text)
