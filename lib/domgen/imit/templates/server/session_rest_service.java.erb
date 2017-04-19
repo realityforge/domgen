@@ -13,12 +13,19 @@ public class <%= repository.imit.session_rest_service_name %>
 <% if repository.imit.secured? -%>
   @javax.inject.Inject
   private org.realityforge.keycloak.sks.SimpleAuthService _authService;
+  private boolean _disableSessionServiceProtection;
 
   @javax.annotation.Nonnull
   @java.lang.Override
   protected org.realityforge.keycloak.sks.SimpleAuthService getAuthService()
   {
     return _authService;
+  }
+
+  @java.lang.Override
+  protected boolean disableSecurity()
+  {
+    return _disableSessionServiceProtection;
   }
 <% end -%>
 
@@ -33,5 +40,15 @@ public class <%= repository.imit.session_rest_service_name %>
   public void postConstruct()
   {
     super.postConstruct();
+<% if repository.imit.secured? -%>
+    try
+    {
+      _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
+    }
+    catch ( final java.lang.Exception e )
+    {
+      //Ignored.
+    }
+<% end -%>
   }
 }
