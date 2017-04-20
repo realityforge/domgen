@@ -11,7 +11,7 @@ public abstract class <%= repository.jaxrs.abstract_application_name %>
   @java.lang.Override
   public java.util.Set<Class<?>> getClasses()
   {
-    final java.util.Set<Class<?>> classes = new java.util.HashSet<Class<?>>();
+    final java.util.Set<Class<?>> classes = new java.util.HashSet<>();
 <% repository.data_modules.select{|d| d.jaxrs?}.collect {|d| d.services.select{|s| s.jaxrs?}.collect {|s| s.jaxrs.qualified_service_name }}.flatten.each do |service_name| -%>
     classes.add( <%= service_name %>.class );
 <% end -%>
@@ -24,6 +24,11 @@ public abstract class <%= repository.jaxrs.abstract_application_name %>
 <% if repository.jackson? -%>
     classes.add( org.glassfish.jersey.jackson.JacksonFeature.class );
 <% end -%>
+    collectClasses( classes );
     return classes;
+  }
+
+  protected void collectClasses( @javax.annotation.Nonnull final java.util.Set<Class<?>> classes )
+  {
   }
 }
