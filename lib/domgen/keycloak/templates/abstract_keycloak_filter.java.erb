@@ -67,6 +67,10 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
     {
       return false;
     }
+    if ( _disableSessionServiceProtection && path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + '/' + org.realityforge.replicant.client.ee.rest.AbstractDataLoaderServiceRestService.CLIENT_URL_PREFIX ) )
+    {
+      return false;
+    }
 <% end -%>
     return true;
   }
