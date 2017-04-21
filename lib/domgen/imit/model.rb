@@ -46,6 +46,47 @@ module Domgen
       end
     end
 
+    class RemoteDatasource < Domgen.ParentedElement(:application)
+      include Domgen::Java::BaseJavaGenerator
+
+      def initialize(application, name, options, &block)
+        @name = name
+        application.send :register_remote_datasource, name, self
+        super(application, options, &block)
+      end
+
+      attr_reader :application
+
+      attr_reader :name
+
+      attr_writer :base_package
+
+      def base_package
+        @base_package || Reality::Naming.underscore(self.name)
+      end
+
+      attr_writer :abstract_ee_data_loader_service_implementation
+
+      def abstract_ee_data_loader_service_implementation
+        @abstract_ee_data_loader_service_implementation || "#{base_package}.client.net.ee.Abstract#{self.name}EeDataLoaderServiceImpl"
+      end
+
+      attr_writer :ee_data_loader_service_interface
+
+      def ee_data_loader_service_interface
+        @ee_data_loader_service_interface || "#{base_package}.client.net.ee.#{self.name}EeDataLoaderService"
+      end
+
+      attr_writer :ee_data_loader_listener_impl
+
+      def ee_data_loader_listener_impl
+        @ee_data_loader_listener_impl || "#{base_package}.client.net.ee.#{self.name}EeDataLoaderListener"
+      end
+
+      java_artifact :ee_data_loader_service_implementation, :comm, :server, :imit, '#{application.repository.name}#{name}DataLoaderServiceImpl'
+      java_artifact :ee_data_loader_rest_service, :rest, :server, :imit, '#{application.repository.name}#{name}DataLoaderServiceRestService'
+    end
+
     class ReplicationGraph < Domgen.ParentedElement(:application)
       def initialize(application, name, options, &block)
         @name = name
@@ -622,6 +663,7 @@ module Domgen
       java_artifact :replication_interceptor, :comm, :server, :imit, '#{repository.name}ReplicationInterceptor'
       java_artifact :graph_encoder, :comm, :server, :imit, '#{repository.name}GraphEncoder'
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{graph_encoder_name}Impl'
+      java_artifact :ee_client_resources, :comm, :server, :imit, '#{repository.name}ReplicantClientResources'
       java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
       java_artifact :mock_services_module, :test, :client, :imit, '#{repository.name}MockImitServicesModule', :sub_package => 'util'
       java_artifact :callback_success_answer, :test, :client, :imit, '#{repository.name}CallbackSuccessAnswer', :sub_package => 'util'
@@ -698,6 +740,26 @@ module Domgen
         !!graph_map[name.to_s]
       end
 
+      def remote_datasources
+        remote_datasource_map.values
+      end
+
+      def remote_datasource(name, options = {}, &block)
+        Domgen::Imit::RemoteDatasource.new(self, name, options, &block)
+      end
+
+      def remote_datasource_by_name(name)
+        remote_datasource = remote_datasource_map[name.to_s]
+        Domgen.error("Unable to locate remote datasource #{name}") unless remote_datasource
+        remote_datasource
+      end
+
+      def remote_datasource_by_name?(name)
+        !!remote_datasource_map[name.to_s]
+      end
+
+      Domgen.target_manager.target(:remote_datasource, :repository, :facet_key => :imit)
+
       def subscription_manager=(subscription_manager)
         Domgen.error('subscription_manager invalid. Expected to be in format DataModule.ServiceName') if self.subscription_manager.to_s.split('.').length != 2
         @subscription_manager = subscription_manager
@@ -752,13 +814,13 @@ module Domgen
       attr_writer :executor_service_jndi
 
       def executor_service_jndi
-        @executor_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/#{Reality::Naming.underscore(repository.name)}/ManagedScheduledExecutorService"
+        @executor_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/ManagedScheduledExecutorService"
       end
 
       attr_writer :context_service_jndi
 
       def context_service_jndi
-        @context_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/#{Reality::Naming.underscore(repository.name)}/ContextService"
+        @context_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/ContextService"
       end
 
       def test_factories
@@ -783,6 +845,9 @@ module Domgen
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
           repository.jaxrs.extensions << self.qualified_poll_rest_service_name
+          repository.imit.remote_datasources.each do |rd|
+            repository.jaxrs.extensions << rd.qualified_ee_data_loader_rest_service_name
+          end
         end
         if repository.ee?
           repository.ee.cdi_scan_excludes << 'org.realityforge.replicant.**'
@@ -1193,6 +1258,14 @@ module Domgen
         filter_options
       end
 
+      def register_remote_datasource(name, remote_datasource)
+        remote_datasource_map[name.to_s] = remote_datasource
+      end
+
+      def remote_datasource_map
+        @remote_datasources ||= Reality::OrderedHash.new
+      end
+
       def register_graph(name, graph)
         graph_map[name.to_s] = graph
       end
@@ -1364,11 +1437,19 @@ module Domgen
     facet.enhance(RemoteEntity) do
       include Domgen::Java::BaseJavaGenerator
 
+      def remote_datasource
+        Domgen.error("Invoked remote_datasource on #{remote_entity.qualified_name} when value not set") unless @remote_datasource
+        @remote_datasource
+      end
+
+      def remote_datasource=(remote_datasource)
+        @remote_datasource = (remote_datasource.is_a?(Domgen::Imit::RemoteDatasource) ? remote_datasource : remote_entity.data_module.repository.imit.remote_datasource_by_name(remote_datasource))
+      end
+
       attr_writer :qualified_name
 
       def qualified_name
-        Domgen.error("Invoked qualified_name on #{remote_entity.qualified_name} when value not set") unless @qualified_name
-        @qualified_name
+        @qualified_name || "#{remote_datasource.base_package}.client.entity.#{remote_entity.name}"
       end
     end
 

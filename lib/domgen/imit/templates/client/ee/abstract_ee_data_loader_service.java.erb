@@ -53,8 +53,6 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   implements <%= repository.imit.qualified_ee_data_loader_service_interface_name %>
 {
   public static final String APPLICATION_URL_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/url";
-  public static final String EXECUTOR_SERVICE_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/ManagedScheduledExecutorService";
-  public static final String CONTEXT_SERVICE_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/ContextService";
 
   private <%= repository.service_by_name(repository.imit.subscription_manager).jws.qualified_api_interface_name %> _remoteSubscriptionService;
 

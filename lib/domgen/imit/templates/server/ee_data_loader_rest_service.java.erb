@@ -1,0 +1,38 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(remote_datasource.qualified_ee_data_loader_rest_service_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.ws.rs.Path( <%= remote_datasource.ee_data_loader_rest_service_name %>.BASE_URL )
+@javax.ws.rs.Produces( javax.ws.rs.core.MediaType.APPLICATION_JSON )
+@javax.enterprise.context.ApplicationScoped
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.NOT_SUPPORTED )
+public class <%= remote_datasource.ee_data_loader_rest_service_name %>
+  extends org.realityforge.replicant.client.ee.rest.AbstractDataLoaderServiceRestService<<%= remote_datasource.ee_data_loader_rest_service_name %>>
+{
+  static final String BASE_URL = CLIENT_URL_PREFIX + "<%= Reality::Naming.underscore(remote_datasource.name) %>";
+
+  @javax.inject.Inject
+  private <%= remote_datasource.ee_data_loader_service_interface %> _dataLoaderService;
+  @javax.inject.Inject
+  private org.realityforge.replicant.client.EntitySystem _entitySystem;
+
+  @Override
+  protected Class<<%= remote_datasource.ee_data_loader_rest_service_name %>> getCurrentResource()
+  {
+    return <%= remote_datasource.ee_data_loader_rest_service_name %>.class;
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.client.EntitySystem getEntitySystem()
+  {
+    return _entitySystem;
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.client.transport.DataLoaderService getDataLoaderService()
+  {
+    return _dataLoaderService;
+  }
+}

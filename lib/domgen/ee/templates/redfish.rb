@@ -99,6 +99,22 @@ def generate(repository)
       'context_info' => 'Classloader,JNDI,Security,WorkArea',
       'deployment_order' => 100
     }
+
+    repository.imit.remote_datasources.each do |rd|
+      prefix = "#{application}/replicant/client/#{Reality::Naming.underscore(rd.name)}"
+      env_prefix = "#{constant_prefix}_REPLICANT_CLIENT_#{Reality::Naming.uppercase_constantize(rd.name)}"
+      data['environment_vars']["#{env_prefix}_URL"] = ''
+      data['environment_vars']["#{env_prefix}_REPOSITORYDEBUGOUTPUTENABLED"] = 'false'
+      data['environment_vars']["#{env_prefix}_SUBSCRIPTIONSDEBUGOUTPUTENABLED"] = 'false'
+      data['environment_vars']["#{env_prefix}_SHOULDVALIDATEREPOSITORYONLOAD"] = 'false'
+      data['environment_vars']["#{env_prefix}_REQUESTDEBUGOUTPUTENABLED"] = 'false'
+
+      define_custom_resource(data, "#{prefix}/url", "${#{env_prefix}_URL}")
+      define_custom_resource(data, "#{prefix}/repositoryDebugOutputEnabled", "${#{env_prefix}_REPOSITORYDEBUGOUTPUTENABLED}")
+      define_custom_resource(data, "#{prefix}/subscriptionsDebugOutputEnabled", "${#{env_prefix}_SUBSCRIPTIONSDEBUGOUTPUTENABLED}")
+      define_custom_resource(data, "#{prefix}/shouldValidateRepositoryOnLoad", "${#{env_prefix}_SHOULDVALIDATEREPOSITORYONLOAD}")
+      define_custom_resource(data, "#{prefix}/requestDebugOutputEnabled", "${#{env_prefix}_REQUESTDEBUGOUTPUTENABLED}")
+    end
   end
 
   if repository.keycloak?

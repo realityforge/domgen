@@ -1,0 +1,72 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(remote_datasource.qualified_ee_data_loader_service_implementation_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.enterprise.context.ApplicationScoped
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.NOT_SUPPORTED )
+@javax.enterprise.inject.Typed( <%= remote_datasource.ee_data_loader_service_interface %>.class )
+public class <%= remote_datasource.ee_data_loader_service_implementation_name %>
+  extends <%= remote_datasource.abstract_ee_data_loader_service_implementation %>
+{
+  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(remote_datasource.application.repository.name) %>" + APPLICATION_URL_JNDI_SUFFIX )
+  private String _applicationURL;
+  @javax.annotation.Resource( lookup = "<%= remote_datasource.application.repository.imit.executor_service_jndi %>" )
+  private javax.enterprise.concurrent.ManagedScheduledExecutorService _executorService;
+  @javax.inject.Inject
+  private org.realityforge.replicant.client.EntitySystem _entitySystem;
+  @javax.inject.Inject
+  private javax.enterprise.inject.spi.BeanManager _beanManager;
+  @javax.annotation.Resource( lookup = "<%= remote_datasource.application.repository.imit.context_service_jndi %>" )
+  private javax.enterprise.concurrent.ContextService _contextService;
+
+  private <%= remote_datasource.ee_data_loader_listener_impl %> _listener;
+
+  @javax.annotation.PostConstruct
+  public void postConstruct()
+  {
+    super.postConstruct();
+    _listener = new <%= remote_datasource.ee_data_loader_listener_impl %>( _beanManager, _entitySystem.getRepository() );
+    addDataLoaderListener( _listener );
+  }
+
+  @javax.annotation.PreDestroy
+  public void preDestroy()
+  {
+    removeDataLoaderListener( _listener );
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected javax.enterprise.concurrent.ContextService getContextService()
+  {
+    return _contextService;
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.client.EntitySystem getEntitySystem()
+  {
+    return _entitySystem;
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected String get<%= remote_datasource.name %>ApplicationURL()
+  {
+    return _applicationURL;
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected javax.enterprise.concurrent.ManagedScheduledExecutorService getManagedScheduledExecutorService()
+  {
+    return _executorService;
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected String getHostApplicationKey()
+  {
+    return "<%= Reality::Naming.underscore(remote_datasource.application.repository.name) %>";
+  }
+}

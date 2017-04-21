@@ -72,6 +72,23 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     // Mail Configuration Ende
 
 <% end -%>
+<% if repository.imit? -%>
+    // Replication configuration
+    glassfish.createManagedScheduledExecutorService( "<%= repository.imit.executor_service_jndi %>" );
+    glassfish.createContextService( "<%= repository.imit.context_service_jndi %>" );
+
+<% repository.imit.remote_datasources.each do |rd|
+      prefix = "#{Reality::Naming.underscore(repository.name)}/replicant/client/#{Reality::Naming.underscore(rd.name)}"
+-%>
+    // Remote Replication Datasource <%= rd.name %>
+    glassfish.createCustomResource( "<%= prefix %>/url", "http://example.com/<%= Reality::Naming.underscore(rd.name) %>" );
+    glassfish.createCustomResource( "<%= prefix %>/repositoryDebugOutputEnabled", false );
+    glassfish.createCustomResource( "<%= prefix %>/subscriptionsDebugOutputEnabled", false );
+    glassfish.createCustomResource( "<%= prefix %>/shouldValidateRepositoryOnLoad", true );
+    glassfish.createCustomResource( "<%= prefix %>/requestDebugOutputEnabled", false );
+<% end -%>
+
+<% end -%>
 <% if repository.keycloak? -%>
 
     // Keycloak Configuration Start
