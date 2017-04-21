@@ -1,0 +1,37 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_gwt_runtime_extension_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public interface <%= repository.imit.gwt_runtime_extension_name %>
+  extends <%= repository.imit.runtime_extension_name %>
+{
+<% repository.imit.graphs.each do |graph| -%>
+<% if graph.instance_root? -%>
+<% if graph.filtered? -%>
+
+  @javax.annotation.Nonnull
+  default org.realityforge.replicant.client.runtime.SubscriptionReference subscribeTo<%= repository.name%><%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.client.runtime.Scope scope, @javax.annotation.Nonnull final <%= repository.entity_by_name(graph.instance_root).primary_key.jpa.non_primitive_java_type %> id, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter )
+  {
+    return subscribe( scope, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, id ), filter );
+  }
+
+  default void subscribeTo<%= repository.name%><%= graph.name %>Graphs( @javax.annotation.Nonnull final org.realityforge.replicant.client.runtime.Scope scope, @javax.annotation.Nonnull final java.util.Collection<<%= repository.entity_by_name(graph.instance_root).primary_key.jpa.non_primitive_java_type %>> ids, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter )
+  {
+    for ( final <%= repository.entity_by_name(graph.instance_root).primary_key.jpa.non_primitive_java_type %> id : ids )
+    {
+      subscribeTo<%= repository.name%><%= graph.name %>Graph( scope, id, filter );
+    }
+  }
+<% end -%>
+<% else -%>
+<% if graph.filtered? -%>
+  @javax.annotation.Nonnull
+  default org.realityforge.replicant.client.runtime.SubscriptionReference subscribeTo<%= repository.name%><%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.client.runtime.Scope scope, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter )
+  {
+    return subscribe( scope, new org.realityforge.replicant.client.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> ), filter );
+  }
+<% end -%>
+<% end -%>
+
+<% end -%>
+}

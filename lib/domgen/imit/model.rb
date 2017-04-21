@@ -625,6 +625,9 @@ module Domgen
         repository.gwt.modules_package
       end
 
+      java_artifact :runtime_extension, :comm, :client, :imit, '#{repository.name}RuntimeExtension'
+      java_artifact :gwt_runtime_extension, :comm, :client, :imit, '#{repository.name}GwtRuntimeExtension'
+      java_artifact :ee_runtime_extension, :comm, :client, :imit, '#{repository.name}EeRuntimeExtension'
       java_artifact :dao_module, :ioc, :client, :imit, '#{repository.name}ReplicantRepositoryModule'
       java_artifact :entity_complete_module, :test, :client, :imit, '#{repository.name}EntityModule', :sub_package => 'util'
       java_artifact :ee_complete_module, :test, :client, :imit, '#{repository.name}EeModule', :sub_package => 'util'
