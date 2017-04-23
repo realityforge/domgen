@@ -3,6 +3,7 @@ package <%= to_package(repository.imit.qualified_runtime_extension_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 public interface <%= repository.imit.runtime_extension_name %>
+  extends org.realityforge.replicant.client.runtime.BaseRuntimeExtension
 {
 <% repository.imit.graphs.each do |graph| -%>
 <% if graph.instance_root? -%>
@@ -47,6 +48,4 @@ public interface <%= repository.imit.runtime_extension_name %>
 <% end -%>
 
 <% end -%>
-  @javax.annotation.Nonnull
-  org.realityforge.replicant.client.runtime.SubscriptionReference subscribe( @javax.annotation.Nonnull org.realityforge.replicant.client.runtime.Scope scope, @javax.annotation.Nonnull org.realityforge.replicant.client.ChannelDescriptor channel, @javax.annotation.Nullable Object filter );
 }
