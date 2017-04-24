@@ -32,6 +32,7 @@ public class <%= remote_datasource.ee_data_loader_service_implementation_name %>
   @javax.annotation.PreDestroy
   public void preDestroy()
   {
+    disconnect();
     removeDataLoaderListener( _listener );
   }
 
