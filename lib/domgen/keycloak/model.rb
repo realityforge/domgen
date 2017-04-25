@@ -370,9 +370,16 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      java_artifact :services_module, :ioc, :client, :keycloak, '#{repository.name}KeycloakServicesModule'
+      java_artifact :gwt_token_service, :service, :client, :keycloak, '#{repository.name}KeycloakTokenService'
+      java_artifact :gwt_token_service_impl, :service, :client, :keycloak, '#{gwt_token_service_name}Impl', :sub_package => 'internal'
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
       java_artifact :test_module, :test, :server, :keycloak, '#{repository.name}KeycloakServicesModule', :sub_package => 'util'
       java_artifact :test_auth_service_implementation, :test, :server, :keycloak, 'Test#{repository.keycloak.auth_service_implementation_name}', :sub_package => 'util'
+
+      def client_ioc_package
+        repository.gwt.client_ioc_package
+      end
 
       def auth_service_implementation_name
         self.repository.service_by_name(self.auth_service_name).ejb.service_implementation_name

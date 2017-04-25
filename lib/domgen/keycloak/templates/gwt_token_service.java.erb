@@ -1,0 +1,36 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_gwt_token_service_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public interface <%= repository.keycloak.gwt_token_service_name %>
+{<% repository.keycloak.clients.each do |client| -%>
+
+  @javax.annotation.Nullable
+  <%= client.qualified_token_name %> find<%= client.qualified_type_name %>Token();
+
+  @javax.annotation.Nullable
+  <%= client.qualified_id_token_name %> find<%= client.qualified_type_name %>IDToken();
+
+  @javax.annotation.Nonnull
+  default <%= client.qualified_token_name %> get<%= client.qualified_type_name %>Token()
+  {
+    final <%= client.qualified_token_name %> token = find<%= client.qualified_type_name %>Token();
+    if( null == token )
+    {
+      throw new IllegalStateException( "Missing keycloak token" );
+    }
+    return token;
+  }
+
+  @javax.annotation.Nullable
+  default <%= client.qualified_id_token_name %> get<%= client.qualified_type_name %>IDToken()
+  {
+    final <%= client.qualified_id_token_name %> token = find<%= client.qualified_type_name %>IDToken();
+    if( null == token )
+    {
+      throw new IllegalStateException( "Missing keycloak token" );
+    }
+    return token;
+  }
+<% end -%>
+}

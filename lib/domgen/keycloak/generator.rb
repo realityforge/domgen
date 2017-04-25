@@ -80,6 +80,17 @@ Domgen::Generator.define([:keycloak],
                               'id_token.java.erb',
                               'main/java/#{client.qualified_id_token_name.gsub(".","/")}.java',
                               :additional_facets => [:gwt])
+    template_set.erb_template(:repository,
+                              'gwt_token_service.java.erb',
+                              'main/java/#{repository.keycloak.qualified_gwt_token_service_name.gsub(".","/")}.java',
+                              :additional_facets => [:gwt])
+    template_set.erb_template(:repository,
+                              'gwt_token_service_impl.java.erb',
+                              'main/java/#{repository.keycloak.qualified_gwt_token_service_impl_name.gsub(".","/")}.java',
+                              :additional_facets => [:gwt])
+    template_set.erb_template(:repository,
+                              'services_module.java.erb',
+                              'main/java/#{repository.keycloak.qualified_services_module_name.gsub(".","/")}.java')
   end
 
   g.template_set(:keycloak_gwt_app) do |template_set|
