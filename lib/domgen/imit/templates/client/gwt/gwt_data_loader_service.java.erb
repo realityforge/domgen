@@ -76,14 +76,14 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   }
 
   @java.lang.Override
-  protected void doDisconnect( @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.ClientSession session, @javax.annotation.Nullable final Runnable runnable )
+  protected void doDisconnect( @javax.annotation.Nullable final Runnable runnable )
   {
     <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
     {
       @java.lang.Override
       public void run()
       {
-        <%= repository.imit.gwt_data_loader_service_name %>.super.doDisconnect( session, runnable );
+        <%= repository.imit.gwt_data_loader_service_name %>.super.doDisconnect( runnable );
       }
     } );
   }
