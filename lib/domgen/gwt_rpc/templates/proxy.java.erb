@@ -67,10 +67,6 @@ public class <%= service.gwt_rpc.proxy_name %>
   {
     request = session.newRequestRegistration( <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %>, <%= method.imit.graph_to_subscribe.nil? ? 'null' : "#{service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name}.getSessionContext().getKey() + \":\" + #{method.service.data_module.repository.imit.qualified_graph_enum_name}.#{Reality::Naming.uppercase_constantize(method.service.data_module.repository.imit.graph_by_name(method.imit.graph_to_subscribe).name)}.name()" %>, <%= method.imit.bulk_load? %> );
     <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().setRequest( request );
-    if( LOG.isLoggable( LOG_LEVEL ) )
-    {
-      LOG.log( LOG_LEVEL, <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " created request " + request.getRequestID() );
-    }
   }
   else
   {
@@ -122,39 +118,15 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         }
       };
 <% if method.imit? -%>
-      if( null != request && LOG.isLoggable( LOG_LEVEL ) )
+      if( null != request )
       {
-        LOG.log( LOG_LEVEL, <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception: RequestID=" + request.getRequestID() );
-      }
-      if( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
-      {
-        request.setNonNormalCompletionAction( runnable );
-        if( LOG.isLoggable( LOG_LEVEL ) )
-        {
-          LOG.log( LOG_LEVEL, <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception but change set not arrived: RequestID=" + request.getRequestID() );
-        }
+        session.completeNonNormalRequest( request, runnable );
       }
       else
 <% end -%>
       {
         runnable.run();
-<% if method.imit? -%>
-        if ( null != session )
-        {
-          session.removeRequest( request.getRequestID() );
-          if( LOG.isLoggable( LOG_LEVEL ) )
-          {
-            LOG.log( LOG_LEVEL, <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception and no change set or already arrived: RequestID=" + request.getRequestID() );
-          }
-        }
-<% end -%>
       }
-<% if method.imit? -%>
-      if( LOG.isLoggable( LOG_LEVEL ) )
-      {
-        LOG.log( LOG_LEVEL, <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed with exception." );
-      }
-<% end -%>
     }
 
     public void onSuccess( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
@@ -221,36 +193,14 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         }
       };
 <% if method.imit? -%>
-      if( null != request && LOG.isLoggable( LOG_LEVEL ) )
+      if( null != request )
       {
-        LOG.log( LOG_LEVEL, <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally: RequestID=" + request.getRequestID() );
-      }
-      if ( null != request && request.isExpectingResults() && !request.haveResultsArrived() )
-      {
-        request.setNormalCompletionAction( runnable );
-        if( LOG.isLoggable( LOG_LEVEL ) )
-        {
-          LOG.log( LOG_LEVEL, <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally but change set not arrived: RequestID=" + request.getRequestID() );
-        }
+        session.completeNormalRequest( request, runnable );
       }
       else
 <% end -%>
       {
         runnable.run();
-<% if method.imit? -%>
-        if ( null != session )
-        {
-          session.removeRequest( request.getRequestID() );
-          if( LOG.isLoggable( LOG_LEVEL ) )
-          {
-            LOG.log( LOG_LEVEL, <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally and no change set or already arrived: RequestID=" + request.getRequestID() );
-          }
-        }
-        if( LOG.isLoggable( LOG_LEVEL ) )
-        {
-          LOG.log( LOG_LEVEL, <%= Reality::Naming.uppercase_constantize(method.qualified_name.gsub(/[#\\.]/,'_')) %> + " request completed normally." );
-        }
-<% end -%>
       }
     }
     });
