@@ -17,10 +17,6 @@ public class <%= repository.imit.session_manager_name %>
   extends org.realityforge.replicant.server.transport.Replicant<%= repository.imit.secured? ? 'Secured' : '' -%>SessionManagerImpl
   implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %><% if repository.imit.poll_replicate_mode? %>, <%= repository.imit.qualified_poll_service_name %><% end %>
 {
-<% repository.imit.graphs.each_with_index do |graph, i| -%>
-  private static final org.realityforge.replicant.server.transport.ChannelMetaData $CHANNEL_<%= i %> = new org.realityforge.replicant.server.transport.ChannelMetaData( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), "<%= graph.name %>", <%= !graph.instance_root? %>, org.realityforge.replicant.server.transport.ChannelMetaData.FilterType.<%= graph.filter_parameter.nil? ? 'NONE' : graph.filter_parameter.immutable? ? 'STATIC' : 'DYNAMIC' %>, <%= graph.cacheable? %> );
-<% end -%>
-  private static final org.realityforge.replicant.server.transport.ChannelMetaData[] CHANNELS = new org.realityforge.replicant.server.transport.ChannelMetaData[]{<% repository.imit.graphs.each_with_index do |graph, i| -%> $CHANNEL_<%= i %>,<% end %> };
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
 <% if repository.imit.secured? -%>
   @javax.inject.Inject
@@ -54,9 +50,9 @@ entities.uniq.each do |entity| -%>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected org.realityforge.replicant.server.transport.ChannelMetaData[] getChannelMetaData()
+  public org.realityforge.replicant.server.transport.SystemMetaData getSystemMetaData()
   {
-    return CHANNELS;
+    return <%= repository.imit.qualified_system_metadata_name %>.getSystemMetaData();
   }
 
   /**
