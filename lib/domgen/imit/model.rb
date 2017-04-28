@@ -1396,14 +1396,6 @@ module Domgen
     end
 
     facet.enhance(Method) do
-      def bulk_load=(bulk_load)
-        @bulk_load = !!bulk_load
-      end
-
-      def bulk_load?
-        @bulk_load.nil? ? false : @bulk_load
-      end
-
       # TODO: Remove this ugly hack!
       attr_accessor :graph_to_subscribe
     end
