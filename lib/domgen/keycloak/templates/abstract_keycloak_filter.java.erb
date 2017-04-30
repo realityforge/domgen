@@ -17,6 +17,23 @@ package <%= to_package(client.qualified_abstract_keycloak_filter_name) %>;
 public abstract class <%= client.abstract_keycloak_filter_name %>
   implements <%= client.qualified_keycloak_filter_interface_name %>
 {
+<% if client.keycloak_repository.repository.imit? -%>
+  private boolean _disableSessionServiceProtection;
+
+  @javax.annotation.PostConstruct
+  protected void postConstruct()
+  {
+    try
+    {
+      _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
+    }
+    catch ( final java.lang.Exception e )
+    {
+      //Ignored.
+    }
+  }
+
+<% end -%>
   @Override
   public boolean shouldProtectRequest( @javax.annotation.Nonnull final javax.servlet.ServletRequest request )
   {
@@ -41,6 +58,12 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 <% end -%>
 <% if client.keycloak_repository.repository.syncrecord? -%>
     if ( path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + '/' + iris.syncrecord.server.rest.SyncStatusService.PATH_PREFIX ) )
+    {
+      return false;
+    }
+<% end -%>
+<% if client.keycloak_repository.repository.imit? -%>
+    if ( _disableSessionServiceProtection && path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH  + org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_URL_FRAGMENT ) )
     {
       return false;
     }
