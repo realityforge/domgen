@@ -74,6 +74,12 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
     return new <%= repository.ejb.qualified_services_module_name %>( this );
   }
 
+  @javax.annotation.Nullable
+  protected com.google.inject.Module new<%= repository.name %>MessagesModule()
+  {
+    return new <%= repository.ee.message_module_name %>();
+  }
+
   @java.lang.Override
   protected com.google.inject.Module[] getModules()
   {
@@ -82,6 +88,7 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% repository.ejb.extra_test_modules.each do |test_module| -%>
     modules.add( new <%= test_module %>() );
 <% end -%>
+    addModule( modules, new<%= repository.name %>MessagesModule() );
     addModule( modules, new<%= repository.name %>ServicesModule() );
 <% if repository.ejb.include_server_test_module? -%>
     addModule( modules, new<%= repository.name %>ServerModule() );

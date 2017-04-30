@@ -1,0 +1,31 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_gwt_token_service_impl_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public class <%= repository.keycloak.gwt_token_service_impl_name %>
+  implements <%= repository.keycloak.qualified_gwt_token_service_name %>
+{
+  private final org.realityforge.gwt.keycloak.Keycloak _keycloak;
+
+  @javax.inject.Inject
+  public <%= repository.keycloak.gwt_token_service_impl_name %>( final org.realityforge.gwt.keycloak.Keycloak keycloak )
+  {
+    _keycloak = java.util.Objects.requireNonNull( keycloak );
+  }
+<% repository.keycloak.clients.each do |client| -%>
+
+  @java.lang.Override
+  @javax.annotation.Nullable
+  public <%= client.qualified_token_name %> find<%= client.qualified_type_name %>Token()
+  {
+    return _keycloak.getParsedToken();
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nullable
+  public <%= client.qualified_id_token_name %> find<%= client.qualified_type_name %>IDToken()
+  {
+    return _keycloak.getParsedIDToken();
+  }
+<% end -%>
+}

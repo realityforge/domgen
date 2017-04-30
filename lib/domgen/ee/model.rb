@@ -103,6 +103,7 @@ module Domgen
       java_artifact :base_integration_test, :test, :integration, :ee, '#{repository.name}GlassFishTest', :sub_package => 'util'
       java_artifact :deploy_test, nil, :integration, :ee, '#{repository.name}DeployTest'
       java_artifact :aggregate_integration_test, :test, :integration, :ee, '#{repository.name}AggregateIntegrationTest', :sub_package => 'util'
+      java_artifact :message_module, :test, :server, :ee, '#{repository.name}MessagesModule', :sub_package => 'util'
 
       attr_writer :custom_base_integration_test
 
@@ -123,6 +124,8 @@ module Domgen
     end
 
     facet.enhance(Message) do
+      include Domgen::Java::BaseJavaGenerator
+
       def name
         "#{message.name}"
       end
@@ -130,6 +133,14 @@ module Domgen
       def qualified_name
         "#{message.data_module.ee.server_event_package}.#{name}"
       end
+
+      attr_writer :generate_test_literal
+
+      def generate_test_literal?
+        @generate_test_literal.nil? ? true : !!@generate_test_literal
+      end
+
+      java_artifact :message_literal, :test, :server, :ee, '#{message.name}TypeLiteral', :sub_package => 'util'
     end
 
     facet.enhance(MessageParameter) do

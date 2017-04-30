@@ -23,6 +23,9 @@ public class <%= repository.gwt.aggregate_module_name %>
   @java.lang.Override
   protected void configure()
   {
+<% if repository.keycloak? -%>
+    install( new <%= repository.keycloak.qualified_services_module_name %>() );
+<% end -%>
 <% if repository.gwt_rpc? -%>
     install( new <%= repository.gwt_rpc.qualified_rpc_services_module_name %>() );
 <% end -%>
