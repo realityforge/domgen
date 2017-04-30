@@ -134,6 +134,12 @@ module Domgen
         "#{message.data_module.ee.server_event_package}.#{name}"
       end
 
+      attr_writer :generate_test_literal
+
+      def generate_test_literal?
+        @generate_test_literal.nil? ? true : !!@generate_test_literal
+      end
+
       java_artifact :message_literal, :test, :server, :ee, '#{message.name}TypeLiteral', :sub_package => 'util'
     end
 

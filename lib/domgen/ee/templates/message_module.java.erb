@@ -11,7 +11,7 @@ public class <%= repository.ee.message_module_name %>
   {
 <%
   repository.data_modules.select{|data_module| data_module.ee?}.each do |data_module|
-    data_module.messages.select{|message| message.ee? && !(message.imit? && message.imit.subscription_message?)}.each do |message|
+    data_module.messages.select{|message| message.ee? && message.ee.generate_test_literal?}.each do |message|
 -%>
     bind( <%= message.ee.qualified_message_literal_name %>.INSTANCE ).toInstance( new org.realityforge.guiceyloops.server.EventStub<>() );
 <%

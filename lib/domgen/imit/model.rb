@@ -227,6 +227,7 @@ module Domgen
         name = :"#{self.name}#{suffix}"
         message = create ? data_module.message(name) : data_module.message_by_name(name)
         message.imit.subscription_message = true
+        message.ee.generate_test_literal = false
         message
       end
 
