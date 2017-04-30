@@ -425,6 +425,15 @@ entities.uniq.each do |entity| -%>
     {
       return _context.bulkCollectDataFor<%= graph.name %>Update( session, descriptors, changeSet, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
     }
+    else <%
+  end
+  repository.imit.graphs.select{|graph| graph.instance_root? && (!graph.filtered? || graph.filter_parameter.immutable?)}.each do |graph|
+-%>if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal() == descriptor.getChannelID() )
+    {
+      //Needed so that it falls back to to the normal update process for unfiltered graphs.
+      //This usually used to flip explicitSubscribed flag
+      return false;
+    }
     else <% end -%>
 
     {
