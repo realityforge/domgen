@@ -24,6 +24,11 @@ public abstract class <%= repository.jaxrs.abstract_application_name %>
 <% if repository.jackson? -%>
     classes.add( org.glassfish.jersey.jackson.JacksonFeature.class );
 <% end -%>
+    collectClasses( classes );
     return classes;
+  }
+
+  protected void collectClasses( @javax.annotation.Nonnull final java.util.Set<Class<?>> classes )
+  {
   }
 }
