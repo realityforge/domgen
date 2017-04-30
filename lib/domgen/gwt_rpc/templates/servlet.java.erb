@@ -257,4 +257,9 @@ if has_cookie
     return null;
   }
 <% end %>
+
+  protected void doUnexpectedFailure( java.lang.Throwable e )
+  {
+    com.google.gwt.user.server.rpc.RPCServletUtils.writeResponseForUnexpectedFailure( getServletContext(), getThreadLocalResponse(), e );
+  }
 }
