@@ -2,7 +2,6 @@
 package <%= to_package(repository.imit.qualified_gwt_data_loader_service_name) %>;
 
 @java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "SF_SWITCH_NO_DEFAULT" } )
 public class <%= repository.imit.gwt_data_loader_service_name %>
   extends org.realityforge.replicant.client.gwt.<%= repository.imit.poll_replicate_mode? ? 'GwtWebPoller' : 'Gwt' %>DataLoaderService
   implements <%= repository.imit.qualified_gwt_data_loader_service_interface_name %>
