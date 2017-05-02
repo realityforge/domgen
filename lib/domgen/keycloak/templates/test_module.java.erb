@@ -16,11 +16,17 @@ public class <%= repository.keycloak.test_module_name %>
   {
     bindHttpServletRequest();
     bindKeycloakAuthService();
+    bindSimpleAuthService();
   }
 
   protected void bindKeycloakAuthService()
   {
     bindService( <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>.class, <%= repository.keycloak.qualified_test_auth_service_implementation_name %>.class );
+  }
+
+  protected void bindSimpleAuthService()
+  {
+    bindService( org.realityforge.keycloak.sks.SimpleAuthService.class, org.realityforge.keycloak.sks.SimplAuthServiceImpl.class );
   }
 
   protected void bindHttpServletRequest()
