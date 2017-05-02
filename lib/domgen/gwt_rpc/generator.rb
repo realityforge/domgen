@@ -45,6 +45,9 @@ Domgen::Generator.define([:gwt_rpc],
     template_set.erb_template(:service,
                               'proxy.java.erb',
                               'main/java/#{service.gwt_rpc.qualified_proxy_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'async_callback_adapter.java.erb',
+                              'main/java/#{repository.gwt_rpc.qualified_async_callback_adapter_name.gsub(".","/")}.java')
   end
   g.template_set(:gwt_rpc_test_module) do |template_set|
     template_set.erb_template(:repository,

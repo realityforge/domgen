@@ -38,7 +38,8 @@ module Domgen
         nullable = (options[:nullable].nil? ? characteristic.nullable? : options[:nullable]) || (options[:nonnull_requires_immutable] ? !characteristic.immutable? : false)
         extension = characteristic.facet(facet_key)
         nullability_prefix = (supports_nullable?(extension, modality)) ? "#{nullability_annotation(nullable)} " : ''
-        "#{nullability_prefix}#{public_qualifier}#{protected_qualifier}#{private_qualifier}#{abstract_qualifier}#{final_qualifier}#{native_qualifier}#{extension.java_type(modality)}"
+        type = options[:non_primitive] ? extension.non_primitive_java_type(modality) : extension.java_type(modality)
+        "#{nullability_prefix}#{public_qualifier}#{protected_qualifier}#{private_qualifier}#{abstract_qualifier}#{final_qualifier}#{native_qualifier}#{type}"
       end
 
       def javabean_property_name(key)
