@@ -7,7 +7,7 @@ public abstract class <%= repository.gwt_rpc.async_callback_adapter_name %><T,N>
 {
   private final com.google.gwt.user.client.rpc.AsyncCallback _globalCallback;
   private final <%= repository.gwt.qualified_async_callback_name %><N> _callback;
-  private final iris.planner.client.service.PlannerAsyncErrorCallback _errorCallback;
+  private final <%= repository.gwt.qualified_async_error_callback_name %> _errorCallback;
 <% if repository.imit? -%>
   private final org.realityforge.replicant.client.transport.RequestEntry _request;
   private final org.realityforge.replicant.client.transport.ClientSession _session;
