@@ -183,3 +183,6 @@ require 'domgen/application/model'
 
 require 'domgen/robots/model'
 require 'domgen/robots/generator'
+
+require 'domgen/iris_audit/model'
+require 'domgen/iris_audit/generator'

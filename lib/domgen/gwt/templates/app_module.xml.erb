@@ -6,6 +6,9 @@
 <% if repository.appcache? -%>
   <inherits name="org.realityforge.gwt.appcache.Appcache"/>
 <% end -%>
+<% if repository.iris_audit? -%>
+  <inherits name="iris.audit.Audit"/>
+<% end -%>
 
   <set-configuration-property name="CssResource.enableGss" value="true" />
   <set-configuration-property name="CssResource.conversionMode" value="strict"/>

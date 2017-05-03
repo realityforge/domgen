@@ -29,6 +29,10 @@ public class <%= repository.gwt.aggregate_module_name %>
 <% if repository.gwt_rpc? -%>
     install( new <%= repository.gwt_rpc.qualified_rpc_services_module_name %>() );
 <% end -%>
+<% if repository.iris_audit? -%>
+    install( new iris.audit.client.ioc.AuditClientModule() );
+    install( new iris.audit.client.ioc.AuditModule() );
+<% end -%>
 <% if repository.imit? -%>
     if ( _standalone )
     {

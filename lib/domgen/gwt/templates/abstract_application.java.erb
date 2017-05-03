@@ -209,7 +209,16 @@ public abstract class <%= repository.gwt.abstract_application_name %>
 
   protected abstract void prepareUI();
 
-  protected abstract void onUncaughtException( Throwable e );
+  protected void onUncaughtException( Throwable e )
+  {
+<% if repository.iris_audit? -%>
+    final iris.audit.client.ClientExceptionAuditHelper helper = getClientExceptionAuditHelper();
+    if ( null != helper )
+    {
+      helper.auditClientException( e, e.getMessage() );
+    }
+<% end -%>
+  }
 <% if repository.gwt_rpc? -%>
 
   protected void initGwtRpcServices()
@@ -219,6 +228,16 @@ public abstract class <%= repository.gwt.abstract_application_name %>
 <% end -%>
     <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.<% if repository.imit? -%>getSessionContext().<% end -%>setBaseURL( getApplicationURL() );
     <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.initialize();
+<% if repository.iris_audit? -%>
+    iris.audit.client.ioc.AuditGwtRpcServicesModule.setBaseURL( getApplicationURL() );
+    iris.audit.client.ioc.AuditGwtRpcServicesModule.setKeycloak( getKeycloak() );
+    iris.audit.client.ioc.AuditGwtRpcServicesModule.initialize();
+<% end -%>
   }
+<% end -%>
+<% if repository.iris_audit? -%>
+
+  @javax.annotation.Nullable
+  protected abstract iris.audit.client.ClientExceptionAuditHelper getClientExceptionAuditHelper();
 <% end -%>
 }

@@ -172,6 +172,10 @@ def generate(repository)
         define_custom_resource(data, unit.related_database_jndi(key), "${#{env_key}}")
       end
     end
+    if repository.iris_audit?
+      resource_name = "#{Reality::Naming.underscore(repository.name)}/jdbc/Audit"
+      define_persistence_unit(data, repository, 'Audit', resource_name)
+    end
   end
 
   ::JSON.pretty_generate(data)
