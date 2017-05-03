@@ -230,7 +230,9 @@ public abstract class <%= repository.gwt.abstract_application_name %>
     <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.initialize();
 <% if repository.iris_audit? -%>
     iris.audit.client.ioc.AuditGwtRpcServicesModule.setBaseURL( getApplicationURL() );
+<% if repository.keycloak? -%>
     iris.audit.client.ioc.AuditGwtRpcServicesModule.setKeycloak( getKeycloak() );
+<% end -%>
     iris.audit.client.ioc.AuditGwtRpcServicesModule.initialize();
 <% end -%>
   }
