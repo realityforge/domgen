@@ -234,9 +234,8 @@ end.join(', ') %>);
   }
 <% end %>
 <%
-has_cookie = false
- service.methods.select{|method| method.gwt_rpc?}.each do |method|
-   has_cookie = method.parameters.any?{|p| p.gwt_rpc.environmental? && p.gwt_rpc.environment_key_is_cookie?}
+has_cookie = service.methods.select{|method| method.gwt_rpc?}.any? do |method|
+   method.parameters.any?{|p| p.gwt_rpc.environmental? && p.gwt_rpc.environment_key_is_cookie?}
  end
 if has_cookie
 %>
