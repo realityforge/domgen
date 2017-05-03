@@ -45,6 +45,9 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     glassfish.createCustomResource( "<%= unit.related_database_jndi(key) %>", <%= unit.qualified_persistence_unit_test_util_name %>.get<%= Reality::Naming.pascal_case(key) %>DatabaseName() );
 <% end -%>
 <% end -%>
+<% if repository.iris_audit?  -%>
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( "<%= Reality::Naming.underscore(repository.name) %>/jdbc/Audit" );
+<% end -%>
     // Database Configuration Ende
 
 <% end -%>
