@@ -11,4 +11,7 @@
 <% if repository.keycloak? -%>
   <inherits name="org.realityforge.gwt.keycloak.Keycloak"/>
 <% end -%>
+<% if repository.iris_audit? -%>
+  <inherits name="iris.audit.Audit"/>
+<% end -%>
 </module>
