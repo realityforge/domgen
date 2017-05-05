@@ -865,22 +865,28 @@ FRAGMENT
               if entity.attribute_by_name?(parameter_name)
                 a = entity.attribute_by_name(parameter_name)
                 jpql_name = a.remote_reference? ? a.referencing_link_name : parameter_name
-                field = "#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}"
-                comparison = "#{field} = :#{parameter_name}"
+                comparison =
+                  jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}",
+                                  parameter_name,
+                                  a.nullable?)
                 jpql = "#{operation} #{comparison} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
-                  field = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}"
-                  comparison = "#{field} = :#{parameter_name}"
+                  comparison =
+                    jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}",
+                                    parameter_name,
+                                    a.nullable?)
                   jpql = "#{operation} #{comparison} #{jpql}"
                   found = true
                 end
                 entity.attributes.select { |a| a.remote_reference? && a.referencing_link_name == parameter_name }.each do |a|
-                field = "#{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}"
-                comparison = "#{field} = :#{parameter_name}"
-                jpql = "#{operation} #{comparison} #{jpql}"
+                comparison =
+                  jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}",
+                                  parameter_name,
+                                  a.nullable?)
+                  jpql = "#{operation} #{comparison} #{jpql}"
                   found = true
                 end
                 unless found
@@ -893,21 +899,24 @@ FRAGMENT
               if entity.attribute_by_name?(parameter_name)
                 a = entity.attribute_by_name(parameter_name)
                 jpql_name = a.remote_reference? ? a.referencing_link_name : parameter_name
-                field = "#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}"
-                comparison = "#{field} = :#{parameter_name}"
+                comparison =
+                  jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}",
+                                  parameter_name,
+                                  a.nullable?)
                 jpql = "#{comparison} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
-                  field = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}"
-                  comparison = "#{field} = :#{parameter_name}"
+                  comparison =
+                    jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}",
+                                    parameter_name,
+                                    a.nullable?)
                   jpql = "#{comparison} #{jpql}"
                   found = true
                 end
                 entity.attributes.select { |a| a.remote_reference? && a.referencing_link_name == parameter_name }.each do |a|
-                  field = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}"
-                  comparison = "#{field} = :#{parameter_name}"
+                  comparison = jpql_comparison("#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}", parameter_name, a.nullable?)
                   jpql = "#{comparison} #{jpql}"
                   found = true
                 end
@@ -931,6 +940,12 @@ FRAGMENT
         entity.queries.select { |query| query.jpa? && query.jpa.ignore_default_criteria? }.each do |query|
           query.disable_facet(:imit) if query.imit?
         end
+      end
+
+      def jpql_comparison(field, parameter_name, is_nullable)
+        is_nullable ?
+          "( (:#{parameter_name} IS NULL AND #{field} IS NULL ) OR #{field} = :#{parameter_name} )" :
+          "#{field} = :#{parameter_name}"
       end
     end
 
