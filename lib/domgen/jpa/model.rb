@@ -171,6 +171,7 @@ module Domgen
       def initialize(jpa_repository, options = {}, &block)
         super(jpa_repository, options, &block)
       end
+
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
@@ -864,16 +865,28 @@ FRAGMENT
               if entity.attribute_by_name?(parameter_name)
                 a = entity.attribute_by_name(parameter_name)
                 jpql_name = a.remote_reference? ? a.referencing_link_name : parameter_name
-                jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(jpql_name)} = :#{parameter_name} #{jpql}"
+                comparison =
+                  jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}",
+                                  parameter_name,
+                                  a.nullable?)
+                jpql = "#{operation} #{comparison} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
-                  jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
+                  comparison =
+                    jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}",
+                                    parameter_name,
+                                    a.nullable?)
+                  jpql = "#{operation} #{comparison} #{jpql}"
                   found = true
                 end
                 entity.attributes.select { |a| a.remote_reference? && a.referencing_link_name == parameter_name }.each do |a|
-                  jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)} = :#{parameter_name} #{jpql}"
+                comparison =
+                  jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}",
+                                  parameter_name,
+                                  a.nullable?)
+                  jpql = "#{operation} #{comparison} #{jpql}"
                   found = true
                 end
                 unless found
@@ -886,16 +899,25 @@ FRAGMENT
               if entity.attribute_by_name?(parameter_name)
                 a = entity.attribute_by_name(parameter_name)
                 jpql_name = a.remote_reference? ? a.referencing_link_name : parameter_name
-                jpql = "#{entity_prefix}#{Reality::Naming.camelize(jpql_name)} = :#{parameter_name} #{jpql}"
+                comparison =
+                  jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}",
+                                  parameter_name,
+                                  a.nullable?)
+                jpql = "#{comparison} #{jpql}"
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
                 entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
-                  jpql = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)} = :#{parameter_name} #{jpql}"
+                  comparison =
+                    jpql_comparison("#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}",
+                                    parameter_name,
+                                    a.nullable?)
+                  jpql = "#{comparison} #{jpql}"
                   found = true
                 end
                 entity.attributes.select { |a| a.remote_reference? && a.referencing_link_name == parameter_name }.each do |a|
-                  jpql = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)} = :#{parameter_name} #{jpql}"
+                  comparison = jpql_comparison("#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}", parameter_name, a.nullable?)
+                  jpql = "#{comparison} #{jpql}"
                   found = true
                 end
                 jpql = nil unless found
@@ -918,6 +940,12 @@ FRAGMENT
         entity.queries.select { |query| query.jpa? && query.jpa.ignore_default_criteria? }.each do |query|
           query.disable_facet(:imit) if query.imit?
         end
+      end
+
+      def jpql_comparison(field, parameter_name, is_nullable)
+        is_nullable ?
+          "( (:#{parameter_name} IS NULL AND #{field} IS NULL ) OR #{field} = :#{parameter_name} )" :
+          "#{field} = :#{parameter_name}"
       end
     end
 
@@ -1071,9 +1099,10 @@ FRAGMENT
             if query.entity.attribute_by_name?(parameter_name)
               attribute = query.entity.attribute_by_name(parameter_name)
               characteristic_options = {}
+              characteristic_options[:nullable] = attribute.nullable?
               characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
               characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
-                characteristic_options[:referenced_remote_entity] = attribute.referenced_remote_entity if attribute.remote_reference?
+              characteristic_options[:referenced_remote_entity] = attribute.referenced_remote_entity if attribute.remote_reference?
               p = query.parameter(attribute.name, attribute.attribute_type, characteristic_options)
               p.disable_facets_not_in(attribute.enabled_facets)
             else
@@ -1081,6 +1110,7 @@ FRAGMENT
               query.entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
                 attribute = a.referenced_entity.primary_key
                 characteristic_options = {}
+                characteristic_options[:nullable] = attribute.nullable?
                 characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
                 characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
                 characteristic_options[:referenced_remote_entity] = attribute.referenced_remote_entity if attribute.remote_reference?
@@ -1093,7 +1123,7 @@ FRAGMENT
 
         actual_parameters = query.parameters.collect { |p| p.name.to_s }
         if expected_parameters.sort != actual_parameters.sort
-          Domgen.error("Actual parameters for query #{query.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}")
+          Domgen.error("Actual parameters for query #{query.qualified_name} [ql=#{self.ql}] (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}")
         end
       end
 
