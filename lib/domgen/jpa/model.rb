@@ -1084,7 +1084,6 @@ FRAGMENT
             if query.entity.attribute_by_name?(parameter_name)
               attribute = query.entity.attribute_by_name(parameter_name)
               characteristic_options = {}
-              characteristic_options[:nullable] = attribute.nullable?
               characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
               characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
               characteristic_options[:referenced_remote_entity] = attribute.referenced_remote_entity if attribute.remote_reference?
@@ -1095,7 +1094,6 @@ FRAGMENT
               query.entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
                 attribute = a.referenced_entity.primary_key
                 characteristic_options = {}
-                characteristic_options[:nullable] = attribute.nullable?
                 characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
                 characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
                 characteristic_options[:referenced_remote_entity] = attribute.referenced_remote_entity if attribute.remote_reference?
