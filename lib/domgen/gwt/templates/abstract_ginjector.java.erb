@@ -1,0 +1,22 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.gwt.qualified_abstract_ginjector_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public interface <%= repository.gwt.abstract_ginjector_name %><% if repository.imit? -%><C extends org.realityforge.replicant.client.net.gwt.BaseFrontendContext><% end %>
+  extends com.google.gwt.inject.client.Ginjector
+{<% if repository.keycloak? -%>
+
+  @javax.annotation.Nonnull
+  com.google.gwt.event.shared.EventBus getEventBus();
+<% end -%>
+<% if repository.imit? -%>
+
+  @javax.annotation.Nonnull
+  C getFrontendContext();
+<% end -%>
+<% if repository.iris_audit? -%>
+
+  @javax.annotation.Nonnull
+  iris.audit.client.ClientExceptionAuditHelper getClientExceptionAuditHelper();
+<% end -%>
+}

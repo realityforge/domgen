@@ -59,6 +59,24 @@ module Domgen
 
       attr_reader :name
 
+      attr_writer :gwt_rpc_enabled
+
+      def gwt_rpc_enabled?
+        @gwt_rpc_enabled.nil? ? true : !!@gwt_rpc_enabled
+      end
+
+      attr_writer :imit_enabled
+
+      def imit_enabled?
+        @imit_enabled.nil? ? true : !!@imit_enabled
+      end
+
+      attr_writer :keycloak_enabled
+
+      def keycloak_enabled?
+        @keycloak_enabled.nil? ? true : !!@keycloak_enabled
+      end
+
       attr_writer :base_package
 
       def base_package

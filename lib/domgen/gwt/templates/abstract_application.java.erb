@@ -2,7 +2,7 @@
 package <%= to_package(repository.gwt.qualified_abstract_application_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-public abstract class <%= repository.gwt.abstract_application_name %>
+public abstract class <%= repository.gwt.abstract_application_name %><I extends <%= repository.gwt.qualified_abstract_ginjector_name %>>
 <% if repository.keycloak? -%>
     implements org.realityforge.gwt.keycloak.KeycloakListener
 <% end -%>
@@ -43,10 +43,43 @@ public abstract class <%= repository.gwt.abstract_application_name %>
   {
     return _serverUrl;
   }
+
+  @javax.annotation.Nullable
+  protected abstract I getInjector();
+
+  @javax.annotation.Nonnull
+  protected final I ensureInjector()
+  {
+    final I injector = getInjector();
+    assert null != injector;
+    return injector;
+  }
 <% if repository.keycloak? -%>
 
   @javax.annotation.Nullable
-  protected abstract com.google.gwt.event.shared.EventBus getEventBus();
+  protected final com.google.gwt.event.shared.EventBus getEventBus()
+  {
+    final I injector = getInjector();
+    return null != injector ? injector.getEventBus() : null;
+  }
+
+  protected final void fireEvent( @javax.annotation.Nonnull final com.google.gwt.event.shared.GwtEvent<?> event )
+  {
+    final com.google.gwt.event.shared.EventBus eventBus = getEventBus();
+    if ( null != eventBus )
+    {
+      eventBus.fireEvent( event );
+    }
+  }
+
+  protected final void fireEventFromSource( @javax.annotation.Nonnull final com.google.gwt.event.shared.GwtEvent<?> event, @javax.annotation.Nonnull final Object source )
+  {
+    final com.google.gwt.event.shared.EventBus eventBus = getEventBus();
+    if ( null != eventBus )
+    {
+      eventBus.fireEventFromSource( event, source );
+    }
+  }
 
   @Override
   public void onReady( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak, final boolean authenticated )
@@ -59,73 +92,49 @@ public abstract class <%= repository.gwt.abstract_application_name %>
     {
       keycloak.login();
     }
-    if ( null != getEventBus() )
-    {
-      getEventBus().fireEventFromSource( new org.realityforge.gwt.keycloak.event.ReadyEvent( keycloak, authenticated ), keycloak );
-    }
+    fireEventFromSource( new org.realityforge.gwt.keycloak.event.ReadyEvent( keycloak, authenticated ), keycloak );
   }
 
   @Override
   public void onAuthSuccess( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
   {
-    if ( null != getEventBus() )
-    {
-      getEventBus().fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthSuccessEvent( keycloak ), keycloak );
-    }
+    fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthSuccessEvent( keycloak ), keycloak );
   }
 
   @Override
   public void onAuthError( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
   {
-    if ( null != getEventBus() )
-    {
-      getEventBus().fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthErrorEvent( keycloak ), keycloak );
-    }
+    fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthErrorEvent( keycloak ), keycloak );
   }
 
   @Override
   public void onAuthRefreshSuccess( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
   {
-    if ( null != getEventBus() )
-    {
-      getEventBus().fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthRefreshSuccessEvent( keycloak ), keycloak );
-    }
+    fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthRefreshSuccessEvent( keycloak ), keycloak );
   }
 
   @Override
   public void onAuthRefreshError( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
   {
-    if ( null != getEventBus() )
-    {
-      getEventBus().fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthRefreshErrorEvent( keycloak ), keycloak );
-    }
+    fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthRefreshErrorEvent( keycloak ), keycloak );
   }
 
   @Override
   public void beforeAuthLogout( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
   {
-    if ( null != getEventBus() )
-    {
-      getEventBus().fireEventFromSource( new org.realityforge.gwt.keycloak.event.BeforeAuthLogoutEvent( keycloak ), keycloak );
-    }
+    fireEventFromSource( new org.realityforge.gwt.keycloak.event.BeforeAuthLogoutEvent( keycloak ), keycloak );
   }
 
   @Override
   public void onAuthLogout( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
   {
-    if ( null != getEventBus() )
-    {
-      getEventBus().fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthLogoutEvent( keycloak ), keycloak );
-    }
+    fireEventFromSource( new org.realityforge.gwt.keycloak.event.AuthLogoutEvent( keycloak ), keycloak );
   }
 
   @Override
   public void onTokenExpired( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
   {
-    if ( null != getEventBus() )
-    {
-      getEventBus().fireEventFromSource( new org.realityforge.gwt.keycloak.event.TokenExpiredEvent( keycloak ), keycloak );
-    }
+    fireEventFromSource( new org.realityforge.gwt.keycloak.event.TokenExpiredEvent( keycloak ), keycloak );
   }
 
   public void login()
@@ -206,7 +215,12 @@ public abstract class <%= repository.gwt.abstract_application_name %>
 
   protected abstract void preStart();
 
-  protected abstract void prepareServices();
+  protected void prepareServices()
+  {
+<% if repository.imit? -%>
+    ensureInjector().getFrontendContext().connect();
+<% end -%>
+  }
 
   protected abstract void prepareUI();
 
@@ -236,11 +250,24 @@ public abstract class <%= repository.gwt.abstract_application_name %>
 <% end -%>
     iris.audit.client.ioc.AuditGwtRpcServicesModule.initialize();
 <% end -%>
+<% if repository.imit? -%>
+<% repository.imit.remote_datasources.select{|ds| ds.gwt_rpc_enabled? }.each do |ds| -%>
+    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesModule.<% if ds.imit_enabled? %>getSessionContext().<% end %>setBaseURL( getServerUrl() + "/<%= Reality::Naming.underscore(ds.name) %>/" );
+<% if repository.keycloak? && ds.keycloak_enabled? -%>
+    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesModule.setKeycloak( getKeycloak() );
+<% end -%>
+    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesModule.initialize();
+<% end -%>
+<% end -%>
   }
 <% end -%>
 <% if repository.iris_audit? -%>
 
   @javax.annotation.Nullable
-  protected abstract iris.audit.client.ClientExceptionAuditHelper getClientExceptionAuditHelper();
+  protected final iris.audit.client.ClientExceptionAuditHelper getClientExceptionAuditHelper()
+  {
+    final I injector = getInjector();
+    return null != injector ? injector.getClientExceptionAuditHelper() : null;
+  }
 <% end -%>
 }
