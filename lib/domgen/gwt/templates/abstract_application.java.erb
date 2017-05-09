@@ -45,6 +45,7 @@ public abstract class <%= repository.gwt.abstract_application_name %>
   }
 <% if repository.keycloak? -%>
 
+  @javax.annotation.Nullable
   protected abstract com.google.gwt.event.shared.EventBus getEventBus();
 
   @Override
