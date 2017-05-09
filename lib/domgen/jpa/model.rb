@@ -1253,7 +1253,13 @@ FRAGMENT
 
       def ql=(ql)
         @ql = ql
-        self.query_spec = (ql =~ /\sFROM\s/ix) ? :statement : :criteria unless @query_spec
+        unless @query_spec
+          statement = false
+          statement = true if ql =~ /\sFROM\s/ix
+          statement = true if ql =~ /^UPDATE\s/ix
+          statement = true if ql =~ /\sUPDATE\s/ix
+          self.query_spec = statement ? :statement : :criteria
+        end
       end
     end
 
