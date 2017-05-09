@@ -57,6 +57,7 @@ module Domgen
 
       java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
       java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
+      java_artifact :abstract_ginjector, :ioc, :client, :gwt, 'Abstract#{repository.name}Ginjector'
       java_artifact :abstract_application, nil, :client, :gwt, 'Abstract#{repository.name}App'
       java_artifact :aggregate_module, :ioc, :client, :gwt, '#{repository.name}Module'
 
