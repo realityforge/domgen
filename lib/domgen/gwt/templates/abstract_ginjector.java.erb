@@ -6,17 +6,17 @@ public interface <%= repository.gwt.abstract_ginjector_name %><C extends org.rea
   extends com.google.gwt.inject.client.Ginjector
 {<% if repository.keycloak? -%>
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   com.google.gwt.event.shared.EventBus getEventBus();
 <% end -%>
 <% if repository.imit? -%>
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   C getFrontendContext();
 <% end -%>
 <% if repository.iris_audit? -%>
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   iris.audit.client.ClientExceptionAuditHelper getClientExceptionAuditHelper();
 <% end -%>
 }
