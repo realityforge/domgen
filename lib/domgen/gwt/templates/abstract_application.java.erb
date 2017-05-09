@@ -248,6 +248,13 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% end -%>
     iris.audit.client.ioc.AuditGwtRpcServicesModule.initialize();
 <% end -%>
+<% repository.imit.remote_datasources.select{|ds| ds.gwt_rpc_enabled? }.each do |ds| -%>
+    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesModule.<% if ds.imit_enabled? %>getSessionContext().<% end %>setBaseURL( getServerUrl() + "/<%= Reality::Naming.underscore(ds.name) %>/" );
+<% if repository.keycloak? && ds.keycloak_enabled? -%>
+    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesModule.setKeycloak( getKeycloak() );
+<% end -%>
+    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesModule.initialize();
+<% end -%>
   }
 <% end -%>
 <% if repository.iris_audit? -%>
