@@ -2,7 +2,7 @@
 package <%= to_package(repository.gwt.qualified_abstract_ginjector_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-public interface <%= repository.gwt.abstract_ginjector_name %><C extends org.realityforge.replicant.client.net.gwt.BaseFrontendContext>
+public interface <%= repository.gwt.abstract_ginjector_name %><% if repository.imit? -%><C extends org.realityforge.replicant.client.net.gwt.BaseFrontendContext><% end %>
   extends com.google.gwt.inject.client.Ginjector
 {<% if repository.keycloak? -%>
 
