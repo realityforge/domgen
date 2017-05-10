@@ -246,7 +246,7 @@ module Domgen
       end
 
       def related_database_jndi(key)
-        prefix = jpa_repository.repository.name == short_name ? '' : "#{short_name}/"
+        prefix = jpa_repository.repository.name == short_name ? '' : "#{Reality::Naming.underscore(short_name)}/"
         "#{application_scope}/env/#{prefix}#{key}_database_name"
       end
 
