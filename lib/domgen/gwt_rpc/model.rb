@@ -68,7 +68,7 @@ module Domgen
       end
 
       def pre_verify
-        if secure_services? && repository.keycloak?
+        if secure_services? && repository.keycloak? && repository.keycloak.has_local_auth_service?
           client =
             repository.keycloak.client_by_key?(self.keycloak_client) ?
               repository.keycloak.client_by_key(self.keycloak_client) :

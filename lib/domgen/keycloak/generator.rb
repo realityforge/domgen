@@ -34,18 +34,21 @@ Domgen::Generator.define([:keycloak],
     template_set.erb_template(:repository,
                               'auth_service_implementation.java.erb',
                               'main/java/#{repository.keycloak.qualified_auth_service_implementation_name.gsub(".","/")}.java',
-                              :additional_facets => [:ejb])
+                              :additional_facets => [:ejb],
+                              :guard => 'repository.keycloak.has_local_auth_service?')
   end
 
   g.template_set(:keycloak_auth_service_qa) do |template_set|
     template_set.erb_template(:repository,
                               'test_auth_service_implementation.java.erb',
                               'test/java/#{repository.keycloak.qualified_test_auth_service_implementation_name.gsub(".","/")}.java',
-                              :additional_facets => [:ejb])
+                              :additional_facets => [:ejb],
+                              :guard => 'repository.keycloak.has_local_auth_service?')
     template_set.erb_template(:repository,
                               'test_module.java.erb',
                               'test/java/#{repository.keycloak.qualified_test_module_name.gsub(".","/")}.java',
-                              :additional_facets => [:ejb])
+                              :additional_facets => [:ejb],
+                              :guard => 'repository.keycloak.has_local_auth_service?')
   end
 
   g.template_set(:keycloak_config_service) do |template_set|
@@ -64,7 +67,8 @@ Domgen::Generator.define([:keycloak],
   g.template_set(:keycloak_client_definitions) do |template_set|
     template_set.erb_template(:repository,
                               'client_definitions.java.erb',
-                              'main/java/#{repository.keycloak.qualified_client_definitions_name.gsub(".","/")}.java')
+                              'main/java/#{repository.keycloak.qualified_client_definitions_name.gsub(".","/")}.java',
+                              :guard => 'repository.keycloak.has_local_auth_service?')
   end
 
   g.template_set(:keycloak_client_config) do |template_set|
@@ -83,14 +87,17 @@ Domgen::Generator.define([:keycloak],
     template_set.erb_template(:repository,
                               'gwt_token_service.java.erb',
                               'main/java/#{repository.keycloak.qualified_gwt_token_service_name.gsub(".","/")}.java',
-                              :additional_facets => [:gwt])
+                              :additional_facets => [:gwt],
+                              :guard => 'repository.keycloak.has_local_auth_service?')
     template_set.erb_template(:repository,
                               'gwt_token_service_impl.java.erb',
                               'main/java/#{repository.keycloak.qualified_gwt_token_service_impl_name.gsub(".","/")}.java',
-                              :additional_facets => [:gwt])
+                              :additional_facets => [:gwt],
+                              :guard => 'repository.keycloak.has_local_auth_service?')
     template_set.erb_template(:repository,
                               'services_module.java.erb',
-                              'main/java/#{repository.keycloak.qualified_services_module_name.gsub(".","/")}.java')
+                              'main/java/#{repository.keycloak.qualified_services_module_name.gsub(".","/")}.java',
+                              :guard => 'repository.keycloak.has_local_auth_service?')
   end
 
   g.template_set(:keycloak_gwt_app) do |template_set|

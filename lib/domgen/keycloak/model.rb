@@ -418,7 +418,12 @@ module Domgen
         @base_keycloak_client_url || '.keycloak'
       end
 
+      def has_local_auth_service?
+        repository.application.code_deployable?
+      end
+
       def default_client
+        Domgen.error('default_client called when local auth service is not enabled.') unless has_local_auth_service?
         key = Reality::Naming.underscore(repository.name.to_s)
         client(key) unless client_by_key?(key)
         client_by_key(key)
@@ -456,7 +461,7 @@ module Domgen
           repository.ee.cdi_scan_excludes << 'org.apache.commons.logging.**'
           repository.ee.cdi_scan_excludes << 'org.apache.http.**'
         end
-        if repository.ejb?
+        if repository.ejb? && has_local_auth_service?
           self.repository.service(self.auth_service_name) unless self.repository.service_by_name?(self.auth_service_name)
           self.repository.service_by_name(self.auth_service_name).tap do |s|
             s.ejb.bind_in_tests = false
@@ -475,7 +480,7 @@ module Domgen
       def client_map
         unless @clients
           @clients = {}
-          default_client
+          default_client if has_local_auth_service?
         end
         @clients
       end
