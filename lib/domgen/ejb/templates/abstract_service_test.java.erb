@@ -99,7 +99,7 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% if repository.mail? -%>
     addModule( modules, newMailServicesModule() );
 <% end -%>
-<% if repository.keycloak? -%>
+<% if repository.keycloak? && repository.keycloak.has_local_auth_service? -%>
     addModule( modules, newKeycloakServerModule() );
 <% end -%>
 <% if repository.jms? -%>
