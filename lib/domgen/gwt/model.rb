@@ -66,6 +66,51 @@ module Domgen
       java_artifact :app_module, :modules, nil, :gwt, '#{repository.name}AppSupport'
       java_artifact :model_module, :modules, nil, :gwt, '#{repository.name}ModelSupport'
 
+      java_artifact :abstract_client_test, :test, :client, :gwt, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
+      java_artifact :client_test, :test, :client, :gwt, '#{repository.name}ClientTest', :sub_package => 'util'
+      java_artifact :standard_test_module, :test, :client, :gwt, '#{repository.name}TestModule', :sub_package => 'util'
+      java_artifact :callback_success_answer, :test, :client, :gwt, '#{repository.name}CallbackSuccessAnswer', :sub_package => 'util'
+      java_artifact :callback_failure_answer, :test, :client, :gwt, '#{repository.name}CallbackFailureAnswer', :sub_package => 'util'
+
+      def gin_modules
+        gin_modules_map.dup
+      end
+
+      def add_gin_module(name, classname)
+        Domgen.error("Attempting to define duplicate test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if gin_modules_map[name.to_s]
+        gin_modules_map[name.to_s] = classname
+      end
+
+      attr_writer :custom_base_client_test
+
+      def custom_base_client_test?
+        @custom_base_client_test.nil? ? false : !!@custom_base_client_test
+      end
+
+      def test_factories
+        test_factory_map.dup
+      end
+
+      def add_test_factory(short_code, classname)
+        raise "Attempting to add a test factory '#{classname}' with short_code #{short_code} but one already exists. ('#{test_factory_map[short_code.to_s]}')" if test_factory_map[short_code.to_s]
+        test_factory_map[short_code.to_s] = classname
+      end
+
+      def test_modules
+        test_modules_map.dup
+      end
+
+      def add_test_module(name, classname)
+        Domgen.error("Attempting to define duplicate test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if test_modules_map[name.to_s]
+        test_modules_map[name.to_s] = classname
+      end
+
+      attr_writer :include_standard_test_module
+
+      def include_standard_test_module?
+        @include_standard_test_module.nil? ? true : !!@include_standard_test_module
+      end
+
       attr_writer :modules_package
 
       def modules_package
@@ -130,7 +175,23 @@ module Domgen
         end
       end
 
+      def pre_verify
+        add_test_module(standard_test_module_name, qualified_standard_test_module_name) if include_standard_test_module?
+      end
+
       protected
+
+      def test_factory_map
+        @test_factory_map ||= {}
+      end
+
+      def test_modules_map
+        @test_modules_map ||= {}
+      end
+
+      def gin_modules_map
+        @gin_modules_map ||= {}
+      end
 
       def facet_key
         :gwt
@@ -178,8 +239,11 @@ module Domgen
       java_artifact :abstract_struct_test_factory, :test, :client, :gwt, 'Abstract#{data_module.name}StructFactory', :sub_package => 'util'
 
       def pre_complete
-        if data_module.repository.imit? && generate_struct_factory?
-          data_module.repository.imit.add_gwt_test_factory("#{short_test_code}s", qualified_struct_test_factory_name)
+        if generate_struct_factory?
+          if data_module.repository.imit?
+            data_module.repository.imit.add_gwt_test_factory("#{short_test_code}s", qualified_struct_test_factory_name)
+          end
+          data_module.repository.gwt.add_test_factory("#{short_test_code}s", qualified_struct_test_factory_name)
         end
       end
 

@@ -192,14 +192,6 @@ Domgen::Generator.define([:imit],
                                 'client/mock_services_module.java.erb',
                                 type + '/java/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
                                 :additional_facets => [:gwt_rpc])
-      template_set.erb_template(:repository,
-                                'client/callback_success_answer.java.erb',
-                                type + '/java/#{repository.imit.qualified_callback_success_answer_name.gsub(".","/")}.java',
-                                :additional_facets => [:gwt_rpc])
-      template_set.erb_template(:repository,
-                                'client/callback_failure_answer.java.erb',
-                                type + '/java/#{repository.imit.qualified_callback_failure_answer_name.gsub(".","/")}.java',
-                                :additional_facets => [:gwt_rpc])
     end
 
     g.template_set(:"imit_client_#{type}_ee_qa_external") do |template_set|

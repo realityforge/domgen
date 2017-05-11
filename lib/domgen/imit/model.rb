@@ -689,11 +689,9 @@ module Domgen
       java_artifact :ee_client_resources, :comm, :server, :imit, '#{repository.name}ReplicantClientResources'
       java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
       java_artifact :mock_services_module, :test, :client, :imit, '#{repository.name}MockImitServicesModule', :sub_package => 'util'
-      java_artifact :callback_success_answer, :test, :client, :imit, '#{repository.name}CallbackSuccessAnswer', :sub_package => 'util'
-      java_artifact :callback_failure_answer, :test, :client, :imit, '#{repository.name}CallbackFailureAnswer', :sub_package => 'util'
-      java_artifact :abstract_gwt_client_test, :test, :client, :imit, 'Abstract#{repository.name}GwtClientTest', :sub_package => 'util'
-      java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
-      java_artifact :client_test, :test, :client, :imit, '#{repository.name}ClientTest', :sub_package => 'util'
+      java_artifact :abstract_gwt_client_test, :test, :client, :imit, 'Abstract#{repository.name}GwtReplicantClientTest', :sub_package => 'util'
+      java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ReplicantClientTest', :sub_package => 'util'
+      java_artifact :client_test, :test, :client, :imit, '#{repository.name}ReplicantClientTest', :sub_package => 'util'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :client, :imit, '#{repository.name}FactorySetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
@@ -956,6 +954,11 @@ module Domgen
           client.protected_url_patterns << prefix + '/replicant/*'
           client.protected_url_patterns << prefix + '/session/*'
         end
+        repository.gwt.add_test_module(repository.imit.mock_services_module_name, repository.imit.qualified_mock_services_module_name) if repository.gwt?
+         if repository.gwt?
+           repository.gwt.add_gin_module(repository.imit.services_module_name, repository.imit.qualified_services_module_name)
+           repository.gwt.add_gin_module(repository.imit.dao_module_name, repository.imit.qualified_dao_module_name)
+         end
 
         repository.ejb.extra_test_modules << self.qualified_server_net_module_name if repository.ejb?
         if self.graphs.size == 0
