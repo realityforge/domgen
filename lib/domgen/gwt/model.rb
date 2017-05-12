@@ -240,9 +240,6 @@ module Domgen
 
       def pre_complete
         if generate_struct_factory?
-          if data_module.repository.imit?
-            data_module.repository.imit.add_gwt_test_factory("#{short_test_code}s", qualified_struct_test_factory_name)
-          end
           data_module.repository.gwt.add_test_factory("#{short_test_code}s", qualified_struct_test_factory_name)
         end
       end

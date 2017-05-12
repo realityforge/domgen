@@ -5,7 +5,8 @@ package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 @javax.annotation.Generated( "Domgen" )
 public abstract class <%= repository.gwt.abstract_client_test_name %>
   extends org.realityforge.guiceyloops.shared.AbstractSharedTest
-{<% repository.gwt.test_factories.each do |short_code, classname| -%>
+{
+<% repository.gwt.test_factories.each do |short_code, classname| -%>
   @javax.annotation.Nonnull
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
   protected <%= classname %> <%= short_code %>;
@@ -26,7 +27,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   {
     final java.util.ArrayList<com.google.inject.Module> modules = new java.util.ArrayList<>();
     java.util.Collections.addAll( modules, super.getModules() );
-<% repository.gwt.test_modules.keys.each do |name| %>
+<% repository.gwt.test_modules.keys.each do |name| -%>
     addModule( modules, new<%= name %>() );
 <% end -%>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
