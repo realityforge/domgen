@@ -68,9 +68,13 @@ module Domgen
 
       java_artifact :abstract_client_test, :test, :client, :gwt, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :client_test, :test, :client, :gwt, '#{repository.name}ClientTest', :sub_package => 'util'
+      java_artifact :support_test_module, :test, :client, :gwt, '#{repository.name}SupportTestModule', :sub_package => 'util'
       java_artifact :standard_test_module, :test, :client, :gwt, '#{repository.name}TestModule', :sub_package => 'util'
       java_artifact :callback_success_answer, :test, :client, :gwt, '#{repository.name}CallbackSuccessAnswer', :sub_package => 'util'
       java_artifact :callback_failure_answer, :test, :client, :gwt, '#{repository.name}CallbackFailureAnswer', :sub_package => 'util'
+      java_artifact :abstract_client_ux_test, :test, :client, :gwt, 'Abstract#{repository.name}UserExperienceTest', :sub_package => 'util'
+      java_artifact :client_ux_test, :test, :client, :gwt, '#{repository.name}UserExperienceTest', :sub_package => 'util'
+      java_artifact :standard_ux_test_module, :test, :client, :gwt, '#{repository.name}UserExperienceTestModule', :sub_package => 'util'
 
       def gin_modules
         gin_modules_map.dup
@@ -105,10 +109,56 @@ module Domgen
         test_modules_map[name.to_s] = classname
       end
 
+      def test_class_contents
+        test_class_content_list.dup
+      end
+
+      def add_test_class_content(content)
+        self.test_class_content_list << content
+      end
+
       attr_writer :include_standard_test_module
 
       def include_standard_test_module?
         @include_standard_test_module.nil? ? true : !!@include_standard_test_module
+      end
+
+     attr_writer :custom_base_ux_client_test
+
+      def custom_base_ux_client_test?
+        @custom_base_ux_client_test.nil? ? false : !!@custom_base_ux_client_test
+      end
+
+      def ux_test_factories
+        ux_test_factory_map.dup
+      end
+
+      def add_ux_test_factory(short_code, classname)
+        raise "Attempting to add a test factory '#{classname}' with short_code #{short_code} but one already exists. ('#{ux_test_factory_map[short_code.to_s]}')" if ux_test_factory_map[short_code.to_s]
+        ux_test_factory_map[short_code.to_s] = classname
+      end
+
+      def ux_test_modules
+        ux_test_modules_map.dup
+      end
+
+      def add_ux_test_module(name, classname)
+        Domgen.error("Attempting to define duplicate ux test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if ux_test_modules_map[name.to_s]
+        ux_test_modules_map[name.to_s] = classname
+      end
+
+      def ux_test_class_contents
+        ux_test_class_content_list.dup
+      end
+
+      def add_ux_test_class_content(content)
+        self.ux_test_class_content_list << content
+      end
+
+      attr_writer :include_standard_ux_test_module
+
+      def include_standard_ux_test_module?
+        @include_standard_ux_test_module.nil? ? true : !!@include_standard_ux_test_module
       end
 
       attr_writer :modules_package
@@ -177,6 +227,39 @@ module Domgen
 
       def pre_verify
         add_test_module(standard_test_module_name, qualified_standard_test_module_name) if include_standard_test_module?
+        add_test_module(support_test_module_name, qualified_support_test_module_name)
+        add_ux_test_module(standard_ux_test_module_name, qualified_standard_ux_test_module_name) if include_standard_ux_test_module?
+        add_test_class_content(<<CONTENT)
+
+  @java.lang.SuppressWarnings( { "unchecked", "UnusedParameters" } )
+  protected final <T> java.lang.Class<#{repository.gwt.qualified_async_callback_name}<T>> asyncResultType( @javax.annotation.Nonnull final java.lang.Class<T> type )
+  {
+    return (Class) #{repository.gwt.qualified_async_callback_name}.class;
+  }
+
+  @javax.annotation.Nonnull
+  protected final <H> H addHandler( @javax.annotation.Nonnull final com.google.web.bindery.event.shared.Event.Type<H> type, final H handler )
+  {
+    eventBus().addHandler( type, handler );
+    return handler;
+  }
+
+  protected final void fireEvent( @javax.annotation.Nonnull final com.google.web.bindery.event.shared.Event<?> event )
+  {
+    eventBus().fireEvent( event );
+  }
+
+  @javax.annotation.Nonnull 
+  protected final com.google.gwt.event.shared.EventBus eventBus()
+  {
+    return s( com.google.gwt.event.shared.EventBus.class );
+  }
+
+  protected final <T extends com.google.web.bindery.event.shared.Event<?>> T event( @javax.annotation.Nonnull final T value )
+  {
+    return org.mockito.Matchers.refEq( value, "source" );
+  }
+CONTENT
       end
 
       protected
@@ -185,8 +268,24 @@ module Domgen
         @test_factory_map ||= {}
       end
 
+      def test_class_content_list
+        @test_class_content ||= []
+      end
+
       def test_modules_map
         @test_modules_map ||= {}
+      end
+
+      def ux_test_factory_map
+        @ux_test_factory_map ||= {}
+      end
+
+      def ux_test_class_content_list
+        @ux_test_class_content ||= []
+      end
+
+      def ux_test_modules_map
+        @ux_test_modules_map ||= {}
       end
 
       def gin_modules_map

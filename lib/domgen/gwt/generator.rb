@@ -59,10 +59,25 @@ Domgen::Generator.define([:gwt],
       template_set.erb_template(:repository,
                                 'abstract_client_test.java.erb',
                                 type + '/java/#{repository.gwt.qualified_abstract_client_test_name.gsub(".","/")}.java')
+      template_set.erb_template(:repository,
+                                'support_test_module.java.erb',
+                                type + '/java/#{repository.gwt.qualified_support_test_module_name.gsub(".","/")}.java')
       template_set.erb_template(:data_module,
                                 'abstract_struct_test_factory.java.erb',
                                 'main/java/#{data_module.gwt.qualified_abstract_struct_test_factory_name.gsub(".","/")}.java',
                                 :guard => 'data_module.gwt.generate_struct_factory?')
+    end
+  end
+
+  %w(main test).each do |type|
+    g.template_set(:"gwt_client_#{type}_ux_qa_support") do |template_set|
+      template_set.erb_template(:repository,
+                                'client_ux_test.java.erb',
+                                type + '/java/#{repository.gwt.qualified_client_ux_test_name.gsub(".","/")}.java',
+                                :guard => '!repository.gwt.custom_base_ux_client_test?')
+      template_set.erb_template(:repository,
+                                'abstract_client_ux_test.java.erb',
+                                type + '/java/#{repository.gwt.qualified_abstract_client_ux_test_name.gsub(".","/")}.java')
     end
   end
 

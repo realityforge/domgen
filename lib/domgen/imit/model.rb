@@ -852,6 +852,15 @@ module Domgen
         test_factory_map[short_code.to_s] = classname
       end
 
+      def test_modules
+        test_modules_map.dup
+      end
+
+      def add_test_module(name, classname)
+        Domgen.error("Attempting to define duplicate test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if test_modules_map[name.to_s]
+        test_modules_map[name.to_s] = classname
+      end
+
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
@@ -944,12 +953,38 @@ module Domgen
           client.protected_url_patterns << prefix + '/replicant/*'
           client.protected_url_patterns << prefix + '/session/*'
         end
+        add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
+        add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
         repository.gwt.add_test_module(repository.imit.mock_services_module_name, repository.imit.qualified_mock_services_module_name) if repository.gwt?
          if repository.gwt?
            repository.gwt.add_gin_module(repository.imit.services_module_name, repository.imit.qualified_services_module_name)
            repository.gwt.add_gin_module(repository.imit.dao_module_name, repository.imit.qualified_dao_module_name)
            repository.gwt.add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
            repository.gwt.add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
+           repository.gwt.add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
+           repository.gwt.add_test_class_content(<<CONTENT)
+  @javax.annotation.Nonnull
+  protected final org.realityforge.replicant.client.EntityRepository repository()
+  {
+    return s( org.realityforge.replicant.client.EntityRepository.class );
+  }
+
+  @javax.annotation.Nonnull
+  protected final org.realityforge.replicant.client.EntityChangeBroker broker()
+  {
+    return s( org.realityforge.replicant.client.EntityChangeBroker.class );
+  }
+
+  protected void resumeBroker()
+  {
+    broker().resume( "TEST" );
+  }
+
+  protected void pauseBroker()
+  {
+    broker().pause( "TEST" );
+  }
+CONTENT
          end
 
         repository.ejb.extra_test_modules << self.qualified_server_net_module_name if repository.ejb?
@@ -1252,6 +1287,10 @@ module Domgen
       end
 
       protected
+
+      def test_modules_map
+        @test_modules_map ||= {}
+      end
 
       def test_factory_map
         @test_factory_map ||= {}

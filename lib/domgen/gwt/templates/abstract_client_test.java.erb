@@ -33,11 +33,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
 
-  @java.lang.SuppressWarnings( { "unchecked", "UnusedParameters" } )
-  protected final <T> java.lang.Class<<%= repository.gwt.qualified_async_callback_name %><T>> asyncResultType( @javax.annotation.Nonnull final java.lang.Class<T> type )
-  {
-    return (Class) <%= repository.gwt.qualified_async_callback_name %>.class;
-  }
 <% repository.gwt.test_modules.each_pair do |name, classname| -%>
 
   @javax.annotation.Nullable
@@ -46,25 +41,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     return new <%= classname %>();
   }
 <% end -%>
-
-  protected final <H> H addHandler( final com.google.web.bindery.event.shared.Event.Type<H> type, final H handler )
-  {
-    eventBus().addHandler( type, handler );
-    return handler;
-  }
-
-  protected final void fireEvent( final com.google.web.bindery.event.shared.Event<?> event )
-  {
-    eventBus().fireEvent( event );
-  }
-
-  protected final com.google.gwt.event.shared.EventBus eventBus()
-  {
-    return s( com.google.gwt.event.shared.EventBus.class );
-  }
-
-  protected final <T extends com.google.web.bindery.event.shared.Event<?>> T event( final T value )
-  {
-    return org.mockito.Matchers.refEq( value, "source" );
-  }
+<% repository.gwt.test_class_contents.each do |content| %>
+<%= content -%>
+<% end -%>
 }
