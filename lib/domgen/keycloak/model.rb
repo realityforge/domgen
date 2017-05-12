@@ -475,6 +475,12 @@ module Domgen
         end
       end
 
+      def pre_verify
+        if repository.gwt? && has_local_auth_service?
+          repository.gwt.add_gin_module(repository.keycloak.services_module_name, repository.keycloak.qualified_services_module_name)
+        end
+      end
+
       private
 
       def client_map

@@ -6,41 +6,18 @@ package <%= to_package(repository.gwt.qualified_aggregate_module_name) %>;
 public class <%= repository.gwt.aggregate_module_name %>
   extends com.google.gwt.inject.client.AbstractGinModule
 {
-<% if repository.imit? -%>
-  private final boolean _standalone;
-
-  public <%= repository.gwt.aggregate_module_name %>()
-  {
-    this( true );
-  }
-
-  public <%= repository.gwt.aggregate_module_name %>( final boolean standalone )
-  {
-    _standalone = standalone;
-  }
-
-<% end -%>
   @java.lang.Override
   protected void configure()
   {
-<% if repository.keycloak? && repository.keycloak.has_local_auth_service? -%>
-    install( new <%= repository.keycloak.qualified_services_module_name %>() );
-<% end -%>
-<% if repository.gwt_rpc? -%>
-    install( new <%= repository.gwt_rpc.qualified_rpc_services_module_name %>() );
-<% end -%>
-<% if repository.iris_audit? -%>
-    install( new iris.audit.client.ioc.AuditClientModule() );
-    install( new iris.audit.client.ioc.AuditModule() );
-<% end -%>
-<% if repository.imit? -%>
-    if ( _standalone )
-    {
-      install( new org.realityforge.replicant.client.gwt.ReplicantGinModule() );
-      install( new org.realityforge.replicant.client.runtime.gwt.ReplicantNetworkModule() );
-    }
-    install( new <%= repository.imit.qualified_services_module_name %>() );
-    install( new <%= repository.imit.qualified_dao_module_name %>() );
+<% repository.gwt.gin_modules.keys.each do |name| -%>
+    install<%= name %>();
 <% end -%>
   }
+<% repository.gwt.gin_modules.each_pair do |name, classname| -%>
+
+  protected void install<%= name %>()
+  {
+    install( new <%= classname %>() );
+  }
+<% end -%>
 }

@@ -689,11 +689,8 @@ module Domgen
       java_artifact :ee_client_resources, :comm, :server, :imit, '#{repository.name}ReplicantClientResources'
       java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
       java_artifact :mock_services_module, :test, :client, :imit, '#{repository.name}MockImitServicesModule', :sub_package => 'util'
-      java_artifact :callback_success_answer, :test, :client, :imit, '#{repository.name}CallbackSuccessAnswer', :sub_package => 'util'
-      java_artifact :callback_failure_answer, :test, :client, :imit, '#{repository.name}CallbackFailureAnswer', :sub_package => 'util'
-      java_artifact :abstract_gwt_client_test, :test, :client, :imit, 'Abstract#{repository.name}GwtClientTest', :sub_package => 'util'
-      java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
-      java_artifact :client_test, :test, :client, :imit, '#{repository.name}ClientTest', :sub_package => 'util'
+      java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ReplicantClientTest', :sub_package => 'util'
+      java_artifact :client_test, :test, :client, :imit, '#{repository.name}ReplicantClientTest', :sub_package => 'util'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :client, :imit, '#{repository.name}FactorySetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
@@ -855,15 +852,6 @@ module Domgen
         test_factory_map[short_code.to_s] = classname
       end
 
-      def gwt_test_factories
-        gwt_test_factory_map.dup
-      end
-
-      def add_gwt_test_factory(short_code, classname)
-        raise "Attempting to add a gwt test factory '#{classname}' with short_code #{short_code} but one already exists. ('#{test_factory_map[short_code.to_s]}')" if gwt_test_factory_map[short_code.to_s]
-        gwt_test_factory_map[short_code.to_s] = classname
-      end
-
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
@@ -956,6 +944,13 @@ module Domgen
           client.protected_url_patterns << prefix + '/replicant/*'
           client.protected_url_patterns << prefix + '/session/*'
         end
+        repository.gwt.add_test_module(repository.imit.mock_services_module_name, repository.imit.qualified_mock_services_module_name) if repository.gwt?
+         if repository.gwt?
+           repository.gwt.add_gin_module(repository.imit.services_module_name, repository.imit.qualified_services_module_name)
+           repository.gwt.add_gin_module(repository.imit.dao_module_name, repository.imit.qualified_dao_module_name)
+           repository.gwt.add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
+           repository.gwt.add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
+         end
 
         repository.ejb.extra_test_modules << self.qualified_server_net_module_name if repository.ejb?
         if self.graphs.size == 0
@@ -1252,14 +1247,11 @@ module Domgen
       def post_verify
         repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
           add_test_factory(data_module.imit.short_test_code, data_module.imit.qualified_test_factory_name)
+          repository.gwt.add_test_factory(data_module.imit.short_test_code, data_module.imit.qualified_test_factory_name) if repository.gwt?
         end
       end
 
       protected
-
-      def gwt_test_factory_map
-        @gwt_test_factory_map ||= {}
-      end
 
       def test_factory_map
         @test_factory_map ||= {}

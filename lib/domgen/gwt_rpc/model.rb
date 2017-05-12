@@ -76,6 +76,8 @@ module Domgen
           client.bearer_only = true
           client.protected_url_patterns << "/#{base_api_url}/*"
         end
+        repository.gwt.add_test_module(repository.gwt_rpc.mock_services_module_name, repository.gwt_rpc.qualified_mock_services_module_name)
+        repository.gwt.add_gin_module(repository.gwt_rpc.rpc_services_module_name, repository.gwt_rpc.qualified_rpc_services_module_name)
       end
 
       protected
