@@ -259,6 +259,13 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesModule.initialize();
 <% end -%>
 <% end -%>
+<% if repository.berk? -%>
+    iris.berk.client.ioc.BerkGwtRpcServicesModule.setBaseURL( getApplicationURL() );
+<% if repository.keycloak? -%>
+    iris.berk.client.ioc.BerkGwtRpcServicesModule.setKeycloak( getKeycloak() );
+<% end -%>
+    iris.berk.client.ioc.BerkGwtRpcServicesModule.initialize();
+<% end -%>
   }
 <% end -%>
 <% if repository.iris_audit? -%>
