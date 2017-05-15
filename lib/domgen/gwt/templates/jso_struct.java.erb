@@ -22,7 +22,7 @@ public final class <%= struct.gwt.jso_name %>
       case
         when field.struct? then "(#{field.referenced_struct.gwt.jso_name})#{var}"
         when field.date? then "#{var}.toString()"
-        when field.datetime? then "#{var}.getTime()"
+        when field.datetime? then "(double) #{var}.getTime()"
         when field.enumeration? then "#{var}.#{field.enumeration.textual_values? ? 'name()' : 'ordinal()' }"
         else "#{var}"
       end
@@ -169,10 +169,30 @@ public final class <%= struct.gwt.jso_name %>
     return this.<%= field.json.name %> == null;
   }-*/;
 
-<% end -%>
+  private void set<%= field.name %>( Double value )
+  {
+    if( null == value )
+    {
+      set<%= field.name %>Null();
+    }
+    else
+    {
+      set<%= field.name %>0( value );
+    }
+  }
+
+  private native void set<%= field.name %>Null() /*-{
+    this.<%= field.json.name %> = null;
+  }-*/;
+
+  private native void set<%= field.name %>0( double value ) /*-{
+    this.<%= field.json.name %> = value;
+  }-*/;
+<% else -%>
   private native void set<%= field.name %>( double value ) /*-{
     this.<%= field.json.name %> = value;
   }-*/;
+<% end -%>
 <%
    elsif field.date?
 -%>
