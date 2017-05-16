@@ -25,7 +25,7 @@ module Domgen
       java_artifact :message_integration_test, :message, :integration, :jms, 'Abstract#{name}MessageIntegrationTest'
 
       def qualified_message_integration_test_impl_name
-        qualified_message_integration_test_name.gsub(/\.Abstract([^.]+)$/,'.\1')
+        qualified_message_integration_test_name.gsub(/\.Abstract([^.]+)$/, '.\1')
       end
 
       attr_accessor :name
