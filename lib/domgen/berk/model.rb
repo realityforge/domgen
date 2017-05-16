@@ -20,6 +20,7 @@ module Domgen
 
       java_artifact :abstract_environment_service, :service, :server, :berk, 'Abstract#{repository.name}EnvironmentServiceImpl'
       java_artifact :standard_environment_service, :service, :server, :berk, '#{repository.name}EnvironmentServiceImpl'
+      java_artifact :test_module, :service, :server, :berk, '#{repository.name}BerkTestModule'
 
       attr_writer :custom_environment_service
 
@@ -47,7 +48,7 @@ module Domgen
           repository.gwt.add_gin_module('BerkModule', 'iris.berk.client.ioc.BerkModule')
         end
         if repository.ejb?
-          repository.ejb.add_flushable_test_module('BerkModule', 'iris.berk.server.test.util.BerkModule')
+          repository.ejb.add_test_module(self.test_module_name, self.qualified_test_module_name)
         end
       end
     end

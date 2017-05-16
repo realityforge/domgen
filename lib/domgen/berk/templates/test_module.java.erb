@@ -1,0 +1,13 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.berk.qualified_test_module_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public final class <%= repository.berk.test_module_name %>
+  extends org.realityforge.guiceyloops.shared.AbstractModule
+{
+  @Override
+  protected void configure()
+  {
+    bindSingleton( iris.berk.server.service.EnvironmentService.class, <%= repository.berk.qualified_standard_environment_service_name %>.class );
+  }
+}

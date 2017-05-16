@@ -26,4 +26,11 @@ Domgen::Generator.define([:berk],
                               :additional_facets => [:ejb],
                               :guard => '!repository.berk.custom_environment_service?')
   end
+
+  g.template_set(:berk_qa_support) do |template_set|
+    template_set.erb_template(:repository,
+                              'test_module.java.erb',
+                              'test/java/#{repository.berk.qualified_test_module_name.gsub(".","/")}.java',
+                              :additional_facets => [:ejb])
+  end
 end
