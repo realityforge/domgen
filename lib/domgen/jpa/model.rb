@@ -627,7 +627,7 @@ FRAGMENT
         end
       end
 
-      def post_verify
+      def pre_verify
         repository.data_modules.select { |data_module| data_module.jpa? }.each do |data_module|
           add_test_factory(data_module.jpa.short_test_code, data_module.jpa.qualified_test_factory_name)
         end
