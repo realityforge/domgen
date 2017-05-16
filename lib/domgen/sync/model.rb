@@ -195,6 +195,10 @@ module Domgen
           end unless master_data_module.service_by_name?(:SynchronizationContext)
         end
       end
+
+      def pre_verify
+        repository.ejb.add_flushable_test_module(self.test_module_name, self.qualified_test_module_name) if repository.ejb? && self.standalone?
+      end
     end
 
     facet.enhance(DataModule) do

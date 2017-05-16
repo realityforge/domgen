@@ -64,6 +64,10 @@ module Domgen
           repository.jpa.application_artifact_fragments << "iris.mail#{repository.pgsql? ? '.pg' : ''}:mail-server"
           repository.jpa.add_test_factory(short_test_code, 'iris.mail.server.test.util.MailFactory')
         end
+        if repository.ejb?
+          repository.ejb.add_flushable_test_module('MailServicesModule', 'iris.mail.server.test.util.MailServicesModule')
+          repository.ejb.add_test_module(self.test_module_name, self.qualified_test_module_name)
+        end
       end
     end
   end

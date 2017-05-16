@@ -45,6 +45,9 @@ module Domgen
           repository.gwt.add_ux_test_factory(short_test_code, 'iris.berk.client.test.util.BerkStructFactory')
           repository.gwt.add_gin_module('BerkModule', 'iris.berk.client.ioc.BerkModule')
         end
+        if repository.ejb?
+          repository.ejb.add_flushable_test_module('BerkModule', 'iris.berk.server.test.util.BerkModule')
+        end
       end
     end
   end

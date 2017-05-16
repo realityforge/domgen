@@ -476,8 +476,18 @@ module Domgen
       end
 
       def pre_verify
-        if repository.gwt? && has_local_auth_service?
-          repository.gwt.add_gin_module(repository.keycloak.services_module_name, repository.keycloak.qualified_services_module_name)
+        if repository.gwt? && self.has_local_auth_service?
+          repository.gwt.add_gin_module(self.services_module_name, self.qualified_services_module_name)
+        end
+        if repository.ejb? && self.has_local_auth_service?
+          repository.ejb.add_flushable_test_module(self.test_module_name, self.qualified_test_module_name)
+          repository.ejb.add_test_class_content(<<-JAVA)
+
+  public void setupAccount( #{self.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final String #{Reality::Naming.camelize(claim.java_accessor_key)}"}.join(', ') } )
+  {
+    toObject( #{self.qualified_test_auth_service_implementation_name }.class, s( #{repository.service_by_name(self.auth_service_name).ejb.qualified_service_name }.class ) ).setupAccount( #{self.default_client.claims.collect {|claim| Reality::Naming.camelize(claim.java_accessor_key)}.join(', ') } );
+  }
+          JAVA
         end
       end
 

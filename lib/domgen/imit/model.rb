@@ -987,7 +987,7 @@ module Domgen
 CONTENT
          end
 
-        repository.ejb.extra_test_modules << self.qualified_server_net_module_name if repository.ejb?
+        repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?
         if self.graphs.size == 0
           Domgen.error('imit facet enabled but no graphs defined')
         end

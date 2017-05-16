@@ -92,15 +92,18 @@ module Domgen
           end
         end
 
+        if repository.jpa?
+          repository.jpa.application_artifact_fragments << "iris.syncrecord#{repository.pgsql? ? '.pg' : ''}:sync-record-server"
+          repository.jpa.add_test_factory(short_test_code, 'iris.syncrecord.server.test.util.SyncRecordFactory')
+        end
+      end
+
+      def pre_verify
         if repository.ejb?
           if repository.syncrecord.sync_methods?
-            repository.ejb.extra_test_modules << repository.syncrecord.qualified_test_module_name
+            repository.ejb.add_test_module(self.test_module_name, self.qualified_test_module_name)
           end
-        end
-
-        if repository.jpa?
-          repository.jpa.application_artifact_fragments << "iris.syncrecord#{repository.pgsql? ? '.pg': ''}:sync-record-server"
-          repository.jpa.add_test_factory(short_test_code, 'iris.syncrecord.server.test.util.SyncRecordFactory')
+          repository.ejb.add_flushable_test_module('SyncRecordServicesModule', 'iris.syncrecord.server.test.util.SyncRecordServicesModule')
         end
       end
 

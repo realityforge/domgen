@@ -264,6 +264,78 @@ module Domgen
         self.method.disable_facet(:jms) unless self.router? || self.mdb?
       end
 
+      def pre_verify
+        if repository.ejb?
+          repository.ejb.add_flushable_test_module(self.test_module_name, self.qualified_test_module_name)
+          content = <<-JAVA
+  @org.testng.annotations.BeforeMethod
+  @java.lang.Override
+  public void preTest()
+    throws Exception
+  {
+    super.preTest();
+    purgeDestinations();
+  }
+
+  @org.testng.annotations.AfterMethod
+  @java.lang.Override
+  public void postTest()
+  {
+    shutdownJMSContexts();
+    super.postTest();
+  }
+
+  protected final void shutdownJMSContexts()
+  {
+    for ( final com.google.inject.Binding<javax.jms.JMSContext> binding : getInjector().findBindingsByType( com.google.inject.TypeLiteral.get( javax.jms.JMSContext.class ) ) )
+    {
+      binding.getProvider().get().close();
+    }
+  }
+
+  protected void purgeDestinations()
+    throws Exception
+  {
+          JAVA
+          self.destinations.each do |destination|
+            content += <<-JAVA
+    org.realityforge.guiceyloops.server.glassfish.OpenMQUtil.purgeQueue( #{qualified_constants_container_name}.#{Reality::Naming.uppercase_constantize(destination.name) }_PHYSICAL_NAME );
+            JAVA
+          end
+          content += <<-JAVA
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getPrimaryJmsConnectionFactoryName()
+  {
+    return #{qualified_constants_container_name }.CONNECTION_FACTORY_RESOURCE_NAME;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected String getPrimaryBrokerName()
+  {
+    return "#{repository.name}";
+  }
+
+  @org.testng.annotations.BeforeSuite
+  public void beforeSuite()
+    throws Exception
+  {
+    #{qualified_test_broker_factory_name}.getBroker().start();
+  }
+
+  @org.testng.annotations.AfterSuite
+  public void afterSuite()
+  {
+    #{qualified_test_broker_factory_name}.getBroker().stop();
+  }
+          JAVA
+          repository.ejb.add_test_class_content(content)
+        end
+      end
+
       def perform_verify
         unless self.durable?
           Domgen.error("Method #{method.qualified_name} is not a durable subscriber but a subscription name is specified.") unless self.subscription_name.nil?
