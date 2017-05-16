@@ -149,7 +149,7 @@ module Domgen
 
       def pre_verify
         if repository.ejb?
-          repository.ejb.add_flushable_test_module(self.test_module_name, self.qualified_test_module_name)
+          repository.ejb.add_test_module(self.test_module_name, self.qualified_test_module_name)
           content = <<-JAVA
   @org.testng.annotations.BeforeMethod
   @java.lang.Override
