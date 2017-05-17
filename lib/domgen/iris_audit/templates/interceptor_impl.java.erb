@@ -123,7 +123,7 @@ public class <%= service.iris_audit.interceptor_impl_name %>
         params.add( "<%= Reality::Naming.camelize(parameter.name) %>", value );
 <% else -%>
         final javax.json.JsonArrayBuilder paramBuilder = javax.json.Json.createArrayBuilder();
-        for( final Object v2 : (java.util.Collection) parameters[ <%= i %> ] )
+        for( final Object v2 : (java.util.Collection) v )
         {
 <% if p.non_standard_type? || p.text? -%>
           final String value = String.valueOf( v2 );
