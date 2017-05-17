@@ -180,7 +180,7 @@ public class <%= service.iris_audit.interceptor_impl_name %>
 <% elsif p.struct? -%>
         final javax.json.JsonValue value = toJsonValue( result );
 <% end -%>
-        params.add( "result", value );
+        builder.add( "result", value );
 <% else -%>
         final javax.json.JsonArrayBuilder paramBuilder = javax.json.Json.createArrayBuilder();
         for( final Object v2 : (java.util.Collection) result )
