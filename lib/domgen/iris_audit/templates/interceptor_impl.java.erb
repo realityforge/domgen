@@ -2,6 +2,7 @@
 package <%= to_package(service.iris_audit.qualified_interceptor_impl_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "UPM_UNCALLED_PRIVATE_METHOD" } )
 @javax.interceptor.Interceptor
 @javax.annotation.Priority( iris.audit.server.service.AbstractLoggingInterceptor.PRIORITY )
 public class <%= service.iris_audit.interceptor_impl_name %>
@@ -86,6 +87,7 @@ public class <%= service.iris_audit.interceptor_impl_name %>
     final javax.json.JsonObjectBuilder builder = javax.json.Json.createObjectBuilder();
     builder.add( "method", "<%= method.service.name %>.<%= method.name %>" );
 <% if method.parameters.select{|parameter| parameter.iris_audit?}.size > 0 -%>
+    assert null != parameters;
     final javax.json.JsonObjectBuilder params = javax.json.Json.createObjectBuilder();
 <% method.parameters.each_with_index do |parameter, i| -%>
 <% if parameter.iris_audit? -%>
