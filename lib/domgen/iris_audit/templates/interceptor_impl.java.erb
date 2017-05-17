@@ -214,9 +214,12 @@ public class <%= service.iris_audit.interceptor_impl_name %>
 <% else -%>
     final StringBuilder message = new StringBuilder();
     message.append( "Method: <%= method.qualified_name %>\n" );
+<% if method.parameters.size > 0 -%>
+    assert null != parameters;
 <% method.parameters.each_with_index do |parameter, i| -%>
 <% if parameter.iris_audit? -%>
     message.append( "Parameter: <%= parameter.name %> = " ).append( parameters[ <%= i %> ] ).append( "\n" );
+<% end -%>
 <% end -%>
 <% end -%>
     if ( null != throwable )
@@ -233,51 +236,4 @@ public class <%= service.iris_audit.interceptor_impl_name %>
 <% end -%>
   }
 <% end -%>
-/*
-    final StringBuilder message = new StringBuilder();
-
-    if ( null != parameters )
-    {
-      for ( int i = 0; i < parameters.length; i++ )
-      {
-        final Object parameter = parameters[ i ];
-        if ( null == parameter )
-        {
-          message.append( "<parameter null='true'/>" );
-        }
-        else
-        {
-          message.append( "<parameter>" ).append( parameter.toString() ).append( "</parameter>" );
-        }
-      }
-    }
-
-    if ( null != throwable )
-    {
-      message.append( "<exception><type>" ).
-        append( throwable.getClass().getName() ).
-        append( "</type><message>" ).
-        append( throwable.getMessage() ).
-        append( "</message></exception>" );
-    }
-    else
-    {
-      final boolean emitReturnValue = method.getReturnType() != Void.TYPE;
-
-      if ( emitReturnValue )
-      {
-        if ( null == result )
-        {
-          message.append( "<result null='true'/>" );
-        }
-        else
-        {
-          message.append( "<result>" ).append( result.toString() ).append( "</result>" );
-        }
-      }
-    }
-
-    return message.toString();
-  }
-  */
 }
