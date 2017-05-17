@@ -15,9 +15,16 @@
 Domgen::Generator.define([:iris_audit],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper]) do |g|
-  g.template_set(:iris_audit_jee_resources) do |template_set|
+  g.template_set(:iris_audit_server) do |template_set|
     template_set.erb_template(:repository,
                               'audit_resources.java.erb',
                               'main/java/#{repository.iris_audit.qualified_audit_resources_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'audit_context_impl.java.erb',
+                              'main/java/#{repository.iris_audit.qualified_audit_context_impl_name.gsub(".","/")}.java')
+    template_set.erb_template(:service,
+                              'interceptor_impl.java.erb',
+                              'main/java/#{service.iris_audit.qualified_interceptor_impl_name.gsub(".","/")}.java',
+                              :guard => 'service.ejb? && service.ejb.generate_boundary?')
   end
 end

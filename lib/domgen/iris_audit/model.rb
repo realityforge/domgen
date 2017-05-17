@@ -19,6 +19,7 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :audit_resources, :service, :server, :iris_audit, '#{repository.name}JeeAuditResources'
+      java_artifact :audit_context_impl, :service, :server, :iris_audit, '#{repository.name}AuditContextImpl'
 
       def pre_complete
         if repository.jpa?
@@ -33,10 +34,19 @@ module Domgen
         end
       end
     end
+
+    facet.enhance(DataModule) do
+      include Domgen::Java::EEClientServerJavaPackage
+    end
+
     facet.enhance(Service) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :interceptor_impl, :service, :server, :iris_audit, '#{service.name}LoggingInterceptor', :sub_package => 'internal'
+
       def pre_complete
-        if service.ejb?
-          service.ejb.boundary_interceptors << 'iris.audit.server.service.LoggingInterceptor'
+        if service.ejb? && service.ejb.generate_boundary?
+          service.ejb.boundary_interceptors << self.qualified_interceptor_impl_name
         end
       end
     end

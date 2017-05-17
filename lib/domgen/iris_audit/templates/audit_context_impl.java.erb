@@ -1,0 +1,21 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.iris_audit.qualified_audit_context_impl_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.enterprise.context.ApplicationScoped
+@javax.enterprise.inject.Typed( iris.audit.server.service.AuditContext.class )
+public class <%= repository.iris_audit.audit_context_impl_name %>
+  extends iris.audit.server.service.AbstractAuditContextImpl
+{
+<% if repository.keycloak? && repository.keycloak.has_local_auth_service? && repository.keycloak.default_client.claim_by_name?(:username) -%>
+  @javax.inject.Inject
+  private <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %> _authService;
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getUsername()
+  {
+    return _authService.getUsername();
+  }
+<% end -%>
+}
