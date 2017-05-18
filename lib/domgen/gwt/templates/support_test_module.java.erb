@@ -14,10 +14,12 @@ public class <%= repository.gwt.support_test_module_name %>
 <% end -%>
   }
 
+<% if repository.keycloak? || repository.imit? -%>
   @com.google.inject.Provides
   @javax.inject.Singleton
-  public com.google.web.bindery.event.shared.EventBus getKeycloak( @javax.annotation.Nonnull final com.google.gwt.event.shared.EventBus eventBus )
+  public com.google.web.bindery.event.shared.EventBus getSharedEventBus( @javax.annotation.Nonnull final com.google.gwt.event.shared.EventBus eventBus )
   {
     return eventBus;
   }
+<% end -%>
 }
