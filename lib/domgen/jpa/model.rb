@@ -378,6 +378,23 @@ module Domgen
         test_factory_map[short_code.to_s] = classname
       end
 
+      def test_modules
+        test_modules_map.dup
+      end
+
+      def add_test_module(name, classname)
+        Domgen.error("Attempting to define duplicate test module for ejb facet. Name = '#{name}', Classname = '#{classname}'") if test_modules_map[name.to_s]
+        test_modules_map[name.to_s] = classname
+      end
+
+      def test_class_contents
+        test_class_content_list.dup
+      end
+
+      def add_test_class_content(content)
+        self.test_class_content_list << content
+      end
+
       def custom_base_entity_test?
         @custom_base_entity_test.nil? ? false : !!@custom_base_entity_test
       end
@@ -629,7 +646,7 @@ FRAGMENT
 
       def pre_verify
         repository.jpa.persistence_units.select { |persistence_unit| persistence_unit.generate_test_util? }.each do |persistence_unit|
-          add_flushable_test_module(persistence_unit.persistence_unit_module_name, persistence_unit.qualified_persistence_unit_module_name)
+          add_test_module(persistence_unit.persistence_unit_module_name, persistence_unit.qualified_persistence_unit_module_name)
         end
         repository.data_modules.select { |data_module| data_module.jpa? }.each do |data_module|
           add_test_factory(data_module.jpa.short_test_code, data_module.jpa.qualified_test_factory_name)
@@ -637,6 +654,14 @@ FRAGMENT
       end
 
       protected
+
+      def test_class_content_list
+        @test_class_content ||= []
+      end
+
+      def test_modules_map
+        @test_modules_map ||= {}
+      end
 
       def test_factory_map
         @test_factory_map ||= {}

@@ -21,6 +21,9 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% if remote_refs -%>
     org.realityforge.replicant.client.test.ee.ReplicantEntityCustomizer.configure( em(), s( org.realityforge.replicant.client.EntitySystem.class ) );
 <% end -%>
+<% repository.jpa.test_modules.keys.each do |name| -%>
+    addModule( modules, new<%= name %>() );
+<% end -%>
 <% repository.jpa.test_factories.each do |short_code, classname| -%>
     <%= short_code %> = s( <%= classname %>.class );
 <% end -%>
@@ -31,6 +34,17 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( "ReplicationActive", "Test" );
 <% end -%>
   }
+<% repository.jpa.test_modules.each_pair do |name, classname| -%>
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module new<%= name %>()
+  {
+    return new <%= classname %>();
+  }
+<% end -%>
+<% repository.jpa.test_class_contents.each do |content| -%>
+<%= content -%>
+<% end -%>
 <% if repository.jpa.include_default_unit? -%>
 
   @javax.annotation.Nullable
