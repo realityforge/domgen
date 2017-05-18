@@ -13,4 +13,11 @@ public class <%= repository.gwt.support_test_module_name %>
     bindSingleton( com.google.gwt.event.shared.EventBus.class, com.google.gwt.event.shared.SimpleEventBus.class );
 <% end -%>
   }
+
+  @com.google.inject.Provides
+  @javax.inject.Singleton
+  public com.google.web.bindery.event.shared.EventBus getKeycloak( @javax.annotation.Nonnull final com.google.gwt.event.shared.EventBus eventBus )
+  {
+    return eventBus;
+  }
 }
