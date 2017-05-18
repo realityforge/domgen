@@ -363,10 +363,6 @@ module Domgen
       java_artifact :dao_module, :test, :server, :jpa, '#{repository.name}RepositoryModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :server, :jpa, '#{repository.name}FactorySetModule', :sub_package => 'util'
 
-      def extra_test_modules
-        @extra_test_modules ||= []
-      end
-
       attr_writer :custom_base_entity_test
 
       def test_factories
@@ -383,8 +379,12 @@ module Domgen
       end
 
       def add_test_module(name, classname)
-        Domgen.error("Attempting to define duplicate test module for ejb facet. Name = '#{name}', Classname = '#{classname}'") if test_modules_map[name.to_s]
+        Domgen.error("Attempting to define duplicate test module for jpa facet. Name = '#{name}', Classname = '#{classname}'") if test_modules_map[name.to_s]
         test_modules_map[name.to_s] = classname
+      end
+
+      def add_flushable_test_module(name, classname)
+        add_test_module(name, "#{classname}( this )")
       end
 
       def test_class_contents
@@ -645,11 +645,44 @@ FRAGMENT
       end
 
       def pre_verify
+        add_test_module(persistent_test_module_name, qualified_persistent_test_module_name) if repository.jpa.include_default_unit?
+        add_test_module(test_factory_module_name, qualified_test_factory_module_name)
+        add_test_module(dao_module_name, qualified_dao_module_name)
+        repository.jpa.standalone_persistence_units.select { |unit| !unit.manual_test_mode? }.each do |unit|
+          add_test_module("#{unit.unit_name}PersistenceModule",
+                          "org.realityforge.guiceyloops.server.MockPersistenceTestModule( #{qualified_unit_descriptor_name }.#{Reality::Naming.uppercase_constantize(unit.short_name)}_NAME )")
+        end
+        if repository.application.remote_references_included?
+          add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
+        end
+        standalone_persistence_units.select { |unit| unit.raw_test_mode? }.each do |unit|
+          add_test_module(unit.raw_test_module_name, unit.qualified_raw_test_module_name)
+        end
         repository.jpa.persistence_units.select { |persistence_unit| persistence_unit.generate_test_util? }.each do |persistence_unit|
           add_test_module(persistence_unit.persistence_unit_module_name, persistence_unit.qualified_persistence_unit_module_name)
         end
         repository.data_modules.select { |data_module| data_module.jpa? }.each do |data_module|
           add_test_factory(data_module.jpa.short_test_code, data_module.jpa.qualified_test_factory_name)
+        end
+        if include_default_unit?
+          add_test_class_content(<<-JAVA)
+
+  @javax.annotation.Nullable
+  @java.lang.Override
+  protected String getPrimaryPersistenceUnitName()
+  {
+    return #{qualified_unit_descriptor_name}.NAME;
+  }
+          JAVA
+        else
+          add_test_class_content(<<-JAVA)
+
+  @Override
+  public void flush()
+  {
+    //No default persistence unit so no need to flush
+  }
+          JAVA
         end
       end
 

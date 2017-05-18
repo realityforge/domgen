@@ -82,7 +82,7 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
   }
 
   @java.lang.Override
-  protected final com.google.inject.Module newAppConfigPersistenceEntityModule()
+  protected final com.google.inject.Module newAppConfigPersistenceTestModule()
   {
     return new NoDeleteAppConfigPersistenceTestModule();
   }

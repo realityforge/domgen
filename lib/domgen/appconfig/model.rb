@@ -84,9 +84,15 @@ module Domgen
 
       def pre_complete
         repository.jaxrs.extensions << 'iris.appconfig.server.rest.SystemSettingRestService' if repository.jaxrs?
+      end
+
+      def pre_verify
         if repository.jpa?
           repository.jpa.application_artifact_fragments << "iris.appconfig#{repository.pgsql? ? '.pg' : ''}:app-config-server"
           repository.jpa.add_test_factory(short_test_code, 'iris.appconfig.server.test.util.AppConfigFactory')
+          repository.jpa.add_test_module('AppConfigPersistenceTestModule', 'iris.appconfig.server.test.util.AppConfigPersistenceTestModule')
+          repository.jpa.add_test_module('AppConfigRepositoryModule', 'iris.appconfig.server.test.util.AppConfigRepositoryModule')
+          repository.jpa.add_flushable_test_module('AppConfigServicesModule', 'iris.appconfig.server.test.util.AppConfigServicesModule')
         end
       end
 

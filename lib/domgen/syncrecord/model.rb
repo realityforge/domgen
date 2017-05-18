@@ -104,6 +104,8 @@ module Domgen
             repository.ejb.add_test_module(self.test_module_name, self.qualified_test_module_name)
           end
           repository.ejb.add_flushable_test_module('SyncRecordServicesModule', 'iris.syncrecord.server.test.util.SyncRecordServicesModule')
+          repository.jpa.add_test_module('SyncRecordPersistenceTestModule', 'iris.syncrecord.server.test.util.SyncRecordPersistenceTestModule')
+          repository.jpa.add_test_module('SyncRecordRepositoryModule', 'iris.syncrecord.server.test.util.SyncRecordRepositoryModule')
         end
       end
 

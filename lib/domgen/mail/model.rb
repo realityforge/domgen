@@ -57,12 +57,14 @@ module Domgen
         @clear_error_on_send.nil? ? true : !!@clear_error_on_send
       end
 
-      def pre_complete
+      def pre_verify
         repository.timerstatus.additional_timers << 'Mail.MailQueueService.TransmitQueuedMail' if repository.timerstatus?
 
         if repository.jpa?
           repository.jpa.application_artifact_fragments << "iris.mail#{repository.pgsql? ? '.pg' : ''}:mail-server"
           repository.jpa.add_test_factory(short_test_code, 'iris.mail.server.test.util.MailFactory')
+          repository.jpa.add_test_module('MailPersistenceTestModule', 'iris.mail.server.test.util.MailPersistenceTestModule')
+          repository.jpa.add_test_module('MailRepositoryModule', 'iris.mail.server.test.util.MailRepositoryModule')
         end
         if repository.ejb?
           repository.ejb.add_flushable_test_module('MailServicesModule', 'iris.mail.server.test.util.MailServicesModule')
