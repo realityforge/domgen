@@ -2,7 +2,7 @@
 package <%= to_package(exception.jws.qualified_fault_info_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnnecessaryConstructor" } )
 <%= jaxb_exception_annotations(exception) %>
 public class <%= exception.jws.fault_info_name %>
 {
