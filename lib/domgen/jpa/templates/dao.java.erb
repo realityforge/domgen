@@ -95,16 +95,16 @@ public class <%= dao.jpa.dao_name %>
 <% else -%>
     query.setMaxResults( 1 );
     final java.util.List<<%= db_result_java_type %>> resultList = query.getResultList();
-    if ( resultList.size() > 0 )
+    if ( resultList.isEmpty() )
+    {
+      return null;
+    }
+    else
     {
       <%= return_clause %>resultList.get( 0 );
 <% if requires_result_conversion -%>
     return <%= converter_clause.gsub('XXXX', 'result') %>;
 <% end -%>
-    }
-    else
-    {
-      return null;
     }
 <% end
    else -%>

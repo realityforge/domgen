@@ -4,8 +4,12 @@ package <%= to_package(struct.gwt.qualified_factory_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"BC_UNCONFIRMED_CAST"})
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= struct.gwt.factory_name %>
+public final class <%= struct.gwt.factory_name %>
 {
+  private <%= struct.gwt.factory_name %>()
+  {
+  }
+
   public static <%= struct.gwt.qualified_interface_name %> create( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{field.name}" }.join(', ') %> )
   {
     <% params = struct.fields.collect { |field| field.name }.join(', ') %>

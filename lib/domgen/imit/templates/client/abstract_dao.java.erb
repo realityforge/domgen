@@ -7,7 +7,7 @@ public abstract class <%= dao.imit.abstract_dao_name %>
 {<% dao.queries.select{|q|q.imit? && q.imit.standard_query?}.each do |query| -%>
 
   @java.lang.Override
-  public <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= query.parameters.collect {|p| "#{p.imit.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.imit.java_type} #{p.name}"}.join(', ') %>)
+  public <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= query.parameters.collect {|p| "#{p.imit.primitive? ? '' : nullability_annotation(p.nullable?)} final #{p.imit.java_type} #{Reality::Naming.camelize(p.name)}"}.join(', ') %> )
   {
 <%
   if query.multiplicity == :many && query.parameters.empty?
@@ -16,11 +16,11 @@ public abstract class <%= dao.imit.abstract_dao_name %>
 <%
   elsif query.multiplicity == :zero_or_one && query.parameters.size == 1 && query.parameters[0].name == query.entity.primary_key.name
 -%>
-    return getRepository().findByID( <%= query_component_result_type(query) %>.class, <%= query.parameters[0].name %> );
+    return getRepository().findByID( <%= query_component_result_type(query) %>.class, <%= Reality::Naming.camelize(query.parameters[0].name) %> );
 <%
   elsif query.multiplicity == :one && query.parameters.size == 1 && query.parameters[0].name == query.entity.primary_key.name
 -%>
-    return getRepository().getByID( <%= query_component_result_type(query) %>.class, <%= query.parameters[0].name %> );
+    return getRepository().getByID( <%= query_component_result_type(query) %>.class, <%= Reality::Naming.camelize(query.parameters[0].name) %> );
 <%
   elsif query.multiplicity == :zero_or_one
 -%>

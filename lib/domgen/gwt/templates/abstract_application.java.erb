@@ -224,7 +224,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   protected abstract void prepareUI();
 
-  protected void onUncaughtException( Throwable e )
+  protected void onUncaughtException( @javax.annotation.Nonnull final Throwable e )
   {
 <% if repository.iris_audit? -%>
     final iris.audit.client.ClientExceptionAuditHelper helper = getClientExceptionAuditHelper();

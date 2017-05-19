@@ -2,7 +2,7 @@
 package <%= to_package(service.gwt_rpc.qualified_servlet_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable", "PMD.FieldDeclarationsShouldBeAtStartOfClass", "PMD.UnnecessaryLocalBeforeReturn" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SE_TRANSIENT_FIELD_NOT_RESTORED"})
 @javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.gwt_rpc.api_url %>" } )
 public class <%= service.gwt_rpc.servlet_name %>
@@ -64,7 +64,7 @@ public class <%= service.gwt_rpc.servlet_name %>
   private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
-%>  <%= annotated_type(method.return_value, :gwt_rpc, :transport, :public => true) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
+%>  <%= annotated_type(method.return_value, :gwt_rpc, :transport, :public => true) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport, :final => true)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt_rpc.qualified_name}.join(', ')}"
 %>
   {
@@ -257,7 +257,7 @@ if has_cookie
   }
 <% end %>
 
-  protected void doUnexpectedFailure( java.lang.Throwable e )
+  protected void doUnexpectedFailure( final java.lang.Throwable e )
   {
     com.google.gwt.user.server.rpc.RPCServletUtils.writeResponseForUnexpectedFailure( getServletContext(), getThreadLocalResponse(), e );
   }
