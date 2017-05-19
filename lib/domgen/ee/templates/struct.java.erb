@@ -3,7 +3,7 @@ package <%= to_package(struct.ee.qualified_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2", "DLS_DEAD_LOCAL_STORE"})
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UselessParentheses", "PMD.UnusedLocalVariable" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UselessParentheses", "PMD.UnusedLocalVariable", "PMD.UnnecessaryLocalBeforeReturn", "PMD.UnnecessaryConstructor", "PMD.LocalVariableCouldBeFinal" } )
 <%= jackson_class_annotations(struct) if struct.jackson? -%>
 <%= jaxb_class_annotations(struct) if struct.jaxb? -%>
 

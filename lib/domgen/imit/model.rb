@@ -441,7 +441,7 @@ module Domgen
         end
         @name = name
         @graph = repository.imit.graph_by_name(graph)
-        Domgen.error("Routing key '#{name}' on #{imit_attribute.attribute.name} is not immutable") unless imit_attribute.attribute.immutable?
+        #Domgen.error("Routing key '#{name}' on #{imit_attribute.attribute.name} is not immutable") unless imit_attribute.attribute.immutable?
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(graph).send :register_routing_key, self
       end

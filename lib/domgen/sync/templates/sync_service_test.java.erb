@@ -7,7 +7,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
   extends <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_test_name %>
 {
   @javax.annotation.Nonnull
-  protected final iris.syncrecord.server.entity.Synchronization doSyncAndLoadResults( @javax.annotation.Nonnull <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource, @javax.annotation.Nonnull final String statusCode )
+  protected final iris.syncrecord.server.entity.Synchronization doSyncAndLoadResults( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource, @javax.annotation.Nonnull final String statusCode )
   {
     return iris.syncrecord.server.test.util.SyncAssert.ensureSynchronization( service().synchronizeDataSource( mappingSource.getCode() ), mappingSource.getCode(), statusCode, s( iris.syncrecord.server.service.SyncRecordService.class ) );
   }
