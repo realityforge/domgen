@@ -169,7 +169,7 @@ public final class <%= struct.gwt.jso_name %>
     return this.<%= field.json.name %> == null;
   }-*/;
 
-  private void set<%= field.name %>( Double value )
+  private void set<%= field.name %>( final Double value )
   {
     if( null == value )
     {

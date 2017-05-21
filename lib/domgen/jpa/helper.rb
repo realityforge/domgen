@@ -534,6 +534,7 @@ JAVA
         s += <<JAVA
   @java.lang.Override
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
+  @java.lang.SuppressWarnings( { "PMD.UnnecessaryLocalBeforeReturn" } )
   public int hashCode()
   {
     final #{pk_type} key = #{pk_getter};
