@@ -23,6 +23,10 @@ Domgen::Generator.define([:keycloak],
                               'abstract_keycloak_filter.java.erb',
                               'main/java/#{client.qualified_abstract_keycloak_filter_name.gsub(".","/")}.java')
     template_set.erb_template('keycloak.client',
+                              'standard_keycloak_filter.java.erb',
+                              'main/java/#{client.qualified_standard_keycloak_filter_name.gsub(".","/")}.java',
+                              :guard => '!client.custom_filter?')
+    template_set.erb_template('keycloak.client',
                               'keycloak_filter.java.erb',
                               'main/java/#{client.qualified_keycloak_filter_name.gsub(".","/")}.java')
     template_set.erb_template('keycloak.client',

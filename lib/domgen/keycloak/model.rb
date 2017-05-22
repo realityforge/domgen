@@ -76,7 +76,8 @@ module Domgen
 
       java_artifact :keycloak_filter, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakFilter'
       java_artifact :keycloak_filter_interface, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakUrlFilter'
-      java_artifact :abstract_keycloak_filter, :filter, :server, :keycloak, 'Abstract#{qualified_class_name}KeycloakUrlFilter'
+      java_artifact :abstract_keycloak_filter, :filter, :server, :keycloak, 'Abstract#{qualified_class_name}KeycloakUrlFilterImpl'
+      java_artifact :standard_keycloak_filter, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakUrlFilterImpl'
       java_artifact :keycloak_config_resolver, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakConfigResolver'
       java_artifact :config_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakConfigServlet'
       java_artifact :js_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakJsServlet'
@@ -90,6 +91,12 @@ module Domgen
 
       def qualified_class_name
         "#{qualified_type_name}Client"
+      end
+
+      attr_writer :custom_filter
+
+      def custom_filter?
+        @custom_filter.nil? ? false : !!@custom_filter
       end
 
       attr_writer :protected_url_patterns
