@@ -114,6 +114,13 @@ def generate(repository)
       define_custom_resource(data, "#{prefix}/subscriptionsDebugOutputEnabled", "${#{env_prefix}_SUBSCRIPTIONSDEBUGOUTPUTENABLED}", 'java.lang.Boolean')
       define_custom_resource(data, "#{prefix}/shouldValidateRepositoryOnLoad", "${#{env_prefix}_SHOULDVALIDATEREPOSITORYONLOAD}", 'java.lang.Boolean')
       define_custom_resource(data, "#{prefix}/requestDebugOutputEnabled", "${#{env_prefix}_REQUESTDEBUGOUTPUTENABLED}", 'java.lang.Boolean')
+      if repository.keycloak?
+        define_custom_resource(data, "#{prefix}/keycloak/server_url", "${#{env_prefix}_KEYCLOAK_SERVER_URL}")
+        define_custom_resource(data, "#{prefix}/keycloak/realm", "${#{env_prefix}_KEYCLOAK_REALM}")
+        define_custom_resource(data, "#{prefix}/keycloak/client", "${#{env_prefix}_KEYCLOAK_CLIENT}")
+        define_custom_resource(data, "#{prefix}/keycloak/username", "${#{env_prefix}_KEYCLOAK_USERNAME}")
+        define_custom_resource(data, "#{prefix}/keycloak/password", "${#{env_prefix}_KEYCLOAK_PASSWORD}")
+      end
     end
   end
 
