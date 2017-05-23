@@ -953,6 +953,7 @@ module Domgen
           client.protected_url_patterns << prefix + '/replicant/*'
           client.protected_url_patterns << prefix + '/session/*'
         end
+        add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
         add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
         add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
         repository.gwt.add_test_module(repository.imit.mock_services_module_name, repository.imit.qualified_mock_services_module_name) if repository.gwt?
