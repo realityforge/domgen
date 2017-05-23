@@ -62,6 +62,9 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   private final <%= repository.imit.qualified_client_router_interface_name %> _router = new <%= repository.imit.qualified_client_router_impl_name %>();
   private final org.realityforge.replicant.client.transport.SessionContext _sessionContext = new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" );
   private <%= repository.imit.qualified_change_mapper_name %> _changeMapper;
+<% if repository.keycloak? -%>
+  private org.realityforge.keycloak.client.authfilter.Keycloak _keycloak;
+<% end -%>
 
   @javax.annotation.Nonnull
   @java.lang.Override
@@ -80,8 +83,29 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
     ( (javax.xml.ws.BindingProvider) _remoteSubscriptionService ).getRequestContext().
       put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, getSubscriptionServerAddress() );
     getSessionContext().setBaseURL( getWebEndpointAddress() );
+<% if repository.keycloak? -%>
+    _keycloak = new org.realityforge.keycloak.client.authfilter.Keycloak( getKeycloakConfig() )
+<% end -%>
   }
 
+<% if repository.keycloak? -%>
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected javax.ws.rs.client.Client newClient()
+  {
+    return super.newClient().register( new org.realityforge.keycloak.client.authfilter.BearerAuthFilter( _keycloak ) );
+  }
+
+  @javax.annotation.Nonnull
+  protected abstract org.realityforge.keycloak.client.authfilter.KeycloakConfig getKeycloakConfig();
+
+  @javax.annotation.Nonnull
+  protected org.realityforge.keycloak.client.authfilter.Keycloak getKeycloak()
+  {
+    return _keycloak;
+  }
+
+<% end -%>
   @javax.annotation.Nonnull
   protected abstract String get<%= repository.name %>ApplicationURL();
 
