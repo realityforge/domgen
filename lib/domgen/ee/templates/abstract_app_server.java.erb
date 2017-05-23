@@ -89,8 +89,14 @@ public abstract class <%= repository.ee.abstract_app_server_name %>
     glassfish.createCustomResource( "<%= prefix %>/subscriptionsDebugOutputEnabled", false );
     glassfish.createCustomResource( "<%= prefix %>/shouldValidateRepositoryOnLoad", true );
     glassfish.createCustomResource( "<%= prefix %>/requestDebugOutputEnabled", false );
+<% if repository.keycloak? -%>
+    glassfish.createCustomResource( "<%= prefix %>/keycloak/server_url", "http://example.com/" );
+    glassfish.createCustomResource( "<%= prefix %>/keycloak/client", "keycloak_client" );
+    glassfish.createCustomResource( "<%= prefix %>/keycloak/realm", "keycloak_realm" );
     glassfish.createCustomResource( "<%= prefix %>/keycloak/username", "keycloak_svc_acct" );
     glassfish.createCustomResource( "<%= prefix %>/keycloak/password", "keycloak_password" );
+<% end -%>
+
 <% end -%>
 
 <% end -%>
