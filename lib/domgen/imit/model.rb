@@ -857,7 +857,7 @@ module Domgen
       end
 
       def add_test_module(name, classname)
-        Domgen.error("Attempting to define duplicate test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if test_modules_map[name.to_s]
+        Domgen.error("Attempting to define duplicate test module for imit facet. Name = '#{name}', Classname = '#{classname}'") if test_modules_map[name.to_s]
         test_modules_map[name.to_s] = classname
       end
 
