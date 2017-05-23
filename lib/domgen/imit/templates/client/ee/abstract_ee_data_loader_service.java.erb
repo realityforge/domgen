@@ -84,7 +84,7 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
       put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, getSubscriptionServerAddress() );
     getSessionContext().setBaseURL( getWebEndpointAddress() );
 <% if repository.keycloak? -%>
-    _keycloak = new org.realityforge.keycloak.client.authfilter.Keycloak( getKeycloakConfig() )
+    _keycloak = new org.realityforge.keycloak.client.authfilter.Keycloak( getKeycloakConfig() );
 <% end -%>
   }
 
