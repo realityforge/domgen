@@ -20,9 +20,13 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  public String get<%= claim.java_accessor_key %>()
+  public <%= claim.java_type %> get<%= claim.java_accessor_key %>()
   {
+<% if ['FamilyName', 'GivenName', 'PreferredUsername'].include?(claim.token_accessor_key) -%>
     final String value = getAccount().getKeycloakSecurityContext().getToken().get<%= claim.token_accessor_key %>();
+<% else -%>
+    final <%= claim.java_type %> value = (<%= claim.java_type %>)getAccount().getKeycloakSecurityContext().getToken().getOtherClaims().get( "<%= Reality::Naming.camelize(claim.token_accessor_key) %>" );
+<% end -%>
     assert null != value;
     return value;
   }
