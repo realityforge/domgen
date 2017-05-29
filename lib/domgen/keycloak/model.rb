@@ -371,7 +371,7 @@ module Domgen
       end
 
       def add_groups_claim
-        x = claim('groups',
+        c = claim('groups',
                   :config =>
                     {
                       'id.token.claim' => 'false',
@@ -379,9 +379,9 @@ module Domgen
                       'claim.name' => 'groups'
                     })
 
-        x.protocol_mapper = 'oidc-group-membership-mapper'
-        x.java_type = 'com.google.gwt.core.client.JsArray'
-        x
+        c.protocol_mapper = 'oidc-group-membership-mapper'
+        c.java_type = 'com.google.gwt.core.client.JsArray'
+        c
       end
 
       private
