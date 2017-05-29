@@ -40,7 +40,7 @@ module Domgen
       end
 
       def js_type
-        @js_type
+        @js_type || self.java_type
       end
 
       attr_writer :token_accessor_key
