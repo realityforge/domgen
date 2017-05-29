@@ -29,12 +29,18 @@ module Domgen
 
       attr_writer :java_type
 
+      attr_writer :js_type
+
       def java_accessor_key
         @java_accessor_key || Reality::Naming.pascal_case(self.name.to_s.gsub(' ', '_'))
       end
 
       def java_type
         @java_type || 'java.lang.String'
+      end
+
+      def js_type
+        @js_type
       end
 
       attr_writer :token_accessor_key
@@ -380,7 +386,8 @@ module Domgen
                     })
 
         c.protocol_mapper = 'oidc-group-membership-mapper'
-        c.java_type = 'com.google.gwt.core.client.JsArray'
+        c.java_type = 'java.util.ArrayList<String>'
+        c.js_type = 'com.google.gwt.core.client.JsArray'
         c
       end
 
