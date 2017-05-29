@@ -34,7 +34,7 @@ module Domgen
       end
 
       def java_type
-        @java_type || 'String'
+        @java_type || 'java.lang.String'
       end
 
       attr_writer :token_accessor_key
