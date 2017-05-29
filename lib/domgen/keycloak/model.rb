@@ -27,8 +27,14 @@ module Domgen
 
       attr_writer :java_accessor_key
 
+      attr_writer :java_type
+
       def java_accessor_key
         @java_accessor_key || Reality::Naming.pascal_case(self.name.to_s.gsub(' ', '_'))
+      end
+
+      def java_type
+        @java_type || 'String'
       end
 
       attr_writer :token_accessor_key
@@ -364,6 +370,20 @@ module Domgen
                 })
       end
 
+      def add_groups_claim
+        x = claim('groups',
+                  :config =>
+                    {
+                      'id.token.claim' => 'false',
+                      'access.token.claim' => 'true',
+                      'claim.name' => 'groups'
+                    })
+
+        x.protocol_mapper = 'oidc-group-membership-mapper'
+        x.java_type = 'com.google.gwt.core.client.JsArray'
+        x
+      end
+
       private
 
       def claim_map
@@ -475,7 +495,7 @@ module Domgen
             s.disable_facets_not_in(:ejb)
             self.default_client.claims.each do |claim|
               s.method("Get#{claim.java_accessor_key}") do |m|
-                m.returns(:text)
+                m.returns(claim.java_type)
               end
             end
           end
@@ -490,7 +510,7 @@ module Domgen
           repository.ejb.add_flushable_test_module(self.test_module_name, self.qualified_test_module_name)
           repository.ejb.add_test_class_content(<<-JAVA)
 
-  public void setupAccount( #{self.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final String #{Reality::Naming.camelize(claim.java_accessor_key)}"}.join(', ') } )
+  public void setupAccount( #{self.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final #{claim.java_type} #{Reality::Naming.camelize(claim.java_accessor_key)}"}.join(', ') } )
   {
     toObject( #{self.qualified_test_auth_service_implementation_name }.class, s( #{repository.service_by_name(self.auth_service_name).ejb.qualified_service_name }.class ) ).setupAccount( #{self.default_client.claims.collect {|claim| Reality::Naming.camelize(claim.java_accessor_key)}.join(', ') } );
   }
