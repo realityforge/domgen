@@ -48,13 +48,13 @@ public class <%= remote_datasource.ee_data_loader_service_implementation_name %>
     removeDataLoaderListener( _listener );
   }
 <% if remote_datasource.application.repository.keycloak? -%>
+
   @javax.annotation.Nonnull
   @java.lang.Override
   protected org.realityforge.keycloak.client.authfilter.KeycloakConfig getKeycloakConfig()
   {
     return org.realityforge.keycloak.client.authfilter.KeycloakConfig.createPasswordConfig( _keycloakServerURL, _keycloakRealm, _keycloakClient, _keycloakUsername, _keycloakPassword );
   }
-
 <% end -%>
 
   @java.lang.Override
