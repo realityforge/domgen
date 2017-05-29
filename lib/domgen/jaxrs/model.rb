@@ -55,7 +55,14 @@ module Domgen
         @path || 'api'
       end
 
+      attr_writer :custom_application
+
+      def custom_application?
+        @custom_application.nil? ? false : !!@custom_application
+      end
+
       java_artifact :abstract_application, :rest, :server, :ee, 'Abstract#{repository.name}JaxRsApplication'
+      java_artifact :standard_application, :rest, :server, :ee, '#{repository.name}JaxRsApplication'
 
       def extensions
         @extensions ||= []
