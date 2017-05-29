@@ -19,10 +19,15 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 {
 <% if client.keycloak_repository.repository.imit? -%>
   private boolean _disableSessionServiceProtection;
+<% end -%>
+<% if client.keycloak_repository.repository.syncrecord? -%>
+  private boolean _disableSyncServiceProtection;
+<% end -%>
 
   @javax.annotation.PostConstruct
   protected void postConstruct()
   {
+<% if client.keycloak_repository.repository.imit? -%>
     try
     {
       _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
@@ -31,9 +36,19 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
     {
       //Ignored.
     }
+<% end -%>
+<% if client.keycloak_repository.repository.syncrecord? -%>
+    try
+    {
+      _disableSyncServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_sync_service_protection" ).equals( Boolean.TRUE );
+    }
+    catch ( final java.lang.Exception e )
+    {
+      //Ignored.
+    }
+<% end -%>
   }
 
-<% end -%>
   @Override
   public boolean shouldProtectRequest( @javax.annotation.Nonnull final javax.servlet.ServletRequest request )
   {
@@ -58,6 +73,10 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 <% end -%>
 <% if client.keycloak_repository.repository.syncrecord? -%>
     if ( path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + '/' + iris.syncrecord.server.rest.SyncStatusService.PATH_PREFIX ) )
+    {
+      return false;
+    }
+    if ( _disableSyncServiceProtection && path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + "/sync" ) )
     {
       return false;
     }
