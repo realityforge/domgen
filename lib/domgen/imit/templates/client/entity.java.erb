@@ -166,6 +166,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
   @javax.annotation.Nonnull
   public final java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= plural_name %>()
   {
+    checkValidity();
     return java.util.Collections.unmodifiableList( safeGet<%= plural_name %>() );
   }
 
@@ -204,6 +205,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
 <% else %>
   public final <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> <%= getter_prefix(attribute) %><%= name %>()
   {
+    checkValidity();
     return <%= Reality::Naming.camelize(name) %>;
   }
 
