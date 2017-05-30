@@ -7,7 +7,7 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 <% if repository.ee.use_cdi? -%>
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
-@javax.enterprise.inject.Typed( { <%= repository.imit.qualified_poll_service_name %>.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
+@javax.enterprise.inject.Typed( { <%= repository.imit.qualified_poll_service_name %>.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
 <% else -%>
 @javax.ejb.Singleton( name = <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
