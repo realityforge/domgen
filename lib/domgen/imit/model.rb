@@ -892,6 +892,14 @@ module Domgen
         test_modules_map[name.to_s] = classname
       end
 
+      def test_class_contents
+        test_class_content_list.dup
+      end
+
+      def add_test_class_content(content)
+        self.test_class_content_list << content
+      end
+
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
@@ -984,17 +992,7 @@ module Domgen
           client.protected_url_patterns << prefix + '/replicant/*'
           client.protected_url_patterns << prefix + '/session/*'
         end
-        add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
-        add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
-        add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
-        repository.gwt.add_test_module(repository.imit.mock_services_module_name, repository.imit.qualified_mock_services_module_name) if repository.gwt?
-         if repository.gwt?
-           repository.gwt.add_gin_module(repository.imit.services_module_name, repository.imit.qualified_services_module_name)
-           repository.gwt.add_gin_module(repository.imit.dao_module_name, repository.imit.qualified_dao_module_name)
-           repository.gwt.add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
-           repository.gwt.add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
-           repository.gwt.add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
-           repository.gwt.add_test_class_content(<<CONTENT)
+           test_content = <<CONTENT
   @javax.annotation.Nonnull
   protected final org.realityforge.replicant.client.EntityRepository repository()
   {
@@ -1017,6 +1015,18 @@ module Domgen
     broker().pause( "TEST" );
   }
 CONTENT
+        add_test_class_content(test_content)
+        add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
+        add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
+        add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
+        repository.gwt.add_test_module(repository.imit.mock_services_module_name, repository.imit.qualified_mock_services_module_name) if repository.gwt?
+         if repository.gwt?
+           repository.gwt.add_gin_module(repository.imit.services_module_name, repository.imit.qualified_services_module_name)
+           repository.gwt.add_gin_module(repository.imit.dao_module_name, repository.imit.qualified_dao_module_name)
+           repository.gwt.add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
+           repository.gwt.add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
+           repository.gwt.add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
+           repository.gwt.add_test_class_content(test_content)
          end
 
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?
@@ -1336,6 +1346,10 @@ CONTENT
       end
 
       protected
+
+      def test_class_content_list
+        @test_class_content ||= []
+      end
 
       def test_modules_map
         @test_modules_map ||= {}

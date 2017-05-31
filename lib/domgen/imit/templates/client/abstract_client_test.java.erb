@@ -40,4 +40,7 @@ public abstract class <%= repository.imit.abstract_client_test_name %>
     return new <%= classname %>();
   }
 <% end -%>
+<% repository.imit.test_class_contents.each do |content| -%>
+<%= content -%>
+<% end -%>
 }
