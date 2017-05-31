@@ -1,0 +1,25 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_ee_client_system_implementation_name) %>;
+
+@javax.inject.Singleton
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.NOT_SUPPORTED )
+@javax.enterprise.inject.Typed( { org.realityforge.replicant.client.runtime.ReplicantClientSystem.class, <%= repository.service_by_name(repository.imit.client_system_service).ejb.qualified_service_name %>.class } )
+public class <%= repository.imit.ee_client_system_implementation_name %>
+  extends <%= repository.imit.qualified_abstract_ee_client_system_implementation_name %>
+{
+<% repository.imit.remote_datasources.each do |rd| -%>
+  @javax.inject.Inject
+  private <%= rd.ee_data_loader_service_interface %> _<%= Reality::Naming.camelize(rd.name) %>;
+<% end -%>
+
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.client.runtime.DataLoaderEntry[] newDataLoaderEntries()
+  {
+    return new org.realityforge.replicant.client.runtime.DataLoaderEntry[]
+      {
+<% repository.imit.remote_datasources.each do |rd| -%>
+        new org.realityforge.replicant.client.runtime.DataLoaderEntry( _<%= Reality::Naming.camelize(rd.name) %>, true ),
+<% end -%>
+      };
+  }
+}

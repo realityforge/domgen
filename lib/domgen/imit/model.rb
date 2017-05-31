@@ -644,6 +644,9 @@ module Domgen
         repository.gwt.modules_package
       end
 
+      java_artifact :abstract_ee_client_system_implementation, :comm, :server, :imit, 'Abstract#{repository.name}ReplicantClientSystemImpl'
+      java_artifact :ee_client_system_implementation, :comm, :server, :imit, '#{repository.name}ReplicantClientSystemImpl'
+      java_artifact :ee_context_converger_implementation, :comm, :server, :imit, '#{repository.name}ContextConvergerImpl'
       java_artifact :runtime_extension, :comm, :client, :imit, '#{repository.name}RuntimeExtension'
       java_artifact :gwt_runtime_extension, :comm, :client, :imit, '#{repository.name}GwtRuntimeExtension'
       java_artifact :ee_runtime_extension, :comm, :client, :imit, '#{repository.name}EeRuntimeExtension'
@@ -694,6 +697,12 @@ module Domgen
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :client, :imit, '#{repository.name}FactorySetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
+
+      attr_writer :custom_client_system
+
+      def custom_client_system?
+        @custom_client_system.nil? ? false : !!@custom_client_system
+      end
 
       attr_writer :custom_base_client_test
 
@@ -760,6 +769,10 @@ module Domgen
         !!graph_map[name.to_s]
       end
 
+      def remote_datasources?
+        !remote_datasource_map.empty?
+      end
+
       def remote_datasources
         remote_datasource_map.values
       end
@@ -805,6 +818,24 @@ module Domgen
 
       def session_context_service
         @session_context_service || "#{self.imit_control_data_module}.#{repository.name}SessionContext"
+      end
+
+      def client_system_service=(client_system_service)
+        Domgen.error('invalid_session_exception invalid. Expected to be in format DataModule.SessionContext') if client_system_service.to_s.split('.').length != 2
+        @client_system_service = client_system_service
+      end
+
+      def client_system_service
+        @client_system_service || "#{self.imit_control_data_module}.#{repository.name}EeReplicantClientSystem"
+      end
+
+      def client_converger_service=(client_converger_service)
+        Domgen.error('invalid_session_exception invalid. Expected to be in format DataModule.SessionContext') if client_converger_service.to_s.split('.').length != 2
+        @client_converger_service = client_converger_service
+      end
+
+      def client_converger_service
+        @client_converger_service || "#{self.imit_control_data_module}.#{repository.name}ContextConvergerService"
       end
 
       def imit_control_data_module=(imit_control_data_module)
@@ -998,6 +1029,21 @@ CONTENT
           e.java.exception_category = :runtime
           e.ejb.rollback = false
           e.disable_facets_not_in(*self.component_facets + [:jaxrs])
+        end
+
+        if repository.imit.remote_datasources?
+          self.repository.service(self.client_converger_service) unless self.repository.service_by_name?(self.client_converger_service)
+          self.repository.service_by_name(self.client_converger_service).tap do |s|
+            s.ejb.generate_base_test = false
+            s.disable_facets_not_in(:ejb)
+            s.method(:Converge, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '*/1')
+          end
+          self.repository.service(self.client_system_service) unless self.repository.service_by_name?(self.client_system_service)
+          self.repository.service_by_name(self.client_system_service).tap do |s|
+            s.ejb.generate_base_test = false
+            s.disable_facets_not_in(:ejb)
+            s.method(:Converge, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '*/2')
+          end
         end
 
         self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)

@@ -1,0 +1,27 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_abstract_ee_client_system_implementation_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= repository.imit.abstract_ee_client_system_implementation_name %>
+  extends org.realityforge.replicant.client.runtime.ReplicantClientSystemImpl
+  implements <%= repository.service_by_name(repository.imit.client_system_service).ejb.qualified_service_name %>
+{
+  @javax.inject.Inject
+  private javax.enterprise.inject.spi.BeanManager _beanManager;
+
+  @javax.annotation.Nonnull
+  protected abstract org.realityforge.replicant.client.runtime.DataLoaderEntry[] newDataLoaderEntries();
+
+  @javax.annotation.PostConstruct
+  protected void postConstruct()
+  {
+    setDataLoaders( newDataLoaderEntries() );
+    addReplicantSystemListener( new org.realityforge.replicant.client.runtime.ee.EeReplicantSystemListenerImpl( _beanManager ) );
+  }
+
+  @javax.annotation.PreDestroy
+  protected void preDestroy()
+  {
+    release();
+  }
+}

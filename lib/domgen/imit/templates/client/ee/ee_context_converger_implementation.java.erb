@@ -1,0 +1,50 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_ee_context_converger_implementation_name) %>;
+
+@javax.inject.Singleton
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.NOT_SUPPORTED )
+@javax.enterprise.inject.Typed( { org.realityforge.replicant.client.runtime.ContextConverger.class, <%= repository.service_by_name(repository.imit.client_converger_service).ejb.qualified_service_name %>.class } )
+public class <%= repository.imit.ee_context_converger_implementation_name %>
+  extends org.realityforge.replicant.client.runtime.ee.AbstractEeContextConvergerImpl
+  implements <%= repository.service_by_name(repository.imit.client_converger_service).ejb.qualified_service_name %>
+{
+  @javax.inject.Inject
+  private org.realityforge.replicant.client.EntitySystem _entitySystem;
+  @javax.inject.Inject
+  private org.realityforge.replicant.client.runtime.AreaOfInterestService _areaOfInterestService;
+  @javax.inject.Inject
+  private org.realityforge.replicant.client.runtime.ReplicantClientSystem _replicantClientSystem;
+
+  @javax.annotation.PostConstruct
+  protected void postConstruct()
+  {
+    super.postConstruct();
+  }
+
+  @javax.annotation.PreDestroy
+  protected void preDestroy()
+  {
+    super.preDestroy();
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.client.EntitySubscriptionManager getSubscriptionManager()
+  {
+    return _entitySystem.getSubscriptionManager();
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.client.runtime.AreaOfInterestService getAreaOfInterestService()
+  {
+    return _areaOfInterestService;
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.client.runtime.ReplicantClientSystem getReplicantClientSystem()
+  {
+    return _replicantClientSystem;
+  }
+}
