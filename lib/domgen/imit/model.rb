@@ -1035,12 +1035,14 @@ CONTENT
           self.repository.service(self.client_converger_service) unless self.repository.service_by_name?(self.client_converger_service)
           self.repository.service_by_name(self.client_converger_service).tap do |s|
             s.ejb.generate_base_test = false
+            s.ejb.bind_in_tests = false
             s.disable_facets_not_in(:ejb)
             s.method(:Converge, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '*/1')
           end
           self.repository.service(self.client_system_service) unless self.repository.service_by_name?(self.client_system_service)
           self.repository.service_by_name(self.client_system_service).tap do |s|
             s.ejb.generate_base_test = false
+            s.ejb.bind_in_tests = false
             s.disable_facets_not_in(:ejb)
             s.method(:Converge, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '*/2')
           end
