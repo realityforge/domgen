@@ -1440,7 +1440,7 @@ CONTENT
         dao.disable_facet(:imit) if !dao.repository? || !dao.entity.imit?
       end
 
-      def post_complete
+      def post_verify
         dao.disable_facet(:imit) if dao.imit? && dao.queries.select { |q| q.imit? }.empty?
       end
     end
