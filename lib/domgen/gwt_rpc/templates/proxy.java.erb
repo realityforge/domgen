@@ -54,11 +54,11 @@ public class <%= service.gwt_rpc.proxy_name %>
     }
     <% if parameter.nullable? %>}<% end %>
 <% end -%>
-<% if method.imit? -%>
-    request( "<%= service.qualified_name %>.<%= method.name %>", <%= method.imit.graph_to_subscribe.nil? ? 'null' : "#{service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name}.getSessionContext().getKey() + \":\" + #{method.service.data_module.repository.imit.qualified_graph_enum_name}.#{Reality::Naming.uppercase_constantize(method.service.data_module.repository.imit.graph_by_name(method.imit.graph_to_subscribe).name)}.name()" %>, (session, request) -> {
-<% end -%>
 <% if method.keycloak? -%>
     updateTokenAndExecute( () -> {
+<% end -%>
+<% if method.imit? -%>
+    request( "<%= service.qualified_name %>.<%= method.name %>", <%= method.imit.graph_to_subscribe.nil? ? 'null' : "#{service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name}.getSessionContext().getKey() + \":\" + #{method.service.data_module.repository.imit.qualified_graph_enum_name}.#{Reality::Naming.uppercase_constantize(method.service.data_module.repository.imit.graph_by_name(method.imit.graph_to_subscribe).name)}.name()" %>, (session, request) -> {
 <% end -%>
     _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect do |parameter|
   param_value = Reality::Naming.camelize(parameter.name)
@@ -134,10 +134,10 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         return <%= result_string %>;
       }
     } );
-<% if method.keycloak? -%>
+<% if method.imit? -%>
     } );
 <% end -%>
-<% if method.imit? -%>
+<% if method.keycloak? -%>
     } );
 <% end -%>
   }
