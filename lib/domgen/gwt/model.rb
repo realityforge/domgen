@@ -249,7 +249,7 @@ module Domgen
     eventBus().fireEvent( event );
   }
 
-  @javax.annotation.Nonnull 
+  @javax.annotation.Nonnull
   protected final com.google.gwt.event.shared.EventBus eventBus()
   {
     return s( com.google.gwt.event.shared.EventBus.class );
