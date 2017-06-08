@@ -987,6 +987,8 @@ FRAGMENT
             else
               query.standard_query = true
             end
+          else
+            Domgen.error("Query #{query.qualified_name} is jpa enabled but defines no jpql or sql but is not a standard query.")
           end
         end
         entity.queries.select { |query| query.jpa? && query.jpa.ignore_default_criteria? }.each do |query|
