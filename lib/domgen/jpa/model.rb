@@ -987,6 +987,8 @@ FRAGMENT
             else
               query.standard_query = true
             end
+          else
+            p "Warning: This query is broken: #{ query.qualified_name}"
           end
         end
         entity.queries.select { |query| query.jpa? && query.jpa.ignore_default_criteria? }.each do |query|
