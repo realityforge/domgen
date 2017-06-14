@@ -180,7 +180,7 @@ def generate(repository)
                               :login_timeout => unit.login_timeout)
 
       unit.related_database_keys.each do |key|
-        env_key = "#{Reality::Naming.uppercase_constantize(repository.name)}_#{repository.name == unit.short_name ? '' : "#{unit.short_name}_"}#{Reality::Naming.uppercase_constantize(key)}_DATABASE_NAME"
+        env_key = "#{Reality::Naming.uppercase_constantize(repository.name)}_#{repository.name == unit.short_name ? '' : "#{Reality::Naming.uppercase_constantize(unit.short_name)}_"}#{Reality::Naming.uppercase_constantize(key)}_DATABASE_NAME"
         data['environment_vars'][env_key] = ''
         define_custom_resource(data, unit.related_database_jndi(key), "${#{env_key}}")
       end
