@@ -226,7 +226,7 @@ module Domgen
       attr_writer :direct_access_grants
 
       def direct_access_grants?
-        @direct_access_grants.nil? ? true : !!@direct_access_grants
+        @direct_access_grants.nil? ? false : !!@direct_access_grants
       end
 
       attr_writer :public_client
