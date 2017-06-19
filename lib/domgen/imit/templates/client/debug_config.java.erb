@@ -1,0 +1,14 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_debug_config_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public final class <%= repository.imit.debug_config_name %>
+{
+<% repository.imit.debug_config.each_pair do |k, config| -%>
+  public static final boolean <%= Reality::Naming.uppercase_constantize(k) %> = "true".equals( System.getProperty( "replicant.<%= Reality::Naming.underscore(repository.name) %>.<%= k %>", "<%= config[:default_value] || 'false' %>" ) );
+<% end -%>
+
+  private <%= repository.imit.debug_config_name %>()
+  {
+  }
+}
