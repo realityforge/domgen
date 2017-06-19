@@ -42,17 +42,23 @@ def generate(client)
     'useTemplateMappers' => false
   }
 
-  client.claims.each do |claim|
-    claim_data = {
-      'id' => SecureRandom.uuid.to_s,
-      'name' => claim.name,
-      'protocol' => claim.protocol,
-      'protocolMapper' => claim.protocol_mapper,
-      'consentRequired' => claim.consent_required?,
-      'config' => claim.config.dup
-    }
-    claim_data['consentText'] = claim.consent_text if claim.consent_text
-    data['protocolMappers'] << claim_data
+  unless client.bearer_only?
+    # Bearer only clients do not return any claims as they do not generate token. Thus it makes no sense
+    # to configure any as it is the responsibility of the client that generates the token to populate the
+    # token with the right claims.
+
+    client.claims.each do |claim|
+      claim_data = {
+        'id' => SecureRandom.uuid.to_s,
+        'name' => claim.name,
+        'protocol' => claim.protocol,
+        'protocolMapper' => claim.protocol_mapper,
+        'consentRequired' => claim.consent_required?,
+        'config' => claim.config.dup
+      }
+      claim_data['consentText'] = claim.consent_text if claim.consent_text
+      data['protocolMappers'] << claim_data
+    end
   end
 
   ::JSON.pretty_generate(data)
