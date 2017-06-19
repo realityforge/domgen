@@ -18,7 +18,7 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
   }
 <% repository.keycloak.default_client.claims.each do |claim| -%>
 
-<% repository.keycloak.default_client.bearer_only? -%>
+<% if repository.keycloak.default_client.bearer_only? -%>
   /**
    * Retrieve the <% claim.name %> claim.
    * WARNING: The default client is bearer only so this claim MUST be present in the token that has been
