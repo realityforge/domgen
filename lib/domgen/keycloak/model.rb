@@ -456,6 +456,13 @@ module Domgen
         repository.application.code_deployable?
       end
 
+      # Does this application generate any tokens as part of it's operation?
+      # or does it rely on other applications to generate tokens and then
+      # will accept their tokens.
+      def generates_tokens?
+        has_local_auth_service? && self.clients.any?{|c| !c.bearer_only?}
+      end
+
       def default_client
         Domgen.error('default_client called when local auth service is not enabled.') unless has_local_auth_service?
         key = Reality::Naming.underscore(repository.name.to_s)
