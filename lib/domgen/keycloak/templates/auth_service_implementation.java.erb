@@ -18,6 +18,14 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
   }
 <% repository.keycloak.default_client.claims.each do |claim| -%>
 
+<% if repository.keycloak.default_client.bearer_only? -%>
+  /**
+   * Retrieve the <% claim.name %> claim.
+   * WARNING: The default client is bearer only so this claim MUST be present in the token that has been
+   * sourced from a different client. So there is no guarantee that this claim is present other than
+   * configuring the other client to present this claim.
+   */
+<% end -%>
   @javax.annotation.Nonnull
   @java.lang.Override
   public <%= claim.java_type %> get<%= claim.java_accessor_key %>()

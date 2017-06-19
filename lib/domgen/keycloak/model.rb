@@ -226,7 +226,7 @@ module Domgen
       attr_writer :direct_access_grants
 
       def direct_access_grants?
-        @direct_access_grants.nil? ? true : !!@direct_access_grants
+        @direct_access_grants.nil? ? false : !!@direct_access_grants
       end
 
       attr_writer :public_client
@@ -454,6 +454,13 @@ module Domgen
 
       def has_local_auth_service?
         repository.application.code_deployable?
+      end
+
+      # Does this application generate any tokens as part of it's operation?
+      # or does it rely on other applications to generate tokens and then
+      # will accept their tokens.
+      def generates_tokens?
+        has_local_auth_service? && self.clients.any?{|c| !c.bearer_only?}
       end
 
       def default_client

@@ -3,7 +3,7 @@ package <%= to_package(repository.keycloak.qualified_gwt_token_service_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 public interface <%= repository.keycloak.gwt_token_service_name %>
-{<% repository.keycloak.clients.each do |client| -%>
+{<% repository.keycloak.clients.select{|client| !client.bearer_only?}.each do |client| -%>
 
   @javax.annotation.Nullable
   <%= client.qualified_token_name %> find<%= client.qualified_type_name %>Token();

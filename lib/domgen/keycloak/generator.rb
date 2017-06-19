@@ -83,25 +83,27 @@ Domgen::Generator.define([:keycloak],
     template_set.erb_template('keycloak.client',
                               'token.java.erb',
                               'main/java/#{client.qualified_token_name.gsub(".","/")}.java',
-                              :additional_facets => [:gwt])
+                              :additional_facets => [:gwt],
+                              :guard => '!client.bearer_only?')
     template_set.erb_template('keycloak.client',
                               'id_token.java.erb',
                               'main/java/#{client.qualified_id_token_name.gsub(".","/")}.java',
-                              :additional_facets => [:gwt])
+                              :additional_facets => [:gwt],
+                              :guard => '!client.bearer_only?')
     template_set.erb_template(:repository,
                               'gwt_token_service.java.erb',
                               'main/java/#{repository.keycloak.qualified_gwt_token_service_name.gsub(".","/")}.java',
                               :additional_facets => [:gwt],
-                              :guard => 'repository.keycloak.has_local_auth_service?')
+                              :guard => 'repository.keycloak.generates_tokens?')
     template_set.erb_template(:repository,
                               'gwt_token_service_impl.java.erb',
                               'main/java/#{repository.keycloak.qualified_gwt_token_service_impl_name.gsub(".","/")}.java',
                               :additional_facets => [:gwt],
-                              :guard => 'repository.keycloak.has_local_auth_service?')
+                              :guard => 'repository.keycloak.generates_tokens?')
     template_set.erb_template(:repository,
                               'services_module.java.erb',
                               'main/java/#{repository.keycloak.qualified_services_module_name.gsub(".","/")}.java',
-                              :guard => 'repository.keycloak.has_local_auth_service?')
+                              :guard => 'repository.keycloak.generates_tokens?')
   end
 
   g.template_set(:keycloak_gwt_app) do |template_set|
