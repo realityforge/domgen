@@ -517,7 +517,7 @@ module Domgen
       end
 
       def pre_verify
-        if repository.gwt? && self.has_local_auth_service?
+        if repository.gwt? && self.generates_tokens?
           repository.gwt.add_gin_module(self.services_module_name, self.qualified_services_module_name)
         end
         if repository.ejb? && self.has_local_auth_service?
