@@ -62,7 +62,7 @@ module Domgen
       attr_writer :consent_required
 
       def consent_required?
-        @consent_required.nil? ? true : !!@consent_required
+        @consent_required.nil? ? false : !!@consent_required
       end
 
       attr_writer :consent_text
