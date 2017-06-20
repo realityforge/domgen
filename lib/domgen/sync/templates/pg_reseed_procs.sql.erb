@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION <%= data_module.sql.quoted_schema %>.<%= data_module.
         SET "SyncTempID" = F."RowID"
         FROM (SELECT "SyncTempID", ROW_NUMBER () OVER ( ORDER BY "SyncTempID" ) AS "RowID" FROM <%= entity.sql.qualified_table_name %> ) F
         WHERE <%= entity.sql.qualified_table_name %>."SyncTempID" = F."SyncTempID";
-    
+
         PERFORM newSeq = COALESCE(MAX("SyncTempID" + 1),0) FROM <%= entity.sql.qualified_table_name %>;
         ALTER SEQUENCE <%= entity.primary_key.sql.sequence.qualified_sequence_name %> RESTART;
     END;
