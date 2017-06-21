@@ -20,7 +20,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 <% end -%>
 
-<% data_module.repository.data_modules.select{|dm|dm.jpa? && dm.name != data_module.name}.each do |dm| -%>
+<% data_module.repository.data_modules.select{|dm|dm.jpa? && dm.jpa.generate_test_factory? && dm.name != data_module.name}.each do |dm| -%>
 
   protected final <%= dm.jpa.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
   {

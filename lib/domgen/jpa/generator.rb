@@ -61,7 +61,8 @@ Domgen::Generator.define([:jpa],
                                 type + '/java/#{repository.jpa.qualified_test_factory_module_name.gsub(".","/")}.java')
       template_set.erb_template(:data_module,
                                 'abstract_test_factory.java.erb',
-                                type + '/java/#{data_module.jpa.qualified_abstract_test_factory_name.gsub(".","/")}.java')
+                                type + '/java/#{data_module.jpa.qualified_abstract_test_factory_name.gsub(".","/")}.java',
+                                :guard => 'data_module.jpa.generate_test_factory?')
     end
     g.template_set(:"jpa_#{type}_qa") do |template_set|
       template_set.erb_template(:repository,

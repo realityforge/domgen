@@ -661,7 +661,7 @@ FRAGMENT
         repository.jpa.persistence_units.select { |persistence_unit| persistence_unit.generate_test_util? }.each do |persistence_unit|
           add_test_module(persistence_unit.persistence_unit_module_name, persistence_unit.qualified_persistence_unit_module_name)
         end
-        repository.data_modules.select { |data_module| data_module.jpa? }.each do |data_module|
+        repository.data_modules.select { |data_module| data_module.jpa? && data_module.jpa.generate_test_factory? }.each do |data_module|
           add_test_factory(data_module.jpa.short_test_code, data_module.jpa.qualified_test_factory_name)
         end
         if include_default_unit?
@@ -739,6 +739,10 @@ FRAGMENT
 
       def default_jpql_criterion
         @default_jpql_criterion.nil? ? data_module.repository.jpa.default_jpql_criterion : @default_jpql_criterion
+      end
+
+      def generate_test_factory?
+        data_module.entities.any?{|e|e.jpa?}
       end
     end
 
