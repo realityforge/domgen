@@ -29,6 +29,10 @@ public class <%= entrypoint.entrypoint_module_name %>
   protected void configure()
   {
     install( new <%= entrypoint.gwt_repository.repository.gwt.qualified_aggregate_module_name %>() );
+<% if entrypoint.gwt_repository.repository.iris_audit? -%>
+    install( new iris.audit.client.ioc.AuditClientModule() );
+    install( new iris.audit.client.ioc.AuditModule() );
+<% end -%>
 <% if entrypoint.gwt_repository.repository.imit? -%>
     install( new org.realityforge.replicant.client.gwt.ReplicantGinModule() );
     install( new org.realityforge.replicant.client.runtime.gwt.ReplicantNetworkModule() );

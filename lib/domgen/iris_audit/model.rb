@@ -26,13 +26,6 @@ module Domgen
           repository.jpa.application_artifact_fragments << "iris.audit#{repository.pgsql? ? '.pg' : ''}:audit-server"
         end
       end
-
-      def pre_verify
-        if repository.gwt?
-          repository.gwt.add_gin_module('AuditClientModule', 'iris.audit.client.ioc.AuditClientModule')
-          repository.gwt.add_gin_module('AuditModule', 'iris.audit.client.ioc.AuditModule')
-        end
-      end
     end
 
     facet.enhance(DataModule) do
