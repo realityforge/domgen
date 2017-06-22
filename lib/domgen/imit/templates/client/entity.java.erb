@@ -132,6 +132,8 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
          "_#{Reality::Naming.camelize(attribute.imit.name)}.ordinal()"
        elsif attribute.enumeration? && attribute.enumeration.textual_values?
          "_#{Reality::Naming.camelize(attribute.imit.name)}.name()"
+       elsif attribute.date?
+         "_#{Reality::Naming.camelize(attribute.imit.name)}.toString()"
        else
          raw_value
        end
@@ -144,6 +146,9 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
 <% if attribute.reference? || attribute.remote_reference? -%>
     _<%= Reality::Naming.camelize(attribute.imit.name) %> = null;
     _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> = value;
+<% elsif attribute.date? -%>
+    _<%= Reality::Naming.camelize(attribute.imit.name) %> = <%= attribute.nullable? ? 'null == value ? null : ' : '' %>org.realityforge.gwt.datatypes.client.date.RDate.parse( value );
+    if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Reality::Naming.uppercase_constantize( attribute.name ) %>, value );
 <% elsif attribute.enumeration? -%>
 <% if !attribute.imit.primitive?(:transport) -%>
     if( null != value )
@@ -158,8 +163,8 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
     }
 <% end %>
     if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Reality::Naming.uppercase_constantize( attribute.name ) %>, value );
-<% else
-%>    _<%= Reality::Naming.camelize(attribute.imit.name) %> = value;
+<% else -%>
+    _<%= Reality::Naming.camelize(attribute.imit.name) %> = value;
     if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Reality::Naming.uppercase_constantize( attribute.name ) %>, value );
 <% end %>  }
 <% end %>

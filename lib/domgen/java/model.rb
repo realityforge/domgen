@@ -157,9 +157,17 @@ module Domgen
           end
         elsif characteristic.geometry?
           return Domgen::TypeDB.characteristic_type_by_name(characteristic.geometry.geometry_type).java.object_type
-        elsif characteristic.date? && group_type == :gwt
-          # TODO: Fix Hackity hack
-          return characteristic.characteristic_type.java.gwt.object_type
+        elsif characteristic.date?
+          if :default == modality || :boundary == modality
+            # TODO: Fix Hackity hack
+            if group_type == :gwt
+              return characteristic.characteristic_type.java.gwt.object_type
+            else
+              return characteristic.characteristic_type.java.object_type
+            end
+          else #if :transport == modality
+            return Domgen::TypeDB.characteristic_type_by_name(:text).java.object_type
+          end
         else
           characteristic_type = characteristic.characteristic_type
           if characteristic_type

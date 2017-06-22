@@ -45,6 +45,8 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
     $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_remote_entity.primary_key.name %>() );
 <% elsif a.enumeration? -%>
     $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
+<% elsif a.date? -%>
+    $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.toString() );
 <% else -%>
     $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> );
 <% end -%>
@@ -66,6 +68,8 @@ public abstract class <%= data_module.imit.abstract_test_factory_name %>
     $_.link();
 <% elsif a.enumeration? -%>
     $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
+<% elsif a.date? -%>
+    $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null : " : '' %><%= Reality::Naming.camelize(a.name) %>.toString() );
 <% else -%>
     $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> );
 <% end -%>

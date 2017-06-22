@@ -62,12 +62,14 @@ public class <%= service.gwt_rpc.proxy_name %>
 <% end -%>
     _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect do |parameter|
   param_value = Reality::Naming.camelize(parameter.name)
-  if parameter.collection? && (parameter.enumeration? || parameter.struct?)
+  if parameter.collection? && (parameter.enumeration? || parameter.struct? || parameter.date?)
     param_value = "$#{param_value}"
   elsif parameter.enumeration? && parameter.enumeration.numeric_values?
     param_value = "#{param_value}.ordinal()"
   elsif parameter.enumeration? && parameter.enumeration.textual_values?
     param_value = "#{param_value}.name()"
+  elsif parameter.date?
+    param_value = "#{param_value}.toString()"
   elsif parameter.struct?
     if parameter.referenced_struct.auto_bean?
       param_value = "com.google.web.bindery.autobean.shared.AutoBeanCodex.encode( com.google.web.bindery.autobean.shared.AutoBeanUtils.getAutoBean( #{parameter.name} ) ).getPayload()"
@@ -91,6 +93,8 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
        result_string = "#{method.return_value.gwt_rpc.java_type}.values()[ result ]"
      elsif method.return_value.enumeration? && method.return_value.enumeration.textual_values?
        result_string = "#{method.return_value.gwt_rpc.java_type}.valueOf( result )"
+     elsif method.return_value.date?
+       result_string = "org.realityforge.gwt.datatypes.client.date.RDate.parse( result )"
      elsif method.return_value.struct?
        if method.return_value.referenced_struct.auto_bean?
        result_string = "com.google.web.bindery.autobean.shared.AutoBeanCodex.decode( _factory, #{method.return_value.referenced_struct.auto_bean.qualified_name}.class, result ).as()"

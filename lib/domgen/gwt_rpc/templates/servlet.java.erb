@@ -150,7 +150,7 @@ LOOP
     <%
        param_value =
          if parameter.date?
-            'org.realityforge.gwt.datatypes.client.date.RDate.toDate( k )'
+            'org.realityforge.gwt.datatypes.client.date.RDate.toDate(  org.realityforge.gwt.datatypes.client.date.RDate.parse( k ) )'
          elsif parameter.enumeration?
            parameter.enumeration.numeric_values? ?
              "#{parameter.enumeration.ee.qualified_name}.values()[ k ]" :
@@ -179,7 +179,7 @@ LOOP
   else
     transform = nil
     if p.date?
-      transform = "org.realityforge.gwt.datatypes.client.date.RDate.toDate( #{p.gwt_rpc.name} )"
+      transform = "org.realityforge.gwt.datatypes.client.date.RDate.toDate( org.realityforge.gwt.datatypes.client.date.RDate.parse( #{p.gwt_rpc.name} ) )"
     elsif p.enumeration?
       if p.enumeration.numeric_values?
         transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt_rpc.name} ]"
