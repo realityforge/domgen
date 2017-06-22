@@ -161,6 +161,14 @@ public class <%= service.iris_audit.interceptor_impl_name %>
 <% if method.return_value.return_type != :void -%>
     else
     {
+<% if method.return_value.nullable? -%>
+      if ( null == result )
+      {
+        params.addNull( "result" );
+      }
+      else
+      {
+<% end -%>
 <% p = method.return_value.reference? ? method.return_value.referenced_entity.primary_key : method.return_value.remote_reference? ? method.return_value.referenced_remote_entity.primary_key : method.return_value -%>
 <% if method.return_value.collection_type == :none -%>
 <% if p.non_standard_type? || p.text? -%>
@@ -205,6 +213,9 @@ public class <%= service.iris_audit.interceptor_impl_name %>
           paramBuilder.add( value );
         }
         builder.add( "result", paramBuilder );
+<% end -%>
+<% if method.return_value.nullable? -%>
+      }
 <% end -%>
     }
 <% end -%>
