@@ -522,13 +522,20 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   @java.lang.Override
   public String toString()
   {
-    return "<%= entity.qualified_name %>[" + <%=
+    if ( <%= entity.data_module.repository.imit.qualified_debug_config_name %>.ENTITY_VERBOSE_TO_STRING )
+    {
+      return "<%= entity.qualified_name %>[" + <%=
       entity.attributes.select{ |a| a.imit? && a.imit.client_side? }.collect do |a|
       value = "#{getter_prefix(a)}#{a.imit.name(:transport).to_s}()"
       output = "\"#{a.name}=\" + #{value}"
       entity.primary_key == a ? output : "(isValid() ? #{output} : \"\")"
       end.join(" + \", \" + ")
     %> + "]" + (!isValid() ? "(Invalid)" : !isLinked() ? "(Unlinked)" : !isCreated() ? "(Creating)" : "");
+    }
+    else
+    {
+      return super.toString();
+    }
   }
 <% end -%>
 }

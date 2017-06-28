@@ -704,6 +704,7 @@ module Domgen
           'entity_omit_verbose_null_check' => {:production_value => true},
           'entity_verbose_invariant_exceptions' => {:default_value => true, :production_value => false},
           'entity_verbose_reference_exceptions' => {:default_value => true, :production_value => false},
+          'entity_verbose_to_string' => {:default_value => true, :production_value => false},
         }
       end
 
