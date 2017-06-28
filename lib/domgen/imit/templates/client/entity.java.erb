@@ -213,7 +213,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
     }
     return <%= Reality::Naming.camelize(plural_name) %>;
   }
-<% else %>
+<% else -%>
   public final <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> <%= getter_prefix(attribute) %><%= name %>()
   {
     checkValidity();
@@ -232,8 +232,8 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
     <%= Reality::Naming.camelize(name) %> = value;
     if( null != <%= Reality::Naming.camelize(name) %> && isCreated() && null != _broker && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Reality::Naming.uppercase_constantize( attribute.inverse.name ) %>, <%= Reality::Naming.camelize(name) %> );
   }
-<% end %>
-<% end %>
+<% end -%>
+<% end -%>
 
   public void verifySelf()
     throws Exception
@@ -264,9 +264,9 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
   public void verify()
     throws Exception
   {
-<% if entity.extends.nil? %>
+<% if entity.extends.nil? -%>
     verifySelf();
-<% else %>
+<% else -%>
     super.verify();
 <% end -%>
 <%
@@ -292,6 +292,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   }
 
   @java.lang.SuppressWarnings( { "PMD.UselessOverridingMethod" } )
+  @java.lang.Override
   public void invalidate()
   {
 <% if entity.extends.nil? -%>
@@ -306,13 +307,15 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     delink();
     _repository = null;
     _broker = null;
-<% else
-%>    super.invalidate();
-<% end
-%>
+<% else -%>
+    super.invalidate();
+<% end -%>
   }
 <% linkable_attributes = entity.declared_attributes.select{|attribute| !attribute.abstract? && (attribute.reference? || attribute.remote_reference?) && attribute.imit? && attribute.imit.client_side?} -%>
 
+<% if entity.extends -%>
+  @java.lang.Override
+<% end -%>
   protected void performLink()
   {
 <% if entity.extends -%>
@@ -335,6 +338,9 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 <% end -%>
   }
 
+<% if entity.extends -%>
+  @java.lang.Override
+<% end -%>
   protected void performDelink()
   {
 <% if entity.extends -%>
@@ -400,9 +406,9 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 <% if !attribute.remote_reference? && attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many %>        _<%= Reality::Naming.camelize(attribute.imit.name) %>.set<%= attribute.inverse.name %>( this );<% end -%>
       }
     }
-<% end %>
 
-<% if entity.extends.nil? %>
+<% end -%>
+<% if entity.extends.nil? -%>
   protected final boolean isCreated()
   {
     return _$created;
@@ -486,14 +492,15 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   {
     return _$linked;
   }
-<% end %>
+
+<% end -%>
   @javax.annotation.Nonnull
   public <%= entity.imit.name %> self()
   {
     return this;
   }
 
-<% if entity.concrete? %>
+<% if entity.concrete? -%>
   @java.lang.Override
   public boolean equals( final Object o )
   {
