@@ -14,7 +14,7 @@ public class <%= service.gwt_rpc.servlet_name %>
   private transient final com.fasterxml.jackson.databind.ObjectMapper _jsonMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
   @javax.inject.Inject
-  private <%= service.data_module.repository.gwt_rpc.qualified_code_server_config_name %> _codeServerConfig;
+  private transient <%= service.data_module.repository.gwt_rpc.qualified_code_server_config_name %> _codeServerConfig;
 
   @javax.annotation.Nullable
   @Override
