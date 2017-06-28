@@ -80,6 +80,14 @@ def generate(repository)
       }
   end
 
+  if repository.gwt_rpc? && repository.application.code_deployable?
+    data['environment_vars']["#{constant_prefix}_CODE_SERVER_HOST"] = 'localhost'
+    data['environment_vars']["#{constant_prefix}_CODE_SERVER_PORT"] = '0'
+
+    define_custom_resource(data, "#{application}/env/code_server/host", "${#{constant_prefix}_CODE_SERVER_HOST}")
+    define_custom_resource(data, "#{application}/env/code_server/port", "${#{constant_prefix}_CODE_SERVER_PORT}", 'java.lang.Integer')
+  end
+
   if repository.imit?
     data['managed_scheduled_executor_services'] = {}
 

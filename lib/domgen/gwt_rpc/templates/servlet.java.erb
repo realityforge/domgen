@@ -13,51 +13,14 @@ public class <%= service.gwt_rpc.servlet_name %>
 
   private transient final com.fasterxml.jackson.databind.ObjectMapper _jsonMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
-  private int _codeServerPort;
-  private String _gwtModulePath;
-  private String _codeServerHost;
+  @javax.inject.Inject
+  private <%= service.data_module.repository.gwt_rpc.qualified_code_server_config_name %> _codeServerConfig;
 
-  @java.lang.Override
-  public void init( final javax.servlet.ServletConfig config )
-    throws javax.servlet.ServletException
+  @javax.annotation.Nullable
+  @Override
+  protected String getCodeServerPolicyUrl( @javax.annotation.Nonnull final String strongName )
   {
-    super.init( config );
-    _codeServerPort = getCodeServerPort();
-    _gwtModulePath = System.getProperty( "gwt.codeserver.module" );
-    _codeServerHost = System.getProperty( "gwt.codeserver.host", "localhost" );
-  }
-
-  private int getCodeServerPort()
-    throws javax.servlet.ServletException
-  {
-    final String value = System.getProperty( "gwt.codeserver.port" );
-    if ( null == value )
-    {
-      return 0;
-    }
-
-    try
-    {
-      final int port = Integer.parseInt( value );
-      if ( port >= 0 && port < 65536 )
-      {
-        return port;
-      }
-    }
-    catch ( final java.lang.NumberFormatException nfe )
-    {
-      // fall through
-    }
-    throw new javax.servlet.ServletException( "Invalid value of gwt.codeserver.port system property; expected an integer in the range [1-65535] but got: " + value );
-  }
-
-  protected String getCodeServerPolicyUrl( final String strongName )
-  {
-    if ( null == _gwtModulePath || _codeServerPort <= 0 )
-    {
-      return null;
-    }
-    return "http://" + _codeServerHost + ":" + _codeServerPort + "/" + _gwtModulePath + "/" + strongName + ".gwt.rpc";
+    return _codeServerConfig.getCodeServerPolicyUrl( strongName );
   }
 
   @javax.inject.Inject

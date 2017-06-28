@@ -43,6 +43,9 @@ module Domgen
       java_artifact :mock_services_module, :test, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule', :sub_package => 'util'
       java_artifact :services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtServicesModule'
 
+      java_artifact :code_server_config, :service, :server, :gwt_rpc, '#{repository.name}CodeServerConfig'
+      java_artifact :code_server_config_resources, :service, :server, :gwt_rpc, '#{repository.name}CodeServerConfigResources'
+
       def client_ioc_package
         repository.gwt.client_ioc_package
       end
