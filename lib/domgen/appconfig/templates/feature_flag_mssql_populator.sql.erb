@@ -1,6 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
-<% repository.appconfig.feature_flags.each do |feature_flag| -%>
+<% repository.appconfig.system_settings.select{|system_setting| !system_setting.initial_value.nil? }.each do |system_setting| -%>
 INSERT INTO [AppConfig].[tblSystemSetting]([Code],[Value])
-  SELECT '<%= feature_flag.key_value %>', '<%= feature_flag.initial_value %>'
-  WHERE 0 = (SELECT COUNT(*) FROM [AppConfig].[tblSystemSetting] WHERE [Code] = '<%= feature_flag.key_value %>')
+  SELECT '<%= system_setting.key_value %>', '<%= system_setting.initial_value %>'
+  WHERE 0 = (SELECT COUNT(*) FROM [AppConfig].[tblSystemSetting] WHERE [Code] = '<%= system_setting.key_value %>')
 <% end -%>

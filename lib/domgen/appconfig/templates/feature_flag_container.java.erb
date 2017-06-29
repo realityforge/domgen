@@ -4,7 +4,7 @@ package <%= to_package(repository.appconfig.qualified_feature_flag_container_nam
 @javax.annotation.Generated( "Domgen" )
 public final class <%= repository.appconfig.feature_flag_container_name %>
 {
-<% repository.appconfig.feature_flags.each do |feature_flag| -%>
+<% repository.appconfig.system_settings.select{|setting| setting.feature_flag?}.each do |feature_flag| -%>
   public static final java.lang.String <%= Reality::Naming.uppercase_constantize(feature_flag.key) %> = "<%= feature_flag.key_value %>";
 <% end -%>
 

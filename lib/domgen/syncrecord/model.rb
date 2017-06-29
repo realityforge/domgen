@@ -229,7 +229,9 @@ module Domgen
       def feature_flag_by_name(feature_flag)
         appconfig = method.data_module.repository.appconfig
         name = feature_flag.to_s.gsub(/[#\.]/, '_')
-        appconfig.feature_flag_by_name?(name) ? appconfig.feature_flag_by_name(name) : appconfig.feature_flag(name, :key_value => feature_flag)
+        feature_flag = appconfig.system_setting_by_name?(name) ? appconfig.system_setting_by_name(name) : appconfig.feature_flag(name, :key_value => feature_flag)
+        Domgen.error("Feature flag '#{feature_flag}' referenced by #{method.qualified_name} is not a feature flag but a system setting") unless feature_flag.feature_flag?
+        feature_flag
       end
     end
   end

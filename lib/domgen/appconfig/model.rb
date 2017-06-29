@@ -14,13 +14,13 @@
 
 module Domgen
   module Appconfig
-    class FeatureFlag < Domgen.ParentedElement(:appconfig_repository)
+    class SystemSetting < Domgen.ParentedElement(:appconfig_repository)
       attr_reader :key
 
       def initialize(appconfig_repository, key, options = {}, &block)
         @key = key
-        raise "Supplied key for feature flag has non alphanumeric and non underscore characters. key = '#{key}'" unless key.to_s.gsub(/[^0-9A-Za-z_]/, '') == key.to_s
-        appconfig_repository.send(:register_feature_flag, self)
+        raise "Supplied key for system_setting has non alphanumeric and non underscore characters. key = '#{key}'" unless key.to_s.gsub(/[^0-9A-Za-z_]/, '') == key.to_s
+        appconfig_repository.send(:register_system_setting, self)
         super(appconfig_repository, options, &block)
       end
 
@@ -35,13 +35,19 @@ module Domgen
 
       # Initial value set during database import if not already set
       def initial_value
-        @initial_value.nil? ? true : !!@initial_value
+        @initial_value
+      end
+
+      attr_writer :feature_flag
+
+      def feature_flag?
+        @feature_flag.nil? ? false : !!@feature_flag
       end
 
       attr_writer :disable_in_integration_test
 
       def disable_in_integration_test?
-        @disable_in_integration_test.nil? ? false : !!@disable_in_integration_test
+        feature_flag? && (@disable_in_integration_test.nil? ? false : !!@disable_in_integration_test)
       end
     end
   end
@@ -52,6 +58,7 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :feature_flag_container, nil, :shared, :appconfig, '#{repository.name}FeatureFlags'
+      java_artifact :system_setting_container, nil, :shared, :appconfig, '#{repository.name}SystemSettings'
       java_artifact :integration_test, :rest, :integration, :appconfig, '#{repository.name}AppconfigTest'
 
       attr_writer :short_test_code
@@ -60,26 +67,34 @@ module Domgen
         @short_test_code || 'ac'
       end
 
+      def system_setting(key, options = {}, &block)
+        Domgen::Appconfig::SystemSetting.new(self, key, options, &block)
+      end
+
       def feature_flag(key, options = {}, &block)
-        Domgen::Appconfig::FeatureFlag.new(self, key, options, &block)
+        system_setting(key, {:initial_value => true}.merge(options.merge(:feature_flag => true)), &block)
       end
 
-      def feature_flag_by_name?(key)
-        feature_flag_map[key.to_s]
+      def system_setting_by_name?(key)
+        system_setting_map[key.to_s]
       end
 
-      def feature_flag_by_name(key)
-        feature_flag = feature_flag_map[key.to_s]
-        Domgen.error("Unable to locate feature flag #{key}") unless feature_flag
-        feature_flag
+      def system_setting_by_name(key)
+        system_setting = system_setting_map[key.to_s]
+        Domgen.error("Unable to locate feature flag #{key}") unless system_setting
+        system_setting
       end
 
       def feature_flags?
-        feature_flag_map.size > 0
+        system_settings.any?{|s| s.feature_flag?}
       end
 
-      def feature_flags
-        feature_flag_map.values
+      def system_settings?
+        system_setting_map.size > 0
+      end
+
+      def system_settings
+        system_setting_map.values
       end
 
       def pre_complete
@@ -98,13 +113,13 @@ module Domgen
 
       protected
 
-      def register_feature_flag(feature_flag)
-        Domgen.error("Attempting to redefine feature flag '#{feature_flag.key}'") if feature_flag_map[feature_flag.key.to_s]
-        feature_flag_map[feature_flag.key.to_s] = feature_flag
+      def register_system_setting(system_setting)
+        Domgen.error("Attempting to redefine system setting '#{system_setting.key}'") if system_setting_map[system_setting.key.to_s]
+        system_setting_map[system_setting.key.to_s] = system_setting
       end
 
-      def feature_flag_map
-        @feature_flag ||= Reality::OrderedHash.new
+      def system_setting_map
+        @system_setting ||= Reality::OrderedHash.new
       end
     end
   end

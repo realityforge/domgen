@@ -28,13 +28,17 @@ Domgen::Generator.define([:appconfig],
                               'feature_flag_container.java.erb',
                               'main/java/#{repository.appconfig.qualified_feature_flag_container_name.gsub(".","/")}.java',
                               :guard => 'repository.appconfig.feature_flags?')
+    template_set.erb_template(:repository,
+                              'system_setting_container.java.erb',
+                              'main/java/#{repository.appconfig.qualified_system_setting_container_name.gsub(".","/")}.java',
+                              :guard => 'repository.appconfig.system_settings.any?{|s|!s.feature_flag?}')
   end
 
   g.template_set(:appconfig_mssql) do |template_set|
     template_set.erb_template(:repository,
                               'feature_flag_mssql_populator.sql.erb',
                               'db-hooks/post/#{repository.name}_FeatureFlagPopulator.sql',
-                              :guard => 'repository.appconfig.feature_flags?')
+                              :guard => 'repository.appconfig.system_settings?')
   end
 
   g.template_set(:appconfig_pgsql) do |template_set|
@@ -42,7 +46,7 @@ Domgen::Generator.define([:appconfig],
                               'feature_flag_populator.sql.erb',
                               'db-hooks/post/#{repository.name}_FeatureFlagPopulator.sql',
                               :additional_facets => [:mssql],
-                              :guard => 'repository.appconfig.feature_flags?')
+                              :guard => 'repository.appconfig.system_settings?')
   end
 
   g.template_set(:appconfig => [:appconfig_integration_test])
