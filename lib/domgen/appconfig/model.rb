@@ -67,6 +67,12 @@ module Domgen
         @short_test_code || 'ac'
       end
 
+      attr_writer :all_settings_defined
+
+      def all_settings_defined?
+        @all_settings_defined.nil? ? false : !!@all_settings_defined
+      end
+
       def system_setting(key, options = {}, &block)
         Domgen::Appconfig::SystemSetting.new(self, key, options, &block)
       end
