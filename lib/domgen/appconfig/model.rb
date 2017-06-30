@@ -70,7 +70,7 @@ module Domgen
       attr_writer :all_settings_defined
 
       def all_settings_defined?
-        @all_settings_defined.nil? ? false : !!@all_settings_defined
+        @all_settings_defined.nil? ? true : !!@all_settings_defined
       end
 
       def system_setting(key, options = {}, &block)
