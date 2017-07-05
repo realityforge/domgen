@@ -253,18 +253,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         }
       };
       getListener().onSubscribeStarted( this, descriptor );
-<% if repository.keycloak? -%>
-      <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
-      {
-        @java.lang.Override
-        public void run()
-        {
-    <% end -%>
-      _remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%><% if graph.filtered? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter<% end -%>, callback, errorCallback );
-<% if repository.keycloak? -%>
-        }
-      } );
-<% end -%>
+      <% if repository.keycloak? -%><%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( () -> <% end -%>_remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%><% if graph.filtered? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter<% end -%>, callback, errorCallback )<% if repository.keycloak? -%> )<% end -%>;
     }
     else <% end %>
     {
@@ -302,18 +291,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         }
       };
       getListener().onSubscriptionUpdateStarted( this, descriptor );
-<% if repository.keycloak? -%>
-      <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
-      {
-        @java.lang.Override
-        public void run()
-        {
-    <% end -%>
-      _remoteSubscriptionService.update<%= graph.name %>Subscription( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter, callback, errorCallback );
-<% if repository.keycloak? -%>
-        }
-      } );
-<% end -%>
+      <% if repository.keycloak? -%><%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( () -> <% end -%>_remoteSubscriptionService.update<%= graph.name %>Subscription( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter, callback, errorCallback )<% if repository.keycloak? -%> )<% end -%>;
     }
     else <% end %>
     {
@@ -349,18 +327,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         }
       };
       getListener().onUnsubscribeStarted( this, descriptor );
-<% if repository.keycloak? -%>
-      <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( new java.lang.Runnable()
-      {
-        @java.lang.Override
-        public void run()
-        {
-    <% end -%>
-      _remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%>, callback, errorCallback );
-<% if repository.keycloak? -%>
-        }
-      } );
-<% end -%>
+      <% if repository.keycloak? -%><%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( () -> <% end -%>_remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%>, callback, errorCallback )<% if repository.keycloak? -%> )<% end -%>;
     }
     else <% end %>
     {
