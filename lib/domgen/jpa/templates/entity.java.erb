@@ -321,6 +321,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <% end -%>
 <% if  entity.declared_attributes.any? { |a| a.remote_reference? }-%>
 
+  @java.lang.SuppressWarnings( "unchecked" )
   @javax.annotation.Nonnull
   private org.realityforge.replicant.client.EntitySystem getEntitySystem()
   {
