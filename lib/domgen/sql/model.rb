@@ -96,6 +96,12 @@ module Domgen
         @unique.nil? ? false : @unique
       end
 
+      attr_writer :allow_page_locks
+
+      def allow_page_locks?
+        @allow_page_locks.nil? ? true : !!@allow_page_locks
+      end
+
       def partial?
         !self.filter.nil?
       end

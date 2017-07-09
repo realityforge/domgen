@@ -67,6 +67,7 @@ CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.gist? ? 'SPATIAL' : index.
 (<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(',') %>
 )<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(',') %> )<% end %>
 <% if index.filter %>WHERE <%= index.filter %><% end %>
+WITH (ALLOW_PAGE_LOCKS=<%= index.allow_page_locks? ? 'ON' : 'OFF'%>)
 <%= index.unique? ? 'ON [PRIMARY]' : '' %>
 GO
 <% index.tags.each_pair do |name, value| %>
