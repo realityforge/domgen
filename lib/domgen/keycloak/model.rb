@@ -506,6 +506,7 @@ module Domgen
           self.repository.service(self.auth_service_name) unless self.repository.service_by_name?(self.auth_service_name)
           self.repository.service_by_name(self.auth_service_name).tap do |s|
             s.ejb.bind_in_tests = false
+            s.ejb.generate_base_test = false
             s.disable_facets_not_in(:ejb)
             self.default_client.claims.each do |claim|
               s.method("Get#{claim.java_accessor_key}") do |m|
