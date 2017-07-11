@@ -222,6 +222,12 @@ module Domgen
       def generate_base_test=(generate_base_test)
         @generate_base_test = generate_base_test
       end
+
+      def post_verify
+        if generate_base_test? && !service.methods.any?{|m| m.ejb? && m.ejb.generate_base_test?}
+          self.generate_base_test = false
+        end
+      end
     end
 
     facet.enhance(Method) do
