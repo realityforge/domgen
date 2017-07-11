@@ -11,10 +11,10 @@ public class <%= repository.jpa.aggregate_entity_test_name %>
   {
 <%
   repository.data_modules.select{|dm|dm.jpa?}.each do |data_module|
-    data_module.daos.select{|d|d.jpa? && d.queries.any?{|q|!q.jpa.standard_query?}}.each do |dao|
+    data_module.daos.select{|d|d.jpa? && d.queries.any?{|q|q.jpa? && !q.jpa.standard_query?}}.each do |dao|
 -%>
     org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ) );
-<% dao.queries.select{|q|!q.jpa.standard_query?}.each do |query| -%>
+<% dao.queries.select{|q|q.jpa? && !q.jpa.standard_query?}.each do |query| -%>
     org.testng.Assert.assertNotNull( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(query.name) %>" ).getAnnotation( org.testng.annotations.Test.class ) );
 <% end -%>
 <%
