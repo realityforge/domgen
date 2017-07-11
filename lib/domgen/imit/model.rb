@@ -1073,6 +1073,7 @@ CONTENT
           s.disable_facets_not_in(:ejb)
           repository.imit.graphs.each do |graph|
             s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
+              m.ejb.generate_base_test = false
               m.parameter(:Message, 'org.realityforge.replicant.server.EntityMessage')
               m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
               if graph.instance_root?
@@ -1104,6 +1105,7 @@ CONTENT
             if !graph.instance_root?
               if graph.cacheable? && graph.external_cache_management?
                 s.method("Get#{graph.name}CacheKey") do |m|
+                  m.ejb.generate_base_test = false
                   m.returns(:text)
                 end
               end
@@ -1125,6 +1127,7 @@ CONTENT
               end
             else
               s.method("BulkCollectDataFor#{graph.name}") do |m|
+                m.ejb.generate_base_test = false
                 m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
                 m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor', :collection_type => :sequence)
                 m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
@@ -1143,6 +1146,7 @@ CONTENT
                     m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                   end
                   s.method("BulkCollectDataFor#{graph.name}Update") do |m|
+                    m.ejb.generate_base_test = false
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
                     m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor', :collection_type => :sequence)
                     m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
@@ -1157,12 +1161,14 @@ CONTENT
                   outgoing_links.each do |a|
                     if a.inverse.multiplicity == :many
                       s.method("Get#{a.inverse.attribute.qualified_name.gsub('.', '')}In#{graph.name}Graph") do |m|
+                        m.ejb.generate_base_test = false
                         m.reference(a.referenced_entity.qualified_name, :name => :Entity)
                         m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
                         m.returns(:reference, :referenced_entity => a.entity.qualified_name, :collection_type => :sequence)
                       end
                     elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
                       s.method("Get#{a.inverse.attribute.qualified_name.gsub('.', '')}In#{graph.name}Graph") do |m|
+                        m.ejb.generate_base_test = false
                         m.reference(a.referenced_entity.qualified_name, :name => :Entity)
                         m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
                         m.returns(:reference, :referenced_entity => a.entity.qualified_name, :nullable => (a.inverse.multiplicity == :zero_or_one))
