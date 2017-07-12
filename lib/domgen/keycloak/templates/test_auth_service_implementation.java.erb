@@ -20,7 +20,7 @@ public class <%= repository.keycloak.test_auth_service_implementation_name %>
   {
     _account = new Account();
 <% repository.keycloak.default_client.claims.each do |claim| -%>
-<% if ['FamilyName', 'GivenName', 'PreferredUsername'].include?(claim.token_accessor_key) -%>
+<% if claim.standard_claim? -%>
     _token.set<%= claim.token_accessor_key %>( <%= Reality::Naming.camelize(claim.java_accessor_key) %> );
 <% else -%>
     _token.setOtherClaims( "<%= Reality::Naming.camelize(claim.token_accessor_key) %>", <%= Reality::Naming.camelize(claim.java_accessor_key) %> );

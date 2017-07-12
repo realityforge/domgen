@@ -49,6 +49,10 @@ module Domgen
         @token_accessor_key || Reality::Naming.pascal_case(self.config['claim.name'] || self.name.to_s.gsub(' ', '_'))
       end
 
+      def standard_claim?
+        %w(Name FamilyName GivenName MiddleName NickName Profile Picture Website Email EmailVerified Gender Birthdate Zoneinfo Locale PhoneNumber PhoneNumberVerified PreferredUsername).include?(self.token_accessor_key)
+      end
+
       def protocol
         @protocol || 'openid-connect'
       end
