@@ -310,24 +310,24 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
 <% if graph.instance_root? -%>
       assert null != descriptor.getID();
 <% end -%>
-      final <%= repository.gwt.qualified_async_callback_name %><Void> callback = new <%= repository.gwt.qualified_async_callback_name %><Void>()
+      final java.lang.Runnable callback = new java.lang.Runnable()
       {
         @java.lang.Override
-        public void onSuccess( final Void result )
+        public void run()
         {
           completionAction.accept( () -> getListener().onUnsubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor ) );
         }
       };
-      final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback = new <%= repository.gwt.qualified_async_error_callback_name %>()
+      final java.util.function.Consumer<Throwable> errorCallback = new java.util.function.Consumer<Throwable>()
       {
         @java.lang.Override
-        public void onFailure( final Throwable throwable )
+        public void accept( final Throwable throwable )
         {
           failAction.accept( () -> getListener().onUnsubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable ) );
         }
       };
       getListener().onUnsubscribeStarted( this, descriptor );
-      <% if repository.keycloak? -%><%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( () -> <% end -%>_remoteSubscriptionService.unsubscribeFrom<%= graph.name %>( getSessionID()<% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%>, callback, errorCallback )<% if repository.keycloak? -%> )<% end -%>;
+      <% if repository.keycloak? -%><%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( () -> <% end -%>performUnsubscribe( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <% if graph.instance_root? -%>(java.io.Serializable) descriptor.getID()<% else -%>null<% end -%>, callback, errorCallback )<% if repository.keycloak? -%> )<% end -%>;
     }
     else <% end %>
     {
