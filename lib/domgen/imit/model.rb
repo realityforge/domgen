@@ -697,16 +697,6 @@ module Domgen
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :client, :imit, '#{repository.name}FactorySetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
-      java_artifact :debug_config, nil, :client, :imit, '#{repository.name}DebugConfig'
-
-      def debug_config
-        {
-          'entity_omit_verbose_null_check' => {:production_value => true},
-          'entity_verbose_invariant_exceptions' => {:default_value => true, :production_value => false},
-          'entity_verbose_reference_exceptions' => {:default_value => true, :production_value => false},
-          'entity_verbose_to_string' => {:default_value => true, :production_value => false},
-        }
-      end
 
       attr_writer :custom_client_system
 
@@ -911,6 +901,10 @@ module Domgen
       end
 
       def pre_complete
+        repository.gwt.debug_config['entity_omit_verbose_null_check'] = {:production_value => true}
+        repository.gwt.debug_config['entity_verbose_invariant_exceptions'] = {:default_value => true, :production_value => false}
+        repository.gwt.debug_config['entity_verbose_reference_exceptions'] = {:default_value => true, :production_value => false}
+        repository.gwt.debug_config['entity_verbose_to_string'] = {:default_value => true, :production_value => false}
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
           repository.jaxrs.extensions << self.qualified_poll_rest_service_name

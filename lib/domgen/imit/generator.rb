@@ -22,9 +22,6 @@ Domgen::Generator.define([:imit],
   end
 
   g.template_set(:imit_client_entity) do |template_set|
-    template_set.erb_template(:repository,
-                              'client/debug_config.java.erb',
-                              'main/java/#{repository.imit.qualified_debug_config_name.gsub(".","/")}.java')
     template_set.erb_template(:entity,
                               'client/entity.java.erb',
                               'main/java/#{entity.imit.qualified_name.gsub(".","/")}.java')

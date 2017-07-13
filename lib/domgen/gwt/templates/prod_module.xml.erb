@@ -10,11 +10,9 @@
 
   <add-linker name="appcache"/>
 <% end -%>
-<% if repository.imit? -%>
-<% repository.imit.debug_config.each_pair do |k, config| -%>
-<% if config[:production_value] -%>
+<% repository.gwt.debug_config.each_pair do |k, config| -%>
+<% unless config.include?(:production_value) -%>
   <set-property name="replicant.<%= Reality::Naming.underscore(repository.name) %>.<%= k %>" value="<%= config[:production_value] %>"/>
-<% end -%>
 <% end -%>
 <% end -%>
 
