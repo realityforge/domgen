@@ -75,6 +75,12 @@ module Domgen
       java_artifact :abstract_client_ux_test, :test, :client, :gwt, 'Abstract#{repository.name}UserExperienceTest', :sub_package => 'util'
       java_artifact :client_ux_test, :test, :client, :gwt, '#{repository.name}UserExperienceTest', :sub_package => 'util'
       java_artifact :standard_ux_test_module, :test, :client, :gwt, '#{repository.name}UserExperienceTestModule', :sub_package => 'util'
+      java_artifact :debug_config, nil, :client, :gwt, '#{repository.name}DebugConfig'
+
+      def debug_config
+        @debug_config ||= {
+        }
+      end
 
       def gin_modules
         gin_modules_map.dup

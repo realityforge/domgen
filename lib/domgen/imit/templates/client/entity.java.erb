@@ -73,7 +73,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
     link<%= attribute.imit.name %>();
 <% end -%>
 <% if !attribute.primary_key? && !attribute.imit.primitive? && !attribute.nullable? && !attribute.reference? && !attribute.remote_reference? -%>
-    if( <%= entity.data_module.repository.imit.qualified_debug_config_name %>.ENTITY_OMIT_VERBOSE_NULL_CHECK )
+    if( <%= entity.data_module.repository.gwt.qualified_debug_config_name %>.ENTITY_OMIT_VERBOSE_NULL_CHECK )
     {
       if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> )
       {
@@ -242,7 +242,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.imit.name %>
     final <%= entity.imit.name %> r = _repository.findByID( <%= entity.imit.name %>.class, <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.name %>() );
     if( r != this )
     {
-      if( <%= entity.data_module.repository.imit.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
+      if( <%= entity.data_module.repository.gwt.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
       {
         throw new IllegalStateException( "Registered entity does not match current entity Registered: " + r + " Current: " + this );
       }
@@ -323,7 +323,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 <% else -%>
     if( !_$linking )
     {
-      if( <%= entity.data_module.repository.imit.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
+      if( <%= entity.data_module.repository.gwt.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
       {
         throw new IllegalStateException( "performLink invoked from outside link" );
       }
@@ -348,7 +348,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
 <% else -%>
     if( !_$delinking )
     {
-      if( <%= entity.data_module.repository.imit.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
+      if( <%= entity.data_module.repository.gwt.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
       {
         throw new IllegalStateException( "performDelink invoked from outside delink" );
       }
@@ -389,7 +389,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     {
       if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> <%= attribute.nullable? ? "&& null != _#{Reality::Naming.camelize(attribute.referencing_link_name)}" :'' %> )
       {
-        if( <%= entity.data_module.repository.imit.qualified_debug_config_name %>.ENTITY_VERBOSE_REFERENCE_EXCEPTIONS )
+        if( <%= entity.data_module.repository.gwt.qualified_debug_config_name %>.ENTITY_VERBOSE_REFERENCE_EXCEPTIONS )
         {
           _<%= Reality::Naming.camelize(attribute.imit.name) %> = _repository.findByID( <%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).imit.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
           if( null == _<%= Reality::Naming.camelize(attribute.imit.name) %> )
@@ -424,7 +424,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   {
     if( !isValid() )
     {
-      if( <%= entity.data_module.repository.imit.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
+      if( <%= entity.data_module.repository.gwt.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
       {
         throw new IllegalStateException( "Method invoked on invalid imitation of type <%= entity.imit.name %>" );
       }
@@ -440,7 +440,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
     checkValidity();
     if( !_$linked )
     {
-      if( <%= entity.data_module.repository.imit.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
+      if( <%= entity.data_module.repository.gwt.qualified_debug_config_name %>.ENTITY_VERBOSE_INVARIANT_EXCEPTIONS )
       {
         throw new IllegalStateException( "Method invoked on unlinked imitation of type <%= entity.imit.name %>" );
       }
@@ -529,7 +529,7 @@ entity.imit.referencing_client_side_attributes.each do |attribute|
   @java.lang.Override
   public String toString()
   {
-    if ( <%= entity.data_module.repository.imit.qualified_debug_config_name %>.ENTITY_VERBOSE_TO_STRING )
+    if ( <%= entity.data_module.repository.gwt.qualified_debug_config_name %>.ENTITY_VERBOSE_TO_STRING )
     {
       return "<%= entity.qualified_name %>[" + <%=
       entity.attributes.select{ |a| a.imit? && a.imit.client_side? }.collect do |a|

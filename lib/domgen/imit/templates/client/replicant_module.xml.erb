@@ -5,10 +5,8 @@
   <inherits name="com.google.gwt.json.JSON"/>
   <inherits name="org.realityforge.replicant.Replicant"/>
 
-<% if repository.imit? -%>
-<% repository.imit.debug_config.each_pair do |k, config| -%>
+<% repository.gwt.debug_config.each_pair do |k, config| -%>
   <define-property name="replicant.<%= Reality::Naming.underscore(repository.name) %>.<%= k %>" values="true,false"/>
   <set-property name="replicant.<%= Reality::Naming.underscore(repository.name) %>.<%= k %>" value="<%= config[:default_value] || 'false' %>"/>
-<% end -%>
 <% end -%>
 </module>
