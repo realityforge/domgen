@@ -13,7 +13,7 @@
 #
 
 module Domgen
-  FacetManager.facet(:ee => [:application, :java]) do |facet|
+  FacetManager.facet(:ee => [:application, :redfish, :java]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication

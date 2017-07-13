@@ -189,3 +189,6 @@ require 'domgen/iris_audit/generator'
 
 require 'domgen/berk/model'
 require 'domgen/berk/generator'
+
+require 'domgen/redfish/model'
+require 'domgen/redfish/generator'
