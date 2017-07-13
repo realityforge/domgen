@@ -226,6 +226,10 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   protected void onUncaughtException( @javax.annotation.Nonnull final Throwable e )
   {
+    if( <%= repository.gwt.qualified_debug_config_name %>.EMIT_RAW_UNCAUGHT_EXCEPTIONS )
+    {
+      org.realityforge.gwt.lognice.BrowserExceptionUtil.log( e );
+    }
 <% if repository.iris_audit? -%>
     final iris.audit.client.ClientExceptionAuditHelper helper = getClientExceptionAuditHelper();
     if ( null != helper )

@@ -79,6 +79,7 @@ module Domgen
 
       def debug_config
         @debug_config ||= {
+          'emit_raw_uncaught_exceptions' => {:default_value => true, :production_value => false},
         }
       end
 
