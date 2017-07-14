@@ -28,4 +28,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'reality-generators', '>= 1.6.0'
   s.add_dependency 'reality-naming', '>= 1.9.0'
   s.add_dependency 'reality-orderedhash', '>= 1.0.0'
+  s.add_dependency 'reality-mash', '>= 1.0.0'
 end

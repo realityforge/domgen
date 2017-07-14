@@ -57,13 +57,6 @@ Domgen::Generator.define([:ee],
                               'main/java/#{exception.ee.qualified_name.gsub(".","/")}.java')
   end
 
-  g.template_set(:ee_redfish) do |template_set|
-    template_set.ruby_template(:repository,
-                               'redfish.rb',
-                               'main/etc/#{repository.name}.redfish.fragment.json',
-                               :guard => 'repository.application.code_deployable?')
-  end
-
   g.template_set(:ee_web_xml) do |template_set|
     template_set.erb_template(:repository, 'web.xml.erb', 'main/webapp/WEB-INF/web.xml')
   end
