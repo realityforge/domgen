@@ -1,7 +1,5 @@
 def define_custom_resource(data, key, value, restype = nil)
   data['custom_resources'] ||= {}
-  data['custom_resources'][key] = {}
-  data['custom_resources'][key]['properties'] = {}
   data['custom_resources'][key]['properties']['value'] = value
   data['custom_resources'][key]['restype'] = restype if restype
 end
@@ -14,7 +12,6 @@ def define_persistence_unit(data, repository, name, resource, options = {})
   prefix = cname == constant_prefix ? constant_prefix : "#{constant_prefix}_#{cname}"
   connection_pool = "#{resource}ConnectionPool"
 
-  data['jdbc_connection_pools'][connection_pool] = {}
   data['jdbc_connection_pools'][connection_pool]['datasourceclassname'] =
     repository.mssql? ? 'net.sourceforge.jtds.jdbcx.JtdsDataSource' :
       repository.pgsql? ? 'org.postgresql.ds.PGSimpleDataSource' :
@@ -25,12 +22,6 @@ def define_persistence_unit(data, repository, name, resource, options = {})
   data['jdbc_connection_pools'][connection_pool]['validationmethod'] = 'auto-commit'
   data['jdbc_connection_pools'][connection_pool]['ping'] = 'true'
   data['jdbc_connection_pools'][connection_pool]['description'] = "#{name} connection pool for application #{application}"
-
-  data['jdbc_connection_pools'][connection_pool]['properties'] = {}
-
-  data['jdbc_connection_pools'][connection_pool]['resources'] = {}
-  data['jdbc_connection_pools'][connection_pool]['resources'][resource] = {}
-  data['jdbc_connection_pools'][connection_pool]['resources'][resource]['description'] = "#{name} resource for application #{application}"
 
   data['environment_vars']["#{prefix}_DB_HOST"] = nil
   data['environment_vars']["#{prefix}_DB_PORT"] = repository.mssql? ? 1433 : repository.pgsql? ? 5432 : nil
@@ -55,22 +46,20 @@ def define_persistence_unit(data, repository, name, resource, options = {})
     # This next lines is required for jtds drivers as still old driver style
     data['jdbc_connection_pools'][connection_pool]['properties']['jdbc30DataSource'] = 'true'
   end
+
+  data['jdbc_connection_pools'][connection_pool]['resources'][resource]['description'] = "#{name} resource for application #{application}"
 end
 
 def generate(repository)
   application = Reality::Naming.underscore(repository.name)
   constant_prefix = Reality::Naming.uppercase_constantize(repository.name)
 
-  data = {}
-
-  data['environment_vars'] = {}
+  data = Reality::Mash.from(repository.redfish.data.to_h)
 
   if repository.mail?
     data['environment_vars']["#{constant_prefix}_MAIL_HOST"] = ''
     data['environment_vars']["#{constant_prefix}_MAIL_USER"] = ''
     data['environment_vars']["#{constant_prefix}_MAIL_FROM"] = ''
-
-    data['javamail_resources'] = {}
 
     data['javamail_resources'][repository.mail.resource_name] =
       {
@@ -89,8 +78,6 @@ def generate(repository)
   end
 
   if repository.imit?
-    data['managed_scheduled_executor_services'] = {}
-
     data['managed_scheduled_executor_services'][repository.imit.executor_service_jndi] = {
       'enabled' => 'true',
       'context_info_enabled' => 'true',
@@ -98,8 +85,6 @@ def generate(repository)
       'deployment_order' => 100,
       'thread_priority' => 5
     }
-
-    data['context_services'] = {}
 
     data['context_services'][repository.imit.context_service_jndi] = {
       'enabled' => 'true',
@@ -155,8 +140,6 @@ def generate(repository)
   end
 
   if repository.jms?
-    data['jms_resources'] = {}
-
     repository.jms.destinations.each do |destination|
       data['jms_resources'][destination.resource_name] = { 'restype' => destination.destination_type, 'properties' => { 'Name' => destination.physical_name } }
     end
@@ -177,7 +160,6 @@ def generate(repository)
   if repository.jpa?
     units = repository.jpa.persistence_units
 
-    data['jdbc_connection_pools'] = {}
     units.each do |unit|
       define_persistence_unit(data,
                               repository,
@@ -199,5 +181,5 @@ def generate(repository)
     end
   end
 
-  ::JSON.pretty_generate(data)
+  ::JSON.pretty_generate(data.to_h)
 end
