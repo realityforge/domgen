@@ -25,6 +25,10 @@ module Domgen
         if repository.jpa?
           repository.jpa.application_artifact_fragments << "iris.audit#{repository.pgsql? ? '.pg' : ''}:audit-server"
         end
+        if repository.redfish?
+          resource_name = "#{Reality::Naming.underscore(repository.name)}/jdbc/Audit"
+          repository.redfish.persistence_unit('Audit', resource_name)
+        end
       end
     end
 

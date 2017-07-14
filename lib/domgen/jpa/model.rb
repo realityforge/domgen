@@ -632,6 +632,22 @@ FRAGMENT
 FRAGMENT
           repository.jpa.persistence_file_content_fragments << fragment
         end
+
+        if repository.redfish?
+          self.persistence_units.each do |unit|
+            repository.redfish.persistence_unit(unit.short_name,
+                                                unit.resolved_data_source,
+                                                :xa_data_source => unit.xa_data_source?,
+                                                :socket_timeout => unit.socket_timeout,
+                                                :login_timeout => unit.login_timeout)
+
+            unit.related_database_keys.each do |key|
+              env_key = "#{Reality::Naming.uppercase_constantize(repository.name)}_#{repository.name == unit.short_name ? '' : "#{Reality::Naming.uppercase_constantize(unit.short_name)}_"}#{Reality::Naming.uppercase_constantize(key)}_DATABASE_NAME"
+              repository.redfish.environment_variable(env_key)
+              repository.redfish.custom_resource(unit.related_database_jndi(key), "${#{env_key}}")
+            end
+          end
+        end
       end
 
       def perform_verify
