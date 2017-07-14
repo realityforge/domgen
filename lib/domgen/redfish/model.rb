@@ -51,6 +51,63 @@ module Domgen
         self.data['volumes'][key]
       end
 
+      def jdbc_connection_pool(name, connection_pool_name, options = {})
+        db_type = options[:db_type] || (repository.mssql? ? :mssql : repository.pgsql? ? :pgsql : nil)
+        application = Reality::Naming.underscore(repository.name)
+        constant_prefix = Reality::Naming.uppercase_constantize(repository.name)
+
+        cname = Reality::Naming.uppercase_constantize(name)
+        prefix = cname == constant_prefix ? constant_prefix : "#{constant_prefix}_#{cname}"
+        self.data['jdbc_connection_pools'][connection_pool_name]['datasourceclassname'] =
+          :mssql == db_type ? 'net.sourceforge.jtds.jdbcx.JtdsDataSource' :
+            :pgsql == db_type ? 'org.postgresql.ds.PGSimpleDataSource' :
+              nil
+        self.data['jdbc_connection_pools'][connection_pool_name]['restype'] =
+          !!options[:xa_data_source] ? 'javax.sql.XADataSource' : 'javax.sql.DataSource'
+        self.data['jdbc_connection_pools'][connection_pool_name]['isconnectvalidatereq'] = 'true'
+        self.data['jdbc_connection_pools'][connection_pool_name]['validationmethod'] = 'auto-commit'
+        self.data['jdbc_connection_pools'][connection_pool_name]['ping'] = 'true'
+        self.data['jdbc_connection_pools'][connection_pool_name]['description'] = "#{name} connection pool for application #{application}"
+
+        self.data['environment_vars']["#{prefix}_DB_HOST"] = nil
+        self.data['environment_vars']["#{prefix}_DB_PORT"] = :mssql == db_type ? 1433 : :pgsql == db_type ? 5432 : nil
+        self.data['environment_vars']["#{prefix}_DB_DATABASE"] = nil
+        self.data['environment_vars']["#{prefix}_DB_USERNAME"] = repository.jpa? ? repository.jpa.default_username : nil
+        self.data['environment_vars']["#{prefix}_DB_PASSWORD"] = nil
+
+        self.data['jdbc_connection_pools'][connection_pool_name]['properties']['ServerName'] = "${#{prefix}_DB_HOST}"
+        self.data['jdbc_connection_pools'][connection_pool_name]['properties']['User'] = "${#{prefix}_DB_USERNAME}"
+        self.data['jdbc_connection_pools'][connection_pool_name]['properties']['Password'] = "${#{prefix}_DB_PASSWORD}"
+        self.data['jdbc_connection_pools'][connection_pool_name]['properties']['PortNumber'] = "${#{prefix}_DB_PORT}"
+        self.data['jdbc_connection_pools'][connection_pool_name]['properties']['DatabaseName'] = "${#{prefix}_DB_DATABASE}"
+
+        if :mssql == db_type
+          # Standard DataSource configuration
+          self.data['jdbc_connection_pools'][connection_pool_name]['properties']['AppName'] = application
+          self.data['jdbc_connection_pools'][connection_pool_name]['properties']['ProgName'] = 'GlassFish'
+          self.data['jdbc_connection_pools'][connection_pool_name]['properties']['SocketTimeout'] = options[:socket_timeout] || '1200'
+          self.data['jdbc_connection_pools'][connection_pool_name]['properties']['LoginTimeout'] = options[:login_timeout] || '60'
+          self.data['jdbc_connection_pools'][connection_pool_name]['properties']['SocketKeepAlive'] = 'true'
+
+          # This next lines is required for jtds drivers as still old driver style
+          self.data['jdbc_connection_pools'][connection_pool_name]['properties']['jdbc30DataSource'] = 'true'
+        end
+      end
+
+      def jdbc_resource(name, connection_pool_name, resource_name)
+        application = Reality::Naming.underscore(repository.name)
+        self.data['jdbc_connection_pools'][connection_pool_name]['resources'][resource_name]['description'] = "#{name} resource for application #{application}"
+      end
+
+      def persistence_unit(name, resource_name, options = {})
+        connection_pool_name = "#{resource_name}ConnectionPool"
+        jdbc_connection_pool(name, connection_pool_name,
+                             :xa_data_source => options[:xa_data_source],
+                             :socket_timeout => options[:socket_timeout],
+                             :login_timeout => options[:login_timeout])
+        jdbc_resource(name, connection_pool_name, resource_name)
+      end
+
       def pre_complete
         key = Reality::Naming.uppercase_constantize(repository.name)
 

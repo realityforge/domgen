@@ -4,52 +4,6 @@ def define_custom_resource(data, key, value, restype = nil)
   data['custom_resources'][key]['restype'] = restype if restype
 end
 
-def define_persistence_unit(data, repository, name, resource, options = {})
-  application = Reality::Naming.underscore(repository.name)
-  constant_prefix = Reality::Naming.uppercase_constantize(repository.name)
-
-  cname = Reality::Naming.uppercase_constantize(name)
-  prefix = cname == constant_prefix ? constant_prefix : "#{constant_prefix}_#{cname}"
-  connection_pool = "#{resource}ConnectionPool"
-
-  data['jdbc_connection_pools'][connection_pool]['datasourceclassname'] =
-    repository.mssql? ? 'net.sourceforge.jtds.jdbcx.JtdsDataSource' :
-      repository.pgsql? ? 'org.postgresql.ds.PGSimpleDataSource' :
-        nil
-  data['jdbc_connection_pools'][connection_pool]['restype'] =
-    !!options[:xa_data_source] ? 'javax.sql.XADataSource' : 'javax.sql.DataSource'
-  data['jdbc_connection_pools'][connection_pool]['isconnectvalidatereq'] = 'true'
-  data['jdbc_connection_pools'][connection_pool]['validationmethod'] = 'auto-commit'
-  data['jdbc_connection_pools'][connection_pool]['ping'] = 'true'
-  data['jdbc_connection_pools'][connection_pool]['description'] = "#{name} connection pool for application #{application}"
-
-  data['environment_vars']["#{prefix}_DB_HOST"] = nil
-  data['environment_vars']["#{prefix}_DB_PORT"] = repository.mssql? ? 1433 : repository.pgsql? ? 5432 : nil
-  data['environment_vars']["#{prefix}_DB_DATABASE"] = nil
-  data['environment_vars']["#{prefix}_DB_USERNAME"] = repository.jpa.default_username
-  data['environment_vars']["#{prefix}_DB_PASSWORD"] = nil
-
-  data['jdbc_connection_pools'][connection_pool]['properties']['ServerName'] = "${#{prefix}_DB_HOST}"
-  data['jdbc_connection_pools'][connection_pool]['properties']['User'] = "${#{prefix}_DB_USERNAME}"
-  data['jdbc_connection_pools'][connection_pool]['properties']['Password'] = "${#{prefix}_DB_PASSWORD}"
-  data['jdbc_connection_pools'][connection_pool]['properties']['PortNumber'] = "${#{prefix}_DB_PORT}"
-  data['jdbc_connection_pools'][connection_pool]['properties']['DatabaseName'] = "${#{prefix}_DB_DATABASE}"
-
-  if repository.mssql?
-    # Standard DataSource configuration
-    data['jdbc_connection_pools'][connection_pool]['properties']['AppName'] = application
-    data['jdbc_connection_pools'][connection_pool]['properties']['ProgName'] = 'GlassFish'
-    data['jdbc_connection_pools'][connection_pool]['properties']['SocketTimeout'] = options[:socket_timeout] || '1200'
-    data['jdbc_connection_pools'][connection_pool]['properties']['LoginTimeout'] = options[:login_timeout] || '60'
-    data['jdbc_connection_pools'][connection_pool]['properties']['SocketKeepAlive'] = 'true'
-
-    # This next lines is required for jtds drivers as still old driver style
-    data['jdbc_connection_pools'][connection_pool]['properties']['jdbc30DataSource'] = 'true'
-  end
-
-  data['jdbc_connection_pools'][connection_pool]['resources'][resource]['description'] = "#{name} resource for application #{application}"
-end
-
 def generate(repository)
   application = Reality::Naming.underscore(repository.name)
   constant_prefix = Reality::Naming.uppercase_constantize(repository.name)
@@ -155,30 +109,6 @@ def generate(repository)
           'Password' => "${#{constant_prefix}_BROKER_PASSWORD}"
         )
       }
-  end
-
-  if repository.jpa?
-    units = repository.jpa.persistence_units
-
-    units.each do |unit|
-      define_persistence_unit(data,
-                              repository,
-                              unit.short_name,
-                              unit.resolved_data_source,
-                              :xa_data_source => unit.xa_data_source?,
-                              :socket_timeout => unit.socket_timeout,
-                              :login_timeout => unit.login_timeout)
-
-      unit.related_database_keys.each do |key|
-        env_key = "#{Reality::Naming.uppercase_constantize(repository.name)}_#{repository.name == unit.short_name ? '' : "#{Reality::Naming.uppercase_constantize(unit.short_name)}_"}#{Reality::Naming.uppercase_constantize(key)}_DATABASE_NAME"
-        data['environment_vars'][env_key] = ''
-        define_custom_resource(data, unit.related_database_jndi(key), "${#{env_key}}")
-      end
-    end
-    if repository.iris_audit?
-      resource_name = "#{Reality::Naming.underscore(repository.name)}/jdbc/Audit"
-      define_persistence_unit(data, repository, 'Audit', resource_name)
-    end
   end
 
   ::JSON.pretty_generate(data.to_h)
