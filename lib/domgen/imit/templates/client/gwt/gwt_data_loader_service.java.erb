@@ -218,6 +218,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
       assert null != filterParameter;
 <% end -%>
 <% if graph.cacheable? -%>
+      //TODO: Replace this with rest invocation
       final <%= repository.gwt.qualified_async_callback_name %><java.lang.Boolean> callback = new <%= repository.gwt.qualified_async_callback_name %><java.lang.Boolean>()
       {
         @java.lang.Override
@@ -235,25 +236,47 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
         }
       };
 <% else -%>
+<% if !graph.filtered? && !graph.cacheable? -%>
+      final Runnable callback = new Runnable()
+      {
+        @Override
+        public void run()
+        {
+<% else -%>
+      //TODO: Replace this with rest invocation
       final <%= repository.gwt.qualified_async_callback_name %><Void> callback = new <%= repository.gwt.qualified_async_callback_name %><Void>()
       {
         @java.lang.Override
         public void onSuccess( final java.lang.Void result )
         {
+<% end -%>
           completionAction.accept( () -> getListener().onSubscribeCompleted( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor ) );
         }
       };
 <% end -%>
+<% if !graph.filtered? && !graph.cacheable? -%>
+      final java.util.function.Consumer<Throwable> errorCallback = new java.util.function.Consumer<Throwable>()
+      {
+        @java.lang.Override
+        public void accept( final Throwable throwable )
+        {
+<% else -%>
+      //TODO: Replace this with rest invocation
       final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback = new <%= repository.gwt.qualified_async_error_callback_name %>()
       {
         @java.lang.Override
         public void onFailure( final Throwable throwable )
         {
+<% end %>
           failAction.accept( () -> getListener().onSubscribeFailed( <%= repository.imit.gwt_data_loader_service_name %>.this, descriptor, throwable ) );
         }
       };
       getListener().onSubscribeStarted( this, descriptor );
+<% if !graph.filtered? && !graph.cacheable? %>
+      <% if repository.keycloak? -%><%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( () -> <% end -%>performSubscribe( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <% if graph.instance_root? -%>(java.io.Serializable) descriptor.getID()<% else -%>null<% end -%>, <% if graph.cacheable? -%>eTag<% else -%>null<% end -%>, callback, errorCallback )<% if repository.keycloak? -%> )<% end -%>;
+<% else -%>
       <% if repository.keycloak? -%><%= repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( () -> <% end -%>_remoteSubscriptionService.subscribeTo<%= graph.name %>( getSessionID()<% if graph.cacheable? -%>, eTag<% end -%><% if graph.instance_root? -%>, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>) descriptor.getID()<% end -%><% if graph.filtered? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %>) filterParameter<% end -%>, callback, errorCallback )<% if repository.keycloak? -%> )<% end -%>;
+<% end -%>
     }
     else <% end %>
     {
