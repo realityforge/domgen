@@ -1211,17 +1211,6 @@ CONTENT
           end
 
           repository.imit.graphs.each do |graph|
-            s.method(:"SubscribeTo#{graph.name}") do |m|
-              m.string(:ClientID, 50)
-              if graph.cacheable?
-                m.imit.graph_to_subscribe = graph.name
-                m.text(:ETag, :nullable => true)
-                m.returns(:boolean)
-              end
-              m.reference(graph.instance_root) if graph.instance_root?
-              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filtered?
-              m.exception(self.invalid_session_exception)
-            end
             if graph.instance_root?
               s.method(:"SubscribeToMultiple#{Reality::Naming.pluralize(graph.name)}") do |m|
                 m.string(:ClientID, 50)
@@ -1290,11 +1279,6 @@ CONTENT
                   m.exception(self.invalid_session_exception)
                 end
               end
-            end
-            s.method(:"UnsubscribeFrom#{graph.name}") do |m|
-              m.string(:ClientID, 50)
-              m.reference(graph.instance_root) if graph.instance_root?
-              m.exception(self.invalid_session_exception)
             end
           end
           if self.poll_replicate_mode?
@@ -1516,11 +1500,6 @@ CONTENT
 
       java_artifact :name, :service, :client, :imit, '#{service.name}'
       java_artifact :proxy, :service, :client, :imit, '#{name}Impl', :sub_package => 'internal'
-    end
-
-    facet.enhance(Method) do
-      # TODO: Remove this ugly hack!
-      attr_accessor :graph_to_subscribe
     end
 
     facet.enhance(Parameter) do

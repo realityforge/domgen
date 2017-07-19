@@ -199,22 +199,10 @@ entities.uniq.each do |entity| -%>
     update_param << filter_param
     update_param_value << 'filter'
   end
-  param = param.join(', ')
   update_param = update_param.join(', ')
-
-  param = ", #{param}" if param.size > 0
   update_param = ", #{update_param}" if update_param.size > 0
 -%>
 
-  @java.lang.Override
-  public <%= graph.cacheable? ? 'boolean': 'void' %> subscribeTo<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= update_param %><% if graph.cacheable? -%>, @javax.annotation.Nullable final String cacheKey<% end %> )
-    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
-  {
-    <%= graph.cacheable? ? 'final CacheStatus status = ': '' %>subscribe( sessionID, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? "#{pk_accessor}" : 'null' %> ), <%= graph.filter_parameter.nil? ? 'null' : 'filter' %>, <%= graph.cacheable? ? 'cacheKey' : 'null' %>, org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
-<% if graph.cacheable? -%>
-    return status != CacheStatus.USE;
-<% end -%>
-  }
 <% if graph.instance_root?
 
   root_type = Domgen::Java.java_type(instance_root.primary_key, :ee, :default)
@@ -360,14 +348,6 @@ entities.uniq.each do |entity| -%>
     return <% if graph.external_cache_management? -%>_context.get<%= graph.name %>CacheKey()<% else %>java.lang.String.valueOf( java.lang.System.currentTimeMillis() )<% end %>;
 <% end -%>
   }
-
-  @java.lang.Override
-  public void unsubscribeFrom<%= graph.name %>( @javax.annotation.Nonnull final String sessionID<%= param %> )
-    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
-  {
-    unsubscribe( sessionID, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), <%= graph.instance_root? ? pk_accessor : 'null' %> ), org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
-  }
-
 <% end -%>
 
   @java.lang.Override
