@@ -82,7 +82,7 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
                                    @javax.annotation.Nullable final java.lang.Runnable onCacheValid,
                                    @javax.annotation.Nonnull final java.util.function.Consumer<Throwable> onError )
   {
-    updateTokenAndExecute( () -> super.performSubscribe( channel, subChannelID, filterParameter, cacheKey, onSuccess, onCacheValid, onError ) );
+    updateTokenAndExecute( () -> super.performSubscribe( channel, subChannelID, filterParameter, cacheKey, eTag, onSuccess, onCacheValid, onError ) );
   }
 
   @java.lang.Override
