@@ -177,6 +177,38 @@ entities.uniq.each do |entity| -%>
     }
 <% end -%>
   }
+  @java.lang.Override
+  public void updateSubscription( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session,
+                                  @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelDescriptor descriptor,
+                                  @javax.annotation.Nullable final java.lang.Object filter,
+                                  @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
+  {
+    super.updateSubscription( session, descriptor, filter, changeSet );
+<% repository.imit.graphs.select{|graph| graph.instance_root? && graph.filter_parameter? && !graph.filter_parameter.immutable? }.each do |graph|
+  instance_root = repository.entity_by_name(graph.instance_root)
+  root_type = Domgen::Java.java_type(instance_root.primary_key, :ee, :default)
+  processed = []
+  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+     next unless target_graph.filtered?
+     key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+     next if processed.include?(key)
+     processed << key
+     instance_root = repository.entity_by_name(target_graph.instance_root)
+     entity = repository.entity_by_name(graph.instance_root)
+-%>
+    for ( final <%= root_type %> id : roots )
+    {
+      final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
+      //Propogate the filter from <%= graph.name %> to downstream graph <%= target_graph.name %>
+      for ( final <%= instance_root.jpa.qualified_name %> downstreamEntity : _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( entity, filter ) )
+      {
+        subscribeTo<%= target_graph.name %>( sessionID, downstreamEntity, filter );
+      }
+    }
+<% end -%>
+<% end -%>
+  }
 
 <%
   repository.imit.graphs.each do |graph|
