@@ -254,32 +254,7 @@ entities.uniq.each do |entity| -%>
   }
 <% end -%>
 <% end -%>
-<%
-  repository.imit.graphs.each do |graph|
-
-  param = []
-  param_value = []
-  pk_accessor = ''
-  root_type = nil
-  if graph.instance_root?
-    instance_root = repository.entity_by_name(graph.instance_root)
-    root_type = Domgen::Java.java_type(instance_root.primary_key, :ee, :default)
-    param << "@javax.annotation.Nonnull final #{instance_root.jpa.qualified_name} entity"
-    param_value << 'entity'
-    pk_accessor = "entity.#{getter_for(instance_root.primary_key)}"
-  end
-  update_param = param.dup
-  update_param_value = param_value.dup
-  filter_param = nil
-  if graph.filter_parameter
-    p = graph.filter_parameter
-    filter_param = "#{nullability_annotation(p.nullable?)} final #{Domgen::Java.java_type(p, :ee, :default)} filter"
-    update_param << filter_param
-    update_param_value << 'filter'
-  end
-  update_param = update_param.join(', ')
-  update_param = ", #{update_param}" if update_param.size > 0
--%>
+<% repository.imit.graphs.each do |graph| -%>
 <% if !graph.instance_root? && !graph.external_data_load? -%>
 
   private void collect<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages )
