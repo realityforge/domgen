@@ -208,7 +208,7 @@ module Domgen
       java_artifact :boundary_implementation, :service, :server, :jws, '#{web_service_name}WSBoundaryEJB', :sub_package => 'ws.internal'
       java_artifact :fake_implementation, :service, :fake, :jws, 'Fake#{web_service_name}'
 
-      def post_complete
+      def pre_verify
         jws_active = false
         service.methods.each do |method|
           next unless method.jws?
