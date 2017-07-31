@@ -308,6 +308,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   }
 
   @java.lang.Override
+  @java.lang.SuppressWarnings( "deprecated" )
   public boolean remove<%= entity.data_module.name %><%= entity.name %>( final int mappingID, @javax.annotation.Nullable final <%= entity.primary_key.jpa.java_type(:boundary) %> id )
   {
     boolean deleted = false;
