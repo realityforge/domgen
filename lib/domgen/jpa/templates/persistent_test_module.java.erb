@@ -1,9 +1,21 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.jpa.qualified_persistent_test_module_name) %>;
 
+/**
+ * A PersistenceTestModule used to test <%= repository.name %> entities.
+ */
 public class <%= repository.jpa.persistent_test_module_name %>
   extends org.realityforge.guiceyloops.server.PersistenceTestModule
 {
+<%
+    tables = repository.data_modules.collect do |data_module|
+      data_module.entities.select{|e| e.concrete? && e.sql? && !e.sql.load_from_fixture? && !e.sql.sequence_table?}.collect do |entity|
+        "\"#{entity.sql.qualified_table_name.gsub('"',"\\\"")}\""
+      end
+    end.flatten.reverse.join(', ')
+-%>
+  private static final String[] TABLES_TO_CLEAN = new String[] {<%= tables %>};
+
   public <%= repository.jpa.persistent_test_module_name %>()
   {
     this( null );
@@ -16,14 +28,22 @@ public class <%= repository.jpa.persistent_test_module_name %>
 
   public <%= repository.jpa.persistent_test_module_name %>( @javax.annotation.Nullable final String databasePrefix, @javax.annotation.Nullable final java.util.Properties additionalProperties )
   {
-<%
-    tables = repository.data_modules.collect do |data_module|
-      data_module.entities.select{|e| e.concrete? && e.sql? && !e.sql.load_from_fixture? && !e.sql.sequence_table?}.collect do |entity|
-        "\"#{entity.sql.qualified_table_name.gsub('"',"\\\"")}\""
-      end
-    end.flatten.reverse.join(', ')
--%>
-    super( <%= repository.jpa.qualified_unit_descriptor_name %>.NAME, new String[] {<%= tables %>}, databasePrefix, mergeProperties( additionalProperties ) );
+    this( true, databasePrefix, mergeProperties( additionalProperties ) );
+  }
+
+  public <%= repository.jpa.persistent_test_module_name %>( final boolean cleanTables )
+  {
+    this( cleanTables, null );
+  }
+
+  public <%= repository.jpa.persistent_test_module_name %>( final boolean cleanTables, @javax.annotation.Nullable final String databasePrefix )
+  {
+    this( cleanTables, databasePrefix, null );
+  }
+
+  public <%= repository.jpa.persistent_test_module_name %>( final boolean cleanTables, @javax.annotation.Nullable final String databasePrefix, @javax.annotation.Nullable final java.util.Properties additionalProperties )
+  {
+    super( <%= repository.jpa.qualified_unit_descriptor_name %>.NAME, cleanTables ? TABLES_TO_CLEAN : new String[ 0 ], databasePrefix, mergeProperties( additionalProperties ) );
   }
 
   @javax.annotation.Nonnull
