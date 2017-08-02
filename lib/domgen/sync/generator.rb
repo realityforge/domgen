@@ -30,6 +30,16 @@ Domgen::Generator.define([:sync],
                               :guard => 'data_module.sync.master_data_module? && data_module.repository.sync.sync_out_of_master?',
                               :additional_helpers => [Domgen::Sync::SyncTestHelper])
   end
+  g.template_set(:sync_remote_sync_service) do |template_set|
+      template_set.erb_template(:repository,
+                                'remote_sync_service.java.erb',
+                                'main/java/#{repository.sync.qualified_remote_sync_service_name.gsub(".","/")}.java',
+                                :guard => '!repository.sync.standalone?')
+      template_set.erb_template(:repository,
+                                'remote_sync_service_impl.java.erb',
+                                'main/java/#{repository.sync.qualified_remote_sync_service_impl_name.gsub(".","/")}.java',
+                                :guard => '!repository.sync.standalone?')
+  end
   g.template_set(:sync_master_ejb_impl) do |template_set|
     template_set.erb_template(:data_module,
                               'sync_temp_factory.java.erb',

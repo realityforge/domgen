@@ -24,6 +24,8 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :test_module, :test, :server, :sync, '#{repository.name}SyncServerModule', :sub_package => 'util'
+      java_artifact :remote_sync_service, :service, :client, :sync, 'Remote#{repository.name}SyncService'
+      java_artifact :remote_sync_service_impl, :service, :client, :sync, 'AbstractRemote#{repository.name}SyncServiceImpl'
 
       def transaction_time=(transaction_time)
         @transaction_time = transaction_time
