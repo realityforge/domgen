@@ -26,6 +26,7 @@ public class <%= service.syncrecord.qualified_abstract_service_name.to_s.gsub(/^
  */
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NM_SAME_SIMPLE_NAME_AS_SUPERCLASS" )
 public abstract class <%= service.syncrecord.abstract_service_name %>
   extends <%= service.syncrecord.extends %>
   implements <%= service.ejb.service_name %>
