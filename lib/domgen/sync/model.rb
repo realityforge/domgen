@@ -71,6 +71,7 @@ module Domgen
           repository.data_module(self.master_data_module)
         end
         master_data_module = repository.data_module_by_name(self.master_data_module)
+        master_data_module.sync.master_sync_persistent_unit = nil unless self.standalone?
 
         unless repository.data_module_by_name?(self.sync_temp_data_module)
           repository.data_module(self.sync_temp_data_module)
