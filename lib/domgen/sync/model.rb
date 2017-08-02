@@ -239,8 +239,8 @@ module Domgen
 
       def entities_to_synchronize
         raise 'entities_to_synchronize invoked when not master_data_module' unless master_data_module?
-        data_module.repository.data_modules.select { |d| d.sync? }.collect do |dm|
-          dm.entities.select { |e| e.concrete? && e.sync? && e.sync.synchronize? }
+        data_module.repository.data_modules.select {|d| d.sync?}.collect do |dm|
+          dm.entities.select {|e| e.concrete? && e.sync? && e.sync.synchronize?}
         end.flatten
       end
 
@@ -335,15 +335,15 @@ module Domgen
       end
 
       def references_requiring_manual_sync
-        entity.referencing_attributes.select { |a| (!a.sync? || a.sync.manual_sync?) && a.referenced_entity.sql? }
+        entity.referencing_attributes.select {|a| (!a.sync? || a.sync.manual_sync?) && a.referenced_entity.sql?}
       end
 
       def managed_references_requiring_manual_sync
-        entity.referencing_attributes.select { |a| a.sync? && !a.sync.manual_sync? && a.entity.sync.core? }
+        entity.referencing_attributes.select {|a| a.sync? && !a.sync.manual_sync? && a.entity.sync.core?}
       end
 
       def references_not_requiring_manual_sync
-        entity.referencing_attributes.select { |a| !a.set_once? && !a.immutable? && a.sync? && a.entity.sync.core? && !a.sync.manual_sync? && a.referenced_entity.sql? }
+        entity.referencing_attributes.select {|a| !a.set_once? && !a.immutable? && a.sync? && a.entity.sync.core? && !a.sync.manual_sync? && a.referenced_entity.sql?}
       end
 
       attr_writer :recursive
@@ -351,7 +351,7 @@ module Domgen
       # Is the entity recursive?
       # i.e. Do the sync operations need to repeat until 0 actions
       def recursive?
-        @recursive.nil? ? (entity.sync.attributes_to_synchronize.any? { |a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name }) : !!@recursive
+        @recursive.nil? ? (entity.sync.attributes_to_synchronize.any? {|a| a.reference? && a.referenced_entity.name == entity.sync.master_entity.name}) : !!@recursive
       end
 
       def sync_temp_entity=(sync_temp_entity)
@@ -397,7 +397,7 @@ module Domgen
       end
 
       def attributes_to_update
-        attributes_to_synchronize.select { |a| !a.immutable? }
+        attributes_to_synchronize.select {|a| !a.immutable?}
       end
 
       def update_via_sync?
@@ -407,7 +407,7 @@ module Domgen
             !a.immutable? &&
             ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) &&
             (
-              !a.reference? ||
+            !a.reference? ||
               a.referenced_entity.sync? && a.referenced_entity.sync.synchronize?
             )
         end.size > 0
@@ -464,7 +464,7 @@ module Domgen
             e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
           end
 
-          self.entity.attributes.select { |a| !a.inherited? }.each do |a|
+          self.entity.attributes.select {|a| !a.inherited?}.each do |a|
             next if a.primary_key?
             next if [:CreatedAt, :DeletedAt].include?(a.name)
             next unless a.sync?
@@ -530,7 +530,7 @@ module Domgen
             e.sql.index([:MappingSource, :MappingID], :include_attribute_names => [:ID], :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
           end
 
-          self.entity.attributes.select { |a| !a.inherited? || a.primary_key? }.each do |a|
+          self.entity.attributes.select {|a| !a.inherited? || a.primary_key?}.each do |a|
             next unless a.sync?
 
             # For self referential, non-transaction time entities, we have to set sql.on_delete
@@ -646,9 +646,9 @@ module Domgen
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingID')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
             e.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
-            e.jpa.test_update_default({e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingID => nil, :CreatedAt => nil, :DeletedAt => nil}, :force_refresh => true)
-            e.jpa.test_update_default({e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingID => nil}, :force_refresh => true)
-            e.jpa.test_update_default({:CreatedAt => nil, :DeletedAt => nil}, :force_refresh => true)
+            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingID => nil, :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
+            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingID => nil }, :force_refresh => true)
+            e.jpa.test_update_default({ :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
             delete_defaults = {}
             e.attributes.each do |a|
               delete_defaults[a.name] = nil unless a.generated_value? || a.immutable? || !a.jpa?
@@ -671,7 +671,7 @@ module Domgen
                 entity.jpa.remove_update_default(defaults)
               end
               if entity.imit?
-                attributes = entity.attributes.select { |a| %w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit? }.collect { |a| a.name.to_s }
+                attributes = entity.attributes.select {|a| %w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit?}.collect {|a| a.name.to_s}
                 if attributes.size > 0
                   defaults = {}
                   defaults[:CreatedAt] = 'new java.util.Date()' if attributes.include?('CreatedAt')
