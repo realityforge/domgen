@@ -56,7 +56,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @javax.annotation.Nonnull
   protected H createSyncTempFactory()
   {
-    return (H) new <%= data_module.sync.qualified_sync_temp_factory_name %>( getEntityManager() )<% if data_module.sync.master_sync_persistent_unit -%>
+    return (H) new <%= data_module.sync.qualified_sync_temp_factory_name %>( getEntityManager() )
     {
       @javax.annotation.Nonnull
       @java.lang.Override
@@ -64,7 +64,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
       {
         return <%= data_module.sync.abstract_sync_temp_population_impl_name %>.this.interpolateSql( sql );
       }
-    }<% end -%>;
+    };
   }
 
   @java.lang.Override
