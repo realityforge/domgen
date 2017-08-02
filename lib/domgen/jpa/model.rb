@@ -513,7 +513,7 @@ module Domgen
       attr_accessor :default_jpql_criterion
 
       def add_standalone_persistence_unit(short_name, options = {}, &block)
-        name = "#{self.include_default_unit? ? self.unit_name : self.repository.name}#{short_name}"
+        name = options[:unit_name] || ("#{self.include_default_unit? ? self.unit_name : self.repository.name}#{short_name}")
         raise "Persistence unit with name #{name} already exists" if self.standalone_persistence_unit_map[name.to_s] || (self.include_default_unit? && self.unit_name.to_s == name.to_s)
         self.standalone_persistence_unit_map[name.to_s] = Domgen::JPA::PersistenceUnitDescriptor.new(self, {:short_name => short_name, :unit_name => name}.merge(options), &block)
       end
