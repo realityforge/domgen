@@ -19,6 +19,12 @@ module Domgen
         @data = Reality::Mash.new
       end
 
+      attr_writer :custom_configuration
+
+      def custom_configuration?
+        @custom_configuration.nil? ? false : !!@custom_configuration
+      end
+
       attr_reader :data
 
       def custom_resource(name, value, restype = nil)
@@ -30,6 +36,7 @@ module Domgen
         env_key = options[:env_key]
         restype = options[:restype]
         default_value = options[:default_value]
+        self.custom_configuration = true unless options[:system_defined]
         components = name.split('/')
         components = [components.first] + components[2..components.size] if components.size > 2 && components[1] == 'env'
         env_key = components.join('_').upcase if env_key.nil?

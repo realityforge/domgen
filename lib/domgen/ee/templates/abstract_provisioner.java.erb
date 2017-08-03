@@ -1,0 +1,137 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.ee.qualified_abstract_provisioner_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= repository.ee.abstract_provisioner_name %>
+  extends org.realityforge.guiceyloops.server.glassfish.AbstractProvisioner
+{
+  private static final String APP_NAME = "<%= Reality::Naming.underscore(repository.name) %>";
+
+  @javax.annotation.Nonnull
+  public final String getSiteURL()
+  {
+    return getBaseHttpURL() + getContextRoot();
+  }
+
+  @javax.annotation.Nonnull
+  public String getContextRoot()
+  {
+    return "/" + APP_NAME;
+  }
+
+<%
+  repository.data_modules.select{|dm|dm.jws?}.each do |data_module|
+    data_module.services.select{|s|s.jws?}.each do |service|
+-%>
+  public final String get<%= service.data_module.name %><%= service.name %>EndpointAddress()
+  {
+    return getSiteURL() + <%= repository.jws.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(service.qualified_name.gsub('.','_')) %>_URL;
+  }
+<%
+    end
+  end
+-%>
+
+  @java.lang.Override
+  protected void configure( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.glassfish.GlassFishContainer glassfish )
+    throws Exception
+  {
+<% if repository.jpa? -%>
+
+    // Database Configuration Start
+<% if repository.jpa.include_default_unit? -%>
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
+<% repository.jpa.default_persistence_unit.related_database_keys.each do |key| -%>
+    glassfish.createCustomResource( "<%= repository.jpa.default_persistence_unit.related_database_jndi(key) %>", <%= repository.jpa.default_persistence_unit.qualified_persistence_unit_test_util_name %>.get<%= Reality::Naming.pascal_case(key) %>DatabaseName() );
+<% end -%>
+<% end -%>
+<% repository.jpa.standalone_persistence_units.each do |unit| -%>
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(unit.short_name) %>_RESOURCE_NAME, glassfish.toGlassFishPropertiesString( org.realityforge.guiceyloops.server.DatabaseUtil.getGlassFishDataSourceProperties( <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(unit.short_name) %>_KEY ) ) );
+<% unit.related_database_keys.each do |key| -%>
+    glassfish.createCustomResource( "<%= unit.related_database_jndi(key) %>", <%= unit.qualified_persistence_unit_test_util_name %>.get<%= Reality::Naming.pascal_case(key) %>DatabaseName() );
+<% end -%>
+<% end -%>
+<% if repository.iris_audit?  -%>
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( "<%= Reality::Naming.underscore(repository.name) %>/jdbc/Audit", glassfish.toGlassFishPropertiesString( org.realityforge.guiceyloops.server.DatabaseUtil.getGlassFishDataSourceProperties( "audit" ) ) );
+<% end -%>
+    // Database Configuration Ende
+
+<% end -%>
+<% if repository.jms? -%>
+
+    // JMS Configuration Start
+    // iiop required for JMS
+    glassfish.createLocalIiopListener( "<%= Reality::Naming.underscore(repository.name) %>/iiop_listener" );
+    glassfish.deleteDefaultIiopListeners();
+
+    glassfish.setDefaultJmsHost( "<%= Reality::Naming.underscore(repository.name) %>/jms/host", getOpenMQContainer() );
+    glassfish.createJmsConnectionFactory( <%= repository.jms.qualified_constants_container_name %>.CONNECTION_FACTORY_RESOURCE_NAME, getOpenMQContainer() );
+
+<% repository.jms.destinations.each do |destination| -%>
+    glassfish.createJms<%= 'javax.jms.Topic' == destination.destination_type ? 'Topic' : 'Queue' %>( <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_RESOURCE_NAME, <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME );
+<% end -%>
+    // JMS Configuration Ende
+
+<% end -%>
+<% if repository.mail? -%>
+
+    // Mail Configuration Start
+    // TODO: Consider sending mail to greenmail
+    glassfish.createJavamailResource( "<%= repository.mail.resource_name %>", "mail.example.com", "bob", "bob@example.com" );
+    // Mail Configuration Ende
+
+<% end -%>
+<% if repository.imit? -%>
+    // Replication configuration
+    glassfish.createManagedScheduledExecutorService( "<%= repository.imit.executor_service_jndi %>" );
+    glassfish.createContextService( "<%= repository.imit.context_service_jndi %>" );
+
+<% repository.imit.remote_datasources.each do |rd|
+      prefix = "#{Reality::Naming.underscore(repository.name)}/replicant/client/#{Reality::Naming.underscore(rd.name)}"
+-%>
+    // Remote Replication Datasource <%= rd.name %>
+    glassfish.createCustomResource( "<%= prefix %>/url", "http://example.com/<%= Reality::Naming.underscore(rd.name) %>" );
+    glassfish.createCustomResource( "<%= prefix %>/repositoryDebugOutputEnabled", false );
+    glassfish.createCustomResource( "<%= prefix %>/subscriptionsDebugOutputEnabled", false );
+    glassfish.createCustomResource( "<%= prefix %>/shouldValidateRepositoryOnLoad", true );
+    glassfish.createCustomResource( "<%= prefix %>/requestDebugOutputEnabled", false );
+<% if repository.keycloak? -%>
+    glassfish.createCustomResource( "<%= prefix %>/keycloak/server_url", "http://example.com/" );
+    glassfish.createCustomResource( "<%= prefix %>/keycloak/client", "keycloak_client" );
+    glassfish.createCustomResource( "<%= prefix %>/keycloak/realm", "keycloak_realm" );
+    glassfish.createCustomResource( "<%= prefix %>/keycloak/username", "keycloak_svc_acct" );
+    glassfish.createCustomResource( "<%= prefix %>/keycloak/password", "keycloak_password" );
+<% end -%>
+
+<% end -%>
+
+<% end -%>
+<% if repository.keycloak? -%>
+
+    // Keycloak Configuration Start
+<% repository.keycloak.clients.each do |client| -%>
+
+    // Client <%= client.key %>
+
+    // Assume integration tests are not against a real keycloak server at this stage
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm", "<%= client.key %>Realm" );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm-public-key", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAic34zD00ZQmia/O4peUJyO1g9lnY/p9vi+dxfbFdAilsbsHj2gfFuxiPInk75yIZR7C7DPNS34PWhA6e4EWuero0MhyzyBDM8IS2577EgdlCtPnANbqe4HI/k6Zm/rd3liwl44tVD3Z9Yv7Ax4h7ChvDTYqFojeD5SE1cNK67MjNWCdlQbudSayUKetSK/PDuBUTNdHxoyqvWrUl+r5dO1XH+ItyliSdThFI9rcGuDWZWfNxMCHmLlDFAnPiYUuUWXkS3EpPCNN2RVAao7yb5ZJ52ijZKqftht7Cu4NwaTjgtyhbvvQQ7W6nhRtQJEt4+eD6KLTUAQLtOvHRtNkfrwIDAQAB" );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/auth-server-url", "http://id.<%= repository.name %>.example.com/<%= client.key %>" );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/resource", "<%= client.name %>" );
+
+    // This disables keycloak filter. Useful during testing. Should be fixed properly at some point.
+    glassfish.createCustomResource( "<%= client.jndi_debug_key %>", true );
+
+<% end -%>
+    // Keycloak Configuration Ende
+
+<% end -%>
+  }
+
+  @java.lang.Override
+  protected void deploy( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.glassfish.GlassFishContainer glassfish )
+    throws Exception
+  {
+    glassfish.deploy( getContextRoot(), APP_NAME, org.realityforge.guiceyloops.server.glassfish.GlassFishContainerUtil.getWarFile() );
+  }
+}

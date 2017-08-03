@@ -15,7 +15,7 @@ public abstract class <%= service.jws.service_integration_test_name %>
     super.preTest();
     _service = new <%= service.jws.qualified_api_endpoint_name %>().get<%= service.jws.port_name %>();
     ( (javax.xml.ws.BindingProvider) _service ).getRequestContext().
-      put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, getAppServer().get<%= service.data_module.name %><%= service.name %>EndpointAddress() );
+      put( javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY, getAppServer().get<%= service.data_module.repository.name %>Provisioner().get<%= service.data_module.name %><%= service.name %>EndpointAddress() );
   }
 
   @javax.annotation.Nonnull

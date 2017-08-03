@@ -87,7 +87,7 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
   @javax.annotation.Nonnull
   protected String toURL( @javax.annotation.Nonnull final String urlFragment )
   {
-    return getAppServer().getSiteURL() + urlFragment;
+    return getAppServer().get<%= repository.name %>Provisioner().getSiteURL() + urlFragment;
   }
 
   @javax.annotation.Nonnull

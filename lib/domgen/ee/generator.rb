@@ -77,9 +77,21 @@ Domgen::Generator.define([:ee],
 
   g.template_set(:ee_integration) do |template_set|
     template_set.erb_template(:repository,
+                              'abstract_provisioner.java.erb',
+                              'main/java/#{repository.ee.qualified_abstract_provisioner_name.gsub(".","/")}.java',
+                              :guard => 'repository.application.code_deployable?')
+    template_set.erb_template(:repository,
+                              'provisioner.java.erb',
+                              'main/java/#{repository.ee.qualified_provisioner_name.gsub(".","/")}.java',
+                              :guard => 'repository.application.code_deployable? && !repository.ee.custom_provisioner?')
+    template_set.erb_template(:repository,
                               'abstract_app_server.java.erb',
                               'main/java/#{repository.ee.qualified_abstract_app_server_name.gsub(".","/")}.java',
                               :guard => 'repository.application.code_deployable?')
+    template_set.erb_template(:repository,
+                              'app_server.java.erb',
+                              'main/java/#{repository.ee.qualified_app_server_name.gsub(".","/")}.java',
+                              :guard => 'repository.application.code_deployable? && !repository.ee.custom_app_server?')
     template_set.erb_template(:repository,
                               'app_server_factory.java.erb',
                               'main/java/#{repository.ee.qualified_app_server_factory_name.gsub(".","/")}.java',

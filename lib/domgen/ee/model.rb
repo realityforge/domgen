@@ -99,6 +99,8 @@ module Domgen
       java_artifact :cdi_qualifier_literal, nil, :shared, :ee, '#{repository.name}Literal'
       java_artifact :abstract_filter, :filter, :server, :ee, 'Abstract#{repository.name}Filter'
       java_artifact :abstract_app_server, :test, :integration, :ee, 'Abstract#{repository.name}AppServer', :sub_package => 'util'
+      java_artifact :abstract_provisioner, :test, :integration, :ee, 'Abstract#{repository.name}Provisioner', :sub_package => 'util'
+      java_artifact :provisioner, :test, :integration, :ee, '#{repository.name}Provisioner', :sub_package => 'util'
       java_artifact :app_server, :test, :integration, :ee, '#{repository.name}AppServer', :sub_package => 'util'
       java_artifact :app_server_factory, :test, :integration, :ee, '#{repository.name}AppServerFactory', :sub_package => 'util'
       java_artifact :abstract_integration_test, :test, :integration, :ee, 'Abstract#{repository.name}GlassFishTest', :sub_package => 'util'
@@ -106,6 +108,18 @@ module Domgen
       java_artifact :deploy_test, nil, :integration, :ee, '#{repository.name}DeployTest'
       java_artifact :aggregate_integration_test, :test, :integration, :ee, '#{repository.name}AggregateIntegrationTest', :sub_package => 'util'
       java_artifact :message_module, :test, :server, :ee, '#{repository.name}MessagesModule', :sub_package => 'util'
+
+      attr_writer :custom_app_server
+
+      def custom_app_server?
+        @custom_app_server.nil? ? false : !!@custom_app_server
+      end
+
+      attr_writer :custom_provisioner
+
+      def custom_provisioner?
+        @custom_provisioner.nil? ? (repository.redfish? ? repository.redfish.custom_configuration? : false) : !!@custom_provisioner
+      end
 
       attr_writer :custom_base_integration_test
 
