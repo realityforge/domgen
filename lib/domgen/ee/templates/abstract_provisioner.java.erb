@@ -7,6 +7,18 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
 {
   private static final String APP_NAME = "<%= Reality::Naming.underscore(repository.name) %>";
 
+  private final boolean _usePropertyPrefix;
+
+  protected <%= repository.ee.abstract_provisioner_name %>()
+  {
+    this( false );
+  }
+
+  protected <%= repository.ee.abstract_provisioner_name %>( final boolean usePropertyPrefix )
+  {
+    _usePropertyPrefix = usePropertyPrefix;
+  }
+
   @javax.annotation.Nonnull
   public final String getSiteURL()
   {
@@ -40,13 +52,13 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
 
     // Database Configuration Start
 <% if repository.jpa.include_default_unit? -%>
-    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME );
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.RESOURCE_NAME, getPropertyPrefix() );
 <% repository.jpa.default_persistence_unit.related_database_keys.each do |key| -%>
     glassfish.createCustomResource( "<%= repository.jpa.default_persistence_unit.related_database_jndi(key) %>", <%= repository.jpa.default_persistence_unit.qualified_persistence_unit_test_util_name %>.get<%= Reality::Naming.pascal_case(key) %>DatabaseName() );
 <% end -%>
 <% end -%>
 <% repository.jpa.standalone_persistence_units.each do |unit| -%>
-    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(unit.short_name) %>_RESOURCE_NAME, glassfish.toGlassFishPropertiesString( org.realityforge.guiceyloops.server.DatabaseUtil.getGlassFishDataSourceProperties( <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(unit.short_name) %>_KEY ) ) );
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(unit.short_name) %>_RESOURCE_NAME, <%= repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(unit.short_name) %>_KEY );
 <% unit.related_database_keys.each do |key| -%>
     glassfish.createCustomResource( "<%= unit.related_database_jndi(key) %>", <%= unit.qualified_persistence_unit_test_util_name %>.get<%= Reality::Naming.pascal_case(key) %>DatabaseName() );
 <% end -%>
@@ -132,6 +144,12 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   protected void deploy( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.glassfish.GlassFishContainer glassfish )
     throws Exception
   {
-    glassfish.deploy( getContextRoot(), APP_NAME, org.realityforge.guiceyloops.server.glassfish.GlassFishContainerUtil.getWarFile() );
+    glassfish.deploy( getContextRoot(), APP_NAME, org.realityforge.guiceyloops.server.glassfish.GlassFishContainerUtil.getWarFile( getPropertyPrefix() ) );
+  }
+
+  @javax.annotation.Nullable
+  protected String getPropertyPrefix()
+  {
+    return _usePropertyPrefix ? "<%= Reality::Naming.underscore(repository.name) %>" : null;
   }
 }
