@@ -64,7 +64,7 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
 <% end -%>
 <% end -%>
 <% if repository.iris_audit?  -%>
-    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( "<%= Reality::Naming.underscore(repository.name) %>/jdbc/Audit", glassfish.toGlassFishPropertiesString( org.realityforge.guiceyloops.server.DatabaseUtil.getGlassFishDataSourceProperties( "audit" ) ) );
+    glassfish.create<%= repository.mssql? ? 'SqlServer' : 'Postgres' -%>JdbcResource( "<%= Reality::Naming.underscore(repository.name) %>/jdbc/Audit", "audit" );
 <% end -%>
     // Database Configuration Ende
 
