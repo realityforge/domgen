@@ -87,7 +87,7 @@ module Domgen
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << 'iris.syncrecord.server.rest.SyncStatusService'
-          if repository.syncrecord.sync_methods?
+          if repository.syncrecord.sync_methods? || (repository.sync? && !repository.sync.standalone?)
             repository.jaxrs.extensions << repository.syncrecord.qualified_control_rest_service_name
           end
         end
