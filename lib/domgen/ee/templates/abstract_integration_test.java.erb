@@ -64,27 +64,11 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
     transaction.commit();
   }
 
-  static class NoDeleteAppConfigPersistenceTestModule
-    extends org.realityforge.guiceyloops.server.PersistenceTestModule
-  {
-    NoDeleteAppConfigPersistenceTestModule()
-    {
-      super( iris.appconfig.server.entity.AppConfigPersistenceUnit.NAME, new String[ 0 ], null, newDefaultProperties() );
-    }
-
-    @javax.annotation.Nonnull
-    private static java.util.Properties newDefaultProperties()
-    {
-      final java.util.Properties properties = new java.util.Properties();
-      properties.put( "javax.persistence.jdbc.driver", "<%= repository.sql.sql_driver %>" );
-      return properties;
-    }
-  }
-
   @java.lang.Override
   protected final com.google.inject.Module newAppConfigPersistenceTestModule()
   {
-    return new NoDeleteAppConfigPersistenceTestModule();
+    // Avoid cleaning the AppConfig tables during startup
+    return new iris.appconfig.server.test.util.AppConfigPersistenceTestModule( false );
   }
 <% end -%>
 
