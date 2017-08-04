@@ -97,6 +97,7 @@ module Domgen
       java_artifact :keycloak_config_resolver, :filter, :server, :keycloak, '#{qualified_class_name}KeycloakConfigResolver'
       java_artifact :config_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakConfigServlet'
       java_artifact :js_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakJsServlet'
+      java_artifact :js_min_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakMinJsServlet'
       java_artifact :token, :data_type, :client, :keycloak, '#{qualified_class_name}Token'
       java_artifact :id_token, :data_type, :client, :keycloak, '#{qualified_class_name}IDToken'
       java_artifact :abstract_application, nil, :client, :keycloak, 'AbstractKeycloak#{qualified_type_name}App'
