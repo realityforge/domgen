@@ -16,12 +16,29 @@ public class <%= remote_client.ee_remote_client_config_name %>
   private String _keycloakUsername;
   @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(repository.name) %>/keycloak/client/<%= Reality::Naming.underscore(remote_client.name) %>/password" )
   private String _keycloakPassword;
+  private org.realityforge.keycloak.client.authfilter.KeycloakConfig _keycloakConfig;
+  private org.realityforge.keycloak.client.authfilter.Keycloak _keycloak;
+
+  @javax.annotation.PostConstruct
+  protected void postConstruct()
+  {
+    _keycloakConfig = org.realityforge.keycloak.client.authfilter.KeycloakConfig.createPasswordConfig( _keycloakServerURL, _keycloakRealm, _keycloakClient, _keycloakUsername, _keycloakPassword );
+    _keycloak = new org.realityforge.keycloak.client.authfilter.Keycloak( _keycloakConfig );
+  }
+
+  @javax.enterprise.inject.Produces
+  @javax.inject.Named( "<%= remote_client.name %>" )
+  @javax.annotation.Nonnull
+  public org.realityforge.keycloak.client.authfilter.Keycloak getKeycloak()
+  {
+    return _keycloak;
+  }
 
   @javax.enterprise.inject.Produces
   @javax.inject.Named( "<%= remote_client.name %>" )
   @javax.annotation.Nonnull
   public org.realityforge.keycloak.client.authfilter.KeycloakConfig getKeycloakConfig()
   {
-    return org.realityforge.keycloak.client.authfilter.KeycloakConfig.createPasswordConfig( _keycloakServerURL, _keycloakRealm, _keycloakClient, _keycloakUsername, _keycloakPassword );
+    return _keycloakConfig;
   }
 }
