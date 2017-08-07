@@ -27,7 +27,7 @@ public class <%= remote_client.ee_remote_client_config_name %>
   }
 
   @javax.enterprise.inject.Produces
-  @javax.inject.Named( "<%= remote_client.name %>" )
+  @javax.inject.Named( "<%= remote_client.name %>.Keycloak" )
   @javax.annotation.Nonnull
   public org.realityforge.keycloak.client.authfilter.Keycloak getKeycloak()
   {
@@ -35,7 +35,7 @@ public class <%= remote_client.ee_remote_client_config_name %>
   }
 
   @javax.enterprise.inject.Produces
-  @javax.inject.Named( "<%= remote_client.name %>" )
+  @javax.inject.Named( "<%= remote_client.name %>.KeycloakConfig" )
   @javax.annotation.Nonnull
   public org.realityforge.keycloak.client.authfilter.KeycloakConfig getKeycloakConfig()
   {
