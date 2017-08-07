@@ -152,6 +152,21 @@ def generate(repository)
       define_custom_resource(data, "#{prefix}/auth-server-url", "${#{client_prefix}_KEYCLOAK_AUTH_SERVER_URL}")
       define_custom_resource(data, "#{prefix}/resource", "${#{client_prefix}_KEYCLOAK_CLIENT_NAME}")
     end
+    repository.keycloak.remote_clients.each do |client|
+      prefix = client.jndi_config_base
+      client_prefix = client.client_constant_prefix
+      data['environment_vars']["#{client_prefix}_REALM"] = ''
+      data['environment_vars']["#{client_prefix}_SERVER_URL"] = ''
+      data['environment_vars']["#{client_prefix}_USERNAME"] = ''
+      data['environment_vars']["#{client_prefix}_PASSWORD"] = ''
+      data['environment_vars']["#{client_prefix}_CLIENT"] = client.name
+
+      define_custom_resource(data, "#{prefix}/realm", "${#{client_prefix}_REALM}")
+      define_custom_resource(data, "#{prefix}/server_url", "${#{client_prefix}_SERVER_URL}")
+      define_custom_resource(data, "#{prefix}/client", "${#{client_prefix}_CLIENT}")
+      define_custom_resource(data, "#{prefix}/username", "${#{client_prefix}_USERNAME}")
+      define_custom_resource(data, "#{prefix}/password", "${#{client_prefix}_PASSWORD}")
+    end
   end
 
   if repository.jms?

@@ -30,11 +30,11 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   {
     return "/" + APP_NAME;
   }
-
 <%
   repository.data_modules.select{|dm|dm.jws?}.each do |data_module|
     data_module.services.select{|s|s.jws?}.each do |service|
 -%>
+
   public final String get<%= service.data_module.name %><%= service.name %>EndpointAddress()
   {
     return getSiteURL() + <%= repository.jws.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(service.qualified_name.gsub('.','_')) %>_URL;
@@ -107,29 +107,26 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
     glassfish.createCustomResource( "<%= prefix %>/subscriptionsDebugOutputEnabled", false );
     glassfish.createCustomResource( "<%= prefix %>/shouldValidateRepositoryOnLoad", true );
     glassfish.createCustomResource( "<%= prefix %>/requestDebugOutputEnabled", false );
-<% if repository.keycloak? -%>
-    glassfish.createCustomResource( "<%= prefix %>/keycloak/server_url", "http://example.com/" );
-    glassfish.createCustomResource( "<%= prefix %>/keycloak/client", "keycloak_client" );
-    glassfish.createCustomResource( "<%= prefix %>/keycloak/realm", "keycloak_realm" );
-    glassfish.createCustomResource( "<%= prefix %>/keycloak/username", "keycloak_svc_acct" );
-    glassfish.createCustomResource( "<%= prefix %>/keycloak/password", "keycloak_password" );
-<% end -%>
-
 <% end -%>
 
 <% end -%>
 <% if repository.keycloak? -%>
     // Keycloak Configuration Start
 <% repository.keycloak.clients.each do |client| -%>
-
     // Client <%= client.key %>
-
-    // Assume integration tests are not against a real keycloak server at this stage
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm", "<%= client.key %>Realm" );
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm-public-key", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAic34zD00ZQmia/O4peUJyO1g9lnY/p9vi+dxfbFdAilsbsHj2gfFuxiPInk75yIZR7C7DPNS34PWhA6e4EWuero0MhyzyBDM8IS2577EgdlCtPnANbqe4HI/k6Zm/rd3liwl44tVD3Z9Yv7Ax4h7ChvDTYqFojeD5SE1cNK67MjNWCdlQbudSayUKetSK/PDuBUTNdHxoyqvWrUl+r5dO1XH+ItyliSdThFI9rcGuDWZWfNxMCHmLlDFAnPiYUuUWXkS3EpPCNN2RVAao7yb5ZJ52ijZKqftht7Cu4NwaTjgtyhbvvQQ7W6nhRtQJEt4+eD6KLTUAQLtOvHRtNkfrwIDAQAB" );
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/auth-server-url", "http://id.<%= repository.name %>.example.com/<%= client.key %>" );
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/resource", "<%= client.name %>" );
-
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm", getKeycloakRealm( "<%= Reality::Naming.underscore(client.key) %>" ) );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm-public-key", getKeycloakPublicKey( "<%= Reality::Naming.underscore(client.key) %>" ) );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/auth-server-url", getKeycloakServerURL( "<%= Reality::Naming.underscore(client.key) %>" ) );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/resource", getKeycloakClient( "<%= Reality::Naming.underscore(client.key) %>", "<%= client.name %>" ) );
+<% end -%>
+<% repository.keycloak.remote_clients.each do |client| -%>
+<% prefix = "#{Reality::Naming.underscore(repository.name)}/keycloak/client/#{Reality::Naming.underscore(client.name)}" -%>
+    // Remote Client <%= client.name %>
+    glassfish.createCustomResource( "<%= prefix %>/server_url", getKeycloakServerURL( "<%= Reality::Naming.underscore(client.name) %>" ) );
+    glassfish.createCustomResource( "<%= prefix %>/realm", getKeycloakRealm( "<%= Reality::Naming.underscore(client.name) %>" ) );
+    glassfish.createCustomResource( "<%= prefix %>/client", getKeycloakClient( "<%= Reality::Naming.underscore(client.name) %>", "<%= client.name %>" ) );
+    glassfish.createCustomResource( "<%= prefix %>/username", getKeycloakServiceUsername( "<%= Reality::Naming.underscore(client.name) %>" ) );
+    glassfish.createCustomResource( "<%= prefix %>/password", getKeycloakServicePassword( "<%= Reality::Naming.underscore(client.name) %>" ) );
 <% end -%>
     // Keycloak Configuration Ende
 <% end -%>
@@ -147,4 +144,80 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   {
     return _usePropertyPrefix ? "<%= Reality::Naming.underscore(repository.name) %>" : null;
   }
+<% if repository.keycloak? -%>
+
+  @javax.annotation.Nullable
+  protected String getKeycloakServerURL( @javax.annotation.Nullable final String prefix )
+  {
+    return ensureProperty( prefix, "keycloak.server-url" );
+  }
+
+  @javax.annotation.Nullable
+  protected String getKeycloakPublicKey( @javax.annotation.Nullable final String prefix )
+  {
+    return ensureProperty( prefix, "keycloak.public-key" );
+  }
+
+  @javax.annotation.Nullable
+  protected String getKeycloakRealm( @javax.annotation.Nullable final String prefix )
+  {
+    return ensureProperty( prefix, "keycloak.realm" );
+  }
+
+  @javax.annotation.Nullable
+  protected String getKeycloakServiceUsername( @javax.annotation.Nullable final String prefix )
+  {
+    return ensureProperty( prefix, "keycloak.service_username" );
+  }
+
+  @javax.annotation.Nullable
+  protected String getKeycloakServicePassword( @javax.annotation.Nullable final String prefix )
+  {
+    return ensureProperty( prefix, "keycloak.service_password" );
+  }
+
+  @javax.annotation.Nullable
+  protected String getKeycloakClient( @javax.annotation.Nullable final String prefix, @javax.annotation.Nonnull final String defaultValue )
+  {
+    return getProperty( prefix, "keycloak.client", defaultValue );
+  }
+
+  @javax.annotation.Nonnull
+  protected String ensureProperty( @javax.annotation.Nullable final String prefix, @javax.annotation.Nonnull final String key )
+  {
+    final String p = prefix == null ? "" : prefix + ".";
+    final String v = System.getProperties().getProperty( p + key, null );
+    if( null == v && null != prefix )
+    {
+      return ensureProperty( null, key );
+    }
+    else if( null == v )
+    {
+      throw new IllegalStateException( "Unable to locate expected configuration property '" + p + key + "' required for tests" );
+    }
+    else
+    {
+      return v;
+    }
+  }
+
+  @javax.annotation.Nonnull
+  protected String getProperty( @javax.annotation.Nullable final String prefix, @javax.annotation.Nonnull final String key, @javax.annotation.Nonnull final String defaultValue )
+  {
+    final String p = prefix == null ? "" : prefix + ".";
+    final String v = System.getProperties().getProperty( p + key, null );
+    if( null == v && null != prefix )
+    {
+      return getProperty( null, key, defaultValue );
+    }
+    else if( null == v )
+    {
+      return defaultValue;
+    }
+    else
+    {
+      return v;
+    }
+  }
+<% end -%>
 }
