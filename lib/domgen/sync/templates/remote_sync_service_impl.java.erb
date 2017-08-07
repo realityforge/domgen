@@ -10,11 +10,19 @@ public abstract class <%= repository.sync.remote_sync_service_impl_name %>
   public iris.syncrecord.server.data_type.SyncResultDTO syncMasterToCore( @javax.annotation.Nonnull final String dataSourceCode )
     throws Exception
   {
-    //TODO: keycloak integration
     final String url = getRemoteApplicationUrl() + "/api/sync/master/" + dataSourceCode;
+<% if repository.keycloak? -%>
+    return new iris.syncrecord.client.rest.SecureSyncRestClient( getKeycloak() ).get( url );
+<% else -%>
     return new iris.syncrecord.client.rest.SyncRestClient().get( url );
+<% end -%>
   }
 
+<% if repository.keycloak? -%>
+  @javax.annotation.Nonnull
+  protected abstract org.realityforge.keycloak.client.authfilter.Keycloak getKeycloak();
+
+<% end -%>
   @javax.annotation.Nonnull
   protected abstract String getRemoteApplicationUrl();
 }

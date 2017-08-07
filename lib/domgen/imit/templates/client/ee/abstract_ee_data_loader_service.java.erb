@@ -54,13 +54,6 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   implements <%= repository.imit.qualified_ee_data_loader_service_interface_name %>
 {
   public static final String APPLICATION_URL_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/url";
-<% if repository.keycloak? -%>
-  public static final String KEYCLOAK_SERVER_URL_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/keycloak/server_url";
-  public static final String KEYCLOAK_REALM_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/keycloak/realm";
-  public static final String KEYCLOAK_CLIENT_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/keycloak/client";
-  public static final String KEYCLOAK_USERNAME_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/keycloak/username";
-  public static final String KEYCLOAK_PASSWORD_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/keycloak/password";
-<% end -%>
 
   @javax.inject.Inject
   private <%= repository.imit.qualified_ee_client_session_context_name %> _context;

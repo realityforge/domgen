@@ -32,6 +32,9 @@ Domgen::Generator.define([:keycloak],
     template_set.erb_template('keycloak.client',
                               'keycloak_config_resolver.java.erb',
                               'main/java/#{client.qualified_keycloak_config_resolver_name.gsub(".","/")}.java')
+    template_set.erb_template('keycloak.remote_client',
+                              'ee_remote_client_config.java.erb',
+                              'main/java/#{remote_client.qualified_ee_remote_client_config_name.gsub(".","/")}.java')
   end
 
   g.template_set(:keycloak_auth_service) do |template_set|

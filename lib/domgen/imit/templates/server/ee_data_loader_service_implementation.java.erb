@@ -19,16 +19,9 @@ public class <%= remote_datasource.ee_data_loader_service_implementation_name %>
   @javax.annotation.Resource( lookup = "<%= remote_datasource.application.repository.imit.context_service_jndi %>" )
   private javax.enterprise.concurrent.ContextService _contextService;
 <% if remote_datasource.application.repository.keycloak? -%>
-  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(remote_datasource.application.repository.name) %>" + KEYCLOAK_SERVER_URL_JNDI_SUFFIX )
-  private String _keycloakServerURL;
-  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(remote_datasource.application.repository.name) %>" + KEYCLOAK_REALM_JNDI_SUFFIX )
-  private String _keycloakRealm;
-  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(remote_datasource.application.repository.name) %>" + KEYCLOAK_CLIENT_JNDI_SUFFIX )
-  private String _keycloakClient;
-  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(remote_datasource.application.repository.name) %>" + KEYCLOAK_USERNAME_JNDI_SUFFIX )
-  private String _keycloakUsername;
-  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(remote_datasource.application.repository.name) %>" + KEYCLOAK_PASSWORD_JNDI_SUFFIX )
-  private String _keycloakPassword;
+  @javax.inject.Inject
+  @javax.inject.Named( "<%= remote_datasource.name %>" )
+  private org.realityforge.keycloak.client.authfilter.KeycloakConfig _keycloak;
 <% end -%>
 
   private <%= remote_datasource.ee_data_loader_listener_impl %> _listener;

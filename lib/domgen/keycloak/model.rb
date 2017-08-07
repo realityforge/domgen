@@ -82,6 +82,20 @@ module Domgen
       end
     end
 
+    class RemoteClient < Domgen.ParentedElement(:keycloak_repository)
+      def initialize(keycloak_repository, name, options = {}, &block)
+        @name = name
+        super(keycloak_repository, options, &block)
+      end
+
+      attr_accessor :name
+
+      include Domgen::Java::BaseJavaGenerator
+      #include Domgen::Java::JavaClientServerApplication
+
+      java_artifact :ee_remote_client_config, :service, :server, :keycloak, '#{self.name}KeycloakConfig'
+    end
+
     class Client < Domgen.ParentedElement(:keycloak_repository)
       def initialize(keycloak_repository, key, options = {}, &block)
         @key = key
@@ -495,6 +509,26 @@ module Domgen
 
       Domgen.target_manager.target(:client, :repository, :facet_key => :keycloak)
 
+      def remote_client_by_key?(key)
+        !!remote_client_map[key.to_s]
+      end
+
+      def remote_client_by_key(key)
+        raise "No keycloak remote_client with key #{key} defined." unless remote_client_map[key.to_s]
+        remote_client_map[key.to_s]
+      end
+
+      def remote_client(key, options = {}, &block)
+        raise "Keycloak remote_client with id #{key} already defined." if remote_client_map[key.to_s]
+        remote_client_map[key.to_s] = Domgen::Keycloak::RemoteClient.new(self, key, options, &block)
+      end
+
+      def remote_clients
+        remote_client_map.values
+      end
+
+      Domgen.target_manager.target(:remote_client, :repository, :facet_key => :keycloak)
+
       def pre_complete
         self.clients.each do |client|
           client.pre_complete
@@ -539,6 +573,10 @@ module Domgen
       end
 
       private
+
+      def remote_client_map
+        @remote_clients ||= {}
+      end
 
       def client_map
         unless @clients

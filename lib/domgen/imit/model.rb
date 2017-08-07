@@ -996,6 +996,11 @@ module Domgen
           client.protected_url_patterns << prefix + '/replicant/*'
           client.protected_url_patterns << prefix + '/session/*'
         end
+        if repository.keycloak?
+          self.remote_datasources.each do |remote_datasource|
+            repository.keycloak.remote_client(remote_datasource.name)
+          end
+        end
            test_content = <<CONTENT
   @javax.annotation.Nonnull
   protected final org.realityforge.replicant.client.EntityRepository repository()

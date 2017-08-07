@@ -1,0 +1,27 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(remote_client.qualified_ee_remote_client_config_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.enterprise.context.ApplicationScoped
+public class <%= remote_client.ee_remote_client_config_name %>
+{
+<% repository = remote_client.keycloak_repository.repository -%>
+  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(repository.name) %>/keycloak/client/<%= Reality::Naming.underscore(remote_client.name) %>/server_url" )
+  private String _keycloakServerURL;
+  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(repository.name) %>/keycloak/client/<%= Reality::Naming.underscore(remote_client.name) %>/realm" )
+  private String _keycloakRealm;
+  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(repository.name) %>/keycloak/client/<%= Reality::Naming.underscore(remote_client.name) %>/client" )
+  private String _keycloakClient;
+  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(repository.name) %>/keycloak/client/<%= Reality::Naming.underscore(remote_client.name) %>/username" )
+  private String _keycloakUsername;
+  @javax.annotation.Resource( lookup = "<%= Reality::Naming.underscore(repository.name) %>/keycloak/client/<%= Reality::Naming.underscore(remote_client.name) %>/password" )
+  private String _keycloakPassword;
+
+  @javax.enterprise.inject.Produces
+  @javax.inject.Named( "<%= remote_client.name %>" )
+  @javax.annotation.Nonnull
+  public org.realityforge.keycloak.client.authfilter.KeycloakConfig getKeycloakConfig()
+  {
+    return org.realityforge.keycloak.client.authfilter.KeycloakConfig.createPasswordConfig( _keycloakServerURL, _keycloakRealm, _keycloakClient, _keycloakUsername, _keycloakPassword );
+  }
+}
