@@ -119,7 +119,6 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
 
 <% end -%>
 <% if repository.keycloak? -%>
-
     // Keycloak Configuration Start
 <% repository.keycloak.clients.each do |client| -%>
 
@@ -131,12 +130,8 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
     glassfish.createCustomResource( "<%= client.jndi_config_base %>/auth-server-url", "http://id.<%= repository.name %>.example.com/<%= client.key %>" );
     glassfish.createCustomResource( "<%= client.jndi_config_base %>/resource", "<%= client.name %>" );
 
-    // This disables keycloak filter. Useful during testing. Should be fixed properly at some point.
-    glassfish.createCustomResource( "<%= client.jndi_debug_key %>", true );
-
 <% end -%>
     // Keycloak Configuration Ende
-
 <% end -%>
   }
 
