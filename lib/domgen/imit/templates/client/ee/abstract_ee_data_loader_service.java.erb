@@ -61,9 +61,6 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   private final <%= repository.imit.qualified_client_router_interface_name %> _router = new <%= repository.imit.qualified_client_router_impl_name %>();
   private final org.realityforge.replicant.client.transport.SessionContext _sessionContext = new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" );
   private <%= repository.imit.qualified_change_mapper_name %> _changeMapper;
-<% if repository.keycloak? -%>
-  private org.realityforge.keycloak.client.authfilter.Keycloak _keycloak;
-<% end -%>
 
   @javax.annotation.Nonnull
   @java.lang.Override
@@ -79,9 +76,6 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
     super.postConstruct();
     _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getChangeBroker(), getSubscriptionManager() )" }.join(', ') %> );
     getSessionContext().setBaseURL( get<%= repository.name %>ApplicationURL() );
-<% if repository.keycloak? -%>
-    _keycloak = new org.realityforge.keycloak.client.authfilter.Keycloak( getKeycloakConfig() );
-<% end -%>
   }
 
 <% if repository.keycloak? -%>
@@ -89,17 +83,11 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   @java.lang.Override
   protected javax.ws.rs.client.Client newClient()
   {
-    return super.newClient().register( new org.realityforge.keycloak.client.authfilter.BearerAuthFilter( _keycloak ) );
+    return super.newClient().register( new org.realityforge.keycloak.client.authfilter.BearerAuthFilter( getKeycloak() ) );
   }
 
   @javax.annotation.Nonnull
-  protected abstract org.realityforge.keycloak.client.authfilter.KeycloakConfig getKeycloakConfig();
-
-  @javax.annotation.Nonnull
-  protected org.realityforge.keycloak.client.authfilter.Keycloak getKeycloak()
-  {
-    return _keycloak;
-  }
+  protected abstract org.realityforge.keycloak.client.authfilter.Keycloak getKeycloak();
 
 <% end -%>
   @javax.annotation.Nonnull
