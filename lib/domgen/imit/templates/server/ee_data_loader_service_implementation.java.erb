@@ -21,7 +21,7 @@ public class <%= remote_datasource.ee_data_loader_service_implementation_name %>
 <% if remote_datasource.application.repository.keycloak? -%>
   @javax.inject.Inject
   @javax.inject.Named( "<%= remote_datasource.name %>" )
-  private org.realityforge.keycloak.client.authfilter.KeycloakConfig _keycloak;
+  private org.realityforge.keycloak.client.authfilter.Keycloak _keycloak;
 <% end -%>
 
   private <%= remote_datasource.ee_data_loader_listener_impl %> _listener;
@@ -44,9 +44,9 @@ public class <%= remote_datasource.ee_data_loader_service_implementation_name %>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected org.realityforge.keycloak.client.authfilter.KeycloakConfig getKeycloakConfig()
+  protected org.realityforge.keycloak.client.authfilter.Keycloak getKeycloak()
   {
-    return org.realityforge.keycloak.client.authfilter.KeycloakConfig.createPasswordConfig( _keycloakServerURL, _keycloakRealm, _keycloakClient, _keycloakUsername, _keycloakPassword );
+    return _keycloak;
   }
 <% end -%>
 
