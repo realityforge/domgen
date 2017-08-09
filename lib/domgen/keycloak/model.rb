@@ -160,7 +160,7 @@ module Domgen
       attr_writer :client_id
 
       def client_id
-        "{{#{client_constant_prefix}_NAME}}"
+        "{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}#{default_client? ? '' : "_#{Reality::Naming.uppercase_constantize(key)}"}_NAME}}"
       end
 
       def client_constant_prefix
