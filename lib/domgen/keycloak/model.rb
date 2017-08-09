@@ -97,11 +97,11 @@ module Domgen
       attr_writer :jndi_config_base
 
       def jndi_config_base
-        @jndi_config_base || "#{keycloak_repository.jndi_config_base}/client/#{Reality::Naming.underscore(self.name)}"
+        @jndi_config_base || "#{keycloak_repository.jndi_config_base}/remote-client/#{Reality::Naming.underscore(self.name)}"
       end
 
       def client_constant_prefix
-        "#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}KEYCLOAK_REMOTE_CLIENT_#{Reality::Naming.uppercase_constantize(name)}"
+        "#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_KEYCLOAK_REMOTE_CLIENT_#{Reality::Naming.uppercase_constantize(name)}"
       end
     end
 
@@ -148,7 +148,7 @@ module Domgen
       attr_writer :jndi_config_base
 
       def jndi_config_base
-        @jndi_config_base || "#{keycloak_repository.jndi_config_base}/#{name}"
+        @jndi_config_base || "#{keycloak_repository.jndi_config_base}/client/#{name}"
       end
 
       def jndi_debug_key
@@ -164,7 +164,7 @@ module Domgen
       end
 
       def client_constant_prefix
-        "#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}#{default_client? ? '' : "_#{Reality::Naming.uppercase_constantize(key)}"}"
+        "#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_KEYCLOAK_CLIENT#{default_client? ? '' : "_#{Reality::Naming.uppercase_constantize(key)}"}"
       end
 
       def default_client?

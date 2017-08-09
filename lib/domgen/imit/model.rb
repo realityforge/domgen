@@ -998,10 +998,12 @@ module Domgen
         end
         if repository.keycloak?
           self.remote_datasources.each do |remote_datasource|
-            repository.keycloak.remote_client(remote_datasource.name)
+            unless repository.keycloak.remote_client_by_key?(remote_datasource.name)
+              repository.keycloak.remote_client(remote_datasource.name)
+            end
           end
         end
-           test_content = <<CONTENT
+        test_content = <<CONTENT
   @javax.annotation.Nonnull
   protected final org.realityforge.replicant.client.EntityRepository repository()
   {
