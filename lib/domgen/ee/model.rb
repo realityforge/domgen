@@ -20,6 +20,15 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      def integration_test_modules
+        integration_test_modules_map.dup
+      end
+
+      def add_integration_test_module(name, classname)
+        Domgen.error("Attempting to define duplicate integration test module for ejb facet. Name = '#{name}', Classname = '#{classname}'") if integration_test_modules_map[name.to_s]
+        integration_test_modules_map[name.to_s] = classname
+      end
+
       def version
         @version || '7'
       end
@@ -125,6 +134,12 @@ module Domgen
 
       def custom_base_integration_test?
         @custom_base_integration_test.nil? ? false : !!@custom_base_integration_test
+      end
+
+      protected
+
+      def integration_test_modules_map
+        @integration_test_modules_map ||= {}
       end
     end
 
