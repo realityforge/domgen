@@ -84,12 +84,25 @@ module Domgen
         end.flatten
       end
 
+      attr_writer :keycloak_client
+
+      def keycloak_client
+        @keycloak_client || (repository.application? && !repository.application.user_experience? ? repository.keycloak.default_client.key : :api)
+      end
+
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << 'iris.syncrecord.server.rest.SyncStatusService'
           if repository.syncrecord.sync_methods? || (repository.sync? && !repository.sync.standalone?)
             repository.jaxrs.extensions << repository.syncrecord.qualified_control_rest_service_name
           end
+        end
+        if repository.keycloak?
+          client =
+            repository.keycloak.client_by_key?(self.keycloak_client) ?
+              repository.keycloak.client_by_key(self.keycloak_client) :
+              repository.keycloak.client(self.keycloak_client)
+          client.protected_url_patterns << "/#{repository.jaxrs? ? repository.jaxrs.path : 'api'}/sync/*"
         end
 
         if repository.jpa?
