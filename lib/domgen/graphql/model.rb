@@ -56,16 +56,34 @@ module Domgen
         @api_endpoint || (repository.jaxrs? ? "/#{repository.jaxrs.path}/graphql" : '/api/graphql')
       end
 
-      attr_writer :enable_interactive_api_endpoint
+      attr_writer :graphql_keycloak_client
 
-      def enable_interactive_api_endpoint?
-        @interactive_api_endpoint.nil? ? true : !!@interactive_api_endpoint
+      def graphql_keycloak_client
+        @graphql_keycloak_client || (repository.application? && !repository.application.user_experience? ? repository.keycloak.default_client.key : :api)
       end
 
-      attr_writer :interactive_api_endpoint
+      attr_writer :graphiql
 
-      def interactive_api_endpoint
-        @interactive_api_endpoint || '/graphql'
+      def graphiql?
+        @graphiql_api_endpoint.nil? ? true : !!@graphiql_api_endpoint
+      end
+
+      attr_writer :graphiql_api_endpoint
+
+      def graphiql_api_endpoint
+        @graphiql_api_endpoint || '/graphql'
+      end
+
+      attr_writer :graphiql_endpoint
+
+      def graphiql_endpoint
+        @graphiql_endpoint || '/graphiql'
+      end
+
+      attr_writer :graphiql_keycloak_client
+
+      def graphiql_keycloak_client
+        @graphiql_keycloak_client || :graphql
       end
 
       attr_writer :graphql_schema_name
@@ -85,7 +103,7 @@ module Domgen
       end
 
       def non_standard_scalars
-        self.scalars.select{|s| !%w(Int Float Boolean String ID).include?(s)}
+        self.scalars.select {|s| !%w(Int Float Boolean String ID).include?(s)}
       end
 
       def schema_builders
@@ -95,6 +113,28 @@ module Domgen
       def schema_builder(name, classname)
         Domgen.error("Attempting add duplicate schema builder named '#{name}' of type '#{classname}' where existing type is '#{schema_builder_map[name.to_s]}'") if schema_builder_map[name.to_s]
         schema_builder_map[name.to_s] = classname
+      end
+
+      def pre_complete
+        if self.repository.keycloak?
+          if self.graphiql?
+            client =
+              repository.keycloak.client_by_key?(self.graphiql_keycloak_client) ?
+                repository.keycloak.client_by_key(self.graphiql_keycloak_client) :
+                repository.keycloak.client(self.graphiql_keycloak_client)
+
+            # This client and endpoint assumes a human is using graphiql to explore the API
+            client.protected_url_patterns << "#{self.graphiql_endpoint}/*"
+            client.protected_url_patterns << "#{self.graphiql_api_endpoint}/*"
+          end
+
+          client =
+            repository.keycloak.client_by_key?(self.graphql_keycloak_client) ?
+              repository.keycloak.client_by_key(self.graphql_keycloak_client) :
+              repository.keycloak.client(self.graphql_keycloak_client)
+
+          client.protected_url_patterns << "#{api_endpoint}/*"
+        end
       end
 
       protected

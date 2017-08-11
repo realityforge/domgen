@@ -7,8 +7,8 @@ public abstract class <%= repository.graphql.abstract_endpoint_name %>
   extends org.realityforge.graphql.domgen.AbstractDomgenGraphQLEndpoint
 {
   public static final String API_ENDPOINT = "<%= repository.graphql.api_endpoint %>";
-<% if repository.graphql.enable_interactive_api_endpoint? -%>
-  public static final String INTERACTIVE_API_ENDPOINT = "<%= repository.graphql.interactive_api_endpoint %>";
+<% if repository.graphql.graphiql? -%>
+  public static final String INTERACTIVE_API_ENDPOINT = "<%= repository.graphql.graphiql_api_endpoint %>";
 <% end -%>
 
   @java.lang.Override
