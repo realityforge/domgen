@@ -13,7 +13,7 @@ enum <%= enumeration.graphql.name %> {
   <%= attribute.graphql.name %>: <%= attribute.graphql.type %><%= attribute.nullable? ? '' : '!' %>
 <% end -%>
 <% entity.referencing_attributes.select{|attribute| attribute.inverse.graphql? && attribute.inverse.graphql.traversable? }.each do |attribute| -%>
-  <%= Reality::Naming.pluralize(attribute.inverse.graphql.name) %>: <%= attribute.inverse.multiplicity == :many ? '[' : '' %><%= attribute.inverse.attribute.entity.graphql.name %><%= attribute.inverse.multiplicity == :many ? '!]' : '' %><%= attribute.nullable? ? '' : '!' %>
+  <%= Reality::Naming.camelize(Reality::Naming.pluralize(Reality::Naming.pascal_case(attribute.inverse.graphql.name))) %>: <%= attribute.inverse.multiplicity == :many ? '[' : '' %><%= attribute.inverse.attribute.entity.graphql.name %><%= attribute.inverse.multiplicity == :many ? '!]' : '' %><%= attribute.nullable? ? '' : '!' %>
 <% end -%>
 }
 
