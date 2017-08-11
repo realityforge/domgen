@@ -49,8 +49,8 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :abstract_endpoint, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLEndpoint'
-      java_artifact :abstract_schema_builder, :servlet, :server, :graphql, 'Abstract#{repository.name}SchemaBuilder'
-      java_artifact :schema_builder, :servlet, :server, :graphql, '#{repository.name}SchemaBuilder'
+      java_artifact :abstract_schema_builder, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLSchemaBuilder'
+      java_artifact :schema_builder, :servlet, :server, :graphql, '#{repository.name}GraphQLSchemaBuilder'
 
       attr_writer :custom_schema_builder
 
@@ -182,7 +182,7 @@ module Domgen
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :resolver, :entity, :server, :graphql, '#{entity.name}Resolver', :sub_package => 'internal'
+      java_artifact :resolver, :entity, :server, :graphql, '#{entity.name}GraphQLResolver', :sub_package => 'internal'
 
       attr_writer :name
 
