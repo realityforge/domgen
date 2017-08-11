@@ -87,6 +87,21 @@ module Domgen
       def non_standard_scalars
         self.scalars.select{|s| !%w(Int Float Boolean String ID).include?(s)}
       end
+
+      def schema_builders
+        schema_builder_map.dup
+      end
+
+      def schema_builder(name, classname)
+        Domgen.error("Attempting add duplicate schema builder named '#{name}' of type '#{classname}' where existing type is '#{schema_builder_map[name.to_s]}'") if schema_builder_map[name.to_s]
+        schema_builder_map[name.to_s] = classname
+      end
+
+      protected
+
+      def schema_builder_map
+        @schema_builders ||= {}
+      end
     end
 
     facet.enhance(DataModule) do

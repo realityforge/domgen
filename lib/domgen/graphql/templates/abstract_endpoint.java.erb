@@ -10,4 +10,20 @@ public abstract class <%= repository.graphql.abstract_endpoint_name %>
 <% if repository.graphql.enable_interactive_api_endpoint? -%>
   public static final String INTERACTIVE_API_ENDPOINT = "<%= repository.graphql.interactive_api_endpoint %>";
 <% end -%>
+
+  @java.lang.Override
+  protected void preSchemaBuild()
+  {
+<% repository.graphql.schema_builders.keys.each do |name| -%>
+    addSchemaBuilder( new<%= name %>SchemaBuilder() );
+<% end -%>
+  }
+<% repository.graphql.schema_builders.each_pair do |name, classname| -%>
+
+  @javax.annotation.Nullable
+  protected GraphQLSchemaBuilder new<%= name %>SchemaBuilder()
+  {
+    return new <%= classname =~ /\(/ ? classname : "#{classname}()" %>;
+  }
+<% end -%>
 }
