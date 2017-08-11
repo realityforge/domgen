@@ -32,4 +32,11 @@ Domgen::Generator.define([:graphql],
                               'main/java/#{struct.graphql.qualified_struct_resolver_name.gsub(".","/")}.java',
                               :additional_facets => [:ee])
   end
+
+  g.template_set(:graphql_endpoint) do |template_set|
+    template_set.erb_template(:repository,
+                              'abstract_endpoint.java.erb',
+                              'main/java/#{repository.graphql.qualified_abstract_endpoint_name.gsub(".","/")}.java',
+                              :additional_facets => [:ee])
+  end
 end

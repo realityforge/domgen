@@ -48,6 +48,26 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
       include Domgen::Java::BaseJavaGenerator
 
+      java_artifact :abstract_endpoint, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLEndpoint'
+
+      attr_writer :api_endpoint
+
+      def api_endpoint
+        @api_endpoint || (repository.jaxrs? ? "/#{repository.jaxrs.path}/graphql" : '/api/graphql')
+      end
+
+      attr_writer :enable_interactive_api_endpoint
+
+      def enable_interactive_api_endpoint?
+        @interactive_api_endpoint.nil? ? true : !!@interactive_api_endpoint
+      end
+
+      attr_writer :interactive_api_endpoint
+
+      def interactive_api_endpoint
+        @interactive_api_endpoint || '/graphql'
+      end
+
       attr_writer :graphql_schema_name
 
       def graphql_schema_name
