@@ -193,3 +193,6 @@ require 'domgen/berk/generator'
 
 require 'domgen/redfish/model'
 require 'domgen/redfish/generator'
+
+require 'domgen/graphql/model'
+require 'domgen/graphql/generator'
