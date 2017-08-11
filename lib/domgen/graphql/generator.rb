@@ -35,6 +35,10 @@ Domgen::Generator.define([:graphql],
 
   g.template_set(:graphql_endpoint) do |template_set|
     template_set.erb_template(:repository,
+                              'abstract_schema_builder.java.erb',
+                              'main/java/#{repository.graphql.qualified_abstract_schema_builder_name.gsub(".","/")}.java',
+                              :additional_facets => [:ee])
+    template_set.erb_template(:repository,
                               'abstract_endpoint.java.erb',
                               'main/java/#{repository.graphql.qualified_abstract_endpoint_name.gsub(".","/")}.java',
                               :additional_facets => [:ee])

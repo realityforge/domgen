@@ -49,6 +49,7 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :abstract_endpoint, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLEndpoint'
+      java_artifact :abstract_schema_builder, :servlet, :server, :graphql, 'Abstract#{repository.name}SchemaBuilder'
 
       attr_writer :api_endpoint
 

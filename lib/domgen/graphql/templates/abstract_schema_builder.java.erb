@@ -1,0 +1,42 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.graphql.qualified_abstract_schema_builder_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public abstract class <%= repository.graphql.abstract_schema_builder_name %>
+  implements org.realityforge.graphql.domgen.GraphQLSchemaBuilder
+{
+  @java.lang.Override
+  public void build( @javax.annotation.Nonnull final com.coxautodev.graphql.tools.SchemaParserBuilder builder )
+  {
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.entities.select{|entity| entity.graphql?}.each do |entity| -%>
+    build<%= entity.qualified_name.gsub('.','') %>( builder );
+<% end -%>
+<% end -%>
+  }
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.entities.select{|entity| entity.graphql?}.each do |entity| -%>
+
+  protected void register<%= entity.qualified_name.gsub('.','') %>Type( @javax.annotation.Nonnull final com.coxautodev.graphql.tools.SchemaParserBuilder builder )
+  {
+    builder.dictionary( "<%= entity.graphql.name %>", <%= entity.jpa.qualified_name %>.class );
+  }
+
+<% unless entity.abstract? -%>
+  protected void register<%= entity.qualified_name.gsub('.','') %>Resolver( @javax.annotation.Nonnull final com.coxautodev.graphql.tools.SchemaParserBuilder builder )
+  {
+    builder.resolvers( new <%= entity.graphql.qualified_resolver_name %>() );
+  }
+
+<% end -%>
+  protected void build<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final com.coxautodev.graphql.tools.SchemaParserBuilder builder )
+  {
+    register<%= entity.qualified_name.gsub('.','') %>Type( builder );
+<% unless entity.abstract? -%>
+    register<%= entity.qualified_name.gsub('.','') %>Resolver( builder );
+<% end -%>
+  }
+<% end -%>
+<% end -%>
+}
