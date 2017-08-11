@@ -14,6 +14,7 @@ public abstract class <%= repository.graphql.abstract_endpoint_name %>
   @java.lang.Override
   protected void preSchemaBuild()
   {
+    addSchemaBuilder( this::addStandardScalars );
 <% repository.graphql.schema_builders.keys.each do |name| -%>
     addSchemaBuilder( new<%= name %>SchemaBuilder() );
 <% end -%>
@@ -26,4 +27,11 @@ public abstract class <%= repository.graphql.abstract_endpoint_name %>
     return new <%= classname =~ /\(/ ? classname : "#{classname}()" %>;
   }
 <% end -%>
+
+  protected void addStandardScalars( @javax.annotation.Nonnull final com.coxautodev.graphql.tools.SchemaParserBuilder b )
+  {
+<% repository.graphql.non_standard_scalars.each do |scalar| -%>
+    b.scalars( org.realityforge.graphql.domgen.Scalars.<%= Reality::Naming.uppercase_constantize(scalar) %> );
+<% end -%>
+  }
 }
