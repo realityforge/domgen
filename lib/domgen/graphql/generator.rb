@@ -27,5 +27,9 @@ Domgen::Generator.define([:graphql],
                               'main/java/#{entity.graphql.qualified_resolver_name.gsub(".","/")}.java',
                               :additional_facets => [:jpa],
                               :guard => '!entity.abstract?')
+    template_set.erb_template(:struct,
+                              'struct_resolver.java.erb',
+                              'main/java/#{struct.graphql.qualified_struct_resolver_name.gsub(".","/")}.java',
+                              :additional_facets => [:ee])
   end
 end

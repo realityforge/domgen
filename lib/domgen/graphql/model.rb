@@ -174,6 +174,8 @@ module Domgen
     facet.enhance(Struct) do
       include Domgen::Java::BaseJavaGenerator
 
+      java_artifact :struct_resolver, :data_type, :server, :graphql, '#{struct.name}Resolver', :sub_package => 'internal'
+
       attr_writer :name
 
       def name
