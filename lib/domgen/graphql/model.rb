@@ -124,6 +124,7 @@ module Domgen
       end
 
       def pre_complete
+        self.schema_builder(self.schema_builder_name, self.qualified_schema_builder_name)
         if self.repository.keycloak?
           if self.graphiql?
             client =
