@@ -18,7 +18,7 @@ Domgen::Generator.define([:graphql],
   g.template_set(:graphql_schema) do |template_set|
     template_set.erb_template(:repository,
                               'graphql_schema.graphql.erb',
-                              'main/resources/#{repository.graphql.graphql_schema_name}.graphql')
+                              'main/resources/#{repository.graphql.graphql_schema_name}.graphqls')
   end
 
   g.template_set(:graphql_resolvers) do |template_set|
