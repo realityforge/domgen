@@ -21,7 +21,7 @@ public abstract class <%= repository.graphql.abstract_endpoint_name %>
 <% repository.graphql.schema_builders.each_pair do |name, classname| -%>
 
   @javax.annotation.Nullable
-  protected GraphQLSchemaBuilder new<%= name %>SchemaBuilder()
+  protected org.realityforge.graphql.domgen.GraphQLSchemaBuilder new<%= name %>SchemaBuilder()
   {
     return new <%= classname =~ /\(/ ? classname : "#{classname}()" %>;
   }
