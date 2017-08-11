@@ -98,6 +98,8 @@ module Domgen
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
+      java_artifact :resolver, :entity, :server, :graphql, '#{entity.name}Resolver', :sub_package => 'internal'
+
       attr_writer :name
 
       def name

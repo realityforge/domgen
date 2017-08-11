@@ -20,4 +20,12 @@ Domgen::Generator.define([:graphql],
                               'graphql_schema.graphql.erb',
                               'main/resources/#{repository.graphql.graphql_schema_name}.graphql')
   end
+
+  g.template_set(:graphql_resolvers) do |template_set|
+    template_set.erb_template(:entity,
+                              'resolver.java.erb',
+                              'main/java/#{entity.graphql.qualified_resolver_name.gsub(".","/")}.java',
+                              :additional_facets => [:jpa],
+                              :guard => '!entity.abstract?')
+  end
 end

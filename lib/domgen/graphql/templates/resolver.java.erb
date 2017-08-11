@@ -1,0 +1,14 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(entity.graphql.qualified_resolver_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public class <%= entity.graphql.resolver_name %>
+  implements com.coxautodev.graphql.tools.GraphQLResolver<<%= entity.jpa.qualified_name %>>
+{<% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| %>
+  public <%= attribute.jpa.java_type %> get<%= Reality::Naming.pascal_case(attribute.graphql.name) %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object )
+  {
+    return object.<%= getter_for(attribute) %>;
+  }
+<% end %>
+}

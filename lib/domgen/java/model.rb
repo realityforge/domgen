@@ -419,7 +419,7 @@ module Domgen
           scopes = scopes.is_a?(Array) ? scopes : [scopes]
           scopes.each do |scope|
             java_package :data_type, :scope => scope
-            java_package :entity, :scope => scope, :sub_packages => %w(dao dao.internal)
+            java_package :entity, :scope => scope, :sub_packages => %w(internal dao dao.internal)
             java_package :service, :scope => scope, :sub_packages => %w(internal)
             java_package :rest, :scope => scope, :sub_packages => %w(internal)
             java_package :filter, :scope => scope, :sub_packages => %w(internal)
@@ -524,7 +524,7 @@ module Domgen
             scopes = scopes.is_a?(Array) ? scopes : [scopes]
             scopes.each do |scope|
               java_package :data_type, :scope => scope, :sub_packages => ['internal']
-              java_package :entity, :scope => scope
+              java_package :entity, :scope => scope, :sub_packages => ['internal']
               java_package :event, :scope => scope
               java_package :service, :scope => scope, :sub_packages => ['internal']
               java_package :rest, :scope => scope, :sub_packages => ['internal']
