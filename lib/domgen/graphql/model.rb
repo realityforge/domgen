@@ -83,7 +83,7 @@ module Domgen
       attr_writer :graphiql_keycloak_client
 
       def graphiql_keycloak_client
-        @graphiql_keycloak_client || :graphql
+        @graphiql_keycloak_client || :graphiql
       end
 
       attr_writer :graphql_schema_name
