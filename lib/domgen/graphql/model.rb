@@ -50,6 +50,13 @@ module Domgen
 
       java_artifact :abstract_endpoint, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLEndpoint'
       java_artifact :abstract_schema_builder, :servlet, :server, :graphql, 'Abstract#{repository.name}SchemaBuilder'
+      java_artifact :schema_builder, :servlet, :server, :graphql, '#{repository.name}SchemaBuilder'
+
+      attr_writer :custom_schema_builder
+
+      def custom_schema_builder?
+        @custom_schema_builder.nil? ? false : !!@custom_schema_builder
+      end
 
       attr_writer :api_endpoint
 
