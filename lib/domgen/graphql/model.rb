@@ -137,7 +137,6 @@ module Domgen
         attribute.characteristic_type.graphql.scalar_type
       end
 
-
       def pre_complete
         if @scalar_type
           attribute.referenced_entity.data_module.repository.graphql.scalar(@scalar_type)
@@ -172,10 +171,35 @@ module Domgen
 
     facet.enhance(Struct) do
       include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :name
+
+      def name
+        @name || "#{struct.data_module.graphql.prefix}#{struct.name}"
+      end
     end
 
     facet.enhance(StructField) do
       include Domgen::Java::ImitJavaCharacteristic
+
+      def type
+        if field.struct?
+          return field.referenced_struct.graphql.name
+        elsif field.enumeration?
+          return field.enumeration.graphql.name
+        else
+          return scalar_type
+        end
+      end
+
+      attr_writer :scalar_type
+
+      def scalar_type
+        return @scalar_type if @scalar_type
+        Domgen.error("Invoked graphql.scalar_type on #{field.qualified_name} when field is a non_standard_type") if field.non_standard_type?
+        Domgen.error("Invoked graphql.scalar_type on #{field.qualified_name} when field has no characteristic_type") unless field.characteristic_type
+        field.characteristic_type.graphql.scalar_type
+      end
 
       protected
 

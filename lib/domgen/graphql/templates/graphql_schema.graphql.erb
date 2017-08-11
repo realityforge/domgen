@@ -10,10 +10,18 @@ enum <%= enumeration.graphql.name %> {
 <% data_module.entities.select{|entity| entity.graphql?}.each do |entity| -%>
 <%= entity.abstract? ? 'interface' : 'type' %> <%= entity.graphql.name %><%= entity.extends ? " implements #{entity.data_module.entity_by_name(entity.extends).graphql.name}" : '' %> {
 <% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
-  <%= attribute.graphql.name %>: <%= attribute.collection? ? '[' : '' %><%= attribute.graphql.type %><%= attribute.collection? ? '!]' : '' %><%= attribute.nullable? ? '' : '!' %>
+  <%= attribute.graphql.name %>: <%= attribute.graphql.type %><%= attribute.nullable? ? '' : '!' %>
 <% end -%>
 <% entity.referencing_attributes.select{|attribute| attribute.inverse.graphql? && attribute.inverse.graphql.traversable? }.each do |attribute| -%>
   <%= Reality::Naming.pluralize(attribute.inverse.graphql.name) %>: <%= attribute.inverse.multiplicity == :many ? '[' : '' %><%= attribute.inverse.attribute.entity.graphql.name %><%= attribute.inverse.multiplicity == :many ? '!]' : '' %><%= attribute.nullable? ? '' : '!' %>
+<% end -%>
+}
+
+<% end -%>
+<% data_module.structs.select{|struct| struct.graphql?}.each do |struct| -%>
+type <%= struct.graphql.name %> {
+<% struct.fields.select{|field| field.graphql?}.each do |field| -%>
+  <%= field.graphql.name %>: <%= field.collection? ? '[' : '' %><%= field.graphql.type %><%= field.collection? ? '!]' : '' %><%= field.nullable? ? '' : '!' %>
 <% end -%>
 }
 
