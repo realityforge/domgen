@@ -43,6 +43,41 @@ Domgen::TypeDB.enhance(:polygonm, 'graphql.scalar_type' => 'PolygonM')
 Domgen::TypeDB.enhance(:multipolygonm, 'graphql.scalar_type' => 'MultiPolygonM')
 
 module Domgen
+  module Graphql
+    module GraphqlCharacteristic
+      def type
+        Domgen.error("Invoked graphql.type on #{characteristic.qualified_name} when characteristic is a remote_reference") if characteristic.remote_reference?
+        if characteristic.reference?
+          return characteristic.referenced_entity.graphql.name
+        elsif characteristic.enumeration?
+          return characteristic.enumeration.graphql.name
+        else
+          return scalar_type
+        end
+      end
+
+      attr_writer :scalar_type
+
+      def scalar_type
+        return @scalar_type if @scalar_type
+        Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a non_standard_type") if characteristic.non_standard_type?
+        return 'ID' if characteristic.respond_to?(:primary_key?) && characteristic.primary_key?
+        Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a reference") if characteristic.reference?
+        Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a remote_reference") if characteristic.remote_reference?
+        Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic has no characteristic_type") unless characteristic.characteristic_type
+        characteristic.characteristic_type.graphql.scalar_type
+      end
+
+      def save_scalar_type
+        if @scalar_type
+          data_module.repository.graphql.scalar(@scalar_type)
+        elsif characteristic.characteristic_type
+          data_module.repository.graphql.scalar(characteristic.characteristic_type.graphql.scalar_type)
+        end
+      end
+    end
+  end
+
   FacetManager.facet(:graphql) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::JavaClientServerApplication
@@ -246,10 +281,46 @@ module Domgen
       end
 
       def post_verify
-        if query.parameters.size > 0
-          # TODO: Remove this temporary hack
-          query.disable_facet(:graphql)
-        end
+        # if query.parameters.size > 0
+        #   # TODO: Remove this temporary hack
+        #   query.disable_facet(:graphql)
+        # end
+      end
+    end
+
+    facet.enhance(QueryParameter) do
+      include Domgen::Graphql::GraphqlCharacteristic
+
+      attr_writer :name
+
+      def name
+        @name || (parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : Reality::Naming.camelize(parameter.name))
+      end
+
+      attr_writer :description
+
+      def description
+        @description || parameter.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
+      end
+
+      def pre_complete
+        save_scalar_type
+      end
+
+      protected
+
+      def data_module
+        parameter.query.dao.data_module
+      end
+
+      def characteristic
+        parameter
       end
     end
 
@@ -271,6 +342,7 @@ module Domgen
 
     facet.enhance(Attribute) do
       include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Graphql::GraphqlCharacteristic
 
       attr_writer :name
 
@@ -290,38 +362,15 @@ module Domgen
         !@deprecation_reason.nil?
       end
 
-      def type
-        Domgen.error("Invoked graphql.type on #{attribute.qualified_name} when attribute is a remote_reference") if attribute.remote_reference?
-        if attribute.reference?
-          return attribute.referenced_entity.graphql.name
-        elsif attribute.enumeration?
-          return attribute.enumeration.graphql.name
-        else
-          return scalar_type
-        end
-      end
-
-      attr_writer :scalar_type
-
-      def scalar_type
-        return @scalar_type if @scalar_type
-        Domgen.error("Invoked graphql.scalar_type on #{attribute.qualified_name} when attribute is a non_standard_type") if attribute.non_standard_type?
-        return 'ID' if attribute.primary_key?
-        Domgen.error("Invoked graphql.scalar_type on #{attribute.qualified_name} when attribute is a reference") if attribute.reference?
-        Domgen.error("Invoked graphql.scalar_type on #{attribute.qualified_name} when attribute is a remote_reference") if attribute.remote_reference?
-        Domgen.error("Invoked graphql.scalar_type on #{attribute.qualified_name} when attribute has no characteristic_type") unless attribute.characteristic_type
-        attribute.characteristic_type.graphql.scalar_type
-      end
-
       def pre_complete
-        if @scalar_type
-          attribute.referenced_entity.data_module.repository.graphql.scalar(@scalar_type)
-        elsif attribute.characteristic_type
-          attribute.entity.data_module.repository.graphql.scalar(attribute.characteristic_type.graphql.scalar_type)
-        end
+        save_scalar_type
       end
 
       protected
+
+      def data_module
+        attribute.entity.data_module
+      end
 
       def characteristic
         attribute
