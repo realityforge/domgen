@@ -18,10 +18,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   protected void registerScalarTypes()
   {
 <% repository.graphql.non_standard_scalars.each do |scalar| -%>
-    {
-      final graphql.schema.GraphQLScalarType scalar = defineScalar_<%= scalar %>();
-      registerScalarType( scalar );
-    }
+    registerScalarTypeUnlessNull( defineScalar_<%= scalar %>() );
 <% end -%>
     registerStandardScalarTypes();
   }
@@ -30,10 +27,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   {
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.enumerations.select{|enumeration| enumeration.graphql? }.each do |enumeration| -%>
-    {
-      final graphql.schema.GraphQLEnumType enumType = defineEnumType_<%= data_module.name %>_<%= enumeration.name %>();
-      registerEnumType( enumType );
-    }
+    registerEnumTypeUnlessNull( defineEnumType_<%= data_module.name %>_<%= enumeration.name %>() );
 <% end -%>
 <% end -%>
   }
@@ -43,15 +37,9 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.entities.select{|entity| entity.graphql? }.each do |entity| -%>
 <% if entity.abstract? -%>
-    {
-      final graphql.schema.GraphQLInterfaceType interfaceType = defineInterfaceType_<%= data_module.name %>_<%= entity.name %>();
-      registerInterfaceType( interfaceType );
-    }
+    registerInterfaceTypeUnlessNull( defineInterfaceType_<%= data_module.name %>_<%= entity.name %>() );
 <% else -%>
-    {
-      final graphql.schema.GraphQLObjectType objectType = defineObjectType_<%= data_module.name %>_<%= entity.name %>();
-      registerObjectType( objectType );
-    }
+    registerObjectTypeUnlessNull( defineObjectType_<%= data_module.name %>_<%= entity.name %>() );
 <% end -%>
 <% end -%>
 <% end -%>
@@ -174,7 +162,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   {
   }
 
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   protected graphql.schema.GraphQLInterfaceType defineInterfaceType_<%= data_module.name %>_<%= entity.name %>()
   {
     final graphql.schema.GraphQLInterfaceType.Builder interfaceType = graphql.schema.GraphQLInterfaceType.newInterface();
@@ -201,7 +189,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   {
   }
 
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   protected graphql.schema.GraphQLObjectType defineObjectType_<%= data_module.name %>_<%= entity.name %>()
   {
     final graphql.schema.GraphQLObjectType.Builder objectType = graphql.schema.GraphQLObjectType.newObject();
