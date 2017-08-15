@@ -566,6 +566,17 @@ module Domgen
 
     attr_accessor :standard_query
 
+    def name_prefix
+      return 'FindAll' if self.query_type == :select && self.multiplicity == :many
+      return 'Find' if self.query_type == :select && self.multiplicity == :zero_or_one
+      return 'Count' if self.query_type == :select && self.multiplicity == :one && self.result_type == :long
+      return 'Get' if self.query_type == :select && self.multiplicity == :one
+      return 'Update' if self.query_type == :update
+      return 'Delete' if self.query_type == :delete
+      return 'Insert' if self.query_type == :insert
+      raise "Query #{self.name} does not have known prefix"
+    end
+
     protected
 
     def local_name(base_name)
