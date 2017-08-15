@@ -612,6 +612,7 @@ module Domgen
         self.result_type = :long if @result_type.nil?
         return base_name
       elsif self.query_type == :select
+        raise "Query #{base_name} does not conform to expected pattern"
         if self.multiplicity == :many
           :"FindAllBy#{base_name}"
         elsif self.multiplicity == :zero_or_one
@@ -620,10 +621,13 @@ module Domgen
           :"GetBy#{base_name}"
         end
       elsif self.query_type == :update
+        raise "Query #{base_name} does not conform to expected pattern"
         :"Update#{base_name}"
       elsif self.query_type == :delete
+        raise "Query #{base_name} does not conform to expected pattern"
         :"Delete#{base_name}"
       elsif self.query_type == :insert
+        raise "Query #{base_name} does not conform to expected pattern"
         :"Insert#{base_name}"
       end
     end
