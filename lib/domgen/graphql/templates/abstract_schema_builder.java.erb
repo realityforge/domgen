@@ -6,6 +6,47 @@ package <%= to_package(repository.graphql.qualified_abstract_schema_builder_name
 public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   extends org.realityforge.graphql.domgen.AbstractGraphQLSchemaProvider
 {
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+  @javax.inject.Inject
+  private <%= dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(dao.qualified_name.gsub('.','')) %>;
+<% end -%>
+<% end -%>
+  @javax.annotation.Resource( lookup = "java:appserver/TransactionManager" )
+  private javax.transaction.TransactionManager _transactionManager;
+  @javax.annotation.Resource( lookup = "<%= repository.graphql.context_service_jndi_name %>" )
+  private javax.enterprise.concurrent.ContextService _contextService;
+<% if repository.imit? -%>
+  @javax.inject.Inject
+  private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
+  @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  private javax.persistence.EntityManager _entityManager;
+  @javax.annotation.Resource
+  private javax.transaction.TransactionSynchronizationRegistry _registry;
+
+  @javax.annotation.Nonnull
+  protected javax.transaction.TransactionSynchronizationRegistry getRegistry()
+  {
+    return _registry;
+  }
+
+  protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
+  {
+    return _endpoint;
+  }
+
+  protected javax.persistence.EntityManager getEntityManager()
+  {
+    return _entityManager;
+  }
+<% end -%>
+
+  @javax.annotation.Nonnull
+  protected javax.transaction.TransactionManager getTransactionManager()
+  {
+    return _transactionManager;
+  }
+
   @java.lang.Override
   protected void populateGraphQLSchema()
   {
@@ -43,6 +84,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
 <% end -%>
+    registerObjectType( defineQueryObjectType() );
   }
 
   protected void resolveInterfaceTypeResolvers()
@@ -215,4 +257,92 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
 <% end -%>
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.DataFetcher wrapTopLevelDataFetcher( @javax.annotation.Nonnull final String key, final boolean wrapInTransaction, @javax.annotation.Nonnull final graphql.schema.DataFetcher base )
+  {
+    graphql.schema.DataFetcher fetcher = base;
+    if ( wrapInTransaction )
+    {
+<% if repository.imit? -%>
+      fetcher = new org.realityforge.graphql.domgen.ReplicantEnabledDataFetcher( getEndpoint(), getEntityManager(), getRegistry(), key, fetcher );
+<% end -%>
+      fetcher = new org.realityforge.graphql.domgen.TransactionEnabledDataFetcher( getTransactionManager(), fetcher );
+    }
+    return _contextService.createContextualProxy( fetcher, graphql.schema.DataFetcher.class );
+  }
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+<% dao.queries.select{|query| query.graphql? && query.query_type == :select }.each do |query| -%>
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.DataFetcher defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>()
+  {
+    return wrapTopLevelDataFetcher( "<%= query.graphql.name %>", <%= :requires_new != dao.jpa.transaction_type -%>, e -> _<%= Reality::Naming.camelize(dao.qualified_name.gsub('.','')) %>.<%= Reality::Naming.camelize(query.name) %>() );
+  }
+
+  protected void customizeQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
+  {
+  }
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLFieldDefinition defineQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>()
+  {
+    final graphql.schema.GraphQLFieldDefinition.Builder query = graphql.schema.GraphQLFieldDefinition.newFieldDefinition();
+    query.name( "<%= query.graphql.name %>" );
+<% if has_description?(query) -%>
+    query.description( "<%= description_to_string(query) %>" );
+<% end -%>
+<% if query.graphql.deprecation_reason -%>
+    query.deprecate( "<%= query.graphql.deprecation_reason -%>" );
+<% end -%>
+<%
+  accessor =
+    if query.result_entity? && query.entity.abstract?
+      "interfaceType( \"#{query.entity.graphql.name}\" )"
+    elsif query.result_entity?
+      "objectType( \"#{query.entity.graphql.name}\" )"
+     elsif query.result_struct?
+      "objectType( \"#{query.struct.graphql.name}\" )"
+     else
+       raise "Unhandled result type"
+     end
+-%>
+    query.type( <%= query.multiplicity == :one ? "new graphql.schema.GraphQLNonNull( " : query.multiplicity == :many ? "new graphql.schema.GraphQLList( new graphql.schema.GraphQLNonNull( " : '' -%><%= accessor %><%= query.multiplicity == :one ? ' )' : query.multiplicity == :many ? " ) )" : '' -%> );
+    query.dataFetcher( defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>() );
+    customizeQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>( query );
+    return query.build();
+  }
+<% end -%>
+<% end -%>
+<% end -%>
+
+  protected void customizeQueryObjectType( @javax.annotation.Nonnull final graphql.schema.GraphQLObjectType.Builder objectType )
+  {
+  }
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.GraphQLObjectType defineQueryObjectType()
+  {
+    final graphql.schema.GraphQLObjectType.Builder objectType = graphql.schema.GraphQLObjectType.newObject();
+    objectType.name( com.coxautodev.graphql.tools.RootTypeInfo.DEFAULT_QUERY_NAME );
+<% if repository.graphql.query_description.to_s.strip != '' -%>
+    objectType.description( "<%= escape_description_to_string(repository.graphql.query_description) %>" );
+<% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+<% dao.queries.select{|query| query.graphql? && query.query_type == :select }.each do |query| -%>
+    {
+      final graphql.schema.GraphQLFieldDefinition field = defineQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>();
+      if( null != field )
+      {
+        objectType.field( field );
+      }
+    }
+<% end -%>
+<% end -%>
+<% end -%>
+    customizeQueryObjectType( objectType );
+    return objectType.build();
+  }
 }

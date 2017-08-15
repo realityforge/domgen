@@ -54,6 +54,8 @@ module Domgen
       java_artifact :abstract_schema_builder, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLSchemaProvider'
       java_artifact :schema_builder, :servlet, :server, :graphql, '#{repository.name}GraphQLSchemaProvider'
 
+      attr_accessor :query_description
+
       attr_writer :graphqls_schema_url
 
       def graphqls_schema_url
@@ -112,6 +114,12 @@ module Domgen
 
       def graphql_schema_name
         @graphql_schema_name || repository.name
+      end
+
+      attr_writer :context_service_jndi_name
+
+      def context_service_jndi_name
+        @context_service_jndi_name || "#{Reality::Naming.camelize(repository.name)}/concurrent/GraphQLContextService"
       end
 
       def scalars
@@ -192,6 +200,52 @@ module Domgen
 
       def deprecated?
         !@deprecation_reason.nil?
+      end
+    end
+
+    facet.enhance(Query) do
+      include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :name
+
+      def name
+        return @name unless @name.nil?
+        type_inset = query.result_entity? ? query.entity.graphql.name : query.struct.graphql.name
+        type_inset = Reality::Naming.pluralize(type_inset) if query.multiplicity == :many
+        @name || Reality::Naming.camelize("#{query.name_prefix}#{type_inset}#{query.base_name}")
+      end
+
+      attr_writer :description
+
+      def description
+        @description || query.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
+      end
+
+      def pre_complete
+        if !query.result_entity? && !query.result_struct?
+          # For the time being only queries that return entities or structs are valid
+          query.disable_facet(:graphql)
+        elsif !query.jpa?
+          # queries that have no jpa counterpart can not be automatically loaded so ignore them
+          query.disable_facet(:graphql)
+        elsif query.query_type != :select && query.dao.jpa? && :requires_new == query.dao.jpa.transaction_type && query.dao.data_module.repository.imit?
+          # If we have replicant enabled for project and we have requires_new transaction that modifies data then
+          # the current infrastructure will not route it through replicant so we just disable this capability
+          query.disable_facet(:graphql)
+        end
+      end
+
+      def post_verify
+        if query.parameters.size > 0
+          # TODO: Remove this temporary hack
+          query.disable_facet(:graphql)
+        end
       end
     end
 
