@@ -277,6 +277,10 @@ module Domgen
           # If we have replicant enabled for project and we have requires_new transaction that modifies data then
           # the current infrastructure will not route it through replicant so we just disable this capability
           query.disable_facet(:graphql)
+        elsif query.query_type != :select
+          # For now disable all non select querys on DAOs.
+          # Eventually we may get around to creating a way to automatically returning values to clients
+          # but this will need to wait until it is needed.
         end
       end
 
