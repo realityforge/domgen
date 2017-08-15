@@ -56,6 +56,10 @@ module Domgen
 
       attr_accessor :query_description
 
+      attr_accessor :mutation_description
+
+      attr_accessor :subscription_description
+
       attr_writer :graphqls_schema_url
 
       def graphqls_schema_url
