@@ -283,13 +283,6 @@ module Domgen
           # but this will need to wait until it is needed.
         end
       end
-
-      def post_verify
-        # if query.parameters.size > 0
-        #   # TODO: Remove this temporary hack
-        #   query.disable_facet(:graphql)
-        # end
-      end
     end
 
     facet.enhance(QueryParameter) do
