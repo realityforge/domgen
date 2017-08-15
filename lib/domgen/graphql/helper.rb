@@ -20,7 +20,11 @@ module Domgen
       end
 
       def description_to_string(input)
-        j_escape_string(input.graphql.description.to_s.strip).gsub("\n", "\\n\" + \"")
+        escape_description_to_string(input.graphql.description)
+      end
+
+      def escape_description_to_string(description)
+        j_escape_string(description.to_s.strip).gsub("\n", "\\n\" + \"")
       end
     end
   end
