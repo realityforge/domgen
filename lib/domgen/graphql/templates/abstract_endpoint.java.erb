@@ -10,28 +10,4 @@ public abstract class <%= repository.graphql.abstract_endpoint_name %>
 <% if repository.graphql.graphiql? -%>
   public static final String INTERACTIVE_API_ENDPOINT = "<%= repository.graphql.graphiql_api_endpoint %>";
 <% end -%>
-
-  @java.lang.Override
-  protected void preSchemaBuild()
-  {
-    addSchemaBuilder( this::addStandardScalars );
-<% repository.graphql.schema_builders.keys.each do |name| -%>
-    addSchemaBuilder( new<%= name %>SchemaBuilder() );
-<% end -%>
-  }
-<% repository.graphql.schema_builders.each_pair do |name, classname| -%>
-
-  @javax.annotation.Nullable
-  protected org.realityforge.graphql.domgen.GraphQLSchemaBuilder new<%= name %>SchemaBuilder()
-  {
-    return new <%= classname =~ /\(/ ? classname : "#{classname}()" %>;
-  }
-<% end -%>
-
-  protected void addStandardScalars( @javax.annotation.Nonnull final com.coxautodev.graphql.tools.SchemaParserBuilder b )
-  {
-<% repository.graphql.non_standard_scalars.each do |scalar| -%>
-    b.scalars( org.realityforge.graphql.domgen.Scalars.<%= Reality::Naming.uppercase_constantize(scalar) %> );
-<% end -%>
-  }
 }

@@ -14,7 +14,7 @@
 
 Domgen::Generator.define([:graphql],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::Java::Helper]) do |g|
+                         [Domgen::Java::Helper, Domgen::Graphql::Helper]) do |g|
   g.template_set(:graphql_schema) do |template_set|
     template_set.erb_template(:repository,
                               'graphql_schema.graphql.erb',
@@ -22,11 +22,6 @@ Domgen::Generator.define([:graphql],
   end
 
   g.template_set(:graphql_resolvers) do |template_set|
-    template_set.erb_template(:entity,
-                              'resolver.java.erb',
-                              'main/java/#{entity.graphql.qualified_resolver_name.gsub(".","/")}.java',
-                              :additional_facets => [:jpa],
-                              :guard => '!entity.abstract?')
     template_set.erb_template(:struct,
                               'struct_resolver.java.erb',
                               'main/java/#{struct.graphql.qualified_struct_resolver_name.gsub(".","/")}.java',
@@ -44,8 +39,18 @@ Domgen::Generator.define([:graphql],
                               :additional_facets => [:ee],
                               :guard => '!repository.graphql.custom_schema_builder?')
     template_set.erb_template(:repository,
+                              'graphqls_servlet.java.erb',
+                              'main/java/#{repository.graphql.qualified_graphqls_servlet_name.gsub(".","/")}.java',
+                              :additional_facets => [:ee],
+                              :guard => 'repository.graphql.graphiql?')
+    template_set.erb_template(:repository,
                               'abstract_endpoint.java.erb',
                               'main/java/#{repository.graphql.qualified_abstract_endpoint_name.gsub(".","/")}.java',
                               :additional_facets => [:ee])
+    template_set.erb_template(:repository,
+                              'endpoint.java.erb',
+                              'main/java/#{repository.graphql.qualified_endpoint_name.gsub(".","/")}.java',
+                              :additional_facets => [:ee],
+                              :guard => '!repository.graphql.custom_endpoint?')
   end
 end

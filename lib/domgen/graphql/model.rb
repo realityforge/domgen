@@ -48,9 +48,23 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
       include Domgen::Java::BaseJavaGenerator
 
+      java_artifact :endpoint, :servlet, :server, :graphql, '#{repository.name}GraphQLEndpoint'
+      java_artifact :graphqls_servlet, :servlet, :server, :graphql, '#{repository.name}GraphQLSchemaServlet'
       java_artifact :abstract_endpoint, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLEndpoint'
-      java_artifact :abstract_schema_builder, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLSchemaBuilder'
-      java_artifact :schema_builder, :servlet, :server, :graphql, '#{repository.name}GraphQLSchemaBuilder'
+      java_artifact :abstract_schema_builder, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLSchemaProvider'
+      java_artifact :schema_builder, :servlet, :server, :graphql, '#{repository.name}GraphQLSchemaProvider'
+
+      attr_writer :graphqls_schema_url
+
+      def graphqls_schema_url
+        @graphqls_schema_url || "/graphiql/#{Reality::Naming.underscore(repository.name)}.graphqls"
+      end
+
+      attr_writer :custom_endpoint
+
+      def custom_endpoint?
+        @custom_endpoint.nil? ? false : !!@custom_endpoint
+      end
 
       attr_writer :custom_schema_builder
 
@@ -111,20 +125,10 @@ module Domgen
       end
 
       def non_standard_scalars
-        self.scalars.select {|s| !%w(Int Float Boolean String ID).include?(s)}
-      end
-
-      def schema_builders
-        schema_builder_map.dup
-      end
-
-      def schema_builder(name, classname)
-        Domgen.error("Attempting add duplicate schema builder named '#{name}' of type '#{classname}' where existing type is '#{schema_builder_map[name.to_s]}'") if schema_builder_map[name.to_s]
-        schema_builder_map[name.to_s] = classname
+        self.scalars.select {|s| !%w(Byte Short Int Long BigInteger Float BigDecimal String Boolean ID Char).include?(s)}
       end
 
       def pre_complete
-        self.schema_builder(self.schema_builder_name, self.qualified_schema_builder_name)
         if self.repository.keycloak?
           if self.graphiql?
             client =
@@ -145,12 +149,6 @@ module Domgen
           client.protected_url_patterns << "#{api_endpoint}/*"
         end
       end
-
-      protected
-
-      def schema_builder_map
-        @schema_builders ||= {}
-      end
     end
 
     facet.enhance(DataModule) do
@@ -169,6 +167,12 @@ module Domgen
       def name
         @name || "#{enumeration.data_module.graphql.prefix}#{enumeration.name}"
       end
+
+      attr_writer :description
+
+      def description
+        @description || enumeration.description
+      end
     end
 
     facet.enhance(EnumerationValue) do
@@ -177,17 +181,33 @@ module Domgen
       def name
         @name || "#{value.enumeration.data_module.graphql.prefix}#{value.name}"
       end
+
+      attr_writer :description
+
+      def description
+        @description || value.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
+      end
     end
 
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :resolver, :entity, :server, :graphql, '#{entity.name}GraphQLResolver', :sub_package => 'internal'
-
       attr_writer :name
 
       def name
         @name || "#{entity.data_module.graphql.prefix}#{entity.name}"
+      end
+
+      attr_writer :description
+
+      def description
+        @description || entity.description
       end
     end
 
@@ -198,6 +218,18 @@ module Domgen
 
       def name
         @name || (attribute.name.to_s.upcase == attribute.name.to_s ? attribute.name.to_s : Reality::Naming.camelize(attribute.name))
+      end
+
+      attr_writer :description
+
+      def description
+        @description || attribute.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
       end
 
       def type

@@ -431,6 +431,17 @@ module Domgen
       @final.nil? ? !abstract? : @final
     end
 
+    def supertypes
+      type = self
+      supertypes = []
+      while type && type.extends
+        type = self.data_module.send("#{container_kind}_by_name", type.extends)
+        supertypes << type
+      end
+      supertypes
+    end
+
+
     def subtypes
       if subtypes_obsolete? || @subtypes.nil?
         @subtypes = []
