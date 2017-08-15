@@ -149,12 +149,6 @@ module Domgen
         @graphiql_keycloak_client || :graphiql
       end
 
-      attr_writer :graphql_schema_name
-
-      def graphql_schema_name
-        @graphql_schema_name || repository.name
-      end
-
       attr_writer :context_service_jndi_name
 
       def context_service_jndi_name

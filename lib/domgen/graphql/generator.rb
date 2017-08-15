@@ -15,19 +15,6 @@
 Domgen::Generator.define([:graphql],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper, Domgen::Graphql::Helper]) do |g|
-  g.template_set(:graphql_schema) do |template_set|
-    template_set.erb_template(:repository,
-                              'graphql_schema.graphql.erb',
-                              'main/resources/#{repository.graphql.graphql_schema_name}.graphqls')
-  end
-
-  g.template_set(:graphql_resolvers) do |template_set|
-    template_set.erb_template(:struct,
-                              'struct_resolver.java.erb',
-                              'main/java/#{struct.graphql.qualified_struct_resolver_name.gsub(".","/")}.java',
-                              :additional_facets => [:ee])
-  end
-
   g.template_set(:graphql_endpoint) do |template_set|
     template_set.erb_template(:repository,
                               'abstract_schema_builder.java.erb',
