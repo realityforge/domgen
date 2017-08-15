@@ -435,6 +435,7 @@ module Domgen
     include Domgen::CharacteristicContainer
 
     attr_reader :name
+    attr_reader :base_name
 
     def initialize(dao, base_name, options = {}, &block)
       super(dao, options) do
@@ -584,32 +585,40 @@ module Domgen
       if base_name =~ /^[fF]indAll$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :many if @multiplicity.nil?
+        @base_name = ''
         return base_name
       elsif base_name =~ /^[fF]indAll.+$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :many if @multiplicity.nil?
+        @base_name = base_name.gsub(/^[fF]indAll/,'')
         return base_name
       elsif base_name =~ /^[fF]ind.+$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :zero_or_one if @multiplicity.nil?
+        @base_name = base_name.gsub(/^[fF]ind/,'')
         return base_name
       elsif base_name =~ /^[gG]et.+$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :one if @multiplicity.nil?
+        @base_name = base_name.gsub(/^[gG]et/,'')
         return base_name
       elsif base_name =~ /^[uU]pdate.+$/
         self.query_type = :update if @query_type.nil?
+        @base_name = base_name.gsub(/^[uU]pdate/,'')
         return base_name
       elsif base_name =~ /^[dD]elete.+$/
         self.query_type = :delete if @query_type.nil?
+        @base_name = base_name.gsub(/^[dD]elete/,'')
         return base_name
       elsif base_name =~ /^[iI]nsert.+$/
         self.query_type = :insert if @query_type.nil?
+        @base_name = base_name.gsub(/^[iI]nsert/,'')
         return base_name
       elsif base_name =~ /^[cC]ount.*$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :one if @multiplicity.nil?
         self.result_type = :long if @result_type.nil?
+        @base_name = base_name.gsub(/^[cC]ount/,'')
         return base_name
       elsif self.query_type == :select
         raise "Query #{base_name} does not conform to expected pattern"
