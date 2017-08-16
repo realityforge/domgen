@@ -602,6 +602,13 @@ end.join(", ") %>) );
 <% if repository.graphql.mutation_description.to_s.strip != '' -%>
     objectType.description( "<%= escape_description_to_string(repository.graphql.mutation_description) %>" );
 <% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.services.select{|service| service.graphql? }.each do |service| -%>
+<% service.methods.select{|method| method.graphql? && method.graphql.mutation? }.each do |method| -%>
+    addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= service.name %>_<%= method.name %>() );
+<% end -%>
+<% end -%>
+<% end -%>
     customizeMutationObjectType( objectType );
     final graphql.schema.GraphQLObjectType mutation = objectType.build();
     if( mutation.getFieldDefinitions().isEmpty() )
