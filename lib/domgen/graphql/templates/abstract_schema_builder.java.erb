@@ -102,6 +102,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
     registerObjectType( defineQueryObjectType() );
+    registerObjectTypeUnlessNull( defineMutationObjectType() );
   }
 
   protected void resolveInterfaceTypeResolvers()
@@ -523,5 +524,29 @@ end.join(", ") %>) );
 <% end -%>
     customizeQueryObjectType( objectType );
     return objectType.build();
+  }
+
+  protected void customizeMutationObjectType( @javax.annotation.Nonnull final graphql.schema.GraphQLObjectType.Builder objectType )
+  {
+  }
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.GraphQLObjectType defineMutationObjectType()
+  {
+    final graphql.schema.GraphQLObjectType.Builder objectType = graphql.schema.GraphQLObjectType.newObject();
+    objectType.name( com.coxautodev.graphql.tools.RootTypeInfo.DEFAULT_MUTATION_NAME );
+<% if repository.graphql.mutation_description.to_s.strip != '' -%>
+    objectType.description( "<%= escape_description_to_string(repository.graphql.mutation_description) %>" );
+<% end -%>
+    customizeMutationObjectType( objectType );
+    final graphql.schema.GraphQLObjectType mutation = objectType.build();
+    if( mutation.getFieldDefinitions().isEmpty() )
+    {
+      return null;
+    }
+    else
+    {
+      return mutation;
+    }
   }
 }
