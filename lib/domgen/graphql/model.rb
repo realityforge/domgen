@@ -275,6 +275,7 @@ module Domgen
           # For now disable all non select querys on DAOs.
           # Eventually we may get around to creating a way to automatically returning values to clients
           # but this will need to wait until it is needed.
+          query.disable_facet(:graphql)
         end
       end
     end
