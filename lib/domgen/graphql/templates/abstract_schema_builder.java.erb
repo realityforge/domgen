@@ -54,6 +54,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   {
     registerScalarTypes();
     registerEnumTypes();
+    registerInputObjectTypes();
     registerObjectTypes();
     resolveInterfaceTypeResolvers();
   }
@@ -71,6 +72,15 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.enumerations.select{|enumeration| enumeration.graphql? }.each do |enumeration| -%>
     registerEnumTypeUnlessNull( defineEnumType_<%= data_module.name %>_<%= enumeration.name %>() );
+<% end -%>
+<% end -%>
+  }
+
+  protected void registerInputObjectTypes()
+  {
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.structs.select{|struct| struct.graphql? && struct.graphql.input? }.each do |struct| -%>
+    registerInputObjectTypeUnlessNull( defineInputObjectType_<%= data_module.name %>_<%= struct.name %>() );
 <% end -%>
 <% end -%>
   }
@@ -325,6 +335,64 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     }
 <% end -%>
     customizeObjectType_<%= data_module.name %>_<%= struct.name %>( objectType );
+    return objectType.build();
+  }
+<% end -%>
+<% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.structs.select{|struct| struct.graphql? && struct.graphql.input? }.each do |struct| -%>
+<% struct.fields.select{|field| field.graphql?}.each do |field| -%>
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLInputObjectField defineInputObjectField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>()
+  {
+    final graphql.schema.GraphQLInputObjectField.Builder field = graphql.schema.GraphQLInputObjectField.newInputObjectField();
+    field.name( "<%= field.graphql.name %>" );
+<% if has_description?(field) -%>
+    field.description( "<%= description_to_string(field) %>" );
+<% end -%>
+<% if field.graphql.deprecation_reason -%>
+    field.deprecate( "<%= field.graphql.deprecation_reason -%>" );
+<% end -%>
+<%
+  accessor =
+    if field.struct? && field.referenced_struct.qualified_name.to_s == field.struct.qualified_name.to_s
+      "new graphql.schema.GraphQLTypeReference( \"#{field.referenced_struct.graphql.name}\" )"
+    elsif field.struct?
+      "inputType( \"#{field.referenced_struct.graphql.name}\" )"
+    elsif field.enumeration?
+      "enumType( \"#{field.enumeration.graphql.name}\" )"
+    else
+      "scalarType( \"#{field.graphql.scalar_type}\" )"
+    end
+-%>
+    field.type( <% unless field.nullable? -%>new graphql.schema.GraphQLNonNull( <% end -%><% if field.collection? -%>new graphql.schema.GraphQLList( new graphql.schema.GraphQLNonNull( <% end -%><%= accessor %><% if field.collection? -%> ) )<% end %><% unless field.nullable? -%> )<% end -%> );
+    return field.build();
+  }
+<% end -%>
+
+  protected void customizeInputObjectType_<%= data_module.name %>_<%= struct.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLInputObjectType.Builder objectType )
+  {
+  }
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLInputObjectType defineInputObjectType_<%= data_module.name %>_<%= struct.name %>()
+  {
+    final graphql.schema.GraphQLInputObjectType.Builder objectType = graphql.schema.GraphQLInputObjectType.newInputObject();
+    objectType.name( "<%= struct.graphql.name %>" );
+<% if has_description?(struct) -%>
+    objectType.description( "<%= description_to_string(struct) %>" );
+<% end -%>
+<% struct.fields.select{|field| field.graphql?}.each do |field| -%>
+    {
+      final graphql.schema.GraphQLInputObjectField field = defineInputObjectField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>();
+      if( null != field )
+      {
+        objectType.field( field );
+      }
+    }
+<% end -%>
+    customizeInputObjectType_<%= data_module.name %>_<%= struct.name %>( objectType );
     return objectType.build();
   }
 <% end -%>
