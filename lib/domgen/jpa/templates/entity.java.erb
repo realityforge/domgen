@@ -121,7 +121,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
     return _loaded;
   }
 
-  protected final boolean removed()
+  public final boolean removed()
   {
     return _removed;
   }
