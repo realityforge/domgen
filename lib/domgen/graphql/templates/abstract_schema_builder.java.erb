@@ -86,6 +86,11 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
 <% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.structs.select{|struct| struct.graphql? && struct.graphql.output? }.each do |struct| -%>
+    registerObjectTypeUnlessNull( defineObjectType_<%= data_module.name %>_<%= struct.name %>() );
+<% end -%>
+<% end -%>
     registerObjectType( defineQueryObjectType() );
   }
 
@@ -257,6 +262,71 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     return objectType.build();
   }
 <% end -%>
+<% end -%>
+<% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.structs.select{|struct| struct.graphql? && struct.graphql.output? }.each do |struct| -%>
+<% struct.fields.select{|field| field.graphql?}.each do |field| -%>
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.DataFetcher defineDataFetcher_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>()
+  {
+    return e -> e.<<%= struct.ee.qualified_name %>>getSource().<%= getter_for(field) %>;
+  }
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLFieldDefinition defineField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>()
+  {
+    final graphql.schema.GraphQLFieldDefinition.Builder field = graphql.schema.GraphQLFieldDefinition.newFieldDefinition();
+    field.name( "<%= field.graphql.name %>" );
+<% if has_description?(field) -%>
+    field.description( "<%= description_to_string(field) %>" );
+<% end -%>
+<% if field.graphql.deprecation_reason -%>
+    field.deprecate( "<%= field.graphql.deprecation_reason -%>" );
+<% end -%>
+<%
+  accessor =
+    if field.struct? && field.referenced_struct.qualified_name.to_s == field.struct.qualified_name.to_s
+      "new graphql.schema.GraphQLTypeReference( \"#{field.referenced_struct.graphql.name}\" )"
+    elsif field.struct?
+      "objectType( \"#{field.referenced_struct.graphql.name}\" )"
+    elsif field.enumeration?
+      "enumType( \"#{field.enumeration.graphql.name}\" )"
+    else
+      "scalarType( \"#{field.graphql.scalar_type}\" )"
+    end
+-%>
+    field.type( <% unless field.nullable? -%>new graphql.schema.GraphQLNonNull( <% end -%><% if field.collection? -%>new graphql.schema.GraphQLList( new graphql.schema.GraphQLNonNull( <% end -%><%= accessor %><% if field.collection? -%> ) )<% end %><% unless field.nullable? -%> )<% end -%> );
+    field.dataFetcher( defineDataFetcher_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>() );
+    return field.build();
+  }
+<% end -%>
+
+  protected void customizeObjectType_<%= data_module.name %>_<%= struct.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLObjectType.Builder objectType )
+  {
+  }
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLObjectType defineObjectType_<%= data_module.name %>_<%= struct.name %>()
+  {
+    final graphql.schema.GraphQLObjectType.Builder objectType = graphql.schema.GraphQLObjectType.newObject();
+    objectType.name( "<%= struct.graphql.name %>" );
+<% if has_description?(struct) -%>
+    objectType.description( "<%= description_to_string(struct) %>" );
+<% end -%>
+<% struct.fields.select{|field| field.graphql?}.each do |field| -%>
+    {
+      final graphql.schema.GraphQLFieldDefinition field = defineField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>();
+      if( null != field )
+      {
+        objectType.field( field );
+      }
+    }
+<% end -%>
+    customizeObjectType_<%= data_module.name %>_<%= struct.name %>( objectType );
+    return objectType.build();
+  }
 <% end -%>
 <% end -%>
 

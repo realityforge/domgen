@@ -278,6 +278,12 @@ module Domgen
           query.disable_facet(:graphql)
         end
       end
+
+      def post_complete
+        if query.result_struct?
+          query.struct.graphql.mark_as_output!
+        end
+      end
     end
 
     facet.enhance(QueryParameter) do
@@ -386,41 +392,119 @@ module Domgen
       end
     end
 
+    facet.enhance(Service) do
+      attr_writer :prefix
+
+      def prefix
+        @prefix || "#{service.data_module.graphql.prefix}#{service.name}"
+      end
+    end
+
+    facet.enhance(Method) do
+      attr_writer :name
+
+      def name
+        return @name unless @name.nil?
+        prefix = method.service.graphql.prefix
+        method_name = Reality::Naming.camelize(method.name)
+        prefix.to_s != '' ? "#{prefix}_#{method_name}" : method_name
+      end
+
+      def return_characteristic
+        @return_characteristic || self.method.return_value
+      end
+
+      def post_complete
+        if :void == self.return_characteristic.characteristic_type_key || self.return_characteristic.non_standard_type?
+          self.method.disable_facet(:graphql)
+          return
+        end
+        self.method.parameters.select {|parameter| parameter.struct?}.each do |parameter|
+          parameter.referenced_struct.graphql.mark_as_input!
+        end
+        self.return_characteristic.referenced_struct.graphql.mark_as_output! if self.return_characteristic.struct?
+      end
+    end
+
     facet.enhance(Struct) do
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :struct_resolver, :data_type, :server, :graphql, '#{struct.name}Resolver', :sub_package => 'internal'
-
       attr_writer :name
 
       def name
         @name || "#{struct.data_module.graphql.prefix}#{struct.name}"
       end
+
+      attr_writer :description
+
+      def description
+        @description || struct.description
+      end
+
+      attr_writer :input_name
+
+      def input_name
+        @input_name || "#{struct.data_module.graphql.prefix}#{struct.name}Input"
+      end
+
+      # Does this struct participate as a graphql "input"
+      def input?
+        !!@input
+      end
+
+      # Does this struct participate as a graphql "output"
+      def output?
+        !!@output
+      end
+
+      def mark_as_output!
+        @output = true
+        self.struct.fields.select {|field| field.struct?}.each do |field|
+          field.referenced_struct.graphql.mark_as_output!
+        end
+      end
+
+      def mark_as_input!
+        @input = true
+        self.struct.fields.select {|field| field.struct?}.each do |field|
+          field.referenced_struct.graphql.mark_as_input!
+        end
+      end
+
+      def post_verify
+        disable_facet(:graphql) unless input? || output?
+      end
     end
 
     facet.enhance(StructField) do
       include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Graphql::GraphqlCharacteristic
 
-      def type
-        if field.struct?
-          return field.referenced_struct.graphql.name
-        elsif field.enumeration?
-          return field.enumeration.graphql.name
-        else
-          return scalar_type
-        end
+      attr_writer :name
+
+      def name
+        @name || (field.name.to_s.upcase == field.name.to_s ? field.name.to_s : Reality::Naming.camelize(field.name))
       end
 
-      attr_writer :scalar_type
+      attr_writer :description
 
-      def scalar_type
-        return @scalar_type if @scalar_type
-        Domgen.error("Invoked graphql.scalar_type on #{field.qualified_name} when field is a non_standard_type") if field.non_standard_type?
-        Domgen.error("Invoked graphql.scalar_type on #{field.qualified_name} when field has no characteristic_type") unless field.characteristic_type
-        field.characteristic_type.graphql.scalar_type
+      def description
+        @description || field.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
+      end
+
+      def pre_complete
+        save_scalar_type
       end
 
       protected
+
+      def data_module
+        field.struct.data_module
+      end
 
       def characteristic
         field
