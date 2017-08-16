@@ -80,7 +80,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   {
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.structs.select{|struct| struct.graphql? && struct.graphql.input? }.each do |struct| -%>
-    registerInputObjectTypeUnlessNull( defineInputObjectType_<%= data_module.name %>_<%= struct.name %>() );
+    registerInputTypeUnlessNull( defineInputObjectType_<%= data_module.name %>_<%= struct.name %>() );
 <% end -%>
 <% end -%>
   }
