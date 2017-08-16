@@ -401,6 +401,13 @@ module Domgen
     end
 
     facet.enhance(Method) do
+
+      attr_writer :mutation
+
+      def mutation?
+        @mutation.nil? ? true : !!@mutation
+      end
+
       attr_writer :name
 
       def name
@@ -408,6 +415,18 @@ module Domgen
         prefix = method.service.graphql.prefix
         method_name = Reality::Naming.camelize(method.name)
         prefix.to_s != '' ? "#{prefix}_#{method_name}" : method_name
+      end
+
+      attr_writer :description
+
+      def description
+        @description || method.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
       end
 
       def return_characteristic
@@ -423,6 +442,61 @@ module Domgen
           parameter.referenced_struct.graphql.mark_as_input!
         end
         self.return_characteristic.referenced_struct.graphql.mark_as_output! if self.return_characteristic.struct?
+      end
+    end
+
+    facet.enhance(Parameter) do
+      include Domgen::Graphql::GraphqlCharacteristic
+
+      attr_writer :name
+
+      def name
+        @name || (parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : Reality::Naming.camelize(parameter.name))
+      end
+
+      attr_writer :description
+
+      def description
+        @description || parameter.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
+      end
+
+      def pre_complete
+        save_scalar_type
+      end
+
+      protected
+
+      def data_module
+        parameter.method.service.data_module
+      end
+
+      def characteristic
+        parameter
+      end
+    end
+
+    facet.enhance(Result) do
+      include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Graphql::GraphqlCharacteristic
+
+      def pre_complete
+        save_scalar_type
+      end
+
+      protected
+
+      def data_module
+        result.method.service.data_module
+      end
+
+      def characteristic
+        result
       end
     end
 

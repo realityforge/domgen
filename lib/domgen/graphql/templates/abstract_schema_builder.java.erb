@@ -231,13 +231,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     interfaceType.description( "<%= description_to_string(entity) %>" );
 <% end -%>
 <% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
-    {
-      final graphql.schema.GraphQLFieldDefinition field = defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>();
-      if( null != field )
-      {
-        interfaceType.field( field );
-      }
-    }
+    addFieldUnlessNull( interfaceType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>() );
 <% end -%>
     interfaceType.typeResolver( new graphql.schema.TypeResolverProxy() );
     customizeInterfaceType_<%= data_module.name %>_<%= entity.name %>( interfaceType );
@@ -261,13 +255,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     objectType.description( "<%= description_to_string(entity) %>" );
 <% end -%>
 <% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
-    {
-      final graphql.schema.GraphQLFieldDefinition field = defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>();
-      if( null != field )
-      {
-        objectType.field( field );
-      }
-    }
+    addFieldUnlessNull( objectType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>() );
 <% end -%>
     customizeObjectType_<%= data_module.name %>_<%= entity.name %>( objectType );
     return objectType.build();
@@ -327,13 +315,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     objectType.description( "<%= description_to_string(struct) %>" );
 <% end -%>
 <% struct.fields.select{|field| field.graphql?}.each do |field| -%>
-    {
-      final graphql.schema.GraphQLFieldDefinition field = defineField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>();
-      if( null != field )
-      {
-        objectType.field( field );
-      }
-    }
+    addFieldUnlessNull( objectType, defineField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>() );
 <% end -%>
     customizeObjectType_<%= data_module.name %>_<%= struct.name %>( objectType );
     return objectType.build();
@@ -372,6 +354,21 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   }
 <% end -%>
 
+  @javax.annotation.Nonnull
+  private <%= struct.ee.qualified_name -%> mapTo<%= struct.name -%>( @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.lang.Object> fields )
+  {
+    return new <%= struct.ee.qualified_name -%>( <%= struct.fields.collect{|field|
+  accessor = "fields.get( \"#{field.graphql.name}\" )"
+  field_value = field.struct? ?
+    "mapTo#{field.referenced_struct.name}( (java.util.Map<java.lang.String, java.lang.Object>) #{accessor} )" :
+    field.enumeration? ?
+    "#{field.enumeration.ee.qualified_name}.valueOf( (java.lang.String) #{accessor})" :
+    "(#{field.ee.non_primitive_java_type}) #{accessor}"
+  field_value = "null == #{accessor} ? null : #{field_value}" if field.nullable?
+  field_value
+}.join(", ") -%> );
+  }
+
   protected void customizeInputObjectType_<%= data_module.name %>_<%= struct.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLInputObjectType.Builder objectType )
   {
   }
@@ -385,13 +382,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     objectType.description( "<%= description_to_string(struct) %>" );
 <% end -%>
 <% struct.fields.select{|field| field.graphql?}.each do |field| -%>
-    {
-      final graphql.schema.GraphQLInputObjectField field = defineInputObjectField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>();
-      if( null != field )
-      {
-        objectType.field( field );
-      }
-    }
+    addFieldUnlessNull( objectType, defineInputObjectField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>() );
 <% end -%>
     customizeInputObjectType_<%= data_module.name %>_<%= struct.name %>( objectType );
     return objectType.build();
@@ -496,6 +487,78 @@ end.join(", ") %>) );
 <% end -%>
 <% end -%>
 <% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.services.select{|service| service.graphql? }.each do |service| -%>
+<% service.methods.select{|method| method.graphql? }.each do |method| -%>
+<% method.parameters.each do |parameter| -%>
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLArgument defineArgument_<%= data_module.name %>_<%= service.name %>_<%= method.name %>_<%= parameter.name %>()
+  {
+    final graphql.schema.GraphQLArgument.Builder argument = graphql.schema.GraphQLArgument.newArgument();
+    argument.name( "<%= parameter.graphql.name %>" );
+<% if has_description?(parameter) -%>
+    argument.description( "<%= description_to_string(parameter) %>" );
+<% end -%>
+<% if parameter.graphql.deprecation_reason -%>
+    argument.deprecate( "<%= parameter.graphql.deprecation_reason -%>" );
+<% end -%>
+<%
+  accessor =
+    if parameter.reference?
+      "scalarType( \"#{parameter.referenced_entity.primary_key.graphql.scalar_type}\" )"
+    elsif parameter.struct?
+      "inputType( \"#{parameter.referenced_struct.graphql.name}\" )"
+    elsif parameter.enumeration?
+      "enumType( \"#{parameter.enumeration.graphql.name}\" )"
+    else
+      "scalarType( \"#{parameter.graphql.scalar_type}\" )"
+    end
+-%>
+    argument.type( <% unless parameter.nullable? -%>new graphql.schema.GraphQLNonNull( <% end -%><% if parameter.collection? -%>new graphql.schema.GraphQLList( new graphql.schema.GraphQLNonNull( <% end -%><%= accessor %><% if parameter.collection? -%> ) )<% end %><% unless parameter.nullable? -%> )<% end -%> );
+    return argument.build();
+  }
+<% end -%>
+
+  protected void customize<%= method.graphql.mutation? ? 'Mutation' : 'Query' %>_<%= data_module.name %>_<%= service.name %>_<%= method.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
+  {
+  }
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLFieldDefinition define<%= method.graphql.mutation? ? 'Mutation' : 'Query' %>_<%= data_module.name %>_<%= service.name %>_<%= method.name %>()
+  {
+    final graphql.schema.GraphQLFieldDefinition.Builder method = graphql.schema.GraphQLFieldDefinition.newFieldDefinition();
+    method.name( "<%= method.graphql.name %>" );
+<% if has_description?(method) -%>
+    method.description( "<%= description_to_string(method) %>" );
+<% end -%>
+<% if method.graphql.deprecation_reason -%>
+    method.deprecate( "<%= method.graphql.deprecation_reason -%>" );
+<% end -%>
+<%
+  accessor =
+    if method.graphql.return_characteristic.reference? && method.graphql.return_characteristic.referenced_entity.abstract?
+      "interfaceType( \"#{method.graphql.return_characteristic.referenced_entity.graphql.name}\" )"
+    elsif method.graphql.return_characteristic.reference?
+      "objectType( \"#{method.graphql.return_characteristic.referenced_entity.graphql.name}\" )"
+     elsif method.graphql.return_characteristic.struct?
+      "objectType( \"#{method.graphql.return_characteristic.referenced_struct.graphql.name}\" )"
+     elsif method.graphql.return_characteristic.enumeration?
+      "enumType( \"#{method.graphql.return_characteristic.enumeration.graphql.name}\" )"
+     else
+      "scalarType( \"#{method.graphql.return_characteristic.graphql.scalar_type}\" )"
+     end
+-%>
+    method.type( <%= !method.graphql.return_characteristic.nullable? ? "new graphql.schema.GraphQLNonNull( " : method.graphql.return_characteristic.collection? ? "new graphql.schema.GraphQLList( new graphql.schema.GraphQLNonNull( " : '' -%><%= accessor %><%= !method.graphql.return_characteristic.nullable? ? ' )' : method.graphql.return_characteristic.collection? ? " ) )" : '' -%> );
+<% method.parameters.each do |parameter| -%>
+    method.argument( defineArgument_<%= data_module.name %>_<%= service.name %>_<%= method.name %>_<%= parameter.name %>() );
+<% end -%>
+    customize<%= method.graphql.mutation? ? 'Mutation' : 'Query' %>_<%= data_module.name %>_<%= service.name %>_<%= method.name %>( method );
+    return method.build();
+  }
+<% end -%>
+<% end -%>
+<% end -%>
 
   protected void customizeQueryObjectType( @javax.annotation.Nonnull final graphql.schema.GraphQLObjectType.Builder objectType )
   {
@@ -512,13 +575,14 @@ end.join(", ") %>) );
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
 <% dao.queries.select{|query| query.graphql? && query.query_type == :select }.each do |query| -%>
-    {
-      final graphql.schema.GraphQLFieldDefinition field = defineQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>();
-      if( null != field )
-      {
-        objectType.field( field );
-      }
-    }
+    addFieldUnlessNull( objectType, defineQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>() );
+<% end -%>
+<% end -%>
+<% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.services.select{|service| service.graphql? }.each do |service| -%>
+<% service.methods.select{|method| method.graphql? && !method.graphql.mutation? }.each do |method| -%>
+    addFieldUnlessNull( objectType, defineQuery_<%= data_module.name %>_<%= service.name %>_<%= method.name %>() );
 <% end -%>
 <% end -%>
 <% end -%>
