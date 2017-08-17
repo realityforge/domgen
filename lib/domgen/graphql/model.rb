@@ -43,6 +43,41 @@ Domgen::TypeDB.enhance(:polygonm, 'graphql.scalar_type' => 'PolygonM')
 Domgen::TypeDB.enhance(:multipolygonm, 'graphql.scalar_type' => 'MultiPolygonM')
 
 module Domgen
+  module Graphql
+    module GraphqlCharacteristic
+      def type
+        Domgen.error("Invoked graphql.type on #{characteristic.qualified_name} when characteristic is a remote_reference") if characteristic.remote_reference?
+        if characteristic.reference?
+          return characteristic.referenced_entity.graphql.name
+        elsif characteristic.enumeration?
+          return characteristic.enumeration.graphql.name
+        else
+          return scalar_type
+        end
+      end
+
+      attr_writer :scalar_type
+
+      def scalar_type
+        return @scalar_type if @scalar_type
+        Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a non_standard_type") if characteristic.non_standard_type?
+        return 'ID' if characteristic.respond_to?(:primary_key?) && characteristic.primary_key?
+        Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a reference") if characteristic.reference?
+        Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a remote_reference") if characteristic.remote_reference?
+        Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic has no characteristic_type") unless characteristic.characteristic_type
+        characteristic.characteristic_type.graphql.scalar_type
+      end
+
+      def save_scalar_type
+        if @scalar_type
+          data_module.repository.graphql.scalar(@scalar_type)
+        elsif characteristic.characteristic_type
+          data_module.repository.graphql.scalar(characteristic.characteristic_type.graphql.scalar_type)
+        end
+      end
+    end
+  end
+
   FacetManager.facet(:graphql) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::JavaClientServerApplication
@@ -112,12 +147,6 @@ module Domgen
 
       def graphiql_keycloak_client
         @graphiql_keycloak_client || :graphiql
-      end
-
-      attr_writer :graphql_schema_name
-
-      def graphql_schema_name
-        @graphql_schema_name || repository.name
       end
 
       attr_writer :context_service_jndi_name
@@ -242,14 +271,54 @@ module Domgen
           # If we have replicant enabled for project and we have requires_new transaction that modifies data then
           # the current infrastructure will not route it through replicant so we just disable this capability
           query.disable_facet(:graphql)
+        elsif query.query_type != :select
+          # For now disable all non select querys on DAOs.
+          # Eventually we may get around to creating a way to automatically returning values to clients
+          # but this will need to wait until it is needed.
+          query.disable_facet(:graphql)
         end
       end
 
-      def post_verify
-        if query.parameters.size > 0
-          # TODO: Remove this temporary hack
-          query.disable_facet(:graphql)
+      def post_complete
+        if query.result_struct?
+          query.struct.graphql.mark_as_output!
         end
+      end
+    end
+
+    facet.enhance(QueryParameter) do
+      include Domgen::Graphql::GraphqlCharacteristic
+
+      attr_writer :name
+
+      def name
+        @name || (parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : Reality::Naming.camelize(parameter.name))
+      end
+
+      attr_writer :description
+
+      def description
+        @description || parameter.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
+      end
+
+      def pre_complete
+        save_scalar_type
+      end
+
+      protected
+
+      def data_module
+        parameter.query.dao.data_module
+      end
+
+      def characteristic
+        parameter
       end
     end
 
@@ -271,6 +340,7 @@ module Domgen
 
     facet.enhance(Attribute) do
       include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Graphql::GraphqlCharacteristic
 
       attr_writer :name
 
@@ -290,38 +360,15 @@ module Domgen
         !@deprecation_reason.nil?
       end
 
-      def type
-        Domgen.error("Invoked graphql.type on #{attribute.qualified_name} when attribute is a remote_reference") if attribute.remote_reference?
-        if attribute.reference?
-          return attribute.referenced_entity.graphql.name
-        elsif attribute.enumeration?
-          return attribute.enumeration.graphql.name
-        else
-          return scalar_type
-        end
-      end
-
-      attr_writer :scalar_type
-
-      def scalar_type
-        return @scalar_type if @scalar_type
-        Domgen.error("Invoked graphql.scalar_type on #{attribute.qualified_name} when attribute is a non_standard_type") if attribute.non_standard_type?
-        return 'ID' if attribute.primary_key?
-        Domgen.error("Invoked graphql.scalar_type on #{attribute.qualified_name} when attribute is a reference") if attribute.reference?
-        Domgen.error("Invoked graphql.scalar_type on #{attribute.qualified_name} when attribute is a remote_reference") if attribute.remote_reference?
-        Domgen.error("Invoked graphql.scalar_type on #{attribute.qualified_name} when attribute has no characteristic_type") unless attribute.characteristic_type
-        attribute.characteristic_type.graphql.scalar_type
-      end
-
       def pre_complete
-        if @scalar_type
-          attribute.referenced_entity.data_module.repository.graphql.scalar(@scalar_type)
-        elsif attribute.characteristic_type
-          attribute.entity.data_module.repository.graphql.scalar(attribute.characteristic_type.graphql.scalar_type)
-        end
+        save_scalar_type
       end
 
       protected
+
+      def data_module
+        attribute.entity.data_module
+      end
 
       def characteristic
         attribute
@@ -345,41 +392,193 @@ module Domgen
       end
     end
 
+    facet.enhance(Service) do
+      attr_writer :prefix
+
+      def prefix
+        @prefix || "#{service.data_module.graphql.prefix}#{service.name}"
+      end
+    end
+
+    facet.enhance(Method) do
+
+      attr_writer :mutation
+
+      def mutation?
+        @mutation.nil? ? true : !!@mutation
+      end
+
+      attr_writer :name
+
+      def name
+        return @name unless @name.nil?
+        prefix = method.service.graphql.prefix
+        method_name = Reality::Naming.camelize(method.name)
+        prefix.to_s != '' ? "#{prefix}_#{method_name}" : method_name
+      end
+
+      attr_writer :description
+
+      def description
+        @description || method.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
+      end
+
+      def return_characteristic
+        @return_characteristic || self.method.return_value
+      end
+
+      def post_complete
+        if :void == self.return_characteristic.characteristic_type_key || self.return_characteristic.non_standard_type?
+          self.method.disable_facet(:graphql)
+          return
+        end
+        self.method.parameters.select {|parameter| parameter.struct?}.each do |parameter|
+          parameter.referenced_struct.graphql.mark_as_input!
+        end
+        self.return_characteristic.referenced_struct.graphql.mark_as_output! if self.return_characteristic.struct?
+      end
+    end
+
+    facet.enhance(Parameter) do
+      include Domgen::Graphql::GraphqlCharacteristic
+
+      attr_writer :name
+
+      def name
+        @name || (parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : Reality::Naming.camelize(parameter.name))
+      end
+
+      attr_writer :description
+
+      def description
+        @description || parameter.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
+      end
+
+      def pre_complete
+        save_scalar_type
+      end
+
+      protected
+
+      def data_module
+        parameter.method.service.data_module
+      end
+
+      def characteristic
+        parameter
+      end
+    end
+
+    facet.enhance(Result) do
+      include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Graphql::GraphqlCharacteristic
+
+      def pre_complete
+        save_scalar_type
+      end
+
+      protected
+
+      def data_module
+        result.method.service.data_module
+      end
+
+      def characteristic
+        result
+      end
+    end
+
     facet.enhance(Struct) do
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :struct_resolver, :data_type, :server, :graphql, '#{struct.name}Resolver', :sub_package => 'internal'
-
       attr_writer :name
 
       def name
         @name || "#{struct.data_module.graphql.prefix}#{struct.name}"
       end
+
+      attr_writer :description
+
+      def description
+        @description || struct.description
+      end
+
+      attr_writer :input_name
+
+      def input_name
+        @input_name || "#{struct.data_module.graphql.prefix}#{struct.name}Input"
+      end
+
+      # Does this struct participate as a graphql "input"
+      def input?
+        !!@input
+      end
+
+      # Does this struct participate as a graphql "output"
+      def output?
+        !!@output
+      end
+
+      def mark_as_output!
+        @output = true
+        self.struct.fields.select {|field| field.struct?}.each do |field|
+          field.referenced_struct.graphql.mark_as_output!
+        end
+      end
+
+      def mark_as_input!
+        @input = true
+        self.struct.fields.select {|field| field.struct?}.each do |field|
+          field.referenced_struct.graphql.mark_as_input!
+        end
+      end
+
+      def post_verify
+        disable_facet(:graphql) unless input? || output?
+      end
     end
 
     facet.enhance(StructField) do
       include Domgen::Java::ImitJavaCharacteristic
+      include Domgen::Graphql::GraphqlCharacteristic
 
-      def type
-        if field.struct?
-          return field.referenced_struct.graphql.name
-        elsif field.enumeration?
-          return field.enumeration.graphql.name
-        else
-          return scalar_type
-        end
+      attr_writer :name
+
+      def name
+        @name || (field.name.to_s.upcase == field.name.to_s ? field.name.to_s : Reality::Naming.camelize(field.name))
       end
 
-      attr_writer :scalar_type
+      attr_writer :description
 
-      def scalar_type
-        return @scalar_type if @scalar_type
-        Domgen.error("Invoked graphql.scalar_type on #{field.qualified_name} when field is a non_standard_type") if field.non_standard_type?
-        Domgen.error("Invoked graphql.scalar_type on #{field.qualified_name} when field has no characteristic_type") unless field.characteristic_type
-        field.characteristic_type.graphql.scalar_type
+      def description
+        @description || field.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
+      end
+
+      def pre_complete
+        save_scalar_type
       end
 
       protected
+
+      def data_module
+        field.struct.data_module
+      end
 
       def characteristic
         field

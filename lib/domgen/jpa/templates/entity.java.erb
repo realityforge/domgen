@@ -115,13 +115,13 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <%= j_equals_method(entity) %>
 <%= j_to_string_methods(entity) -%>
 
-<% if !entity.extends -%>
+<% unless entity.extends -%>
   protected final boolean loaded()
   {
     return _loaded;
   }
 
-  protected final boolean removed()
+  public final boolean removed()
   {
     return _removed;
   }
