@@ -1,6 +1,16 @@
+# DO NOT EDIT: File is auto-generated
 * -text
-*.rb text -crlf -binary
-*.rdoc text -crlf -binary
-*.textile text -crlf -binary
-*.txt text -crlf -binary
-*.erb text -crlf -binary
+*.css text encoding=UTF8
+*.erb text
+*.gemspec text
+*.html text
+*.md text
+*.rb text
+*.txt text
+*.yml text
+.gitattributes text
+.gitignore text
+.ruby-version text
+Gemfile text
+LICENSE text
+Rakefile text
