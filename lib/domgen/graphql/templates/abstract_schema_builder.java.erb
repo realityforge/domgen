@@ -14,6 +14,12 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
 <% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.services.select{|service| service.graphql? }.each do |service| -%>
+  @javax.inject.Inject
+  private <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _<%= Reality::Naming.camelize(service.qualified_name.gsub('.','')) %>;
+<% end -%>
+<% end -%>
   @javax.annotation.Resource( lookup = "java:appserver/TransactionManager" )
   private javax.transaction.TransactionManager _transactionManager;
   @javax.annotation.Resource( lookup = "<%= repository.graphql.context_service_jndi_name %>" )
@@ -391,7 +397,13 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 
   @javax.annotation.Nonnull
-  protected graphql.schema.DataFetcher wrapTopLevelDataFetcher( @javax.annotation.Nonnull final String key, final boolean wrapInTransaction, @javax.annotation.Nonnull final graphql.schema.DataFetcher base )
+  protected graphql.schema.DataFetcher wrapTopLevelDataFetcher( @javax.annotation.Nonnull final String key, final boolean wrapInTransaction, @javax.annotation.Nonnull final org.realityforge.graphql.domgen.ExceptingDataFetcher base )
+  {
+    return wrapTopLevelRawDataFetcher( key, wrapInTransaction, base.toDataFetcher() );
+  }
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.DataFetcher wrapTopLevelRawDataFetcher( @javax.annotation.Nonnull final String key, final boolean wrapInTransaction, @javax.annotation.Nonnull final graphql.schema.DataFetcher base )
   {
     graphql.schema.DataFetcher fetcher = base;
     if ( wrapInTransaction )
@@ -520,6 +532,23 @@ end.join(", ") %>) );
   }
 <% end -%>
 
+  @javax.annotation.Nonnull
+  protected graphql.schema.DataFetcher defineDataFetcher_<%= data_module.name %>_<%= service.name %>_<%= method.name %>()
+  {
+    return wrapTopLevelDataFetcher( "<%= method.graphql.name %>", <%= !service.ejb.generate_boundary? -%>, e -> _<%= Reality::Naming.camelize(service.qualified_name.gsub('.','')) %>.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect do |parameter|
+  base_accessor = "e.getArgument( \"#{parameter.graphql.name}\" )"
+  v = base_accessor
+  if parameter.reference? && !service.ejb.generate_boundary?
+    v = "_#{Reality::Naming.camelize(parameter.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{parameter.referenced_entity.primary_key.name}(#{v})"
+    v = "null == #{base_accessor} ? null : #{v}" if parameter.nullable?
+  elsif parameter.enumeration?
+    v = "_#{Reality::Naming.camelize(parameter.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{parameter.referenced_entity.primary_key.name}(#{v})"
+    v = "null == #{base_accessor} ? null : #{v}" if parameter.nullable?
+  end
+  v
+end.join(", ") %>) );
+  }
+
   protected void customize<%= method.graphql.mutation? ? 'Mutation' : 'Query' %>_<%= data_module.name %>_<%= service.name %>_<%= method.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
   {
   }
@@ -553,6 +582,7 @@ end.join(", ") %>) );
 <% method.parameters.each do |parameter| -%>
     method.argument( defineArgument_<%= data_module.name %>_<%= service.name %>_<%= method.name %>_<%= parameter.name %>() );
 <% end -%>
+    method.dataFetcher( defineDataFetcher_<%= data_module.name %>_<%= service.name %>_<%= method.name %>() );
     customize<%= method.graphql.mutation? ? 'Mutation' : 'Query' %>_<%= data_module.name %>_<%= service.name %>_<%= method.name %>( method );
     return method.build();
   }
