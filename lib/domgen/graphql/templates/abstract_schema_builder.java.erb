@@ -578,7 +578,7 @@ end.join(", ") %>) );
       "scalarType( \"#{method.graphql.return_characteristic.graphql.scalar_type}\" )"
      end
 -%>
-    method.type( <%= !method.graphql.return_characteristic.nullable? ? "new graphql.schema.GraphQLNonNull( " : method.graphql.return_characteristic.collection? ? "new graphql.schema.GraphQLList( new graphql.schema.GraphQLNonNull( " : '' -%><%= accessor %><%= !method.graphql.return_characteristic.nullable? ? ' )' : method.graphql.return_characteristic.collection? ? " ) )" : '' -%> );
+    method.type( <%= method.graphql.return_characteristic.nullable? ? '' : 'new graphql.schema.GraphQLNonNull( ' %><%= method.graphql.return_characteristic.collection? ? "new graphql.schema.GraphQLList( new graphql.schema.GraphQLNonNull( " : '' -%><%= accessor %><%= method.graphql.return_characteristic.nullable? ? '' : ' )' %><%= method.graphql.return_characteristic.collection? ? " ) )" : '' -%> );
 <% method.parameters.each do |parameter| -%>
     method.argument( defineArgument_<%= data_module.name %>_<%= service.name %>_<%= method.name %>_<%= parameter.name %>() );
 <% end -%>
