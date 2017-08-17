@@ -4,6 +4,15 @@ def define_custom_resource(data, key, value, restype = nil)
   data['custom_resources'][key]['restype'] = restype if restype
 end
 
+def define_context_service(data, name, options = {})
+  data['context_services'][name] = {
+    'enabled' => 'true',
+    'context_info_enabled' => 'true',
+    'context_info' => 'Classloader,JNDI,Security,WorkArea',
+    'deployment_order' => 100
+  }.merge(options)
+end
+
 def generate(repository)
   application = Reality::Naming.underscore(repository.name)
   constant_prefix = Reality::Naming.uppercase_constantize(repository.name)
@@ -40,12 +49,7 @@ def generate(repository)
       'thread_priority' => 5
     }
 
-    data['context_services'][repository.imit.context_service_jndi] = {
-      'enabled' => 'true',
-      'context_info_enabled' => 'true',
-      'context_info' => 'Classloader,JNDI,Security,WorkArea',
-      'deployment_order' => 100
-    }
+    define_context_service(data, repository.imit.context_service_jndi)
 
     repository.imit.remote_datasources.each do |rd|
       prefix = "#{application}/replicant/client/#{Reality::Naming.underscore(rd.name)}"
