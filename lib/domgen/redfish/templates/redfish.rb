@@ -40,6 +40,10 @@ def generate(repository)
     define_custom_resource(data, "#{application}/env/code_server/port", "${#{constant_prefix}_CODE_SERVER_PORT}", 'java.lang.Integer')
   end
 
+  if repository.graphql?
+    define_context_service(data, repository.graphql.context_service_jndi_name)
+  end
+
   if repository.imit?
     data['managed_scheduled_executor_services'][repository.imit.executor_service_jndi] = {
       'enabled' => 'true',
