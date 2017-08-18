@@ -1329,6 +1329,13 @@ FRAGMENT
             "?#{index}"
           end
         end
+
+        # For any line that ends in a single line sql server quote (i.e. " -- ...\n" )
+        # try to convert it to multiline quote (i.e. " /* ... */ "). That way when we strip out
+        # whitespace in subsequent lines we do not end up with invalid sql
+        regex = /('[^']*'|"[^"]*")|--(.*)\n/
+        q = q.gsub(regex) {|m|$1 || "/* #{$2} */"}
+
         q.gsub(/[\s]+/, ' ').strip
       end
 
