@@ -449,6 +449,12 @@ module Domgen
       def prefix
         @prefix || "#{service.data_module.graphql.prefix}#{service.name}"
       end
+
+      attr_writer :use_boundary
+
+      def use_boundary?
+        service.ejb? && service.ejb.generate_boundary? && (@use_boundary.nil? ? false : !!@use_boundary)
+      end
     end
 
     facet.enhance(Method) do
