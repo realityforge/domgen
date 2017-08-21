@@ -2,7 +2,7 @@
 package <%= to_package(repository.graphql.qualified_abstract_schema_builder_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SKIPPED_CLASS_TOO_BIG"})
 public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   extends org.realityforge.graphql.domgen.AbstractGraphQLSchemaProvider
