@@ -416,7 +416,21 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || (inverse.name.to_s.upcase == inverse.name.to_s ? inverse.name.to_s : Reality::Naming.camelize(inverse.name))
+        return @name unless @name.nil?
+        _name = inverse.name.to_s.upcase == inverse.name.to_s ? inverse.name.to_s : inverse.name
+        Reality::Naming.camelize(inverse.multiplicity == :many ? Reality::Naming.pluralize(_name) : _name)
+      end
+
+      attr_writer :description
+
+      def description
+        @description || inverse.description
+      end
+
+      attr_accessor :deprecation_reason
+
+      def deprecated?
+        !@deprecation_reason.nil?
       end
 
       def traversable=(traversable)

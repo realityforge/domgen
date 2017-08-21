@@ -223,6 +223,40 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     return field.build();
   }
 <% end -%>
+<% entity.referencing_attributes.
+  select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.graphql? && attribute.inverse.graphql.traversable? }.
+  each do |attribute| -%>
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.DataFetcher defineDataFetcher_<%= data_module.name %>_<%= entity.name %>_<%= attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name %>()
+  {
+    return e -> e.<<%= entity.jpa.qualified_name %>>getSource().<%= attribute.inverse.multiplicity == :many ? "get#{Reality::Naming.pluralize(attribute.inverse.name)}()" : getter_for(attribute, attribute.inverse.name) %>;
+  }
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLFieldDefinition defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name %>()
+  {
+    final graphql.schema.GraphQLFieldDefinition.Builder field = graphql.schema.GraphQLFieldDefinition.newFieldDefinition();
+    field.name( "<%= attribute.inverse.graphql.name %>" );
+<% if has_description?(attribute.inverse) -%>
+    field.description( "<%= description_to_string(attribute.inverse) %>" );
+<% end -%>
+<% if attribute.inverse.graphql.deprecation_reason -%>
+    field.deprecate( "<%= attribute.inverse.graphql.deprecation_reason -%>" );
+<% end -%>
+<%
+  accessor =
+    if attribute.reference?
+      "new graphql.schema.GraphQLTypeReference( \"#{attribute.entity.graphql.name}\" )"
+    else
+      Domngen.error("Unknown attribute_type for inverse of #{attribute.qualified_name}")
+    end
+-%>
+    field.type( <% unless attribute.inverse.multiplicity == :zero_or_one -%>new graphql.schema.GraphQLNonNull( <% end -%><% if attribute.inverse.multiplicity == :many -%>new graphql.schema.GraphQLList( new graphql.schema.GraphQLNonNull( <% end -%><%= accessor %><% if attribute.inverse.multiplicity == :many -%> ) )<% end %><% unless attribute.inverse.multiplicity == :zero_or_one -%> )<% end -%> );
+    field.dataFetcher( defineDataFetcher_<%= data_module.name %>_<%= entity.name %>_<%= attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name %>() );
+    return field.build();
+  }
+<% end -%>
 <% if entity.abstract? -%>
 
   protected void customizeInterfaceType_<%= data_module.name %>_<%= entity.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLInterfaceType.Builder interfaceType )
@@ -239,6 +273,11 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
     addFieldUnlessNull( interfaceType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>() );
+<% end -%>
+<% entity.referencing_attributes.
+  select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.graphql? && attribute.inverse.graphql.traversable? }.
+  each do |attribute| -%>
+    addFieldUnlessNull( interfaceType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name %>() );
 <% end -%>
     interfaceType.typeResolver( new graphql.schema.TypeResolverProxy() );
     customizeInterfaceType_<%= data_module.name %>_<%= entity.name %>( interfaceType );
@@ -263,6 +302,11 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
     addFieldUnlessNull( objectType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>() );
+<% end -%>
+<% entity.referencing_attributes.
+  select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.graphql? && attribute.inverse.graphql.traversable? }.
+  each do |attribute| -%>
+    addFieldUnlessNull( objectType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name %>() );
 <% end -%>
     customizeObjectType_<%= data_module.name %>_<%= entity.name %>( objectType );
     return objectType.build();
