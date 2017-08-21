@@ -486,11 +486,18 @@ module Domgen
         !@deprecation_reason.nil?
       end
 
+      def return_characteristic=(return_characteristic)
+        @return_characteristic = return_characteristic
+      end
+
       def return_characteristic
-        @return_characteristic || self.method.return_value
+        @return_characteristic.nil? ? self.method.return_value : method.parameter_by_name(@return_characteristic)
       end
 
       def post_complete
+        if !@return_characteristic.nil? && !method.parameter_by_name?(@return_characteristic)
+          Domgen.error("Method #{self.method.qualified_name} has specified graphql return characteristic to '#{@return_characteristic}' which is not one of the available parameter names: #{self.method.parameters.collect{|p|p.name}.join(', ')}")
+        end
         if :void == self.return_characteristic.characteristic_type_key || self.return_characteristic.non_standard_type?
           self.method.disable_facet(:graphql)
           return
