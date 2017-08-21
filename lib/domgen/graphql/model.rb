@@ -190,6 +190,43 @@ module Domgen
           client.protected_url_patterns << "#{api_endpoint}/*"
         end
       end
+
+      def perform_verify
+        queries = {}
+        mutations = {}
+        self.repository.data_modules.select {|data_module| data_module.graphql?}.each do |data_module|
+          data_module.daos.select {|dao| dao.graphql?}.each do |dao|
+            dao.queries.select {|query| query.graphql?}.each do |query|
+              if query.query_type == :select
+                check_query(queries, query.graphql.name, query.qualified_name)
+              else
+                check_mutation(queries, query.graphql.name, query.qualified_name)
+              end
+            end
+          end
+          data_module.services.select {|service| service.graphql?}.each do |service|
+            service.methods.select {|method| method.graphql?}.each do |method|
+              if method.graphql.mutation?
+                check_mutation(mutations, method.graphql.name, method.qualified_name)
+              else
+                check_query(queries, method.graphql.name, method.qualified_name)
+              end
+            end
+          end
+        end
+      end
+
+      private
+
+      def check_query(queries, graphql_name, qualified_name)
+        Domgen.error("Duplicate graphql query #{graphql_name} defined by '#{queries[graphql_name.to_s]}' and '#{qualified_name}'") if queries[graphql_name.to_s]
+        queries[graphql_name.to_s] = qualified_name
+      end
+
+      def check_mutation(mutations, graphql_name, qualified_name)
+        Domgen.error("Duplicate graphql mutation #{graphql_name} defined by '#{mutations[graphql_name.to_s]}' and '#{qualified_name}'") if mutations[graphql_name.to_s]
+        mutations[graphql_name.to_s] = qualified_name
+      end
     end
 
     facet.enhance(DataModule) do
