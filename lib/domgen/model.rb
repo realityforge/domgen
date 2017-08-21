@@ -1473,6 +1473,14 @@ module Domgen
       characteristics
     end
 
+    def parameter_by_name(name)
+      characteristic_by_name(name)
+    end
+
+    def parameter_by_name?(name)
+      characteristic_by_name?(name)
+    end
+
     def parameter(name, type, options = {}, &block)
       characteristic(name, type, options, &block)
     end
