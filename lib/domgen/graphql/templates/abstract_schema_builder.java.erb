@@ -54,6 +54,12 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     return _entityManager;
   }
 <% end -%>
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected javax.enterprise.concurrent.ContextService getContextService()
+  {
+    return _contextService;
+  }
 
   @javax.annotation.Nonnull
   @java.lang.Override
