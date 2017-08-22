@@ -178,7 +178,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
 <% if attribute.abstract? -%>
 
-  private static Object get<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>( final graphql.schema.DataFetchingEnvironment e )
+  private static Object get<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e )
   {
     final Object source = e.getSource();
     <% attribute.entity.subtypes.select{|st|st.concrete? && st.jpa?}.each do |st| -%>if( source instanceof <%= st.jpa.qualified_name %> )
@@ -486,7 +486,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   }
 <% end -%>
   @javax.annotation.Nonnull
-  protected Object define_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>( @javax.annotation.Nonnull graphql.schema.DataFetchingEnvironment e )
+  protected Object define_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e )
   {
     final Object result = _<%= Reality::Naming.camelize(dao.qualified_name.gsub('.','')) %>.<%= Reality::Naming.camelize(query.name) %>(<%= query.parameters.collect do |parameter|
   base_accessor = "e.getArgument( \"#{parameter.graphql.name}\" )"
@@ -579,7 +579,7 @@ end.join(", ") %>);
 <% end -%>
 
   @javax.annotation.Nonnull
-  protected Object define_<%= data_module.name %>_<%= service.name %>_<%= method.name %>( @javax.annotation.Nonnull graphql.schema.DataFetchingEnvironment e )
+  protected Object define_<%= data_module.name %>_<%= service.name %>_<%= method.name %>( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e )
     throws java.lang.Exception
   {
 <% method.parameters.collect do |parameter|
