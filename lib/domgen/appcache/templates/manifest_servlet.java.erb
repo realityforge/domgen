@@ -8,6 +8,8 @@ public class <%= repository.appcache.manifest_servlet_name %>
 {
   public <%= repository.appcache.manifest_servlet_name %>()
   {
-    addPropertyProvider( new org.realityforge.gwt.appcache.server.propertyprovider.UserAgentPropertyProvider() );
+<% repository.appcache.property_providers.each do |property_provider| -%>
+    addPropertyProvider( new <%= property_provider %>() );
+<% end -%>
   }
 }
