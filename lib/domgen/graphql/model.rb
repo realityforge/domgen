@@ -128,7 +128,7 @@ module Domgen
       attr_writer :graphiql
 
       def graphiql?
-        @graphiql_api_endpoint.nil? ? true : !!@graphiql_api_endpoint
+        @graphiql.nil? ? true : !!@graphiql
       end
 
       attr_writer :graphiql_api_endpoint
