@@ -5,7 +5,7 @@ package <%= to_package(repository.graphql.qualified_abstract_schema_builder_name
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SKIPPED_CLASS_TOO_BIG"})
 public abstract class <%= repository.graphql.abstract_schema_builder_name %>
-  extends org.realityforge.graphql.domgen.AbstractGraphQLSchemaProvider
+  extends org.realityforge.graphql.domgen.Abstract<%= repository.imit? ? 'Replicant' : '' %>GraphQLSchemaProvider
 {
 <% repository.data_modules.each do |data_module| -%>
 <% data_module.daos.each do |dao| -%>
@@ -34,16 +34,21 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   private javax.transaction.TransactionSynchronizationRegistry _registry;
 
   @javax.annotation.Nonnull
+  @java.lang.Override
   protected javax.transaction.TransactionSynchronizationRegistry getRegistry()
   {
     return _registry;
   }
 
+  @javax.annotation.Nonnull
+  @java.lang.Override
   protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
   {
     return _endpoint;
   }
 
+  @javax.annotation.Nonnull
+  @java.lang.Override
   protected javax.persistence.EntityManager getEntityManager()
   {
     return _entityManager;
@@ -51,6 +56,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 
   @javax.annotation.Nonnull
+  @java.lang.Override
   protected javax.transaction.TransactionManager getTransactionManager()
   {
     return _transactionManager;
@@ -441,25 +447,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
 
-  @javax.annotation.Nonnull
-  protected graphql.schema.DataFetcher wrapTopLevelDataFetcher( @javax.annotation.Nonnull final String key, final boolean wrapInTransaction, @javax.annotation.Nonnull final org.realityforge.graphql.domgen.ExceptingDataFetcher base )
-  {
-    return wrapTopLevelRawDataFetcher( key, wrapInTransaction, base.toDataFetcher() );
-  }
-
-  @javax.annotation.Nonnull
-  protected graphql.schema.DataFetcher wrapTopLevelRawDataFetcher( @javax.annotation.Nonnull final String key, final boolean wrapInTransaction, @javax.annotation.Nonnull final graphql.schema.DataFetcher base )
-  {
-    graphql.schema.DataFetcher fetcher = base;
-    if ( wrapInTransaction )
-    {
-<% if repository.imit? -%>
-      fetcher = new org.realityforge.graphql.domgen.ReplicantEnabledDataFetcher( getEndpoint(), getEntityManager(), getRegistry(), key, fetcher );
-<% end -%>
-      fetcher = new org.realityforge.graphql.domgen.TransactionEnabledDataFetcher( getTransactionManager(), fetcher );
-    }
-    return _contextService.createContextualProxy( fetcher, graphql.schema.DataFetcher.class );
-  }
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
 <% dao.queries.select{|query| query.graphql? && query.query_type == :select }.each do |query| -%>

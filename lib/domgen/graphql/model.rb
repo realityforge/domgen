@@ -490,6 +490,10 @@ module Domgen
         @return_characteristic = return_characteristic
       end
 
+      def custom_return_characteristic?
+        !@return_characteristic.nil?
+      end
+
       def return_characteristic
         @return_characteristic.nil? ? self.method.return_value : method.parameter_by_name(@return_characteristic)
       end
