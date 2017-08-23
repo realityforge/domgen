@@ -190,7 +190,9 @@ module Domgen
         end
         if self.graphiql? && repository.gwt_cache_filter?
           repository.gwt_cache_filter.add_cache_control_filter_path("#{self.graphiql_endpoint}/*")
-          repository.gwt_cache_filter.add_gzip_filter_path("#{self.graphiql_endpoint}/*")
+          # GZip Filter currently disabled otherwise it is ordered before the keycloak authentication
+          # filter and redirect does not work. In future weh graphiql is protected in-app we can re-enable this
+          #repository.gwt_cache_filter.add_gzip_filter_path("#{self.graphiql_endpoint}/*")
         end
       end
 
