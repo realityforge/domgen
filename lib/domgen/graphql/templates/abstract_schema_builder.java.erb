@@ -455,6 +455,58 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+<% if dao.graphql.expose_delete? -%>
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLArgument defineArgument_<%= data_module.name %>_<%= dao.name %>_Delete_$Entity()
+  {
+    final graphql.schema.GraphQLArgument.Builder argument = graphql.schema.GraphQLArgument.newArgument();
+    argument.name( "<%= "#{Reality::Naming.camelize(dao.entity.graphql.name)}#{dao.entity.primary_key.name}" %>" );
+    argument.type( new graphql.schema.GraphQLNonNull( scalarType( "<%= dao.entity.primary_key.graphql.scalar_type %>" ) ) );
+    return argument.build();
+  }
+
+  @javax.annotation.Nonnull
+  protected Object define_<%= data_module.name %>_<%= dao.name %>_Delete( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e )
+  {
+<%-
+    v = "e.getArgument( \"#{Reality::Naming.camelize(dao.entity.graphql.name)}#{dao.entity.primary_key.name}\" )"
+    v = "stringTo#{dao.entity.primary_key.graphql.scalar_type(true)}(#{v})" unless dao.entity.primary_key.text?
+    v = "_#{Reality::Naming.camelize(dao.qualified_name.gsub('.','')) }.getBy#{dao.entity.primary_key.name}(#{v})"
+-%>
+    final <%= dao.entity.jpa.qualified_name %> $entity = <%= v %>;
+    _<%= Reality::Naming.camelize(dao.qualified_name.gsub('.','')) %>.delete( $entity );
+    return $entity.<%= getter_for(dao.entity.primary_key) %>;
+  }
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.DataFetcher defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_Delete()
+  {
+    return wrapTopLevelDataFetcher( "delete<%= dao.entity.graphql.name %>", true, this::define_<%= data_module.name %>_<%= dao.name %>_Delete );
+  }
+
+  protected void customizeMutation_<%= data_module.name %>_<%= dao.name %>_Delete( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
+  {
+  }
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLFieldDefinition defineMutation_<%= data_module.name %>_<%= dao.name %>_Delete()
+  {
+    final graphql.schema.GraphQLFieldDefinition.Builder mutation = graphql.schema.GraphQLFieldDefinition.newFieldDefinition();
+    mutation.name( "delete<%= dao.entity.graphql.name %>" );
+<% if dao.graphql.delete_description -%>
+    mutation.description( "<%= escape_description_to_string(dao.graphql.delete_description) %>" );
+<% end -%>
+<% if dao.graphql.delete_deprecation_reason -%>
+    mutation.deprecate( "<%= dao.graphql.delete_deprecation_reason -%>" );
+<% end -%>
+    mutation.type( new graphql.schema.GraphQLNonNull( scalarType( "<%= dao.entity.primary_key.graphql.scalar_type %>" ) ) );
+    mutation.dataFetcher( defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_Delete() );
+    mutation.argument( defineArgument_<%= data_module.name %>_<%= dao.name %>_Delete_$Entity() );
+    customizeMutation_<%= data_module.name %>_<%= dao.name %>_Delete( mutation );
+    return mutation.build();
+  }
+<% end -%>
 <% dao.queries.select{|query| query.graphql? && query.query_type == :select }.each do |query| -%>
 <% query.parameters.each do |parameter| -%>
 
@@ -689,6 +741,13 @@ end.join(", ") %>);
     objectType.name( com.coxautodev.graphql.tools.RootTypeInfo.DEFAULT_MUTATION_NAME );
 <% if repository.graphql.mutation_description.to_s.strip != '' -%>
     objectType.description( "<%= escape_description_to_string(repository.graphql.mutation_description) %>" );
+<% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+<% if dao.graphql.expose_delete? -%>
+    addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= dao.name %>_Delete() );
+<% end -%>
+<% end -%>
 <% end -%>
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.services.select{|service| service.graphql? }.each do |service| -%>

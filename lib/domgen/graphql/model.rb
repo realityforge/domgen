@@ -273,6 +273,56 @@ module Domgen
       end
     end
 
+    facet.enhance(DataAccessObject) do
+      def expose_create?
+        dao.repository? && dao.entity.concrete? && (@expose_create.nil? ? true : !!@expose_create)
+      end
+
+      attr_writer :create_description
+
+      def create_description
+        @create_description || dao.repository? ? "Create an instance of #{dao.entity.graphql.name}" : nil
+      end
+
+      attr_accessor :create_deprecation_reason
+
+      def create_deprecated?
+        !@create_deprecation_reason.nil?
+      end
+
+      def expose_update?
+        dao.repository? && dao.entity.concrete? && (@expose_update.nil? ? true : !!@expose_update)
+      end
+
+      attr_writer :update_description
+
+      def update_description
+        @update_description || dao.repository? ? "Update an instance of #{dao.entity.graphql.name}" : nil
+      end
+
+      attr_accessor :update_deprecation_reason
+
+      def update_deprecated?
+        !@update_deprecation_reason.nil?
+      end
+
+      def expose_delete?
+        dao.repository? && dao.entity.concrete? && (@expose_delete.nil? ? true : !!@expose_delete)
+      end
+
+      attr_writer :delete_description
+
+      def delete_description
+        @delete_description || dao.repository? ? "Delete an instance of #{dao.entity.graphql.name}" : nil
+      end
+
+      attr_accessor :delete_deprecation_reason
+
+      def delete_deprecated?
+        !@delete_deprecation_reason.nil?
+      end
+    end
+
     facet.enhance(Query) do
       include Domgen::Java::BaseJavaGenerator
 
