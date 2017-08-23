@@ -497,7 +497,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   base_accessor = "e.getArgument( \"#{attribute.reference? || attribute.remote_reference? ? Reality::Naming.camelize(attribute.referencing_link_name) : attribute.graphql.name}\" )"
   v = base_accessor
   if attribute.reference?
-    v = "stringTo#{attribute.referenced_entity.primary_key.graphql.scalar_type(true)}(#{v})" unless attribute.referenced_entity.primary_key.text?
     v = "_#{Reality::Naming.camelize(attribute.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{attribute.referenced_entity.primary_key.name}(#{v})"
     v = "null == #{base_accessor} ? null : #{v}" if attribute.nullable?
   end
@@ -586,7 +585,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   {
 <%-
     v = "e.getArgument( \"#{Reality::Naming.camelize(dao.entity.graphql.name)}#{dao.entity.primary_key.name}\" )"
-    v = "stringTo#{dao.entity.primary_key.graphql.scalar_type(true)}(#{v})" unless dao.entity.primary_key.text?
     v = "_#{Reality::Naming.camelize(dao.qualified_name.gsub('.','')) }.getBy#{dao.entity.primary_key.name}(#{v})"
 -%>
     final <%= dao.entity.jpa.qualified_name %> $entity = <%= v %>;
@@ -594,7 +592,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   base_accessor = "e.getArgument( \"#{attribute.reference? || attribute.remote_reference? ? Reality::Naming.camelize(attribute.referencing_link_name) : attribute.graphql.name}\" )"
   v = base_accessor
   if attribute.reference?
-    v = "stringTo#{attribute.referenced_entity.primary_key.graphql.scalar_type(true)}(#{v})" unless attribute.referenced_entity.primary_key.text?
     v = "_#{Reality::Naming.camelize(attribute.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{attribute.referenced_entity.primary_key.name}(#{v})"
     v = "null == #{base_accessor} ? null : #{v}" if attribute.nullable?
   end
@@ -652,7 +649,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   {
 <%-
     v = "e.getArgument( \"#{Reality::Naming.camelize(dao.entity.graphql.name)}#{dao.entity.primary_key.name}\" )"
-    v = "stringTo#{dao.entity.primary_key.graphql.scalar_type(true)}(#{v})" unless dao.entity.primary_key.text?
     v = "_#{Reality::Naming.camelize(dao.qualified_name.gsub('.','')) }.getBy#{dao.entity.primary_key.name}(#{v})"
 -%>
     final <%= dao.entity.jpa.qualified_name %> $entity = <%= v %>;
@@ -725,7 +721,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   base_accessor = "e.getArgument( \"#{parameter.graphql.name}\" )"
   v = base_accessor
   if parameter.reference?
-    v = "stringTo#{parameter.referenced_entity.primary_key.graphql.scalar_type(true)}(#{v})" unless parameter.referenced_entity.primary_key.text?
     v = "_#{Reality::Naming.camelize(parameter.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{parameter.referenced_entity.primary_key.name}(#{v})"
     v = "null == #{base_accessor} ? null : #{v}" if parameter.nullable?
   end
@@ -819,7 +814,6 @@ end.join(", ") %>);
   base_accessor = "e.getArgument( \"#{parameter.graphql.name}\" )"
   v = base_accessor
   if parameter.reference? && !service.graphql.use_boundary?
-    v = "stringTo#{parameter.referenced_entity.primary_key.graphql.scalar_type(true)}(#{v})" unless parameter.referenced_entity.primary_key.text?
     v = "_#{Reality::Naming.camelize(parameter.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{parameter.referenced_entity.primary_key.name}(#{v})"
     v = "null == #{base_accessor} ? null : #{v}" if parameter.nullable?
   elsif parameter.enumeration?

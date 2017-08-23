@@ -58,10 +58,9 @@ module Domgen
 
       attr_writer :scalar_type
 
-      def scalar_type(ignore_primary_key = false)
+      def scalar_type
         return @scalar_type if @scalar_type
         Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a non_standard_type") if characteristic.non_standard_type?
-        return 'ID' if !ignore_primary_key && characteristic.respond_to?(:primary_key?) && characteristic.primary_key?
         Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a reference") if characteristic.reference?
         Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a remote_reference") if characteristic.remote_reference?
         Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic has no characteristic_type") unless characteristic.characteristic_type
