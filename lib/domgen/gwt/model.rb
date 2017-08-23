@@ -230,6 +230,10 @@ module Domgen
           repository.ee.cdi_scan_excludes << 'com.google.web.**'
           repository.ee.cdi_scan_excludes << 'com.google.gwt.**'
         end
+        if repository.gwt_cache_filter? && repository.application? && repository.application.user_experience?
+          repository.gwt_cache_filter.add_cache_control_filter_path("/#{self.module_name}/*")
+          repository.gwt_cache_filter.add_gzip_filter_path("/#{self.module_name}/*")
+        end
       end
 
       def pre_verify

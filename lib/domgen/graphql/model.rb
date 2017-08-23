@@ -189,6 +189,10 @@ module Domgen
 
           client.protected_url_patterns << "#{api_endpoint}/*"
         end
+        if self.graphiql? && repository.gwt_cache_filter?
+          repository.gwt_cache_filter.add_cache_control_filter_path("#{self.graphiql_endpoint}/*")
+          repository.gwt_cache_filter.add_gzip_filter_path("#{self.graphiql_endpoint}/*")
+        end
       end
 
       def perform_verify

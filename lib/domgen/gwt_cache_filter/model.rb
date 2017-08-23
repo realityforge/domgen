@@ -13,36 +13,89 @@
 #
 
 module Domgen
-  FacetManager.facet(:gwt_cache_filter => [:gwt]) do |facet|
+  FacetManager.facet(:gwt_cache_filter) do |facet|
+    facet.description = <<DESC
+The gwt_cache_filter facet configures the is enabled to add a filter that matches files named
+*.cache.* and *.nocache.* and sets caching http headers as appropriate. It also adds the filter
+that serves pre-gzipped resources if available. Despite the name it can be used with both gwt
+and non-gwt applications.
+DESC
     facet.enhance(Repository) do
-      def pre_verify
-        if repository.application? && !repository.application.user_experience?
-          raise ':gwt_cache_filter facet enabled but repository.application.user_experience? = false'
-        end
+      def add_gzip_filter_path(path)
+        gzip_filter_path_list << path
+      end
+
+      def gzip_filter_paths
+        gzip_filter_path_list.dup
+      end
+
+      def add_cache_control_filter_path(path)
+        cache_control_filter_path_list << path
+      end
+
+      def cache_control_filter_paths
+        cache_control_filter_path_list.dup
       end
 
       def pre_complete
-        repository.ee.web_xml_content_fragments << <<XML
+        if self.gzip_filter_paths.empty? && self.cache_control_filter_paths.empty?
+          repository.disable_facet(:gwt_cache_filter)
+        end
+      end
 
-<!-- gwt_cache_filter fragment is auto-generated -->
+      def post_complete
+        unless self.cache_control_filter_paths.empty?
+          fragment = <<XML
+  <!-- #{repository.name}.CacheControlFilter fragment is auto-generated -->
   <filter>
-    <filter-name>GWTCacheControlFilter</filter-name>
+    <filter-name>#{repository.name}.CacheControlFilter</filter-name>
     <filter-class>org.realityforge.gwt.cache_filter.GWTCacheControlFilter</filter-class>
   </filter>
+  <filter-mapping>
+    <filter-name>#{repository.name}.CacheControlFilter</filter-name>
+XML
+          self.cache_control_filter_paths.each do |path|
+            fragment += <<XML
+    <url-pattern>#{path}</url-pattern>
+XML
+          end
+          fragment += <<XML
+  </filter-mapping>
+  <!-- #{repository.name}.CacheControlFilter fragment end -->
+XML
+          repository.ee.web_xml_content_fragments << fragment
+        end
+ unless self.gzip_filter_paths.empty?
+          fragment = <<XML
+  <!-- #{repository.name}.GzipFilter fragment is auto-generated -->
   <filter>
-    <filter-name>GWTGzipFilter</filter-name>
+    <filter-name>#{repository.name}.GzipFilter</filter-name>
     <filter-class>org.realityforge.gwt.cache_filter.GWTGzipFilter</filter-class>
   </filter>
   <filter-mapping>
-    <filter-name>GWTCacheControlFilter</filter-name>
-    <url-pattern>/#{repository.gwt.module_name}/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>GWTGzipFilter</filter-name>
-    <url-pattern>/#{repository.gwt.module_name}/*</url-pattern>
-  </filter-mapping>
-<!-- gwt_cache_filter fragment end -->
+    <filter-name>#{repository.name}.GzipFilter</filter-name>
 XML
+          self.gzip_filter_paths.each do |path|
+            fragment += <<XML
+    <url-pattern>#{path}</url-pattern>
+XML
+          end
+          fragment += <<XML
+  </filter-mapping>
+  <!-- #{repository.name}.GzipFilter fragment end -->
+XML
+          repository.ee.web_xml_content_fragments << fragment
+        end
+      end
+
+      private
+
+      def gzip_filter_path_list
+        (@gzip_filter_paths ||= [])
+      end
+
+      def cache_control_filter_path_list
+        (@cache_control_filter_paths ||= [])
       end
     end
   end
