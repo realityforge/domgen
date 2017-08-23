@@ -667,6 +667,8 @@ module Domgen
               entity.jpa.create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
               entity.jpa.update_default(:DeletedAt => nil)
               if entity.graphql? && entity.dao.graphql?
+                entity.attribute_by_name(:CreatedAt).graphql.initial_value = 'new java.util.Date()'
+                entity.attribute_by_name(:DeletedAt).graphql.initial_value = 'null'
                 entity.attribute_by_name(:CreatedAt).graphql.updateable = false
                 entity.attribute_by_name(:DeletedAt).graphql.updateable = false
               end

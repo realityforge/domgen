@@ -455,7 +455,89 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
-<% if dao.graphql.expose_update? -%>
+<% if dao.graphql.expose_create? -%>
+<% dao.entity.graphql.createable_attributes.select{|attribute| attribute.graphql.createable?}.each do |attribute| -%>
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLArgument defineArgument_<%= data_module.name %>_<%= dao.name %>_Create_<%= attribute.name %>()
+  {
+    final graphql.schema.GraphQLArgument.Builder argument = graphql.schema.GraphQLArgument.newArgument();
+    argument.name( "<%= attribute.reference? || attribute.remote_reference? ? Reality::Naming.camelize(attribute.referencing_link_name) : attribute.graphql.name %>" );
+    argument.type( <% unless attribute.nullable? %>new graphql.schema.GraphQLNonNull( <% end %>scalarType( "<%= dao.entity.primary_key.graphql.scalar_type %>" )<% unless attribute.nullable? %> )<% end %> );
+<% if has_description?(attribute) -%>
+    argument.description( "<%= description_to_string(attribute) %>" );
+<% end -%>
+<% if attribute.graphql.deprecation_reason -%>
+    argument.deprecate( "<%= attribute.graphql.deprecation_reason -%>" );
+<% end -%>
+<%
+  accessor =
+    if attribute.reference?
+      "scalarType( \"#{attribute.referenced_entity.primary_key.graphql.scalar_type}\" )"
+    elsif attribute.struct?
+      "inputType( \"#{attribute.referenced_struct.graphql.name}\" )"
+    elsif attribute.enumeration?
+      "enumType( \"#{attribute.enumeration.graphql.name}\" )"
+    else
+      "scalarType( \"#{attribute.graphql.scalar_type}\" )"
+    end
+-%>
+    argument.type( <%= accessor %> );
+<% if dao.graphql.create_default?(attribute.name) -%>
+    argument.defaultValue( <%= dao.graphql.create_default(attribute.name) %> );
+<% end -%>
+    return argument.build();
+  }
+<% end -%>
+
+  @javax.annotation.Nonnull
+  protected Object define_<%= data_module.name %>_<%= dao.name %>_Create( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e )
+  {
+<% dao.entity.graphql.createable_attributes.select{|attribute| attribute.graphql.createable?}.each do |attribute|
+  base_accessor = "e.getArgument( \"#{attribute.reference? || attribute.remote_reference? ? Reality::Naming.camelize(attribute.referencing_link_name) : attribute.graphql.name}\" )"
+  v = base_accessor
+  if attribute.reference?
+    v = "stringTo#{attribute.referenced_entity.primary_key.graphql.scalar_type(true)}(#{v})" unless attribute.referenced_entity.primary_key.text?
+    v = "_#{Reality::Naming.camelize(attribute.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{attribute.referenced_entity.primary_key.name}(#{v})"
+    v = "null == #{base_accessor} ? null : #{v}" if attribute.nullable?
+  end
+-%>
+    final <%= attribute.jpa.java_type %> <%= Reality::Naming.camelize(attribute.name) %> = <%= v %>;
+<% end -%>
+    return _<%= Reality::Naming.camelize(dao.qualified_name.gsub('.','')) %>.create( <%= dao.entity.graphql.createable_attributes.collect {|attribute| attribute.graphql.createable? ? Reality::Naming.camelize(attribute.name) : attribute.graphql.initial_value }.join(', ') -%> );
+  }
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.DataFetcher defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_Create()
+  {
+    return wrapTopLevelDataFetcher( "create<%= dao.entity.graphql.name %>", true, this::define_<%= data_module.name %>_<%= dao.name %>_Create );
+  }
+
+  protected void customizeMutation_<%= data_module.name %>_<%= dao.name %>_Create( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
+  {
+  }
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLFieldDefinition defineMutation_<%= data_module.name %>_<%= dao.name %>_Create()
+  {
+    final graphql.schema.GraphQLFieldDefinition.Builder mutation = graphql.schema.GraphQLFieldDefinition.newFieldDefinition();
+    mutation.name( "create<%= dao.entity.graphql.name %>" );
+<% if dao.graphql.create_description -%>
+    mutation.description( "<%= escape_description_to_string(dao.graphql.create_description) %>" );
+<% end -%>
+<% if dao.graphql.create_deprecation_reason -%>
+    mutation.deprecate( "<%= dao.graphql.create_deprecation_reason -%>" );
+<% end -%>
+    mutation.type( new graphql.schema.GraphQLNonNull( objectType( "<%= dao.entity.graphql.name %>" ) ) );
+    mutation.dataFetcher( defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_Create() );
+<% dao.entity.graphql.createable_attributes.select{|attribute| attribute.graphql.createable?}.each do |attribute| -%>
+    mutation.argument( defineArgument_<%= data_module.name %>_<%= dao.name %>_Create_<%= attribute.name %>() );
+<% end -%>
+    customizeMutation_<%= data_module.name %>_<%= dao.name %>_Create( mutation );
+    return mutation.build();
+  }
+<% end -%>
+<% if dao.graphql.expose_create? -%>
 <% dao.entity.graphql.updateable_attributes.select{|attribute| attribute.graphql.updateable?}.each do |attribute| -%>
 
   @javax.annotation.Nullable
@@ -526,7 +608,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   @javax.annotation.Nonnull
   protected graphql.schema.DataFetcher defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_Update()
   {
-    return wrapTopLevelDataFetcher( "delete<%= dao.entity.graphql.name %>", true, this::define_<%= data_module.name %>_<%= dao.name %>_Update );
+    return wrapTopLevelDataFetcher( "update<%= dao.entity.graphql.name %>", true, this::define_<%= data_module.name %>_<%= dao.name %>_Update );
   }
 
   protected void customizeMutation_<%= data_module.name %>_<%= dao.name %>_Update( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
@@ -844,7 +926,7 @@ end.join(", ") %>);
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
 <% if dao.graphql.expose_create? -%>
-    //addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= dao.name %>_Create() );
+    addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= dao.name %>_Create() );
 <% end -%>
 <% if dao.graphql.expose_update? -%>
     addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= dao.name %>_Update() );

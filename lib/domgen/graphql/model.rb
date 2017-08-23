@@ -290,6 +290,32 @@ module Domgen
         !@create_deprecation_reason.nil?
       end
 
+      def create_defaults
+        @create_defaults || {}
+      end
+
+      def create_defaults=(create_defaults)
+        attributes = dao.entity.graphql.createable_attributes.collect{|attribute| attribute.name.to_s }
+
+        create_defaults.keys.each do |attribute_name|
+          Domgen.error("Attempting to define default create value for attribute '#{attribute_name}' on dao #{dao.qualified_name} when associated entity has no such attribute. Existing attributes on entity include: #{attributes.inspect}") unless attributes.include?(attribute_name.to_s)
+        end
+
+        values = {}
+        create_defaults.each_pair do |key, value|
+          values[key.to_s] = value
+        end
+        @create_defaults = values
+      end
+
+      def create_default?(attribute_name)
+        !!self.create_defaults[attribute_name.to_s]
+      end
+
+      def create_default(attribute_name)
+        self.create_defaults[attribute_name.to_s]
+      end
+
       def expose_update?
         dao.repository? && dao.entity.concrete? && !dao.entity.graphql.updateable_attributes.empty? && (@expose_update.nil? ? true : !!@expose_update)
       end
@@ -450,6 +476,10 @@ module Domgen
         @description || entity.description
       end
 
+      def createable_attributes
+        self.entity.attributes.select{|a| a.graphql? && !a.generated_value? && a.jpa? && a.jpa.persistent?}
+      end
+
       def updateable_attributes
         self.entity.attributes.select{|a| a.graphql? && !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}
       end
@@ -482,6 +512,12 @@ module Domgen
       end
 
       attr_writer :updateable
+
+      def createable?
+        @initial_value.nil?
+      end
+
+      attr_accessor :initial_value
 
       def pre_complete
         save_scalar_type
