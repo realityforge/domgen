@@ -455,6 +455,105 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+<% if dao.graphql.expose_update? -%>
+<% dao.entity.graphql.updateable_attributes.select{|attribute| attribute.graphql.updateable?}.each do |attribute| -%>
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLArgument defineArgument_<%= data_module.name %>_<%= dao.name %>_Update_<%= attribute.name %>()
+  {
+    final graphql.schema.GraphQLArgument.Builder argument = graphql.schema.GraphQLArgument.newArgument();
+    argument.name( "<%= attribute.reference? || attribute.remote_reference? ? Reality::Naming.camelize(attribute.referencing_link_name) : attribute.graphql.name %>" );
+    argument.type( <% unless attribute.nullable? %>new graphql.schema.GraphQLNonNull( <% end %>scalarType( "<%= dao.entity.primary_key.graphql.scalar_type %>" )<% unless attribute.nullable? %> )<% end %> );
+<% if has_description?(attribute) -%>
+    argument.description( "<%= description_to_string(attribute) %>" );
+<% end -%>
+<% if attribute.graphql.deprecation_reason -%>
+    argument.deprecate( "<%= attribute.graphql.deprecation_reason -%>" );
+<% end -%>
+<%
+  accessor =
+    if attribute.reference?
+      "scalarType( \"#{attribute.referenced_entity.primary_key.graphql.scalar_type}\" )"
+    elsif attribute.struct?
+      "inputType( \"#{attribute.referenced_struct.graphql.name}\" )"
+    elsif attribute.enumeration?
+      "enumType( \"#{attribute.enumeration.graphql.name}\" )"
+    else
+      "scalarType( \"#{attribute.graphql.scalar_type}\" )"
+    end
+-%>
+    argument.type( <%= accessor %> );
+<% if dao.graphql.update_default?(attribute.name) -%>
+    argument.defaultValue( <%= dao.graphql.update_default(attribute.name) %> );
+<% end -%>
+    return argument.build();
+  }
+<% end -%>
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLArgument defineArgument_<%= data_module.name %>_<%= dao.name %>_Update_$Entity()
+  {
+    final graphql.schema.GraphQLArgument.Builder argument = graphql.schema.GraphQLArgument.newArgument();
+    argument.name( "<%= "#{Reality::Naming.camelize(dao.entity.graphql.name)}#{dao.entity.primary_key.name}" %>" );
+    argument.type( new graphql.schema.GraphQLNonNull( scalarType( "<%= dao.entity.primary_key.graphql.scalar_type %>" ) ) );
+    return argument.build();
+  }
+
+  @javax.annotation.Nonnull
+  protected Object define_<%= data_module.name %>_<%= dao.name %>_Update( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e )
+  {
+<%-
+    v = "e.getArgument( \"#{Reality::Naming.camelize(dao.entity.graphql.name)}#{dao.entity.primary_key.name}\" )"
+    v = "stringTo#{dao.entity.primary_key.graphql.scalar_type(true)}(#{v})" unless dao.entity.primary_key.text?
+    v = "_#{Reality::Naming.camelize(dao.qualified_name.gsub('.','')) }.getBy#{dao.entity.primary_key.name}(#{v})"
+-%>
+    final <%= dao.entity.jpa.qualified_name %> $entity = <%= v %>;
+<% dao.entity.graphql.updateable_attributes.select{|attribute| attribute.graphql.updateable?}.each do |attribute|
+  base_accessor = "e.getArgument( \"#{attribute.reference? || attribute.remote_reference? ? Reality::Naming.camelize(attribute.referencing_link_name) : attribute.graphql.name}\" )"
+  v = base_accessor
+  if attribute.reference?
+    v = "stringTo#{attribute.referenced_entity.primary_key.graphql.scalar_type(true)}(#{v})" unless attribute.referenced_entity.primary_key.text?
+    v = "_#{Reality::Naming.camelize(attribute.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{attribute.referenced_entity.primary_key.name}(#{v})"
+    v = "null == #{base_accessor} ? null : #{v}" if attribute.nullable?
+  end
+-%>
+    final <%= attribute.jpa.java_type %> <%= Reality::Naming.camelize(attribute.name) %> = <%= v %>;
+<% end -%>
+    _<%= Reality::Naming.camelize(dao.qualified_name.gsub('.','')) %>.update( $entity, <%= dao.entity.graphql.updateable_attributes.collect {|attribute| attribute.graphql.updateable? ? Reality::Naming.camelize(attribute.name) : "$entity.#{getter_for(attribute)}" }.join(', ') -%> );
+    return $entity;
+  }
+
+  @javax.annotation.Nonnull
+  protected graphql.schema.DataFetcher defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_Update()
+  {
+    return wrapTopLevelDataFetcher( "delete<%= dao.entity.graphql.name %>", true, this::define_<%= data_module.name %>_<%= dao.name %>_Update );
+  }
+
+  protected void customizeMutation_<%= data_module.name %>_<%= dao.name %>_Update( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
+  {
+  }
+
+  @javax.annotation.Nullable
+  protected graphql.schema.GraphQLFieldDefinition defineMutation_<%= data_module.name %>_<%= dao.name %>_Update()
+  {
+    final graphql.schema.GraphQLFieldDefinition.Builder mutation = graphql.schema.GraphQLFieldDefinition.newFieldDefinition();
+    mutation.name( "update<%= dao.entity.graphql.name %>" );
+<% if dao.graphql.update_description -%>
+    mutation.description( "<%= escape_description_to_string(dao.graphql.update_description) %>" );
+<% end -%>
+<% if dao.graphql.update_deprecation_reason -%>
+    mutation.deprecate( "<%= dao.graphql.update_deprecation_reason -%>" );
+<% end -%>
+    mutation.type( new graphql.schema.GraphQLNonNull( objectType( "<%= dao.entity.graphql.name %>" ) ) );
+    mutation.dataFetcher( defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_Update() );
+    mutation.argument( defineArgument_<%= data_module.name %>_<%= dao.name %>_Update_$Entity() );
+<% dao.entity.graphql.updateable_attributes.select{|attribute| attribute.graphql.updateable?}.each do |attribute| -%>
+    mutation.argument( defineArgument_<%= data_module.name %>_<%= dao.name %>_Update_<%= attribute.name %>() );
+<% end -%>
+    customizeMutation_<%= data_module.name %>_<%= dao.name %>_Update( mutation );
+    return mutation.build();
+  }
+<% end -%>
 <% if dao.graphql.expose_delete? -%>
 
   @javax.annotation.Nullable
@@ -744,6 +843,12 @@ end.join(", ") %>);
 <% end -%>
 <% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
 <% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+<% if dao.graphql.expose_create? -%>
+    //addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= dao.name %>_Create() );
+<% end -%>
+<% if dao.graphql.expose_update? -%>
+    addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= dao.name %>_Update() );
+<% end -%>
 <% if dao.graphql.expose_delete? -%>
     addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= dao.name %>_Delete() );
 <% end -%>

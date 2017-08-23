@@ -291,7 +291,7 @@ module Domgen
       end
 
       def expose_update?
-        dao.repository? && dao.entity.concrete? && (@expose_update.nil? ? true : !!@expose_update)
+        dao.repository? && dao.entity.concrete? && !dao.entity.graphql.updateable_attributes.empty? && (@expose_update.nil? ? true : !!@expose_update)
       end
 
       attr_writer :update_description
@@ -304,6 +304,32 @@ module Domgen
 
       def update_deprecated?
         !@update_deprecation_reason.nil?
+      end
+
+      def update_defaults
+        @update_defaults || {}
+      end
+
+      def update_defaults=(update_defaults)
+        attributes = dao.entity.graphql.updateable_attributes.collect{|attribute| attribute.name.to_s }
+
+        update_defaults.keys.each do |attribute_name|
+          Domgen.error("Attempting to define default update value for attribute '#{attribute_name}' on dao #{dao.qualified_name} when associated entity has no such attribute. Existing attributes on entity include: #{attributes.inspect}") unless attributes.include?(attribute_name.to_s)
+        end
+
+        values = {}
+        update_defaults.each_pair do |key, value|
+          values[key.to_s] = value
+        end
+        @update_defaults = values
+      end
+
+      def update_default?(attribute_name)
+        !!self.update_defaults[attribute_name.to_s]
+      end
+
+      def update_default(attribute_name)
+        self.update_defaults[attribute_name.to_s]
       end
 
       def expose_delete?
@@ -423,6 +449,10 @@ module Domgen
       def description
         @description || entity.description
       end
+
+      def updateable_attributes
+        self.entity.attributes.select{|a| a.graphql? && !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}
+      end
     end
 
     facet.enhance(Attribute) do
@@ -446,6 +476,12 @@ module Domgen
       def deprecated?
         !@deprecation_reason.nil?
       end
+
+      def updateable?
+        @updateable.nil? ? true : !!@updateable
+      end
+
+      attr_writer :updateable
 
       def pre_complete
         save_scalar_type

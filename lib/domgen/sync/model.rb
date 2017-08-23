@@ -666,6 +666,10 @@ module Domgen
             if entity.sync.transaction_time?
               entity.jpa.create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
               entity.jpa.update_default(:DeletedAt => nil)
+              if entity.graphql? && entity.dao.graphql?
+                entity.attribute_by_name(:CreatedAt).graphql.updateable = false
+                entity.attribute_by_name(:DeletedAt).graphql.updateable = false
+              end
               entity.jpa.update_defaults.each do |defaults|
                 entity.jpa.update_default(defaults.values.merge(:DeletedAt => nil)) do |new_default|
                   new_default.factory_method_name = defaults.factory_method_name
