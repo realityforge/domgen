@@ -377,7 +377,7 @@ module Domgen
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(source_graph).send(:register_outward_graph_link, self)
         repository.imit.graph_by_name(target_graph).send(:register_inward_graph_link, self)
-        self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph if self.auto?
+        self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph if self.exclude_target?
       end
 
       attr_reader :name
@@ -390,6 +390,14 @@ module Domgen
 
       def auto?
         !!@auto
+      end
+
+      attr_writer :exclude_target
+
+      # Should we exclude the target entity from source graph? Typically done for automatically
+      # traversing graphs but sometimes you may wish to override this.
+      def exclude_target?
+        @exclude_target.nil? ? self.auto? : !!@exclude_target
       end
 
       def post_verify
