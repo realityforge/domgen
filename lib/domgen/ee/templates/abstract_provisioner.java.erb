@@ -113,11 +113,15 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
 <% if repository.keycloak? -%>
     // Keycloak Configuration Start
 <% repository.keycloak.clients.each do |client| -%>
+<%
+  property = "\"#{Reality::Naming.underscore(client.key)}\""
+  property = "getPrefixedProperty( #{property}, \"_\" )" unless client.default_client?
+-%>
     // Client <%= client.key %>
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm", getKeycloakRealm( "<%= Reality::Naming.underscore(client.key) %>" ) );
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm-public-key", getKeycloakPublicKey( "<%= Reality::Naming.underscore(client.key) %>" ) );
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/auth-server-url", getKeycloakServerURL( "<%= Reality::Naming.underscore(client.key) %>" ) );
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/resource", getKeycloakClient( "<%= Reality::Naming.underscore(client.key) %>" ) );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm", getKeycloakRealm( <%= property %> ) );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm-public-key", getKeycloakPublicKey( <%= property %> ) );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/auth-server-url", getKeycloakServerURL( <%= property %> ) );
+    glassfish.createCustomResource( "<%= client.jndi_config_base %>/resource", getKeycloakClient( <%= property %> ) );
 <% end -%>
 <% repository.keycloak.remote_clients.each do |remote_client| -%>
     // Remote Client <%= remote_client.name %>
@@ -142,6 +146,13 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   protected String getPropertyPrefix()
   {
     return _usePropertyPrefix ? "<%= Reality::Naming.underscore(repository.name) %>" : null;
+  }
+
+  @javax.annotation.Nonnull
+  protected String getPrefixedProperty( @javax.annotation.Nonnull final String property, @javax.annotation.Nonnull final String separator )
+  {
+    final String prefix = getPropertyPrefix();
+    return null == prefix ? property : prefix + separator + property;
   }
 <% if repository.keycloak? -%>
 
