@@ -255,7 +255,7 @@ entities.uniq.each do |entity| -%>
     //Propogate the filter from <%= graph.name %> to downstream graph <%= target_graph.name %>
     for ( final <%= instance_root.jpa.qualified_name %> downstreamEntity : _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( entity, filter ) )
     {
-      subscribe( session, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal(), downstreamEntity.get<%= instance_root.primary_key.name %>() ), true, filter, changeSet );
+      subscribe( session, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>.ordinal(), downstreamEntity.get<%= instance_root.primary_key.name %>() ), true, filter, changeSet );
     }
   }
 <% end -%>
