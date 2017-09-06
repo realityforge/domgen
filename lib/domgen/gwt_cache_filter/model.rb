@@ -37,13 +37,10 @@ DESC
         cache_control_filter_path_list.dup
       end
 
-      def pre_complete
+      def post_complete
         if self.gzip_filter_paths.empty? && self.cache_control_filter_paths.empty?
           repository.disable_facet(:gwt_cache_filter)
         end
-      end
-
-      def post_complete
         unless self.cache_control_filter_paths.empty?
           fragment = <<XML
   <!-- #{repository.name}.CacheControlFilter fragment is auto-generated -->
