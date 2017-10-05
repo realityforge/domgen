@@ -70,7 +70,7 @@ Domgen::Generator.define([:gwt],
                                 type + '/java/#{repository.gwt.qualified_support_test_module_name.gsub(".","/")}.java')
       template_set.erb_template(:data_module,
                                 'abstract_struct_test_factory.java.erb',
-                                'main/java/#{data_module.gwt.qualified_abstract_struct_test_factory_name.gsub(".","/")}.java',
+                                type + '/java/#{data_module.gwt.qualified_abstract_struct_test_factory_name.gsub(".","/")}.java',
                                 :guard => 'data_module.gwt.generate_struct_factory?')
     end
   end

@@ -706,6 +706,12 @@ module Domgen
       java_artifact :test_factory_module, :test, :client, :imit, '#{repository.name}FactorySetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
 
+      attr_writer :include_standard_integration_test_module
+
+      def include_standard_integration_test_module?
+        @include_standard_integration_test_module.nil? ? true : !!@include_standard_integration_test_module
+      end
+
       attr_writer :custom_client_system
 
       def custom_client_system?

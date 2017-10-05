@@ -140,7 +140,8 @@ Domgen::Generator.define([:imit],
     g.template_set(:"imit_server_#{type}_qa") do |template_set|
       template_set.erb_template(:repository,
                                 'server/integration_module.java.erb',
-                                'main/java/#{repository.imit.qualified_integration_module_name.gsub(".","/")}.java')
+                                type + 'java/#{repository.imit.qualified_integration_module_name.gsub(".","/")}.java',
+                                :guard => 'repository.imit.include_standard_integration_test_module?')
     end
     g.template_set(:"imit_client_#{type}_qa_external") do |template_set|
       template_set.erb_template(:repository,
