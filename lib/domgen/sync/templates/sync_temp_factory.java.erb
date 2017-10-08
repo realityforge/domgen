@@ -36,10 +36,12 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   }
 
   @javax.annotation.Nonnull
-  private String generate<%= entity.qualified_name.gsub('.','') %>Sql( @javax.annotation.Nonnull final String selectSql )
+  private String generate<%= entity.qualified_name.gsub('.','') %>Sql( @javax.annotation.Nonnull final String prefixSql, boolean prefixContainsWithClause, @javax.annotation.Nonnull final String selectSql )
   {
     return
-      "<%= j_escape_string( "WITH CTE(#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }, #{sync_attributes.collect{|a| a.sql.quoted_column_name }.join(', ') }) AS ") %>\n" +
+      prefixSql +
+     (prefixContainsWithClause ? ", " : " WITH ") +
+     "<%= j_escape_string( "CTE(#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }, #{sync_attributes.collect{|a| a.sql.quoted_column_name }.join(', ') }) AS ") %>\n" +
       "(\n" +
       selectSql + "\n" +
       ")\n" +
@@ -66,12 +68,17 @@ public class <%= data_module.sync.sync_temp_factory_name %>
 
   public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final String selectSql )
   {
-    return executeUpdate( generate<%= entity.qualified_name.gsub('.','') %>Sql( selectSql ) );
+    return executeUpdate( generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, selectSql ) );
   }
 
   public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String selectSql )
   {
-    return executeUpdate( mappingSourceCode, generate<%= entity.qualified_name.gsub('.','') %>Sql( selectSql ) );
+    return executeUpdate( mappingSourceCode, generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, selectSql ) );
+  }
+
+  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String prefixSql, boolean prefixContainsWithClause, @javax.annotation.Nonnull final String selectSql )
+  {
+    return executeUpdate( mappingSourceCode, generate<%= entity.qualified_name.gsub('.','') %>Sql( prefixSql, prefixContainsWithClause, selectSql ) );
   }
 
   public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
@@ -113,7 +120,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   end.join(', ')
 %> )
   {
-    final String sql = generate<%= entity.qualified_name.gsub('.','') %>Sql( "<%= j_escape_string("SELECT ?,?,#{entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| '?'}.join(',')}") %>" );
+    final String sql = generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, "<%= j_escape_string("SELECT ?,?,#{entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| '?'}.join(',')}") %>" );
 
     return getEntityManager().createNativeQuery( sql ).
       setParameter( 1, mappingSourceCode ).
