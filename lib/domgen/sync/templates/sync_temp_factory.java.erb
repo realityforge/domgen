@@ -36,7 +36,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   }
 
   @javax.annotation.Nonnull
-  private String generate<%= entity.qualified_name.gsub('.','') %>Sql( @javax.annotation.Nonnull final String prefixSql, boolean prefixContainsWithClause, @javax.annotation.Nonnull final String selectSql )
+  private String generate<%= entity.qualified_name.gsub('.','') %>Sql( @javax.annotation.Nonnull final String prefixSql, final boolean prefixContainsWithClause, @javax.annotation.Nonnull final String selectSql )
   {
     return
       prefixSql +
@@ -76,7 +76,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
     return executeUpdate( mappingSourceCode, generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, selectSql ) );
   }
 
-  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String prefixSql, boolean prefixContainsWithClause, @javax.annotation.Nonnull final String selectSql )
+  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String prefixSql, final boolean prefixContainsWithClause, @javax.annotation.Nonnull final String selectSql )
   {
     return executeUpdate( mappingSourceCode, generate<%= entity.qualified_name.gsub('.','') %>Sql( prefixSql, prefixContainsWithClause, selectSql ) );
   }
