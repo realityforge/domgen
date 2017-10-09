@@ -77,6 +77,10 @@ module Domgen
       java_artifact :standard_ux_test_module, :test, :client, :gwt, '#{repository.name}UserExperienceTestModule', :sub_package => 'util'
       java_artifact :debug_config, nil, :client, :gwt, '#{repository.name}DebugConfig'
 
+      def generate_sync_callbacks?
+        repository.gwt_rpc? || repository.imit?
+      end
+
       def debug_config
         @debug_config ||= {
           'emit_raw_uncaught_exceptions' => {:default_value => true, :production_value => false},
@@ -240,13 +244,16 @@ module Domgen
         add_test_module(standard_test_module_name, qualified_standard_test_module_name) if include_standard_test_module?
         add_test_module(support_test_module_name, qualified_support_test_module_name)
         add_ux_test_module(standard_ux_test_module_name, qualified_standard_ux_test_module_name) if include_standard_ux_test_module?
-        add_test_class_content(<<CONTENT)
+        add_test_class_content(<<CONTENT) if repository.gwt.generate_sync_callbacks?
 
   @java.lang.SuppressWarnings( { "unchecked", "UnusedParameters" } )
   protected final <T> java.lang.Class<#{repository.gwt.qualified_async_callback_name}<T>> asyncResultType( @javax.annotation.Nonnull final java.lang.Class<T> type )
   {
     return (Class) #{repository.gwt.qualified_async_callback_name}.class;
   }
+CONTENT
+
+        add_test_class_content(<<CONTENT)
 
   @javax.annotation.Nonnull
   protected final <H> H addHandler( @javax.annotation.Nonnull final com.google.web.bindery.event.shared.Event.Type<H> type, final H handler )

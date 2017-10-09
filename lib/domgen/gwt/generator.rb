@@ -54,10 +54,12 @@ Domgen::Generator.define([:gwt],
     g.template_set(:"gwt_client_#{type}_jso_qa_support") do |template_set|
       template_set.erb_template(:repository,
                                 'callback_success_answer.java.erb',
-                                type + '/java/#{repository.gwt.qualified_callback_success_answer_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.gwt.qualified_callback_success_answer_name.gsub(".","/")}.java',
+                                :guard => 'repository.gwt.generate_sync_callbacks?')
       template_set.erb_template(:repository,
                                 'callback_failure_answer.java.erb',
-                                type + '/java/#{repository.gwt.qualified_callback_failure_answer_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.gwt.qualified_callback_failure_answer_name.gsub(".","/")}.java',
+                                :guard => 'repository.gwt.generate_sync_callbacks?')
       template_set.erb_template(:repository,
                                 'client_test.java.erb',
                                 type + '/java/#{repository.gwt.qualified_client_test_name.gsub(".","/")}.java',
@@ -90,10 +92,12 @@ Domgen::Generator.define([:gwt],
   g.template_set(:gwt_client_callback) do |template_set|
     template_set.erb_template(:repository,
                               'async_callback.java.erb',
-                              'main/java/#{repository.gwt.qualified_async_callback_name.gsub(".","/")}.java')
+                              'main/java/#{repository.gwt.qualified_async_callback_name.gsub(".","/")}.java',
+                              :guard => 'repository.gwt.generate_sync_callbacks?')
     template_set.erb_template(:repository,
                               'async_error_callback.java.erb',
-                              'main/java/#{repository.gwt.qualified_async_error_callback_name.gsub(".","/")}.java')
+                              'main/java/#{repository.gwt.qualified_async_error_callback_name.gsub(".","/")}.java',
+                              :guard => 'repository.gwt.generate_sync_callbacks?')
   end
 
   g.template_set(:gwt_client_module) do |template_set|
