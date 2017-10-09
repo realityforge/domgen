@@ -59,35 +59,36 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 
   protected boolean isPathProtected( @javax.annotation.Nonnull final String path )
   {
+<% base_path = client.keycloak_repository.repository.jaxrs? ? "#{client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name}.APPLICATION_PATH" : '"api"' -%>
 <% if client.keycloak_repository.repository.appconfig? -%>
-    if ( path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + '/' + iris.appconfig.server.rest.SystemSettingRestService.PATH_PREFIX ) )
+    if ( path.startsWith( <%= base_path %> + '/' + iris.appconfig.server.rest.SystemSettingRestService.PATH_PREFIX ) )
     {
       return false;
     }
 <% end -%>
 <% if client.keycloak_repository.repository.timerstatus? -%>
-    if ( path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + '/' + iris.timerstatus.server.service.TimerStatusService.PATH_PREFIX ) )
+    if ( path.startsWith( <%= base_path %> + '/' + iris.timerstatus.server.service.TimerStatusService.PATH_PREFIX ) )
     {
       return false;
     }
 <% end -%>
 <% if client.keycloak_repository.repository.syncrecord? -%>
-    if ( path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + '/' + iris.syncrecord.server.rest.SyncStatusService.PATH_PREFIX ) )
+    if ( path.startsWith( <%= base_path %> + '/' + iris.syncrecord.server.rest.SyncStatusService.PATH_PREFIX ) )
     {
       return false;
     }
-    if ( _disableSyncServiceProtection && path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + "/sync" ) )
+    if ( _disableSyncServiceProtection && path.startsWith( <%= base_path %> + "/sync" ) )
     {
       return false;
     }
 <% end -%>
 <% if client.keycloak_repository.repository.imit? -%>
-    if ( _disableSessionServiceProtection && path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH  + org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_URL_FRAGMENT ) )
+    if ( _disableSessionServiceProtection && path.startsWith( <%= base_path %>  + org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_URL_FRAGMENT ) )
     {
       return false;
     }
 <% if client.keycloak_repository.repository.imit.remote_datasources.size > 0 -%>
-    if ( _disableSessionServiceProtection && path.startsWith( <%= client.keycloak_repository.repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + '/' + org.realityforge.replicant.client.ee.rest.AbstractDataLoaderServiceRestService.CLIENT_URL_PREFIX ) )
+    if ( _disableSessionServiceProtection && path.startsWith( <%= base_path %> + '/' + org.realityforge.replicant.client.ee.rest.AbstractDataLoaderServiceRestService.CLIENT_URL_PREFIX ) )
     {
       return false;
     }
