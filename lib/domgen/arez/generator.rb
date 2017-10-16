@@ -35,6 +35,9 @@ Domgen::Generator.define([:arez],
                               'dao.java.erb',
                               'main/java/#{dao.arez.qualified_dao_name.gsub(".","/")}.java',
                               :guard => '!dao.arez.has_non_standard_queries?')
+    template_set.erb_template(:data_module,
+                              'data_module_repository.java.erb',
+                              'main/java/#{data_module.arez.qualified_data_module_repository_name.gsub(".","/")}.java')
   end
 
   g.template_set(:arez_client_dao_gwt) do |template_set|

@@ -92,6 +92,7 @@ module Domgen
       end
 
       java_artifact :abstract_test_factory, :entity, :client, :arez, 'Abstract#{data_module.name}Factory'
+      java_artifact :data_module_repository, :entity, :client, :arez, '#{data_module.name}DataModuleRepository'
 
       attr_writer :test_factory_name
 

@@ -1,0 +1,28 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.arez.qualified_data_module_repository_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+public final class <%= data_module.arez.data_module_repository_name %>
+{
+  private final org.realityforge.replicant.client.EntityRepository _repository;
+<% data_module.daos.select{|dao|dao.arez?}.each do |dao| -%>
+  private final <%= dao.arez.qualified_dao_name %> _<%= Reality::Naming.camelize(dao.name) %>;
+<% end -%>
+
+  public <%= data_module.arez.data_module_repository_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository )
+  {
+    _repository = java.util.Objects.requireNonNull( repository );
+<% data_module.daos.select{|dao|dao.arez?}.each do |dao| -%>
+    _<%= Reality::Naming.camelize(dao.name) %> = new <%= dao.arez.qualified_dao_name %>( repository );
+<% end -%>
+  }
+
+<% data_module.daos.select{|dao|dao.arez?}.each do |dao| -%>
+  @javax.annotation.Nonnull
+  public final <%= dao.arez.qualified_dao_name %> <%= Reality::Naming.camelize(dao.name) %>()
+  {
+    return _<%= Reality::Naming.camelize(dao.name) %>;
+  }
+<% end -%>
+}
