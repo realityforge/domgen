@@ -22,7 +22,6 @@ module Domgen
           raise "Attempted to define test_default on #{entity.qualified_name} with key '#{key}' that is not an attribute value" unless entity.attribute_by_name?(key)
           a = entity.attribute_by_name(key)
           raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute has no imit facet defined. Defaults = #{defaults.inspect}" unless a.imit?
-          raise "Attempted to define test_default on #{entity.qualified_name} for attribute '#{key}' when attribute when not client side. Defaults = #{defaults.inspect}" unless a.imit.client_side?
         end
         values = {}
         defaults.each_pair do |k, v|
@@ -309,7 +308,7 @@ module Domgen
 
         entities.each do |entity_name|
           entity = application.repository.entity_by_name(entity_name)
-          entity.attributes.select { |a| a.reference? && a.imit? && a.imit.client_side? && a.imit.auto_graph_links.empty? }.each do |a|
+          entity.attributes.select { |a| a.reference? && a.imit? && a.imit.auto_graph_links.empty? }.each do |a|
             referenced_entity = a.referenced_entity
 
             # Unclear on how to handle this next scenario. Assume a subtype is visible?
@@ -609,7 +608,7 @@ module Domgen
   end
 
   # timerstatus is required due to timers being exposed
-  FacetManager.facet(:imit => [:ce, :gwt_rpc, :timerstatus]) do |facet|
+  FacetManager.facet(:imit => [:ce, :arez, :gwt_rpc, :timerstatus]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
@@ -658,12 +657,8 @@ module Domgen
       java_artifact :runtime_extension, :comm, :client, :imit, '#{repository.name}RuntimeExtension'
       java_artifact :gwt_runtime_extension, :comm, :client, :imit, '#{repository.name}GwtRuntimeExtension'
       java_artifact :ee_runtime_extension, :comm, :client, :imit, '#{repository.name}EeRuntimeExtension'
-      java_artifact :dao_module, :ioc, :client, :imit, '#{repository.name}ReplicantRepositoryModule'
-      java_artifact :entity_complete_module, :test, :client, :imit, '#{repository.name}EntityModule', :sub_package => 'util'
       java_artifact :ee_complete_module, :test, :client, :imit, '#{repository.name}EeModule', :sub_package => 'util'
       java_artifact :gwt_complete_module, :test, :client, :imit, '#{repository.name}GwtModule', :sub_package => 'util'
-      java_artifact :aggregate_dao_test, :test, :client, :imit, '#{repository.name}AggregateDAOTest', :sub_package => 'util'
-      java_artifact :dao_test_module, :test, :client, :imit, '#{repository.name}RepositoryTestModule', :sub_package => 'util'
       java_artifact :replicant_module, :modules, nil, :gwt, '#{repository.name}ReplicantSupport'
       java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
@@ -703,7 +698,6 @@ module Domgen
       java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ReplicantClientTest', :sub_package => 'util'
       java_artifact :client_test, :test, :client, :imit, '#{repository.name}ReplicantClientTest', :sub_package => 'util'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
-      java_artifact :test_factory_module, :test, :client, :imit, '#{repository.name}FactorySetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
 
       attr_writer :include_standard_integration_test_module
@@ -915,9 +909,6 @@ module Domgen
       end
 
       def pre_complete
-        repository.gwt.debug_config['entity_omit_verbose_null_check'] = {:production_value => true}
-        repository.gwt.debug_config['entity_verbose_invariant_exceptions'] = {:default_value => true, :production_value => false}
-        repository.gwt.debug_config['entity_verbose_reference_exceptions'] = {:default_value => true, :production_value => false}
         repository.gwt.debug_config['entity_verbose_to_string'] = {:default_value => true, :production_value => false}
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
@@ -1024,32 +1015,12 @@ module Domgen
     return s( org.realityforge.replicant.client.EntityRepository.class );
   }
 
-  @javax.annotation.Nonnull
-  protected final org.realityforge.replicant.client.EntityChangeBroker broker()
-  {
-    return s( org.realityforge.replicant.client.EntityChangeBroker.class );
-  }
-
-  protected void resumeBroker()
-  {
-    broker().resume( "TEST" );
-  }
-
-  protected void pauseBroker()
-  {
-    broker().pause( "TEST" );
-  }
 CONTENT
         add_test_class_content(test_content)
         add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
-        add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
-        add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
-        repository.gwt.add_test_module(repository.imit.mock_services_module_name, repository.imit.qualified_mock_services_module_name) if repository.gwt?
+        repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name) if repository.gwt?
          if repository.gwt?
-           repository.gwt.add_gin_module(repository.imit.services_module_name, repository.imit.qualified_services_module_name)
-           repository.gwt.add_gin_module(repository.imit.dao_module_name, repository.imit.qualified_dao_module_name)
-           repository.gwt.add_test_module(repository.imit.dao_test_module_name, repository.imit.qualified_dao_test_module_name)
-           repository.gwt.add_test_module(repository.imit.test_factory_module_name, repository.imit.qualified_test_factory_module_name)
+           repository.gwt.add_gin_module(services_module_name, qualified_services_module_name)
            repository.gwt.add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
            repository.gwt.add_test_class_content(test_content)
          end
@@ -1172,7 +1143,7 @@ CONTENT
                 end
 
                 graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
-                  outgoing_links = entity.referencing_attributes.select { |a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
+                  outgoing_links = entity.referencing_attributes.select { |a| a.arez? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
                   outgoing_links.each do |a|
                     if a.inverse.multiplicity == :many
                       s.method("Get#{a.inverse.attribute.qualified_name.gsub('.', '')}In#{graph.name}Graph") do |m|
@@ -1260,7 +1231,7 @@ CONTENT
             unless graph.reachable_entities.include?(entity.qualified_name.to_s)
               graph.reachable_entities << entity.qualified_name.to_s
               entity.referencing_attributes.each do |a|
-                if a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
+                if a.arez? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
                   a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
                   entity_list << a.entity unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
                 end
@@ -1269,13 +1240,6 @@ CONTENT
           end
         end
         repository.imit.graphs.each { |g| g.post_verify }
-      end
-
-      def post_verify
-        repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
-          add_test_factory(data_module.imit.short_test_code, data_module.imit.qualified_test_factory_name)
-          repository.gwt.add_test_factory(data_module.imit.short_test_code, data_module.imit.qualified_test_factory_name) if repository.gwt?
-        end
       end
 
       protected
@@ -1329,109 +1293,7 @@ CONTENT
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::ImitJavaPackage
 
-      attr_writer :short_test_code
-
-      def short_test_code
-        @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
-      end
-
       java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
-      java_artifact :abstract_test_factory, :entity, :client, :imit, 'Abstract#{data_module.name}Factory'
-
-      attr_writer :test_factory_name
-
-      def test_factory_name
-        @test_factory_name || abstract_test_factory_name.gsub(/^Abstract/, '')
-      end
-
-      def qualified_test_factory_name
-        "#{client_entity_package}.#{test_factory_name}"
-      end
-    end
-
-    facet.enhance(DataAccessObject) do
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :dao_service, :entity, :client, :imit, '#{dao.name}', :sub_package => 'dao'
-      java_artifact :abstract_dao, :entity, :client, :imit, 'Abstract#{dao_service_name}Impl', :sub_package => 'dao'
-      java_artifact :dao, :entity, :client, :imit, '#{dao_service_name}Impl', :sub_package => 'dao'
-      java_artifact :gwt_dao, :entity, :client, :imit, 'Gwt#{dao_service_name}Impl', :sub_package => 'dao'
-      java_artifact :test_dao, :entity, :client, :imit, 'Test#{dao_service_name}Impl', :sub_package => 'dao'
-      java_artifact :ee_dao, :entity, :client, :imit, 'Ee#{dao_service_name}Impl', :sub_package => 'dao'
-      java_artifact :abstract_dao_test, :entity, :client, :imit, 'Abstract#{dao_service_name}ImplTest', :sub_package => 'dao'
-      java_artifact :dao_test, :entity, :client, :imit, '#{dao_service_name}ImplTest', :sub_package => 'dao'
-
-      def has_non_standard_queries?
-        non_standard_queries.size > 0
-      end
-
-      def non_standard_queries
-        dao.queries.select { |q| q.imit? && !q.imit.standard_query? }
-      end
-
-      def pre_complete
-        dao.disable_facet(:imit) if !dao.repository? || !dao.entity.imit?
-      end
-
-      def post_verify
-        dao.disable_facet(:imit) if dao.imit? && dao.queries.select { |q| q.imit? }.empty?
-      end
-    end
-
-    facet.enhance(Query) do
-      def standard_query?
-        @standard_query.nil? ? query.standard_query? : !!@standard_query
-      end
-
-      attr_accessor :standard_query
-
-      def disable_facet_unless_valid
-        disable = false
-        disable = true if query.result_entity? && !query.entity.imit?
-        disable = true unless query.query_type == :select
-        disable = true if query.parameters.size != query.parameters.select { |p| p.imit? }.size
-        query.disable_facet(:imit) if query.imit? && disable
-      end
-
-      def pre_complete
-        disable_facet_unless_valid
-      end
-
-      def perform_complete
-        disable_facet_unless_valid
-      end
-
-      def perform_verify
-        disable_facet_unless_valid
-      end
-
-      def post_verify
-        disable_facet_unless_valid
-      end
-    end
-
-    facet.enhance(QueryParameter) do
-      include Domgen::Java::ImitJavaCharacteristic
-
-      def disable_facet_unless_valid
-        disable = false
-        disable = true if parameter.reference? && !parameter.referenced_entity.imit?
-        parameter.disable_facet(:imit) if parameter.imit? && disable
-      end
-
-      def pre_complete
-        disable_facet_unless_valid
-      end
-
-      def pre_verify
-        disable_facet_unless_valid
-      end
-
-      protected
-
-      def characteristic
-        parameter
-      end
     end
 
     facet.enhance(Service) do
@@ -1586,17 +1448,6 @@ CONTENT
         end
       end
 
-      def referencing_client_side_attributes
-        entity.referencing_attributes.select do |attribute|
-          attribute.entity.imit? &&
-            attribute.inverse.imit? &&
-            attribute.inverse.imit.traversable? &&
-            entity == attribute.referenced_entity &&
-            attribute.imit? &&
-            attribute.referenced_entity.imit?
-        end
-      end
-
       def pre_verify
         if entity.data_module.repository.imit.auto_register_change_listener? && entity.jpa?
           entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_listener_name
@@ -1605,14 +1456,6 @@ CONTENT
     end
 
     facet.enhance(Attribute) do
-      def client_side=(client_side)
-        @client_side = client_side
-      end
-
-      def client_side?
-        @client_side.nil? ? (!attribute.reference? || attribute.referenced_entity.imit?) : @client_side
-      end
-
       def eager?
         !lazy?
       end

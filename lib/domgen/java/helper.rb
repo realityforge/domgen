@@ -24,8 +24,8 @@ module Domgen
         is_nullable ? '@javax.annotation.Nullable' : '@javax.annotation.Nonnull'
       end
 
-      def supports_nullable?(extension, modality = :default)
-        !(extension.primitive?(modality) || extension.java_type(modality).to_s == 'void')
+      def supports_nullable?(extension, modality = :default, options = {})
+        !(extension.primitive?(modality, options) || extension.java_type(modality, options).to_s == 'void')
       end
 
       def annotated_type(characteristic, facet_key, modality = :default, options = {})
@@ -37,8 +37,8 @@ module Domgen
         native_qualifier = options[:native] ? 'native ' : ''
         nullable = (options[:nullable].nil? ? characteristic.nullable? : options[:nullable]) || (options[:nonnull_requires_immutable] ? !characteristic.immutable? : false)
         extension = characteristic.facet(facet_key)
-        nullability_prefix = (supports_nullable?(extension, modality)) ? "#{nullability_annotation(nullable)} " : ''
-        type = options[:non_primitive] ? extension.non_primitive_java_type(modality) : extension.java_type(modality)
+        nullability_prefix = (supports_nullable?(extension, modality, options)) ? "#{nullability_annotation(nullable)} " : ''
+        type = options[:non_primitive] ? extension.non_primitive_java_type(modality) : extension.java_type(modality, options)
         "#{nullability_prefix}#{public_qualifier}#{protected_qualifier}#{private_qualifier}#{abstract_qualifier}#{final_qualifier}#{native_qualifier}#{type}"
       end
 

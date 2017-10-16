@@ -197,3 +197,7 @@ require 'domgen/redfish/generator'
 require 'domgen/graphql/helper'
 require 'domgen/graphql/model'
 require 'domgen/graphql/generator'
+
+require 'domgen/arez/model'
+require 'domgen/arez/helper'
+require 'domgen/arez/generator'

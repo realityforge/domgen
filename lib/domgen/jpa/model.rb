@@ -1012,7 +1012,7 @@ FRAGMENT
           end
         end
         entity.queries.select { |query| query.jpa? && query.jpa.ignore_default_criteria? }.each do |query|
-          query.disable_facet(:imit) if query.imit?
+          query.disable_facet(:arez) if query.arez?
         end
       end
     end

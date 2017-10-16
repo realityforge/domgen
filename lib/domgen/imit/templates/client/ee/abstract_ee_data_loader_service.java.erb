@@ -74,7 +74,7 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   public void postConstruct()
   {
     super.postConstruct();
-    _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getChangeBroker(), getSubscriptionManager() )" }.join(', ') %> );
+    _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getSubscriptionManager() )" }.join(', ') %> );
     getSessionContext().setBaseURL( get<%= repository.name %>ApplicationURL() );
   }
 

@@ -239,8 +239,8 @@ module Domgen
         end
       end
 
-      def java_type(characteristic, group_type, modality = :default)
-        if primitive?(characteristic, group_type, modality)
+      def java_type(characteristic, group_type, modality = :default, options = {})
+        if primitive?(characteristic, group_type, modality, options)
           return primitive_java_type(characteristic, group_type, modality)
         else
           non_primitive_java_type(characteristic, group_type, modality)
@@ -282,7 +282,7 @@ module Domgen
 
       GROUP_TYPE_MAP = {
         :ee => GroupType.new(:jpa, :ee, :ee),
-        :gwt => GroupType.new(:imit, :gwt, :gwt)
+        :gwt => GroupType.new(:arez, :gwt, :gwt)
       }
 
       MODALITIES = [:default, :boundary, :transport]
@@ -307,8 +307,8 @@ module Domgen
         return characteristic.name
       end
 
-      def java_type(modality = :default)
-        Domgen::Java.java_type(characteristic, group_type, modality)
+      def java_type(modality = :default, options = {})
+        Domgen::Java.java_type(characteristic, group_type, modality, options)
       end
 
       def java_component_type(modality = :default)

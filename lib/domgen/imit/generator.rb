@@ -22,12 +22,6 @@ Domgen::Generator.define([:imit],
   end
 
   g.template_set(:imit_client_entity) do |template_set|
-    template_set.erb_template(:entity,
-                              'client/entity.java.erb',
-                              'main/java/#{entity.imit.qualified_name.gsub(".","/")}.java')
-    template_set.erb_template(:entity,
-                              'client/base_entity_extension.java.erb',
-                              'main/java/#{entity.imit.qualified_base_entity_extension_name.gsub(".","/")}.java')
     template_set.erb_template(:data_module,
                               'client/mapper.java.erb',
                               'main/java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java')
@@ -46,19 +40,6 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:repository,
                               'client/runtime_extension.java.erb',
                               'main/java/#{repository.imit.qualified_runtime_extension_name.gsub(".","/")}.java')
-  end
-
-  g.template_set(:imit_client_dao) do |template_set|
-    template_set.erb_template(:dao,
-                              'client/dao_service.java.erb',
-                              'main/java/#{dao.imit.qualified_dao_service_name.gsub(".","/")}.java')
-    template_set.erb_template(:dao,
-                              'client/abstract_dao.java.erb',
-                              'main/java/#{dao.imit.qualified_abstract_dao_name.gsub(".","/")}.java')
-    template_set.erb_template(:dao,
-                              'client/dao.java.erb',
-                              'main/java/#{dao.imit.qualified_dao_name.gsub(".","/")}.java',
-                              :guard => '!dao.imit.has_non_standard_queries?')
   end
 
   g.template_set(:imit_client_entity_gwt_module) do |template_set|
@@ -85,15 +66,6 @@ Domgen::Generator.define([:imit],
                               'main/java/#{repository.imit.qualified_gwt_data_loader_service_name.gsub(".","/")}.java')
   end
 
-  g.template_set(:imit_client_dao_gwt) do |template_set|
-    template_set.erb_template(:dao,
-                              'client/gwt/gwt_dao.java.erb',
-                              'main/java/#{dao.imit.qualified_gwt_dao_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/gwt/dao_module.java.erb',
-                              'main/java/#{repository.imit.qualified_dao_module_name.gsub(".","/")}.java')
-  end
-
   g.template_set(:imit_client_entity_ee) do |template_set|
     template_set.erb_template(:repository,
                               'client/ee/ee_runtime_extension.java.erb',
@@ -111,12 +83,6 @@ Domgen::Generator.define([:imit],
                               'client/ee/abstract_ee_data_loader_service.java.erb',
                               'main/java/#{repository.imit.qualified_abstract_ee_data_loader_service_name.gsub(".","/")}.java',
                               :additional_helpers => [Domgen::Jws::Helper])
-  end
-
-  g.template_set(:imit_client_dao_ee) do |template_set|
-    template_set.erb_template(:dao,
-                              'client/ee/ee_dao.java.erb',
-                              'main/java/#{dao.imit.qualified_ee_dao_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_client_service) do |template_set|
@@ -145,40 +111,12 @@ Domgen::Generator.define([:imit],
     end
     g.template_set(:"imit_client_#{type}_qa_external") do |template_set|
       template_set.erb_template(:repository,
-                                'client/entity_complete_module.java.erb',
-                                type + '/java/#{repository.imit.qualified_entity_complete_module_name.gsub(".","/")}.java')
-      template_set.erb_template(:data_module,
-                                'client/abstract_test_factory.java.erb',
-                                type + '/java/#{data_module.imit.qualified_abstract_test_factory_name.gsub(".","/")}.java')
-      template_set.erb_template(:repository,
-                                'client/test_factory_module.java.erb',
-                                type + '/java/#{repository.imit.qualified_test_factory_module_name.gsub(".","/")}.java')
-      template_set.erb_template(:repository,
                                 'client/abstract_client_test.java.erb',
                                 type + '/java/#{repository.imit.qualified_abstract_client_test_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
                                 'client/client_test.java.erb',
                                 type + '/java/#{repository.imit.qualified_client_test_name.gsub(".","/")}.java',
                                 :guard => '!repository.imit.custom_base_client_test?')
-      template_set.erb_template(:dao,
-                                'client/test_dao.java.erb',
-                                type + '/java/#{dao.imit.qualified_test_dao_name.gsub(".","/")}.java')
-      template_set.erb_template(:repository,
-                                'client/dao_test_module.java.erb',
-                                type + '/java/#{repository.imit.qualified_dao_test_module_name.gsub(".","/")}.java')
-    end
-
-    g.template_set(:"imit_client_#{type}_qa") do |template_set|
-      template_set.erb_template(:dao,
-                                'client/abstract_dao_test.java.erb',
-                                type + '/java/#{dao.imit.qualified_abstract_dao_test_name.gsub(".","/")}.java',
-                                :guard => 'dao.imit.has_non_standard_queries?')
-    end
-
-    g.template_set(:"imit_client_#{type}_dao_aggregate_test") do |template_set|
-      template_set.erb_template(:repository,
-                                'client/aggregate_dao_test.java.erb',
-                                type + '/java/#{repository.imit.qualified_aggregate_dao_test_name.gsub(".","/")}.java')
     end
 
     g.template_set(:"imit_client_#{type}_gwt_qa_external") do |template_set|
@@ -301,6 +239,6 @@ Domgen::Generator.define([:imit, :jpa],
 
   g.template_set(:imit_shared => [:imit_metadata])
   g.template_set(:imit_server => [:imit_server_service, :imit_server_entity, :imit_server_qa])
-  g.template_set(:imit_client => [:imit_client_test_qa, :imit_client_service, :imit_client_entity, :imit_client_entity_gwt])
+  g.template_set(:imit_client => [:imit_client_service, :imit_client_entity, :imit_client_entity_gwt])
   g.template_set(:imit => [:imit_client, :imit_server, :imit_shared, :imit_server_test_qa])
 end
