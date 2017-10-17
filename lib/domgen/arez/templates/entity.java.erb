@@ -359,37 +359,49 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
   public final void link()
   {
     checkValidity();
-    _$linking = true;
+    if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
+    {
+      _$linking = true;
+    }
     try
     {
       performLink();
-      _$linked = true;
+      if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
+      {
+        _$linked = true;
+      }
     }
     finally
     {
-      _$linking = false;
+      if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
+      {
+        _$linking = false;
+      }
     }
   }
 
   private void delink()
   {
     checkValidity();
-    _$delinking = true;
+    if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
+    {
+      _$delinking = true;
+    }
     try
     {
       performDelink();
-      _$linked = false;
+      if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
+      {
+        _$linked = false;
+      }
     }
     finally
     {
-      _$delinking = false;
+      if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
+      {
+        _$delinking = false;
+      }
     }
-  }
-
-  @java.lang.Override
-  public final boolean isLinked()
-  {
-    return _$linked;
   }
 
 <% end -%>
