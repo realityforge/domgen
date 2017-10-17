@@ -82,7 +82,11 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% end -%>
   <%= annotated_type(attribute, :arez, :default, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>()
   {
-    check<%= attribute.reference? || attribute.remote_reference? ? 'Linked' : 'Validity' %>();
+<% if !attribute.immutable? && (attribute.reference? || attribute.remote_reference?) -%>
+    get<%= attribute.arez.name(:transport) %>Observable().reportObserved();
+<% elsif attribute.immutable? -%>
+    checkValidity();
+<% end -%>
 <% if attribute.arez.lazy? -%>
     link<%= attribute.arez.name %>();
 <% end -%>
@@ -90,7 +94,17 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
   }
 <% if attribute.attribute_type == :reference %>
 
-  protected final <%= attribute.arez.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>()
+<% unless attribute.immutable? -%>
+  @org.realityforge.arez.annotations.ObservableRef
+  @javax.annotation.Nonnull
+  protected org.realityforge.arez.Observable get<%= attribute.arez.name(:transport) %>Observable()
+  {
+    throw new IllegalStateException();
+  }
+
+  @org.realityforge.arez.annotations.Observable
+<% end -%>
+  protected <%= attribute.arez.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>()
   {
     return _<%= Reality::Naming.camelize(attribute.referencing_link_name) %>;
   }
