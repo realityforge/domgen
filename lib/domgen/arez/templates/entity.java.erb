@@ -118,17 +118,18 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 
   void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :final => true) %> value )
   {
+<% nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true)) ? "java.util.Objects.requireNonNull" : '' -%>
 <% if attribute.reference? || attribute.remote_reference? -%>
     _<%= Reality::Naming.camelize(attribute.arez.name) %> = null;
-    _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> = value;
+    _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> = <%= nullability_prefix %>( value );
 <% elsif attribute.date? -%>
-    _<%= Reality::Naming.camelize(attribute.arez.name) %> = <%= attribute.nullable? ? 'null == value ? null : ' : '' %>org.realityforge.gwt.datatypes.client.date.RDate.parse( value );
+    _<%= Reality::Naming.camelize(attribute.arez.name) %> = <%= attribute.nullable? ? 'null == value ? null : ' : '' %>org.realityforge.gwt.datatypes.client.date.RDate.parse( <%= nullability_prefix %>( value ) );
 <% elsif attribute.enumeration? -%>
 <% if !attribute.arez.primitive?(:transport) -%>
     if( null != value )
     {
 <% end -%>
-    _<%= Reality::Naming.camelize(attribute.arez.name) %> = <%= attribute.arez.java_type %>.<%= attribute.enumeration.textual_values? ? 'valueOf( value )' : 'values()[value]' %>;
+    _<%= Reality::Naming.camelize(attribute.arez.name) %> = <%= attribute.arez.java_type %>.<%= attribute.enumeration.textual_values? ? "valueOf( #{nullability_prefix}( value ) )" : "values()[ #{nullability_prefix}( value )]" %>;
 <% if !attribute.arez.primitive?(:transport) -%>
     }
     else
@@ -137,7 +138,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
     }
 <% end %>
 <% else -%>
-    _<%= Reality::Naming.camelize(attribute.arez.name) %> = value;
+    _<%= Reality::Naming.camelize(attribute.arez.name) %> = <%= nullability_prefix %>( value );
 <% end %>  }
 <% end %>
 <% end %>
