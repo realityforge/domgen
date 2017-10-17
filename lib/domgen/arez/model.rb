@@ -55,6 +55,7 @@ module Domgen
         repository.gwt.client_ioc_package
       end
 
+      java_artifact :root_repository, :entity, :client, :arez, '#{repository.name}RootRepository'
       java_artifact :dao_module, :ioc, :client, :arez, '#{repository.name}ReplicantRepositoryModule'
       java_artifact :aggregate_dao_test, :test, :client, :arez, '#{repository.name}AggregateDAOTest', :sub_package => 'util'
       java_artifact :dao_test_module, :test, :client, :arez, '#{repository.name}RepositoryTestModule', :sub_package => 'util'

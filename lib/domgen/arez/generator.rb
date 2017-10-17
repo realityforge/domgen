@@ -38,6 +38,9 @@ Domgen::Generator.define([:arez],
     template_set.erb_template(:data_module,
                               'data_module_repository.java.erb',
                               'main/java/#{data_module.arez.qualified_data_module_repository_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'root_repository.java.erb',
+                              'main/java/#{repository.arez.qualified_root_repository_name.gsub(".","/")}.java')
   end
 
   g.template_set(:arez_client_dao_gwt) do |template_set|
