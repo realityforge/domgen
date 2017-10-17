@@ -76,8 +76,11 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
     abstract void set<%= attribute.arez.name(:transport) %>( <%= attribute.arez.java_type(:transport) %> value );
 <% end %>
 <% end %>
-<% entity.declared_attributes.select{|attribute| !attribute.primary_key? && !attribute.abstract? && attribute.arez?}.each do |attribute|
-%>  <%= annotated_type(attribute, :arez, :default, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>()
+<% entity.declared_attributes.select{|attribute| !attribute.primary_key? && !attribute.abstract? && attribute.arez?}.each do |attribute| -%>
+<% if !attribute.immutable? && !attribute.reference? && !attribute.remote_reference? -%>
+  @org.realityforge.arez.annotations.Observable
+<% end -%>
+  <%= annotated_type(attribute, :arez, :default, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>()
   {
     check<%= attribute.reference? || attribute.remote_reference? ? 'Linked' : 'Validity' %>();
 <% if attribute.arez.lazy? -%>
@@ -113,7 +116,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% end -%>
 <% unless attribute.immutable? -%>
 
-  final void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :final => true) %> value )
+  void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :final => true) %> value )
   {
 <% if attribute.reference? || attribute.remote_reference? -%>
     _<%= Reality::Naming.camelize(attribute.arez.name) %> = null;
