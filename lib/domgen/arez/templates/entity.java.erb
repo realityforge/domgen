@@ -61,7 +61,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% if entity.extends.nil? -%>
 
   @org.realityforge.arez.annotations.ComponentId
-  <%= annotated_type(entity.primary_key, :arez, :default, :public => true, :assume_generated => true) %> <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.arez.name %>()
+  <%= annotated_type(entity.primary_key, :arez, :default, :final => true, :public => true, :assume_generated => true) %> <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.arez.name %>()
   {
     return _<%= Reality::Naming.camelize(entity.primary_key.arez.name) %>;
   }
