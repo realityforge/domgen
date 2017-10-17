@@ -83,10 +83,6 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% if attribute.arez.lazy? -%>
     link<%= attribute.arez.name %>();
 <% end -%>
-<% if !attribute.arez.primitive? && !attribute.nullable? && !attribute.reference? && !attribute.remote_reference? -%>
-    org.realityforge.braincheck.Guards.invariant( () -> null != _<%= Reality::Naming.camelize(attribute.arez.name) %>,
-                                                  () -> "Attempted to access nonnull <%= attribute.qualified_name %> before it has been assigned a value" );
-<% end -%>
     return _<%= Reality::Naming.camelize(attribute.arez.name) %>;
   }
 <% if attribute.attribute_type == :reference %>
