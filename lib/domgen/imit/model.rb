@@ -909,7 +909,6 @@ module Domgen
       end
 
       def pre_complete
-        repository.gwt.debug_config['entity_verbose_to_string'] = {:default_value => true, :production_value => false}
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
           repository.jaxrs.extensions << self.qualified_poll_rest_service_name
