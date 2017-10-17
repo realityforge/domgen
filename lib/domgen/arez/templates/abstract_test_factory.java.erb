@@ -37,7 +37,7 @@ public abstract class <%= data_module.arez.abstract_test_factory_name %>
   @javax.annotation.Nonnull
   public final <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    final <%= entity.arez.qualified_name %> $_ = new <%= entity.arez.qualified_name %>( repository(), <%= entity.attributes.select{|a|a.arez?}.collect do |a|
+    final <%= entity.arez.qualified_name %> $_ = new <%= entity.arez.qualified_arez_name %>( repository(), <%= entity.attributes.select{|a|a.arez?}.collect do |a|
 if a.reference?
   "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : ''}#{Reality::Naming.camelize(a.name) }.get#{a.referenced_entity.primary_key.name}()"
 elsif a.remote_reference?

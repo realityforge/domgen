@@ -89,7 +89,7 @@ public class <%= data_module.imit.mapper_name %>
 -%>
         final <%= attribute.imit.java_type(:transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.name) %> = <%= attribute.nullable? ? "( change.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %>;
 <% end -%>
-        entity = new <%= entity.imit.name %>( _repository, <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
+        entity = new <%= entity.arez.arez_name %>( _repository, <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
         _repository.registerEntity( <%= entity.imit.name %>.class, designator, entity );
       }
       else
