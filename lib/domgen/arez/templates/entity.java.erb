@@ -8,7 +8,7 @@ package <%= to_package(entity.arez.qualified_name) %>;
 @org.realityforge.arez.annotations.ArezComponent( allowEmpty = true )
 <% end -%>
 public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
-<%= entity.extends ? "    extends #{entity.data_module.entity_by_name(entity.extends).arez.qualified_name}\n" : '' -%>
+<%= entity.extends ? "  extends #{entity.data_module.entity_by_name(entity.extends).arez.qualified_name}\n" : '' -%>
 <%= (!entity.extends || entity.arez.interfaces.size > 0) ? '  implements ' : '' -%><%= ((entity.extends ? [] : %w(org.realityforge.replicant.client.Linkable org.realityforge.replicant.client.Verifiable)) + entity.arez.interfaces).join(", ") %>
 {
 <% entity.declared_attributes.select { |a| !a.abstract? && a.arez? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
@@ -306,8 +306,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
 <% end -%>
   }
 
-<% linkable_attributes.each do |attribute|
-%>
+<% linkable_attributes.each do |attribute| -%>
     private void delink<%= attribute.arez.name %>()
     {
 <% if attribute.remote_reference? || !attribute.inverse.arez.traversable? -%>
