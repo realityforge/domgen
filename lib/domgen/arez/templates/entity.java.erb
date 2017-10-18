@@ -58,15 +58,15 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
     _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= nullability_prefix %>( <%= value %> );
 <% end -%>
   }
-<% if entity.extends.nil? -%>
 
+<% if entity.extends.nil? -%>
   @org.realityforge.arez.annotations.ComponentId
   <%= annotated_type(entity.primary_key, :arez, :default, :final => true, :public => true, :assume_generated => true) %> <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.arez.name %>()
   {
     return _<%= Reality::Naming.camelize(entity.primary_key.arez.name) %>;
   }
-<% end -%>
 
+<% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.arez? }.each do |attribute|
 %>  <%= annotated_type(attribute, :arez, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 <% if attribute.attribute_type == :reference
@@ -92,8 +92,8 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% end -%>
     return _<%= Reality::Naming.camelize(attribute.arez.name) %>;
   }
-<% if attribute.attribute_type == :reference %>
 
+<% if attribute.attribute_type == :reference %>
 <% unless attribute.immutable? -%>
   @org.realityforge.arez.annotations.ObservableRef
   @javax.annotation.Nonnull
@@ -154,16 +154,17 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% else -%>
     _<%= Reality::Naming.camelize(attribute.arez.name) %> = <%= nullability_prefix %>( value );
 <% end %>  }
-<% end %>
-<% end %>
+<% end -%>
+<% end -%>
 <% entity.arez.referencing_client_side_attributes.each do |attribute|
         name = attribute.inverse.name
         type = attribute.entity.arez.qualified_name
         if attribute.inverse.multiplicity == :many
-          plural_name = Reality::Naming.pluralize(name)
-%>
+          plural_name = Reality::Naming.pluralize(name) -%>
+
+  @org.realityforge.arez.annotations.Observable( expectSetter = false )
   @javax.annotation.Nonnull
-  public final java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= plural_name %>()
+  public java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= plural_name %>()
   {
     return java.util.Collections.unmodifiableList( safeGet<%= plural_name %>() );
   }
@@ -177,6 +178,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
   public <% end %>final void add<%= name %>( final <%= type %> value )
   {
     safeGet<%= plural_name %>().add( value );
+    get<%= plural_name %>Observable().reportChanged();
   }
 
   <% if attribute.entity.data_module.name != entity.data_module.name %>/**
@@ -188,6 +190,14 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
   public <% end %>final void remove<%= name %>( final <%= type %> value )
   {
     safeGet<%= plural_name %>().remove( value );
+    get<%= plural_name %>Observable().reportChanged();
+  }
+
+  @org.realityforge.arez.annotations.ObservableRef
+  @javax.annotation.Nonnull
+  protected org.realityforge.arez.Observable get<%= plural_name %>Observable()
+  {
+    throw new IllegalStateException();
   }
 
   private java.util.List<<%= type %>> safeGet<%= plural_name %>()
@@ -199,7 +209,8 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
     return <%= Reality::Naming.camelize(plural_name) %>;
   }
 <% else -%>
-  public final <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> <%= getter_prefix(attribute) %><%= name %>()
+  @org.realityforge.arez.annotations.Observable
+  public <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> <%= getter_prefix(attribute) %><%= name %>()
   {
     return <%= Reality::Naming.camelize(name) %>;
   }
@@ -211,7 +222,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
    * @deprecated
    */
   @java.lang.Deprecated
-  protected <% end %>final void set<%= name %>( final <%= type %> value )
+  protected <% end %>void set<%= name %>( final <%= type %> value )
   {
     <%= Reality::Naming.camelize(name) %> = value;
   }
