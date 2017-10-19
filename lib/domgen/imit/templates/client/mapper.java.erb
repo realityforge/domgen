@@ -51,7 +51,7 @@ public class <%= data_module.imit.mapper_name %>
     final Object designator = <%= designator_value %>;
     <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, designator, false );
     // If change is a delete...
-    if( !change.isUpdate() )
+    if( change.isRemove() )
     {
       if( null != entity )
       {
