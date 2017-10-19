@@ -48,7 +48,7 @@ public class <%= data_module.imit.mapper_name %>
           Domgen.error("Unable to convert data type #{entity.primary_key.imit.transport_characteristic_type_key} on #{entity.primary_key.qualified_name}")
         end
 -%>
-    final Object designator = <%= designator_value %>;
+    final <%= entity.primary_key.arez.java_type(:transport, :assume_generated => true) %> designator = (<%= entity.primary_key.arez.java_type(:transport, :assume_generated => true) %>) <%= designator_value %>;
     <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, designator, false );
     // If change is a delete...
     if( change.isRemove() )
