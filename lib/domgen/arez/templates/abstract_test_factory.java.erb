@@ -76,12 +76,12 @@ end.join(', ') -%> );
 
 <% end -%>
 <% end -%>
-<% data_module.daos.select{|dao| dao.arez? }.each do |dao| -%>
+<% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
 
   @javax.annotation.Nonnull
-  protected final <%= dao.arez.qualified_dao_service_name %> <%= Reality::Naming.camelize(dao.name) %>()
+  protected final <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
   {
-    return s( <%= dao.arez.qualified_dao_service_name %>.class );
+    return s( <%= dao.arez.qualified_repository_name %>.class );
   }
 <%
   end

@@ -5,18 +5,9 @@ package <%= to_package(repository.arez.qualified_root_repository_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 public final class <%= repository.arez.root_repository_name %>
 {
-  private final org.realityforge.replicant.client.EntityRepository _repository;
 <% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
-  private final <%= data_module.arez.qualified_data_module_repository_name %> _<%= Reality::Naming.camelize(data_module.name) %>;
+  private final <%= data_module.arez.qualified_data_module_repository_name %> _<%= Reality::Naming.camelize(data_module.name) %> = new <%= data_module.arez.qualified_data_module_repository_name %>();
 <% end -%>
-
-  public <%= repository.arez.root_repository_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository )
-  {
-    _repository = java.util.Objects.requireNonNull( repository );
-<% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
-    _<%= Reality::Naming.camelize(data_module.name) %> = new <%= data_module.arez.qualified_data_module_repository_name %>( repository );
-<% end -%>
-  }
 
 <% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
   @javax.annotation.Nonnull

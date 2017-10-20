@@ -22,19 +22,13 @@ Domgen::Generator.define([:arez],
     template_set.erb_template(:entity,
                               'base_entity_extension.java.erb',
                               'main/java/#{entity.arez.qualified_base_entity_extension_name.gsub(".","/")}.java')
+    template_set.erb_template(:dao,
+                              'domgen_repository_extension.java.erb',
+                              'main/java/#{dao.arez.qualified_domgen_repository_extension_name.gsub(".","/")}.java',
+                              :guard => '!dao.entity.abstract?')
   end
 
   g.template_set(:arez_client_dao) do |template_set|
-    template_set.erb_template(:dao,
-                              'dao_service.java.erb',
-                              'main/java/#{dao.arez.qualified_dao_service_name.gsub(".","/")}.java')
-    template_set.erb_template(:dao,
-                              'abstract_dao.java.erb',
-                              'main/java/#{dao.arez.qualified_abstract_dao_name.gsub(".","/")}.java')
-    template_set.erb_template(:dao,
-                              'dao.java.erb',
-                              'main/java/#{dao.arez.qualified_dao_name.gsub(".","/")}.java',
-                              :guard => '!dao.arez.has_non_standard_queries?')
     template_set.erb_template(:data_module,
                               'data_module_repository.java.erb',
                               'main/java/#{data_module.arez.qualified_data_module_repository_name.gsub(".","/")}.java')
@@ -45,8 +39,8 @@ Domgen::Generator.define([:arez],
 
   g.template_set(:arez_client_dao_gwt) do |template_set|
     template_set.erb_template(:repository,
-                              'dao_module.java.erb',
-                              'main/java/#{repository.arez.qualified_dao_module_name.gsub(".","/")}.java')
+                              'dao_gin_module.java.erb',
+                              'main/java/#{repository.arez.qualified_dao_gin_module_name.gsub(".","/")}.java')
   end
 
   %w(main test).each do |type|
@@ -63,19 +57,6 @@ Domgen::Generator.define([:arez],
       template_set.erb_template(:repository,
                                 'entity_complete_module.java.erb',
                                 type + '/java/#{repository.arez.qualified_entity_complete_module_name.gsub(".","/")}.java')
-    end
-
-    g.template_set(:"arez_client_#{type}_qa") do |template_set|
-      template_set.erb_template(:dao,
-                                'abstract_dao_test.java.erb',
-                                type + '/java/#{dao.arez.qualified_abstract_dao_test_name.gsub(".","/")}.java',
-                                :guard => 'dao.arez.has_non_standard_queries?')
-    end
-
-    g.template_set(:"arez_client_#{type}_dao_aggregate_test") do |template_set|
-      template_set.erb_template(:repository,
-                                'aggregate_dao_test.java.erb',
-                                type + '/java/#{repository.arez.qualified_aggregate_dao_test_name.gsub(".","/")}.java')
     end
   end
 end

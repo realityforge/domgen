@@ -24,18 +24,18 @@ public class <%= data_module.imit.mapper_name %>
 <% end -%>
 <% end -%>
 
-  private final org.realityforge.replicant.client.EntityRepository _repository;
+  private final <%= data_module.arez.qualified_data_module_repository_name %> _repository;
   private final org.realityforge.replicant.client.EntitySubscriptionManager _subscriptionManager;
 
   @javax.inject.Inject
-  public <%= data_module.imit.mapper_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager )
+  public <%= data_module.imit.mapper_name %>( @javax.annotation.Nonnull final <%= data_module.arez.qualified_data_module_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager )
   {
-    _repository = repository;
-    _subscriptionManager =subscriptionManager;
+    _repository = java.util.Objects.requireNonNull( repository );
+    _subscriptionManager = java.util.Objects.requireNonNull( subscriptionManager );
   }
-
 <% data_module.entities.select { |entity| entity.imit? }.each do |entity| -%>
 <% if entity.concrete? -%>
+
   public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.Change change )
   {
 <%
@@ -49,14 +49,14 @@ public class <%= data_module.imit.mapper_name %>
         end
 -%>
     final <%= entity.primary_key.arez.java_type(:transport, :assume_generated => true) %> designator = (<%= entity.primary_key.arez.java_type(:transport, :assume_generated => true) %>) <%= designator_value %>;
-    <%= entity.imit.name %> entity = _repository.findByID( <%= entity.imit.name %>.class, designator, false );
+    <%= entity.imit.name %> entity = _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().findBy<%= entity.primary_key.name %>( designator );
     // If change is a delete...
     if( change.isRemove() )
     {
       if( null != entity )
       {
         // It is in the local repository so we need to delete it
-        _repository.deregisterEntity( <%= entity.imit.name %>.class, designator );
+        _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().destroy( entity );
         _subscriptionManager.removeEntity( <%= entity.imit.name %>.class, designator );
       }
     }
@@ -89,8 +89,7 @@ public class <%= data_module.imit.mapper_name %>
 -%>
         final <%= attribute.imit.java_type(:transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.name) %> = <%= attribute.nullable? ? "( change.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %>;
 <% end -%>
-        entity = new <%= entity.arez.arez_name %>( _repository, <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
-        _repository.registerEntity( <%= entity.imit.name %>.class, designator, entity );
+        entity = _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().create( <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
       }
       else
       {

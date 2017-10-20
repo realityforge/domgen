@@ -56,9 +56,8 @@ module Domgen
       end
 
       java_artifact :root_repository, :entity, :client, :arez, '#{repository.name}RootRepository'
-      java_artifact :dao_module, :ioc, :client, :arez, '#{repository.name}ReplicantRepositoryModule'
-      java_artifact :aggregate_dao_test, :test, :client, :arez, '#{repository.name}AggregateDAOTest', :sub_package => 'util'
-      java_artifact :dao_test_module, :test, :client, :arez, '#{repository.name}RepositoryTestModule', :sub_package => 'util'
+      java_artifact :dao_gin_module, :ioc, :client, :arez, '#{repository.name}ArezDaoGinModule'
+      java_artifact :dao_test_module, :test, :client, :arez, '#{repository.name}ArezDaoTestModule', :sub_package => 'util'
       java_artifact :entity_complete_module, :test, :client, :arez, '#{repository.name}EntityModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :client, :arez, '#{repository.name}FactorySetModule', :sub_package => 'util'
 
@@ -68,7 +67,7 @@ module Domgen
           repository.imit.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         end
         if repository.gwt?
-          repository.gwt.add_gin_module(dao_module_name, qualified_dao_module_name)
+          repository.gwt.add_gin_module(dao_gin_module_name, qualified_dao_gin_module_name)
           repository.gwt.add_test_module(dao_test_module_name, qualified_dao_test_module_name)
           repository.gwt.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         end
@@ -109,41 +108,36 @@ module Domgen
     facet.enhance(DataAccessObject) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :dao_service, :entity, :client, :arez, '#{dao.name}', :sub_package => 'dao'
-      java_artifact :abstract_dao, :entity, :client, :arez, 'Abstract#{dao_service_name}Impl', :sub_package => 'dao'
-      java_artifact :dao, :entity, :client, :arez, '#{dao_service_name}Impl', :sub_package => 'dao'
-      java_artifact :abstract_dao_test, :entity, :client, :arez, 'Abstract#{dao_service_name}ImplTest', :sub_package => 'dao'
-      java_artifact :dao_test, :entity, :client, :arez, '#{dao_service_name}ImplTest', :sub_package => 'dao'
+      java_artifact :repository, :entity, :client, :arez, '#{dao.entity.name}Repository'
+      java_artifact :base_repository_extension, :entity, :client, :arez, '#{dao.entity.name}BaseRepositoryExtension'
+      java_artifact :default_repository_extension, :entity, :client, :arez, '#{dao.entity.name}RepositoryExtension'
+      java_artifact :domgen_repository_extension, :entity, :client, :arez, 'Domgen#{dao.name}Extension'
 
-      def has_non_standard_queries?
-        non_standard_queries.size > 0
-      end
-
-      def non_standard_queries
-        dao.queries.select {|q| q.arez? && !q.arez.standard_query?}
+      def extensions
+        @extensions ||= []
       end
 
       def pre_complete
         dao.disable_facet(:arez) if !dao.repository? || !dao.entity.arez?
-      end
 
-      def post_verify
-        dao.disable_facet(:arez) if dao.arez? && dao.queries.select {|q| q.arez?}.empty?
+        self.extensions << qualified_domgen_repository_extension_name if dao.arez?
       end
     end
 
     facet.enhance(Query) do
-      def standard_query?
-        @standard_query.nil? ? query.standard_query? : !!@standard_query
-      end
-
-      attr_accessor :standard_query
-
-      def disable_facet_unless_valid
+      def disable_facet_unless_valid(verify_standard_query = false)
         disable = false
         disable = true if query.result_entity? && !query.entity.arez?
         disable = true unless query.query_type == :select
         disable = true if query.parameters.size != query.parameters.select {|p| p.arez?}.size
+        entity = query.dao.repository? ? query.dao.entity : nil
+        if verify_standard_query
+          disable = true if entity && query.name.to_s == 'FindAll'
+          disable = true if entity && query.name.to_s == "FindBy#{entity.primary_key.name}"
+          disable = true if entity && query.name.to_s == "GetBy#{entity.primary_key.name}"
+          disable = true unless query.standard_query?
+        end
+
         query.disable_facet(:arez) if query.arez? && disable
       end
 
@@ -156,11 +150,11 @@ module Domgen
       end
 
       def perform_verify
-        disable_facet_unless_valid
+        disable_facet_unless_valid(true)
       end
 
       def post_verify
-        disable_facet_unless_valid
+        disable_facet_unless_valid(true)
       end
     end
 
@@ -224,8 +218,8 @@ module Domgen
       java_artifact :arez, :entity, :client, :arez, 'Arez_#{entity.name}'
       java_artifact :base_entity_extension, :entity, :client, :arez, 'Base#{entity.name}Extension'
 
-      def interfaces
-        @interfaces ||= []
+      def extensions
+        @extensions ||= []
       end
 
       def test_create_default(defaults)

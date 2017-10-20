@@ -5,22 +5,20 @@ package <%= to_package(data_module.arez.qualified_data_module_repository_name) %
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 public final class <%= data_module.arez.data_module_repository_name %>
 {
-  private final org.realityforge.replicant.client.EntityRepository _repository;
-<% data_module.daos.select{|dao|dao.arez?}.each do |dao| -%>
-  private final <%= dao.arez.qualified_dao_name %> _<%= Reality::Naming.camelize(dao.name) %>;
+<% data_module.daos.select{|dao|dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
+  private final <%= dao.arez.qualified_repository_name %> _<%= Reality::Naming.camelize(dao.name) %>;
 <% end -%>
 
-  public <%= data_module.arez.data_module_repository_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository )
+  public <%= data_module.arez.data_module_repository_name %>()
   {
-    _repository = java.util.Objects.requireNonNull( repository );
-<% data_module.daos.select{|dao|dao.arez?}.each do |dao| -%>
-    _<%= Reality::Naming.camelize(dao.name) %> = new <%= dao.arez.qualified_dao_name %>( repository );
+<% data_module.daos.select{|dao|dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
+    _<%= Reality::Naming.camelize(dao.name) %> = new <%= dao.arez.qualified_repository_name %>();
 <% end -%>
   }
 
-<% data_module.daos.select{|dao|dao.arez?}.each do |dao| -%>
+<% data_module.daos.select{|dao|dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
   @javax.annotation.Nonnull
-  public final <%= dao.arez.qualified_dao_service_name %> <%= Reality::Naming.camelize(dao.name) %>()
+  public final <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
   {
     return _<%= Reality::Naming.camelize(dao.name) %>;
   }
