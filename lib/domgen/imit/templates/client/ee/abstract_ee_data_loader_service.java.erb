@@ -57,6 +57,8 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
 
   @javax.inject.Inject
   private <%= repository.imit.qualified_ee_client_session_context_name %> _context;
+  @javax.inject.Inject
+  private <%= repository.arez.qualified_root_repository_name %> _repository;
   @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_client_router_interface_name %> _router = new <%= repository.imit.qualified_client_router_impl_name %>();
   private final org.realityforge.replicant.client.transport.SessionContext _sessionContext = new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" );
@@ -74,7 +76,7 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   public void postConstruct()
   {
     super.postConstruct();
-    _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getSubscriptionManager() )" }.join(', ') %> );
+    _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( _repository.#{Reality::Naming.camelize(data_module.name)}(), getSubscriptionManager() )" }.join(', ') %> );
     getSessionContext().setBaseURL( get<%= repository.name %>ApplicationURL() );
   }
 
