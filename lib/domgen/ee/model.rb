@@ -33,14 +33,6 @@ module Domgen
         @version || '7'
       end
 
-      def use_cdi=(use_cdi)
-        @use_cdi = use_cdi
-      end
-
-      def use_cdi?
-        @use_cdi.nil? ? true : false
-      end
-
       attr_writer :web_metadata_complete
 
       def web_metadata_complete?

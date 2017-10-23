@@ -143,10 +143,6 @@ require 'domgen/imit/model'
 require 'domgen/imit/helper'
 require 'domgen/imit/generator'
 
-# AutoBean
-require 'domgen/auto_bean/model'
-require 'domgen/auto_bean/generator'
-
 # Database level auditing
 require 'domgen/audit/model'
 require 'domgen/audit/generator'

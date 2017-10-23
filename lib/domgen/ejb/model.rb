@@ -101,10 +101,6 @@ module Domgen
         self.test_class_content_list << content
       end
 
-      def implementation_suffix
-        repository.ee.use_cdi? ? 'Impl' : 'EJB'
-      end
-
       def pre_verify
         if self.include_server_test_module?
           add_test_module(self.server_test_module_name, self.qualified_server_test_module_name)
@@ -153,16 +149,12 @@ module Domgen
         "#{service.data_module.repository.name}.#{service.ejb.boundary_name}"
       end
 
-      def implementation_suffix
-        service.data_module.repository.ejb.implementation_suffix
-      end
-
       java_artifact :service, :service, :server, :ee, '#{service.name}'
-      java_artifact :service_implementation, :service, :server, :ee, '#{service.name}#{implementation_suffix}'
+      java_artifact :service_implementation, :service, :server, :ee, '#{service.name}Impl'
       java_artifact :boundary_interface, :service, :server, :ee, 'Local#{service_name}Boundary'
       java_artifact :remote_service, :service, :server, :ee, 'Remote#{service_name}'
-      java_artifact :boundary_implementation, :service, :server, :ee, '#{service_name}Boundary#{implementation_suffix}', :sub_package => 'internal'
-      java_artifact :service_test, :service, :server, :ee, 'Abstract#{service_name}#{implementation_suffix}Test'
+      java_artifact :boundary_implementation, :service, :server, :ee, '#{service_name}BoundaryImpl', :sub_package => 'internal'
+      java_artifact :service_test, :service, :server, :ee, 'Abstract#{service_name}ImplTest'
 
       def qualified_concrete_service_test_name
         "#{qualified_service_test_name.gsub(/\.Abstract/,'.')}"
