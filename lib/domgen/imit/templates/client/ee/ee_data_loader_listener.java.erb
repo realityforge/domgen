@@ -6,9 +6,9 @@ package <%= to_package(repository.imit.qualified_ee_data_loader_listener_name) %
 public class <%= repository.imit.ee_data_loader_listener_name %>
   extends org.realityforge.replicant.client.ee.EeDataLoaderListener
 {
-  private final org.realityforge.replicant.client.EntityRepository _repository;
+  private final <%= repository.arez.qualified_root_repository_name %> _repository;
 
-  public <%= repository.imit.ee_data_loader_listener_name %>( @javax.annotation.Nonnull final javax.enterprise.inject.spi.BeanManager beanManager, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository )
+  public <%= repository.imit.ee_data_loader_listener_name %>( @javax.annotation.Nonnull final javax.enterprise.inject.spi.BeanManager beanManager, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository )
   {
     super( beanManager, new <%= repository.ee.qualified_cdi_qualifier_literal_name %>(), "<%= repository.name %>" );
     _repository = java.util.Objects.requireNonNull( repository );
@@ -41,8 +41,9 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
     switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.each do |graph| -%>
+<% entity = graph.instance_root? ? repository.entity_by_name(graph.instance_root) : nil -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
-        fireEvent( new <%= graph.subscribe_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
+        fireEvent( new <%= graph.subscribe_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().<%= Reality::Naming.camelize(entity.data_module.name) %>().<%= Reality::Naming.camelize(entity.dao.name) %>().getBy<%= entity.primary_key.name %>( (<%= entity.primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
         break;
 <% end -%>
     }
@@ -75,8 +76,9 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
     switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph| -%>
+<% entity = graph.instance_root? ? repository.entity_by_name(graph.instance_root) : nil -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
-        fireEvent( new <%= graph.update_started_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
+        fireEvent( new <%= graph.update_started_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().<%= Reality::Naming.camelize(entity.data_module.name) %>().<%= Reality::Naming.camelize(entity.dao.name) %>().getBy<%= entity.primary_key.name %>( (<%= entity.primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
         break;
 <% end -%>
     }
@@ -92,8 +94,9 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
     switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph| -%>
+<% entity = graph.instance_root? ? repository.entity_by_name(graph.instance_root) : nil -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
-        fireEvent( new <%= graph.update_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
+        fireEvent( new <%= graph.update_completed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().<%= Reality::Naming.camelize(entity.data_module.name) %>().<%= Reality::Naming.camelize(entity.dao.name) %>().getBy<%= entity.primary_key.name %>( (<%= entity.primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
         break;
 <% end -%>
     }
@@ -109,8 +112,9 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
     switch ( (<%= repository.imit.qualified_graph_enum_name %>) descriptor.getGraph() )
     {
 <% repository.imit.graphs.select{|g|!g.filter_parameter.nil? && !g.filter_parameter.immutable? }.each do |graph| -%>
+<% entity = graph.instance_root? ? repository.entity_by_name(graph.instance_root) : nil -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
-        fireEvent( new <%= graph.update_failed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>)  descriptor.getID() ),<% end %> throwable ) );
+        fireEvent( new <%= graph.update_failed_message.ee.qualified_name %>(<% if graph.instance_root? -%> getRepository().<%= Reality::Naming.camelize(entity.data_module.name) %>().<%= Reality::Naming.camelize(entity.dao.name) %>().getBy<%= entity.primary_key.name %>( (<%= entity.primary_key.imit.java_type %>)  descriptor.getID() ),<% end %> throwable ) );
         break;
 <% end -%>
     }
@@ -167,7 +171,7 @@ public class <%= repository.imit.ee_data_loader_listener_name %>
     }
   }
 
-  protected final org.realityforge.replicant.client.EntityRepository getRepository()
+  protected final <%= repository.arez.qualified_root_repository_name %> getRepository()
   {
     return _repository;
   }
