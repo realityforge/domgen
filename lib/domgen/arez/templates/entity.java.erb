@@ -17,7 +17,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% entity.declared_attributes.select { |a| !a.abstract? && a.arez? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
-<%= entity.extends.nil? ? "  protected org.realityforge.replicant.client.EntityRepository _repository;\n" : ''
+<%= entity.extends.nil? ? "  protected org.realityforge.replicant.client.EntityLocator _entityLocator;\n" : ''
 %><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.arez? }.each do |attribute|
   if attribute.reference? || attribute.remote_reference? -%>
   private <%= attribute.arez.java_type %> _<%= Reality::Naming.camelize(attribute.arez.name) %>;
@@ -43,12 +43,12 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
   private boolean _$linked;
 <% end -%>
 
-  protected <%= entity.arez.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, <%= entity.attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, :transport, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(:transport))}"}.join(', ') %>)
+  protected <%= entity.arez.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, <%= entity.attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, :transport, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(:transport))}"}.join(', ') %>)
   {
 <% if entity.extends.nil? -%>
-    _repository = java.util.Objects.requireNonNull( repository );
+    _entityLocator = java.util.Objects.requireNonNull( entityLocator );
 <% else -%>
-    super( repository, <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(:transport))}.join(', ') %> );
+    super( entityLocator, <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(:transport))}.join(', ') %> );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.each do |attribute|
   nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true)) ? "java.util.Objects.requireNonNull" : ''
@@ -122,7 +122,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 
   public final boolean will<%= attribute.arez.name %>Link()
   {
-    return <%= attribute.nullable? ? "null == _#{Reality::Naming.camelize(attribute.referencing_link_name)} ? true : " : '' %> null != _repository.findByID( <%= attribute.referenced_remote_entity.arez.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
+    return <%= attribute.nullable? ? "null == _#{Reality::Naming.camelize(attribute.referencing_link_name)} ? true : " : '' %> null != _entityLocator.findByID( <%= attribute.referenced_remote_entity.arez.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
   }
 
   public final boolean is<%= attribute.arez.name %>Linked()
@@ -236,7 +236,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
     throws Exception
   {
     checkValidity();
-    org.realityforge.braincheck.Guards.invariant( () -> _repository.findByID( <%= entity.arez.name %>.class, <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.name %>() ) == this,
+    org.realityforge.braincheck.Guards.invariant( () -> _entityLocator.findByID( <%= entity.arez.name %>.class, <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.name %>() ) == this,
                                                   () -> "Registered entity does not match current entity. Current Entity: " + this );
 <% entity.declared_attributes.select{ |a| a.arez? && (a.reference? && a.remote_reference?) && a.inverse.traversable? }.each do |attribute| -%>
     if( null != _<%= Reality::Naming.camelize(attribute.arez.name) %> )
@@ -283,7 +283,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
   protected final void preDispose()
   {
     delink();
-    _repository = null;
+    _entityLocator = null;
   }
 <% end -%>
 <% linkable_attributes = entity.declared_attributes.select{|attribute| !attribute.abstract? && (attribute.reference? || attribute.remote_reference?) && attribute.arez? } -%>
@@ -343,7 +343,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
     {
       if( null == _<%= Reality::Naming.camelize(attribute.arez.name) %> <%= attribute.nullable? ? "&& null != _#{Reality::Naming.camelize(attribute.referencing_link_name)}" :'' %> )
       {
-        _<%= Reality::Naming.camelize(attribute.arez.name) %> = _repository.findByID( <%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).arez.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
+        _<%= Reality::Naming.camelize(attribute.arez.name) %> = _entityLocator.findByID( <%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).arez.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
         org.realityforge.braincheck.Guards.invariant( () -> null != _<%= Reality::Naming.camelize(attribute.arez.name) %>,
                                                       () -> "Unable to locate entity of type '<%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).arez.qualified_name %>' and id = '" + _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> + "' via '<%= attribute.arez.name %>' attribute on " + this );
 <% if !attribute.remote_reference? && attribute.inverse.arez.traversable? && attribute.inverse.multiplicity == :many %>        _<%= Reality::Naming.camelize(attribute.arez.name) %>.add<%= attribute.inverse.name %>( this );<% end -%>

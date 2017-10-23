@@ -192,12 +192,6 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
     }
   }
 
-  @java.lang.Override
-  protected <%= repository.imit.qualified_repository_debugger_name %> getEntityRepositoryDebugger()
-  {
-    return new <%= repository.imit.qualified_repository_debugger_name %>();
-  }
-
 <% if repository.keycloak? -%>
 
   @javax.annotation.Nonnull

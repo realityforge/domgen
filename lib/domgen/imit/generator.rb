@@ -35,9 +35,6 @@ Domgen::Generator.define([:imit],
                               'client/router_interface.java.erb',
                               'main/java/#{repository.imit.qualified_client_router_interface_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'client/repository_debugger.java.erb',
-                              'main/java/#{repository.imit.qualified_repository_debugger_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
                               'client/runtime_extension.java.erb',
                               'main/java/#{repository.imit.qualified_runtime_extension_name.gsub(".","/")}.java')
   end

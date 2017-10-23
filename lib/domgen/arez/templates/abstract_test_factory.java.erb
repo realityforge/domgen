@@ -23,7 +23,7 @@ public abstract class <%= data_module.arez.abstract_test_factory_name %>
 <% if entity.concrete? -%>
   public final void delete<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_ )
   {
-    repository().deregisterEntity( <%= entity.arez.qualified_name %>.class, $_.get<%= entity.primary_key.name %>() );
+    <%= Reality::Naming.camelize(entity.dao.name) %>().destroy( $_ );
   }
 
 <% entity.arez.test_create_defaults.each do |defaults| -%>
@@ -37,7 +37,7 @@ public abstract class <%= data_module.arez.abstract_test_factory_name %>
   @javax.annotation.Nonnull
   public final <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    final <%= entity.arez.qualified_name %> $_ = new <%= entity.arez.qualified_arez_name %>( repository(), <%= entity.attributes.select{|a|a.arez?}.collect do |a|
+    final <%= entity.arez.qualified_name %> $_ = <%= Reality::Naming.camelize(entity.dao.name) %>().create( entityLocator(), <%= entity.attributes.select{|a|a.arez?}.collect do |a|
 if a.reference?
   "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : ''}#{Reality::Naming.camelize(a.name) }.get#{a.referenced_entity.primary_key.name}()"
 elsif a.remote_reference?
@@ -50,7 +50,6 @@ else
     Reality::Naming.camelize(a.name)
   end
 end.join(', ') -%> );
-    repository().registerEntity( <%= entity.arez.qualified_name %>.class, $_.get<%= entity.primary_key.name %>(), $_ );
     $_.link();
     return $_;
   }
@@ -81,16 +80,22 @@ end.join(', ') -%> );
   @javax.annotation.Nonnull
   protected final <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
   {
-    return s( <%= dao.arez.qualified_repository_name %>.class );
+    return rootRepository().<%= Reality::Naming.camelize(data_module.name) %>().<%= Reality::Naming.camelize(dao.name) %>();
   }
 <%
   end
 -%>
 
   @javax.annotation.Nonnull
-  protected final org.realityforge.replicant.client.EntityRepository repository()
+  protected final org.realityforge.replicant.client.EntityLocator entityLocator()
   {
-    return s( org.realityforge.replicant.client.EntityRepository.class );
+    return s( org.realityforge.replicant.client.EntityLocator.class );
+  }
+
+  @javax.annotation.Nonnull
+  protected final <%= data_module.repository.arez.qualified_root_repository_name %> rootRepository()
+  {
+    return s( <%= data_module.repository.arez.qualified_root_repository_name %>.class );
   }
 
   @javax.annotation.Nonnull

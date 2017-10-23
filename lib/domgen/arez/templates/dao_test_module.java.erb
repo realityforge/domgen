@@ -26,7 +26,7 @@ public class <%= repository.arez.dao_test_module_name %>
 
   protected void bind<%= dao.qualified_name.to_s.gsub('.','') %>()
   {
-    bind( <%= dao.arez.qualified_repository_name %>.class ).to( <%= dao.arez.qualified_repository_name %>.class ).in( javax.inject.Singleton.class );
+    bind( <%= dao.arez.qualified_repository_name %>.class ).in( javax.inject.Singleton.class );
   }
 <%
     end

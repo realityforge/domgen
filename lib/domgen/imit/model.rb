@@ -660,7 +660,6 @@ module Domgen
       java_artifact :ee_complete_module, :test, :client, :imit, '#{repository.name}EeModule', :sub_package => 'util'
       java_artifact :gwt_complete_module, :test, :client, :imit, '#{repository.name}GwtModule', :sub_package => 'util'
       java_artifact :replicant_module, :modules, nil, :gwt, '#{repository.name}ReplicantSupport'
-      java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
       java_artifact :ee_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}EeDataLoaderService', :sub_package => 'ee'
       java_artifact :ee_data_loader_listener, :comm, :client, :imit, '#{repository.name}EeDataLoaderListener', :sub_package => 'ee'
@@ -1009,9 +1008,9 @@ module Domgen
         end
         test_content = <<CONTENT
   @javax.annotation.Nonnull
-  protected final org.realityforge.replicant.client.EntityRepository repository()
+  protected final org.realityforge.replicant.client.EntityLocator entityLocator()
   {
-    return s( org.realityforge.replicant.client.EntityRepository.class );
+    return s( org.realityforge.replicant.client.EntityLocator.class );
   }
 
 CONTENT
