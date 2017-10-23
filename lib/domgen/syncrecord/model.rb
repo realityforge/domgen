@@ -141,7 +141,7 @@ module Domgen
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :abstract_service, :service, :server, :syncrecord, 'Abstract#{service.name}#{service.ejb.implementation_suffix}'
+      java_artifact :abstract_service, :service, :server, :syncrecord, 'Abstract#{service.name}Impl'
 
       def sync_methods?
         self.sync_methods.size > 0

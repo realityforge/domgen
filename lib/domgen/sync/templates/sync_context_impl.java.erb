@@ -7,16 +7,9 @@ package <%= to_package(data_module.sync.qualified_sync_context_impl_name) %>;
 
 <code>
 <pre>
-<% if data_module.repository.ee.use_cdi? -%>
 @ApplicationScoped
 @Transactional( Transactional.TxType.REQUIRED )
 @Typed( <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>.class )
-<% else -%>
-@Singleton( name = SynchronizationContext.NAME )
-@TransactionAttribute( TransactionAttributeType.REQUIRED )
-@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
-@Local( <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>.class )
-<% end -%>
 public class <%= data_module.sync.sync_context_impl_name.gsub(/^Abstract/,'') %>
   extends <%= data_module.sync.sync_context_impl_name %>
 {

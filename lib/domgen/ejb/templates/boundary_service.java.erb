@@ -3,14 +3,9 @@ package <%= to_package(service.ejb.qualified_boundary_interface_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-<% unless service.data_module.repository.ee.use_cdi? -%>
 @javax.ejb.Local
-<% end -%>
 public interface <%= service.ejb.boundary_interface_name %>
-{<% unless service.data_module.repository.ee.use_cdi? -%>
-
-  String NAME = "<%= service.ejb.boundary_ejb_name %>";
-<% end -%>
+{
 <% service.methods.each do |method|
 %>
   <%= annotated_type(method.return_value, :ejb, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :boundary)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=

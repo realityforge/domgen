@@ -217,15 +217,15 @@ module Domgen
       include Domgen::Java::EEClientServerJavaPackage
 
       # Artifacts to sync out of Master
-      java_artifact :sync_ejb, :service, :server, :sync, 'SynchronizationService#{data_module.repository.ejb.implementation_suffix}'
-      java_artifact :sync_service_test, :service, :server, :sync, 'AbstractExtendedSynchronizationService#{data_module.repository.ejb.implementation_suffix}Test'
+      java_artifact :sync_ejb, :service, :server, :sync, 'SynchronizationServiceImpl'
+      java_artifact :sync_service_test, :service, :server, :sync, 'AbstractExtendedSynchronizationServiceImplTest'
       java_artifact :sync_context_impl, :service, :server, :sync, 'AbstractSynchronizationContext'
 
       # Artifacts to sync into Master
       java_artifact :sync_temp_factory, :service, :server, :sync, 'SyncTempFactory'
-      java_artifact :abstract_master_sync_ejb, :service, :server, :sync, 'AbstractMasterSyncService#{data_module.repository.ejb.implementation_suffix}'
-      java_artifact :abstract_sync_temp_population_impl, :service, :server, :sync, 'AbstractSyncTempPopulationService#{data_module.repository.ejb.implementation_suffix}'
-      java_artifact :master_sync_service_test, :service, :server, :sync, 'AbstractMasterSyncService#{data_module.repository.ejb.implementation_suffix}Test'
+      java_artifact :abstract_master_sync_ejb, :service, :server, :sync, 'AbstractMasterSyncServiceImpl'
+      java_artifact :abstract_sync_temp_population_impl, :service, :server, :sync, 'AbstractSyncTempPopulationServiceImpl'
+      java_artifact :master_sync_service_test, :service, :server, :sync, 'AbstractMasterSyncServiceImplTest'
 
       def master_sync_persistent_unit
         raise 'master_sync_persistent_unit invoked when not master_data_module' unless master_data_module?

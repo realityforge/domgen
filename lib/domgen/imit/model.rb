@@ -681,7 +681,7 @@ module Domgen
       java_artifact :client_router_impl, :comm, :client, :imit, '#{client_router_interface_name}Impl'
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
-      java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManager#{repository.ejb.implementation_suffix}'
+      java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerImpl'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
       java_artifact :poll_rest_service, :rest, :server, :imit, '#{repository.name}ReplicantPollRestService'
       java_artifact :poll_service, :rest, :server, :imit, '#{repository.name}ReplicantPollService'
@@ -1234,11 +1234,7 @@ CONTENT
 
         repository.data_modules.select { |data_module| data_module.ejb? }.each do |data_module|
           data_module.services.select { |service| service.ejb? && service.ejb.generate_boundary? }.each do |service|
-            if repository.ee.use_cdi?
-              service.ejb.boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
-            else
-              service.ejb.boundary_interceptors << repository.imit.qualified_replication_interceptor_name
-            end
+            service.ejb.boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
           end
         end
       end

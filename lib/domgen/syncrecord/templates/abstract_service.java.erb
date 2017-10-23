@@ -7,14 +7,8 @@ package <%= to_package(service.syncrecord.qualified_abstract_service_name) %>;
 
 <code>
 <pre>
-<% if service.data_module.repository.ee.use_cdi? -%>
 @ApplicationScoped
 @Typed( <%= service.ejb.service_name %>.class )
-<% else -%>
-@Singleton( name = <%= service.ejb.service_name %>.NAME )
-@ConcurrencyManagement( ConcurrencyManagementType.BEAN )
-@Local( <%= service.ejb.service_name %>.class )
-<% end -%>
 public class <%= service.syncrecord.qualified_abstract_service_name.to_s.gsub(/^Abstract/,'') %>
   extends <%= service.syncrecord.qualified_abstract_service_name %>
   implements <%= service.ejb.service_name %>
