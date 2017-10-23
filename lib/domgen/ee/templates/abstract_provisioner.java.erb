@@ -103,7 +103,6 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
 -%>
     // Remote Replication Datasource <%= rd.name %>
     glassfish.createCustomResource( "<%= prefix %>/url", "http://example.com/<%= Reality::Naming.underscore(rd.name) %>" );
-    glassfish.createCustomResource( "<%= prefix %>/repositoryDebugOutputEnabled", false );
     glassfish.createCustomResource( "<%= prefix %>/subscriptionsDebugOutputEnabled", false );
     glassfish.createCustomResource( "<%= prefix %>/shouldValidateRepositoryOnLoad", true );
     glassfish.createCustomResource( "<%= prefix %>/requestDebugOutputEnabled", false );

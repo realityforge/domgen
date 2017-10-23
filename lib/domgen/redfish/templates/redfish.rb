@@ -65,7 +65,6 @@ def generate(repository)
       data['environment_vars']["#{env_prefix}_REQUESTDEBUGOUTPUTENABLED"] = 'false'
 
       define_custom_resource(data, "#{prefix}/url", "${#{env_prefix}_URL}")
-      define_custom_resource(data, "#{prefix}/repositoryDebugOutputEnabled", "${#{env_prefix}_REPOSITORYDEBUGOUTPUTENABLED}", 'java.lang.Boolean')
       define_custom_resource(data, "#{prefix}/subscriptionsDebugOutputEnabled", "${#{env_prefix}_SUBSCRIPTIONSDEBUGOUTPUTENABLED}", 'java.lang.Boolean')
       define_custom_resource(data, "#{prefix}/shouldValidateRepositoryOnLoad", "${#{env_prefix}_SHOULDVALIDATEREPOSITORYONLOAD}", 'java.lang.Boolean')
       define_custom_resource(data, "#{prefix}/requestDebugOutputEnabled", "${#{env_prefix}_REQUESTDEBUGOUTPUTENABLED}", 'java.lang.Boolean')
