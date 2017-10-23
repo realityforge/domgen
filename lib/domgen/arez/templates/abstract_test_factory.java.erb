@@ -87,9 +87,9 @@ end.join(', ') -%> );
 -%>
 
   @javax.annotation.Nonnull
-  protected final org.realityforge.replicant.client.EntityLocator entityLocator()
+  protected final <%= data_module.repository.arez.qualified_entity_locator_name %> entityLocator()
   {
-    return s( org.realityforge.replicant.client.EntityLocator.class );
+    return s( <%= data_module.repository.arez.qualified_entity_locator_name %>.class );
   }
 
   @javax.annotation.Nonnull

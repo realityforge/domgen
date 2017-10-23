@@ -1,0 +1,20 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.arez.qualified_entity_locator_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+public final class <%= repository.arez.entity_locator_name %>
+  extends org.realityforge.replicant.client.AbstractEntityLocator
+{
+  @javax.inject.Inject
+  public <%= repository.arez.entity_locator_name %>( @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository )
+  {
+<% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
+<% data_module.entities.select{|entity|entity.arez? && entity.concrete?}.each do |entity| -%>
+    registerLookup( <%= entity.arez.qualified_name %>.class,
+                    id -> repository.<%= Reality::Naming.camelize(data_module.name) %>().<%= Reality::Naming.camelize(entity.dao.name) %>().findBy<%= entity.primary_key.name %>( (<%= annotated_type(entity.primary_key, :arez, :default, :assume_generated => true) %>)id ),
+                    () -> repository.<%= Reality::Naming.camelize(data_module.name) %>().<%= Reality::Naming.camelize(entity.dao.name) %>().findAll() );
+<% end -%>
+<% end -%>
+  }
+}

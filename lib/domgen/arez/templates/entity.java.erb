@@ -51,7 +51,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
     super( entityLocator, <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(:transport))}.join(', ') %> );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.each do |attribute|
-  nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true)) ? "java.util.Objects.requireNonNull" : ''
+  nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true) && !attribute.nullable? ) ? "java.util.Objects.requireNonNull" : ''
   value = Reality::Naming.camelize(attribute.arez.name(:transport))
   if attribute.enumeration?
     cvalue = "#{attribute.arez.java_type}.#{attribute.enumeration.textual_values? ? "valueOf( #{value} )" : "values()[#{value}]"}"
