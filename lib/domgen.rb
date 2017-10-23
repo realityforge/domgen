@@ -49,10 +49,6 @@ require 'domgen/xml/helper'
 require 'domgen/java/model'
 require 'domgen/java/helper'
 
-# Ruby
-require 'domgen/ruby/model'
-require 'domgen/ruby/helper'
-
 # SQL
 require 'domgen/sql/model'
 require 'domgen/sql/helper'
@@ -85,9 +81,6 @@ require 'domgen/jpa/generator'
 # JMS
 require 'domgen/jms/model'
 require 'domgen/jms/generator'
-
-# ActiveRecord
-require 'domgen/active_record/generator'
 
 # Docbook
 require 'domgen/xml/generator'
