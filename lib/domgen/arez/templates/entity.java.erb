@@ -357,7 +357,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
 
   protected final void checkValidity()
   {
-    org.realityforge.braincheck.Guards.invariant( () -> org.realityforge.arez.Disposable.isDisposed( this ),
+    org.realityforge.braincheck.Guards.invariant( () -> !org.realityforge.arez.Disposable.isDisposed( this ),
                                                   () -> "Method invoked on invalid imitation of type <%= entity.arez.name %>" );
   }
 
