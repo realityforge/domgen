@@ -132,7 +132,20 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% end -%>
 <% end -%>
 <% unless attribute.immutable? -%>
+<% if attribute.enumeration? -%>
+  @org.realityforge.arez.annotations.Observable
+  void set<%= attribute.arez.name %>( <%= annotated_type(attribute, :arez, :default, :final => true) %> value )
+  {
+<% nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true) && !attribute.nullable? ) ? "java.util.Objects.requireNonNull" : '' -%>
+    _<%= Reality::Naming.camelize(attribute.arez.name) %> = <%= nullability_prefix %>( value );
+  }
 
+  void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :final => true) %> value )
+  {
+<% nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true) && !attribute.nullable? ) ? "java.util.Objects.requireNonNull" : '' -%>
+    set<%= attribute.arez.name %>( <%= nullability_prefix %>( ( null != value ) ? <%= attribute.arez.java_type %>.<%= attribute.enumeration.textual_values? ? "valueOf( #{nullability_prefix}( value ) )" : "values()[ #{nullability_prefix}( value )]" %> : null ) );
+  }
+<% else -%>
   void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :final => true) %> value )
   {
 <% nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true) && !attribute.nullable? ) ? "java.util.Objects.requireNonNull" : '' -%>
@@ -157,6 +170,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% else -%>
     _<%= Reality::Naming.camelize(attribute.arez.name) %> = <%= nullability_prefix %>( value );
 <% end %>  }
+<% end -%>
 <% end -%>
 <% end -%>
 <% entity.arez.referencing_client_side_attributes.each do |attribute|
