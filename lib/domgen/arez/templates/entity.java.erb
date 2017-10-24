@@ -135,7 +135,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 
   void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :final => true) %> value )
   {
-<% nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true)) ? "java.util.Objects.requireNonNull" : '' -%>
+<% nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true) && !attribute.nullable? ) ? "java.util.Objects.requireNonNull" : '' -%>
 <% if attribute.reference? || attribute.remote_reference? -%>
     _<%= Reality::Naming.camelize(attribute.arez.name) %> = null;
     _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> = <%= nullability_prefix %>( value );
