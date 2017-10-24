@@ -8,7 +8,7 @@ public class <%= service.imit.proxy_name %>
   @javax.inject.Inject
   private <%= service.gwt_rpc.qualified_facade_service_name %> _service;
   @javax.inject.Inject
-  private org.realityforge.replicant.client.EntityRepository _repository;
+  private <%= service.data_module.repository.arez.qualified_root_repository_name %> _repository;
 
 <% service.methods.select{|method| method.imit?}.each do |method|
    method_name = Reality::Naming.camelize(method.name)
@@ -63,7 +63,8 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
    if !method.return_value.collection?
      result_string = 'result'
      if method.return_value.reference?
-       result_string = "_repository.getByID( #{method.return_value.referenced_entity.imit.qualified_name}.class, result )"
+       entity = method.return_value.referenced_entity
+       result_string = "_repository.#{Reality::Naming.camelize(entity.data_module.name)}().#{Reality::Naming.camelize(entity.dao.name)}().getBy#{entity.primary_key.name}( result )"
      elsif method.return_value.remote_reference?
        result_string = "_repository.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, result )"
      end
@@ -85,7 +86,8 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
           <%
              param_value =
              if method.return_value.reference?
-               "_repository.getByID( #{method.return_value.referenced_entity.imit.qualified_name}.class, id )"
+               entity = method.return_value.referenced_entity
+               "_repository.#{Reality::Naming.camelize(entity.data_module.name)}().#{Reality::Naming.camelize(entity.dao.name)}().getBy#{entity.primary_key.name}( id )"
              elsif method.return_value.remote_reference?
                "_repository.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, id )"
              end
