@@ -5,6 +5,9 @@ package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 @javax.annotation.Generated( "Domgen" )
 public abstract class <%= repository.gwt.abstract_client_test_name %>
   extends org.realityforge.guiceyloops.shared.AbstractSharedTest
+<% if repository.arez? -%>
+  implements org.testng.IHookable
+<% end -%>
 {
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
   @javax.annotation.Nonnull
@@ -16,11 +19,47 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   public void preTest()
     throws Exception
   {
+<% if repository.arez? -%>
+    org.realityforge.braincheck.BrainCheckTestUtil.setVerboseErrorMessages( true );
+    org.realityforge.braincheck.BrainCheckTestUtil.setCheckInvariants( true );
+    org.realityforge.braincheck.BrainCheckTestUtil.setCheckApiInvariants( true );
+
+    org.realityforge.arez.ArezTestUtil.setEnableNames( true );
+    org.realityforge.arez.ArezTestUtil.setPurgeReactionsWhenRunawayDetected( false );
+    org.realityforge.arez.ArezTestUtil.setEnforceTransactionType( true );
+    org.realityforge.arez.ArezTestUtil.setEnableSpy( true );
+    org.realityforge.arez.ArezTestUtil.setProvider( null );
+
+<% end -%>
     super.preTest();
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
     <%= short_code %> = s( <%= classname %>.class );
 <% end -%>
   }
+<% if repository.arez? -%>
+
+  @org.testng.annotations.AfterMethod
+  protected void afterTest()
+    throws Exception
+  {
+    super.postTest();
+    org.realityforge.braincheck.BrainCheckTestUtil.setVerboseErrorMessages( false );
+    org.realityforge.braincheck.BrainCheckTestUtil.setCheckInvariants( false );
+    org.realityforge.braincheck.BrainCheckTestUtil.setCheckApiInvariants( false );
+
+    org.realityforge.arez.ArezTestUtil.setEnableNames( false );
+    org.realityforge.arez.ArezTestUtil.setPurgeReactionsWhenRunawayDetected( true );
+    org.realityforge.arez.ArezTestUtil.setEnforceTransactionType( false );
+    org.realityforge.arez.ArezTestUtil.setEnableSpy( false );
+  }
+
+  @Override
+  public void run( final org.testng.IHookCallBack icb, final org.testng.ITestResult testResult )
+  {
+    org.realityforge.arez.Arez.context().safeAction( () -> icb.runTestMethod( testResult ) );
+  }
+
+<% end -%>
 
   @java.lang.Override
   protected com.google.inject.Module[] getModules()

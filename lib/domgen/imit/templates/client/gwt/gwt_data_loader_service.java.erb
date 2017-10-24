@@ -31,14 +31,31 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   private final <%= repository.imit.qualified_gwt_client_session_context_name %> _context;
   @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_client_router_interface_name %> _router;
-  private final <%= repository.imit.qualified_change_mapper_name %> _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( getRepository(), getSubscriptionManager() )" }.join(', ') %> );
+  private final <%= repository.imit.qualified_change_mapper_name %> _changeMapper;
+  private final java.util.HashSet<Class<?>> _entityTypes = new java.util.HashSet<>();
+  private final java.util.Set<Class<?>> _entityTypesRO = java.util.Collections.unmodifiableSet( _entityTypes );
+  private final org.realityforge.replicant.client.EntityLocator _entityLocator;
 
   @javax.inject.Inject
-  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySystem entitySystem, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
+  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager entitySubscriptionManager, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
   {
-    super( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext(), entitySystem, cacheService );
+    super( <%= repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext(), entitySubscriptionManager, cacheService );
     _context  = context;
     _router = router;
+    _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( entityLocator, repository.#{Reality::Naming.camelize(data_module.name)}(), entitySubscriptionManager )" }.join(', ') %> );
+    _entityLocator = entityLocator;
+<% repository.data_modules.select{|data_module| data_module.imit?}.each do |data_module| -%>
+<% data_module.entities.select{|entity| entity.imit?}.each do |entity| -%>
+    _entityTypes.add( <%= entity.arez.qualified_name %>.class );
+<% end -%>
+<% end -%>
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected org.realityforge.replicant.client.EntityLocator getEntityLocator()
+  {
+    return _entityLocator;
   }
 
   @javax.annotation.Nonnull
@@ -110,6 +127,13 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   public Class<java.lang.Enum> getGraphType()
   {
     return (Class<java.lang.Enum>) (Class) <%= repository.imit.qualified_graph_enum_name %>.class;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public java.util.Set<Class<?>> getEntityTypes()
+  {
+    return _entityTypesRO;
   }
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
