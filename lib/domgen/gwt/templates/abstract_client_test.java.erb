@@ -20,9 +20,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     throws Exception
   {
 <% if repository.arez? -%>
-    org.realityforge.braincheck.BrainCheckTestUtil.setVerboseErrorMessages( true );
-    org.realityforge.braincheck.BrainCheckTestUtil.setCheckInvariants( true );
-    org.realityforge.braincheck.BrainCheckTestUtil.setCheckApiInvariants( true );
+    org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
 
     org.realityforge.arez.ArezTestUtil.setEnableNames( true );
     org.realityforge.arez.ArezTestUtil.setPurgeReactionsWhenRunawayDetected( false );
@@ -43,9 +41,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     throws Exception
   {
     super.postTest();
-    org.realityforge.braincheck.BrainCheckTestUtil.setVerboseErrorMessages( false );
-    org.realityforge.braincheck.BrainCheckTestUtil.setCheckInvariants( false );
-    org.realityforge.braincheck.BrainCheckTestUtil.setCheckApiInvariants( false );
+    org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( true );
 
     org.realityforge.arez.ArezTestUtil.setEnableNames( false );
     org.realityforge.arez.ArezTestUtil.setPurgeReactionsWhenRunawayDetected( true );
