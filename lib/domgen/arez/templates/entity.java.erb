@@ -21,9 +21,9 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 %><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.arez? }.each do |attribute|
   if attribute.reference? || attribute.remote_reference? -%>
   private <%= attribute.arez.java_type %> _<%= Reality::Naming.camelize(attribute.arez.name) %>;
-  private <%= "#{nullability_annotation(true)} #{attribute.arez.java_type(:transport)}" %> _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
+  private <%= attribute.updatable? ? '' : 'final ' %><%= "#{nullability_annotation(true)} #{attribute.arez.java_type(:transport)}" %> _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
 <% else -%>
-  <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :private => true) %> _<%= Reality::Naming.camelize(attribute.arez.name) %>;
+  <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :private => true, :final => !attribute.updatable?) %> _<%= Reality::Naming.camelize(attribute.arez.name) %>;
 <%
    end
    end
