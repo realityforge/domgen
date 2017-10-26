@@ -11,7 +11,7 @@ public final class <%= repository.arez.root_repository_name %>
 
 <% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
   @javax.annotation.Nonnull
-  public final <%= data_module.arez.qualified_data_module_repository_name %> <%= Reality::Naming.camelize(data_module.name) %>()
+  public <%= data_module.arez.qualified_data_module_repository_name %> <%= Reality::Naming.camelize(data_module.name) %>()
   {
     return _<%= Reality::Naming.camelize(data_module.name) %>;
   }
