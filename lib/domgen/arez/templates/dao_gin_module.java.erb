@@ -9,24 +9,19 @@ public class <%= repository.arez.dao_gin_module_name %>
   @java.lang.Override
   protected void configure()
   {
-<%
-  repository.data_modules.select{|data_module| data_module.arez?}.each do |data_module|
-    data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao|
--%>
-    bind<%= dao.qualified_name.to_s.gsub('.','') %>();
-<%
-    end
-  end
--%>
+    bind( <%= repository.arez.qualified_root_repository_name %>.class ).in( javax.inject.Singleton.class );
   }
 <%
   repository.data_modules.select{|data_module| data_module.arez?}.each do |data_module|
     data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao|
 -%>
 
-  protected void bind<%= dao.qualified_name.to_s.gsub('.','') %>()
+  @javax.annotation.Nonnull
+  @com.google.inject.Provides
+  @javax.inject.Singleton
+  public final <%= dao.arez.qualified_repository_name %> get<%= dao.qualified_name.to_s.gsub('.','') %>( @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository )
   {
-    bind( <%= dao.arez.qualified_repository_name %>.class ).to( <%= dao.arez.qualified_repository_name %>.class ).in( javax.inject.Singleton.class );
+    return repository.<%= Reality::Naming.camelize(data_module.name) %>().<%= Reality::Naming.camelize(dao.name) %>();
   }
 <%
     end
