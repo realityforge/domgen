@@ -21,13 +21,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   {
 <% if repository.arez? -%>
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
-
-    org.realityforge.arez.ArezTestUtil.setEnableNames( true );
-    org.realityforge.arez.ArezTestUtil.setPurgeReactionsWhenRunawayDetected( false );
-    org.realityforge.arez.ArezTestUtil.setEnforceTransactionType( true );
-    org.realityforge.arez.ArezTestUtil.setEnableSpy( true );
-    org.realityforge.arez.ArezTestUtil.setProvider( null );
-
+    org.realityforge.arez.ArezTestUtil.resetConfig( false );
 <% end -%>
     super.preTest();
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
@@ -41,12 +35,8 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     throws Exception
   {
     super.postTest();
+    org.realityforge.arez.ArezTestUtil.resetConfig( true );
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( true );
-
-    org.realityforge.arez.ArezTestUtil.setEnableNames( false );
-    org.realityforge.arez.ArezTestUtil.setPurgeReactionsWhenRunawayDetected( true );
-    org.realityforge.arez.ArezTestUtil.setEnforceTransactionType( false );
-    org.realityforge.arez.ArezTestUtil.setEnableSpy( false );
   }
 
   @Override
