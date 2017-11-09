@@ -6,6 +6,7 @@ package <%= to_package(repository.arez.qualified_entity_locator_name) %>;
 public final class <%= repository.arez.entity_locator_name %>
   extends org.realityforge.replicant.client.AbstractEntityLocator
 {
+  @java.lang.SuppressWarnings( { "PMD.UnusedFormalParameter" } )
   @javax.inject.Inject
   public <%= repository.arez.entity_locator_name %>( @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository )
   {

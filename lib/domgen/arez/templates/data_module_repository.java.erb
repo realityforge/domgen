@@ -2,7 +2,7 @@
 package <%= to_package(data_module.arez.qualified_data_module_repository_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.UnnecessaryConstructor" } )
 public final class <%= data_module.arez.data_module_repository_name %>
 {
 <% data_module.daos.select{|dao|dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
