@@ -186,4 +186,6 @@ require 'domgen/arez/model'
 require 'domgen/arez/helper'
 require 'domgen/arez/generator'
 
+require 'domgen/dagger/model'
+
 require 'domgen/gin/model'
