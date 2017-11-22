@@ -185,3 +185,5 @@ require 'domgen/graphql/generator'
 require 'domgen/arez/model'
 require 'domgen/arez/helper'
 require 'domgen/arez/generator'
+
+require 'domgen/gin/model'

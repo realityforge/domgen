@@ -57,7 +57,7 @@ module Domgen
 
       java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
       java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
-      java_artifact :abstract_ginjector, :ioc, :client, :gwt, 'Abstract#{repository.name}Ginjector'
+      java_artifact :abstract_ginjector, :ioc, :client, :gwt, 'Abstract#{repository.name}#{repository.gin.component_suffix}'
       java_artifact :abstract_application, nil, :client, :gwt, 'Abstract#{repository.name}App'
       java_artifact :aggregate_module, :ioc, :client, :gwt, '#{repository.name}Module'
 
@@ -228,6 +228,10 @@ module Domgen
       Domgen.target_manager.target(:entrypoint, :repository, :facet_key => :gwt)
 
       def pre_complete
+        if !repository.dagger? && !repository.gin?
+          repository.enable_facet(:gin)
+        end
+
         if repository.ee?
           repository.ee.cdi_scan_excludes << "#{repository.gwt.client_package}.**"
           repository.ee.cdi_scan_excludes << 'org.realityforge.gwt.**'
