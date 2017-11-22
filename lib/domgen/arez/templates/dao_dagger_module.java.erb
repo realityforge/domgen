@@ -1,0 +1,24 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.arez.qualified_dao_dagger_module_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+@dagger.Module
+public class <%= repository.arez.dao_dagger_module_name %>
+{
+<%
+  repository.data_modules.select{|data_module| data_module.arez?}.each do |data_module|
+    data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao|
+-%>
+  @javax.annotation.Nonnull
+  @dagger.Provides
+  @javax.inject.Singleton
+  static <%= dao.arez.qualified_repository_name %> provide<%= dao.qualified_name.to_s.gsub('.','') %>( @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository )
+  {
+    return repository.<%= Reality::Naming.camelize(data_module.name) %>().<%= Reality::Naming.camelize(dao.name) %>();
+  }
+<%
+    end
+  end
+-%>
+}

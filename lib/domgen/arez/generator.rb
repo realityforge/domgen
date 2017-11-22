@@ -42,6 +42,10 @@ Domgen::Generator.define([:arez],
                               'dao_gin_module.java.erb',
                               'main/java/#{repository.arez.qualified_dao_gin_module_name.gsub(".","/")}.java',
                               :additional_facets => [:gin])
+    template_set.erb_template(:repository,
+                              'dao_dagger_module.java.erb',
+                              'main/java/#{repository.arez.qualified_dao_dagger_module_name.gsub(".","/")}.java',
+                              :additional_facets => [:dagger])
   end
 
   %w(main test).each do |type|
