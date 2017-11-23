@@ -570,8 +570,8 @@ module Domgen
 
       def pre_verify
         if repository.gwt? && self.generates_tokens?
-          repository.gwt.add_gin_module(self.services_gin_module_name, self.qualified_services_gin_module_name)
-          repository.gwt.add_dagger_module(self.services_dagger_module_name, self.qualified_services_dagger_module_name)
+          repository.gwt.add_gin_module(self.services_gin_module_name, self.qualified_services_gin_module_name) if repository.gin?
+          repository.gwt.add_dagger_module(self.services_dagger_module_name, self.qualified_services_dagger_module_name) if repository.dagger?
         end
         if repository.ejb? && self.has_local_auth_service?
           repository.ejb.add_flushable_test_module(self.test_module_name, self.qualified_test_module_name)

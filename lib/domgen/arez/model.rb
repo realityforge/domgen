@@ -69,8 +69,8 @@ module Domgen
           repository.imit.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         end
         if repository.gwt?
-          repository.gwt.add_gin_module(dao_gin_module_name, qualified_dao_gin_module_name)
-          repository.gwt.add_dagger_module(dao_dagger_module_name, qualified_dao_dagger_module_name)
+          repository.gwt.add_gin_module(dao_gin_module_name, qualified_dao_gin_module_name) if repository.gin?
+          repository.gwt.add_dagger_module(dao_dagger_module_name, qualified_dao_dagger_module_name) if repository.dagger?
           repository.gwt.add_test_module(dao_test_module_name, qualified_dao_test_module_name)
           repository.gwt.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         end

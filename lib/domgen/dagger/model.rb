@@ -26,11 +26,9 @@ module Domgen
         'DaggerModule'
       end
 
-      # def post_verify
-      #   if repository.dagger?
-      #     Domgen.error("Repository named '#{repository.name}' defines incompatible facets dagger and gin")
-      #   end
-      # end
+      def post_verify
+        Domgen.error("Repository named '#{repository.name}' defines incompatible facets dagger and gin") if repository.gin?
+      end
     end
   end
 end
