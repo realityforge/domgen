@@ -55,12 +55,6 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
 {
   public static final String APPLICATION_URL_JNDI_SUFFIX = "/replicant/client/<%= Reality::Naming.camelize(repository.name) %>/url";
 
-  @javax.inject.Inject
-  private <%= repository.imit.qualified_ee_client_session_context_name %> _context;
-  @javax.inject.Inject
-  private <%= repository.arez.qualified_root_repository_name %> _repository;
-  @javax.inject.Inject
-  private org.realityforge.replicant.client.EntityLocator _entityLocator;
   @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_client_router_interface_name %> _router = new <%= repository.imit.qualified_client_router_impl_name %>();
   private final org.realityforge.replicant.client.transport.SessionContext _sessionContext = new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" );
@@ -78,9 +72,15 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
   public void postConstruct()
   {
     super.postConstruct();
-    _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( _entityLocator, _repository.#{Reality::Naming.camelize(data_module.name)}(), getSubscriptionManager() )" }.join(', ') %> );
+    _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( entityLocator(), repository().#{Reality::Naming.camelize(data_module.name)}(), getSubscriptionManager() )" }.join(', ') %> );
     getSessionContext().setBaseURL( get<%= repository.name %>ApplicationURL() );
   }
+
+  @javax.annotation.Nonnull
+  protected abstract iris.rose.client.entity.RoseRootRepository repository();
+
+  @javax.annotation.Nonnull
+  protected abstract org.realityforge.replicant.client.EntityLocator entityLocator();
 
 <% if repository.keycloak? -%>
   @javax.annotation.Nonnull

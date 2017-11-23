@@ -6,13 +6,18 @@ package <%= to_package(service.gwt_rpc.qualified_proxy_name) %>;
 public class <%= service.gwt_rpc.proxy_name %>
   implements <%= service.gwt_rpc.qualified_facade_service_name %>
 {
-  @javax.inject.Inject
-  private <%= service.gwt_rpc.qualified_async_rpc_service_name %> _service;
+  private final <%= service.gwt_rpc.qualified_async_rpc_service_name %> _service;
 <% if service.gwt_rpc.default_callback? -%>
-  @javax.inject.Named( "<%= service.gwt_rpc.default_callback_name %>" )
-  @javax.inject.Inject
-  private com.google.gwt.user.client.rpc.AsyncCallback _callback;
+  private final com.google.gwt.user.client.rpc.AsyncCallback _callback;
 <% end -%>
+
+  public <%= service.gwt_rpc.proxy_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service<% if service.gwt_rpc.default_callback? -%>, @javax.inject.Named( "<%= service.gwt_rpc.default_callback_name %>" ) @javax.annotation.Nonnull final com.google.gwt.user.client.rpc.AsyncCallback callback <% end %> )
+  {
+    _service = java.util.Objects.requireNonNull( service );
+<% if service.gwt_rpc.default_callback? -%>
+    _callback = java.util.Objects.requireNonNull( callback );
+<% end -%>
+  }
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
    method_name = Reality::Naming.camelize(method.name)
    parameters = method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?} -%>
@@ -130,14 +135,14 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 
   private void request( @javax.annotation.Nonnull final String key, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.RequestAction action )
   {
-    <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.getSessionContext().request( key, null, action );
+    <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_gin_module_name %>.getSessionContext().request( key, null, action );
   }
 <% end -%>
 <% if service.keycloak? -%>
 
   private void updateTokenAndExecute( @javax.annotation.Nonnull final java.lang.Runnable action )
   {
-    <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_module_name %>.updateTokenAndExecute( action );
+    <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_gin_module_name %>.updateTokenAndExecute( action );
   }
 <% end -%>
 }

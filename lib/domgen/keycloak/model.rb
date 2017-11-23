@@ -432,7 +432,8 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
-      java_artifact :services_module, :ioc, :client, :keycloak, '#{repository.name}KeycloakServicesModule'
+      java_artifact :services_gin_module, :ioc, :client, :keycloak, '#{repository.name}KeycloakServices#{repository.gin.module_suffix}'
+      java_artifact :services_dagger_module, :ioc, :client, :keycloak, '#{repository.name}KeycloakServices#{repository.dagger.module_suffix}'
       java_artifact :gwt_token_service, :service, :client, :keycloak, '#{repository.name}KeycloakTokenService'
       java_artifact :gwt_token_service_impl, :service, :client, :keycloak, '#{gwt_token_service_name}Impl', :sub_package => 'internal'
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
@@ -569,7 +570,8 @@ module Domgen
 
       def pre_verify
         if repository.gwt? && self.generates_tokens?
-          repository.gwt.add_gin_module(self.services_module_name, self.qualified_services_module_name)
+          repository.gwt.add_gin_module(self.services_gin_module_name, self.qualified_services_gin_module_name)
+          repository.gwt.add_dagger_module(self.services_dagger_module_name, self.qualified_services_dagger_module_name)
         end
         if repository.ejb? && self.has_local_auth_service?
           repository.ejb.add_flushable_test_module(self.test_module_name, self.qualified_test_module_name)

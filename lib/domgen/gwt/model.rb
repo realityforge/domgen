@@ -59,7 +59,8 @@ module Domgen
       java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
       java_artifact :abstract_ginjector, :ioc, :client, :gwt, 'Abstract#{repository.name}#{repository.gin.component_suffix}'
       java_artifact :abstract_application, nil, :client, :gwt, 'Abstract#{repository.name}App'
-      java_artifact :aggregate_module, :ioc, :client, :gwt, '#{repository.name}Module'
+      java_artifact :aggregate_gin_module, :ioc, :client, :gwt, '#{repository.name}#{repository.gin.module_suffix}'
+      java_artifact :aggregate_dagger_module, :ioc, :client, :gwt, '#{repository.name}#{repository.dagger.module_suffix}'
 
       java_artifact :dev_module, :modules, nil, :gwt, '#{repository.name}DevSupport'
       java_artifact :prod_module, :modules, nil, :gwt, '#{repository.name}ProdSupport'
@@ -94,6 +95,15 @@ module Domgen
       def add_gin_module(name, classname)
         Domgen.error("Attempting to define duplicate test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if gin_modules_map[name.to_s]
         gin_modules_map[name.to_s] = classname
+      end
+
+      def dagger_modules
+        dagger_modules_map.dup
+      end
+
+      def add_dagger_module(name, classname)
+        Domgen.error("Attempting to define duplicate test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if dagger_modules_map[name.to_s]
+        dagger_modules_map[name.to_s] = classname
       end
 
       attr_writer :custom_base_client_test
@@ -312,6 +322,10 @@ CONTENT
 
       def gin_modules_map
         @gin_modules_map ||= {}
+      end
+
+      def dagger_modules_map
+        @dagger_modules_map ||= {}
       end
 
       def facet_key

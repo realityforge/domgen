@@ -39,9 +39,9 @@ module Domgen
       java_artifact :async_callback_adapter, :service, :client, :gwt_rpc, '#{repository.name}AsyncCallbackAdapter'
       java_artifact :rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}RpcRequestBuilder'
       java_artifact :keycloak_rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}KeycloakRpcRequestBuilder'
-      java_artifact :rpc_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesModule'
+      java_artifact :rpc_services_gin_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServices#{repository.gin.module_suffix}'
+      java_artifact :rpc_services_dagger_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServices#{repository.dagger.module_suffix}'
       java_artifact :mock_services_module, :test, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule', :sub_package => 'util'
-      java_artifact :services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtServicesModule'
 
       java_artifact :code_server_config, :service, :server, :gwt_rpc, '#{repository.name}CodeServerConfig'
       java_artifact :code_server_config_resources, :service, :server, :gwt_rpc, '#{repository.name}CodeServerConfigResources'
@@ -80,7 +80,8 @@ module Domgen
           client.protected_url_patterns << "/#{base_api_url}/*"
         end
         repository.gwt.add_test_module(repository.gwt_rpc.mock_services_module_name, repository.gwt_rpc.qualified_mock_services_module_name)
-        repository.gwt.add_gin_module(repository.gwt_rpc.rpc_services_module_name, repository.gwt_rpc.qualified_rpc_services_module_name)
+        repository.gwt.add_gin_module(repository.gwt_rpc.rpc_services_gin_module_name, repository.gwt_rpc.qualified_rpc_services_gin_module_name)
+        repository.gwt.add_dagger_module(repository.gwt_rpc.rpc_services_dagger_module_name, repository.gwt_rpc.qualified_rpc_services_dagger_module_name)
       end
 
       protected

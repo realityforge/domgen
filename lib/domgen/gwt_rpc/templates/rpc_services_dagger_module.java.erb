@@ -1,0 +1,181 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.gwt_rpc.qualified_rpc_services_dagger_module_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FieldDeclarationsShouldBeAtStartOfClass" } )
+@dagger.Module
+public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
+{
+<% if repository.keycloak? -%>
+  @javax.annotation.Nullable
+  private static org.realityforge.gwt.keycloak.Keycloak c_keycloak;
+  private static int c_minTokenValiditySeconds = <%= repository.imit? ? 'org.realityforge.replicant.shared.transport.ReplicantContext.MAX_POLL_TIME_IN_SECONDS * 2' : '10' %>;
+
+  @javax.annotation.Nonnull
+  public static org.realityforge.gwt.keycloak.Keycloak getKeycloak()
+  {
+    if( null == c_keycloak )
+    {
+      throw new IllegalStateException( "Keycloak not configured when calling getKeycloak()" );
+    }
+    return c_keycloak;
+  }
+
+  public static void setKeycloak( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
+  {
+    c_keycloak = keycloak;
+  }
+
+  public static int getMinTokenValiditySeconds()
+  {
+    return c_minTokenValiditySeconds;
+  }
+
+  public static void setMinTokenValiditySeconds( final int minTokenValiditySeconds )
+  {
+    c_minTokenValiditySeconds = minTokenValiditySeconds;
+  }
+
+  public static void updateTokenAndExecute( @javax.annotation.Nonnull final java.lang.Runnable action )
+  {
+    final org.realityforge.gwt.keycloak.Keycloak keycloak = c_keycloak;
+    if ( null == keycloak )
+    {
+      action.run();
+    }
+    else
+    {
+      keycloak.updateToken( c_minTokenValiditySeconds, new java.lang.Runnable()
+      {
+        @java.lang.Override
+        public void run()
+        {
+          <% if repository.imit? -%>getSessionContext().<% end -%>setAuthenticationToken( keycloak.getToken() );
+          action.run();
+        }
+      } );
+    }
+  }
+
+<% end -%>
+<% if repository.imit? -%>
+  @javax.annotation.Nonnull
+  private static final org.realityforge.replicant.client.transport.SessionContext c_sessionContext = new org.realityforge.replicant.client.transport.SessionContext( "<%= repository.name %>" );
+
+  @javax.annotation.Nonnull
+  public static org.realityforge.replicant.client.transport.SessionContext getSessionContext()
+  {
+    return c_sessionContext;
+  }
+
+<% else -%>
+  private static String c_baseURL;
+  private static String c_authenticationToken;
+
+  public static void setBaseURL( @javax.annotation.Nonnull final String baseURL )
+  {
+    c_baseURL = baseURL;
+  }
+
+  public static String getBaseURL()
+  {
+    return c_baseURL;
+  }
+
+  public static String getAuthenticationToken()
+  {
+    return c_authenticationToken;
+  }
+
+  public static void setAuthenticationToken( @javax.annotation.Nullable final String authenticationToken )
+  {
+    c_authenticationToken = authenticationToken;
+  }
+<% end -%>
+<%
+  needs_xsrf =
+    repository.data_modules.select{|data_module| data_module.gwt_rpc?}.any? do |data_module|
+      data_module.services.select{|service| service.gwt_rpc?}.any? do |service|
+        service.gwt_rpc.xsrf_protected?
+      end
+    end
+  if needs_xsrf
+%>
+  private static com.google.gwt.user.client.rpc.XsrfToken c_xsrfToken;
+
+  public static com.google.gwt.user.client.rpc.XsrfToken getXsrfToken()
+  {
+    if( null == c_xsrfToken )
+    {
+      throw new IllegalStateException( "Attempting to construct service requiring XsrfToken without specifying token." );
+    }
+    return c_xsrfToken;
+  }
+
+<%
+  end
+-%>
+  public static void initialize(<% if needs_xsrf %> final com.google.gwt.user.client.rpc.XsrfToken xsrfToken <% end -%>)
+  {
+<%
+  if needs_xsrf
+-%>
+    if( null != c_xsrfToken )
+    {
+      throw new IllegalStateException( "Attempting to re-initialize dagger module." );
+    }
+    c_xsrfToken = xsrfToken;
+<%
+  end
+-%>
+    if( null == <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() )
+    {
+      <% if repository.imit? -%>getSessionContext().<% end -%>setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
+    }
+  }
+
+<%
+  repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
+    data_module.services.select{|service| service.gwt_rpc?}.each do |service|
+-%>
+  @javax.annotation.Nonnull
+  @dagger.Provides
+  @javax.inject.Singleton
+  public static <%= service.gwt_rpc.qualified_facade_service_name %> provide<%= data_module.name %><%= service.name %>FacadeService( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_proxy_name %> proxy )
+  {
+    return proxy;
+  }
+<%
+    end
+  end
+-%>
+
+<%
+  repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
+    data_module.services.select{|service| service.gwt_rpc?}.each do |service|
+%>
+  @javax.annotation.Nonnull
+  @dagger.Provides
+  @javax.inject.Singleton
+  public static <%= service.gwt_rpc.qualified_async_rpc_service_name %> get<%= data_module.name %><%= service.name %>()
+  {
+    final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt_rpc.qualified_rpc_service_name %>.class );
+<% if service.gwt_rpc.xsrf_protected? %>
+    ( (com.google.gwt.user.client.rpc.HasRpcToken) service ).setRpcToken( getXsrfToken() );
+<% end %>
+<% if service.imit? -%>
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new <%= repository.gwt_rpc.qualified_rpc_request_builder_name %>( c_sessionContext ) );
+<% elsif service.keycloak? -%>
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new <%= repository.gwt_rpc.qualified_keycloak_rpc_request_builder_name %>() );
+<% end -%>
+    if ( null == <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() )
+    {
+      throw new java.lang.IllegalStateException( "<%= repository.gwt_rpc.rpc_services_dagger_module_name %>.initialize() not invoked prior to using dagger module" );
+    }
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() + "<%= service.gwt_rpc.api_url %>" );
+    return service;
+  }
+<%
+    end
+  end
+%>}

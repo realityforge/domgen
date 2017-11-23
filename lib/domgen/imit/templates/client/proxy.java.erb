@@ -5,11 +5,15 @@ package <%= to_package(service.imit.qualified_proxy_name) %>;
 public class <%= service.imit.proxy_name %>
   implements <%= service.imit.qualified_name %>
 {
-  @javax.inject.Inject
-  private <%= service.gwt_rpc.qualified_facade_service_name %> _service;
-  @javax.inject.Inject
-  private <%= service.data_module.repository.arez.qualified_root_repository_name %> _repository;
+  private final <%= service.gwt_rpc.qualified_facade_service_name %> _service;
+  private final <%= service.data_module.repository.arez.qualified_root_repository_name %> _repository;
 
+  @javax.inject.Inject
+  public <%= service.imit.proxy_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_facade_service_name %> service, @javax.annotation.Nonnull final <%= service.data_module.repository.arez.qualified_root_repository_name %> repository )
+  {
+    _service = java.util.Objects.requireNonNull( service );
+    _repository = java.util.Objects.requireNonNull( repository );
+  }
 <% service.methods.select{|method| method.imit?}.each do |method|
    method_name = Reality::Naming.camelize(method.name)
    parameters = method.parameters.select{|parameter| !parameter.imit.environmental?}

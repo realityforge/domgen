@@ -692,7 +692,8 @@ module Domgen
       java_artifact :graph_encoder, :comm, :server, :imit, '#{repository.name}GraphEncoder'
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{graph_encoder_name}Impl'
       java_artifact :ee_client_resources, :comm, :server, :imit, '#{repository.name}ReplicantClientResources'
-      java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
+      java_artifact :services_gin_module, :ioc, :client, :imit, '#{repository.name}ImitServices#{repository.gin.module_suffix}'
+      java_artifact :services_dagger_module, :ioc, :client, :imit, '#{repository.name}ImitServices#{repository.dagger.module_suffix}'
       java_artifact :mock_services_module, :test, :client, :imit, '#{repository.name}MockImitServicesModule', :sub_package => 'util'
       java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ReplicantClientTest', :sub_package => 'util'
       java_artifact :client_test, :test, :client, :imit, '#{repository.name}ReplicantClientTest', :sub_package => 'util'
@@ -1018,7 +1019,8 @@ CONTENT
         add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
         repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name) if repository.gwt?
          if repository.gwt?
-           repository.gwt.add_gin_module(services_module_name, qualified_services_module_name)
+           repository.gwt.add_gin_module(services_gin_module_name, qualified_services_gin_module_name)
+           repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
            repository.gwt.add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
            repository.gwt.add_test_class_content(test_content)
          end

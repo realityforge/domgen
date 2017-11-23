@@ -102,8 +102,13 @@ Domgen::Generator.define([:gwt],
 
   g.template_set(:gwt_client_module) do |template_set|
     template_set.erb_template(:repository,
-                              'aggregate_module.java.erb',
-                              'main/java/#{repository.gwt.qualified_aggregate_module_name.gsub(".","/")}.java')
+                              'aggregate_gin_module.java.erb',
+                              'main/java/#{repository.gwt.qualified_aggregate_gin_module_name.gsub(".","/")}.java',
+                              :additional_facets => [:gin])
+    template_set.erb_template(:repository,
+                              'aggregate_dagger_module.java.erb',
+                              'main/java/#{repository.gwt.qualified_aggregate_dagger_module_name.gsub(".","/")}.java',
+                              :additional_facets => [:dagger])
   end
 
   g.template_set(:gwt_client_gwt_model_module) do |template_set|

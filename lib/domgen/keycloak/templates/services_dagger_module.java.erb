@@ -1,0 +1,16 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_services_dagger_module_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( "JavaDoc" )
+@dagger.Module
+public class <%= repository.keycloak.services_dagger_module_name %>
+{
+  @javax.annotation.Nonnull
+  @dagger.Provides
+  @javax.inject.Singleton
+  public static <%= repository.keycloak.qualified_gwt_token_service_name %> provideTokenService( @javax.annotation.Nonnull final <%= repository.keycloak.qualified_gwt_token_service_impl_name %> impl )
+  {
+    return impl;
+  }
+}
