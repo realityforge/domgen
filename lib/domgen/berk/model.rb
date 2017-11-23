@@ -45,7 +45,6 @@ module Domgen
           repository.gwt.add_test_module('BerkSettingsManagerModule', 'iris.berk.client.test.util.SettingsManagerModule')
           repository.gwt.add_test_module('BerkMockGwtServicesModule', 'iris.berk.client.test.util.BerkMockGwtServicesModule')
           repository.gwt.add_ux_test_factory(short_test_code, 'iris.berk.client.test.util.BerkStructFactory')
-          repository.gwt.add_gin_module('BerkModule', 'iris.berk.client.ioc.BerkGinModule')
           repository.gwt.add_dagger_module('BerkModule', 'iris.berk.client.ioc.BerkDaggerModule')
         end
         if repository.ejb?

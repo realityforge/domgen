@@ -16,18 +16,8 @@ public class <%= repository.gwt_rpc.rpc_request_builder_name %>
   {
     super.doFinish( rb );
 <% if repository.gwt_rpc.secure_services? -%>
-<% if repository.gin? -%>
-    rb.setHeader( "Authorization", "Bearer " + <%= repository.gwt_rpc.qualified_rpc_services_gin_module_name %>.getSessionContext().getAuthenticationToken() );
-<% end -%>
-<% if repository.dagger? -%>
     rb.setHeader( "Authorization", "Bearer " + <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext().getAuthenticationToken() );
 <% end -%>
-<% end -%>
-<% if repository.gin? -%>
-    rb.setHeader( MODULE_BASE_HEADER, <%= repository.gwt_rpc.qualified_rpc_services_gin_module_name %>.getSessionContext().getBaseURL() );
-<% end -%>
-<% if repository.dagger? -%>
     rb.setHeader( MODULE_BASE_HEADER, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext().getBaseURL() );
-<% end -%>
   }
 }

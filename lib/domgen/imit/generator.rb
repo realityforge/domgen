@@ -91,13 +91,9 @@ Domgen::Generator.define([:imit],
                               'main/java/#{service.imit.qualified_proxy_name.gsub(".","/")}.java',
                               :additional_facets => [:gwt_rpc])
     template_set.erb_template(:repository,
-                              'client/gwt/services_gin_module.java.erb',
-                              'main/java/#{repository.imit.qualified_services_gin_module_name.gsub(".","/")}.java',
-                              :additional_facets => [:gwt_rpc, :gin])
-    template_set.erb_template(:repository,
                               'client/gwt/services_dagger_module.java.erb',
                               'main/java/#{repository.imit.qualified_services_dagger_module_name.gsub(".","/")}.java',
-                              :additional_facets => [:gwt_rpc, :dagger])
+                              :additional_facets => [:gwt_rpc])
     template_set.erb_template(:exception,
                               'client/exception.java.erb',
                               'main/java/#{exception.imit.qualified_name.gsub(".","/")}.java')
