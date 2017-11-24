@@ -1190,14 +1190,12 @@ CONTENT
 
         self.repository.service(self.subscription_manager) unless self.repository.service_by_name?(self.subscription_manager)
         self.repository.service_by_name(self.subscription_manager).tap do |s|
-          s.disable_facets_not_in(*self.component_facets)
+          s.disable_facets_not_in(*self.server_component_facets)
           s.ejb.bind_in_tests = false
           s.ejb.generate_base_test = false
-          s.gwt_rpc.default_callback = false
 
           s.method(:RemoveIdleSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30') do |m|
             m.disable_facet(:jws) if m.jws?
-            m.disable_facet(:gwt) if m.gwt?
           end
         end
 
