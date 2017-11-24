@@ -8,6 +8,9 @@
   <inherits name="com.google.gwt.json.JSON"/>
   <inherits name="dagger.Dagger"/>
 <% end -%>
+<% if repository.gwt_rpc? -%>
+  <inherits name="com.google.gwt.user.RemoteService"/>
+<% end -%>
 <% if repository.keycloak? -%>
   <inherits name="org.realityforge.gwt.keycloak.Keycloak"/>
 <% end -%>
