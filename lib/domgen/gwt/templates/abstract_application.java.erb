@@ -243,32 +243,32 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   protected void initGwtRpcServices()
   {
 <% if repository.keycloak? -%>
-    <%= repository.gwt_rpc.qualified_rpc_services_gin_module_name %>.setKeycloak( getKeycloak() );
+    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setKeycloak( getKeycloak() );
 <% end -%>
-    <%= repository.gwt_rpc.qualified_rpc_services_gin_module_name %>.<% if repository.imit? -%>getSessionContext().<% end -%>setBaseURL( getApplicationURL() );
-    <%= repository.gwt_rpc.qualified_rpc_services_gin_module_name %>.initialize();
+    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.<% if repository.imit? -%>getSessionContext().<% end -%>setBaseURL( getApplicationURL() );
+    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.initialize();
 <% if repository.iris_audit? -%>
-    iris.audit.client.ioc.AuditGwtRpcServicesGinModule.setBaseURL( getApplicationURL() );
+    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setBaseURL( getApplicationURL() );
 <% if repository.keycloak? -%>
-    iris.audit.client.ioc.AuditGwtRpcServicesGinModule.setKeycloak( getKeycloak() );
+    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
-    iris.audit.client.ioc.AuditGwtRpcServicesGinModule.initialize();
+    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.initialize();
 <% end -%>
 <% if repository.imit? -%>
 <% repository.imit.remote_datasources.select{|ds| ds.gwt_rpc_enabled? }.each do |ds| -%>
-    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesGinModule.<% if ds.imit_enabled? %>getSessionContext().<% end %>setBaseURL( getServerUrl() + "/<%= Reality::Naming.underscore(ds.name) %>/" );
+    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesDaggerModule.<% if ds.imit_enabled? %>getSessionContext().<% end %>setBaseURL( getServerUrl() + "/<%= Reality::Naming.underscore(ds.name) %>/" );
 <% if repository.keycloak? && ds.keycloak_enabled? -%>
-    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesGinModule.setKeycloak( getKeycloak() );
+    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
-    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesGinModule.initialize();
+    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesDaggerModule.initialize();
 <% end -%>
 <% end -%>
 <% if repository.berk? -%>
-    iris.berk.client.ioc.BerkGwtRpcServicesGinModule.setBaseURL( getApplicationURL() );
+    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setBaseURL( getApplicationURL() );
 <% if repository.keycloak? -%>
-    iris.berk.client.ioc.BerkGwtRpcServicesGinModule.setKeycloak( getKeycloak() );
+    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
-    iris.berk.client.ioc.BerkGwtRpcServicesGinModule.initialize();
+    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.initialize();
 <% end -%>
   }
 <% end -%>
