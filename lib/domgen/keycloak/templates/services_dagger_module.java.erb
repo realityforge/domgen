@@ -2,7 +2,7 @@
 package <%= to_package(repository.keycloak.qualified_services_dagger_module_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( "JavaDoc" )
+@java.lang.SuppressWarnings( { "JavaDoc", "PMD.UseUtilityClass" } )
 @dagger.Module
 public class <%= repository.keycloak.services_dagger_module_name %>
 {
