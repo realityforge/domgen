@@ -2,7 +2,7 @@
 package <%= to_package(client.qualified_abstract_application_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-public abstract class <%= client.abstract_application_name %><I extends <%= client.keycloak_repository.repository.gwt.qualified_abstract_ginjector_name %>>
+public abstract class <%= client.abstract_application_name %><I extends <%= client.keycloak_repository.repository.gwt.qualified_abstract_dagger_component_name %>>
   extends <%= client.keycloak_repository.repository.gwt.qualified_abstract_application_name %><I>
 {
   static final String AUTH_TOKEN = <%= client.keycloak_repository.repository.keycloak.qualified_client_definitions_name %>.<%= Reality::Naming.uppercase_constantize(client.name) %>_NAME + ".auth_token";

@@ -1,9 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(entrypoint.qualified_entrypoint_module_name) %>;
+package <%= to_package(entrypoint.qualified_entrypoint_dagger_module_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-public class <%= entrypoint.entrypoint_module_name %>
-  extends com.google.gwt.inject.client.AbstractGinModule
+@dagger.Module( includes = { } )
+public class <%= entrypoint.entrypoint_dagger_module_name %>
 {
   private static <%= entrypoint.qualified_application_name %> c_app;
 
@@ -18,10 +18,7 @@ public class <%= entrypoint.entrypoint_module_name %>
     @Override
     public <%= entrypoint.qualified_application_name %> get()
     {
-      if( null == c_app )
-      {
-        throw new IllegalStateException( "Missing application of type <%= entrypoint.qualified_application_name %> from injection");
-      }
+      assert null != c_app;
       return c_app;
     }
   }
@@ -30,12 +27,12 @@ public class <%= entrypoint.entrypoint_module_name %>
   {
     install( new <%= entrypoint.gwt_repository.repository.gwt.qualified_aggregate_dagger_module_name %>() );
 <% if entrypoint.gwt_repository.repository.iris_audit? -%>
-    install( new iris.audit.client.ioc.AuditClientModule() );
-    install( new iris.audit.client.ioc.AuditModule() );
+    install( new iris.audit.client.ioc.AuditClientDaggerModule() );
+    install( new iris.audit.client.ioc.AuditDaggerModule() );
 <% end -%>
 <% if entrypoint.gwt_repository.repository.imit? -%>
-    install( new org.realityforge.replicant.client.gwt.ReplicantGinModule() );
-    install( new org.realityforge.replicant.client.runtime.gwt.ReplicantNetworkModule() );
+    install( new org.realityforge.replicant.client.gwt.ReplicantDaggerModule() );
+    install( new org.realityforge.replicant.client.runtime.gwt.ReplicantNetworkDaggerModule() );
 <% end -%>
     bind( <%= entrypoint.qualified_application_name %>.class ).toProvider( AppProvider.class ).asEagerSingleton();
   }
