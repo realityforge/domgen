@@ -76,6 +76,8 @@ module Domgen
               repository.keycloak.client_by_key(self.keycloak_client) :
               repository.keycloak.client(self.keycloak_client)
           client.bearer_only = true
+          client.redirect_uris.clear
+          client.web_origins.clear
           client.protected_url_patterns << "/#{base_api_url}/*"
         end
         repository.gwt.add_test_module(repository.gwt_rpc.mock_services_module_name, repository.gwt_rpc.qualified_mock_services_module_name)
