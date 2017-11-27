@@ -2,7 +2,7 @@
 package <%= to_package(repository.arez.qualified_root_repository_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.UnnecessaryConstructor" } )
 public final class <%= repository.arez.root_repository_name %>
 {
 <% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
