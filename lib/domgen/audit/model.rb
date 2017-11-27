@@ -97,7 +97,8 @@ module Domgen
 
       def post_verify
         repository.gwt.entrypoints.each do |entrypoint|
-          entrypoint.additional_dagger_modules += %w(iris.audit.client.ioc.AuditClientDaggerModule iris.audit.client.ioc.AuditDaggerModule)
+          entrypoint.additional_dagger_modules << 'iris.audit.client.ioc.AuditClientDaggerModule'
+          entrypoint.additional_dagger_modules << 'iris.audit.client.ioc.AuditDaggerModule'
         end
       end
     end

@@ -9,6 +9,11 @@ public final class <%= repository.arez.root_repository_name %>
   private final <%= data_module.arez.qualified_data_module_repository_name %> _<%= Reality::Naming.camelize(data_module.name) %> = new <%= data_module.arez.qualified_data_module_repository_name %>();
 <% end -%>
 
+  @javax.inject.Inject
+  public <%= repository.arez.root_repository_name %>()
+  {
+  }
+
 <% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
   @javax.annotation.Nonnull
   public <%= data_module.arez.qualified_data_module_repository_name %> <%= Reality::Naming.camelize(data_module.name) %>()
