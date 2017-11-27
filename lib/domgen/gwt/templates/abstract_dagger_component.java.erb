@@ -3,8 +3,8 @@ package <%= to_package(repository.gwt.qualified_abstract_dagger_component_name) 
 
 @javax.annotation.Generated( "Domgen" )
 public interface <%= repository.gwt.abstract_dagger_component_name %><% if repository.imit? -%><C extends org.realityforge.replicant.client.net.gwt.BaseFrontendContext><% end %>
-{<% if repository.keycloak? -%>
-
+{
+<% if repository.gwt.enable_eventbus? -%>
   @javax.annotation.Nonnull
   com.google.gwt.event.shared.EventBus getEventBus();
 <% end -%>

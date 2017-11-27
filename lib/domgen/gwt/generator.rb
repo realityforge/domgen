@@ -18,7 +18,8 @@ Domgen::Generator.define([:gwt],
   g.template_set(:gwt_client_event) do |template_set|
     template_set.erb_template(:message,
                               'event.java.erb',
-                              'main/java/#{message.gwt.qualified_event_name.gsub(".","/")}.java')
+                              'main/java/#{message.gwt.qualified_event_name.gsub(".","/")}.java',
+                              :guard => 'message.data_module.repository.gwt.enable_eventbus?')
   end
 
   g.template_set(:gwt_client_config) do |template_set|

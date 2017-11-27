@@ -2,7 +2,7 @@
 package <%= to_package(entrypoint.qualified_entrypoint_dagger_module_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@dagger.Module( includes = { } )
+@dagger.Module( includes = {<%= entrypoint.dagger_modules.collect{|m|"#{m}.class"}.join(', ') %>} )
 public class <%= entrypoint.entrypoint_dagger_module_name %>
 {
   private static <%= entrypoint.qualified_application_name %> c_app;
@@ -12,37 +12,32 @@ public class <%= entrypoint.entrypoint_dagger_module_name %>
     c_app = app;
   }
 
-  public static class AppProvider
-    implements javax.inject.Provider<<%= entrypoint.qualified_application_name %>>
+  @javax.annotation.Nonnull
+  @dagger.Provides
+  @javax.inject.Singleton
+  public static <%= entrypoint.qualified_application_name %> getApp()
   {
-    @Override
-    public <%= entrypoint.qualified_application_name %> get()
-    {
-      assert null != c_app;
-      return c_app;
-    }
-  }
-
-  protected void configure()
-  {
-    install( new <%= entrypoint.gwt_repository.repository.gwt.qualified_aggregate_dagger_module_name %>() );
-<% if entrypoint.gwt_repository.repository.iris_audit? -%>
-    install( new iris.audit.client.ioc.AuditClientDaggerModule() );
-    install( new iris.audit.client.ioc.AuditDaggerModule() );
-<% end -%>
-<% if entrypoint.gwt_repository.repository.imit? -%>
-    install( new org.realityforge.replicant.client.gwt.ReplicantDaggerModule() );
-    install( new org.realityforge.replicant.client.runtime.gwt.ReplicantNetworkDaggerModule() );
-<% end -%>
-    bind( <%= entrypoint.qualified_application_name %>.class ).toProvider( AppProvider.class ).asEagerSingleton();
+    assert null != c_app;
+    return c_app;
   }
 <% if entrypoint.gwt_repository.repository.keycloak? -%>
 
-  @com.google.inject.Provides
+  @javax.annotation.Nonnull
+  @dagger.Provides
   @javax.inject.Singleton
-  public org.realityforge.gwt.keycloak.Keycloak getKeycloak( @javax.annotation.Nonnull final <%= entrypoint.qualified_application_name %> app )
+  public static org.realityforge.gwt.keycloak.Keycloak getKeycloak( @javax.annotation.Nonnull final <%= entrypoint.qualified_application_name %> app )
   {
     return app.getKeycloak();
+  }
+<% end -%>
+<% if entrypoint.gwt_repository.repository.gwt.enable_eventbus? -%>
+
+  @javax.annotation.Nonnull
+  @dagger.Provides
+  @javax.inject.Singleton
+  public static com.google.gwt.event.shared.EventBus getEventBus()
+  {
+    return new org.realityforge.gwt.lognice.LoggingEventBus();
   }
 <% end -%>
 }

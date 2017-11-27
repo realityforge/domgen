@@ -35,6 +35,18 @@ module Domgen
       end
 
       attr_reader :name
+
+      def dagger_modules
+        modules = [self.gwt_repository.repository.gwt.qualified_aggregate_dagger_module_name]
+        if self.gwt_repository.repository.gwt.include_standard_user_experience_dagger_module?
+          modules += [self.gwt_repository.repository.gwt.qualified_user_experience_dagger_module_name]
+        end
+        modules + self.additional_dagger_modules
+      end
+
+      def additional_dagger_modules
+        @additional_dagger_modules ||= []
+      end
     end
   end
 
@@ -60,6 +72,7 @@ module Domgen
       java_artifact :abstract_dagger_component, :ioc, :client, :gwt, 'Abstract#{repository.name}DaggerComponent'
       java_artifact :abstract_application, nil, :client, :gwt, 'Abstract#{repository.name}App'
       java_artifact :aggregate_dagger_module, :ioc, :client, :gwt, '#{repository.name}DaggerModule'
+      java_artifact :user_experience_dagger_module, :ioc, :client, :gwt, '#{repository.name}UserExperienceDaggerModule'
 
       java_artifact :dev_module, :modules, nil, :gwt, '#{repository.name}DevSupport'
       java_artifact :prod_module, :modules, nil, :gwt, '#{repository.name}ProdSupport'
@@ -76,6 +89,12 @@ module Domgen
       java_artifact :client_ux_test, :test, :client, :gwt, '#{repository.name}UserExperienceTest', :sub_package => 'util'
       java_artifact :standard_ux_test_module, :test, :client, :gwt, '#{repository.name}UserExperienceTestModule', :sub_package => 'util'
       java_artifact :debug_config, nil, :client, :gwt, '#{repository.name}DebugConfig'
+
+      attr_accessor :enable_eventbus
+
+      def enable_eventbus?
+        @enable_eventbus.nil? ? repository.keycloak? || repository.imit? : !!@enable_eventbus
+      end
 
       def generate_sync_callbacks?
         repository.gwt_rpc? || repository.imit?
@@ -94,6 +113,12 @@ module Domgen
       def add_dagger_module(name, classname)
         Domgen.error("Attempting to define duplicate test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if dagger_modules_map[name.to_s]
         dagger_modules_map[name.to_s] = classname
+      end
+
+      attr_writer :include_standard_user_experience_dagger_module
+
+      def include_standard_user_experience_dagger_module?
+        @include_standard_user_experience_dagger_module.nil? ? true : !!@include_standard_user_experience_dagger_module
       end
 
       attr_writer :custom_base_client_test
