@@ -6,6 +6,11 @@ package <%= to_package(repository.imit.qualified_client_router_impl_name) %>;
 public class <%= repository.imit.client_router_impl_name %>
   implements <%= repository.imit.qualified_client_router_interface_name %>
 {
+  @javax.inject.Inject
+  public <%= repository.imit.client_router_impl_name %>()
+  {
+  }
+
 <%
   repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
     graph.routing_keys.each do |routing_key|
