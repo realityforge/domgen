@@ -2,6 +2,7 @@
 package <%= to_package(entrypoint.qualified_entrypoint_dagger_module_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UseUtilityClass" } )
 @dagger.Module( includes = {<%= entrypoint.dagger_modules.collect{|m|"#{m}.class"}.join(', ') %>} )
 public class <%= entrypoint.entrypoint_dagger_module_name %>
 {
