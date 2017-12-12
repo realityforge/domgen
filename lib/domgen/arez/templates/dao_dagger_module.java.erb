@@ -6,6 +6,14 @@ package <%= to_package(repository.arez.qualified_dao_dagger_module_name) %>;
 @dagger.Module
 public class <%= repository.arez.dao_dagger_module_name %>
 {
+  @javax.annotation.Nonnull
+  @dagger.Provides
+  @javax.inject.Singleton
+  static <%= repository.arez.qualified_root_repository_name %> provideRootRepository()
+  {
+    return new <%= repository.arez.qualified_root_repository_name %>();
+  }
+
 <%
   repository.data_modules.select{|data_module| data_module.arez?}.each do |data_module|
     data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao|
