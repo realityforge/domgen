@@ -536,7 +536,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     return mutation.build();
   }
 <% end -%>
-<% if dao.graphql.expose_create? -%>
+<% if dao.graphql.expose_update? -%>
 <% dao.entity.graphql.updateable_attributes.select{|attribute| attribute.graphql.updateable?}.each do |attribute| -%>
 
   @javax.annotation.Nullable
