@@ -739,7 +739,7 @@ module Domgen
       end
 
       def post_verify
-        disable_facet(:graphql) unless input? || output?
+        self.struct.disable_facet(:graphql) unless input? || output?
       end
     end
 
