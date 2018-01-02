@@ -67,6 +67,9 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
     return _sessionContext;
   }
 
+  @javax.annotation.Nonnull
+  protected abstract <%= repository.imit.qualified_ee_client_session_context_name %> getContext();
+
   @javax.annotation.PostConstruct
   @java.lang.Override
   public void postConstruct()
@@ -187,7 +190,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
     end
   end
 -%>
-      return _context.does<%= graph.name %>MatchEntity( filter, entity<%= extra_interest_filter %> );
+      return getContext().does<%= graph.name %>MatchEntity( filter, entity<%= extra_interest_filter %> );
     }
     else <% end -%>
 
