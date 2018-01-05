@@ -781,7 +781,7 @@ module Domgen
     end
 
     def pre_complete
-      integer(:ID) if self.attributes.empty?
+      integer(:Id) if self.attributes.empty?
     end
 
     def perform_verify

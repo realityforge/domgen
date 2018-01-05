@@ -936,11 +936,11 @@ SQL
         inserted I
 SQL
               concrete_subtypes.each_pair do |name, subtype|
-                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{self.dialect.quote('ID')} = I.#{attribute.sql.quoted_column_name}"
+                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{self.dialect.quote('Id')} = I.#{attribute.sql.quoted_column_name}"
               end
-              sql << "      WHERE (#{names.collect { |name| "#{name}.#{self.dialect.quote('ID')} IS NULL" }.join(' AND ') })"
+              sql << "      WHERE (#{names.collect { |name| "#{name}.#{self.dialect.quote('Id')} IS NULL" }.join(' AND ') })"
               (0..(names.size - 2)).each do |index|
-                sql << " OR\n (#{names[index] }.#{self.dialect.quote('ID')} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{self.dialect.quote('ID')} IS NOT NULL" }.join(' OR ') }))"
+                sql << " OR\n (#{names[index] }.#{self.dialect.quote('Id')} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{self.dialect.quote('Id')} IS NOT NULL" }.join(' OR ') }))"
               end
               validation(validation_name, :negative_sql => sql, :guard => guard) unless validation?(validation_name)
             end

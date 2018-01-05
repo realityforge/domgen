@@ -20,8 +20,8 @@ module Domgen
           return nil
         elsif attribute.name == :MasterSynchronized
           return 'false'
-        elsif attribute.name == :MappingID || attribute.name == :MappingKey
-          return 'mappingID'
+        elsif attribute.name == :MappingId || attribute.name == :MappingKey
+          return 'mappingId'
         elsif attribute.name == :DeletedAt
           return 'deletedAt'
         elsif attribute.reference?

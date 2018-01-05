@@ -945,17 +945,17 @@ module Domgen
             root = repository.entity_by_name(graph.instance_root)
             attribute_type = root.primary_key.attribute_type
 
-            subscribe_started_message.parameter(:ID, attribute_type)
+            subscribe_started_message.parameter(:Id, attribute_type)
             subscribe_completed_message.parameter(root.name, root.imit.qualified_name)
-            subscribe_failed_message.parameter(:ID, attribute_type)
+            subscribe_failed_message.parameter(:Id, attribute_type)
             if !graph.filter_parameter.nil? && !graph.filter_parameter.immutable?
               update_started_message.parameter(root.name, root.imit.qualified_name)
               update_completed_message.parameter(root.name, root.imit.qualified_name)
               update_failed_message.parameter(root.name, root.imit.qualified_name)
             end
-            unsubscribe_started_message.parameter(:ID, attribute_type)
-            unsubscribe_completed_message.parameter(:ID, attribute_type)
-            unsubscribe_failed_message.parameter(:ID, attribute_type)
+            unsubscribe_started_message.parameter(:Id, attribute_type)
+            unsubscribe_completed_message.parameter(:Id, attribute_type)
+            unsubscribe_failed_message.parameter(:Id, attribute_type)
           end
 
           subscribe_failed_message.parameter(:Error, 'java.lang.Throwable')

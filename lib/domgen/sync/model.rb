@@ -166,8 +166,8 @@ module Domgen
                 m.returns(:boolean, :description => 'Return true on create, false on update')
               end
               s.method(:"Remove#{entity.data_module.name}#{entity.name}") do |m|
-                m.integer(:MappingID)
-                m.parameter(:ID, entity.primary_key.jpa.java_type(:boundary), :nullable => true)
+                m.integer(:MappingId)
+                m.parameter(:Id, entity.primary_key.jpa.java_type(:boundary), :nullable => true)
                 m.returns(:boolean, :description => 'Return true on remove from non-master, false if not required')
               end
               s.method(:"Mark#{entity.data_module.name}#{entity.name}RemovalsPreSync") do |m|
@@ -455,15 +455,15 @@ module Domgen
           e.extends = self.entity.extends
 
           if self.entity.extends.nil?
-            e.integer(:SyncTempID,
+            e.integer(:SyncTempId,
                       :primary_key => true,
                       :generated_value => true,
                       'sql.generator_type' => :sequence,
                       'sql.sequence_name' => "#{sql_name(:table, self.entity.name)}Seq")
 
             e.reference("#{self.master_data_module}.#{self.entity.data_module.repository.sync.mapping_source_attribute}", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
-            e.string(:MappingKey, 255, :immutable => true, :description => 'Change to cause an instance with the same MappingID and MappingSource, to be recreated in Master.')
-            e.string(:MappingID, 50, :description => 'The ID of entity in originating system')
+            e.string(:MappingKey, 255, :immutable => true, :description => 'Change to cause an instance with the same MappingId and MappingSource, to be recreated in Master.')
+            e.string(:MappingId, 50, :description => 'The ID of entity in originating system')
           end
 
           self.entity.attributes.select {|a| !a.inherited?}.each do |a|
@@ -483,7 +483,7 @@ module Domgen
 
             if a.reference?
               attribute_type = :text
-              name = "#{name}MappingID"
+              name = "#{name}MappingId"
               options[:length] = 50
             elsif a.enumeration?
               options[:enumeration] = a.enumeration
@@ -501,7 +501,7 @@ module Domgen
 
             if a.reference?
               filter = a.nullable? ? "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" : nil
-              e.sql.index([:MappingSource, name], :filter => filter, :include_attribute_names => [:MappingKey, :MappingID])
+              e.sql.index([:MappingSource, name], :filter => filter, :include_attribute_names => [:MappingKey, :MappingId])
             end
           end
         end
@@ -517,19 +517,19 @@ module Domgen
           e.extends = self.entity.extends
 
           if self.entity.extends.nil?
-            e.integer(:ID,
+            e.integer(:Id,
                       :primary_key => true,
                       :generated_value => true,
                       'sql.generator_type' => :sequence,
                       'sql.sequence_name' => "#{sql_name(:table, self.entity.name)}Seq")
 
             e.reference(self.entity.data_module.repository.sync.mapping_source_attribute, :name => :MappingSource, :immutable => true, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
-            e.string(:MappingKey, 255, :immutable => true, :description => 'Uniquely defines an instance with same MappingID and MappingSource.')
-            e.string(:MappingID, 50, :immutable => true, :description => 'The ID of entity in originating system')
+            e.string(:MappingKey, 255, :immutable => true, :description => 'Uniquely defines an instance with same MappingId and MappingSource.')
+            e.string(:MappingId, 50, :immutable => true, :description => 'The ID of entity in originating system')
             e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
 
-            e.sql.index([:MappingID, :MappingKey, :MappingSource], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
-            e.sql.index([:MappingSource, :MappingID], :include_attribute_names => [:ID], :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
+            e.sql.index([:MappingId, :MappingKey, :MappingSource], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
+            e.sql.index([:MappingSource, :MappingId], :include_attribute_names => [:Id], :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
           end
 
           self.entity.attributes.select {|a| !a.inherited? || a.primary_key?}.each do |a|
@@ -599,7 +599,7 @@ module Domgen
             if a.reference?
               # Create an index to speed up validity checking when column is sparsely populated
               prefix = a.nullable? ? "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND " : ''
-              e.sql.index([name], :filter => "#{prefix}#{e.sql.dialect.quote(:DeletedAt)} IS NULL", :include_attribute_names => [:MappingKey, :MappingID])
+              e.sql.index([name], :filter => "#{prefix}#{e.sql.dialect.quote(:DeletedAt)} IS NULL", :include_attribute_names => [:MappingKey, :MappingId])
             end
 
             if a.unique?
@@ -638,18 +638,18 @@ module Domgen
           end
 
           if e.concrete?
-            e.query(:FindByMappingSourceAndMappingID)
-            e.query(:FindUndeletedByMappingSourceAndMappingID,
+            e.query(:FindByMappingSourceAndMappingId)
+            e.query(:FindUndeletedByMappingSourceAndMappingId,
                     'jpa.standard_query' => true,
-                    'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.mappingID = :MappingID and O.deletedAt IS NULL')
-            e.query(:GetByMappingSourceAndMappingID)
+                    'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.mappingId = :MappingId and O.deletedAt IS NULL')
+            e.query(:GetByMappingSourceAndMappingId)
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingID', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingID')
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
             e.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
-            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingID => nil, :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
-            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingID => nil }, :force_refresh => true)
+            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
+            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
             e.jpa.test_update_default({ :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
             delete_defaults = {}
             e.attributes.each do |a|

@@ -21,8 +21,8 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   }
 <% data_module.sync.entities_to_synchronize.each do |entity|
 
-  sync_attributes = entity.sync.attributes_to_synchronize.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name) }
-  immutable_sync_attributes = entity.sync.attributes_to_synchronize.select{|a| a.immutable? }.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingID" : a.name) }
+  sync_attributes = entity.sync.attributes_to_synchronize.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingId" : a.name) }
+  immutable_sync_attributes = entity.sync.attributes_to_synchronize.select{|a| a.immutable? }.collect{|a| entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingId" : a.name) }
 -%>
 
   public void resetIdentity<%= entity.qualified_name.gsub('.','') %>()
@@ -81,7 +81,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
     return executeUpdate( mappingSourceCode, generate<%= entity.qualified_name.gsub('.','') %>Sql( prefixSql, prefixContainsWithClause, selectSql ) );
   }
 
-  public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
+  public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingId, <%=
 
   attribute_names = entity.sync.attributes_to_synchronize.collect{|a| a.name.to_s}
 
@@ -89,7 +89,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
 
   entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
     if a.reference?
-      sa = entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID")
+      sa = entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId")
       attr_name = Reality::Naming.camelize(sa.name)
       attrs << attr_name
       "#{nullability_annotation(sa.nullable?)} final java.lang.String #{attr_name}"
@@ -102,16 +102,16 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   end.join(', ')
 %> )
   {
-    return insert<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, mappingID, mappingID, <%= attrs.join(', ') %> );
+    return insert<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, mappingId, mappingId, <%= attrs.join(', ') %> );
   }
 
-  public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingKey, @javax.annotation.Nonnull final java.lang.String mappingID, <%=
+  public int insert<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String mappingKey, @javax.annotation.Nonnull final java.lang.String mappingId, <%=
 
   attribute_names = entity.sync.attributes_to_synchronize.collect{|a| a.name.to_s}
 
   entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.collect do |a|
     if a.reference?
-      sa = entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID")
+      sa = entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId")
       "#{nullability_annotation(sa.nullable?)} final java.lang.String #{Reality::Naming.camelize(sa.name)}"
     else
       sa = entity.sync.sync_temp_entity.attribute_by_name(a.name)
@@ -120,14 +120,14 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   end.join(', ')
 %> )
   {
-    final String sql = generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, "<%= j_escape_string("SELECT ?,?,#{entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingID'}.collect{|a| '?'}.join(',')}") %>" );
+    final String sql = generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, "<%= j_escape_string("SELECT ?,?,#{entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingId'}.collect{|a| '?'}.join(',')}") %>" );
 
     return getEntityManager().createNativeQuery( sql ).
       setParameter( 1, mappingSourceCode ).
       setParameter( 2, mappingKey ).
-      setParameter( 3, mappingID ).
+      setParameter( 3, mappingId ).
 <% entity.attributes.select{|a| attribute_names.include?(a.name.to_s) }.each_with_index do |a, i| -%>
-      setParameter( <%= i + 4 %>, <%= Reality::Naming.camelize((a.reference? ? entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingID") : entity.sync.sync_temp_entity.attribute_by_name(a.name)).name) %> ).
+      setParameter( <%= i + 4 %>, <%= Reality::Naming.camelize((a.reference? ? entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId") : entity.sync.sync_temp_entity.attribute_by_name(a.name)).name) %> ).
 <% end -%>
       executeUpdate();
   }
