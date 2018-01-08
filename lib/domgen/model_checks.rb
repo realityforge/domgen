@@ -127,6 +127,7 @@ module Domgen #nodoc
 
       def check_name(type, element)
         Domgen.error("#{type} '#{element.respond_to?(:qualified_name) ? element.qualified_name : element.name}' does not follow naming convention and use pascal case name") unless Reality::Naming.pascal_case?(element.name.to_s)
+        Domgen.error("#{type} '#{element.respond_to?(:qualified_name) ? element.qualified_name : element.name}' uses 'ID' as a name component but should use 'Id'") if Reality::Naming.split_into_words(element.name.to_s).include?('ID')
       end
     end
   end
