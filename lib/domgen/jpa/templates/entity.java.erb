@@ -3,7 +3,7 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EI_EXPOSE_REP", "EI_EXPOSE_REP2", "BC_VACUOUS_INSTANCEOF" } )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "deprecated" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "deprecation" } )
 <%
    jpa_queries = entity.queries.select {|q| q.jpa? && !q.jpa.native? }
    if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
