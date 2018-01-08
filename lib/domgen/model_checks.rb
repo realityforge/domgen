@@ -48,6 +48,28 @@ module Domgen #nodoc
                 #TODO: Verify enumeration_values are constant cased?
               end
 
+              data_module.structs.each do |struct|
+                check_name('Struct', struct)
+                struct.fields.each do |field|
+                  check_name('Field', field)
+                  check_no_dto_suffix('Field', field)
+                end
+              end
+
+              data_module.entities.each do |entity|
+                check_name('Entity', entity)
+                entity.attributes.each do |attribute|
+                  check_name('Attribute', attribute)
+                end
+              end
+
+              data_module.remote_entities.each do |entity|
+                check_name('Remote Entity', entity)
+                entity.attributes.each do |attribute|
+                  check_name('Attribute', attribute)
+                end
+              end
+
               data_module.daos.each do |dao|
                 check_name('Data Access Object', dao)
                 dao.queries.each do |query|
@@ -78,33 +100,11 @@ module Domgen #nodoc
                 end
               end
 
-              data_module.structs.each do |struct|
-                check_name('Struct', struct)
-                struct.fields.each do |field|
-                  check_name('Field', field)
-                  check_no_dto_suffix('Field', field)
-                end
-              end
-
               data_module.exceptions.each do |exception|
                 check_name('Exception', exception)
                 exception.parameters.each do |parameter|
                   check_name('Exception Parameter', parameter)
                   check_no_dto_suffix('Exception Parameter', parameter)
-                end
-              end
-
-              data_module.entities.each do |entity|
-                check_name('Entity', entity)
-                entity.attributes.each do |attribute|
-                  check_name('Attribute', attribute)
-                end
-              end
-
-              data_module.remote_entities.each do |entity|
-                check_name('Remote Entity', entity)
-                entity.attributes.each do |attribute|
-                  check_name('Attribute', attribute)
                 end
               end
             end
