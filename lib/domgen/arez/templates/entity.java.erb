@@ -5,9 +5,9 @@ package <%= to_package(entity.arez.qualified_name) %>;
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.IfStmtsMustUseBraces" } )
 <% unless entity.abstract? -%>
-@org.realityforge.arez.annotations.ArezComponent( allowEmpty = true )
+@arez.annotations.ArezComponent( allowEmpty = true )
 <% if entity.dao.arez? -%>
-@org.realityforge.arez.annotations.Repository( extensions = {<%= entity.dao.arez.extensions.collect{|e| "#{e}.class"}.join(', ') %>} )
+@arez.annotations.Repository( extensions = {<%= entity.dao.arez.extensions.collect{|e| "#{e}.class"}.join(', ') %>} )
 <% end -%>
 <% end -%>
 public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
@@ -63,7 +63,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
   }
 
 <% if entity.extends.nil? -%>
-  @org.realityforge.arez.annotations.ComponentId
+  @arez.annotations.ComponentId
   <%= annotated_type(entity.primary_key, :arez, :default, :final => true, :public => true, :assume_generated => true) %> <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.arez.name %>()
   {
     return _<%= Reality::Naming.camelize(entity.primary_key.arez.name) %>;
@@ -81,7 +81,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% end %>
 <% entity.declared_attributes.select{|attribute| !attribute.primary_key? && !attribute.abstract? && attribute.arez?}.each do |attribute| -%>
 <% if !attribute.immutable? && !attribute.reference? && !attribute.remote_reference? -%>
-  @org.realityforge.arez.annotations.Observable
+  @arez.annotations.Observable
 <% end -%>
   <%= annotated_type(attribute, :arez, :default, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>()
   {
@@ -98,14 +98,14 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 
 <% if attribute.attribute_type == :reference %>
 <% unless attribute.immutable? -%>
-  @org.realityforge.arez.annotations.ObservableRef
+  @arez.annotations.ObservableRef
   @javax.annotation.Nonnull
-  protected org.realityforge.arez.Observable get<%= attribute.arez.name(:transport) %>Observable()
+  protected arez.Observable get<%= attribute.arez.name(:transport) %>Observable()
   {
     throw new IllegalStateException();
   }
 
-  @org.realityforge.arez.annotations.Observable
+  @arez.annotations.Observable
 <% end -%>
   protected <%= attribute.arez.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>()
   {
@@ -133,7 +133,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
 <% end -%>
 <% unless attribute.immutable? -%>
 <% if attribute.enumeration? -%>
-  @org.realityforge.arez.annotations.Observable
+  @arez.annotations.Observable
   void set<%= attribute.arez.name %>( <%= annotated_type(attribute, :arez, :default, :final => true) %> value )
   {
 <% nullability_prefix = (supports_nullable?(attribute.arez, :default, :assume_generated => true) && !attribute.nullable? ) ? "java.util.Objects.requireNonNull" : '' -%>
@@ -179,7 +179,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
         if attribute.inverse.multiplicity == :many
           plural_name = Reality::Naming.pluralize(name) -%>
 
-  @org.realityforge.arez.annotations.Observable( expectSetter = false )
+  @arez.annotations.Observable( expectSetter = false )
   @javax.annotation.Nonnull
   public java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= plural_name %>()
   {
@@ -208,15 +208,15 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
   {
     safeGet<%= plural_name %>().remove( value );
     // During delink phase this observable will already be disposed and we should not report changes
-    if ( !org.realityforge.arez.Disposable.isDisposed( this ) )
+    if ( !arez.Disposable.isDisposed( this ) )
     {
       get<%= plural_name %>Observable().reportChanged();
     }
   }
 
-  @org.realityforge.arez.annotations.ObservableRef
+  @arez.annotations.ObservableRef
   @javax.annotation.Nonnull
-  protected org.realityforge.arez.Observable get<%= plural_name %>Observable()
+  protected arez.Observable get<%= plural_name %>Observable()
   {
     throw new IllegalStateException();
   }
@@ -230,7 +230,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
     return <%= Reality::Naming.camelize(plural_name) %>;
   }
 <% else -%>
-  @org.realityforge.arez.annotations.Observable
+  @arez.annotations.Observable
   public <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> <%= getter_prefix(attribute) %><%= name %>()
   {
     return <%= Reality::Naming.camelize(name) %>;
@@ -297,7 +297,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
   }
 
 <% if entity.extends.nil? -%>
-  @org.realityforge.arez.annotations.PreDispose
+  @arez.annotations.PreDispose
   protected final void preDispose()
   {
     delink();
@@ -377,7 +377,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
 
   protected final void checkValidity()
   {
-    org.realityforge.braincheck.Guards.invariant( () -> !org.realityforge.arez.Disposable.isDisposed( this ),
+    org.realityforge.braincheck.Guards.invariant( () -> !arez.Disposable.isDisposed( this ),
                                                   () -> "Method invoked on invalid imitation of type <%= entity.arez.name %>" );
   }
 

@@ -3,8 +3,9 @@ package <%= to_package(dao.arez.qualified_domgen_repository_extension_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 public interface <%= dao.arez.domgen_repository_extension_name %>
-  extends <%= dao.arez.qualified_base_repository_extension_name %>
 {
+  @javax.annotation.Nonnull
+  <%= dao.arez.qualified_repository_name %> self();
 <% dao.queries.select{|q|q.arez?}.each do |query| -%>
 
   default <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= query.parameters.collect {|p| "#{p.arez.primitive? ? '' : nullability_annotation(p.nullable?)} final #{p.arez.java_type} #{Reality::Naming.camelize(p.name)}"}.join(', ') %> )

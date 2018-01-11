@@ -110,7 +110,6 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :repository, :entity, :client, :arez, '#{dao.entity.name}Repository'
-      java_artifact :base_repository_extension, :entity, :client, :arez, '#{dao.entity.name}BaseRepositoryExtension'
       java_artifact :default_repository_extension, :entity, :client, :arez, '#{dao.entity.name}RepositoryExtension'
       java_artifact :domgen_repository_extension, :entity, :client, :arez, 'Domgen#{dao.name}Extension'
 
