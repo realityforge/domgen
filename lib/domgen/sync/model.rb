@@ -643,11 +643,11 @@ module Domgen
                     'jpa.standard_query' => true,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.mappingId = :MappingId and O.deletedAt IS NULL')
             e.query(:GetByMappingSourceAndMappingId)
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'org.realityforge.guiceyloops.shared.ValueUtil.now()', :DeletedAt => 'null')
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'org.realityforge.guiceyloops.shared.ValueUtil.now()', :DeletedAt => 'null')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
-            e.jpa.test_create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+            e.jpa.test_create_default(:CreatedAt => 'org.realityforge.guiceyloops.shared.ValueUtil.now()', :DeletedAt => 'null')
             e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
             e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
             e.jpa.test_update_default({ :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
@@ -664,7 +664,7 @@ module Domgen
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
 
             if entity.sync.transaction_time?
-              entity.jpa.create_default(:CreatedAt => 'new java.util.Date()', :DeletedAt => 'null')
+              entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null')
               entity.jpa.update_default(:DeletedAt => nil)
               if entity.graphql? && entity.dao.graphql?
                 entity.attribute_by_name(:CreatedAt).graphql.initial_value = 'new java.util.Date()'
@@ -682,7 +682,7 @@ module Domgen
                 attributes = entity.attributes.select {|a| %w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit?}.collect {|a| a.name.to_s}
                 if attributes.size > 0
                   defaults = {}
-                  defaults[:CreatedAt] = 'new java.util.Date()' if attributes.include?('CreatedAt')
+                  defaults[:CreatedAt] = 'org.realityforge.guiceyloops.shared.ValueUtil.now()' if attributes.include?('CreatedAt')
                   defaults[:DeletedAt] = 'null' if attributes.include?('DeletedAt')
                   entity.imit.test_create_default(defaults)
                 end

@@ -259,4 +259,9 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     em.flush();
   }
 <% end -%>
+
+  protected java.util.Date now()
+  {
+    return new java.util.Date();
+  }
 }

@@ -117,4 +117,9 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   {
     return _injector;
   }
+
+  protected java.util.Date now()
+  {
+    return org.realityforge.guiceyloops.shared.ValueUtil.now();
+  }
 }
