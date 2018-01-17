@@ -10,6 +10,11 @@ public abstract class <%= service.ejb.service_test_name %>
   public abstract void <%= Reality::Naming.camelize(method.name) %>()
     throws Exception;
 
+<% method.exceptions.select{|exception|!exception.abstract?}.each do |exception| -%>
+  public abstract void <%= Reality::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %>()
+    throws Exception;
+
+<% end -%>
 <% end -%>
   protected final <%= service.ejb.qualified_service_name %> service()
   {
