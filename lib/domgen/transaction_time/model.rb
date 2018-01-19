@@ -22,10 +22,6 @@ module Domgen
             self.entity.attribute_by_name(:CreatedAt) :
             self.entity.datetime(:CreatedAt, :immutable => true)
 
-        if attribute.sync?
-          puts "Should disable #{attribute.qualified_name}"
-        end
-
         attribute.disable_facet(:sync) if attribute.sync?
 
         attribute =

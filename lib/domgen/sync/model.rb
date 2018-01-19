@@ -66,7 +66,6 @@ module Domgen
         end
         master_data_module = repository.data_module_by_name(self.master_data_module)
         master_data_module.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
-        puts "Master FACETRS: #{master_data_module.enabled_facets.inspect}"
         master_data_module.sync.master_sync_persistent_unit = nil unless self.standalone?
 
         unless repository.data_module_by_name?(self.sync_temp_data_module)
@@ -504,8 +503,6 @@ module Domgen
             e.sql.index([:MappingId, :MappingKey, :MappingSource], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
             e.sql.index([:MappingSource, :MappingId], :include_attribute_names => [:Id], :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
           end
-
-          puts "Defining: #{self.entity.name} => #{self.entity.attributes.select {|a| (!a.inherited? || a.primary_key?) && a.sync?}.collect {|a| a.qualified_name}}"
 
           self.entity.attributes.select {|a| !a.inherited? || a.primary_key?}.each do |a|
             next unless a.sync?
