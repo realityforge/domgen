@@ -127,7 +127,7 @@ module Domgen
 
       def cascade=(value)
         value = value.is_a?(Array) ? value : [value]
-        invalid_cascades = value.select { |v| !self.class.cascade_types.include?(v) }
+        invalid_cascades = value.select {|v| !self.class.cascade_types.include?(v)}
         unless invalid_cascades.empty?
           Domgen.error("cascade_type must be one of #{self.class.cascade_types.join(', ')}, not #{invalid_cascades.join(', ')}")
         end
@@ -515,7 +515,7 @@ module Domgen
       def add_standalone_persistence_unit(short_name, options = {}, &block)
         name = options[:unit_name] || ("#{self.include_default_unit? ? self.unit_name : self.repository.name}#{short_name}")
         raise "Persistence unit with name #{name} already exists" if self.standalone_persistence_unit_map[name.to_s] || (self.include_default_unit? && self.unit_name.to_s == name.to_s)
-        self.standalone_persistence_unit_map[name.to_s] = Domgen::JPA::PersistenceUnitDescriptor.new(self, {:short_name => short_name, :unit_name => name}.merge(options), &block)
+        self.standalone_persistence_unit_map[name.to_s] = Domgen::JPA::PersistenceUnitDescriptor.new(self, { :short_name => short_name, :unit_name => name }.merge(options), &block)
       end
 
       def standalone_persistence_unit_by_name?(short_name)
@@ -653,9 +653,9 @@ FRAGMENT
       def perform_verify
         unless include_default_unit?
           persistent_entities =
-            repository.data_modules.collect { |data_module| data_module.entities.select { |entity| entity.jpa? } }.flatten
+            repository.data_modules.collect {|data_module| data_module.entities.select {|entity| entity.jpa?}}.flatten
           if persistent_entities.size > 0
-            Domgen.error("Attempted to set repository.jpa.include_default_unit = false but persistent entities exist: #{persistent_entities.collect { |e| e.qualified_name }}")
+            Domgen.error("Attempted to set repository.jpa.include_default_unit = false but persistent entities exist: #{persistent_entities.collect {|e| e.qualified_name}}")
           end
         end
       end
@@ -667,17 +667,17 @@ FRAGMENT
         if repository.application.remote_references_included?
           add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
         end
-        standalone_persistence_units.select { |unit| unit.mock_test_mode? }.each do |unit|
+        standalone_persistence_units.select {|unit| unit.mock_test_mode?}.each do |unit|
           add_test_module("#{unit.unit_name}PersistenceModule",
                           "org.realityforge.guiceyloops.server.MockPersistenceTestModule( #{qualified_unit_descriptor_name }.#{Reality::Naming.uppercase_constantize(unit.short_name)}_NAME )")
         end
-        standalone_persistence_units.select { |unit| unit.raw_test_mode? }.each do |unit|
+        standalone_persistence_units.select {|unit| unit.raw_test_mode?}.each do |unit|
           add_test_module(unit.raw_test_module_name, unit.qualified_raw_test_module_name)
         end
-        repository.jpa.persistence_units.select { |persistence_unit| persistence_unit.generate_test_util? }.each do |persistence_unit|
+        repository.jpa.persistence_units.select {|persistence_unit| persistence_unit.generate_test_util?}.each do |persistence_unit|
           add_test_module(persistence_unit.persistence_unit_module_name, persistence_unit.qualified_persistence_unit_module_name)
         end
-        repository.data_modules.select { |data_module| data_module.jpa? && data_module.jpa.generate_test_factory? }.each do |data_module|
+        repository.data_modules.select {|data_module| data_module.jpa? && data_module.jpa.generate_test_factory?}.each do |data_module|
           add_test_factory(data_module.jpa.short_test_code, data_module.jpa.qualified_test_factory_name)
         end
         if include_default_unit?
@@ -732,7 +732,7 @@ FRAGMENT
       attr_writer :short_test_code
 
       def short_test_code
-        @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
+        @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect {|w| w[0, 1]}.join.downcase
       end
 
       java_artifact :abstract_test_factory, :test, :server, :jpa, 'Abstract#{data_module.name}Factory', :sub_package => 'util'
@@ -758,7 +758,7 @@ FRAGMENT
       end
 
       def generate_test_factory?
-        data_module.entities.any?{|e|e.jpa?}
+        data_module.entities.any? {|e| e.jpa?}
       end
     end
 
@@ -801,7 +801,7 @@ FRAGMENT
       end
 
       def track_changes?
-        @track_changes.nil? ? entity.imit? && entity.attributes.any? { |a| !a.immutable? } : !!@track_changes
+        @track_changes.nil? ? entity.imit? && entity.attributes.any? {|a| !a.immutable?} : !!@track_changes
       end
 
       def track_changes=(track_changes)
@@ -833,7 +833,7 @@ FRAGMENT
         return true if entity.read_only?
         # Eclipselink caches entity instances so all referenced and referencing entities must also be cacheable
         # This is to expensive to calculate so we require explicit configuration except in the most obvious of cases
-        entity.referencing_attributes.empty? && entity.attributes.all? { |a| (a.immutable? || a.primary_key?) && !a.reference? }
+        entity.referencing_attributes.empty? && entity.attributes.all? {|a| (a.immutable? || a.primary_key?) && !a.reference?}
       end
 
       attr_writer :detachable
@@ -910,7 +910,7 @@ FRAGMENT
           entity.query("GetBy#{entity.primary_key.name}IgnoringDefaultCriteria")
         end
 
-        entity.attributes.select { |a| a.jpa? && a.reference? && !a.abstract? }.each do |a|
+        entity.attributes.select {|a| a.jpa? && a.reference? && !a.abstract?}.each do |a|
           if entity.sync? && entity.sync.transaction_time?
             query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}UndeletedBy#{a.name}"
             entity.query(query_name, 'jpa.jpql' => "O.#{a.jpa.field_name} = :#{a.name} AND O.deletedAt IS NULL", 'jpa.standard_query' => true) unless entity.query_by_name?(query_name)
@@ -924,7 +924,7 @@ FRAGMENT
           end
         end
 
-        entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
+        entity.queries.select {|query| query.jpa? && query.jpa.no_ql?}.each do |query|
           query.jpa.ignore_default_criteria = (query.name =~ /IgnoringDefaultCriteria$/)
           tmp_query_name = query.name.chomp('IgnoringDefaultCriteria')
           jpql = ''
@@ -952,7 +952,7 @@ FRAGMENT
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
-                entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
+                entity.attributes.select {|a| a.reference? && a.referencing_link_name == parameter_name}.each do |a|
                   field = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}"
                   comparison = "#{field} = :#{parameter_name}"
                   jpql = "#{operation} #{comparison} #{jpql}"
@@ -980,13 +980,13 @@ FRAGMENT
               else
                 # Handle parameters that are the primary keys of related entities
                 found = false
-                entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
+                entity.attributes.select {|a| a.reference? && a.referencing_link_name == parameter_name}.each do |a|
                   field = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}"
                   comparison = "#{field} = :#{parameter_name}"
                   jpql = "#{comparison} #{jpql}"
                   found = true
                 end
-                entity.attributes.select { |a| a.remote_reference? && a.referencing_link_name == parameter_name }.each do |a|
+                entity.attributes.select {|a| a.remote_reference? && a.referencing_link_name == parameter_name}.each do |a|
                   field = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}"
                   comparison = "#{field} = :#{parameter_name}"
                   jpql = "#{comparison} #{jpql}"
@@ -1011,7 +1011,7 @@ FRAGMENT
             Domgen.error("Query #{query.qualified_name} is jpa enabled but defines no jpql or sql but is not a standard query.")
           end
         end
-        entity.queries.select { |query| query.jpa? && query.jpa.ignore_default_criteria? }.each do |query|
+        entity.queries.select {|query| query.jpa? && query.jpa.ignore_default_criteria?}.each do |query|
           query.disable_facet(:arez) if query.arez?
         end
       end
@@ -1024,7 +1024,7 @@ FRAGMENT
       end
 
       def requires_converter?
-        enumeration.textual_values? && enumeration.values.any? { |v| v.name != v.value }
+        enumeration.textual_values? && enumeration.values.any? {|v| v.name != v.value}
       end
     end
 
@@ -1159,7 +1159,7 @@ FRAGMENT
 
     facet.enhance(Query) do
       def perform_verify
-        query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
+        query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect {|s| s[1..-1]}
 
         expected_parameters = query_parameters.uniq
         expected_parameters.each do |parameter_name|
@@ -1174,7 +1174,7 @@ FRAGMENT
               p.disable_facets_not_in(attribute.enabled_facets)
             else
               # Handle parameters that are the primary keys of related entities
-              query.entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
+              query.entity.attributes.select {|a| a.reference? && a.referencing_link_name == parameter_name}.each do |a|
                 attribute = a.referenced_entity.primary_key
                 characteristic_options = {}
                 characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
@@ -1187,7 +1187,7 @@ FRAGMENT
           end
         end
 
-        actual_parameters = query.parameters.collect { |p| p.name.to_s }
+        actual_parameters = query.parameters.collect {|p| p.name.to_s}
         if expected_parameters.sort != actual_parameters.sort
           Domgen.error("Actual parameters for query #{query.qualified_name} [ql=#{self.ql}] (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}")
         end
@@ -1334,7 +1334,7 @@ FRAGMENT
         # try to convert it to multiline quote (i.e. " /* ... */ "). That way when we strip out
         # whitespace in subsequent lines we do not end up with invalid sql
         regex = /('[^']*'|"[^"]*")|--(.*)\n/
-        q = q.gsub(regex) {|m|$1 || "/* #{$2} */"}
+        q = q.gsub(regex) {|m| $1 || "/* #{$2} */"}
 
         q.gsub(/[\s]+/, ' ').strip
       end
