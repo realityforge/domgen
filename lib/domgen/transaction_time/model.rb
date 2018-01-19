@@ -26,10 +26,12 @@ module Domgen
 
         attribute =
           self.entity.attribute_by_name?(:DeletedAt) ?
-            self.entity.attribute_by_name(:DeletedAt):
+            self.entity.attribute_by_name(:DeletedAt) :
             self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true)
         attribute.disable_facet(:sync) if attribute.sync?
+      end
 
+      def post_complete
         self.entity.unique_constraints.each do |constraint|
           # Force the creation of the index with filter specified. Parallels behaviours in sql facet.
           index = self.entity.sql.index(constraint.attribute_names, :unique => true)

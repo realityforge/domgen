@@ -615,14 +615,13 @@ module Domgen
                     'jpa.standard_query' => true,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.mappingId = :MappingId and O.deletedAt IS NULL')
             e.query(:GetByMappingSourceAndMappingId)
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'org.realityforge.guiceyloops.shared.ValueUtil.now()', :DeletedAt => 'null')
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'org.realityforge.guiceyloops.shared.ValueUtil.now()', :DeletedAt => 'null')
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()', :DeletedAt => 'null')
+            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()', :DeletedAt => 'null')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
-            e.jpa.test_create_default(:CreatedAt => 'org.realityforge.guiceyloops.shared.ValueUtil.now()', :DeletedAt => 'null')
             e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
             e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
-            e.jpa.test_update_default({ :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
+            #e.jpa.test_update_default({ :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
             delete_defaults = {}
             e.attributes.each do |a|
               delete_defaults[a.name] = nil unless a.generated_value? || a.immutable? || !a.jpa?
