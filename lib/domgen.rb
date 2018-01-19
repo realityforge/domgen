@@ -49,6 +49,8 @@ require 'domgen/xml/helper'
 require 'domgen/java/model'
 require 'domgen/java/helper'
 
+require 'domgen/transaction_time/model'
+
 # SQL
 require 'domgen/sql/model'
 require 'domgen/sql/helper'

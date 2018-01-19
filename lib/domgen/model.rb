@@ -16,6 +16,7 @@ module Domgen
 
   module Faceted
     def complete
+      extension_point(:pre_pre_complete)
       extension_point(:pre_complete)
       extension_point(:perform_complete)
       extension_point(:post_complete)

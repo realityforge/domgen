@@ -67,7 +67,7 @@ repository.imit.graphs.each do |graph|
     if ( is<%= graph.name %>Interesting( message, session<% if graph.instance_root? %>, <% entity = repository.entity_by_name(graph.instance_root) %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><%if graph.filter_parameter? %>, filter <% end %><%= extra_args %> ) )
     {
 <%
-  entities = graph.included_entities.collect{|n| repository.entity_by_name(n) }.select{|e| e.sync? && e.sync.transaction_time?}
+  entities = graph.included_entities.collect{|n| repository.entity_by_name(n) }.select{|e| e.transaction_time?}
   if entities.size > 0
 -%>
       if ( message.isUpdate() )

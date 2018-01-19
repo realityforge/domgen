@@ -911,17 +911,16 @@ FRAGMENT
         end
 
         entity.attributes.select {|a| a.jpa? && a.reference? && !a.abstract?}.each do |a|
-          if entity.sync? && entity.sync.transaction_time?
+          if entity.transaction_time?
             query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}UndeletedBy#{a.name}"
             entity.query(query_name, 'jpa.jpql' => "O.#{a.jpa.field_name} = :#{a.name} AND O.deletedAt IS NULL", 'jpa.standard_query' => true) unless entity.query_by_name?(query_name)
             query = entity.dao.query_by_name(query_name)
             query.disable_facets_not_in(:jpa)
-          else
-            query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}By#{a.name}"
-            entity.query(query_name) unless entity.query_by_name?(query_name)
-            query = entity.dao.query_by_name(query_name)
-            query.disable_facets_not_in(:jpa)
           end
+          query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}By#{a.name}"
+          entity.query(query_name) unless entity.query_by_name?(query_name)
+          query = entity.dao.query_by_name(query_name)
+          query.disable_facets_not_in(:jpa)
         end
 
         entity.queries.select {|query| query.jpa? && query.jpa.no_ql?}.each do |query|
@@ -958,10 +957,10 @@ FRAGMENT
                   jpql = "#{operation} #{comparison} #{jpql}"
                   found = true
                 end
-                entity.attributes.select { |a| a.remote_reference? && a.referencing_link_name == parameter_name }.each do |a|
-                field = "#{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}"
-                comparison = "#{field} = :#{parameter_name}"
-                jpql = "#{operation} #{comparison} #{jpql}"
+                entity.attributes.select {|a| a.remote_reference? && a.referencing_link_name == parameter_name}.each do |a|
+                  field = "#{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}"
+                  comparison = "#{field} = :#{parameter_name}"
+                  jpql = "#{operation} #{comparison} #{jpql}"
                   found = true
                 end
                 unless found

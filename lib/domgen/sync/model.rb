@@ -27,14 +27,6 @@ module Domgen
       java_artifact :remote_sync_service, :service, :client, :sync, 'Remote#{repository.name}SyncService'
       java_artifact :remote_sync_service_impl, :service, :client, :sync, 'AbstractRemote#{repository.name}SyncServiceImpl'
 
-      def transaction_time=(transaction_time)
-        @transaction_time = transaction_time
-      end
-
-      def transaction_time?
-        @transaction_time.nil? ? false : !!@transaction_time
-      end
-
       def standalone=(standalone)
         @standalone = standalone
       end
@@ -73,6 +65,8 @@ module Domgen
           repository.data_module(self.master_data_module)
         end
         master_data_module = repository.data_module_by_name(self.master_data_module)
+        master_data_module.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+        puts "Master FACETRS: #{master_data_module.enabled_facets.inspect}"
         master_data_module.sync.master_sync_persistent_unit = nil unless self.standalone?
 
         unless repository.data_module_by_name?(self.sync_temp_data_module)
@@ -205,14 +199,6 @@ module Domgen
     end
 
     facet.enhance(DataModule) do
-      def transaction_time=(transaction_time)
-        @transaction_time = transaction_time
-      end
-
-      def transaction_time?
-        @transaction_time.nil? ? data_module.repository.sync.transaction_time? : !!@transaction_time
-      end
-
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::EEClientServerJavaPackage
 
@@ -328,14 +314,6 @@ module Domgen
         self.core_entity?
       end
 
-      def transaction_time=(transaction_time)
-        @transaction_time = transaction_time
-      end
-
-      def transaction_time?
-        @transaction_time.nil? ? entity.data_module.sync.transaction_time? : !!@transaction_time
-      end
-
       def references_requiring_manual_sync
         entity.referencing_attributes.select {|a| (!a.sync? || a.sync.manual_sync?) && a.referenced_entity.sql?}
       end
@@ -426,17 +404,6 @@ module Domgen
       def pre_complete
         return unless synchronize?
 
-        if entity.sync.transaction_time?
-          self.entity.datetime(:CreatedAt, :immutable => true) unless entity.attribute_by_name?(:CreatedAt)
-          self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless entity.attribute_by_name?(:DeletedAt)
-          self.entity.jpa.default_jpql_criterion = 'O.deletedAt IS NULL'
-
-          self.entity.unique_constraints.each do |constraint|
-            # Force the creation of the index with filter specified. Parallels behavious in sql facet.
-            index = self.entity.sql.index(constraint.attribute_names, :unique => true)
-            index.filter = "#{self.entity.sql.dialect.quote(:DeletedAt)} IS NULL"
-          end
-        end
         self.entity.jpa.detachable = true if self.entity.jpa?
 
         master_data_module = entity.data_module.repository.data_module_by_name(entity.data_module.repository.sync.master_data_module)
@@ -511,7 +478,13 @@ module Domgen
 
           self.entity.sync.master_entity = e
           e.sync.core_entity = self
-          e.sync.transaction_time = self.entity.sync.transaction_time?
+          if self.entity.transaction_time?
+            e.enable_facet(:transaction_time) unless e.transaction_time?
+            # Ugly call of hook that does the setup of transaction time infrastructure
+            e.transaction_time.pre_pre_complete
+          else
+            e.disable_facet(:transaction_time) if e.transaction_time?
+          end
           e.abstract = self.entity.abstract?
           e.final = self.entity.final?
           e.extends = self.entity.extends
@@ -532,12 +505,14 @@ module Domgen
             e.sql.index([:MappingSource, :MappingId], :include_attribute_names => [:Id], :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
           end
 
+          puts "Defining: #{self.entity.name} => #{self.entity.attributes.select {|a| (!a.inherited? || a.primary_key?) && a.sync?}.collect {|a| a.qualified_name}}"
+
           self.entity.attributes.select {|a| !a.inherited? || a.primary_key?}.each do |a|
             next unless a.sync?
 
             # For self referential, non-transaction time entities, we have to set sql.on_delete
             # attribute otherwise sync will fail to remove the entity during synchronization
-            if a.reference? && a.referenced_entity.qualified_name == a.entity.qualified_name && !entity.sync.transaction_time?
+            if a.reference? && a.referenced_entity.qualified_name == a.entity.qualified_name && !entity.transaction_time?
               a.sql.on_delete = :set_null
             end
 
@@ -604,7 +579,7 @@ module Domgen
 
             if a.unique?
               # If entity is a transaction time entity, and an uniqueness index that filters out logically deleted entities
-              if entity.sync.transaction_time?
+              if entity.transaction_time?
                 existing_constraint = self.entity.unique_constraints.find do |uq|
                   uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
                 end
@@ -616,7 +591,7 @@ module Domgen
           end
 
           # update indexes in the original entity, if it is a transaction time entity so filtering can be specified
-          if entity.sync.transaction_time?
+          if entity.transaction_time?
             self.entity.sql.indexes.each do |index|
               next if index.cluster?
 
@@ -632,7 +607,7 @@ module Domgen
             end
           end
 
-          unless entity.sync.transaction_time?
+          unless entity.transaction_time?
             e.datetime(:CreatedAt, :immutable => true) unless e.attribute_by_name?(:CreatedAt)
             e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless e.attribute_by_name?(:DeletedAt)
           end
@@ -662,32 +637,6 @@ module Domgen
             e.query(:CountUnsynchronizedByMappingSource,
                     'jpa.standard_query' => true,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
-
-            if entity.sync.transaction_time?
-              entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null')
-              entity.jpa.update_default(:DeletedAt => nil)
-              if entity.graphql? && entity.dao.graphql?
-                entity.attribute_by_name(:CreatedAt).graphql.initial_value = 'new java.util.Date()'
-                entity.attribute_by_name(:DeletedAt).graphql.initial_value = 'null'
-                entity.attribute_by_name(:CreatedAt).graphql.updateable = false
-                entity.attribute_by_name(:DeletedAt).graphql.updateable = false
-              end
-              entity.jpa.update_defaults.each do |defaults|
-                entity.jpa.update_default(defaults.values.merge(:DeletedAt => nil)) do |new_default|
-                  new_default.factory_method_name = defaults.factory_method_name
-                end
-                entity.jpa.remove_update_default(defaults)
-              end
-              if entity.imit?
-                attributes = entity.attributes.select {|a| %w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit?}.collect {|a| a.name.to_s}
-                if attributes.size > 0
-                  defaults = {}
-                  defaults[:CreatedAt] = 'org.realityforge.guiceyloops.shared.ValueUtil.now()' if attributes.include?('CreatedAt')
-                  defaults[:DeletedAt] = 'null' if attributes.include?('DeletedAt')
-                  entity.imit.test_create_default(defaults)
-                end
-              end
-            end
           end
         end
       end

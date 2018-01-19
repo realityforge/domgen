@@ -203,7 +203,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   if attributes_to_delink_in_remove.size > 0
 %>
 
-  <% if entity.sync? && entity.sync.transaction_time? -%>
+  <% if entity.transaction_time? -%>
   /**
    * This method should not be called directly. It is called from the constructor of #{attribute.entity.jpa.qualified_name}.
    * @deprecated
@@ -224,7 +224,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   {
     delinkDuringPreRemove();
   }
-<% elsif entity.sync? && entity.sync.transaction_time? -%>
+<% elsif entity.transaction_time? -%>
 
   /**
    * This method should not be called directly. It is called from the constructor of #{attribute.entity.jpa.qualified_name}.

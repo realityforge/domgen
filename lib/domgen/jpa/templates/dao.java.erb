@@ -134,7 +134,7 @@ public class <%= dao.jpa.dao_name %>
   repository_prefix = a.entity == dao.entity ? '' : "_#{Reality::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
 -%>
     {
-      final <%= a.entity.jpa.qualified_name %> other = <%= a.inverse.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}find#{a.entity.sync? && a.entity.sync.transaction_time? ? 'Undeleted' : ''}By#{a.name}( $_ )" -%>;
+      final <%= a.entity.jpa.qualified_name %> other = <%= a.inverse.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}find#{a.entity.transaction_time? ? 'Undeleted' : ''}By#{a.name}( $_ )" -%>;
       if( null != other )
       {
 <% if a.nullable? && !a.immutable? && !a.set_once? -%>
@@ -162,7 +162,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
   repository_prefix = a.entity == dao.entity ? '' : "_#{Reality::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
 -%>
     {
-      for ( final <%= a.entity.jpa.qualified_name %> other : new java.util.ArrayList<>( <%= a.inverse.jpa.java_traversable? ? "$_.#{getter_for(a, Reality::Naming.pluralize(a.inverse.name))}" : "#{repository_prefix}findAll#{a.entity.sync? && a.entity.sync.transaction_time? ? 'Undeleted' : ''}By#{a.name}( $_ )" -%> ) )
+      for ( final <%= a.entity.jpa.qualified_name %> other : new java.util.ArrayList<>( <%= a.inverse.jpa.java_traversable? ? "$_.#{getter_for(a, Reality::Naming.pluralize(a.inverse.name))}" : "#{repository_prefix}findAll#{a.entity.transaction_time? ? 'Undeleted' : ''}By#{a.name}( $_ )" -%> ) )
       {
 <% if a.nullable? && !a.immutable? && !a.set_once? -%>
         other.set<%= a.name %>( null );
@@ -185,7 +185,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
       }
     }
 <% end -%>
-<% if dao.entity.sync? && dao.entity.sync.transaction_time? -%>
+<% if dao.entity.transaction_time? -%>
     $_.setDeletedAt( new java.util.Date() );
 <% else -%>
     remove( $_ );
