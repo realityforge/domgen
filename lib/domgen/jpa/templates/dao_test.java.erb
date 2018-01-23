@@ -7,8 +7,13 @@ public abstract class <%= dao.jpa.dao_test_name %>
   extends <%= dao.data_module.repository.jpa.qualified_standalone_entity_test_name %>
 {
 <% dao.queries.select{|q|q.jpa? && !q.jpa.standard_query?}.each do |query| -%>
-  public abstract void <%= Reality::Naming.camelize(query.name) %>()
-    throws Exception;
+  @org.testng.annotations.Test
+  public void <%= Reality::Naming.camelize(query.name) %>()
+    throws Exception
+  {
+    org.testng.Assert.fail( "Test not yet implemented" );
+  }
+
 
 <% end -%>
   protected final <%= dao.jpa.qualified_dao_service_name %> dao()
