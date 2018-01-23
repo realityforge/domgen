@@ -825,6 +825,8 @@ FRAGMENT
       java_artifact :name, :entity, :server, :jpa, '#{entity.name}'
       java_artifact :base_entity_extension, :entity, :server, :jpa, 'Base#{entity.name}Extension'
       java_artifact :metamodel, :entity, :server, :jpa, '#{name}_'
+      java_artifact :abstract_model_test, :entity, :server, :jpa, 'Abstract#{entity.name}Test'
+      java_artifact :model_test, :entity, :server, :jpa, '#{entity.name}Test'
 
       attr_writer :cacheable
 
@@ -898,6 +900,10 @@ FRAGMENT
 
       def default_jpql_criterion
         @default_jpql_criterion.nil? ? entity.data_module.jpa.default_jpql_criterion : @default_jpql_criterion
+      end
+
+      def non_standard_model_constraints?
+        !entity.sql.constraints.select{|constraint| !constraint.standard?}.empty?
       end
 
       def pre_verify

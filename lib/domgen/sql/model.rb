@@ -201,6 +201,14 @@ module Domgen
         super(table, options, &block)
       end
 
+      attr_writer :standard
+
+      # Return true if this was defined by domgen or is derivable via rules.
+      # standard constraints do not typically need to be tested
+      def standard?
+        @standard.nil? ? false : @standard
+      end
+
       attr_writer :invariant
 
       # Return true if this constraint should always be true, not just on insert or update.
@@ -776,7 +784,7 @@ module Domgen
           constraint_sql << "#{lhs.sql.quoted_column_name} IS NULL" if lhs.nullable?
           constraint_sql << "#{rhs.sql.quoted_column_name} IS NULL" if rhs.nullable?
           constraint_sql << "#{lhs.sql.quoted_column_name} #{op} #{rhs.sql.quoted_column_name}"
-          constraint(c.name, :sql => constraint_sql.join(' OR ')) unless constraint_by_name(c.name)
+          constraint(c.name, :standard => true, :sql => constraint_sql.join(' OR ')) unless constraint_by_name(c.name)
           copy_tags(c, constraint_by_name(c.name))
         end
 
@@ -790,12 +798,12 @@ module Domgen
                 end.join(' AND ')}"
               sql << "(#{s})"
             end
-            constraint(c.name, :sql => sql.join(' OR '))
+            constraint(c.name, :standard => true, :sql => sql.join(' OR '))
           end
           copy_tags(c, constraint_by_name(c.name))
         end
         entity.dependency_constraints.each do |c|
-          constraint(c.name, :sql => <<SQL) unless constraint_by_name(c.name)
+          constraint(c.name, :standard => true, :sql => <<SQL) unless constraint_by_name(c.name)
 #{entity.attribute_by_name(c.attribute_name).sql.quoted_column_name} IS NULL OR
 ( #{c.dependent_attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(' AND ') } )
 SQL
@@ -803,14 +811,14 @@ SQL
         end
 
         entity.codependent_constraints.each do |c|
-          constraint(c.name, :sql => <<SQL) unless constraint_by_name(c.name)
+          constraint(c.name, :standard => true, :sql => <<SQL) unless constraint_by_name(c.name)
 ( #{c.attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(' AND ')} ) OR
 ( #{c.attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NULL" }.join(' AND ') } )
 SQL
           copy_tags(c, constraint_by_name(c.name))
         end
         entity.dependency_constraints.each do |c|
-          constraint(c.name, :sql => <<SQL) unless constraint_by_name(c.name)
+          constraint(c.name, :standard => true, :sql => <<SQL) unless constraint_by_name(c.name)
 #{entity.attribute_by_name(c.attribute_name).sql.quoted_column_name} IS NULL OR
 ( #{c.dependent_attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" }.join(' AND ') } )
 SQL
@@ -822,28 +830,28 @@ SQL
             str = c.attribute_names.collect { |name| "#{entity.attribute_by_name(name).sql.quoted_column_name} IS#{(candidate == name) ? ' NOT' : ''} NULL" }.join(' AND ')
             "(#{str})"
           end.join(' OR ')
-          constraint(c.name, :sql => sql) unless constraint_by_name(c.name)
+          constraint(c.name, :standard => true, :sql => sql) unless constraint_by_name(c.name)
           copy_tags(c, constraint_by_name(c.name))
         end
 
         entity.attributes.select { |a| a.enumeration? && a.enumeration.numeric_values? }.each do |a|
           sorted_values = (0..(a.enumeration.values.length)).collect { |v| v }
           constraint_name = "#{a.name}_Enum"
-          constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
+          constraint(constraint_name, :standard => true, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.quoted_column_name} >= #{sorted_values[0]} AND
 #{a.sql.quoted_column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
         entity.attributes.select { |a| a.attribute_type == :enumeration && a.enumeration.textual_values? }.each do |a|
           constraint_name = "#{a.name}_Enum"
-          constraint(constraint_name, :sql => <<SQL) unless constraint_by_name(constraint_name)
+          constraint(constraint_name, :standard => true, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.quoted_column_name} IN (#{a.enumeration.values.collect { |v| "'#{v.value}'" }.join(',')})
 SQL
         end
         entity.attributes.select { |a| (a.allows_length?) && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
           sql = self.dialect.disallow_blank_constraint(a.sql.column_name)
-          constraint(constraint_name, :sql => sql) unless constraint_by_name(constraint_name)
+          constraint(constraint_name, :standard => true, :sql => sql) unless constraint_by_name(constraint_name)
         end
 
         entity.attributes.select { |a| a.set_once? }.each do |a|

@@ -1,0 +1,19 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(entity.jpa.qualified_abstract_model_test_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= entity.jpa.abstract_model_test_name %>
+  extends <%= entity.data_module.repository.jpa.qualified_standalone_entity_test_name %>
+{
+  t.sql.constraint
+<% entity.sql.constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
+  @org.testng.annotations.Test
+  public void <%= Reality::Naming.camelize(constraint.name) %>Constraint()
+    throws Exception
+  {
+    org.testng.Assert.fail( "Test not yet implemented" );
+  }
+
+<% end -%>
+}
