@@ -903,7 +903,8 @@ FRAGMENT
       end
 
       def non_standard_model_constraints?
-        !entity.sql.constraints.select{|constraint| !constraint.standard?}.empty?
+        !entity.sql.constraints.select {|constraint| !constraint.standard?}.empty? ||
+          !entity.sql.function_constraints.select {|constraint| !constraint.standard?}.empty?
       end
 
       def pre_verify

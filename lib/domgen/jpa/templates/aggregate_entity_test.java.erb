@@ -32,6 +32,9 @@ public class <%= repository.jpa.aggregate_entity_test_name %>
 <% entity.sql.constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
     org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(constraint.name) %>Constraint" ).getAnnotation( org.testng.annotations.Test.class ) );
 <% end -%>
+<% entity.sql.function_constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
+    org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(constraint.name) %>FunctionConstraint" ).getAnnotation( org.testng.annotations.Test.class ) );
+<% end -%>
 <%
     end
   end

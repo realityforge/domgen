@@ -252,6 +252,14 @@ module Domgen
         super(table, options, & block)
       end
 
+      attr_writer :standard
+
+      # Return true if this was defined by domgen or is derivable via rules.
+      # standard constraints do not typically need to be tested
+      def standard?
+        @standard.nil? ? false : @standard
+      end
+
       attr_writer :invariant
 
       # Return true if this constraint should always be true, not just on insert or update.
@@ -891,7 +899,7 @@ SQL
 
           functional_constraint_name = "#{c.name}_Scope"
           unless function_constraint?(functional_constraint_name)
-            function_constraint(functional_constraint_name, [c.attribute_name, c.attribute_name_path[0]]) do |constraint|
+            function_constraint(functional_constraint_name, [c.attribute_name, c.attribute_name_path[0]], :standard => true) do |constraint|
               constraint.invariant = true
               start_attribute = self.entity.attribute_by_name(c.attribute_name)
               sql = ''
