@@ -243,7 +243,7 @@ public <%= entity.abstract? ? 'abstract ' :'' %>class <%= entity.arez.name %>
    * @deprecated
    */
   @java.lang.Deprecated
-  protected <% end %>void set<%= name %>( final <%= type %> value )
+  public <% end %>void set<%= name %>( final <%= type %> value )
   {
     <%= Reality::Naming.camelize(name) %> = value;
   }
