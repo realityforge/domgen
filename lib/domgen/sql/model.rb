@@ -347,6 +347,14 @@ module Domgen
       attr_accessor :guard
       attr_writer :priority
 
+      attr_writer :standard
+
+      # Return true if this was defined by domgen or is derivable via rules.
+      # standard constraints do not typically need to be tested
+      def standard?
+        @standard.nil? ? false : @standard
+      end
+
       def priority
         @priority || 1
       end
@@ -864,7 +872,7 @@ SQL
 
         entity.attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
-          validation(validation_name, :negative_sql => self.dialect.set_once_sql(a), :after => :update) unless validation?(validation_name)
+          validation(validation_name, :standard => true, :negative_sql => self.dialect.set_once_sql(a), :after => :update) unless validation?(validation_name)
         end
 
         entity.cycle_constraints.each do |c|
@@ -930,7 +938,7 @@ SQL
           unless validation?(validation_name)
             guard = self.dialect.immuter_guard(self.entity, immutable_attributes)
             guard_sql = self.dialect.immuter_sql(self.entity, immutable_attributes)
-            validation(validation_name, :negative_sql => guard_sql, :after => :update, :guard => guard)
+            validation(validation_name, :standard => true, :negative_sql => guard_sql, :after => :update, :guard => guard)
           end
         end
 

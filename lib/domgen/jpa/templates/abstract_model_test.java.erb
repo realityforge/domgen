@@ -24,4 +24,13 @@ public abstract class <%= entity.jpa.abstract_model_test_name %>
   }
 
 <% end -%>
+<% entity.sql.validations.select{|validation| !validation.standard?}.each do |validation| -%>
+  @org.testng.annotations.Test
+  public void <%= Reality::Naming.camelize(validation.name) %>Validation()
+    throws Exception
+  {
+    org.testng.Assert.fail( "Test not yet implemented" );
+  }
+
+<% end -%>
 }
