@@ -1387,7 +1387,6 @@ CONTENT
       end
 
       java_artifact :name, :entity, :client, :imit, '#{entity.name}'
-      java_artifact :base_entity_extension, :entity, :client, :imit, 'Base#{entity.name}Extension'
 
       def interfaces
         @interfaces ||= []

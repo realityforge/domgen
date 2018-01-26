@@ -19,9 +19,6 @@ Domgen::Generator.define([:arez],
     template_set.erb_template(:entity,
                               'entity.java.erb',
                               'main/java/#{entity.arez.qualified_name.gsub(".","/")}.java')
-    template_set.erb_template(:entity,
-                              'base_entity_extension.java.erb',
-                              'main/java/#{entity.arez.qualified_base_entity_extension_name.gsub(".","/")}.java')
     template_set.erb_template(:dao,
                               'domgen_repository_extension.java.erb',
                               'main/java/#{dao.arez.qualified_domgen_repository_extension_name.gsub(".","/")}.java',

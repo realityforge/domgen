@@ -216,7 +216,6 @@ module Domgen
 
       java_artifact :name, :entity, :client, :arez, '#{entity.name}'
       java_artifact :arez, :entity, :client, :arez, 'Arez_#{entity.name}'
-      java_artifact :base_entity_extension, :entity, :client, :arez, 'Base#{entity.name}Extension'
 
       def extensions
         @extensions ||= []
