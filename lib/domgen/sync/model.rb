@@ -477,13 +477,6 @@ module Domgen
 
           self.entity.sync.master_entity = e
           e.sync.core_entity = self
-          if self.entity.transaction_time?
-            e.enable_facet(:transaction_time) unless e.transaction_time?
-            # Ugly call of hook that does the setup of transaction time infrastructure
-            e.transaction_time.pre_pre_complete
-          else
-            e.disable_facet(:transaction_time) if e.transaction_time?
-          end
           e.abstract = self.entity.abstract?
           e.final = self.entity.final?
           e.extends = self.entity.extends
@@ -588,7 +581,10 @@ module Domgen
           end
 
           # update indexes in the original entity, if it is a transaction time entity so filtering can be specified
-          if entity.transaction_time?
+          if self.entity.transaction_time?
+            e.enable_facet(:transaction_time) unless e.transaction_time?
+            # Ugly call of hook that does the setup of transaction time infrastructure
+            e.transaction_time.pre_pre_complete
             self.entity.sql.indexes.each do |index|
               next if index.cluster?
 
@@ -604,7 +600,8 @@ module Domgen
             end
           end
 
-          unless entity.transaction_time?
+          unless self.entity.transaction_time?
+            e.disable_facet(:transaction_time) if e.transaction_time?
             e.datetime(:CreatedAt, :immutable => true) unless e.attribute_by_name?(:CreatedAt)
             e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless e.attribute_by_name?(:DeletedAt)
           end
