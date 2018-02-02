@@ -37,7 +37,7 @@ public class <%= repository.imit.client_router_impl_name %>
         routing_key.path.each do |path_element|
           next_attribute = a.referenced_entity.attribute_by_name(routing_key.get_attribute_name_from_path_element?(path_element))
 -%>
-  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.imit.qualified_name %> value )
+  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.arez.qualified_name %> value )
   {
 <% if a.nullable? -%>
     if( null != value )
@@ -59,7 +59,7 @@ public class <%= repository.imit.client_router_impl_name %>
           a = next_attribute
         end
 -%>
-  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.imit.qualified_name %> value )
+  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= a.referenced_entity.arez.qualified_name %> value )
   {
 <% if a.nullable? -%>
     if( null != value )
@@ -83,9 +83,9 @@ public class <%= repository.imit.client_router_impl_name %>
   <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
--%> if( entity instanceof <%= entity.imit.qualified_name %> )
+-%> if( entity instanceof <%= entity.arez.qualified_name %> )
     {
-      return route<%= entity.name %>( (<%= entity.imit.qualified_name %>) entity );
+      return route<%= entity.name %>( (<%= entity.arez.qualified_name %>) entity );
     }
     else<%
   end
@@ -104,7 +104,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 
   @java.lang.Override
   @javax.annotation.Nonnull
-  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.qualified_name %> entity )
+  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> entity )
   {
     final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<>();
 <% entity.imit.replication_graphs.each do |graph| -%>
@@ -114,7 +114,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   }
 <% entity.imit.replication_graphs.each do |graph| -%>
 
-  private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull final <%= entity.imit.qualified_name %> entity )
+  private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> entity )
   {
 <% if graph.filtered? -%>
 <%

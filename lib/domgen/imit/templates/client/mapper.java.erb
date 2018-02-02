@@ -51,7 +51,7 @@ public class <%= data_module.imit.mapper_name %>
         end
 -%>
     final <%= entity.primary_key.arez.java_type(:transport, :assume_generated => true) %> designator = (<%= entity.primary_key.arez.java_type(:transport, :assume_generated => true) %>) <%= designator_value %>;
-    <%= entity.imit.name %> entity = _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().findBy<%= entity.primary_key.name %>( designator );
+    <%= entity.arez.name %> entity = _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().findBy<%= entity.primary_key.name %>( designator );
     // If change is a delete...
     if( change.isRemove() )
     {
@@ -59,7 +59,7 @@ public class <%= data_module.imit.mapper_name %>
       {
         // It is in the local repository so we need to delete it
         _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().destroy( entity );
-        _subscriptionManager.removeEntity( <%= entity.imit.name %>.class, designator );
+        _subscriptionManager.removeEntity( <%= entity.arez.name %>.class, designator );
       }
     }
     else
@@ -102,13 +102,13 @@ public class <%= data_module.imit.mapper_name %>
       {
         descriptors[i] = new org.realityforge.replicant.client.ChannelDescriptor( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[change.getChannelID( i )], change.getSubChannelID( i ) );
       }
-      _subscriptionManager.updateEntity( <%= entity.imit.name %>.class, designator, descriptors );
+      _subscriptionManager.updateEntity( <%= entity.arez.name %>.class, designator, descriptors );
     }
     return entity;
   }
 
 <% end %>
-  private void updateAttributes<%= entity.name %>( final <%= entity.imit.name %> entity, final org.realityforge.replicant.client.Change change )
+  private void updateAttributes<%= entity.name %>( final <%= entity.arez.name %> entity, final org.realityforge.replicant.client.Change change )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends) -%>

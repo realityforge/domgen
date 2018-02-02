@@ -43,7 +43,7 @@ public class <%= repository.imit.gwt_data_loader_listener_name %>
     {
 <% repository.imit.graphs.each do |graph| -%>
       case <%= Reality::Naming.uppercase_constantize(graph.name) %>:
-        fireEvent( new <%= graph.subscribe_completed_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getEntityLocator().getByID( <%= repository.entity_by_name(graph.instance_root).imit.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %>)  descriptor.getID() ) <% end %>) );
+        fireEvent( new <%= graph.subscribe_completed_message.gwt.qualified_event_name %>(<% if graph.instance_root? -%> getEntityLocator().getByID( <%= repository.entity_by_name(graph.instance_root).arez.qualified_name %>.class, (<%= repository.entity_by_name(graph.instance_root).primary_key.arez.java_type %>)  descriptor.getID() ) <% end %>) );
         break;
 <% end -%>
     }

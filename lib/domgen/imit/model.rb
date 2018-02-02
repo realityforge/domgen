@@ -946,12 +946,12 @@ module Domgen
             attribute_type = root.primary_key.attribute_type
 
             subscribe_started_message.parameter(:Id, attribute_type)
-            subscribe_completed_message.parameter(root.name, root.imit.qualified_name)
+            subscribe_completed_message.parameter(root.name, root.arez.qualified_name)
             subscribe_failed_message.parameter(:Id, attribute_type)
             if !graph.filter_parameter.nil? && !graph.filter_parameter.immutable?
-              update_started_message.parameter(root.name, root.imit.qualified_name)
-              update_completed_message.parameter(root.name, root.imit.qualified_name)
-              update_failed_message.parameter(root.name, root.imit.qualified_name)
+              update_started_message.parameter(root.name, root.arez.qualified_name)
+              update_completed_message.parameter(root.name, root.arez.qualified_name)
+              update_failed_message.parameter(root.name, root.arez.qualified_name)
             end
             unsubscribe_started_message.parameter(:Id, attribute_type)
             unsubscribe_completed_message.parameter(:Id, attribute_type)
@@ -1385,8 +1385,6 @@ CONTENT
         Domgen.error('Attempted to assign transport_id on abstract entity') if entity.abstract?
         @transport_id = transport_id
       end
-
-      java_artifact :name, :entity, :client, :imit, '#{entity.name}'
 
       def interfaces
         @interfaces ||= []
