@@ -87,7 +87,7 @@ module Domgen
     end
 
     def attribute_names_to_key(entity, attribute_names)
-      attribute_names.collect { |a| entity.attribute_by_name(a).name.to_s }.sort.join('_')
+      attribute_names.collect {|a| entity.attribute_by_name(a).name.to_s}.sort.join('_')
     end
   end
 
@@ -172,15 +172,15 @@ module Domgen
     end
 
     def self.equality_operators
-      {:eq => '=', :neq => '!='}
+      { :eq => '=', :neq => '!=' }
     end
 
     def self.numeric_operator_descriptions
-      {:eq => 'equal', :neq => 'not equal', :lte => 'less than or equal', :lt => 'less than', :gte => 'greater than or equal', :gt => 'greater than'}
+      { :eq => 'equal', :neq => 'not equal', :lte => 'less than or equal', :lt => 'less than', :gte => 'greater than or equal', :gt => 'greater than' }
     end
 
     def self.temporal_operator_descriptions
-      {:eq => 'equal', :neq => 'not equal', :lte => 'before or at the same time', :lt => 'before', :gte => 'at the same time or after', :gt => 'after'}
+      { :eq => 'equal', :neq => 'not equal', :lte => 'before or at the same time', :lt => 'before', :gte => 'at the same time or after', :gt => 'after' }
     end
 
     def self.comparable_attribute_types
@@ -198,7 +198,7 @@ module Domgen
     attr_accessor :attribute_name_path
 
     def initialize(entity, attribute_name, attribute_name_path, options, &block)
-      @name = ([attribute_name] + attribute_name_path).collect { |a| a.to_s }.sort.join('_')
+      @name = ([attribute_name] + attribute_name_path).collect {|a| a.to_s}.sort.join('_')
       @attribute_name, @attribute_name_path = attribute_name, attribute_name_path
       super(entity, options, &block)
     end
@@ -376,7 +376,7 @@ module Domgen
 
     def max_value_length
       Domgen.error("max_value_length invoked on numeric enumeration #{qualified_name}") if numeric_values?
-      values.inject(0) { |max, value| max > value.value.length ? max : value.value.length }
+      values.inject(0) {|max, value| max > value.value.length ? max : value.value.length}
     end
 
     def self.enumeration_types
@@ -515,7 +515,7 @@ module Domgen
     end
 
     def self.supported_types
-      (self.supported_basic_types + Domgen::TypeDB.characteristic_types.collect { |ct| ct.name }).sort.uniq
+      (self.supported_basic_types + Domgen::TypeDB.characteristic_types.collect {|ct| ct.name}).sort.uniq
     end
 
     def self.supported_basic_types
@@ -591,35 +591,35 @@ module Domgen
       elsif base_name =~ /^[fF]indAll.+$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :many if @multiplicity.nil?
-        @base_name = base_name.gsub(/^[fF]indAll/,'')
+        @base_name = base_name.gsub(/^[fF]indAll/, '')
         return base_name
       elsif base_name =~ /^[fF]ind.+$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :zero_or_one if @multiplicity.nil?
-        @base_name = base_name.gsub(/^[fF]ind/,'')
+        @base_name = base_name.gsub(/^[fF]ind/, '')
         return base_name
       elsif base_name =~ /^[gG]et.+$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :one if @multiplicity.nil?
-        @base_name = base_name.gsub(/^[gG]et/,'')
+        @base_name = base_name.gsub(/^[gG]et/, '')
         return base_name
       elsif base_name =~ /^[uU]pdate.+$/
         self.query_type = :update if @query_type.nil?
-        @base_name = base_name.gsub(/^[uU]pdate/,'')
+        @base_name = base_name.gsub(/^[uU]pdate/, '')
         return base_name
       elsif base_name =~ /^[dD]elete.+$/
         self.query_type = :delete if @query_type.nil?
-        @base_name = base_name.gsub(/^[dD]elete/,'')
+        @base_name = base_name.gsub(/^[dD]elete/, '')
         return base_name
       elsif base_name =~ /^[iI]nsert.+$/
         self.query_type = :insert if @query_type.nil?
-        @base_name = base_name.gsub(/^[iI]nsert/,'')
+        @base_name = base_name.gsub(/^[iI]nsert/, '')
         return base_name
       elsif base_name =~ /^[cC]ount.*$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :one if @multiplicity.nil?
         self.result_type = :long if @result_type.nil?
-        @base_name = base_name.gsub(/^[cC]ount/,'')
+        @base_name = base_name.gsub(/^[cC]ount/, '')
         return base_name
       elsif self.query_type == :select
         raise "Query #{base_name} does not conform to expected pattern"
@@ -1013,7 +1013,7 @@ module Domgen
     def dependency_constraint(attribute_name, dependent_attribute_names, options = {}, &block)
       constraint = DependencyConstraint.new(self, attribute_name, dependent_attribute_names, options, &block)
       Domgen.error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !attribute_by_name(attribute_name).nullable?
-      dependent_attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
+      dependent_attribute_names.collect {|a| attribute_by_name(a)}.each do |a|
         Domgen.error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable dependent attribute") if !a.nullable?
       end
       add_unique_to_set('dependency', constraint, @dependency_constraints)
@@ -1036,7 +1036,7 @@ module Domgen
     # Check that either all attributes are null or all are not null
     def codependent_constraint(attribute_names, options = {}, &block)
       constraint = CodependentConstraint.new(self, attribute_names, options, &block)
-      attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
+      attribute_names.collect {|a| attribute_by_name(a)}.each do |a|
         Domgen.error("Codependent constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
       add_unique_to_set('codependent', constraint, @codependent_constraints)
@@ -1049,7 +1049,7 @@ module Domgen
     # Check that one and only one of the attributes is not null
     def xor_constraint(attribute_names, options = {}, &block)
       constraint = XorConstraint.new(self, attribute_names, options, &block)
-      attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
+      attribute_names.collect {|a| attribute_by_name(a)}.each do |a|
         Domgen.error("Xor constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") unless a.nullable?
       end
       add_unique_to_set('xor', constraint, @xor_constraints)
@@ -1062,7 +1062,7 @@ module Domgen
     # Check that at most one of the attributes is not null
     def incompatible_constraint(attribute_names, options = {}, &block)
       constraint = IncompatibleConstraint.new(self, attribute_names, options, &block)
-      attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
+      attribute_names.collect {|a| attribute_by_name(a)}.each do |a|
         Domgen.error("Incompatible constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
       add_unique_to_set('incompatible', constraint, @incompatible_constraints)
@@ -1098,8 +1098,8 @@ module Domgen
 
     # Assume single column pk
     def primary_key
-      primary_key = attributes.find { |a| a.primary_key? }
-      Domgen.error("Unable to locate primary key for #{self.qualified_name}, attributes: #{attributes.collect { |a| a.name }.inspect}") unless primary_key
+      primary_key = attributes.find {|a| a.primary_key?}
+      Domgen.error("Unable to locate primary key for #{self.qualified_name}, attributes: #{attributes.collect {|a| a.name}.inspect}") unless primary_key
       primary_key
     end
 
@@ -1120,7 +1120,7 @@ module Domgen
         Domgen.error("Attempting to override non abstract attribute #{name} on #{self.qualified_name}") unless (c.abstract? || c.override?)
         override = true
       end
-      Attribute.new(self, name, type, {:override => override}.merge(options), &block)
+      Attribute.new(self, name, type, { :override => override }.merge(options), &block)
     end
 
     def perform_verify
@@ -1134,7 +1134,7 @@ module Domgen
         end
       end
 
-      Domgen.error("Entity #{qualified_name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
+      Domgen.error("Entity #{qualified_name} must define exactly one primary key") if attributes.select {|a| a.primary_key?}.size != 1
       attributes.each do |a|
         Domgen.error("Abstract attribute #{a.name} on non abstract object type #{qualified_name}") if concrete? && a.abstract?
       end
@@ -1203,7 +1203,7 @@ module Domgen
     end
 
     def substruct(name, options = {}, &block)
-      struct = data_module.struct("#{self.name}#{name}", {:top_level => false}, &block)
+      struct = data_module.struct("#{self.name}#{name}", { :top_level => false }, &block)
       struct(name, struct.name, options)
     end
 
@@ -1383,7 +1383,7 @@ module Domgen
         override = true
       end
 
-      ExceptionParameter.new(self, name, type, {:override => override}.merge(options), &block)
+      ExceptionParameter.new(self, name, type, { :override => override }.merge(options), &block)
     end
   end
 
@@ -1506,9 +1506,7 @@ module Domgen
     def exception(name, options = {}, &block)
       Domgen.error("Attempting to redefine exception #{name} on #{self.qualified_name}") if @exceptions[name.to_s]
       exception = service.data_module.exception_by_name(name, true)
-      if exception.nil?
-        exception = service.data_module.exception(name, options)
-      end
+      exception = service.data_module.exception(name, options, &block) if exception.nil?
       @exceptions[name.to_s] = exception
     end
 
@@ -1634,10 +1632,17 @@ module Domgen
     end
 
     def exception(name, options = {}, &block)
-      pre_exception_create(name)
-      exception = Exception.new(self, name, options, &block)
-      post_exception_create(name)
-      exception
+      name_parts = split_name(name)
+      dm = repository.data_module_by_name(name_parts[0])
+      if dm.name == self.name
+        local_name = name_parts[1]
+        pre_exception_create(local_name)
+        exception = Exception.new(self, local_name, options, &block)
+        post_exception_create(local_name)
+        exception
+      else
+        dm.exception(name, options = {}, &block)
+      end
     end
 
     def exception_by_name(name, optional = false)
@@ -1694,7 +1699,6 @@ module Domgen
     def local_dao_by_name?(name)
       !@daos[name.to_s].nil?
     end
-
 
     def remote_entities
       @remote_entities.values

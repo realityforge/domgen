@@ -1,0 +1,21 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(entity.transaction_time.qualified_jpa_model_extension_name) %>;
+
+import iris.rose.server.service.PhysicalUnitInPastException;
+import javax.annotation.Nonnull;
+
+@javax.annotation.Generated( "Domgen" )
+public interface <%= entity.transaction_time.jpa_model_extension_name %>
+{
+  default void ensureNotInPast()
+    throws <%= entity.transaction_time.qualified_jpa_exception_name %>
+  {
+    if ( null != self().getDeletedAt() )
+    {
+      throw new <%= entity.transaction_time.qualified_jpa_exception_name %>( self().getId() );
+    }
+  }
+
+  @javax.annotation.Nonnull
+  <%= entity.jpa.qualified_name %> self();
+}
