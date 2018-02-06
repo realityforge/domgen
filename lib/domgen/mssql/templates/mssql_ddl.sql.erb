@@ -275,7 +275,7 @@ AS
 GO
 <% end %>
 
-CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.spCheckConstraints
+CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.[spCheckConstraints]
 (
   @ShowErrors INT = 1,
   @PrintProgress INT = 0
