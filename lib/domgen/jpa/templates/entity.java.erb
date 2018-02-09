@@ -198,14 +198,14 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <% end -%>
   }
 <%
-  attributes_to_delink_in_remove =
-    entity.declared_attributes.select { |attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.java_traversable? && attribute.inverse.jpa.traversable? }
+  attributes_to_delink_in_remove = entity.jpa.attributes_to_delink
   if attributes_to_delink_in_remove.size > 0
 %>
 
-  <% if entity.transaction_time? -%>
+<% if entity.transaction_time? -%>
+
   /**
-   * This method should not be called directly. It is called from the constructor of #{attribute.entity.jpa.qualified_name}.
+   * This method should not be called directly. It is called from the constructor of <%= entity.jpa.qualified_name %>.
    * @deprecated
    */
   @java.lang.Deprecated
@@ -223,16 +223,6 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   protected void preRemove()
   {
     delinkDuringPreRemove();
-  }
-<% elsif entity.transaction_time? -%>
-
-  /**
-   * This method should not be called directly. It is called from the constructor of #{attribute.entity.jpa.qualified_name}.
-   * @deprecated
-   */
-  @java.lang.Deprecated
-  public void delinkDuringPreRemove()
-  {
   }
 <% end -%>
 <%

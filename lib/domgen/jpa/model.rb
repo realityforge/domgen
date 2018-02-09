@@ -907,6 +907,10 @@ FRAGMENT
           !entity.sql.function_constraints.select {|constraint| !constraint.standard?}.empty?
       end
 
+      def attributes_to_delink
+        self.entity.declared_attributes.select {|attribute| attribute.reference? && !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa.java_traversable? && attribute.inverse.jpa.traversable?}
+      end
+
       def pre_verify
         entity.query(:FindAll, :standard_query => true, 'jpa.jpql' => self.default_jpql_criterion)
         entity.query("FindBy#{entity.primary_key.name}")

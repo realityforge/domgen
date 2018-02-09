@@ -128,6 +128,7 @@ public class <%= dao.jpa.dao_name %>
   }
 
   @java.lang.Override
+  @java.lang.SuppressWarnings( "deprecation" )
   public void delete( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> $_ )
   {
 <% dao.entity.referencing_attributes.select{|a|a.jpa? && a.inverse.multiplicity != :many}.each do |a|
@@ -187,6 +188,9 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% end -%>
 <% if dao.entity.transaction_time? -%>
     $_.setDeletedAt( new java.util.Date() );
+<% unless dao.entity.jpa.attributes_to_delink.empty? -%>
+    $_.delinkDuringPreRemove();
+<% end -%>
 <% else -%>
     remove( $_ );
 <% end -%>

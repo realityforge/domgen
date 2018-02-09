@@ -313,7 +313,9 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
         deleted = true;
 <% if entity.transaction_time? -%>
         entity.setDeletedAt( new java.util.Date() );
+<% unless entity.jpa.attributes_to_delink.empty? -%>
         entity.delinkDuringPreRemove();
+<% end -%>
 <% end -%>
 <% entity.sync.references_requiring_manual_sync.each do |a| -%>
         remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( entity );
