@@ -11,6 +11,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   private final com.google.gwt.user.client.rpc.AsyncCallback _callback;
 <% end -%>
 
+  @javax.inject.Inject
   public <%= service.gwt_rpc.proxy_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service<% if service.gwt_rpc.default_callback? -%>, @javax.inject.Named( "<%= service.gwt_rpc.default_callback_name %>" ) @javax.annotation.Nonnull final com.google.gwt.user.client.rpc.AsyncCallback callback <% end %> )
   {
     _service = java.util.Objects.requireNonNull( service );
