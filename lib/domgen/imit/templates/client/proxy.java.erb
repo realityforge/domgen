@@ -68,7 +68,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
      result_string = 'result'
      if method.return_value.reference?
        entity = method.return_value.referenced_entity
-       result_string = "_repository.#{Reality::Naming.camelize(entity.data_module.name)}().#{Reality::Naming.camelize(entity.dao.name)}().getBy#{entity.primary_key.name}( result )"
+       result_string = "arez.Arez.context().safeAction( () -> _repository.#{Reality::Naming.camelize(entity.data_module.name)}().#{Reality::Naming.camelize(entity.dao.name)}().getBy#{entity.primary_key.name}( result ) )"
      elsif method.return_value.remote_reference?
        result_string = "_repository.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, result )"
      end
@@ -91,7 +91,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
              param_value =
              if method.return_value.reference?
                entity = method.return_value.referenced_entity
-               "_repository.#{Reality::Naming.camelize(entity.data_module.name)}().#{Reality::Naming.camelize(entity.dao.name)}().getBy#{entity.primary_key.name}( id )"
+               "arez.Arez.context().safeAction( () -> _repository.#{Reality::Naming.camelize(entity.data_module.name)}().#{Reality::Naming.camelize(entity.dao.name)}().getBy#{entity.primary_key.name}( id ) )"
              elsif method.return_value.remote_reference?
                "_repository.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, id )"
              end
