@@ -113,7 +113,7 @@ end
    other = entity.data_module.entity_by_name(entity.extends) -%>
     encode<%= other.name %>( entity, attributes );
 <% end -%>
-<% entity.declared_attributes.select{|attribute| attribute.arez? && !attribute.abstract?  && !attribute.remote_reference? }.each do |attribute|
+<% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.abstract?  && !attribute.remote_reference? }.each do |attribute|
     value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": attribute.remote_reference? ? ".#{getter_for(attribute.referenced_remote_entity.primary_key)}" : '')
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :datetime
