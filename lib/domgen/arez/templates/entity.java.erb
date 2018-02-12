@@ -341,12 +341,14 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
 <% else -%>
     if( null != _<%= Reality::Naming.camelize(attribute.arez.name) %> )
     {
+      if ( !arez.Disposable.isDisposed( _<%= Reality::Naming.camelize(attribute.arez.name) %> ) )
+      {
 <% if attribute.inverse.multiplicity == :many -%>
-      _<%= Reality::Naming.camelize(attribute.arez.name) %>.remove<%= attribute.inverse.name %>( this );
+        _<%= Reality::Naming.camelize(attribute.arez.name) %>.remove<%= attribute.inverse.name %>( this );
+<% else -%>
+        _<%= Reality::Naming.camelize(attribute.arez.name) %>.set<%= attribute.inverse.name %>( null );
 <% end -%>
-<% if attribute.inverse.multiplicity != :many -%>
-      _<%= Reality::Naming.camelize(attribute.arez.name) %>.set<%= attribute.inverse.name %>( null );
-<% end -%>
+      }
       _<%= Reality::Naming.camelize(attribute.arez.name) %> = null;
     }
 <% end -%>
