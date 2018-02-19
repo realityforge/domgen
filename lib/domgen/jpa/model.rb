@@ -915,11 +915,6 @@ FRAGMENT
         entity.query(:FindAll, :standard_query => true, 'jpa.jpql' => self.default_jpql_criterion)
         entity.query("FindBy#{entity.primary_key.name}")
         entity.query("GetBy#{entity.primary_key.name}")
-        if self.default_jpql_criterion
-          entity.query(:FindAllIgnoringDefaultCriteria, 'jpa.standard_query' => true)
-          entity.query("FindBy#{entity.primary_key.name}IgnoringDefaultCriteria")
-          entity.query("GetBy#{entity.primary_key.name}IgnoringDefaultCriteria")
-        end
 
         entity.attributes.select {|a| a.jpa? && a.reference? && !a.abstract?}.each do |a|
           if entity.transaction_time?
@@ -935,8 +930,7 @@ FRAGMENT
         end
 
         entity.queries.select {|query| query.jpa? && query.jpa.no_ql?}.each do |query|
-          query.jpa.ignore_default_criteria = (query.name =~ /IgnoringDefaultCriteria$/)
-          tmp_query_name = query.name.chomp('IgnoringDefaultCriteria')
+          tmp_query_name = query.name.to_s
           jpql = ''
           query_text = nil
           query_text = $1 if tmp_query_name =~ /^[fF]indAllBy(.+)$/
@@ -1008,21 +1002,11 @@ FRAGMENT
             end
           end
           if jpql
-            if self.default_jpql_criterion && !query.jpa.ignore_default_criteria?
-              jpql = "(#{jpql}) AND (#{self.default_jpql_criterion})"
-            end
             query.jpa.jpql = jpql
-            if query.jpa.ignore_default_criteria?
-              query.jpa.standard_query = true
-            else
-              query.standard_query = true
-            end
+            query.standard_query = true
           else
             Domgen.error("Query #{query.qualified_name} is jpa enabled but defines no jpql or sql but is not a standard query.")
           end
-        end
-        entity.queries.select {|query| query.jpa? && query.jpa.ignore_default_criteria?}.each do |query|
-          query.disable_facet(:arez) if query.arez?
         end
       end
     end
@@ -1211,12 +1195,6 @@ FRAGMENT
       def query_spec
         @query_spec || :criteria
       end
-
-      def ignore_default_criteria?
-        @ignore_default_criteria.nil? ? false : !!@ignore_default_criteria
-      end
-
-      attr_writer :ignore_default_criteria
 
       def default_hints
         hints = {}

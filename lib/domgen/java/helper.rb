@@ -86,7 +86,7 @@ module Domgen
 
         transform = variable_name
         if characteristic.characteristic_type_key == :reference
-          transform = "_#{Reality::Naming.camelize(characteristic.referenced_entity.dao.jpa.dao_service_name)}.getBy#{characteristic.referenced_entity.primary_key.name}#{characteristic.ejb? && characteristic.referenced_entity.jpa.default_jpql_criterion && characteristic.ejb.ignore_default_criteria? ? 'IgnoringDefaultCriteria' : ''}( #{variable_name} )"
+          transform = "_#{Reality::Naming.camelize(characteristic.referenced_entity.dao.jpa.dao_service_name)}.getBy#{characteristic.referenced_entity.primary_key.name}( #{variable_name} )"
         end
         if characteristic.characteristic_type_key == :remote_reference
           transform = "_$entitySystem.getRepository().getByID( #{characteristic.ejb.java_component_type}.class, #{variable_name} )"
