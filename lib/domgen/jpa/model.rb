@@ -912,7 +912,7 @@ FRAGMENT
       end
 
       def pre_verify
-        entity.query(:FindAll, :standard_query => true, 'jpa.jpql' => self.default_jpql_criterion)
+        entity.query(:FindAll, :standard_query => true)
         entity.query("FindBy#{entity.primary_key.name}")
         entity.query("GetBy#{entity.primary_key.name}")
 

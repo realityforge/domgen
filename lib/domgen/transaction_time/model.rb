@@ -85,7 +85,7 @@ module Domgen
           index.filter = "#{self.entity.sql.dialect.quote(:DeletedAt)} IS NULL"
         end if self.entity.sql?
         if self.entity.jpa?
-          self.entity.jpa.default_jpql_criterion = 'O.deletedAt IS NULL'
+          self.entity.jpa.default_jpql_criterion = 'this.deletedAt IS NULL'
           self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null')
           self.entity.jpa.update_default(:DeletedAt => nil)
           self.entity.jpa.update_defaults.each do |defaults|

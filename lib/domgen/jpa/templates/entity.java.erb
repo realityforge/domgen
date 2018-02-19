@@ -50,8 +50,8 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 @javax.persistence.EntityListeners( { <%= entity.jpa.entity_listeners.collect{|l| "#{l}.class"}.join( ', ' ) %> } )
 <% end -%>
 @javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? 'true' : 'false' %> )
-<% if entity.transaction_time? -%>
-@org.eclipse.persistence.annotations.AdditionalCriteria( "this.deletedAt IS NULL" )
+<% if entity.jpa.default_jpql_criterion -%>
+@org.eclipse.persistence.annotations.AdditionalCriteria( "<%= entity.jpa.default_jpql_criterion %>" )
 <% end -%>
 <% if entity.data_module.repository.ee.version != '6' %>@javax.enterprise.inject.Vetoed
 <% end -%>
