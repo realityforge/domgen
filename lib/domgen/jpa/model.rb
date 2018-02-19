@@ -917,12 +917,6 @@ FRAGMENT
         entity.query("GetBy#{entity.primary_key.name}")
 
         entity.attributes.select {|a| a.jpa? && a.reference? && !a.abstract?}.each do |a|
-          if entity.transaction_time?
-            query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}UndeletedBy#{a.name}"
-            entity.query(query_name, 'jpa.jpql' => "O.#{a.jpa.field_name} = :#{a.name} AND O.deletedAt IS NULL", 'jpa.standard_query' => true) unless entity.query_by_name?(query_name)
-            query = entity.dao.query_by_name(query_name)
-            query.disable_facets_not_in(:jpa)
-          end
           query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}By#{a.name}"
           entity.query(query_name) unless entity.query_by_name?(query_name)
           query = entity.dao.query_by_name(query_name)

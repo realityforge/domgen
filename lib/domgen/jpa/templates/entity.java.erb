@@ -50,6 +50,9 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 @javax.persistence.EntityListeners( { <%= entity.jpa.entity_listeners.collect{|l| "#{l}.class"}.join( ', ' ) %> } )
 <% end -%>
 @javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? 'true' : 'false' %> )
+<% if entity.transaction_time? -%>
+@org.eclipse.persistence.annotations.AdditionalCriteria( "this.deletedAt IS NULL" )
+<% end -%>
 <% if entity.data_module.repository.ee.version != '6' %>@javax.enterprise.inject.Vetoed
 <% end -%>
 <% entity.xor_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
@@ -184,8 +187,15 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   }
 <% end -%>
 
+<% if entity.transaction_time? -%>
+  /**
+   * This method should not be called directly. It is called from the repository during delete.
+   * @deprecated
+   */
+  @java.lang.Deprecated
+<% end -%>
   @javax.persistence.PostRemove
-  protected void postRemove()
+  <% if entity.transaction_time? -%>public <% else -%>protected<% end -%> void postRemove()
   {
     if( removed() )
     {
