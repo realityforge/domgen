@@ -50,7 +50,6 @@ require 'domgen/java/model'
 require 'domgen/java/helper'
 
 require 'domgen/transaction_time/model'
-require 'domgen/transaction_time/generator'
 
 # SQL
 require 'domgen/sql/model'
