@@ -308,8 +308,12 @@ module Domgen
 
         entities.each do |entity_name|
           entity = application.repository.entity_by_name(entity_name)
-          entity.attributes.select { |a| a.reference? && a.imit? && a.imit.auto_graph_links.empty? }.each do |a|
+          entity.attributes.select { |a| a.reference? && a.imit?}.each do |a|
             referenced_entity = a.referenced_entity
+
+            agls = a.imit.auto_graph_links
+
+            next if agls.any? {|graph_link| graph_link.source_graph.to_s == self.name.to_s}
 
             # Unclear on how to handle this next scenario. Assume a subtype is visible?
             next if referenced_entity.abstract?
