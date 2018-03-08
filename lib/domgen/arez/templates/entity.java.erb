@@ -239,7 +239,7 @@ public abstract class <%= entity.arez.name %>
   @java.lang.Deprecated
   public <% end %>void linkSet<%= name %>( final <%= type %> value )
   {
-    <%= Reality::Naming.camelize(name) %> = value;
+    set<%= name %>( value );
   }
 
   void set<%= name %>( final <%= type %> value )
