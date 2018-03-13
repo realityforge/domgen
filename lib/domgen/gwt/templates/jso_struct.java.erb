@@ -20,7 +20,7 @@ public final class <%= struct.gwt.jso_name %>
   struct.fields.each do |field|
     converted_value = Proc.new do |var|
       case
-        when field.struct? then "(#{field.referenced_struct.gwt.jso_name})#{var}"
+        when field.struct? then "(#{field.referenced_struct.gwt.qualified_jso_name})#{var}"
         when field.date? then "#{var}.toString()"
         when field.datetime? then "(double) #{var}.getTime()"
         when field.enumeration? then "#{var}.#{field.enumeration.textual_values? ? 'name()' : 'ordinal()' }"
