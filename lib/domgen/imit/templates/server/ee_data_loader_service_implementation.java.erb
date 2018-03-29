@@ -24,21 +24,10 @@ public class <%= remote_datasource.ee_data_loader_service_implementation_name %>
   private org.realityforge.keycloak.client.authfilter.Keycloak _keycloak;
 <% end -%>
 
-  private <%= remote_datasource.ee_data_loader_listener_impl %> _listener;
-
-  @javax.annotation.PostConstruct
-  public void postConstruct()
-  {
-    super.postConstruct();
-    _listener = new <%= remote_datasource.ee_data_loader_listener_impl %>( _beanManager, _entitySystem.getRepository() );
-    addDataLoaderListener( _listener );
-  }
-
   @javax.annotation.PreDestroy
   public void preDestroy()
   {
     disconnect();
-    removeDataLoaderListener( _listener );
   }
 <% if remote_datasource.application.repository.keycloak? -%>
 

@@ -94,12 +94,6 @@ module Domgen
         @ee_data_loader_service_interface || "#{base_package}.client.net.ee.#{self.name}EeDataLoaderService"
       end
 
-      attr_writer :ee_data_loader_listener_impl
-
-      def ee_data_loader_listener_impl
-        @ee_data_loader_listener_impl || "#{base_package}.client.net.ee.#{self.name}EeDataLoaderListener"
-      end
-
       java_artifact :ee_data_loader_service_implementation, :comm, :server, :imit, '#{application.repository.name}#{name}DataLoaderServiceImpl'
       java_artifact :ee_data_loader_rest_service, :rest, :server, :imit, '#{application.repository.name}#{name}DataLoaderServiceRestService'
     end
@@ -242,51 +236,6 @@ module Domgen
         Domgen.error("Graph '#{self.name}' requires type graph #{graph_key} multiple times.") if @required_type_graphs.include?(graph)
         @required_type_graphs << graph
         graph.send(:add_dependent_type_graph, self)
-      end
-
-      def subscribe_started_message(create = false)
-        graph_message('SubscribeStarted', create)
-      end
-
-      def subscribe_completed_message(create = false)
-        graph_message('SubscribeCompleted', create)
-      end
-
-      def subscribe_failed_message(create = false)
-        graph_message('SubscribeFailed', create)
-      end
-
-      def update_started_message(create = false)
-        graph_message('UpdateStarted', create)
-      end
-
-      def update_completed_message(create = false)
-        graph_message('UpdateCompleted', create)
-      end
-
-      def update_failed_message(create = false)
-        graph_message('UpdateFailed', create)
-      end
-
-      def unsubscribe_started_message(create = false)
-        graph_message('UnsubscribeStarted', create)
-      end
-
-      def unsubscribe_completed_message(create = false)
-        graph_message('UnsubscribeCompleted', create)
-      end
-
-      def unsubscribe_failed_message(create = false)
-        graph_message('UnsubscribeFailed', create)
-      end
-
-      def graph_message(suffix, create)
-        data_module = application.repository.data_module_by_name(application.repository.imit.imit_control_data_module)
-        name = :"#{self.name}#{suffix}"
-        message = create ? data_module.message(name) : data_module.message_by_name(name)
-        message.imit.subscription_message = true
-        message.ee.generate_test_literal = false
-        message
       end
 
       def post_verify
@@ -666,7 +615,6 @@ module Domgen
       java_artifact :replicant_module, :modules, nil, :gwt, '#{repository.name}ReplicantSupport'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
       java_artifact :ee_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}EeDataLoaderService', :sub_package => 'ee'
-      java_artifact :ee_data_loader_listener, :comm, :client, :imit, '#{repository.name}EeDataLoaderListener', :sub_package => 'ee'
       java_artifact :ee_data_loader_service, :comm, :client, :imit, '#{ee_data_loader_service_interface_name}Impl', :sub_package => 'ee'
       java_artifact :abstract_ee_data_loader_service, :comm, :client, :imit, 'Abstract#{ee_data_loader_service_name}', :sub_package => 'ee'
       java_artifact :ee_client_session_context, :comm, :client, :imit, '#{repository.name}EeSessionContext', :sub_package => 'ee'
@@ -674,7 +622,6 @@ module Domgen
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :gwt_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}GwtDataLoaderService'
       java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{gwt_data_loader_service_interface_name}Impl'
-      java_artifact :gwt_data_loader_listener, :comm, :client, :imit, '#{repository.name}GwtDataLoaderListener'
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
       java_artifact :client_router_impl, :comm, :client, :imit, '#{client_router_interface_name}Impl'
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
@@ -932,41 +879,6 @@ module Domgen
               toprocess << struct unless toprocess.include?(struct)
             end
           end
-          subscribe_started_message = graph.subscribe_started_message(true)
-          subscribe_completed_message = graph.subscribe_completed_message(true)
-          subscribe_failed_message = graph.subscribe_failed_message(true)
-
-          if !graph.filter_parameter.nil? && !graph.filter_parameter.immutable?
-            update_started_message = graph.update_started_message(true)
-            update_completed_message = graph.update_completed_message(true)
-            update_failed_message = graph.update_failed_message(true)
-          end
-          unsubscribe_started_message = graph.unsubscribe_started_message(true)
-          unsubscribe_completed_message = graph.unsubscribe_completed_message(true)
-          unsubscribe_failed_message = graph.unsubscribe_failed_message(true)
-
-          if graph.instance_root?
-            root = repository.entity_by_name(graph.instance_root)
-            attribute_type = root.primary_key.attribute_type
-
-            subscribe_started_message.parameter(:Id, attribute_type)
-            subscribe_completed_message.parameter(root.name, root.arez.qualified_name)
-            subscribe_failed_message.parameter(:Id, attribute_type)
-            if !graph.filter_parameter.nil? && !graph.filter_parameter.immutable?
-              update_started_message.parameter(root.name, root.arez.qualified_name)
-              update_completed_message.parameter(root.name, root.arez.qualified_name)
-              update_failed_message.parameter(root.name, root.arez.qualified_name)
-            end
-            unsubscribe_started_message.parameter(:Id, attribute_type)
-            unsubscribe_completed_message.parameter(:Id, attribute_type)
-            unsubscribe_failed_message.parameter(:Id, attribute_type)
-          end
-
-          subscribe_failed_message.parameter(:Error, 'java.lang.Throwable')
-          if !graph.filter_parameter.nil? && !graph.filter_parameter.immutable?
-            update_failed_message.parameter(:Error, 'java.lang.Throwable')
-          end
-          unsubscribe_failed_message.parameter(:Error, 'java.lang.Throwable')
         end
 
         process_filter_structs([], toprocess)
