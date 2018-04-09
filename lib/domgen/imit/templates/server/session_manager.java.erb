@@ -190,7 +190,7 @@ entities.uniq.each do |entity| -%>
      next if processed.include?(key)
      processed << key
 -%>
-    if( iris.calendar.shared.net.CalendarReplicationGraph.RESOURCE.ordinal() == descriptor.getChannelID() )
+    if( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>.ordinal() == descriptor.getChannelID() )
     {
       assert null != filter;
       propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( session, (<%= root_type %>) descriptor.getSubChannelID(), (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter, changeSet );
