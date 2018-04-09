@@ -42,7 +42,7 @@ DATA
      data += "   * </ul>\n"
    end
 
-   if g.instance_root? && g.outward_graph_links.select{|graph_link| graph_link.auto?}.size > 0
+   if g.outward_graph_links.select{|graph_link| graph_link.auto?}.size > 0
      data += "   * <p>It links to the following instance graphs automatically:</p>\n"
      data += "   * <ul>\n"
      g.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
@@ -50,7 +50,7 @@ DATA
      end
      data += "   * </ul>\n"
    end
-   if g.instance_root? && g.outward_graph_links.select{|graph_link| !graph_link.auto?}.size > 0
+   if g.outward_graph_links.select{|graph_link| !graph_link.auto?}.size > 0
      data += "   * <p>It links to the following instance graphs via code:</p>\n"
      data += "   * <ul>\n"
      g.outward_graph_links.select{|graph_link| !graph_link.auto?}.each do |graph_link|

@@ -170,7 +170,6 @@ module Domgen
       end
 
       def outward_graph_links
-        Domgen.error("outward_graph_links invoked for graph #{name} when not instance based") if 0 != @type_roots.size
         @outward_graph_links.values
       end
 
@@ -249,7 +248,7 @@ module Domgen
           elsif target_graph.filtered? && self.filtered? && !target_graph.filter_parameter.equiv?(self.filter_parameter)
             Domgen.error("Graph '#{self.name}' has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' but has a different filter. This is not supported.")
           end
-        end if self.instance_root?
+        end
 
         rtgs = self.required_type_graphs
 
@@ -329,6 +328,7 @@ module Domgen
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(source_graph).send(:register_outward_graph_link, self)
         repository.imit.graph_by_name(target_graph).send(:register_inward_graph_link, self)
+        self.exclude_target = false unless repository.imit.graph_by_name(target_graph).instance_root?
         self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph if self.exclude_target?
       end
 
@@ -1099,7 +1099,7 @@ CONTENT
             end
 
             s.method(:"GetLinksToUpdateFor#{graph_link.source_graph}To#{target_graph.name}") do |m|
-              m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => :Entity)
+              m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => :Entity) if source_graph.instance_root?
               m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
               m.returns(:reference, :referenced_entity => instance_root, :collection_type => :sequence)
             end
