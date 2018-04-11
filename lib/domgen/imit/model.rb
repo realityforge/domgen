@@ -422,17 +422,8 @@ module Domgen
 
       def path=(path)
         Domgen.error("Path parameter '#{path.inspect}' specified for routing key #{name} on #{imit_attribute.attribute.name} is not an array") unless path.is_a?(Array)
-        a = imit_attribute.attribute
-        if path.size > 0
-          Domgen.error("Path parameter '#{path.inspect}' specified for routing key #{name} on #{imit_attribute.attribute.name} when initial attribute is not a reference") unless a.reference?
-          path.each do |path_key|
-            self.multivalued = true if is_path_element_recursive?(path_key)
-            path_element = get_attribute_name_from_path_element?(path_key)
-            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribute of #{a.referenced_entity.qualified_name}") unless a.referenced_entity.attribute_by_name?(path_element)
-            a = a.referenced_entity.attribute_by_name(path_element)
-            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
-            Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not immutable #{a.qualified_name}") unless a.immutable?
-          end
+        path.each do |path_key|
+          self.multivalued = true if is_inverse_path_element?(path_key) || is_path_element_recursive?(path_key)
         end
         @path = path
       end
@@ -441,22 +432,26 @@ module Domgen
         path_element.to_s =~ /^\*.*/
       end
 
+      def is_inverse_path_element?(path_element)
+        path_element.to_s =~ /^\<.*/
+      end
+
       def get_attribute_name_from_path_element?(path_element)
-        is_path_element_recursive?(path_element) ? path_element[1, path_element.length] : path_element
+        is_inverse_path_element?(path_element) || is_path_element_recursive?(path_element) ? path_element[1, path_element.length] : path_element
       end
 
       # The name of the attribute that is used in referenced entity. This
       # will raise an exception if the initial attribute is not a reference, otherwise
       # it must match a name in the target entity
       def attribute_name
-        Domgen.error("attribute_name invoked for routing key #{name} on #{imit_attribute.attribute.name} when attribute is not a reference") unless reference?
+        Domgen.error("attribute_name invoked for routing key #{name} on #{imit_attribute.attribute.name} when attribute is not a reference or inverse reference") unless reference? || inverse_start?
         return @attribute_name unless @attribute_name.nil?
         referenced_entity.primary_key.name
       end
 
       def attribute_name=(attribute_name)
         unless attribute_name.nil?
-          Domgen.error("attribute_name parameter '#{attribute_name.inspect}' specified for routing key #{name} on #{imit_attribute.attribute.name} used when attribute is not a reference") unless reference?
+          Domgen.error("attribute_name parameter '#{attribute_name.inspect}' specified for routing key #{name} on #{imit_attribute.attribute.name} used when attribute is not a reference or inverse reference") unless reference? || inverse_start?
         end
         @attribute_name = attribute_name
       end
@@ -466,17 +461,29 @@ module Domgen
       end
 
       def referenced_entity
-        Domgen.error("referenced_entity invoked on routing key #{name} on #{imit_attribute.attribute.name} when attribute is not a reference") unless reference?
+        Domgen.error("referenced_entity invoked on routing key #{name} on #{imit_attribute.attribute.name} when attribute is not a reference or inverse reference") unless reference? || inverse_start?
         return self.imit_attribute.attribute.referenced_entity if self.imit_attribute.attribute.reference?
         a = imit_attribute.attribute
+        e = a.entity
         path.each do |path_element|
-          a = a.referenced_entity.attribute_by_name(get_attribute_name_from_path_element?(path_element))
+          attr_name = get_attribute_name_from_path_element?(path_element)
+          if is_inverse_path_element?(path_element)
+            a = e.arez.referencing_client_side_attributes.select {|attr| attr.inverse.name.to_s == attr_name.to_s}[0]
+            e = a.entity
+          else
+            a = e.attribute_by_name(attr_name)
+            e = a.referenced_entity
+          end
         end
-        a.referenced_entity
+        e
+      end
+
+      def inverse_start?
+        self.imit_attribute.attribute.primary_key? && self.path.size > 0
       end
 
       def target_attribute
-        self.reference? ? self.referenced_entity.attribute_by_name(self.attribute_name) : self.imit_attribute.attribute
+        (!self.inverse_start? && self.reference?) ? self.referenced_entity.attribute_by_name(self.attribute_name) : self.imit_attribute.attribute
       end
 
       attr_writer :multivalued
@@ -487,11 +494,13 @@ module Domgen
 
       def target_nullsafe?
         return true unless self.reference?
+        return false if self.inverse_start?
         return self.imit_attribute.attribute.reference? if self.path.size == 0
 
         a = imit_attribute.attribute
         self.path.each do |path_element|
           return false if is_path_element_recursive?(path_element)
+          return false if is_inverse_path_element?(path_element)
           a = a.referenced_entity.attribute_by_name(get_attribute_name_from_path_element?(path_element))
           return false if a.nullable?
         end
@@ -501,6 +510,30 @@ module Domgen
       def post_verify
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that is not filtered.") unless self.graph.filtered?
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that entity is not currently part of.") unless self.graph.included_entities.include?(self.imit_attribute.attribute.entity.qualified_name)
+
+        if self.path.size > 0
+          a = self.imit_attribute.attribute
+          e = a.entity
+          path.each do |path_key|
+            is_inverse = is_inverse_path_element?(path_key)
+            path_element = get_attribute_name_from_path_element?(path_key)
+
+            if is_inverse
+              candidates = e.arez.referencing_client_side_attributes.select {|attr| attr.inverse.name.to_s == path_element.to_s}
+              Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not reference a client side attribute") if candidates.empty?
+              a = candidates[0]
+              e = a.entity
+              Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} inverse reference is not immutable #{a.qualified_name}") unless a.immutable?
+              Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} inverse reference is not multiplicity :many. This has not been implemented yet") unless a.inverse.multiplicity == :many
+            else
+              Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribute of #{e.qualified_name}") unless e.attribute_by_name?(path_element)
+              a = e.attribute_by_name(path_element)
+              e = a.referenced_entity
+              Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
+              Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not immutable #{a.qualified_name}") unless a.immutable?
+            end
+          end
+        end
       end
     end
 
