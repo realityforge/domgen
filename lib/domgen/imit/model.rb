@@ -446,7 +446,7 @@ module Domgen
       end
 
       # The name of the attribute that is used in referenced entity. This
-      # must be null if the initial attribute is not a reference, otherwise
+      # will raise an exception if the initial attribute is not a reference, otherwise
       # it must match a name in the target entity
       def attribute_name
         Domgen.error("attribute_name invoked for routing key #{name} on #{imit_attribute.attribute.name} when attribute is not a reference") unless reference?
@@ -993,7 +993,7 @@ CONTENT
                     }
                   options[:referenced_entity] = routing_key.target_attribute.referenced_entity if routing_key.target_attribute.reference?
                   options[:referenced_struct] = routing_key.target_attribute.referenced_struct if routing_key.target_attribute.struct?
-                  m.parameter(routing_key.name.gsub('_', ''),
+                  m.parameter(routing_key.name.to_s.gsub('_', ''),
                               routing_key.target_attribute.attribute_type,
                               options)
                 end
