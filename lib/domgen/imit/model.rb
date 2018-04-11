@@ -296,7 +296,8 @@ module Domgen
       end
 
       def register_outward_graph_link(graph_link)
-        key = graph_link.imit_attribute.attribute.qualified_name.to_s
+        to_graph = graph_link.target_graph
+        key = "#{to_graph}-#{graph_link.imit_attribute.attribute.qualified_name.to_s}"
         Domgen.error("Attempted to register duplicate outward graph link on attribute '#{graph_link.imit_attribute.attribute.qualified_name}' on graph '#{self.name}'") if @outward_graph_links[key]
         @outward_graph_links[key] = graph_link
       end
