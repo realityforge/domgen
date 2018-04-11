@@ -490,7 +490,7 @@ module Domgen
         return self.imit_attribute.attribute.reference? if self.path.size == 0
 
         a = imit_attribute.attribute
-        path.each do |path_element|
+        self.path.each do |path_element|
           return false if is_path_element_recursive?(path_element)
           a = a.referenced_entity.attribute_by_name(get_attribute_name_from_path_element?(path_element))
           return false if a.nullable?
