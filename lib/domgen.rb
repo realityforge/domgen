@@ -190,3 +190,5 @@ require 'domgen/arez/generator'
 
 require 'domgen/sql_analysis/model'
 require 'domgen/sql_analysis/generator'
+
+require 'domgen/react4j/model'
