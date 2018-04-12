@@ -45,6 +45,13 @@ Domgen::Generator.define([:imit],
                               'main/resources/#{repository.imit.qualified_replicant_module_name.gsub(".","/")}.gwt.xml')
   end
 
+  g.template_set(:imit_client_react4j_support) do |template_set|
+    template_set.erb_template('imit.graph',
+                              'client/gwt/react_subscription_component.java.erb',
+                              'main/java/#{graph.qualified_react4j_subscription_component_name.gsub(".","/")}.java',
+                              :additional_facets => [:react4j])
+  end
+
   g.template_set(:imit_client_entity_gwt) do |template_set|
     template_set.erb_template(:repository,
                               'client/gwt/gwt_runtime_extension.java.erb',

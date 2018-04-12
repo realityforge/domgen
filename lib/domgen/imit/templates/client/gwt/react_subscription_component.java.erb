@@ -1,0 +1,70 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(graph.qualified_react4j_subscription_component_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@react4j.annotations.ReactComponent
+public abstract class <%= graph.react4j_subscription_component_name %>
+  extends org.realityforge.replicant.client.react4j.AbstractGraphSubscriptionComponent
+{
+  @FunctionalInterface
+  public interface OnSuccessCallback
+  {
+    @javax.annotation.Nullable
+    react4j.core.ReactNode render( @javax.annotation.Nonnull org.realityforge.replicant.client.ChannelSubscriptionEntry entry<% if graph.instance_root? -%>, @javax.annotation.Nonnull <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> entity<% end -%> );
+  }
+<% if graph.instance_root? -%>
+
+  @react4j.annotations.Prop
+  abstract <%= graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.java_type %> getId();
+<% end -%>
+<% if graph.filtered? -%>
+
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
+<% end -%>
+
+  @react4j.annotations.Prop
+  @javax.annotation.Nullable
+  abstract OnSuccessCallback onSuccess();
+
+  @javax.annotation.Nullable
+  @java.lang.Override
+  protected react4j.core.ReactNode render()
+  {
+    return org.realityforge.replicant.client.react4j.ReplicantSubscriptionBuilder
+      .<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Object' %>>graph( <%= graph.application.repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> )
+<% if graph.instance_root? -%>
+      .instanceType( <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>.class )
+      .id( getId() )
+<% end -%>
+<% if graph.filtered? -%>
+      .filter( getFilter() )
+<% end -%>
+      .onNotAsked( onNotAsked() )
+      .onLoading( onLoading() )
+      .onSuccess( <%= graph.qualified_react4j_subscription_component_name %>_._onSuccessCallback( this ) )
+      .onFailure( onFailure() )
+      .build();
+  }
+
+  @react4j.annotations.Callback( org.realityforge.replicant.client.react4j.ReplicantSubscription.OnSuccessCallback.class )
+  react4j.core.ReactNode onSuccessCallback( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelSubscriptionEntry entry,
+                                            @javax.annotation.Nullable final java.lang.Object entity )
+  {
+<% if graph.instance_root? -%>
+    assert null != entity;
+<% else -%>
+    assert null == entity;
+<% end -%>
+    final OnSuccessCallback onSuccess = onSuccess();
+    if ( null != onSuccess )
+    {
+      return onSuccess.render( entry<% if graph.instance_root? -%>, (<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>) entity<% end -%> );
+    }
+    else
+    {
+      return null;
+    }
+  }
+}

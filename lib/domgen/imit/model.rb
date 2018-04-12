@@ -112,6 +112,13 @@ module Domgen
         super(application, options, &block)
       end
 
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
+
+      java_artifact :react4j_subscription_component, :component, :client, :imit, '#{name}GraphSubscription'
+
+      Domgen.target_manager.target(:graph, :repository, :facet_key => :imit, :access_method => :graphs)
+
       attr_reader :application
 
       attr_reader :name
@@ -605,6 +612,13 @@ module Domgen
       end
 
       attr_writer :secured
+
+      attr_writer :client_component_package
+
+      def client_component_package
+        @client_component_package || "#{client_package}.components"
+      end
+
 
       def client_ioc_package
         repository.gwt.client_ioc_package
