@@ -34,9 +34,6 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:repository,
                               'client/router_interface.java.erb',
                               'main/java/#{repository.imit.qualified_client_router_interface_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/runtime_extension.java.erb',
-                              'main/java/#{repository.imit.qualified_runtime_extension_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_client_entity_gwt_module) do |template_set|
@@ -54,9 +51,6 @@ Domgen::Generator.define([:imit],
 
   g.template_set(:imit_client_entity_gwt) do |template_set|
     template_set.erb_template(:repository,
-                              'client/gwt/gwt_runtime_extension.java.erb',
-                              'main/java/#{repository.imit.qualified_gwt_runtime_extension_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
                               'client/gwt/gwt_data_loader_service_interface.java.erb',
                               'main/java/#{repository.imit.qualified_gwt_data_loader_service_interface_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
@@ -68,9 +62,6 @@ Domgen::Generator.define([:imit],
   end
 
   g.template_set(:imit_client_entity_ee) do |template_set|
-    template_set.erb_template(:repository,
-                              'client/ee/ee_runtime_extension.java.erb',
-                              'main/java/#{repository.imit.qualified_ee_runtime_extension_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'client/ee/ee_data_loader_service_interface.java.erb',
                               'main/java/#{repository.imit.qualified_ee_data_loader_service_interface_name.gsub(".","/")}.java')
