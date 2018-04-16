@@ -108,6 +108,7 @@ module Domgen
         @outward_graph_links = Reality::OrderedHash.new
         @inward_graph_links = Reality::OrderedHash.new
         @routing_keys = Reality::OrderedHash.new
+        @visibility = :universal
         application.send :register_graph, name, self
         super(application, options, &block)
       end
@@ -133,6 +134,30 @@ module Domgen
 
       def cacheable=(cacheable)
         @cacheable = cacheable
+      end
+
+      def visibility=(visibility)
+        valid_values = [:external, :internal, :universal]
+        Domgen.error("Invalid visibility set on #{qualified_name}. Value: #{visibility}. Valid_values: #{valid_values}") unless valid_values.include?(visibility)
+        @visibility = visibility
+      end
+
+      def visibility
+        @visibility
+      end
+
+      def external_visibility?
+        self.visibility == :external || self.universal_visibility?
+      end
+
+      def internal_visibility?
+        self.visibility == :internal || self.universal_visibility?
+      end
+
+      # Default visibility is both internal and externally visible
+      # So a user can both subscribe to graph explicitly and a graph can graph_link to this graph
+      def universal_visibility?
+        self.visibility == :universal
       end
 
       def external_data_load?
