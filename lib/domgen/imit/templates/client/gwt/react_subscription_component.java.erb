@@ -12,6 +12,16 @@ public abstract class <%= graph.react4j_subscription_component_name %>
     @javax.annotation.Nullable
     react4j.core.ReactNode render( @javax.annotation.Nonnull org.realityforge.replicant.client.ChannelSubscriptionEntry entry<% if graph.instance_root? -%>, @javax.annotation.Nonnull <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> entity<% end -%> );
   }
+<% if graph.filtered? && !graph.filter_parameter.immutable? -%>
+
+  @FunctionalInterface
+  public interface OnUpdateCallback
+  {
+    @javax.annotation.Nullable
+    react4j.core.ReactNode render( @javax.annotation.Nonnull org.realityforge.replicant.client.ChannelSubscriptionEntry entry<% if graph.instance_root? -%>, @javax.annotation.Nonnull <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> entity<% end -%> );
+  }
+<% end -%>
+
 <% if graph.instance_root? -%>
 
   @react4j.annotations.Prop
@@ -27,6 +37,12 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   @react4j.annotations.Prop
   @javax.annotation.Nullable
   abstract OnSuccessCallback onSuccess();
+<% if graph.filtered? && !graph.filter_parameter.immutable? -%>
+
+  @react4j.annotations.Prop
+  @javax.annotation.Nullable
+  abstract OnUpdateCallback onUpdate();
+<% end -%>
 
   @javax.annotation.Nullable
   @java.lang.Override
@@ -34,6 +50,13 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   {
     return org.realityforge.replicant.client.react4j.ReplicantSubscriptionBuilder
       .<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Object' %>>graph( <%= graph.application.repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> )
+<% if graph.filtered? -%>
+      .expectFilter( true )
+      .expectFilterUpdates( <%= !graph.filter_parameter.immutable? %> )
+      .filter( getFilter() )
+<% else -%>
+      .expectFilter( false )
+<% end -%>
 <% if graph.instance_root? -%>
       .instanceType( <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>.class )
       .id( getId() )
@@ -44,6 +67,9 @@ public abstract class <%= graph.react4j_subscription_component_name %>
       .onNotAsked( onNotAsked() )
       .onLoading( onLoading() )
       .onSuccess( <%= graph.qualified_react4j_subscription_component_name %>_._onSuccessCallback( this ) )
+<% if graph.filtered? && !graph.filter_parameter.immutable? -%>
+      .onUpdate( <%= graph.qualified_react4j_subscription_component_name %>_._onUpdateCallback( this ) )
+<% end -%>
       .onFailure( onFailure() )
       .build();
   }
