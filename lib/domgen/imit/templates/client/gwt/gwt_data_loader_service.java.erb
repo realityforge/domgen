@@ -51,13 +51,6 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   }
 
   @javax.annotation.Nonnull
-  @java.lang.Override
-  protected org.realityforge.replicant.client.EntityLocator getEntityLocator()
-  {
-    return _entityLocator;
-  }
-
-  @javax.annotation.Nonnull
   protected String getEndpointOffset()
   {
     return "<%= repository.jaxrs? ? repository.jaxrs.path : 'api' -%>";
@@ -123,7 +116,7 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  public Class<java.lang.Enum> getGraphType()
+  public Class<java.lang.Enum> getSystemType()
   {
     return (Class<java.lang.Enum>) (Class) <%= repository.imit.qualified_graph_enum_name %>.class;
   }
@@ -137,17 +130,18 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
   @java.lang.Override
-  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelAddress descriptor,
+  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelAddress address,
                                            @javax.annotation.Nullable final Object rawFilter,
                                            @javax.annotation.Nonnull final Class<?> entityType,
                                            @javax.annotation.Nonnull final Object entityID )
   {
+    final java.lang.Enum channelType = address.getChannelType();
     <% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
-if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == descriptor.getGraph() )
+if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == channelType )
     {
       final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) rawFilter;
       assert null != filter;
-      final Object entity = getEntityLocator().getByID( entityType, entityID );
+      final Object entity = getSubscriptionManager().getEntitySubscription( entityType, entityID ).getEntity();
 <% if graph.instance_root? || (graph.filtered? && graph.routing_keys.size > 0) -%>
       final java.util.Map<java.lang.String, java.io.Serializable> route = _router.route( entity );
 <% end -%>
@@ -192,9 +186,9 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   @java.lang.Override
   protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
   {
-    final <%= repository.imit.qualified_graph_enum_name %> graph = (<%= repository.imit.qualified_graph_enum_name %>) entry.getChannel().getAddress().getGraph();
+    final <%= repository.imit.qualified_graph_enum_name %> channelType = (<%= repository.imit.qualified_graph_enum_name %>) entry.getChannel().getAddress().getChannelType();
     <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
--%>if( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == graph )
+-%>if( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == channelType )
     {
       int removedEntities = 0;
 <% graph.included_entities.reverse.each do |entity| -%>
