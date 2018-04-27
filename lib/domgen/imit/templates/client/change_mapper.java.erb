@@ -7,7 +7,7 @@ package <%= to_package(repository.imit.qualified_change_mapper_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.SingularField" } )
 public final class <%= repository.imit.change_mapper_name %>
-  implements org.realityforge.replicant.client.ChangeMapper
+  implements org.realityforge.replicant.client.transport.ChangeMapper
 {
 <% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module| -%>
 <% data_module.entities.select{|entity| entity.imit? && entity.concrete? }.each do |entity| -%>
@@ -25,7 +25,7 @@ public final class <%= repository.imit.change_mapper_name %>
 <% end %>
   }
 
-  public Object applyChange( final org.realityforge.replicant.client.Change change )
+  public Object applyChange( final org.realityforge.replicant.client.transport.Change change )
   {
     switch( change.getTypeID() )
     {

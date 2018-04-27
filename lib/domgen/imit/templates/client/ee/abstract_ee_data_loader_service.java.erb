@@ -120,7 +120,7 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
 <% end -%>
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected org.realityforge.replicant.client.ChangeMapper getChangeMapper()
+  protected org.realityforge.replicant.client.transport.ChangeMapper getChangeMapper()
   {
     return _changeMapper;
   }
@@ -147,7 +147,7 @@ public abstract class <%= repository.imit.abstract_ee_data_loader_service_name %
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
   @java.lang.Override
-  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelDescriptor descriptor,
+  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelAddress descriptor,
                                            @javax.annotation.Nullable final Object rawFilter,
                                            @javax.annotation.Nonnull final Class<?> entityType,
                                            @javax.annotation.Nonnull final Object entityID )
@@ -204,7 +204,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   {
 <% filtered_graphs = repository.imit.graphs.select{|g| g.filtered? } -%>
       <% filtered_graphs.each do |graph|
--%>if( entry.getDescriptor().getGraph() == <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> )
+-%>if( entry.getAddress().getGraph() == <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> )
     {
       int removedEntities = 0;
 <% graph.included_entities.reverse.each do |entity| -%>

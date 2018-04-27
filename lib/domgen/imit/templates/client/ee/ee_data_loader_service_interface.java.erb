@@ -21,24 +21,24 @@ public interface <%= repository.imit.ee_data_loader_service_interface_name %>
 -%>
   default boolean isSubscribedTo<%= graph.name %>(<%= graph_id_param %>)
   {
-    return isSubscribed( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> ) );
+    return isSubscribed( new org.realityforge.replicant.client.ChannelAddress( <%= key %><%= graph.instance_root? ? ", #{graph_id}" : '' %> ) );
   }
 
   default void subscribeTo<%= graph.name %>(<%= [graph_id_param, filter_param].compact.join(', ') %>)
   {
-    requestSubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), <%= filter_var %> );
+    requestSubscribe( new org.realityforge.replicant.client.ChannelAddress( <%= key %>, <%= graph_id %> ), <%= filter_var %> );
   }
 
 <% if graph.filter_parameter -%>
   default void update<%= graph.name %>Subscription(<%= [graph_id_param, filter_param].compact.join(', ') %>)
   {
-    requestSubscriptionUpdate( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ), filter );
+    requestSubscriptionUpdate( new org.realityforge.replicant.client.ChannelAddress( <%= key %>, <%= graph_id %> ), filter );
   }
 
 <% end -%>
   default void unsubscribeFrom<%= graph.name %>(<%= [graph_id_param].compact.join(', ') %>)
   {
-    requestUnsubscribe( new org.realityforge.replicant.client.ChannelDescriptor( <%= key %>, <%= graph_id %> ) );
+    requestUnsubscribe( new org.realityforge.replicant.client.ChannelAddress( <%= key %>, <%= graph_id %> ) );
   }
 <% end -%>
 }

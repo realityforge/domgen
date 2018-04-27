@@ -17,14 +17,6 @@ public class <%= repository.imit.services_dagger_module_name %>
   @javax.annotation.Nonnull
   @dagger.Provides
   @javax.inject.Singleton
-  public static <%= repository.imit.qualified_gwt_data_loader_service_interface_name %> provideDataLoader( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_data_loader_service_name %> service )
-  {
-    return service;
-  }
-
-  @javax.annotation.Nonnull
-  @dagger.Provides
-  @javax.inject.Singleton
   public static <%= repository.imit.qualified_gwt_client_session_context_name %> provideSessionContext( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_impl_name %> service )
   {
     return service;

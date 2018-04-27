@@ -38,7 +38,7 @@ public class <%= data_module.imit.mapper_name %>
 <% data_module.entities.select { |entity| entity.imit? }.each do |entity| -%>
 <% if entity.concrete? -%>
 
-  public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.Change change )
+  public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.transport.Change change )
   {
 <%
    designator_value =
@@ -97,18 +97,18 @@ public class <%= data_module.imit.mapper_name %>
       {
         updateAttributes<%= entity.name %>( entity, change );
       }
-      final org.realityforge.replicant.client.ChannelDescriptor[] descriptors = new org.realityforge.replicant.client.ChannelDescriptor[ change.getChannelCount() ];
+      final org.realityforge.replicant.client.ChannelAddress[] descriptors = new org.realityforge.replicant.client.ChannelAddress[ change.getChannelCount() ];
       for ( int i = 0; i < descriptors.length; i++ )
       {
-        descriptors[i] = new org.realityforge.replicant.client.ChannelDescriptor( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[change.getChannelID( i )], change.getSubChannelID( i ) );
+        descriptors[i] = new org.realityforge.replicant.client.ChannelAddress( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[change.getChannelID( i )], change.getSubChannelID( i ) );
       }
-      _subscriptionManager.updateEntity( <%= entity.arez.name %>.class, designator, descriptors );
+      _subscriptionManager.updateEntity( <%= entity.arez.name %>.class, designator, descriptors, entity );
     }
     return entity;
   }
 
 <% end %>
-  private void updateAttributes<%= entity.name %>( final <%= entity.arez.name %> entity, final org.realityforge.replicant.client.Change change )
+  private void updateAttributes<%= entity.name %>( final <%= entity.arez.name %> entity, final org.realityforge.replicant.client.transport.Change change )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends) -%>
