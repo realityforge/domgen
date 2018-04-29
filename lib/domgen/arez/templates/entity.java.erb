@@ -378,15 +378,21 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
 
   protected final void checkValidity()
   {
-    org.realityforge.braincheck.Guards.invariant( () -> !arez.Disposable.isDisposed( this ),
-                                                  () -> "Method invoked on invalid imitation of type <%= entity.arez.name %>" );
+    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
+    {
+      org.realityforge.braincheck.Guards.invariant( () -> !arez.Disposable.isDisposed( this ),
+                                                    () -> "Method invoked on invalid imitation of type <%= entity.arez.name %>" );
+    }
   }
 
   protected final void checkLinked()
   {
     checkValidity();
-    org.realityforge.braincheck.Guards.invariant( () -> _$linked,
-                                                  () -> "Method invoked on unlinked imitation of type <%= entity.arez.name %>" );
+    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
+    {
+      org.realityforge.braincheck.Guards.invariant( () -> _$linked,
+                                                    () -> "Method invoked on unlinked imitation of type <%= entity.arez.name %>" );
+    }
   }
 
   @java.lang.Override
