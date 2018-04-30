@@ -26,10 +26,10 @@ public class <%= data_module.imit.mapper_name %>
 
   private final org.realityforge.replicant.client.EntityLocator _entityLocator;
   private final <%= data_module.arez.qualified_data_module_repository_name %> _repository;
-  private final org.realityforge.replicant.client.EntitySubscriptionManager _subscriptionManager;
+  private final org.realityforge.replicant.client.subscription.EntitySubscriptionManager _subscriptionManager;
 
   @javax.inject.Inject
-  public <%= data_module.imit.mapper_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= data_module.arez.qualified_data_module_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager )
+  public <%= data_module.imit.mapper_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= data_module.arez.qualified_data_module_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.EntitySubscriptionManager subscriptionManager )
   {
     _entityLocator = java.util.Objects.requireNonNull( entityLocator );
     _repository = java.util.Objects.requireNonNull( repository );

@@ -36,7 +36,7 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   private final org.realityforge.replicant.client.EntityLocator _entityLocator;
 
   @javax.inject.Inject
-  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager entitySubscriptionManager, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
+  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.EntitySubscriptionManager entitySubscriptionManager, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
   {
     super( <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext(), entitySubscriptionManager, cacheService );
     _context  = context;
@@ -184,7 +184,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   }
 
   @java.lang.Override
-  protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
+  protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
   {
     final <%= repository.imit.qualified_graph_enum_name %> channelType = (<%= repository.imit.qualified_graph_enum_name %>) entry.getChannel().getAddress().getChannelType();
     <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
@@ -193,7 +193,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
       int removedEntities = 0;
 <% graph.included_entities.reverse.each do |entity| -%>
       {
-        final java.util.Map<Object, org.realityforge.replicant.client.EntitySubscriptionEntry> map = entry.getEntities().get( <%= repository.entity_by_name(entity).arez.qualified_name %>.class );
+        final java.util.Map<Object, org.realityforge.replicant.client.subscription.EntitySubscriptionEntry> map = entry.getEntities().get( <%= repository.entity_by_name(entity).arez.qualified_name %>.class );
         if( null != map )
         {
           removedEntities += updateSubscriptionForFilteredEntities( entry, filter, map.values() );
