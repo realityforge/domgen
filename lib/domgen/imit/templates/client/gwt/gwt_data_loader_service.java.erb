@@ -184,23 +184,15 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   }
 
   @java.lang.Override
-  protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.Subscription entry, @javax.annotation.Nullable final Object filter )
+  protected void updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.Subscription entry, @javax.annotation.Nullable final Object filter )
   {
     final <%= repository.imit.qualified_graph_enum_name %> channelType = (<%= repository.imit.qualified_graph_enum_name %>) entry.getChannel().getAddress().getChannelType();
     <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
 -%>if( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == channelType )
     {
-      int removedEntities = 0;
 <% graph.included_entities.reverse.each do |entity| -%>
-      {
-        final java.util.Map<Object, org.realityforge.replicant.client.subscription.Entity> map = entry.getEntities().get( <%= repository.entity_by_name(entity).arez.qualified_name %>.class );
-        if( null != map )
-        {
-          removedEntities += updateSubscriptionForFilteredEntities( entry, filter, map.values() );
-        }
-      }
+      updateSubscriptionForFilteredEntities( entry, filter, entry.findAllEntitiesByType( <%= repository.entity_by_name(entity).arez.qualified_name %>.class ) );
 <% end -%>
-      return removedEntities;
     }
     else <% end
 -%>
