@@ -18,7 +18,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   public interface OnUpdateCallback
   {
     @javax.annotation.Nullable
-    react4j.core.ReactNode render( @javax.annotation.Nonnull org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry entry<% if graph.instance_root? -%>, @javax.annotation.Nonnull <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> entity<% end -%> );
+    react4j.core.ReactNode render( @javax.annotation.Nonnull org.realityforge.replicant.client.subscription.Subscription entry<% if graph.instance_root? -%>, @javax.annotation.Nonnull <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> entity<% end -%> );
   }
 <% end -%>
 

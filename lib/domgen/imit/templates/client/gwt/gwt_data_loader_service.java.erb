@@ -184,7 +184,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   }
 
   @java.lang.Override
-  protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
+  protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.Subscription entry, @javax.annotation.Nullable final Object filter )
   {
     final <%= repository.imit.qualified_graph_enum_name %> channelType = (<%= repository.imit.qualified_graph_enum_name %>) entry.getChannel().getAddress().getChannelType();
     <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
