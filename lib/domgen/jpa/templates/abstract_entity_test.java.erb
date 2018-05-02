@@ -17,9 +17,6 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     throws Exception
   {
     super.preTest();
-<% if repository.application.remote_references_included?-%>
-    org.realityforge.replicant.client.test.ee.ReplicantEntityCustomizer.configure( em(), s( org.realityforge.replicant.client.EntitySystem.class ) );
-<% end -%>
 <% repository.jpa.test_factories.each do |short_code, classname| -%>
     <%= short_code %> = s( <%= classname %>.class );
 <% end -%>

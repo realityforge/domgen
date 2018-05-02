@@ -59,19 +59,6 @@ Domgen::Generator.define([:imit],
                               'main/java/#{repository.imit.qualified_gwt_data_loader_service_name.gsub(".","/")}.java')
   end
 
-  g.template_set(:imit_client_entity_ee) do |template_set|
-    template_set.erb_template(:repository,
-                              'client/ee/ee_data_loader_service_interface.java.erb',
-                              'main/java/#{repository.imit.qualified_ee_data_loader_service_interface_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/ee/session_context.java.erb',
-                              'main/java/#{repository.imit.qualified_ee_client_session_context_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/ee/abstract_ee_data_loader_service.java.erb',
-                              'main/java/#{repository.imit.qualified_abstract_ee_data_loader_service_name.gsub(".","/")}.java',
-                              :additional_helpers => [Domgen::Jws::Helper])
-  end
-
   g.template_set(:imit_client_service) do |template_set|
     template_set.erb_template(:service,
                               'client/service.java.erb',
@@ -115,27 +102,6 @@ Domgen::Generator.define([:imit],
                                 type + '/java/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
                                 :additional_facets => [:gwt_rpc])
     end
-
-    g.template_set(:"imit_client_#{type}_ee_qa_external") do |template_set|
-      template_set.erb_template(:repository,
-                                'client/ee/ee_complete_module.java.erb',
-                                type + '/java/#{repository.imit.qualified_ee_complete_module_name.gsub(".","/")}.java')
-    end
-  end
-
-  g.template_set(:imit_server_ee_client) do |template_set|
-    template_set.erb_template(:repository,
-                              'client/ee/abstract_ee_client_system_implementation.java.erb',
-                              'main/java/#{repository.imit.qualified_abstract_ee_client_system_implementation_name.gsub(".","/")}.java',
-                              :guard => 'repository.imit.remote_datasources?')
-    template_set.erb_template(:repository,
-                              'client/ee/ee_client_system_implementation.java.erb',
-                              'main/java/#{repository.imit.qualified_ee_client_system_implementation_name.gsub(".","/")}.java',
-                              :guard => 'repository.imit.remote_datasources? && !repository.imit.custom_client_system?')
-    template_set.erb_template(:repository,
-                              'client/ee/ee_context_converger_implementation.java.erb',
-                              'main/java/#{repository.imit.qualified_ee_context_converger_implementation_name.gsub(".","/")}.java',
-                              :guard => 'repository.imit.remote_datasources?')
   end
 end
 
@@ -212,10 +178,6 @@ Domgen::Generator.define([:imit, :jpa],
     template_set.erb_template('imit.remote_datasource',
                               'ee_data_loader_rest_service.java.erb',
                               'main/java/#{remote_datasource.qualified_ee_data_loader_rest_service_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'ee_client_resources.java.erb',
-                              'main/java/#{repository.imit.qualified_ee_client_resources_name.gsub(".","/")}.java',
-                              :guard => 'repository.imit.remote_datasources.size > 0')
   end
 
   g.template_set(:imit_server_qa) do |template_set|

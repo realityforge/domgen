@@ -677,17 +677,9 @@ module Domgen
         repository.gwt.modules_package
       end
 
-      java_artifact :abstract_ee_client_system_implementation, :comm, :server, :imit, 'Abstract#{repository.name}ReplicantClientSystemImpl'
-      java_artifact :ee_client_system_implementation, :comm, :server, :imit, '#{repository.name}ReplicantClientSystemImpl'
-      java_artifact :ee_context_converger_implementation, :comm, :server, :imit, '#{repository.name}ContextConvergerImpl'
-      java_artifact :ee_complete_module, :test, :client, :imit, '#{repository.name}EeModule', :sub_package => 'util'
       java_artifact :gwt_complete_module, :test, :client, :imit, '#{repository.name}GwtModule', :sub_package => 'util'
       java_artifact :replicant_module, :modules, nil, :gwt, '#{repository.name}ReplicantSupport'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
-      java_artifact :ee_data_loader_service_interface, :comm, :client, :imit, '#{repository.name}EeDataLoaderService', :sub_package => 'ee'
-      java_artifact :ee_data_loader_service, :comm, :client, :imit, '#{ee_data_loader_service_interface_name}Impl', :sub_package => 'ee'
-      java_artifact :abstract_ee_data_loader_service, :comm, :client, :imit, 'Abstract#{ee_data_loader_service_name}', :sub_package => 'ee'
-      java_artifact :ee_client_session_context, :comm, :client, :imit, '#{repository.name}EeSessionContext', :sub_package => 'ee'
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :gwt_data_loader_service, :comm, :client, :imit, '#{repository.name}GwtDataLoaderServiceImpl'
@@ -711,7 +703,6 @@ module Domgen
       java_artifact :replication_interceptor, :comm, :server, :imit, '#{repository.name}ReplicationInterceptor'
       java_artifact :graph_encoder, :comm, :server, :imit, '#{repository.name}GraphEncoder'
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{graph_encoder_name}Impl'
-      java_artifact :ee_client_resources, :comm, :server, :imit, '#{repository.name}ReplicantClientResources'
       java_artifact :services_dagger_module, :ioc, :client, :imit, '#{repository.name}ImitServicesDaggerModule'
       java_artifact :mock_services_module, :test, :client, :imit, '#{repository.name}MockImitServicesModule', :sub_package => 'util'
       java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ReplicantClientTest', :sub_package => 'util'

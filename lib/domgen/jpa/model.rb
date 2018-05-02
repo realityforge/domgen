@@ -664,9 +664,6 @@ FRAGMENT
         add_test_module(persistent_test_module_name, qualified_persistent_test_module_name) if repository.jpa.include_default_unit?
         add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         add_test_module(dao_module_name, qualified_dao_module_name)
-        if repository.application.remote_references_included?
-          add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
-        end
         standalone_persistence_units.select {|unit| unit.mock_test_mode?}.each do |unit|
           add_test_module("#{unit.unit_name}PersistenceModule",
                           "org.realityforge.guiceyloops.server.MockPersistenceTestModule( #{qualified_unit_descriptor_name }.#{Reality::Naming.uppercase_constantize(unit.short_name)}_NAME )")
