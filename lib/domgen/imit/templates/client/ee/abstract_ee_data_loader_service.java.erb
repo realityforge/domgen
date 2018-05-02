@@ -209,7 +209,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
       int removedEntities = 0;
 <% graph.included_entities.reverse.each do |entity| -%>
       {
-        final java.util.Map<Object, org.realityforge.replicant.client.subscription.EntitySubscriptionEntry> map = entry.getEntities().get( <%= repository.entity_by_name(entity).imit.qualified_name %>.class );
+        final java.util.Map<Object, org.realityforge.replicant.client.subscription.Entity> map = entry.getEntities().get( <%= repository.entity_by_name(entity).imit.qualified_name %>.class );
         if( null != map )
         {
           removedEntities += updateSubscriptionForFilteredEntities( entry, filter, map.values() );

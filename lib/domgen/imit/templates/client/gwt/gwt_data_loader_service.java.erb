@@ -141,7 +141,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
     {
       final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) rawFilter;
       assert null != filter;
-      final Object entity = getSubscriptionManager().getEntitySubscription( entityType, entityID ).getEntity();
+      final Object entity = getSubscriptionManager().getEntity( entityType, entityID ).getUserObject();
 <% if graph.instance_root? || (graph.filtered? && graph.routing_keys.size > 0) -%>
       final java.util.Map<java.lang.String, java.io.Serializable> route = _router.route( entity );
 <% end -%>
@@ -193,7 +193,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
       int removedEntities = 0;
 <% graph.included_entities.reverse.each do |entity| -%>
       {
-        final java.util.Map<Object, org.realityforge.replicant.client.subscription.EntitySubscriptionEntry> map = entry.getEntities().get( <%= repository.entity_by_name(entity).arez.qualified_name %>.class );
+        final java.util.Map<Object, org.realityforge.replicant.client.subscription.Entity> map = entry.getEntities().get( <%= repository.entity_by_name(entity).arez.qualified_name %>.class );
         if( null != map )
         {
           removedEntities += updateSubscriptionForFilteredEntities( entry, filter, map.values() );
