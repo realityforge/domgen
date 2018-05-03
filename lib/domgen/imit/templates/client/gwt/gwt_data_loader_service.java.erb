@@ -36,12 +36,12 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   private final org.realityforge.replicant.client.EntityLocator _entityLocator;
 
   @javax.inject.Inject
-  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.EntitySubscriptionManager entitySubscriptionManager, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
+  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.EntityService entityService, @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.SubscriptionService subscriptionService, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
   {
-    super( <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext(), entitySubscriptionManager, cacheService );
+    super( subscriptionService, entityService, cacheService, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext() );
     _context  = context;
     _router = router;
-    _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( entityLocator, repository.#{Reality::Naming.camelize(data_module.name)}(), entitySubscriptionManager )" }.join(', ') %> );
+    _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( entityLocator, repository.#{Reality::Naming.camelize(data_module.name)}(), entityService, subscriptionService )" }.join(', ') %> );
     _entityLocator = entityLocator;
 <% repository.data_modules.select{|data_module| data_module.imit?}.each do |data_module| -%>
 <% data_module.entities.select{|entity| entity.imit?}.each do |entity| -%>
@@ -130,20 +130,19 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
   @java.lang.Override
-  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelAddress address,
-                                           @javax.annotation.Nullable final Object rawFilter,
-                                           @javax.annotation.Nonnull final Class<?> entityType,
-                                           @javax.annotation.Nonnull final Object entityID )
+  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final org.realityforge.replicant.client.Channel channel,
+                                           @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.Entity entity )
   {
-    final java.lang.Enum channelType = address.getChannelType();
+    final java.lang.Enum channelType = channel.getAddress().getChannelType();
     <% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
 if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == channelType )
     {
-      final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) rawFilter;
+      final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) channel.getFilter();
       assert null != filter;
-      final Object entity = getSubscriptionManager().getEntity( entityType, entityID ).getUserObject();
+      final Object userObject = entity.getUserObject();
+      assert null != userObject;
 <% if graph.instance_root? || (graph.filtered? && graph.routing_keys.size > 0) -%>
-      final java.util.Map<java.lang.String, java.io.Serializable> route = _router.route( entity );
+      final java.util.Map<java.lang.String, java.io.Serializable> route = _router.route( userObject );
 <% end -%>
 <%
   extra_interest_filter = ''
@@ -174,7 +173,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
     end
   end
 -%>
-      return _context.does<%= graph.name %>MatchEntity( filter, entity<%= extra_interest_filter %> );
+      return _context.does<%= graph.name %>MatchEntity( filter, userObject<%= extra_interest_filter %> );
     }
     else <% end -%>
 
