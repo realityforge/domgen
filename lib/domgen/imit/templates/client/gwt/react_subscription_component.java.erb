@@ -23,6 +23,12 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% end -%>
 
 <% if graph.instance_root? -%>
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected Class<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getInstanceType()
+  {
+    return <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>.class;
+  }
 
   @javax.annotation.Nonnull
   @react4j.annotations.Prop
