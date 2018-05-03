@@ -864,15 +864,9 @@ module Domgen
         @imit_control_data_module || (self.repository.data_module_by_name?(self.repository.name) ? self.repository.name : Domgen.error('imit_control_data_module unspecified and unable to derive default.'))
       end
 
-      attr_writer :support_ee_client
-
-      def support_ee_client?
-        @support_ee_client.nil? ? false : !!@support_ee_client
-      end
-
       # Facets that can be on serverside components
       def server_component_facets
-        [:ejb] + (support_ee_client? ? [:jws] : [])
+        [:ejb]
       end
 
       # Facets that can be on client/server pairs of generated components

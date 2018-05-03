@@ -54,21 +54,6 @@ def generate(repository)
     }
 
     define_context_service(data, repository.imit.context_service_jndi)
-
-    repository.imit.remote_datasources.each do |rd|
-      prefix = "#{application}/replicant/client/#{Reality::Naming.underscore(rd.name)}"
-      env_prefix = "#{constant_prefix}_REPLICANT_CLIENT_#{Reality::Naming.uppercase_constantize(rd.name)}"
-      data['environment_vars']["#{env_prefix}_URL"] = ''
-      data['environment_vars']["#{env_prefix}_REPOSITORYDEBUGOUTPUTENABLED"] = 'false'
-      data['environment_vars']["#{env_prefix}_SUBSCRIPTIONSDEBUGOUTPUTENABLED"] = 'false'
-      data['environment_vars']["#{env_prefix}_SHOULDVALIDATEREPOSITORYONLOAD"] = 'false'
-      data['environment_vars']["#{env_prefix}_REQUESTDEBUGOUTPUTENABLED"] = 'false'
-
-      define_custom_resource(data, "#{prefix}/url", "${#{env_prefix}_URL}")
-      define_custom_resource(data, "#{prefix}/subscriptionsDebugOutputEnabled", "${#{env_prefix}_SUBSCRIPTIONSDEBUGOUTPUTENABLED}", 'java.lang.Boolean')
-      define_custom_resource(data, "#{prefix}/shouldValidateRepositoryOnLoad", "${#{env_prefix}_SHOULDVALIDATEREPOSITORYONLOAD}", 'java.lang.Boolean')
-      define_custom_resource(data, "#{prefix}/requestDebugOutputEnabled", "${#{env_prefix}_REQUESTDEBUGOUTPUTENABLED}", 'java.lang.Boolean')
-    end
   end
 
   if repository.keycloak?
