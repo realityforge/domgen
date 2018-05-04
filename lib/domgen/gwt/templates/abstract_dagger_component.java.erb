@@ -12,6 +12,9 @@ public interface <%= repository.gwt.abstract_dagger_component_name %>
 
   @javax.annotation.Nonnull
   org.realityforge.replicant.client.runtime.ReplicantConnection getReplicantConnection();
+
+  @javax.annotation.Nonnull
+  org.realityforge.replicant.client.runtime.ReplicantClientSystem getReplicantClientSystem();
 <% end -%>
 <% if repository.iris_audit? -%>
 
