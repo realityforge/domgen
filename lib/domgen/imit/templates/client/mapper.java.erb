@@ -26,16 +26,12 @@ public class <%= data_module.imit.mapper_name %>
 
   private final org.realityforge.replicant.client.EntityLocator _entityLocator;
   private final <%= data_module.arez.qualified_data_module_repository_name %> _repository;
-  private final org.realityforge.replicant.client.subscription.EntityService _entityService;
-  private final org.realityforge.replicant.client.subscription.SubscriptionService _subscriptionService;
 
   @javax.inject.Inject
-  public <%= data_module.imit.mapper_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= data_module.arez.qualified_data_module_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.EntityService entityService, @javax.annotation.Nonnull final org.realityforge.replicant.client.subscription.SubscriptionService subscriptionService )
+  public <%= data_module.imit.mapper_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= data_module.arez.qualified_data_module_repository_name %> repository )
   {
     _entityLocator = java.util.Objects.requireNonNull( entityLocator );
     _repository = java.util.Objects.requireNonNull( repository );
-    _entityService = java.util.Objects.requireNonNull( entityService );
-    _subscriptionService = java.util.Objects.requireNonNull( subscriptionService );
   }
 <% data_module.entities.select { |entity| entity.imit? }.each do |entity| -%>
 <% if entity.concrete? -%>
@@ -99,12 +95,12 @@ public class <%= data_module.imit.mapper_name %>
       {
         updateAttributes<%= entity.name %>( entity, change );
       }
-      final org.realityforge.replicant.client.subscription.Entity e = _entityService.findOrCreateEntity( <%= entity.arez.name %>.class, designator );
+      final replicant.Entity e = replicant.Replicant.context().findOrCreateEntity( <%= entity.arez.name %>.class, designator );
       e.setUserObject( entity );
       final int changeCount = change.getChannelCount();
       for ( int i = 0; i < changeCount; i++ )
       {
-        final org.realityforge.replicant.client.subscription.Subscription subscription = _subscriptionService.findSubscription( new org.realityforge.replicant.client.ChannelAddress( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[change.getChannelID( i )], change.getSubChannelID( i ) ) );
+        final replicant.Subscription subscription = replicant.Replicant.context().findSubscription( new replicant.ChannelAddress( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[change.getChannelID( i )], change.getSubChannelID( i ) ) );
         // TODO: Improve handling of this error scenario
         assert null != subscription;
         e.linkToSubscription( subscription );
