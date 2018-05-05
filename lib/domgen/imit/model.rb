@@ -273,6 +273,12 @@ module Domgen
         if cacheable? && (filter_parameter || instance_root?)
           Domgen.error("Graph #{self.name} can not be marked as cacheable as cacheable graphs are not supported for instance based or filterable graphs")
         end
+        if self.instance_root?
+          instance_root = self.application.repository.entity_by_name(self.instance_root)
+          unless instance_root.primary_key.integer?
+            Domgen.error("Graph #{self.name} has an instance root #{self.instance_root} that has a primary key that is not an integer")
+          end
+        end
         self.outward_graph_links.select { |graph_link| graph_link.auto? }.each do |graph_link|
           target_graph = application.repository.imit.graph_by_name(graph_link.target_graph)
           if target_graph.filtered? && self.unfiltered?
