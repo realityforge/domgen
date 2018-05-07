@@ -38,26 +38,13 @@ public class <%= data_module.imit.mapper_name %>
 
   public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.transport.Change change )
   {
-<%
-   designator_value =
-        if entity.primary_key.imit.transport_characteristic_type_key == :integer
-          'change.getDesignatorAsInt()'
-        elsif entity.primary_key.imit.transport_characteristic_type_key == :text
-          'change.getDesignatorAsString()'
-        else
-          Domgen.error("Unable to convert data type #{entity.primary_key.imit.transport_characteristic_type_key} on #{entity.primary_key.qualified_name}")
-        end
--%>
-    final <%= entity.primary_key.arez.java_type(:transport, :assume_generated => true) %> designator = (<%= entity.primary_key.arez.java_type(:transport, :assume_generated => true) %>) <%= designator_value %>;
-    <%= entity.arez.name %> entity = _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().findBy<%= entity.primary_key.name %>( designator );
-    // If change is a delete...
+    final int $id = change.getId();
+    <%= entity.arez.name %> entity = _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().findBy<%= entity.primary_key.name %>( $id );
     if( change.isRemove() )
     {
       if( null != entity )
       {
-        // It is in the local repository so we need to delete it
         _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().destroy( entity );
-        arez.Disposable.dispose( entity );
       }
     }
     else
@@ -95,12 +82,12 @@ public class <%= data_module.imit.mapper_name %>
       {
         updateAttributes<%= entity.name %>( entity, change );
       }
-      final replicant.Entity e = replicant.Replicant.context().findOrCreateEntity( <%= entity.arez.name %>.class, designator );
+      final replicant.Entity e = replicant.Replicant.context().findOrCreateEntity( <%= entity.arez.name %>.class, $id );
       e.setUserObject( entity );
       final int changeCount = change.getChannelCount();
       for ( int i = 0; i < changeCount; i++ )
       {
-        final replicant.Subscription subscription = replicant.Replicant.context().findSubscription( new replicant.ChannelAddress( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[change.getChannelID( i )], change.getSubChannelID( i ) ) );
+        final replicant.Subscription subscription = replicant.Replicant.context().findSubscription( new replicant.ChannelAddress( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[change.getChannelId( i )], change.getSubChannelId( i ) ) );
         // TODO: Improve handling of this error scenario
         assert null != subscription;
         e.linkToSubscription( subscription );

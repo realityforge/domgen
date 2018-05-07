@@ -108,6 +108,6 @@ end
   @javax.annotation.Nonnull
   protected org.realityforge.replicant.server.EntityMessage convertToDeleteMessage( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message )
   {
-    return new org.realityforge.replicant.server.EntityMessage( message.getID(), message.getTypeID(), message.getTimestamp(), message.getRoutingKeys(), null, message.getLinks() );
+    return new org.realityforge.replicant.server.EntityMessage( message.getId(), message.getTypeId(), message.getTimestamp(), message.getRoutingKeys(), null, message.getLinks() );
   }
 }

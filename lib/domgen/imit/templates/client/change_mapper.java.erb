@@ -27,7 +27,7 @@ public final class <%= repository.imit.change_mapper_name %>
 
   public Object applyChange( final org.realityforge.replicant.client.transport.Change change )
   {
-    switch( change.getTypeID() )
+    switch( change.getTypeId() )
     {
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
@@ -39,7 +39,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   end
 end
 %>
-      default: throw new IllegalArgumentException( "Unknown typeID = " + change.getTypeID() );
+      default: throw new IllegalArgumentException( "Unknown typeID = " + change.getTypeId() );
     }
   }
 }
