@@ -218,6 +218,8 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   protected void prepareServices()
   {
 <% if repository.imit? -%>
+    // Converger needs to be explicitly instantiated so that the @Autorun on it starts.
+    ensureInjector().getConverger();
     ensureInjector().getReplicantClientSystem().activate();
 <% end -%>
   }
