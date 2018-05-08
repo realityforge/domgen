@@ -1,8 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.imit.qualified_gwt_data_loader_service_name) %>;
 
+@javax.inject.Singleton
+@arez.annotations.ArezComponent
 @java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable", "PMD.FieldDeclarationsShouldBeAtStartOfClass", "PMD.SingularField" } )
-public class <%= repository.imit.gwt_data_loader_service_name %>
+public abstract class <%= repository.imit.gwt_data_loader_service_name %>
   extends org.realityforge.replicant.client.gwt.<%= repository.imit.poll_replicate_mode? ? 'GwtWebPoller' : 'Gwt' %>DataLoaderService
 {
 <% if repository.keycloak? -%>
@@ -35,7 +37,6 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
   private final java.util.Set<Class<?>> _entityTypesRO = java.util.Collections.unmodifiableSet( _entityTypes );
   private final org.realityforge.replicant.client.EntityLocator _entityLocator;
 
-  @javax.inject.Inject
   public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
   {
     super( cacheService, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext() );
@@ -83,7 +84,7 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
 
   @java.lang.Override
   protected void performSubscribe( final int channel,
-                                   @javax.annotation.Nullable final java.io.Serializable subChannelID,
+                                   @javax.annotation.Nullable final java.lang.Integer subChannelId,
                                    @javax.annotation.Nullable final Object filterParameter,
                                    @javax.annotation.Nullable final String cacheKey,
                                    @javax.annotation.Nullable final String eTag,
@@ -91,13 +92,13 @@ public class <%= repository.imit.gwt_data_loader_service_name %>
                                    @javax.annotation.Nullable final java.lang.Runnable onCacheValid,
                                    @javax.annotation.Nonnull final java.util.function.Consumer<Throwable> onError )
   {
-    updateTokenAndExecute( () -> super.performSubscribe( channel, subChannelID, filterParameter, cacheKey, eTag, onSuccess, onCacheValid, onError ) );
+    updateTokenAndExecute( () -> super.performSubscribe( channel, subChannelId, filterParameter, cacheKey, eTag, onSuccess, onCacheValid, onError ) );
   }
 
   @java.lang.Override
-  protected void performUnsubscribe( final int channel, @javax.annotation.Nullable final java.io.Serializable subChannelID, @javax.annotation.Nonnull final java.lang.Runnable onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
+  protected void performUnsubscribe( final int channel, @javax.annotation.Nullable final java.lang.Integer subChannelId, @javax.annotation.Nonnull final java.lang.Runnable onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
   {
-    updateTokenAndExecute( () -> super.performUnsubscribe( channel, subChannelID, onSuccess, onError ) );
+    updateTokenAndExecute( () -> super.performUnsubscribe( channel, subChannelId, onSuccess, onError ) );
   }
 <% end -%>
 
