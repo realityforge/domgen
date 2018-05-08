@@ -37,9 +37,9 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
   private final java.util.Set<Class<?>> _entityTypesRO = java.util.Collections.unmodifiableSet( _entityTypes );
   private final org.realityforge.replicant.client.EntityLocator _entityLocator;
 
-  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
+  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.runtime.ReplicantClientSystem replicantClientSystem, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
   {
-    super( cacheService, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext() );
+    super( replicantClientSystem, cacheService, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext() );
     _context  = context;
     _router = router;
     _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( entityLocator, repository.#{Reality::Naming.camelize(data_module.name)}() )" }.join(', ') %> );
