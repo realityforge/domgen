@@ -110,13 +110,13 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
   @java.lang.Override
-  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final replicant.Channel channel, @javax.annotation.Nonnull final replicant.Entity entity )
+  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final replicant.ChannelAddress address, @javax.annotation.Nullable final Object rawFilter, @javax.annotation.Nonnull final replicant.Entity entity )
   {
-    final java.lang.Enum channelType = channel.getAddress().getChannelType();
+    final java.lang.Enum channelType = address.getChannelType();
     <% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
 if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == channelType )
     {
-      final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) channel.getFilter();
+      final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) rawFilter;
       assert null != filter;
       final Object userObject = entity.getUserObject();
       assert null != userObject;
@@ -164,7 +164,7 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
   @java.lang.Override
   protected void updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final replicant.Subscription entry, @javax.annotation.Nullable final Object filter )
   {
-    final <%= repository.imit.qualified_graph_enum_name %> channelType = (<%= repository.imit.qualified_graph_enum_name %>) entry.getChannel().getAddress().getChannelType();
+    final <%= repository.imit.qualified_graph_enum_name %> channelType = (<%= repository.imit.qualified_graph_enum_name %>) entry.getAddress().getChannelType();
     <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
 -%>if( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == channelType )
     {
