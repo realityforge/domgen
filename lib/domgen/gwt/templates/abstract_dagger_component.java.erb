@@ -8,17 +8,6 @@ public interface <%= repository.gwt.abstract_dagger_component_name %>
   @javax.annotation.Nonnull
   com.google.gwt.event.shared.EventBus getEventBus();
 <% end -%>
-<% if repository.imit? -%>
-
-  /**
-   * Autorun on this responsible for converging so need to be able to explicitly instantiate it.
-   */
-  @javax.annotation.Nonnull
-  org.realityforge.replicant.client.converger.Converger getConverger();
-
-  @javax.annotation.Nonnull
-  org.realityforge.replicant.client.runtime.ReplicantClientSystem getReplicantClientSystem();
-<% end -%>
 <% if repository.iris_audit? -%>
 
   @javax.annotation.Nonnull

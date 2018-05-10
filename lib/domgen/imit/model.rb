@@ -1215,7 +1215,6 @@ CONTENT
       def post_verify
         repository.gwt.entrypoints.each do |entrypoint|
           entrypoint.additional_dagger_modules << 'org.realityforge.replicant.client.gwt.ReplicantDaggerModule'
-          entrypoint.additional_dagger_modules << 'org.realityforge.replicant.client.gwt.ReplicantNetworkDaggerModule'
         end
       end
 

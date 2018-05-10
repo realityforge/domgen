@@ -33,22 +33,15 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
   @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_client_router_interface_name %> _router;
   private final <%= repository.imit.qualified_change_mapper_name %> _changeMapper;
-  private final java.util.HashSet<Class<?>> _entityTypes = new java.util.HashSet<>();
-  private final java.util.Set<Class<?>> _entityTypesRO = java.util.Collections.unmodifiableSet( _entityTypes );
   private final org.realityforge.replicant.client.EntityLocator _entityLocator;
 
-  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.runtime.ReplicantClientSystem replicantClientSystem, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
+  public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
   {
-    super( replicantClientSystem, cacheService, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext() );
+    super( replicant.Replicant.areZonesEnabled() ? replicant.Replicant.context() : null, <%= repository.imit.qualified_graph_enum_name %>.class, cacheService, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext() );
     _context  = context;
     _router = router;
     _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( entityLocator, repository.#{Reality::Naming.camelize(data_module.name)}() )" }.join(', ') %> );
     _entityLocator = entityLocator;
-<% repository.data_modules.select{|data_module| data_module.imit?}.each do |data_module| -%>
-<% data_module.entities.select{|entity| entity.imit?}.each do |entity| -%>
-    _entityTypes.add( <%= entity.arez.qualified_name %>.class );
-<% end -%>
-<% end -%>
   }
 
   @javax.annotation.Nonnull
@@ -71,15 +64,15 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
   }
 
   @java.lang.Override
-  protected void doConnect( @javax.annotation.Nullable final java.lang.Runnable runnable )
+  protected void doConnect( @javax.annotation.Nonnull final replicant.SafeProcedure action )
   {
-    updateTokenAndExecute( () -> super.doConnect( runnable ) );
+    updateTokenAndExecute( () -> super.doConnect( action ) );
   }
 
   @java.lang.Override
-  protected void doDisconnect( @javax.annotation.Nullable final Runnable runnable )
+  protected void doDisconnect( @javax.annotation.Nonnull final replicant.SafeProcedure action )
   {
-    updateTokenAndExecute( () -> super.doDisconnect( runnable ) );
+    updateTokenAndExecute( () -> super.doDisconnect( action ) );
   }
 
   @java.lang.Override
@@ -113,20 +106,6 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
       throw new <%= repository.exception_by_name(repository.imit.invalid_session_exception).imit.qualified_name %>( "Missing session." );
     }
     return session;
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  public Class<java.lang.Enum> getSystemType()
-  {
-    return (Class<java.lang.Enum>) (Class) <%= repository.imit.qualified_graph_enum_name %>.class;
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  public java.util.Set<Class<?>> getEntityTypes()
-  {
-    return _entityTypesRO;
   }
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
