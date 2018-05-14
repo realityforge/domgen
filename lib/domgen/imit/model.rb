@@ -993,11 +993,9 @@ module Domgen
 
 CONTENT
         add_test_class_content(test_content)
-        add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
         repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name) if repository.gwt?
          if repository.gwt?
            repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
-           repository.gwt.add_test_module('ReplicantClientTestModule', 'org.realityforge.replicant.client.test.ReplicantClientTestModule')
            repository.gwt.add_test_class_content(test_content)
          end
 

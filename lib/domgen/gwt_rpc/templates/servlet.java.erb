@@ -32,8 +32,8 @@ public class <%= service.gwt_rpc.servlet_name %>
 %>
   {
 <% if method.imit? -%>
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_HEADER ) );
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_HEADER ) );
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.SESSION_ID_HEADER ) );
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) );
     boolean headerSet = false;
 <% end -%>
 
@@ -170,7 +170,7 @@ end.join(', ') %>);
     catch ( final java.lang.RuntimeException e )
     {
       // Assume RuntimeExceptions cause a rollback and if the transaction has rolled back there will be no messages arriving
-      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, "1" );
+      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, "1" );
       headerSet = true;
       cause = e;
       throw e;
@@ -181,14 +181,14 @@ end.join(', ') %>);
 <% if method.imit? -%>
       if ( !headerSet )
       {
-        final String complete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY );
+        final String complete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.server.ServerConstants.REQUEST_COMPLETE_KEY );
         if( null != complete )
         {
-          getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, complete );
+          getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, complete );
         }
         else
         {
-          final String message = "Unable to find completion flag " + org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY + " in ReplicantContextHolder. Servlet expects to invoke service with replication interceptor enabled.";
+          final String message = "Unable to find completion flag " + org.realityforge.replicant.server.ServerConstants.REQUEST_COMPLETE_KEY + " in ReplicantContextHolder. Servlet expects to invoke service with replication interceptor enabled.";
           throw new IllegalStateException( message, cause );
         }
       }

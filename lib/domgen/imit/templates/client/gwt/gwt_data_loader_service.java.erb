@@ -81,15 +81,15 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
                                    @javax.annotation.Nullable final Object filterParameter,
                                    @javax.annotation.Nullable final String cacheKey,
                                    @javax.annotation.Nullable final String eTag,
-                                   @javax.annotation.Nonnull final java.lang.Runnable onSuccess,
-                                   @javax.annotation.Nullable final java.lang.Runnable onCacheValid,
+                                   @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess,
+                                   @javax.annotation.Nullable final replicant.SafeProcedure onCacheValid,
                                    @javax.annotation.Nonnull final java.util.function.Consumer<Throwable> onError )
   {
     updateTokenAndExecute( () -> super.performSubscribe( channel, subChannelId, filterParameter, cacheKey, eTag, onSuccess, onCacheValid, onError ) );
   }
 
   @java.lang.Override
-  protected void performUnsubscribe( final int channel, @javax.annotation.Nullable final java.lang.Integer subChannelId, @javax.annotation.Nonnull final java.lang.Runnable onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
+  protected void performUnsubscribe( final int channel, @javax.annotation.Nullable final java.lang.Integer subChannelId, @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
   {
     updateTokenAndExecute( () -> super.performUnsubscribe( channel, subChannelId, onSuccess, onError ) );
   }

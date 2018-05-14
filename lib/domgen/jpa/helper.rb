@@ -327,7 +327,7 @@ JAVA
         end
         if attribute.remote_reference?
           java << <<JAVA
-    if ( null != #{attribute.jpa.field_name} && #{attribute.jpa.field_name} instanceof org.realityforge.replicant.client.Linkable && !( (org.realityforge.replicant.client.Linkable) #{attribute.jpa.field_name} ).isValid() )
+    if ( null != #{attribute.jpa.field_name} && #{attribute.jpa.field_name} instanceof replicant.Linkable && !( (replicant.Linkable) #{attribute.jpa.field_name} ).isValid() )
     {
       #{attribute.jpa.field_name} = null;
     }
