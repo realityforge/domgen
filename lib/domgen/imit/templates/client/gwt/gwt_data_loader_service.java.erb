@@ -96,8 +96,7 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
 <% end -%>
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
-  @java.lang.Override
-  protected boolean doesEntityMatchFilter( @javax.annotation.Nonnull final replicant.ChannelAddress address, @javax.annotation.Nullable final Object rawFilter, @javax.annotation.Nonnull final replicant.Entity entity )
+  private boolean doesEntityMatchFilter( @javax.annotation.Nonnull final replicant.ChannelAddress address, @javax.annotation.Nullable final Object rawFilter, @javax.annotation.Nonnull final replicant.Entity entity )
   {
     final java.lang.Enum channelType = address.getChannelType();
     <% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
@@ -148,25 +147,12 @@ if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.upperc
     }
   }
 
+  @javax.annotation.Nonnull
   @java.lang.Override
-  protected void updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final replicant.Subscription entry, @javax.annotation.Nullable final Object filter )
+  protected replicant.SubscriptionUpdateEntityFilter getSubscriptionUpdateFilter()
   {
-    final <%= repository.imit.qualified_graph_enum_name %> channelType = (<%= repository.imit.qualified_graph_enum_name %>) entry.getAddress().getChannelType();
-    <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
--%>if( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == channelType )
-    {
-<% graph.included_entities.reverse.each do |entity| -%>
-      updateSubscriptionForFilteredEntities( entry, filter, entry.findAllEntitiesByType( <%= repository.entity_by_name(entity).arez.qualified_name %>.class ) );
-<% end -%>
-    }
-    else <% end
--%>
-
-    {
-      throw new IllegalStateException();
-    }
+    return ( address, filter, entity ) -> doesEntityMatchFilter( address, filter, entity );
   }
-
 <% if repository.keycloak? -%>
 
   @javax.annotation.Nonnull
