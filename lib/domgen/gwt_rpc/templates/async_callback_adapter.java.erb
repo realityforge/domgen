@@ -11,17 +11,17 @@ public abstract class <%= repository.gwt_rpc.async_callback_adapter_name %><T,N>
   private final <%= repository.gwt.qualified_async_error_callback_name %> _errorCallback;
 <% if repository.imit? -%>
   private final replicant.RequestEntry _request;
-  private final org.realityforge.replicant.client.transport.ClientSession _session;
+  private final replicant.Connection _connection;
 <% end -%>
 
-  public <%= repository.gwt_rpc.async_callback_adapter_name %>( @javax.annotation.Nullable final com.google.gwt.user.client.rpc.AsyncCallback globalCallback, @javax.annotation.Nullable final <%= repository.gwt.qualified_async_callback_name %><N> callback, @javax.annotation.Nullable final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback<% if repository.imit? -%>, @javax.annotation.Nullable final org.realityforge.replicant.client.transport.ClientSession session, @javax.annotation.Nullable final replicant.RequestEntry request<% end -%> )
+  public <%= repository.gwt_rpc.async_callback_adapter_name %>( @javax.annotation.Nullable final com.google.gwt.user.client.rpc.AsyncCallback globalCallback, @javax.annotation.Nullable final <%= repository.gwt.qualified_async_callback_name %><N> callback, @javax.annotation.Nullable final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback<% if repository.imit? -%>, @javax.annotation.Nullable final replicant.Connection connection, @javax.annotation.Nullable final replicant.RequestEntry request<% end -%> )
   {
     _globalCallback = globalCallback;
     _callback = callback;
     _errorCallback = errorCallback;
 <% if repository.imit? -%>
     _request = request;
-    _session = session;
+    _connection = connection;
 <% end -%>
   }
 
@@ -39,9 +39,11 @@ public abstract class <%= repository.gwt_rpc.async_callback_adapter_name %><T,N>
       }
     };
 <% if repository.imit? -%>
-    if ( null != _request && null != _session )
+    if ( null != _request && null != _connection )
     {
-      _session.completeNonNormalRequest( _request, action );
+      _request.setExpectingResults( false );
+      _request.setNormalCompletion( false );
+      _connection.completeRequest( _request, action );
     }
     else
     {
@@ -66,9 +68,10 @@ public abstract class <%= repository.gwt_rpc.async_callback_adapter_name %><T,N>
       }
     };
 <% if repository.imit? -%>
-    if ( null != _request && null != _session )
+    if ( null != _request && null != _connection )
     {
-      _session.completeNormalRequest( _request, action );
+      _request.setNormalCompletion( true );
+      _connection.completeRequest( _request, action );
     }
     else
     {
