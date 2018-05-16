@@ -1210,12 +1210,6 @@ CONTENT
         repository.imit.graphs.each { |g| g.post_verify }
       end
 
-      def post_verify
-        repository.gwt.entrypoints.each do |entrypoint|
-          entrypoint.additional_dagger_modules << 'org.realityforge.replicant.client.gwt.ReplicantDaggerModule'
-        end
-      end
-
       protected
 
       def test_class_content_list
