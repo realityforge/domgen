@@ -80,8 +80,8 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
                                             @javax.annotation.Nullable final Object filter,
                                             @javax.annotation.Nullable final String cacheKey,
                                             @javax.annotation.Nullable final String eTag,
-                                            @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess,
                                             @javax.annotation.Nullable final replicant.SafeProcedure onCacheValid,
+                                            @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess,
                                             @javax.annotation.Nonnull final java.util.function.Consumer<Throwable> onError )
   {
     updateTokenAndExecute( () -> super.requestSubscribeToChannel( address, filter, cacheKey, eTag, onCacheValid, onSuccess, onError ) );
