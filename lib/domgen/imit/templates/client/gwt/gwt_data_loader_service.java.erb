@@ -76,22 +76,45 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
   }
 
   @java.lang.Override
-  protected void performSubscribe( final int channel,
-                                   @javax.annotation.Nullable final java.lang.Integer subChannelId,
-                                   @javax.annotation.Nullable final Object filterParameter,
-                                   @javax.annotation.Nullable final String cacheKey,
-                                   @javax.annotation.Nullable final String eTag,
-                                   @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess,
-                                   @javax.annotation.Nullable final replicant.SafeProcedure onCacheValid,
-                                   @javax.annotation.Nonnull final java.util.function.Consumer<Throwable> onError )
+  protected void requestSubscribeToChannel( @javax.annotation.Nonnull final replicant.ChannelAddress address,
+                                            @javax.annotation.Nullable final Object filter,
+                                            @javax.annotation.Nullable final String cacheKey,
+                                            @javax.annotation.Nullable final String eTag,
+                                            @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess,
+                                            @javax.annotation.Nullable final replicant.SafeProcedure onCacheValid,
+                                            @javax.annotation.Nonnull final java.util.function.Consumer<Throwable> onError )
   {
-    updateTokenAndExecute( () -> super.performSubscribe( channel, subChannelId, filterParameter, cacheKey, eTag, onSuccess, onCacheValid, onError ) );
+    updateTokenAndExecute( () -> super.requestSubscribeToChannel( address, filter, cacheKey, eTag, onCacheValid, onSuccess, onError ) );
+  }
+
+  @Override
+  protected void requestBulkSubscribeToChannel( @javax.annotation.Nonnull final java.util.List<replicant.ChannelAddress> addresses, @javax.annotation.Nullable final java.lang.Object filter, @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
+  {
+    updateTokenAndExecute( () -> super.requestBulkSubscribeToChannel( addresses, filter, onSuccess, onError ) );
   }
 
   @java.lang.Override
-  protected void performUnsubscribe( final int channel, @javax.annotation.Nullable final java.lang.Integer subChannelId, @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
+  protected void requestUpdateSubscription( @javax.annotation.Nonnull final replicant.ChannelAddress address, @javax.annotation.Nonnull final Object filter, @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
   {
-    updateTokenAndExecute( () -> super.performUnsubscribe( channel, subChannelId, onSuccess, onError ) );
+    updateTokenAndExecute( () -> super.requestUpdateSubscription( address, filter, onSuccess, onError ) );
+  }
+
+  @Override
+  protected void requestBulkUpdateSubscription( @javax.annotation.Nonnull final java.util.List<replicant.ChannelAddress> addresses, @javax.annotation.Nullable final java.lang.Object filter, @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
+  {
+    updateTokenAndExecute( () -> super.requestBulkUpdateSubscription( addresses, filter, onSuccess, onError ) );
+  }
+
+  @java.lang.Override
+  protected void requestUnsubscribeFromChannel( @javax.annotation.Nonnull final replicant.ChannelAddress address, @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
+  {
+    updateTokenAndExecute( () -> super.requestUnsubscribeFromChannel( address, onSuccess, onError ) );
+  }
+
+  @Override
+  protected void requestBulkUnsubscribeFromChannel( @javax.annotation.Nonnull final java.util.List<replicant.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.SafeProcedure onSuccess, @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Throwable> onError )
+  {
+    updateTokenAndExecute( () -> super.requestBulkUnsubscribeFromChannel( addresses, onSuccess, onError ) );
   }
 <% end -%>
 
