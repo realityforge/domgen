@@ -1320,7 +1320,6 @@ FRAGMENT
           Domgen.error("Unknown query spec #{self.query_spec}")
         end
         if self.native?
-          /([^:]):([^:\W]+)/
           q = q.gsub(/([^:]):([^:\W]+)/) do |parameter_name|
             index = nil
             query.parameters.each_with_index do |parameter, i|
