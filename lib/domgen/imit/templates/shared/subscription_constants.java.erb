@@ -1,10 +1,12 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_graph_enum_name) %>;
+package <%= to_package(repository.imit.qualified_subscription_constants_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-public enum <%= repository.imit.graph_enum_name %>
+public final class <%= repository.imit.subscription_constants_name %>
 {
-<%= repository.imit.graphs.collect do |g|
+<%=
+    index = 0;
+    repository.imit.graphs.collect do |g|
     elements = g.instance_root? ? g.reachable_entities.sort : g.type_roots
     data = <<-DATA
   /**
@@ -75,7 +77,8 @@ DATA
      data += "   * </ul>\n"
    end
    data += "   */\n"
-   data += "  #{Reality::Naming.uppercase_constantize(g.name)}"
+   data += "  public static final int #{Reality::Naming.uppercase_constantize(g.name)} = #{index};"
+   index = index + 1
    data
-  end.join(",\n\n") %>
+  end.join("\n\n") %>
 }

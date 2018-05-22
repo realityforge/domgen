@@ -11,7 +11,6 @@ package <%= to_package(data_module.imit.qualified_mapper_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.CollapsibleIfStatements", "PMD.SingularField", "PMD.UnusedFormalParameter" } )
 public class <%= data_module.imit.mapper_name %>
 {
-  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= data_module.imit.mapper_name %>.class.getName() );
 <% data_module.entities.select{ |entity| entity.imit?  }.each do |entity|
   entity_prefix = "#{Reality::Naming.uppercase_constantize(entity.name)}_"
 -%>
@@ -36,22 +35,9 @@ public class <%= data_module.imit.mapper_name %>
 <% data_module.entities.select { |entity| entity.imit? }.each do |entity| -%>
 <% if entity.concrete? -%>
 
-  public Object applyChangeTo<%= entity.name %>( final replicant.EntityChange change )
+  @javax.annotation.Nonnull
+  public <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final replicant.EntityChangeData data )
   {
-    final int $id = change.getId();
-    <%= entity.arez.name %> entity = _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().findBy<%= entity.primary_key.name %>( $id );
-    if( change.isRemove() )
-    {
-      if( null != entity )
-      {
-        _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().destroy( entity );
-      }
-    }
-    else
-    {
-      final replicant.EntityChangeData data = change.getData();
-      if( null == entity )
-      {
 <% entity.attributes.select{|attribute| attribute.arez?}.each do |attribute|
     key = "#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}"
     value_converter =
@@ -75,30 +61,14 @@ public class <%= data_module.imit.mapper_name %>
           raise "Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}"
         end
 -%>
-        final <%= attribute.imit.java_type(:transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.name) %> = <%= attribute.nullable? ? "( data.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %>;
+    final <%= attribute.imit.java_type(:transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.name) %> = <%= attribute.nullable? ? "( data.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %>;
 <% end -%>
-        entity = _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().create( _entityLocator, <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
-      }
-      else
-      {
-        updateAttributes<%= entity.name %>( entity, data );
-      }
-      final replicant.Entity e = replicant.Replicant.context().findOrCreateEntity( <%= entity.arez.name %>.class, $id );
-      e.setUserObject( entity );
-      final replicant.EntityChannel[] changeCount = change.getChannels();
-      for ( final replicant.EntityChannel entityChannel : changeCount )
-      {
-        final replicant.Subscription subscription = replicant.Replicant.context().findSubscription( new replicant.ChannelAddress( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[ entityChannel.getId() ], entityChannel.hasSubChannelId() ? entityChannel.getSubChannelId() : null ) );
-        // TODO: Improve handling of this error scenario
-        assert null != subscription;
-        e.linkToSubscription( subscription );
-      }
-    }
-    return entity;
-  }
+    return _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().create( _entityLocator, <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
 
-<% end %>
-  private void updateAttributes<%= entity.name %>( final <%= entity.arez.name %> entity, final replicant.EntityChangeData data )
+  }
+<% end -%>
+
+  public void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.name %> entity, @javax.annotation.Nonnull final replicant.EntityChangeData data )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends) -%>

@@ -12,7 +12,7 @@ package <%= to_package(entity.arez.qualified_name) %>;
 <% end -%>
 public abstract class <%= entity.arez.name %>
 <%= entity.extends ? "  extends #{entity.data_module.entity_by_name(entity.extends).arez.qualified_name}\n" : '' -%>
-<%= (!entity.extends || entity.arez.extensions.size > 0) ? '  implements ' : '' -%><%= ((entity.extends ? [] : %w(replicant.Linkable org.realityforge.replicant.client.Verifiable)) + entity.arez.extensions).join(", ") %>
+<%= (!entity.extends || entity.arez.extensions.size > 0) ? '  implements ' : '' -%><%= ((entity.extends ? [] : %w(replicant.Linkable replicant.Verifiable)) + entity.arez.extensions).join(", ") %>
 {
 <% entity.declared_attributes.select { |a| !a.abstract? && a.arez? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;

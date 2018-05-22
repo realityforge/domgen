@@ -17,8 +17,8 @@ Domgen::Generator.define([:imit],
                          [Domgen::Java::Helper, Domgen::Imit::Helper]) do |g|
   g.template_set(:imit_metadata) do |template_set|
     template_set.erb_template(:repository,
-                              'shared/graph_enum.java.erb',
-                              'main/java/#{repository.imit.qualified_graph_enum_name.gsub(".","/")}.java')
+                              'shared/subscription_constants.java.erb',
+                              'main/java/#{repository.imit.qualified_subscription_constants_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_client_entity) do |template_set|

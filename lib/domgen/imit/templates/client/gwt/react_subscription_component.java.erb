@@ -8,9 +8,9 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 {
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected java.lang.Enum getChannelType()
+  protected int getChannelId()
   {
-    return <%= graph.application.repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>;
+    return <%= graph.application.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>;
   }
 <% if graph.filtered? && !graph.filter_parameter.immutable? -%>
 

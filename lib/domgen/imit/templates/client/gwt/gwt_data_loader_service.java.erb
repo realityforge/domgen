@@ -37,7 +37,7 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
 
   public <%= repository.imit.gwt_data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router )
   {
-    super( replicant.Replicant.areZonesEnabled() ? replicant.Replicant.context() : null, <%= repository.imit.qualified_graph_enum_name %>.class, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext() );
+    super( replicant.Replicant.areZonesEnabled() ? replicant.Replicant.context() : null, <%= repository.imit.qualified_subscription_constants_name %>.class, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getSessionContext() );
     _context  = context;
     _router = router;
     _changeMapper = new <%= repository.imit.qualified_change_mapper_name %>( <%= repository.data_modules.select{|data_module| data_module.imit? }.collect { |data_module| "new #{data_module.imit.qualified_mapper_name}( entityLocator, repository.#{Reality::Naming.camelize(data_module.name)}() )" }.join(', ') %> );
@@ -52,7 +52,7 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected org.realityforge.replicant.client.transport.ChangeMapper getChangeMapper()
+  protected replicant.ChangeMapper getChangeMapper()
   {
     return _changeMapper;
   }
@@ -121,9 +121,9 @@ public abstract class <%= repository.imit.gwt_data_loader_service_name %>
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
   private boolean doesEntityMatchFilter( @javax.annotation.Nonnull final replicant.ChannelAddress address, @javax.annotation.Nullable final Object rawFilter, @javax.annotation.Nonnull final replicant.Entity entity )
   {
-    final java.lang.Enum channelType = address.getChannelType();
+    final int channelId = address.getChannelId();
     <% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
-if ( <%= repository.imit.qualified_graph_enum_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == channelType )
+if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == channelId )
     {
       final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter = (<%= graph.filter_parameter.struct? ? graph.filter_parameter.referenced_struct.gwt.qualified_jso_name : Domgen::Java.java_type(graph.filter_parameter, :imit, :default) %>) rawFilter;
       assert null != filter;

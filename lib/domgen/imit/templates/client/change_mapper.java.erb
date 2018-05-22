@@ -7,7 +7,7 @@ package <%= to_package(repository.imit.qualified_change_mapper_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.SingularField" } )
 public final class <%= repository.imit.change_mapper_name %>
-  implements org.realityforge.replicant.client.transport.ChangeMapper
+  implements replicant.ChangeMapper
 {
 <% repository.data_modules.select{|data_module| data_module.imit? }.each do |data_module| -%>
 <% data_module.entities.select{|entity| entity.imit? && entity.concrete? }.each do |entity| -%>
@@ -25,21 +25,42 @@ public final class <%= repository.imit.change_mapper_name %>
 <% end %>
   }
 
-  public Object applyChange( final replicant.EntityChange change )
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  public java.lang.Object createEntity( @javax.annotation.Nonnull final replicant.EntitySchema entitySchema, final int id, @javax.annotation.Nonnull replicant.EntityChangeData data )
   {
-    switch( change.getTypeId() )
+    switch( entitySchema.getId() )
     {
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.each do |entity|
     if entity.imit? && entity.concrete?
-%>      case <%= Reality::Naming.uppercase_constantize(entity.qualified_name.gsub('.','_')) %>_TRANSPORT_ID: return _<%= Reality::Naming.camelize(entity.data_module.name) %>.applyChangeTo<%= entity.name %>( change );
+%>      case <%= Reality::Naming.uppercase_constantize(entity.qualified_name.gsub('.','_')) %>_TRANSPORT_ID: return _<%= Reality::Naming.camelize(entity.data_module.name) %>.create<%= entity.name %>( data );
 <%
     end
   end
 end
 %>
-      default: throw new IllegalArgumentException( "Unknown typeID = " + change.getTypeId() );
+      default: throw new IllegalArgumentException( "Unknown typeID = " + entitySchema.getId()  );
+    }
+  }
+
+  @java.lang.Override
+  public void updateEntity( @javax.annotation.Nonnull final replicant.EntitySchema entitySchema, @javax.annotation.Nonnull java.lang.Object entity, @javax.annotation.Nonnull replicant.EntityChangeData data )
+  {
+    switch( entitySchema.getId() )
+    {
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.each do |entity|
+    if entity.imit? && entity.concrete?
+%>      case <%= Reality::Naming.uppercase_constantize(entity.qualified_name.gsub('.','_')) %>_TRANSPORT_ID: _<%= Reality::Naming.camelize(entity.data_module.name) %>.update<%= entity.name %>( (<%= entity.arez.qualified_name %>) entity, data );
+<%
+    end
+  end
+end
+%>
+      default: throw new IllegalArgumentException( "Unknown typeID = " + entitySchema.getId()  );
     }
   }
 }
