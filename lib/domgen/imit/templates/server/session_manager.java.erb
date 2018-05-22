@@ -105,7 +105,7 @@ entities.uniq.each do |entity| -%>
           {
             if( m.isDelete() )
             {
-              if( <%= repository.imit.qualified_message_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeId() )
+              if( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeId() )
               {
                 performUnsubscribe( session, entry, true, accumulator.getChangeSet( session ) );
               }
