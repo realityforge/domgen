@@ -45,14 +45,9 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
     }
     else
     {
-      keycloak.updateToken( c_minTokenValiditySeconds, new java.lang.Runnable()
-      {
-        @java.lang.Override
-        public void run()
-        {
-          <% if repository.imit? -%>getSessionContext().<% end -%>setAuthenticationToken( keycloak.getToken() );
-          action.run();
-        }
+      keycloak.updateToken( c_minTokenValiditySeconds, () -> {
+        <% if repository.imit? -%>getSessionContext().<% end -%>setAuthenticationToken( keycloak.getToken() );
+        action.run();
       } );
     }
   }
