@@ -46,24 +46,13 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
     else
     {
       keycloak.updateToken( c_minTokenValiditySeconds, () -> {
-        <% if repository.imit? -%>getSessionContext().<% end -%>setAuthenticationToken( keycloak.getToken() );
+        setAuthenticationToken( keycloak.getToken() );
         action.run();
       } );
     }
   }
 
 <% end -%>
-<% if repository.imit? -%>
-  @javax.annotation.Nonnull
-  private static final org.realityforge.replicant.client.transport.SessionContext c_sessionContext = new org.realityforge.replicant.client.transport.SessionContext();
-
-  @javax.annotation.Nonnull
-  public static org.realityforge.replicant.client.transport.SessionContext getSessionContext()
-  {
-    return c_sessionContext;
-  }
-
-<% else -%>
   private static String c_baseURL;
   private static String c_authenticationToken;
 
@@ -86,7 +75,6 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
   {
     c_authenticationToken = authenticationToken;
   }
-<% end -%>
 <%
   needs_xsrf =
     repository.data_modules.select{|data_module| data_module.gwt_rpc?}.any? do |data_module|
@@ -123,9 +111,9 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 <%
   end
 -%>
-    if( null == <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() )
+    if( null == getBaseURL() )
     {
-      <% if repository.imit? -%>getSessionContext().<% end -%>setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
+      setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
     }
   }
 
@@ -163,11 +151,11 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 <% elsif service.keycloak? -%>
     ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new <%= repository.gwt_rpc.qualified_keycloak_rpc_request_builder_name %>() );
 <% end -%>
-    if ( null == <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() )
+    if ( null == getBaseURL() )
     {
       throw new java.lang.IllegalStateException( "<%= repository.gwt_rpc.rpc_services_dagger_module_name %>.initialize() not invoked prior to using dagger module" );
     }
-    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( <% if repository.imit? -%>getSessionContext().<% end -%>getBaseURL() + "<%= service.gwt_rpc.api_url %>" );
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( getBaseURL() + "<%= service.gwt_rpc.api_url %>" );
     return service;
   }
 <%
