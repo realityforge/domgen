@@ -219,6 +219,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   {
 <% if repository.imit? -%>
     replicant.WebStorageCacheService.install();
+    com.google.gwt.user.client.Window.addWindowClosingHandler( e -> Replicant.context().deactivate() );
 <% end -%>
   }
 
