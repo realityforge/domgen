@@ -27,7 +27,7 @@ public final class <%= repository.imit.change_mapper_name %>
 
   @java.lang.Override
   @javax.annotation.Nonnull
-  public java.lang.Object createEntity( @javax.annotation.Nonnull final replicant.EntitySchema entitySchema, final int id, @javax.annotation.Nonnull replicant.EntityChangeData data )
+  public java.lang.Object createEntity( @javax.annotation.Nonnull final replicant.EntitySchema entitySchema, final int id, @javax.annotation.Nonnull replicant.messages.EntityChangeData data )
   {
     switch( entitySchema.getId() )
     {
@@ -46,7 +46,7 @@ end
   }
 
   @java.lang.Override
-  public void updateEntity( @javax.annotation.Nonnull final replicant.EntitySchema entitySchema, @javax.annotation.Nonnull java.lang.Object entity, @javax.annotation.Nonnull replicant.EntityChangeData data )
+  public void updateEntity( @javax.annotation.Nonnull final replicant.EntitySchema entitySchema, @javax.annotation.Nonnull java.lang.Object entity, @javax.annotation.Nonnull replicant.messages.EntityChangeData data )
   {
     switch( entitySchema.getId() )
     {

@@ -14,10 +14,12 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
   @javax.annotation.Nonnull
   public static org.realityforge.gwt.keycloak.Keycloak getKeycloak()
   {
-    if( null == c_keycloak )
+    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
     {
-      throw new IllegalStateException( "Keycloak not configured when calling getKeycloak()" );
+      org.realityforge.braincheck.Guards.invariant( () -> null != c_keycloak,
+                                                    () -> "Keycloak not configured when calling <%= repository.gwt_rpc.rpc_services_dagger_module_name %>.getKeycloak()" );
     }
+    assert null != c_keycloak;
     return c_keycloak;
   }
 
@@ -151,11 +153,14 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 <% elsif service.keycloak? -%>
     ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new <%= repository.gwt_rpc.qualified_keycloak_rpc_request_builder_name %>() );
 <% end -%>
-    if ( null == getBaseURL() )
+    final java.lang.String baseURL = getBaseURL();
+    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
     {
-      throw new java.lang.IllegalStateException( "<%= repository.gwt_rpc.rpc_services_dagger_module_name %>.initialize() not invoked prior to using dagger module" );
+      org.realityforge.braincheck.Guards.invariant( () -> null != baseURL,
+                                                    () -> "<%= repository.gwt_rpc.rpc_services_dagger_module_name %>.initialize() not invoked prior to using dagger module" );
     }
-    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( getBaseURL() + "<%= service.gwt_rpc.api_url %>" );
+    assert null != baseURL;
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( baseURL + "<%= service.gwt_rpc.api_url %>" );
     return service;
   }
 <%

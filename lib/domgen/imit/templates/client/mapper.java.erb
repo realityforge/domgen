@@ -36,7 +36,7 @@ public class <%= data_module.imit.mapper_name %>
 <% if entity.concrete? -%>
 
   @javax.annotation.Nonnull
-  public <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final replicant.EntityChangeData data )
+  public <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
   {
 <% entity.attributes.select{|attribute| attribute.arez?}.each do |attribute|
     key = "#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}"
@@ -68,7 +68,7 @@ public class <%= data_module.imit.mapper_name %>
   }
 <% end -%>
 
-  public void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.name %> entity, @javax.annotation.Nonnull final replicant.EntityChangeData data )
+  public void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.name %> entity, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends) -%>
