@@ -683,6 +683,7 @@ module Domgen
         repository.gwt.modules_package
       end
 
+      java_artifact :rpc_request_builder, :ioc, :client, :imit, '#{repository.name}RpcRequestBuilder'
       java_artifact :gwt_complete_module, :test, :client, :imit, '#{repository.name}GwtModule', :sub_package => 'util'
       java_artifact :replicant_module, :modules, nil, :gwt, '#{repository.name}ReplicantSupport'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapperImpl'
