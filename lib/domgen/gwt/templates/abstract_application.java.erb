@@ -217,7 +217,9 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   protected void prepareServices()
   {
+<% if repository.imit? -%>
     replicant.WebStorageCacheService.install();
+<% end -%>
   }
 
   protected abstract void prepareUI();
