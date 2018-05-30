@@ -9,77 +9,36 @@ public abstract class <%= repository.gwt_rpc.async_callback_adapter_name %><T,N>
   private final com.google.gwt.user.client.rpc.AsyncCallback _globalCallback;
   private final <%= repository.gwt.qualified_async_callback_name %><N> _callback;
   private final <%= repository.gwt.qualified_async_error_callback_name %> _errorCallback;
-<% if repository.imit? -%>
-  private final replicant.RequestEntry _request;
-  private final replicant.Connection _connection;
-<% end -%>
 
-  public <%= repository.gwt_rpc.async_callback_adapter_name %>( @javax.annotation.Nullable final com.google.gwt.user.client.rpc.AsyncCallback globalCallback, @javax.annotation.Nullable final <%= repository.gwt.qualified_async_callback_name %><N> callback, @javax.annotation.Nullable final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback<% if repository.imit? -%>, @javax.annotation.Nullable final replicant.Connection connection, @javax.annotation.Nullable final replicant.RequestEntry request<% end -%> )
+  public <%= repository.gwt_rpc.async_callback_adapter_name %>( @javax.annotation.Nullable final com.google.gwt.user.client.rpc.AsyncCallback globalCallback, @javax.annotation.Nullable final <%= repository.gwt.qualified_async_callback_name %><N> callback, @javax.annotation.Nullable final <%= repository.gwt.qualified_async_error_callback_name %> errorCallback )
   {
     _globalCallback = globalCallback;
     _callback = callback;
     _errorCallback = errorCallback;
-<% if repository.imit? -%>
-    _request = request;
-    _connection = connection;
-<% end -%>
   }
 
   public void onFailure( final java.lang.Throwable caught )
   {
-    final replicant.SafeProcedure action = () ->
+    if ( null != _errorCallback )
     {
-      if ( null != _errorCallback )
-      {
-        _errorCallback.onFailure( caught );
-      }
-      if ( null != _globalCallback )
-      {
-        _globalCallback.onFailure( caught );
-      }
-    };
-<% if repository.imit? -%>
-    if ( null != _request && null != _connection )
-    {
-      _request.setExpectingResults( false );
-      _request.setNormalCompletion( false );
-      _connection.completeRequest( _request, action );
+      _errorCallback.onFailure( caught );
     }
-    else
+    if ( null != _globalCallback )
     {
-<% end -%>
-      action.call();
-<% if repository.imit? -%>
+      _globalCallback.onFailure( caught );
     }
-<% end -%>
   }
 
   public void onSuccess( final T result )
   {
-    final replicant.SafeProcedure action = () ->
+    if ( null != _callback )
     {
-      if ( null != _callback )
-      {
-        _callback.onSuccess( convert( result ) );
-      }
-      if ( null != _globalCallback )
-      {
-        _globalCallback.onSuccess( result );
-      }
-    };
-<% if repository.imit? -%>
-    if ( null != _request && null != _connection )
-    {
-      _request.setNormalCompletion( true );
-      _connection.completeRequest( _request, action );
+      _callback.onSuccess( convert( result ) );
     }
-    else
+    if ( null != _globalCallback )
     {
-<% end -%>
-      action.call();
-<% if repository.imit? -%>
+      _globalCallback.onSuccess( result );
     }
-<% end -%>
   }
 
   protected abstract N convert( final T result );

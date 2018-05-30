@@ -6,10 +6,17 @@ package <%= to_package(repository.gwt_rpc.qualified_rpc_services_dagger_module_n
 @dagger.Module
 public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 {
+  private static String c_baseURL;
+  private static String c_authenticationToken;
 <% if repository.keycloak? -%>
   @javax.annotation.Nullable
   private static org.realityforge.gwt.keycloak.Keycloak c_keycloak;
   private static int c_minTokenValiditySeconds = <%= repository.imit? ? 'org.realityforge.replicant.shared.SharedConstants.MAX_POLL_TIME_IN_SECONDS * 2' : '10' %>;
+<% end -%>
+<% if repository.imit? -%>
+  private static replicant.Request c_request;
+<% end -%>
+<% if repository.keycloak? -%>
 
   @javax.annotation.Nonnull
   public static org.realityforge.gwt.keycloak.Keycloak getKeycloak()
@@ -55,8 +62,19 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
   }
 
 <% end -%>
-  private static String c_baseURL;
-  private static String c_authenticationToken;
+<% if repository.imit? -%>
+  public static void setRequest( @javax.annotation.Nullable final replicant.Request request )
+  {
+    c_request = request;
+  }
+
+  @javax.annotation.Nonnull
+  public static replicant.Request getRequest()
+  {
+    assert null != c_request;
+    return c_request;
+  }
+<% end -%>
 
   public static void setBaseURL( @javax.annotation.Nonnull final String baseURL )
   {
