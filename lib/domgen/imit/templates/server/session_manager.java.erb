@@ -76,7 +76,7 @@ entities.uniq.each do |entity| -%>
     final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY );
     if ( null != <%= graph.name %> )
     {
-      final org.realityforge.replicant.server.ChannelDescriptor address = new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? graph.name : 'null' %> );
+      final org.realityforge.replicant.server.ChannelAddress address = new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? graph.name : 'null' %> );
 <%
   extra_interest_filter = ''
   if graph.filtered?
@@ -134,7 +134,7 @@ entities.uniq.each do |entity| -%>
     final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY );
     if ( null != <%= graph.name %> )
     {
-      final org.realityforge.replicant.server.ChannelDescriptor address = new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? graph.name : 'null' %> );
+      final org.realityforge.replicant.server.ChannelAddress address = new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? graph.name : 'null' %> );
 <%
   extra_interest_filter = ''
   if graph.filtered?
@@ -174,7 +174,7 @@ entities.uniq.each do |entity| -%>
 
   @java.lang.Override
   public void updateSubscription( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session,
-                                  @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelDescriptor address,
+                                  @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address,
                                   @javax.annotation.Nullable final java.lang.Object filter,
                                   @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
   {
@@ -251,7 +251,7 @@ entities.uniq.each do |entity| -%>
     //Propogate the filter from <%= graph.name %> to downstream graph <%= target_graph.name %>
     for ( final <%= instance_root.jpa.qualified_name %> downstreamEntity : _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( <% if graph.instance_root? -%>entity, <% end -%>filter ) )
     {
-      subscribe( session, new org.realityforge.replicant.server.ChannelDescriptor( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, downstreamEntity.get<%= instance_root.primary_key.name %>() ), true, filter, changeSet );
+      subscribe( session, new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, downstreamEntity.get<%= instance_root.primary_key.name %>() ), true, filter, changeSet );
     }
   }
 <% end -%>
@@ -268,7 +268,7 @@ entities.uniq.each do |entity| -%>
 <% end -%>
 <% if graph.filter_parameter && !graph.filter_parameter.immutable? -%>
 
-  protected void collectDataFor<%= graph.name %>SubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelDescriptor address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+  protected void collectDataFor<%= graph.name %>SubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
   {
 <%
     if graph.instance_root?
@@ -283,7 +283,7 @@ entities.uniq.each do |entity| -%>
 
 <% if graph.cacheable? -%>  @javax.annotation.Nonnull
 <% end -%>
-  protected <% if graph.cacheable? -%>java.lang.String<% else -%>void<% end -%> collectDataFor<%= graph.name %>( @javax.annotation.<% if graph.cacheable? -%>Nullable<% else %>Nonnull<% end %> final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelDescriptor address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>)
+  protected <% if graph.cacheable? -%>java.lang.String<% else -%>void<% end -%> collectDataFor<%= graph.name %>( @javax.annotation.<% if graph.cacheable? -%>Nullable<% else %>Nonnull<% end %> final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>)
   {
 <%
     if graph.instance_root?
@@ -321,7 +321,7 @@ entities.uniq.each do |entity| -%>
 <% end -%>
 
   @java.lang.Override
-  protected java.lang.String collectDataForSubscribe( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelDescriptor address,@javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet,@javax.annotation.Nullable final Object filter )
+  protected java.lang.String collectDataForSubscribe( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address,@javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet,@javax.annotation.Nullable final Object filter )
   {
     <%
   repository.imit.graphs.each do |graph|
@@ -340,13 +340,13 @@ entities.uniq.each do |entity| -%>
   }
 
   @java.lang.Override
-  protected boolean bulkCollectDataForSubscribe( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelDescriptor> descriptors, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nullable final Object filter, final boolean explicitSubscribe )
+  protected boolean bulkCollectDataForSubscribe( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelAddress> descriptors, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nullable final Object filter, final boolean explicitSubscribe )
   {
     if( descriptors.isEmpty() )
     {
       return true;
     }
-    final org.realityforge.replicant.server.ChannelDescriptor address = descriptors.get( 0 );
+    final org.realityforge.replicant.server.ChannelAddress address = descriptors.get( 0 );
     <%
   repository.imit.graphs.select{|graph| graph.instance_root?}.each do |graph|
 -%>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
@@ -361,13 +361,13 @@ entities.uniq.each do |entity| -%>
   }
 
   @java.lang.Override
-  protected boolean bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelDescriptor> descriptors, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter )
+  protected boolean bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelAddress> descriptors, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter )
   {
     if( descriptors.isEmpty() )
     {
       return true;
     }
-    final org.realityforge.replicant.server.ChannelDescriptor address = descriptors.get( 0 );
+    final org.realityforge.replicant.server.ChannelAddress address = descriptors.get( 0 );
     <%
   repository.imit.graphs.select{|graph| graph.instance_root? && graph.filtered? && !graph.filter_parameter.immutable?}.each do |graph|
 -%>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
@@ -392,7 +392,7 @@ entities.uniq.each do |entity| -%>
 
   @java.lang.Override
   protected void collectDataForSubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session,
-                                                   @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelDescriptor address,
+                                                   @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address,
                                                    @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet,
                                                    @javax.annotation.Nullable final Object originalFilter,
                                                    @javax.annotation.Nullable final Object filter )
@@ -411,9 +411,9 @@ entities.uniq.each do |entity| -%>
   }
 
   @java.lang.Override
-  protected boolean shouldFollowLink( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.SubscriptionEntry sourceEntry, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelDescriptor target )
+  protected boolean shouldFollowLink( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.SubscriptionEntry sourceEntry, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress target )
   {
-    final org.realityforge.replicant.server.ChannelDescriptor source = sourceEntry.getDescriptor();
+    final org.realityforge.replicant.server.ChannelAddress source = sourceEntry.getDescriptor();
     final int sourceChannelID = source.getChannelId();
     final int targetChannelID = target.getChannelId();
     <% repository.imit.graphs.select{|g| g.instance_root? }.collect{|g| g.inward_graph_links.select{|graph_link| graph_link.auto?} }.flatten.each do |graph_link|

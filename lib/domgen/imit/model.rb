@@ -1073,14 +1073,14 @@ CONTENT
                 s.method("CollectForFilterChange#{graph.name}") do |m|
                   m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
                   m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                  m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor')
+                  m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
                   m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                   m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                 end
               end
               if graph.external_data_load? || graph.filter_parameter?
                 s.method("Collect#{graph.name}") do |m|
-                  m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor')
+                  m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
                   m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                   m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                 end
@@ -1089,7 +1089,7 @@ CONTENT
               s.method("BulkCollectDataFor#{graph.name}") do |m|
                 m.ejb.generate_base_test = false
                 m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor', :collection_type => :sequence)
+                m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
                 m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                 m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                 m.boolean(:ExplicitSubscribe)
@@ -1100,7 +1100,7 @@ CONTENT
                   s.method("CollectForFilterChange#{graph.name}") do |m|
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
                     m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                    m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor')
+                    m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
                     m.reference(graph.instance_root, :name => :Entity)
                     m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                     m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
@@ -1108,7 +1108,7 @@ CONTENT
                   s.method("BulkCollectDataFor#{graph.name}Update") do |m|
                     m.ejb.generate_base_test = false
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                    m.parameter(:Descriptor, 'org.realityforge.replicant.server.ChannelDescriptor', :collection_type => :sequence)
+                    m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
                     m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                     m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                     m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
