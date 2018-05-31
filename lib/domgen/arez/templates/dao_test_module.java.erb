@@ -9,7 +9,6 @@ public class <%= repository.arez.dao_test_module_name %>
   @java.lang.Override
   protected void configure()
   {
-    bind( <%= repository.arez.qualified_root_repository_name %>.class ).in( javax.inject.Singleton.class );
     bind( <%= repository.arez.qualified_entity_locator_name %>.class ).in( javax.inject.Singleton.class );
 
 <%
