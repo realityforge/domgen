@@ -107,6 +107,7 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :repository, :entity, :client, :arez, '#{dao.entity.name}Repository'
+      java_artifact :repository_dagger_module, :entity, :client, :arez, '#{dao.entity.name}RepositoryDaggerModule'
       java_artifact :default_repository_extension, :entity, :client, :arez, '#{dao.entity.name}RepositoryExtension'
       java_artifact :domgen_repository_extension, :entity, :client, :arez, 'Domgen#{dao.name}Extension'
 
@@ -117,7 +118,12 @@ module Domgen
       def pre_complete
         dao.disable_facet(:arez) if !dao.repository? || !dao.entity.arez?
 
-        self.extensions << qualified_domgen_repository_extension_name if dao.arez?
+        if dao.arez?
+          self.extensions << qualified_domgen_repository_extension_name
+          if dao.gwt?
+            dao.data_module.repository.gwt.add_dagger_module(repository_dagger_module_name, qualified_repository_dagger_module_name)
+          end
+        end
       end
     end
 
