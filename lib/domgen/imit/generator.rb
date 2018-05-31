@@ -25,6 +25,9 @@ Domgen::Generator.define([:imit],
   end
 
   g.template_set(:imit_client_entity) do |template_set|
+    template_set.erb_template(:repository,
+                              'client/system_schema.java.erb',
+                              'main/java/#{repository.imit.qualified_system_schema_name.gsub(".","/")}.java')
     template_set.erb_template(:data_module,
                               'client/mapper.java.erb',
                               'main/java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java')

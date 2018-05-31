@@ -692,6 +692,7 @@ module Domgen
       java_artifact :client_router_impl, :comm, :client, :imit, '#{client_router_interface_name}Impl'
       java_artifact :subscription_constants, :comm, :shared, :imit, '#{repository.name}SubscriptionConstants'
       java_artifact :entity_type_constants, :comm, :shared, :imit, '#{repository.name}EntityTypeConstants'
+      java_artifact :system_schema, :comm, :client, :imit, '#{repository.name}SystemSchema'
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerImpl'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'

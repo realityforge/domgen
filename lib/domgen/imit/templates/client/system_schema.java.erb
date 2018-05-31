@@ -1,0 +1,85 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_system_schema_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public final class <%= repository.imit.system_schema_name %>
+{
+  private <%= repository.imit.system_schema_name %>()
+  {
+  }
+
+  @javax.annotation.Nonnull
+  public static replicant.SystemSchema create( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository )
+  {
+<% repository.imit.graphs.each do |graph| -%>
+    final replicant.ChannelSchema channel<%= graph.name %> =
+      new replicant.ChannelSchema( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>,
+                                   replicant.Replicant.areNamesEnabled() ? "<%= graph.name %>" : null,
+                                   <%= !graph.instance_root? %>,
+                                   replicant.ChannelSchema.FilterType.<%= graph.filter_parameter.nil? ? 'NONE' : graph.filter_parameter.immutable? ? 'STATIC' : 'DYNAMIC' %>,
+                                   <% if graph.filtered? %>(<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, replicant.Entity entity) -> doesEntityMatch<%= graph.name %>Filter( context, router, filter, entity )<% else %>null<% end %>,
+                                   <%= graph.cacheable? %>,
+                                   <%= graph.external_visibility? %> );
+<% end -%>
+<% repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+     data_module.entities.each do |entity|
+       if entity.imit? && entity.concrete? -%>
+    final replicant.EntitySchema entity<%= entity.data_module.name %><%= entity.name %> =
+      new replicant.EntitySchema( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>,
+                                  replicant.Replicant.areNamesEnabled() ? "<%= entity.qualified_name %>" : null,
+                                  <%= entity.arez.qualified_name %>.class,
+                                  (id, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.create<%= entity.name %>( entityLocator, repository.<%= Reality::Naming.camelize(entity.data_module.name) %>(), data ),
+                                  (entity, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.update<%= entity.name %>( entity, data ) );
+<%    end
+    end
+  end
+%>
+
+    return new replicant.SystemSchema( 1,
+                                       replicant.Replicant.areNamesEnabled() ? "<%= repository.name %>" : null,
+                                       new replicant.ChannelSchema[]{ <%= repository.imit.graphs.collect{|graph| "channel#{graph.name}" }.join(', ') %> },
+                                       new replicant.EntitySchema[]{ } );
+  }
+<% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
+
+  @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
+  private static boolean doesEntityMatch<%= graph.name %>Filter( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, @javax.annotation.Nonnull final replicant.Entity entity )
+  {
+      final Object userObject = entity.getUserObject();
+      assert null != userObject;
+<% if graph.instance_root? || (graph.filtered? && graph.routing_keys.size > 0) -%>
+      final java.util.Map<java.lang.String, java.io.Serializable> route = router.route( userObject );
+<% end -%>
+<%
+  extra_interest_filter = ''
+  if graph.instance_root?
+    entity = repository.entity_by_name(graph.instance_root)
+    var_name = Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
+    extra_interest_filter = ", #{var_name}"
+-%>
+      @javax.annotation.Nonnull
+      final <%= entity.primary_key.imit.non_primitive_java_type %> <%= var_name %> = (<%= entity.primary_key.imit.non_primitive_java_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY );
+      assert null != <%= var_name %>;
+<% end -%>
+<%
+  if graph.filtered?
+    graph.routing_keys.each do |routing_key|
+      var_name = Reality::Naming.camelize(routing_key.name)
+      nullable = !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
+      param_type = routing_key.target_attribute.imit.non_primitive_java_type
+      param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
+      extra_interest_filter << ", #{var_name}"
+-%>
+      <%= nullability_annotation(nullable) %>
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) route.get( <%= repository.imit.qualified_client_router_interface_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+<% if !nullable -%>
+      assert null != <%= var_name %>;
+<% end -%>
+<%
+    end
+  end
+-%>
+      return context.does<%= graph.name %>MatchEntity( filter, userObject<%= extra_interest_filter %> );
+  }
+<% end -%>
+}
