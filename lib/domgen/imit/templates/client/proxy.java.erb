@@ -1,18 +1,23 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.imit.qualified_proxy_name) %>;
+<% requires_locator = service.methods.any? {|m| m.imit? && (m.return_value.reference? ||m.return_value.remote_reference?)} -%>
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "PMD.UnusedPrivateField", "PMD.IfStmtsMustUseBraces", "PMD.SingularField" } )
 public class <%= service.imit.proxy_name %>
   implements <%= service.imit.qualified_name %>
 {
   private final <%= service.gwt_rpc.qualified_facade_service_name %> _service;
-  private final <%= service.data_module.repository.arez.qualified_root_repository_name %> _repository;
+<% if requires_locator -%>
+  private final org.realityforge.replicant.client.EntityLocator _entityLocator;
+<% end -%>
 
   @javax.inject.Inject
-  public <%= service.imit.proxy_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_facade_service_name %> service, @javax.annotation.Nonnull final <%= service.data_module.repository.arez.qualified_root_repository_name %> repository )
+  public <%= service.imit.proxy_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_facade_service_name %> service<% if requires_locator -%>, @javax.annotation.Nonnull org.realityforge.replicant.client.EntityLocator entityLocator<% end -%> )
   {
     _service = java.util.Objects.requireNonNull( service );
-    _repository = java.util.Objects.requireNonNull( repository );
+<% if requires_locator -%>
+    _entityLocator = java.util.Objects.requireNonNull( entityLocator );
+<% end -%>
   }
 <% service.methods.select{|method| method.imit?}.each do |method|
    method_name = Reality::Naming.camelize(method.name)
@@ -67,10 +72,9 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
    if !method.return_value.collection?
      result_string = 'result'
      if method.return_value.reference?
-       entity = method.return_value.referenced_entity
-       result_string = "arez.Arez.context().safeAction( () -> _repository.#{Reality::Naming.camelize(entity.data_module.name)}().#{Reality::Naming.camelize(entity.dao.name)}().getBy#{entity.primary_key.name}( result ) )"
+       result_string = "arez.Arez.context().safeAction( () -> _entityLocator.getByID( #{method.return_value.referenced_entity.arez.qualified_name}.class, result ) )"
      elsif method.return_value.remote_reference?
-       result_string = "_repository.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, result )"
+       result_string = "arez.Arez.context().safeAction( () -> _entityLocator.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, result ) )"
      end
      if method.return_value.nullable?
        result_string = "null == result ? null : #{result_string}"
@@ -90,10 +94,9 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
           <%
              param_value =
              if method.return_value.reference?
-               entity = method.return_value.referenced_entity
-               "arez.Arez.context().safeAction( () -> _repository.#{Reality::Naming.camelize(entity.data_module.name)}().#{Reality::Naming.camelize(entity.dao.name)}().getBy#{entity.primary_key.name}( id ) )"
+               "arez.Arez.context().safeAction( () -> _entityLocator.getByID( #{method.return_value.referenced_entity.arez.qualified_name}.class, id ) )"
              elsif method.return_value.remote_reference?
-               "_repository.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, id )"
+               "arez.Arez.context().safeAction( () -> _entityLocator.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, id ) )"
              end
           %>
           $result.add( <%= param_value %> );
