@@ -6,7 +6,6 @@ package <%= to_package(graph.qualified_react4j_subscription_component_name) %>;
 public abstract class <%= graph.react4j_subscription_component_name %>
   extends org.realityforge.replicant.client.react4j.ReplicantSubscription<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Object' %>>
 {
-  @javax.annotation.Nonnull
   @java.lang.Override
   protected int getChannelId()
   {
