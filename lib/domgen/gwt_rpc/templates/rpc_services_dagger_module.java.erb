@@ -74,7 +74,7 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
   @javax.annotation.Nonnull
   public static org.realityforge.replicant.client.transport.WebPollerConfig newWebPollerConfig()
   {
-    return new org.realityforge.replicant.client.transport.WebPollerConfig( getBaseURL(), <%= repository.gwt_rpc.rpc_services_dagger_module_name %>::updateTokenAndExecute, <%= repository.gwt_rpc.rpc_services_dagger_module_name %>::getAuthenticationToken );
+    return new org.realityforge.replicant.client.transport.WebPollerConfig( getBaseURL(), <%= repository.gwt_rpc.rpc_services_dagger_module_name %>::updateTokenAndExecute, () -> <%= repository.gwt_rpc.rpc_services_dagger_module_name %>.getKeycloak().getToken() );
   }
 <% end -%>
 
