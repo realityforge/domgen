@@ -6,20 +6,18 @@ package <%= to_package(repository.arez.qualified_entity_locator_name) %>;
 public final class <%= repository.arez.entity_locator_name %>
   extends org.realityforge.replicant.client.AbstractEntityLocator
 {
-  @java.lang.SuppressWarnings( { "PMD.UnusedFormalParameter" } )
+<% daos = repository.data_modules.select{|data_module|data_module.arez?}.collect {|data_module| data_module.entities.select{|entity|entity.imit?}.collect{|entity|entity.dao}}.flatten -%>
   @javax.inject.Inject
-  public <%= repository.arez.entity_locator_name %>( @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository )
+  public <%= repository.arez.entity_locator_name %>( <%= daos.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.qualified_name.gsub('.',''))}"}.join(', ') %> )
   {
 <% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
 <% data_module.entities.select{|entity|entity.arez? && entity.final?}.each do |entity| -%>
     registerLookup( <%= entity.arez.qualified_name %>.class,
-                    id -> repository.<%= Reality::Naming.camelize(data_module.name) %>().<%= Reality::Naming.camelize(entity.dao.name) %>().findBy<%= entity.primary_key.name %>( (<%= annotated_type(entity.primary_key, :arez, :default, :assume_generated => true) %>)id ),
-                    () -> repository.<%= Reality::Naming.camelize(data_module.name) %>().<%= Reality::Naming.camelize(entity.dao.name) %>().findAll() );
+                    id -> <%= Reality::Naming.camelize(entity.dao.qualified_name.gsub('.','')) %>.findBy<%= entity.primary_key.name %>( (<%= annotated_type(entity.primary_key, :arez, :default, :assume_generated => true) %>)id ) );
 <% end -%>
 <% data_module.entities.select{|entity|entity.arez? && !entity.final?}.each do |entity| -%>
     registerLookup( <%= entity.arez.qualified_name %>.class,
-                    id -> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( repository, (<%= annotated_type(entity.primary_key, :arez, :default, :assume_generated => true) %>) id ),
-                    () -> findAll<%= data_module.name %><%= entity.name %>( repository ) );
+                    id -> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( repository, (<%= annotated_type(entity.primary_key, :arez, :default, :assume_generated => true) %>) id ) );
 <% end -%>
 <% end -%>
   }
@@ -38,16 +36,6 @@ public final class <%= repository.arez.entity_locator_name %>
     }
 <% end -%>
     return null;
-  }
-
-  @javax.annotation.Nonnull
-  private java.util.List<<%= entity.arez.qualified_name %>> findAll<%= data_module.name %><%= entity.name %>( @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository )
-  {
-    final java.util.ArrayList<<%= entity.arez.qualified_name %>> results = new java.util.ArrayList<>();
-<% entity.compatible_concrete_types.each do |subtype| -%>
-    results.addAll( repository.<%= Reality::Naming.camelize(subtype.data_module.name) %>().<%= Reality::Naming.camelize(subtype.dao.name) %>().findAll() );
-<% end -%>
-    return results;
   }
 <% end -%>
 <% end -%>
