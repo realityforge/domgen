@@ -18,7 +18,7 @@ public class <%= repository.imit.rpc_request_builder_name %>
   {
     super.doFinish( rb );
 <% if repository.gwt_rpc.secure_services? -%>
-    rb.setHeader( "Authorization", "Bearer " + <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getAuthenticationToken() );
+    rb.setHeader( "Authorization", "Bearer " + <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getKeycloak().getToken() );
 <% end -%>
     rb.setHeader( MODULE_BASE_HEADER, <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getBaseURL() );
   }

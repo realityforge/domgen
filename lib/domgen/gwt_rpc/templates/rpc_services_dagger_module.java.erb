@@ -47,17 +47,13 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 
   public static void updateTokenAndExecute( @javax.annotation.Nonnull final java.lang.Runnable action )
   {
-    final org.realityforge.gwt.keycloak.Keycloak keycloak = c_keycloak;
-    if ( null == keycloak )
+    if ( null == c_keycloak )
     {
       action.run();
     }
     else
     {
-      keycloak.updateToken( c_minTokenValiditySeconds, () -> {
-        setAuthenticationToken( keycloak.getToken() );
-        action.run();
-      } );
+      c_keycloak.updateToken( c_minTokenValiditySeconds, action );
     }
   }
 
@@ -74,6 +70,12 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
     assert null != c_request;
     return c_request;
   }
+
+  @javax.annotation.Nonnull
+  public static org.realityforge.replicant.client.transport.WebPollerConfig newWebPollerConfig()
+  {
+    return new org.realityforge.replicant.client.transport.WebPollerConfig( getBaseURL(), <%= repository.gwt_rpc.rpc_services_dagger_module_name %>::updateTokenAndExecute, <%= repository.gwt_rpc.rpc_services_dagger_module_name %>::getAuthenticationToken );
+  }
 <% end -%>
 
   public static void setBaseURL( @javax.annotation.Nonnull final String baseURL )
@@ -86,15 +88,6 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
     return c_baseURL;
   }
 
-  public static String getAuthenticationToken()
-  {
-    return c_authenticationToken;
-  }
-
-  public static void setAuthenticationToken( @javax.annotation.Nullable final String authenticationToken )
-  {
-    c_authenticationToken = authenticationToken;
-  }
 <%
   needs_xsrf =
     repository.data_modules.select{|data_module| data_module.gwt_rpc?}.any? do |data_module|
