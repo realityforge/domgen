@@ -23,20 +23,15 @@ public final class <%= data_module.imit.mapper_name %>
 <% end -%>
 <% end -%>
 
-  private final org.realityforge.replicant.client.EntityLocator _entityLocator;
-  private final <%= data_module.arez.qualified_data_module_repository_name %> _repository;
-
-  @javax.inject.Inject
-  public <%= data_module.imit.mapper_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= data_module.arez.qualified_data_module_repository_name %> repository )
+  private <%= data_module.imit.mapper_name %>()
   {
-    _entityLocator = java.util.Objects.requireNonNull( entityLocator );
-    _repository = java.util.Objects.requireNonNull( repository );
   }
+
 <% data_module.entities.select { |entity| entity.imit? }.each do |entity| -%>
 <% if entity.concrete? -%>
 
   @javax.annotation.Nonnull
-  public <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
+  public static <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= data_module.arez.qualified_data_module_repository_name %> repository, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
   {
 <% entity.attributes.select{|attribute| attribute.arez?}.each do |attribute|
     key = "#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}"
@@ -63,12 +58,12 @@ public final class <%= data_module.imit.mapper_name %>
 -%>
     final <%= attribute.imit.java_type(:transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.name) %> = <%= attribute.nullable? ? "( data.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %>;
 <% end -%>
-    return _repository.<%= Reality::Naming.camelize(entity.dao.name) %>().create( _entityLocator, <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
+    return repository.<%= Reality::Naming.camelize(entity.dao.name) %>().create( entityLocator, <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
 
   }
 <% end -%>
 
-  public void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.name %> entity, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
+  public static void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.name %> entity, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends) -%>
