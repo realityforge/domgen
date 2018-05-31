@@ -14,4 +14,9 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     end
   end
 end
-%>}
+%>
+
+  private <%= repository.imit.entity_type_constants_name %>()
+  {
+  }
+}
