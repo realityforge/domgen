@@ -119,7 +119,7 @@ public abstract class <%= entity.arez.name %>
 
   public final boolean will<%= attribute.arez.name %>Link()
   {
-    return <%= attribute.nullable? ? "null == _#{Reality::Naming.camelize(attribute.referencing_link_name)} ? true : " : '' %> null != _entityLocator.findByID( <%= attribute.referenced_remote_entity.arez.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
+    return <%= attribute.nullable? ? "null == _#{Reality::Naming.camelize(attribute.referencing_link_name)} ? true : " : '' %> null != _entityLocator.findById( <%= attribute.referenced_remote_entity.arez.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
   }
 
   public final boolean is<%= attribute.arez.name %>Linked()
@@ -255,7 +255,7 @@ public abstract class <%= entity.arez.name %>
     checkValidity();
     if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
     {
-      org.realityforge.braincheck.Guards.invariant( () -> _entityLocator.findByID( <%= entity.arez.name %>.class, <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.name %>() ) == this,
+      org.realityforge.braincheck.Guards.invariant( () -> _entityLocator.findById( <%= entity.arez.name %>.class, <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.name %>() ) == this,
                                                     () -> "Registered entity does not match current entity. Current Entity: " + this );
 <% entity.declared_attributes.select{ |a| a.arez? && (a.reference? && a.remote_reference?) && a.inverse.traversable? }.each do |attribute| -%>
       if( null != _<%= Reality::Naming.camelize(attribute.arez.name) %> )
@@ -376,7 +376,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
   {
     if( null == _<%= Reality::Naming.camelize(attribute.arez.name) %> <%= attribute.nullable? ? "&& null != _#{Reality::Naming.camelize(attribute.referencing_link_name)}" :'' %> )
     {
-      _<%= Reality::Naming.camelize(attribute.arez.name) %> = _entityLocator.findByID( <%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).arez.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
+      _<%= Reality::Naming.camelize(attribute.arez.name) %> = _entityLocator.findById( <%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).arez.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
       if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
       {
         org.realityforge.braincheck.Guards.invariant( () -> null != _<%= Reality::Naming.camelize(attribute.arez.name) %>,
