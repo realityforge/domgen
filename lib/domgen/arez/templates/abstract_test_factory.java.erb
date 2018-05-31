@@ -80,7 +80,7 @@ end.join(', ') -%> );
   @javax.annotation.Nonnull
   protected final <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
   {
-    return rootRepository().<%= Reality::Naming.camelize(data_module.name) %>().<%= Reality::Naming.camelize(dao.name) %>();
+    return s( <%= dao.arez.qualified_repository_name %>.class );
   }
 <%
   end
@@ -90,12 +90,6 @@ end.join(', ') -%> );
   protected final <%= data_module.repository.arez.qualified_entity_locator_name %> entityLocator()
   {
     return s( <%= data_module.repository.arez.qualified_entity_locator_name %>.class );
-  }
-
-  @javax.annotation.Nonnull
-  protected final <%= data_module.repository.arez.qualified_root_repository_name %> rootRepository()
-  {
-    return s( <%= data_module.repository.arez.qualified_root_repository_name %>.class );
   }
 
   @javax.annotation.Nonnull
