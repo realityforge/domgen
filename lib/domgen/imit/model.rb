@@ -980,6 +980,7 @@ module Domgen
 CONTENT
         add_test_class_content(test_content)
          if repository.gwt?
+           repository.gwt.add_dagger_module(schema_dagger_module_name, qualified_schema_dagger_module_name)
            repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
            repository.gwt.add_test_class_content(test_content)
            repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name)
