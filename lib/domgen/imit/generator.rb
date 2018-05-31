@@ -17,6 +17,9 @@ Domgen::Generator.define([:imit],
                          [Domgen::Java::Helper, Domgen::Imit::Helper]) do |g|
   g.template_set(:imit_metadata) do |template_set|
     template_set.erb_template(:repository,
+                              'shared/system_constants.java.erb',
+                              'main/java/#{repository.imit.qualified_system_constants_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
                               'shared/subscription_constants.java.erb',
                               'main/java/#{repository.imit.qualified_subscription_constants_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,

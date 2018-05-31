@@ -638,6 +638,12 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      attr_writer :schema_id
+
+      def schema_id
+        @schema_id || 1
+      end
+
       def secured?
         @secured.nil? ? repository.keycloak? : !!@secured
       end
@@ -690,6 +696,7 @@ module Domgen
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
       java_artifact :client_router_impl, :comm, :client, :imit, '#{client_router_interface_name}Impl'
+      java_artifact :system_constants, :comm, :shared, :imit, '#{repository.name}SchemaConstants'
       java_artifact :subscription_constants, :comm, :shared, :imit, '#{repository.name}SubscriptionConstants'
       java_artifact :entity_type_constants, :comm, :shared, :imit, '#{repository.name}EntityTypeConstants'
       java_artifact :system_schema, :comm, :client, :imit, '#{repository.name}SystemSchema'

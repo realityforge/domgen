@@ -35,7 +35,7 @@ public final class <%= repository.imit.system_schema_name %>
   end
 %>
 
-    return new replicant.SystemSchema( 1,
+    return new replicant.SystemSchema( <%= repository.imit.qualified_system_constants_name %>.SCHEMA_ID,
                                        replicant.Replicant.areNamesEnabled() ? "<%= repository.name %>" : null,
                                        new replicant.ChannelSchema[]{ <%= repository.imit.graphs.collect{|graph| "channel#{graph.name}" }.join(', ') %> },
                                        new replicant.EntitySchema[]{ } );
