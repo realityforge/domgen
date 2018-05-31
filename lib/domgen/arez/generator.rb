@@ -23,21 +23,9 @@ Domgen::Generator.define([:arez],
                               'domgen_repository_extension.java.erb',
                               'main/java/#{dao.arez.qualified_domgen_repository_extension_name.gsub(".","/")}.java',
                               :guard => '!dao.entity.abstract?')
-    template_set.erb_template(:data_module,
-                              'data_module_repository.java.erb',
-                              'main/java/#{data_module.arez.qualified_data_module_repository_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'root_repository.java.erb',
-                              'main/java/#{repository.arez.qualified_root_repository_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'entity_locator.java.erb',
                               'main/java/#{repository.arez.qualified_entity_locator_name.gsub(".","/")}.java')
-  end
-
-  g.template_set(:arez_client_dao_gwt) do |template_set|
-    template_set.erb_template(:repository,
-                              'dao_dagger_module.java.erb',
-                              'main/java/#{repository.arez.qualified_dao_dagger_module_name.gsub(".","/")}.java')
   end
 
   %w(main test).each do |type|
