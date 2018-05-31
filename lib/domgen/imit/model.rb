@@ -747,27 +747,6 @@ module Domgen
         @extra_test_modules ||= []
       end
 
-      def replicate_mode=(replicate_mode)
-        Domgen.error("replicate_mode '#{replicate_mode}' is invalid. Must be one of #{self.class.valid_replicate_modes.inspect}") unless self.class.valid_replicate_modes.include?(replicate_mode)
-        @replicate_mode = replicate_mode
-      end
-
-      def replicate_mode
-        @replicate_mode || :poll
-      end
-
-      def poll_replicate_mode?
-        :poll == replicate_mode
-      end
-
-      def undefined_replicate_mode?
-        :undefined == replicate_mode
-      end
-
-      def self.valid_replicate_modes
-        [:poll, :undefined]
-      end
-
       def auto_register_change_listener=(auto_register_change_listener)
         @auto_register_change_listener = !!auto_register_change_listener
       end

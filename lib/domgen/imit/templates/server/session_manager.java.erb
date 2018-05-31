@@ -9,7 +9,7 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 @javax.enterprise.inject.Typed( { <%= repository.imit.qualified_poll_service_name %>.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
 public class <%= repository.imit.session_manager_name %>
   extends org.realityforge.replicant.server.transport.Replicant<%= repository.imit.secured? ? 'Secured' : '' -%>SessionManagerImpl
-  implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %><% if repository.imit.poll_replicate_mode? %>, <%= repository.imit.qualified_poll_service_name %><% end %>
+  implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>, <%= repository.imit.qualified_poll_service_name %>
 {
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
 <% if repository.imit.secured? -%>
@@ -443,7 +443,6 @@ entities.uniq.each do |entity| -%>
   {
     return new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
   }
-<% if repository.imit.poll_replicate_mode? -%>
 
   @java.lang.Override
   @javax.annotation.Nullable
@@ -452,7 +451,6 @@ entities.uniq.each do |entity| -%>
   {
     return pollJsonData( ensureSession( clientID ), lastSequenceAcked );
   }
-<% end -%>
 <% if repository.imit.secured? -%>
 
   @javax.annotation.Nonnull
