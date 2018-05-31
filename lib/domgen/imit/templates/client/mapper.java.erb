@@ -9,7 +9,7 @@ package <%= to_package(data_module.imit.qualified_mapper_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" } )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.CollapsibleIfStatements", "PMD.SingularField", "PMD.UnusedFormalParameter" } )
-public class <%= data_module.imit.mapper_name %>
+public final class <%= data_module.imit.mapper_name %>
 {
 <% data_module.entities.select{ |entity| entity.imit?  }.each do |entity|
   entity_prefix = "#{Reality::Naming.uppercase_constantize(entity.name)}_"
