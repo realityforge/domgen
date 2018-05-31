@@ -1,15 +1,15 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_system_schema_name) %>;
+package <%= to_package(repository.imit.qualified_schema_dagger_module_name) %>;
+<% entities = repository.data_modules.select { |data_module| data_module.imit? }.collect{|data_module| data_module.entities.select{|entity| entity.imit? && entity.concrete?} }.flatten -%>
 
 @javax.annotation.Generated( "Domgen" )
-public final class <%= repository.imit.system_schema_name %>
+@dagger.Module
+public class <%= repository.imit.schema_dagger_module_name %>
 {
-  private <%= repository.imit.system_schema_name %>()
-  {
-  }
-
   @javax.annotation.Nonnull
-  public static replicant.SystemSchema create( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository )
+  @dagger.Provides
+  @javax.inject.Singleton
+  static replicant.SystemSchema provideSystemSchema( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, <%= entities.collect{|e|"@javax.annotation.Nonnull final #{e.dao.arez.qualified_repository_name} #{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> )
   {
 <% repository.imit.graphs.each do |graph| -%>
     final replicant.ChannelSchema channel<%= graph.name %> =
@@ -21,19 +21,14 @@ public final class <%= repository.imit.system_schema_name %>
                                    <%= graph.cacheable? %>,
                                    <%= graph.external_visibility? %> );
 <% end -%>
-<% repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
-     data_module.entities.each do |entity|
-       if entity.imit? && entity.concrete? -%>
+<% entities.each do |entity| -%>
     final replicant.EntitySchema entity<%= entity.data_module.name %><%= entity.name %> =
       new replicant.EntitySchema( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>,
                                   replicant.Replicant.areNamesEnabled() ? "<%= entity.qualified_name %>" : null,
                                   <%= entity.arez.qualified_name %>.class,
-                                  (id, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.create<%= entity.name %>( entityLocator, repository.<%= Reality::Naming.camelize(entity.data_module.name) %>(), data ),
+                                  (id, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.create<%= entity.name %>( entityLocator, <%= Reality::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository, data ),
                                   (entity, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.update<%= entity.name %>( entity, data ) );
-<%    end
-    end
-  end
-%>
+<% end %>
 
     return new replicant.SystemSchema( <%= repository.imit.qualified_system_constants_name %>.SCHEMA_ID,
                                        replicant.Replicant.areNamesEnabled() ? "<%= repository.name %>" : null,
