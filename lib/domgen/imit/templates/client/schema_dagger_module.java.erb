@@ -17,7 +17,7 @@ public class <%= repository.imit.schema_dagger_module_name %>
                                    replicant.Replicant.areNamesEnabled() ? "<%= graph.name %>" : null,
                                    <%= !graph.instance_root? %>,
                                    replicant.ChannelSchema.FilterType.<%= graph.filter_parameter.nil? ? 'NONE' : graph.filter_parameter.immutable? ? 'STATIC' : 'DYNAMIC' %>,
-                                   <% if graph.filtered? %>(<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, replicant.Entity entity) -> doesEntityMatch<%= graph.name %>Filter( context, router, filter, entity )<% else %>null<% end %>,
+                                   <% if graph.filtered? && !graph.filter_parameter.immutable? %>(<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, replicant.Entity entity) -> doesEntityMatch<%= graph.name %>Filter( context, router, filter, entity )<% else %>null<% end %>,
                                    <%= graph.cacheable? %>,
                                    <%= graph.external_visibility? %> );
 <% end -%>
@@ -35,7 +35,7 @@ public class <%= repository.imit.schema_dagger_module_name %>
                                        new replicant.ChannelSchema[]{ <%= repository.imit.graphs.collect{|graph| "channel#{graph.name}" }.join(', ') %> },
                                        new replicant.EntitySchema[]{ } );
   }
-<% repository.imit.graphs.select{|g| g.filtered?}.each do |graph| -%>
+<% repository.imit.graphs.select{|g| g.filtered? && !g.filter_parameter.immutable?}.each do |graph| -%>
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
   private static boolean doesEntityMatch<%= graph.name %>Filter( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, @javax.annotation.Nonnull final replicant.Entity entity )
