@@ -6,7 +6,7 @@ package <%= to_package(repository.imit.qualified_rpc_request_builder_name) %>;
 public class <%= repository.imit.rpc_request_builder_name %>
   extends org.realityforge.replicant.client.gwt.ReplicantRpcRequestBuilder
 {
-  @javax.annotation.Nonnull
+  @javax.annotation.Nullable
   @java.lang.Override
   protected replicant.Request getRequest()
   {
