@@ -218,6 +218,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   protected void prepareServices()
   {
 <% if repository.imit? -%>
+    org.realityforge.gwt.webpoller.client.WebPoller.register( org.realityforge.gwt.webpoller.client.TimerBasedWebPoller::new );
     replicant.WebStorageCacheService.install();
     com.google.gwt.user.client.Window.addWindowClosingHandler( e -> replicant.Replicant.context().deactivate() );
 <% end -%>
