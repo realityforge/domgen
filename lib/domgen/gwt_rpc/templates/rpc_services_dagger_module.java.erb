@@ -108,28 +108,14 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
     return c_xsrfToken;
   }
 
-<%
-  end
--%>
-  public static void initialize(<% if needs_xsrf %> final com.google.gwt.user.client.rpc.XsrfToken xsrfToken <% end -%>)
+  public static void setXsrfToken( @javax.annotation.Nonnull final com.google.gwt.user.client.rpc.XsrfToken xsrfToken )
   {
-<%
-  if needs_xsrf
--%>
-    if( null != c_xsrfToken )
-    {
-      throw new IllegalStateException( "Attempting to re-initialize dagger module." );
-    }
-    c_xsrfToken = xsrfToken;
-<%
-  end
--%>
-    if( null == getBaseURL() )
-    {
-      setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
-    }
+    c_xsrfToken = java.util.Objects.requireNonNull( xsrfToken );
   }
 
+<%
+  end
+-%>
 <%
   repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
     data_module.services.select{|service| service.gwt_rpc?}.each do |service|

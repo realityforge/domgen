@@ -247,13 +247,11 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setKeycloak( getKeycloak() );
 <% end -%>
     <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setBaseURL( getApplicationURL() );
-    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.initialize();
 <% if repository.iris_audit? -%>
     iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setBaseURL( getApplicationURL() );
 <% if repository.keycloak? -%>
     iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
-    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.initialize();
 <% end -%>
 <% if repository.imit? -%>
 <% repository.imit.remote_datasources.select{|ds| ds.gwt_rpc_enabled? }.each do |ds| -%>
@@ -261,7 +259,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.keycloak? && ds.keycloak_enabled? -%>
     <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
-    <%= ds.base_package %>.client.ioc.<%= ds.name %>GwtRpcServicesDaggerModule.initialize();
 <% end -%>
 <% end -%>
 <% if repository.berk? -%>
@@ -269,7 +266,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.keycloak? -%>
     iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
-    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.initialize();
 <% end -%>
   }
 <% end -%>
