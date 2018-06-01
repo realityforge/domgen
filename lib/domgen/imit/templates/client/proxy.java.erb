@@ -72,9 +72,9 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
    if !method.return_value.collection?
      result_string = 'result'
      if method.return_value.reference?
-       result_string = "arez.Arez.context().safeAction( () -> _entityLocator.getByID( #{method.return_value.referenced_entity.arez.qualified_name}.class, result ) )"
+       result_string = "arez.Arez.context().safeAction( () -> _entityLocator.getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, result ) )"
      elsif method.return_value.remote_reference?
-       result_string = "arez.Arez.context().safeAction( () -> _entityLocator.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, result ) )"
+       result_string = "arez.Arez.context().safeAction( () -> _entityLocator.getById( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, result ) )"
      end
      if method.return_value.nullable?
        result_string = "null == result ? null : #{result_string}"
@@ -94,9 +94,9 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
           <%
              param_value =
              if method.return_value.reference?
-               "arez.Arez.context().safeAction( () -> _entityLocator.getByID( #{method.return_value.referenced_entity.arez.qualified_name}.class, id ) )"
+               "arez.Arez.context().safeAction( () -> _entityLocator.getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, id ) )"
              elsif method.return_value.remote_reference?
-               "arez.Arez.context().safeAction( () -> _entityLocator.getByID( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, id ) )"
+               "arez.Arez.context().safeAction( () -> _entityLocator.getById( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, id ) )"
              end
           %>
           $result.add( <%= param_value %> );
