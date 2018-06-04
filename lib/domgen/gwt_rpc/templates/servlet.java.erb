@@ -37,18 +37,15 @@ public class <%= service.gwt_rpc.servlet_name %>
     boolean headerSet = false;
 <% end -%>
 
-<% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| %>
+<% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| -%>
     final <%= parameter.referenced_struct.ee.qualified_name %> $<%= parameter.name %>;
 <% end %>
-<% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
+<% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| -%>
     <%= annotated_type(parameter, :ejb, :boundary, :final => true) %> $<%= parameter.name %>;
-<% end %>
+<% end -%>
     java.lang.Throwable cause = null;
     try
-  {
-<% if method.parameters.any?{|p| p.struct?}
-%>  try
-  {
+    {
 <% end %>
 <%
    return_prefix = ''
@@ -101,10 +98,10 @@ LOOP
          return_postfix = "try {\n #{return_postfix} \n} catch ( final java.io.IOException ioe ) { cause = ioe; throw new IllegalArgumentException( ioe.getMessage(), ioe ); }"
        end
    end
-%>
-<% method.parameters.select{|p|p.struct? && !p.collection?}.each do |parameter| %>
+-%>
+<% method.parameters.select{|p|p.struct? && !p.collection?}.each do |parameter| -%>
     $<%= parameter.name %> = _jsonMapper.readValue( <%= parameter.name %>, <%= parameter.ejb.java_type %>.class );
-<% end %>
+<% end -%>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
     $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.ejb.java_component_type(:boundary) %>>();
     <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
@@ -125,15 +122,15 @@ LOOP
     $<%= parameter.name %>.add( <%= param_value %> );
     }
     <% if parameter.nullable? %>}<% end %>
-<% end %>
-<% if method.parameters.any?{|p| p.struct?}
-%>    }
+<% end -%>
+<% if method.parameters.any?{|p| p.struct?} -%>
+    }
     catch ( final java.io.IOException ioe )
     {
       cause = ioe;
       throw new IllegalArgumentException( ioe.getMessage(), ioe );
     }
-<% end %>
+<% end -%>
     <%= return_prefix %>_service.<%= method.gwt_rpc.name %>(<%= method.parameters.collect do |p|
   if p.gwt_rpc.environmental?
     value = p.gwt_rpc.environment_value
@@ -157,15 +154,15 @@ LOOP
   end
   value
 end.join(', ') %>);
-  <%= return_postfix %>
+      <%= return_postfix %>
     }
-<% method.exceptions.each do |exception| %>
+<% method.exceptions.each do |exception| -%>
     catch ( final <%= exception.ee.qualified_name %> e )
     {
       cause = e;
       throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
     }
-<% end %>
+<% end -%>
 <% if method.imit? -%>
     catch ( final java.lang.RuntimeException e )
     {
@@ -175,7 +172,7 @@ end.join(', ') %>);
       cause = e;
       throw e;
     }
-<% end %>
+<% end -%>
     finally
     {
 <% if method.imit? -%>
@@ -195,13 +192,13 @@ end.join(', ') %>);
 <% end -%>
     }
   }
-<% end %>
+<% end -%>
 <%
 has_cookie = service.methods.select{|method| method.gwt_rpc?}.any? do |method|
    method.parameters.any?{|p| p.gwt_rpc.environmental? && p.gwt_rpc.environment_key_is_cookie?}
  end
-if has_cookie
-%>
+if has_cookie -%>
+
   @javax.annotation.Nullable
   private static String findCookie( final javax.servlet.http.HttpServletRequest request, final String cookieName )
   {
@@ -218,7 +215,7 @@ if has_cookie
     }
     return null;
   }
-<% end %>
+<% end -%>
 
   protected void doUnexpectedFailure( final java.lang.Throwable e )
   {
