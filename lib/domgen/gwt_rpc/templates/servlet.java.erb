@@ -32,11 +32,8 @@ public class <%= service.gwt_rpc.servlet_name %>
 %>
   {
 <% if method.imit? -%>
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER ) );
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) );
     boolean headerSet = false;
 <% end -%>
-
 <% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| -%>
     final <%= parameter.referenced_struct.ee.qualified_name %> $<%= parameter.name %>;
 <% end %>
@@ -46,6 +43,13 @@ public class <%= service.gwt_rpc.servlet_name %>
     java.lang.Throwable cause = null;
     try
     {
+<% if method.imit? -%>
+      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER ) );
+      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null );
+<% end -%>
+<% if method.parameters.any?{|p| p.struct?} -%>
+      try
+      {
 <% end %>
 <%
    return_prefix = ''
