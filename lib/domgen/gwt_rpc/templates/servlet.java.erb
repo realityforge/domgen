@@ -200,7 +200,7 @@ has_cookie = service.methods.select{|method| method.gwt_rpc?}.any? do |method|
 if has_cookie -%>
 
   @javax.annotation.Nullable
-  private static String findCookie( final javax.servlet.http.HttpServletRequest request, final String cookieName )
+  private static String findCookie( final javax.servlet.http.HttpServletRequest request, @javax.annotation.Nonnull final String cookieName )
   {
     final javax.servlet.http.Cookie[] cookies = request.getCookies();
     if ( null != cookies )
