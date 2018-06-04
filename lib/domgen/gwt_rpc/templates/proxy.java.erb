@@ -75,7 +75,7 @@ public class <%= service.gwt_rpc.proxy_name %>
     param_value = "null == #{Reality::Naming.camelize(parameter.name)} ? null : #{param_value}"
   end
   param_value
-end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.empty? ? '' : ', ' %><% if method.imit? %>new org.realityforge.replicant.client.gwt.ReplicantGwtRpcAsyncCallback( <%= service.data_module.repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.getRequest(), <% end %>new <%= service.data_module.repository.gwt_rpc.qualified_async_callback_adapter_name %><<%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %>,<%= method.return_value.gwt_rpc.non_primitive_java_type(:boundary) %>>( <%= service.gwt_rpc.default_callback? ? '_callback' : 'null' -%>, callback, errorCallback )
+end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.empty? ? '' : ', ' %>new <%= service.data_module.repository.gwt_rpc.qualified_async_callback_adapter_name %><<%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %>,<%= method.return_value.gwt_rpc.non_primitive_java_type(:boundary) %>>( <%= service.gwt_rpc.default_callback? ? '_callback' : 'null' -%>, callback, errorCallback )
     {
       @java.lang.Override
       <%= annotated_type(method.return_value, :gwt_rpc, :boundary, :non_primitive => true, :protected => true, :final => true) %> convert( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
@@ -123,7 +123,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% end -%>
         return <%= result_string %>;
       }
-    } <% if method.imit? %>)<% end %> );
+    } );
 <% if method.imit? -%>
     } );
 <% end -%>
