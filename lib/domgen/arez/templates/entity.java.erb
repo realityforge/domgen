@@ -30,11 +30,11 @@ public abstract class <%= entity.arez.name %>
 -%>
 <% entity.arez.referencing_client_side_attributes.each do |attribute|
     if attribute.inverse.multiplicity == :many -%>
-  private final iris.rose.client.HasManyRelationship<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) %> = iris.rose.client.HasManyRelationship.create();
+  private final org.realityforge.replicant.client.HasManyRelationship<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) %> = org.realityforge.replicant.client.HasManyRelationship.create();
 <% elsif attribute.inverse.multiplicity == :one -%>
-  private final iris.rose.client.HasOneInverseRelationship<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(attribute.inverse.name) %> = iris.rose.client.HasOneInverseRelationship.create();
+  private final org.realityforge.replicant.client.HasOneInverseRelationship<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(attribute.inverse.name) %> = org.realityforge.replicant.client.HasOneInverseRelationship.create();
 <% else attribute.inverse.multiplicity == :zero_or_one -%>
-  private final iris.rose.client.HasZeroOrOneInverseRelationship<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(attribute.inverse.name) %> = iris.rose.client.HasZeroOrOneInverseRelationship.create();
+  private final org.realityforge.replicant.client.HasZeroOrOneInverseRelationship<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(attribute.inverse.name) %> = org.realityforge.replicant.client.HasZeroOrOneInverseRelationship.create();
 <%
     end
   end
