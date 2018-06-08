@@ -17,7 +17,7 @@ public abstract class <%= entity.arez.name %>
 <% entity.declared_attributes.select { |a| !a.abstract? && a.arez? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
-<%= entity.extends.nil? ? "  protected org.realityforge.replicant.client.EntityLocator _entityLocator;\n" : ''
+<%= entity.extends.nil? ? "  protected final org.realityforge.replicant.client.EntityLocator _entityLocator;\n" : ''
 %><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.arez? }.each do |attribute|
   if attribute.reference? || attribute.remote_reference? -%>
   private <%= attribute.arez.java_type %> _<%= Reality::Naming.camelize(attribute.arez.name) %>;
@@ -30,18 +30,15 @@ public abstract class <%= entity.arez.name %>
 -%>
 <% entity.arez.referencing_client_side_attributes.each do |attribute|
     if attribute.inverse.multiplicity == :many -%>
-  private java.util.List<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) %>;
-<% else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one -%>
-  private <%= attribute.entity.arez.qualified_name %> <%= Reality::Naming.camelize(attribute.inverse.name) %>;
+  private final iris.rose.client.HasManyRelationship<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) %> = iris.rose.client.HasManyRelationship.create();
+<% elsif attribute.inverse.multiplicity == :one -%>
+  private final iris.rose.client.HasOneInverseRelationship<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(attribute.inverse.name) %> = iris.rose.client.HasOneInverseRelationship.create();
+<% else attribute.inverse.multiplicity == :zero_or_one -%>
+  private final iris.rose.client.HasZeroOrOneInverseRelationship<<%= attribute.entity.arez.qualified_name %>> <%= Reality::Naming.camelize(attribute.inverse.name) %> = iris.rose.client.HasZeroOrOneInverseRelationship.create();
 <%
     end
   end
   -%>
-<% if entity.extends.nil? -%>
-  private boolean _$linking;
-  private boolean _$delinking;
-  private boolean _$linked;
-<% end -%>
 
   protected <%= entity.arez.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, <%= entity.attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, :transport, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(:transport))}"}.join(', ') %>)
   {
@@ -176,11 +173,10 @@ public abstract class <%= entity.arez.name %>
         if attribute.inverse.multiplicity == :many
           plural_name = Reality::Naming.pluralize(name) -%>
 
-  @arez.annotations.Observable( expectSetter = false )
   @javax.annotation.Nonnull
   public java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= plural_name %>()
   {
-    return java.util.Collections.unmodifiableList( safeGet<%= plural_name %>() );
+    return <%= Reality::Naming.camelize(plural_name) %>.getEntities();
   }
 
   <% if attribute.entity.data_module.name != entity.data_module.name %>/**
@@ -191,8 +187,7 @@ public abstract class <%= entity.arez.name %>
   @java.lang.Deprecated
   public <% end %>final void add<%= name %>( final <%= type %> value )
   {
-    safeGet<%= plural_name %>().add( value );
-    get<%= plural_name %>Observable().reportChanged();
+    <%= Reality::Naming.camelize(plural_name) %>.link( value );
   }
 
   <% if attribute.entity.data_module.name != entity.data_module.name %>/**
@@ -203,35 +198,17 @@ public abstract class <%= entity.arez.name %>
   @java.lang.Deprecated
   public <% end %>final void remove<%= name %>( final <%= type %> value )
   {
-    safeGet<%= plural_name %>().remove( value );
-    // During delink phase this observable will already be disposed and we should not report changes
-    if ( !arez.Disposable.isDisposed( this ) )
-    {
-      get<%= plural_name %>Observable().reportChanged();
-    }
+    <%= Reality::Naming.camelize(plural_name) %>.delink( value );
   }
 
-  @arez.annotations.ObservableRef
-  @javax.annotation.Nonnull
-  protected abstract arez.Observable get<%= plural_name %>Observable();
-
-  private java.util.List<<%= type %>> safeGet<%= plural_name %>()
-  {
-    if( null == <%= Reality::Naming.camelize(plural_name) %> )
-    {
-      <%= Reality::Naming.camelize(plural_name) %> = new java.util.LinkedList<<%= type %>>();
-    }
-    return <%= Reality::Naming.camelize(plural_name) %>;
-  }
 <% else -%>
-  @arez.annotations.Observable
+
   public <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> <%= getter_prefix(attribute) %><%= name %>()
   {
-    return <%= Reality::Naming.camelize(name) %>;
+    return <%= Reality::Naming.camelize(name) %>.getReference();
   }
 
-<% if attribute.entity.data_module.name != entity.data_module.name -%>
-  /**
+  <% if attribute.entity.data_module.name != entity.data_module.name -%>/**
    * This method should not be called directly. It is called when delinking or relinking <%= type %>.
    *
    * @deprecated
@@ -239,12 +216,7 @@ public abstract class <%= entity.arez.name %>
   @java.lang.Deprecated
   public <% end %>void linkSet<%= name %>( final <%= type %> value )
   {
-    set<%= name %>( value );
-  }
-
-  void set<%= name %>( final <%= type %> value )
-  {
-    <%= Reality::Naming.camelize(name) %> = value;
+    <%= Reality::Naming.camelize(name) %>.link( value );
   }
 <% end -%>
 <% end -%>
@@ -280,24 +252,20 @@ public abstract class <%= entity.arez.name %>
 <% end -%>
 <%
 entity.arez.referencing_client_side_attributes.each do |attribute|
-  if attribute.inverse.multiplicity == :many
-%>
-      if( null != <%= Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) %> )
+  if attribute.inverse.multiplicity == :many -%>
+      for( final <%= attribute.entity.arez.qualified_name %> o : get<%= Reality::Naming.pluralize(attribute.inverse.name) %>() )
       {
-        for( final <%= attribute.entity.arez.qualified_name %> o : <%= Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) %> )
-        {
-          o.verify();
-        }
+        o.verify();
       }
-<% else %>
-      if( null != <%= Reality::Naming.camelize(attribute.inverse.name) %> )
+<% else -%>
+      if( <%= Reality::Naming.camelize(attribute.inverse.name) %>.hasReference() )
       {
-        <%= Reality::Naming.camelize(attribute.inverse.name) %>.verify();
+        <%= Reality::Naming.camelize(attribute.inverse.name) %>.getReference().verify();
       }
 <%
   end
  end
-%>
+-%>
     }
   }
 
@@ -305,8 +273,15 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
   @arez.annotations.PreDispose
   protected final void preDispose()
   {
-    delink();
-    _entityLocator = null;
+<% entity.arez.referencing_client_side_attributes.each do |attribute|
+    if attribute.inverse.multiplicity == :many -%>
+    arez.Disposable.dispose( <%= Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) %> );
+<% else -%>
+    arez.Disposable.dispose( <%= Reality::Naming.camelize(attribute.inverse.name) %> );
+<%
+    end
+  end
+  -%>
   }
 <% end -%>
 <% linkable_attributes = entity.declared_attributes.select{|attribute| !attribute.abstract? && (attribute.reference? || attribute.remote_reference?) && attribute.arez? } -%>
@@ -318,63 +293,17 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
   {
 <% if entity.extends -%>
     super.performLink();
-<% else -%>
-    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-    {
-      org.realityforge.braincheck.Guards.invariant( () -> _$linking,
-                                                    () -> "performLink invoked from outside link" );
-    }
 <% end -%>
 <% linkable_attributes.select{|attribute| attribute.arez.eager? }.each do |attribute| -%>
     link<%= attribute.arez.name %>();
 <% end -%>
   }
 
-<% if entity.extends -%>
-  @java.lang.Override
-<% end -%>
-  protected void performDelink()
-  {
-<% if entity.extends -%>
-    super.performDelink();
-<% else -%>
-    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-    {
-      org.realityforge.braincheck.Guards.invariant( () -> _$delinking,
-                                                    () -> "performDelink invoked from outside delink" );
-    }
-<% end -%>
 <% linkable_attributes.each do |attribute| -%>
-    delink<%= attribute.arez.name %>();
-<% end -%>
-  }
-
-<% linkable_attributes.each do |attribute| -%>
-  @SuppressWarnings( { "deprecation" } )
-  private void delink<%= attribute.arez.name %>()
-  {
-<% if attribute.remote_reference? || !attribute.inverse.arez.traversable? -%>
-    _<%= Reality::Naming.camelize(attribute.arez.name) %> = null;
-<% else -%>
-    if( null != _<%= Reality::Naming.camelize(attribute.arez.name) %> )
-    {
-      if ( !arez.Disposable.isDisposed( _<%= Reality::Naming.camelize(attribute.arez.name) %> ) )
-      {
-<% if attribute.inverse.multiplicity == :many -%>
-        _<%= Reality::Naming.camelize(attribute.arez.name) %>.remove<%= attribute.inverse.name %>( this );
-<% else -%>
-        _<%= Reality::Naming.camelize(attribute.arez.name) %>.linkSet<%= attribute.inverse.name %>( null );
-<% end -%>
-      }
-      _<%= Reality::Naming.camelize(attribute.arez.name) %> = null;
-    }
-<% end -%>
-  }
-
   @SuppressWarnings( { "deprecation" } )
   private void link<%= attribute.arez.name %>()
   {
-    if( null == _<%= Reality::Naming.camelize(attribute.arez.name) %> <%= attribute.nullable? ? "&& null != _#{Reality::Naming.camelize(attribute.referencing_link_name)}" :'' %> )
+    if( null == _<%= Reality::Naming.camelize(attribute.arez.name) %> <%= attribute.nullable? ? "&& null != _#{Reality::Naming.camelize(attribute.referencing_link_name)} " :'' %>)
     {
       _<%= Reality::Naming.camelize(attribute.arez.name) %> = _entityLocator.findById( <%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).arez.qualified_name %>.class, _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> );
       if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
@@ -382,9 +311,12 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
         org.realityforge.braincheck.Guards.invariant( () -> null != _<%= Reality::Naming.camelize(attribute.arez.name) %>,
                                                       () -> "Unable to locate entity of type '<%= (attribute.remote_reference? ? attribute.referenced_remote_entity : attribute.referenced_entity).arez.qualified_name %>' and id = '" + _<%= Reality::Naming.camelize(attribute.referencing_link_name) %> + "' via '<%= attribute.arez.name %>' attribute on " + this );
       }
-<% if !attribute.remote_reference? && attribute.inverse.arez.traversable? && attribute.inverse.multiplicity == :many %>        _<%= Reality::Naming.camelize(attribute.arez.name) %>.add<%= attribute.inverse.name %>( this );<% end -%>
-<% if !attribute.remote_reference? && attribute.inverse.arez.traversable? && attribute.inverse.multiplicity != :many %>        _<%= Reality::Naming.camelize(attribute.arez.name) %>.linkSet<%= attribute.inverse.name %>( this );<% end -%>
-
+<% if !attribute.remote_reference? && attribute.inverse.arez.traversable? && attribute.inverse.multiplicity == :many -%>
+      _<%= Reality::Naming.camelize(attribute.arez.name) %>.add<%= attribute.inverse.name %>( this );
+<% end -%>
+<% if !attribute.remote_reference? && attribute.inverse.arez.traversable? && attribute.inverse.multiplicity != :many %>
+      _<%= Reality::Naming.camelize(attribute.arez.name) %>.linkSet<%= attribute.inverse.name %>( this );
+<% end -%>
     }
   }
 
@@ -396,17 +328,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
     if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
     {
       org.realityforge.braincheck.Guards.invariant( () -> !arez.Disposable.isDisposed( this ),
-                                                    () -> "Method invoked on invalid imitation of type <%= entity.arez.name %>" );
-    }
-  }
-
-  protected final void checkLinked()
-  {
-    checkValidity();
-    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-    {
-      org.realityforge.braincheck.Guards.invariant( () -> _$linked,
-                                                    () -> "Method invoked on unlinked imitation of type <%= entity.arez.name %>" );
+                                                    () -> "Method invoked on invalid entity of type <%= entity.arez.name %>" );
     }
   }
 
@@ -414,48 +336,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
   public final void link()
   {
     checkValidity();
-    if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-    {
-      _$linking = true;
-    }
-    try
-    {
-      performLink();
-      if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-      {
-        _$linked = true;
-      }
-    }
-    finally
-    {
-      if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-      {
-        _$linking = false;
-      }
-    }
-  }
-
-  private void delink()
-  {
-    if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-    {
-      _$delinking = true;
-    }
-    try
-    {
-      performDelink();
-      if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-      {
-        _$linked = false;
-      }
-    }
-    finally
-    {
-      if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-      {
-        _$delinking = false;
-      }
-    }
+    performLink();
   }
 
 <% end -%>
