@@ -221,32 +221,17 @@ public abstract class <%= entity.arez.name %>
 <% end -%>
 <% end -%>
 
-  public void verifySelf()
-    throws Exception
-  {
-    checkValidity();
-    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-    {
-      org.realityforge.braincheck.Guards.invariant( () -> _entityLocator.findById( <%= entity.arez.name %>.class, <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.name %>() ) == this,
-                                                    () -> "Registered entity does not match current entity. Current Entity: " + this );
-<% entity.declared_attributes.select{ |a| a.arez? && (a.reference? && a.remote_reference?) && a.inverse.traversable? }.each do |attribute| -%>
-      if( null != _<%= Reality::Naming.camelize(attribute.arez.name) %> )
-      {
-        _<%= Reality::Naming.camelize(attribute.arez.name) %>.verifySelf();
-      }
-<% end -%>
-    }
-  }
-
   @java.lang.SuppressWarnings( { "PMD.UselessOverridingMethod" } )
   @java.lang.Override
   public void verify()
     throws Exception
   {
+    checkValidity();
     if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
     {
 <% if entity.extends.nil? -%>
-      verifySelf();
+      org.realityforge.braincheck.Guards.invariant( () -> _entityLocator.findById( <%= entity.arez.name %>.class, <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.name %>() ) == this,
+                                                    () -> "Registered entity does not match current entity. Current Entity: " + this );
 <% else -%>
       super.verify();
 <% end -%>
