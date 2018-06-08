@@ -116,8 +116,10 @@ module Domgen
 
       def pre_complete
         dao.disable_facet(:arez) if !dao.repository? || !dao.entity.arez?
+      end
 
-        if dao.arez?
+      def post_verify
+        if !dao.entity.abstract? && dao.queries.any?{|q|q.arez?}
           self.extensions << qualified_domgen_repository_extension_name
         end
       end
