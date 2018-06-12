@@ -595,7 +595,7 @@ module Domgen
       end
 
       def immutable?
-        @immutable.nil? ? true : @immutable
+        @immutable.nil? ? false : @immutable
       end
 
       def immutable=(immutable)
