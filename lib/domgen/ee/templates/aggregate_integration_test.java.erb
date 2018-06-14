@@ -11,7 +11,7 @@ public class <%= repository.ee.aggregate_integration_test_name %>
   {
 <% if repository.jms? -%>
 <% repository.jms.destinations.select{|destination| destination.read_permitted? && destination.generate_base_test? }.each do |destination| -%>
-    org.testng.Assert.assertNotNull( <%= destination.qualified_message_integration_test_impl_name %>.class.getMethod( "ensureMessageIsHandled" ).getAnnotation( org.testng.annotations.Test.class ) );
+    org.testng.Assert.assertNotNull( <%= destination.qualified_message_integration_test_impl_name %>.class.getMethod( "ensureMessageIsHandled" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= destination.qualified_message_integration_test_impl_name %> class is expected to have a method named ensureMessageIsHandled annotated with the org.testng.annotations.Test annotation" );
 <% end -%>
 <% end -%>
   }
