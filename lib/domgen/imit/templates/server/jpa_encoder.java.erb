@@ -136,8 +136,8 @@ end
           Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
         end
 -%>
-    final <%= nullable_annotate(attribute, attribute.jpa.java_type, false) %> $<%= attribute.name %> = entity.<%= getter_for(attribute) %>;
 <% unless attribute.primary_key? -%>
+    final <%= nullable_annotate(attribute, attribute.jpa.java_type, false) %> $<%= attribute.name %> = entity.<%= getter_for(attribute) %>;
     attributes.put( "<%= attribute.name %>", <%= "#{value_converter}" %> );
 <% end -%>
 <% end -%>
