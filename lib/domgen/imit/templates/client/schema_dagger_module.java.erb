@@ -4,7 +4,7 @@ package <%= to_package(repository.imit.qualified_schema_dagger_module_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @dagger.Module
-public class <%= repository.imit.schema_dagger_module_name %>
+public final class <%= repository.imit.schema_dagger_module_name %>
 {
   @javax.annotation.Nonnull
   @dagger.Provides
@@ -77,4 +77,8 @@ public class <%= repository.imit.schema_dagger_module_name %>
       return context.does<%= graph.name %>MatchEntity( filter, userObject<%= extra_interest_filter %> );
   }
 <% end -%>
+
+  private <%= repository.imit.schema_dagger_module_name %>()
+  {
+  }
 }
