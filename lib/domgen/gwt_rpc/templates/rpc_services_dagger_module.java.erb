@@ -7,7 +7,6 @@ package <%= to_package(repository.gwt_rpc.qualified_rpc_services_dagger_module_n
 public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 {
   private static String c_baseURL;
-  private static String c_authenticationToken;
 <% if repository.keycloak? -%>
   @javax.annotation.Nullable
   private static org.realityforge.gwt.keycloak.Keycloak c_keycloak;
