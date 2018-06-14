@@ -12,7 +12,7 @@ public class <%= service.imit.proxy_name %>
 <% end -%>
 
   @javax.inject.Inject
-  public <%= service.imit.proxy_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_facade_service_name %> service<% if requires_locator -%>, @javax.annotation.Nonnull org.realityforge.replicant.client.EntityLocator entityLocator<% end -%> )
+  public <%= service.imit.proxy_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_facade_service_name %> service<% if requires_locator -%>, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator<% end -%> )
   {
     _service = java.util.Objects.requireNonNull( service );
 <% if requires_locator -%>
