@@ -78,7 +78,9 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 
 -%>
       final <%= db_type %> $<%= attribute.name %> = (<%= db_type %>) resultSet.get<%= type_suffix %>( "<%= attribute.sql.column_name %>" );
+<% unless attribute.primary_key? -%>
       attributeValues.put( "<%= attribute.name %>", <%= value_converter %> );
+<% end -%>
 <% end -%>
       final org.realityforge.replicant.server.EntityMessage entityMessage =
         new org.realityforge.replicant.server.EntityMessage( $<%= entity.primary_key.name %>,
@@ -135,7 +137,9 @@ end
         end
 -%>
     final <%= nullable_annotate(attribute, attribute.jpa.java_type, false) %> $<%= attribute.name %> = entity.<%= getter_for(attribute) %>;
+<% unless attribute.primary_key? -%>
     attributes.put( "<%= attribute.name %>", <%= "#{value_converter}" %> );
+<% end -%>
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.arez? && !attribute.abstract? && attribute.remote_reference? }.each do |attribute| -%>
     attributes.put( "<%= attribute.name %>", entity.get<%= attribute.referencing_link_name %>() );
