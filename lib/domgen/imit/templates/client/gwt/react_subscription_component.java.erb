@@ -4,7 +4,7 @@ package <%= to_package(graph.qualified_react4j_subscription_component_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @react4j.annotations.ReactComponent
 public abstract class <%= graph.react4j_subscription_component_name %>
-  extends org.realityforge.replicant.client.react4j.ReplicantSubscription<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Void' %>>
+  extends replicant.react4j.ReplicantSubscription<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Void' %>>
 {
   @java.lang.Override
   protected int getChannelId()
