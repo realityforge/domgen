@@ -4,7 +4,7 @@ package <%= to_package(graph.qualified_react4j_subscription_component_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @react4j.annotations.ReactComponent
 public abstract class <%= graph.react4j_subscription_component_name %>
-  extends org.realityforge.replicant.client.react4j.ReplicantSubscription<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Object' %>>
+  extends org.realityforge.replicant.client.react4j.ReplicantSubscription<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Void' %>>
 {
   @java.lang.Override
   protected int getChannelId()
@@ -17,23 +17,8 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   {
     return <%= graph.application.repository.imit.qualified_system_constants_name %>.SCHEMA_ID;
   }
-<% if graph.filtered? && !graph.filter_parameter.immutable? -%>
-
-  @FunctionalInterface
-  public interface OnUpdateCallback
-  {
-    @javax.annotation.Nullable
-    react4j.core.ReactNode render( @javax.annotation.Nonnull replicant.Subscription entry<% if graph.instance_root? -%>, @javax.annotation.Nonnull <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> entity<% end -%> );
-  }
-<% end -%>
 
 <% if graph.instance_root? -%>
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected Class<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getInstanceType()
-  {
-    return <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>.class;
-  }
 
   @javax.annotation.Nonnull
   @react4j.annotations.Prop
@@ -41,22 +26,154 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% end -%>
 <% if graph.filtered? -%>
 
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  protected abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
+<% end -%>
+
+  @react4j.annotations.Prop( require = react4j.annotations.Feature.ENABLE )
+  @javax.annotation.Nullable
+  protected abstract NoResultCallback onNotAsked();
+
   @java.lang.Override
-  protected boolean expectFilter()
+  @javax.annotation.Nullable
+  protected final NoResultCallback getOnNotAsked()
   {
-    return true;
+    return onNotAsked();
   }
 
   @react4j.annotations.Prop
   @javax.annotation.Nonnull
-  protected abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
-<% unless graph.filter_parameter.immutable? -%>
+  protected abstract NoResultCallback onLoading();
 
   @java.lang.Override
-  protected boolean expectFilterUpdates()
+  @javax.annotation.Nonnull
+  protected final NoResultCallback getOnLoading()
   {
-    return true;
+    return onLoading();
+  }
+
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  protected abstract ErrorCallback onLoadFailed();
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final ErrorCallback getOnLoadFailed()
+  {
+    return onLoadFailed();
+  }
+
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  protected abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback<% if graph.instance_root? -%><<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>><% end -%> onLoaded();
+
+<% unless graph.instance_root? -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final TypeResultCallback getOnTypeSubscriptionLoaded()
+  {
+    return onLoaded();
+  }
+<% else -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionLoaded()
+  {
+    return onLoaded();
   }
 <% end -%>
+
+<% if graph.filtered?  && !graph.filter_parameter.immutable? -%>
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  protected abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback onUpdating();
+
+<% unless graph.instance_root? -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final TypeResultCallback getOnTypeSubscriptionUpdating()
+  {
+    return onUpdating();
+  }
+<% else -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onInstanceSubscriptionUpdating()
+  {
+    return onUpdating();
+  }
 <% end -%>
+
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  protected abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>UpdateErrorCallback onUpdateFailed();
+
+<% unless graph.instance_root? -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final TypeUpdateErrorCallback getOnTypeSubscriptionUpdateFailed()
+  {
+    return onUpdateFailed();
+  }
+<% else -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final InstanceUpdateErrorCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdateFailed()
+  {
+    return onUpdateFailed();
+  }
+<% end -%>
+
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  protected abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback onUpdated();
+
+<% unless graph.instance_root? -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final TypeResultCallback getOnTypeSubscriptionUpdated()
+  {
+    return onUpdated();
+  }
+<% else -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdated()
+  {
+    return onUpdated();
+  }
+<% end -%>
+
+<% end -%>
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  protected abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback<% if graph.instance_root? -%><<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>><% end -%> onUnloading();
+
+<% unless graph.instance_root? -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final TypeResultCallback getOnTypeSubscriptionUnloading()
+  {
+    return onUnloading();
+  }
+<% else -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUnloading()
+  {
+    return onUnloading();
+  }
+<% end -%>
+
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  protected abstract NoResultCallback onUnloaded();
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final NoResultCallback getOnUnloaded()
+  {
+    return onUnloaded();
+  }
 }
