@@ -598,6 +598,7 @@ module Domgen
 
             if a.reference?
               # Create an index to speed up validity checking when column is sparsely populated
+              e.sql.index([name], :index_name => "IX_#{self.entity.name}_#{name}_ALL", :include_attribute_names => [:MappingKey, :MappingID])
               prefix = a.nullable? ? "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND " : ''
               e.sql.index([name], :filter => "#{prefix}#{e.sql.dialect.quote(:DeletedAt)} IS NULL", :include_attribute_names => [:MappingKey, :MappingID])
             end
