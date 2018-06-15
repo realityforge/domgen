@@ -82,11 +82,8 @@ public abstract class <%= client.abstract_application_name %><I extends <%= clie
 
   private void setSavedToken( @javax.annotation.Nonnull final String key, @javax.annotation.Nullable final String value )
   {
-    com.google.gwt.storage.client.Storage storage = com.google.gwt.storage.client.Storage.getLocalStorageIfSupported();
-    if( null == storage )
-    {
-      storage = com.google.gwt.storage.client.Storage.getSessionStorageIfSupported();
-    }
+    final elemental2.webstorage.WebStorageWindow window = elemental2.webstorage.WebStorageWindow.of( elemental2.dom.DomGlobal.window );
+    final elemental2.webstorage.Storage storage = null != window.localStorage ? window.localStorage : window.sessionStorage;
     if( null == storage )
     {
       return;
@@ -104,11 +101,8 @@ public abstract class <%= client.abstract_application_name %><I extends <%= clie
   @javax.annotation.Nullable
   private String getSavedToken( @javax.annotation.Nonnull final String key )
   {
-    com.google.gwt.storage.client.Storage storage = com.google.gwt.storage.client.Storage.getLocalStorageIfSupported();
-    if( null == storage )
-    {
-      storage = com.google.gwt.storage.client.Storage.getSessionStorageIfSupported();
-    }
-    return ( null != storage ) ? storage.getItem( key ) : null;
+    final elemental2.webstorage.WebStorageWindow window = elemental2.webstorage.WebStorageWindow.of( elemental2.dom.DomGlobal.window );
+    final elemental2.webstorage.Storage storage = null != window.localStorage ? window.localStorage : window.sessionStorage;
+    return null != storage ? storage.getItem( key ) : null;
   }
 }
