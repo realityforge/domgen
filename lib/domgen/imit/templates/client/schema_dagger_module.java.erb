@@ -15,7 +15,7 @@ public final class <%= repository.imit.schema_dagger_module_name %>
     final replicant.ChannelSchema channel<%= graph.name %> =
       new replicant.ChannelSchema( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>,
                                    replicant.Replicant.areNamesEnabled() ? "<%= graph.name %>" : null,
-                                   <%= !graph.instance_root? %>,
+                                   <%= graph.instance_root? ? "#{repository.entity_by_name(graph.instance_root).arez.qualified_name}.class" : 'null' %>,
                                    replicant.ChannelSchema.FilterType.<%= graph.filter_parameter.nil? ? 'NONE' : graph.filter_parameter.immutable? ? 'STATIC' : 'DYNAMIC' %>,
                                    <% if graph.filtered? && !graph.filter_parameter.immutable? %>(<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, replicant.Entity entity) -> doesEntityMatch<%= graph.name %>Filter( context, router, filter, entity )<% else %>null<% end %>,
                                    <%= graph.cacheable? %>,
