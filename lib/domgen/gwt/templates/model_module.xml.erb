@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- DO NOT EDIT: File is auto-generated -->
 <module>
-<% if repository.imit? -%>
-  <inherits name="<%= repository.imit.qualified_replicant_module_name %>"/>
-<% else -%>
   <inherits name='org.realityforge.gwt.datatypes.Datatypes'/>
   <inherits name="com.google.gwt.json.JSON"/>
-  <inherits name="dagger.Dagger"/>
+<% if repository.imit? -%>
+  <inherits name='org.realityforge.replicant.Replicant'/>
 <% end -%>
-<% if repository.gwt_rpc? -%>
+<% if repository.gwt_rpc? && !repository.imit? -%>
   <inherits name="com.google.gwt.user.RemoteService"/>
 <% end -%>
+  <inherits name="dagger.Dagger"/>
 <% if repository.keycloak? -%>
   <inherits name="org.realityforge.gwt.keycloak.Keycloak"/>
 <% end -%>
@@ -19,5 +18,9 @@
 <% end -%>
 <% if repository.berk? -%>
   <inherits name="iris.berk.Berk"/>
+<% end -%>
+<% repository.gwt.debug_config.each_pair do |k, config| -%>
+  <define-property name='<%= Reality::Naming.underscore(repository.name) %>.<%= k %>' values='true,false'/>
+  <set-property name='<%= Reality::Naming.underscore(repository.name) %>.<%= k %>' value='<%= config[:default_value] || 'false' %>'/>
 <% end -%>
 </module>

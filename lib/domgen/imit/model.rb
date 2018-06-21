@@ -691,7 +691,6 @@ module Domgen
 
       java_artifact :rpc_request_builder, :ioc, :client, :imit, '#{repository.name}RpcRequestBuilder'
       java_artifact :gwt_complete_module, :test, :client, :imit, '#{repository.name}GwtModule', :sub_package => 'util'
-      java_artifact :replicant_module, :modules, nil, :gwt, '#{repository.name}ReplicantSupport'
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
