@@ -95,10 +95,10 @@ public class <%= message.ee.name %>
   @java.lang.Override
   public int hashCode()
   {
-    int result = 0;
+    int $result = 0;
 <% message.parameters.each do |parameter| -%>
-    result = 31 * result + (<%= parameter.ee.primitive?(:default) ? (parameter.boolean? ? "#{Reality::Naming.camelize(parameter.name)} ? 1 : 0": parameter.real? ? "Float.floatToIntBits(#{Reality::Naming.camelize(parameter.name)})" : parameter.long? ? "(int)(#{Reality::Naming.camelize(parameter.name)})" : Reality::Naming.camelize(parameter.name)) : "#{parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? 0 : " : ''}#{Reality::Naming.camelize(parameter.name)}.hashCode()" %>);
+    $result = 31 * $result + (<%= parameter.ee.primitive?(:default) ? (parameter.boolean? ? "#{Reality::Naming.camelize(parameter.name)} ? 1 : 0": parameter.real? ? "Float.floatToIntBits(#{Reality::Naming.camelize(parameter.name)})" : parameter.long? ? "(int)(#{Reality::Naming.camelize(parameter.name)})" : Reality::Naming.camelize(parameter.name)) : "#{parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? 0 : " : ''}#{Reality::Naming.camelize(parameter.name)}.hashCode()" %>);
 <% end -%>
-    return result;
+    return $result;
   }
 }

@@ -1144,7 +1144,7 @@ FRAGMENT
 
     facet.enhance(Query) do
       def perform_verify
-        query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect {|s| s[1..-1]}
+        query_parameters = self.ql.nil? ? [] : self.ql.scan(/([^:]):([^:\W]+)/).collect { |s| s[1] }
 
         expected_parameters = query_parameters.uniq
         expected_parameters.each do |parameter_name|
@@ -1299,13 +1299,13 @@ FRAGMENT
           Domgen.error("Unknown query spec #{self.query_spec}")
         end
         if self.native?
-          q = q.gsub(/:([^\W]+)/) do |parameter_name|
+          q = q.gsub(/([^:]):([^:\W]+)/) do |parameter_name|
             index = nil
             query.parameters.each_with_index do |parameter, i|
-              index = i + 1 if parameter_name[1, parameter_name.length].to_s == parameter.name.to_s
+              index = i + 1 if parameter_name[2, parameter_name.length].to_s == parameter.name.to_s
             end
             raise "Unable to locate parameter named #{parameter_name} in #{query.qualified_name}" unless index
-            "?#{index}"
+            "#{parameter_name[0]}?#{index}"
           end
         end
 

@@ -108,10 +108,10 @@ public class <%= struct.ee.name %>
   @java.lang.Override
   public int hashCode()
   {
-    int result = 0;
+    int $result = 0;
 <% struct.fields.each do |field| -%>
-    result = 31 * result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Reality::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Reality::Naming.camelize(field.name)})" : field.long? ? "(int)(#{Reality::Naming.camelize(field.name)})" : Reality::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? 0 : " : ''}#{Reality::Naming.camelize(field.name)}.hashCode()" %>);
+    $result = 31 * $result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Reality::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Reality::Naming.camelize(field.name)})" : field.long? ? "(int)(#{Reality::Naming.camelize(field.name)})" : Reality::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? 0 : " : ''}#{Reality::Naming.camelize(field.name)}.hashCode()" %>);
 <% end -%>
-    return result;
+    return $result;
   }
 }
