@@ -698,6 +698,7 @@ module Domgen
       java_artifact :system_constants, :comm, :shared, :imit, '#{repository.name}SchemaConstants'
       java_artifact :subscription_constants, :comm, :shared, :imit, '#{repository.name}SubscriptionConstants'
       java_artifact :entity_type_constants, :comm, :shared, :imit, '#{repository.name}EntityTypeConstants'
+      java_artifact :schema_factory, :comm, :client, :imit, '#{repository.name}SystemSchemaFactory'
       java_artifact :schema_dagger_module, :ioc, :client, :imit, '#{repository.name}SystemSchemaDaggerModule'
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerImpl'
