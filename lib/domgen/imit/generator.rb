@@ -104,6 +104,9 @@ Domgen::Generator.define([:imit],
                                 'client/mock_services_module.java.erb',
                                 type + '/java/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
                                 :additional_facets => [:gwt_rpc])
+      template_set.erb_template(:repository,
+                                'client/support_test_module.java.erb',
+                                type + '/java/#{repository.imit.qualified_support_test_module_name.gsub(".","/")}.java')
     end
   end
 end

@@ -718,6 +718,7 @@ module Domgen
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{graph_encoder_name}Impl'
       java_artifact :services_dagger_module, :ioc, :client, :imit, '#{repository.name}ImitServicesDaggerModule'
       java_artifact :mock_services_module, :test, :client, :imit, '#{repository.name}MockImitServicesModule', :sub_package => 'util'
+      java_artifact :support_test_module, :test, :client, :imit, '#{repository.name}ImitSupportTestModule', :sub_package => 'util'
       java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ReplicantClientTest', :sub_package => 'util'
       java_artifact :client_test, :test, :client, :imit, '#{repository.name}ReplicantClientTest', :sub_package => 'util'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
@@ -984,6 +985,7 @@ CONTENT
            repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
            repository.gwt.add_test_class_content(test_content)
            repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name)
+           repository.gwt.add_test_module(support_test_module_name, qualified_support_test_module_name)
          end
 
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?
