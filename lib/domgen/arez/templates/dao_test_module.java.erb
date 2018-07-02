@@ -4,12 +4,12 @@ package <%= to_package(repository.arez.qualified_dao_test_module_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 public class <%= repository.arez.dao_test_module_name %>
-  extends com.google.inject.AbstractModule
+  extends org.realityforge.guiceyloops.shared.AbstractModule
 {
   @java.lang.Override
   protected void configure()
   {
-    bind( <%= repository.arez.qualified_entity_locator_name %>.class ).in( javax.inject.Singleton.class );
+    bindSingleton( org.realityforge.replicant.client.EntityLocator.class, <%= repository.arez.qualified_entity_locator_name %>.class );
 
 <%
   repository.data_modules.select{|data_module| data_module.arez?}.each do |data_module|
