@@ -1,15 +1,25 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_client_router_impl_name) %>;
+package <%= to_package(repository.imit.qualified_client_router_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedFormalParameter", "PMD.UnnecessaryLocalBeforeReturn", "PMD.UnnecessaryLocalBeforeReturn", "PMD.UnnecessaryConstructor" } )
-public class <%= repository.imit.client_router_impl_name %>
-  implements <%= repository.imit.qualified_client_router_interface_name %>
+final class <%= repository.imit.client_router_name %>
 {
-  @javax.inject.Inject
-  public <%= repository.imit.client_router_impl_name %>()
-  {
-  }
+<%
+  repository.imit.graphs.each do |graph|
+    key = "#{Reality::Naming.uppercase_constantize(graph.name)}_KEY"
+-%>
+  static final String <%= key %> = "<%= repository.name %>.<%= graph.name %>";
+<% end -%>
+<%
+  repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
+    graph.routing_keys.each do |routing_key|
+-%>
+  static final String <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY = "<%= repository.name %>.<%= graph.name %>.<%= routing_key.name %>";
+<%
+    end
+  end
+%>
 
 <%
   repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
@@ -89,9 +99,8 @@ public class <%= repository.imit.client_router_impl_name %>
     end
   end
 -%>
-  @java.lang.Override
   @javax.annotation.Nonnull
-  public java.util.Map<String, java.io.Serializable> route( @javax.annotation.Nonnull final Object entity )
+  java.util.Map<String, java.io.Serializable> route( @javax.annotation.Nonnull final Object entity )
   {
   <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
@@ -115,9 +124,8 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     outgoing_links = entity.attributes.select {|a| a.reference? && a.arez? && a.inverse.imit.traversable? && a.referenced_entity.arez?}
  -%>
 
-  @java.lang.Override
   @javax.annotation.Nonnull
-  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> entity )
+  java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> entity )
   {
     final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<>();
 <% entity.imit.replication_graphs.each do |graph| -%>

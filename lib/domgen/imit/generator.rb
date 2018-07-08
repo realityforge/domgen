@@ -39,10 +39,7 @@ Domgen::Generator.define([:imit],
                               'main/java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'client/router_impl.java.erb',
-                              'main/java/#{repository.imit.qualified_client_router_impl_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/router_interface.java.erb',
-                              'main/java/#{repository.imit.qualified_client_router_interface_name.gsub(".","/")}.java')
+                              'main/java/#{repository.imit.qualified_client_router_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_client_react4j_support) do |template_set|

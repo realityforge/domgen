@@ -10,15 +10,14 @@ public class <%= repository.imit.support_test_module_name %>
   @java.lang.Override
   protected void configure()
   {
-    bindSingleton( <%= repository.imit.qualified_client_router_interface_name %>.class, <%= repository.imit.qualified_client_router_impl_name %>.class );
     bindSingleton( <%= repository.imit.qualified_gwt_client_session_context_name %>.class, <%= repository.imit.qualified_gwt_client_session_context_impl_name %>.class );
   }
 
   @javax.annotation.Nonnull
   @com.google.inject.Provides
   @javax.inject.Singleton
-  public replicant.SystemSchema provideSystemSchema( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_interface_name %> router, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, <%= entities.collect{|e|"@javax.annotation.Nonnull final #{e.dao.arez.qualified_repository_name} #{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> )
+  public replicant.SystemSchema provideSystemSchema( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, <%= entities.collect{|e|"@javax.annotation.Nonnull final #{e.dao.arez.qualified_repository_name} #{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> )
   {
-    return <%= repository.imit.qualified_schema_factory_name %>.createSystemSchema( context, router, entityLocator, <%= entities.collect{|e|"#{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> );
+    return <%= repository.imit.qualified_schema_factory_name %>.createSystemSchema( context, entityLocator, <%= entities.collect{|e|"#{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> );
   }
 }
