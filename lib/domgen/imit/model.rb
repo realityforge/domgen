@@ -391,6 +391,10 @@ module Domgen
         @exclude_target.nil? ? self.auto? : !!@exclude_target
       end
 
+      def to_s
+        "GraphLink[#{source_graph} => #{target_graph}](auto=#{auto?}, exclude_target=#{exclude_target?}, path=#{path.inspect}, name=#{name})"
+      end
+
       def post_verify
         entity = self.imit_attribute.attribute.primary_key? ? self.imit_attribute.attribute.entity : self.imit_attribute.attribute.referenced_entity
 
