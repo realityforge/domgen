@@ -1,19 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_router_impl_name) %>;
+package <%= to_package(repository.imit.qualified_server_router_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedFormalParameter", "PMD.UnnecessaryLocalBeforeReturn" } )
-@javax.enterprise.context.ApplicationScoped
-@javax.enterprise.inject.Typed( <%= repository.imit.qualified_router_interface_name %>.class )
-public class <%= repository.imit.router_impl_name %>
-  implements <%= repository.imit.qualified_router_interface_name %>
+final class <%= repository.imit.server_router_name %>
 {
-<%
-  repository.imit.graphs.each do |graph|
-    key = "#{Reality::Naming.uppercase_constantize(graph.name)}_KEY"
--%>
-  public static final String <%= key %> = "<%= repository.name %>.<%= graph.name %>";
-<% end -%>
 <%
   repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
     graph.routing_keys.each do |routing_key|
@@ -108,7 +99,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
  -%>
 
   @javax.annotation.Nonnull
-  public java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
   {
     final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<>();
 <% entity.imit.replication_graphs.each do |graph| -%>
@@ -149,7 +140,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
-    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
+    map.put( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif graph.instance_root? -%>
 <% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) && !a.imit.graph_links.any?{|g| g.source_graph != graph } }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
@@ -165,7 +156,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
 <% else -%>
-    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY, Boolean.TRUE );
+    map.put( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, Boolean.TRUE );
 <% end -%>
   }
 <% end -%>

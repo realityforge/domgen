@@ -12,7 +12,6 @@ public class <%= repository.imit.server_net_module_name %>
     bind( <%= repository.imit.qualified_graph_encoder_name %>.class ).to( <%= repository.imit.qualified_graph_encoder_impl_name %>.class ).in( javax.inject.Singleton.class );
     bind( <%= repository.imit.qualified_change_recorder_name %>.class ).to( <%= repository.imit.qualified_change_recorder_impl_name %>.class ).in( javax.inject.Singleton.class );
     bind( <%= repository.imit.qualified_message_generator_interface_name %>.class ).to( <%= repository.imit.qualified_message_generator_name %>.class ).in( javax.inject.Singleton.class );
-    bind( <%= repository.imit.qualified_router_interface_name %>.class ).to( <%= repository.imit.qualified_router_impl_name %>.class ).in( javax.inject.Singleton.class );
     bind( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>.class ).to( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_implementation_name %>.class ).in( javax.inject.Singleton.class );
     multiBind( <%= repository.imit.qualified_session_manager_name %>.class,
                <%= repository.imit.qualified_poll_service_name %>.class,

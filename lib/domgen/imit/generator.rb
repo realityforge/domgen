@@ -129,11 +129,8 @@ Domgen::Generator.define([:imit, :jpa],
                               'change_recorder_impl.java.erb',
                               'main/java/#{repository.imit.qualified_change_recorder_impl_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'router_interface.java.erb',
-                              'main/java/#{repository.imit.qualified_router_interface_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'router_impl.java.erb',
-                              'main/java/#{repository.imit.qualified_router_impl_name.gsub(".","/")}.java')
+                              'router.java.erb',
+                              'main/java/#{repository.imit.qualified_server_router_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'message_generator.java.erb',
                               'main/java/#{repository.imit.qualified_message_generator_name.gsub(".","/")}.java')
