@@ -77,7 +77,15 @@ DATA
      data += "   * </ul>\n"
    end
    data += "   */\n"
-   data += "  public static final int #{Reality::Naming.uppercase_constantize(g.name)} = #{index};"
+   data += "  public static final int #{Reality::Naming.uppercase_constantize(g.name)} = #{index};\n\n"
+   data += <<JAVADOC
+  /**
+   * The name of the "#{g.name}" subscription.
+   * To ensure these constants are removed in production code, the constants should only be used when
+   * guarded by <code>replicant.Replicant.areNamesEnabled()</code>.
+   */
+JAVADOC
+   data += "  public static final String #{Reality::Naming.uppercase_constantize(g.name)}_NAME = \"#{repository.name}.#{g.name}\";\n"
    index = index + 1
    data
   end.join("\n\n") %>

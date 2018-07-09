@@ -21,7 +21,7 @@ public final class <%= repository.imit.schema_factory_name %>
 <% repository.imit.graphs.each do |graph| -%>
     final replicant.ChannelSchema channel<%= graph.name %> =
       new replicant.ChannelSchema( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>,
-                                   replicant.Replicant.areNamesEnabled() ? "<%= graph.name %>" : null,
+                                   replicant.Replicant.areNamesEnabled() ? <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME : null,
                                    <%= graph.instance_root? ? "#{repository.entity_by_name(graph.instance_root).arez.qualified_name}.class" : 'null' %>,
                                    replicant.ChannelSchema.FilterType.<%= graph.filter_parameter.nil? ? 'NONE' : graph.filter_parameter.immutable? ? 'STATIC' : 'DYNAMIC' %>,
                                    <% if graph.filtered? && !graph.filter_parameter.immutable? %>(<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, replicant.Entity entity) -> doesEntityMatch<%= graph.name %>Filter( context, router, filter, entity )<% else %>null<% end %>,
@@ -53,7 +53,7 @@ public final class <%= repository.imit.schema_factory_name %>
     extra_interest_filter = ", #{var_name}"
 -%>
       @javax.annotation.Nonnull
-      final <%= entity.primary_key.imit.non_primitive_java_type %> <%= var_name %> = (<%= entity.primary_key.imit.non_primitive_java_type %>) route.get( <%= repository.imit.qualified_client_router_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY );
+      final <%= entity.primary_key.imit.non_primitive_java_type %> <%= var_name %> = (<%= entity.primary_key.imit.non_primitive_java_type %>) route.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
       assert null != <%= var_name %>;
 <% end -%>
 <%

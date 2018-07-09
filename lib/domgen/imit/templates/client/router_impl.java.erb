@@ -6,12 +6,6 @@ package <%= to_package(repository.imit.qualified_client_router_name) %>;
 final class <%= repository.imit.client_router_name %>
 {
 <%
-  repository.imit.graphs.each do |graph|
-    key = "#{Reality::Naming.uppercase_constantize(graph.name)}_KEY"
--%>
-  static final String <%= key %> = "<%= repository.name %>.<%= graph.name %>";
-<% end -%>
-<%
   repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
     graph.routing_keys.each do |routing_key|
 -%>
@@ -166,7 +160,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
-    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY, entity.<%= getter_for(entity.primary_key) %> );
+    map.put( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif graph.instance_root? -%>
 <% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
@@ -182,7 +176,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
 <% else -%>
-    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY, Boolean.TRUE );
+    map.put( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, Boolean.TRUE );
 <% end -%>
   }
 <% end -%>
