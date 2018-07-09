@@ -8,8 +8,11 @@ public final class <%= repository.imit.entity_type_constants_name %>
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.each do |entity|
-    if entity.imit? && entity.concrete?
-%>  public static final int <%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %> = <%= entity.imit.transport_id %>;
+    if entity.imit? && entity.concrete? -%>
+  /**
+   * The type id of the "<%= entity.name %>" entity.
+   */
+  public static final int <%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %> = <%= entity.imit.transport_id %>;
 
   /**
    * The name of the "<%= entity.name %>" entity.
