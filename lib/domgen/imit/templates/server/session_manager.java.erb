@@ -309,6 +309,7 @@ entities.uniq.each do |entity| -%>
 <% end -%>
 
   @java.lang.Override
+  @javax.annotation.Nullable
   protected java.lang.String collectDataForSubscribe(  @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address,@javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet,@javax.annotation.Nullable final Object filter )
   {
     <%
@@ -328,7 +329,7 @@ entities.uniq.each do |entity| -%>
   }
 
   @java.lang.Override
-  protected boolean bulkCollectDataForSubscribe( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelAddress> descriptors, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nullable final Object filter, final boolean explicitSubscribe )
+  protected boolean bulkCollectDataForSubscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelAddress> descriptors, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nullable final Object filter, final boolean explicitSubscribe )
   {
     if( descriptors.isEmpty() )
     {
@@ -349,7 +350,7 @@ entities.uniq.each do |entity| -%>
   }
 
   @java.lang.Override
-  protected boolean bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nullable final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelAddress> descriptors, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter )
+  protected boolean bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelAddress> descriptors, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter )
   {
     if( descriptors.isEmpty() )
     {
