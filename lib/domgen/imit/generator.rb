@@ -38,7 +38,7 @@ Domgen::Generator.define([:imit],
                               'client/mapper.java.erb',
                               'main/java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'client/router_impl.java.erb',
+                              'client/router.java.erb',
                               'main/java/#{repository.imit.qualified_client_router_name.gsub(".","/")}.java')
   end
 
