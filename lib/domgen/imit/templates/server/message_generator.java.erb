@@ -51,9 +51,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       end
     end
 -%>
-<% if graph_link.imit_attribute.attribute.nullable? -%>
-      if( null != attributes && null != entity.<%=getter_for(graph_link.imit_attribute.attribute)%> && null != entity.<%= getter_path.join('.') %> )
-<% end -%>
+      if( null != attributes <% if graph_link.imit_attribute.attribute.nullable? -%>&& null != entity.<%= getter_for(graph_link.imit_attribute.attribute)%> && null != entity.<%= getter_path.join('.') %><% end -%>)
       {
 <% if source_graph.instance_root? -%>
         final java.lang.Integer linkId = (java.lang.Integer) routingKeys.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>_NAME );
