@@ -262,7 +262,8 @@ entities.uniq.each do |entity| -%>
     if graph.instance_root?
       entity = repository.entity_by_name(graph.instance_root)
 -%>
-    final <%= entity.primary_key.jpa.java_type %> id = (<%= entity.primary_key.jpa.java_type %>) address.getSubChannelId();
+    final <%= entity.primary_key.jpa.java_type %> id = address.getSubChannelId();
+    assert null != id;
     final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
 <% end %>
     _context.collectForFilterChange<%= graph.name %>( changeSet, address, <%= graph.instance_root? ? 'entity, ' : '' %>originalFilter, filter );
@@ -278,7 +279,8 @@ entities.uniq.each do |entity| -%>
       entity = repository.entity_by_name(graph.instance_root)
 -%>
     final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
-    final <%= entity.primary_key.jpa.java_type %> id = (<%= entity.primary_key.jpa.java_type %>) address.getSubChannelId();
+    final <%= entity.primary_key.jpa.java_type %> id = address.getSubChannelId();
+    assert null != id;
     final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
     _encoder.encode<%= graph.name %>( messages, entity<%= graph.filter_parameter.nil? ? '' : ', filter' %> );
     changeSet.merge( address, messages );
