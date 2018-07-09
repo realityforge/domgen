@@ -73,7 +73,7 @@ entities.uniq.each do |entity| -%>
     instance_root = repository.entity_by_name(graph.instance_root)
     type = instance_root.primary_key.jpa.non_primitive_java_type
     %>
-    final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY );
+    final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
     if ( null != <%= graph.name %> )
     {
       final org.realityforge.replicant.server.ChannelAddress address = new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? graph.name : 'null' %> );
@@ -86,7 +86,7 @@ entities.uniq.each do |entity| -%>
       param_type = routing_key.target_attribute.jpa.non_primitive_java_type
       param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
 -%>
-      final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_server_router_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <%
     end
   end
@@ -131,7 +131,7 @@ entities.uniq.each do |entity| -%>
     type = instance_root.primary_key.jpa.non_primitive_java_type
   end
 -%>
-    final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_KEY );
+    final <%= type %> <%= graph.name %> = (<%= type %>) routingKeys.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
     if ( null != <%= graph.name %> )
     {
       final org.realityforge.replicant.server.ChannelAddress address = new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? graph.name : 'null' %> );
@@ -144,7 +144,7 @@ entities.uniq.each do |entity| -%>
       param_type = routing_key.target_attribute.jpa.non_primitive_java_type
       param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
 -%>
-      final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_router_impl_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+      final <%= param_type %> <%= var_name %> = (<%= param_type %>) routingKeys.get( <%= repository.imit.qualified_server_router_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <%
     end
   end
