@@ -14,7 +14,6 @@ public final class <%= data_module.imit.mapper_name %>
 <% data_module.entities.select{ |entity| entity.imit?  }.each do |entity|
   entity_prefix = "#{Reality::Naming.uppercase_constantize(entity.name)}_"
 -%>
-  private static final String <%= entity_prefix %>TYPE_KEY = "<%= entity.qualified_name %>";
 <% entity.attributes.select{ |attribute| attribute.arez?  }.each do |attribute| -%>
   private static final String <%= entity_prefix %><%= Reality::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end -%>
