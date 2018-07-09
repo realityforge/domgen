@@ -134,9 +134,6 @@ Domgen::Generator.define([:imit, :jpa],
     template_set.erb_template(:repository,
                               'message_generator.java.erb',
                               'main/java/#{repository.imit.qualified_message_generator_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'message_generator_interface.java.erb',
-                              'main/java/#{repository.imit.qualified_message_generator_interface_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_server_entity => [:imit_server_entity_listener, :imit_server_entity_replication])
