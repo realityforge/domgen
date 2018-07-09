@@ -52,11 +52,15 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     end
 -%>
 <% if graph_link.imit_attribute.attribute.nullable? -%>
-        if( null != attributes && null != entity.<%=getter_for(graph_link.imit_attribute.attribute)%> && null != entity.<%= getter_path.join('.') %> )
+      if( null != attributes && null != entity.<%=getter_for(graph_link.imit_attribute.attribute)%> && null != entity.<%= getter_path.join('.') %> )
 <% end -%>
-        {
-          links.add(new org.realityforge.replicant.server.ChannelLink(new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <% if source_graph.instance_root? -%>(java.lang.Integer) routingKeys.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>_NAME )<% else -%>null<% end -%> ),new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>,entity.<%= (getter_path + [getter_for(entity.primary_key)]).join('.') %> )));
-        }
+      {
+<% if source_graph.instance_root? -%>
+        final java.lang.Integer linkId = (java.lang.Integer) routingKeys.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>_NAME );
+        assert null != linkId;
+<% end -%>
+        links.add(new org.realityforge.replicant.server.ChannelLink(new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <% if source_graph.instance_root? -%>linkId<% else -%>null<% end -%> ), new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, entity.<%= (getter_path + [getter_for(entity.primary_key)]).join('.') %> )));
+      }
 <% end -%>
 <% end -%>
       return new org.realityforge.replicant.server.EntityMessage( id, transportID, System.currentTimeMillis(), routingKeys, attributes, links );
