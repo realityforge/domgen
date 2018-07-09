@@ -128,6 +128,10 @@ module Domgen
         "#{application.repository.qualified_name}.Graphs.#{name}"
       end
 
+      def to_s
+        "ReplicationGraph[#{qualified_name}]"
+      end
+
       def cacheable?
         !!@cacheable
       end
