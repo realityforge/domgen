@@ -6,6 +6,10 @@ package <%= to_package(repository.imit.qualified_schema_dagger_module_name) %>;
 @dagger.Module
 public final class <%= repository.imit.schema_dagger_module_name %>
 {
+  private <%= repository.imit.schema_dagger_module_name %>()
+  {
+  }
+
   @javax.annotation.Nonnull
   @dagger.Provides
   @javax.inject.Singleton
