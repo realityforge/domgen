@@ -6,7 +6,7 @@ package <%= to_package(repository.imit.qualified_message_generator_name) %>;
  */
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.CollapsibleIfStatements" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UCF_USELESS_CONTROL_FLOW","NP_LOAD_OF_KNOWN_NULL_VALUE", "DLS_DEAD_LOCAL_STORE"})
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UCF_USELESS_CONTROL_FLOW","NP_LOAD_OF_KNOWN_NULL_VALUE"})
 public final class <%= repository.imit.message_generator_name %>
 {
   private final <%= repository.imit.qualified_server_router_name %> _router = new <%= repository.imit.qualified_server_router_name %>();
@@ -38,7 +38,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% if links.size > 0 -%>
       if( null != attributes )
       {
-<% entity.imit.replication_graphs.select{|graph| graph.instance_root?}.each do |graph| -%>
+<% entity.imit.replication_graphs.select{|graph| graph.instance_root? && links.any?{|graph_link| graph_link.source_graph == graph.name} }.each do |graph| -%>
         final java.lang.Integer <%= Reality::Naming.camelize(graph.name)%>InstanceRootId = (java.lang.Integer) routingKeys.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
 <% end -%>
 <%
