@@ -42,7 +42,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   @Override
   public void run( final org.testng.IHookCallBack icb, final org.testng.ITestResult testResult )
   {
-    arez.Arez.context().safeAction( () -> icb.runTestMethod( testResult ) );
+    arez.Arez.context().safeAction( testResult.getName(), true, false, () -> icb.runTestMethod( testResult ) );
   }
 
 <% end -%>
