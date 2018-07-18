@@ -2,7 +2,7 @@
 package <%= to_package(entity.arez.qualified_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EI_EXPOSE_REP", "EI_EXPOSE_REP2", "ACEM_ABSTRACT_CLASS_EMPTY_METHODS" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EI_EXPOSE_REP", "EI_EXPOSE_REP2", "ACEM_ABSTRACT_CLASS_EMPTY_METHODS", "SPP_EQUALS_ON_ENUM" } )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.IfStmtsMustUseBraces" } )
 <% unless entity.abstract? -%>
 @arez.annotations.ArezComponent( allowEmpty = true )
