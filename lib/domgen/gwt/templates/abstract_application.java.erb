@@ -2,6 +2,7 @@
 package <%= to_package(repository.gwt.qualified_abstract_application_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "STT_STRING_PARSING_A_FIELD" } )
 public abstract class <%= repository.gwt.abstract_application_name %><I extends <%= repository.gwt.qualified_abstract_dagger_component_name %>>
 <% if repository.keycloak? -%>
   implements org.realityforge.gwt.keycloak.KeycloakListener
