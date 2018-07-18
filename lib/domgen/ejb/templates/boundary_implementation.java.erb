@@ -2,7 +2,7 @@
 package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.LocalVariableCouldBeFinal" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "BED_HIERARCHICAL_EXCEPTION_DECLARATION", "PSC_PRESIZE_COLLECTIONS" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "BED_HIERARCHICAL_EXCEPTION_DECLARATION", "PSC_PRESIZE_COLLECTIONS", "WOC_WRITE_ONLY_COLLECTION_LOCAL" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRES_NEW )
 @javax.enterprise.inject.Typed( <%= service.ejb.qualified_boundary_interface_name %>.class )
