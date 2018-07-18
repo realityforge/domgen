@@ -47,7 +47,8 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
           final String viewSql = issue.getViewSql();
           final String message = header + ( null == viewSql ? "" : ": SQL\n---" + viewSql + "---" );
           System.out.println( message );
-          sb.append( "  " + message );
+          sb.append( "  " );
+          sb.append( message );
         }
         org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb.toString() );
       }
