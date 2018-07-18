@@ -3,6 +3,7 @@ package <%= to_package(service.gwt_rpc.qualified_proxy_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "PMD.UnusedPrivateField", "PMD.AddEmptyString" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PSC_PRESIZE_COLLECTIONS" } )
 public class <%= service.gwt_rpc.proxy_name %>
   implements <%= service.gwt_rpc.qualified_facade_service_name %>
 {
