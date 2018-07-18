@@ -3,6 +3,7 @@ package <%= to_package(repository.jaxrs.qualified_abstract_application_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PSC_PRESIZE_COLLECTIONS" } )
 public abstract class <%= repository.jaxrs.abstract_application_name %>
   extends javax.ws.rs.core.Application
 {

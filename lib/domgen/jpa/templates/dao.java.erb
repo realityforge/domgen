@@ -2,6 +2,7 @@
 package <%= to_package(dao.jpa.qualified_dao_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "FCBL_FIELD_COULD_BE_LOCAL" } )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.UnusedPrivateField" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.<%= Reality::Naming.uppercase_constantize(dao.jpa.transaction_type.to_s) %> )
