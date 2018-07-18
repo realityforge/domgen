@@ -2,6 +2,7 @@
 package <%= to_package(repository.ee.qualified_abstract_app_server_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS" } )
 public abstract class <%= repository.ee.abstract_app_server_name %>
   extends org.realityforge.guiceyloops.server.glassfish.AbstractAppServer
 {
