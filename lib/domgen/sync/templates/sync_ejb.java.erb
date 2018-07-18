@@ -61,7 +61,7 @@ public class <%= data_module.sync.sync_ejb_name %>
   }
 <% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
 
-  private void sync<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final long syncStartAt )
+  private void sync<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
     final long entityStartAt = System.currentTimeMillis();
@@ -77,7 +77,7 @@ public class <%= data_module.sync.sync_ejb_name %>
 <% end -%>
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
 
-  private void sync<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final long syncStartAt )
+  private void sync<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
     final long entityStartAt = System.currentTimeMillis();
@@ -106,10 +106,10 @@ public class <%= data_module.sync.sync_ejb_name %>
     try
     {
 <% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
-      sync<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder, syncStartAt );
+      sync<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
 <% end -%>
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-      sync<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder, syncStartAt );
+      sync<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
 <% end -%>
       log( mappingSourceCode, "Successfully synchronized data" );
     }
