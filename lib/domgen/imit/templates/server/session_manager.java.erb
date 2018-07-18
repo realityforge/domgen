@@ -3,7 +3,7 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.CollapsibleIfStatements", "PMD.UnusedFormalParameter", "PMD.UnusedLocalVariable" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"DLS_DEAD_LOCAL_STORE"})
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "DLS_DEAD_LOCAL_STORE", "CC_CYCLOMATIC_COMPLEXITY" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
 @javax.enterprise.inject.Typed( { <%= repository.imit.qualified_poll_service_name %>.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )

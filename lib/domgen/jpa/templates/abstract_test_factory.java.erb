@@ -3,6 +3,7 @@ package <%= to_package(data_module.jpa.qualified_abstract_test_factory_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "CE_CLASS_ENVY" } )
 public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 {
   private final com.google.inject.Injector _injector;

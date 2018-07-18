@@ -6,7 +6,7 @@ package <%= to_package(repository.imit.qualified_message_generator_name) %>;
  */
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.CollapsibleIfStatements" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"UCF_USELESS_CONTROL_FLOW","NP_LOAD_OF_KNOWN_NULL_VALUE"})
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "UCF_USELESS_CONTROL_FLOW", "NP_LOAD_OF_KNOWN_NULL_VALUE", "UP_UNUSED_PARAMETER", "CC_CYCLOMATIC_COMPLEXITY" } )
 public final class <%= repository.imit.message_generator_name %>
 {
   private final <%= repository.imit.qualified_server_router_name %> _router = new <%= repository.imit.qualified_server_router_name %>();
