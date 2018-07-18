@@ -2,6 +2,7 @@
 package <%= to_package(repository.ee.qualified_abstract_provisioner_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS" } )
 public abstract class <%= repository.ee.abstract_provisioner_name %>
   extends org.realityforge.guiceyloops.server.glassfish.AbstractProvisioner
 {
