@@ -58,7 +58,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 
   protected boolean isSqlAnalysisEnabled()
   {
-    return java.lang.System.getProperty( "sql_analysis.enabled", "true"  ).equals( "true" );
+    return "true".equals( System.getProperty( "sql_analysis.enabled", "true" ) );
   }
 <% end -%>
 <% repository.jpa.test_modules.each_pair do |name, classname| -%>
