@@ -11,6 +11,23 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 
   protected void syncControl( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final boolean forceSync )
   {
+    initMetrics( recorder );
+
+    _syncTempPopulationService.preSync( mappingSourceCode );
+
+<% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
+    reset<%= entity.data_module.name %><%= entity.name %>( mappingSourceCode, at, recorder );
+<% end -%>
+
+<% data_module.sync.entities_to_synchronize.each do |entity| -%>
+    syncEntity<%= entity.data_module.name %><%= entity.name %>( mappingSourceCode, at, recorder, forceSync );
+<% end -%>
+
+    _syncTempPopulationService.postSync( mappingSourceCode );
+  }
+
+  private void initMetrics( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  {
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
     recorder.incMetric( "<%= entity.qualified_name %>.Total.Original", 0 );
     recorder.incMetric( "<%= entity.qualified_name %>.Total.New", 0 );
@@ -26,31 +43,29 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
     recorder.incMetric( "<%= entity.qualified_name %>.VerifySyncTempDuration", 0 );
     recorder.incMetric( "<%= entity.qualified_name %>.TotalSyncDuration", 0 );
 <% end -%>
-
-    _syncTempPopulationService.preSync( mappingSourceCode );
+  }
 
 <% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
-    {
-      final long entityStartAt = System.currentTimeMillis();
-      log( recorder, "Reset SyncTemp for <%= entity.qualified_name %>" );
-      _syncTempPopulationService.reset<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, at, recorder );
-      final long entityEndAt = System.currentTimeMillis();
-      log( recorder, "Reset SyncTemp for <%= entity.qualified_name %> completed in " + ( entityEndAt - entityStartAt ) + "ms" );
-      recorder.incMetric( "<%= entity.qualified_name %>.ResetSyncTempDuration", (int) ( entityEndAt - entityStartAt ) );
-    }
+  private void reset<%= entity.data_module.name %><%= entity.name %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  {
+    final long entityStartAt = System.currentTimeMillis();
+    log( recorder, "Reset SyncTemp for <%= entity.qualified_name %>" );
+    _syncTempPopulationService.reset<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, at, recorder );
+    final long entityEndAt = System.currentTimeMillis();
+    log( recorder, "Reset SyncTemp for <%= entity.qualified_name %> completed in " + ( entityEndAt - entityStartAt ) + "ms" );
+    recorder.incMetric( "<%= entity.qualified_name %>.ResetSyncTempDuration", (int) ( entityEndAt - entityStartAt ) );
+  }
 <% end -%>
 
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-    {
-      final long entityStartAt = System.currentTimeMillis();
-      sync<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, at, recorder, forceSync );
-      final long entityEndAt = System.currentTimeMillis();
-      recorder.incMetric( "<%= entity.qualified_name %>.TotalSyncDuration", (int) ( entityEndAt - entityStartAt ) );
-    }
-<% end -%>
-
-    _syncTempPopulationService.postSync( mappingSourceCode );
+  private void syncEntity<%= entity.data_module.name %><%= entity.name %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final boolean forceSync )
+  {
+    final long entityStartAt = System.currentTimeMillis();
+    sync<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, at, recorder, forceSync );
+    final long entityEndAt = System.currentTimeMillis();
+    recorder.incMetric( "<%= entity.qualified_name %>.TotalSyncDuration", (int) ( entityEndAt - entityStartAt ) );
   }
+<% end -%>
 
   protected abstract javax.persistence.EntityManager getEntityManager();
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
