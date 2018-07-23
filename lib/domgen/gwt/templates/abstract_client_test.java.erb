@@ -9,6 +9,11 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   implements org.testng.IHookable
 <% end -%>
 {
+<% if repository.arez? -%>
+  private final java.util.ArrayList<String> _observerErrors = new java.util.ArrayList<>();
+  private boolean _ignoreObserverErrors;
+  private boolean _printObserverErrors;
+<% end -%>
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
   @javax.annotation.Nonnull
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
@@ -22,6 +27,10 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 <% if repository.arez? -%>
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
     arez.ArezTestUtil.resetConfig( false );
+    setIgnoreObserverErrors( false );
+    setPrintObserverErrors( true );
+    _observerErrors.clear();
+    arez.Arez.context().addObserverErrorHandler( this::onObserverError );
 <% end -%>
     super.preTest();
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
@@ -37,6 +46,12 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     super.postTest();
     arez.ArezTestUtil.resetConfig( true );
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( true );
+<% if repository.arez? -%>
+    if ( !_ignoreObserverErrors && !_observerErrors.isEmpty() )
+    {
+      org.testng.Assert.fail( "Unexpected Observer Errors: " + _observerErrors.stream().collect( java.util.stream.Collectors.joining( "\n" ) ) );
+    }
+<% end -%>
   }
 
   @Override
@@ -71,6 +86,73 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   protected com.google.inject.Module new<%= name %>()
   {
     return new <%= classname %>();
+  }
+<% end -%>
+<% if repository.arez? -%>
+  protected static void observeDependency()
+  {
+    arez.Arez.context().observable().reportObserved();
+  }
+
+  @javax.annotation.Nonnull
+  protected final arez.Disposable pauseScheduler()
+  {
+    return arez.Arez.context().pauseScheduler();
+  }
+
+  final void autorun( @javax.annotation.Nonnull final arez.Procedure procedure )
+  {
+    arez.Arez.context().autorun( () -> {
+      observeDependency();
+      procedure.call();
+    } );
+  }
+
+  protected final void action( @javax.annotation.Nonnull final arez.Procedure action )
+    throws Throwable
+  {
+    arez.Arez.context().action( action );
+  }
+
+  protected final <T> T action( @javax.annotation.Nonnull final arez.Function<T> action )
+    throws Throwable
+  {
+    return arez.Arez.context().action( action );
+  }
+
+  protected final void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
+  {
+    arez.Arez.context().safeAction( action );
+  }
+
+  protected final <T> T safeAction( @javax.annotation.Nonnull final arez.SafeFunction<T> action )
+  {
+    return arez.Arez.context().safeAction( action );
+  }
+
+  protected final void setIgnoreObserverErrors( final boolean ignoreObserverErrors )
+  {
+    _ignoreObserverErrors = ignoreObserverErrors;
+  }
+
+  protected final void setPrintObserverErrors( final boolean printObserverErrors )
+  {
+    _printObserverErrors = printObserverErrors;
+  }
+
+  private void onObserverError( @javax.annotation.Nonnull final arez.Observer observer,
+                                @javax.annotation.Nonnull final arez.ObserverError error,
+                                @javax.annotation.Nullable final Throwable throwable )
+  {
+    if ( !_ignoreObserverErrors )
+    {
+      final String message = "Observer: " + observer.getName() + " Error: " + error + " " + throwable;
+      _observerErrors.add( message );
+      if ( _printObserverErrors )
+      {
+        System.out.println( message );
+      }
+    }
   }
 <% end -%>
 <% repository.gwt.test_class_contents.each do |content| %>
