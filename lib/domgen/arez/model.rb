@@ -60,6 +60,7 @@ module Domgen
       java_artifact :dao_test_module, :test, :client, :arez, '#{repository.name}ArezDaoTestModule', :sub_package => 'util'
       java_artifact :entity_complete_module, :test, :client, :arez, '#{repository.name}EntityModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :client, :arez, '#{repository.name}FactorySetModule', :sub_package => 'util'
+      java_artifact :no_action_annotation, :test, :client, :arez, 'NoActionWrapper', :sub_package => 'util'
 
       def pre_verify
         if repository.imit?

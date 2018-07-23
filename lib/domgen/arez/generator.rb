@@ -37,6 +37,9 @@ Domgen::Generator.define([:arez],
                                 'test_factory_module.java.erb',
                                 type + '/java/#{repository.arez.qualified_test_factory_module_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
+                                'no_action_annotation.java.erb',
+                                type + '/java/#{repository.arez.qualified_no_action_annotation_name.gsub(".","/")}.java')
+      template_set.erb_template(:repository,
                                 'dao_test_module.java.erb',
                                 type + '/java/#{repository.arez.qualified_dao_test_module_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
