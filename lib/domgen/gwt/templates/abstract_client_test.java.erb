@@ -100,7 +100,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     return arez.Arez.context().pauseScheduler();
   }
 
-  final void autorun( @javax.annotation.Nonnull final arez.Procedure procedure )
+  protected final void autorun( @javax.annotation.Nonnull final arez.Procedure procedure )
   {
     arez.Arez.context().autorun( () -> {
       observeDependency();
