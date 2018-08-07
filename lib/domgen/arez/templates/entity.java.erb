@@ -312,7 +312,7 @@ entity.arez.referencing_client_side_attributes.each do |attribute|
   {
     if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
     {
-      org.realityforge.braincheck.Guards.invariant( () -> !arez.Disposable.isDisposed( this ),
+      org.realityforge.braincheck.Guards.invariant( () -> arez.Disposable.isNotDisposed( this ),
                                                     () -> "Method invoked on invalid entity of type <%= entity.arez.name %>" );
     }
   }
