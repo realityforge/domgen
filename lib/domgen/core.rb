@@ -12,6 +12,10 @@
 # limitations under the License.
 #
 
+Reality::Naming.add_pluralization_rule do |string|
+  string == 'dao' ? 'daos' : nil
+end
+
 module Domgen
   Reality::Logging.configure(Domgen, ::Logger::WARN)
 
