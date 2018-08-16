@@ -22,7 +22,7 @@ public abstract class <%= entity.arez.name %>
 <% end -%>
 <% entity.declared_attributes.select{ |attribute| attribute.immutable? && !attribute.abstract? && attribute.arez? }.each do |attribute|
   if attribute.reference? || attribute.remote_reference? -%>
-  private <%= attribute.updatable? ? '' : 'final ' %><%= "#{nullability_annotation(true)} #{attribute.arez.java_type(:transport)}" %> _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
+  <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :private => true, :final => !attribute.updatable?) %> _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
 <% else -%>
   <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :private => true, :final => !attribute.updatable?) %> _<%= Reality::Naming.camelize(attribute.arez.name) %>;
 <%
@@ -36,7 +36,7 @@ public abstract class <%= entity.arez.name %>
     super( <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(:transport))}.join(', ') %> );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.each do |attribute| -%>
-    _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= supports_nullable?(attribute.arez, :default, :assume_generated => true) && !attribute.nullable? ? "java.util.Objects.requireNonNull( #{Reality::Naming.camelize(attribute.arez.name(:transport))} )" : Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
+    _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= supports_nullable?(attribute.arez, attribute.enumeration? ? :default : :transport, :assume_generated => true) && !attribute.nullable? ? "java.util.Objects.requireNonNull( #{Reality::Naming.camelize(attribute.arez.name(:transport))} )" : Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
 <% end -%>
   }
 <% entity.declared_attributes.select{|attribute| attribute.arez? }.each do |attribute| -%>
@@ -47,7 +47,7 @@ public abstract class <%= entity.arez.name %>
   <%= annotated_type(attribute, :arez, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 
   @arez.annotations.ReferenceId
-  <%= annotated_type(attribute, :arez, :transport, :public => true, :final => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>()
+  <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :public => true, :final => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>()
   {
     return _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
   }
@@ -58,9 +58,9 @@ public abstract class <%= entity.arez.name %>
 
   @arez.annotations.Observable( initializer = arez.annotations.Feature.ENABLE )
   @arez.annotations.ReferenceId
-  <%= annotated_type(attribute, :arez, :transport, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>();
+  <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>();
 
-  abstract void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport) %> <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> );
+  abstract void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> );
 <% end -%>
 <% else -%>
 <% if attribute.immutable? -%>
