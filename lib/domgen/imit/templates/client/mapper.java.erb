@@ -30,7 +30,7 @@ public final class <%= data_module.imit.mapper_name %>
 <% if entity.concrete? -%>
 
   @javax.annotation.Nonnull
-  public static <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, @javax.annotation.Nonnull final <%= entity.dao.arez.qualified_repository_name %> repository, final int <%= Reality::Naming.camelize(entity.primary_key.name) %>, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
+  public static <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.dao.arez.qualified_repository_name %> repository, final int <%= Reality::Naming.camelize(entity.primary_key.name) %>, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
   {
 <% entity.attributes.select{|attribute| attribute.arez? && !attribute.primary_key?}.each do |attribute|
     key = "#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}"
@@ -57,7 +57,7 @@ public final class <%= data_module.imit.mapper_name %>
 -%>
     final <%= attribute.imit.java_type(:transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.name) %> = <%= attribute.nullable? ? "( data.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %>;
 <% end -%>
-    return repository.create( entityLocator, <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
+    return repository.create( <%= entity.attributes.select{|attribute| attribute.arez?}.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
 
   }
 <% end -%>

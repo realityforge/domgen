@@ -9,8 +9,6 @@ public class <%= repository.arez.dao_test_module_name %>
   @java.lang.Override
   protected void configure()
   {
-    bindSingleton( org.realityforge.replicant.client.EntityLocator.class, <%= repository.arez.qualified_entity_locator_name %>.class );
-
 <%
   repository.data_modules.select{|data_module| data_module.arez?}.each do |data_module|
     data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao|

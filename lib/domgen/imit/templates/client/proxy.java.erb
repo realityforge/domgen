@@ -1,6 +1,5 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.imit.qualified_proxy_name) %>;
-<% requires_locator = service.methods.any? {|m| m.imit? && (m.return_value.reference? ||m.return_value.remote_reference?)} -%>
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "PMD.UnusedPrivateField", "PMD.IfStmtsMustUseBraces", "PMD.SingularField" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "WOC_WRITE_ONLY_COLLECTION_LOCAL", "PSC_PRESIZE_COLLECTIONS" } )
@@ -8,17 +7,11 @@ public class <%= service.imit.proxy_name %>
   implements <%= service.imit.qualified_name %>
 {
   private final <%= service.gwt_rpc.qualified_facade_service_name %> _service;
-<% if requires_locator -%>
-  private final org.realityforge.replicant.client.EntityLocator _entityLocator;
-<% end -%>
 
   @javax.inject.Inject
-  public <%= service.imit.proxy_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_facade_service_name %> service<% if requires_locator -%>, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator<% end -%> )
+  public <%= service.imit.proxy_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_facade_service_name %> service )
   {
     _service = java.util.Objects.requireNonNull( service );
-<% if requires_locator -%>
-    _entityLocator = java.util.Objects.requireNonNull( entityLocator );
-<% end -%>
   }
 <% service.methods.select{|method| method.imit?}.each do |method|
    method_name = Reality::Naming.camelize(method.name)

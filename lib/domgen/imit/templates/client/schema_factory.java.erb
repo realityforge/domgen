@@ -8,7 +8,7 @@ package <%= to_package(repository.imit.qualified_schema_factory_name) %>;
 public final class <%= repository.imit.schema_factory_name %>
 {
   @javax.annotation.Nonnull
-  public static replicant.SystemSchema createSystemSchema( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityLocator entityLocator, <%= entities.collect{|e|"@javax.annotation.Nonnull final #{e.dao.arez.qualified_repository_name} #{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> )
+  public static replicant.SystemSchema createSystemSchema( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, <%= entities.collect{|e|"@javax.annotation.Nonnull final #{e.dao.arez.qualified_repository_name} #{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> )
   {
     final <%= repository.imit.qualified_client_router_name %> router = new <%= repository.imit.qualified_client_router_name %>();
 <% entities.each do |entity| -%>
@@ -16,7 +16,7 @@ public final class <%= repository.imit.schema_factory_name %>
       new replicant.EntitySchema( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>,
                                   replicant.Replicant.areNamesEnabled() ? <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>_NAME : null,
                                   <%= entity.arez.qualified_name %>.class,
-                                  (id, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.create<%= entity.name %>( entityLocator, <%= Reality::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository, id, data ),
+                                  (id, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.create<%= entity.name %>( <%= Reality::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository, id, data ),
                                   (entity, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.update<%= entity.name %>( entity, data ) );
 <% end %>
 <% repository.imit.graphs.each do |graph| -%>
