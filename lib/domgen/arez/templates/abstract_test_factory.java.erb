@@ -38,20 +38,19 @@ public abstract class <%= data_module.arez.abstract_test_factory_name %>
   @javax.annotation.Nonnull
   public final <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    final <%= entity.arez.qualified_name %> $_ = <%= Reality::Naming.camelize(entity.dao.name) %>().create( entityLocator(), <%= entity.attributes.select{|a|a.arez?}.collect do |a|
+<% attributes = entity.attributes.select{|a|a.arez? && a.immutable?} + entity.attributes.select{|a|a.arez? && !a.immutable?} -%>
+    final <%= entity.arez.qualified_name %> $_ = <%= Reality::Naming.camelize(entity.dao.name) %>().create( <%= attributes.select{|a|a.arez?}.collect do |a|
 if a.reference?
   "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : ''}#{Reality::Naming.camelize(a.name) }.get#{a.referenced_entity.primary_key.name}()"
 elsif a.remote_reference?
     "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' }#{Reality::Naming.camelize(a.name) }.get#{a.referenced_remote_entity.primary_key.name }()"
-elsif a.enumeration?
-    "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' }#{Reality::Naming.camelize(a.name) }.#{a.enumeration.numeric_values? ? 'ordinal' : 'name' }()"
 elsif a.date?
     "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' }#{ Reality::Naming.camelize(a.name)}.toString()"
 else
     Reality::Naming.camelize(a.name)
   end
 end.join(', ') -%> );
-    $_.link();
+    arez.component.Linkable.link( $_ );;
     return $_;
   }
 
@@ -61,12 +60,10 @@ end.join(', ') -%> );
   {
 <% if a.reference? -%>
     $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() );
-    $_.link();
+    arez.component.Linkable.link( $_ );
 <% elsif a.remote_reference? -%>
     $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_remote_entity.primary_key.name %>() );
-    $_.link();
-<% elsif a.enumeration? -%>
-    $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.<%= a.enumeration.numeric_values? ? 'ordinal' : 'name' %>() );
+    arez.component.Linkable.link( $_ );
 <% elsif a.date? -%>
     $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null : " : '' %><%= Reality::Naming.camelize(a.name) %>.toString() );
 <% else -%>
@@ -86,12 +83,6 @@ end.join(', ') -%> );
 <%
   end
 -%>
-
-  @javax.annotation.Nonnull
-  protected final <%= data_module.repository.arez.qualified_entity_locator_name %> entityLocator()
-  {
-    return s( <%= data_module.repository.arez.qualified_entity_locator_name %>.class );
-  }
 
   @javax.annotation.Nonnull
   protected final <T> T s( @javax.annotation.Nonnull final Class<T> type )

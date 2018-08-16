@@ -56,7 +56,7 @@ module Domgen
       end
 
       java_artifact :root_repository, :entity, :client, :arez, '#{repository.name}RootRepository'
-      java_artifact :entity_locator, :entity, :client, :arez, '#{repository.name}EntityLocator'
+      java_artifact :locator_factory, :entity, :client, :arez, '#{repository.name}LocatorFactory'
       java_artifact :dao_test_module, :test, :client, :arez, '#{repository.name}ArezDaoTestModule', :sub_package => 'util'
       java_artifact :entity_complete_module, :test, :client, :arez, '#{repository.name}EntityModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :client, :arez, '#{repository.name}FactorySetModule', :sub_package => 'util'

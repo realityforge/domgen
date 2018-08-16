@@ -66,9 +66,9 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
    if !method.return_value.collection?
      result_string = 'result'
      if method.return_value.reference?
-       result_string = "arez.Arez.context().safeAction( () -> _entityLocator.getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, result ) )"
+       result_string = "getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, result )"
      elsif method.return_value.remote_reference?
-       result_string = "arez.Arez.context().safeAction( () -> _entityLocator.getById( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, result ) )"
+       result_string = "getById( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, result )"
      end
      if method.return_value.nullable?
        result_string = "null == result ? null : #{result_string}"
@@ -88,9 +88,9 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
           <%
              param_value =
              if method.return_value.reference?
-               "arez.Arez.context().safeAction( () -> _entityLocator.getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, id ) )"
+               "getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, id )"
              elsif method.return_value.remote_reference?
-               "arez.Arez.context().safeAction( () -> _entityLocator.getById( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, id ) )"
+               "getById( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, id )"
              end
           %>
           $result.add( <%= param_value %> );
@@ -101,5 +101,17 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
       }
   }, errorCallback );
   }
+<% end %>
 
-<% end %>}
+  @javax.annotation.Nonnull
+  private <T> T getById( @javax.annotation.Nonnull final java.lang.Class<T> type, @javax.annotation.Nonnull final java.lang.Object id )
+  {
+    final T result = arez.Arez.context().safeAction( () -> arez.Arez.context().locator().findById( type, id ) );
+    if( arez.Arez.shouldCheckApiInvariants() )
+    {
+      org.realityforge.braincheck.Guards.apiInvariant( () -> null != result, () -> "Unable to locate entity of type " + type + " and id " + id );
+    }
+    assert null != result;
+    return result;
+  }
+}
