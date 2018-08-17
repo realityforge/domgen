@@ -23,4 +23,7 @@
   <define-property name='<%= Reality::Naming.underscore(repository.name) %>.<%= k %>' values='true,false'/>
   <set-property name='<%= Reality::Naming.underscore(repository.name) %>.<%= k %>' value='<%= config[:default_value] || 'false' %>'/>
 <% end -%>
+<% if repository.arez? -%>
+  <set-property name='arez.enable_references' value='true'/>
+<% end -%>
 </module>
