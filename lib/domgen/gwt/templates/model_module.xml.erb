@@ -2,22 +2,22 @@
 <!-- DO NOT EDIT: File is auto-generated -->
 <module>
   <inherits name='org.realityforge.gwt.datatypes.Datatypes'/>
-  <inherits name="com.google.gwt.json.JSON"/>
+  <inherits name='com.google.gwt.json.JSON'/>
 <% if repository.imit? -%>
   <inherits name='org.realityforge.replicant.Replicant'/>
 <% end -%>
 <% if repository.gwt_rpc? && !repository.imit? -%>
-  <inherits name="com.google.gwt.user.RemoteService"/>
+  <inherits name='com.google.gwt.user.RemoteService'/>
 <% end -%>
-  <inherits name="dagger.Dagger"/>
+  <inherits name='dagger.Dagger'/>
 <% if repository.keycloak? -%>
-  <inherits name="org.realityforge.gwt.keycloak.Keycloak"/>
+  <inherits name='org.realityforge.gwt.keycloak.Keycloak'/>
 <% end -%>
 <% if repository.iris_audit? -%>
-  <inherits name="iris.audit.Audit"/>
+  <inherits name='iris.audit.Audit'/>
 <% end -%>
 <% if repository.berk? -%>
-  <inherits name="iris.berk.Berk"/>
+  <inherits name='iris.berk.Berk'/>
 <% end -%>
 <% repository.gwt.debug_config.each_pair do |k, config| -%>
   <define-property name='<%= Reality::Naming.underscore(repository.name) %>.<%= k %>' values='true,false'/>
