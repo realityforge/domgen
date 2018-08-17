@@ -13,6 +13,11 @@ public interface <%= repository.gwt.abstract_dagger_component_name %>
   @javax.annotation.Nonnull
   iris.audit.client.ClientExceptionAuditHelper getClientExceptionAuditHelper();
 <% end -%>
+<% if repository.arez? -%>
+
+  @javax.annotation.Nonnull
+  arez.Locator getLocator();
+<% end -%>
 <% if repository.imit? -%>
 
   @javax.annotation.Nonnull

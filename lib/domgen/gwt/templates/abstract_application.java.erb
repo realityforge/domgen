@@ -170,6 +170,9 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   public void start()
   {
     preStart();
+<% if repository.arez? -%>
+    setupArezLocator();
+<% end -%>
 <% if repository.appcache? -%>
     setupAppCache();
 <% end -%>
@@ -190,6 +193,13 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
       }
     } );
   }
+<% if repository.arez? -%>
+
+  private void setupArezLocator()
+  {
+    arez.Arez.context().registerLocator( ensureInjector().getLocator() );
+  }
+<% end -%>
 <% if repository.appcache? -%>
 
   private void setupAppCache()
