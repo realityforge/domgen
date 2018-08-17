@@ -13,4 +13,13 @@ public class <%= repository.arez.test_factory_module_name %>
     bind( <%= data_module.arez.qualified_test_factory_name %>.class ).in( javax.inject.Singleton.class );
 <% end -%>
   }
+
+<% daos = repository.data_modules.select{|data_module|data_module.arez?}.collect {|data_module| data_module.entities.select{|entity|entity.imit?}.collect{|entity|entity.dao}}.flatten -%>
+  @javax.annotation.Nonnull
+  @com.google.inject.Provides
+  @javax.inject.Singleton
+  public arez.Locator createLocator( <%= daos.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.qualified_name.gsub('.',''))}"}.join(', ') %> )
+  {
+    return <%= repository.arez.qualified_locator_factory_name %>.createLocator( <%= daos.collect{|dao| Reality::Naming.camelize(dao.qualified_name.gsub('.',''))}.join(', ') %> );
+  }
 }

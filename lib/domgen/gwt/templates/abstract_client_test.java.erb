@@ -36,6 +36,9 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
     <%= short_code %> = s( <%= classname %>.class );
 <% end -%>
+<% if repository.arez? -%>
+    arez.Arez.context().registerLocator( s( arez.Locator.class ) );
+<% end -%>
   }
 <% if repository.arez? -%>
 
