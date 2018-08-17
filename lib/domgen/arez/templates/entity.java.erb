@@ -68,7 +68,7 @@ public abstract class <%= entity.arez.name %>
 <% if attribute.primary_key? -%>
   @arez.annotations.ComponentId
 <% end -%>
-  <%= annotated_type(attribute, :arez, :default, :public => true, :final => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>()
+  <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :public => true, :final => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>()
   {
     return _<%= Reality::Naming.camelize(attribute.arez.name) %>;
   }
