@@ -57,6 +57,7 @@ module Domgen
 
       java_artifact :root_repository, :entity, :client, :arez, '#{repository.name}RootRepository'
       java_artifact :locator_factory, :entity, :client, :arez, '#{repository.name}LocatorFactory'
+      java_artifact :locator_dagger_module, :entity, :client, :arez, '#{repository.name}LocatorDaggerModule'
       java_artifact :dao_test_module, :test, :client, :arez, '#{repository.name}ArezDaoTestModule', :sub_package => 'util'
       java_artifact :entity_complete_module, :test, :client, :arez, '#{repository.name}EntityModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :client, :arez, '#{repository.name}FactorySetModule', :sub_package => 'util'
@@ -68,6 +69,7 @@ module Domgen
           repository.imit.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         end
         if repository.gwt?
+          repository.gwt.add_dagger_module(locator_dagger_module_name, qualified_locator_dagger_module_name)
           repository.gwt.add_test_module(dao_test_module_name, qualified_dao_test_module_name)
           repository.gwt.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         end
