@@ -10,7 +10,7 @@ public final class <%= repository.arez.locator_factory_name %>
   }
 <% daos = repository.data_modules.select{|data_module|data_module.arez?}.collect {|data_module| data_module.entities.select{|entity|entity.imit?}.collect{|entity|entity.dao}}.flatten -%>
   @javax.annotation.Nonnull
-  public arez.component.TypeBasedLocator createLocator( <%= daos.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.qualified_name.gsub('.',''))}"}.join(', ') %> )
+  public static arez.Locator createLocator( <%= daos.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.qualified_name.gsub('.',''))}"}.join(', ') %> )
   {
     final arez.component.TypeBasedLocator locator = new arez.component.TypeBasedLocator();
 <% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
@@ -27,7 +27,7 @@ public final class <%= repository.arez.locator_factory_name %>
 <% data_module.entities.select{|entity|entity.arez? && !entity.final?}.each do |entity| -%>
 
   @javax.annotation.Nullable
-  private <%= entity.arez.qualified_name %> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, <%= annotated_type(entity.primary_key, :arez, :default, :final => true, :assume_generated => true) %> id )
+  private static <%= entity.arez.qualified_name %> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, <%= annotated_type(entity.primary_key, :arez, :default, :final => true, :assume_generated => true) %> id )
   {
     <%= entity.arez.qualified_name %> entity = null;
 <% entity.compatible_concrete_types.each do |subtype| -%>
