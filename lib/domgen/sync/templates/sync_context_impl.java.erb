@@ -365,7 +365,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   public int mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( @javax.annotation.Nonnull final String mappingSourceCode )
   {
     final String sql =
-      "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } ") %>" +
+      "<%= j_escape_string("UPDATE TOP (500) #{ entity.sync.master_entity.sql.qualified_table_name } ") %>" +
       "<%= j_escape_string(" SET #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql} ") %>" +
       "<%= j_escape_string(" WHERE #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql} ") %> AND" +
       "<%= j_escape_string("   #{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL ") %> AND" +

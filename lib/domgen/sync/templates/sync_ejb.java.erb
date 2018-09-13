@@ -228,9 +228,17 @@ public class <%= data_module.sync.sync_ejb_name %>
   {
     try
     {
-      final int count = _context.mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( mappingSourceCode );
-      recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UnsyncRemovals", count );
-      return count;
+      int count = 0;
+      while ( true )
+      {
+        final int stepCount =_context.mark<%=entity.data_module.name%><%=entity.name%>RemovalsPreSync(mappingSourceCode);
+        if ( 0 == stepCount )
+        {
+          return count;
+        }
+        recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UnsyncRemovals", stepCount);
+        count = count + stepCount;
+      }
     }
     catch ( final Exception e )
     {
