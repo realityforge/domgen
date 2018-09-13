@@ -11,6 +11,6 @@ public abstract class <%= destination.message_integration_test_name %>
   protected final void sentTextMessage( @javax.annotation.Nonnull final String message )
     throws Exception
   {
-    sendTextMessageTo<%= destination.destination_type == 'javax.jms.Queue' ? 'Queue' : 'Topic' %>( message, <%= destination.jms_repository.repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME );
+    sendTextMessageTo<%= destination.is_queue? ? 'Queue' : 'Topic' %>( message, <%= destination.jms_repository.repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME );
   }
 }

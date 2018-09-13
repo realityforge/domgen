@@ -58,6 +58,10 @@ module Domgen
         @physical_name || default_name
       end
 
+      def is_queue?
+        self.destination_type == 'javax.jms.Queue'
+      end
+
       def destination_type
         @destination_type || 'javax.jms.Queue'
       end
@@ -180,9 +184,9 @@ module Domgen
     throws Exception
   {
           JAVA
-          self.destinations.select{|destination| destination.destination_type == 'javax.jms.Queue'}.each do |destination|
+          self.destinations.each do |destination|
             content += <<-JAVA
-    org.realityforge.guiceyloops.server.glassfish.OpenMQUtil.purgeQueue( #{qualified_constants_container_name}.#{Reality::Naming.uppercase_constantize(destination.name) }_PHYSICAL_NAME );
+    org.realityforge.guiceyloops.server.glassfish.OpenMQUtil.purge<%= destination.is_queue? ? 'Queue' : 'Topic' %>( #{qualified_constants_container_name}.#{Reality::Naming.uppercase_constantize(destination.name) }_PHYSICAL_NAME );
             JAVA
           end
           content += <<-JAVA
