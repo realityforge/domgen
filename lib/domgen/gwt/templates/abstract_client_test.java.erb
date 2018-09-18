@@ -67,7 +67,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     }
     else
     {
-      arez.Arez.context().safeAction( testResult.getName(), true, false, () -> icb.runTestMethod( testResult ) );
+      arez.Arez.context().safeAction( testResult.getName(), () -> icb.runTestMethod( testResult ), arez.Flags.NO_VERIFY_ACTION_REQUIRED );
     }
   }
 
@@ -106,7 +106,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 
   protected final void autorun( @javax.annotation.Nonnull final arez.Procedure procedure )
   {
-    arez.Arez.context().autorun( () -> {
+    arez.Arez.context().observer( () -> {
       observeDependency();
       procedure.call();
     } );
