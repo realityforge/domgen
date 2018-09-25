@@ -4,10 +4,6 @@ package <%= to_package(repository.gwt.qualified_abstract_dagger_component_name) 
 @javax.annotation.Generated( "Domgen" )
 public interface <%= repository.gwt.abstract_dagger_component_name %>
 {
-<% if repository.gwt.enable_eventbus? -%>
-  @javax.annotation.Nonnull
-  com.google.gwt.event.shared.EventBus getEventBus();
-<% end -%>
 <% if repository.iris_audit? -%>
 
   @javax.annotation.Nonnull

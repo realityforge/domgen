@@ -31,14 +31,4 @@ public class <%= entrypoint.entrypoint_dagger_module_name %>
     return app.getKeycloak();
   }
 <% end -%>
-<% if entrypoint.gwt_repository.repository.gwt.enable_eventbus? -%>
-
-  @javax.annotation.Nonnull
-  @dagger.Provides
-  @javax.inject.Singleton
-  public static com.google.gwt.event.shared.EventBus getEventBus()
-  {
-    return new com.google.gwt.event.shared.SimpleEventBus();
-  }
-<% end -%>
 }

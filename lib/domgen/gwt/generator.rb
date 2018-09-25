@@ -15,12 +15,6 @@
 Domgen::Generator.define([:gwt],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper]) do |g|
-  g.template_set(:gwt_client_event) do |template_set|
-    template_set.erb_template(:message,
-                              'event.java.erb',
-                              'main/java/#{message.gwt.qualified_event_name.gsub(".","/")}.java',
-                              :guard => 'message.data_module.repository.gwt.enable_eventbus?')
-  end
 
   g.template_set(:gwt_client_config) do |template_set|
     template_set.erb_template(:repository,
@@ -68,9 +62,6 @@ Domgen::Generator.define([:gwt],
       template_set.erb_template(:repository,
                                 'abstract_client_test.java.erb',
                                 type + '/java/#{repository.gwt.qualified_abstract_client_test_name.gsub(".","/")}.java')
-      template_set.erb_template(:repository,
-                                'support_test_module.java.erb',
-                                type + '/java/#{repository.gwt.qualified_support_test_module_name.gsub(".","/")}.java')
       template_set.erb_template(:data_module,
                                 'abstract_struct_test_factory.java.erb',
                                 type + '/java/#{data_module.gwt.qualified_abstract_struct_test_factory_name.gsub(".","/")}.java',
@@ -148,6 +139,6 @@ Domgen::Generator.define([:gwt],
                               :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
   end
 
-  g.template_set(:gwt_client => [:gwt_client_event, :gwt_client_jso, :gwt_client_callback])
+  g.template_set(:gwt_client => [:gwt_client_jso, :gwt_client_callback])
   g.template_set(:gwt => [:gwt_client])
 end

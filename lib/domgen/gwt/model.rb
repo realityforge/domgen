@@ -81,7 +81,6 @@ module Domgen
 
       java_artifact :abstract_client_test, :test, :client, :gwt, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :client_test, :test, :client, :gwt, '#{repository.name}ClientTest', :sub_package => 'util'
-      java_artifact :support_test_module, :test, :client, :gwt, '#{repository.name}SupportTestModule', :sub_package => 'util'
       java_artifact :standard_test_module, :test, :client, :gwt, '#{repository.name}TestModule', :sub_package => 'util'
       java_artifact :callback_success_answer, :test, :client, :gwt, '#{repository.name}CallbackSuccessAnswer', :sub_package => 'util'
       java_artifact :callback_failure_answer, :test, :client, :gwt, '#{repository.name}CallbackFailureAnswer', :sub_package => 'util'
@@ -89,12 +88,6 @@ module Domgen
       java_artifact :client_ux_test, :test, :client, :gwt, '#{repository.name}UserExperienceTest', :sub_package => 'util'
       java_artifact :standard_ux_test_module, :test, :client, :gwt, '#{repository.name}UserExperienceTestModule', :sub_package => 'util'
       java_artifact :debug_config, nil, :client, :gwt, '#{repository.name}DebugConfig'
-
-      attr_accessor :enable_eventbus
-
-      def enable_eventbus?
-        @enable_eventbus.nil? ? repository.keycloak? || repository.imit? : !!@enable_eventbus
-      end
 
       def generate_sync_callbacks?
         repository.gwt_rpc? || repository.imit?
@@ -267,7 +260,6 @@ module Domgen
 
       def pre_verify
         add_test_module(standard_test_module_name, qualified_standard_test_module_name) if include_standard_test_module?
-        add_test_module(support_test_module_name, qualified_support_test_module_name)
         add_ux_test_module(standard_ux_test_module_name, qualified_standard_ux_test_module_name) if include_standard_ux_test_module?
         add_test_class_content(<<CONTENT) if repository.gwt.generate_sync_callbacks?
 
@@ -275,32 +267,6 @@ module Domgen
   protected final <T> java.lang.Class<#{repository.gwt.qualified_async_callback_name}<T>> asyncResultType( @javax.annotation.Nonnull final java.lang.Class<T> type )
   {
     return (Class) #{repository.gwt.qualified_async_callback_name}.class;
-  }
-CONTENT
-
-        add_test_class_content(<<CONTENT)
-
-  @javax.annotation.Nonnull
-  protected final <H> H addHandler( @javax.annotation.Nonnull final com.google.web.bindery.event.shared.Event.Type<H> type, final H handler )
-  {
-    eventBus().addHandler( type, handler );
-    return handler;
-  }
-
-  protected final void fireEvent( @javax.annotation.Nonnull final com.google.web.bindery.event.shared.Event<?> event )
-  {
-    eventBus().fireEvent( event );
-  }
-
-  @javax.annotation.Nonnull
-  protected final com.google.gwt.event.shared.EventBus eventBus()
-  {
-    return s( com.google.gwt.event.shared.EventBus.class );
-  }
-
-  protected final <T extends com.google.web.bindery.event.shared.Event<?>> T event( @javax.annotation.Nonnull final T value )
-  {
-    return org.mockito.Matchers.refEq( value, "source" );
   }
 CONTENT
       end
