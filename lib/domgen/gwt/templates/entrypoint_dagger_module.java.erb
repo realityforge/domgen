@@ -38,7 +38,7 @@ public class <%= entrypoint.entrypoint_dagger_module_name %>
   @javax.inject.Singleton
   public static com.google.gwt.event.shared.EventBus getEventBus()
   {
-    return new org.realityforge.gwt.lognice.LoggingEventBus();
+    return new com.google.gwt.event.shared.SimpleEventBus();
   }
 <% end -%>
 }

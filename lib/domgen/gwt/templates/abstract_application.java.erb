@@ -234,9 +234,9 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   protected void onUncaughtException( @javax.annotation.Nonnull final Throwable e )
   {
-    if( <%= repository.gwt.qualified_debug_config_name %>.EMIT_RAW_UNCAUGHT_EXCEPTIONS )
+    if( <%= repository.gwt.qualified_debug_config_name %>.EMIT_RAW_UNCAUGHT_EXCEPTIONS && com.google.gwt.core.client.GWT.isScript() && com.google.gwt.core.client.GWT.isProdMode() )
     {
-      org.realityforge.gwt.lognice.BrowserExceptionUtil.log( e );
+      log( e, false );
     }
 <% if repository.iris_audit? -%>
     final iris.audit.client.ClientExceptionAuditHelper helper = getClientExceptionAuditHelper();
@@ -285,4 +285,33 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     return null != injector ? injector.getClientExceptionAuditHelper() : null;
   }
 <% end -%>
+
+  private void log( @javax.annotation.Nonnull final Throwable t, final boolean isCause )
+  {
+    final String msg = ( isCause ? "caused by: " : "" ) + t;
+    _groupStart( msg );
+    _log( t );
+    if ( null != t.getCause() )
+    {
+      log( t.getCause(), true );
+    }
+    _groupEnd();
+  }
+
+  private native void _groupStart( @javax.annotation.Nonnull final String message ) /*-{
+    var groupStart = console.groupCollapsed || console.group || console.error || console.log;
+    groupStart.call( console, message );
+  }-*/;
+
+  private native void _groupEnd() /*-{
+    var groupEnd = console.groupEnd || function() {
+      };
+    groupEnd.call( console );
+  }-*/;
+
+  private native void _log( @javax.annotation.Nonnull final Throwable throwable ) /*-{
+    var logError = console.error || console.log;
+    var backingError = throwable.__gwt$backingJsError;
+    logError.call( console, backingError && backingError.stack );
+  }-*/;
 }
