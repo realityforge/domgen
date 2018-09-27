@@ -171,7 +171,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   private void setupAppCache()
   {
-    if ( null != elemental2.dom.DomGlobal.applicationCache )
+    if ( null != elemental2.dom.DomGlobal.applicationCache && elemental2.dom.DomGlobal.document.getElementsByTagName( "html" ).item( 0 ).hasAttribute( "manifest" ) )
     {
       elemental2.dom.DomGlobal.applicationCache.addEventListener( "updateready", e -> {
           elemental2.dom.DomGlobal.applicationCache.swapCache();
