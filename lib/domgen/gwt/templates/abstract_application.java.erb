@@ -124,7 +124,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.imit? -%>
     org.realityforge.gwt.webpoller.client.WebPoller.register( org.realityforge.gwt.webpoller.client.TimerBasedWebPoller::new );
     replicant.WebStorageCacheService.install();
-    com.google.gwt.user.client.Window.addWindowClosingHandler( e -> replicant.Replicant.context().deactivate() );
+    elemental2.dom.DomGlobal.window.addEventListener( "pagehide", e -> replicant.Replicant.context().deactivate(), true );
 <% end -%>
   }
 

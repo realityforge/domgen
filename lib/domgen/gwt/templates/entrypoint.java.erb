@@ -5,8 +5,6 @@ package <%= to_package(entrypoint.qualified_entrypoint_name) %>;
 public final class <%= entrypoint.entrypoint_name %>
   implements com.google.gwt.core.client.EntryPoint
 {
-  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= entrypoint.entrypoint_name %>.class.getName() );
-
   public void onModuleLoad()
   {
     try
@@ -15,8 +13,8 @@ public final class <%= entrypoint.entrypoint_name %>
     }
     catch ( final Exception e )
     {
-      LOG.log( java.util.logging.Level.SEVERE, "Unexpected problem initializing the <%= entrypoint.gwt_repository.repository.name %> application", e );
-      com.google.gwt.user.client.Window.alert( "Error: " + e.getMessage() );
+      elemental2.dom.DomGlobal.console.error( "Unexpected problem initializing the <%= entrypoint.gwt_repository.repository.name %> application", e );
+      elemental2.dom.DomGlobal.window.alert( "Error: " + e.getMessage() );
     }
   }
 }
