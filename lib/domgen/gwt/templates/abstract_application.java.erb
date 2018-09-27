@@ -2,7 +2,7 @@
 package <%= to_package(repository.gwt.qualified_abstract_application_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "STT_STRING_PARSING_A_FIELD" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "STT_STRING_PARSING_A_FIELD", "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS", "PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS" } )
 public abstract class <%= repository.gwt.abstract_application_name %><I extends <%= repository.gwt.qualified_abstract_dagger_component_name %>>
 {
 <% if repository.keycloak? -%>
