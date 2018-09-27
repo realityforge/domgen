@@ -123,7 +123,6 @@ module Domgen
       java_artifact :js_min_service, :servlet, :server, :keycloak, '#{qualified_class_name}KeycloakMinJsServlet'
       java_artifact :token, :data_type, :client, :keycloak, '#{qualified_class_name}Token'
       java_artifact :id_token, :data_type, :client, :keycloak, '#{qualified_class_name}IDToken'
-      java_artifact :abstract_application, nil, :client, :keycloak, 'AbstractKeycloak#{qualified_type_name}App'
 
       def qualified_type_name
         "#{default_client? ? '' : Reality::Naming.pascal_case(keycloak_repository.repository.name)}#{Reality::Naming.pascal_case(name)}"
