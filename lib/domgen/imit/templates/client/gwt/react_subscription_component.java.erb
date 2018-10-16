@@ -30,12 +30,24 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   {
     return true;
   }
+
+  @react4j.annotations.OnPropChanged
+  protected void onIdChanged()
+  {
+    updateAreaOfInterestOnIdChange();
+  }
 <% end -%>
 <% if graph.filtered? -%>
 
   @react4j.annotations.Prop
   @javax.annotation.Nonnull
   protected abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
+
+  @react4j.annotations.OnPropChanged
+  protected void onFilterChanged()
+  {
+    updateAreaOfInterestOnFilterChange( getFilter() );
+  }
 <% end -%>
 
   @react4j.annotations.Prop( require = react4j.annotations.Feature.ENABLE )
