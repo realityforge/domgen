@@ -165,6 +165,24 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% end -%>
   }
 
+<% entity.sql.constraints.select{|constraint| !(constraint.sql =~ /\[CreatedAt\]/ && constraint.sql =~ /\[DeletedAt\]/) }.each do |constraint| %>
+  @javax.annotation.Nonnull
+  protected java.lang.String get<%= constraint.table.entity.data_module.name %><%= constraint.table.entity.name %><%= constraint.name %>Sql()
+  {
+    return "SELECT S.* " +
+           " FROM " +
+           "<%= j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +
+           "<%= j_escape_string("JOIN ( SELECT #{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempId).sql.quoted_column_name } FROM #{ entity.sync.sync_temp_entity.sql.qualified_table_name } WHERE NOT (#{
+  sql = constraint.sql.gsub("\n",' ').gsub('  ',' ')
+  entity.attributes.select{|a| a.sync? && !a.primary_key? && a.sql? && a.name.to_s != 'CreatedAt' && a.name.to_s != 'DeletedAt' }.each do |a|
+    sql = sql.gsub(/#{Regexp.escape(a.sql.quoted_column_name)}/, entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingId" : a.name).sql.quoted_column_name )
+  end
+  sql
+}) ) J ON J.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempId).sql.quoted_column_name } ") %>" +
+           "<%= j_escape_string("WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?") %>";
+  }
+<% end -%>
+
   @java.lang.SuppressWarnings( "ConstantConditions" )
   private void doVerify<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
@@ -269,18 +287,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% end -%>
 <% entity.sql.constraints.select{|constraint| !(constraint.sql =~ /\[CreatedAt\]/ && constraint.sql =~ /\[DeletedAt\]/) }.each do |constraint| %>
       {
-        final String sql =
-          "SELECT S.* " +
-          " FROM " +
-          "<%= j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +
-          "<%= j_escape_string("JOIN ( SELECT #{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempId).sql.quoted_column_name } FROM #{ entity.sync.sync_temp_entity.sql.qualified_table_name } WHERE NOT (#{
-  sql = constraint.sql.gsub("\n",' ').gsub('  ',' ')
-  entity.attributes.select{|a| a.sync? && !a.primary_key? && a.sql? && a.name.to_s != 'CreatedAt' && a.name.to_s != 'DeletedAt' }.each do |a|
-    sql = sql.gsub(/#{Regexp.escape(a.sql.quoted_column_name)}/, entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingId" : a.name).sql.quoted_column_name )
-  end
-  sql
-}) ) J ON J.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name(:SyncTempId).sql.quoted_column_name } ") %>" +
-        "<%= j_escape_string("WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?") %>";
+        final String sql = get<%= constraint.table.entity.data_module.name %><%= constraint.table.entity.name %><%= constraint.name %>Sql();
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to violate constraint <%= j_escape_string( constraint.qualified_constraint_name ) %>", recorder ) )
         {
           validationFailed = true;
