@@ -14,7 +14,7 @@
 
 Domgen::Generator.define([:gwt],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::Java::Helper]) do |g|
+                         [Domgen::Java::Helper, Domgen::Gwt::Helper]) do |g|
 
   g.template_set(:gwt_client_config) do |template_set|
     template_set.erb_template(:repository,
@@ -25,24 +25,8 @@ Domgen::Generator.define([:gwt],
   g.template_set(:gwt_client_jso) do |template_set|
     template_set.erb_template(:struct,
                               'struct.java.erb',
-                              'main/java/#{struct.gwt.qualified_interface_name.gsub(".","/")}.java',
-                              :additional_facets => [:json],
-                              :guard => 'struct.gwt.generate_overlay?')
-    template_set.erb_template(:struct,
-                              'struct_factory.java.erb',
-                              'main/java/#{struct.gwt.qualified_factory_name.gsub(".","/")}.java',
-                              :additional_facets => [:json],
-                              :guard => 'struct.gwt.generate_overlay?')
-    template_set.erb_template(:struct,
-                              'jso_struct.java.erb',
-                              'main/java/#{struct.gwt.qualified_jso_name.gsub(".","/")}.java',
-                              :additional_facets => [:json],
-                              :guard => 'struct.gwt.generate_overlay?')
-    template_set.erb_template(:struct,
-                              'java_struct.java.erb',
-                              'main/java/#{struct.gwt.qualified_java_name.gsub(".","/")}.java',
-                              :additional_facets => [:json],
-                              :guard => 'struct.gwt.generate_overlay?')
+                              'main/java/#{struct.gwt.qualified_name.gsub(".","/")}.java',
+                              :additional_facets => [:json])
   end
 
   %w(main test).each do |type|
@@ -62,10 +46,6 @@ Domgen::Generator.define([:gwt],
       template_set.erb_template(:repository,
                                 'abstract_client_test.java.erb',
                                 type + '/java/#{repository.gwt.qualified_abstract_client_test_name.gsub(".","/")}.java')
-      template_set.erb_template(:data_module,
-                                'abstract_struct_test_factory.java.erb',
-                                type + '/java/#{data_module.gwt.qualified_abstract_struct_test_factory_name.gsub(".","/")}.java',
-                                :guard => 'data_module.gwt.generate_struct_factory?')
     end
   end
 

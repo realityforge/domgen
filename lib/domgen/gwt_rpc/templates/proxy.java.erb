@@ -46,7 +46,7 @@ public class <%= service.gwt_rpc.proxy_name %>
        if parameter.enumeration?
          "entity.#{parameter.enumeration.numeric_values? ? 'ordinal()' : 'name()'}"
        else
-         "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( entity )"
+         "elemental2.core.Global.JSON.stringify( entity )"
        end
     %>
     $<%= Reality::Naming.camelize(parameter.name) %>.add( <%= param_value %> );
@@ -70,7 +70,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   elsif parameter.date?
     param_value = "#{param_value}.toString()"
   elsif parameter.struct?
-    param_value = "#{parameter.referenced_struct.gwt.qualified_factory_name}.asJson( #{param_value} )"
+    param_value = "elemental2.core.Global.JSON.stringify( #{param_value} )"
   end
   if parameter.nullable? && !parameter.collection?
     param_value = "null == #{Reality::Naming.camelize(parameter.name)} ? null : #{param_value}"
@@ -91,7 +91,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
      elsif method.return_value.date?
        result_string = "org.realityforge.gwt.datatypes.client.date.RDate.parse( result )"
      elsif method.return_value.struct?
-       result_string = "#{method.return_value.referenced_struct.gwt.qualified_factory_name}.as#{method.return_value.referenced_struct.name}( result )"
+       result_string = "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( elemental2.core.Global.JSON.parse( result ) )"
      end
      if method.return_value.nullable?
        result_string = "null == result ? null : #{result_string}"
@@ -106,16 +106,16 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
         <%= annotated_type(method.return_value, :gwt_rpc, :boundary, :final => true) %> $result = <% if method.return_value.nullable? %>result == null ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= method.return_value.gwt_rpc.java_component_type %>>();
         if ( null != result )
         {
-          for( final <%= method.return_value.gwt_rpc.java_component_type(:transport) %> id: result )
+          for( final <%= method.return_value.gwt_rpc.java_component_type(:transport) %> $item: result )
           {
 <%
          param_value =
          if method.return_value.enumeration?
            method.return_value.enumeration.textual_values? ?
-             "#{method.return_value.gwt_rpc.java_component_type}.valueOf( id )" :
-             "#{method.return_value.gwt_rpc.java_component_type}.values()[ id ]"
+             "#{method.return_value.gwt_rpc.java_component_type}.valueOf( $item )" :
+             "#{method.return_value.gwt_rpc.java_component_type}.values()[ $item ]"
          else
-           "#{method.return_value.referenced_struct.gwt.qualified_factory_name}.as#{method.return_value.referenced_struct.name}( id )"
+           "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( elemental2.core.Global.JSON.parse( $item ) )"
          end
 -%>
             $result.add( <%= param_value %> );

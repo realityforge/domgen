@@ -122,6 +122,7 @@ require 'domgen/ce/generator'
 
 # GWT
 require 'domgen/gwt/model'
+require 'domgen/gwt/helper'
 require 'domgen/gwt/generator'
 
 # GwtRPC

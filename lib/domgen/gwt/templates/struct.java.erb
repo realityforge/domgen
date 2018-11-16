@@ -1,11 +1,78 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(struct.gwt.qualified_interface_name) %>;
+package <%= to_package(struct.gwt.qualified_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public interface <%= struct.gwt.interface_name %>
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "PMD.IfStmtsMustUseBraces", "PMD.IfElseStmtsMustUseBraces", "PMD.UnnecessaryLocalBeforeReturn", "PMD.UseUtilityClass" } )
+@jsinterop.annotations.JsType( isNative = true, namespace = jsinterop.annotations.JsPackage.GLOBAL, name = "Object" )
+public final class <%= struct.gwt.name %>
 {
-<% struct.fields.each do |field| %>
-  <%= annotated_type(field, :gwt, :boundary) %> <%= getter_prefix(field) %><%= field.name %>();
-<% end %>
+<% struct.fields.each do |field| -%>
+<% if field.nullable? -%>
+  @javax.annotation.Nullable
+<% elsif !field.gwt.primitive?(:transport) -%>
+  @javax.annotation.Nonnull
+<% end -%>
+  private <%= characteristic_transport_type(field) %> <%= field.json.name %>;
+<% end -%>
+
+  public <%= struct.gwt.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  {
+<% struct.fields.each do |field| -%>
+<%
+  singular_converted_value = Proc.new do |var|
+    case
+      when field.date? then "#{var}.toString()"
+      when field.datetime? then "(double) #{var}.getTime()"
+      when field.enumeration? then "#{var}.#{field.enumeration.textual_values? ? 'name()' : 'ordinal()' }"
+      when field.nullable? && field.integer? then "#{var}.doubleValue()"
+      when field.nullable? && field.boolean? then "#{var}.booleanValue()"
+      when field.nullable? && field.real? then "#{var}.doubleValue()"
+      when field.nullable? && field.long? then "#{var}.doubleValue()"
+      else "#{var}"
+    end
+  end
+  if field.collection?
+    converted_value = Proc.new do |var|
+      "#{var}.stream().map( e -> #{singular_converted_value.call('e')} ).toArray( #{characteristic_transport_type(field)}::new )"
+    end
+  else
+    converted_value = singular_converted_value
+  end
+-%>
+    this.<%= field.json.name %> = <%= converted_value.call(Reality::Naming.camelize(field.name)) %>;
+<% end -%>
+  }
+<% struct.fields.select{|field| field.gwt?}.each do |field| -%>
+
+  @jsinterop.annotations.JsOverlay
+  <%= annotated_type(field, :gwt, :boundary, :public => true) %> <%= getter_prefix(field) %><%= field.name %>()
+  {
+<%-
+  if field.collection?
+    conversion_rule =
+      case
+        when field.date? then Proc.new {|transport_value| "org.realityforge.gwt.datatypes.client.date.RDate.parse( #{transport_value} )"}
+        when field.datetime? then Proc.new {|transport_value| "new java.util.Date( (long) #{transport_value} )"}
+        when field.enumeration? then Proc.new {|transport_value| "#{field.gwt.java_component_type}.#{field.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{field.nullable? ? "#{transport_value}.intValue()" : transport_value} ]"}"}
+        else nil
+      end
+-%>
+    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%>arez.component.CollectionsUtil.as<%= field.collection_type == :set ? 'Set' : 'List' %>( java.util.Arrays.stream( this.<%= field.json.name %> )<%= conversion_rule.nil? ? '' : ".map( e -> #{conversion_rule.call('e')} )" %> );
+<% elsif field.nullable? && field.datetime? -%>
+    return null == this.<%= field.json.name %> ? null : new java.util.Date( this.<%= field.json.name %>.longValue() );
+<% elsif field.datetime? -%>
+    return new java.util.Date( (long) this.<%= field.json.name %> );
+<% elsif field.date? -%>
+    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%>org.realityforge.gwt.datatypes.client.date.RDate.parse( this.<%= field.json.name %> );
+<% elsif field.enumeration? -%>
+    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%><%= field.gwt.java_type %>.<%= field.enumeration.textual_values? ? "valueOf( this.#{field.json.name} )" : "values()[ #{field.nullable? ? "#{field.json.name}.intValue()" : field.json.name} ]" %>;
+<% elsif field.struct? || field.text? || field.real? || field.boolean? || (field.integer? && !field.nullable?) -%>
+    return this.<%= field.json.name %>;
+<% elsif field.integer? && field.nullable? -%>
+    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%>this.<%= field.json.name %>.intValue();
+<% elsif field.long? -%>
+    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%>this.<%= field.json.name %>.longValue();
+<% end -%>
+  }
+<% end -%>
 }

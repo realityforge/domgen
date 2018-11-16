@@ -282,7 +282,7 @@ module Domgen
 
       GROUP_TYPE_MAP = {
         :ee => GroupType.new(:jpa, :ee, :ee),
-        :gwt => GroupType.new(:arez, :gwt, :gwt)
+        :gwt => GroupType.new(:arez, :ce, :gwt)
       }
 
       MODALITIES = [:default, :boundary, :transport]

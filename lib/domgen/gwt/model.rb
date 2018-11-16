@@ -61,12 +61,6 @@ module Domgen
         @module_name || Reality::Naming.underscore(repository.name)
       end
 
-      attr_writer :client_event_package
-
-      def client_event_package
-        @client_event_package || "#{client_package}.event"
-      end
-
       java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
       java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
       java_artifact :abstract_dagger_component, :ioc, :client, :gwt, 'Abstract#{repository.name}DaggerComponent'
@@ -327,29 +321,10 @@ CONTENT
         @client_data_type_package || resolve_package(:client_data_type_package)
       end
 
-      attr_writer :client_event_package
-
-      def client_event_package
-        @client_event_package || resolve_package(:client_event_package)
-      end
-
-      def generate_struct_factory?
-        data_module.structs.select{|s|s.gwt? && s.gwt.generate_overlay?}.size > 0
-      end
-
       attr_writer :short_test_code
 
       def short_test_code
         @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
-      end
-
-      java_artifact :struct_test_factory, :test, :client, :gwt, '#{data_module.name}StructFactory', :sub_package => 'util'
-      java_artifact :abstract_struct_test_factory, :test, :client, :gwt, 'Abstract#{data_module.name}StructFactory', :sub_package => 'util'
-
-      def pre_complete
-        if generate_struct_factory?
-          data_module.repository.gwt.add_test_factory("#{short_test_code}s", qualified_struct_test_factory_name)
-        end
       end
 
       protected
@@ -359,40 +334,10 @@ CONTENT
       end
     end
 
-    facet.enhance(Message) do
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :event, :event, :client, :gwt, '#{message.name}Event'
-    end
-
-    facet.enhance(MessageParameter) do
-      include Domgen::Java::ImitJavaCharacteristic
-
-      protected
-
-      def characteristic
-        parameter
-      end
-    end
-
     facet.enhance(Struct) do
       include Domgen::Java::BaseJavaGenerator
 
-      # Needed to hook into standard java type resolution code
-      def qualified_name
-        self.qualified_interface_name
-      end
-
-      attr_writer :generate_overlay
-
-      def generate_overlay?
-        @generate_overlay.nil? ? true : !!@generate_overlay
-      end
-
-      java_artifact :interface, :data_type, :client, :gwt, '#{struct.name}'
-      java_artifact :jso, :data_type, :client, :gwt, 'Jso#{struct.name}'
-      java_artifact :java, :data_type, :client, :gwt, 'Java#{struct.name}'
-      java_artifact :factory, :data_type, :client, :gwt, '#{struct.name}Factory'
+      java_artifact :name, :data_type, :client, :gwt, '#{struct.name}'
     end
 
     facet.enhance(StructField) do
@@ -407,12 +352,6 @@ CONTENT
       def characteristic
         field
       end
-    end
-
-    facet.enhance(EnumerationSet) do
-      include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :name, :data_type, :client, :gwt, '#{enumeration.name}'
     end
   end
 end
