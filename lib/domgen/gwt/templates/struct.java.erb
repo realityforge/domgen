@@ -15,8 +15,10 @@ public final class <%= struct.gwt.name %>
   private <%= characteristic_transport_type(field) %> <%= field.json.name %>;
 <% end -%>
 
-  public <%= struct.gwt.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  @jsinterop.annotations.JsOverlay
+  public static <%= struct.gwt.name %> create( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
+    final <%= struct.gwt.name %> $$element$$ = new <%= struct.gwt.name %>();
 <% struct.fields.each do |field| -%>
 <%
   singular_converted_value = Proc.new do |var|
@@ -39,8 +41,9 @@ public final class <%= struct.gwt.name %>
     converted_value = singular_converted_value
   end
 -%>
-    this.<%= field.json.name %> = <%= converted_value.call(Reality::Naming.camelize(field.name)) %>;
+    $$element$$.<%= field.json.name %> = <%= converted_value.call(Reality::Naming.camelize(field.name)) %>;
 <% end -%>
+    return $$element$$;
   }
 <% struct.fields.select{|field| field.gwt?}.each do |field| -%>
 
