@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
   s.default_executable = []
   s.require_paths      = %w(lib)
 
-  s.has_rdoc           = false
   s.rdoc_options       = %w(--line-numbers --inline-source --title domgen)
 
   s.add_dependency 'reality-core', '>= 1.8.0'
