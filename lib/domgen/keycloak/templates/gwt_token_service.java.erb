@@ -9,28 +9,18 @@ public interface <%= repository.keycloak.gwt_token_service_name %>
   <%= client.qualified_token_name %> find<%= client.qualified_type_name %>Token();
 
   @javax.annotation.Nullable
-  <%= client.qualified_id_token_name %> find<%= client.qualified_type_name %>IDToken();
+  <%= client.qualified_id_token_name %> find<%= client.qualified_type_name %>IdToken();
 
   @javax.annotation.Nonnull
   default <%= client.qualified_token_name %> get<%= client.qualified_type_name %>Token()
   {
-    final <%= client.qualified_token_name %> token = find<%= client.qualified_type_name %>Token();
-    if( null == token )
-    {
-      throw new IllegalStateException( "Missing keycloak token" );
-    }
-    return token;
+    return java.util.Objects.requireNonNull( find<%= client.qualified_type_name %>Token() );
   }
 
   @javax.annotation.Nullable
-  default <%= client.qualified_id_token_name %> get<%= client.qualified_type_name %>IDToken()
+  default <%= client.qualified_id_token_name %> get<%= client.qualified_type_name %>IdToken()
   {
-    final <%= client.qualified_id_token_name %> token = find<%= client.qualified_type_name %>IDToken();
-    if( null == token )
-    {
-      throw new IllegalStateException( "Missing keycloak token" );
-    }
-    return token;
+    return java.util.Objects.requireNonNull( find<%= client.qualified_type_name %>IdToken() );
   }
 <% end -%>
 }
