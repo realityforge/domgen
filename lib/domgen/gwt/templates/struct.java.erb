@@ -35,7 +35,7 @@ public final class <%= struct.gwt.name %>
   end
   if field.collection?
     converted_value = Proc.new do |var|
-      "#{var}.stream().map( e -> #{singular_converted_value.call('e')} ).toArray( #{characteristic_transport_type(field)}::new )"
+      "#{var}.stream().map( e -> #{singular_converted_value.call('e')} ).toArray( size -> new #{collection_transport_type(field, ' size ')} )"
     end
   else
     converted_value = singular_converted_value

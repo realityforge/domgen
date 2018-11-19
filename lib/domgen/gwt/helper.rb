@@ -18,12 +18,16 @@ module Domgen
 
       def characteristic_transport_type(field)
         if field.collection?
-          base_type = field.nullable? && field.integer? ? 'java.lang.Double' : field.gwt.java_component_type(field.struct? ? :boundary : :transport)
-
-          "#{base_type}[]"
+          collection_transport_type(field)
         else
           field.nullable? && field.integer? ? 'java.lang.Double' : field.gwt.java_type(field.struct? ? :boundary : :transport)
         end
+      end
+
+      def collection_transport_type(field, size = '')
+        base_type = field.nullable? && field.integer? ? 'java.lang.Double' : field.gwt.java_component_type(field.struct? ? :boundary : :transport)
+
+        "#{base_type}[#{size}]"
       end
     end
   end
