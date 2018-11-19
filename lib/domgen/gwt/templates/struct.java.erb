@@ -30,18 +30,25 @@ public final class <%= struct.gwt.name %>
       when field.nullable? && field.boolean? then "#{var}.booleanValue()"
       when field.nullable? && field.real? then "#{var}.doubleValue()"
       when field.nullable? && field.long? then "#{var}.doubleValue()"
-      else "#{var}"
+      else nil
     end
   end
   if field.collection?
     converted_value = Proc.new do |var|
-      "#{var}.stream().map( e -> #{singular_converted_value.call('e')} ).toArray( size -> new #{collection_transport_type(field, ' size ')} )"
+      scv = singular_converted_value.call('e')
+      if scv
+        "#{var}.stream().map( e -> #{scv} ).toArray( size -> new #{collection_transport_type(field, ' size ')} )"
+      else
+        "#{var}.toArray( new #{collection_transport_type(field, '0')} )"
+      end
     end
   else
     converted_value = singular_converted_value
   end
+
+  cv = converted_value.call(Reality::Naming.camelize(field.name))
 -%>
-    $$element$$.<%= field.json.name %> = <%= converted_value.call(Reality::Naming.camelize(field.name)) %>;
+    $$element$$.<%= field.json.name %> = <%= !cv.nil? && field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? null : " : '' %><%= cv.nil? ? Reality::Naming.camelize(field.name) : cv %>;
 <% end -%>
     return $$element$$;
   }
