@@ -6,6 +6,7 @@
 <% end -%>
 <% if repository.gwt_rpc? && !repository.imit? -%>
   <inherits name='com.google.gwt.user.RemoteService'/>
+  <inherits name='org.realityforge.braincheck.BrainCheck'/>
 <% end -%>
   <inherits name='dagger.Dagger'/>
 <% if repository.keycloak? -%>
