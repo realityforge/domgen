@@ -89,7 +89,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
      elsif method.return_value.enumeration? && method.return_value.enumeration.textual_values?
        result_string = "#{method.return_value.gwt_rpc.java_type}.valueOf( result )"
      elsif method.return_value.date?
-       result_string = "org.realityforge.gwt.datatypes.client.date.RDate.parse( result )"
+       result_string = "iris.rose.shared.util.RDate.parse( result )"
      elsif method.return_value.struct?
        result_string = "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( elemental2.core.Global.JSON.parse( result ) )"
      end

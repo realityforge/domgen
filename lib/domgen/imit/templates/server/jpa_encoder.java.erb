@@ -50,7 +50,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
         if attribute.imit.transport_characteristic_type_key == :datetime
           "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.getTime() )"
         elsif attribute.imit.transport_characteristic_type_key == :date
-          "( ( null == $#{attribute.name} ) ? null : org.realityforge.gwt.datatypes.client.date.RDate.fromDate( $#{attribute.name} ).toString() )"
+          "( ( null == $#{attribute.name} ) ? null : iris.rose.shared.util.RDate.fromDate( $#{attribute.name} ).toString() )"
         elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_characteristic_type_key)
           if attribute.nullable?
             "( ( null == $#{attribute.name} ) ? null : $#{attribute.name} )"
@@ -121,7 +121,7 @@ end
         if attribute.imit.transport_characteristic_type_key == :datetime
           "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.getTime() )"
         elsif attribute.imit.transport_characteristic_type_key == :date
-          "( ( null == $#{attribute.name} ) ? null : org.realityforge.gwt.datatypes.client.date.RDate.fromDate( $#{attribute.name} ).toString() )"
+          "( ( null == $#{attribute.name} ) ? null : iris.rose.shared.util.RDate.fromDate( $#{attribute.name} ).toString() )"
         elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_characteristic_type_key)
           if attribute.nullable?
             "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}#{value_suffix} )"

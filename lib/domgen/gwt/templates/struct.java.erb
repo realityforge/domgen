@@ -61,7 +61,7 @@ public final class <%= struct.gwt.name %>
   if field.collection?
     conversion_rule =
       case
-        when field.date? then Proc.new {|transport_value| "org.realityforge.gwt.datatypes.client.date.RDate.parse( #{transport_value} )"}
+        when field.date? then Proc.new {|transport_value| "iris.rose.shared.util.RDate.parse( #{transport_value} )"}
         when field.datetime? then Proc.new {|transport_value| "new java.util.Date( (long) #{transport_value} )"}
         when field.enumeration? then Proc.new {|transport_value| "#{field.gwt.java_component_type}.#{field.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{field.nullable? ? "#{transport_value}.intValue()" : transport_value} ]"}"}
         else nil
@@ -73,7 +73,7 @@ public final class <%= struct.gwt.name %>
 <% elsif field.datetime? -%>
     return new java.util.Date( (long) this.<%= field.json.name %> );
 <% elsif field.date? -%>
-    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%>org.realityforge.gwt.datatypes.client.date.RDate.parse( this.<%= field.json.name %> );
+    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%>iris.rose.shared.util.RDate.parse( this.<%= field.json.name %> );
 <% elsif field.enumeration? -%>
     return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%><%= field.gwt.java_type %>.<%= field.enumeration.textual_values? ? "valueOf( this.#{field.json.name} )" : "values()[ #{field.nullable? ? "#{field.json.name}.intValue()" : field.json.name} ]" %>;
 <% elsif field.struct? || field.text? || field.real? || field.boolean? || (field.integer? && !field.nullable?) -%>

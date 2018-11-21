@@ -65,7 +65,7 @@ Domgen::TypeDB.enhance(:void, 'java.primitive_type' => 'void', 'java.object_type
 Domgen::TypeDB.enhance(:integer, 'java.primitive_type' => 'int', 'java.object_type' => 'java.lang.Integer', 'java.fixture_value' => '42')
 Domgen::TypeDB.enhance(:long, 'java.primitive_type' => 'long', 'java.object_type' => 'java.lang.Long', 'java.fixture_value' => '42L')
 Domgen::TypeDB.enhance(:real, 'java.primitive_type' => 'float', 'java.object_type' => 'java.lang.Float', 'java.fixture_value' => '3.14F')
-Domgen::TypeDB.enhance(:date, 'java.object_type' => 'java.util.Date', 'java.gwt.object_type' => 'org.realityforge.gwt.datatypes.client.date.RDate', 'java.fixture_value' => 'new java.util.Date(114, 3, 1)', 'java.gwt.fixture_value' => 'new org.realityforge.gwt.datatypes.client.date.RDate(2014, 3, 1)')
+Domgen::TypeDB.enhance(:date, 'java.object_type' => 'java.util.Date', 'java.gwt.object_type' => 'iris.rose.shared.util.RDate', 'java.fixture_value' => 'new java.util.Date(114, 3, 1)', 'java.gwt.fixture_value' => 'new iris.rose.shared.util.RDate(2014, 3, 1)')
 Domgen::TypeDB.enhance(:datetime, 'java.object_type' => 'java.util.Date', 'java.fixture_value' => 'new java.util.Date(114, 14, 3, 10, 9)')
 Domgen::TypeDB.enhance(:boolean, 'java.primitive_type' => 'boolean', 'java.object_type' => 'java.lang.Boolean', 'java.fixture_value' => 'true')
 Domgen::TypeDB.enhance(:text, 'java.object_type' => 'java.lang.String', 'java.fixture_value' => '"Hello Space!"')
