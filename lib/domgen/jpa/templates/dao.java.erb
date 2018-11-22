@@ -200,6 +200,68 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% end -%>
   }
 
+  @java.lang.Override
+  @java.lang.SuppressWarnings( "deprecation" )
+  public void cascadeRemove( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> $_ )
+  {
+<% dao.entity.referencing_attributes.select{|a|a.jpa? && a.inverse.multiplicity != :many}.each do |a|
+  repository_prefix = a.entity == dao.entity ? '' : "_#{Reality::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
+-%>
+    {
+      final <%= a.entity.jpa.qualified_name %> other = <%= a.inverse.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}findBy#{a.name}( $_ )" -%>;
+      if( null != other )
+      {
+<% if a.nullable? && !a.immutable? && !a.set_once? -%>
+        other.set<%= a.name %>( null );
+<% else -%>
+<% if a.entity.abstract? -%>
+        <% a.entity.subtypes.select{|st|st.concrete? && st.jpa?}.each do |st|
+repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qualified_name.gsub('.',''))}Repository."
+  -%>if( other instanceof <%= st.jpa.qualified_name %> )
+        {
+          <%= repository_prefix %>cascadeRemove( (<%= st.jpa.qualified_name %>) other );
+        }
+        else <% end %>
+        {
+          throw new java.lang.IllegalStateException( "Unknown subtype: " + other.getClass().getName() + " instance: " + other );
+        }
+<% else -%>
+        <%= repository_prefix %>cascadeRemove( other );
+<% end -%>
+<% end -%>
+      }
+    }
+<% end -%>
+<% dao.entity.referencing_attributes.select{|a|a.jpa? && a.inverse.multiplicity == :many}.each do |a|
+  repository_prefix = a.entity == dao.entity ? '' : "_#{Reality::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
+-%>
+    {
+      for ( final <%= a.entity.jpa.qualified_name %> other : new java.util.ArrayList<>( <%= a.inverse.jpa.java_traversable? ? "$_.#{getter_for(a, Reality::Naming.pluralize(a.inverse.name))}" : "#{repository_prefix}findAllBy#{a.name}( $_ )" -%> ) )
+      {
+<% if a.nullable? && !a.immutable? && !a.set_once? -%>
+        other.set<%= a.name %>( null );
+<% else -%>
+<% if a.entity.abstract? -%>
+        <% a.entity.subtypes.select{|st|st.concrete? && st.jpa?}.each do |st|
+repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qualified_name.gsub('.',''))}Repository."
+  -%>if( other instanceof <%= st.jpa.qualified_name %> )
+        {
+          <%= repository_prefix %>cascadeRemove( (<%= st.jpa.qualified_name %>) other );
+        }
+        else <% end %>
+        {
+          throw new java.lang.IllegalStateException( "Unknown subtype: " + other.getClass().getName() + " instance: " + other );
+        }
+<% else -%>
+        <%= repository_prefix %>cascadeRemove( other );
+<% end -%>
+<% end -%>
+      }
+    }
+<% end -%>
+    remove( $_ );
+  }
+
 <% dao.entity.jpa.create_defaults.each do |defaults| -%>
   @java.lang.Override
   @javax.annotation.Nonnull

@@ -215,7 +215,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <% if entity.transaction_time? -%>
 
   /**
-   * This method should not be called directly. It is called from the constructor of <%= entity.jpa.qualified_name %>.
+   * This method should not be called directly. It is called from the repository during delete
    * @deprecated
    */
   @java.lang.Deprecated
