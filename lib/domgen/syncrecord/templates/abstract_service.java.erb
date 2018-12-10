@@ -20,11 +20,14 @@ public class <%= service.syncrecord.qualified_abstract_service_name.to_s.gsub(/^
  */
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NM_SAME_SIMPLE_NAME_AS_SUPERCLASS" )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( {"NM_SAME_SIMPLE_NAME_AS_SUPERCLASS", "ACEM_ABSTRACT_CLASS_EMPTY_METHODS"} )
 public abstract class <%= service.syncrecord.abstract_service_name %>
   extends <%= service.syncrecord.extends %>
   implements <%= service.ejb.service_name %>
 {
+  private java.util.Date _currentSyncStartTime;
+  private iris.syncrecord.server.service.SynchronizationRecorder _recorder;
+
 <% service.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
 -%>
   @javax.inject.Named( <%= service.data_module.repository.syncrecord.qualified_sync_record_locks_name %>.<%= Reality::Naming.uppercase_constantize(lock_name.to_s.gsub('.','_')) %> )
@@ -54,7 +57,15 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
       {
         if ( isFeatureEnabled( <%= service.data_module.repository.appconfig.qualified_feature_flag_container_name %>.<%= Reality::Naming.uppercase_constantize(method.syncrecord.feature_flag.key) %> ) )
         {
-          return do<%= method.name %>(<%= method.parameters.collect{|p| Reality::Naming.camelize(p.name) }.join(', ') %>);
+          try
+          {
+            _currentSyncStartTime = new java.util.Date();
+            return do<%=method.name%>(<%=method.parameters.collect{|p|Reality::Naming.camelize(p.name)}.join(', ')%>);
+          }
+          finally
+          {
+            _currentSyncStartTime = null;
+          }
         }
         else
         {
@@ -68,13 +79,34 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
     }
     else
     {
-      return createAlreadyActiveSyncStatus( java.util.logging.Level.FINE, <%= datasource %> );
+      final java.util.ArrayList<String> messages = new java.util.ArrayList<>();
+      final java.util.Date syncStart = _currentSyncStartTime;
+      final iris.syncrecord.server.service.SynchronizationRecorder recorder = _recorder;
+      messages.add( "Synchronization currently active, started at " +
+        ( ( null != syncStart ) ? syncStart.toString() : "unknown" ) );
+      if ( null != recorder )
+      {
+        final iris.syncrecord.server.service.SynchronizationRecorder.MessageRecord last =
+          recorder.getMessageRecords().peekLast();
+        messages.add( "Sync is running for " + recorder.getDataSourceCode() );
+        if ( null != last )
+        {
+          messages.add( "Last Message: " + last.getMessage() + " at " + new java.util.Date( last.getTime() ) );
+        }
+      }
+      return new iris.syncrecord.server.data_type.SyncStatusDTO(
+        null,
+        "IN_SYNC",
+        delwp.rose.shared.DelwpRoseDataSources.ROSE,
+        new java.util.Date(),
+        messages );
     }
   }
 
   <%= annotated_type(method.return_value, :ejb, :default, :private => true) %> do<%= method.name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)
   {
     final iris.syncrecord.server.service.SynchronizationRecorder recorder = startSynchronization( <%= datasource %> );
+    _recorder = recorder;
     prepare<%= method.name %>( recorder );
     try
     {
