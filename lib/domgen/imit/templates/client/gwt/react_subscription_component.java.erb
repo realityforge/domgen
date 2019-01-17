@@ -21,7 +21,9 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 
 <% if graph.instance_root? -%>
 
+<% unless graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.primitive?(:default, :assume_generated => true) %>
   @javax.annotation.Nonnull
+<% end %>
   @react4j.annotations.Prop
   protected abstract <%= graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.java_type(:default, :assume_generated => true) %> getId();
 
@@ -31,22 +33,22 @@ public abstract class <%= graph.react4j_subscription_component_name %>
     return true;
   }
 
-  @react4j.annotations.OnPropChanged
-  protected void onIdChanged()
+  @react4j.annotations.OnPropChange
+  protected void onIdChange( <% unless graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.primitive?(:default, :assume_generated => true) %>@javax.annotation.Nonnull <% end %>final <%= graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.java_type(:default, :assume_generated => true) %> id )
   {
     updateAreaOfInterestOnIdChange();
   }
 <% end -%>
 <% if graph.filtered? -%>
 
-  @react4j.annotations.Prop
   @javax.annotation.Nonnull
+  @react4j.annotations.Prop
   protected abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
 
-  @react4j.annotations.OnPropChanged
-  protected void onFilterChanged()
+  @react4j.annotations.OnPropChange
+  protected void onFilterChange( @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter )
   {
-    updateAreaOfInterestOnFilterChange( getFilter() );
+    updateAreaOfInterestOnFilterChange( filter );
   }
 <% end -%>
 
