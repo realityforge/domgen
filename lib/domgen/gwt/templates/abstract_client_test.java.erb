@@ -28,6 +28,9 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 <% if repository.arez? -%>
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
     arez.ArezTestUtil.resetConfig( false );
+<% if repository.imit? -%>
+    replicant.ReplicantTestUtil.resetConfig( false );
+<% end -%>
     setIgnoreObserverErrors( false );
     setPrintObserverErrors( true );
     _observerErrors.clear();
@@ -48,9 +51,12 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     throws Exception
   {
     super.postTest();
+<% if repository.arez? -%>
+<% if repository.imit? -%>
+    replicant.ReplicantTestUtil.resetConfig( false );
+<% end -%>
     arez.ArezTestUtil.resetConfig( true );
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( true );
-<% if repository.arez? -%>
     if ( !_ignoreObserverErrors && !_observerErrors.isEmpty() )
     {
       org.testng.Assert.fail( "Unexpected Observer Errors: " + _observerErrors.stream().collect( java.util.stream.Collectors.joining( "\n" ) ) );

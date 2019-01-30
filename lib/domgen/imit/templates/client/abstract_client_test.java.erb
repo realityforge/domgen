@@ -25,6 +25,7 @@ public abstract class <%= repository.imit.abstract_client_test_name %>
   {
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
     arez.ArezTestUtil.resetConfig( false );
+    replicant.ReplicantTestUtil.resetConfig( false );
     super.preTest();
 <% repository.imit.test_factories.each do |short_code, classname| -%>
     <%= short_code %> = s( <%= classname %>.class );
@@ -36,6 +37,7 @@ public abstract class <%= repository.imit.abstract_client_test_name %>
     throws Exception
   {
     super.postTest();
+    replicant.ReplicantTestUtil.resetConfig( true );
     arez.ArezTestUtil.resetConfig( true );
     org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( true );
   }
