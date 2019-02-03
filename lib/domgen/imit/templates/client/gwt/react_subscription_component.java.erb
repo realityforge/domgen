@@ -52,17 +52,6 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   }
 <% end -%>
 
-  @react4j.annotations.Prop( require = react4j.annotations.Feature.ENABLE )
-  @javax.annotation.Nullable
-  protected abstract NoResultCallback onNotAsked();
-
-  @java.lang.Override
-  @javax.annotation.Nullable
-  protected final NoResultCallback getOnNotAsked()
-  {
-    return onNotAsked();
-  }
-
   @react4j.annotations.Prop
   @javax.annotation.Nonnull
   protected abstract NoResultCallback onLoading();
