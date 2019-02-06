@@ -42,7 +42,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% if graph.filtered? -%>
 
   @javax.annotation.Nonnull
-  @react4j.annotations.Prop
+  @react4j.annotations.Prop( observable = react4j.annotations.Feature.DISABLE )
   protected abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
 
   @react4j.annotations.OnPropChange
@@ -52,7 +52,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   }
 <% end -%>
 
-  @react4j.annotations.Prop
+  @react4j.annotations.Prop( observable = react4j.annotations.Feature.DISABLE )
   @javax.annotation.Nonnull
   protected abstract NoResultCallback onLoading();
 
