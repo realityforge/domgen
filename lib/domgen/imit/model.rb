@@ -920,6 +920,7 @@ module Domgen
           end
         end
         if repository.ee?
+          repository.ee.cdi_scan_excludes << 'replicant.**'
           repository.ee.cdi_scan_excludes << 'org.realityforge.replicant.**'
         end
         toprocess = []
