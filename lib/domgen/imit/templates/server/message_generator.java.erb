@@ -14,11 +14,11 @@ public final class <%= repository.imit.message_generator_name %>
   @javax.annotation.Nullable
   public org.realityforge.replicant.server.EntityMessage convertToEntityMessage( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isInitialLoad )
   {
-<%
+    <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.each do |entity|
-    if entity.imit? && entity.concrete? -%>
-    if( <%= entity.jpa.qualified_name %>.class.isInstance( object ) )
+    if entity.imit? && entity.concrete?
+-%>if( <%= entity.jpa.qualified_name %>.class.isInstance( object ) )
     {
       return convert<%= data_module.name %><%= entity.name %>ToEntityMessage( <%= entity.jpa.qualified_name %>.class.cast( object ), isUpdate, isInitialLoad );
     }
