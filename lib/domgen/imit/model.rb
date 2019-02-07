@@ -1176,7 +1176,7 @@ module Domgen
             end
           end
         end
-        repository.imit.graphs.select { |graph| graph.instance_root? }.each do |graph|
+        repository.imit.graphs.select(&:instance_root?).each do |graph|
           entity_list = [repository.entity_by_name(graph.instance_root)]
           while entity_list.size > 0
             entity = entity_list.pop
@@ -1191,7 +1191,7 @@ module Domgen
             end
           end
         end
-        repository.imit.graphs.each { |g| g.post_verify }
+        repository.imit.graphs.each(&:post_verify)
       end
 
       protected
