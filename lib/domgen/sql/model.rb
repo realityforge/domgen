@@ -753,6 +753,9 @@ module Domgen
         index = Domgen::Sql::Index.new(self, attribute_names, options, &block)
         return index_values[index.index_name] if index_values[index.index_name] && skip_if_present
         Domgen.error("Index named #{index.index_name} already defined on table #{qualified_table_name}") if index_values[index.index_name]
+        attribute_names.each do |attribute_name|
+          Domgen.error("Index named #{index.index_name} declares attribute name #{attribute_name} that does not exist on containing entity #{entity.qualified_name}") unless entity.attribute_by_name?(attribute_name)
+        end
         index_values[index.index_name] = index
         index
       end
