@@ -13,6 +13,12 @@ public final class <%= repository.imit.subscription_constants_name %>
    * #{g.name} is a #{g.instance_root? ? 'instance' : 'type'}-based replication graph#{g.cacheable? ? " that has caching controlled by the #{g.external_cache_management? ? 'developer' : 'system'}" : ''}.
    *
 DATA
+    if g.instance_root?
+data += <<DATA
+   * <p>The graph is rooted at the entity #{repository.entity_by_name(g.instance_root).qualified_name}</p>
+   *
+DATA
+    end
     if g.filtered?
 data += <<DATA
    * <p>The graph is filtered using #{g.filter_parameter.struct? ? g.filter_parameter.referenced_struct.qualified_name : g.filter_parameter.reference? ? g.filter_parameter.referenced_entity.qualified_name : g.filter_parameter.filter_type }</p>
