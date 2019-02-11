@@ -17,6 +17,12 @@ public interface <%= dao.jpa.dao_service_name %>
 
   /** Delete the <%= dao.entity.jpa.qualified_name %>, recursivly nulling references/deleting dependent entities. */
   void delete( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_ );
+<% if dao.entity.transaction_time? -%>
+
+  /** Remove the <%= dao.entity.jpa.qualified_name %> instance, and all associated entities, nulling inbound relationships where possible,
+   * removing where not possible . */
+  void cascadeRemove( <%= dao.entity.jpa.qualified_name %> entity );
+<% end -%>
 
 <% dao.entity.jpa.create_defaults.each do |defaults| -%>
   @javax.annotation.Nonnull
@@ -49,12 +55,6 @@ public interface <%= dao.jpa.dao_service_name %>
 
   /** Refresh the state of the <%= dao.entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
   void refresh( <%= dao.entity.jpa.qualified_name %> entity );
-<% if dao.transaction_time? && dao.entity.transaction_time? -%>
-
-  /** Remove the <%= dao.entity.jpa.qualified_name %> instance, and all associated entities, nulling inbound relationships where possible,
-   * removing where not possible . */
-  void cascadeRemove( <%= dao.entity.jpa.qualified_name %> entity );
-<% end -%>
 
   /** Remove the <%= dao.entity.jpa.qualified_name %> instance. */
   void remove( <%= dao.entity.jpa.qualified_name %> entity );
