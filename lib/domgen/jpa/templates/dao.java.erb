@@ -219,14 +219,14 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qualified_name.gsub('.',''))}Repository."
   -%>if( other instanceof <%= st.jpa.qualified_name %> )
         {
-          <%= repository_prefix %>cascadeRemove( (<%= st.jpa.qualified_name %>) other );
+          <%= repository_prefix %><%= st.transaction_time? ? 'cascadeRemove' : 'delete' %>( (<%= st.jpa.qualified_name %>) other );
         }
         else <% end %>
         {
           throw new java.lang.IllegalStateException( "Unknown subtype: " + other.getClass().getName() + " instance: " + other );
         }
 <% else -%>
-        <%= repository_prefix %>cascadeRemove( other );
+        <%= repository_prefix %><%= a.entity.transaction_time? ? 'cascadeRemove' : 'delete' %>( other );
 <% end -%>
 <% end -%>
       }
