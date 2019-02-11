@@ -199,7 +199,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     remove( $_ );
 <% end -%>
   }
-
+<% if dao.transaction_time? -%>
   @java.lang.Override
   @java.lang.SuppressWarnings( "deprecation" )
   public void cascadeRemove( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> $_ )
@@ -246,14 +246,14 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qualified_name.gsub('.',''))}Repository."
   -%>if( other instanceof <%= st.jpa.qualified_name %> )
         {
-          <%= repository_prefix %>cascadeRemove( (<%= st.jpa.qualified_name %>) other );
+          <%= repository_prefix %><%= st.transaction_time? ? 'cascadeRemove' : 'delete' %>( (<%= st.jpa.qualified_name %>) other );
         }
         else <% end %>
         {
           throw new java.lang.IllegalStateException( "Unknown subtype: " + other.getClass().getName() + " instance: " + other );
         }
 <% else -%>
-        <%= repository_prefix %>cascadeRemove( other );
+        <%= repository_prefix %><%= a.entity.transaction_time? ? 'cascadeRemove' : 'delete' %>( other );
 <% end -%>
 <% end -%>
       }
@@ -261,6 +261,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% end -%>
     remove( $_ );
   }
+<% end -%>
 
 <% dao.entity.jpa.create_defaults.each do |defaults| -%>
   @java.lang.Override
