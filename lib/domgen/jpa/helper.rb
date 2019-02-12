@@ -472,6 +472,7 @@ STR
         java = <<STR
   public java.util.List<#{type}> get#{plural_name}()
   {
+    verifyNotRemoved();
     return java.util.Collections.unmodifiableList( safeGet#{plural_name}() );
   }
 
