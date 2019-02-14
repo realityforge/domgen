@@ -1185,6 +1185,7 @@ module Domgen
               entity.referencing_attributes.each do |a|
                 if a.arez? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
                   a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
+                  Domgen.error("#{a.qualified_name} is not immutable but is on path in graph #{graph.name}") unless a.immutable?
                   entity_list << a.entity unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
                 end
               end
