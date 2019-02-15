@@ -60,7 +60,7 @@ module Domgen
 
       attr_writer :sync_out_of_master
 
-      def pre_complete
+      def pre_pre_complete
         unless repository.data_module_by_name?(self.master_data_module)
           repository.data_module(self.master_data_module)
         end
@@ -73,10 +73,15 @@ module Domgen
         end
 
         master_data_module.entity(self.mapping_source_attribute) do |t|
-          t.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+          t.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS + [:transaction_time])
           t.sync.synchronize = false
+          t.enable_facet(:transaction_time)
           t.string(:Code, 5, :primary_key => true)
         end unless master_data_module.entity_by_name?(self.mapping_source_attribute)
+      end
+
+      def pre_complete
+        master_data_module = repository.data_module_by_name(self.master_data_module)
 
         master_data_module.service(:SyncTempPopulationService) do |s|
           s.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)

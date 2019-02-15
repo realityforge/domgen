@@ -15,6 +15,14 @@
 # Transaction time facet
 module Domgen
   FacetManager.facet(:transaction_time) do |facet|
+    facet.enhance(Attribute) do
+      def post_verify
+        if attribute.reference? && !attribute.referenced_entity.transaction_time?
+          Domgen.error("Transaction time attribute #{attribute.qualified_name} references non-transaction time entity #{attribute.referenced_entity.qualified_name}. This is a problem when the entity is removed.")
+        end
+      end
+    end
+
     facet.enhance(Entity) do
       def pre_pre_complete
         attribute =
