@@ -12,7 +12,6 @@ Gem::Specification.new do |s|
   s.summary            = %q{A tool to generates code from a simple domain model.}
   s.description        = %q{A tool to generates code from a simple domain model.}
 
-  s.rubyforge_project  = %q{domgen}
 
   s.files              = `git ls-files`.split("\n")
   s.test_files         = `git ls-files -- {spec}/*`.split("\n")
