@@ -136,8 +136,8 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   public void insertMasterDataSourceIfRequired( @javax.annotation.Nonnull final String dataSource )
   {
     executeUpdate( dataSource,
-                   "<%= j_escape_string("INSERT INTO #{data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name}(#{data_module.sql.dialect.quote(:Code)}) ") %>" +
-                   "  SELECT @@MAPPING_SOURCE@@ " +
+                   "<%= j_escape_string("INSERT INTO #{data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name}(#{data_module.sql.dialect.quote(:Code)},#{data_module.sql.dialect.quote(:CreatedAt)}) ") %>" +
+                   "  SELECT @@MAPPING_SOURCE@@, GETDATE() " +
                    "<%= j_escape_string("  WHERE 0 = (SELECT COUNT(*) FROM #{data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name } WHERE #{data_module.sql.dialect.quote(:Code)} = @@MAPPING_SOURCE@@)") %>" );
   }
 
