@@ -497,7 +497,7 @@ STR
   {
     if( null == this.#{field_name} )
     {
-      this.#{field_name} = new java.util.LinkedList<#{type}>();
+      this.#{field_name} = new java.util.LinkedList<>();
     }
     return this.#{field_name};
   }

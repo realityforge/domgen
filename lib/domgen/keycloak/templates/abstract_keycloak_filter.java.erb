@@ -32,7 +32,7 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
     {
       _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
     }
-    catch ( final java.lang.Exception e )
+    catch ( final java.lang.Exception ignored )
     {
       //Ignored.
     }
@@ -42,7 +42,7 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
     {
       _disableSyncServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_sync_service_protection" ).equals( Boolean.TRUE );
     }
-    catch ( final java.lang.Exception e )
+    catch ( final java.lang.Exception ignored )
     {
       //Ignored.
     }

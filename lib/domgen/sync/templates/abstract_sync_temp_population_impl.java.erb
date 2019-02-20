@@ -121,7 +121,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     throws Exception
   {
     boolean validationFailed = false;
-    try ( final java.sql.ResultSet resultSet = statement.executeQuery() )
+    try ( java.sql.ResultSet resultSet = statement.executeQuery() )
     {
       while( resultSet.next() )
       {
@@ -141,7 +141,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   protected boolean verify<%= entity.qualified_name.gsub('.','') %>ViaSql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String sql, @javax.annotation.Nonnull final java.lang.String validation, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
-    try ( final java.sql.PreparedStatement statement = getEntityManager().unwrap( java.sql.Connection.class ).prepareStatement( sql ) )
+    try ( java.sql.PreparedStatement statement = getEntityManager().unwrap( java.sql.Connection.class ).prepareStatement( sql ) )
     {
       statement.setString( 1, mappingSourceCode );
       return !printInvalid<%= entity.qualified_name.gsub('.','') %>Rows( "Failed to validate " + validation + " for entity <%= entity.qualified_name %>.", statement, recorder );

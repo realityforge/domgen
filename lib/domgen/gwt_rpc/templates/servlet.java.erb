@@ -2,7 +2,7 @@
 package <%= to_package(service.gwt_rpc.qualified_servlet_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable", "PMD.FieldDeclarationsShouldBeAtStartOfClass", "PMD.UnnecessaryLocalBeforeReturn", "PMD.LocalVariableCouldBeFinal" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable", "PMD.FieldDeclarationsShouldBeAtStartOfClass", "PMD.UnnecessaryLocalBeforeReturn", "PMD.LocalVariableCouldBeFinal", "PMD.DoNotThrowExceptionInFinally", "PMD.PreserveStackTrace" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "SE_TRANSIENT_FIELD_NOT_RESTORED", "BED_HIERARCHICAL_EXCEPTION_DECLARATION", "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS", "FCBL_FIELD_COULD_BE_LOCAL", "LEST_LOST_EXCEPTION_STACK_TRACE", "NFF_NON_FUNCTIONAL_FIELD", "EXS_EXCEPTION_SOFTENING_HAS_CHECKED", "EXS_EXCEPTION_SOFTENING_NO_CHECKED", "USBR_UNNECESSARY_STORE_BEFORE_RETURN", "PSC_PRESIZE_COLLECTIONS" } )
 @javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.gwt_rpc.api_url %>" } )
 public class <%= service.gwt_rpc.servlet_name %>
@@ -40,9 +40,11 @@ public class <%= service.gwt_rpc.servlet_name %>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| -%>
     <%= annotated_type(parameter, :ejb, :boundary, :final => true) %> $<%= parameter.name %>;
 <% end -%>
+<% if method.imit? || method.exceptions.size > 0 -%>
     java.lang.Throwable cause = null;
     try
     {
+<% end -%>
 <% if method.imit? -%>
       org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER ) );
       org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null );
@@ -76,7 +78,7 @@ public class <%= service.gwt_rpc.servlet_name %>
        return_postfix = "return #{transform || 'returnValue'};"
      elsif method.return_value.date? || method.return_value.enumeration? || method.return_value.struct?
        return_postfix =''
-       return_postfix << "#{annotated_type(method.return_value, :ejb, :transport, :final => true)} $returnValue = #{method.return_value.nullable? ? 'null == returnValue ? null : ' : '' }new java.util.#{method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' }<#{method.return_value.ejb.java_component_type(:transport) }>();\n"
+       return_postfix << "#{annotated_type(method.return_value, :ejb, :transport, :final => true)} $returnValue = #{method.return_value.nullable? ? 'null == returnValue ? null : ' : '' }new java.util.#{method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' }<>();\n"
        return_postfix << "  if( null != returnValue )\n    {\n" if method.return_value.nullable?
        return_postfix << <<LOOP
     for( final #{method.return_value.ejb.java_component_type(:boundary) } k: returnValue )
@@ -107,7 +109,7 @@ LOOP
     $<%= parameter.name %> = _jsonMapper.readValue( <%= parameter.name %>, <%= parameter.ejb.java_type %>.class );
 <% end -%>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
-    $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.ejb.java_component_type(:boundary) %>>();
+    $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
     <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
     for( final <%= parameter.ejb.java_component_type(:transport) %> k: <%= parameter.name %> )
     {
@@ -159,7 +161,9 @@ LOOP
   value
 end.join(', ') %>);
       <%= return_postfix %>
+<% if method.imit? || method.exceptions.size > 0 -%>
     }
+<% end -%>
 <% method.exceptions.each do |exception| -%>
     catch ( final <%= exception.ee.qualified_name %> e )
     {
@@ -176,10 +180,8 @@ end.join(', ') %>);
       cause = e;
       throw e;
     }
-<% end -%>
     finally
     {
-<% if method.imit? -%>
       if ( !headerSet )
       {
         final String complete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.server.ServerConstants.REQUEST_COMPLETE_KEY );
@@ -193,8 +195,8 @@ end.join(', ') %>);
           throw new IllegalStateException( message, cause );
         }
       }
-<% end -%>
     }
+<% end -%>
   }
 <% end -%>
 <%

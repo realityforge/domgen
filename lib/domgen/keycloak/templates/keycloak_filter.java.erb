@@ -20,7 +20,7 @@ public class <%= client.keycloak_filter_name %>
     {
       _disabled = new javax.naming.InitialContext().lookup( "<%= client.jndi_debug_key %>" ) == Boolean.TRUE;
     }
-    catch ( final java.lang.Exception e )
+    catch ( final java.lang.Exception ignored )
     {
       //Ignored.
     }

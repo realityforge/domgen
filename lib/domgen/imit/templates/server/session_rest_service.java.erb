@@ -74,7 +74,7 @@ public class <%= repository.imit.session_rest_service_name %>
     {
       _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
     }
-    catch ( final java.lang.Exception e )
+    catch ( final java.lang.Exception ignored )
     {
       //Ignored.
     }

@@ -97,11 +97,15 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
           }
         }
 <% end %>
-        if( null != callback ) callback.onSuccess( <%= result_string %> );
+        if( null != callback )
+        {
+          callback.onSuccess( <%= result_string %> );
+        }
       }
   }, errorCallback );
   }
-<% end %>
+<% end -%>
+<% if service.methods.any?{|m| m.imit? && (m.return_value.reference? || m.return_value.remote_reference?) } -%>
 
   @javax.annotation.Nonnull
   private <T> T getById( @javax.annotation.Nonnull final java.lang.Class<T> type, @javax.annotation.Nonnull final java.lang.Object id )
@@ -114,4 +118,5 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
     assert null != result;
     return result;
   }
+<% end -%>
 }

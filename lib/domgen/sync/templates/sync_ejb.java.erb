@@ -4,7 +4,7 @@ package <%= to_package(data_module.sync.qualified_sync_ejb_name) %>;
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.NOT_SUPPORTED )
 @javax.enterprise.inject.Typed( <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_name %>.class )
-@SuppressWarnings( "ConstantConditions" )
+@SuppressWarnings( { "ConstantConditions", "PMD.GuardLogStatement" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "NP_ALWAYS_NULL", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", "NP_LOAD_OF_KNOWN_NULL_VALUE", "CLI_CONSTANT_LIST_INDEX" } )
 public class <%= data_module.sync.sync_ejb_name %>
   extends iris.syncrecord.server.service.StandardSyncService
@@ -161,7 +161,7 @@ public class <%= data_module.sync.sync_ejb_name %>
     Exception lastException = null;
     // loop until no unprocessed entities or only entities
     // unprocessed are those with errors
-    final java.util.ArrayList<Object[]> errors = new java.util.ArrayList<Object[]>();
+    final java.util.ArrayList<Object[]> errors = new java.util.ArrayList<>();
     while( true )
     {
       // TODO: Consider allowing chunking/limits to limit memory pressure of large syncs
@@ -252,7 +252,7 @@ public class <%= data_module.sync.sync_ejb_name %>
   {
     // loop until no unprocessed entities or only entities
     // unprocessed are those with errors
-    final java.util.ArrayList<Object[]> errors = new java.util.ArrayList<Object[]>();
+    final java.util.ArrayList<Object[]> errors = new java.util.ArrayList<>();
     while( true )
     {
       // TODO: Consider allowing chunking/limits to limit memory pressure of large syncs

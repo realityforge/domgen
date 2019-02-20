@@ -37,7 +37,7 @@ public class <%= service.gwt_rpc.proxy_name %>
   public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.gwt_rpc.non_primitive_java_type(:boundary)}> callback","final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
   {
 <% method.parameters.select{|parameter| (parameter.enumeration? || parameter.struct?) && parameter.collection?}.each do |parameter| -%>
-    <%= annotated_type(parameter, :gwt_rpc, :transport, :final => true) %> $<%= Reality::Naming.camelize(parameter.name) %> = <%= parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.gwt_rpc.java_component_type(:transport) %>>();
+    <%= annotated_type(parameter, :gwt_rpc, :transport, :final => true) %> $<%= Reality::Naming.camelize(parameter.name) %> = <%= parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
     <% if parameter.nullable? %>if( null != <%= Reality::Naming.camelize(parameter.name) %> ) {<% end %>
     for( final <%= parameter.gwt_rpc.java_component_type %> entity: <%= Reality::Naming.camelize(parameter.name) %> )
     {
@@ -79,7 +79,7 @@ public class <%= service.gwt_rpc.proxy_name %>
 end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.empty? ? '' : ', ' %>new <%= service.data_module.repository.gwt_rpc.qualified_async_callback_adapter_name %><<%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %>,<%= method.return_value.gwt_rpc.non_primitive_java_type(:boundary) %>>( <%= service.gwt_rpc.default_callback? ? '_callback' : 'null' -%>, callback, errorCallback )
     {
       @java.lang.Override
-      <%= annotated_type(method.return_value, :gwt_rpc, :boundary, :non_primitive => true, :protected => true, :final => true) %> convert( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
+      <%= annotated_type(method.return_value, :gwt_rpc, :boundary, :non_primitive => true, :protected => true) %> convert( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
       {
 <%
    if !method.return_value.collection?
@@ -103,7 +103,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
    end
 -%>
 <% if method.return_value.collection? && (method.return_value.enumeration? || method.return_value.struct?) -%>
-        <%= annotated_type(method.return_value, :gwt_rpc, :boundary, :final => true) %> $result = <% if method.return_value.nullable? %>result == null ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= method.return_value.gwt_rpc.java_component_type %>>();
+        <%= annotated_type(method.return_value, :gwt_rpc, :boundary, :final => true) %> $result = <% if method.return_value.nullable? %>result == null ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
         if ( null != result )
         {
           for( final <%= method.return_value.gwt_rpc.java_component_type(:transport) %> $item: result )
