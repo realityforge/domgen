@@ -48,30 +48,18 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :datetime
-          "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.getTime() )"
+          "$#{attribute.name}.getTime()"
         elsif attribute.imit.transport_characteristic_type_key == :date
-          "( ( null == $#{attribute.name} ) ? null : iris.rose.shared.util.RDate.fromDate( $#{attribute.name} ).toString() )"
+          "iris.rose.shared.util.RDate.fromDate( $#{attribute.name} ).toString()"
         elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_characteristic_type_key)
-          if attribute.nullable?
-            "( ( null == $#{attribute.name} ) ? null : $#{attribute.name} )"
-          else
-            "$#{attribute.name}"
-          end
+          "$#{attribute.name}"
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
           db_type = 'java.lang.String'
           type_suffix = 'String'
-          if attribute.nullable?
-            "( ( null == $#{attribute.name} ) ? null : $#{attribute.name} )"
-          else
-            "$#{attribute.name}"
-          end
+          "$#{attribute.name}"
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
           db_type = 'java.lang.Integer'
-          if attribute.nullable?
-            "( ( null == $#{attribute.name} ) ? null : $#{attribute.name} )"
-          else
-            "$#{attribute.name}"
-          end
+          "$#{attribute.name}"
         else
           Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
         end
@@ -79,7 +67,14 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 -%>
       final <%= db_type %> $<%= attribute.name %> = (<%= db_type %>) resultSet.get<%= type_suffix %>( "<%= attribute.sql.column_name %>" );
 <% unless attribute.primary_key? -%>
+<% if attribute.nullable? -%>
+      if ( null != $<%= attribute.name %> )
+      {
+        attributeValues.put( "<%= attribute.name %>", <%= value_converter %> );
+      }
+<% else -%>
       attributeValues.put( "<%= attribute.name %>", <%= value_converter %> );
+<% end -%>
 <% end -%>
 <% end -%>
       final org.realityforge.replicant.server.EntityMessage entityMessage =
@@ -119,26 +114,29 @@ end
     value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": attribute.remote_reference? ? ".#{getter_for(attribute.referenced_remote_entity.primary_key)}" : '')
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :datetime
-          "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.getTime() )"
+          "$#{attribute.name}.getTime()"
         elsif attribute.imit.transport_characteristic_type_key == :date
-          "( ( null == $#{attribute.name} ) ? null : iris.rose.shared.util.RDate.fromDate( $#{attribute.name} ).toString() )"
+          "iris.rose.shared.util.RDate.fromDate( $#{attribute.name} ).toString()"
         elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_characteristic_type_key)
-          if attribute.nullable?
-            "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}#{value_suffix} )"
-          else
-            "$#{attribute.name}#{value_suffix}"
-          end
+          "$#{attribute.name}#{value_suffix}"
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
-          "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.name() )"
+          "$#{attribute.name}.name()"
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
-          "( ( null == $#{attribute.name} ) ? null : $#{attribute.name}.ordinal() )"
+          "$#{attribute.name}.ordinal()"
         else
           Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
         end
 -%>
 <% unless attribute.primary_key? -%>
     final <%= nullable_annotate(attribute, attribute.jpa.java_type, false) %> $<%= attribute.name %> = entity.<%= getter_for(attribute) %>;
+<% if attribute.nullable? -%>
+    if ( null != $<%= attribute.name %> )
+    {
+      attributes.put( "<%= attribute.name %>", <%= "#{value_converter}" %> );
+    }
+<% else -%>
     attributes.put( "<%= attribute.name %>", <%= "#{value_converter}" %> );
+<% end -%>
 <% end -%>
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.arez? && !attribute.abstract? && attribute.remote_reference? }.each do |attribute| -%>
