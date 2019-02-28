@@ -672,7 +672,6 @@ module Domgen
         @client_component_package || "#{client_package}.components"
       end
 
-
       def client_ioc_package
         repository.gwt.client_ioc_package
       end
