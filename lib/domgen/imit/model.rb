@@ -1075,7 +1075,7 @@ module Domgen
                   m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                 end
               end
-              if graph.external_data_load? || graph.filter_parameter?
+              if graph.external_data_load? || graph.filtered?
                 s.method("Collect#{graph.name}") do |m|
                   m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
                   m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
