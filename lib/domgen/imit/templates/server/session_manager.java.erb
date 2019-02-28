@@ -100,18 +100,29 @@ entities.uniq.each do |entity| -%>
         final org.realityforge.replicant.server.transport.SubscriptionEntry entry = session.findSubscriptionEntry( address );
         if ( null != entry )
         {
-          final org.realityforge.replicant.server.EntityMessage m = _context.filterMessageOfInterestIn<%= graph.name %>Graph( message<%= customize_filter %> );
-          if( null != m )
+<% if graph.unfiltered? -%>
+          if ( message.isDelete() )
           {
-            if( m.isDelete() )
+            if ( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == message.getTypeId() )
             {
-              if( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeId() )
+              performUnsubscribe( session, entry, true, accumulator.getChangeSet( session ) );
+            }
+            delinkDownstreamSubscriptions( session, entry, message, accumulator );
+          }
+<% else -%>
+          final org.realityforge.replicant.server.EntityMessage m = _context.filterMessageOfInterestIn<%= graph.name %>Graph( message<%= customize_filter %> );
+          if ( null != m )
+          {
+            if ( m.isDelete() )
+            {
+              if ( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeId() )
               {
                 performUnsubscribe( session, entry, true, accumulator.getChangeSet( session ) );
               }
               delinkDownstreamSubscriptions( session, entry, m, accumulator );
             }
           }
+<% end -%>
         }
       }
     }
@@ -161,11 +172,15 @@ entities.uniq.each do |entity| -%>
         final org.realityforge.replicant.server.transport.SubscriptionEntry entry = session.findSubscriptionEntry( address );
         if ( null != entry )
         {
+<% if graph.unfiltered? -%>
+          accumulator.addChange( session, new org.realityforge.replicant.server.Change( message, address.getChannelId(), address.getSubChannelId() ) );
+<% else -%>
           final org.realityforge.replicant.server.EntityMessage m = _context.filterMessageOfInterestIn<%= graph.name %>Graph( message<%= customize_filter %> );
           if( null != m )
           {
             accumulator.addChange( session, new org.realityforge.replicant.server.Change( m, address.getChannelId(), address.getSubChannelId() ) );
           }
+<% end -%>
         }
       }
     }
