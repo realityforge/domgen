@@ -13,8 +13,10 @@ public class <%= repository.imit.graph_encoder_impl_name %>
   implements <%= repository.imit.qualified_graph_encoder_name %>
 {
   private final <%= repository.imit.qualified_message_generator_name %> _messageGenerator = new <%= repository.imit.qualified_message_generator_name %>();
+<% if repository.imit.requires_session_context? -%>
   @javax.inject.Inject
   private <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %> _context;
+<% end -%>
 
 <%
   repository.imit.graphs.select{|graph| graph.instance_root? }.each do |graph|

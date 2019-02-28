@@ -30,8 +30,10 @@ entities.uniq.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository;
 <% end -%>
+<% if repository.imit.requires_session_context? -%>
   @javax.inject.Inject
   private <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %> _context;
+<% end -%>
   @javax.annotation.Resource
   private javax.transaction.TransactionSynchronizationRegistry _registry;
 

@@ -919,6 +919,10 @@ module Domgen
         self.test_class_content_list << content
       end
 
+      def requires_session_context?
+        graphs.any?{|graph|graph.bulk_load? || graph.filtered?}
+      end
+
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
