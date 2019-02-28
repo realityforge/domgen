@@ -461,7 +461,7 @@ module Domgen
 
       # The path is the chain of references along which routing key walks
       # Each link in chain must be a reference. Must be empty if initial
-      # attribtue is not a reference. A null in the path means nokey is
+      # attribute is not a reference. A null in the path means nokey is
       # selected
       def path
         @path || []
