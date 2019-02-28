@@ -140,6 +140,14 @@ module Domgen
         @cacheable = cacheable
       end
 
+      def bulk_load?
+        !!@bulk_load
+      end
+
+      def bulk_load=(bulk_load)
+        @bulk_load = bulk_load
+      end
+
       def visibility=(visibility)
         valid_values = [:external, :internal, :universal]
         Domgen.error("Invalid visibility set on #{qualified_name}. Value: #{visibility}. Valid_values: #{valid_values}") unless valid_values.include?(visibility)
@@ -1071,14 +1079,15 @@ module Domgen
                 end
               end
             else
-              s.method("BulkCollectDataFor#{graph.name}") do |m|
-                m.ejb.generate_base_test = false
-                m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
-                m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-                m.boolean(:ExplicitSubscribe)
-                m.returns(:boolean)
+              if graph.bulk_load?
+                s.method("BulkCollectDataFor#{graph.name}") do |m|
+                  m.ejb.generate_base_test = false
+                  m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                  m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
+                  m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                  m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
+                  m.boolean(:ExplicitSubscribe)
+                end
               end
               if graph.filter_parameter?
                 unless graph.filter_parameter.immutable?
@@ -1089,14 +1098,15 @@ module Domgen
                     m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                     m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                   end
-                  s.method("BulkCollectDataFor#{graph.name}Update") do |m|
-                    m.ejb.generate_base_test = false
-                    m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                    m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
-                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                    m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                    m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                    m.returns(:boolean)
+                  if graph.bulk_load?
+                    s.method("BulkCollectDataFor#{graph.name}Update") do |m|
+                      m.ejb.generate_base_test = false
+                      m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                      m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
+                      m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                      m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                      m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                    end
                   end
                 end
 
