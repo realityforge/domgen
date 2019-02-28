@@ -919,7 +919,13 @@ module Domgen
       end
 
       def requires_session_context?
-        graphs.any?{|graph|graph.bulk_load? || graph.filtered?}
+        graphs.any? do |graph|
+          graph.external_data_load? ||
+            graph.bulk_load? ||
+            graph.filtered? ||
+            (!graph.instance_root? && graph.cacheable? && graph.external_cache_management?) ||
+            (graph.instance_root? && graph.inward_graph_links.any? {|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered?})
+        end
       end
 
       def pre_complete
