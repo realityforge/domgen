@@ -293,7 +293,7 @@ module Domgen
             Domgen.error("Graph #{self.name} has an instance root #{self.instance_root} that has a primary key that is not an integer")
           end
         end
-        self.outward_graph_links.select { |graph_link| graph_link.auto? }.each do |graph_link|
+        self.outward_graph_links.select {|graph_link| graph_link.auto?}.each do |graph_link|
           target_graph = application.repository.imit.graph_by_name(graph_link.target_graph)
           if target_graph.filter_parameter? && self.unfiltered?
             Domgen.error("Graph '#{self.name}' is an unfiltered graph but has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' that requires a filter parameter. This is not supported.")
@@ -308,7 +308,7 @@ module Domgen
 
         entities.each do |entity_name|
           entity = application.repository.entity_by_name(entity_name)
-          entity.attributes.select { |a| a.reference? && a.imit?}.each do |a|
+          entity.attributes.select {|a| a.reference? && a.imit?}.each do |a|
             referenced_entity = a.referenced_entity
 
             agls = a.imit.auto_graph_links
@@ -319,18 +319,18 @@ module Domgen
             next if referenced_entity.abstract?
 
             # If linked entity is part of current graph then all is ok.
-            next if entities.any? { |e| e == referenced_entity.qualified_name }
+            next if entities.any? {|e| e == referenced_entity.qualified_name}
 
             # If entity is part of required type graphs then all is ok
-            next if rtgs.any? { |g| g.type_roots.include?(referenced_entity.qualified_name) }
+            next if rtgs.any? {|g| g.type_roots.include?(referenced_entity.qualified_name)}
 
             next if self.instance_root? &&
               !self.inward_graph_links.empty? &&
               self.inward_graph_links.all? do |graph_link|
-                application.repository.imit.graph_by_name(graph_link.source_graph).included_entities.any? { |e| e == referenced_entity.qualified_name }
+                application.repository.imit.graph_by_name(graph_link.source_graph).included_entities.any? {|e| e == referenced_entity.qualified_name}
               end
 
-            Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not part of any of the dependent type graphs: #{rtgs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
+            Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not part of any of the dependent type graphs: #{rtgs.collect {|e| e.name}.inspect} and not in current graph [#{entities.join(', ')}].")
           end
         end
       end
@@ -970,7 +970,7 @@ module Domgen
       def process_filter_struct(processed, toprocess, struct)
         return if processed.include?(struct)
         struct.imit.part_of_filter = true
-        struct.fields.select { |field| field.imit? }.each do |field|
+        struct.fields.select {|field| field.imit?}.each do |field|
           if field.enumeration?
             field.enumeration.imit.part_of_filter = true
           elsif field.struct?
@@ -1000,12 +1000,12 @@ module Domgen
             end
           end
         end
-         if repository.gwt?
-           repository.gwt.add_dagger_module(schema_dagger_module_name, qualified_schema_dagger_module_name)
-           repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
-           repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name)
-           repository.gwt.add_test_module(support_test_module_name, qualified_support_test_module_name)
-         end
+        if repository.gwt?
+          repository.gwt.add_dagger_module(schema_dagger_module_name, qualified_schema_dagger_module_name)
+          repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
+          repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name)
+          repository.gwt.add_test_module(support_test_module_name, qualified_support_test_module_name)
+        end
 
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?
         if self.graphs.size == 0
@@ -1187,8 +1187,8 @@ module Domgen
           end
         end
 
-        repository.data_modules.select { |data_module| data_module.ejb? }.each do |data_module|
-          data_module.services.select { |service| service.ejb? && service.ejb.generate_boundary? }.each do |service|
+        repository.data_modules.select {|data_module| data_module.ejb?}.each do |data_module|
+          data_module.services.select {|service| service.ejb? && service.ejb.generate_boundary?}.each do |service|
             service.ejb.boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
           end
         end
@@ -1196,7 +1196,7 @@ module Domgen
 
       def post_complete
         index = 0
-        repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+        repository.data_modules.select {|data_module| data_module.imit?}.each do |data_module|
           data_module.entities.each do |entity|
             if entity.imit? && entity.concrete?
               entity.imit.transport_id = index
@@ -1371,15 +1371,15 @@ module Domgen
       end
 
       def replication_root?
-        entity.data_module.repository.imit.graphs.any? { |g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s }
+        entity.data_module.repository.imit.graphs.any? {|g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s}
       end
 
       def associated_instance_root_graphs
-        entity.data_module.repository.imit.graphs.select { |g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s }
+        entity.data_module.repository.imit.graphs.select {|g| g.instance_root? && g.instance_root.to_s == entity.qualified_name.to_s}
       end
 
       def associated_type_graphs
-        entity.data_module.repository.imit.graphs.select { |g| !g.instance_root? && g.type_roots.include?(entity.qualified_name.to_s) }
+        entity.data_module.repository.imit.graphs.select {|g| !g.instance_root? && g.type_roots.include?(entity.qualified_name.to_s)}
       end
 
       def replicate(graph, replication_type)
@@ -1422,7 +1422,7 @@ module Domgen
         entity.data_module.repository.imit.graphs.select do |graph|
           (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
             (!graph.instance_root? && graph.type_roots.include?(entity.qualified_name.to_s)) ||
-            entity.attributes.any? { |a| a.imit? && a.imit.routing_keys.any? { |routing_key| routing_key.graph.name.to_s == graph.name.to_s } }
+            entity.attributes.any? {|a| a.imit? && a.imit.routing_keys.any? {|routing_key| routing_key.graph.name.to_s == graph.name.to_s}}
         end
       end
 
@@ -1448,8 +1448,8 @@ module Domgen
       end
 
       def filter_in_graphs=(filter_in_graphs)
-        Domgen.error('filter_in_graphs should be an array of symbols') unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? { |m| m.is_a?(Symbol) }
-        Domgen.error('filter_in_graphs should only contain valid graphs') unless filter_in_graphs.all? { |m| attribute.entity.data_module.repository.imit.graph_by_name(m) }
+        Domgen.error('filter_in_graphs should be an array of symbols') unless filter_in_graphs.is_a?(Array) && filter_in_graphs.all? {|m| m.is_a?(Symbol)}
+        Domgen.error('filter_in_graphs should only contain valid graphs') unless filter_in_graphs.all? {|m| attribute.entity.data_module.repository.imit.graph_by_name(m)}
         filter_in_graphs.each do |graph|
           routing_key(graph)
         end
@@ -1470,7 +1470,7 @@ module Domgen
       end
 
       def auto_graph_links
-        graph_links_map.values.select { |graph_link| graph_link.auto? }
+        graph_links_map.values.select {|graph_link| graph_link.auto?}
       end
 
       def graph_links
@@ -1525,9 +1525,9 @@ module Domgen
 
       # Replication edges represent graphs that must be subscribed to when the containing entity is subscribed
       def replication_edges=(replication_edges)
-        Domgen.error('replication_edges should be an array of symbols') unless replication_edges.is_a?(Array) && replication_edges.all? { |m| m.is_a?(Symbol) }
+        Domgen.error('replication_edges should be an array of symbols') unless replication_edges.is_a?(Array) && replication_edges.all? {|m| m.is_a?(Symbol)}
         Domgen.error('replication_edges should only be set when traversable?') unless inverse.traversable?
-        Domgen.error('replication_edges should only contain valid graphs') unless replication_edges.all? { |m| inverse.attribute.entity.data_module.repository.imit.graph_by_name(m) }
+        Domgen.error('replication_edges should only contain valid graphs') unless replication_edges.all? {|m| inverse.attribute.entity.data_module.repository.imit.graph_by_name(m)}
         @replication_edges = replication_edges
       end
 
