@@ -1040,6 +1040,7 @@ module Domgen
           self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)
           self.repository.service_by_name(self.session_context_service).tap do |s|
             s.disable_facets_not_in(:ejb)
+            s.ejb.generate_boundary = false
             repository.imit.graphs.select {|graph| graph.filtered?}.each do |graph|
               s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
                 m.ejb.generate_base_test = false
