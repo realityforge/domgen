@@ -19,7 +19,12 @@ data += <<DATA
    *
 DATA
     end
-    if g.filtered?
+    if g.filtered? && !g.filter_parameter?
+data += <<DATA
+   * <p>The graph is filtered but specifies no filter parameter.</p>
+   *
+DATA
+    elsif g.filter_parameter?
 data += <<DATA
    * <p>The graph is filtered using #{g.filter_parameter.struct? ? g.filter_parameter.referenced_struct.qualified_name : g.filter_parameter.reference? ? g.filter_parameter.referenced_entity.qualified_name : g.filter_parameter.filter_type }</p>
    *

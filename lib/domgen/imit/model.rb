@@ -251,11 +251,13 @@ module Domgen
       end
 
       def filtered?
-        !unfiltered?
+        (@filtered.nil? ? false : !!@filtered) || filter_parameter?
       end
 
+      attr_writer :filtered
+
       def unfiltered?
-        @filter.nil?
+        !filtered?
       end
 
       def dependent_type_graphs
@@ -293,10 +295,10 @@ module Domgen
         end
         self.outward_graph_links.select { |graph_link| graph_link.auto? }.each do |graph_link|
           target_graph = application.repository.imit.graph_by_name(graph_link.target_graph)
-          if target_graph.filtered? && self.unfiltered?
-            Domgen.error("Graph '#{self.name}' is an unfiltered graph but has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}'. This is not supported.")
-          elsif target_graph.filtered? && self.filtered? && !target_graph.filter_parameter.equiv?(self.filter_parameter)
-            Domgen.error("Graph '#{self.name}' has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' but has a different filter. This is not supported.")
+          if target_graph.filter_parameter? && self.unfiltered?
+            Domgen.error("Graph '#{self.name}' is an unfiltered graph but has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' that requires a filter parameter. This is not supported.")
+          elsif target_graph.filter_parameter? && self.filtered? && !target_graph.filter_parameter.equiv?(self.filter_parameter)
+            Domgen.error("Graph '#{self.name}' has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' but has a different filter parameter. This is not supported.")
           end
         end
 
@@ -515,11 +517,14 @@ module Domgen
         self.path.size > 0 || self.imit_attribute.attribute.reference?
       end
 
+      def referenced_attribute
+        self.referenced_entity.attribute_by_name(self.attribute_name)
+      end
+
       def referenced_entity
         Domgen.error("referenced_entity invoked on routing key #{name} on #{imit_attribute.attribute.name} when attribute is not a reference or inverse reference") unless reference? || inverse_start?
-        return self.imit_attribute.attribute.referenced_entity if self.imit_attribute.attribute.reference?
         a = imit_attribute.attribute
-        e = a.entity
+        e = self.imit_attribute.attribute.reference? ? self.imit_attribute.attribute.referenced_entity : a.entity
         path.each do |path_element|
           attr_name = get_attribute_name_from_path_element?(path_element)
           if is_inverse_path_element?(path_element)
@@ -568,7 +573,7 @@ module Domgen
 
         if self.path.size > 0
           a = self.imit_attribute.attribute
-          e = a.entity
+          e = self.imit_attribute.attribute.reference? ? self.imit_attribute.attribute.referenced_entity : a.entity
           path.each do |path_key|
             is_inverse = is_inverse_path_element?(path_key)
             path_element = get_attribute_name_from_path_element?(path_key)
@@ -942,7 +947,7 @@ module Domgen
         end
         toprocess = []
         self.graphs.each do |graph|
-          if graph.filtered?
+          if graph.filter_parameter?
             if graph.filter_parameter.enumeration?
               graph.filter_parameter.enumeration.part_of_filter = true
             elsif graph.filter_parameter.struct?
@@ -1154,16 +1159,18 @@ module Domgen
               processed << key
               instance_root = repository.entity_by_name(target_graph.instance_root)
 
-              s.method(:"ShouldFollowLinkFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
-                m.reference(instance_root.qualified_name, :name => :Entity)
-                m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
-                m.returns(:boolean)
-              end
+              if target_graph.filter_parameter?
+                s.method(:"ShouldFollowLinkFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
+                  m.reference(instance_root.qualified_name, :name => :Entity)
+                  m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
+                  m.returns(:boolean)
+                end
 
-              s.method(:"GetLinksToUpdateFor#{graph_link.source_graph}To#{target_graph.name}") do |m|
-                m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => :Entity) if source_graph.instance_root?
-                m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
-                m.returns(:reference, :referenced_entity => instance_root, :collection_type => :sequence)
+                s.method(:"GetLinksToUpdateFor#{graph_link.source_graph}To#{target_graph.name}") do |m|
+                  m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => :Entity) if source_graph.instance_root?
+                  m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
+                  m.returns(:reference, :referenced_entity => instance_root, :collection_type => :sequence)
+                end
               end
             end
           end

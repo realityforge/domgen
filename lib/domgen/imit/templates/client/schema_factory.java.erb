@@ -24,8 +24,8 @@ public final class <%= repository.imit.schema_factory_name %>
       new replicant.ChannelSchema( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>,
                                    replicant.Replicant.areNamesEnabled() ? <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME : null,
                                    <%= graph.instance_root? ? "#{repository.entity_by_name(graph.instance_root).arez.qualified_name}.class" : 'null' %>,
-                                   replicant.ChannelSchema.FilterType.<%= graph.filter_parameter.nil? ? 'NONE' : graph.filter_parameter.immutable? ? 'STATIC' : 'DYNAMIC' %>,
-                                   <% if graph.filtered? && !graph.filter_parameter.immutable? %>(<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, replicant.Entity entity) -> doesEntityMatch<%= graph.name %>Filter( context, router, filter, entity )<% else %>null<% end %>,
+                                   replicant.ChannelSchema.FilterType.<%= !graph.filtered? ? 'NONE' : !graph.filter_parameter? ? 'INTERNAL' : graph.filter_parameter.immutable? ? 'STATIC' : 'DYNAMIC' %>,
+                                   <% if graph.filter_parameter? && !graph.filter_parameter.immutable? %>(<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, replicant.Entity entity) -> doesEntityMatch<%= graph.name %>Filter( context, router, filter, entity )<% else %>null<% end %>,
                                    <%= graph.cacheable? %>,
                                    <%= graph.external_visibility? %>,
                                    java.util.Arrays.asList( <%= (graph.instance_root? ? graph.reachable_entities : graph.type_roots).sort.collect{|name| repository.entity_by_name(name)}.collect{|entity| "entity#{entity.data_module.name}#{entity.name}"}.join(', ') %> ) );
@@ -36,7 +36,7 @@ public final class <%= repository.imit.schema_factory_name %>
                                        new replicant.ChannelSchema[]{ <%= repository.imit.graphs.collect{|graph| "channel#{graph.name}" }.join(', ') %> },
                                        new replicant.EntitySchema[]{ <%= entities.collect{|entity| "entity#{entity.data_module.name}#{entity.name}"}.join(', ') %> } );
   }
-<% repository.imit.graphs.select{|g| g.filtered? && !g.filter_parameter.immutable?}.each do |graph| -%>
+<% repository.imit.graphs.select{|g| g.filter_parameter? && !g.filter_parameter.immutable?}.each do |graph| -%>
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
   private static boolean doesEntityMatch<%= graph.name %>Filter( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final <%= repository.imit.qualified_client_router_name %> router, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, @javax.annotation.Nonnull final replicant.Entity entity )

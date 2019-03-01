@@ -5,7 +5,7 @@ package <%= to_package(repository.imit.qualified_gwt_client_session_context_name
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= repository.imit.gwt_client_session_context_name %>
 {
-<% repository.imit.graphs.select{|g| g.filtered? && !g.filter_parameter.immutable?}.each do |graph|
+<% repository.imit.graphs.select{|g| g.filter_parameter? && !g.filter_parameter.immutable?}.each do |graph|
     extra_interest_filter = ''
     if graph.instance_root?
       entity = repository.entity_by_name(graph.instance_root)

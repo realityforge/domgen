@@ -39,7 +39,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
     updateAreaOfInterestOnIdChange();
   }
 <% end -%>
-<% if graph.filtered? -%>
+<% if graph.filter_parameter? -%>
 
   @javax.annotation.Nonnull
   @react4j.annotations.Prop( observable = react4j.annotations.Feature.DISABLE )
@@ -94,7 +94,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   }
 <% end -%>
 
-<% if graph.filtered?  && !graph.filter_parameter.immutable? -%>
+<% if graph.filter_parameter?  && !graph.filter_parameter.immutable? -%>
   @react4j.annotations.Prop
   @javax.annotation.Nonnull
   protected abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback onUpdating();
