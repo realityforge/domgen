@@ -1125,7 +1125,8 @@ module Domgen
                       end
                     end
                   end
-
+                end
+                if graph.filtered?
                   graph.reachable_entities.collect {|n| repository.entity_by_name(n)}.select {|entity| entity.imit? && entity.concrete?}.each do |entity|
                     outgoing_links = entity.referencing_attributes.select {|a| a.arez? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name)}
                     outgoing_links.each do |a|
@@ -1133,14 +1134,14 @@ module Domgen
                         s.method("Get#{a.inverse.attribute.qualified_name.gsub('.', '')}In#{graph.name}Graph") do |m|
                           m.ejb.generate_base_test = false
                           m.reference(a.referenced_entity.qualified_name, :name => :Entity)
-                          m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+                          m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                           m.returns(:reference, :referenced_entity => a.entity.qualified_name, :collection_type => :sequence)
                         end
                       elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
                         s.method("Get#{a.inverse.attribute.qualified_name.gsub('.', '')}In#{graph.name}Graph") do |m|
                           m.ejb.generate_base_test = false
                           m.reference(a.referenced_entity.qualified_name, :name => :Entity)
-                          m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph))
+                          m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                           m.returns(:reference, :referenced_entity => a.entity.qualified_name, :nullable => (a.inverse.multiplicity == :zero_or_one))
                         end
                       end
