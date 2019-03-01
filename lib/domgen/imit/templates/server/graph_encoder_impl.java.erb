@@ -22,7 +22,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
   repository.imit.graphs.select{|graph| graph.instance_root? }.each do |graph|
     entity = repository.entity_by_name(graph.instance_root)
     filter_param = nil
-    if graph.filter_parameter
+    if graph.filter_parameter?
       p = graph.filter_parameter
       java_type = "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)}"
       filter_param = "#{java_type} filter"
