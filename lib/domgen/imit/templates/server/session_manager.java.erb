@@ -271,7 +271,7 @@ entities.uniq.each do |entity| -%>
 <% end -%>
 <% end -%>
 <% repository.imit.graphs.each do |graph| -%>
-<% if graph.filter_parameter && !graph.filter_parameter.immutable? -%>
+<% if graph.filter_parameter? && !graph.filter_parameter.immutable? -%>
 
   private void collectDataFor<%= graph.name %>SubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
   {
@@ -289,7 +289,7 @@ entities.uniq.each do |entity| -%>
 
 <% if graph.cacheable? -%>  @javax.annotation.Nonnull
 <% end -%>
-  private <% if graph.cacheable? -%>java.lang.String<% else -%>void<% end -%> collectDataFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>)
+  private <% if graph.cacheable? -%>java.lang.String<% else -%>void<% end -%> collectDataFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter? -%>, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>)
   {
 <%
     if graph.instance_root?
@@ -299,7 +299,7 @@ entities.uniq.each do |entity| -%>
     final <%= entity.primary_key.jpa.java_type %> id = address.getSubChannelId();
     assert null != id;
     final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
-    _encoder.encode<%= graph.name %>( messages, entity<%= graph.filter_parameter.nil? ? '' : ', filter' %> );
+    _encoder.encode<%= graph.name %>( messages, entity<%= graph.filter_parameter? ? ', filter' : '' %> );
     changeSet.merge( address, messages );
 <%
     elsif !graph.external_data_load? && !graph.filtered?
