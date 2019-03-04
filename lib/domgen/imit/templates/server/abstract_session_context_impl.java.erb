@@ -18,7 +18,6 @@ package <%= to_package(repository.imit.qualified_abstract_session_context_impl_n
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "PMD.SwitchStmtsShouldHaveDefault" } )
 public abstract class <%= repository.imit.abstract_session_context_impl_name %>
-  extends org.realityforge.replicant.server.transport.AbstractSessionContextImpl
   implements <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>
 {
 <% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load?}.each do |graph| -%>

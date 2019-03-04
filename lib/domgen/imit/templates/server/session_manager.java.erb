@@ -287,10 +287,8 @@ entities.uniq.each do |entity| -%>
   }
 <% end -%>
 
-<% if graph.cacheable? -%>
   @javax.annotation.Nonnull
-<% end -%>
-  private <% if graph.cacheable? -%>java.lang.String<% else -%>void<% end -%> collectDataFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter? -%>, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>)
+  private org.realityforge.replicant.server.transport.SubscribeResult collectDataFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter? -%>, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>)
   {
 <%
     if graph.instance_root?
@@ -299,7 +297,11 @@ entities.uniq.each do |entity| -%>
     final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
     final <%= entity.primary_key.jpa.java_type %> id = address.getSubChannelId();
     assert null != id;
-    final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
+    final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.findBy<%= entity.primary_key.name %>( id );
+    if ( null == entity )
+    {
+      return new org.realityforge.replicant.server.transport.SubscribeResult( true, null );
+    }
     _encoder.encode<%= graph.name %>( messages, entity<%= graph.filter_parameter? ? ', filter' : '' %> );
     changeSet.merge( address, messages );
 <%
@@ -323,23 +325,21 @@ entities.uniq.each do |entity| -%>
     end
 -%>
 <% if graph.cacheable? -%>
-    return <% if graph.external_cache_management? -%>_context.get<%= graph.name %>CacheKey()<% else %>java.lang.String.valueOf( java.lang.System.currentTimeMillis() )<% end %>;
+    final String cacheKey = <% if graph.external_cache_management? -%>_context.get<%= graph.name %>CacheKey()<% else %>java.lang.String.valueOf( java.lang.System.currentTimeMillis() )<% end %>;
 <% end -%>
+    return new org.realityforge.replicant.server.transport.SubscribeResult( false, <%= graph.cacheable? ? 'cacheKey' : 'null' %> );
   }
 <% end -%>
 
   @java.lang.Override
-  @javax.annotation.Nullable
-  protected java.lang.String collectDataForSubscribe(  @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address,@javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet,@javax.annotation.Nullable final Object filter )
+  @javax.annotation.Nonnull
+  protected org.realityforge.replicant.server.transport.SubscribeResult collectDataForSubscribe(  @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address,@javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet,@javax.annotation.Nullable final Object filter )
   {
     <%
   repository.imit.graphs.each do |graph|
 -%>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
-      <% if graph.cacheable? -%>return <% end -%>collectDataFor<%= graph.name %>( address, changeSet<% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %> );
-<% unless graph.cacheable? -%>
-      return null;
-<% end -%>
+      return collectDataFor<%= graph.name %>( address, changeSet<% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %> );
     }
     else <% end -%>
 

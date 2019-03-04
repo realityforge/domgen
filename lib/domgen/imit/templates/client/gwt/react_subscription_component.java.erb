@@ -186,4 +186,24 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   {
     return onUnloaded();
   }
+
+<% if graph.instance_root? -%>
+  @react4j.annotations.Prop
+  @javax.annotation.Nonnull
+  protected abstract NoResultCallback onDeleted();
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final NoResultCallback getOnDeleted()
+  {
+    return onDeleted();
+  }
+<% else -%>
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  protected final NoResultCallback getOnDeleted()
+  {
+    return () -> null;
+  }
+<% end -%>
 }
