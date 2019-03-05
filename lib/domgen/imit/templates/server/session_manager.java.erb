@@ -107,7 +107,7 @@ entities.uniq.each do |entity| -%>
           {
             if ( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == message.getTypeId() )
             {
-              performUnsubscribe( session, entry, true, accumulator.getChangeSet( session ) );
+              performUnsubscribe( session, entry, true, true, accumulator.getChangeSet( session ) );
             }
             delinkDownstreamSubscriptions( session, entry, message, accumulator );
           }
@@ -119,7 +119,7 @@ entities.uniq.each do |entity| -%>
             {
               if ( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(instance_root.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(instance_root.name.to_s) %> == m.getTypeId() )
               {
-                performUnsubscribe( session, entry, true, accumulator.getChangeSet( session ) );
+                performUnsubscribe( session, entry, true, true, accumulator.getChangeSet( session ) );
               }
               delinkDownstreamSubscriptions( session, entry, m, accumulator );
             }
