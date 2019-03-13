@@ -173,24 +173,38 @@ module Domgen
                 m.returns(:integer, :description => 'The number of records changed')
               end
 
-              if entity.sync.update_via_sync?
+              if entity.sync.supports_bulk_sync?
+                s.method(:"BulkCreate#{entity.data_module.name}#{entity.name}") do |m|
+                  m.text(:MappingSourceCode)
+                  m.returns(:integer, :description => 'The number of records inserted')
+                end
                 # The following methods are an in progress implementation of bulk sync actions
-                s.method(:"GetSqlToDirectlyUpdate#{entity.data_module.name}#{entity.name}") do |m|
+                s.method(:"GetSqlToDirectlyInsert#{entity.data_module.name}#{entity.name}") do |m|
                   m.text(:MappingSourceCode)
                   m.returns(:text)
                 end
-                s.method(:"GetSqlToMarkUpdated#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
+                s.method(:"GetSqlToMarkInserted#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
                   m.text(:MappingSourceCode)
                   m.returns(:text)
                 end
-              end
-              s.method(:"GetSqlToDirectlyDelete#{entity.data_module.name}#{entity.name}") do |m|
-                m.text(:MappingSourceCode)
-                m.returns(:text)
-              end
-              s.method(:"GetSqlToMarkDeleted#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
-                m.text(:MappingSourceCode)
-                m.returns(:text)
+                if entity.sync.update_via_sync?
+                  s.method(:"GetSqlToDirectlyUpdate#{entity.data_module.name}#{entity.name}") do |m|
+                    m.text(:MappingSourceCode)
+                    m.returns(:text)
+                  end
+                  s.method(:"GetSqlToMarkUpdated#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
+                    m.text(:MappingSourceCode)
+                    m.returns(:text)
+                  end
+                end
+                s.method(:"GetSqlToDirectlyDelete#{entity.data_module.name}#{entity.name}") do |m|
+                  m.text(:MappingSourceCode)
+                  m.returns(:text)
+                end
+                s.method(:"GetSqlToMarkDeleted#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
+                  m.text(:MappingSourceCode)
+                  m.returns(:text)
+                end
               end
             end
           end unless master_data_module.service_by_name?(:SynchronizationContext)
@@ -375,7 +389,7 @@ module Domgen
 
       def attributes_to_synchronize
         entity.sync.master_entity.attributes.select do |a|
-          a.sync? && !a.primary_key? && ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) &&
+          a.sync? && !a.primary_key? && ![:MasterSynchronized, :CreatedAt, :DeletedAt, :MasterId].include?(a.name) &&
             !(a.reference? && !a.referenced_entity.sync.master?)
         end
       end
@@ -389,12 +403,18 @@ module Domgen
           a.sync? &&
             !a.primary_key? &&
             !a.immutable? &&
-            ![:MasterSynchronized, :CreatedAt, :DeletedAt].include?(a.name) &&
+            ![:MasterSynchronized, :CreatedAt, :DeletedAt, :MasterId].include?(a.name) &&
             (
             !a.reference? ||
               a.referenced_entity.sync? && a.referenced_entity.sync.synchronize?
             )
         end.size > 0
+      end
+
+      def supports_bulk_sync?
+        entity.attributes.select do |a|
+            a.reference? && a.referenced_entity == entity
+        end.empty?
       end
 
       def master_data_module
@@ -416,6 +436,15 @@ module Domgen
         sync_temp_data_module = entity.data_module.repository.data_module_by_name(entity.data_module.repository.sync.sync_temp_data_module)
         sync_temp_data_module.disable_facets_not_in(Domgen::Sync::VALID_SYNC_TEMP_FACETS)
 
+        self.entity.integer(:MasterId, :nullable => true,
+                            :immutable => true,
+                            :description => 'Will contain the ID of the entity in the Master Schema from this this entity was synced',
+                            '-facets' => [:sync, :arez, :gwt])
+        self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync?
+        self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time?
+        # This foreign key can't be added here as the Master schema won't exist during its creation, so it is added in during finalisation
+        # self.entity.sql.foreign_key([:MasterId], self.entity.sync.master_entity.qualified_name, [:Id])
+
         sync_temp_data_module.entity("#{self.entity.sync.entity_prefix}#{self.entity.name}") do |e|
           e.disable_facets_not_in(Domgen::Sync::VALID_SYNC_TEMP_FACETS)
 
@@ -435,6 +464,7 @@ module Domgen
             e.reference("#{self.master_data_module}.#{self.entity.data_module.repository.sync.mapping_source_attribute}", :name => :MappingSource, 'sql.column_name' => 'MappingSource', :description => 'A reference for originating system')
             e.string(:MappingKey, 255, :immutable => true, :description => 'Change to cause an instance with the same MappingId and MappingSource, to be recreated in Master.')
             e.string(:MappingId, 50, :description => 'The ID of entity in originating system')
+            e.sql.index([:MappingId, :MappingSource, :SyncTempId])
           end
 
           self.entity.attributes.select {|a| !a.inherited?}.each do |a|
