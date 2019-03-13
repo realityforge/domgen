@@ -32,6 +32,9 @@ end
 public abstract class <%= data_module.sync.sync_context_impl_name %>
   implements <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>
 {
+  private static final java.util.logging.Logger LOG =
+    java.util.logging.Logger.getLogger( <%= data_module.sync.sync_context_impl_name %>.class.getName() );
+
   @javax.persistence.PersistenceContext( unitName = <%= data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME )
   private javax.persistence.EntityManager _entityManager;
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
@@ -117,12 +120,13 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
         index = -1
         "COALESCE(#{a.referenced_entity.concrete_subtypes.collect do |subtype| "R#{ref_index}#{index += 1}.#{subtype.attribute_by_name(subtype.root_entity.name).sql.quoted_column_name}" end.join(', ')})"
       else
-        "R#{ref_index}.#{a.referenced_entity.attribute_by_name(a.referenced_entity.root_entity.name).sql.quoted_column_name}"
+        "R#{ref_index}.#{a.referenced_entity.attribute_by_name(a.referenced_entity.root_entity.name).sql.quoted_column_name} AS #{a.sql.quoted_column_name}"
       end
     else
       "M.#{a.sql.quoted_column_name}"
     end
-  end + ["M.#{entity.sync.master_entity.attribute_by_name(:MappingId).sql.quoted_column_name}"]).join(', ')
+  end + ["M.#{entity.sync.master_entity.attribute_by_name(:Id).sql.quoted_column_name}",
+         "M.#{entity.sync.master_entity.attribute_by_name(:MappingId).sql.quoted_column_name}"]).join(', ')
 
   joins = ''
   ref_index = 0
@@ -193,7 +197,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @java.lang.Override
   public boolean createOrUpdate<%= entity.data_module.name %><%= entity.name %>( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final java.lang.Object[] record )
   {
-<% attr = entity.attributes.select{|a| a.sql? && a.jpa? && (a.sync? || %w(CreatedAt DeletedAt).include?(a.name.to_s)) } -%>
+<% attr = entity.attributes.select{|a| a.sql? && a.jpa? && (a.sync? || %w(CreatedAt DeletedAt MasterId).include?(a.name.to_s)) } -%>
 <% attr.each_with_index do |a, i| -%>
 <% if a.enumeration? && a.enumeration.textual_values? -%>
     final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : ''  %><%= a.jpa.java_type(:boundary) %>.valueOf( (java.lang.String) record[ <%= i %> ] );
@@ -376,6 +380,66 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     query.setParameter( 1, mappingSourceCode );
     return query.executeUpdate();
   }
+<% if entity.sync.supports_bulk_sync? -%>
+
+  @java.lang.Override
+  public int bulkCreate<%= fn %>( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+    final String insertSql = getSqlToDirectlyInsert<%= fn %>( mappingSourceCode );
+    final javax.persistence.Query insertQuery = _entityManager.createNativeQuery( insertSql );
+    insertQuery.setParameter( 1, mappingSourceCode );
+    final int insertionCount = insertQuery.executeUpdate();
+
+    final String updateSql;
+    if ( insertionCount > 0 )
+    {
+      updateSql = getSqlToMarkInserted<%=fn%>AsSynchronized( mappingSourceCode );
+      final javax.persistence.Query updateQuery =_entityManager.createNativeQuery( updateSql );
+      updateQuery.setParameter(1,mappingSourceCode);
+      final int updateCount = updateQuery.executeUpdate();
+
+      if ( updateCount != insertionCount )
+      {
+        LOG.severe( "Bulk addition of <%= fn %> failed, " + insertionCount + " vs " + updateCount +
+          "\nSql for insert: \n" + insertSql + "\nSql for update: \n" + updateSql );
+        throw new RuntimeException("Mismatch between inserted count and update count for <%= fn %>");
+      }
+    }
+
+    return insertionCount;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getSqlToDirectlyInsert<%= fn %>( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+<% bulk_attrs = entity.attributes.select{|a| a.sql? && a.jpa? && (a.sync? || %w(CreatedAt DeletedAt).include?(a.name.to_s)) }
+   bulk_attrs_insert = j_escape_string(bulk_attrs.collect{|a| a.primary_key? ? 'MasterId' : a.sql.quoted_column_name}.join(', '))
+   bulk_attrs_select = j_escape_string(bulk_attrs.collect{|a| a.sql.quoted_column_name}.join(', '))
+  -%>
+
+    return
+      "INSERT INTO <%= j_escape_string( entity.sql.qualified_table_name ) %>\n" +
+      " ( <%= bulk_attrs_insert -%> )\n " +
+      "SELECT <%= bulk_attrs_select %> FROM ( " +
+      getSqlToRetrieve<%= fn %>ListToUpdate( mappingSourceCode ) + " AND \n" +
+      "<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name} IS NULL") -%>) X\n";
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getSqlToMarkInserted<%= fn %>AsSynchronized( @javax.annotation.Nonnull final String mappingSourceCode )
+  {
+    return
+      "UPDATE M\n" +
+      "SET\n" +
+      "  <%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql}") -%>, " +
+      "  <%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = C.Id \n" +
+      "FROM <%= j_escape_string( table ) %> M \n" +
+      " JOIN <%= j_escape_string("#{entity.sql.qualified_table_name} C ON C.[MasterId] = M.#{entity.primary_key.sql.quoted_column_name}") %> AND " +
+      "M.<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql}") -%> AND " +
+      "M.<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name} IS NULL") -%>\n";
+  }
 
 <% if entity.sync.update_via_sync? -%>
   @javax.annotation.Nonnull
@@ -439,6 +503,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       getSqlToRetrieve<%= fn %>ListToRemove( mappingSourceCode ) + "\n" +
       ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
   }
+<% end -%>
 
   @javax.annotation.Nonnull
   protected String getSqlToRetrieve<%= fn %>ListToUpdate( @javax.annotation.Nonnull final String mappingSourceCode )

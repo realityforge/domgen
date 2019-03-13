@@ -16,8 +16,21 @@ public class <%= data_module.sync.sync_ejb_name %>
 
   @javax.inject.Inject
   private <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_boundary_interface_name %> _context;
+<% if data_module.repository.imit? %>
+  @javax.inject.Inject
+  private <%= data_module.repository.service_by_name(data_module.repository.imit.subscription_manager).ejb.qualified_service_name %> _sessionManager;
 
+<% end -%>
   private volatile boolean _inSync;
+
+  // TODO: This is only necessary as long as the StandardSyncService does not expose a method for altering a feature flag
+  @javax.inject.Inject
+  private iris.appconfig.server.service.FeatureFlagService _featureFlagService;
+
+  private void disableFeature( @javax.annotation.Nonnull final String flag )
+  {
+    _featureFlagService.disableFeature( flag );
+  }
 
   @java.lang.Override
   @javax.annotation.Nonnull
@@ -77,12 +90,15 @@ public class <%= data_module.sync.sync_ejb_name %>
 <% end -%>
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
 
-  private void sync<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  private void sync<%= entity.data_module.name %><%= entity.name %>Updates(
+      @javax.annotation.Nonnull final String mappingSourceCode,
+      @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder,
+      final boolean isBulkSync )
     throws Exception
   {
     final long entityStartAt = System.currentTimeMillis();
-    log( mappingSourceCode, "Synchronizing <%= entity.qualified_name %> adds and updates" );
-    synchronize<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
+    log( mappingSourceCode, ( isBulkSync ? "Bulk " : "" ) + "Synchronizing <%= entity.qualified_name %> adds and updates" );
+    synchronize<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder, isBulkSync );
     final int addCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount" ).get();
     log( mappingSourceCode, "Added " + addCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
 <% if entity.sync.update_via_sync? -%>
@@ -101,7 +117,14 @@ public class <%= data_module.sync.sync_ejb_name %>
 
     resetMetrics( recorder );
 
-    log( mappingSourceCode, "Synchronizing data" );
+    final String bulkSyncFlag = mappingSourceCode + ".nextSyncIsBulk";
+    final boolean isBulkSync = isFeatureEnabled( bulkSyncFlag );
+    if ( isBulkSync )
+    {
+      recorder.incMetric( mappingSourceCode + ".syncWasBulk", 1 );
+    }
+
+    log( mappingSourceCode, "Synchronizing data" + ( isBulkSync ? " in bulk" : "" ) );
     final long syncStartAt = System.currentTimeMillis();
     try
     {
@@ -109,8 +132,17 @@ public class <%= data_module.sync.sync_ejb_name %>
       sync<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
 <% end -%>
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-      sync<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
+      sync<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder, isBulkSync );
 <% end -%>
+
+      if ( isBulkSync )
+      {
+        _featureFlagService.disableFeature( bulkSyncFlag );
+<% if data_module.repository.imit? %>
+        _sessionManager.removeAllSessions();
+<% end -%>
+      }
+
       log( mappingSourceCode, "Successfully synchronized data" );
     }
     catch ( final Throwable e )
@@ -155,16 +187,42 @@ public class <%= data_module.sync.sync_ejb_name %>
     }
   }
 
-  private void synchronize<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+<% if entity.sync.supports_bulk_sync? %>
+  private void bulkSynchronize<%= entity.data_module.name %><%= entity.name %>Additions( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
+    try
+    {
+      recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount",
+        _context.bulkCreate<%= entity.data_module.name %><%= entity.name %>( mappingSourceCode ) );
+    }
+    catch ( final Exception e )
+    {
+      recordSyncError( recorder, 1, "Error performing bulk synchronisation of <%= entity.qualified_name %> additions", e );
+      throw e;
+    }
+  }
+<% end -%>
+
+  private void synchronize<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode,
+      @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder,
+      final boolean isBulkSync )
+    throws Exception
+  {
+<% if entity.sync.supports_bulk_sync? %>
+    // First attempt a bulk sync for additions
+    if ( isBulkSync )
+    {
+      bulkSynchronize<%=entity.data_module.name%><%=entity.name%>Additions( mappingSourceCode, recorder );
+    }
+<% end -%>
     Exception lastException = null;
     // loop until no unprocessed entities or only entities
     // unprocessed are those with errors
     final java.util.ArrayList<Object[]> errors = new java.util.ArrayList<>();
     while( true )
     {
-      // TODO: Consider allowing chunking/limits to limit memory pressure of large syncs
+      // Consider allowing chunking/limits to limit memory pressure of large syncs
       final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
       if ( results.isEmpty() || errors.size() == results.size() )
       {
@@ -255,7 +313,7 @@ public class <%= data_module.sync.sync_ejb_name %>
     final java.util.ArrayList<Object[]> errors = new java.util.ArrayList<>();
     while( true )
     {
-      // TODO: Consider allowing chunking/limits to limit memory pressure of large syncs
+      // Consider allowing chunking/limits to limit memory pressure of large syncs
       final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
       if ( results.isEmpty() || errors.size() == results.size() )
       {

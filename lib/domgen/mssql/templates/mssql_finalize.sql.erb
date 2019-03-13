@@ -34,5 +34,13 @@ IF ( @SeqValue IS NULL )
 GO
 <%
    end
+   if entity.sync? && entity.sync.synchronize?
+%>
+ALTER TABLE <%= entity.sql.qualified_table_name %>
+  ADD CONSTRAINT [FK_<%=entity.name%>_MasterId] FOREIGN KEY ([MasterId])
+REFERENCES <%= entity.sync.master_entity.sql.qualified_table_name%> ([Id])
+GO
+<%
+   end
   end
 %>

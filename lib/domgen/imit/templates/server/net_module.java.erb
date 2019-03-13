@@ -9,12 +9,37 @@ public class <%= repository.imit.server_net_module_name %>
   @java.lang.Override
   protected void configure()
   {
+    bindGraphEncoder();
+    bindChangeRecorder();
+    bindEntityMessageGenerator();
+    bindSessionContext();
+    bindReplicant();
+  }
+
+  protected void bindGraphEncoder()
+  {
     bind( <%= repository.imit.qualified_graph_encoder_name %>.class ).to( <%= repository.imit.qualified_graph_encoder_impl_name %>.class ).in( javax.inject.Singleton.class );
+  }
+
+  protected void bindChangeRecorder()
+  {
     bind( <%= repository.imit.qualified_change_recorder_name %>.class ).to( <%= repository.imit.qualified_change_recorder_impl_name %>.class ).in( javax.inject.Singleton.class );
+  }
+
+  protected void bindEntityMessageGenerator()
+  {
     bind( <%= repository.imit.qualified_message_generator_name %>.class ).in( javax.inject.Singleton.class );
-<% if repository.imit.requires_session_context? -%>
+  }
+
+  protected void bindSessionContext()
+  {
+    <% if repository.imit.requires_session_context? -%>
     bind( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>.class ).to( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_implementation_name %>.class ).in( javax.inject.Singleton.class );
-<% end -%>
+    <% end -%>
+  }
+
+  protected void bindReplicant()
+  {
     multiBind( <%= repository.imit.qualified_session_manager_name %>.class,
                <%= repository.imit.qualified_poll_service_name %>.class,
                org.realityforge.replicant.server.EntityMessageEndpoint.class,
