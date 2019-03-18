@@ -831,15 +831,6 @@ module Domgen
         @subscription_manager || "#{self.imit_control_data_module}.#{repository.name}SubscriptionService"
       end
 
-      def invalid_session_exception=(invalid_session_exception)
-        Domgen.error('invalid_session_exception invalid. Expected to be in format DataModule.Exception') if invalid_session_exception.to_s.split('.').length != 2
-        @invalid_session_exception = invalid_session_exception
-      end
-
-      def invalid_session_exception
-        @invalid_session_exception || "#{self.imit_control_data_module}.#{repository.name}BadSession"
-      end
-
       def session_context_service=(session_context_service)
         Domgen.error('session_context_service invalid. Expected to be in format DataModule.SessionContext') if session_context_service.to_s.split('.').length != 2
         @session_context_service = session_context_service
@@ -1010,13 +1001,6 @@ module Domgen
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?
         if self.graphs.size == 0
           Domgen.error('imit facet enabled but no graphs defined')
-        end
-
-        self.repository.exception(self.invalid_session_exception) unless self.repository.exception_by_name?(self.invalid_session_exception)
-        self.repository.exception_by_name(self.invalid_session_exception).tap do |e|
-          e.java.exception_category = :runtime
-          e.ejb.rollback = false
-          e.disable_facets_not_in(*self.component_facets + [:jaxrs])
         end
 
         if repository.imit.remote_datasources?

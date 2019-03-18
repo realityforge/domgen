@@ -433,19 +433,11 @@ entities.uniq.each do |entity| -%>
     }
   }
 
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected java.lang.RuntimeException newBadSessionException( @javax.annotation.Nonnull final String sessionID )
-  {
-    return new <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>();
-  }
-
   @java.lang.Override
   @javax.annotation.Nullable
   public String poll( @javax.annotation.Nonnull final String clientID, final int lastSequenceAcked )
-    throws <%= repository.exception_by_name(repository.imit.invalid_session_exception).ee.qualified_name %>
   {
-    return pollJsonData( ensureSession( clientID ), lastSequenceAcked );
+    return pollJsonData( java.util.Objects.requireNonNull( getSession( clientID ) ), lastSequenceAcked );
   }
 <% if repository.imit.secured? -%>
 
