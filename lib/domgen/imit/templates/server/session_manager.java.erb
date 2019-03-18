@@ -51,35 +51,6 @@ entities.uniq.each do |entity| -%>
     return <%= repository.imit.qualified_system_metadata_name %>.getSystemMetaData();
   }
 
-  /**
-   * Remove idle session changes. This is called by a scheduler.
-   */
-  @java.lang.Override
-  public void removeIdleSessions()
-  {
-    final int maxIdleTime = 1000 * 60 * 5;
-    final int removedSessions = removeIdleSessions( maxIdleTime );
-    if ( 0 != removedSessions && LOG.isLoggable( java.util.logging.Level.INFO ) )
-    {
-      LOG.info( "Removed " + removedSessions + " idle sessions" );
-    }
-  }
-
-  /**
-   * Remove all sessions.  This should be used sparingly!
-   *
-   * TODO: Would be nicer if an equivalent method existed in replicant library, rather than hacking the idle sessions
-   */
-  @java.lang.Override
-  public void removeAllSessions()
-  {
-    final int removedSessions = removeIdleSessions( -1 );
-    if ( 0 != removedSessions && LOG.isLoggable( java.util.logging.Level.INFO ) )
-    {
-      LOG.info( "Removed " + removedSessions + " sessions" );
-    }
-  }
-
   @java.lang.Override
   protected void processDeleteMessages( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message, @javax.annotation.Nonnull final java.util.Collection<org.realityforge.replicant.server.transport.ReplicantSession> sessions, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeAccumulator accumulator )
   {
