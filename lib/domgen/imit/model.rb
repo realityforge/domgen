@@ -1184,7 +1184,7 @@ module Domgen
           s.ejb.bind_in_tests = false
           s.ejb.generate_base_test = false
 
-          s.method(:RemoveIdleSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30') do |m|
+          s.method(:RemoveClosedSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30') do |m|
             m.disable_facet(:jws) if m.jws?
           end
           s.method(:RemoveAllSessions) do |m|
