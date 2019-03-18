@@ -41,7 +41,6 @@ public class <%= repository.imit.server_net_module_name %>
   protected void bindReplicant()
   {
     multiBind( <%= repository.imit.qualified_session_manager_name %>.class,
-               <%= repository.imit.qualified_poll_service_name %>.class,
                org.realityforge.replicant.server.EntityMessageEndpoint.class,
                org.realityforge.replicant.server.transport.ReplicantSessionManager.class,
                <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class );

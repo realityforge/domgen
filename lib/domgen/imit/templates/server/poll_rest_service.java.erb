@@ -10,7 +10,7 @@ public class <%= repository.imit.poll_rest_service_name %>
   extends org.realityforge.replicant.server.ee.rest.AbstractReplicantPollResource
 {
   @javax.inject.Inject
-  private <%= repository.imit.qualified_poll_service_name %> _pollService;
+  private <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %> _pollService;
   @javax.inject.Inject
   private org.realityforge.replicant.server.transport.ReplicantSessionManager _sessionManager;
   @javax.annotation.Resource( lookup = "<%= repository.imit.executor_service_jndi %>" )

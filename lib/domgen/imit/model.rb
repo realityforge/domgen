@@ -723,7 +723,6 @@ module Domgen
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerImpl'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
       java_artifact :poll_rest_service, :rest, :server, :imit, '#{repository.name}ReplicantPollRestService'
-      java_artifact :poll_service, :rest, :server, :imit, '#{repository.name}ReplicantPollService'
       java_artifact :server_router, :comm, :server, :imit, '#{repository.name}Router'
       java_artifact :jpa_encoder, :comm, :server, :imit, '#{repository.name}JpaEncoder'
       java_artifact :message_generator, :comm, :server, :imit, '#{repository.name}EntityMessageGenerator'
@@ -1172,6 +1171,13 @@ module Domgen
             m.disable_facet(:jws) if m.jws?
           end
           s.method(:RemoveAllSessions) do |m|
+            m.disable_facet(:jws) if m.jws?
+          end
+
+          s.method(:Poll) do |m|
+            m.text(:SessionId)
+            m.integer(:RxSequence)
+            m.returns(:text, :nullable => true)
             m.disable_facet(:jws) if m.jws?
           end
         end

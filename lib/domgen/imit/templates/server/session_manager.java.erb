@@ -6,10 +6,10 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "DLS_DEAD_LOCAL_STORE", "CC_CYCLOMATIC_COMPLEXITY" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
-@javax.enterprise.inject.Typed( { <%= repository.imit.qualified_poll_service_name %>.class, org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
+@javax.enterprise.inject.Typed( { org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
 public class <%= repository.imit.session_manager_name %>
   extends org.realityforge.replicant.server.transport.Replicant<%= repository.imit.secured? ? 'Secured' : '' -%>SessionManagerImpl
-  implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>, <%= repository.imit.qualified_poll_service_name %>
+  implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>
 {
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
 <% if repository.imit.secured? -%>
