@@ -175,6 +175,11 @@ entities.uniq.each do |entity| -%>
 <% end -%>
   }
 
+<% if repository.imit.graphs.any?{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? } -%>
+  /*
+    TODO: This code has not worked for a while due to changes in replicant. When Planner/Calendar gets ported
+    forward we may need to revive this code so we are leaving this here on the off chance it is needed.
+   */
   @java.lang.Override
   public void updateSubscription( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session,
                                   @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address,
@@ -254,6 +259,7 @@ entities.uniq.each do |entity| -%>
       subscribe( session, new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, downstreamEntity.get<%= instance_root.primary_key.name %>() ), true, filter, changeSet );
     }
   }
+<% end -%>
 <% end -%>
 <% end -%>
 <% repository.imit.graphs.each do |graph| -%>
