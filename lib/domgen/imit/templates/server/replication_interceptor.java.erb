@@ -24,12 +24,14 @@ public class <%= repository.imit.replication_interceptor_name %>
     return _registry;
   }
 
+  @javax.annotation.Nonnull
   @java.lang.Override
   protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
   {
     return _endpoint;
   }
 
+  @javax.annotation.Nonnull
   @java.lang.Override
   protected javax.persistence.EntityManager getEntityManager()
   {
