@@ -722,7 +722,6 @@ module Domgen
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerImpl'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
-      java_artifact :poll_rest_service, :rest, :server, :imit, '#{repository.name}ReplicantPollRestService'
       java_artifact :server_router, :comm, :server, :imit, '#{repository.name}Router'
       java_artifact :jpa_encoder, :comm, :server, :imit, '#{repository.name}JpaEncoder'
       java_artifact :message_generator, :comm, :server, :imit, '#{repository.name}EntityMessageGenerator'
@@ -926,7 +925,6 @@ module Domgen
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
-          repository.jaxrs.extensions << self.qualified_poll_rest_service_name
           repository.imit.remote_datasources.each do |rd|
             repository.jaxrs.extensions << rd.qualified_ee_data_loader_rest_service_name
           end
@@ -1091,7 +1089,6 @@ module Domgen
                 if graph.filter_parameter?
                   unless graph.filter_parameter.immutable?
                     s.method("CollectForFilterChange#{graph.name}") do |m|
-                      m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                       m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
                       m.reference(graph.instance_root, :name => :Entity)
                       m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
@@ -1102,7 +1099,6 @@ module Domgen
                         m.ejb.generate_base_test = false
                         m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
                         m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
-                        m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                         m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                         m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                       end
@@ -1171,13 +1167,6 @@ module Domgen
             m.disable_facet(:jws) if m.jws?
           end
           s.method(:RemoveAllSessions) do |m|
-            m.disable_facet(:jws) if m.jws?
-          end
-
-          s.method(:Poll) do |m|
-            m.text(:SessionId)
-            m.integer(:RxSequence)
-            m.returns(:text, :nullable => true)
             m.disable_facet(:jws) if m.jws?
           end
         end

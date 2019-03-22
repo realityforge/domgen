@@ -439,12 +439,6 @@ entities.uniq.each do |entity| -%>
     }
   }
 
-  @java.lang.Override
-  @javax.annotation.Nullable
-  public String poll( @javax.annotation.Nonnull final String clientID, final int lastSequenceAcked )
-  {
-    return pollJsonData( java.util.Objects.requireNonNull( getSession( clientID ) ), lastSequenceAcked );
-  }
 <% if repository.imit.secured? -%>
 
   @javax.annotation.Nonnull
