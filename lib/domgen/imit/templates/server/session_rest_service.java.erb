@@ -38,27 +38,6 @@ public class <%= repository.imit.session_rest_service_name %>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected org.realityforge.replicant.server.EntityMessageEndpoint getEntityMessageEndpoint()
-  {
-    return _entityMessageEndpoint;
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected javax.persistence.EntityManager getEntityManager()
-  {
-    return _entityManager;
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected javax.transaction.TransactionSynchronizationRegistry getRegistry()
-  {
-    return _registry;
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
   protected org.realityforge.replicant.server.transport.ReplicantSessionManager getSessionManager()
   {
     return _sessionManager;

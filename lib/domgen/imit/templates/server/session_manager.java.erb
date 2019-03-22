@@ -363,12 +363,13 @@ entities.uniq.each do |entity| -%>
   }
 
   @java.lang.Override
-  protected boolean bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelAddress> descriptors, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter )
+  protected boolean bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.ArrayList<org.realityforge.replicant.server.ChannelAddress> descriptors, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter )
   {
     if( descriptors.isEmpty() )
     {
       return true;
     }
+    @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet = org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges()
     final org.realityforge.replicant.server.ChannelAddress address = descriptors.get( 0 );
     <%
   repository.imit.graphs.select{|graph| graph.instance_root? && graph.bulk_load? && graph.filtered? && !graph.filter_parameter.immutable?}.each do |graph|
