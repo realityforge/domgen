@@ -70,9 +70,9 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
   }
 
   @javax.annotation.Nonnull
-  public static org.realityforge.replicant.client.transport.WebPollerConfig newWebPollerConfig()
+  public static org.realityforge.replicant.client.transport.WebSocketConfig newWebSocketConfig()
   {
-    return new org.realityforge.replicant.client.transport.WebPollerConfig( getBaseURL() + "<%= repository.jaxrs? ? repository.jaxrs.path : 'api' %>", <%= repository.gwt_rpc.rpc_services_dagger_module_name %>::updateTokenAndExecute, () -> <%= repository.gwt_rpc.rpc_services_dagger_module_name %>.getKeycloak().getToken() );
+    return new org.realityforge.replicant.client.transport.WebSocketConfig( getBaseURL() + "api", RoseGwtRpcServicesDaggerModule::updateTokenAndExecute, () -> RoseGwtRpcServicesDaggerModule.getKeycloak().getToken() );
   }
 <% end -%>
 
