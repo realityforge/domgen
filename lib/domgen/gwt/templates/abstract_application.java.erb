@@ -123,7 +123,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   protected void prepareServices()
   {
 <% if repository.imit? -%>
-    org.realityforge.gwt.webpoller.client.WebPoller.register( org.realityforge.gwt.webpoller.client.TimerBasedWebPoller::new );
     replicant.WebStorageCacheService.install();
     elemental2.dom.DomGlobal.window.addEventListener( "pagehide", e -> replicant.Replicant.context().deactivate(), true );
 <% end -%>
