@@ -10,7 +10,7 @@ public final class <%= struct.gwt.name %>
 <% struct.fields.each do |field| -%>
 <% if field.nullable? -%>
   @javax.annotation.Nullable
-<% elsif !field.gwt.primitive?(:transport) -%>
+<% elsif !field.datetime? && !field.gwt.primitive?(:transport) -%>
   @javax.annotation.Nonnull
 <% end -%>
   private <%= characteristic_transport_type(field) %> <%= field.json.name %>;
@@ -25,7 +25,8 @@ public final class <%= struct.gwt.name %>
   singular_converted_value = Proc.new do |var|
     case
       when field.date? then "#{var}.toString()"
-      when field.datetime? then "(double) #{var}.getTime()"
+      when field.datetime? && !field.nullable? then "(double) #{var}.getTime()"
+      when field.datetime? && field.nullable? then "#{var}.getTime().doubleValue()"
       when field.enumeration? then "#{var}.#{field.enumeration.textual_values? ? 'name()' : 'ordinal()' }"
       when field.nullable? && field.integer? then "#{var}.doubleValue()"
       when field.nullable? && field.boolean? then "#{var}.booleanValue()"

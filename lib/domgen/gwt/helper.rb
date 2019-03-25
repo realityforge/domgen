@@ -19,13 +19,36 @@ module Domgen
       def characteristic_transport_type(field)
         if field.collection?
           collection_transport_type(field)
+        elsif field.datetime? && !field.nullable?
+          'double'
+        elsif field.datetime? && field.nullable?
+          'java.lang.Double'
+        elsif field.nullable? && field.integer?
+          'java.lang.Double'
+        elsif !field.nullable? && field.integer?
+          'int'
+        elsif field.struct?
+          field.gwt.java_component_type(:boundary)
         else
-          field.nullable? && field.integer? ? 'java.lang.Double' : field.gwt.java_type(field.struct? ? :boundary : :transport)
+          field.gwt.java_component_type(:transport)
         end
       end
 
       def collection_transport_type(field, size = '')
-        base_type = field.nullable? && field.integer? ? 'java.lang.Double' : field.gwt.java_component_type(field.struct? ? :boundary : :transport)
+        base_type =
+          if field.datetime? && !field.nullable?
+            'double'
+          elsif field.datetime? && field.nullable?
+            'java.lang.Double'
+          elsif field.nullable? && field.integer?
+            'java.lang.Double'
+          elsif !field.nullable? && field.integer?
+            'int'
+          elsif field.struct?
+            field.gwt.java_component_type(:boundary)
+          else
+            field.gwt.java_component_type(:transport)
+          end
 
         "#{base_type}[#{size}]"
       end
