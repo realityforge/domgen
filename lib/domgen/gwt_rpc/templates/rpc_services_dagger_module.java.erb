@@ -6,12 +6,12 @@ package <%= to_package(repository.gwt_rpc.qualified_rpc_services_dagger_module_n
 @dagger.Module
 public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 {
-  private static String c_baseURL;
 <% if repository.keycloak? -%>
+  private static final int MIN_TOKEN_VALIDITY_SECONDS = 15;
   @javax.annotation.Nullable
   private static org.realityforge.gwt.keycloak.Keycloak c_keycloak;
-  private static int c_minTokenValiditySeconds = <%= repository.imit? ? 'org.realityforge.replicant.shared.SharedConstants.MAX_POLL_TIME_IN_SECONDS * 2' : '10' %>;
 <% end -%>
+  private static String c_baseURL;
 <% if repository.imit? -%>
   private static replicant.Request c_request;
 <% end -%>
@@ -34,16 +34,6 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
     c_keycloak = keycloak;
   }
 
-  public static int getMinTokenValiditySeconds()
-  {
-    return c_minTokenValiditySeconds;
-  }
-
-  public static void setMinTokenValiditySeconds( final int minTokenValiditySeconds )
-  {
-    c_minTokenValiditySeconds = minTokenValiditySeconds;
-  }
-
   public static void updateTokenAndExecute( @javax.annotation.Nonnull final java.lang.Runnable action )
   {
     if ( null == c_keycloak )
@@ -52,7 +42,7 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
     }
     else
     {
-      c_keycloak.updateToken( c_minTokenValiditySeconds, action );
+      c_keycloak.updateToken( MIN_TOKEN_VALIDITY_SECONDS, action );
     }
   }
 
