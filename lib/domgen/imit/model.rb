@@ -978,7 +978,6 @@ module Domgen
           client.redirect_uris.clear
           client.web_origins.clear
           prefix = repository.jaxrs? ? "/#{repository.jaxrs.path}" : '/api'
-          client.protected_url_patterns << prefix + '/replicant/*'
           client.protected_url_patterns << prefix + '/session/*'
         end
         if repository.keycloak?
