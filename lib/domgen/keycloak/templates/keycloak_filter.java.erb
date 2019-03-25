@@ -6,6 +6,7 @@ package <%= to_package(client.qualified_keycloak_filter_name) %>;
 public class <%= client.keycloak_filter_name %>
   extends org.keycloak.adapters.servlet.KeycloakOIDCFilter
 {
+<% if client.protects_application_urls? -%>
   @javax.inject.Inject
   private <%= client.qualified_keycloak_filter_interface_name %> _urlFilter;
 
@@ -42,4 +43,5 @@ public class <%= client.keycloak_filter_name %>
       chain.doFilter( request, response );
     }
   }
+<% end -%>
 }

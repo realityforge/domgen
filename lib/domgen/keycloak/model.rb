@@ -144,6 +144,10 @@ module Domgen
         @protected_url_patterns ||= ["/#{local_admin_url}"]
       end
 
+      def protects_application_urls?
+        protected_url_patterns.any?{|url| url != "/#{local_admin_url}"}
+      end
+
       attr_writer :jndi_config_base
 
       def jndi_config_base
