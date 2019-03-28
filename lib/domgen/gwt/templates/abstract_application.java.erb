@@ -106,7 +106,12 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     if ( null != elemental2.dom.DomGlobal.applicationCache && elemental2.dom.DomGlobal.document.getElementsByTagName( "html" ).item( 0 ).hasAttribute( "manifest" ) )
     {
       elemental2.dom.DomGlobal.applicationCache.addEventListener( "updateready", e -> {
-          elemental2.dom.DomGlobal.applicationCache.swapCache();
+          if ( elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.UNCACHED &&
+               elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.CHECKING &&
+               elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.DOWNLOADING )
+          {
+            elemental2.dom.DomGlobal.applicationCache.swapCache();
+          }
           onAppcacheUpdateReadyEvent();
       } );
       elemental2.dom.DomGlobal.applicationCache.update();
