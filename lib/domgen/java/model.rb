@@ -146,7 +146,8 @@ module Domgen
             if characteristic.enumeration.textual_values?
               return Domgen::TypeDB.characteristic_type_by_name(:text).java.object_type
             else
-              return Domgen::TypeDB.characteristic_type_by_name(:integer).java.object_type
+              data_type = Domgen::TypeDB.characteristic_type_by_name(:integer)
+              return characteristic.nullable? ? data_type.java.object_type : data_type.java.primitive_type
             end
           end
         elsif characteristic.struct?
