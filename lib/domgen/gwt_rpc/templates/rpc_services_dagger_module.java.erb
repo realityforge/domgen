@@ -10,6 +10,8 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
   private static final int MIN_TOKEN_VALIDITY_SECONDS = 15;
   @javax.annotation.Nullable
   private static org.realityforge.gwt.keycloak.Keycloak c_keycloak;
+  @javax.annotation.Nonnull
+  private static java.util.ArrayList<java.lang.Runnable> c_actions = new java.util.ArrayList<>();
 <% end -%>
   private static String c_baseURL;
 <% if repository.imit? -%>
@@ -42,7 +44,11 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
     }
     else
     {
-      c_keycloak.updateToken( MIN_TOKEN_VALIDITY_SECONDS, action );
+      c_actions.add( action );
+      c_keycloak.updateToken( MIN_TOKEN_VALIDITY_SECONDS, () -> {
+        c_actions.forEach( java.lang.Runnable::run );
+        c_actions.clear();
+      } );
     }
   }
 
