@@ -709,6 +709,13 @@ module Domgen
         repository.gwt.modules_package
       end
 
+      attr_writer :server_web_package
+
+      def server_web_package
+        @server_web_package || "#{server_package}.web"
+      end
+
+      java_artifact :endpoint, :web, :server, :imit, '#{repository.name}ReplicantEndpoint'
       java_artifact :rpc_request_builder, :ioc, :client, :imit, '#{repository.name}RpcRequestBuilder'
       java_artifact :gwt_complete_module, :test, :client, :imit, '#{repository.name}GwtModule', :sub_package => 'util'
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'

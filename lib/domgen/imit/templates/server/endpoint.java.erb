@@ -1,0 +1,47 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_endpoint_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.websocket.server.ServerEndpoint( <%= repository.jaxrs.qualified_abstract_application_name %>.APPLICATION_PATH + org.realityforge.replicant.shared.SharedConstants.REPLICANT_URL_FRAGMENT )
+@javax.enterprise.context.ApplicationScoped
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
+public class <%= repository.imit.endpoint_name %>
+  extends org.realityforge.replicant.server.ee.AbstractReplicantEndpoint
+{
+  @javax.inject.Inject
+  private org.realityforge.replicant.server.transport.ReplicantSessionManager _sessionManager;
+  @javax.annotation.Resource
+  private javax.transaction.TransactionSynchronizationRegistry _registry;
+  @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  private javax.persistence.EntityManager _em;
+  @javax.inject.Inject
+  private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected org.realityforge.replicant.server.transport.ReplicantSessionManager getSessionManager()
+  {
+    return _sessionManager;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected javax.transaction.TransactionSynchronizationRegistry getRegistry()
+  {
+    return _registry;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected javax.persistence.EntityManager getEntityManager()
+  {
+    return _em;
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
+  {
+    return _endpoint;
+  }
+}
