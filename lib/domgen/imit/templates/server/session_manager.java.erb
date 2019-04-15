@@ -8,14 +8,10 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
 @javax.enterprise.inject.Typed( { org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
 public class <%= repository.imit.session_manager_name %>
-  extends org.realityforge.replicant.server.transport.Replicant<%= repository.imit.secured? ? 'Secured' : '' -%>SessionManagerImpl
+  extends org.realityforge.replicant.server.transport.ReplicantSessionManagerImpl
   implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>
 {
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
-<% if repository.imit.secured? -%>
-  @javax.inject.Inject
-  private org.realityforge.keycloak.sks.SimpleAuthService _authService;
-<% end -%>
   @javax.inject.Inject
   private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
 <%
@@ -441,14 +437,4 @@ entities.uniq.each do |entity| -%>
       throw new IllegalStateException( "shouldFollowLink called for link between channel " + source + " and " + target + " and the target has no filter or the link is unknown." );
     }
   }
-
-<% if repository.imit.secured? -%>
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected org.realityforge.keycloak.sks.SimpleAuthService getAuthService()
-  {
-    return _authService;
-  }
-<% end -%>
 }

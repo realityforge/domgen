@@ -114,7 +114,12 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
           }
           onAppcacheUpdateReadyEvent();
       } );
-      elemental2.dom.DomGlobal.applicationCache.update();
+      if ( elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.UNCACHED &&
+           elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.CHECKING &&
+           elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.DOWNLOADING )
+      {
+        elemental2.dom.DomGlobal.applicationCache.update();
+      }
     }
   }
 
