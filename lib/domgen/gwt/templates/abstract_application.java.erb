@@ -75,6 +75,9 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.appcache? -%>
     setupAppCache();
 <% end -%>
+<% if repository.keycloak? && repository.imit? -%>
+    setupReplicantToken();
+<% end -%>
     setupUncaughtExceptionHandler();
     prepareServices();
     prepareUI();
@@ -225,6 +228,19 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
 <% if repository.keycloak? -%>
 
+<% if repository.imit? -%>
+  private void updateReplicantToken()
+  {
+    replicant.Replicant.context().setAuthToken( getKeycloak().getToken() );
+  }
+
+  private void setupReplicantToken()
+  {
+    updateReplicantToken();
+    elemental2.dom.DomGlobal.setInterval( e -> getKeycloak().updateToken( 30, this::updateReplicantToken ), 5000 );
+  }
+
+<% end -%>
   @javax.annotation.Nonnull
   public org.realityforge.gwt.keycloak.Keycloak getKeycloak()
   {
