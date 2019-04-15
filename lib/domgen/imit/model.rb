@@ -671,6 +671,10 @@ module Domgen
 
       attr_writer :secured
 
+      def keycloak_client
+        repository.keycloak.client_by_key(repository.gwt_rpc.keycloak_client)
+      end
+
       attr_writer :client_component_package
 
       def client_component_package

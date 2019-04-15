@@ -16,6 +16,9 @@ public class <%= repository.imit.endpoint_name %>
   private javax.persistence.EntityManager _em;
   @javax.inject.Inject
   private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
+<% if repository.imit.secured? -%>
+  private org.keycloak.adapters.KeycloakConfigResolver _resolver = new <%= repository.imit.keycloak_client.qualified_keycloak_config_resolver_name %>();
+<% end -%>
 
   @javax.annotation.Nonnull
   @java.lang.Override
@@ -44,4 +47,29 @@ public class <%= repository.imit.endpoint_name %>
   {
     return _endpoint;
   }
+<% if repository.imit.secured? -%>
+
+  @Override
+  protected boolean isAuthorized( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession replicantSession )
+  {
+    final String authToken = replicantSession.getAuthToken();
+    if ( null == authToken )
+    {
+      return false;
+    }
+    else
+    {
+      try
+      {
+        final org.keycloak.adapters.KeycloakDeployment deployment = _resolver.resolve( null );
+        org.keycloak.RSATokenVerifier.verifyToken( authToken, deployment.getRealmKey(), deployment.getRealmInfoUrl(), true, true );
+        return true;
+      }
+      catch ( final org.keycloak.common.VerificationException ve )
+      {
+        return false;
+      }
+    }
+  }
+<% end -%>
 }
