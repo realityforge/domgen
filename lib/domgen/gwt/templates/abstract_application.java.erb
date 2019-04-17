@@ -200,25 +200,14 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   private void log( @javax.annotation.Nonnull final Throwable t, final boolean isCause )
   {
     final String msg = ( isCause ? "caused by: " : "" ) + t;
-    _groupStart( msg );
+    elemental2.dom.DomGlobal.console.groupCollapsed( msg );
     _log( t );
     if ( null != t.getCause() )
     {
       log( t.getCause(), true );
     }
-    _groupEnd();
+    elemental2.dom.DomGlobal.console.groupEnd();
   }
-
-  private native void _groupStart( @javax.annotation.Nonnull final String message ) /*-{
-    var groupStart = console.groupCollapsed || console.group || console.error || console.log;
-    groupStart.call( console, message );
-  }-*/;
-
-  private native void _groupEnd() /*-{
-    var groupEnd = console.groupEnd || function() {
-      };
-    groupEnd.call( console );
-  }-*/;
 
   private native void _log( @javax.annotation.Nonnull final Throwable throwable ) /*-{
     var logError = console.error || console.log;
