@@ -188,7 +188,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     }
 <% end -%>
 <% if dao.entity.transaction_time? -%>
-    $_.setDeletedAt( new java.util.Date() );
+    $_.setDeletedAt( now() );
 <% unless dao.entity.jpa.attributes_to_delink.empty? -%>
     $_.delinkDuringPreRemove();
 <% end -%>
