@@ -30,6 +30,10 @@ public class <%= dao.jpa.dao_name %>
 <% end -%>
   @javax.persistence.PersistenceContext( unitName = <%= dao.data_module.repository.jpa.qualified_unit_descriptor_name %>.<%= dao.jpa.persistence_unit_name.nil? ? 'NAME' : "#{Reality::Naming.uppercase_constantize(dao.jpa.persistence_unit_name)}_NAME" %> )
   private javax.persistence.EntityManager em;
+<% if dao.repository? && dao.entity.transaction_time? && dao.data_module.repository.jpa.use_time_service_for_now? -%>
+  @javax.inject.Inject
+  private iris.rose.server.service.TimeService _timeService;
+<% end -%>
 
 <% dao.queries.select{|q| q.jpa?}.each do |query| -%>
 <%
@@ -332,9 +336,14 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% end -%>
 <% if dao.repository? && dao.entity.transaction_time? -%>
 
+  @javax.annotation.Nonnull
   protected java.util.Date now()
   {
+<% if dao.data_module.repository.jpa.use_time_service_for_now? -%>
+    return _timeService.currentDate();
+<% else -%>
     return new java.util.Date();
+<% end -%>
   }
 <% end -%>
 }

@@ -1,6 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.jpa.qualified_dao_module_name) %>;
 
+<% include_time_service = repository.jpa.use_time_service_for_now? && repository.data_modules.select{|data_module| data_module.jpa? && data_module.daos.any?{|dao| dao.repository? && dao.entity.transaction_time?} } -%>
+
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 @javax.annotation.Generated( "Domgen" )
 public class <%= repository.jpa.dao_module_name %>
@@ -18,6 +20,9 @@ public class <%= repository.jpa.dao_module_name %>
     end
   end
 -%>
+<% if include_time_service -%>
+    bindTimeService();
+<% end -%>
   }
 <%
   repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
@@ -32,4 +37,11 @@ public class <%= repository.jpa.dao_module_name %>
     end
   end
 -%>
+<% if include_time_service -%>
+
+  protected void bindTimeService()
+  {
+    bind( iris.rose.server.service.TimeService.class ).to( iris.rose.server.service.TimeServiceImpl.class ).in( javax.inject.Singleton.class );
+  }
+<% end -%>
 }

@@ -363,6 +363,12 @@ module Domgen
       java_artifact :dao_module, :test, :server, :jpa, '#{repository.name}RepositoryModule', :sub_package => 'util'
       java_artifact :test_factory_module, :test, :server, :jpa, '#{repository.name}FactorySetModule', :sub_package => 'util'
 
+      attr_writer :use_time_service_for_now
+
+      def use_time_service_for_now?
+        @use_time_service_for_now.nil? ? false : !!@use_time_service_for_now
+      end
+
       attr_writer :custom_base_entity_test
 
       def test_factories
