@@ -32,7 +32,7 @@ public class <%= dao.jpa.dao_name %>
   private javax.persistence.EntityManager em;
 <% if dao.repository? && dao.entity.transaction_time? && dao.data_module.repository.jpa.use_time_service_for_now? -%>
   @javax.inject.Inject
-  private iris.rose.server.service.TimeService _timeService;
+  private org.realityforge.timeservice.TimeService _timeService;
 <% end -%>
 
 <% dao.queries.select{|q| q.jpa?}.each do |query| -%>

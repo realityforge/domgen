@@ -41,7 +41,7 @@ public class <%= repository.jpa.dao_module_name %>
 
   protected void bindTimeService()
   {
-    bind( iris.rose.server.service.TimeService.class ).to( iris.rose.server.service.TimeServiceImpl.class ).in( javax.inject.Singleton.class );
+    bind( org.realityforge.timeservice.TimeService.class ).to( org.realityforge.timeservice.TimeServiceImpl.class ).in( javax.inject.Singleton.class );
   }
 <% end -%>
 }
