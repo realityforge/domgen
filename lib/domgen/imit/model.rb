@@ -725,6 +725,7 @@ module Domgen
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :client_router, :comm, :client, :imit, '#{repository.name}ClientRouter'
+      java_artifact :subscription_util, :comm, :client, :imit, '#{repository.name}SubscriptionUtil'
       java_artifact :system_constants, :comm, :shared, :imit, '#{repository.name}SchemaConstants'
       java_artifact :subscription_constants, :comm, :shared, :imit, '#{repository.name}SubscriptionConstants'
       java_artifact :entity_type_constants, :comm, :shared, :imit, '#{repository.name}EntityTypeConstants'
