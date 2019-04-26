@@ -23,15 +23,6 @@ public class <%= data_module.sync.sync_ejb_name %>
 <% end -%>
   private volatile boolean _inSync;
 
-  // TODO: This is only necessary as long as the StandardSyncService does not expose a method for altering a feature flag
-  @javax.inject.Inject
-  private iris.appconfig.server.service.FeatureFlagService _featureFlagService;
-
-  private void disableFeature( @javax.annotation.Nonnull final String flag )
-  {
-    _featureFlagService.disableFeature( flag );
-  }
-
   @java.lang.Override
   @javax.annotation.Nonnull
   public iris.syncrecord.server.data_type.SyncStatusDTO synchronizeDataSource( @javax.annotation.Nonnull final String mappingSourceCode )
@@ -138,7 +129,7 @@ public class <%= data_module.sync.sync_ejb_name %>
 
       if ( isBulkSync )
       {
-        _featureFlagService.disableFeature( bulkSyncFlag );
+        getFeatureFlagService().disableFeature( bulkSyncFlag );
 <% if data_module.repository.imit? %>
         _sessionManager.removeAllSessions();
 <% end -%>
