@@ -105,9 +105,9 @@ module Domgen
         @required_type_graphs = []
         @dependent_type_graphs = []
         @instance_root = nil
-        @outward_graph_links = Reality::OrderedHash.new
-        @inward_graph_links = Reality::OrderedHash.new
-        @routing_keys = Reality::OrderedHash.new
+        @outward_graph_links = {}
+        @inward_graph_links = {}
+        @routing_keys = {}
         @visibility = :universal
         application.send :register_graph, name, self
         super(application, options, &block)
@@ -1253,7 +1253,7 @@ module Domgen
       end
 
       def remote_datasource_map
-        @remote_datasources ||= Reality::OrderedHash.new
+        @remote_datasources ||= {}
       end
 
       def register_graph(name, graph)
@@ -1261,7 +1261,7 @@ module Domgen
       end
 
       def graph_map
-        @graphs ||= Reality::OrderedHash.new
+        @graphs ||= {}
       end
     end
 

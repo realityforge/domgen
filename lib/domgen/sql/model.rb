@@ -489,7 +489,7 @@ module Domgen
       protected
 
       def sequence_map
-        @sequences ||= Reality::OrderedHash.new
+        @sequences ||= {}
       end
 
       def register_sequence(name, sequence)
@@ -618,7 +618,7 @@ module Domgen
       end
 
       def constraint_values
-        @constraint_values ||= Reality::OrderedHash.new
+        @constraint_values ||= {}
       end
 
       def constraints
@@ -638,7 +638,7 @@ module Domgen
       end
 
       def function_constraint_values
-        @function_constraint_values ||= Reality::OrderedHash.new
+        @function_constraint_values ||= {}
       end
 
       def function_constraints
@@ -663,7 +663,7 @@ module Domgen
       end
 
       def validation_values
-        @validation_values ||= Reality::OrderedHash.new
+        @validation_values ||= {}
       end
 
       def validations
@@ -688,7 +688,7 @@ module Domgen
       end
 
       def action_values
-        @action_values ||= Reality::OrderedHash.new
+        @action_values ||= {}
       end
 
       def actions
@@ -713,7 +713,7 @@ module Domgen
       end
 
       def trigger_values
-        @trigger_values ||= Reality::OrderedHash.new
+        @trigger_values ||= {}
       end
 
       def triggers
@@ -742,7 +742,7 @@ module Domgen
       end
 
       def index_values
-        @index_values ||= Reality::OrderedHash.new
+        @index_values ||= {}
       end
 
       def indexes
@@ -761,7 +761,7 @@ module Domgen
       end
 
       def foreign_key_values
-        @foreign_key_values ||= Reality::OrderedHash.new
+        @foreign_key_values ||= {}
       end
 
       def foreign_keys

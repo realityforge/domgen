@@ -370,7 +370,7 @@ module Domgen
     end
 
     def characteristic_map
-      @characteristics ||= Reality::OrderedHash.new
+      @characteristics ||= {}
     end
 
     def new_characteristic(name, type, options, &block)
@@ -514,7 +514,7 @@ module Domgen
         end
         if @inherited_characteristics.nil? || @inherited_characteristics_mod_count != mod_count
           @inherited_characteristics_mod_count = mod_count
-          @inherited_characteristics = Reality::OrderedHash.new
+          @inherited_characteristics = {}
           base_type.characteristics.collect { |c| c.clone }.each do |characteristic|
             characteristic.instance_variable_set("@#{container_kind}", self)
             characteristic.mark_as_inherited

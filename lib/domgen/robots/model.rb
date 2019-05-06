@@ -79,7 +79,7 @@ module Domgen
       end
 
       def user_agent_map
-        @user_agents ||= Reality::OrderedHash.new
+        @user_agents ||= {}
       end
     end
   end

@@ -125,7 +125,7 @@ module Domgen
       end
 
       def system_setting_map
-        @system_setting ||= Reality::OrderedHash.new
+        @system_setting ||= {}
       end
     end
   end

@@ -130,7 +130,7 @@ module Domgen
       end
 
       def data_source_map
-        @data_sources ||= Reality::OrderedHash.new
+        @data_sources ||= {}
       end
     end
 

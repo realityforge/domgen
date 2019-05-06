@@ -77,7 +77,7 @@ module Domgen
     end
 
     def repository_map
-      @repositories ||= Reality::OrderedHash.new
+      @repositories ||= {}
     end
   end
 
@@ -351,7 +351,7 @@ module Domgen
     end
 
     def value_map
-      @values ||= Reality::OrderedHash.new
+      @values ||= {}
     end
 
     def values
@@ -656,7 +656,7 @@ module Domgen
 
     def initialize(data_module, name, options, &block)
       @name = name
-      @queries = Reality::OrderedHash.new
+      @queries = {}
       data_module.send :register_dao, name, self
       super(data_module, options, &block)
     end
@@ -882,14 +882,14 @@ module Domgen
 
     def initialize(data_module, name, options, &block)
       @name = name
-      @unique_constraints = Reality::OrderedHash.new
-      @codependent_constraints = Reality::OrderedHash.new
-      @xor_constraints = Reality::OrderedHash.new
-      @incompatible_constraints = Reality::OrderedHash.new
-      @dependency_constraints = Reality::OrderedHash.new
-      @relationship_constraints = Reality::OrderedHash.new
-      @cycle_constraints = Reality::OrderedHash.new
-      @queries = Reality::OrderedHash.new
+      @unique_constraints = {}
+      @codependent_constraints = {}
+      @xor_constraints = {}
+      @incompatible_constraints = {}
+      @dependency_constraints = {}
+      @relationship_constraints = {}
+      @cycle_constraints = {}
+      @queries = {}
       @referencing_attributes = nil
       data_module.send :register_entity, name, self
       super(data_module, options, &block)
@@ -1454,7 +1454,7 @@ module Domgen
 
     def initialize(service, name, options, &block)
       @name = name
-      @exceptions = Reality::OrderedHash.new
+      @exceptions = {}
       super(service, options, &block)
     end
 
@@ -1531,7 +1531,7 @@ module Domgen
 
     def initialize(data_module, name, options, &block)
       @name = name
-      @methods = Reality::OrderedHash.new
+      @methods = {}
       data_module.send :register_service, name, self
       super(data_module, options, &block)
     end
@@ -1572,15 +1572,15 @@ module Domgen
     def initialize(repository, name, options, &block)
       repository.send :register_data_module, name, self
       @name = name
-      @remote_entities = Reality::OrderedHash.new
-      @entities = Reality::OrderedHash.new
-      @services = Reality::OrderedHash.new
-      @messages = Reality::OrderedHash.new
-      @structs = Reality::OrderedHash.new
-      @enumerations = Reality::OrderedHash.new
-      @exceptions = Reality::OrderedHash.new
-      @daos = Reality::OrderedHash.new
-      @elements = Reality::OrderedHash.new
+      @remote_entities = {}
+      @entities = {}
+      @services = {}
+      @messages = {}
+      @structs = {}
+      @enumerations = {}
+      @exceptions = {}
+      @daos = {}
+      @elements = {}
       Domgen.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
       Domgen.info "DataModule '#{name}' definition completed"
@@ -2027,8 +2027,8 @@ module Domgen
       @name = name
       @source_file = source_file
       @default_model_checks = true
-      @data_modules = Reality::OrderedHash.new
-      @model_checks = Reality::OrderedHash.new
+      @data_modules = {}
+      @model_checks = {}
       Domgen::TypeDB.mark_as_initialized
       Domgen.send :register_repository, name, self
       Domgen.info 'Repository definition started'

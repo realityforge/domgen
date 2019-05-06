@@ -73,7 +73,7 @@ module Domgen
 
       def config_elements_map
         unless @config_elements
-          @config_elements = Reality::OrderedHash.new
+          @config_elements = {}
           @config_elements[''] = Domgen::CharacteristicType
         end
         @config_elements
@@ -137,7 +137,7 @@ module Domgen
       end
 
       def characteristic_type_map
-        @characteristic_types ||= Reality::OrderedHash.new
+        @characteristic_types ||= {}
       end
     end
   end

@@ -20,7 +20,6 @@ require 'reality/core'
 require 'reality/facets'
 require 'reality/generators'
 require 'reality/naming'
-require 'reality/orderedhash'
 require 'reality/mash'
 
 # Core components
