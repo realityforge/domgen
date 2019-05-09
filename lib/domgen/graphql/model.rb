@@ -82,6 +82,14 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
       include Domgen::Java::BaseJavaGenerator
 
+      def schema_name
+        Reality::Naming.underscore(repository.name)
+      end
+
+      def qualified_schema_name
+        "#{self.server_package}.#{self.schema_name}"
+      end
+
       java_artifact :endpoint, :servlet, :server, :graphql, '#{repository.name}GraphQLEndpoint'
       java_artifact :graphqls_servlet, :servlet, :server, :graphql, '#{repository.name}GraphQLSchemaServlet'
       java_artifact :abstract_endpoint, :servlet, :server, :graphql, 'Abstract#{repository.name}GraphQLEndpoint'

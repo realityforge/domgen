@@ -1,0 +1,63 @@
+# DO NOT EDIT: File is auto-generated
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+}
+
+type Mutation {
+}
+
+<% repository.graphql.non_standard_scalars.sort.each do |scalar| -%>
+scalar <%= scalar %>
+<% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.enumerations.select{|enumeration| enumeration.graphql? }.each do |enumeration| -%>
+
+<% if has_description?(enumeration) -%>
+# <%= description_to_comment(enumeration, 0) %>
+<% end -%>
+enum <%= enumeration.graphql.name %> {
+<% enumeration.values.select{|value| value.graphql?}.each do |value| -%>
+<% if has_description?(value) -%>
+  # <%= description_to_comment(value, 2) %>
+<% end -%>
+  <%= value.graphql.name %><%= value.graphql.deprecation_reason ? "@deprecated(reason: \"#{value.graphql.deprecation_reason}\")" : ""%>
+<% end -%>
+}
+<% end -%>
+<% end -%>
+<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% data_module.entities.select{|entity| entity.graphql? }.each do |entity| -%>
+
+<% if has_description?(entity) -%>
+# <%= description_to_comment(entity, 0) %>
+<% end -%>
+<% if entity.abstract? -%>
+interface <%= entity.graphql.name %> {
+<% else -%>
+<% implements = entity.supertypes.select{|type| type.graphql? && type.abstract? } -%>
+type <%= entity.graphql.name %><%= implements.empty? ? '' : " implements #{implements.collect{|type|type.graphql.name}.join(', ')}" %> {
+<% end -%>
+<% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
+<% if has_description?(attribute) -%>
+  # <%= description_to_comment(attribute, 2) %>
+<% end -%>
+<%
+  attribute_type =
+    if attribute.reference?
+      attribute.referenced_entity.graphql.name
+    elsif attribute.enumeration?
+      attribute.enumeration.graphql.name
+    else
+      attribute.graphql.scalar_type
+    end
+-%>
+  <%= attribute.graphql.name %>: <%= attribute_type %><%= attribute.nullable? ? '' : "!" -%><%= attribute.graphql.deprecation_reason ? "@deprecated(reason: \"#{attribute.graphql.deprecation_reason}\")" : ""%>
+<% end -%>
+}
+<% end -%>
+<% end -%>

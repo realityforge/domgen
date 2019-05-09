@@ -23,6 +23,10 @@ module Domgen
         escape_description_to_string(input.graphql.description)
       end
 
+      def description_to_comment(input, indent)
+        j_escape_string(input.graphql.description.to_s.strip).gsub("\n", "\n#{' ' * indent}# ")
+      end
+
       def escape_description_to_string(description)
         j_escape_string(description.to_s.strip).gsub("\n", "\\n\" + \"")
       end
