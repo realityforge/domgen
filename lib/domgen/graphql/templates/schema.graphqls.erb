@@ -56,7 +56,7 @@ type <%= entity.graphql.name %><%= implements.empty? ? '' : " implements #{imple
       attribute.graphql.scalar_type
     end
 -%>
-  <%= attribute.graphql.name %>: <%= attribute_type %><%= attribute.nullable? ? '' : "!" -%><%= attribute.graphql.deprecation_reason ? "@deprecated(reason: \"#{attribute.graphql.deprecation_reason}\")" : ""%>
+  <%= attribute.graphql.name %>: <%= attribute_type %><%= attribute.nullable? ? '' : "!" -%><%= deprecate_directive(attribute) %>
 <% end -%>
 }
 <% end -%>

@@ -27,6 +27,10 @@ module Domgen
         j_escape_string(input.graphql.description.to_s.strip).gsub("\n", "\n#{' ' * indent}# ")
       end
 
+      def deprecate_directive(value)
+        value.graphql.deprecation_reason ? " @deprecated(reason: \"#{value.graphql.deprecation_reason}\")" : ""
+      end
+
       def escape_description_to_string(description)
         j_escape_string(description.to_s.strip).gsub("\n", "\\n\" + \"")
       end
