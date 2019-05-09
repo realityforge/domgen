@@ -14,8 +14,8 @@ type Mutation {
 <% repository.graphql.non_standard_scalars.sort.each do |scalar| -%>
 scalar <%= scalar %>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.enumerations.select{|enumeration| enumeration.graphql? }.each do |enumeration| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.enumerations.select(&:graphql?).each do |enumeration| -%>
 
 <% if has_description?(enumeration) -%>
 # <%= description_to_comment(enumeration, 0) %>
