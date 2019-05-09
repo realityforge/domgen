@@ -23,8 +23,15 @@ module Domgen
         escape_description_to_string(input.graphql.description)
       end
 
-      def description_to_comment(input, indent)
-        j_escape_string(input.graphql.description.to_s.strip).gsub("\n", "\n#{' ' * indent}# ")
+      def description_as_string(input, indent)
+        content = input.graphql.description.to_s.strip
+        if content == ''
+          ''
+        elsif content.include?("\n")
+          "#{' ' * indent}\"\"\"\n" + content.split("\n").collect {|line| "#{' ' * (indent + 2)}#{line}"}.join("\n") + "\n#{' ' * indent}\"\"\"\n"
+        else
+          "#{' ' * indent}\"#{content}\"\n"
+        end
       end
 
       def deprecate_directive(value)
