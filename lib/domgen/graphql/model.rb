@@ -70,7 +70,7 @@ module Domgen
       def save_scalar_type
         if @scalar_type
           data_module.repository.graphql.scalar(@scalar_type)
-        elsif characteristic.characteristic_type
+        elsif characteristic.characteristic_type && !characteristic.void?
           data_module.repository.graphql.scalar(characteristic.characteristic_type.graphql.scalar_type)
         end
       end

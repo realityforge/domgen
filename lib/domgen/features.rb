@@ -109,6 +109,10 @@ module Domgen
       self.characteristic_type_key == :geometry
     end
 
+    def void?
+      self.characteristic_type_key == :void
+    end
+
     def non_standard_type?
       !standard_type?
     end
