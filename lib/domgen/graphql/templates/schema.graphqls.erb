@@ -23,15 +23,15 @@ scalar <%= scalar %>
 
 <%= description_as_string(enumeration, 0) -%>
 enum <%= enumeration.graphql.name %> {
-<% enumeration.values.select{|value| value.graphql?}.each do |value| -%>
+<% enumeration.values.select(&:graphql?).each do |value| -%>
 <%= description_as_string(value, 2) -%>
   <%= value.graphql.name %><%= deprecate_directive(value) %>
 <% end -%>
 }
 <% end -%>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.entities.select{|entity| entity.graphql? }.each do |entity| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.entities.select(&:graphql?).each do |entity| -%>
 
 <%= description_as_string(entity, 0) -%>
 <% if entity.abstract? -%>
@@ -40,7 +40,7 @@ interface <%= entity.graphql.name %> {
 <% implements = entity.supertypes.select{|type| type.graphql? && type.abstract? } -%>
 type <%= entity.graphql.name %><%= implements.empty? ? '' : " implements #{implements.collect{|type|type.graphql.name}.join(' & ')}" %> {
 <% end -%>
-<% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
+<% entity.attributes.select(&:graphql?).each do |attribute| -%>
 <%= description_as_string(attribute, 2) -%>
 <%
   attribute_type =
