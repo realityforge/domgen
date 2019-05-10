@@ -34,7 +34,7 @@ enum <%= enumeration.graphql.name %> {
 interface <%= entity.graphql.name %> {
 <% else -%>
 <% implements = entity.supertypes.select{|type| type.graphql? && type.abstract? } -%>
-type <%= entity.graphql.name %><%= implements.empty? ? '' : " implements #{implements.collect{|type|type.graphql.name}.join(', ')}" %> {
+type <%= entity.graphql.name %><%= implements.empty? ? '' : " implements #{implements.collect{|type|type.graphql.name}.join(' & ')}" %> {
 <% end -%>
 <% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
 <%= description_as_string(attribute, 2) -%>
