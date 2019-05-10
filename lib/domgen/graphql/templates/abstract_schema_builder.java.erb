@@ -826,7 +826,9 @@ end.join(", ") %>);
     v = "_#{Reality::Naming.camelize(parameter.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{parameter.referenced_entity.primary_key.name}(#{v})"
     v = "null == #{base_accessor} ? null : #{v}" if parameter.nullable?
   elsif parameter.enumeration?
-    v = "_#{Reality::Naming.camelize(parameter.referenced_entity.dao.qualified_name.gsub('.','')) }.getBy#{parameter.referenced_entity.primary_key.name}(#{v})"
+    v = parameter.enumeration.numeric_values? ?
+               "#{parameter.enumeration.ee.qualified_name}.values()[ e.<Integer>getArgument( \"#{parameter.graphql.name}\" ) ]" :
+               "#{parameter.enumeration.ee.qualified_name}.valueOf( #{v} )"
     v = "null == #{base_accessor} ? null : #{v}" if parameter.nullable?
   end
   v
