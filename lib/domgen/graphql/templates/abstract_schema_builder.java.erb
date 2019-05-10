@@ -167,7 +167,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   }
 
   @javax.annotation.Nullable
-  protected graphql.schema.GraphQLEnumType defineEnumType_<%= data_module.name %>_<%= enumeration.graphql.name %>()
+  protected graphql.schema.GraphQLEnumType defineEnumType_<%= data_module.name %>_<%= enumeration.name %>()
   {
     final graphql.schema.GraphQLEnumType.Builder enumType = graphql.schema.GraphQLEnumType.newEnum();
     enumType.name( "<%= enumeration.graphql.name %>" );
