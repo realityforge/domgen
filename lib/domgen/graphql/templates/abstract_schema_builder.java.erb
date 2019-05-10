@@ -15,8 +15,8 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.services.select{|service| service.graphql? }.each do |service| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.services.select(&:graphql?).each do |service| -%>
   @javax.inject.Inject
   private <%= service.graphql.use_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _<%= Reality::Naming.camelize(service.qualified_name.gsub('.','')) %>;
 <% end -%>
@@ -97,8 +97,8 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 
   protected void registerEnumTypes()
   {
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.enumerations.select{|enumeration| enumeration.graphql? }.each do |enumeration| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.enumerations.select(&:graphql?).each do |enumeration| -%>
     registerEnumTypeUnlessNull( defineEnumType_<%= data_module.name %>_<%= enumeration.name %>() );
 <% end -%>
 <% end -%>
@@ -106,7 +106,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 
   protected void registerInputObjectTypes()
   {
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.structs.select{|struct| struct.graphql? && struct.graphql.input? }.each do |struct| -%>
     registerInputTypeUnlessNull( defineInputObjectType_<%= data_module.name %>_<%= struct.name %>() );
 <% end -%>
@@ -115,8 +115,8 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 
   protected void registerObjectTypes()
   {
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.entities.select{|entity| entity.graphql? }.each do |entity| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.entities.select(&:graphql?).each do |entity| -%>
 <% if entity.abstract? -%>
     registerInterfaceTypeUnlessNull( defineInterfaceType_<%= data_module.name %>_<%= entity.name %>() );
 <% else -%>
@@ -124,7 +124,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.structs.select{|struct| struct.graphql? && struct.graphql.output? }.each do |struct| -%>
     registerObjectTypeUnlessNull( defineObjectType_<%= data_module.name %>_<%= struct.name %>() );
 <% end -%>
@@ -135,8 +135,8 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 
   protected void resolveInterfaceTypeResolvers()
   {
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.entities.select{|entity| entity.graphql? }.each do |entity| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.entities.select(&:graphql?).each do |entity| -%>
 <% if entity.abstract? -%>
     {
       final graphql.schema.TypeResolver resolver =
@@ -159,8 +159,8 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     return org.realityforge.graphql.domgen.Scalars.<%= Reality::Naming.uppercase_constantize(scalar) %>;
   }
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.enumerations.select{|enumeration| enumeration.graphql? }.each do |enumeration| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.enumerations.select(&:graphql?).each do |enumeration| -%>
 
   protected void customizeEnumType_<%= data_module.name %>_<%= enumeration.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLEnumType.Builder objectType )
   {
@@ -174,7 +174,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% if has_description?(enumeration) -%>
     enumType.description( "<%= description_to_string(enumeration) %>" );
 <% end -%>
-<% enumeration.values.select{|value| value.graphql?}.each do |value| -%>
+<% enumeration.values.select(&:graphql?).each do |value| -%>
     enumType.value( "<%= value.graphql.name %>", "<%= enumeration.graphql.name %>", "<%= description_to_string(value) %>", <%= value.graphql.deprecation_reason ? "\"#{value.graphql.deprecation_reason}\"" : 'null' %> );
 <% end -%>
     customizeEnumType_<%= data_module.name %>_<%= enumeration.name %>( enumType );
@@ -182,9 +182,9 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   }
 <% end -%>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.entities.select{|entity| entity.graphql? }.each do |entity| -%>
-<% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.entities.select(&:graphql?).each do |entity| -%>
+<% entity.attributes.select(&:graphql?).each do |attribute| -%>
 <% if attribute.abstract? -%>
 
   private static Object get<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e )
@@ -292,7 +292,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% if has_description?(entity) -%>
     interfaceType.description( "<%= description_to_string(entity) %>" );
 <% end -%>
-<% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
+<% entity.attributes.select(&:graphql?).each do |attribute| -%>
     addFieldUnlessNull( interfaceType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>() );
 <% end -%>
 <% entity.referencing_attributes.
@@ -321,7 +321,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% if has_description?(entity) -%>
     objectType.description( "<%= description_to_string(entity) %>" );
 <% end -%>
-<% entity.attributes.select{|attribute| attribute.graphql?}.each do |attribute| -%>
+<% entity.attributes.select(&:graphql?).each do |attribute| -%>
     addFieldUnlessNull( objectType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.name %>() );
 <% end -%>
 <% entity.referencing_attributes.
@@ -335,9 +335,9 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.structs.select{|struct| struct.graphql? && struct.graphql.output? }.each do |struct| -%>
-<% struct.fields.select{|field| field.graphql?}.each do |field| -%>
+<% struct.fields.select(&:graphql?).each do |field| -%>
 
   @javax.annotation.Nonnull
   protected graphql.schema.DataFetcher defineDataFetcher_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>()
@@ -386,7 +386,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% if has_description?(struct) -%>
     objectType.description( "<%= description_to_string(struct) %>" );
 <% end -%>
-<% struct.fields.select{|field| field.graphql?}.each do |field| -%>
+<% struct.fields.select(&:graphql?).each do |field| -%>
     addFieldUnlessNull( objectType, defineField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>() );
 <% end -%>
     customizeObjectType_<%= data_module.name %>_<%= struct.name %>( objectType );
@@ -394,9 +394,9 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   }
 <% end -%>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.structs.select{|struct| struct.graphql? && struct.graphql.input? }.each do |struct| -%>
-<% struct.fields.select{|field| field.graphql?}.each do |field| -%>
+<% struct.fields.select(&:graphql?).each do |field| -%>
 
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLInputObjectField defineInputObjectField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>()
@@ -453,7 +453,7 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% if has_description?(struct) -%>
     objectType.description( "<%= description_to_string(struct) %>" );
 <% end -%>
-<% struct.fields.select{|field| field.graphql?}.each do |field| -%>
+<% struct.fields.select(&:graphql?).each do |field| -%>
     addFieldUnlessNull( objectType, defineInputObjectField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>() );
 <% end -%>
     customizeInputObjectType_<%= data_module.name %>_<%= struct.name %>( objectType );
@@ -462,8 +462,8 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% end -%>
 
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.daos.select(&:graphql?).each do |dao| -%>
 <% if dao.graphql.expose_create? -%>
 <% dao.entity.graphql.createable_attributes.select{|attribute| attribute.graphql.createable?}.each do |attribute| -%>
 
@@ -782,9 +782,9 @@ end.join(", ") %>);
 <% end -%>
 <% end -%>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.services.select{|service| service.graphql? }.each do |service| -%>
-<% service.methods.select{|method| method.graphql? }.each do |method| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.services.select(&:graphql?).each do |service| -%>
+<% service.methods.select(&:graphql?).each do |method| -%>
 <% method.parameters.each do |parameter| -%>
 
   @javax.annotation.Nullable
@@ -898,15 +898,15 @@ end.join(", ") %>);
 <% if repository.graphql.query_description.to_s.strip != '' -%>
     objectType.description( "<%= escape_description_to_string(repository.graphql.query_description) %>" );
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.daos.select(&:graphql?).each do |dao| -%>
 <% dao.queries.select{|query| query.graphql? && query.query_type == :select }.each do |query| -%>
     addFieldUnlessNull( objectType, defineQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>() );
 <% end -%>
 <% end -%>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.services.select{|service| service.graphql? }.each do |service| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.services.select(&:graphql?).each do |service| -%>
 <% service.methods.select{|method| method.graphql? && !method.graphql.mutation? }.each do |method| -%>
     addFieldUnlessNull( objectType, defineQuery_<%= data_module.name %>_<%= service.name %>_<%= method.name %>() );
 <% end -%>
@@ -928,8 +928,8 @@ end.join(", ") %>);
 <% if repository.graphql.mutation_description.to_s.strip != '' -%>
     objectType.description( "<%= escape_description_to_string(repository.graphql.mutation_description) %>" );
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.daos.select{|dao| dao.graphql? }.each do |dao| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.daos.select(&:graphql?).each do |dao| -%>
 <% if dao.graphql.expose_create? -%>
     addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= dao.name %>_Create() );
 <% end -%>
@@ -941,8 +941,8 @@ end.join(", ") %>);
 <% end -%>
 <% end -%>
 <% end -%>
-<% repository.data_modules.select{|data_module| data_module.graphql?}.each do |data_module| -%>
-<% data_module.services.select{|service| service.graphql? }.each do |service| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.services.select(&:graphql?).each do |service| -%>
 <% service.methods.select{|method| method.graphql? && method.graphql.mutation? }.each do |method| -%>
     addFieldUnlessNull( objectType, defineMutation_<%= data_module.name %>_<%= service.name %>_<%= method.name %>() );
 <% end -%>
