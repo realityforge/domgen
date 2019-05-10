@@ -15,6 +15,10 @@ type Mutation {
 type Subscription {
 }
 
+<% if repository.graphql.requires_fetch? -%>
+directive @fetch(from:String!) on FIELD_DEFINITION
+
+<% end -%>
 <% repository.graphql.non_standard_scalars.sort.each do |scalar| -%>
 scalar <%= scalar %>
 <% end -%>
@@ -52,7 +56,7 @@ type <%= entity.graphql.name %><%= implements.empty? ? '' : " implements #{imple
       attribute.graphql.scalar_type
     end
 -%>
-  <%= attribute.graphql.name %>: <%= attribute_type %><%= attribute.nullable? ? '' : "!" -%><%= deprecate_directive(attribute) %>
+  <%= attribute.graphql.name %>: <%= attribute_type %><%= attribute.nullable? ? '' : "!" -%><%= deprecate_directive(attribute) %><%= attribute.graphql.custom_name? ? " @fetch(from:\"#{Reality::Naming.camelize(attribute.name)}\")" : "" %>
 <% end -%>
 <% entity.referencing_attributes.
   select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.graphql? && attribute.inverse.graphql.traversable? }.each do |attribute|
@@ -60,7 +64,7 @@ type <%= entity.graphql.name %><%= implements.empty? ? '' : " implements #{imple
   attribute_type = attribute.inverse.multiplicity == :many ? "[#{attribute.entity.graphql.name}!]" : attribute.entity.graphql.name
 -%>
 <%= description_as_string(attribute.inverse, 2) -%>
-  <%= attribute.inverse.graphql.name %>: <%= attribute_type %><%= attribute.inverse.multiplicity == :zero_or_one ? '' : "!" -%><%= deprecate_directive(attribute) %>
+  <%= attribute.inverse.graphql.name %>: <%= attribute_type %><%= attribute.inverse.multiplicity == :zero_or_one ? '' : "!" -%><%= deprecate_directive(attribute) %><%= attribute.inverse.graphql.custom_name?  ? " @fetch(from:\"#{Reality::Naming.camelize(attribute.inverse.name)}\")" : "" %>
 <% end -%>
 }
 <% end -%>

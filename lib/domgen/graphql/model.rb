@@ -176,6 +176,35 @@ module Domgen
         self.scalars.select {|s| !%w(Byte Short Int Long BigInteger Float BigDecimal String Boolean ID Char).include?(s)}
       end
 
+      def requires_fetch?
+        repository.data_modules.select(&:graphql?).each do |data_module|
+          data_module.entities.select(&:graphql?).each do |entity|
+            entity.attributes.select(&:graphql?).each do |attribute|
+              return true if attribute.graphql.custom_name?
+              entity.referencing_attributes.select {|a| !(a.abstract? || a.inherited?) && a.inverse.graphql? && a.inverse.graphql.traversable?}.each do |inverse_attribute|
+                return true if inverse_attribute.graphql.custom_name?
+              end
+            end
+          end
+          data_module.daos.select(&:graphql?).each do |dao|
+            dao.queries.select(&:graphql?).each do |query|
+              query.parameters.select(&:graphql?).each do |parameter|
+                return true if parameter.graphql.custom_name?
+              end
+            end
+          end
+          data_module.services.select(&:graphql?).each do |service|
+            service.methods.select(&:graphql?).each do |method|
+              return true if method.graphql.custom_name?
+              method.parameters.select(&:graphql?).each do |parameter|
+                return true if parameter.graphql.custom_name?
+              end
+            end
+          end
+        end
+        return false
+      end
+
       def pre_complete
         if self.repository.keycloak?
           if self.graphiql?
@@ -256,7 +285,15 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || "#{enumeration.data_module.graphql.prefix}#{enumeration.name}"
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
+        "#{enumeration.data_module.graphql.prefix}#{enumeration.name}"
       end
 
       attr_writer :description
@@ -270,7 +307,15 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || "#{value.enumeration.data_module.graphql.prefix}#{value.name}"
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
+        "#{value.enumeration.data_module.graphql.prefix}#{value.name}"
       end
 
       attr_writer :description
@@ -308,7 +353,7 @@ module Domgen
       end
 
       def create_defaults=(create_defaults)
-        attributes = dao.entity.graphql.createable_attributes.collect{|attribute| attribute.name.to_s }
+        attributes = dao.entity.graphql.createable_attributes.collect {|attribute| attribute.name.to_s}
 
         create_defaults.keys.each do |attribute_name|
           Domgen.error("Attempting to define default create value for attribute '#{attribute_name}' on dao #{dao.qualified_name} when associated entity has no such attribute. Existing attributes on entity include: #{attributes.inspect}") unless attributes.include?(attribute_name.to_s)
@@ -350,7 +395,7 @@ module Domgen
       end
 
       def update_defaults=(update_defaults)
-        attributes = dao.entity.graphql.updateable_attributes.collect{|attribute| attribute.name.to_s }
+        attributes = dao.entity.graphql.updateable_attributes.collect {|attribute| attribute.name.to_s}
 
         update_defaults.keys.each do |attribute_name|
           Domgen.error("Attempting to define default update value for attribute '#{attribute_name}' on dao #{dao.qualified_name} when associated entity has no such attribute. Existing attributes on entity include: #{attributes.inspect}") unless attributes.include?(attribute_name.to_s)
@@ -394,10 +439,17 @@ module Domgen
       attr_writer :name
 
       def name
-        return @name unless @name.nil?
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
         type_inset = query.result_entity? ? query.entity.graphql.name : query.struct.graphql.name
         type_inset = Reality::Naming.pluralize(type_inset) if query.multiplicity == :many
-        @name || Reality::Naming.camelize("#{query.name_prefix}#{type_inset}#{query.base_name}")
+        Reality::Naming.camelize("#{query.name_prefix}#{type_inset}#{query.base_name}")
       end
 
       attr_writer :description
@@ -444,7 +496,15 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || (parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : Reality::Naming.camelize(parameter.name))
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
+        parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : Reality::Naming.camelize(parameter.name)
       end
 
       attr_writer :description
@@ -480,7 +540,15 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || "#{entity.data_module.graphql.prefix}#{entity.name}"
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
+        "#{entity.data_module.graphql.prefix}#{entity.name}"
       end
 
       attr_writer :description
@@ -490,11 +558,11 @@ module Domgen
       end
 
       def createable_attributes
-        self.entity.attributes.select{|a| a.graphql? && !a.generated_value? && a.jpa? && a.jpa.persistent?}
+        self.entity.attributes.select {|a| a.graphql? && !a.generated_value? && a.jpa? && a.jpa.persistent?}
       end
 
       def updateable_attributes
-        self.entity.attributes.select{|a| a.graphql? && !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}
+        self.entity.attributes.select {|a| a.graphql? && !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}
       end
     end
 
@@ -505,7 +573,15 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || (attribute.name.to_s.upcase == attribute.name.to_s ? attribute.name.to_s : Reality::Naming.camelize(attribute.name))
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
+        attribute.name.to_s.upcase == attribute.name.to_s ? attribute.name.to_s : Reality::Naming.camelize(attribute.name)
       end
 
       attr_writer :description
@@ -551,7 +627,14 @@ module Domgen
       attr_writer :name
 
       def name
-        return @name unless @name.nil?
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
         _name = inverse.name.to_s.upcase == inverse.name.to_s ? inverse.name.to_s : inverse.name
         Reality::Naming.camelize(inverse.multiplicity == :many ? Reality::Naming.pluralize(_name) : _name)
       end
@@ -603,7 +686,14 @@ module Domgen
       attr_writer :name
 
       def name
-        return @name unless @name.nil?
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
         prefix = method.service.graphql.prefix
         method_name = Reality::Naming.camelize(method.name)
         prefix.to_s != '' ? "#{prefix}_#{method_name}" : method_name
@@ -635,7 +725,7 @@ module Domgen
 
       def post_complete
         if !@return_characteristic.nil? && !method.parameter_by_name?(@return_characteristic)
-          Domgen.error("Method #{self.method.qualified_name} has specified graphql return characteristic to '#{@return_characteristic}' which is not one of the available parameter names: #{self.method.parameters.collect{|p|p.name}.join(', ')}")
+          Domgen.error("Method #{self.method.qualified_name} has specified graphql return characteristic to '#{@return_characteristic}' which is not one of the available parameter names: #{self.method.parameters.collect {|p| p.name}.join(', ')}")
         end
         if :void == self.return_characteristic.characteristic_type_key || self.return_characteristic.non_standard_type?
           self.method.disable_facet(:graphql)
@@ -654,7 +744,15 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || (parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : Reality::Naming.camelize(parameter.name))
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
+        parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : Reality::Naming.camelize(parameter.name)
       end
 
       attr_writer :description
@@ -707,7 +805,15 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || "#{struct.data_module.graphql.prefix}#{struct.name}"
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
+        "#{struct.data_module.graphql.prefix}#{struct.name}"
       end
 
       attr_writer :description
@@ -758,7 +864,15 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || (field.name.to_s.upcase == field.name.to_s ? field.name.to_s : Reality::Naming.camelize(field.name))
+        @name || self.default_name
+      end
+
+      def custom_name?
+        self.default_name.to_s != self.name.to_s
+      end
+
+      def default_name
+        field.name.to_s.upcase == field.name.to_s ? field.name.to_s : Reality::Naming.camelize(field.name)
       end
 
       attr_writer :description
