@@ -3,12 +3,16 @@
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 type Query {
 }
 
 type Mutation {
+}
+
+type Subscription {
 }
 
 <% repository.graphql.non_standard_scalars.sort.each do |scalar| -%>

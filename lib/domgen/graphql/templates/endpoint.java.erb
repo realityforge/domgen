@@ -11,6 +11,7 @@ public class <%= repository.graphql.endpoint_name %>
   @javax.inject.Inject
   private graphql.servlet.GraphQLSchemaProvider _schemaProvider;
 
+  @javax.annotation.Nonnull
   @java.lang.Override
   protected graphql.servlet.GraphQLSchemaProvider getSchemaProvider()
   {
