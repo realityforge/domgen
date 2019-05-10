@@ -32,6 +32,15 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   private javax.persistence.EntityManager _entityManager;
   @javax.annotation.Resource
   private javax.transaction.TransactionSynchronizationRegistry _registry;
+  @javax.inject.Inject
+  private org.realityforge.replicant.server.transport.ReplicantSessionManager _sessionManager;
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected org.realityforge.replicant.server.transport.ReplicantSessionManager getReplicantSessionManager()
+  {
+    return _sessionManager;
+  }
 
   @javax.annotation.Nonnull
   @java.lang.Override
