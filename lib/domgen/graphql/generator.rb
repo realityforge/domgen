@@ -20,8 +20,8 @@ Domgen::Generator.define([:graphql],
                               'schema.graphqls.erb',
                               'main/java/#{repository.graphql.qualified_schema_name.gsub(".","/")}.graphqls')
     template_set.erb_template(:repository,
-                              'abstract_schema_builder.java.erb',
-                              'main/java/#{repository.graphql.qualified_abstract_schema_builder_name.gsub(".","/")}.java',
+                              'abstract_schema_service.java.erb',
+                              'main/java/#{repository.graphql.qualified_abstract_schema_service_name.gsub(".","/")}.java',
                               :additional_facets => [:ee])
     template_set.erb_template(:repository,
                               'graphqls_servlet.java.erb',

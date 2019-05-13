@@ -92,8 +92,8 @@ module Domgen
 
       java_artifact :endpoint, :servlet, :server, :graphql, '#{repository.name}GraphQLEndpoint'
       java_artifact :graphqls_servlet, :servlet, :server, :graphql, '#{repository.name}GraphQLSchemaServlet'
-      java_artifact :abstract_schema_builder, :service, :server, :graphql, 'Abstract#{repository.name}GraphQLSchemaProvider'
-      java_artifact :schema_builder, :service, :server, :graphql, '#{repository.name}GraphQLSchemaProvider'
+      java_artifact :abstract_schema_service, :service, :server, :graphql, 'Abstract#{repository.name}RoseGraphQLSchemaService'
+      java_artifact :schema_service, :service, :server, :graphql, '#{repository.name}RoseGraphQLSchemaService'
 
       attr_accessor :query_description
 

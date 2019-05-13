@@ -1,5 +1,5 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.graphql.qualified_abstract_schema_builder_name) %>;
+package <%= to_package(repository.graphql.qualified_abstract_schema_service_name) %>;
 
 /*
 
@@ -8,8 +8,8 @@ Define a subclass that looks like:
 @ApplicationScoped
 @Transactional( Transactional.TxType.REQUIRED )
 @Typed( GraphQLSchemaService.class )
-public class <%= repository.graphql.schema_builder_name %>
-  extends <%= repository.graphql.qualified_abstract_schema_builder_name %>
+public class <%= repository.graphql.schema_service_name %>
+  extends <%= repository.graphql.qualified_abstract_schema_service_name %>
 {
   ...
 
@@ -24,7 +24,7 @@ public class <%= repository.graphql.schema_builder_name %>
  */
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.UnnecessaryLocalBeforeReturn" } )
-public abstract class <%= repository.graphql.abstract_schema_builder_name %>
+public abstract class <%= repository.graphql.abstract_schema_service_name %>
   extends org.realityforge.graphql.domgen.Abstract<%= repository.imit? ? 'Replicant' : '' %>GraphQLSchemaService
 {
   @javax.annotation.Resource( lookup = "java:appserver/TransactionManager" )
