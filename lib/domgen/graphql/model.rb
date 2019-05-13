@@ -480,6 +480,9 @@ module Domgen
           # Eventually we may get around to creating a way to automatically returning values to clients
           # but this will need to wait until it is needed.
           query.disable_facet(:graphql)
+        elsif query.parameters.any? {|parameter| !parameter.graphql? || (parameter.reference? && !parameter.referenced_entity.graphql?)}
+          query.disable_facet(:graphql)
+        end
         end
       end
 
