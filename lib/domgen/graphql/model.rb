@@ -113,12 +113,6 @@ module Domgen
         @custom_endpoint.nil? ? false : !!@custom_endpoint
       end
 
-      attr_writer :custom_schema_builder
-
-      def custom_schema_builder?
-        @custom_schema_builder.nil? ? false : !!@custom_schema_builder
-      end
-
       attr_writer :api_endpoint
 
       def api_endpoint
