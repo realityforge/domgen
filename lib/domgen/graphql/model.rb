@@ -106,12 +106,6 @@ module Domgen
         @graphqls_schema_url || "/graphiql/#{Reality::Naming.underscore(repository.name)}.graphqls"
       end
 
-      attr_writer :custom_endpoint
-
-      def custom_endpoint?
-        @custom_endpoint.nil? ? false : !!@custom_endpoint
-      end
-
       attr_writer :api_endpoint
 
       def api_endpoint
