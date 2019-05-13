@@ -280,10 +280,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% end -%>
 <% if entity.abstract? -%>
 
-  protected void customizeInterfaceType_<%= data_module.name %>_<%= entity.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLInterfaceType.Builder interfaceType )
-  {
-  }
-
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLInterfaceType defineInterfaceType_<%= data_module.name %>_<%= entity.name %>()
   {
@@ -301,14 +297,9 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     addFieldUnlessNull( interfaceType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name %>() );
 <% end -%>
     interfaceType.typeResolver( new graphql.schema.TypeResolverProxy() );
-    customizeInterfaceType_<%= data_module.name %>_<%= entity.name %>( interfaceType );
     return interfaceType.build();
   }
 <% else -%>
-
-  protected void customizeObjectType_<%= data_module.name %>_<%= entity.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLObjectType.Builder objectType )
-  {
-  }
 
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLObjectType defineObjectType_<%= data_module.name %>_<%= entity.name %>()
@@ -329,13 +320,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   each do |attribute| -%>
     addFieldUnlessNull( objectType, defineField_<%= data_module.name %>_<%= entity.name %>_<%= attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name %>() );
 <% end -%>
-    customizeObjectType_<%= data_module.name %>_<%= entity.name %>( objectType );
-    return objectType.build();
-  }
-<% end -%>
-<% end -%>
-<% end -%>
-<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.structs.select{|struct| struct.graphql? && struct.graphql.output? }.each do |struct| -%>
 <% struct.fields.select(&:graphql?).each do |field| -%>
 
@@ -374,10 +358,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   }
 <% end -%>
 
-  protected void customizeObjectType_<%= data_module.name %>_<%= struct.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLObjectType.Builder objectType )
-  {
-  }
-
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLObjectType defineObjectType_<%= data_module.name %>_<%= struct.name %>()
   {
@@ -389,7 +369,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% struct.fields.select(&:graphql?).each do |field| -%>
     addFieldUnlessNull( objectType, defineField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>() );
 <% end -%>
-    customizeObjectType_<%= data_module.name %>_<%= struct.name %>( objectType );
     return objectType.build();
   }
 <% end -%>
@@ -441,10 +420,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 }.join(", ") -%> );
   }
 
-  protected void customizeInputObjectType_<%= data_module.name %>_<%= struct.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLInputObjectType.Builder objectType )
-  {
-  }
-
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLInputObjectType defineInputObjectType_<%= data_module.name %>_<%= struct.name %>()
   {
@@ -456,7 +431,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% struct.fields.select(&:graphql?).each do |field| -%>
     addFieldUnlessNull( objectType, defineInputObjectField_<%= data_module.name %>_<%= struct.name %>_<%= field.name %>() );
 <% end -%>
-    customizeInputObjectType_<%= data_module.name %>_<%= struct.name %>( objectType );
     return objectType.build();
   }
 <% end -%>
@@ -521,10 +495,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     return wrapTopLevelDataFetcher( "create<%= dao.entity.graphql.name %>", true, this::define_<%= data_module.name %>_<%= dao.name %>_Create );
   }
 
-  protected void customizeMutation_<%= data_module.name %>_<%= dao.name %>_Create( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
-  {
-  }
-
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLFieldDefinition defineMutation_<%= data_module.name %>_<%= dao.name %>_Create()
   {
@@ -541,7 +511,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% dao.entity.graphql.createable_attributes.select{|attribute| attribute.graphql.createable?}.each do |attribute| -%>
     mutation.argument( defineArgument_<%= data_module.name %>_<%= dao.name %>_Create_<%= attribute.name %>() );
 <% end -%>
-    customizeMutation_<%= data_module.name %>_<%= dao.name %>_Create( mutation );
     return mutation.build();
   }
 <% end -%>
@@ -617,10 +586,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     return wrapTopLevelDataFetcher( "update<%= dao.entity.graphql.name %>", true, this::define_<%= data_module.name %>_<%= dao.name %>_Update );
   }
 
-  protected void customizeMutation_<%= data_module.name %>_<%= dao.name %>_Update( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
-  {
-  }
-
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLFieldDefinition defineMutation_<%= data_module.name %>_<%= dao.name %>_Update()
   {
@@ -638,7 +603,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
 <% dao.entity.graphql.updateable_attributes.select{|attribute| attribute.graphql.updateable?}.each do |attribute| -%>
     mutation.argument( defineArgument_<%= data_module.name %>_<%= dao.name %>_Update_<%= attribute.name %>() );
 <% end -%>
-    customizeMutation_<%= data_module.name %>_<%= dao.name %>_Update( mutation );
     return mutation.build();
   }
 <% end -%>
@@ -671,10 +635,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     return wrapTopLevelDataFetcher( "delete<%= dao.entity.graphql.name %>", true, this::define_<%= data_module.name %>_<%= dao.name %>_Delete );
   }
 
-  protected void customizeMutation_<%= data_module.name %>_<%= dao.name %>_Delete( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
-  {
-  }
-
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLFieldDefinition defineMutation_<%= data_module.name %>_<%= dao.name %>_Delete()
   {
@@ -689,7 +649,6 @@ public abstract class <%= repository.graphql.abstract_schema_builder_name %>
     mutation.type( new graphql.schema.GraphQLNonNull( scalarType( "<%= dao.entity.primary_key.graphql.scalar_type %>" ) ) );
     mutation.dataFetcher( defineDataFetcher_<%= data_module.name %>_<%= dao.name %>_Delete() );
     mutation.argument( defineArgument_<%= data_module.name %>_<%= dao.name %>_Delete_$Entity() );
-    customizeMutation_<%= data_module.name %>_<%= dao.name %>_Delete( mutation );
     return mutation.build();
   }
 <% end -%>
@@ -744,10 +703,6 @@ end.join(", ") %>);
     return wrapTopLevelDataFetcher( "<%= query.graphql.name %>", <%= :requires_new != dao.jpa.transaction_type -%>, this::define_<%= data_module.name %>_<%= dao.name %>_<%= query.name %> );
   }
 
-  protected void customizeQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
-  {
-  }
-
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLFieldDefinition defineQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>()
   {
@@ -776,7 +731,6 @@ end.join(", ") %>);
 <% query.parameters.each do |parameter| -%>
     query.argument( defineArgument_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>_<%= parameter.name %>() );
 <% end -%>
-    customizeQuery_<%= data_module.name %>_<%= dao.name %>_<%= query.name %>( query );
     return query.build();
   }
 <% end -%>
@@ -845,10 +799,6 @@ end.join(", ") %>);
     return wrapTopLevelDataFetcher( "<%= method.graphql.name %>", <%= !service.graphql.use_boundary? -%>, this::define_<%= data_module.name %>_<%= service.name %>_<%= method.name %> );
   }
 
-  protected void customize<%= method.graphql.mutation? ? 'Mutation' : 'Query' %>_<%= data_module.name %>_<%= service.name %>_<%= method.name %>( @javax.annotation.Nonnull final graphql.schema.GraphQLFieldDefinition.Builder query )
-  {
-  }
-
   @javax.annotation.Nullable
   protected graphql.schema.GraphQLFieldDefinition define<%= method.graphql.mutation? ? 'Mutation' : 'Query' %>_<%= data_module.name %>_<%= service.name %>_<%= method.name %>()
   {
@@ -879,16 +829,11 @@ end.join(", ") %>);
     method.argument( defineArgument_<%= data_module.name %>_<%= service.name %>_<%= method.name %>_<%= parameter.name %>() );
 <% end -%>
     method.dataFetcher( defineDataFetcher_<%= data_module.name %>_<%= service.name %>_<%= method.name %>() );
-    customize<%= method.graphql.mutation? ? 'Mutation' : 'Query' %>_<%= data_module.name %>_<%= service.name %>_<%= method.name %>( method );
     return method.build();
   }
 <% end -%>
 <% end -%>
 <% end -%>
-
-  protected void customizeQueryObjectType( @javax.annotation.Nonnull final graphql.schema.GraphQLObjectType.Builder objectType )
-  {
-  }
 
   @javax.annotation.Nonnull
   protected graphql.schema.GraphQLObjectType defineQueryObjectType()
@@ -912,12 +857,7 @@ end.join(", ") %>);
 <% end -%>
 <% end -%>
 <% end -%>
-    customizeQueryObjectType( objectType );
     return objectType.build();
-  }
-
-  protected void customizeMutationObjectType( @javax.annotation.Nonnull final graphql.schema.GraphQLObjectType.Builder objectType )
-  {
   }
 
   @javax.annotation.Nonnull
@@ -948,7 +888,6 @@ end.join(", ") %>);
 <% end -%>
 <% end -%>
 <% end -%>
-    customizeMutationObjectType( objectType );
     final graphql.schema.GraphQLObjectType mutation = objectType.build();
     if( mutation.getFieldDefinitions().isEmpty() )
     {
