@@ -236,9 +236,9 @@ module Domgen
       def perform_verify
         queries = {}
         mutations = {}
-        self.repository.data_modules.select {|data_module| data_module.graphql?}.each do |data_module|
-          data_module.daos.select {|dao| dao.graphql?}.each do |dao|
-            dao.queries.select {|query| query.graphql?}.each do |query|
+        self.repository.data_modules.select(&:graphql?).each do |data_module|
+          data_module.daos.select(&:graphql?).each do |dao|
+            dao.queries.select(&:graphql?).each do |query|
               if query.query_type == :select
                 check_query(queries, query.graphql.name, query.qualified_name)
               else
