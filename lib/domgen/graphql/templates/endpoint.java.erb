@@ -3,10 +3,15 @@ package <%= to_package(repository.graphql.qualified_endpoint_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.servlet.annotation.WebServlet( name = "<%= repository.name %>.<%= repository.graphql.endpoint_name %>", urlPatterns = { <%= repository.graphql.qualified_abstract_endpoint_name %>.API_ENDPOINT<% if repository.graphql.graphiql? -%>, <%= repository.graphql.qualified_abstract_endpoint_name %>.INTERACTIVE_API_ENDPOINT<% end %> }, loadOnStartup = 1 )
+@javax.servlet.annotation.WebServlet( name = "<%= repository.name %>.<%= repository.graphql.endpoint_name %>", urlPatterns = { <%= repository.graphql.endpoint_name %>.API_ENDPOINT<% if repository.graphql.graphiql? -%>, <%= repository.graphql.endpoint_name %>.INTERACTIVE_API_ENDPOINT<% end %> }, loadOnStartup = 1 )
 public class <%= repository.graphql.endpoint_name %>
-  extends <%= repository.graphql.qualified_abstract_endpoint_name %>
+  extends org.realityforge.graphql.domgen.AbstractDomgenGraphQLEndpoint
 {
+  public static final String API_ENDPOINT = "<%= repository.graphql.api_endpoint %>";
+<% if repository.graphql.graphiql? -%>
+  public static final String INTERACTIVE_API_ENDPOINT = "<%= repository.graphql.graphiql_api_endpoint %>";
+<% end -%>
+
   @<%= repository.ee.qualified_cdi_qualifier_name %>
   @javax.inject.Inject
   private graphql.servlet.GraphQLSchemaProvider _schemaProvider;
