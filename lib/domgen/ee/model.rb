@@ -96,8 +96,6 @@ module Domgen
         @version = version
       end
 
-      java_artifact :cdi_qualifier, nil, :shared, :ee, '#{repository.name}'
-      java_artifact :cdi_qualifier_literal, nil, :shared, :ee, '#{repository.name}Literal'
       java_artifact :abstract_filter, :filter, :server, :ee, 'Abstract#{repository.name}Filter'
       java_artifact :abstract_app_server, :test, :integration, :ee, 'Abstract#{repository.name}AppServer', :sub_package => 'util'
       java_artifact :abstract_provisioner, :test, :integration, :ee, 'Abstract#{repository.name}Provisioner', :sub_package => 'util'

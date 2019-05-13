@@ -17,15 +17,6 @@ Domgen::Generator.define([:ee],
                          [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::JAXB::Helper, Domgen::Jackson::Helper]) do |g|
 
 
-  g.template_set(:ee_cdi_qualifier) do |template_set|
-    template_set.erb_template(:repository,
-                              'cdi_qualifier.java.erb',
-                              'main/java/#{repository.ee.qualified_cdi_qualifier_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'cdi_qualifier_literal.java.erb',
-                              'main/java/#{repository.ee.qualified_cdi_qualifier_literal_name.gsub(".","/")}.java')
-  end
-
   g.template_set(:ee_data_types) do |template_set|
     template_set.erb_template(:enumeration,
                               'enumeration.java.erb',
