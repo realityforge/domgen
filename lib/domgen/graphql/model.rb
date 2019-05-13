@@ -613,10 +613,6 @@ module Domgen
 
       attr_accessor :initial_value
 
-      def pre_complete
-        save_scalar_type
-      end
-
       protected
 
       def data_module
@@ -625,6 +621,16 @@ module Domgen
 
       def characteristic
         attribute
+      end
+
+      def pre_complete
+        if attribute.reference? && !attribute.referenced_entity.graphql?
+          # For the time being only queries that return entities or structs are valid
+          attribute.disable_facet(:graphql)
+          attribute.entity.disable_facet(:graphql) unless attribute.entity.attributes.any?(&:graphql?)
+        else
+          save_scalar_type
+        end
       end
     end
 
