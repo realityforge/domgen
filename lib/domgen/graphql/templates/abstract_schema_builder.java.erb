@@ -7,12 +7,10 @@ package <%= to_package(repository.graphql.qualified_abstract_schema_builder_name
 public abstract class <%= repository.graphql.abstract_schema_builder_name %>
   extends org.realityforge.graphql.domgen.Abstract<%= repository.imit? ? 'Replicant' : '' %>GraphQLSchemaProvider
 {
-<% repository.data_modules.each do |data_module| -%>
-<% data_module.daos.each do |dao| -%>
-<% if dao.repository? || (dao.graphql? && data_module.graphql?) -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.daos.select{|dao| dao.graphql? || (dao.repository? && dao.entity.graphql?)}.each do |dao| -%>
   @javax.inject.Inject
   private <%= dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(dao.qualified_name.gsub('.','')) %>;
-<% end -%>
 <% end -%>
 <% end -%>
 <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
