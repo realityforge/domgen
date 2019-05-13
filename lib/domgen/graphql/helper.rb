@@ -24,14 +24,7 @@ module Domgen
       end
 
       def description_as_string(input, indent)
-        content = input.graphql.description.to_s.strip
-        if content == ''
-          ''
-        elsif content.include?("\n")
-          "#{' ' * indent}\"\"\"\n" + content.split("\n").collect {|line| "#{' ' * (indent + 2)}#{line}"}.join("\n") + "\n#{' ' * indent}\"\"\"\n"
-        else
-          "#{' ' * indent}\"#{content}\"\n"
-        end
+        description_string(input.graphql.description.to_s.strip, indent)
       end
 
       def deprecate_directive(value)
@@ -40,6 +33,16 @@ module Domgen
 
       def escape_description_to_string(description)
         j_escape_string(description.to_s.strip).gsub("\n", "\\n\" + \"")
+      end
+
+      def description_string(description, indent)
+        if description.nil? || description == ''
+          ''
+        elsif description.include?("\n")
+          "#{' ' * indent}\"\"\"\n" + description.split("\n").collect {|line| "#{' ' * (indent + 2)}#{line}"}.join("\n") + "\n#{' ' * indent}\"\"\"\n"
+        else
+          "#{' ' * indent}\"#{description}\"\n"
+        end
       end
     end
   end

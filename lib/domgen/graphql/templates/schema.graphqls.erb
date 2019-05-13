@@ -6,12 +6,15 @@ schema {
   subscription: Subscription
 }
 
+<%= description_string(repository.graphql.query_description, 0) -%>
 type Query {
 }
 
+<%= description_string(repository.graphql.mutation_description, 0) -%>
 type Mutation {
 }
 
+<%= description_string(repository.graphql.subscription_description, 0) -%>
 type Subscription {
 }
 
