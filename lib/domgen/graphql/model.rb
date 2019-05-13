@@ -483,6 +483,8 @@ module Domgen
         elsif query.parameters.any? {|parameter| !parameter.graphql? || (parameter.reference? && !parameter.referenced_entity.graphql?)}
           query.disable_facet(:graphql)
         end
+        unless query.graphql?
+          query.dao.disable_facet(:graphql) unless query.dao.queries.any?(&:graphql?)
         end
       end
 
