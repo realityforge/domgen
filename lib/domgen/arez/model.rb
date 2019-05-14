@@ -125,6 +125,8 @@ module Domgen
         if !dao.entity.abstract? && dao.queries.any?{|q|q.arez?}
           self.extensions << qualified_domgen_repository_extension_name
         end
+        # This is needed because sometimes dao construction is deferred until later
+        dao.disable_facet(:arez) if !dao.repository? || !dao.entity.arez?
       end
     end
 
