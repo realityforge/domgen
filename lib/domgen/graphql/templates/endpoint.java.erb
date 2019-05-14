@@ -13,12 +13,12 @@ public class <%= repository.graphql.endpoint_name %>
 <% end -%>
 
   @javax.inject.Inject
-  private graphql.servlet.GraphQLSchemaProvider _schemaProvider;
+  private org.realityforge.graphql.domgen.GraphQLSchemaService _service;
 
   @javax.annotation.Nonnull
   @java.lang.Override
   protected graphql.servlet.GraphQLSchemaProvider getSchemaProvider()
   {
-    return _schemaProvider;
+    return _service.getProvider();
   }
 }

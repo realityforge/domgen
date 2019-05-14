@@ -94,9 +94,27 @@ module Domgen
       java_artifact :abstract_schema_service, :service, :server, :graphql, 'Abstract#{repository.name}RoseGraphQLSchemaService'
       java_artifact :schema_service, :service, :server, :graphql, '#{repository.name}RoseGraphQLSchemaService'
 
+      attr_writer :query_type
+
+      def query_type?
+        @query_type.nil? ? true : !!@query_type
+      end
+
       attr_accessor :query_description
 
+      attr_writer :mutation_type
+
+      def mutation_type?
+        @mutation_type.nil? ? false : !!@mutation_type
+      end
+
       attr_accessor :mutation_description
+
+      attr_writer :subscription_type
+
+      def subscription_type?
+        @subscription_type.nil? ? false : !!@subscription_type
+      end
 
       attr_accessor :subscription_description
 

@@ -1,23 +1,37 @@
 # DO NOT EDIT: File is auto-generated
 
+<% if repository.graphql.query_type? || repository.graphql.mutation_type? || repository.graphql.subscription_type? -%>
 schema {
+<% if repository.graphql.query_type? -%>
   query: Query
+<% end -%>
+<% if repository.graphql.mutation_type? -%>
   mutation: Mutation
+<% end -%>
+<% if repository.graphql.subscription_type? -%>
   subscription: Subscription
+<% end -%>
 }
+<% end -%>
 
+<% if repository.graphql.query_type? -%>
 <%= description_string(repository.graphql.query_description, 0) -%>
 type Query {
 }
 
+<% end -%>
+<% if repository.graphql.mutation_type? -%>
 <%= description_string(repository.graphql.mutation_description, 0) -%>
 type Mutation {
 }
 
+<% end -%>
+<% if repository.graphql.subscription_type? -%>
 <%= description_string(repository.graphql.subscription_description, 0) -%>
 type Subscription {
 }
 
+<% end -%>
 <% if repository.graphql.requires_fetch? -%>
 directive @fetch(from:String!) on FIELD_DEFINITION
 
