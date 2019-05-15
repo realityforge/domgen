@@ -319,7 +319,7 @@ module Domgen
       end
 
       def default_name
-        "#{value.enumeration.data_module.graphql.prefix}#{value.name}"
+        value.name
       end
 
       attr_writer :description
