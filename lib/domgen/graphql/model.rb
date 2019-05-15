@@ -435,6 +435,12 @@ module Domgen
       def delete_deprecated?
         !@delete_deprecation_reason.nil?
       end
+
+      def pre_complete
+        if dao.repository? && !dao.entity.graphql?
+          dao.disable_facet(:graphql)
+        end
+      end
     end
 
     facet.enhance(Query) do
