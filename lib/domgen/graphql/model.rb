@@ -238,9 +238,16 @@ module Domgen
       end
 
       def perform_verify
+        types = {}
         queries = {}
         mutations = {}
         self.repository.data_modules.select(&:graphql?).each do |data_module|
+          data_module.enumerations.select(&:graphql?).each do |enumeration|
+            check_type(types, enumeration.graphql.name, enumeration.qualified_name)
+          end
+          data_module.entities.select(&:graphql?).each do |entity|
+            check_type(types, entity.graphql.name, entity.qualified_name)
+          end
           data_module.daos.select(&:graphql?).each do |dao|
             dao.queries.select(&:graphql?).each do |query|
               if query.query_type == :select
@@ -264,6 +271,11 @@ module Domgen
 
       private
 
+      def check_type(types, graphql_name, qualified_name)
+        Domgen.error("Duplicate graphql type #{graphql_name} defined by '#{types[graphql_name.to_s]}' and '#{qualified_name}'") if types[graphql_name.to_s]
+        types[graphql_name.to_s] = qualified_name
+      end
+
       def check_query(queries, graphql_name, qualified_name)
         Domgen.error("Duplicate graphql query #{graphql_name} defined by '#{queries[graphql_name.to_s]}' and '#{qualified_name}'") if queries[graphql_name.to_s]
         queries[graphql_name.to_s] = qualified_name
@@ -281,7 +293,7 @@ module Domgen
       attr_writer :prefix
 
       def prefix
-        @prefix ||= data_module.name.to_s == data_module.repository.name.to_s ? '' : data_module.name.to_s
+        @prefix || ''
       end
     end
 
