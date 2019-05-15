@@ -2250,6 +2250,11 @@ module Domgen
     end
 
     def post_repository_definition
+      data_modules.each do |data_module|
+        data_module.entities.each do |entity|
+          entity.dao
+        end
+      end
       # Run hooks in all the modules that can generate other model elements
       self.complete
       self.verify
