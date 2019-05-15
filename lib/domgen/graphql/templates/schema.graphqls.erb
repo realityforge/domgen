@@ -83,6 +83,14 @@ type <%= entity.graphql.name %><%= implements.empty? ? '' : " implements #{imple
 <%= description_as_string(attribute.inverse, 2) -%>
   <%= attribute.inverse.graphql.name %>: <%= attribute_type %><%= attribute.inverse.multiplicity == :zero_or_one ? '' : "!" -%><%= deprecate_directive(attribute) %><%= attribute.inverse.graphql.custom_name?  ? " @fetch(from:\"#{Reality::Naming.camelize(attribute.inverse.name)}\")" : "" %>
 <% end -%>
+<% entity.referencing_attributes.
+  select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.graphql? && attribute.inverse.graphql.traversable? }.each do |attribute|
+
+  attribute_type = attribute.inverse.multiplicity == :many ? "[#{attribute.entity.graphql.name}!]" : attribute.entity.graphql.name
+-%>
+<%= description_as_string(attribute.inverse, 2) -%>
+  <%= attribute.inverse.graphql.name %>: <%= attribute_type %><%= attribute.inverse.multiplicity == :zero_or_one ? '' : "!" -%><%= deprecate_directive(attribute) %>
+<% end -%>
 }
 <% end -%>
 <% end -%>
