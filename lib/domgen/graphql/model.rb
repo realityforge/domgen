@@ -472,6 +472,10 @@ module Domgen
         if !query.result_entity? && !query.result_struct?
           # For the time being only queries that return entities or structs are valid
           query.disable_facet(:graphql)
+        elsif query.result_struct? && !query.struct.graphql?
+          query.disable_facet(:graphql)
+        elsif query.result_entity? && !query.entity.graphql?
+          query.disable_facet(:graphql)
         elsif !query.jpa?
           # queries that have no jpa counterpart can not be automatically loaded so ignore them
           query.disable_facet(:graphql)
