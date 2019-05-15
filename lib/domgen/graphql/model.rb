@@ -250,8 +250,8 @@ module Domgen
               end
             end
           end
-          data_module.services.select {|service| service.graphql?}.each do |service|
-            service.methods.select {|method| method.graphql?}.each do |method|
+          data_module.services.select(&:graphql?).each do |service|
+            service.methods.select(&:graphql?).each do |method|
               if method.graphql.mutation?
                 check_mutation(mutations, method.graphql.name, method.qualified_name)
               else
