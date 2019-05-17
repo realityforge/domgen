@@ -18,7 +18,7 @@ Domgen::Generator.define([:graphql],
   g.template_set(:graphql_endpoint) do |template_set|
     template_set.erb_template(:repository,
                               'schema.graphqls.erb',
-                              'main/java/#{repository.graphql.qualified_schema_name.gsub(".","/")}.graphqls')
+                              'main/resources/#{repository.graphql.qualified_schema_name.gsub(".","/")}.graphqls')
     template_set.erb_template(:repository,
                               'abstract_schema_service.java.erb',
                               'main/java/#{repository.graphql.qualified_abstract_schema_service_name.gsub(".","/")}.java',
