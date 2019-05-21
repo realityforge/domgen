@@ -9,7 +9,7 @@ public final class <%= repository.arez.locator_dagger_module_name %>
   {
   }
 
-<% daos = repository.data_modules.select{|data_module|data_module.arez?}.collect {|data_module| data_module.entities.select{|entity|entity.imit?}.collect{|entity|entity.dao}}.flatten -%>
+<% daos = repository.data_modules.select{|data_module|data_module.arez?}.collect {|data_module| data_module.entities.select{|entity|entity.arez?}.collect{|entity|entity.dao}}.flatten -%>
   @javax.annotation.Nonnull
   @dagger.Provides
   @javax.inject.Singleton
