@@ -72,7 +72,7 @@ module Domgen
 
     facet.enhance(DataModule) do
       def entities_to_analyze_id_namespace
-        data_module.entities.select {|entity| entity.sql_analysis?}.select {|entity| entity.abstract? && entity.extends.nil?}
+        data_module.entities.select(&:sql_analysis?).select {|entity| entity.abstract? && entity.extends.nil?}
       end
 
       def references_to_analyze
