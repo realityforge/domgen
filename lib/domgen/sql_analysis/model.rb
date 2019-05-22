@@ -61,6 +61,8 @@ module Domgen
           t.string(:Category, 50)
           t.string(:Description, 500, :unique => true)
           t.text(:Sql)
+
+          t.query(:GetByDescription)
         end
 
         analysis_data_module.entity(:DataIssue) do |t|
