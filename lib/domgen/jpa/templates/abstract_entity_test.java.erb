@@ -11,6 +11,9 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
   protected <%= classname %> <%= short_code %>;
 <% end -%>
+<% if repository.sql_analysis?-%>
+  private boolean _disableAnalysis;
+<% end -%>
 
   @org.testng.annotations.BeforeMethod
   public void preTest()
@@ -35,6 +38,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   {
     if ( isSqlAnalysisEnabled() && em().isOpen() && em().isJoinedToTransaction() && !em().getTransaction().getRollbackOnly() )
     {
+      _disableAnalysis = false;
       em().clear();
       em().createNativeQuery( "EXEC <%= repository.sql_analysis.analysis_data_module.sql.quoted_schema %>.[spPerformChecks]" ).getResultList();
       final java.util.List<<%= repository.sql_analysis.analysis_data_module.entity_by_name(:DataIssue).jpa.qualified_name %>> issues = <%= repository.sql_analysis.analysis_data_module.jpa.short_test_code %>.dataIssueRepository().findAll();
@@ -56,9 +60,14 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     super.postTest();
   }
 
-  protected boolean isSqlAnalysisEnabled()
+  protected final void disableCorruptionChecks()
   {
-    return "true".equals( System.getProperty( "sql_analysis.enabled", "true" ) );
+    _disableAnalysis = true;
+  }
+
+  private boolean isSqlAnalysisEnabled()
+  {
+    return !_disableAnalysis && "true".equals( System.getProperty( "sql_analysis.enabled", "true" ) );
   }
 <% end -%>
 <% repository.jpa.test_modules.each_pair do |name, classname| -%>
