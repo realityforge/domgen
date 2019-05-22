@@ -1,0 +1,43 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.sql_analysis.qualified_abstract_corruption_checks_test_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= repository.sql_analysis.abstract_corruption_checks_test_name %>
+  extends <%= repository.jpa.qualified_standalone_entity_test_name %>
+{
+  @FunctionalInterface
+  public interface CorruptionCheckerTestFn
+  {
+    void test( @javax.annotation.Nonnull CorruptionCheckerCallback callback )
+      throws Exception;
+  }
+
+  public final class CorruptionCheckerCallback
+  {
+    private final String _corruptionCheckSQL;
+
+    public CorruptionCheckerCallback( @javax.annotation.Nonnull final String corruptionCheckSQL )
+    {
+      _corruptionCheckSQL = java.util.Objects.requireNonNull( corruptionCheckSQL );
+    }
+
+    public void expectNoCorruptions()
+      throws Exception
+    {
+      org.realityforge.guiceyloops.server.DatabaseAsserts.execute( em().unwrap( java.sql.Connection.class ), _corruptionCheckSQL, 0 );
+    }
+
+    @SafeVarargs
+    public final void expectCorruptions( @javax.annotation.Nonnull final java.util.Map<String, org.hamcrest.Matcher<Object>>... expectations )
+      throws Exception
+    {
+      org.realityforge.guiceyloops.server.DatabaseAsserts.execute( em().unwrap( java.sql.Connection.class ), _corruptionCheckSQL, expectations );
+    }
+  }
+
+  protected final void disableTrigger( @javax.annotation.Nonnull final String qualifiedTableName, @javax.annotation.Nonnull final String qualifiedTriggerName )
+  {
+    em().createNativeQuery( "DISABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName ).executeUpdate();
+    addPostTestSqlAction( "ENABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName );
+  }
+}

@@ -29,6 +29,8 @@ module Domgen
 
       attr_writer :analysis_data_module_name
 
+      java_artifact :abstract_corruption_checks_test, :test, :server, :sql_analysis, 'Abstract#{repository.name}CorruptionChecksTest', :sub_package => 'util'
+
       def analysis_data_module_name
         @analysis_data_module_name || 'Analysis'
       end

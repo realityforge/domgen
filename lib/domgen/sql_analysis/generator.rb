@@ -14,7 +14,15 @@
 
 Domgen::Generator.define([:sql_analysis],
                          "#{File.dirname(__FILE__)}/templates",
-                         []) do |g|
+                         [Domgen::Java::Helper]) do |g|
+  %w(main test).each do |type|
+    g.template_set("sql_analysis_#{type}_qa") do |template_set|
+      template_set.erb_template(:repository,
+                                'abstract_corruption_checks_test.java.erb',
+                                type + '/java/#{repository.sql_analysis.qualified_abstract_corruption_checks_test_name.gsub(".","/")}.java')
+    end
+  end
+
   g.template_set(:sql_analysis_sql) do |template_set|
     template_set.erb_template(:data_module,
                               'corruption_checks.erb',
