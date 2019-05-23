@@ -5,13 +5,6 @@ package <%= to_package(repository.sql_analysis.qualified_abstract_corruption_che
 public abstract class <%= repository.sql_analysis.abstract_corruption_checks_test_name %>
   extends <%= repository.jpa.qualified_standalone_entity_test_name %>
 {
-  @FunctionalInterface
-  public interface CorruptionCheckerTestFn
-  {
-    void test( @javax.annotation.Nonnull CorruptionCheckerCallback callback )
-      throws Exception;
-  }
-
   public final class CorruptionCheckerCallback
   {
     private final String _corruptionCheckSQL;
