@@ -20,7 +20,7 @@ public class <%= remote_datasource.ee_data_loader_service_implementation_name %>
   private javax.enterprise.concurrent.ContextService _contextService;
 <% if remote_datasource.application.repository.keycloak? -%>
   @javax.inject.Inject
-  @javax.inject.Named( "<%= remote_datasource.name %>.Keycloak" )
+  @javax.inject.Named( <%= remote_datasource.qualified_ee_data_loader_service_implementation_name %>.KEYCLOAK_NAME )
   private org.realityforge.keycloak.client.authfilter.Keycloak _keycloak;
 <% end -%>
 

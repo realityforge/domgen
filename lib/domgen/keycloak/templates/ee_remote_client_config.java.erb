@@ -5,6 +5,11 @@ package <%= to_package(remote_client.qualified_ee_remote_client_config_name) %>;
 @javax.enterprise.context.ApplicationScoped
 public class <%= remote_client.ee_remote_client_config_name %>
 {
+  @javax.annotation.Nonnull
+  public static final String KEYCLOAK_NAME = "<%= remote_client.name %>.Keycloak";
+  @javax.annotation.Nonnull
+  public static final String KEYCLOAK_CONFIG_NAME = "<%= remote_client.name %>.KeycloakConfig";
+
   @javax.annotation.Resource( lookup = "<%= remote_client.jndi_config_base %>/server_url" )
   private String _keycloakServerURL;
   @javax.annotation.Resource( lookup = "<%= remote_client.jndi_config_base %>/realm" )
@@ -26,7 +31,7 @@ public class <%= remote_client.ee_remote_client_config_name %>
   }
 
   @javax.enterprise.inject.Produces
-  @javax.inject.Named( "<%= remote_client.name %>.Keycloak" )
+  @javax.inject.Named( KEYCLOAK_NAME )
   @javax.annotation.Nonnull
   public org.realityforge.keycloak.client.authfilter.Keycloak getKeycloak()
   {
@@ -34,7 +39,7 @@ public class <%= remote_client.ee_remote_client_config_name %>
   }
 
   @javax.enterprise.inject.Produces
-  @javax.inject.Named( "<%= remote_client.name %>.KeycloakConfig" )
+  @javax.inject.Named( KEYCLOAK_CONFIG_NAME )
   @javax.annotation.Nonnull
   public org.realityforge.keycloak.client.authfilter.KeycloakConfig getKeycloakConfig()
   {
