@@ -5,7 +5,6 @@ package <%= to_package(remote_client.qualified_ee_remote_client_config_name) %>;
 @javax.enterprise.context.ApplicationScoped
 public class <%= remote_client.ee_remote_client_config_name %>
 {
-<% repository = remote_client.keycloak_repository.repository -%>
   @javax.annotation.Resource( lookup = "<%= remote_client.jndi_config_base %>/server_url" )
   private String _keycloakServerURL;
   @javax.annotation.Resource( lookup = "<%= remote_client.jndi_config_base %>/realm" )
