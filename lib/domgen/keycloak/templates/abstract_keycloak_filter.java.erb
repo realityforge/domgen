@@ -23,6 +23,7 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 <% if client.keycloak_repository.repository.syncrecord? -%>
   private boolean _disableSyncServiceProtection;
 <% end -%>
+<% if client.keycloak_repository.repository.imit? || client.keycloak_repository.repository.syncrecord? -%>
 
   @javax.annotation.PostConstruct
   protected void postConstruct()
@@ -48,6 +49,7 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
     }
 <% end -%>
   }
+<% end -%>
 
   @Override
   public boolean shouldProtectRequest( @javax.annotation.Nonnull final javax.servlet.ServletRequest request )
