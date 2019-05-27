@@ -52,6 +52,50 @@ enum <%= enumeration.graphql.name %> {
 <% end -%>
 <% end -%>
 <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.structs.select(&:graphql?).each do |struct| -%>
+<% if struct.graphql.input? -%>
+
+<%= description_as_string(struct, 0) -%>
+input <%= struct.graphql.input_name %> {
+<% struct.fields.select(&:graphql?).each do |field| -%>
+<%= description_as_string(field, 2) -%>
+<%
+  field_type =
+    if field.struct?
+      field.referenced_struct.graphql.input_name
+    elsif field.enumeration?
+      field.enumeration.graphql.name
+    else
+      field.graphql.scalar_type
+    end
+-%>
+  <%= field.graphql.name %>: <%= field_type %><%= field.nullable? ? '' : "!" -%><%= deprecate_directive(field) %><%= field.graphql.custom_name? ? " @fetch(from:\"#{Reality::Naming.camelize(field.name)}\")" : "" %>
+<% end -%>
+}
+<% end -%>
+<% if struct.graphql.output? -%>
+
+<%= description_as_string(struct, 0) -%>
+input <%= struct.graphql.output_name %> {
+<%= description_as_string(field, 2) -%>
+<% struct.fields.select(&:graphql?).each do |field| -%>
+<%
+  field_type =
+    if field.struct?
+      field.referenced_struct.graphql.output_name
+    elsif field.enumeration?
+      field.enumeration.graphql.name
+    else
+      field.graphql.scalar_type
+    end
+-%>
+  <%= field.graphql.name %>: <%= field_type %><%= field.nullable? ? '' : "!" -%><%= deprecate_directive(field) %><%= field.graphql.custom_name? ? " @fetch(from:\"#{Reality::Naming.camelize(field.name)}\")" : "" %>
+<% end -%>
+}
+<% end -%>
+<% end -%>
+<% end -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.entities.select(&:graphql?).each do |entity| -%>
 
 <%= description_as_string(entity, 0) -%>

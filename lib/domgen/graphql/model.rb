@@ -245,6 +245,10 @@ module Domgen
           data_module.enumerations.select(&:graphql?).each do |enumeration|
             check_type(types, enumeration.graphql.name, enumeration.qualified_name)
           end
+          data_module.structs.select(&:graphql?).each do |struct|
+            check_type(types, struct.graphql.input_name, struct.qualified_name) if struct.graphql.input?
+            check_type(types, struct.graphql.output_name, struct.qualified_name) if struct.graphql.output?
+          end
           data_module.entities.select(&:graphql?).each do |entity|
             check_type(types, entity.graphql.name, entity.qualified_name)
           end
@@ -760,13 +764,21 @@ module Domgen
         @return_characteristic.nil? ? self.method.return_value : method.parameter_by_name(@return_characteristic)
       end
 
+      def pre_complete
+        if self.method.parameters.any?{|p|!p.graphql?}
+          self.method.disable_facet(:graphql)
+        elsif :void == self.return_characteristic.characteristic_type_key || self.return_characteristic.non_standard_type?
+          self.method.disable_facet(:graphql)
+        end
+
+        if !self.method.graphql? && !self.method.service.methods.any?(&:graphql?)
+          self.method.service.disable_facet(:graphql)
+        end
+      end
+
       def post_complete
         if !@return_characteristic.nil? && !method.parameter_by_name?(@return_characteristic)
           Domgen.error("Method #{self.method.qualified_name} has specified graphql return characteristic to '#{@return_characteristic}' which is not one of the available parameter names: #{self.method.parameters.collect(&:name).join(', ')}")
-        end
-        if :void == self.return_characteristic.characteristic_type_key || self.return_characteristic.non_standard_type?
-          self.method.disable_facet(:graphql)
-          return
         end
         self.method.parameters.select(&:struct?).each do |parameter|
           parameter.referenced_struct.graphql.mark_as_input!
@@ -839,18 +851,8 @@ module Domgen
     end
 
     facet.enhance(Struct) do
-      attr_writer :name
-
-      def name
-        @name || self.default_name
-      end
-
-      def custom_name?
-        self.default_name.to_s != self.name.to_s
-      end
-
-      def default_name
-        "#{struct.data_module.graphql.prefix}#{struct.name}"
+      def base_name
+        "#{struct.name.to_s.gsub(/DTO$/,'').gsub(/VO$/,'')}"
       end
 
       attr_writer :description
@@ -862,17 +864,23 @@ module Domgen
       attr_writer :input_name
 
       def input_name
-        @input_name || "#{struct.data_module.graphql.prefix}#{struct.name}Input"
+        @input_name || "#{base_name}Input"
       end
 
       # Does this struct participate as a graphql "input"
       def input?
-        !!@input
+        @input.nil? ? false : !!@input
+      end
+
+      attr_writer :output_name
+
+      def output_name
+        @output_name || self.base_name
       end
 
       # Does this struct participate as a graphql "output"
       def output?
-        !!@output
+        @output.nil? ? false : !!@output
       end
 
       def mark_as_output!
