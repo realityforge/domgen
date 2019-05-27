@@ -105,7 +105,7 @@ module Domgen
       attr_writer :mutation_type
 
       def mutation_type?
-        @mutation_type.nil? ? false : !!@mutation_type
+        @mutation_type.nil? ? true : !!@mutation_type
       end
 
       attr_accessor :mutation_description
@@ -735,9 +735,7 @@ module Domgen
       end
 
       def default_name
-        prefix = method.service.graphql.prefix
-        method_name = Reality::Naming.camelize(method.name)
-        prefix.to_s != '' ? "#{prefix}_#{method_name}" : method_name
+        Reality::Naming.camelize(method.name)
       end
 
       attr_writer :description
@@ -814,6 +812,21 @@ module Domgen
 
       def deprecated?
         !@deprecation_reason.nil?
+      end
+
+      def input_type
+        type =
+          if parameter.reference?
+            'ID'
+          elsif parameter.struct?
+            parameter.referenced_struct.graphql.input_name
+          elsif parameter.enumeration?
+            parameter.enumeration.graphql.name
+          else
+            parameter.graphql.scalar_type
+          end
+        type = "[#{type}!]" if parameter.collection?
+        type = "#{type}!" unless parameter.nullable?
       end
 
       def pre_complete

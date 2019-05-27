@@ -23,6 +23,29 @@ type Query {
 <% if repository.graphql.mutation_type? -%>
 <%= description_string(repository.graphql.mutation_description, 0) -%>
 type Mutation {
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.services.select(&:graphql?).each do |service| -%>
+<% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
+<%
+  return_type =
+    if method.return_value.reference?
+      method.return_value.referenced_entity.graphql.name
+    elsif method.return_value.struct?
+      method.return_value.referenced_struct.graphql.output_name
+    elsif method.return_value.enumeration?
+      method.return_value.enumeration.graphql.name
+    else
+      method.return_value.graphql.scalar_type
+    end
+    return_type = "[#{return_type}!]" if method.return_value.collection?
+    return_type = "#{return_type}!" unless method.return_value.nullable?
+
+    parameters = method.parameters.collect{|p| "#{p.graphql.name}: #{p.graphql.input_type}"}.join(', ')
+-%>
+  <%= method.graphql.name %><% unless method.parameters.empty? %>(<%= parameters %>)<% end -%>: <%= return_type %>
+<% end -%>
+<% end -%>
+<% end -%>
 }
 
 <% end -%>
