@@ -762,13 +762,13 @@ module Domgen
 
       def post_complete
         if !@return_characteristic.nil? && !method.parameter_by_name?(@return_characteristic)
-          Domgen.error("Method #{self.method.qualified_name} has specified graphql return characteristic to '#{@return_characteristic}' which is not one of the available parameter names: #{self.method.parameters.collect {|p| p.name}.join(', ')}")
+          Domgen.error("Method #{self.method.qualified_name} has specified graphql return characteristic to '#{@return_characteristic}' which is not one of the available parameter names: #{self.method.parameters.collect(&:name).join(', ')}")
         end
         if :void == self.return_characteristic.characteristic_type_key || self.return_characteristic.non_standard_type?
           self.method.disable_facet(:graphql)
           return
         end
-        self.method.parameters.select {|parameter| parameter.struct?}.each do |parameter|
+        self.method.parameters.select(&:struct?).each do |parameter|
           parameter.referenced_struct.graphql.mark_as_input!
         end
         self.return_characteristic.referenced_struct.graphql.mark_as_output! if self.return_characteristic.struct?
@@ -877,14 +877,14 @@ module Domgen
 
       def mark_as_output!
         @output = true
-        self.struct.fields.select {|field| field.struct?}.each do |field|
+        self.struct.fields.select(&:struct?).each do |field|
           field.referenced_struct.graphql.mark_as_output!
         end
       end
 
       def mark_as_input!
         @input = true
-        self.struct.fields.select {|field| field.struct?}.each do |field|
+        self.struct.fields.select(&:struct?).each do |field|
           field.referenced_struct.graphql.mark_as_input!
         end
       end
