@@ -109,7 +109,9 @@ type <%= entity.graphql.name %><%= implements.empty? ? '' : " implements #{imple
 <%= description_as_string(attribute, 2) -%>
 <%
   attribute_type =
-    if attribute.reference?
+    if attribute.primary_key?
+      'ID'
+    elsif attribute.reference?
       attribute.referenced_entity.graphql.name
     elsif attribute.enumeration?
       attribute.enumeration.graphql.name
