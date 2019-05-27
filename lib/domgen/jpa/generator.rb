@@ -84,7 +84,7 @@ Domgen::Generator.define([:jpa],
     template_set.erb_template(:entity,
                               'abstract_model_test.java.erb',
                               'test/java/#{entity.jpa.qualified_abstract_model_test_name.gsub(".","/")}.java',
-                              :guard => 'entity.jpa.non_standard_model_constraints?')
+                              :guard => 'entity.jpa.non_standard_model_constraints? || !entity.jpa.interfaces.empty?')
     template_set.erb_template(:dao,
                               'dao_test.java.erb',
                               'test/java/#{dao.jpa.qualified_dao_test_name.gsub(".","/")}.java',
