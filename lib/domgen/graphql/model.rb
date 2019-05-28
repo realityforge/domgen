@@ -738,6 +738,12 @@ module Domgen
         Reality::Naming.camelize(method.name)
       end
 
+      attr_writer :response_name
+
+      def response_name
+        @response_name || "#{self.method.name}Response"
+      end
+
       attr_writer :description
 
       def description
@@ -750,23 +756,12 @@ module Domgen
         !@deprecation_reason.nil?
       end
 
-      def return_characteristic=(return_characteristic)
-        @return_characteristic = return_characteristic
-      end
-
-      def custom_return_characteristic?
-        !@return_characteristic.nil?
-      end
-
-      def return_characteristic
-        @return_characteristic.nil? ? self.method.return_value : method.parameter_by_name(@return_characteristic)
-      end
-
       def pre_complete
         if self.method.parameters.any?{|p|!p.graphql?}
           self.method.disable_facet(:graphql)
-        elsif :void == self.return_characteristic.characteristic_type_key || self.return_characteristic.non_standard_type?
-          self.method.disable_facet(:graphql)
+        end
+        if self.method.return_value.graphql? && (:void == self.method.return_value.characteristic_type_key || self.method.return_value.non_standard_type?)
+          self.method.return_value.disable_facet(:graphql)
         end
 
         if !self.method.graphql? && !self.method.service.methods.any?(&:graphql?)
@@ -775,13 +770,10 @@ module Domgen
       end
 
       def post_complete
-        if !@return_characteristic.nil? && !method.parameter_by_name?(@return_characteristic)
-          Domgen.error("Method #{self.method.qualified_name} has specified graphql return characteristic to '#{@return_characteristic}' which is not one of the available parameter names: #{self.method.parameters.collect(&:name).join(', ')}")
-        end
         self.method.parameters.select(&:struct?).each do |parameter|
           parameter.referenced_struct.graphql.mark_as_input!
+          parameter.referenced_struct.graphql.mark_as_output! if parameter.graphql.output?
         end
-        self.return_characteristic.referenced_struct.graphql.mark_as_output! if self.return_characteristic.struct?
       end
     end
 
@@ -799,7 +791,7 @@ module Domgen
       end
 
       def default_name
-        parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : Reality::Naming.camelize(parameter.name)
+        Reality::Naming.camelize(parameter.name)
       end
 
       attr_writer :description
@@ -812,6 +804,28 @@ module Domgen
 
       def deprecated?
         !@deprecation_reason.nil?
+      end
+
+      attr_writer :output
+
+      def output?
+        @output.nil? ? false : !!@output
+      end
+
+      def output_type
+        type =
+          if parameter.reference?
+            'ID'
+          elsif parameter.struct?
+            parameter.referenced_struct.graphql.output_name
+          elsif parameter.enumeration?
+            parameter.enumeration.graphql.name
+          else
+            parameter.graphql.scalar_type
+          end
+        type = "[#{type}!]" if parameter.collection?
+        type = "#{type}!" unless parameter.nullable?
+        type
       end
 
       def input_type
@@ -849,7 +863,14 @@ module Domgen
       include Domgen::Java::ImitJavaCharacteristic
       include Domgen::Graphql::GraphqlCharacteristic
 
+      attr_writer :name
+
+      def name
+        @name || "result"
+      end
+
       def pre_complete
+        self.result.referenced_struct.graphql.mark_as_output! if self.result.struct?
         save_scalar_type
       end
 

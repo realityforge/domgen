@@ -26,23 +26,7 @@ type Mutation {
 <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.services.select(&:graphql?).each do |service| -%>
 <% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
-<%
-  return_type =
-    if method.return_value.reference?
-      method.return_value.referenced_entity.graphql.name
-    elsif method.return_value.struct?
-      method.return_value.referenced_struct.graphql.output_name
-    elsif method.return_value.enumeration?
-      method.return_value.enumeration.graphql.name
-    else
-      method.return_value.graphql.scalar_type
-    end
-    return_type = "[#{return_type}!]" if method.return_value.collection?
-    return_type = "#{return_type}!" unless method.return_value.nullable?
-
-    parameters = method.parameters.collect{|p| "#{p.graphql.name}: #{p.graphql.input_type}"}.join(', ')
--%>
-  <%= method.graphql.name %><% unless method.parameters.empty? %>(<%= parameters %>)<% end -%>: <%= return_type %>
+  <%= method.graphql.name %>(clientMutationId: String<% unless method.parameters.empty? %>, <%= method.parameters.collect{|p| "#{p.graphql.name}: #{p.graphql.input_type}"}.join(', ') %>)<% end -%>: <%= method.graphql.response_name %>
 <% end -%>
 <% end -%>
 <% end -%>
@@ -118,6 +102,37 @@ input <%= struct.graphql.output_name %> {
 <% end -%>
 <% end -%>
 <% end -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.services.select(&:graphql?).each do |service| -%>
+<% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
+
+type <%= method.graphql.response_name %> {
+  clientMutationId: String
+<% if method.return_value.graphql? -%>
+<%
+  return_type =
+    if method.return_value.reference?
+      method.return_value.referenced_entity.graphql.name
+    elsif method.return_value.struct?
+      method.return_value.referenced_struct.graphql.output_name
+    elsif method.return_value.enumeration?
+      method.return_value.enumeration.graphql.name
+    else
+      method.return_value.graphql.scalar_type
+    end
+    return_type = "[#{return_type}!]" if method.return_value.collection?
+    return_type = "#{return_type}!" unless method.return_value.nullable?
+-%>
+  <%= method.return_value.graphql.name %>: <%= return_type %>
+<% end -%>
+<% method.parameters.select{|parameter|parameter.graphql? && parameter.graphql.output?}.each do |parameter| -%>
+  <%= parameter.graphql.name %>: <%= parameter.graphql.output_type %>
+<% end -%>
+}
+<% end -%>
+<% end -%>
+<% end -%>
+
 <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.entities.select(&:graphql?).each do |entity| -%>
 
