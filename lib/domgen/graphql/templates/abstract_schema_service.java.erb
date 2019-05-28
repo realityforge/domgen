@@ -102,5 +102,12 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
 <% repository.graphql.non_standard_scalars.select{|scalar| %w(Date DateTime).include?(scalar)}.each do |scalar| -%>
     builder.scalar( org.realityforge.graphql.domgen.Scalars.<%= Reality::Naming.uppercase_constantize(scalar) %> );
 <% end -%>
+    final graphql.schema.GraphQLCodeRegistry.Builder registry = graphql.schema.GraphQLCodeRegistry.newCodeRegistry();
+    wireCodeRegistry( registry );
+    builder.codeRegistry( registry.build() );
+  }
+
+  protected void wireCodeRegistry( @javax.annotation.Nonnull final graphql.schema.GraphQLCodeRegistry.Builder registry )
+  {
   }
 }
