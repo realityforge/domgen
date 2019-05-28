@@ -827,6 +827,7 @@ module Domgen
           end
         type = "[#{type}!]" if parameter.collection?
         type = "#{type}!" unless parameter.nullable?
+        type
       end
 
       def pre_complete
