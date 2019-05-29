@@ -26,7 +26,7 @@ type Mutation {
 <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.services.select(&:graphql?).each do |service| -%>
 <% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
-  <%= method.graphql.name %>(clientMutationId: String<% unless method.parameters.empty? %>, <%= method.parameters.collect{|p| "#{p.graphql.name}: #{p.graphql.input_type}"}.join(', ') %>)<% end -%>: <%= method.graphql.response_name %>
+  <%= method.graphql.name %>(clientMutationId: String = null<% unless method.parameters.empty? %>, <%= method.parameters.collect{|p| "#{p.graphql.name}: #{p.graphql.input_type}#{p.graphql.emit_default_value? ? " = #{p.graphql.default_value}" : '' }"}.join(', ') %>)<% end -%>: <%= method.graphql.response_name %>
 <% end -%>
 <% end -%>
 <% end -%>
@@ -96,7 +96,7 @@ input <%= struct.graphql.output_name %> {
       field.graphql.scalar_type
     end
 -%>
-  <%= field.graphql.name %>: <%= field_type %><%= field.nullable? ? '' : "!" -%><%= deprecate_directive(field) %><%= field.graphql.custom_name? ? " @fetch(from:\"#{Reality::Naming.camelize(field.name)}\")" : "" %>
+  <%= field.graphql.name %>: <%= field_type %><%= field.nullable? ? '' : "!" -%><%= field.graphql.emit_default_value? ? " = #{field.graphql.default_value}" : '' %><%= deprecate_directive(field) %><%= field.graphql.custom_name? ? " @fetch(from:\"#{Reality::Naming.camelize(field.name)}\")" : "" %>
 <% end -%>
 }
 <% end -%>

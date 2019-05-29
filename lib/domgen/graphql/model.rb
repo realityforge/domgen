@@ -794,6 +794,29 @@ module Domgen
         Reality::Naming.camelize(parameter.name)
       end
 
+      attr_writer :emit_default_value
+
+      def emit_default_value?
+        @emit_default_value.nil? ? parameter.collection? : !!@emit_default_value
+      end
+
+      def default_value=(default_value)
+        @emit_default_value = true
+        @default_value = default_value
+      end
+
+      def default_value
+        if @default_value.nil? && parameter.collection? && !parameter.nullable?
+          return "[]"
+        elsif @default_value.nil? && parameter.nullable?
+          return "null"
+        elsif @default_value && parameter.text?
+          return @default_value.inspect
+        else
+          return @default_value
+        end
+      end
+
       attr_writer :description
 
       def description
@@ -953,6 +976,29 @@ module Domgen
 
       def default_name
         field.name.to_s.upcase == field.name.to_s ? field.name.to_s : Reality::Naming.camelize(field.name)
+      end
+
+      attr_writer :emit_default_value
+
+      def emit_default_value?
+        @emit_default_value.nil? ? parameter.collection? : !!@emit_default_value
+      end
+
+      def default_value=(default_value)
+        @emit_default_value = true
+        @default_value = default_value
+      end
+
+      def default_value
+        if @default_value.nil? && parameter.collection? && !parameter.nullable?
+          return "[]"
+        elsif @default_value.nil? && parameter.nullable?
+          return "null"
+        elsif @default_value && parameter.text?
+          return @default_value.inspect
+        else
+          return @default_value
+        end
       end
 
       attr_writer :description
