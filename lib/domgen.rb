@@ -192,3 +192,6 @@ require 'domgen/sql_analysis/model'
 require 'domgen/sql_analysis/generator'
 
 require 'domgen/react4j/model'
+
+require 'domgen/giggle/model'
+require 'domgen/giggle/generator'

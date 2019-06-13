@@ -31,6 +31,14 @@ module Domgen
         value.graphql.deprecation_reason ? " @deprecated(reason: \"#{value.graphql.deprecation_reason}\")" : ""
       end
 
+      def numeric_directive(characteristic)
+        characteristic.primary_key? && characteristic.integer? ? ' @numeric': ''
+      end
+
+      def input_numeric_directive(characteristic)
+        characteristic.reference? && characteristic.referenced_entity.primary_key.integer? ? ' @numeric': ''
+      end
+
       def escape_description_to_string(description)
         j_escape_string(description.to_s.strip).gsub("\n", "\\n\" + \"")
       end
