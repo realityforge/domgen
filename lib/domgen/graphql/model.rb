@@ -838,7 +838,7 @@ module Domgen
       def output_type
         type =
           if parameter.reference?
-            'ID'
+            parameter.referenced_entity.graphql.name
           elsif parameter.struct?
             parameter.referenced_struct.graphql.output_name
           elsif parameter.enumeration?
