@@ -27,6 +27,7 @@
 * Change struct method in domgen to derive name from type and allow override of name, thus eliminating need
   for the first parameter in most cases.
 * Rename messages in domgen to events as that is more reflective of actual intent. (i.e. Application internal signalling).
+* Add the ability for method parameters to reference events. Currently if a method receives an event it has to be defined like `m.parameter(:Message, 'iris.rose.server.event.EventCountChanged')` where we should be able to do `m.message(:EventCountChanged)`
 * Remove BaseTaggableElement and move tags to being attributes inside mssql facet to reflect that their only use is extended attributes.
 * Exceptions that contain references should have a constructor that takes the entity. This would improve the type safety of the application.
 
