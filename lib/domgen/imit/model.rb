@@ -653,8 +653,7 @@ module Domgen
     end
   end
 
-  # timerstatus is required due to timers being exposed
-  FacetManager.facet(:imit => [:ce, :arez, :gwt_rpc, :timerstatus]) do |facet|
+  FacetManager.facet(:imit => [:ce, :arez, :gwt_rpc]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication

@@ -149,10 +149,6 @@ require 'domgen/gwt_cache_filter/model'
 require 'domgen/appcache/model'
 require 'domgen/appcache/generator'
 
-# timerstatus monitoring library
-require 'domgen/timerstatus/model'
-require 'domgen/timerstatus/generator'
-
 # Keycloak authentication integration
 require 'domgen/keycloak/model'
 require 'domgen/keycloak/generator'

@@ -68,12 +68,6 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
       return false;
     }
 <% end -%>
-<% if client.keycloak_repository.repository.timerstatus? -%>
-    if ( path.startsWith( <%= base_path %> + '/' + iris.timerstatus.server.service.TimerStatusService.PATH_PREFIX ) )
-    {
-      return false;
-    }
-<% end -%>
 <% if client.keycloak_repository.repository.syncrecord? -%>
     if ( path.startsWith( <%= base_path %> + '/' + iris.syncrecord.server.rest.SyncStatusService.PATH_PREFIX ) )
     {
