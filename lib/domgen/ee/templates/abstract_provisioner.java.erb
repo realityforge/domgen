@@ -94,6 +94,13 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
     // Mail Configuration Ende
 
 <% end -%>
+<% if repository.graphql? -%>
+
+  // GraphQL Configuration Start
+  glassfish.createContextService( "<%= repository.graphql.context_service_jndi_name %>" );
+  // GraphQL Configuration Ende
+
+<% end -%>
 <% if repository.imit? -%>
     // Replication configuration
     glassfish.createManagedScheduledExecutorService( "<%= repository.imit.executor_service_jndi %>" );
