@@ -176,7 +176,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   }
 
   protected final void pumpSingleAsyncAction()
-    throws Throwable
   {
     org.testng.Assert.assertTrue( _asyncActions.size() > 1 );
     _asyncActions.remove( 0 ).call();
@@ -209,7 +208,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   }
 
   @javax.annotation.Nonnull
-  protected final <T> org.mockito.stubbing.Answer<Void> failureAnswer( @javax.annotation.Nonnull final Throwable error )
+  protected final org.mockito.stubbing.Answer<Void> failureAnswer( @javax.annotation.Nonnull final Throwable error )
   {
     return new <%= repository.gwt.qualified_callback_failure_answer_name %><>( this::queueAsyncActions, error );
   }
