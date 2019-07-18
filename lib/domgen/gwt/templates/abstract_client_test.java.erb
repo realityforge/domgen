@@ -10,6 +10,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   implements org.testng.IHookable
 <% end -%>
 {
+  private final java.util.List<arez.SafeProcedure> _asyncActions = new java.util.ArrayList<>();
 <% if repository.arez? -%>
   private final java.util.List<String> _observerErrors = new java.util.ArrayList<>();
   private boolean _ignoreObserverErrors;
@@ -168,4 +169,48 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 <% repository.gwt.test_class_contents.each do |content| %>
 <%= content -%>
 <% end -%>
+
+  protected final void assertAsyncActionCount( final int count )
+  {
+    org.testng.Assert.assertEquals( _asyncActions.size(), count );
+  }
+
+  protected final void pumpSingleAsyncAction()
+    throws Throwable
+  {
+    org.testng.Assert.assertTrue( _asyncActions.size() > 1 );
+    _asyncActions.remove( 0 ).call();
+  }
+
+  protected final void pumpAsyncActions( final int count )
+  {
+    assertAsyncActionCount( count );
+    pumpAllAsyncActions();
+  }
+
+  protected final void pumpAllAsyncActions()
+  {
+    for ( final arez.SafeProcedure action : _asyncActions )
+    {
+      action.call();
+    }
+    _asyncActions.clear();
+  }
+
+  protected final void queueAsyncActions( @javax.annotation.Nonnull final arez.SafeProcedure action )
+  {
+    _asyncActions.add( action );
+  }
+
+  @javax.annotation.Nonnull
+  protected final <T> org.mockito.stubbing.Answer<Void> successAnswer( @javax.annotation.Nullable final T result )
+  {
+    return new <%= repository.gwt.qualified_callback_success_answer_name %><>( this::queueAsyncActions, result );
+  }
+
+  @javax.annotation.Nonnull
+  protected final <T> org.mockito.stubbing.Answer<Void> failureAnswer( @javax.annotation.Nonnull final Throwable error )
+  {
+    return new <%= repository.gwt.qualified_callback_failure_answer_name %><>( this::queueAsyncActions, error );
+  }
 }

@@ -6,11 +6,19 @@ package <%= to_package(repository.gwt.qualified_callback_success_answer_name) %>
 public final class <%= repository.gwt.callback_success_answer_name %><T>
   implements org.mockito.stubbing.Answer<Void>
 {
+  @javax.annotation.Nonnull
+  private final java.util.function.Consumer<arez.SafeProcedure> _invoker;
   @javax.annotation.Nullable
   private final T _result;
 
   public <%= repository.gwt.callback_success_answer_name %>( @javax.annotation.Nullable final T result )
   {
+    this( arez.SafeProcedure::call, result );
+  }
+
+  public <%= repository.gwt.callback_success_answer_name %>( @javax.annotation.Nonnull final java.util.function.Consumer<arez.SafeProcedure> invoker, @javax.annotation.Nullable final T result )
+  {
+    _invoker = java.util.Objects.requireNonNull( invoker );
     _result = result;
   }
 
@@ -22,7 +30,7 @@ public final class <%= repository.gwt.callback_success_answer_name %><T>
     {
       if ( argument instanceof <%= repository.gwt.qualified_async_callback_name %> )
       {
-        ( (<%= repository.gwt.qualified_async_callback_name %><T>) argument ).onSuccess( _result );
+        _invoker.accept( () -> ( (<%= repository.gwt.qualified_async_callback_name %><T>) argument ).onSuccess( _result ) );
       }
     }
     return null;
