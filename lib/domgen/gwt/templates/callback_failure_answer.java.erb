@@ -6,15 +6,16 @@ package <%= to_package(repository.gwt.qualified_callback_failure_answer_name) %>
 public final class <%= repository.gwt.callback_failure_answer_name %><T>
   implements org.mockito.stubbing.Answer<Void>
 {
+  @javax.annotation.Nonnull
   private final Throwable _throwable;
 
   public <%= repository.gwt.callback_failure_answer_name %>( @javax.annotation.Nonnull final Throwable throwable )
   {
-    _throwable = throwable;
+    _throwable = java.util.Objects.requireNonNull( throwable );
   }
 
   @Override
-  public Void answer( final org.mockito.invocation.InvocationOnMock invocation )
+  public Void answer( @javax.annotation.Nonnull final org.mockito.invocation.InvocationOnMock invocation )
   {
     for ( final Object argument : invocation.getArguments() )
     {
