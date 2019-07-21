@@ -9,7 +9,7 @@ CREATE SEQUENCE <%= sequence.qualified_sequence_name %> AS <%= sequence.sql_type
 GO
 <% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
 <% if entity.sql.partition_scheme %>
-IF CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Enterprise Edition%'
+IF CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Enterprise Edition%' OR CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Developer Edition%'
 BEGIN
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
