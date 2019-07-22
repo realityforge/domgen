@@ -948,6 +948,7 @@ SQL
         abstract_relationships = self.entity.attributes.select { |a| a.reference? && a.referenced_entity.abstract? }
         if abstract_relationships.size > 0
           abstract_relationships.each do |attribute|
+            pk_name = attribute.referenced_entity.primary_key.sql.column_name
             concrete_subtypes = {}
             attribute.referenced_entity.concrete_subtypes.each_with_index do |subtype, index|
               concrete_subtypes["C#{index}"] = subtype
@@ -963,11 +964,11 @@ SQL
         inserted I
 SQL
               concrete_subtypes.each_pair do |name, subtype|
-                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{self.dialect.quote('Id')} = I.#{attribute.sql.quoted_column_name}"
+                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{self.dialect.quote(pk_name)} = I.#{attribute.sql.quoted_column_name}\n"
               end
-              sql << "      WHERE (#{names.collect { |name| "#{name}.#{self.dialect.quote('Id')} IS NULL" }.join(' AND ') })"
+              sql << "      WHERE (#{names.collect { |name| "#{name}.#{self.dialect.quote(pk_name)} IS NULL" }.join(' AND ') })"
               (0..(names.size - 2)).each do |index|
-                sql << " OR\n (#{names[index] }.#{self.dialect.quote('Id')} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{self.dialect.quote('Id')} IS NOT NULL" }.join(' OR ') }))"
+                sql << " OR\n (#{names[index] }.#{self.dialect.quote(pk_name)} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{self.dialect.quote(pk_name)} IS NOT NULL" }.join(' OR ') }))"
               end
               validation(validation_name, :negative_sql => sql, :guard => guard) unless validation?(validation_name)
             end
