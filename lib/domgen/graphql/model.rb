@@ -163,7 +163,7 @@ module Domgen
       attr_writer :context_service_jndi_name
 
       def context_service_jndi_name
-        @context_service_jndi_name || "#{Reality::Naming.camelize(repository.name)}/concurrent/GraphQLContextService"
+        @context_service_jndi_name || "#{Reality::Naming.underscore(repository.name)}/concurrent/GraphQLContextService"
       end
 
       def scalars
