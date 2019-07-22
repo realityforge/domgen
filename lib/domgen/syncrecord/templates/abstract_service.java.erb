@@ -94,12 +94,7 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
           messages.add( "Last Message: " + last.getMessage() + " at " + new java.util.Date( last.getTime() ) );
         }
       }
-      return new iris.syncrecord.server.data_type.SyncStatusDTO(
-        null,
-        "IN_SYNC",
-        delwp.rose.shared.DelwpRoseDataSources.ROSE,
-        new java.util.Date(),
-        messages );
+      return new iris.syncrecord.server.data_type.SyncStatusDTO( null, "IN_SYNC", <%= datasource %>, new java.util.Date(), messages );
     }
   }
 
