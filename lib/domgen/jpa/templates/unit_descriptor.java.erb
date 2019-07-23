@@ -7,7 +7,7 @@ public final class <%= repository.jpa.unit_descriptor_name %>
 {
 <% if repository.jpa.include_default_unit? -%>
   public static final String NAME = "<%= repository.jpa.unit_name %>";
-<% if repository.jpa.application_xmls? -%>
+<% if repository.jpa.application_xmls? || repository.jpa.model_xmls? -%>
   public static final String RESOURCE_NAME = "<%= repository.jpa.resolved_data_source %>";
   public static final String KEY = "<%= Reality::Naming.underscore(repository.jpa.default_persistence_unit.short_name) %>";
 <% repository.jpa.default_persistence_unit.related_database_keys.each do |key| -%>
@@ -17,7 +17,7 @@ public final class <%= repository.jpa.unit_descriptor_name %>
 <% end -%>
 <% repository.jpa.standalone_persistence_units.each do |unit| -%>
   public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_NAME = "<%= unit.unit_name %>";
-<% if repository.jpa.application_xmls? -%>
+<% if repository.jpa.application_xmls? || repository.jpa.model_xmls? -%>
   public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_RESOURCE_NAME = "<%= unit.resolved_data_source %>";
   public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_KEY = "<%= Reality::Naming.underscore(unit.short_name) %>";
 <% unit.related_database_keys.each do |key| -%>

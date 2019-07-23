@@ -499,12 +499,17 @@ module Domgen
 
       # Should domgen generate template xmls for model?
       def template_xmls?
-        repository.application.model_library?
+        repository.application.model_library? && !repository.application.standalone_model_library?
       end
 
-      # Should domgen generate application xmls?
+      # Should domgen generate real xmls for model?
+      def model_xmls?
+        repository.application.standalone_model_library?
+      end
+
+      # Should domgen generate real xmls in application jar?
       def application_xmls?
-        !repository.application.service_library?
+        !repository.application.service_library? && !repository.application.standalone_model_library?
       end
 
       # Should domgen generate test xmls?

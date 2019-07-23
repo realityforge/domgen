@@ -25,6 +25,13 @@ module Domgen
 
       attr_writer :model_library
 
+      # return true if the model code for repository can be included in separate project as a library
+      def standalone_model_library?
+        self.model_library? && (@standalone_model_library.nil? ? false : !!@standalone_model_library)
+      end
+
+      attr_writer :standalone_model_library
+
       # return true if the service code for repository can be included in separate project as a library.
       # This implies the code is not an independent deployable unit.
       def service_library?

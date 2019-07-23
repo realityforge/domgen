@@ -120,6 +120,22 @@ Domgen::Generator.define([:jpa],
                               :guard => 'repository.jpa.application_xmls?')
   end
 
+  g.template_set(:jpa_model_persistence_xml) do |template_set|
+    template_set.erb_template(:repository,
+                              'application_persistence.xml.erb',
+                              'main/resources/META-INF/persistence.xml',
+                              :guard => 'repository.jpa.model_xmls?',
+                              :name => 'model/META-INF/persistence.xml')
+  end
+
+  g.template_set(:jpa_model_orm_xml) do |template_set|
+    template_set.erb_template(:repository,
+                              'application_orm.xml.erb',
+                              'main/resources/META-INF/orm.xml',
+                              :guard => 'repository.jpa.model_xmls?',
+                              :name => 'model/META-INF/orm.xml')
+  end
+
   g.template_set(:jpa_template_persistence_xml) do |template_set|
     template_set.erb_template(:repository,
                               'template_persistence.xml.erb',
