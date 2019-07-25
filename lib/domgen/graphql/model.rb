@@ -981,7 +981,7 @@ module Domgen
       attr_writer :emit_default_value
 
       def emit_default_value?
-        @emit_default_value.nil? ? parameter.collection? : !!@emit_default_value
+        @emit_default_value.nil? ? field.collection? : !!@emit_default_value
       end
 
       def default_value=(default_value)
