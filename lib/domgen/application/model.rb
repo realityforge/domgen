@@ -67,6 +67,12 @@ module Domgen
         disable_deployment_facets unless code_deployable
       end
 
+      def uppercase_id?
+        @uppercase_id.nil? ? false : !!@uppercase_id
+      end
+
+      attr_writer :uppercase_id
+
       private
 
       def disable_deployment_facets
