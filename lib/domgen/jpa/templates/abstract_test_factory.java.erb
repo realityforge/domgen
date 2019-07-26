@@ -31,7 +31,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% end -%>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
 <% if entity.concrete? -%>
-<% entity.jpa.create_defaults.each do |defaults| -%>
+<% entity.jpa.create_defaults.select{|d| !entity.jpa.test_create_defaults.any?{|v| v.values.keys.sort == d.values.keys.sort}}.each do |defaults| -%>
   @javax.annotation.Nonnull
   public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
@@ -53,7 +53,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     return <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().create( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
   }
 <% if entity.attributes.any?{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?} -%>
-<% entity.jpa.update_defaults.each do |defaults|
+<% entity.jpa.update_defaults.select{|d| !entity.jpa.test_update_defaults.any?{|v| v.values.keys.sort == d.values.keys.sort}}.each do |defaults|
     attr = entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent? && (!defaults.has_attribute?(a.name) || !defaults.value_for(a.name).nil?)}
     non_default_attr = attr.select{|a| !defaults.has_attribute?(a.name)}
   -%>
