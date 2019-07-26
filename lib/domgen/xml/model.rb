@@ -28,8 +28,10 @@ module Domgen
       type.class_eval(<<-RUBY)
       Domgen::XML.include_xml(self, :#{parent_key})
 
+      attr_writer :component_name
+
       def component_name
-        Reality::Naming.xmlize(#{parent_key}.component_name)
+        @component_name || Reality::Naming.xmlize(#{parent_key}.component_name)
       end
 
       attr_writer :required

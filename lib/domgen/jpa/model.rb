@@ -857,7 +857,9 @@ FRAGMENT
 
       def test_create_default(defaults, options = {}, &block)
         default_values = Domgen::JPA::TestDefaultValues.new(entity, defaults, options, &block)
-        (@test_create_defaults ||= []) << default_values
+        existing_defaults = (@test_create_defaults ||= [])
+        existing_defaults.delete_if{|v| v.values.keys.sort == default_values.values.keys.sort}
+        existing_defaults << default_values
         default_values
       end
 
@@ -867,7 +869,9 @@ FRAGMENT
 
       def test_update_default(defaults, options = {}, &block)
         default_values = Domgen::JPA::TestUpdateDefaultValues.new(entity, defaults, options, &block)
-        (@test_update_defaults ||= []) << default_values
+        existing_defaults = (@test_update_defaults ||= [])
+        existing_defaults.delete_if{|v| v.values.keys.sort == default_values.values.keys.sort}
+        existing_defaults << default_values
         default_values
       end
 
@@ -877,7 +881,9 @@ FRAGMENT
 
       def create_default(defaults, options = {}, &block)
         default_values = Domgen::JPA::DefaultValues.new(entity, defaults, options, &block)
-        (@create_defaults ||= []) << default_values
+        existing_defaults = (@create_defaults ||= [])
+        existing_defaults.delete_if{|v| v.values.keys.sort == default_values.values.keys.sort}
+        existing_defaults << default_values
         default_values
       end
 
@@ -891,7 +897,9 @@ FRAGMENT
 
       def update_default(defaults, options = {}, &block)
         default_values = Domgen::JPA::UpdateDefaultValues.new(entity, defaults, options, &block)
-        (@update_defaults ||= []) << default_values
+        existing_defaults = (@update_defaults ||= [])
+        existing_defaults.delete_if{|v| v.values.keys.sort == default_values.values.keys.sort}
+        existing_defaults << default_values
         default_values
       end
 
