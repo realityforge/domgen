@@ -63,7 +63,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 -%>
 <% data_module.sync.entities_to_synchronize.each do |entity|
      fn = "#{entity.data_module.name}#{entity.name}"
-     recursive_attributes = entity.attributes.select{|a| a.sync? }.select{|a| a.reference? && a.referenced_entity.qualified_name == entity.qualified_name}
+     recursive_attributes = entity.attributes.select{|a| a.sync? }.select{|a| a.reference? && a.referenced_entity.qualified_name == entity.qualified_name}.collect{|a| entity.sync.master_entity.attribute_by_name(a.name)}
 
      entity.attributes.select{|a| a.sync? &&a.sync.custom_transform? }.each do |attribute|
 -%>
@@ -119,7 +119,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
         index = -1
         "COALESCE(#{a.referenced_entity.concrete_subtypes.collect do |subtype| "R#{ref_index}#{index += 1}.#{subtype.attribute_by_name(subtype.root_entity.name).sql.quoted_column_name}" end.join(', ')})"
       else
-        "R#{ref_index}.#{a.referenced_entity.attribute_by_name(a.referenced_entity.root_entity.name).sql.quoted_column_name} AS #{a.sql.quoted_column_name}"
+        "R#{ref_index}.#{a.sql.quoted_column_name} AS #{a.referenced_entity.attribute_by_name(a.referenced_entity.root_entity.name).sql.quoted_column_name}"
       end
     else
       "M.#{a.sql.quoted_column_name}"
@@ -414,7 +414,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   {
 <% bulk_attrs = entity.attributes.select{|a| a.sql? && a.jpa? && (a.sync? || %w(CreatedAt DeletedAt).include?(a.name.to_s)) }
    bulk_attrs_insert = j_escape_string(bulk_attrs.collect{|a| a.primary_key? ? 'MasterId' : a.sql.quoted_column_name}.join(', '))
-   bulk_attrs_select = j_escape_string(bulk_attrs.collect{|a| a.sql.quoted_column_name}.join(', '))
+   bulk_attrs_select = j_escape_string(bulk_attrs.collect{|a| a.primary_key? ? entity.sync.master_entity.primary_key.sql.quoted_column_name : entity.sync.master_entity.attribute_by_name(a.name.to_s).sql.quoted_column_name}.join(', '))
   -%>
 
     return
