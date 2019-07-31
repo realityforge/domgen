@@ -873,6 +873,12 @@ FRAGMENT
         @test_create_defaults.nil? ? [] : @test_create_defaults.dup
       end
 
+      def delete_test_create_default(keys)
+        existing_defaults = (@test_create_defaults ||= [])
+        existing_defaults.delete_if {|v| p v.values.keys; v.values.keys.sort == keys.sort}
+        existing_defaults
+      end
+
       def test_update_default(defaults, options = {}, &block)
         default_values = Domgen::JPA::TestUpdateDefaultValues.new(entity, defaults, options, &block)
         existing_defaults = (@test_update_defaults ||= [])
