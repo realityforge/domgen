@@ -66,6 +66,20 @@ Domgen::Generator.define([:ee],
                               'main/java/#{repository.ee.qualified_abstract_filter_name.gsub(".","/")}.java')
   end
 
+  %w(main test).each do |type|
+    g.template_set(:"ee_#{type}_qa") do |template_set|
+      template_set.erb_template(:enumeration,
+                                'abstract_enumeration_test.java.erb',
+                                'test/java/#{enumeration.ee.qualified_abstract_enumeration_test_name.gsub(".","/")}.java',
+                                :guard => '!enumeration.ee.interfaces.empty?')
+    end
+    g.template_set(:"ee_#{type}_qa_aggregate") do |template_set|
+      template_set.erb_template(:repository,
+                                'aggregate_data_type_test.java.erb',
+                                type + '/java/#{repository.ee.qualified_aggregate_data_type_test_name.gsub(".","/")}.java')
+    end
+  end
+
   g.template_set(:ee_integration_provisioner) do |template_set|
     template_set.erb_template(:repository,
                               'abstract_provisioner.java.erb',

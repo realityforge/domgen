@@ -11,6 +11,7 @@ package <%= to_package(enumeration.ee.qualified_name) %>;
 <% end -%>
 <% end -%>
 public enum <%= enumeration.ee.name %>
+<%= (enumeration.ee.interfaces.size > 0) ? "  implements #{enumeration.ee.interfaces.join(', ')}\n" : '' -%>
 {
   <%=
   index = 0
@@ -92,6 +93,15 @@ public enum <%= enumeration.ee.name %>
         throw new java.lang.IllegalStateException();
       }
     }
+  }
+<% end -%>
+<% if enumeration.ee.interfaces.size > 0 -%>
+
+  @javax.annotation.Nonnull
+  @Override
+  public <%= enumeration.ee.name %> self()
+  {
+    return this;
   }
 <% end -%>
 }

@@ -105,6 +105,7 @@ module Domgen
       java_artifact :abstract_integration_test, :test, :integration, :ee, 'Abstract#{repository.name}GlassFishTest', :sub_package => 'util'
       java_artifact :base_integration_test, :test, :integration, :ee, '#{repository.name}GlassFishTest', :sub_package => 'util'
       java_artifact :deploy_test, nil, :integration, :ee, '#{repository.name}DeployTest'
+      java_artifact :aggregate_data_type_test, :test, :server, :ee, '#{repository.name}AggregateDataTypeTest', :sub_package => 'util'
       java_artifact :aggregate_integration_test, :test, :integration, :ee, '#{repository.name}AggregateIntegrationTest', :sub_package => 'util'
       java_artifact :message_module, :test, :server, :ee, '#{repository.name}MessagesModule', :sub_package => 'util'
 
@@ -179,6 +180,8 @@ module Domgen
     end
 
     facet.enhance(EnumerationSet) do
+      include Domgen::Java::BaseJavaGenerator
+
       def name
         "#{enumeration.name}"
       end
@@ -186,6 +189,13 @@ module Domgen
       def qualified_name
         "#{enumeration.data_module.ee.server_data_type_package}.#{name}"
       end
+
+      def interfaces
+        @interfaces ||= []
+      end
+
+      java_artifact :abstract_enumeration_test, :data_type, :server, :ee, 'Abstract#{enumeration.name}Test'
+      java_artifact :enumeration_test, :data_type, :server, :ee, '#{enumeration.name}Test'
     end
 
     facet.enhance(Struct) do
