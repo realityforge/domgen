@@ -39,7 +39,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 
 <% end -%>
-<% entity.jpa.test_create_defaults.each do |defaults| -%>
+<% entity.jpa.test_create_defaults.select{|defaults|!defaults.ignore?}.each do |defaults| -%>
   @javax.annotation.Nonnull
   public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {

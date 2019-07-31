@@ -79,6 +79,12 @@ module Domgen
         super(entity, defaults, options, &block)
       end
 
+      attr_writer :ignore
+
+      def ignore?
+        @ignore.nil? ? false : !!@ignore
+      end
+
       def default_type
         'test_default'
       end
