@@ -119,7 +119,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
         index = -1
         "COALESCE(#{a.referenced_entity.concrete_subtypes.collect do |subtype| "R#{ref_index}#{index += 1}.#{subtype.attribute_by_name(subtype.root_entity.name).sql.quoted_column_name}" end.join(', ')})"
       else
-        "R#{ref_index}.#{a.sql.quoted_column_name} AS #{a.referenced_entity.attribute_by_name(a.referenced_entity.root_entity.name).sql.quoted_column_name}"
+        "R#{ref_index}.#{a.referenced_entity.attribute_by_name(a.referenced_entity.root_entity.name).sql.quoted_column_name}"
       end
     else
       "M.#{a.sql.quoted_column_name}"
@@ -433,9 +433,9 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "UPDATE M\n" +
       "SET\n" +
       "  <%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql}") -%>, " +
-      "  <%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = C.Id \n" +
+      "  <%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = C.<%= entity.primary_key.sql.quoted_column_name %>\n" +
       "FROM <%= j_escape_string( table ) %> M \n" +
-      " JOIN <%= j_escape_string("#{entity.sql.qualified_table_name} C ON C.[MasterId] = M.#{entity.primary_key.sql.quoted_column_name}") %> AND " +
+      " JOIN <%= j_escape_string("#{entity.sql.qualified_table_name} C ON C.#{entity.attribute_by_name(:MasterId).sql.quoted_column_name} = M.#{entity.sync.master_entity.primary_key.sql.quoted_column_name}") %> AND " +
       "M.<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql}") -%> AND " +
       "M.<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name} IS NULL") -%>\n";
   }
