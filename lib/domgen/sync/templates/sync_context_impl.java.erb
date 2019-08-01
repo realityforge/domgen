@@ -413,10 +413,9 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   public String getSqlToDirectlyInsert<%= fn %>( @javax.annotation.Nonnull final String mappingSourceCode )
   {
 <% bulk_attrs = entity.attributes.select{|a| a.sql? && a.jpa? && (a.sync? || %w(CreatedAt DeletedAt).include?(a.name.to_s)) }
-   bulk_attrs_insert = j_escape_string(bulk_attrs.collect{|a| a.primary_key? ? 'MasterId' : a.sql.quoted_column_name}.join(', '))
+   bulk_attrs_insert = j_escape_string(bulk_attrs.collect{|a| a.primary_key? ? entity.sql.dialect.quote(:MasterId) : a.sql.quoted_column_name}.join(', '))
    bulk_attrs_select = j_escape_string(bulk_attrs.collect{|a| a.primary_key? ? entity.sync.master_entity.primary_key.sql.quoted_column_name : entity.sync.master_entity.attribute_by_name(a.name.to_s).sql.quoted_column_name}.join(', '))
   -%>
-
     return
       "INSERT INTO <%= j_escape_string( entity.sql.qualified_table_name ) %>\n" +
       " ( <%= bulk_attrs_insert -%> )\n " +
