@@ -147,7 +147,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   {
     if( <%= repository.gwt.qualified_debug_config_name %>.EMIT_RAW_UNCAUGHT_EXCEPTIONS && com.google.gwt.core.client.GWT.isScript() && com.google.gwt.core.client.GWT.isProdMode() )
     {
-      log( e, false );
+      processException( e  );
     }
 <% if repository.iris_audit? -%>
     final iris.audit.client.ClientExceptionAuditHelper helper = getClientExceptionAuditHelper();
@@ -197,23 +197,25 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   }
 <% end -%>
 
-  private void log( @javax.annotation.Nonnull final Throwable t, final boolean isCause )
+  private void processException( @javax.annotation.Nonnull final Throwable e )
   {
-    final String msg = ( isCause ? "caused by: " : "" ) + t;
-    elemental2.dom.DomGlobal.console.groupCollapsed( msg );
-    _log( t );
-    if ( null != t.getCause() )
+    if( e instanceof com.google.web.bindery.event.shared.UmbrellaException )
     {
-      log( t.getCause(), true );
+      final java.util.Set<Throwable> causes = ( (com.google.web.bindery.event.shared.UmbrellaException) e ).getCauses();
+      causes.forEach( this::processException );
     }
-    elemental2.dom.DomGlobal.console.groupEnd();
+    else
+    {
+      elemental2.dom.DomGlobal.console.error( jsinterop.base.Js.asPropertyMap( e ).nestedGet( "backingJsObject.stack" ) );
+      final Throwable cause = e.getCause();
+      if( null != cause )
+      {
+        elemental2.dom.DomGlobal.console.groupCollapsed( "Caused By" );
+        processException( cause );
+        elemental2.dom.DomGlobal.console.groupEnd();
+      }
+    }
   }
-
-  private native void _log( @javax.annotation.Nonnull final Throwable throwable ) /*-{
-    var logError = console.error || console.log;
-    var backingError = throwable.__gwt$backingJsError;
-    logError.call( console, backingError && backingError.stack );
-  }-*/;
 
 <% if repository.keycloak? -%>
 
