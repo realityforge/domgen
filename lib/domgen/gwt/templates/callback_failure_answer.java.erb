@@ -7,16 +7,16 @@ public final class <%= repository.gwt.callback_failure_answer_name %><T>
   implements org.mockito.stubbing.Answer<Void>
 {
   @javax.annotation.Nonnull
-  private final java.util.function.Consumer<arez.SafeProcedure> _invoker;
+  private final java.util.function.Consumer<java.lang.Runnable> _invoker;
   @javax.annotation.Nonnull
   private final Throwable _throwable;
 
   public <%= repository.gwt.callback_failure_answer_name %>( @javax.annotation.Nonnull final Throwable throwable )
   {
-    this( arez.SafeProcedure::call, throwable );
+    this( java.lang.Runnable::run, throwable );
   }
 
-  public <%= repository.gwt.callback_failure_answer_name %>( @javax.annotation.Nonnull final java.util.function.Consumer<arez.SafeProcedure> invoker, @javax.annotation.Nonnull final Throwable throwable )
+  public <%= repository.gwt.callback_failure_answer_name %>( @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> invoker, @javax.annotation.Nonnull final Throwable throwable )
   {
     _invoker = java.util.Objects.requireNonNull( invoker );
     _throwable = java.util.Objects.requireNonNull( throwable );

@@ -10,7 +10,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   implements org.testng.IHookable
 <% end -%>
 {
-  private final java.util.List<arez.SafeProcedure> _asyncActions = new java.util.ArrayList<>();
+  private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
 <% if repository.arez? -%>
   private final java.util.List<String> _observerErrors = new java.util.ArrayList<>();
   private boolean _ignoreObserverErrors;
@@ -131,7 +131,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     return arez.Arez.context().action( action );
   }
 
-  protected final void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
+  protected final void safeAction( @javax.annotation.Nonnull final java.lang.Runnable action )
   {
     arez.Arez.context().safeAction( action );
   }
@@ -178,7 +178,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   protected final void pumpSingleAsyncAction()
   {
     org.testng.Assert.assertTrue( _asyncActions.size() > 1 );
-    _asyncActions.remove( 0 ).call();
+    _asyncActions.remove( 0 ).run();
   }
 
   protected final void pumpAsyncActions( final int count )
@@ -189,14 +189,14 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 
   protected final void pumpAllAsyncActions()
   {
-    for ( final arez.SafeProcedure action : _asyncActions )
+    for ( final java.lang.Runnable action : _asyncActions )
     {
-      action.call();
+      action.run();
     }
     _asyncActions.clear();
   }
 
-  protected final void queueAsyncActions( @javax.annotation.Nonnull final arez.SafeProcedure action )
+  protected final void queueAsyncActions( @javax.annotation.Nonnull final java.lang.Runnable action )
   {
     _asyncActions.add( action );
   }
