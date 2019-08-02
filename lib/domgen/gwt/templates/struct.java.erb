@@ -25,8 +25,7 @@ public final class <%= struct.gwt.name %>
   singular_converted_value = Proc.new do |var|
     case
       when field.date? then "#{var}.toString()"
-      when field.datetime? && !field.nullable? then "(double) #{var}.getTime()"
-      when field.datetime? && field.nullable? then "#{var}.getTime().doubleValue()"
+      when field.datetime? then "(double) #{var}.getTime()"
       when field.enumeration? then "#{var}.#{field.enumeration.textual_values? ? 'name()' : 'ordinal()' }"
       when field.nullable? && field.integer? then "#{var}.doubleValue()"
       when field.nullable? && field.boolean? then "#{var}.booleanValue()"
