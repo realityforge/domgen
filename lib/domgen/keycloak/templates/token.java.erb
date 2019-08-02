@@ -8,7 +8,7 @@ package <%= to_package(client.qualified_token_name) %>;
 public class <%= client.token_name %>
 {
   private String sub;
-<% client.claims.select{|claim| claim.config['claim.name'] && claim.config['id.token.claim'].to_s == 'true'}.each do |claim| -%>
+<% client.claims.select{|claim| claim.config['claim.name'] && claim.config['access.token.claim'].to_s == 'true'}.each do |claim| -%>
   private <%= claim.js_type %> <%= claim.config['claim.name'] %>;
 <% end -%>
 
