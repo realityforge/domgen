@@ -23,6 +23,9 @@ Domgen::Generator.define([:gwt],
   end
 
   g.template_set(:gwt_client_jso) do |template_set|
+    template_set.erb_template(:repository,
+                              'rdate.java.erb',
+                              'main/java/#{repository.gwt.qualified_rdate_name.gsub(".","/")}.java')
     template_set.erb_template(:struct,
                               'struct.java.erb',
                               'main/java/#{struct.gwt.qualified_name.gsub(".","/")}.java',

@@ -1,0 +1,299 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.gwt.qualified_rdate_name) %>;
+
+import java.util.Date;
+
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "MOM_MISLEADING_OVERLOAD_MODEL" )
+@javax.annotation.Generated( "Domgen" )
+public final class <%= repository.gwt.rdate_name %>
+  implements java.lang.Comparable<<%= repository.gwt.rdate_name %>>
+{
+  private static final String[] SHORT_MONTHS =
+    { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+  private final int _year;
+  private final int _month;
+  private final int _day;
+
+  //CHECKSTYLE OFF: MagicNumber
+
+  public <%= repository.gwt.rdate_name %>( final int year, final int month, final int day )
+  {
+    assert ( year > 0 && year < 2050 );
+    assert ( month > 0 && month <= 12 );
+    assert ( day > 0 && day <= 31 );
+    _year = year;
+    _month = month;
+    _day = day;
+  }
+
+  public int getDay()
+  {
+    return _day;
+  }
+
+  public int getMonth()
+  {
+    return _month;
+  }
+
+  @javax.annotation.Nonnull
+  public String getShortMonthDescription()
+  {
+    return SHORT_MONTHS[ _month - 1 ];
+  }
+
+  public int getYear()
+  {
+    return _year;
+  }
+
+  @Override
+  public String toString()
+  {
+    return getYear() + "-" + getMonth() + "-" + getDay();
+  }
+
+  @javax.annotation.Nonnull
+  public <%= repository.gwt.rdate_name %> addDays( final int dayDelta )
+  {
+    return addDays( this, dayDelta );
+  }
+
+  @javax.annotation.Nonnull
+  public <%= repository.gwt.rdate_name %> addMonths( final int monthDelta )
+  {
+    return addMonths( this, monthDelta );
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int h = getDay() * 31;
+    h *= getMonth() * 13;
+    h *= getYear() * 7;
+    return h;
+  }
+
+  public boolean before( @javax.annotation.Nonnull final <%= repository.gwt.rdate_name %> other )
+  {
+    return compareTo( other ) < 0;
+  }
+
+  public boolean after( @javax.annotation.Nonnull final <%= repository.gwt.rdate_name %> other )
+  {
+    return compareTo( other ) > 0;
+  }
+
+  @Override
+  public int compareTo( @javax.annotation.Nonnull final <%= repository.gwt.rdate_name %> other )
+  {
+    if ( getYear() != other.getYear() )
+    {
+      return getYear() - other.getYear();
+    }
+    else if ( getMonth() != other.getMonth() )
+    {
+      return getMonth() - other.getMonth();
+    }
+    else if ( getDay() != other.getDay() )
+    {
+      return getDay() - other.getDay();
+    }
+    else
+    {
+      return 0;
+    }
+  }
+
+  @Override
+  public boolean equals( final Object object )
+  {
+    if ( !( object instanceof <%= repository.gwt.rdate_name %> ) )
+    {
+      return false;
+    }
+    final <%= repository.gwt.rdate_name %> other = (<%= repository.gwt.rdate_name %>) object;
+    return getYear() == other.getYear() &&
+           getMonth() == other.getMonth() &&
+           getDay() == other.getDay();
+  }
+
+  @SuppressWarnings( "checkstyle:noNewDate" )
+  public static <%= repository.gwt.rdate_name %> today()
+  {
+    return fromDate( new java.util.Date() );
+  }
+
+  @SuppressWarnings( "deprecation" )
+  public static <%= repository.gwt.rdate_name %> fromDate( @javax.annotation.Nonnull final java.util.Date date )
+  {
+    return new <%= repository.gwt.rdate_name %>( date.getYear() + 1900, date.getMonth() + 1, date.getDate() );
+  }
+
+  @javax.annotation.Nonnull
+  @SuppressWarnings( { "deprecation", "checkstyle:noNewDate", "MagicConstant" } )
+  public static java.util.Date toDate( @javax.annotation.Nonnull final <%= repository.gwt.rdate_name %> date )
+  {
+    return new java.util.Date( date.getYear() - 1900, date.getMonth() - 1, date.getDay() );
+  }
+
+  @javax.annotation.Nonnull
+  public static <%= repository.gwt.rdate_name %> addDays( @javax.annotation.Nonnull final <%= repository.gwt.rdate_name %> date, final int dayDelta )
+  {
+    int year = date.getYear();
+    int month = date.getMonth();
+    int day = date.getDay() + dayDelta;
+    while ( day <= 0 )
+    {
+      month -= 1;
+      if ( 0 == month )
+      {
+        year -= 1;
+        month = 12;
+      }
+      day += getDaysInMonth( year, month );
+    }
+
+    while ( day > getDaysInMonth( year, month ) )
+    {
+      day -= getDaysInMonth( year, month );
+      month += 1;
+      if ( 13 == month )
+      {
+        year += 1;
+        month = 1;
+      }
+    }
+
+    return new <%= repository.gwt.rdate_name %>( year, month, day );
+  }
+
+  /**
+   * Add a number of months to the date and return a new instance.
+   *
+   * The day of the month unless it would exceed the number of days in the
+   * month, in which case the date is set at the last day of the month.
+   */
+  @javax.annotation.Nonnull
+  public static <%= repository.gwt.rdate_name %> addMonths( @javax.annotation.Nonnull final <%= repository.gwt.rdate_name %> date, final int monthDelta )
+  {
+    int year = date.getYear();
+    int month = date.getMonth();
+
+    month += monthDelta;
+
+    while ( month <= 0 )
+    {
+      month += 12;
+      year -= 1;
+    }
+
+    while ( month > 12 )
+    {
+      month -= 12;
+      year += 1;
+    }
+
+    final int daysInMonth = getDaysInMonth( year, month );
+    final int day = Math.min( date.getDay(), daysInMonth );
+
+    return new <%= repository.gwt.rdate_name %>( year, month, day );
+  }
+
+  /**
+   * Return the number of days in the specified month.
+   *
+   * @param year  the year.
+   * @param month the month.
+   * @return the number of days in specified month.
+   */
+  public static int getDaysInMonth( final int year, final int month )
+  {
+    switch ( month )
+    {
+      case 1:
+        return 31;
+      case 2:
+        if ( 0 == year % 4 && ( 0 != year % 100 || ( 0 == year % 400 ) ) )
+        {
+          return 29;
+        }
+        else
+        {
+          return 28;
+        }
+      case 3:
+        return 31;
+      case 4:
+        return 30;
+      case 5:
+        return 31;
+      case 6:
+        return 30;
+      case 7:
+        return 31;
+      case 8:
+        return 31;
+      case 9:
+        return 30;
+      case 10:
+        return 31;
+      case 11:
+        return 30;
+      case 12:
+        return 31;
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
+  public static <%= repository.gwt.rdate_name %> parse( @javax.annotation.Nonnull final String text )
+  {
+    final int length = text.length();
+    int i = 0;
+
+    try
+    {
+      final StringBuilder sb = new StringBuilder();
+      while ( i < length && Character.isDigit( text.charAt( i ) ) )
+      {
+        sb.append( text.charAt( i ) );
+        i++;
+      }
+      final int year = Integer.parseInt( sb.toString() );
+      sb.setLength( 0 );
+
+      //skip the -
+      i++;
+
+      while ( i < length && Character.isDigit( text.charAt( i ) ) )
+      {
+        sb.append( text.charAt( i ) );
+        i++;
+      }
+      final int month = Integer.parseInt( sb.toString() );
+      sb.setLength( 0 );
+
+      //skip the -
+      i++;
+
+      while ( i < length && Character.isDigit( text.charAt( i ) ) )
+      {
+        sb.append( text.charAt( i ) );
+        i++;
+      }
+      final int day = Integer.parseInt( sb.toString() );
+
+      if ( i != length )
+      {
+        throw new IllegalArgumentException( text );
+      }
+
+      return new <%= repository.gwt.rdate_name %>( year, month, day );
+    }
+    catch ( final NumberFormatException nfe )
+    {
+      throw new IllegalArgumentException( text, nfe );
+    }
+  }
+}

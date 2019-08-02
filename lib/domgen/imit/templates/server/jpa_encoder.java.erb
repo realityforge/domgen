@@ -50,7 +50,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
         if attribute.imit.transport_characteristic_type_key == :datetime
           "$#{attribute.name}.getTime()"
         elsif attribute.imit.transport_characteristic_type_key == :date
-          "iris.rose.shared.util.RDate.fromDate( $#{attribute.name} ).toString()"
+          "#{repository.gwt.qualified_rdate_name}.fromDate( $#{attribute.name} ).toString()"
         elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_characteristic_type_key)
           "$#{attribute.name}"
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
@@ -116,7 +116,7 @@ end
         if attribute.imit.transport_characteristic_type_key == :datetime
           "$#{attribute.name}.getTime()"
         elsif attribute.imit.transport_characteristic_type_key == :date
-          "iris.rose.shared.util.RDate.fromDate( $#{attribute.name} ).toString()"
+          "#{repository.gwt.qualified_rdate_name}.fromDate( $#{attribute.name} ).toString()"
         elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_characteristic_type_key)
           "$#{attribute.name}#{value_suffix}"
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?

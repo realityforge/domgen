@@ -68,6 +68,8 @@ module Domgen
       java_artifact :aggregate_dagger_module, :ioc, :client, :gwt, '#{repository.name}DaggerModule'
       java_artifact :user_experience_dagger_module, :ioc, :client, :gwt, '#{repository.name}UserExperienceDaggerModule'
 
+      java_artifact :rdate, :data_type, :client, :gwt, 'RDate', :sub_package => 'util'
+
       java_artifact :dev_module, :modules, nil, :gwt, '#{repository.name}DevSupport'
       java_artifact :prod_module, :modules, nil, :gwt, '#{repository.name}ProdSupport'
       java_artifact :app_module, :modules, nil, :gwt, '#{repository.name}AppSupport'
@@ -182,6 +184,12 @@ module Domgen
 
       def include_standard_ux_test_module?
         @include_standard_ux_test_module.nil? ? true : !!@include_standard_ux_test_module
+      end
+
+      attr_writer :client_util_data_type_package
+
+      def client_util_data_type_package
+        @client_util_data_type_package || "#{client_data_type_package}.util"
       end
 
       attr_writer :modules_package

@@ -60,7 +60,7 @@ public class <%= service.gwt_rpc.servlet_name %>
      return_prefix = "#{annotated_type(method.return_value, :ejb, :boundary, :final => true)} returnValue = "
      transform = nil
      if method.return_value.date?
-       transform = 'iris.rose.shared.util.RDate.fromDate( returnValue )'
+       transform = "#{repository.gwt.qualified_rdate_name}.fromDate( returnValue )"
      elsif method.return_value.enumeration?
        if method.return_value.enumeration.numeric_values?
          transform = 'returnValue.ordinal()'
@@ -86,7 +86,7 @@ public class <%= service.gwt_rpc.servlet_name %>
       $returnValue.add(
 LOOP
          if method.return_value.date?
-           return_postfix << 'iris.rose.shared.util.RDate.fromDate( k )'
+           return_postfix << '#{repository.gwt.qualified_rdate_name}.fromDate( k )'
          elsif method.return_value.struct?
            return_postfix << '_jsonMapper.writeValueAsString( k )'
          elsif method.return_value.enumeration.numeric_values?
@@ -116,7 +116,7 @@ LOOP
     <%
        param_value =
          if parameter.date?
-            'iris.rose.shared.util.RDate.toDate( iris.rose.shared.util.RDate.parse( k ) )'
+            '#{repository.gwt.qualified_rdate_name}.toDate( #{repository.gwt.qualified_rdate_name}.parse( k ) )'
          elsif parameter.enumeration?
            parameter.enumeration.numeric_values? ?
              "#{parameter.enumeration.ee.qualified_name}.values()[ k ]" :
@@ -147,7 +147,7 @@ LOOP
   else
     transform = nil
     if p.date?
-      transform = "iris.rose.shared.util.RDate.toDate( iris.rose.shared.util.RDate.parse( #{p.gwt_rpc.name} ) )"
+      transform = "#{repository.gwt.qualified_rdate_name}.toDate( #{repository.gwt.qualified_rdate_name}.parse( #{p.gwt_rpc.name} ) )"
     elsif p.enumeration?
       if p.enumeration.numeric_values?
         transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt_rpc.name} ]"
