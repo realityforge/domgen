@@ -7,6 +7,7 @@ public class <%= repository.jws.client_integration_test_name %>
   extends <%= repository.jws.qualified_abstract_fake_server_test_name %>
 {
 <%
+requires_asXml_method = false
 
 def java_characteristic_fixture(p, parent_context = nil)
   type_spec = ''
@@ -113,7 +114,9 @@ end
 <% end -%>
   }
 
-<%      method.exceptions.each do |exception| -%>
+<%      method.exceptions.each do |exception|
+          requires_asXml_method = true
+-%>
   @org.testng.annotations.Test
   public void call<%= method_name_prefix %>Error<%= exception.name %>()
     throws Exception
@@ -145,6 +148,7 @@ end
     javax.xml.bind.JAXB.marshal( from, xml );
     return javax.xml.bind.JAXB.unmarshal( new java.io.StringReader( xml.toString() ), toType );
   }
+<% if requires_asXml_method -%>
 
   private String asXml( final Object object )
   {
@@ -152,4 +156,5 @@ end
     javax.xml.bind.JAXB.marshal( object, xml );
     return xml.toString();
   }
+<% end -%>
 }
