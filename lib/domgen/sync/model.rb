@@ -666,6 +666,10 @@ module Domgen
           end
         end
       end
+
+      def post_verify
+        Domgen.error("Entity #{self.entity.qualified_name} is marked with sync facet as well as sql.load_from_fixture? which is invalid") if self.entity.sql.load_from_fixture?
+      end
     end
   end
 end
