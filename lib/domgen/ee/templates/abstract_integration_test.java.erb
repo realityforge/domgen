@@ -131,15 +131,15 @@ public abstract class <%= repository.ee.abstract_integration_test_name %>
                                                      final boolean isQueue )
     throws Exception
   {
-    try ( final javax.jms.Connection connection = getAppServer().getOpenMQContainer().createConnection() )
+    try ( javax.jms.Connection connection = getAppServer().getOpenMQContainer().createConnection() )
     {
-      try ( final javax.jms.Session session = connection.createSession() )
+      try ( javax.jms.Session session = connection.createSession() )
       {
         final javax.jms.Destination destination =
           isQueue ?
           session.createQueue( destinationName ) :
           session.createTopic( destinationName );
-        try ( final javax.jms.MessageProducer producer = session.createProducer( destination ) )
+        try ( javax.jms.MessageProducer producer = session.createProducer( destination ) )
         {
           producer.send( session.createTextMessage( message ) );
         }
