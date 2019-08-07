@@ -49,6 +49,9 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   protected void configure( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.glassfish.GlassFishContainer glassfish )
     throws Exception
   {
+    glassfish.set("configs.config.server-config.hazelcast-config-specific-configuration.enabled","false");
+    glassfish.set("configs.config.server-config.admin-service.das-config.autodeploy-enabled","false");
+
 <% if repository.jpa? -%>
 
     // Database Configuration Start
