@@ -131,7 +131,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     return arez.Arez.context().action( action );
   }
 
-  protected final void safeAction( @javax.annotation.Nonnull final java.lang.Runnable action )
+  protected final void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
   {
     arez.Arez.context().safeAction( action );
   }
