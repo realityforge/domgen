@@ -160,6 +160,8 @@ module Domgen
   public void preTest()
     throws Exception
   {
+    // This is due to bug in GlassFish/Payara where the habitat is accessed incorrectly
+    org.glassfish.internal.api.Globals.getStaticHabitat();
     super.preTest();
     purgeDestinations();
   }
