@@ -21,7 +21,7 @@ public abstract class <%= repository.jws.abstract_fake_server_test_name %>
   public void preTest()
     throws Exception
   {
-    // This is due to bug in GlassFish/Payara where the habitat is accessed incorrectl
+    // This is due to bug in GlassFish/Payara where the habitat is accessed incorrectly
     org.glassfish.internal.api.Globals.getStaticHabitat();
     _server = new <%= repository.jws.qualified_fake_server_name %>();
     _server.start();
