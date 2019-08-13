@@ -990,11 +990,11 @@ module Domgen
       end
 
       def default_value
-        if @default_value.nil? && parameter.collection? && !parameter.nullable?
+        if @default_value.nil? && field.collection? && !field.nullable?
           return "[]"
-        elsif @default_value.nil? && parameter.nullable?
+        elsif @default_value.nil? && field.nullable?
           return "null"
-        elsif @default_value && parameter.text?
+        elsif @default_value && field.text?
           return @default_value.inspect
         else
           return @default_value
