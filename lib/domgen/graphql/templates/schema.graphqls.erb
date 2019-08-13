@@ -84,7 +84,7 @@ input <%= struct.graphql.input_name %> {
 <% if struct.graphql.output? -%>
 
 <%= description_as_string(struct, 0) -%>
-input <%= struct.graphql.output_name %> {
+type <%= struct.graphql.output_name %> {
 <%= description_as_string(struct, 2) -%>
 <% struct.fields.select(&:graphql?).each do |field| -%>
 <%
