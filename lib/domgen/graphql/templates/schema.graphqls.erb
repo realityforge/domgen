@@ -97,7 +97,7 @@ type <%= struct.graphql.output_name %> {
       field.graphql.scalar_type
     end
 -%>
-  <%= field.graphql.name %>: <%= field_type %><%= field.nullable? ? '' : "!" -%><%= field.graphql.emit_default_value? ? " = #{field.graphql.default_value}" : '' %><%= deprecate_directive(field) %><%= input_numeric_directive(field) %><%= field.graphql.custom_name? ? " @fetch(from:\"#{Reality::Naming.camelize(field.name)}\")" : "" %>
+  <%= field.graphql.name %>: <%= field_type %><%= field.nullable? ? '' : "!" -%><%= deprecate_directive(field) %><%= input_numeric_directive(field) %><%= field.graphql.custom_name? ? " @fetch(from:\"#{Reality::Naming.camelize(field.name)}\")" : "" %>
 <% end -%>
 }
 <% end -%>
