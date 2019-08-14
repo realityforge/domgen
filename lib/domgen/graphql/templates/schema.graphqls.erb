@@ -76,6 +76,7 @@ input <%= struct.graphql.input_name %> {
     else
       field.graphql.scalar_type
     end
+    field_type = "[#{field_type}!]" if field.collection?
 -%>
   <%= field.graphql.name %>: <%= field_type %><%= field.nullable? ? '' : "!" -%><%= deprecate_directive(field) %><%= input_numeric_directive(field) %><%= field.graphql.custom_name? ? " @fetch(from:\"#{Reality::Naming.camelize(field.name)}\")" : "" %>
 <% end -%>
@@ -96,6 +97,7 @@ type <%= struct.graphql.output_name %> {
     else
       field.graphql.scalar_type
     end
+    field_type = "[#{field_type}!]" if field.collection?
 -%>
   <%= field.graphql.name %>: <%= field_type %><%= field.nullable? ? '' : "!" -%><%= deprecate_directive(field) %><%= input_numeric_directive(field) %><%= field.graphql.custom_name? ? " @fetch(from:\"#{Reality::Naming.camelize(field.name)}\")" : "" %>
 <% end -%>
