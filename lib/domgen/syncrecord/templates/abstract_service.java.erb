@@ -86,11 +86,11 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
         ( ( null != syncStart ) ? syncStart.toString() : "unknown" ) );
       if ( null != recorder )
       {
-        final iris.syncrecord.server.service.SynchronizationRecorder.MessageRecord last =
-          recorder.getMessageRecords().peekLast();
+        final java.util.List<iris.syncrecord.server.service.SynchronizationRecorder.MessageRecord> records = recorder.getMessageRecords();
         messages.add( "Sync is running for " + recorder.getDataSourceCode() );
-        if ( null != last )
+        if ( !records.isEmpty() )
         {
+          final iris.syncrecord.server.service.SynchronizationRecorder.MessageRecord last = records.get(records.size() - 1);
           messages.add( "Last Message: " + last.getMessage() + " at " + new java.util.Date( last.getTime() ) );
         }
       }
