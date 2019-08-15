@@ -17,7 +17,7 @@ public class <%= repository.graphql.endpoint_name %>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected graphql.servlet.GraphQLSchemaProvider getSchemaProvider()
+  protected graphql.servlet.config.GraphQLSchemaProvider getSchemaProvider()
   {
     return _service.getProvider();
   }
