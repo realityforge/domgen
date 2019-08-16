@@ -37,7 +37,12 @@ module Domgen
         (artifact_type == :exception && artifact.data_module.name.to_s == data_module_name.to_s) ||
         (artifact_type == :message && artifact.data_module.name.to_s == data_module_name.to_s) ||
         (artifact_type == :service && artifact.data_module.name.to_s == data_module_name.to_s) ||
-        (artifact_type == :struct && artifact.data_module.name.to_s == data_module_name.to_s)
+        (artifact_type == :struct && artifact.data_module.name.to_s == data_module_name.to_s) ||
+        !self.standard_artifact_types.include?(artifact_type)
+    end
+
+    def self.standard_artifact_types
+      [:repository, :data_module, :dao, :entity, :enumeration, :method, :exception, :message, :service, :struct]
     end
   end
 end
