@@ -29,8 +29,22 @@ public class <%= struct.ee.name %>
   public <%= struct.name %>()
   {
   }
-<% end %>
 
+<% end %>
+<% if struct.data_module.jpa? && struct.fields.any?{|field|field.enumeration?} -%>
+  // This constructor exists in case the JPA subsystem needs to map struct in result as enumerations are not mapped correctly
+  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, (field.enumeration? ? :transport : :boundary), :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  {
+    this( <%= struct.fields.collect {|field|
+  name = Reality::Naming.camelize(field.name)
+  if field.enumeration?
+    field.enumeration.numeric_values? ? "#{field.enumeration.ee.qualified_name}.values()[ #{name} ]" :"#{field.enumeration.ee.qualified_name}.valueOf( #{name} )"
+  else
+    name
+  end }.join(', ') %> );
+  }
+
+<% end -%>
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
 <% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join( ', ') %>})<% end -%>
   public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
