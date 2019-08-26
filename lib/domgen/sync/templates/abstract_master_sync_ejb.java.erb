@@ -381,7 +381,7 @@ end
 
   protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String sql )
   {
-    return executeUpdate( sql.replace( "@@MAPPING_SOURCE@@", "'" + mappingSourceCode + "'" ) );
+    return executeUpdate( sql.replace( "__MAPPING_SOURCE__", "'" + mappingSourceCode + "'" ) );
   }
 
   protected int executeUpdate( @javax.annotation.Nonnull final String sql )

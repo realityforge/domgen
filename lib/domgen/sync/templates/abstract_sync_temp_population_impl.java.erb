@@ -345,7 +345,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 
   protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String sql )
   {
-    return executeUpdate( sql.replace( "@@MAPPING_SOURCE@@", "'" + mappingSourceCode + "'" ) );
+    return executeUpdate( sql.replace( "__MAPPING_SOURCE__", "'" + mappingSourceCode + "'" ) );
   }
 
   protected int executeUpdate( @javax.annotation.Nonnull final String sql )
