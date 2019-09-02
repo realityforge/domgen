@@ -5,20 +5,21 @@ package <%= to_package(repository.graphql.qualified_endpoint_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.servlet.annotation.WebServlet( name = "<%= repository.name %>.<%= repository.graphql.endpoint_name %>", urlPatterns = { <%= repository.graphql.endpoint_name %>.API_ENDPOINT<% if repository.graphql.graphiql? -%>, <%= repository.graphql.endpoint_name %>.INTERACTIVE_API_ENDPOINT<% end %> }, loadOnStartup = 1 )
 public class <%= repository.graphql.endpoint_name %>
-  extends org.realityforge.graphql.domgen.AbstractDomgenGraphQLEndpoint
+  extends graphql.servlet.DefaultGraphQLServlet
 {
   public static final String API_ENDPOINT = "<%= repository.graphql.api_endpoint %>";
 <% if repository.graphql.graphiql? -%>
   public static final String INTERACTIVE_API_ENDPOINT = "<%= repository.graphql.graphiql_api_endpoint %>";
 <% end -%>
-
+  @javax.annotation.Nonnull
+  private final graphql.servlet.input.GraphQLInvocationInputFactory _invocationInputFactory = graphql.servlet.input.GraphQLInvocationInputFactory.newBuilder( _service::getProvider ).build();
   @javax.inject.Inject
   private org.realityforge.graphql.domgen.GraphQLSchemaService _service;
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected graphql.servlet.config.GraphQLSchemaProvider getSchemaProvider()
+  protected graphql.servlet.input.GraphQLInvocationInputFactory getInvocationInputFactory()
   {
-    return _service.getProvider();
+    return _invocationInputFactory;
   }
 }
