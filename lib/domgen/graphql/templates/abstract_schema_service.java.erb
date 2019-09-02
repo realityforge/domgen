@@ -100,7 +100,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
   @java.lang.Override
   protected void wireSchema( @javax.annotation.Nonnull final graphql.schema.idl.RuntimeWiring.Builder builder )
   {
-<% repository.graphql.non_standard_scalars.select{|scalar| %w(Date DateTime).include?(scalar)}.each do |scalar| -%>
+<% repository.graphql.non_standard_scalars.select{|scalar| %w(LocalDate LocalDateTime).include?(scalar)}.each do |scalar| -%>
     builder.scalar( org.realityforge.graphql.domgen.Scalars.<%= Reality::Naming.uppercase_constantize(scalar) %> );
 <% end -%>
     final graphql.schema.GraphQLCodeRegistry.Builder registry = graphql.schema.GraphQLCodeRegistry.newCodeRegistry();
