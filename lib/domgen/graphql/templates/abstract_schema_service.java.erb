@@ -26,12 +26,14 @@ public class <%= repository.graphql.schema_service_name %>
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.UnnecessaryLocalBeforeReturn" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "ACEM_ABSTRACT_CLASS_EMPTY_METHODS" } )
 public abstract class <%= repository.graphql.abstract_schema_service_name %>
-  extends org.realityforge.graphql.domgen.Abstract<%= repository.imit? ? 'Replicant' : '' %>GraphQLSchemaService
+  implements org.realityforge.graphql.domgen.GraphQLSchemaService
 {
   @javax.annotation.Resource( lookup = "java:appserver/TransactionManager" )
   private javax.transaction.TransactionManager _transactionManager;
   @javax.annotation.Resource( lookup = "<%= repository.graphql.context_service_jndi_name %>" )
   private javax.enterprise.concurrent.ContextService _contextService;
+  @javax.annotation.Nullable
+  private graphql.servlet.config.GraphQLSchemaProvider _schemaProvider;
 <% if repository.imit? -%>
   @javax.inject.Inject
   private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
@@ -42,62 +44,49 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
   @javax.inject.Inject
   private org.realityforge.replicant.server.transport.ReplicantSessionManager _sessionManager;
 
+  @javax.annotation.Nonnull
+  protected <T> graphql.schema.DataFetcher<T> wrapInTransaction( @javax.annotation.Nonnull final String key, @javax.annotation.Nonnull final graphql.schema.DataFetcher<T> fetcher )
+  {
+  return super.wrapInTransaction( key, new org.realityforge.replicant.server.graphql.ReplicantEnabledDataFetcher<>( _sessionManager, _endpoint, _entityManager, _registry, key, fetcher ) );
+  }
+<% end -%>
+
   @javax.annotation.PostConstruct
   protected void postConstruct()
   {
-    super.initSchemaProvider();
+    _schemaProvider = new graphql.servlet.config.DefaultGraphQLSchemaProvider( org.realityforge.graphql.domgen.SchemaUtil.buildGraphQLSchema( getSchemaResources(), this::wireSchema ) );
   }
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected org.realityforge.replicant.server.transport.ReplicantSessionManager getReplicantSessionManager()
+  public graphql.servlet.config.GraphQLSchemaProvider getProvider()
   {
-    return _sessionManager;
+    assert null != _schemaProvider;
+    return _schemaProvider;
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @javax.annotation.Nonnull
+  protected <T> graphql.schema.DataFetcher<T> topLevelDataFetcher( @javax.annotation.Nonnull final String key,
+                                                                   final boolean wrapInTransaction,
+                                                                   @javax.annotation.Nonnull final graphql.schema.DataFetcher<T> fetcher )
+  {
+    final graphql.schema.DataFetcher dataFetcher = wrapInTransaction ? wrapInTransaction( key, fetcher ) : fetcher;
+    return (graphql.schema.DataFetcher<T>) _contextService.createContextualProxy( dataFetcher, graphql.schema.DataFetcher.class );
   }
 
   @javax.annotation.Nonnull
-  @java.lang.Override
-  protected javax.transaction.TransactionSynchronizationRegistry getRegistry()
+  protected <T> graphql.schema.DataFetcher<T> wrapInTransaction( @javax.annotation.Nonnull final String key, @javax.annotation.Nonnull final graphql.schema.DataFetcher<T> fetcher )
   {
-    return _registry;
+    return new org.realityforge.graphql.domgen.TransactionEnabledDataFetcher<>( _transactionManager, fetcher );
   }
 
   @javax.annotation.Nonnull
-  @java.lang.Override
-  protected org.realityforge.replicant.server.EntityMessageEndpoint getEndpoint()
-  {
-    return _endpoint;
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected javax.persistence.EntityManager getEntityManager()
-  {
-    return _entityManager;
-  }
-<% end -%>
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected javax.enterprise.concurrent.ContextService getContextService()
-  {
-    return _contextService;
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected javax.transaction.TransactionManager getTransactionManager()
-  {
-    return _transactionManager;
-  }
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
   protected java.util.List<java.lang.String> getSchemaResources()
   {
     return java.util.Collections.singletonList( "/<%= repository.graphql.qualified_schema_name.gsub(".","/") %>.graphqls" );
   }
 
-  @java.lang.Override
   protected void wireSchema( @javax.annotation.Nonnull final graphql.schema.idl.RuntimeWiring.Builder builder )
   {
 <% repository.graphql.non_standard_scalars.select{|scalar| %w(LocalDate LocalDateTime).include?(scalar)}.each do |scalar| -%>
