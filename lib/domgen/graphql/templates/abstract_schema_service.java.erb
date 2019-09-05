@@ -54,7 +54,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
   @javax.annotation.PostConstruct
   protected void postConstruct()
   {
-    _schemaProvider = new graphql.servlet.config.DefaultGraphQLSchemaProvider( org.realityforge.graphql.domgen.SchemaUtil.buildGraphQLSchema( getSchemaResources(), this::wireSchema ) );
+    _schemaProvider = new graphql.servlet.config.DefaultGraphQLSchemaProvider( buildGraphQLSchema() );
   }
 
   @javax.annotation.Nonnull
@@ -99,5 +99,42 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
 
   protected void wireCodeRegistry( @javax.annotation.Nonnull final graphql.schema.GraphQLCodeRegistry.Builder registry )
   {
+  }
+
+  @javax.annotation.Nonnull
+  private graphql.schema.GraphQLSchema buildGraphQLSchema()
+  {
+    final graphql.schema.idl.SchemaParser schemaParser = new graphql.schema.idl.SchemaParser();
+    final graphql.schema.idl.SchemaGenerator schemaGenerator = new graphql.schema.idl.SchemaGenerator();
+
+    final graphql.schema.idl.TypeDefinitionRegistry typeRegistry = new graphql.schema.idl.TypeDefinitionRegistry();
+
+    // each schema is merged into a single type registry
+    for ( final String resourceName : getSchemaResources() )
+    {
+      try ( final java.io.InputStream inputStream = getClass().getResourceAsStream( resourceName ) )
+      {
+        if ( null == inputStream )
+        {
+          throw new IllegalStateException( "Attempting to load resource named '" + resourceName +
+                                           "' to populate the GraphQL type definition registry but " +
+                                           "the resource does not exist on the classpath." );
+        }
+        typeRegistry.merge( schemaParser.parse( new java.io.InputStreamReader( inputStream ) ) );
+      }
+      catch ( final java.io.IOException ioe )
+      {
+        throw new IllegalStateException( "Attempting to load resource named '" + resourceName +
+                                         "' to populate the GraphQL type definition registry but " +
+                                         "there was an error loading the resource from the classpath: " + ioe,
+                                         ioe );
+      }
+    }
+
+    final graphql.schema.idl.RuntimeWiring.Builder builder = graphql.schema.idl.RuntimeWiring.newRuntimeWiring();
+    wireSchema( builder );
+    final graphql.schema.GraphQLSchema schema = schemaGenerator.makeExecutableSchema( typeRegistry, builder.build() );
+    new graphql.schema.validation.SchemaValidator().validateSchema( schema );
+    return schema;
   }
 }
