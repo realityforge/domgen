@@ -11,15 +11,22 @@ public class <%= repository.graphql.endpoint_name %>
 <% if repository.graphql.graphiql? -%>
   public static final String INTERACTIVE_API_ENDPOINT = "<%= repository.graphql.graphiql_api_endpoint %>";
 <% end -%>
-  @javax.annotation.Nonnull
-  private final graphql.servlet.input.GraphQLInvocationInputFactory _invocationInputFactory = graphql.servlet.input.GraphQLInvocationInputFactory.newBuilder( _service::getProvider ).build();
   @javax.inject.Inject
-  private org.realityforge.graphql.domgen.GraphQLSchemaService _service;
+  private graphql.servlet.config.GraphQLSchemaProvider _provider;
+  private graphql.servlet.input.GraphQLInvocationInputFactory _invocationInputFactory;
+
+  @java.lang.Override
+  public void init()
+  {
+    _invocationInputFactory = graphql.servlet.input.GraphQLInvocationInputFactory.newBuilder( _provider ).build();
+    super.init();
+  }
 
   @javax.annotation.Nonnull
   @java.lang.Override
   protected graphql.servlet.input.GraphQLInvocationInputFactory getInvocationInputFactory()
   {
+    assert null != _invocationInputFactory;
     return _invocationInputFactory;
   }
 }
