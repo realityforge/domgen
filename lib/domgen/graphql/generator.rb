@@ -27,5 +27,9 @@ Domgen::Generator.define([:graphql],
                               'endpoint.java.erb',
                               'main/java/#{repository.graphql.qualified_endpoint_name.gsub(".","/")}.java',
                               :additional_facets => [:ee])
+    template_set.erb_template(:repository,
+                              'transactional_data_fetcher.java.erb',
+                              'main/java/#{repository.graphql.qualified_transactional_data_fetcher_name.gsub(".","/")}.java',
+                              :additional_facets => [:ee])
   end
 end

@@ -71,7 +71,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
   @javax.annotation.Nonnull
   protected <T> graphql.schema.DataFetcher<T> wrapInTransaction( @javax.annotation.Nonnull final String key, @javax.annotation.Nonnull final graphql.schema.DataFetcher<T> fetcher )
   {
-    return new org.realityforge.graphql.domgen.TransactionEnabledDataFetcher<>( _transactionManager, fetcher );
+    return new <%= repository.graphql.qualified_transactional_data_fetcher_name %><>( _transactionManager, fetcher );
   }
 
   @javax.annotation.Nonnull
