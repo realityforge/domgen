@@ -13,7 +13,7 @@ public class <%= repository.graphql.endpoint_name %>
 <% end -%>
   @javax.inject.Inject
   private graphql.servlet.config.GraphQLSchemaProvider _provider;
-  private graphql.servlet.input.GraphQLInvocationInputFactory _invocationInputFactory;
+  private transient graphql.servlet.input.GraphQLInvocationInputFactory _invocationInputFactory;
 
   @java.lang.Override
   public void init()
