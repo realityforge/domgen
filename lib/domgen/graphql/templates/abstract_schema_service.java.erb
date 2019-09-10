@@ -113,7 +113,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
                                            "' to populate the GraphQL type definition registry but " +
                                            "the resource does not exist on the classpath." );
         }
-        typeRegistry.merge( schemaParser.parse( new java.io.InputStreamReader( inputStream ) ) );
+        typeRegistry.merge( schemaParser.parse( new java.io.InputStreamReader( inputStream, java.nio.charset.StandardCharsets.UTF_8 ) ) );
       }
       catch ( final java.io.IOException ioe )
       {
