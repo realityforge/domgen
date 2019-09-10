@@ -105,7 +105,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
     // each schema is merged into a single type registry
     for ( final String resourceName : getSchemaResources() )
     {
-      try ( final java.io.InputStream inputStream = getClass().getResourceAsStream( resourceName ) )
+      try ( java.io.InputStream inputStream = getClass().getResourceAsStream( resourceName ) )
       {
         if ( null == inputStream )
         {
