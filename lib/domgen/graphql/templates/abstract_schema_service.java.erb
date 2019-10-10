@@ -64,7 +64,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
                                                                    final boolean wrapInTransaction,
                                                                    @javax.annotation.Nonnull final graphql.schema.DataFetcher<T> fetcher )
   {
-    final graphql.schema.DataFetcher dataFetcher = wrapInTransaction ? wrapInTransaction( key, fetcher ) : fetcher;
+    final graphql.schema.DataFetcher<T> dataFetcher = wrapInTransaction ? wrapInTransaction( key, fetcher ) : fetcher;
     return (graphql.schema.DataFetcher<T>) _contextService.createContextualProxy( dataFetcher, graphql.schema.DataFetcher.class );
   }
 
