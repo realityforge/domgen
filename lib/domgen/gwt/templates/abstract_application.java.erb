@@ -109,17 +109,17 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     if ( null != elemental2.dom.DomGlobal.applicationCache && elemental2.dom.DomGlobal.document.getElementsByTagName( "html" ).item( 0 ).hasAttribute( "manifest" ) )
     {
       elemental2.dom.DomGlobal.applicationCache.addEventListener( "updateready", e -> {
-          if ( elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.UNCACHED &&
-               elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.CHECKING &&
-               elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.DOWNLOADING )
+          if ( elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.UNCACHED &&
+               elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.CHECKING &&
+               elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.DOWNLOADING )
           {
             elemental2.dom.DomGlobal.applicationCache.swapCache();
           }
           onAppcacheUpdateReadyEvent();
       } );
-      if ( elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.UNCACHED &&
-           elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.CHECKING &&
-           elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.DomGlobal.applicationCache.DOWNLOADING )
+      if ( elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.UNCACHED &&
+           elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.CHECKING &&
+           elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.DOWNLOADING )
       {
         elemental2.dom.DomGlobal.applicationCache.update();
       }
