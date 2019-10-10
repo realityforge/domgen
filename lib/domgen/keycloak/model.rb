@@ -418,7 +418,7 @@ module Domgen
 
         c.protocol_mapper = 'oidc-group-membership-mapper'
         c.java_type = 'java.util.List<String>'
-        c.js_type = 'com.google.gwt.core.client.JsArray'
+        c.js_type = 'elemental2.core.JsArray<String>'
         c
       end
 
