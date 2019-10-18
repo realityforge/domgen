@@ -37,6 +37,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute.remote_reference? ? attribute.referenced_remote_entity.primary_key : attribute
     type_suffix = 'Object'
     type_suffix = 'Int' if a.integer? && !attribute.nullable?
+    type_suffix = 'Int' if a.imit.transport_characteristic_type_key == :enumeration && a.enumeration.numeric_values?
     type_suffix = 'Long' if a.long? && !attribute.nullable?
     type_suffix = 'Boolean' if a.boolean? && !attribute.nullable?
     type_suffix = 'Date' if a.date? || attribute.date?
@@ -45,6 +46,8 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     type_suffix = 'Double' if a.real? && !attribute.nullable?
 
     db_type = attribute.jpa.java_type(:boundary)
+
+    require_cast = type_suffix == 'Object'
 
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :datetime
@@ -59,13 +62,14 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
           "$#{attribute.name}"
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
           db_type = 'java.lang.Integer'
+          require_cast = true
           "$#{attribute.name}"
         else
           Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
         end
 
 -%>
-      final <%= db_type %> $<%= attribute.name %> = (<%= db_type %>) resultSet.get<%= type_suffix %>( "<%= attribute.sql.column_name %>" );
+      final <%= db_type %> $<%= attribute.name %> = <%= type_suffix == 'Object' ? "(#{db_type}) " : '' %>resultSet.get<%= type_suffix %>( "<%= attribute.sql.column_name %>" );
 <% unless attribute.primary_key? -%>
 <% if attribute.nullable? -%>
       if ( null != $<%= attribute.name %> )
