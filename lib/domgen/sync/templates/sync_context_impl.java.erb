@@ -310,7 +310,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     boolean deleted = false;
     if( null != id )
     {
-      final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.findBy<%= entity.primary_key.name %>( ( <%= entity.primary_key.jpa.java_type(:boundary) %> ) id );
+      final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.findBy<%= entity.primary_key.name %>( id );
       if( null != entity )
       {
         deleted = true;
