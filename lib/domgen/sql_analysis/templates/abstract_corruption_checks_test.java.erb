@@ -20,6 +20,7 @@ public abstract class <%= repository.sql_analysis.abstract_corruption_checks_tes
       org.realityforge.guiceyloops.server.DatabaseAsserts.execute( em().unwrap( java.sql.Connection.class ), _corruptionCheckSQL, 0 );
     }
 
+    @SuppressWarnings( "varargs" )
     @SafeVarargs
     public final void expectCorruptions( @javax.annotation.Nonnull final java.util.Map<String, org.hamcrest.Matcher<Object>>... expectations )
       throws Exception
