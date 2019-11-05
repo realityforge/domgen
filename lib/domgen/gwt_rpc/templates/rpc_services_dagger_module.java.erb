@@ -113,22 +113,6 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 <%
   repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
     data_module.services.select{|service| service.gwt_rpc?}.each do |service|
--%>
-  @javax.annotation.Nonnull
-  @dagger.Provides
-  @javax.inject.Singleton
-  public static <%= service.gwt_rpc.qualified_facade_service_name %> provide<%= data_module.name %><%= service.name %>FacadeService( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_proxy_name %> proxy )
-  {
-    return proxy;
-  }
-<%
-    end
-  end
--%>
-
-<%
-  repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
-    data_module.services.select{|service| service.gwt_rpc?}.each do |service|
 %>
   @javax.annotation.Nonnull
   @dagger.Provides
