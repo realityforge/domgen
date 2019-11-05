@@ -2,15 +2,12 @@
 package <%= to_package(repository.keycloak.qualified_services_dagger_module_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "JavaDoc", "PMD.UseUtilityClass" } )
+@java.lang.SuppressWarnings( "JavaDoc" )
 @dagger.Module
-public class <%= repository.keycloak.services_dagger_module_name %>
+public interface <%= repository.keycloak.services_dagger_module_name %>
 {
   @javax.annotation.Nonnull
-  @dagger.Provides
+  @dagger.Binds
   @javax.inject.Singleton
-  public static <%= repository.keycloak.qualified_gwt_token_service_name %> provideTokenService( @javax.annotation.Nonnull final <%= repository.keycloak.qualified_gwt_token_service_impl_name %> impl )
-  {
-    return impl;
-  }
+  <%= repository.keycloak.qualified_gwt_token_service_name %> provideTokenService( @javax.annotation.Nonnull <%= repository.keycloak.qualified_gwt_token_service_impl_name %> impl );
 }
