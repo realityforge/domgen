@@ -7,8 +7,10 @@ package <%= to_package(service.gwt_rpc.qualified_proxy_name) %>;
 public class <%= service.gwt_rpc.proxy_name %>
   implements <%= service.gwt_rpc.qualified_facade_service_name %>
 {
+  @javax.annotation.Nonnull
   private final <%= service.gwt_rpc.qualified_async_rpc_service_name %> _service;
 <% if service.gwt_rpc.default_callback? -%>
+  @javax.annotation.Nonnull
   private final com.google.gwt.user.client.rpc.AsyncCallback _callback;
 <% end -%>
 
