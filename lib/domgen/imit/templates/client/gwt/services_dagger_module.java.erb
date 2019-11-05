@@ -2,28 +2,22 @@
 package <%= to_package(repository.imit.qualified_services_dagger_module_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@java.lang.SuppressWarnings( { "JavaDoc", "PMD.UseUtilityClass" } )
+@java.lang.SuppressWarnings( "JavaDoc" )
 @dagger.Module
-public class <%= repository.imit.services_dagger_module_name %>
+public interface <%= repository.imit.services_dagger_module_name %>
 {
   @javax.annotation.Nonnull
-  @dagger.Provides
+  @dagger.Binds
   @javax.inject.Singleton
-  public static <%= repository.imit.qualified_gwt_client_session_context_name %> provideSessionContext( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_impl_name %> service )
-  {
-    return service;
-  }
+  <%= repository.imit.qualified_gwt_client_session_context_name %> bindSessionContext( @javax.annotation.Nonnull <%= repository.imit.qualified_gwt_client_session_context_impl_name %> service );
 <%
   repository.data_modules.select{|data_module| data_module.imit? && data_module.gwt_rpc?}.each do |data_module|
     data_module.services.select{|service| service.imit? && service.gwt_rpc?}.each do |service| -%>
 
   @javax.annotation.Nonnull
-  @dagger.Provides
+  @dagger.Binds
   @javax.inject.Singleton
-  public static <%= service.imit.qualified_name %> provide<%= data_module.name %><%= service.name %>ReplicantService( @javax.annotation.Nonnull final <%= service.imit.qualified_proxy_name %> service )
-  {
-    return service;
-  }
+  <%= service.imit.qualified_name %> bind<%= data_module.name %><%= service.name %>ReplicantService( @javax.annotation.Nonnull <%= service.imit.qualified_proxy_name %> service );
 <%
     end
   end
