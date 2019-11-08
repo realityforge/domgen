@@ -13,7 +13,7 @@ public abstract class <%= repository.jaxrs.abstract_application_name %>
   public java.util.Set<Class<?>> getClasses()
   {
     final java.util.Set<Class<?>> classes = new java.util.HashSet<>();
-<% repository.data_modules.select{|d| d.jaxrs?}.collect {|d| d.services.select{|s| s.jaxrs?}.collect {|s| s.jaxrs.qualified_service_name }}.flatten.each do |service_name| -%>
+<% repository.data_modules.select{|d| d.jaxrs?}.collect {|d| d.services.select{|s| s.jaxrs?}.collect {|s| s.jaxrs.qualified_boundary_name }}.flatten.each do |service_name| -%>
     classes.add( <%= service_name %>.class );
 <% end -%>
 <% repository.data_modules.select{|d| d.jaxrs?}.collect {|d| d.exceptions.select{|e| e.jaxrs? && e.concrete?}.collect {|s| s.jaxrs.qualified_exception_mapper_name }}.flatten.each do |exception_mapper_name| -%>
