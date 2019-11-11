@@ -9,33 +9,16 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.keycloak? -%>
   private final org.realityforge.gwt.keycloak.Keycloak _keycloak;
 <% end -%>
-  private final String _applicationURL;
   private final String _serverUrl;
 
   protected <%= repository.gwt.abstract_application_name %>(<% if repository.keycloak? -%> @javax.annotation.Nonnull final String keycloakClient <% end -%>)
   {
-    final String hostBaseURL = com.google.gwt.core.client.GWT.getHostPageBaseURL();
-    final String hostURL = hostBaseURL.substring( 0, hostBaseURL.indexOf( '/', hostBaseURL.indexOf( "://" ) + 3 ) );
-    final String moduleBaseURL = com.google.gwt.core.client.GWT.getModuleBaseURL();
-    final String moduleHostURL = moduleBaseURL.substring( 0, moduleBaseURL.indexOf( '/', moduleBaseURL.indexOf( "://" ) + 3 ) );
-    if( !hostURL.equals( moduleHostURL ) )
-    {
-      _applicationURL = hostBaseURL;
-    }
-    else
-    {
-      _applicationURL = moduleBaseURL.substring( 0, moduleBaseURL.length() - com.google.gwt.core.client.GWT.getModuleName().length() - 1 );
-    }
-    _serverUrl = _applicationURL.substring( 0, _applicationURL.indexOf( '/', _applicationURL.indexOf( "://" ) + 3 ) );
+    final String applicationURL = com.google.gwt.core.client.GWT.getModuleBaseURL();
+    _serverUrl = applicationURL.substring( 0, applicationURL.indexOf( '/', applicationURL.indexOf( "://" ) + 3 ) );
 <% if repository.keycloak? -%>
-    _keycloak = new org.realityforge.gwt.keycloak.Keycloak( keycloakClient, _applicationURL + ".keycloak/" + keycloakClient + "/keycloak.json" );
+    _keycloak = new org.realityforge.gwt.keycloak.Keycloak( keycloakClient, applicationURL + ".keycloak/" + keycloakClient + "/keycloak.json" );
     _keycloak.setListener( newKeycloakListener() );
 <% end -%>
-  }
-
-  public String getApplicationURL()
-  {
-    return _applicationURL;
   }
 
   public String getServerUrl()
@@ -164,9 +147,9 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.keycloak? -%>
     <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setKeycloak( getKeycloak() );
 <% end -%>
-    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setBaseURL( getApplicationURL() );
+    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setBaseURL( com.google.gwt.core.client.GWT.getModuleBaseURL() );
 <% if repository.iris_audit? -%>
-    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setBaseURL( getApplicationURL() );
+    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setBaseURL( com.google.gwt.core.client.GWT.getModuleBaseURL() );
 <% if repository.keycloak? -%>
     iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
@@ -180,7 +163,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% end -%>
 <% end -%>
 <% if repository.berk? -%>
-    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setBaseURL( getApplicationURL() );
+    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setBaseURL( com.google.gwt.core.client.GWT.getModuleBaseURL() );
 <% if repository.keycloak? -%>
     iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
