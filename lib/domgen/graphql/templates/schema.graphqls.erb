@@ -108,9 +108,8 @@ type <%= struct.graphql.output_name %> {
 <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.services.select(&:graphql?).each do |service| -%>
 <% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
-
-type <%= method.graphql.response_name %> {
-  clientMutationId: String
+<% if method.graphql.result? -%>
+type <%= method.graphql.result_name %> {
 <% if method.return_value.graphql? -%>
 <%
   return_type =
@@ -132,10 +131,27 @@ type <%= method.graphql.response_name %> {
   <%= parameter.graphql.name %>: <%= parameter.graphql.output_type %>
 <% end -%>
 }
-<% end -%>
-<% end -%>
-<% end -%>
 
+<% end -%>
+<% if method.graphql.error? -%>
+type <%= method.graphql.error_name %> {
+  type: String!
+  message: String
+}
+
+<% end -%>
+type <%= method.graphql.response_name %> {
+  clientMutationId: String
+<% if method.graphql.result? -%>
+  result: <%= method.graphql.result_name %>
+<% end -%>
+<% if method.graphql.error? -%>
+  error: <%= method.graphql.error_name %>
+<% end -%>
+}
+<% end -%>
+<% end -%>
+<% end -%>
 <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.entities.select(&:graphql?).each do |entity| -%>
 

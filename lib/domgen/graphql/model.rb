@@ -745,6 +745,18 @@ module Domgen
         @response_name || "#{self.method.name}Response"
       end
 
+      attr_writer :result_name
+
+      def result_name
+        @result_name || "#{self.method.name}Result"
+      end
+
+      attr_writer :error_name
+
+      def error_name
+        @error_name || "#{self.method.name}Error"
+      end
+
       attr_writer :description
 
       def description
@@ -755,6 +767,14 @@ module Domgen
 
       def deprecated?
         !@deprecation_reason.nil?
+      end
+
+      def result?
+        method.return_value.graphql? || method.parameters.any?{|parameter|parameter.graphql? && parameter.graphql.output?}
+      end
+
+      def error?
+        method.exceptions.any?{|exception|exception.graphql?}
       end
 
       def pre_complete
