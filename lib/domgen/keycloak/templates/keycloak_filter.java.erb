@@ -36,7 +36,12 @@ public class <%= client.keycloak_filter_name %>
   {
     if ( !_disabled && _urlFilter.shouldProtectRequest( request ) )
     {
-      super.doFilter( request, response, chain );
+      super.doFilter( request, response, ( servletRequest, servletResponse ) -> {
+        if ( _urlFilter.postAuthenticateGuard( servletRequest, servletResponse ) )
+        {
+          chain.doFilter( servletRequest, servletResponse );
+        }
+      } );
     }
     else
     {

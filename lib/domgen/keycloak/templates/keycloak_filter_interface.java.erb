@@ -5,4 +5,6 @@ package <%= to_package(client.qualified_keycloak_filter_interface_name) %>;
 public interface <%= client.keycloak_filter_interface_name %>
 {
   boolean shouldProtectRequest( @javax.annotation.Nonnull javax.servlet.ServletRequest request );
+
+  boolean postAuthenticateGuard( @javax.annotation.Nonnull javax.servlet.ServletRequest request, @javax.annotation.Nonnull javax.servlet.ServletResponse response );
 }
