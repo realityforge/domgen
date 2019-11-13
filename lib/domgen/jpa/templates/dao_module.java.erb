@@ -41,7 +41,17 @@ public class <%= repository.jpa.dao_module_name %>
 
   protected void bindTimeService()
   {
-    bind( org.realityforge.timeservice.TimeService.class ).to( org.realityforge.timeservice.TimeServiceImpl.class ).in( javax.inject.Singleton.class );
+    bind( org.realityforge.timeservice.TimeService.class ).to( TestTimeServiceImpl.class ).in( javax.inject.Singleton.class );
+  }
+
+  public static class TestTimeServiceImpl
+    implements org.realityforge.timeservice.TimeService
+  {
+    @Override
+    public long currentTimeMillis()
+    {
+      return org.realityforge.guiceyloops.shared.ValueUtil.now().getTime();
+    }
   }
 <% end -%>
 }
