@@ -162,4 +162,44 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
   {
     return _entityManager;
   }
+
+  @javax.annotation.Nonnull
+  protected final java.util.Map<String, Object> successResponse( @javax.annotation.Nullable final String clientMutationId, @javax.annotation.Nonnull final java.util.Map<String, Object> result )
+  {
+    final java.util.Map<String, Object> data = new java.util.HashMap<>();
+    data.put( "clientMutationId", clientMutationId );
+    data.put( "result", result );
+    return data;
+  }
+
+  @SuppressWarnings( "checkstyle:MethodTypeParameterName" )
+  @javax.annotation.Nonnull
+  protected final <EntityType, IdType> java.util.List<EntityType> asEntityList( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e,
+                                                                                @javax.annotation.Nonnull final Class<EntityType> clazz,
+                                                                                @javax.annotation.Nonnull final String argName,
+                                                                                @javax.annotation.Nonnull final String typeName,
+                                                                                @javax.annotation.Nonnull final java.util.Collection<IdType> values )
+  {
+    return values.stream()
+      .map( id -> asEntity( e, clazz, argName, typeName, id ) )
+      .collect( java.util.stream.Collectors.toList() );
+  }
+
+  @SuppressWarnings( "checkstyle:MethodTypeParameterName" )
+  @javax.annotation.Nonnull
+  protected final <EntityType> EntityType asEntity( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e,
+                                                    @javax.annotation.Nonnull final Class<EntityType> clazz,
+                                                    @javax.annotation.Nonnull final String argName,
+                                                    @javax.annotation.Nonnull final String typeName,
+                                                    @javax.annotation.Nonnull final Object id )
+  {
+    final EntityType entity = _entityManager.find( clazz, id );
+    if ( null == entity )
+    {
+      throw new graphql.schema.CoercingParseValueException( "Argument '" + argName + "' contains an id with no " + typeName + " entity associated with the id. The entity may have been deleted.",
+                                                            null,
+                                                            e.getMergedField().getArguments().stream().filter( a -> a.getName().equals( argName ) ).map( graphql.language.Argument::getSourceLocation ).findAny().orElse( null ) );
+    }
+    return entity;
+  }
 }
