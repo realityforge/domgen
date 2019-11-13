@@ -54,7 +54,7 @@ module Domgen
       end
 
       def graphql_resolve_parameter(parameter)
-        transport_value = "args.get#{parameter.name}()"
+        transport_value = "args.get#{Reality::Naming.pascal_case(parameter.graphql.name)}()"
         accessor =
           if parameter.reference? && !parameter.collection?
             "asEntity( e, #{parameter.ejb.java_type}.class, \"#{parameter.graphql.name}\", \"#{parameter.referenced_entity.graphql.name}\", #{transport_value} )"

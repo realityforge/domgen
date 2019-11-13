@@ -195,7 +195,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
     $result.put( "<%= method.return_value.graphql.name %>", <%= method.return_value.graphql.name %> );
 <% end -%>
 <% method.parameters.select{|parameter|parameter.graphql? && parameter.graphql.output?}.each do |parameter| -%>
-    $result.put( "<%= parameter.graphql.name %>", <%= parameter.reference? || parameter.struct? ? Reality::Naming.camelize(parameter.name) : "args.get#{parameter.name}()" %> );
+    $result.put( "<%= parameter.graphql.name %>", <%= parameter.reference? || parameter.struct? ? Reality::Naming.camelize(parameter.name) : "args.get#{Reality::Naming.pascal_case(parameter.graphql.name)}()" %> );
 <% end -%>
     return successResponse( args.getClientMutationId(), $result );
   }
