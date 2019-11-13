@@ -52,6 +52,25 @@ module Domgen
           "#{' ' * indent}\"#{description}\"\n"
         end
       end
+
+      def graphql_resolve_parameter(parameter)
+        transport_value = "args.get#{parameter.name}()"
+        accessor =
+          if parameter.reference? && !parameter.collection?
+            "asEntity( e, #{parameter.ejb.java_type}.class, \"#{parameter.graphql.name}\", \"#{parameter.referenced_entity.graphql.name}\", #{transport_value} )"
+          elsif parameter.reference? && parameter.collection?
+            "asEntityList( e, #{parameter.ejb.java_component_type}.class, \"#{parameter.graphql.name}\", \"#{parameter.referenced_entity.graphql.name}\", #{transport_value} )"
+          elsif parameter.struct? && !parameter.collection?
+            "asStruct( #{transport_value} )"
+          elsif parameter.struct? && parameter.collection?
+            "#{transport_value}.stream().map( this::asStruct ).collect( java.util.stream.Collectors.toList() )"
+          else
+            transport_value
+          end
+        accessor = "null == #{transport_value} ? null : #{accessor}" if parameter.nullable? && (parameter.reference? || parameter.struct?)
+        accessor
+      end
+
     end
   end
 end

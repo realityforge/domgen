@@ -34,6 +34,12 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
   private javax.enterprise.concurrent.ContextService _contextService;
   private graphql.schema.GraphQLSchema _schema;
   private graphql.schema.GraphQLSchema _readOnlySchema;
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.services.select{|service| service.graphql? && service.methods.any?{|method| method.graphql?}}.each do |service| -%>
+  @javax.inject.Inject
+  private <%= service.ejb.qualified_service_name %> _<%= Reality::Naming.camelize(service.name) %>;
+<% end -%>
+<% end -%>
 <% if repository.imit? -%>
   @javax.inject.Inject
   private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
@@ -88,13 +94,23 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
     builder.scalar( org.realityforge.graphql.scalars.Scalars.<%= Reality::Naming.uppercase_constantize(scalar) %> );
 <% end -%>
     final graphql.schema.GraphQLCodeRegistry.Builder registry = graphql.schema.GraphQLCodeRegistry.newCodeRegistry();
+    wireMutations( registry );
     wireCodeRegistry( registry );
     builder.codeRegistry( registry.build() );
   }
 
-  protected void wireCodeRegistry( @javax.annotation.Nonnull final graphql.schema.GraphQLCodeRegistry.Builder registry )
+  protected void wireMutations( @javax.annotation.Nonnull final graphql.schema.GraphQLCodeRegistry.Builder registry )
   {
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.services.select(&:graphql?).each do |service| -%>
+<% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
+  registry.dataFetcher( graphql.schema.FieldCoordinates.coordinates( "Mutation", "<%= method.graphql.name %>" ), wrapInTransaction( "graphql.mutation.<%= method.graphql.name %>", this::<%= method.graphql.name %> ) );
+<% end -%>
+<% end -%>
+<% end -%>
   }
+
+  protected abstract void wireCodeRegistry( @javax.annotation.Nonnull graphql.schema.GraphQLCodeRegistry.Builder registry );
 
   @javax.annotation.Nonnull
   private graphql.schema.GraphQLSchema buildGraphQLSchema()
@@ -158,13 +174,53 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
   }
 
   @javax.annotation.Nonnull
-  protected final javax.persistence.EntityManager em()
+  protected javax.persistence.EntityManager em()
   {
     return _entityManager;
   }
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.services.select(&:graphql?).each do |service| -%>
+<% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
 
   @javax.annotation.Nonnull
-  protected final java.util.Map<String, Object> successResponse( @javax.annotation.Nullable final String clientMutationId, @javax.annotation.Nonnull final java.util.Map<String, Object> result )
+  protected java.util.Map<String, Object> <%= method.graphql.name %>( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e )
+  {
+    final iris.rose.server.graphql.<%= Reality::Naming.pascal_case(method.graphql.name) %>Args args = iris.rose.server.graphql.<%= Reality::Naming.pascal_case(method.graphql.name) %>Args.from( e );
+<% method.parameters.select{|parameter|parameter.graphql? && parameter.graphql.output? && (parameter.reference? || parameter.struct?)}.each do |parameter| -%>
+    final <%= parameter.ejb.java_type %> <%= Reality::Naming.camelize(parameter.name) %> = <%= graphql_resolve_parameter(parameter) %>;
+<% end -%>
+    <% if method.return_value.graphql? -%>final <%= method.return_value.ejb.java_type %> <%= method.return_value.graphql.name %> = <% end %>_<%= Reality::Naming.camelize(service.name) %>.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.collect{|parameter| (parameter.reference? || parameter.struct?) && parameter.graphql.output? ? Reality::Naming.camelize(parameter.name) : graphql_resolve_parameter(parameter) }.join(', ') -%> );
+    final java.util.Map<String, Object> $result = new java.util.HashMap<>();
+<% if method.return_value.graphql? -%>
+    $result.put( "<%= method.return_value.graphql.name %>", <%= method.return_value.graphql.name %> );
+<% end -%>
+<% method.parameters.select{|parameter|parameter.graphql? && parameter.graphql.output?}.each do |parameter| -%>
+    $result.put( "<%= parameter.graphql.name %>", <%= parameter.reference? || parameter.struct? ? Reality::Naming.camelize(parameter.name) : "args.get#{parameter.name}()" %> );
+<% end -%>
+    return successResponse( args.getClientMutationId(), $result );
+  }
+<% end -%>
+<% end -%>
+<% end -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% data_module.structs.select{|struct| struct.graphql? && struct.graphql.input?}.each do |struct| -%>
+
+  @javax.annotation.Nonnull
+  protected <%= struct.ee.qualified_name %> asStruct( @javax.annotation.Nonnull final iris.rose.server.graphql.<%= struct.graphql.input_name %> input )
+  {
+    return new <%= struct.ee.qualified_name %>(<%= struct.fields.collect{|field|
+  input_value = "input.get#{field.name}()"
+  value = input_value
+  value = field.collection? ? "#{value}.stream().map( this::asStruct ).collect( java.util.stream.Collectors.toList() )" : value
+  value = field.collection? && field.nullable? ? "null == #{input_value} ? null : #{value}" : value
+  value
+  }.join(", ") %>);
+  }
+<% end -%>
+<% end -%>
+
+  @javax.annotation.Nonnull
+  protected java.util.Map<String, Object> successResponse( @javax.annotation.Nullable final String clientMutationId, @javax.annotation.Nonnull final java.util.Map<String, Object> result )
   {
     final java.util.Map<String, Object> data = new java.util.HashMap<>();
     data.put( "clientMutationId", clientMutationId );
@@ -174,11 +230,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
 
   @SuppressWarnings( "checkstyle:MethodTypeParameterName" )
   @javax.annotation.Nonnull
-  protected final <EntityType, IdType> java.util.List<EntityType> asEntityList( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e,
-                                                                                @javax.annotation.Nonnull final Class<EntityType> clazz,
-                                                                                @javax.annotation.Nonnull final String argName,
-                                                                                @javax.annotation.Nonnull final String typeName,
-                                                                                @javax.annotation.Nonnull final java.util.Collection<IdType> values )
+  protected <EntityType, IdType> java.util.List<EntityType> asEntityList( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e, @javax.annotation.Nonnull final Class<EntityType> clazz, @javax.annotation.Nonnull final String argName, @javax.annotation.Nonnull final String typeName, @javax.annotation.Nonnull final java.util.Collection<IdType> values )
   {
     return values.stream()
       .map( id -> asEntity( e, clazz, argName, typeName, id ) )
@@ -187,11 +239,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
 
   @SuppressWarnings( "checkstyle:MethodTypeParameterName" )
   @javax.annotation.Nonnull
-  protected final <EntityType> EntityType asEntity( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e,
-                                                    @javax.annotation.Nonnull final Class<EntityType> clazz,
-                                                    @javax.annotation.Nonnull final String argName,
-                                                    @javax.annotation.Nonnull final String typeName,
-                                                    @javax.annotation.Nonnull final Object id )
+  protected <EntityType> EntityType asEntity( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e, @javax.annotation.Nonnull final Class<EntityType> clazz, @javax.annotation.Nonnull final String argName, @javax.annotation.Nonnull final String typeName, @javax.annotation.Nonnull final Object id )
   {
     final EntityType entity = _entityManager.find( clazz, id );
     if ( null == entity )
