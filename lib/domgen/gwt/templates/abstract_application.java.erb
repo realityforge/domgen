@@ -13,7 +13,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   protected <%= repository.gwt.abstract_application_name %>(<% if repository.keycloak? -%> @javax.annotation.Nonnull final String keycloakClient <% end -%>)
   {
-    final String applicationURL = com.google.gwt.core.client.GWT.getModuleBaseURL();
+    final String applicationURL = com.google.gwt.core.client.GWT.getHostPageBaseURL();
     _serverUrl = applicationURL.substring( 0, applicationURL.indexOf( '/', applicationURL.indexOf( "://" ) + 3 ) );
 <% if repository.keycloak? -%>
     _keycloak = new org.realityforge.gwt.keycloak.Keycloak( keycloakClient, applicationURL + ".keycloak/" + keycloakClient + "/keycloak.json" );
@@ -147,9 +147,9 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.keycloak? -%>
     <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setKeycloak( getKeycloak() );
 <% end -%>
-    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setBaseURL( com.google.gwt.core.client.GWT.getModuleBaseURL() );
+    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
 <% if repository.iris_audit? -%>
-    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setBaseURL( com.google.gwt.core.client.GWT.getModuleBaseURL() );
+    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
 <% if repository.keycloak? -%>
     iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
@@ -163,7 +163,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% end -%>
 <% end -%>
 <% if repository.berk? -%>
-    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setBaseURL( com.google.gwt.core.client.GWT.getModuleBaseURL() );
+    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
 <% if repository.keycloak? -%>
     iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
