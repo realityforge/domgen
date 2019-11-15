@@ -815,6 +815,14 @@ module Domgen
         Reality::Naming.camelize(parameter.name)
       end
 
+      def input_name=(input_name)
+        @input_name = input_name
+      end
+
+      def input_name
+        @input_name || (parameter.reference? ? Reality::Naming.camelize(parameter.referencing_link_name) : self.default_name)
+      end
+
       attr_writer :emit_default_value
 
       def emit_default_value?
