@@ -172,7 +172,8 @@ module Domgen
     # The name of the local field appended with PK of foreign entity
     def referencing_link_name
       Domgen.error("referencing_link_name on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference or remote reference") unless reference? || remote_reference?
-      "#{name}#{(remote_reference? ? referenced_remote_entity : referenced_entity).primary_key.name}"
+      base_name = "#{self.respond_to?(:component_name) ? component_name : name}#{(remote_reference? ? referenced_remote_entity : referenced_entity).primary_key.name}"
+      self.collection? ? Reality::Naming.pluralize(base_name) : base_name
     end
 
     def referenced_remote_entity
