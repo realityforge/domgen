@@ -143,7 +143,7 @@ type <%= method.graphql.error_name %> {
 type <%= method.graphql.response_name %> {
   clientMutationId: String
 <% if method.graphql.result? -%>
-  result: <%= method.graphql.result_name %>
+  result: <%= method.graphql.result_name %><%= method.graphql.error? ? "" : "!" %>
 <% end -%>
 <% if method.graphql.error? -%>
   error: <%= method.graphql.error_name %>
