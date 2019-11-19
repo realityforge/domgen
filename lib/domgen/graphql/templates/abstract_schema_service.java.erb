@@ -182,7 +182,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
     return _entityManager;
   }
 <% end -%>
-  <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.services.select(&:graphql?).each do |service| -%>
 <% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
 
