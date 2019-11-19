@@ -719,6 +719,10 @@ module Domgen
 
     facet.enhance(Method) do
 
+      def qualified_args_name
+        "#{method.service.data_module.repository.giggle.server_graphql_package}.#{Reality::Naming.pascal_case(self.name)}Args"
+      end
+
       attr_writer :mutation
 
       def mutation?
@@ -952,6 +956,10 @@ module Domgen
 
       def input_name
         @input_name || "#{base_name}Input"
+      end
+
+      def qualified_input_dto_name
+        "#{struct.data_module.repository.giggle.server_graphql_package}.#{self.input_name}"
       end
 
       # Does this struct participate as a graphql "input"

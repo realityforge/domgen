@@ -19,6 +19,12 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
       include Domgen::Java::BaseJavaGenerator
 
+      attr_writer :server_graphql_package
+
+      def server_graphql_package
+        @server_graphql_package || "#{server_package}.graphql"
+      end
+
       def qualified_types_mapping_name
         "#{self.server_package}.types.mapping"
       end

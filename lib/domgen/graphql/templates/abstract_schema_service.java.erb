@@ -40,11 +40,13 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
   private <%= service.ejb.qualified_service_name %> _<%= Reality::Naming.camelize(service.name) %>;
 <% end -%>
 <% end -%>
+<% if repository.jpa? -%>
+  @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  private javax.persistence.EntityManager _entityManager;
+<% end -%>
 <% if repository.imit? -%>
   @javax.inject.Inject
   private org.realityforge.replicant.server.EntityMessageEndpoint _endpoint;
-  @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
-  private javax.persistence.EntityManager _entityManager;
   @javax.annotation.Resource
   private javax.transaction.TransactionSynchronizationRegistry _registry;
   @javax.inject.Inject
@@ -173,19 +175,25 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
     return _readOnlySchema;
   }
 
+<% if repository.jpa? -%>
   @javax.annotation.Nonnull
   protected javax.persistence.EntityManager em()
   {
     return _entityManager;
   }
-<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
+<% end -%>
+  <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.services.select(&:graphql?).each do |service| -%>
 <% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
 
   @javax.annotation.Nonnull
   protected java.util.Map<String, Object> <%= method.graphql.name %>( @javax.annotation.Nonnull final graphql.schema.DataFetchingEnvironment e )
   {
-    final iris.rose.server.graphql.<%= Reality::Naming.pascal_case(method.graphql.name) %>Args args = iris.rose.server.graphql.<%= Reality::Naming.pascal_case(method.graphql.name) %>Args.from( e );
+    final <%= method.graphql.qualified_args_name %> args = <%= method.graphql.qualified_args_name %>.from( e );
+<% unless method.exceptions.empty? -%>
+    try
+    {
+<% end -%>
 <% method.parameters.select{|parameter|parameter.graphql? && parameter.graphql.output? && (parameter.reference? || parameter.struct?)}.each do |parameter| -%>
     final <%= parameter.ejb.java_type %> <%= Reality::Naming.camelize(parameter.name) %> = <%= graphql_resolve_parameter(parameter) %>;
 <% end -%>
@@ -198,6 +206,15 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
     $result.put( "<%= parameter.graphql.name %>", <%= parameter.reference? || parameter.struct? ? Reality::Naming.camelize(parameter.name) : "args.get#{Reality::Naming.pascal_case(parameter.graphql.name)}()" %> );
 <% end -%>
     return successResponse( args.getClientMutationId(), $result );
+<% unless method.exceptions.empty? -%>
+    }
+<% method.exceptions.each do |ex| -%>
+    catch ( final <%= ex.ee.qualified_name %> ex )
+    {
+      return failureResponse( args.getClientMutationId(), "<%= ex.qualified_name.gsub(/!$/, '') %>", ex.getMessage() );
+    }
+<% end -%>
+<% end -%>
   }
 <% end -%>
 <% end -%>
@@ -206,11 +223,12 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
 <% data_module.structs.select{|struct| struct.graphql? && struct.graphql.input?}.each do |struct| -%>
 
   @javax.annotation.Nonnull
-  protected <%= struct.ee.qualified_name %> asStruct( @javax.annotation.Nonnull final iris.rose.server.graphql.<%= struct.graphql.input_name %> input )
+  protected <%= struct.ee.qualified_name %> asStruct( @javax.annotation.Nonnull final <%= struct.graphql.qualified_input_dto_name %> input )
   {
     return new <%= struct.ee.qualified_name %>(<%= struct.fields.collect{|field|
   input_value = "input.get#{field.name}()"
   value = input_value
+  value = (field.date? || field.datetime?) ? (field.nullable? ? "maybeDate(#{value})" : "toDate(#{value})") : value
   value = field.collection? ? "#{value}.stream().map( this::asStruct ).collect( java.util.stream.Collectors.toList() )" : value
   value = field.collection? && field.nullable? ? "null == #{input_value} ? null : #{value}" : value
   value
@@ -227,6 +245,43 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
     data.put( "result", result );
     return data;
   }
+
+  @javax.annotation.Nonnull
+  protected java.util.Map<String, Object> failureResponse( @javax.annotation.Nullable final String clientMutationId, @javax.annotation.Nonnull final String type, @javax.annotation.Nonnull final String message )
+  {
+    final java.util.Map<String, Object> error = new java.util.HashMap<>();
+    error.put( "type", type );
+    error.put( "message", message );
+    final java.util.Map<String, Object> data = new java.util.HashMap<>();
+    data.put( "clientMutationId", clientMutationId );
+    data.put( "error", error );
+    return data;
+  }
+
+  @javax.annotation.Nullable
+  protected java.util.Date maybeDate( @javax.annotation.Nullable final java.time.LocalDate localDate )
+  {
+    return null == localDate ? null : toDate( localDate.atStartOfDay() );
+  }
+
+  @javax.annotation.Nonnull
+  protected java.util.Date toDate( @javax.annotation.Nonnull final java.time.LocalDate localDate )
+  {
+    return java.util.Date.from( localDate.atStartOfDay().atZone( java.time.ZoneId.systemDefault() ).toInstant() );
+  }
+
+  @javax.annotation.Nullable
+  protected java.util.Date maybeDate( @javax.annotation.Nullable final java.time.LocalDateTime localDateTime )
+  {
+    return null == localDateTime ? null : toDate( localDateTime );
+  }
+
+  @javax.annotation.Nonnull
+  protected java.util.Date toDate( @javax.annotation.Nonnull final java.time.LocalDateTime localDateTime )
+  {
+    return java.util.Date.from( localDateTime.atZone( java.time.ZoneId.systemDefault() ).toInstant() );
+  }
+<% if repository.jpa? -%>
 
   @SuppressWarnings( "checkstyle:MethodTypeParameterName" )
   @javax.annotation.Nonnull
@@ -250,4 +305,5 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
     }
     return entity;
   }
+<% end -%>
 }
