@@ -190,7 +190,7 @@ module Domgen
       attr_writer :base_url
 
       def base_url
-        @base_url || "{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}"
+        @base_url || ''
       end
 
       attr_writer :origin
@@ -221,7 +221,7 @@ module Domgen
       attr_writer :admin_url
 
       def admin_url
-        @admin_url || "#{base_url}/#{local_admin_url}"
+        @admin_url || "{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}/#{local_admin_url}"
       end
 
       attr_writer :standard_flow
@@ -287,7 +287,7 @@ module Domgen
       attr_writer :redirect_uris
 
       def redirect_uris
-        @redirect_uris ||= ["#{base_url}/*"]
+        @redirect_uris ||= ["{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}/*"]
       end
 
       attr_writer :web_origins
