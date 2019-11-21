@@ -922,7 +922,7 @@ module Domgen
       attr_writer :name
 
       def name
-        @name || "result"
+        @name || Reality::Naming.camelize((self.result.struct? ? self.result.referenced_struct.graphql.name : self.result.reference? ? self.result.referenced_entity.graphql.name : 'result'))
       end
 
       def pre_complete
