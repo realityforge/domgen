@@ -13,6 +13,5 @@
 #
 
 module Domgen
-  FacetManager.facet(:react4j => [:gwt]) do |facet|
-  end
+  FacetManager.facet(:react4j => [:gwt])
 end
