@@ -16,6 +16,12 @@ public class <%= repository.jpa.persistent_test_module_name %>
 -%>
   private static final String[] TABLES_TO_CLEAN = new String[] {<%= tables %>};
 
+  @javax.annotation.Nonnull
+  public static java.util.List<String> getTablesToClean()
+  {
+    return java.util.Arrays.asList( TABLES_TO_CLEAN );
+  }
+
   public <%= repository.jpa.persistent_test_module_name %>()
   {
     this( null );
