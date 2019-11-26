@@ -156,7 +156,6 @@ JAVA
 #{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(', ')});\n"}
 #{declared_immutable_attributes.select{|a|!a.nullable? && !a.jpa.primitive?}.collect{|a| "    if( null == #{a.jpa.name} )\n    {\n      throw new NullPointerException( \"#{a.jpa.name} is not nullable\" );\n    }"}.join("\n")}
 #{declared_immutable_attributes.collect { |a| "    this.#{a.jpa.field_name} = #{a.jpa.name};" }.join("\n")}
-#{declared_immutable_attributes.select{|a|a.remote_reference?}.collect { |a| "    this.#{a.jpa.field_name(:transport)} = #{a.nullable? ? "null == #{a.jpa.name} ? null : " : ''}#{a.jpa.name}#{a.remote_reference? ? ".#{getter_for(a.referenced_remote_entity.primary_key)}" : '' };" }.join("\n")}
 #{declared_immutable_attributes.select{|a|a.reference?}.collect { |a| '    ' + j_add_to_inverse(a) }.join("\n")}
   }
 JAVA
@@ -296,7 +295,7 @@ JAVA
 
         end
         if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
-          field_name = attribute.remote_reference? ? attribute.jpa.field_name(:transport) : attribute.jpa.field_name
+          field_name = attribute.jpa.field_name
           java << <<JAVA
      final #{type} value = doGet#{name}();
      if( !#{field_name}Recorded )
@@ -317,23 +316,11 @@ JAVA
   protected #{non_full_generated ? attribute.jpa.java_type : type} doGet#{name}()
   {
 JAVA
-        if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute) && !attribute.remote_reference?
+        if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
           java << <<JAVA
     if( null == #{field_name} )
     {
       throw new IllegalStateException("Attempting to access non-null field #{name} before it has been set.");
-    }
-JAVA
-        end
-        if attribute.remote_reference?
-          java << <<JAVA
-    if ( null != #{attribute.jpa.field_name} && #{attribute.jpa.field_name} instanceof replicant.Linkable && !( (replicant.Linkable) #{attribute.jpa.field_name} ).isValid() )
-    {
-      #{attribute.jpa.field_name} = null;
-    }
-    if ( null == #{attribute.jpa.field_name} #{attribute.nullable? ? "&& null != #{attribute.jpa.field_name(:transport)} " : ''})
-    {
-      #{attribute.jpa.field_name} = getEntitySystem().getRepository().getByID( #{attribute.jpa.java_type}.class, #{attribute.jpa.field_name(:transport)} );
     }
 JAVA
         end
@@ -342,17 +329,6 @@ JAVA
   }
 
 JAVA
-        if attribute.remote_reference?
-        java << <<JAVA
-
-  public #{attribute.nullable? ? attribute.referenced_remote_entity.primary_key.jpa.non_primitive_java_type : attribute.referenced_remote_entity.primary_key.jpa.java_type} get#{attribute.jpa.name(:transport)}()
-  {
-    #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
-    return #{attribute.jpa.field_name(:transport)};
-  }
-JAVA
-
-        end
         if attribute.updatable?
           java << <<JAVA
   public void set#{name}( final #{type} value )
@@ -367,11 +343,7 @@ JAVA
     }
 JAVA
           end
-          if attribute.remote_reference?
-            java << "    this.#{attribute.jpa.field_name(:transport)} = #{attribute.nullable? ? 'null == value ? null : ' : ''}value.get#{attribute.referenced_remote_entity.primary_key.name}();\n"
-          else
-            java << "    this.#{field_name} = value;\n"
-          end
+          java << "    this.#{field_name} = value;\n"
           java << <<JAVA
   }
 JAVA

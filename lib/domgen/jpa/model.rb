@@ -971,7 +971,7 @@ FRAGMENT
               query_text = $1
               if entity.attribute_by_name?(parameter_name)
                 a = entity.attribute_by_name(parameter_name)
-                jpql_name = a.remote_reference? ? a.referencing_link_name : parameter_name
+                jpql_name = parameter_name
                 field = "#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}"
                 comparison = "#{field} = :#{parameter_name}"
                 jpql = "#{operation} #{comparison} #{jpql}"
@@ -980,12 +980,6 @@ FRAGMENT
                 found = false
                 entity.attributes.select {|a| a.reference? && a.referencing_link_name == parameter_name}.each do |a|
                   field = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}"
-                  comparison = "#{field} = :#{parameter_name}"
-                  jpql = "#{operation} #{comparison} #{jpql}"
-                  found = true
-                end
-                entity.attributes.select {|a| a.remote_reference? && a.referencing_link_name == parameter_name}.each do |a|
-                  field = "#{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}"
                   comparison = "#{field} = :#{parameter_name}"
                   jpql = "#{operation} #{comparison} #{jpql}"
                   found = true
@@ -999,7 +993,7 @@ FRAGMENT
               parameter_name = query_text
               if entity.attribute_by_name?(parameter_name)
                 a = entity.attribute_by_name(parameter_name)
-                jpql_name = a.remote_reference? ? a.referencing_link_name : parameter_name
+                jpql_name = parameter_name
                 field = "#{entity_prefix}#{Reality::Naming.camelize(jpql_name)}"
                 comparison = "#{field} = :#{parameter_name}"
                 jpql = "#{comparison} #{jpql}"
@@ -1008,12 +1002,6 @@ FRAGMENT
                 found = false
                 entity.attributes.select {|a| a.reference? && a.referencing_link_name == parameter_name}.each do |a|
                   field = "#{entity_prefix}#{Reality::Naming.camelize(a.name)}.#{Reality::Naming.camelize(a.referenced_entity.primary_key.name)}"
-                  comparison = "#{field} = :#{parameter_name}"
-                  jpql = "#{comparison} #{jpql}"
-                  found = true
-                end
-                entity.attributes.select {|a| a.remote_reference? && a.referencing_link_name == parameter_name}.each do |a|
-                  field = "#{operation} #{entity_prefix}#{Reality::Naming.camelize(a.referencing_link_name)}"
                   comparison = "#{field} = :#{parameter_name}"
                   jpql = "#{comparison} #{jpql}"
                   found = true
@@ -1044,28 +1032,6 @@ FRAGMENT
       end
     end
 
-    facet.enhance(RemoteEntityAttribute) do
-      include Domgen::Java::EEJavaCharacteristic
-
-      protected
-
-      def characteristic
-        attribute
-      end
-    end
-
-    facet.enhance(RemoteEntity) do
-      include Domgen::Java::BaseJavaGenerator
-
-      attr_writer :qualified_name
-
-      def qualified_name
-        return @qualified_name unless @qualified_name.nil?
-        return remote_entity.imit.qualified_name if remote_entity.imit?
-        Domgen.error("Invoked qualified_name on #{remote_entity.qualified_name} when value not set")
-      end
-    end
-
     facet.enhance(Attribute) do
       include Domgen::JPA::BaseJpaField
 
@@ -1090,7 +1056,6 @@ FRAGMENT
 
       def converter
         return nil if attribute.reference?
-        return nil if attribute.remote_reference?
         return attribute.enumeration.jpa.converter_name if attribute.enumeration? && attribute.enumeration.jpa.requires_converter?
         return nil if attribute.enumeration?
         @converter || attribute.characteristic_type.jpa.converter(attribute.sql.dialect)
@@ -1185,7 +1150,6 @@ FRAGMENT
               characteristic_options = {}
               characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
               characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
-              characteristic_options[:referenced_remote_entity] = attribute.referenced_remote_entity if attribute.remote_reference?
               p = query.parameter(attribute.name, attribute.attribute_type, characteristic_options)
               p.disable_facets_not_in(attribute.enabled_facets)
             else
@@ -1195,7 +1159,6 @@ FRAGMENT
                 characteristic_options = {}
                 characteristic_options[:enumeration] = attribute.enumeration if attribute.enumeration?
                 characteristic_options[:referenced_entity] = attribute.referenced_entity if attribute.reference?
-                characteristic_options[:referenced_remote_entity] = attribute.referenced_remote_entity if attribute.remote_reference?
                 p = query.parameter(parameter_name, attribute.attribute_type, characteristic_options)
                 p.disable_facets_not_in(attribute.enabled_facets)
               end

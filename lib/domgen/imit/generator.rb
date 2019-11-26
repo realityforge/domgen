@@ -170,12 +170,6 @@ Domgen::Generator.define([:imit, :jpa],
     template_set.erb_template(:repository,
                               'session_rest_service.java.erb',
                               'main/java/#{repository.imit.qualified_session_rest_service_name.gsub(".","/")}.java')
-    template_set.erb_template('imit.remote_datasource',
-                              'ee_data_loader_service_implementation.java.erb',
-                              'main/java/#{remote_datasource.qualified_ee_data_loader_service_implementation_name.gsub(".","/")}.java')
-    template_set.erb_template('imit.remote_datasource',
-                              'ee_data_loader_rest_service.java.erb',
-                              'main/java/#{remote_datasource.qualified_ee_data_loader_rest_service_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_server_qa) do |template_set|

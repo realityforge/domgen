@@ -89,12 +89,6 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
     {
       return false;
     }
-<% if client.keycloak_repository.repository.imit.remote_datasources.size > 0 -%>
-    if ( _disableSessionServiceProtection && path.startsWith( <%= base_path %> + '/' + org.realityforge.replicant.client.ee.rest.AbstractDataLoaderServiceRestService.CLIENT_URL_PREFIX ) )
-    {
-      return false;
-    }
-<% end -%>
 <% end -%>
 <%
   client.keycloak_repository.repository.data_modules.each do |data_module|

@@ -17,25 +17,18 @@ module Domgen
     module Helper
 
       def query_getter(a)
-        a.remote_reference? ? "get#{a.referencing_link_name}()" : getter_for(a)
+        getter_for(a)
       end
 
       def process_parameter(entity, parameter_name, javaql, prefix)
         if entity.attribute_by_name?(parameter_name)
           a = entity.attribute_by_name(parameter_name)
           value = Reality::Naming.camelize(parameter_name)
-          if a.remote_reference?
-            value = "#{value}.#{getter_for(a.referenced_remote_entity.primary_key)}"
-            value = " null == #{Reality::Naming.camelize(parameter_name)} ? null : #{value}" if a.nullable?
-          end
           return "#{prefix} java.util.Objects.equals( e.#{query_getter(a)}, #{value} ) #{javaql}"
         else
           # Handle parameters that are the primary keys of related entities
           entity.attributes.select { |a| a.reference? && a.referencing_link_name == parameter_name }.each do |a|
             return "#{prefix} java.util.Objects.equals( e.get#{a.name}().#{getter_for(a.referenced_entity.primary_key)}, #{Reality::Naming.camelize(parameter_name)} ) #{javaql}"
-          end
-          entity.attributes.select { |a| a.remote_reference? && a.referencing_link_name == parameter_name }.each do |a|
-            return "#{prefix} java.util.Objects.equals( e.get#{a.referencing_link_name}(), #{Reality::Naming.camelize(parameter_name)} ) #{javaql}"
           end
           return nil
         end

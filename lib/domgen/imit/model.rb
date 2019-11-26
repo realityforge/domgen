@@ -45,59 +45,6 @@ module Domgen
       end
     end
 
-    class RemoteDatasource < Domgen.ParentedElement(:application)
-      include Domgen::Java::BaseJavaGenerator
-
-      def initialize(application, name, options, &block)
-        @name = name
-        application.send :register_remote_datasource, name, self
-        super(application, options, &block)
-      end
-
-      attr_reader :application
-
-      attr_reader :name
-
-      attr_writer :gwt_rpc_enabled
-
-      def gwt_rpc_enabled?
-        @gwt_rpc_enabled.nil? ? true : !!@gwt_rpc_enabled
-      end
-
-      attr_writer :imit_enabled
-
-      def imit_enabled?
-        @imit_enabled.nil? ? true : !!@imit_enabled
-      end
-
-      attr_writer :keycloak_enabled
-
-      def keycloak_enabled?
-        @keycloak_enabled.nil? ? true : !!@keycloak_enabled
-      end
-
-      attr_writer :base_package
-
-      def base_package
-        @base_package || Reality::Naming.underscore(self.name)
-      end
-
-      attr_writer :abstract_ee_data_loader_service_implementation
-
-      def abstract_ee_data_loader_service_implementation
-        @abstract_ee_data_loader_service_implementation || "#{base_package}.client.net.ee.Abstract#{self.name}EeDataLoaderServiceImpl"
-      end
-
-      attr_writer :ee_data_loader_service_interface
-
-      def ee_data_loader_service_interface
-        @ee_data_loader_service_interface || "#{base_package}.client.net.ee.#{self.name}EeDataLoaderService"
-      end
-
-      java_artifact :ee_data_loader_service_implementation, :comm, :server, :imit, '#{application.repository.name}#{name}DataLoaderServiceImpl'
-      java_artifact :ee_data_loader_rest_service, :rest, :server, :imit, '#{application.repository.name}#{name}DataLoaderServiceRestService'
-    end
-
     class ReplicationGraph < Domgen.ParentedElement(:application)
       def initialize(application, name, options, &block)
         @name = name
@@ -807,30 +754,6 @@ module Domgen
         !!graph_map[name.to_s]
       end
 
-      def remote_datasources?
-        !remote_datasource_map.empty?
-      end
-
-      def remote_datasources
-        remote_datasource_map.values
-      end
-
-      def remote_datasource(name, options = {}, &block)
-        Domgen::Imit::RemoteDatasource.new(self, name, options, &block)
-      end
-
-      def remote_datasource_by_name(name)
-        remote_datasource = remote_datasource_map[name.to_s]
-        Domgen.error("Unable to locate remote datasource #{name}") unless remote_datasource
-        remote_datasource
-      end
-
-      def remote_datasource_by_name?(name)
-        !!remote_datasource_map[name.to_s]
-      end
-
-      Domgen.target_manager.target(:remote_datasource, :repository, :facet_key => :imit)
-
       def subscription_manager=(subscription_manager)
         Domgen.error('subscription_manager invalid. Expected to be in format DataModule.ServiceName') if self.subscription_manager.to_s.split('.').length != 2
         @subscription_manager = subscription_manager
@@ -936,9 +859,6 @@ module Domgen
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
-          repository.imit.remote_datasources.each do |rd|
-            repository.jaxrs.extensions << rd.qualified_ee_data_loader_rest_service_name
-          end
         end
         if repository.ee?
           repository.ee.cdi_scan_excludes << 'replicant.**'
@@ -991,13 +911,6 @@ module Domgen
           prefix = repository.jaxrs? ? "/#{repository.jaxrs.path}" : '/api'
           client.protected_url_patterns << prefix + '/session/*'
         end
-        if repository.keycloak?
-          self.remote_datasources.each do |remote_datasource|
-            unless repository.keycloak.remote_client_by_key?(remote_datasource.name)
-              repository.keycloak.remote_client(remote_datasource.name)
-            end
-          end
-        end
         if repository.gwt?
           repository.gwt.add_dagger_module(schema_dagger_module_name, qualified_schema_dagger_module_name)
           repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
@@ -1008,23 +921,6 @@ module Domgen
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?
         if self.graphs.size == 0
           Domgen.error('imit facet enabled but no graphs defined')
-        end
-
-        if repository.imit.remote_datasources?
-          self.repository.service(self.client_converger_service) unless self.repository.service_by_name?(self.client_converger_service)
-          self.repository.service_by_name(self.client_converger_service).tap do |s|
-            s.ejb.generate_base_test = false
-            s.ejb.bind_in_tests = false
-            s.disable_facets_not_in(:ejb)
-            s.method(:Converge, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '*/1')
-          end
-          self.repository.service(self.client_system_service) unless self.repository.service_by_name?(self.client_system_service)
-          self.repository.service_by_name(self.client_system_service).tap do |s|
-            s.ejb.generate_base_test = false
-            s.ejb.bind_in_tests = false
-            s.disable_facets_not_in(:ejb)
-            s.method(:Converge, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '*/2')
-          end
         end
 
         if requires_session_context?
@@ -1247,14 +1143,6 @@ module Domgen
         filter_options
       end
 
-      def register_remote_datasource(name, remote_datasource)
-        remote_datasource_map[name.to_s] = remote_datasource
-      end
-
-      def remote_datasource_map
-        @remote_datasources ||= {}
-      end
-
       def register_graph(name, graph)
         graph_map[name.to_s] = graph
       end
@@ -1306,35 +1194,6 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :name, :service, :client, :imit, '#{exception.name}Exception'
-    end
-
-    facet.enhance(RemoteEntity) do
-      include Domgen::Java::BaseJavaGenerator
-
-      def remote_datasource
-        Domgen.error("Invoked remote_datasource on #{remote_entity.qualified_name} when value not set") unless @remote_datasource
-        @remote_datasource
-      end
-
-      def remote_datasource=(remote_datasource)
-        @remote_datasource = (remote_datasource.is_a?(Domgen::Imit::RemoteDatasource) ? remote_datasource : remote_entity.data_module.repository.imit.remote_datasource_by_name(remote_datasource))
-      end
-
-      attr_writer :qualified_name
-
-      def qualified_name
-        @qualified_name || "#{remote_datasource.base_package}.client.entity.#{remote_entity.name}"
-      end
-    end
-
-    facet.enhance(RemoteEntityAttribute) do
-      include Domgen::Java::ImitJavaCharacteristic
-
-      protected
-
-      def characteristic
-        attribute
-      end
     end
 
     facet.enhance(Message) do
@@ -1433,12 +1292,12 @@ module Domgen
       end
 
       def lazy=(lazy)
-        Domgen.error("Attempted to make non-reference #{attribute.qualified_name} lazy") if lazy && !(attribute.reference? || attribute.remote_reference?)
+        Domgen.error("Attempted to make non-reference #{attribute.qualified_name} lazy") if lazy && !attribute.reference?
         @lazy = lazy
       end
 
       def lazy?
-        (attribute.reference? || attribute.remote_reference?) && (@lazy.nil? ? false : @lazy)
+        attribute.reference? && (@lazy.nil? ? false : @lazy)
       end
 
       def filter_in_graphs=(filter_in_graphs)

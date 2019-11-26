@@ -101,7 +101,7 @@ public class <%= service.iris_audit.interceptor_impl_name %>
       else
       {
 <% end -%>
-<% p = parameter.reference? ? parameter.referenced_entity.primary_key : parameter.remote_reference? ? parameter.referenced_remote_entity.primary_key : parameter -%>
+<% p = parameter.reference? ? parameter.referenced_entity.primary_key : parameter -%>
 <% if parameter.collection_type == :none -%>
 <% if p.non_standard_type? || p.text? -%>
         final String value = String.valueOf( v );
@@ -169,7 +169,7 @@ public class <%= service.iris_audit.interceptor_impl_name %>
       else
       {
 <% end -%>
-<% p = method.return_value.reference? ? method.return_value.referenced_entity.primary_key : method.return_value.remote_reference? ? method.return_value.referenced_remote_entity.primary_key : method.return_value -%>
+<% p = method.return_value.reference? ? method.return_value.referenced_entity.primary_key : method.return_value -%>
 <% if method.return_value.collection_type == :none -%>
 <% if p.non_standard_type? || p.text? -%>
         final String value = String.valueOf( result );

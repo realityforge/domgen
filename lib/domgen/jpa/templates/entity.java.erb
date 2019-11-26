@@ -78,10 +78,6 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <% end -%>
   private static final long serialVersionUID = 1;
 
-<% if entity.declared_attributes.any? { |a| a.remote_reference? } -%>
-  @javax.persistence.Transient
-  private transient org.realityforge.replicant.client.EntitySystem _$entitySystem;
-<% end -%>
 <% unless entity.extends -%>
   @javax.persistence.Transient
   private transient boolean _loaded;
@@ -92,8 +88,8 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <%
   end
   entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? }.each do |attribute|
-    type = attribute.remote_reference? ? attribute.referenced_remote_entity.primary_key.jpa.non_primitive_java_type : attribute.jpa.java_type
-    field_name = attribute.remote_reference? ? attribute.jpa.field_name(:transport) : attribute.jpa.field_name
+    type = attribute.jpa.java_type
+    field_name = attribute.jpa.field_name
 %>
 <%= j_jpa_field_attributes(attribute) -%>  private <%= type %> <%= field_name %>;
 <% if !attribute.immutable? && entity.jpa.track_changes? -%>
@@ -103,10 +99,6 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   @javax.persistence.Transient
   private transient boolean <%= field_name %>Recorded;
 <% end -%>
-<% end -%>
-<% if attribute.remote_reference? -%>
-  @javax.persistence.Transient
-  private transient <%= attribute.jpa.java_type %> <%= attribute.jpa.field_name %>;
 <% end -%>
 <% end %>
 <% entity.referencing_attributes.
@@ -148,7 +140,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
     _loaded = true;
 <% end -%>
 <% entity.declared_attributes.select { |a| !a.immutable? && !a.abstract? && a.jpa? && a.jpa.persistent? && a.jpa.fetch_type == :eager }.each do |attribute|
-  field_name = attribute.remote_reference? ? attribute.jpa.field_name(:transport) : attribute.jpa.field_name
+  field_name = attribute.jpa.field_name
   -%>
     <%= field_name %>Original = <%= field_name %>;
 <% end -%>
@@ -163,7 +155,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
       super.unmodified() &&
 <% end -%>
 <% entity.declared_attributes.select { |a| !a.immutable? && !a.abstract? && a.jpa? && a.jpa.persistent? && a.jpa.fetch_type == :eager }.each do |attribute|
-  field_name = attribute.remote_reference? ? attribute.jpa.field_name(:transport) : attribute.jpa.field_name
+  field_name = attribute.jpa.field_name
   -%>
 <% if attribute.nullable? -%>
       ((<%= field_name %>Original == null &&  <%= field_name %> == null) || (<%= field_name %>Original != null && <%= field_name %>Original.equals( <%= field_name %> ) ) ) &&
@@ -174,7 +166,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <% end -%>
 <% end -%>
 <% entity.declared_attributes.select { |a| !a.immutable? && !a.abstract? && a.jpa? && a.jpa.persistent? && a.jpa.fetch_type == :lazy }.each do |attribute|
-  field_name = attribute.remote_reference? ? attribute.jpa.field_name(:transport) : attribute.jpa.field_name
+  field_name = attribute.jpa.field_name
 -%>
 <% if attribute.nullable? -%>
       (!<%= field_name %>Recorded || ((<%= field_name %>Original == null &&  <%= field_name %> == null) || (<%= field_name %>Original != null && <%= field_name %>Original.equals( <%= field_name %> ) ) ) ) &&
@@ -340,22 +332,6 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
           return false;
         }
 <%= validation_suffix() %>
-<% end -%>
-<% if  entity.declared_attributes.any? { |a| a.remote_reference? }-%>
-
-  @java.lang.SuppressWarnings( "unchecked" )
-  @javax.annotation.Nonnull
-  private org.realityforge.replicant.client.EntitySystem getEntitySystem()
-  {
-    if( null == _$entitySystem )
-    {
-      final javax.enterprise.inject.spi.BeanManager beanManager = javax.enterprise.inject.spi.CDI.current().getBeanManager();
-      final javax.enterprise.inject.spi.Bean<org.realityforge.replicant.client.EntitySystem> bean = (javax.enterprise.inject.spi.Bean<org.realityforge.replicant.client.EntitySystem>) beanManager.getBeans( org.realityforge.replicant.client.EntitySystem.class ).iterator().next();
-      final javax.enterprise.context.spi.CreationalContext<org.realityforge.replicant.client.EntitySystem> context = beanManager.createCreationalContext( bean );
-      _$entitySystem = (org.realityforge.replicant.client.EntitySystem) beanManager.getReference( bean, org.realityforge.replicant.client.EntitySystem.class, context );
-    }
-    return _$entitySystem;
-  }
 <% end -%>
 
   @javax.annotation.Nonnull

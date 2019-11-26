@@ -92,8 +92,6 @@ module Domgen
         check_modality(modality)
         if (:boundary == modality || :transport == modality) && characteristic.reference?
           return primitive_java_type(characteristic.referenced_entity.primary_key, group_type, modality)
-        elsif (:boundary == modality || :transport == modality) && characteristic.remote_reference?
-          return primitive_java_type(characteristic.referenced_remote_entity.primary_key, group_type, modality)
         elsif :transport == modality && characteristic.enumeration? && characteristic.enumeration.numeric_values?
           return Domgen::TypeDB.characteristic_type_by_name(:integer).java.primitive_type
         else
@@ -116,11 +114,10 @@ module Domgen
         characteristic_type = characteristic.characteristic_type
         return true if characteristic_type && characteristic.characteristic_type.java.primitive_type?
 
-        return false unless characteristic.reference? || characteristic.remote_reference?
+        return false unless characteristic.reference?
         return false if :default == modality
 
-        return primitive?(characteristic.referenced_entity.primary_key, group_type, modality, options) if characteristic.reference?
-        return primitive?(characteristic.referenced_remote_entity.primary_key, group_type, modality, options)
+        return primitive?(characteristic.referenced_entity.primary_key, group_type, modality, options)
       end
 
       def java_component_type(characteristic, group_type, modality = :default)
@@ -132,12 +129,6 @@ module Domgen
             return characteristic.referenced_entity.send(characteristic_group.entity_key).qualified_name
           else #if :boundary == modality || :transport == modality
             return characteristic.referenced_entity.primary_key.send(characteristic_group.entity_key).non_primitive_java_type(modality)
-          end
-        elsif characteristic.remote_reference?
-          if :default == modality
-            return characteristic.referenced_remote_entity.send(characteristic_group.entity_key).qualified_name
-          else #if :boundary == modality || :transport == modality
-            return characteristic.referenced_remote_entity.primary_key.send(characteristic_group.entity_key).non_primitive_java_type(modality)
           end
         elsif characteristic.enumeration?
           if :default == modality || :boundary == modality
@@ -262,8 +253,6 @@ module Domgen
       def transport_characteristic_type_key(characteristic)
         if characteristic.reference?
           characteristic.referenced_entity.primary_key.characteristic_type_key
-        elsif characteristic.remote_reference?
-          characteristic.referenced_remote_entity.primary_key.characteristic_type_key
         else
           characteristic.characteristic_type_key
         end
@@ -304,7 +293,7 @@ module Domgen
 
     module JavaCharacteristic
       def name(modality = :default)
-        return characteristic.referencing_link_name if (characteristic.remote_reference? || characteristic.reference?) && (:boundary == modality || :transport == modality)
+        return characteristic.referencing_link_name if characteristic.reference? && (:boundary == modality || :transport == modality)
         return characteristic.name
       end
 

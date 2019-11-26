@@ -52,10 +52,6 @@ public class <%= service.ejb.boundary_implementation_name %>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>;
 <% end -%>
-<% if service.methods.collect {|method|method.parameters.select{|parameter|parameter.remote_reference?}}.flatten.size > 0 -%>
-  @javax.inject.Inject
-  private org.realityforge.replicant.client.EntitySystem _$entitySystem;
-<% end -%>
   @javax.inject.Inject
   private <%= service.ejb.qualified_service_name %> _service;
 <% service.methods.each do |method|
@@ -82,7 +78,6 @@ public class <%= service.ejb.boundary_implementation_name %>
         {
           $result.add( #{
          method.return_value.reference? ? "k.get#{method.return_value.referenced_entity.primary_key.name}()" :
-           method.return_value.remote_reference? ? "k.get#{method.return_value.referenced_remote_entity.primary_key.name}()" :
            method.return_value.enumeration.numeric_values? ? 'k.ordinal()' : 'k.name()'
          } );
         }
@@ -99,13 +94,6 @@ JAVA
     for( final <%= parameter.ejb.java_component_type(:boundary) %> id: <%= parameter.name %> )
     {
       $<%= parameter.name %>.add( _<%= Reality::Naming.camelize(parameter.referenced_entity.dao.jpa.dao_service_name) %>.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
-    }
-<% end -%>
-<% method.parameters.select{|parameter| parameter.remote_reference? && parameter.collection?}.each do |parameter| -%>
-    <%= annotated_type(parameter, :ejb, :default, :final => true) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
-    for( final <%= parameter.ejb.java_component_type(:boundary) %> id: <%= parameter.name %> )
-    {
-      $<%= parameter.name %>.add( _$entitySystem.getRepository().getByID( <%= parameter.ejb.java_component_type %>.class, id ) );
     }
 <% end -%>
     <%= return_prefix  %>_service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);

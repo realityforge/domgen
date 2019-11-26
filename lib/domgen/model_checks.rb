@@ -63,13 +63,6 @@ module Domgen #nodoc
                 end
               end
 
-              data_module.remote_entities.each do |entity|
-                check_name(r, 'Remote Entity', entity)
-                entity.attributes.each do |attribute|
-                  check_name(r, 'Attribute', attribute)
-                end
-              end
-
               data_module.daos.each do |dao|
                 check_name(r, 'Data Access Object', dao)
                 dao.queries.each do |query|

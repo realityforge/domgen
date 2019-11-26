@@ -61,8 +61,6 @@ module Domgen
           return sql_type
         elsif :reference == column.attribute.attribute_type
           return column.attribute.referenced_entity.primary_key.sql.sql_type
-        elsif :remote_reference == column.attribute.attribute_type
-          return column.attribute.referenced_remote_entity.primary_key.sql.sql_type
         elsif column.attribute.attribute_type.to_s == 'text'
           if column.attribute.length.nil?
             return '[VARCHAR](MAX)'

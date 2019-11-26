@@ -46,7 +46,6 @@ module Domgen
   module Graphql
     module GraphqlCharacteristic
       def type
-        Domgen.error("Invoked graphql.type on #{characteristic.qualified_name} when characteristic is a remote_reference") if characteristic.remote_reference?
         if characteristic.reference?
           return characteristic.referenced_entity.graphql.name
         elsif characteristic.enumeration?
@@ -62,7 +61,6 @@ module Domgen
         return @scalar_type if @scalar_type
         Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a non_standard_type") if characteristic.non_standard_type?
         Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a reference") if characteristic.reference?
-        Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic is a remote_reference") if characteristic.remote_reference?
         Domgen.error("Invoked graphql.scalar_type on #{characteristic.qualified_name} when characteristic has no characteristic_type") unless characteristic.characteristic_type
         characteristic.characteristic_type.graphql.scalar_type
       end

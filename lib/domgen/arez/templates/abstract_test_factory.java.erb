@@ -38,13 +38,11 @@ public abstract class <%= data_module.arez.abstract_test_factory_name %>
   @javax.annotation.Nonnull
   public final <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-<% needsLink = entity.attributes.any?{|a| a.reference? || a.remote_reference?} -%>
+<% needsLink = entity.attributes.any?{|a| a.reference?} -%>
 <% attributes = entity.attributes.select{|a|a.arez? && a.immutable?} + entity.attributes.select{|a|a.arez? && !a.immutable?} -%>
     <% if needsLink %>final <%= entity.arez.qualified_name %> $_ =<% else %>return<% end %> <%= Reality::Naming.camelize(entity.dao.name) %>().create( <%= attributes.select{|a|a.arez?}.collect do |a|
 if a.reference?
   "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : ''}#{Reality::Naming.camelize(a.name) }.get#{a.referenced_entity.primary_key.name}()"
-elsif a.remote_reference?
-    "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' }#{Reality::Naming.camelize(a.name) }.get#{a.referenced_remote_entity.primary_key.name }()"
 elsif a.date?
     "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' }#{ Reality::Naming.camelize(a.name)}.toString()"
 else
@@ -71,9 +69,6 @@ end.join(', ') -%> );
   {
 <% if a.reference? -%>
     safeAction( () -> $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() ) );
-    arez.Arez.context().safeAction( () -> arez.component.Linkable.link( $_ ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
-<% elsif a.remote_reference? -%>
-    safeAction( () -> $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_remote_entity.primary_key.name %>() ) );
     arez.Arez.context().safeAction( () -> arez.component.Linkable.link( $_ ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
 <% elsif a.date? -%>
     safeAction( () -> $_.set<%= a.name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null : " : '' %><%= Reality::Naming.camelize(a.name) %>.toString() ) );

@@ -11,15 +11,9 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.metamodel_
   '' %>{
 <%
   entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? }.each do |attribute|
-    if attribute.remote_reference?
--%>
-  public static volatile javax.persistence.metamodel.SingularAttribute<<%= entity.jpa.name %>, <%= attribute.jpa.non_primitive_java_type(:transport) %>> <%= attribute.jpa.field_name(:transport) %>;
-<%
-    else
 -%>
   public static volatile javax.persistence.metamodel.SingularAttribute<<%= entity.jpa.name %>, <%= attribute.jpa.non_primitive_java_type %>> <%= attribute.jpa.field_name %>;
 <%
-    end
   end
   entity.referencing_attributes.select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.entity.jpa? && attribute.inverse.jpa.traversable? }.each do |attribute| -%>
   public static volatile javax.persistence.metamodel.<%= attribute.inverse.multiplicity == :many ? 'List' : 'Singular' %>Attribute<<%= entity.jpa.name %>, <%= attribute.entity.jpa.qualified_name %>> <%= Reality::Naming.camelize(attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name) %>;<% end %>

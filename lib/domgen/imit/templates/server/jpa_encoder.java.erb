@@ -34,7 +34,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     {
       final java.util.HashMap<String, java.io.Serializable> attributeValues = new java.util.HashMap<>();
 <% entity.attributes.select{|a| a.imit?}.each do |attribute|
-    a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute.remote_reference? ? attribute.referenced_remote_entity.primary_key : attribute
+    a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
     type_suffix = 'Object'
     type_suffix = 'Int' if a.integer? && !attribute.nullable?
     type_suffix = 'Int' if a.imit.transport_characteristic_type_key == :enumeration && a.enumeration.numeric_values?
@@ -114,8 +114,8 @@ end
    other = entity.data_module.entity_by_name(entity.extends) -%>
     encode<%= other.name %>( entity, attributes );
 <% end -%>
-<% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.abstract?  && !attribute.remote_reference? }.each do |attribute|
-    value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}": attribute.remote_reference? ? ".#{getter_for(attribute.referenced_remote_entity.primary_key)}" : '')
+<% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.abstract? }.each do |attribute|
+    value_suffix = (attribute.reference? ? ".#{getter_for(attribute.referenced_entity.primary_key)}" : '')
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :datetime
           "$#{attribute.name}.getTime()"
@@ -142,9 +142,6 @@ end
     attributes.put( "<%= attribute.name %>", <%= "#{value_converter}" %> );
 <% end -%>
 <% end -%>
-<% end -%>
-<% entity.declared_attributes.select{|attribute| attribute.arez? && !attribute.abstract? && attribute.remote_reference? }.each do |attribute| -%>
-    attributes.put( "<%= attribute.name %>", entity.get<%= attribute.referencing_link_name %>() );
 <% end -%>
   }
 <% end -%>

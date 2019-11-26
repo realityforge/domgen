@@ -712,94 +712,6 @@ module Domgen
     end
   end
 
-  class RemoteEntityAttribute < self.FacetedElement(:remote_entity)
-    include Characteristic
-
-    attr_reader :attribute_type
-
-    def initialize(remote_entity, name, attribute_type, options = {}, &block)
-      @name = name
-      @attribute_type = attribute_type
-      super(remote_entity, options, &block)
-      Domgen.error("Invalid type #{attribute_type} for remote attribute #{self.qualified_name}") if !((characteristic_type && characteristic_type.persistent?) || reference? || enumeration?)
-      Domgen.error("Attribute #{self.qualified_name} must not be a collection") if collection?
-    end
-
-    def qualified_name
-      "#{remote_entity.qualified_name}.#{self.name}"
-    end
-
-    def to_s
-      "RemoteEntityAttribute[#{self.qualified_name}]"
-    end
-
-    def characteristic_type_key
-      attribute_type
-    end
-
-    def characteristic_container
-      remote_entity
-    end
-  end
-
-  class RemoteEntity < self.FacetedElement(:data_module)
-    include CharacteristicContainer
-
-    def initialize(data_module, name, options, &block)
-      @name = name
-      data_module.send :register_remote_entity, name, self
-      super(data_module, options, &block)
-    end
-
-    def qualified_name
-      "#{data_module.name}.#{self.name}"
-    end
-
-    def to_s
-      "RemoteEntity[#{self.qualified_name}]"
-    end
-
-    def attributes
-      characteristics
-    end
-
-    def attribute(name, type, options = {}, &block)
-      characteristic(name, type, options, &block)
-    end
-
-    def primary_key
-      attributes[0]
-    end
-
-    def characteristic_kind
-      'attribute'
-    end
-
-    protected
-
-    def new_characteristic(name, type, options, &block)
-      RemoteEntityAttribute.new(self, name, type, options, &block)
-    end
-
-    def pre_complete
-      integer(:Id) if self.attributes.empty?
-    end
-
-    def perform_verify
-      Domgen.error("Remote Entity #{qualified_name} must define exactly one attribute (the remote key)") if attributes.size != 1
-      self.attributes.each do |a|
-        Domgen.error("Attribute #{a.qualified_name} must be persistable") unless ((a.characteristic_type && a.characteristic_type.persistent?) || a.enumeration?)
-        Domgen.error("Attribute #{a.qualified_name} must not be a collection") if a.collection?
-      end
-    end
-
-    private
-
-    def container_kind
-      :remote_entity
-    end
-  end
-
   class Attribute < self.FacetedElement(:entity)
     include InheritableCharacteristic
 
@@ -809,7 +721,7 @@ module Domgen
       @name = name
       @attribute_type = attribute_type
       super(entity, options, &block)
-      Domgen.error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !((characteristic_type && characteristic_type.persistent?) || reference? || enumeration? || remote_reference?)
+      Domgen.error("Invalid type #{attribute_type} for persistent attribute #{self.qualified_name}") if !((characteristic_type && characteristic_type.persistent?) || reference? || enumeration?)
       Domgen.error("Attribute #{self.qualified_name} must not be a collection") if collection?
     end
 
@@ -1572,7 +1484,6 @@ module Domgen
     def initialize(repository, name, options, &block)
       repository.send :register_data_module, name, self
       @name = name
-      @remote_entities = {}
       @entities = {}
       @services = {}
       @messages = {}
@@ -1698,39 +1609,6 @@ module Domgen
 
     def local_dao_by_name?(name)
       !@daos[name.to_s].nil?
-    end
-
-    def remote_entities
-      @remote_entities.values
-    end
-
-    def remote_entity(name, options = {}, &block)
-      pre_remote_entity_create(name)
-      remote_entity = RemoteEntity.new(self, name, options, &block)
-      post_remote_entity_create(name)
-      remote_entity
-    end
-
-    def remote_entity_by_name(name, optional = false)
-      name_parts = split_name(name)
-      repository.data_module_by_name(name_parts[0]).local_remote_entity_by_name(name_parts[1], optional)
-    end
-
-    def remote_entity_by_name?(name)
-      name_parts = split_name(name)
-      repository.data_module_by_name?(name_parts[0]) &&
-        repository.data_module_by_name(name_parts[0]).local_remote_entity_by_name?(name_parts[1])
-    end
-
-    def local_remote_entity_by_name(name, optional = false)
-      remote_entity = @remote_entities[name.to_s]
-      Domgen.error("Unable to locate local remote_entity #{name} in #{self.name}") if !remote_entity && !optional
-      yield remote_entity if block_given?
-      remote_entity
-    end
-
-    def local_remote_entity_by_name?(name)
-      !@remote_entities[name.to_s].nil?
     end
 
     def entities
@@ -1932,20 +1810,6 @@ module Domgen
     def register_struct(name, struct)
       register_type_name(name.to_s, 'struct', struct)
       @structs[name.to_s] = struct
-    end
-
-    def pre_remote_entity_create(name)
-      Domgen.error("Attempting to redefine Remote Entity '#{name}'") if @remote_entities[name.to_s]
-      Domgen.debug "Remote Entity '#{name}' definition started"
-    end
-
-    def post_remote_entity_create(name)
-      Domgen.debug "Remote Entity '#{name}' definition completed"
-    end
-
-    def register_remote_entity(name, entity)
-      register_type_name(name.to_s, 'remote_entity', entity)
-      @remote_entities[name.to_s] = entity
     end
 
     def pre_entity_create(name)

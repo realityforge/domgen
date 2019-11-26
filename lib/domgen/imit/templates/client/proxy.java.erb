@@ -28,7 +28,7 @@ public class <%= service.imit.proxy_name %>
 
   public void <%= method_name %>(<%= (method.parameters.select{|parameter| !parameter.imit.environmental?}.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback","final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
   {
-  <% method.parameters.select{|parameter| (parameter.reference? || parameter.remote_reference?) && parameter.collection?}.each do |parameter| %>
+  <% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| %>
     <%= annotated_type(parameter, :gwt_rpc, :boundary, :final => true) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.gwt_rpc.java_component_type(:boundary) %>>();
     <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
     for( final <%= parameter.imit.java_component_type %> entity: <%= parameter.name %> )
@@ -37,8 +37,6 @@ public class <%= service.imit.proxy_name %>
        param_value =
        if parameter.reference?
          "entity.get#{parameter.referenced_entity.primary_key.imit.name}()"
-       elsif parameter.reference?
-         "entity.get#{parameter.referenced_remote_entity.primary_key.imit.name}()"
        end
     %>
     $<%= parameter.name %>.add( <%= param_value %> );
@@ -47,12 +45,10 @@ public class <%= service.imit.proxy_name %>
   <% end %>
   _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.imit.environmental?}.collect do |parameter|
   param_value = parameter.name
-  if parameter.collection? && (parameter.remote_reference? || parameter.reference?)
+  if parameter.collection? && parameter.reference?
     param_value = "$#{parameter.name}"
   elsif parameter.reference?
     param_value = "#{parameter.name}.get#{parameter.referenced_entity.primary_key.imit.name}()"
-  elsif parameter.remote_reference?
-    param_value = "#{parameter.name}.get#{parameter.referenced_remote_entity.primary_key.imit.name}()"
   end
   if parameter.nullable? && !parameter.collection?
     param_value = "null == #{parameter.name} ? null : #{param_value}"
@@ -67,19 +63,17 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
      result_string = 'result'
      if method.return_value.reference?
        result_string = "getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, result )"
-     elsif method.return_value.remote_reference?
-       result_string = "getById( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, result )"
      end
      if method.return_value.nullable?
        result_string = "null == result ? null : #{result_string}"
      end
-   elsif method.return_value.remote_reference? || method.return_value.reference?
+   elsif method.return_value.reference?
      result_string = '$result'
    else
      result_string = 'result'
    end
 %>
-  <% if method.return_value.collection? && (method.return_value.reference? || method.return_value.remote_reference?) %>
+  <% if method.return_value.collection? && method.return_value.reference? %>
         <%= annotated_type(method.return_value, :imit, :default, :final => true) %> $result = <% if method.return_value.nullable? %>null == result ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= method.return_value.imit.java_component_type %>>();
         if( null != result )
         {
@@ -89,8 +83,6 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
              param_value =
              if method.return_value.reference?
                "getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, id )"
-             elsif method.return_value.remote_reference?
-               "getById( #{method.return_value.referenced_remote_entity.imit.qualified_name}.class, id )"
              end
           %>
           $result.add( <%= param_value %> );
@@ -105,7 +97,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
   }, errorCallback );
   }
 <% end -%>
-<% if service.methods.any?{|m| m.imit? && (m.return_value.reference? || m.return_value.remote_reference?) } -%>
+<% if service.methods.any?{|m| m.imit? && m.return_value.reference? } -%>
 
   @javax.annotation.Nonnull
   private <T> T getById( @javax.annotation.Nonnull final java.lang.Class<T> type, @javax.annotation.Nonnull final java.lang.Object id )

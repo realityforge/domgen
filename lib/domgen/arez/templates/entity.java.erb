@@ -21,7 +21,7 @@ public abstract class <%= entity.arez.name %>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
 <% entity.declared_attributes.select{ |attribute| attribute.immutable? && !attribute.abstract? && attribute.arez? }.each do |attribute|
-  if attribute.reference? || attribute.remote_reference? -%>
+  if attribute.reference? -%>
   <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :private => true, :final => !attribute.updatable?) %> _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
 <% else -%>
   <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :private => true, :final => !attribute.updatable?) %> _<%= Reality::Naming.camelize(attribute.arez.name) %>;
@@ -40,7 +40,7 @@ public abstract class <%= entity.arez.name %>
 <% end -%>
   }
 <% entity.declared_attributes.select{|attribute| attribute.arez? }.each do |attribute| -%>
-<% if attribute.reference? || attribute.remote_reference? -%>
+<% if attribute.reference? -%>
 <% if attribute.immutable? -%>
 
   @arez.annotations.Reference( load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) : Reality::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.multiplicity.to_s.upcase %><% end -%> )

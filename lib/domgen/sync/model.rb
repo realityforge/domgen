@@ -493,8 +493,6 @@ module Domgen
               options[:length] = a.length
               options[:min_length] = a.min_length
               options[:allow_blank] = a.allow_blank?
-            elsif a.remote_reference?
-              options[:referenced_remote_entity] = a.referenced_remote_entity
             end
             options[:abstract] = a.abstract?
 
@@ -569,9 +567,6 @@ module Domgen
               options[:length] = a.length
               options[:min_length] = a.min_length
               options[:allow_blank] = a.allow_blank?
-            end
-            if a.remote_reference?
-              options[:referenced_remote_entity] = a.referenced_remote_entity
             end
             options[:collection_type] = a.collection_type
             options[:nullable] = a.nullable? || a.primary_key?

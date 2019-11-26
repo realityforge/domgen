@@ -188,35 +188,6 @@ module Domgen
       end
     end
 
-    facet.enhance(RemoteEntity) do
-      include Domgen::Java::BaseJavaGenerator
-
-      def remote_datasource
-        Domgen.error("Invoked remote_datasource on #{remote_entity.qualified_name} when value not set") unless @remote_datasource
-        @remote_datasource
-      end
-
-      def remote_datasource=(remote_datasource)
-        @remote_datasource = (remote_datasource.is_a?(Domgen::Imit::RemoteDatasource) ? remote_datasource : remote_entity.data_module.repository.imit.remote_datasource_by_name(remote_datasource))
-      end
-
-      attr_writer :qualified_name
-
-      def qualified_name
-        @qualified_name || "#{remote_datasource.base_package}.client.entity.#{remote_entity.name}"
-      end
-    end
-
-    facet.enhance(RemoteEntityAttribute) do
-      include Domgen::Java::ImitJavaCharacteristic
-
-      protected
-
-      def characteristic
-        attribute
-      end
-    end
-
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
@@ -259,12 +230,12 @@ module Domgen
       end
 
       def lazy=(lazy)
-        Domgen.error("Attempted to make non-reference #{attribute.qualified_name} lazy") if lazy && !(attribute.reference? || attribute.remote_reference?)
+        Domgen.error("Attempted to make non-reference #{attribute.qualified_name} lazy") if lazy && !attribute.reference?
         @lazy = lazy
       end
 
       def lazy?
-        (attribute.reference? || attribute.remote_reference?) && (@lazy.nil? ? false : @lazy)
+        attribute.reference? && (@lazy.nil? ? false : @lazy)
       end
 
       include Domgen::Java::ImitJavaCharacteristic
