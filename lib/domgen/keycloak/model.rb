@@ -571,7 +571,7 @@ module Domgen
       end
 
       def pre_verify
-        if repository.gwt? && self.generates_tokens?
+        if repository.gwt? && self.generates_tokens? && repository.gwt.enable_dagger?
           repository.gwt.add_dagger_module(self.services_dagger_module_name, self.qualified_services_dagger_module_name)
         end
         if repository.ejb? && self.has_local_auth_service?

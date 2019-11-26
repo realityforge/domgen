@@ -69,7 +69,9 @@ module Domgen
           repository.imit.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         end
         if repository.gwt?
-          repository.gwt.add_dagger_module(locator_dagger_module_name, qualified_locator_dagger_module_name)
+          if repository.gwt.enable_dagger?
+            repository.gwt.add_dagger_module(locator_dagger_module_name, qualified_locator_dagger_module_name)
+          end
           repository.gwt.add_test_module(dao_test_module_name, qualified_dao_test_module_name)
           repository.gwt.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
         end
@@ -218,7 +220,7 @@ module Domgen
       end
 
       def pre_complete
-        if entity.data_module.repository.gwt?
+        if entity.data_module.repository.gwt? && entity.data_module.repository.gwt.enable_dagger?
           entity.data_module.repository.gwt.add_dagger_module("#{name}RepositoryDaggerModule", "#{qualified_name}RepositoryDaggerModule")
         end
       end

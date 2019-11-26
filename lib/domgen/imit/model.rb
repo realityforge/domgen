@@ -912,8 +912,10 @@ module Domgen
           client.protected_url_patterns << prefix + '/session/*'
         end
         if repository.gwt?
-          repository.gwt.add_dagger_module(schema_dagger_module_name, qualified_schema_dagger_module_name)
-          repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
+          if repository.gwt.enable_dagger?
+            repository.gwt.add_dagger_module(schema_dagger_module_name, qualified_schema_dagger_module_name)
+            repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
+          end
           repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name)
           repository.gwt.add_test_module(support_test_module_name, qualified_support_test_module_name)
         end
