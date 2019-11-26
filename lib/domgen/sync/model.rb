@@ -413,7 +413,7 @@ module Domgen
 
       def supports_bulk_sync?
         entity.attributes.select do |a|
-            a.reference? && a.referenced_entity == entity
+          a.reference? && a.referenced_entity == entity
         end.empty?
       end
 
