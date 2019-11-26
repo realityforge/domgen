@@ -398,6 +398,12 @@ module Domgen
         attributes_to_synchronize.select {|a| !a.immutable?}
       end
 
+      attr_writer :delete_via_sync
+
+      def delete_via_sync?
+        @delete_via_sync.nil? ? self.update_via_sync? : !!@delete_via_sync
+      end
+
       def update_via_sync?
         entity.attributes.select do |a|
           a.sync? &&

@@ -87,14 +87,18 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
 
     {
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
+<% if entity.sync.delete_via_sync? -%>
       <%= data_module.jpa.short_test_code %>.mark<%= entity.sync.master_entity.name  %>AsDeleted( <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>ToDelete );
+<% end -%>
 <% end -%>
 
       // Reflect the deletes
       final iris.syncrecord.server.entity.Synchronization synchronization = doSyncAndLoadResults( mappingSource, "OK" );
 
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
+<% if entity.sync.delete_via_sync? -%>
       iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, 0, getRemoveCountFor<%= entity.sync.master_entity.name %>() );
+<% end -%>
 <% end -%>
 
       assertNoUnsynchronized( mappingSource );
