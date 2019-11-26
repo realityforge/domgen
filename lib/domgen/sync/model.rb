@@ -401,7 +401,7 @@ module Domgen
       attr_writer :delete_via_sync
 
       def delete_via_sync?
-        @delete_via_sync.nil? ? self.update_via_sync? : !!@delete_via_sync
+        @delete_via_sync.nil? ? true : !!@delete_via_sync
       end
 
       def update_via_sync?
