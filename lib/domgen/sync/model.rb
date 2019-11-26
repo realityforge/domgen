@@ -436,12 +436,14 @@ module Domgen
         sync_temp_data_module = entity.data_module.repository.data_module_by_name(entity.data_module.repository.sync.sync_temp_data_module)
         sync_temp_data_module.disable_facets_not_in(Domgen::Sync::VALID_SYNC_TEMP_FACETS)
 
-        self.entity.integer(:MasterId, :nullable => true,
-                            :immutable => true,
-                            :description => 'Will contain the ID of the entity in the Master Schema from this this entity was synced',
-                            '-facets' => [:sync, :arez, :gwt])
-        self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync?
-        self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time?
+        unless self.entity.abstract?
+          self.entity.integer(:MasterId, :nullable => true,
+                              :immutable => true,
+                              :description => 'Will contain the ID of the entity in the Master Schema from this this entity was synced',
+                              '-facets' => [:sync, :arez, :gwt])
+          self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync?
+          self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time?
+        end
         # This foreign key can't be added here as the Master schema won't exist during its creation, so it is added in during finalisation
         # self.entity.sql.foreign_key([:MasterId], self.entity.sync.master_entity.qualified_name, [:Id])
 
