@@ -8,7 +8,10 @@
   <inherits name='com.google.gwt.user.RemoteService'/>
   <inherits name='org.realityforge.braincheck.BrainCheck'/>
 <% end -%>
+<% if repository.gwt.enable_dagger? -%>
   <inherits name='dagger.Dagger'/>
+
+<% end -%>
 <% if repository.keycloak? -%>
   <inherits name='org.realityforge.gwt.keycloak.cache.TokenCache'/>
 <% end -%>
