@@ -120,7 +120,7 @@ module Domgen
         return primitive?(characteristic.referenced_entity.primary_key, group_type, modality, options)
       end
 
-      def java_component_type(characteristic, group_type, modality = :default)
+      def java_component_type(characteristic, group_type, modality = :default, options = {})
         check_modality(modality)
         characteristic_group = group_type(group_type)
 
@@ -138,7 +138,7 @@ module Domgen
               return Domgen::TypeDB.characteristic_type_by_name(:text).java.object_type
             else
               data_type = Domgen::TypeDB.characteristic_type_by_name(:integer)
-              return characteristic.nullable? ? data_type.java.object_type : data_type.java.primitive_type
+              return characteristic.nullable? || options[:non_primitive_value] ? data_type.java.object_type : data_type.java.primitive_type
             end
           end
         elsif characteristic.struct?
@@ -240,13 +240,12 @@ module Domgen
       end
 
       def non_primitive_java_type(characteristic, group_type, modality = :default)
-        component_type = java_component_type(characteristic, group_type, modality)
         if :none == characteristic.collection_type
-          component_type
+          java_component_type(characteristic, group_type, modality)
         elsif :sequence == characteristic.collection_type
-          sequence_type(component_type)
+          sequence_type(java_component_type(characteristic, group_type, modality, :non_primitive_value => true))
         else #if :set == characteristic.collection_type
-          set_type(component_type)
+          set_type(java_component_type(characteristic, group_type, modality, :non_primitive_value => true))
         end
       end
 
