@@ -68,7 +68,7 @@ public final class <%= struct.gwt.name %>
         else nil
       end
 -%>
-    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%><% if field.struct.data_module.arez? %>arez.component.CollectionsUtil.as<%= field.collection_type == :set ? 'Set' : 'List' %>( <% end %>java.util.Arrays.stream( this.<%= field.json.name %> )<%= conversion_rule.nil? ? '' : ".map( e -> #{conversion_rule.call('e')} )" %><% if field.struct.data_module.arez? %> )<% else %>.collect( java.util.stream.Collectors.toList() )<% end %>;
+    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%><% if field.struct.data_module.arez? %>arez.component.CollectionsUtil.as<%= field.collection_type == :set ? 'Set' : 'List' %>( <% end %>java.util.Arrays.stream( this.<%= field.json.name %> )<%= conversion_rule.nil? ? '' : ".map( e -> #{conversion_rule.call('e')} )" %><% if field.struct.data_module.arez? %> )<% else %>.collect( java.util.stream.Collectors.to<%= field.collection_type == :set ? 'Set' :List' %>() )<% end %>;
 <% elsif field.nullable? && field.datetime? -%>
     return null == this.<%= field.json.name %> ? null : new java.util.Date( this.<%= field.json.name %>.longValue() );
 <% elsif field.datetime? -%>
