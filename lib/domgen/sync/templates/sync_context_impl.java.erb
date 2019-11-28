@@ -419,7 +419,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "INSERT INTO <%= j_escape_string(entity.sql.qualified_table_name) %>(<%= bulk_attrs_insert -%>)\n" +
       "SELECT <%= bulk_attrs_insert %> FROM ( " +
       getSqlToRetrieve<%= fn %>ListToUpdate( mappingSourceCode ) + " AND \n" +
-      "<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name} IS NULL") -%>) X\n";
+      "<%= j_escape_string("M.#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name} IS NULL") -%>) X\n";
   }
 
   @javax.annotation.Nonnull
