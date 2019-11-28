@@ -116,7 +116,7 @@ LOOP
     <%
        param_value =
          if parameter.date?
-            '#{repository.gwt.qualified_rdate_name}.toDate( #{repository.gwt.qualified_rdate_name}.parse( k ) )'
+            'java.sql.Date.valueOf( java.time.LocalDate.parse( k ) )'
          elsif parameter.enumeration?
            parameter.enumeration.numeric_values? ?
              "#{parameter.enumeration.ee.qualified_name}.values()[ k ]" :
@@ -147,7 +147,7 @@ LOOP
   else
     transform = nil
     if p.date?
-      transform = "#{repository.gwt.qualified_rdate_name}.toDate( #{repository.gwt.qualified_rdate_name}.parse( #{p.gwt_rpc.name} ) )"
+      transform = "java.sql.Date.valueOf( java.time.LocalDate.parse( #{p.gwt_rpc.name} ) )"
     elsif p.enumeration?
       if p.enumeration.numeric_values?
         transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt_rpc.name} ]"
