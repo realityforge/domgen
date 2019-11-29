@@ -38,7 +38,7 @@ public class <%= struct.ee.name %>
     this( <%= struct.fields.collect {|field|
   name = Reality::Naming.camelize(field.name)
   if field.enumeration?
-    field.enumeration.numeric_values? ? "#{field.enumeration.ee.qualified_name}.values()[ #{name} ]" :"#{field.enumeration.ee.qualified_name}.valueOf( #{name} )"
+    field.enumeration.numeric_values? ? "#{field.enumeration.ee.qualified_name}.values()[ #{name} ]" :"( ( #{name} != null ) ? #{field.enumeration.ee.qualified_name}.valueOf( #{name} ) : null )"
   else
     name
   end }.join(', ') %> );
