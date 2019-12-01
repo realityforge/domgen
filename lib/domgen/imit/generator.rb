@@ -33,7 +33,8 @@ Domgen::Generator.define([:imit],
                               'main/java/#{repository.imit.qualified_schema_factory_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'client/schema_dagger_module.java.erb',
-                              'main/java/#{repository.imit.qualified_schema_dagger_module_name.gsub(".","/")}.java')
+                              'main/java/#{repository.imit.qualified_schema_dagger_module_name.gsub(".","/")}.java',
+                              :guard => 'repository.gwt.enable_dagger?')
     template_set.erb_template(:data_module,
                               'client/mapper.java.erb',
                               'main/java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java')
@@ -70,6 +71,7 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:repository,
                               'client/gwt/services_dagger_module.java.erb',
                               'main/java/#{repository.imit.qualified_services_dagger_module_name.gsub(".","/")}.java',
+                              :guard => 'repository.gwt.enable_dagger?',
                               :additional_facets => [:gwt_rpc])
     template_set.erb_template(:exception,
                               'client/exception.java.erb',

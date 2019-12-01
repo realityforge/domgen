@@ -34,10 +34,12 @@ Domgen::Generator.define([:gwt_rpc],
                               :guard => 'repository.keycloak? && repository.gwt_rpc.secure_services?')
     template_set.erb_template(:repository,
                               'rpc_services_dagger_module.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_rpc_services_dagger_module_name.gsub(".","/")}.java')
+                              'main/java/#{repository.gwt_rpc.qualified_rpc_services_dagger_module_name.gsub(".","/")}.java',
+                              :guard => 'repository.gwt.enable_dagger?')
     template_set.erb_template(:repository,
                               'proxy_services_dagger_module.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_proxy_services_dagger_module_name.gsub(".","/")}.java')
+                              'main/java/#{repository.gwt_rpc.qualified_proxy_services_dagger_module_name.gsub(".","/")}.java',
+                              :guard => 'repository.gwt.enable_dagger?')
     template_set.erb_template(:service,
                               'facade_service.java.erb',
                               'main/java/#{service.gwt_rpc.qualified_facade_service_name.gsub(".","/")}.java')
