@@ -204,12 +204,12 @@ entities.uniq.each do |entity| -%>
 
   @java.lang.Override
   public void bulkUpdateSubscription( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session,
-                                      final int channelID,
+                                      final int channelId,
                                       @javax.annotation.Nonnull final java.util.Collection<java.lang.Integer> subChannelIds,
                                       @javax.annotation.Nullable final java.lang.Object filter,
                                       @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
   {
-    super.bulkUpdateSubscription( session, channelID, subChannelIds, filter, changeSet );
+    super.bulkUpdateSubscription( session, channelId, subChannelIds, filter, changeSet );
 <% repository.imit.graphs.select{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? }.each do |graph|
   root_type = graph.instance_root? ? Domgen::Java.java_type(repository.entity_by_name(graph.instance_root).primary_key, :ee, :default) : nil
   processed = []
