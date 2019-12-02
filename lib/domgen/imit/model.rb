@@ -783,11 +783,6 @@ module Domgen
         @imit_control_data_module || (self.repository.data_module_by_name?(self.repository.name) ? self.repository.name : Domgen.error('imit_control_data_module unspecified and unable to derive default.'))
       end
 
-      # Facets that can be on serverside components
-      def server_component_facets
-        [:ejb]
-      end
-
       attr_writer :executor_service_jndi
 
       def executor_service_jndi
@@ -1047,7 +1042,7 @@ module Domgen
 
         self.repository.service(self.subscription_manager) unless self.repository.service_by_name?(self.subscription_manager)
         self.repository.service_by_name(self.subscription_manager).tap do |s|
-          s.disable_facets_not_in(*self.server_component_facets)
+          s.disable_facets_not_in(:ejb)
           s.ejb.bind_in_tests = false
           s.ejb.generate_base_test = false
 
