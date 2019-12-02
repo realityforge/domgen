@@ -421,7 +421,7 @@ entities.uniq.each do |entity| -%>
          graph = repository.imit.graph_by_name(graph_link.target_graph)
          source_graph = repository.imit.graph_by_name(graph_link.source_graph)
          entity = repository.entity_by_name(graph.instance_root)
-         if graph.filter_parameter? && graph.instance_root? && source_graph.instance_root? && graph.filter_parameter?
+         if graph.filter_parameter? && graph.instance_root? && source_graph.instance_root?
 %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %> == source.getChannelId() && <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == target.getChannelId() )
     {
       final <%= entity.primary_key.jpa.java_type %> targetId = (<%= entity.primary_key.jpa.java_type %>) target.getSubChannelId();
