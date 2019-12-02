@@ -788,11 +788,6 @@ module Domgen
         [:ejb]
       end
 
-      # Facets that can be on client/server pairs of generated components
-      def component_facets
-        self.server_component_facets + [:imit]
-      end
-
       attr_writer :executor_service_jndi
 
       def executor_service_jndi
