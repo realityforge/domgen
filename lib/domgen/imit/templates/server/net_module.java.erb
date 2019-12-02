@@ -11,7 +11,6 @@ public class <%= repository.imit.server_net_module_name %>
   {
     bindGraphEncoder();
     bindChangeRecorder();
-    bindEntityMessageGenerator();
     bindSessionContext();
     bindReplicant();
   }
@@ -24,11 +23,6 @@ public class <%= repository.imit.server_net_module_name %>
   protected void bindChangeRecorder()
   {
     bind( <%= repository.imit.qualified_change_recorder_name %>.class ).to( <%= repository.imit.qualified_change_recorder_impl_name %>.class ).in( javax.inject.Singleton.class );
-  }
-
-  protected void bindEntityMessageGenerator()
-  {
-    bind( <%= repository.imit.qualified_message_generator_name %>.class ).in( javax.inject.Singleton.class );
   }
 
   protected void bindSessionContext()
