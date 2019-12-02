@@ -643,12 +643,6 @@ module Domgen
         @client_comm_package || "#{client_package}.net"
       end
 
-      attr_writer :client_ee_comm_package
-
-      def client_ee_comm_package
-        @client_ee_comm_package || "#{client_comm_package}.ee"
-      end
-
       def shared_comm_package
         @shared_comm_package || "#{shared_package}.net"
       end
