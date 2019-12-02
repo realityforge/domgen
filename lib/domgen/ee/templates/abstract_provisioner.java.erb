@@ -104,12 +104,6 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   // GraphQL Configuration Ende
 
 <% end -%>
-<% if repository.imit? -%>
-    // Replication configuration
-    glassfish.createManagedScheduledExecutorService( "<%= repository.imit.executor_service_jndi %>" );
-    glassfish.createContextService( "<%= repository.imit.context_service_jndi %>" );
-
-<% end -%>
 <% if repository.keycloak? -%>
     // Keycloak Configuration Start
 <% repository.keycloak.clients.each do |client| -%>

@@ -44,18 +44,6 @@ def generate(repository)
     define_context_service(data, repository.graphql.context_service_jndi_name)
   end
 
-  if repository.imit?
-    data['managed_scheduled_executor_services'][repository.imit.executor_service_jndi] = {
-      'enabled' => 'true',
-      'context_info_enabled' => 'true',
-      'context_info' => 'Classloader,JNDI,Security,WorkArea',
-      'deployment_order' => 100,
-      'thread_priority' => 5
-    }
-
-    define_context_service(data, repository.imit.context_service_jndi)
-  end
-
   if repository.keycloak?
     repository.keycloak.clients.each do |client|
       prefix = client.jndi_config_base

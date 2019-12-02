@@ -783,18 +783,6 @@ module Domgen
         @imit_control_data_module || (self.repository.data_module_by_name?(self.repository.name) ? self.repository.name : Domgen.error('imit_control_data_module unspecified and unable to derive default.'))
       end
 
-      attr_writer :executor_service_jndi
-
-      def executor_service_jndi
-        @executor_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/ManagedScheduledExecutorService"
-      end
-
-      attr_writer :context_service_jndi
-
-      def context_service_jndi
-        @context_service_jndi || "#{Reality::Naming.underscore(repository.name)}/concurrent/replicant/ContextService"
-      end
-
       def test_factories
         test_factory_map.dup
       end
