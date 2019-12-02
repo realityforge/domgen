@@ -12,6 +12,7 @@ package <%= to_package(repository.imit.qualified_graph_encoder_impl_name) %>;
 public class <%= repository.imit.graph_encoder_impl_name %>
   implements <%= repository.imit.qualified_graph_encoder_name %>
 {
+  @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_message_generator_name %> _messageGenerator = new <%= repository.imit.qualified_message_generator_name %>();
 <% if repository.imit.requires_session_context? -%>
   @javax.inject.Inject

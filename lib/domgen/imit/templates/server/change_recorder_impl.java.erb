@@ -7,6 +7,7 @@ package <%= to_package(repository.imit.qualified_change_recorder_impl_name) %>;
 public class <%= repository.imit.change_recorder_impl_name %>
   implements <%= repository.imit.qualified_change_recorder_name %>
 {
+  @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_message_generator_name %> _messageGenerator = new <%= repository.imit.qualified_message_generator_name %>();
   @javax.annotation.Resource
   private javax.transaction.TransactionSynchronizationRegistry _registry;

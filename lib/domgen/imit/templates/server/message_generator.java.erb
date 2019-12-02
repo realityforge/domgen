@@ -9,6 +9,7 @@ package <%= to_package(repository.imit.qualified_message_generator_name) %>;
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "UCF_USELESS_CONTROL_FLOW", "NP_LOAD_OF_KNOWN_NULL_VALUE", "UP_UNUSED_PARAMETER", "CC_CYCLOMATIC_COMPLEXITY", "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS" } )
 public final class <%= repository.imit.message_generator_name %>
 {
+  @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_server_router_name %> _router = new <%= repository.imit.qualified_server_router_name %>();
 
   @javax.annotation.Nullable
