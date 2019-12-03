@@ -120,7 +120,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
  -%>
 
   @javax.annotation.Nonnull
-  java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> entity )
+  private java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> entity )
   {
     final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<>();
 <% entity.imit.replication_graphs.each do |graph| -%>
