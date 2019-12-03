@@ -154,12 +154,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
 <% end -%>
 <% end -%>
-<% if repository.berk? -%>
-    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
-<% if repository.keycloak? -%>
-    iris.berk.client.ioc.BerkGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
-<% end -%>
-<% end -%>
   }
 <% end -%>
 <% if repository.iris_audit? -%>

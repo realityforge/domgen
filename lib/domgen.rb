@@ -170,9 +170,6 @@ require 'domgen/robots/generator'
 require 'domgen/iris_audit/model'
 require 'domgen/iris_audit/generator'
 
-require 'domgen/berk/model'
-require 'domgen/berk/generator'
-
 require 'domgen/redfish/model'
 require 'domgen/redfish/generator'
 
