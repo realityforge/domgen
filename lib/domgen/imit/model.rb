@@ -696,12 +696,6 @@ module Domgen
         @include_standard_integration_test_module.nil? ? true : !!@include_standard_integration_test_module
       end
 
-      attr_writer :custom_client_system
-
-      def custom_client_system?
-        @custom_client_system.nil? ? false : !!@custom_client_system
-      end
-
       def abstract_session_context_impl_name
         qualified_abstract_session_context_impl_name.gsub(/^.*\.([^.]+)$/, '\1')
       end
