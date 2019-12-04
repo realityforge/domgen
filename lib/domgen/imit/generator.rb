@@ -30,7 +30,9 @@ Domgen::Generator.define([:imit],
   g.template_set(:imit_client_entity) do |template_set|
     template_set.erb_template(:repository,
                               'client/schema_factory.java.erb',
-                              'main/java/#{repository.imit.qualified_schema_factory_name.gsub(".","/")}.java')
+                              'main/java/#{repository.imit.qualified_schema_factory_name.gsub(".","/")}.java',
+                              # Arez implies replicant v6+
+                              :guard => 'repository.arez?')
     template_set.erb_template(:repository,
                               'client/schema_dagger_module.java.erb',
                               'main/java/#{repository.imit.qualified_schema_dagger_module_name.gsub(".","/")}.java',
@@ -43,7 +45,9 @@ Domgen::Generator.define([:imit],
                               'main/java/#{repository.imit.qualified_client_router_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'client/subscription_util.java.erb',
-                              'main/java/#{repository.imit.qualified_subscription_util_name.gsub(".","/")}.java')
+                              'main/java/#{repository.imit.qualified_subscription_util_name.gsub(".","/")}.java',
+                              # Arez implies replicant v6+
+                              :guard => 'repository.arez?')
   end
 
   g.template_set(:imit_client_react4j_support) do |template_set|
@@ -106,7 +110,9 @@ Domgen::Generator.define([:imit],
                                 :additional_facets => [:gwt_rpc])
       template_set.erb_template(:repository,
                                 'client/support_test_module.java.erb',
-                                type + '/java/#{repository.imit.qualified_support_test_module_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.imit.qualified_support_test_module_name.gsub(".","/")}.java',
+                                # Arez implies replicant v6+
+                                :guard => 'repository.arez?')
     end
   end
 end
