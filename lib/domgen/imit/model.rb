@@ -1106,16 +1106,6 @@ module Domgen
       java_artifact :name, :service, :client, :imit, '#{exception.name}Exception'
     end
 
-    facet.enhance(Message) do
-      def subscription_message=(subscription_message)
-        @subscription_message = subscription_message
-      end
-
-      def subscription_message?
-        @subscription_message.nil? ? false : @subscription_message
-      end
-    end
-
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
