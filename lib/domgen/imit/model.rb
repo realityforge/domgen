@@ -437,7 +437,7 @@ module Domgen
       end
 
       def is_inverse_path_element?(path_element)
-        path_element.to_s =~ /^\<.*/
+        path_element.to_s =~ /^<.*/
       end
 
       def get_attribute_name_from_path_element?(path_element)
