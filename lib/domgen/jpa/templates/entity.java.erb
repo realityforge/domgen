@@ -41,7 +41,7 @@ package <%= to_package(entity.jpa.qualified_name) %>;
         }.join(",\n                   ")
 %>})
 <% else -%>
-@javax.persistence.DiscriminatorValue( value = "<%= entity.sql.discriminator %>" )
+@javax.persistence.DiscriminatorValue( "<%= entity.sql.discriminator %>" )
 <% end -%>
 <% if entity.read_only? && entity.data_module.repository.jpa.provider == :eclipselink %>
 @org.eclipse.persistence.annotations.ReadOnly
