@@ -60,7 +60,7 @@ public class <%= struct.ee.name %>
      if :sequence == field.collection_type
 %>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= field.ee.java_component_type %>>( <%= Reality::Naming.camelize(field.name) %> ) );
 <%     elsif :set == field.collection_type
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= field.ee.java_component_type %>>( <%= Reality::Naming.camelize(field.name) %> ) );
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<>( <%= Reality::Naming.camelize(field.name) %> ) );
   <%     else
 %>    this.<%= Reality::Naming.camelize(field.name) %> = <%= Reality::Naming.camelize(field.name) %>;
 <%   end
