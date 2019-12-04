@@ -147,12 +147,6 @@ module Domgen
         !service.imit?
       end
 
-      attr_writer :xsrf_protected
-
-      def xsrf_protected?
-        @xsrf_protected.nil? ? false : @xsrf_protected
-      end
-
       attr_writer :default_callback
 
       def default_callback?
