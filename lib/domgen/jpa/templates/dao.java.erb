@@ -83,7 +83,7 @@ public class <%= dao.jpa.dao_name %>
 <% if query.multiplicity == :many -%>
     <%= return_clause %>query.getResultList();
 <% if requires_result_conversion -%>
-    final java.util.ArrayList<<%= method_result_java_type %>> $result = new java.util.ArrayList<<%= method_result_java_type %>>();
+    final java.util.ArrayList<<%= method_result_java_type %>> $result = new java.util.ArrayList<>();
     for ( final java.lang.Object $v : result )
     {
       $result.add( <%= converter_clause.gsub('XXXX', '$v') %> );
