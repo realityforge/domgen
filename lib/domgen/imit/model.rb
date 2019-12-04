@@ -836,7 +836,10 @@ module Domgen
             repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
           end
           repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name)
-          repository.gwt.add_test_module(support_test_module_name, qualified_support_test_module_name)
+          # Arez indicates replicant6
+          if repository.arez?
+            repository.gwt.add_test_module(support_test_module_name, qualified_support_test_module_name)
+          end
         end
 
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?
