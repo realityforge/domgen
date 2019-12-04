@@ -90,17 +90,10 @@ Domgen::Generator.define([:imit],
     end
     g.template_set(:"imit_client_#{type}_qa_external") do |template_set|
       template_set.erb_template(:repository,
-                                'client/abstract_client_test.java.erb',
-                                type + '/java/#{repository.imit.qualified_abstract_client_test_name.gsub(".","/")}.java')
-      template_set.erb_template(:repository,
                                 'client/abstract_schema_test.java.erb',
                                 type + '/java/#{repository.imit.qualified_abstract_schema_test_name.gsub(".","/")}.java',
                                 # Arez implies replicant v6+
                                 :guard => 'repository.arez?')
-      template_set.erb_template(:repository,
-                                'client/client_test.java.erb',
-                                type + '/java/#{repository.imit.qualified_client_test_name.gsub(".","/")}.java',
-                                :guard => '!repository.imit.custom_base_client_test?')
     end
 
     g.template_set(:"imit_client_#{type}_gwt_qa_external") do |template_set|

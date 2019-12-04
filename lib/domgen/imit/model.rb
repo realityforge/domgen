@@ -686,9 +686,7 @@ module Domgen
       java_artifact :services_dagger_module, :ioc, :client, :imit, '#{repository.name}ImitServicesDaggerModule'
       java_artifact :mock_services_module, :test, :client, :imit, '#{repository.name}MockImitServicesModule', :sub_package => 'util'
       java_artifact :support_test_module, :test, :client, :imit, '#{repository.name}ImitSupportTestModule', :sub_package => 'util'
-      java_artifact :abstract_client_test, :test, :client, :imit, 'Abstract#{repository.name}ReplicantClientTest', :sub_package => 'util'
       java_artifact :abstract_schema_test, :comm, :client, :imit, 'Abstract#{repository.name}SchemaTest'
-      java_artifact :client_test, :test, :client, :imit, '#{repository.name}ReplicantClientTest', :sub_package => 'util'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
 
@@ -702,12 +700,6 @@ module Domgen
 
       def custom_client_system?
         @custom_client_system.nil? ? false : !!@custom_client_system
-      end
-
-      attr_writer :custom_base_client_test
-
-      def custom_base_client_test?
-        @custom_base_client_test.nil? ? false : !!@custom_base_client_test
       end
 
       def abstract_session_context_impl_name
