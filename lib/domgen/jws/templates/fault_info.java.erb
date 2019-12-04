@@ -29,9 +29,9 @@ public class <%= exception.jws.fault_info_name %>
 <% exception.parameters.each do |parameter|
      null_protection = parameter.nullable? ? "#{parameter.name} == null ? null : " : ''
      if :sequence == parameter.collection_type
-%>    this.<%= parameter.name %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
+%>    this.<%= parameter.name %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<>( <%= parameter.name %> ) );
 <%     elsif :set == parameter.collection_type
-%>    this.<%= parameter.name %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
+%>    this.<%= parameter.name %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<>( <%= parameter.name %> ) );
   <%     else
 %>    this.<%= parameter.name %> = <%= parameter.name %>;
 <%   end
