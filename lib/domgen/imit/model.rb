@@ -465,7 +465,7 @@ module Domgen
       end
 
       def referenced_attribute
-        self.referenced_entity.attribute_by_name(self.attribute_name)
+        reference? || inverse_start? ? self.referenced_entity.attribute_by_name(self.attribute_name) : imit_attribute.attribute
       end
 
       def referenced_entity
