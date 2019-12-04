@@ -64,10 +64,6 @@ module Domgen
       java_artifact :no_action_annotation, :test, :client, :arez, 'NoActionWrapper', :sub_package => 'util'
 
       def pre_verify
-        if repository.imit?
-          repository.imit.add_test_module(dao_test_module_name, qualified_dao_test_module_name)
-          repository.imit.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
-        end
         if repository.gwt?
           if repository.gwt.enable_dagger?
             repository.gwt.add_dagger_module(locator_dagger_module_name, qualified_locator_dagger_module_name)
@@ -79,7 +75,6 @@ module Domgen
 
       def post_verify
         repository.data_modules.select {|data_module| data_module.arez?}.each do |data_module|
-          repository.imit.add_test_factory(data_module.arez.short_test_code, data_module.arez.qualified_test_factory_name) if repository.imit?
           repository.gwt.add_test_factory(data_module.arez.short_test_code, data_module.arez.qualified_test_factory_name) if repository.gwt?
         end
       end

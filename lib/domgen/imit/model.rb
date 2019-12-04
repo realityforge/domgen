@@ -704,10 +704,6 @@ module Domgen
         "#{repository.service_by_name(self.session_context_service).ejb.qualified_service_name.gsub(/^(.*)\.([^.]+$)/, '\1.Abstract\2Impl')}"
       end
 
-      def extra_test_modules
-        @extra_test_modules ||= []
-      end
-
       def auto_register_change_listener=(auto_register_change_listener)
         @auto_register_change_listener = !!auto_register_change_listener
       end
@@ -767,32 +763,6 @@ module Domgen
 
       def imit_control_data_module
         @imit_control_data_module || (self.repository.data_module_by_name?(self.repository.name) ? self.repository.name : Domgen.error('imit_control_data_module unspecified and unable to derive default.'))
-      end
-
-      def test_factories
-        test_factory_map.dup
-      end
-
-      def add_test_factory(short_code, classname)
-        raise "Attempting to add a test factory '#{classname}' with short_code #{short_code} but one already exists. ('#{test_factory_map[short_code.to_s]}')" if test_factory_map[short_code.to_s]
-        test_factory_map[short_code.to_s] = classname
-      end
-
-      def test_modules
-        test_modules_map.dup
-      end
-
-      def add_test_module(name, classname)
-        Domgen.error("Attempting to define duplicate test module for imit facet. Name = '#{name}', Classname = '#{classname}'") if test_modules_map[name.to_s]
-        test_modules_map[name.to_s] = classname
-      end
-
-      def test_class_contents
-        test_class_content_list.dup
-      end
-
-      def add_test_class_content(content)
-        self.test_class_content_list << content
       end
 
       def requires_session_context?
@@ -1062,20 +1032,6 @@ module Domgen
           end
         end
         repository.imit.graphs.each(&:post_verify)
-      end
-
-      protected
-
-      def test_class_content_list
-        @test_class_content ||= []
-      end
-
-      def test_modules_map
-        @test_modules_map ||= {}
-      end
-
-      def test_factory_map
-        @test_factory_map ||= {}
       end
 
       private
