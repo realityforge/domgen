@@ -147,7 +147,9 @@ Domgen::Generator.define([:imit, :jpa],
   g.template_set(:imit_server_service) do |template_set|
     template_set.erb_template(:repository,
                               'endpoint.java.erb',
-                              'main/java/#{repository.imit.qualified_endpoint_name.gsub(".","/")}.java')
+                              'main/java/#{repository.imit.qualified_endpoint_name.gsub(".","/")}.java',
+                              # Arez implies replicant v6+
+                              :guard => 'repository.arez?')
     template_set.erb_template(:repository,
                               'jpa_encoder.java.erb',
                               'main/java/#{repository.imit.qualified_jpa_encoder_name.gsub(".","/")}.java')
