@@ -31,9 +31,9 @@ inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? 
     super( <%= inherited_params_with_suffix %>message, cause );
   <% exception.declared_parameters.each do |parameter|
      if :sequence == parameter.collection_type
-%>    this.<%= parameter.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
+%>    this.<%= parameter.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<>( <%= parameter.name %> ) );
 <%     elsif :set == parameter.collection_type
-%>    this.<%= parameter.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<<%= parameter.ee.java_component_type %>>( <%= parameter.name %> ) );
+%>    this.<%= parameter.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<>( <%= parameter.name %> ) );
 <%     else
 %>    this.<%= parameter.name %> = <%= parameter.name %>;
 <%   end
