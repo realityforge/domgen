@@ -5,7 +5,7 @@ package <%= to_package(method.ejb.qualified_scheduler_name) %>;
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
 @javax.ejb.Startup
 @javax.ejb.Singleton( name = "<%= method.qualified_name.gsub('#','.') %>Scheduler" )
-@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
+@javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.<%= method.ejb.schedule.concurrency_management_type.to_s.upcase %> )
 public class <%= method.ejb.scheduler_name %>
 {
   @javax.annotation.Resource

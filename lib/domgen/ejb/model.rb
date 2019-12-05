@@ -25,6 +25,7 @@ module Domgen
         @year = '*'
         @timezone = ''
         @persistent = false
+        @concurrency_management_type = :bean
         super(method, options, &block)
       end
 
@@ -37,6 +38,12 @@ module Domgen
       attr_accessor :year
       attr_accessor :timezone
       attr_writer :persistent
+      attr_reader :concurrency_management_type
+
+      def concurrency_management_type=(cmt)
+        Domgen.error("concurrency_management_type #{cmt} is invalid") unless [:bean, :container].include?(cmt)
+        @concurrency_management_type = cmt
+      end
 
       def persistent?
         !!@persistent
