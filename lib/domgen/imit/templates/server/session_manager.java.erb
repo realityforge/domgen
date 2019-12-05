@@ -171,7 +171,7 @@ entities.uniq.each do |entity| -%>
 <% end -%>
   }
 
-<% if repository.imit.graphs.any?{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? } -%>
+<% if repository.imit.graphs.any?{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.outward_graph_links.empty? && graph.outward_graph_links.any?{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered?} } -%>
   /*
     TODO: This code has not worked for a while due to changes in replicant. When Planner/Calendar gets ported
     forward we may need to revive this code so we are leaving this here on the off chance it is needed.
