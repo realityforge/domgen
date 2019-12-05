@@ -443,7 +443,8 @@ module Domgen
         sync_temp_data_module.disable_facets_not_in(Domgen::Sync::VALID_SYNC_TEMP_FACETS)
 
         unless self.entity.abstract?
-          self.entity.integer(:MasterId, :nullable => true,
+          self.entity.integer(:MasterId,
+                              :nullable => true,
                               :immutable => true,
                               :description => 'Will contain the ID of the entity in the Master Schema from this this entity was synced',
                               '-facets' => [:sync, :arez, :gwt])
