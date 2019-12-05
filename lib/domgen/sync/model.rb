@@ -451,7 +451,7 @@ module Domgen
           self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync?
           self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time?
         end
-        # This foreign key can't be added here as the Master schema won't exist during its creation, so it is added in during finalisation
+        # This foreign key can't be added here as the Master schema won't exist during its creation, so it is added in during finalization
         # self.entity.sql.foreign_key([:MasterId], self.entity.sync.master_entity.qualified_name, [:Id])
 
         sync_temp_data_module.entity("#{self.entity.sync.entity_prefix}#{self.entity.name}") do |e|
