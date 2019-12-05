@@ -9,11 +9,6 @@
 
   <add-linker name="appcache"/>
 <% end -%>
-<% repository.gwt.debug_config.each_pair do |k, config| -%>
-<% unless config.include?(:production_value) -%>
-  <set-property name="replicant.<%= Reality::Naming.underscore(repository.name) %>.<%= k %>" value="<%= config[:production_value] %>"/>
-<% end -%>
-<% end -%>
 
   <!-- Disable many checks not needed if code is correct. See https://github.com/gwtproject/gwt/blob/2.8.0/user/super/com/google/gwt/emul/javaemul/internal/InternalPreconditions.java -->
   <set-property name="jre.checks.checkLevel" value="MINIMAL"/>

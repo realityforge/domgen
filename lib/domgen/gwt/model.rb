@@ -83,16 +83,9 @@ module Domgen
       java_artifact :abstract_client_ux_test, :test, :client, :gwt, 'Abstract#{repository.name}UserExperienceTest', :sub_package => 'util'
       java_artifact :client_ux_test, :test, :client, :gwt, '#{repository.name}UserExperienceTest', :sub_package => 'util'
       java_artifact :standard_ux_test_module, :test, :client, :gwt, '#{repository.name}UserExperienceTestModule', :sub_package => 'util'
-      java_artifact :debug_config, nil, :client, :gwt, '#{repository.name}DebugConfig'
 
       def generate_sync_callbacks?
         repository.gwt_rpc? || repository.imit?
-      end
-
-      def debug_config
-        @debug_config ||= {
-          'emit_raw_uncaught_exceptions' => {:default_value => true, :production_value => false},
-        }
       end
 
       def dagger_modules

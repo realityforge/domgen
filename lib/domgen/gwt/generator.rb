@@ -16,12 +16,6 @@ Domgen::Generator.define([:gwt],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper, Domgen::Gwt::Helper]) do |g|
 
-  g.template_set(:gwt_client_config) do |template_set|
-    template_set.erb_template(:repository,
-                              'debug_config.java.erb',
-                              'main/java/#{repository.gwt.qualified_debug_config_name.gsub(".","/")}.java')
-  end
-
   g.template_set(:gwt_client_jso) do |template_set|
     template_set.erb_template(:repository,
                               'rdate.java.erb',

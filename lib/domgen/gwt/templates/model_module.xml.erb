@@ -17,10 +17,6 @@
 <% if repository.iris_audit? -%>
   <inherits name='iris.audit.Audit'/>
 <% end -%>
-<% repository.gwt.debug_config.each_pair do |k, config| -%>
-  <define-property name='<%= Reality::Naming.underscore(repository.name) %>.<%= k %>' values='true,false'/>
-  <set-property name='<%= Reality::Naming.underscore(repository.name) %>.<%= k %>' value='<%= config[:default_value] || 'false' %>'/>
-<% end -%>
 <% if repository.arez? -%>
   <set-property name='arez.enable_references' value='true'/>
 <% end -%>
