@@ -39,6 +39,7 @@ GO
 ALTER TABLE <%= entity.sql.qualified_table_name %>
   ADD CONSTRAINT [FK_<%=entity.name%>_MasterId] FOREIGN KEY ([MasterId])
   REFERENCES <%= entity.sync.master_entity.sql.qualified_table_name%> ([Id])
+  ON DELETE SET NULL
 GO
 <%
    end
