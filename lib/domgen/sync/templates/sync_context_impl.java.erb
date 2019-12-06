@@ -430,7 +430,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "UPDATE M\n" +
       "SET\n" +
       "  <%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql}") -%>, " +
-      "  <%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = C.<%= entity.primary_key.sql.quoted_column_name %>\n" +
+      "  <%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name} = C.#{entity.primary_key.sql.quoted_column_name}") %>\n" +
       "FROM <%= j_escape_string( table ) %> M \n" +
       " JOIN <%= j_escape_string("#{entity.sql.qualified_table_name} C ON C.#{entity.attribute_by_name(:MasterId).sql.quoted_column_name} = M.#{entity.sync.master_entity.primary_key.sql.quoted_column_name}") %> AND " +
       "M.<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql}") -%> AND " +
