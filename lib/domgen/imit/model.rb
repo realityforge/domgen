@@ -919,6 +919,7 @@ module Domgen
                 if graph.filter_parameter?
                   unless graph.filter_parameter.immutable?
                     s.method("CollectForFilterChange#{graph.name}") do |m|
+                      m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                       m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
                       m.reference(graph.instance_root, :name => :Entity)
                       m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
