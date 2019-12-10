@@ -152,6 +152,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   public void verify<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
 <% unless data_module.repository.pgsql? -%>
+<%# Revisit this block if Postgres will support dirty reads in the future -%>
     final int transactionIsolationLevel = getTransactionIsolation();
     try
     {
@@ -183,6 +184,8 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   }
 <% end -%>
 
+<% unless data_module.repository.pgsql? -%>
+<%# Revisit this block if Postgres will support dirty reads in the future -%>
   @java.lang.SuppressWarnings( "ConstantConditions" )
   private void doVerify<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
@@ -335,6 +338,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
       throw new IllegalStateException( "Failed to validate <%= entity.qualified_name %> instances for mappingSource " + mappingSourceCode );
     }
   }
+<% end -%>
 <% end -%>
 
   protected void log( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final String message )
