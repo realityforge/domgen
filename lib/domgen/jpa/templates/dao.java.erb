@@ -75,6 +75,9 @@ public class <%= dao.jpa.dao_name %>
 <% if query.jpa.limit -%>
     query.setMaxResults( limit );
 <% end -%>
+<% if query.jpa.lock_mode -%>
+    query.setLockMode( javax.persistence.LockModeType.<%= Reality::Naming.uppercase_constantize(query.jpa.lock_mode.to_s) %> );
+<% end -%>
 <% if query.query_type == :select -%>
 <%
   return_clause = !requires_result_conversion ? 'return ' : query.multiplicity == :many ? "final java.util.List<#{db_result_java_type}> result = " : "final #{db_result_java_type} result = "

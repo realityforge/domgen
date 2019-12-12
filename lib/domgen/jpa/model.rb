@@ -962,6 +962,15 @@ FRAGMENT
           query_text = $1 if tmp_query_name =~ /^[cC]ountBy(.+)$/
           next unless query_text
 
+          lock_mode = nil
+          if query_text =~ /(.+)With([A-Z].*)Lock$/
+            query_text = $1
+            lock_mode = Reality::Naming.underscore($2).to_sym
+            unless Domgen::FacetManager::FacetDefinitions::JpaQueryFacet.valid_lock_modes.include?(lock_mode)
+              Domgen.error("Invalid lock mode specified in query name #{query.qualified_name}")
+            end
+          end
+
           entity_prefix = 'O.'
 
           while true
@@ -1013,6 +1022,7 @@ FRAGMENT
           end
           if jpql
             query.jpa.jpql = jpql
+            query.jpa.lock_mode = lock_mode if lock_mode
             query.standard_query = true
           else
             Domgen.error("Query #{query.qualified_name} is jpa enabled but defines no jpql or sql but is not a standard query.")
@@ -1215,6 +1225,17 @@ FRAGMENT
       attr_accessor :offset
 
       attr_accessor :order_by
+
+      def self.valid_lock_modes
+        [:optimistic, :optimistic_force_increment, :pessimistic_read, :pessimistic_write, :pessimistic_force_increment, :none]
+      end
+
+      def lock_mode=(lock_mode)
+        raise "Attempted to set lock_mode to invalid #{lock_mode}" unless self.class.valid_lock_modes.include?(lock_mode)
+        @lock_mode = lock_mode
+      end
+
+      attr_reader :lock_mode
 
       def standard_query?
         @standard_query.nil? ? query.standard_query? : !!@standard_query
