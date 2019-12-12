@@ -28,7 +28,7 @@ public final class <%= struct.gwt.name %>
       when field.datetime? then "(double) #{var}.getTime()"
       when field.enumeration? then "#{var}.#{field.enumeration.textual_values? ? 'name()' : 'ordinal()' }"
       when field.nullable? && field.integer? then "#{var}.doubleValue()"
-      when field.nullable? && field.boolean? then "#{var}.booleanValue()"
+      when field.nullable? && field.boolean? then "#{var}"
       when field.nullable? && field.real? then "#{var}.doubleValue()"
       when field.nullable? && field.long? then "#{var}.doubleValue()"
       else nil
