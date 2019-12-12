@@ -3,7 +3,7 @@ package <%= to_package(struct.gwt.qualified_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "PMD.IfStmtsMustUseBraces", "PMD.IfElseStmtsMustUseBraces", "PMD.UnnecessaryLocalBeforeReturn", "PMD.UseUtilityClass", "PMD.OptimizableToArrayCall" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "STT_TOSTRING_STORED_IN_FIELD" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "STT_TOSTRING_STORED_IN_FIELD", "CC_CYCLOMATIC_COMPLEXITY" } )
 @jsinterop.annotations.JsType( isNative = true, namespace = jsinterop.annotations.JsPackage.GLOBAL, name = "Object" )
 public final class <%= struct.gwt.name %>
 {
