@@ -450,6 +450,12 @@ module Domgen
         end
         @sql_driver
       end
+
+      attr_writer :aws_hosted
+
+      def aws_hosted?
+        @aws_hosted.nil? ? false : !!@aws_hosted
+      end
     end
 
     facet.enhance(DataModule) do
