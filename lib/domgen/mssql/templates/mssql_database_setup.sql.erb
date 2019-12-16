@@ -18,6 +18,3 @@ EXEC('ALTER DATABASE [' + @dbName + '] SET QUOTED_IDENTIFIER ON')
 -- not consider indexed views if the setting is not set.
 EXEC('ALTER DATABASE [' + @dbName + '] SET NUMERIC_ROUNDABORT OFF')
 EXEC('ALTER DATABASE [' + @dbName + '] SET RECURSIVE_TRIGGERS ON')
-<% unless repository.sql.aws_hosted? -%>
-EXEC('ALTER DATABASE [' + @dbName + '] SET RECOVERY SIMPLE')
-<% end -%>
