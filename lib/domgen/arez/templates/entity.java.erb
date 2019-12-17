@@ -21,9 +21,11 @@ public abstract class <%= entity.arez.name %>
   public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
 <% if entity.arez.enable_entity_broker? -%>
-
 <% entity.declared_attributes.select{ |attribute| attribute.imit? && !attribute.immutable? }.each do |attribute| -%>
   public static final String <%= Reality::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
+<% end -%>
+<% entity.referencing_attributes.select{ |attribute| attribute.imit? && !attribute.abstract? && attribute.inverse.imit? && attribute.inverse.imit.traversable?}.each do |attribute| -%>
+  public static final String <%= Reality::Naming.uppercase_constantize(attribute.inverse.name) %> = "<%= attribute.inverse.name %>";
 <% end -%>
 <% end -%>
 <% entity.declared_attributes.select{ |attribute| attribute.immutable? && !attribute.abstract? && attribute.arez? }.each do |attribute|
@@ -148,6 +150,26 @@ public abstract class <%= entity.arez.name %>
   @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
   <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %>
   public abstract <%= type %> <%= getter_prefix(attribute) %><%= name %>();
+<% end -%>
+<% if entity.arez.enable_entity_broker? -%>
+
+  @arez.annotations.PreInverseRemove( name = "<%= Reality::Naming.camelize(name) %>" )
+  final void pre<%= name %>Remove( @javax.annotation.Nonnull final <%= type %> other )
+  {
+    if( isChangeEmitterEnabled() )
+    {
+      getChangeEmitter().relatedRemoved( this, <%= Reality::Naming.uppercase_constantize(attribute.inverse.name) %>, other );
+    }
+  }
+
+  @arez.annotations.PostInverseAdd( name = "<%= Reality::Naming.camelize(name) %>" )
+  final void post<%= name %>Add( @javax.annotation.Nonnull final <%= type %> other )
+  {
+    if( isChangeEmitterEnabled() )
+    {
+      getChangeEmitter().relatedAdded( this, <%= Reality::Naming.uppercase_constantize(attribute.inverse.name) %>, other );
+    }
+  }
 <% end -%>
 <% end -%>
 
