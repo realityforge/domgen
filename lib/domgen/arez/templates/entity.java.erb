@@ -50,18 +50,18 @@ public abstract class <%= entity.arez.name %>
   @arez.annotations.PostConstruct
   final void postConstruct()
   {
-    if ( replicant.Replicant.isChangeBrokerEnabled() && replicant.Replicant.context().getChangeEmitter().isEnabled() )
+    if ( isChangeEmitterEnabled() )
     {
-      replicant.Replicant.context().getChangeEmitter().entityAdded( this );
+      getChangeEmitter().entityAdded( this );
     }
   }
 
   @arez.annotations.PostDispose
   final void postDispose()
   {
-    if ( replicant.Replicant.isChangeBrokerEnabled() && replicant.Replicant.context().getChangeEmitter().isEnabled() )
+    if ( isChangeEmitterEnabled() )
     {
-      replicant.Replicant.context().getChangeEmitter().entityRemoved( this );
+      getChangeEmitter().entityRemoved( this );
     }
   }
 <% end -%>
@@ -108,9 +108,9 @@ public abstract class <%= entity.arez.name %>
   {
     if ( !java.util.Objects.equals( <%= Reality::Naming.camelize(attribute.arez.name) %>, <%= getter_prefix(attribute) %><%= attribute.arez.name %>() ) ) {
       $set<%= attribute.arez.name %>( <%= Reality::Naming.camelize(attribute.arez.name) %> );
-      if( replicant.Replicant.isChangeBrokerEnabled() && replicant.Replicant.context().getChangeEmitter().isEnabled() )
+      if( isChangeEmitterEnabled() )
       {
-        replicant.Replicant.context().getChangeEmitter().attributeChanged( this, <%= Reality::Naming.uppercase_constantize( attribute.name ) %>, <%= Reality::Naming.camelize(attribute.arez.name) %> );
+        getChangeEmitter().attributeChanged( this, <%= Reality::Naming.uppercase_constantize( attribute.name ) %>, <%= Reality::Naming.camelize(attribute.arez.name) %> );
       }
     }
   }
@@ -156,4 +156,18 @@ public abstract class <%= entity.arez.name %>
   {
     return this;
   }
+<% if entity.extends.nil? && entity.arez.enable_entity_broker? -%>
+
+  <%= entity.subtypes.empty? ? 'private' : 'protected final' %> boolean isChangeEmitterEnabled()
+  {
+    return replicant.Replicant.isChangeBrokerEnabled() && getChangeEmitter().isEnabled();
+  }
+
+  @javax.annotation.Nonnull
+  <%= entity.subtypes.empty? ? 'private' : 'protected final' %> replicant.EntityChangeEmitter getChangeEmitter()
+  {
+    assert replicant.Replicant.isChangeBrokerEnabled();
+    return replicant.Replicant.context().getChangeEmitter();
+  }
+<% end -%>
 }
