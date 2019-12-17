@@ -118,6 +118,7 @@ public abstract class <%= entity.arez.name %>
   @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
   abstract void $set<%= attribute.arez.name %>( <%= annotated_type(attribute, :arez, :default) %> <%= Reality::Naming.camelize(attribute.arez.name) %> );
 <% else -%>
+  @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
   abstract void set<%= attribute.arez.name %>( <%= annotated_type(attribute, :arez, :default) %> <%= Reality::Naming.camelize(attribute.arez.name) %> );
 <% end -%>
 <% end -%>
