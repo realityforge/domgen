@@ -138,14 +138,14 @@ public abstract class <%= entity.arez.name %>
         name = attribute.inverse.name
         type = attribute.entity.arez.qualified_name
         if attribute.inverse.multiplicity == :many
-          plural_name = Reality::Naming.pluralize(name) -%>
+          name = Reality::Naming.pluralize(name) -%>
 
-  @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(plural_name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
+  @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
   @javax.annotation.Nonnull
-  public abstract java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= plural_name %>();
+  public abstract java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= name %>();
 <% else -%>
 
-  @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(attribute.inverse.name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
+  @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
   <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %>
   public abstract <%= type %> <%= getter_prefix(attribute) %><%= name %>();
 <% end -%>
