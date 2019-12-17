@@ -617,6 +617,12 @@ module Domgen
 
       attr_writer :secured
 
+      def enable_entity_broker?
+        @enable_entity_broker.nil? ? false : !!@enable_entity_broker
+      end
+
+      attr_writer :enable_entity_broker
+
       def keycloak_client
         repository.keycloak.client_by_key(repository.gwt_rpc.keycloak_client)
       end
