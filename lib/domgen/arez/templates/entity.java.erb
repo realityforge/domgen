@@ -36,7 +36,7 @@ public abstract class <%= entity.arez.name %>
    end
 -%>
 
-  protected <%= entity.arez.name %>( <%= entity.attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.enumeration? ? :default : :transport, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(:transport))}"}.join(', ') %>)
+  <%= entity.subtypes.empty? ? '' : 'protected ' %><%= entity.arez.name %>( <%= entity.attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.enumeration? ? :default : :transport, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(:transport))}"}.join(', ') %>)
   {
 <% if entity.extends -%>
     super( <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(:transport))}.join(', ') %> );
