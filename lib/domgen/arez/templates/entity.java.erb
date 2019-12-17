@@ -39,7 +39,7 @@ public abstract class <%= entity.arez.name %>
     _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= supports_nullable?(attribute.arez, attribute.enumeration? ? :default : :transport, :assume_generated => true) && !attribute.nullable? ? "java.util.Objects.requireNonNull( #{Reality::Naming.camelize(attribute.arez.name(:transport))} )" : Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
 <% end -%>
   }
-<% if entity.data_module.repository.imit? && entity.data_module.repository.imit.enable_entity_broker? -%>
+<% if entity.arez.enable_entity_broker? -%>
 
   @arez.annotations.PostConstruct
   final void postConstruct()
