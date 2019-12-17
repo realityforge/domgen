@@ -22,7 +22,7 @@ public abstract class <%= entity.arez.name %>
 <% end -%>
 <% if entity.arez.enable_entity_broker? -%>
 
-<% entity.declared_attributes.select{ |attribute| attribute.imit? }.each do |attribute| -%>
+<% entity.declared_attributes.select{ |attribute| attribute.imit? && !attribute.immutable? }.each do |attribute| -%>
   public static final String <%= Reality::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end -%>
 <% end -%>
