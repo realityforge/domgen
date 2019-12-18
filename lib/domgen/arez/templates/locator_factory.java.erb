@@ -18,7 +18,7 @@ public final class <%= repository.arez.locator_factory_name %>
     locator.registerLookup( <%= entity.arez.qualified_name %>.class, id -> <%= Reality::Naming.camelize(entity.dao.qualified_name.gsub('.','')) %>.findBy<%= entity.primary_key.name %>( (<%= annotated_type(entity.primary_key, :arez, :default, :assume_generated => true) %>)id ) );
 <% end -%>
 <% data_module.entities.select{|entity|entity.arez? && !entity.final?}.each do |entity| -%>
-    locator.registerLookup( <%= entity.arez.qualified_name %>.class, id -> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( repository, (<%= annotated_type(entity.primary_key, :arez, :default, :assume_generated => true) %>) id ) );
+    locator.registerLookup( <%= entity.arez.qualified_name %>.class, id -> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( <%= entity.compatible_concrete_types.collect{|entity| "#{Reality::Naming.camelize(entity.dao.qualified_name.gsub('.',''))}"}.join(', ') %>, (<%= annotated_type(entity.primary_key, :arez, :default, :assume_generated => true) %>) id ) );
 <% end -%>
 <% end -%>
     return locator;
@@ -27,11 +27,11 @@ public final class <%= repository.arez.locator_factory_name %>
 <% data_module.entities.select{|entity|entity.arez? && !entity.final?}.each do |entity| -%>
 
   @javax.annotation.Nullable
-  private static <%= entity.arez.qualified_name %> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( @javax.annotation.Nonnull final <%= repository.arez.qualified_root_repository_name %> repository, <%= annotated_type(entity.primary_key, :arez, :default, :final => true, :assume_generated => true) %> id )
+  private static <%= entity.arez.qualified_name %> find<%= data_module.name %><%= entity.name %>By<%= entity.primary_key.name %>( <%= entity.compatible_concrete_types.collect{|entity| "@javax.annotation.Nonnull final #{entity.dao.arez.qualified_repository_name} #{Reality::Naming.camelize(entity.dao.qualified_name.gsub('.',''))}"}.join(', ') %>, <%= annotated_type(entity.primary_key, :arez, :default, :final => true, :assume_generated => true) %> id )
   {
     <%= entity.arez.qualified_name %> entity = null;
 <% entity.compatible_concrete_types.each do |subtype| -%>
-    entity = repository.<%= Reality::Naming.camelize(subtype.data_module.name) %>().<%= Reality::Naming.camelize(subtype.dao.name) %>().findBy<%= subtype.primary_key.name %>( id );
+    entity = <%= Reality::Naming.camelize(subtype.dao.qualified_name.gsub('.','')) %>.findBy<%= subtype.primary_key.name %>( id );
     if( null != entity )
     {
       return entity;
