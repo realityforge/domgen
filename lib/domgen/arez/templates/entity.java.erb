@@ -47,10 +47,10 @@ public abstract class <%= entity.arez.name %>
     _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= supports_nullable?(attribute.arez, attribute.enumeration? ? :default : :transport, :assume_generated => true) && !attribute.nullable? ? "java.util.Objects.requireNonNull( #{Reality::Naming.camelize(attribute.arez.name(:transport))} )" : Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
 <% end -%>
   }
-<% if entity.arez.enable_entity_broker? -%>
+<% if entity.arez.enable_entity_broker? && entity.extends.nil? -%>
 
   @arez.annotations.PostConstruct
-  final void postConstruct()
+  <%= entity.subtypes.empty? ? '' : 'protected ' %>final void postConstruct()
   {
     if ( isChangeEmitterEnabled() )
     {
@@ -59,7 +59,7 @@ public abstract class <%= entity.arez.name %>
   }
 
   @arez.annotations.PostDispose
-  final void postDispose()
+  <%= entity.subtypes.empty? ? '' : 'protected ' %>final void postDispose()
   {
     if ( isChangeEmitterEnabled() )
     {
