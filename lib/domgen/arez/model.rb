@@ -221,7 +221,7 @@ module Domgen
       end
 
       def pre_complete
-        if entity.data_module.repository.gwt? && entity.data_module.repository.gwt.enable_dagger?
+        if entity.data_module.repository.gwt? && entity.data_module.repository.gwt.enable_dagger? && entity.concrete?
           entity.data_module.repository.gwt.add_dagger_module("#{name}RepositoryDaggerModule", "#{qualified_name}RepositoryDaggerModule")
         end
       end
