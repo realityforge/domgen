@@ -32,7 +32,7 @@ public final class <%= data_module.imit.mapper_name %>
   @javax.annotation.Nonnull
   public static <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.dao.arez.qualified_repository_name %> repository, final int <%= Reality::Naming.camelize(entity.primary_key.name) %>, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
   {
-<% entity.attributes.select{|attribute| attribute.arez? && !attribute.primary_key?}.each do |attribute|
+<% entity.attributes.select{|attribute| attribute.imit? && !attribute.primary_key?}.each do |attribute|
     key = "#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}"
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :date
@@ -69,7 +69,7 @@ public final class <%= data_module.imit.mapper_name %>
    other = entity.data_module.entity_by_name(entity.extends) -%>
     updateAttributes<%= other.name %>( entity, data );
 <% end -%>
-<% entity.declared_attributes.select{|attribute| attribute.arez? && !attribute.immutable?}.each do |attribute|
+<% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.immutable?}.each do |attribute|
     key = "#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}"
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :date
