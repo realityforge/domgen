@@ -67,7 +67,7 @@ public abstract class <%= entity.arez.name %>
     }
   }
 <% end -%>
-<% entity.declared_attributes.select{|attribute| attribute.arez? }.each do |attribute| -%>
+<% entity.declared_attributes.select{|attribute| attribute.arez? && !attribute.abstract? }.each do |attribute| -%>
 <% if attribute.reference? -%>
 <% if attribute.immutable? -%>
 
