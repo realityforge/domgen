@@ -14,7 +14,7 @@ public class <%= repository.arez.test_factory_module_name %>
 <% end -%>
   }
 
-<% daos = repository.data_modules.select{|data_module|data_module.arez?}.collect {|data_module| data_module.entities.select{|entity|entity.arez?}.collect{|entity|entity.dao}}.flatten -%>
+<% daos = repository.data_modules.select{|data_module|data_module.arez?}.collect {|data_module| data_module.entities.select{|entity|entity.arez? && entity.concrete?}.collect{|entity|entity.dao}}.flatten -%>
   @javax.annotation.Nonnull
   @com.google.inject.Provides
   @javax.inject.Singleton
