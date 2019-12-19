@@ -59,7 +59,6 @@ public final class <%= data_module.imit.mapper_name %>
 <% end -%>
 <% attributes =  entity.attributes.select{|attribute| attribute.arez? && attribute.immutable? } +  entity.attributes.select{|attribute| attribute.arez? && !attribute.immutable? } -%>
     return repository.create( <%= attributes.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
-
   }
 <% end -%>
 
