@@ -38,13 +38,13 @@ public abstract class <%= entity.arez.name %>
    end
 -%>
 
-  <%= entity.subtypes.empty? ? '' : 'protected ' %><%= entity.arez.name %>( <%= entity.attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.enumeration? ? :default : :transport, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(:transport))}"}.join(', ') %>)
+  <%= entity.subtypes.empty? ? '' : 'protected ' %><%= entity.arez.name %>( <%= entity.attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}.join(', ') %>)
   {
 <% if entity.extends -%>
-    super( <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(:transport))}.join(', ') %> );
+    super( <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}.join(', ') %> );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.each do |attribute| -%>
-    _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= supports_nullable?(attribute.arez, attribute.enumeration? ? :default : :transport, :assume_generated => true) && !attribute.nullable? ? "java.util.Objects.requireNonNull( #{Reality::Naming.camelize(attribute.arez.name(:transport))} )" : Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
+    _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> = <%= supports_nullable?(attribute.arez, attribute.reference? ? :transport : :default, :assume_generated => true) && !attribute.nullable? ? "java.util.Objects.requireNonNull( #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))} )" : Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default)) %>;
 <% end -%>
   }
 <% if entity.arez.enable_entity_broker? && entity.extends.nil? -%>
