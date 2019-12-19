@@ -43,8 +43,6 @@ public abstract class <%= data_module.arez.abstract_test_factory_name %>
     <% if needsLink %>final <%= entity.arez.qualified_name %> $_ =<% else %>return<% end %> <%= Reality::Naming.camelize(entity.dao.name) %>().create( <%= attributes.select{|a|a.arez?}.collect do |a|
 if a.reference?
   "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : ''}#{Reality::Naming.camelize(a.name) }.get#{a.referenced_entity.primary_key.name}()"
-elsif a.date?
-    "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' }#{ Reality::Naming.camelize(a.name)}.toString()"
 else
     Reality::Naming.camelize(a.name)
   end
