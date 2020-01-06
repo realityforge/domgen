@@ -6,7 +6,17 @@ package <%= to_package(entity.arez.qualified_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "unchecked", "JavaDoc", "PMD.IfStmtsMustUseBraces", "Arez:UnmanagedComponentReference" } )
 <% unless entity.abstract? -%>
 <% has_arez_elements = !entity.arez.referencing_client_side_attributes.empty? || entity.attributes.any?{|a|a.arez? && (!a.immutable? || a.reference?) } -%>
-@arez.annotations.ArezComponent<% unless has_arez_elements %>( allowEmpty = true )<% end %>
+<%
+  annotation_parameters = []
+  unless has_arez_elements
+    annotation_parameters << 'allowEmpty = true'
+  end
+  if entity.arez.access_entities_outside_transaction?
+    annotation_parameters << 'defaultReadOutsideTransaction = arez.annotations.Feature.ENABLE'
+    annotation_parameters << 'defaultWriteOutsideTransaction = arez.annotations.Feature.ENABLE'
+  end
+  -%>
+@arez.annotations.ArezComponent<%= annotation_parameters.size == 0 ? '' : "( #{annotation_parameters.join(', ')} )" %>
 <% if entity.dao.arez? -%>
 @arez.annotations.Repository( extensions = {<%= entity.dao.arez.extensions.collect{|e| "#{e}.class"}.join(', ') %>} )
 <% end -%>
