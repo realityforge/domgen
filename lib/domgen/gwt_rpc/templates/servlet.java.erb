@@ -10,6 +10,15 @@ public class <%= service.gwt_rpc.servlet_name %>
   implements <%= service.gwt_rpc.qualified_rpc_service_name %>
 {
   private static final long serialVersionUID = 1;
+<% if service.methods.any?{|method| method.gwt_rpc? && (method.parameters.any?{|p| p.date?} || method.return_value.date?)} -%>
+  private static final java.time.format.DateTimeFormatter LOCAL_DATE = new java.time.format.DateTimeFormatterBuilder()
+    .appendValue( java.time.temporal.ChronoField.YEAR, 4, 10, java.time.format.SignStyle.EXCEEDS_PAD )
+    .appendLiteral( '-' )
+    .appendValue( java.time.temporal.ChronoField.MONTH_OF_YEAR, 1, 2, java.time.format.SignStyle.NOT_NEGATIVE )
+    .appendLiteral( '-' )
+    .appendValue( java.time.temporal.ChronoField.DAY_OF_MONTH, 1, 2, java.time.format.SignStyle.NOT_NEGATIVE )
+    .toFormatter();
+<% end -%>
 
   private transient final com.fasterxml.jackson.databind.ObjectMapper _jsonMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
@@ -116,7 +125,7 @@ LOOP
     <%
        param_value =
          if parameter.date?
-            'java.sql.Date.valueOf( java.time.LocalDate.parse( k ) )'
+            'java.sql.Date.valueOf( java.time.LocalDate.parse( k, LOCAL_DATE ) )'
          elsif parameter.enumeration?
            parameter.enumeration.numeric_values? ?
              "#{parameter.enumeration.ee.qualified_name}.values()[ k ]" :
@@ -147,7 +156,7 @@ LOOP
   else
     transform = nil
     if p.date?
-      transform = "java.sql.Date.valueOf( java.time.LocalDate.parse( #{p.gwt_rpc.name} ) )"
+      transform = "java.sql.Date.valueOf( java.time.LocalDate.parse( #{p.gwt_rpc.name}, LOCAL_DATE ) )"
     elsif p.enumeration?
       if p.enumeration.numeric_values?
         transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt_rpc.name} ]"
