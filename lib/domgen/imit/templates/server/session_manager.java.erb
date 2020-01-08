@@ -355,7 +355,7 @@ entities.uniq.each do |entity| -%>
     else <% end -%>
 
     {
-      throw new IllegalStateException( "bulkCollectDataForSubscribe called for unknown channel " + address );
+      return false;
     }
   }
 
@@ -388,7 +388,7 @@ entities.uniq.each do |entity| -%>
     else <% end -%>
 
     {
-      throw new IllegalStateException( "bulkCollectDataForSubscriptionUpdate called for unknown channel " + address );
+      return false;
     }
   }
 
