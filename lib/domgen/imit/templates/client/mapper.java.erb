@@ -66,7 +66,7 @@ public final class <%= data_module.imit.mapper_name %>
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends) -%>
-    update<%= entity.name %>( entity, data );
+    update<%= other.name %>( entity, data );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.immutable?}.each do |attribute|
     key = "#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}"
