@@ -1,0 +1,9 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.gwt.qualified_user_experience_dagger_module_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UseUtilityClass" } )
+@dagger.Module( includes = {<%= repository.gwt.user_experience_dagger_modules.collect{|cls| "#{cls}.class"}.join(', ') %>} )
+public final class <%= repository.gwt.user_experience_dagger_module_name %>
+{
+}

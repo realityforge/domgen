@@ -111,10 +111,10 @@ Domgen::Generator.define([:gwt],
                               'entrypoint.java.erb',
                               'main/java/#{entrypoint.qualified_entrypoint_name.gsub(".","/")}.java',
                               :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
-    template_set.erb_template('gwt.entrypoint',
-                              'entrypoint_dagger_module.java.erb',
-                              'main/java/#{entrypoint.qualified_entrypoint_dagger_module_name.gsub(".","/")}.java',
-                              :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints? && entrypoint.gwt_repository.repository.gwt.enable_dagger?')
+    template_set.erb_template(:repository,
+                              'user_experience_dagger_module.java.erb',
+                              'main/java/#{repository.gwt.qualified_user_experience_dagger_module_name.gsub(".","/")}.java',
+                              :guard => 'repository.gwt.enable_dagger?')
   end
 
   g.template_set(:gwt_client => [:gwt_client_jso, :gwt_client_callback])

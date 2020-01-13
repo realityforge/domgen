@@ -23,7 +23,6 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :entrypoint, nil, :client, :gwt, '#{name}'
-      java_artifact :entrypoint_dagger_module, :ioc, :client, :gwt, '#{name}EntrypointDaggerModule'
       java_artifact :gwt_module, :modules, nil, :gwt, '#{name}EntrypointSupport'
 
       def modules_package
@@ -35,18 +34,6 @@ module Domgen
       end
 
       attr_reader :name
-
-      def dagger_modules
-        modules = [self.gwt_repository.repository.gwt.qualified_aggregate_dagger_module_name]
-        if self.gwt_repository.repository.gwt.include_standard_user_experience_dagger_module?
-          modules += [self.gwt_repository.repository.gwt.qualified_user_experience_dagger_module_name]
-        end
-        modules + self.additional_dagger_modules
-      end
-
-      def additional_dagger_modules
-        @additional_dagger_modules ||= []
-      end
     end
   end
 
@@ -99,10 +86,8 @@ module Domgen
         dagger_modules_map[name.to_s] = classname
       end
 
-      attr_writer :include_standard_user_experience_dagger_module
-
-      def include_standard_user_experience_dagger_module?
-        @include_standard_user_experience_dagger_module.nil? ? enable_dagger? : !!@include_standard_user_experience_dagger_module
+      def user_experience_dagger_modules
+        @user_experience_dagger_modules ||= ([repository.gwt.qualified_aggregate_dagger_module_name])
       end
 
       attr_writer :enable_dagger
