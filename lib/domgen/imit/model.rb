@@ -1248,6 +1248,12 @@ module Domgen
         self.routing_keys.each do |routing_key|
           routing_key.post_verify
         end
+        self.attribute.inverse.imit.exclude_edges.each do |graph_name|
+          a = self.attribute
+          repository_imit_facet = a.entity.data_module.repository.imit
+          Domgen.error("#{a.qualified_name} has specified an inverse.imit.exclude_edges value for graph named '#{graph_name}' but no such graph exists") unless repository_imit_facet.graph_by_name?(graph_name)
+          Domgen.error("#{a.qualified_name} has specified an inverse.imit.exclude_edges value for graph named '#{graph_name}' but graph is not an instance graph") unless repository_imit_facet.graph_by_name(graph_name).instance_root?
+        end if self.attribute.reference?
       end
 
       protected
