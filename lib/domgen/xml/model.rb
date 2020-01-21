@@ -54,10 +54,16 @@ module Domgen
     facet.enhance(Repository) do
       Domgen::XML.include_xml(self, :repository)
 
+      attr_writer :local_namespace
+
+      def local_namespace
+        @local_namespace || repository.name
+      end
+
       attr_writer :namespace
 
       def namespace
-        @namespace || "#{base_namespace}/#{repository.name}"
+        @namespace || "#{base_namespace}/#{local_namespace}"
       end
 
       attr_writer :base_namespace
