@@ -9,21 +9,13 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.keycloak? -%>
   private final org.realityforge.gwt.keycloak.Keycloak _keycloak;
 <% end -%>
-  private final String _serverUrl;
 
   protected <%= repository.gwt.abstract_application_name %>(<% if repository.keycloak? -%> @javax.annotation.Nonnull final String keycloakClient <% end -%>)
   {
-    final String applicationURL = com.google.gwt.core.client.GWT.getHostPageBaseURL();
-    _serverUrl = applicationURL.substring( 0, applicationURL.indexOf( '/', applicationURL.indexOf( "://" ) + 3 ) );
 <% if repository.keycloak? -%>
-    _keycloak = new org.realityforge.gwt.keycloak.Keycloak( keycloakClient, applicationURL + ".keycloak/" + keycloakClient + "/keycloak.json" );
+    _keycloak = new org.realityforge.gwt.keycloak.Keycloak( keycloakClient, com.google.gwt.core.client.GWT.getHostPageBaseURL() + ".keycloak/" + keycloakClient + "/keycloak.json" );
     _keycloak.setListener( newKeycloakListener() );
 <% end -%>
-  }
-
-  public String getServerUrl()
-  {
-    return _serverUrl;
   }
 
   @javax.annotation.Nullable
