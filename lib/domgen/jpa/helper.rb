@@ -560,8 +560,7 @@ JAVA
       end
 
       def jpa_nullable?(attribute, inverse_side = false)
-        attribute.nullable? ||
-          attribute.generated_value? ||
+        (!inverse_side && (attribute.nullable? || attribute.generated_value?)) ||
           (attribute.reference? && attribute.inverse.multiplicity == :zero_or_one && inverse_side)
       end
 
