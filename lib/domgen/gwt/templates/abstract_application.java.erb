@@ -104,9 +104,13 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   protected abstract void onAppcacheUpdateReadyEvent();
 <% end -%>
 
-  protected abstract void postStart();
+  protected void postStart()
+  {
+  }
 
-  protected abstract void preStart();
+  protected void preStart()
+  {
+  }
 
   protected void prepareServices()
   {
