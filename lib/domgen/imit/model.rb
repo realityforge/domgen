@@ -877,11 +877,10 @@ module Domgen
                         :collection_type => routing_key.multivalued? ? :sequence : :none,
                         :nullable => !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
                       }
-                    options[:referenced_entity] = routing_key.target_attribute.referenced_entity if routing_key.target_attribute.reference?
-                    options[:referenced_struct] = routing_key.target_attribute.referenced_struct if routing_key.target_attribute.struct?
-                    m.parameter(routing_key.name.to_s.gsub('_', ''),
-                                routing_key.target_attribute.attribute_type,
-                                options)
+                    target_attribute = routing_key.target_attribute
+                    options[:referenced_entity] = target_attribute.referenced_entity if target_attribute.reference?
+                    options[:referenced_struct] = target_attribute.referenced_struct if target_attribute.struct?
+                    m.parameter(routing_key.name.to_s.gsub('_', ''), target_attribute.attribute_type, options)
                   end
                 end
 
