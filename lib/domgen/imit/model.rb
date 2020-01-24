@@ -536,9 +536,9 @@ module Domgen
             else
               Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} does not refer to a valid attribute of #{e.qualified_name}") unless e.attribute_by_name?(path_element)
               a = e.attribute_by_name(path_element)
-              e = a.referenced_entity
               Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
               Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not immutable #{a.qualified_name}") unless a.immutable?
+              e = a.referenced_entity
             end
           end
         end
