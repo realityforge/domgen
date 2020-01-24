@@ -457,6 +457,10 @@ module Domgen
         @attribute_name = attribute_name
       end
 
+      def attribute_name?
+        !@attribute_name.nil?
+      end
+
       def reference?
         self.path.size > 0 || self.imit_attribute.attribute.reference?
       end
@@ -487,7 +491,7 @@ module Domgen
       end
 
       def target_attribute
-        (!self.inverse_start? && self.reference?) ? self.referenced_entity.attribute_by_name(self.attribute_name) : self.imit_attribute.attribute
+        ((!self.inverse_start? && self.reference?) || self.attribute_name?) ? self.referenced_entity.attribute_by_name(self.attribute_name) : self.imit_attribute.attribute
       end
 
       attr_writer :multivalued
