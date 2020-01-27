@@ -112,7 +112,9 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
 <% end -%>
   }
 
-  protected abstract void wireCodeRegistry( @javax.annotation.Nonnull graphql.schema.GraphQLCodeRegistry.Builder registry );
+  protected void wireCodeRegistry( @javax.annotation.Nonnull final graphql.schema.GraphQLCodeRegistry.Builder registry )
+  {
+  }
 
   @javax.annotation.Nonnull
   private graphql.schema.GraphQLSchema buildGraphQLSchema()
