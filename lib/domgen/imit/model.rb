@@ -519,8 +519,8 @@ module Domgen
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that is not filtered.") unless self.graph.filtered?
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that entity is not currently part of.") unless self.graph.included_entities.include?(self.imit_attribute.attribute.entity.qualified_name)
 
-        unless attribute_name.nil?
-          Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name.inspect}' when attribute is not a reference or inverse reference") unless reference? || inverse_start?
+        if attribute_name?
+          Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name when attribute is not a reference or inverse reference") unless reference? || inverse_start?
         end
 
         if self.path.size > 0
