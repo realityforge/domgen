@@ -116,7 +116,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   {
 <% if repository.imit? -%>
     replicant.WebStorageCacheService.install();
-    elemental2.dom.DomGlobal.window.addEventListener( "pagehide", e -> replicant.Replicant.context().deactivate(), true );
+    elemental2.dom.DomGlobal.window.addEventListener( "beforeunload", e -> replicant.Replicant.context().deactivate(), true );
 <% end -%>
   }
 
