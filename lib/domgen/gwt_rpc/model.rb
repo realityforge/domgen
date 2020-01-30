@@ -135,16 +135,6 @@ module Domgen
         @rpc_prefix || 'GwtRpc'
       end
 
-      attr_writer :facade_prefix
-
-      def facade_prefix
-        @facade_prefix || (outer_service? ? '' : 'Gwt')
-      end
-
-      def outer_service?
-        !service.imit?
-      end
-
       attr_writer :default_callback
 
       def default_callback?
@@ -154,11 +144,11 @@ module Domgen
       attr_writer :facade_service_name
 
       def facade_service_name
-        @facade_service_name || "#{facade_prefix}#{service.name}"
+        @facade_service_name || service.name
       end
 
       def qualified_facade_service_name
-        "#{outer_service? ? parent.parent.gwt_rpc.client_service_package : parent.parent.gwt_rpc.client_internal_service_package}.#{facade_service_name}"
+        "#{parent.parent.gwt_rpc.client_service_package}.#{facade_service_name}"
       end
 
       java_artifact :proxy, :service, :client, :gwt_rpc, '#{facade_service_name}Impl', :sub_package => 'internal'

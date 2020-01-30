@@ -672,7 +672,6 @@ module Domgen
 
       java_artifact :endpoint, :web, :server, :imit, '#{repository.name}ReplicantEndpoint'
       java_artifact :rpc_request_builder, :ioc, :client, :imit, '#{repository.name}RpcRequestBuilder'
-      java_artifact :gwt_complete_module, :test, :client, :imit, '#{repository.name}GwtModule', :sub_package => 'util'
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :client_router, :comm, :client, :imit, '#{repository.name}ClientRouter'
@@ -695,7 +694,6 @@ module Domgen
       java_artifact :graph_encoder, :comm, :server, :imit, '#{repository.name}GraphEncoder'
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{graph_encoder_name}Impl'
       java_artifact :services_dagger_module, :ioc, :client, :imit, '#{repository.name}ImitServicesDaggerModule'
-      java_artifact :mock_services_module, :test, :client, :imit, '#{repository.name}MockImitServicesModule', :sub_package => 'util'
       java_artifact :support_test_module, :test, :client, :imit, '#{repository.name}ImitSupportTestModule', :sub_package => 'util'
       java_artifact :abstract_schema_test, :comm, :client, :imit, 'Abstract#{repository.name}SchemaTest'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
@@ -846,7 +844,6 @@ module Domgen
             repository.gwt.add_dagger_module(schema_dagger_module_name, qualified_schema_dagger_module_name)
             repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
           end
-          repository.gwt.add_test_module(mock_services_module_name, qualified_mock_services_module_name)
           repository.gwt.add_test_module(support_test_module_name, qualified_support_test_module_name)
         end
 
@@ -1075,8 +1072,6 @@ module Domgen
 
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :name, :service, :client, :imit, '#{service.name}'
     end
 
     facet.enhance(Parameter) do

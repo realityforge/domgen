@@ -61,9 +61,6 @@ Domgen::Generator.define([:imit],
   end
 
   g.template_set(:imit_client_service) do |template_set|
-    template_set.erb_template(:service,
-                              'client/service.java.erb',
-                              'main/java/#{service.imit.qualified_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'client/gwt/services_dagger_module.java.erb',
                               'main/java/#{repository.imit.qualified_services_dagger_module_name.gsub(".","/")}.java',
@@ -91,13 +88,6 @@ Domgen::Generator.define([:imit],
     end
 
     g.template_set(:"imit_client_#{type}_gwt_qa_external") do |template_set|
-      template_set.erb_template(:repository,
-                                'client/gwt/gwt_complete_module.java.erb',
-                                type + '/java/#{repository.imit.qualified_gwt_complete_module_name.gsub(".","/")}.java')
-      template_set.erb_template(:repository,
-                                'client/mock_services_module.java.erb',
-                                type + '/java/#{repository.imit.qualified_mock_services_module_name.gsub(".","/")}.java',
-                                :additional_facets => [:gwt_rpc])
       template_set.erb_template(:repository,
                                 'client/support_test_module.java.erb',
                                 type + '/java/#{repository.imit.qualified_support_test_module_name.gsub(".","/")}.java')
