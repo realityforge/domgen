@@ -10,16 +10,4 @@ public interface <%= repository.imit.services_dagger_module_name %>
   @dagger.Binds
   @javax.inject.Singleton
   <%= repository.imit.qualified_gwt_client_session_context_name %> bindSessionContext( @javax.annotation.Nonnull <%= repository.imit.qualified_gwt_client_session_context_impl_name %> service );
-<%
-  repository.data_modules.select{|data_module| data_module.imit? && data_module.gwt_rpc?}.each do |data_module|
-    data_module.services.select{|service| service.imit? && service.gwt_rpc?}.each do |service| -%>
-
-  @javax.annotation.Nonnull
-  @dagger.Binds
-  @javax.inject.Singleton
-  <%= service.imit.qualified_name %> bind<%= data_module.name %><%= service.name %>ReplicantService( @javax.annotation.Nonnull <%= service.imit.qualified_proxy_name %> service );
-<%
-    end
-  end
--%>
 }

@@ -30,9 +30,7 @@ Domgen::Generator.define([:imit],
   g.template_set(:imit_client_entity) do |template_set|
     template_set.erb_template(:repository,
                               'client/schema_factory.java.erb',
-                              'main/java/#{repository.imit.qualified_schema_factory_name.gsub(".","/")}.java',
-                              # Arez implies replicant v6+
-                              :guard => 'repository.arez?')
+                              'main/java/#{repository.imit.qualified_schema_factory_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'client/schema_dagger_module.java.erb',
                               'main/java/#{repository.imit.qualified_schema_dagger_module_name.gsub(".","/")}.java',
@@ -45,9 +43,7 @@ Domgen::Generator.define([:imit],
                               'main/java/#{repository.imit.qualified_client_router_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'client/subscription_util.java.erb',
-                              'main/java/#{repository.imit.qualified_subscription_util_name.gsub(".","/")}.java',
-                              # Arez implies replicant v6+
-                              :guard => 'repository.arez?')
+                              'main/java/#{repository.imit.qualified_subscription_util_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_client_react4j_support) do |template_set|
@@ -68,10 +64,6 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:service,
                               'client/service.java.erb',
                               'main/java/#{service.imit.qualified_name.gsub(".","/")}.java')
-    template_set.erb_template(:service,
-                              'client/proxy.java.erb',
-                              'main/java/#{service.imit.qualified_proxy_name.gsub(".","/")}.java',
-                              :additional_facets => [:gwt_rpc])
     template_set.erb_template(:repository,
                               'client/gwt/services_dagger_module.java.erb',
                               'main/java/#{repository.imit.qualified_services_dagger_module_name.gsub(".","/")}.java',
@@ -95,9 +87,7 @@ Domgen::Generator.define([:imit],
     g.template_set(:"imit_client_#{type}_qa_external") do |template_set|
       template_set.erb_template(:repository,
                                 'client/abstract_schema_test.java.erb',
-                                type + '/java/#{repository.imit.qualified_abstract_schema_test_name.gsub(".","/")}.java',
-                                # Arez implies replicant v6+
-                                :guard => 'repository.arez?')
+                                type + '/java/#{repository.imit.qualified_abstract_schema_test_name.gsub(".","/")}.java')
     end
 
     g.template_set(:"imit_client_#{type}_gwt_qa_external") do |template_set|
@@ -110,9 +100,7 @@ Domgen::Generator.define([:imit],
                                 :additional_facets => [:gwt_rpc])
       template_set.erb_template(:repository,
                                 'client/support_test_module.java.erb',
-                                type + '/java/#{repository.imit.qualified_support_test_module_name.gsub(".","/")}.java',
-                                # Arez implies replicant v6+
-                                :guard => 'repository.arez?')
+                                type + '/java/#{repository.imit.qualified_support_test_module_name.gsub(".","/")}.java')
     end
   end
 end
