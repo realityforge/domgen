@@ -36,20 +36,14 @@ Domgen::Generator.define([:gwt_rpc],
                               'rpc_services_dagger_module.java.erb',
                               'main/java/#{repository.gwt_rpc.qualified_rpc_services_dagger_module_name.gsub(".","/")}.java',
                               :guard => 'repository.gwt.enable_dagger?')
-    template_set.erb_template(:repository,
-                              'proxy_services_dagger_module.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_proxy_services_dagger_module_name.gsub(".","/")}.java',
-                              :guard => 'repository.gwt.enable_dagger?')
     template_set.erb_template(:service,
                               'facade_service.java.erb',
                               'main/java/#{service.gwt_rpc.qualified_facade_service_name.gsub(".","/")}.java')
-    template_set.erb_template(:service,
-                              'proxy.java.erb',
-                              'main/java/#{service.gwt_rpc.qualified_proxy_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'async_callback_adapter.java.erb',
                               'main/java/#{repository.gwt_rpc.qualified_async_callback_adapter_name.gsub(".","/")}.java')
   end
+
   g.template_set(:gwt_rpc_test_module) do |template_set|
     template_set.erb_template(:repository,
                               'mock_services_module.java.erb',
