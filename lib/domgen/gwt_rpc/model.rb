@@ -141,14 +141,14 @@ module Domgen
         @default_callback.nil? ? true : @default_callback
       end
 
-      attr_writer :facade_service_name
+      attr_writer :service_name
 
-      def facade_service_name
-        @facade_service_name || service.name
+      def service_name
+        @service_name || service.name
       end
 
-      def qualified_facade_service_name
-        "#{parent.parent.gwt_rpc.client_service_package}.#{facade_service_name}"
+      def qualified_service_name
+        "#{parent.parent.gwt_rpc.client_service_package}.#{service_name}"
       end
 
       java_artifact :proxy, :service, :client, :gwt_rpc, '#{facade_service_name}Impl', :sub_package => 'internal'

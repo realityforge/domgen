@@ -1,11 +1,11 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(service.gwt_rpc.qualified_facade_service_name) %>;
+package <%= to_package(service.gwt_rpc.qualified_service_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "PMD.UnusedPrivateField", "PMD.AddEmptyString", "rawtypes" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PSC_PRESIZE_COLLECTIONS", "CC_CYCLOMATIC_COMPLEXITY" } )
 @javax.inject.Singleton
-public final class <%= service.gwt_rpc.facade_service_name %>
+public final class <%= service.gwt_rpc.service_name %>
 {
   @javax.annotation.Nonnull
   private final <%= service.gwt_rpc.qualified_async_rpc_service_name %> _service;
@@ -15,7 +15,7 @@ public final class <%= service.gwt_rpc.facade_service_name %>
 <% end -%>
 
   @javax.inject.Inject
-  public <%= service.gwt_rpc.facade_service_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service<% if service.gwt_rpc.default_callback? -%>, @java.lang.SuppressWarnings( "rawtypes" ) @javax.annotation.Nonnull final com.google.gwt.user.client.rpc.AsyncCallback callback <% end %> )
+  public <%= service.gwt_rpc.service_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service<% if service.gwt_rpc.default_callback? -%>, @java.lang.SuppressWarnings( "rawtypes" ) @javax.annotation.Nonnull final com.google.gwt.user.client.rpc.AsyncCallback callback <% end %>)
   {
     _service = java.util.Objects.requireNonNull( service );
 <% if service.gwt_rpc.default_callback? -%>
