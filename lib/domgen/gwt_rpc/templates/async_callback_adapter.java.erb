@@ -44,5 +44,17 @@ public abstract class <%= repository.gwt_rpc.async_callback_adapter_name %><T,N>
     }
   }
 
+  @javax.annotation.Nullable
+  public final <%= repository.gwt.qualified_async_callback_name %><N> getCallback()
+  {
+    return _callback;
+  }
+
+  @javax.annotation.Nullable
+  public final <%= repository.gwt.qualified_async_error_callback_name %> getErrorCallback()
+  {
+    return _errorCallback;
+  }
+
   protected abstract N convert( final T result );
 }
