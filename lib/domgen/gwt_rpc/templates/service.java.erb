@@ -26,7 +26,7 @@ public final class <%= service.gwt_rpc.service_name %>
    method_name = Reality::Naming.camelize(method.name)
    parameters = method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}
    has_reference_parameters = parameters.any?{|p| p.reference? }
-   low_level_method_name = method.return_value.reference? && !has_reference_parameters && method.imit? ? "_#{method_name}" : method_name
+   low_level_method_name = ((method.return_value.reference? && !parameters.any?{|p| p.reference?}) || parameters.any?{|p| p.collection? }) && method.imit? && (method.return_value.reference? || has_reference_parameters) ? "_#{method_name}" : method_name
  -%>
 <% if method.imit? && (has_reference_parameters || method.return_value.reference?) -%>
 <% if has_reference_parameters -%>
