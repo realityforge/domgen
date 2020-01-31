@@ -151,7 +151,6 @@ module Domgen
         "#{parent.parent.gwt_rpc.client_service_package}.#{service_name}"
       end
 
-      java_artifact :proxy, :service, :client, :gwt_rpc, '#{facade_service_name}Impl', :sub_package => 'internal'
       java_artifact :rpc_service, :service, :shared, :gwt_rpc, '#{rpc_prefix}#{service.name}'
       java_artifact :async_rpc_service, :service, :shared, :gwt_rpc, '#{rpc_service_name}Async'
       java_artifact :servlet, :servlet, :server, :gwt_rpc, '#{rpc_service_name}Servlet'
