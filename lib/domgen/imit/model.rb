@@ -1000,6 +1000,7 @@ module Domgen
 
           s.method(:RemoveClosedSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30')
           s.method(:RemoveAllSessions)
+          s.method(:PingSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '15,45')
         end
 
         repository.data_modules.select { |data_module| data_module.ejb? }.each do |data_module|
