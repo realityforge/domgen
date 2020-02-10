@@ -44,9 +44,9 @@ module Domgen
       end
 
       def description_string(description, indent)
-        if description.nil? || description == ''
-          ''
-        elsif description.include?("\n")
+        return '' if description.nil? || description == ''
+        description = description.gsub('"',"\\\"")
+        if description.include?("\n")
           "#{' ' * indent}\"\"\"\n" + description.split("\n").collect {|line| "#{' ' * (indent + 2)}#{line}"}.join("\n") + "\n#{' ' * indent}\"\"\"\n"
         else
           "#{' ' * indent}\"#{description}\"\n"
