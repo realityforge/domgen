@@ -14,9 +14,29 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
   }
 
 <% end -%>
+  protected final void assertInstanceChannel( final int channelId )
+  {
+    org.testng.Assert.assertTrue( getChannel( channelId ).isInstanceChannel() );
+  }
+
+  protected final void assertTypeChannel( final int channelId )
+  {
+    org.testng.Assert.assertTrue( getChannel( channelId ).isTypeChannel() );
+  }
+
+  protected final void assertInternalChannel( final int channelId )
+  {
+    org.testng.Assert.assertFalse( getChannel( channelId ).isExternal() );
+  }
+
+  protected final void assertExternalChannel( final int channelId )
+  {
+    org.testng.Assert.assertTrue( getChannel( channelId ).isExternal() );
+  }
+
   protected final void assertChannelEntities( final int channelId, final int... entityIds )
   {
-    final replicant.ChannelSchema channel = schema().getChannel( channelId );
+    final replicant.ChannelSchema channel = getChannel( channelId );
     for ( final int entityId : entityIds )
     {
       ensureEntity( channel, entityId );
@@ -27,7 +47,7 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
   @javax.annotation.Nonnull
   protected final replicant.EntitySchema ensureEntity( final int channelId, final int entityId )
   {
-    return ensureEntity( schema().getChannel( channelId ), entityId );
+    return ensureEntity( getChannel( channelId ), entityId );
   }
 
   @javax.annotation.Nonnull
@@ -36,6 +56,12 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
     final replicant.EntitySchema entity = channel.findEntityById( entityId );
     org.testng.Assert.assertNotNull( entity, "Expected Entity with Id " + entityId + " in channel " + channel );
     return entity;
+  }
+
+  @javax.annotation.Nonnull
+  private replicant.ChannelSchema getChannel( final int channelId )
+  {
+    return schema().getChannel( channelId );
   }
 
   @javax.annotation.Nonnull

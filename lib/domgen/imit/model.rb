@@ -249,6 +249,14 @@ module Domgen
           end
         end
 
+        if self.internal_visibility? && self.instance_root? && self.inward_graph_links.empty?
+          Domgen.error("Graph '#{self.name}' is marked with internal visibility but has no inward graph links.")
+        end
+
+        if self.internal_visibility? && !self.instance_root? && self.dependent_type_graphs.empty?
+          Domgen.error("Graph '#{self.name}' is a type graph marked with internal visibility but has no dependent type graphs.")
+        end
+
         rtgs = self.required_type_graphs
 
         entities = self.included_entities
@@ -628,6 +636,12 @@ module Domgen
 
       attr_writer :enable_entity_broker
 
+      def generate_standard_endpoint?
+        @generate_standard_endpoint.nil? ? true : !!@generate_standard_endpoint
+      end
+
+      attr_writer :generate_standard_endpoint
+
       def keycloak_client
         repository.keycloak.client_by_key(repository.gwt_rpc.keycloak_client)
       end
@@ -671,6 +685,7 @@ module Domgen
       end
 
       java_artifact :endpoint, :web, :server, :imit, '#{repository.name}ReplicantEndpoint'
+      java_artifact :abstract_endpoint, :web, :server, :imit, 'Abstract#{repository.name}ReplicantEndpoint'
       java_artifact :rpc_request_builder, :ioc, :client, :imit, '#{repository.name}RpcRequestBuilder'
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'

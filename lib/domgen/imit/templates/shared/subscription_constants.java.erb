@@ -10,7 +10,7 @@ public final class <%= repository.imit.subscription_constants_name %>
     elements = g.instance_root? ? g.reachable_entities.sort : g.type_roots
     data = <<-DATA
   /**
-   * #{g.name} is a #{g.instance_root? ? 'instance' : 'type'}-based replication graph#{g.cacheable? ? " that has caching controlled by the #{g.external_cache_management? ? 'developer' : 'system'}" : ''}.
+   * #{g.name} is a #{g.universal_visibility? ? 'internally and externally' : g.internal_visibility? ? 'internally' : 'externally'} visible, #{g.instance_root? ? 'instance' : 'type'}-based replication graph#{g.cacheable? ? " that has caching controlled by the #{g.external_cache_management? ? 'developer' : 'system'}" : ''}.
    *
 DATA
     if g.instance_root?
@@ -92,11 +92,9 @@ DATA
    data += <<JAVADOC
   /**
    * The name of the "#{g.name}" subscription.
-   * To ensure these constants are removed in production code, the constants should only be used when
-   * guarded by <code>replicant.Replicant.areNamesEnabled()</code>.
    */
 JAVADOC
-   data += "  public static final String #{Reality::Naming.uppercase_constantize(g.name)}_NAME = \"#{repository.name}.#{g.name}\";\n"
+   data += "  public static final String #{Reality::Naming.uppercase_constantize(g.name)}_NAME = \"#{g.name}\";\n"
    index = index + 1
    data
   end.join("\n\n") %>
