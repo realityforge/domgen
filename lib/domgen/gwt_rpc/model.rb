@@ -13,7 +13,7 @@
 #
 
 module Domgen
-  FacetManager.facet(:gwt_rpc => [:gwt, :jackson]) do |facet|
+  FacetManager.facet(:gwt_rpc => [:gwt, :jackson, :keycloak]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
@@ -56,12 +56,6 @@ module Domgen
 
       attr_writer :services_module_name
 
-      attr_writer :secure_services
-
-      def secure_services?
-        @secure_services.nil? ? repository.keycloak? : !!@secure_services
-      end
-
       attr_writer :keycloak_client
 
       def keycloak_client
@@ -69,7 +63,7 @@ module Domgen
       end
 
       def pre_verify
-        if secure_services? && repository.keycloak? && repository.keycloak.has_local_auth_service?
+        if repository.keycloak.has_local_auth_service?
           client =
             repository.keycloak.client_by_key?(self.keycloak_client) ?
               repository.keycloak.client_by_key(self.keycloak_client) :

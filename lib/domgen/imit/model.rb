@@ -843,7 +843,7 @@ module Domgen
       end
 
       def pre_verify
-        if repository.gwt_rpc? && repository.gwt_rpc.secure_services? && repository.keycloak?
+        if repository.gwt_rpc?
           client =
             repository.keycloak.client_by_key?(repository.gwt_rpc.keycloak_client) ?
               repository.keycloak.client_by_key(repository.gwt_rpc.keycloak_client) :
