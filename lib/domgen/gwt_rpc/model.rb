@@ -37,7 +37,7 @@ module Domgen
       end
 
       java_artifact :async_callback_adapter, :service, :client, :gwt_rpc, '#{repository.name}AsyncCallbackAdapter'
-      java_artifact :keycloak_rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}KeycloakRpcRequestBuilder'
+      java_artifact :rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}RpcRequestBuilder'
       java_artifact :rpc_services_dagger_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesDaggerModule'
       java_artifact :mock_services_module, :test, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule', :sub_package => 'util'
 

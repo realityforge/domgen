@@ -6,76 +6,6 @@ package <%= to_package(repository.gwt_rpc.qualified_rpc_services_dagger_module_n
 @dagger.Module
 public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 {
-<% if repository.keycloak? -%>
-  private static final int MIN_TOKEN_VALIDITY_SECONDS = 15;
-  @javax.annotation.Nullable
-  private static org.realityforge.gwt.keycloak.Keycloak c_keycloak;
-  @javax.annotation.Nonnull
-  private static java.util.List<java.lang.Runnable> c_actions = new java.util.ArrayList<>();
-<% end -%>
-  private static String c_baseURL;
-<% if repository.imit? -%>
-  private static replicant.Request c_request;
-<% end -%>
-<% if repository.keycloak? -%>
-
-  @javax.annotation.Nonnull
-  public static org.realityforge.gwt.keycloak.Keycloak getKeycloak()
-  {
-    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-    {
-      org.realityforge.braincheck.Guards.invariant( () -> null != c_keycloak,
-                                                    () -> "Keycloak not configured when calling <%= repository.gwt_rpc.rpc_services_dagger_module_name %>.getKeycloak()" );
-    }
-    assert null != c_keycloak;
-    return c_keycloak;
-  }
-
-  public static void setKeycloak( @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak )
-  {
-    c_keycloak = keycloak;
-  }
-
-  public static void updateTokenAndExecute( @javax.annotation.Nonnull final java.lang.Runnable action )
-  {
-    if ( null == c_keycloak )
-    {
-      action.run();
-    }
-    else
-    {
-      c_actions.add( action );
-      c_keycloak.updateToken( MIN_TOKEN_VALIDITY_SECONDS, () -> {
-        c_actions.forEach( java.lang.Runnable::run );
-        c_actions.clear();
-      } );
-    }
-  }
-<% end -%>
-<% if repository.imit? -%>
-
-  @javax.annotation.Nonnull
-  public static replicant.WebSocketConfig newWebSocketConfig()
-  {
-    return new replicant.WebSocketConfig( getBaseURL().replace( "https://", "wss://" ).replace( "http://", "ws://" ) + "api" + org.realityforge.replicant.shared.SharedConstants.REPLICANT_URL_FRAGMENT, <%= repository.gwt_rpc.rpc_services_dagger_module_name %>::updateTokenAndExecute, () -> <%= repository.gwt_rpc.rpc_services_dagger_module_name %>.getKeycloak().getToken() );
-  }
-<% end -%>
-
-  public static void setBaseURL( @javax.annotation.Nonnull final String baseURL )
-  {
-    c_baseURL = baseURL;
-  }
-
-  @javax.annotation.Nonnull
-  public static String getBaseURL()
-  {
-    if ( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() )
-    {
-      org.realityforge.braincheck.Guards.invariant( () -> null != c_baseURL, () -> "<%= repository.gwt_rpc.rpc_services_dagger_module_name %>.initialize() not invoked prior to using dagger module" );
-    }
-    assert null != c_baseURL;
-    return c_baseURL;
-  }
 <%
   repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
     data_module.services.select{|service| service.gwt_rpc?}.each do |service|
@@ -84,15 +14,17 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
   @javax.annotation.Nonnull
   @dagger.Provides
   @javax.inject.Singleton
-  public static <%= service.gwt_rpc.qualified_async_rpc_service_name %> get<%= data_module.name %><%= service.name %>()
+  public static <%= service.gwt_rpc.qualified_async_rpc_service_name %> get<%= data_module.name %><%= service.name %>( @javax.inject.Named( "<%= repository.name %>.BaseURL") @javax.annotation.Nonnull final String baseUrl<% if service.keycloak? -%>, @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak<% end -%> )
   {
     final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt_rpc.qualified_rpc_service_name %>.class );
-<% if service.imit? -%>
-    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new <%= repository.imit.qualified_rpc_request_builder_name %>() );
-<% elsif service.keycloak? -%>
-    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new <%= repository.gwt_rpc.qualified_keycloak_rpc_request_builder_name %>() );
+<% if service.imit? && service.keycloak? -%>
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new org.realityforge.replicant.client.gwt.SecuredReplicantRpcRequestBuilder( baseUrl, <%= repository.imit.qualified_system_constants_name %>.SCHEMA_ID, keycloak ) );
+<% elsif service.imit? -%>
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new org.realityforge.replicant.client.gwt.ReplicantRpcRequestBuilder( baseUrl, <%= repository.imit.qualified_system_constants_name %>.SCHEMA_ID ) );
+<% else -%>
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setRpcRequestBuilder( new <%= repository.gwt_rpc.qualified_rpc_request_builder_name %>( baseUrl, keycloak ) );
 <% end -%>
-    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( getBaseURL() + "<%= service.gwt_rpc.api_url %>" );
+    ( (com.google.gwt.user.client.rpc.ServiceDefTarget) service ).setServiceEntryPoint( baseUrl + "<%= service.gwt_rpc.api_url %>" );
     return service;
   }
 <%

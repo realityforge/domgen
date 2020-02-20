@@ -69,9 +69,6 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:exception,
                               'client/exception.java.erb',
                               'main/java/#{exception.imit.qualified_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/gwt/rpc_request_builder.java.erb',
-                              'main/java/#{repository.imit.qualified_rpc_request_builder_name.gsub(".","/")}.java')
   end
 
   %w(main test).each do |type|

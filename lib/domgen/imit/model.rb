@@ -686,7 +686,6 @@ module Domgen
 
       java_artifact :endpoint, :web, :server, :imit, '#{repository.name}ReplicantEndpoint'
       java_artifact :abstract_endpoint, :web, :server, :imit, 'Abstract#{repository.name}ReplicantEndpoint'
-      java_artifact :rpc_request_builder, :ioc, :client, :imit, '#{repository.name}RpcRequestBuilder'
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :client_router, :comm, :client, :imit, '#{repository.name}ClientRouter'

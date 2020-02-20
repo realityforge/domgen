@@ -29,9 +29,8 @@ Domgen::Generator.define([:gwt_rpc],
 
   g.template_set(:gwt_rpc_client_service) do |template_set|
     template_set.erb_template(:repository,
-                              'keycloak_rpc_request_builder.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_keycloak_rpc_request_builder_name.gsub(".","/")}.java',
-                              :guard => 'repository.keycloak? && repository.gwt_rpc.secure_services?')
+                              'rpc_request_builder.java.erb',
+                              'main/java/#{repository.gwt_rpc.qualified_rpc_request_builder_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'rpc_services_dagger_module.java.erb',
                               'main/java/#{repository.gwt_rpc.qualified_rpc_services_dagger_module_name.gsub(".","/")}.java',

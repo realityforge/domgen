@@ -141,10 +141,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   protected void initGwtRpcServices()
   {
-<% if repository.keycloak? -%>
-    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setKeycloak( getKeycloak() );
-<% end -%>
-    <%= repository.gwt_rpc.qualified_rpc_services_dagger_module_name %>.setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
 <% if repository.iris_audit? -%>
     iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
 <% if repository.keycloak? -%>
