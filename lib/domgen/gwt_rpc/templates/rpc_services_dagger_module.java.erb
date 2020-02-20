@@ -51,19 +51,8 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
       } );
     }
   }
-
 <% end -%>
 <% if repository.imit? -%>
-  public static void setRequest( @javax.annotation.Nullable final replicant.Request request )
-  {
-    c_request = request;
-  }
-
-  @javax.annotation.Nullable
-  public static replicant.Request getRequest()
-  {
-    return c_request;
-  }
 
   @javax.annotation.Nonnull
   public static replicant.WebSocketConfig newWebSocketConfig()
