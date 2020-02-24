@@ -3,7 +3,7 @@ package <%= to_package(service.gwt_rpc.qualified_service_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "PMD.UnusedPrivateField", "PMD.AddEmptyString", "rawtypes" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PSC_PRESIZE_COLLECTIONS", "CC_CYCLOMATIC_COMPLEXITY" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PSC_PRESIZE_COLLECTIONS", "CC_CYCLOMATIC_COMPLEXITY", "WOC_WRITE_ONLY_COLLECTION_LOCAL" } )
 @javax.inject.Singleton
 public final class <%= service.gwt_rpc.service_name %>
 {
