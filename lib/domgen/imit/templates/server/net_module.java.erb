@@ -13,11 +13,17 @@ public class <%= repository.imit.server_net_module_name %>
     bindChangeRecorder();
     bindSessionContext();
     bindReplicant();
+    bindReplicantMessageBroker();
   }
 
   protected void bindGraphEncoder()
   {
     bind( <%= repository.imit.qualified_graph_encoder_name %>.class ).to( <%= repository.imit.qualified_graph_encoder_impl_name %>.class ).in( javax.inject.Singleton.class );
+  }
+
+  protected void bindReplicantMessageBroker()
+  {
+    bind( org.realityforge.replicant.server.transport.ReplicantMessageBroker.class ).to( <%= repository.imit.qualified_message_broker_impl_name %>.class ).in( javax.inject.Singleton.class );
   }
 
   protected void bindChangeRecorder()
