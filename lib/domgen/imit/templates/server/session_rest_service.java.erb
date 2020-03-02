@@ -12,16 +12,7 @@ public class <%= repository.imit.session_rest_service_name %>
   @javax.inject.Inject
   private org.realityforge.replicant.server.transport.ReplicantSessionManager _sessionManager;
 <% if repository.imit.secured? -%>
-  @javax.inject.Inject
-  private org.realityforge.keycloak.sks.SimpleAuthService _authService;
   private boolean _disableSessionServiceProtection;
-
-  @javax.annotation.Nonnull
-  @java.lang.Override
-  protected org.realityforge.keycloak.sks.SimpleAuthService getAuthService()
-  {
-    return _authService;
-  }
 
   @java.lang.Override
   protected boolean disableSecurity()

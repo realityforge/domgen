@@ -697,6 +697,7 @@ module Domgen
       java_artifact :schema_dagger_module, :ioc, :client, :imit, '#{repository.name}SystemSchemaDaggerModule'
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerImpl'
+      java_artifact :message_broker_impl, :comm, :server, :imit, '#{repository.name}ReplicantMessageBrokerImpl'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
       java_artifact :server_router, :comm, :server, :imit, '#{repository.name}Router'
       java_artifact :jpa_encoder, :comm, :server, :imit, '#{repository.name}JpaEncoder'
@@ -760,6 +761,15 @@ module Domgen
 
       def subscription_manager
         @subscription_manager || "#{self.imit_control_data_module}.#{repository.name}SubscriptionService"
+      end
+
+      def message_broker=(message_broker)
+        Domgen.error('message_broker invalid. Expected to be in format DataModule.ServiceName') if self.message_broker.to_s.split('.').length != 2
+        @message_broker = message_broker
+      end
+
+      def message_broker
+        @message_broker || "#{self.imit_control_data_module}.#{repository.name}ReplicantMessageBroker"
       end
 
       def session_context_service=(session_context_service)
@@ -1015,6 +1025,15 @@ module Domgen
           s.method(:RemoveClosedSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30')
           s.method(:RemoveAllSessions)
           s.method(:PingSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '15,45')
+        end
+
+        self.repository.service(self.message_broker) unless self.repository.service_by_name?(self.message_broker)
+        self.repository.service_by_name(self.message_broker).tap do |s|
+          s.disable_facets_not_in(:ejb)
+          s.ejb.bind_in_tests = false
+          s.ejb.generate_base_test = false
+
+          s.method(:ProcessPendingSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '*')
         end
 
         repository.data_modules.select { |data_module| data_module.ejb? }.each do |data_module|

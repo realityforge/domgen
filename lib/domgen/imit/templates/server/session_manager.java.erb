@@ -32,6 +32,15 @@ entities.uniq.each do |entity| -%>
 <% end -%>
   @javax.annotation.Resource
   private javax.transaction.TransactionSynchronizationRegistry _registry;
+  @javax.inject.Inject
+  private org.realityforge.replicant.server.transport.ReplicantMessageBroker _replicantMessageBroker;
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  protected org.realityforge.replicant.server.transport.ReplicantMessageBroker getReplicantMessageBroker()
+  {
+    return _replicantMessageBroker;
+  }
 
   @javax.annotation.Nonnull
   @java.lang.Override
