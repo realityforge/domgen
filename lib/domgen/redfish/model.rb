@@ -36,11 +36,15 @@ module Domgen
         env_key = options[:env_key]
         restype = options[:restype]
         default_value = options[:default_value]
+        standard_prefix = "#{Reality::Naming.underscore(repository.name)}/env"
+        Domgen.error("redfish.custom_resource_from_env specified name '#{name}' that is prefixed with '#{standard_prefix}/' which is no longer required. Remove prefix.") if name.start_with?("#{standard_prefix}/")
+        Domgen.error("redfish.custom_resource_from_env specified name '#{name}' that is prefixed with '#{Reality::Naming.underscore(repository.name)}/' which is no longer supported. Remove prefix and update deploymenty to reflect standard prefix '#{standard_prefix}/'.") if name.start_with?("#{standard_prefix}/")
         self.custom_configuration = true unless options[:system_defined]
-        components = name.split('/')
+        qualified_name = "#{standard_prefix}/#{name}"
+        components = qualified_name.split('/')
         components = [components.first] + components[2..components.size] if components.size > 2 && components[1] == 'env'
         env_key = components.join('_').upcase if env_key.nil?
-        custom_resource(name, "${#{env_key}}", restype)
+        custom_resource(qualified_name, "${#{env_key}}", restype)
         environment_variable(env_key, 'UNSPECIFIED', default_value)
       end
 
