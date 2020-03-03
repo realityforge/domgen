@@ -27,9 +27,12 @@ module Domgen
 
       attr_reader :data
 
-      def custom_resource(name, value, restype = nil)
+      def custom_resource(name, value, restype = nil, options = {})
         self.data['custom_resources'][name]['properties']['value'] = value
         self.data['custom_resources'][name]['restype'] = restype if restype
+        if repository.ee? && (options[:register_jndi_constant].nil? || options[:register_jndi_constant])
+          repository.ee.add_custom_jndi_resource(name)
+        end
       end
 
       def custom_resource_from_env(name, options = {})

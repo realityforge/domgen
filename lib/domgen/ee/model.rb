@@ -29,6 +29,18 @@ module Domgen
         integration_test_modules_map[name.to_s] = classname
       end
 
+      def add_custom_jndi_resource(name)
+        custom_jndi_resources << name
+      end
+
+      def custom_jndi_resources?
+        !custom_jndi_resources.empty?
+      end
+
+      def custom_jndi_resources
+        (@custom_jndi_resources ||= [])
+      end
+
       def version
         @version || '7'
       end
@@ -107,6 +119,7 @@ module Domgen
       java_artifact :deploy_test, nil, :integration, :ee, '#{repository.name}DeployTest'
       java_artifact :aggregate_data_type_test, :test, :server, :ee, '#{repository.name}AggregateDataTypeTest', :sub_package => 'util'
       java_artifact :aggregate_integration_test, :test, :integration, :ee, '#{repository.name}AggregateIntegrationTest', :sub_package => 'util'
+      java_artifact :jndi_resource_constants, nil, :server, :ee, '#{repository.name}JndiConstants'
       java_artifact :message_module, :test, :server, :ee, '#{repository.name}MessagesModule', :sub_package => 'util'
 
       attr_writer :custom_app_server
