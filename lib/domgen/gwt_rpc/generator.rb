@@ -38,6 +38,9 @@ Domgen::Generator.define([:gwt_rpc],
                               'service.java.erb',
                               'main/java/#{service.gwt_rpc.qualified_service_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
+                              'default_callback.java.erb',
+                              'main/java/#{repository.gwt_rpc.qualified_default_callback_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
                               'async_callback_adapter.java.erb',
                               'main/java/#{repository.gwt_rpc.qualified_async_callback_adapter_name.gsub(".","/")}.java')
   end
