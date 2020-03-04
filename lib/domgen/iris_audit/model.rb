@@ -29,7 +29,7 @@ module Domgen
           resource_name = "#{Reality::Naming.underscore(repository.name)}/jdbc/Audit"
           repository.redfish.persistence_unit('Audit', resource_name)
         end
-        if repository.gwt? && repository.gwt.enable_dagger?
+        if repository.gwt?
           repository.gwt.add_dagger_module('AuditGwtRpcServicesDaggerModule', 'iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule')
         end
       end

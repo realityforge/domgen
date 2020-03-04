@@ -76,24 +76,16 @@ module Domgen
       end
 
       def dagger_modules
-        Domgen.error("Attempting to call dagger_modules but dagger is disabled") unless enable_dagger?
         dagger_modules_map.dup
       end
 
       def add_dagger_module(name, classname)
-        Domgen.error("Attempting to add dagger module but dagger is disabled. Name = '#{name}', Classname = '#{classname}'") unless enable_dagger?
         Domgen.error("Attempting to define duplicate module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if dagger_modules_map[name.to_s]
         dagger_modules_map[name.to_s] = classname
       end
 
       def user_experience_dagger_modules
         @user_experience_dagger_modules ||= ([repository.gwt.qualified_aggregate_dagger_module_name])
-      end
-
-      attr_writer :enable_dagger
-
-      def enable_dagger?
-        @enable_dagger.nil? ? true : !!@enable_dagger
       end
 
       attr_writer :custom_base_client_test

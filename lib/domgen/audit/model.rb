@@ -96,10 +96,8 @@ module Domgen
       end
 
       def post_verify
-        if data_module.repository.gwt.enable_dagger?
-          repository.gwt.user_experience_dagger_modules << 'iris.audit.client.ioc.AuditClientDaggerModule'
-          repository.gwt.user_experience_dagger_modules << 'iris.audit.client.ioc.AuditDaggerModule'
-        end
+        repository.gwt.user_experience_dagger_modules << 'iris.audit.client.ioc.AuditClientDaggerModule'
+        repository.gwt.user_experience_dagger_modules << 'iris.audit.client.ioc.AuditDaggerModule'
       end
     end
   end

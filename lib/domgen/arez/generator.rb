@@ -28,8 +28,7 @@ Domgen::Generator.define([:arez],
                               'main/java/#{repository.arez.qualified_locator_factory_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'locator_dagger_module.java.erb',
-                              'main/java/#{repository.arez.qualified_locator_dagger_module_name.gsub(".","/")}.java',
-                              :guard => 'repository.gwt.enable_dagger?')
+                              'main/java/#{repository.arez.qualified_locator_dagger_module_name.gsub(".","/")}.java')
   end
 
   %w(main test).each do |type|
