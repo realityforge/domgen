@@ -114,14 +114,5 @@ Domgen::Generator.define([:keycloak],
                               'main/java/#{repository.keycloak.qualified_gwt_token_service_name.gsub(".","/")}.java',
                               :additional_facets => [:gwt],
                               :guard => 'repository.keycloak.generates_tokens?')
-    template_set.erb_template(:repository,
-                              'gwt_token_service_impl.java.erb',
-                              'main/java/#{repository.keycloak.qualified_gwt_token_service_impl_name.gsub(".","/")}.java',
-                              :additional_facets => [:gwt],
-                              :guard => 'repository.keycloak.generates_tokens?')
-    template_set.erb_template(:repository,
-                              'services_dagger_module.java.erb',
-                              'main/java/#{repository.keycloak.qualified_services_dagger_module_name.gsub(".","/")}.java',
-                              :guard => 'repository.gwt.enable_dagger? && repository.keycloak.generates_tokens?')
   end
 end
