@@ -234,7 +234,7 @@ module Domgen
         end
         if repository.gwt_cache_filter? && repository.application? && repository.application.user_experience?
           repository.gwt_cache_filter.add_cache_control_filter_path("/#{self.module_name}/*")
-          repository.gwt_cache_filter.add_gzip_filter_path("/#{self.module_name}/*")
+          repository.gwt_cache_filter.add_brotli_filter_path("/#{self.module_name}/*")
         end
       end
 
