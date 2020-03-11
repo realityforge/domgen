@@ -1,10 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.gwt_rpc.qualified_rpc_services_dagger_module_name) %>;
+package <%= to_package(repository.gwt_rpc.qualified_rpc_services_sting_fragment_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FieldDeclarationsShouldBeAtStartOfClass", "PMD.UseUtilityClass" } )
-@dagger.Module
-public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
+@sting.Fragment
+public interface <%= repository.gwt_rpc.rpc_services_sting_fragment_name %>
 {
 <%
   repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
@@ -12,9 +12,7 @@ public class <%= repository.gwt_rpc.rpc_services_dagger_module_name %>
 -%>
 
   @javax.annotation.Nonnull
-  @dagger.Provides
-  @javax.inject.Singleton
-  public static <%= service.gwt_rpc.qualified_async_rpc_service_name %> get<%= data_module.name %><%= service.name %>( @javax.inject.Named( "<%= repository.name %>.BaseURL") @javax.annotation.Nonnull final String baseUrl<% if service.keycloak? -%>, @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak<% end -%> )
+  default <%= service.gwt_rpc.qualified_async_rpc_service_name %> get<%= data_module.name %><%= service.name %>( @sting.Named( "<%= repository.name %>.BaseURL") @javax.annotation.Nonnull final String baseUrl<% if service.keycloak? -%>, @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak<% end -%> )
   {
     final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service = com.google.gwt.core.client.GWT.create( <%= service.gwt_rpc.qualified_rpc_service_name %>.class );
 <% if service.imit? && service.keycloak? -%>

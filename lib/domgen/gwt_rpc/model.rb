@@ -39,8 +39,8 @@ module Domgen
       java_artifact :default_callback, :service, :client, :gwt_rpc, '#{repository.name}DefaultAsyncCallback'
       java_artifact :async_callback_adapter, :service, :client, :gwt_rpc, '#{repository.name}AsyncCallbackAdapter'
       java_artifact :rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}RpcRequestBuilder'
-      java_artifact :rpc_services_dagger_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesDaggerModule'
-      java_artifact :mock_services_module, :test, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule', :sub_package => 'util'
+      java_artifact :rpc_services_sting_fragment, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesFragment'
+      java_artifact :mock_rpc_services_sting_fragment, :test, :client, :gwt_rpc, 'Mock#{repository.name}GwtRpcServicesFragment', :sub_package => 'util'
 
       java_artifact :code_server_config, :service, :server, :gwt_rpc, '#{repository.name}CodeServerConfig'
       java_artifact :code_server_config_resources, :service, :server, :gwt_rpc, '#{repository.name}CodeServerConfigResources'
@@ -74,8 +74,7 @@ module Domgen
           client.web_origins.clear
           client.protected_url_patterns << "/#{base_api_url}/*"
         end
-        repository.gwt.add_test_module(repository.gwt_rpc.mock_services_module_name, repository.gwt_rpc.qualified_mock_services_module_name)
-        repository.gwt.add_dagger_module(repository.gwt_rpc.rpc_services_dagger_module_name, repository.gwt_rpc.qualified_rpc_services_dagger_module_name)
+        repository.gwt.sting_test_fragments << repository.gwt_rpc.qualified_mock_rpc_services_sting_fragment_name
       end
 
       protected

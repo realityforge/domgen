@@ -1,0 +1,28 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.gwt_rpc.qualified_mock_rpc_services_sting_fragment_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( "JavaDoc" )
+@sting.Fragment
+public interface <%= repository.gwt_rpc.mock_rpc_services_sting_fragment_name %>
+{
+  @javax.annotation.Nonnull
+  default <%= repository.gwt_rpc.qualified_default_callback_name %> provideDefaultAsyncCallback()
+  {
+    return org.mockito.Mockito.mock( <%= repository.gwt_rpc.qualified_default_callback_name %>.class );
+  }
+<%
+  repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
+    data_module.services.select{|service| service.gwt_rpc?}.each do |service|
+-%>
+
+  @javax.annotation.Nonnull
+  default <%= service.gwt_rpc.qualified_async_rpc_service_name %> get<%= data_module.name %><%= service.name %>()
+  {
+    return org.mockito.Mockito.mock( <%= service.gwt_rpc.qualified_async_rpc_service_name %>.class );
+  }
+<%
+    end
+  end
+-%>
+}
