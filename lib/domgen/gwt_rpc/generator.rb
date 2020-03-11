@@ -74,7 +74,5 @@ Domgen::Generator.define([:gwt_rpc],
   end
 
   g.template_set(:gwt_rpc_shared => [:gwt_rpc_shared_service])
-  g.template_set(:gwt_rpc_client => [:gwt_rpc_client_service, :gwt_rpc_test_module, :gwt_client_jso])
   g.template_set(:gwt_rpc_server => [:gwt_rpc_server_service])
-  g.template_set(:gwt_rpc => [:gwt_rpc_shared, :gwt_rpc_client, :gwt_rpc_server])
 end
