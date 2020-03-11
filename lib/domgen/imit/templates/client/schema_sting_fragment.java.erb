@@ -1,14 +1,15 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.imit.qualified_schema_factory_name) %>;
+package <%= to_package(repository.imit.qualified_schema_sting_fragment_name) %>;
 <% entities = repository.data_modules.select { |data_module| data_module.imit? }.collect{|data_module| data_module.entities.select{|entity| entity.imit? && entity.concrete?} }.flatten -%>
 
 @javax.annotation.Generated( "Domgen" )
+@sting.Fragment
 @java.lang.SuppressWarnings( "PMD.UnusedLocalVariable" )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "LUI_USE_SINGLETON_LIST", "CC_CYCLOMATIC_COMPLEXITY", "DLS_DEAD_LOCAL_STORE", "UP_UNUSED_PARAMETER" } )
-public final class <%= repository.imit.schema_factory_name %>
+public interface <%= repository.imit.schema_sting_fragment_name %>
 {
   @javax.annotation.Nonnull
-  public static replicant.SystemSchema createSystemSchema( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, <%= entities.collect{|e|"@javax.annotation.Nonnull final #{e.dao.arez.qualified_repository_name} #{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> )
+  default replicant.SystemSchema provideSystemSchema( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, <%= entities.collect{|e|"@javax.annotation.Nonnull final #{e.dao.arez.qualified_repository_name} #{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> )
   {
     final <%= repository.imit.qualified_client_router_name %> router = new <%= repository.imit.qualified_client_router_name %>();
 <% entities.each do |entity| -%>
@@ -78,8 +79,4 @@ public final class <%= repository.imit.schema_factory_name %>
       return context.does<%= graph.name %>MatchEntity( filter, userObject<%= extra_interest_filter %> );
   }
 <% end -%>
-
-  private <%= repository.imit.schema_factory_name %>()
-  {
-  }
 }
