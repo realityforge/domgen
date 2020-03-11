@@ -30,7 +30,7 @@ module Domgen
           repository.redfish.persistence_unit('Audit', resource_name)
         end
         if repository.gwt?
-          repository.gwt.add_dagger_module('AuditGwtRpcServicesDaggerModule', 'iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule')
+          repository.gwt.sting_fragments << 'iris.audit.client.ioc.AuditGwtRpcServicesFragment'
         end
       end
     end
