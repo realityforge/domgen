@@ -114,5 +114,14 @@ Domgen::Generator.define([:keycloak],
                               'main/java/#{repository.keycloak.qualified_gwt_token_service_name.gsub(".","/")}.java',
                               :additional_facets => [:gwt],
                               :guard => 'repository.keycloak.generates_tokens?')
+
+    %w(main test).each do |type|
+      g.template_set(:"keycloak_gwt_#{type}_qa") do |template_set|
+        template_set.erb_template(:repository,
+                                  'mock_keycloak_sting_fragment.java.erb',
+                                  type + '/java/#{repository.keycloak.qualified_mock_keycloak_sting_fragment_name.gsub(".","/")}.java',
+                                  :additional_facets => [:gwt])
+      end
+    end
   end
 end

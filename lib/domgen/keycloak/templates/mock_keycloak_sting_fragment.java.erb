@@ -1,0 +1,19 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.keycloak.qualified_mock_keycloak_sting_fragment_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( "JavaDoc" )
+@sting.Fragment
+public interface <%= repository.keycloak.mock_keycloak_sting_fragment_name %>
+{
+  @javax.annotation.Nonnull
+  default org.realityforge.gwt.keycloak.Keycloak provideKeycloak()
+  {
+    final org.realityforge.gwt.keycloak.Keycloak keycloak = org.mockito.Mockito.mock( org.realityforge.gwt.keycloak.Keycloak.class );
+    org.mockito.Mockito.doAnswer( invocation -> {
+      ( (Runnable) invocation.getArguments()[ 0 ] ).run();
+      return null;
+    } ).when( keycloak ).updateTokenAndExecute( org.mockito.Mockito.any( Runnable.class ) );
+    return keycloak;
+  }
+}
