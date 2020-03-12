@@ -68,20 +68,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     }
 <% end -%>
   }
-
-  @Override
-  public void run( final org.testng.IHookCallBack icb, final org.testng.ITestResult testResult )
-  {
-    if( null != testResult.getMethod().getConstructorOrMethod().getMethod().getAnnotation( <%= repository.arez.qualified_no_action_annotation_name %>.class ) )
-    {
-      icb.runTestMethod( testResult );
-    }
-    else
-    {
-      arez.Arez.context().safeAction( testResult.getName(), () -> icb.runTestMethod( testResult ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
-    }
-  }
-
 <% end -%>
 
   @java.lang.Override
