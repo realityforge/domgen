@@ -6,17 +6,28 @@ package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @arez.testng.ActionWrapper( enable = true )
 public abstract class <%= repository.gwt.abstract_client_test_name %>
-  extends org.realityforge.guiceyloops.shared.AbstractSharedTest
 <% if repository.arez? -%>
   implements arez.testng.ArezTestSupport
 <% end -%>
 {
   @javax.annotation.Nonnull
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
-<% repository.gwt.test_factories.each do |short_code, classname| -%>
+<% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
   @javax.annotation.Nonnull
-  protected <%= classname %> <%= short_code %>;
+  protected <%= data_module.arez.qualified_test_factory_name %> <%= data_module.arez.short_test_code %>;
 <% end -%>
+  private <%= repository.gwt.qualified_abstract_test_sting_injector_name %> _injector;
+
+  @javax.annotation.Nonnull
+  protected <%= repository.gwt.qualified_abstract_test_sting_injector_name %> createInjector()
+  {
+    return <%= repository.gwt.qualified_default_injector_name %>.create();
+  }
+
+  protected <%= repository.gwt.qualified_abstract_test_sting_injector_name %> getInjector()
+  {
+    return _injector;
+  }
 
   @org.testng.annotations.BeforeMethod
 <% if repository.arez? -%>
@@ -25,6 +36,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   public void preTest()
     throws Exception
   {
+    org.realityforge.guiceyloops.shared.ValueUtil.reset();
 <% if repository.arez? -%>
     arez.testng.ArezTestSupport.super.preTest();
 <% if repository.imit? -%>
@@ -35,12 +47,12 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 <% end -%>
 <% end -%>
 <% end -%>
-    super.preTest();
-<% repository.gwt.test_factories.each do |short_code, classname| -%>
-    <%= short_code %> = s( <%= classname %>.class );
+    _injector = createInjector();
+<% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
+    <%= data_module.arez.short_test_code %> = _injector.getFactorySet().<%= Reality::Naming.camelize(data_module.name) %>();
 <% end -%>
 <% if repository.arez? -%>
-    arez.Arez.context().registerLocator( s( arez.Locator.class ) );
+    arez.Arez.context().registerLocator( _injector.getLocator() );
 <% end -%>
   }
 <% if repository.arez? -%>

@@ -6,45 +6,17 @@ package <%= to_package(repository.gwt.qualified_abstract_client_ux_test_name) %>
 public abstract class <%= repository.gwt.abstract_client_ux_test_name %>
   extends <%= repository.gwt.qualified_client_test_name %>
 {
-<% repository.gwt.ux_test_factories.each do |short_code, classname| -%>
-  @javax.annotation.Nonnull
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
-  protected <%= classname %> <%= short_code %>;
-<% end -%>
-
   @org.testng.annotations.BeforeMethod
   public void preTest()
     throws Exception
   {
     super.preTest();
 <% if repository.imit? -%>
-    replicant.Replicant.context().registerConnector( s( replicant.SystemSchema.class ), new TestTransport() );
+    replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), new TestTransport() );
     pumpAllAsyncActions();
 <% end -%>
-<% repository.gwt.ux_test_factories.each do |short_code, classname| -%>
-    <%= short_code %> = s( <%= classname %>.class );
-<% end -%>
   }
 
-  @java.lang.Override
-  protected com.google.inject.Module[] getModules()
-  {
-    final java.util.ArrayList<com.google.inject.Module> modules = new java.util.ArrayList<>();
-    java.util.Collections.addAll( modules, super.getModules() );
-<% repository.gwt.ux_test_modules.keys.each do |name| -%>
-    addModule( modules, new<%= name %>() );
-<% end -%>
-    return modules.toArray( new com.google.inject.Module[ modules.size() ] );
-  }
-
-<% repository.gwt.ux_test_modules.each_pair do |name, classname| -%>
-
-  @javax.annotation.Nullable
-  protected com.google.inject.Module new<%= name %>()
-  {
-    return new <%= classname %>();
-  }
-<% end -%>
 <% repository.gwt.ux_test_class_contents.each do |content| %>
 <%= content -%>
 <% end -%>

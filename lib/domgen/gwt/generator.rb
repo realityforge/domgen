@@ -43,6 +43,15 @@ Domgen::Generator.define([:gwt],
       template_set.erb_template(:repository,
                                 'abstract_client_test.java.erb',
                                 type + '/java/#{repository.gwt.qualified_abstract_client_test_name.gsub(".","/")}.java')
+      template_set.erb_template(:repository,
+                                'abstract_test_sting_injector.java.erb',
+                                type + '/java/#{repository.gwt.qualified_abstract_test_sting_injector_name.gsub(".","/")}.java')
+      template_set.erb_template(:repository,
+                                'test_fragment.java.erb',
+                                type + '/java/#{repository.gwt.qualified_test_fragment_name.gsub(".","/")}.java')
+      template_set.erb_template(:repository,
+                                'default_injector.java.erb',
+                                type + '/java/#{repository.gwt.qualified_default_injector_name.gsub(".","/")}.java')
     end
   end
 
@@ -71,8 +80,12 @@ Domgen::Generator.define([:gwt],
 
   g.template_set(:gwt_client_module) do |template_set|
     template_set.erb_template(:repository,
-                              'aggregate_dagger_module.java.erb',
-                              'main/java/#{repository.gwt.qualified_aggregate_dagger_module_name.gsub(".","/")}.java')
+                              'aggregate_sting_fragment.java.erb',
+                              'main/java/#{repository.gwt.qualified_aggregate_sting_fragment_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'abstract_sting_injector.java.erb',
+                              'main/java/#{repository.gwt.qualified_abstract_sting_injector_name.gsub(".","/")}.java',
+                              :guard => 'repository.gwt.enable_entrypoints?')
   end
 
   g.template_set(:gwt_client_gwt_model_module) do |template_set|
@@ -99,10 +112,6 @@ Domgen::Generator.define([:gwt],
 
   g.template_set(:gwt_client_app) do |template_set|
     template_set.erb_template(:repository,
-                              'abstract_dagger_component.java.erb',
-                              'main/java/#{repository.gwt.qualified_abstract_dagger_component_name.gsub(".","/")}.java',
-                              :guard => 'repository.gwt.enable_entrypoints?')
-    template_set.erb_template(:repository,
                               'abstract_application.java.erb',
                               'main/java/#{repository.gwt.qualified_abstract_application_name.gsub(".","/")}.java',
                               :guard => 'repository.gwt.enable_entrypoints?')
@@ -110,9 +119,6 @@ Domgen::Generator.define([:gwt],
                               'entrypoint.java.erb',
                               'main/java/#{entrypoint.qualified_entrypoint_name.gsub(".","/")}.java',
                               :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
-    template_set.erb_template(:repository,
-                              'user_experience_dagger_module.java.erb',
-                              'main/java/#{repository.gwt.qualified_user_experience_dagger_module_name.gsub(".","/")}.java')
   end
 
   g.template_set(:gwt_client => [:gwt_client_jso, :gwt_client_callback])
