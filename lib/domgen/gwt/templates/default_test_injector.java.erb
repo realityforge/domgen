@@ -8,7 +8,7 @@ public interface <%= repository.gwt.default_test_injector_name %>
   extends <%= repository.gwt.qualified_abstract_test_sting_injector_name %>
 {
   @javax.annotation.Nonnull
-  public static <%= repository.gwt.default_test_injector_name %> create()
+  static <%= repository.gwt.default_test_injector_name %> create()
   {
     return new Sting_<%= repository.gwt.default_test_injector_name %>();
   }
