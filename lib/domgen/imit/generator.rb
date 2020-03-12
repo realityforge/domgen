@@ -29,11 +29,8 @@ Domgen::Generator.define([:imit],
 
   g.template_set(:imit_client_entity) do |template_set|
     template_set.erb_template(:repository,
-                              'client/schema_factory.java.erb',
-                              'main/java/#{repository.imit.qualified_schema_factory_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/schema_dagger_module.java.erb',
-                              'main/java/#{repository.imit.qualified_schema_dagger_module_name.gsub(".","/")}.java')
+                              'client/schema_sting_fragment.java.erb',
+                              'main/java/#{repository.imit.qualified_schema_sting_fragment_name.gsub(".","/")}.java')
     template_set.erb_template(:data_module,
                               'client/mapper.java.erb',
                               'main/java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java')
