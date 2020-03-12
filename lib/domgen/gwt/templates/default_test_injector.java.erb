@@ -1,15 +1,15 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.gwt.qualified_default_injector_name) %>;
+package <%= to_package(repository.gwt.qualified_default_test_injector_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UseUtilityClass" } )
 @sting.Injector( includes = <%= repository.gwt.qualified_test_fragment_name %>.class )
-public interface <%= repository.gwt.default_injector_name %>
+public interface <%= repository.gwt.default_test_injector_name %>
   extends <%= repository.gwt.qualified_abstract_test_sting_injector_name %>
 {
   @javax.annotation.Nonnull
-  public static <%= repository.gwt.default_injector_name %> create()
+  public static <%= repository.gwt.default_test_injector_name %> create()
   {
-    return new Sting_<%= repository.gwt.default_injector_name %>();
+    return new Sting_<%= repository.gwt.default_test_injector_name %>();
   }
 }

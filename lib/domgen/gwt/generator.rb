@@ -50,8 +50,8 @@ Domgen::Generator.define([:gwt],
                                 'test_fragment.java.erb',
                                 type + '/java/#{repository.gwt.qualified_test_fragment_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
-                                'default_injector.java.erb',
-                                type + '/java/#{repository.gwt.qualified_default_injector_name.gsub(".","/")}.java')
+                                'default_test_injector.java.erb',
+                                type + '/java/#{repository.gwt.qualified_default_test_injector_name.gsub(".","/")}.java')
     end
   end
 

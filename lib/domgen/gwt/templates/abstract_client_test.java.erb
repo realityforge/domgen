@@ -23,7 +23,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   @javax.annotation.Nonnull
   protected <%= repository.gwt.qualified_abstract_test_sting_injector_name %> createInjector()
   {
-    return <%= repository.gwt.qualified_default_injector_name %>.create();
+    return <%= repository.gwt.qualified_default_test_injector_name %>.create();
   }
 
   protected <%= repository.gwt.qualified_abstract_test_sting_injector_name %> getInjector()
