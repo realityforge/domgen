@@ -67,6 +67,6 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
   @javax.annotation.Nonnull
   protected final replicant.SystemSchema schema()
   {
-    return s( replicant.SystemSchema.class );
+    return getInjector().getSystemSchema();
   }
 }

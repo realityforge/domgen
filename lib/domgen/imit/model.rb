@@ -707,7 +707,6 @@ module Domgen
       java_artifact :replication_interceptor, :comm, :server, :imit, '#{repository.name}ReplicationInterceptor'
       java_artifact :graph_encoder, :comm, :server, :imit, '#{repository.name}GraphEncoder'
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{graph_encoder_name}Impl'
-      java_artifact :support_test_module, :test, :client, :imit, '#{repository.name}ImitSupportTestModule', :sub_package => 'util'
       java_artifact :abstract_schema_test, :comm, :client, :imit, 'Abstract#{repository.name}SchemaTest'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
@@ -862,9 +861,8 @@ module Domgen
           client.protected_url_patterns << prefix + '/session/*'
         end
         if repository.gwt?
-          repository.gwt.add_dagger_module(schema_dagger_module_name, qualified_schema_dagger_module_name)
-          repository.gwt.add_dagger_module(services_dagger_module_name, qualified_services_dagger_module_name)
-          repository.gwt.add_test_module(support_test_module_name, qualified_support_test_module_name)
+          repository.gwt.sting_fragments << qualified_schema_sting_fragment_name
+          repository.gwt.sting_fragments << qualified_gwt_client_session_context_impl_name
         end
 
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?

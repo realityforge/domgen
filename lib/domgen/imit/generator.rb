@@ -74,12 +74,6 @@ Domgen::Generator.define([:imit],
                                 'client/abstract_schema_test.java.erb',
                                 type + '/java/#{repository.imit.qualified_abstract_schema_test_name.gsub(".","/")}.java')
     end
-
-    g.template_set(:"imit_client_#{type}_gwt_qa_external") do |template_set|
-      template_set.erb_template(:repository,
-                                'client/support_test_module.java.erb',
-                                type + '/java/#{repository.imit.qualified_support_test_module_name.gsub(".","/")}.java')
-    end
   end
 end
 
