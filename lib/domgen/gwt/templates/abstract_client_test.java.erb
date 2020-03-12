@@ -15,7 +15,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
   @javax.annotation.Nonnull
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
   protected <%= classname %> <%= short_code %>;
 <% end -%>
 
