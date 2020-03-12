@@ -50,10 +50,9 @@ module Domgen
 
       java_artifact :async_callback, :service, :client, :gwt, '#{repository.name}AsyncCallback'
       java_artifact :async_error_callback, :service, :client, :gwt, '#{repository.name}AsyncErrorCallback'
-      java_artifact :abstract_dagger_component, :ioc, :client, :gwt, 'Abstract#{repository.name}DaggerComponent'
+      java_artifact :abstract_sting_injector, :ioc, :client, :gwt, 'Abstract#{repository.name}Injector'
       java_artifact :abstract_application, nil, :client, :gwt, 'Abstract#{repository.name}App'
-      java_artifact :aggregate_dagger_module, :ioc, :client, :gwt, '#{repository.name}DaggerModule'
-      java_artifact :user_experience_dagger_module, :ioc, :client, :gwt, '#{repository.name}UserExperienceDaggerModule'
+      java_artifact :aggregate_sting_fragment, :ioc, :client, :gwt, '#{repository.name}Fragment'
 
       java_artifact :rdate, :data_type, :client, :gwt, 'RDate', :sub_package => 'util'
 
@@ -63,53 +62,31 @@ module Domgen
       java_artifact :model_module, :modules, nil, :gwt, '#{repository.name}ModelSupport'
 
       java_artifact :abstract_client_test, :test, :client, :gwt, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
+      java_artifact :abstract_test_sting_injector, :test, :client, :gwt, 'Abstract#{repository.name}TestInjector', :sub_package => 'util'
+      java_artifact :test_fragment, :test, :client, :gwt, '#{repository.name}TestFragment', :sub_package => 'util'
+      java_artifact :default_injector, :test, :client, :gwt, '#{repository.name}TestInjector', :sub_package => 'util'
       java_artifact :client_test, :test, :client, :gwt, '#{repository.name}ClientTest', :sub_package => 'util'
-      java_artifact :standard_test_module, :test, :client, :gwt, '#{repository.name}TestModule', :sub_package => 'util'
       java_artifact :callback_success_answer, :test, :client, :gwt, '#{repository.name}CallbackSuccessAnswer', :sub_package => 'util'
       java_artifact :callback_failure_answer, :test, :client, :gwt, '#{repository.name}CallbackFailureAnswer', :sub_package => 'util'
       java_artifact :abstract_client_ux_test, :test, :client, :gwt, 'Abstract#{repository.name}UserExperienceTest', :sub_package => 'util'
       java_artifact :client_ux_test, :test, :client, :gwt, '#{repository.name}UserExperienceTest', :sub_package => 'util'
-      java_artifact :standard_ux_test_module, :test, :client, :gwt, '#{repository.name}UserExperienceTestModule', :sub_package => 'util'
 
       def generate_sync_callbacks?
         repository.gwt_rpc? || repository.imit?
       end
 
-      def dagger_modules
-        dagger_modules_map.dup
+      def sting_test_fragments
+        (@sting_test_fragments ||= [qualified_aggregate_sting_fragment_name])
       end
 
-      def add_dagger_module(name, classname)
-        Domgen.error("Attempting to define duplicate module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if dagger_modules_map[name.to_s]
-        dagger_modules_map[name.to_s] = classname
-      end
-
-      def user_experience_dagger_modules
-        @user_experience_dagger_modules ||= ([repository.gwt.qualified_aggregate_dagger_module_name])
+      def sting_fragments
+        (@sting_fragments ||= [])
       end
 
       attr_writer :custom_base_client_test
 
       def custom_base_client_test?
         @custom_base_client_test.nil? ? false : !!@custom_base_client_test
-      end
-
-      def test_factories
-        test_factory_map.dup
-      end
-
-      def add_test_factory(short_code, classname)
-        raise "Attempting to add a test factory '#{classname}' with short_code #{short_code} but one already exists. ('#{test_factory_map[short_code.to_s]}')" if test_factory_map[short_code.to_s]
-        test_factory_map[short_code.to_s] = classname
-      end
-
-      def test_modules
-        test_modules_map.dup
-      end
-
-      def add_test_module(name, classname)
-        Domgen.error("Attempting to define duplicate test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if test_modules_map[name.to_s]
-        test_modules_map[name.to_s] = classname
       end
 
       def test_class_contents
@@ -120,34 +97,10 @@ module Domgen
         self.test_class_content_list << content
       end
 
-      attr_writer :include_standard_test_module
-
-      def include_standard_test_module?
-        @include_standard_test_module.nil? ? true : !!@include_standard_test_module
-      end
-
      attr_writer :custom_base_ux_client_test
 
       def custom_base_ux_client_test?
         @custom_base_ux_client_test.nil? ? false : !!@custom_base_ux_client_test
-      end
-
-      def ux_test_factories
-        ux_test_factory_map.dup
-      end
-
-      def add_ux_test_factory(short_code, classname)
-        raise "Attempting to add a test factory '#{classname}' with short_code #{short_code} but one already exists. ('#{ux_test_factory_map[short_code.to_s]}')" if ux_test_factory_map[short_code.to_s]
-        ux_test_factory_map[short_code.to_s] = classname
-      end
-
-      def ux_test_modules
-        ux_test_modules_map.dup
-      end
-
-      def add_ux_test_module(name, classname)
-        Domgen.error("Attempting to define duplicate ux test module for gwt facet. Name = '#{name}', Classname = '#{classname}'") if ux_test_modules_map[name.to_s]
-        ux_test_modules_map[name.to_s] = classname
       end
 
       def ux_test_class_contents
@@ -156,12 +109,6 @@ module Domgen
 
       def add_ux_test_class_content(content)
         self.ux_test_class_content_list << content
-      end
-
-      attr_writer :include_standard_ux_test_module
-
-      def include_standard_ux_test_module?
-        @include_standard_ux_test_module.nil? ? true : !!@include_standard_ux_test_module
       end
 
       attr_writer :client_util_data_type_package
@@ -239,8 +186,6 @@ module Domgen
       end
 
       def pre_verify
-        add_test_module(standard_test_module_name, qualified_standard_test_module_name) if include_standard_test_module?
-        add_ux_test_module(standard_ux_test_module_name, qualified_standard_ux_test_module_name) if include_standard_ux_test_module?
         add_test_class_content(<<CONTENT) if repository.gwt.generate_sync_callbacks?
 
   @java.lang.SuppressWarnings( { "unchecked", "UnusedParameters" } )
@@ -253,32 +198,12 @@ CONTENT
 
       protected
 
-      def test_factory_map
-        @test_factory_map ||= {}
-      end
-
       def test_class_content_list
         @test_class_content ||= []
       end
 
-      def test_modules_map
-        @test_modules_map ||= {}
-      end
-
-      def ux_test_factory_map
-        @ux_test_factory_map ||= {}
-      end
-
       def ux_test_class_content_list
         @ux_test_class_content ||= []
-      end
-
-      def ux_test_modules_map
-        @ux_test_modules_map ||= {}
-      end
-
-      def dagger_modules_map
-        @dagger_modules_map ||= {}
       end
 
       def facet_key
