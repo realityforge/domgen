@@ -4,18 +4,14 @@ package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.SystemPrintln" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS", "STT_TOSTRING_STORED_IN_FIELD" } )
 @javax.annotation.Generated( "Domgen" )
+@arez.testng.ActionWrapper( enable = true )
 public abstract class <%= repository.gwt.abstract_client_test_name %>
   extends org.realityforge.guiceyloops.shared.AbstractSharedTest
 <% if repository.arez? -%>
-  implements org.testng.IHookable
+  implements arez.testng.ArezTestSupport
 <% end -%>
 {
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
-<% if repository.arez? -%>
-  private final java.util.List<String> _observerErrors = new java.util.ArrayList<>();
-  private boolean _ignoreObserverErrors;
-  private boolean _printObserverErrors;
-<% end -%>
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
   @javax.annotation.Nonnull
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
@@ -23,12 +19,14 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 <% end -%>
 
   @org.testng.annotations.BeforeMethod
+<% if repository.arez? -%>
+  @java.lang.Override
+<% end -%>
   public void preTest()
     throws Exception
   {
 <% if repository.arez? -%>
-    org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( false );
-    arez.ArezTestUtil.resetConfig( false );
+    arez.testng.ArezTestSupport.super.preTest();
 <% if repository.imit? -%>
     replicant.ReplicantTestUtil.resetConfig( false );
 <% if repository.imit.enable_entity_broker? -%>
@@ -36,10 +34,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
     replicant.ReplicantTestUtil.resetState();
 <% end -%>
 <% end -%>
-    setIgnoreObserverErrors( false );
-    setPrintObserverErrors( true );
-    _observerErrors.clear();
-    arez.Arez.context().addObserverErrorHandler( this::onObserverError );
 <% end -%>
     super.preTest();
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
@@ -52,90 +46,17 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 <% if repository.arez? -%>
 
   @org.testng.annotations.AfterMethod
-  protected void afterTest()
-    throws Exception
+<% if repository.arez? -%>
+  @java.lang.Override
+<% end -%>
+  public void postTest()
   {
-    super.postTest();
 <% if repository.arez? -%>
 <% if repository.imit? -%>
     replicant.ReplicantTestUtil.resetConfig( false );
 <% end -%>
-    arez.ArezTestUtil.resetConfig( true );
-    org.realityforge.braincheck.BrainCheckTestUtil.resetConfig( true );
-    if ( !_ignoreObserverErrors && !_observerErrors.isEmpty() )
-    {
-      org.testng.Assert.fail( "Unexpected Observer Errors: " + _observerErrors.stream().collect( java.util.stream.Collectors.joining( "\n" ) ) );
-    }
+    arez.testng.ArezTestSupport.super.postTest();
 <% end -%>
-  }
-<% end -%>
-
-<% end -%>
-<% if repository.arez? -%>
-  protected static void observeDependency()
-  {
-    arez.Arez.context().observable().reportObserved();
-  }
-
-  @javax.annotation.Nonnull
-  protected final arez.Disposable pauseScheduler()
-  {
-    return arez.Arez.context().pauseScheduler();
-  }
-
-  protected final void autorun( @javax.annotation.Nonnull final arez.Procedure procedure )
-  {
-    arez.Arez.context().observer( () -> {
-      observeDependency();
-      procedure.call();
-    } );
-  }
-
-  protected final void action( @javax.annotation.Nonnull final arez.Procedure action )
-    throws Throwable
-  {
-    arez.Arez.context().action( action );
-  }
-
-  protected final <T> T action( @javax.annotation.Nonnull final arez.Function<T> action )
-    throws Throwable
-  {
-    return arez.Arez.context().action( action );
-  }
-
-  protected final void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
-  {
-    arez.Arez.context().safeAction( action );
-  }
-
-  protected final <T> T safeAction( @javax.annotation.Nonnull final arez.SafeFunction<T> action )
-  {
-    return arez.Arez.context().safeAction( action );
-  }
-
-  protected final void setIgnoreObserverErrors( final boolean ignoreObserverErrors )
-  {
-    _ignoreObserverErrors = ignoreObserverErrors;
-  }
-
-  protected final void setPrintObserverErrors( final boolean printObserverErrors )
-  {
-    _printObserverErrors = printObserverErrors;
-  }
-
-  private void onObserverError( @javax.annotation.Nonnull final arez.Observer observer,
-                                @javax.annotation.Nonnull final arez.ObserverError error,
-                                @javax.annotation.Nullable final Throwable throwable )
-  {
-    if ( !_ignoreObserverErrors )
-    {
-      final String message = "Observer: " + observer.getName() + " Error: " + error + " " + throwable;
-      _observerErrors.add( message );
-      if ( _printObserverErrors )
-      {
-        System.out.println( message );
-      }
-    }
   }
 <% end -%>
 <% repository.gwt.test_class_contents.each do |content| -%>
