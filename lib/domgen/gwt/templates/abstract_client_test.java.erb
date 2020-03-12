@@ -11,6 +11,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   implements arez.testng.ArezTestSupport
 <% end -%>
 {
+  @javax.annotation.Nonnull
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
 <% repository.gwt.test_factories.each do |short_code, classname| -%>
   @javax.annotation.Nonnull
