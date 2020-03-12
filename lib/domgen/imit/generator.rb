@@ -60,10 +60,6 @@ Domgen::Generator.define([:imit],
   end
 
   g.template_set(:imit_client_service) do |template_set|
-    template_set.erb_template(:repository,
-                              'client/gwt/services_dagger_module.java.erb',
-                              'main/java/#{repository.imit.qualified_services_dagger_module_name.gsub(".","/")}.java',
-                              :additional_facets => [:gwt_rpc])
     template_set.erb_template(:exception,
                               'client/exception.java.erb',
                               'main/java/#{exception.imit.qualified_name.gsub(".","/")}.java')
