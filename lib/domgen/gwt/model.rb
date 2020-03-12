@@ -75,12 +75,12 @@ module Domgen
         repository.gwt_rpc? || repository.imit?
       end
 
-      def sting_test_fragments
-        (@sting_test_fragments ||= [])
+      def sting_test_includes
+        (@sting_test_includes ||= [])
       end
 
-      def sting_fragments
-        (@sting_fragments ||= [])
+      def sting_includes
+        (@sting_includes ||= [])
       end
 
       attr_writer :custom_base_client_test
@@ -179,7 +179,7 @@ module Domgen
           repository.ee.cdi_scan_excludes << 'com.google.web.**'
           repository.ee.cdi_scan_excludes << 'com.google.gwt.**'
         end
-        self.sting_test_fragments << self.qualified_aggregate_sting_fragment_name unless repository.gwt.sting_fragments.empty?
+        self.sting_test_includes << self.qualified_aggregate_sting_fragment_name unless repository.gwt.sting_includes.empty?
         if repository.gwt_cache_filter? && repository.application? && repository.application.user_experience?
           repository.gwt_cache_filter.add_cache_control_filter_path("/#{self.module_name}/*")
           repository.gwt_cache_filter.add_brotli_filter_path("/#{self.module_name}/*")

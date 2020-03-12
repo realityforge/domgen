@@ -571,7 +571,7 @@ module Domgen
 
       def pre_verify
         if repository.gwt?
-          repository.gwt.sting_test_fragments << repository.keycloak.qualified_mock_keycloak_sting_fragment_name
+          repository.gwt.sting_test_includes << repository.keycloak.qualified_mock_keycloak_sting_fragment_name
         end
         if repository.ejb? && self.has_local_auth_service?
           repository.ejb.add_flushable_test_module(self.test_module_name, self.qualified_test_module_name)

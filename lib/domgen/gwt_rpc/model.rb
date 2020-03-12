@@ -74,7 +74,7 @@ module Domgen
           client.web_origins.clear
           client.protected_url_patterns << "/#{base_api_url}/*"
         end
-        repository.gwt.sting_test_fragments << repository.gwt_rpc.qualified_mock_rpc_services_sting_fragment_name
+        repository.gwt.sting_test_includes << repository.gwt_rpc.qualified_mock_rpc_services_sting_fragment_name
       end
 
       protected

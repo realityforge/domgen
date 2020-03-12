@@ -62,7 +62,7 @@ module Domgen
 
       def pre_verify
         if repository.gwt?
-          repository.gwt.sting_fragments << qualified_locator_sting_fragment_name
+          repository.gwt.sting_includes << qualified_locator_sting_fragment_name
         end
       end
     end
@@ -210,7 +210,7 @@ module Domgen
 
       def pre_complete
         if entity.data_module.repository.gwt? && entity.concrete?
-          entity.data_module.repository.gwt.sting_fragments << "#{qualified_name}Repository"
+          entity.data_module.repository.gwt.sting_includes << "#{qualified_name}Repository"
         end
       end
     end

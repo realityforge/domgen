@@ -861,8 +861,8 @@ module Domgen
           client.protected_url_patterns << prefix + '/session/*'
         end
         if repository.gwt?
-          repository.gwt.sting_fragments << qualified_schema_sting_fragment_name
-          repository.gwt.sting_fragments << qualified_gwt_client_session_context_impl_name
+          repository.gwt.sting_includes << qualified_schema_sting_fragment_name
+          repository.gwt.sting_includes << qualified_gwt_client_session_context_impl_name
         end
 
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?
