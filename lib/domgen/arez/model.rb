@@ -55,24 +55,14 @@ module Domgen
         repository.gwt.client_ioc_package
       end
 
+      java_artifact :factory_set, :entity, :client, :arez, '#{repository.name}FactorySet'
       java_artifact :root_repository, :entity, :client, :arez, '#{repository.name}RootRepository'
       java_artifact :locator_factory, :entity, :client, :arez, '#{repository.name}LocatorFactory'
-      java_artifact :locator_dagger_module, :entity, :client, :arez, '#{repository.name}LocatorDaggerModule'
-      java_artifact :dao_test_module, :test, :client, :arez, '#{repository.name}ArezDaoTestModule', :sub_package => 'util'
-      java_artifact :entity_complete_module, :test, :client, :arez, '#{repository.name}EntityModule', :sub_package => 'util'
-      java_artifact :test_factory_module, :test, :client, :arez, '#{repository.name}FactorySetModule', :sub_package => 'util'
+      java_artifact :locator_sting_fragment, :entity, :client, :arez, '#{repository.name}LocatorFragment'
 
       def pre_verify
         if repository.gwt?
-          repository.gwt.add_dagger_module(locator_dagger_module_name, qualified_locator_dagger_module_name)
-          repository.gwt.add_test_module(dao_test_module_name, qualified_dao_test_module_name)
-          repository.gwt.add_test_module(test_factory_module_name, qualified_test_factory_module_name)
-        end
-      end
-
-      def post_verify
-        repository.data_modules.select {|data_module| data_module.arez?}.each do |data_module|
-          repository.gwt.add_test_factory(data_module.arez.short_test_code, data_module.arez.qualified_test_factory_name) if repository.gwt?
+          repository.gwt.sting_fragments << qualified_locator_sting_fragment_name
         end
       end
     end
@@ -87,16 +77,11 @@ module Domgen
         @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect {|w| w[0, 1]}.join.downcase
       end
 
-      java_artifact :abstract_test_factory, :entity, :client, :arez, 'Abstract#{data_module.name}Factory'
+      java_artifact :test_factory, :entity, :client, :arez, '#{data_module.name}Factory'
+      java_artifact :test_factory_extension, :entity, :client, :arez, '#{data_module.name}FactoryExtension'
 
-      attr_writer :test_factory_name
-
-      def test_factory_name
-        @test_factory_name || abstract_test_factory_name.gsub(/^Abstract/, '')
-      end
-
-      def qualified_test_factory_name
-        "#{client_entity_package}.#{test_factory_name}"
+      def post_verify
+        data_module.disable_facet(:arez) unless data_module.daos.any?{|dao| dao.arez?} || data_module.entities.any?{|entity| entity.arez?}
       end
     end
 
@@ -225,7 +210,7 @@ module Domgen
 
       def pre_complete
         if entity.data_module.repository.gwt? && entity.concrete?
-          entity.data_module.repository.gwt.add_dagger_module("#{name}RepositoryDaggerModule", "#{qualified_name}RepositoryDaggerModule")
+          entity.data_module.repository.gwt.sting_fragments << "#{qualified_name}Repository"
         end
       end
     end

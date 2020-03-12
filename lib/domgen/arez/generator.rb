@@ -27,24 +27,18 @@ Domgen::Generator.define([:arez],
                               'locator_factory.java.erb',
                               'main/java/#{repository.arez.qualified_locator_factory_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'locator_dagger_module.java.erb',
-                              'main/java/#{repository.arez.qualified_locator_dagger_module_name.gsub(".","/")}.java')
+                              'locator_sting_fragment.java.erb',
+                              'main/java/#{repository.arez.qualified_locator_sting_fragment_name.gsub(".","/")}.java')
   end
 
   %w(main test).each do |type|
     g.template_set(:"arez_#{type}_qa_external") do |template_set|
       template_set.erb_template(:data_module,
-                                'abstract_test_factory.java.erb',
-                                type + '/java/#{data_module.arez.qualified_abstract_test_factory_name.gsub(".","/")}.java')
+                                'test_factory.java.erb',
+                                type + '/java/#{data_module.arez.qualified_test_factory_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
-                                'test_factory_module.java.erb',
-                                type + '/java/#{repository.arez.qualified_test_factory_module_name.gsub(".","/")}.java')
-      template_set.erb_template(:repository,
-                                'dao_test_module.java.erb',
-                                type + '/java/#{repository.arez.qualified_dao_test_module_name.gsub(".","/")}.java')
-      template_set.erb_template(:repository,
-                                'entity_complete_module.java.erb',
-                                type + '/java/#{repository.arez.qualified_entity_complete_module_name.gsub(".","/")}.java')
+                                'factory_set.java.erb',
+                                type + '/java/#{repository.arez.qualified_factory_set_name.gsub(".","/")}.java')
     end
   end
 end

@@ -1,22 +1,39 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(data_module.arez.qualified_abstract_test_factory_name) %>;
+package <%= to_package(data_module.arez.qualified_test_factory_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "CE_CLASS_ENVY" } )
-public abstract class <%= data_module.arez.abstract_test_factory_name %>
+@sting.Injectable
+public final class <%= data_module.arez.test_factory_name %>
+  implements <%= data_module.arez.qualified_test_factory_extension_name %>
 {
-  private final com.google.inject.Injector _injector;
+  @javax.annotation.Nonnull
+  private final <%= data_module.repository.arez.qualified_factory_set_name %> _factorySet;
+<% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
+  @javax.annotation.Nonnull
+  private final <%= dao.arez.qualified_repository_name %> _<%= Reality::Naming.camelize(dao.name) %>;
+<% end -%>
 
-  protected <%= data_module.arez.abstract_test_factory_name %>( @javax.annotation.Nonnull final com.google.inject.Injector injector )
+  <%= data_module.arez.test_factory_name %>( @javax.annotation.Nonnull final <%= data_module.repository.arez.qualified_factory_set_name %> factorySet, <%= data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.name)}" }.join(', ') -%>)
   {
-    _injector = injector;
+    _factorySet = java.util.Objects.requireNonNull( factorySet );
+<% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
+    _<%= Reality::Naming.camelize(dao.name) %> = java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(dao.name) %> );
+<% end -%>
+  }
+
+  @javax.annotation.Nonnull
+  public <%= data_module.arez.test_factory_name %> self()
+  {
+    return this;
   }
 
 <% data_module.repository.data_modules.select{|dm|dm.arez? && dm.name != data_module.name}.each do |dm| -%>
+  @javax.annotation.Nonnull
   protected final <%= dm.arez.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
   {
-    return s( <%= dm.arez.qualified_test_factory_name %>.class );
+    return _factorySet.<%= Reality::Naming.camelize(dm.name) %>();
   }
 
 <% end -%>
@@ -90,17 +107,9 @@ end.join(', ') -%> );
   @javax.annotation.Nonnull
   protected final <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
   {
-    return s( <%= dao.arez.qualified_repository_name %>.class );
+    return _<%= Reality::Naming.camelize(dao.name) %>;
   }
-<%
-  end
--%>
-
-  @javax.annotation.Nonnull
-  protected final <T> T s( @javax.annotation.Nonnull final Class<T> type )
-  {
-    return _injector.getInstance( type );
-  }
+<% end -%>
 
   protected final void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
   {
