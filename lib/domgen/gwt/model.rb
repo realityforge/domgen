@@ -76,7 +76,7 @@ module Domgen
       end
 
       def sting_test_fragments
-        (@sting_test_fragments ||= [qualified_aggregate_sting_fragment_name])
+        (@sting_test_fragments ||= [])
       end
 
       def sting_fragments
@@ -179,6 +179,7 @@ module Domgen
           repository.ee.cdi_scan_excludes << 'com.google.web.**'
           repository.ee.cdi_scan_excludes << 'com.google.gwt.**'
         end
+        self.sting_test_fragments << self.qualified_aggregate_sting_fragment_name unless repository.gwt.sting_fragments.empty?
         if repository.gwt_cache_filter? && repository.application? && repository.application.user_experience?
           repository.gwt_cache_filter.add_cache_control_filter_path("/#{self.module_name}/*")
           repository.gwt_cache_filter.add_brotli_filter_path("/#{self.module_name}/*")

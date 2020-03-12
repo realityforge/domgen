@@ -81,7 +81,8 @@ Domgen::Generator.define([:gwt],
   g.template_set(:gwt_client_module) do |template_set|
     template_set.erb_template(:repository,
                               'aggregate_sting_fragment.java.erb',
-                              'main/java/#{repository.gwt.qualified_aggregate_sting_fragment_name.gsub(".","/")}.java')
+                              'main/java/#{repository.gwt.qualified_aggregate_sting_fragment_name.gsub(".","/")}.java',
+                              :guard => '!repository.gwt.sting_fragments.empty?')
     template_set.erb_template(:repository,
                               'abstract_sting_injector.java.erb',
                               'main/java/#{repository.gwt.qualified_abstract_sting_injector_name.gsub(".","/")}.java',
