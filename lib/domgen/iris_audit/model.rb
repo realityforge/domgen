@@ -30,7 +30,8 @@ module Domgen
           repository.redfish.persistence_unit('Audit', resource_name)
         end
         if repository.gwt?
-          repository.gwt.sting_includes << 'iris.audit.client.ioc.AuditGwtRpcServicesFragment'
+          repository.gwt.sting_includes << 'iris.audit.client.ioc.AuditFragment'
+          repository.gwt.sting_test_includes << 'iris.audit.client.test.util.AuditTestFragment'
         end
       end
     end
