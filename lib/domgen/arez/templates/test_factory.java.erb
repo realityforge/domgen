@@ -3,7 +3,7 @@ package <%= to_package(data_module.arez.qualified_test_factory_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "CE_CLASS_ENVY" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "CE_CLASS_ENVY", "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS" } )
 @sting.Injectable
 public final class <%= data_module.arez.test_factory_name %>
   implements <%= data_module.arez.qualified_test_factory_extension_name %>
