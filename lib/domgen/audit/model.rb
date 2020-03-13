@@ -94,11 +94,6 @@ module Domgen
           end
         end
       end
-
-      def post_verify
-        repository.gwt.sting_includes << 'iris.audit.client.ioc.AuditClientFragment'
-        repository.gwt.sting_includes << 'iris.audit.client.ioc.AuditFragment'
-      end
     end
   end
 end
