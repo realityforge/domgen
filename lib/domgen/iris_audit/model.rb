@@ -31,7 +31,7 @@ module Domgen
         end
         if repository.gwt?
           repository.gwt.sting_includes << 'iris.audit.client.ioc.AuditFragment'
-          repository.gwt.sting_test_includes << 'iris.audit.client.test.util.AuditTestFragment'
+          repository.gwt.sting_test_includes << 'iris.audit.client.test.util.MockAuditGwtRpcServicesFragment'
         end
       end
     end
