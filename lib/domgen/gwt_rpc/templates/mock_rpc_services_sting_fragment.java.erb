@@ -6,6 +6,12 @@ package <%= to_package(repository.gwt_rpc.qualified_mock_rpc_services_sting_frag
 @sting.Fragment
 public interface <%= repository.gwt_rpc.mock_rpc_services_sting_fragment_name %>
 {
+  @sting.Named( "<%= repository.name %>.BaseURL")
+  default java.lang.String provideBaseURL()
+  {
+    return "http://<%= repository.name %>.example.com";
+  }
+
   @javax.annotation.Nonnull
   default <%= repository.gwt_rpc.qualified_default_callback_name %> provideDefaultAsyncCallback()
   {
