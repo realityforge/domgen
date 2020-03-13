@@ -32,9 +32,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   public void init()
   {
-<% if repository.gwt_rpc? -%>
-    initGwtRpcServices();
-<% end -%>
 <% if repository.keycloak? -%>
     getKeycloak().init();
 <% else -%>
@@ -137,18 +134,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     }
 <% end -%>
   }
-<% if repository.gwt_rpc? -%>
-
-  protected void initGwtRpcServices()
-  {
-<% if repository.iris_audit? -%>
-    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setBaseURL( com.google.gwt.core.client.GWT.getHostPageBaseURL() );
-<% if repository.keycloak? -%>
-    iris.audit.client.ioc.AuditGwtRpcServicesDaggerModule.setKeycloak( getKeycloak() );
-<% end -%>
-<% end -%>
-  }
-<% end -%>
 <% if repository.iris_audit? -%>
 
   @javax.annotation.Nullable
