@@ -31,7 +31,7 @@ public final class <%= data_module.arez.test_factory_name %>
 
 <% data_module.repository.data_modules.select{|dm|dm.arez? && dm.name != data_module.name}.each do |dm| -%>
   @javax.annotation.Nonnull
-  protected final <%= dm.arez.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
+  <%= dm.arez.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
   {
     return _factorySet.<%= Reality::Naming.camelize(dm.name) %>();
   }
@@ -39,21 +39,21 @@ public final class <%= data_module.arez.test_factory_name %>
 <% end -%>
 <% data_module.entities.select{|e|e.arez?}.each do |entity| -%>
 <% if entity.concrete? -%>
-  public final void delete<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_ )
+  public void delete<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_ )
   {
     <%= Reality::Naming.camelize(entity.dao.name) %>().destroy( $_ );
   }
 
 <% entity.arez.test_create_defaults.each do |defaults| -%>
   @javax.annotation.Nonnull
-  public final <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
+  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
     return create<%= entity.name %>( <%= entity.attributes.select{|a|a.arez?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Reality::Naming.camelize(a.name) }.join(', ') %> );
   }
 
 <% end -%>
   @javax.annotation.Nonnull
-  public final <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
+  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
 <% needsLink = entity.attributes.any?{|a| a.reference?} -%>
 <% if needsLink && entity.arez.enable_entity_broker? && entity.imit? -%>
@@ -82,7 +82,7 @@ end.join(', ') -%> );
 <% if entity.primary_key.generated_value? && entity.primary_key.integer? -%>
 
   @javax.annotation.Nonnull
-  public final <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.primary_key? && a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
+  public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.primary_key? && a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
     return create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| a.primary_key? ? "org.realityforge.guiceyloops.shared.ValueUtil.nextID()" : "#{Reality::Naming.camelize(a.name)}"}.join(', ') %>);
   }
@@ -90,7 +90,7 @@ end.join(', ') -%> );
 
 <% end -%>
 <% entity.attributes.select{|a|a.arez? && !a.immutable?}.each do |a| -%>
-  public final void set<%= a.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_, <%= annotated_type(a, :arez, :default, :final => true) %> <%= Reality::Naming.camelize(a.name) %> )
+  public void set<%= a.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_, <%= annotated_type(a, :arez, :default, :final => true) %> <%= Reality::Naming.camelize(a.name) %> )
   {
 <% if a.reference? -%>
     safeAction( () -> $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() ) );
@@ -105,18 +105,18 @@ end.join(', ') -%> );
 <% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
 
   @javax.annotation.Nonnull
-  protected final <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
+  <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
   {
     return _<%= Reality::Naming.camelize(dao.name) %>;
   }
 <% end -%>
 
-  protected final void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
+  void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
   {
     arez.Arez.context().safeAction( action );
   }
 
-  protected final <T> T safeAction( @javax.annotation.Nonnull final arez.SafeFunction<T> action )
+  <T> T safeAction( @javax.annotation.Nonnull final arez.SafeFunction<T> action )
   {
     return arez.Arez.context().safeAction( action );
   }
