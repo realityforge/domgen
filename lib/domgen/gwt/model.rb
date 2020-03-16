@@ -64,6 +64,7 @@ module Domgen
       java_artifact :abstract_client_test, :test, :client, :gwt, 'Abstract#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :abstract_test_sting_injector, :test, :client, :gwt, 'Abstract#{repository.name}TestInjector', :sub_package => 'util'
       java_artifact :test_fragment, :test, :client, :gwt, '#{repository.name}TestFragment', :sub_package => 'util'
+      java_artifact :value_util, :test, :client, :gwt, 'ValueUtil', :sub_package => 'util'
       java_artifact :default_test_injector, :test, :client, :gwt, '#{repository.name}TestInjector', :sub_package => 'util'
       java_artifact :client_test, :test, :client, :gwt, '#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :callback_success_answer, :test, :client, :gwt, '#{repository.name}CallbackSuccessAnswer', :sub_package => 'util'

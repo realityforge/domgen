@@ -1,0 +1,84 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.gwt.qualified_value_util_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public final class <%= repository.gwt.value_util_name %>
+{
+  @javax.annotation.Nonnull
+  private static final String CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
+  @javax.annotation.Nonnull
+  private static final java.util.Random c_random = new java.util.Random();
+  private static int c_currentId;
+  private static java.util.Date c_now;
+  private static int c_seed;
+
+  private ValueUtil()
+  {
+  }
+
+  public static int randomInt()
+  {
+    return getRandom().nextInt();
+  }
+
+  public static boolean randomBoolean()
+  {
+    return getRandom().nextBoolean();
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Random getRandom()
+  {
+    return c_random;
+  }
+
+  public static void reset()
+  {
+    c_now = null;
+    c_currentId = 0;
+    if ( 0 != c_seed )
+    {
+      c_random.setSeed( c_seed );
+    }
+  }
+
+  public static int nextID()
+  {
+    c_currentId++;
+    return c_currentId;
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date now()
+  {
+    return null != c_now ? c_now : new java.util.Date();
+  }
+
+  @javax.annotation.Nonnull
+  public static String randomString()
+  {
+    return randomString( 12 );
+  }
+
+  @javax.annotation.Nonnull
+  public static String randomString( final int stringLength )
+  {
+    final StringBuilder sb = new StringBuilder( stringLength );
+    for ( int i = 0; i < stringLength; i++ )
+    {
+      sb.append( CHARS.charAt( Math.abs( randomInt() % CHARS.length() ) ) );
+    }
+    return sb.toString();
+  }
+
+  public static void setNow( @javax.annotation.Nonnull final java.util.Date now )
+  {
+    c_now = now;
+  }
+
+  public static void setSeed( final int seed )
+  {
+    c_seed = seed;
+  }
+}

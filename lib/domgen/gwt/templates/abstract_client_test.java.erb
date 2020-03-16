@@ -39,7 +39,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   public void preTest()
     throws Exception
   {
-    org.realityforge.guiceyloops.shared.ValueUtil.reset();
+    <%= repository.gwt.qualified_value_util_name %>.reset();
 <% if repository.arez? -%>
     arez.testng.ArezTestSupport.super.preTest();
 <% if repository.imit? -%>
@@ -119,5 +119,38 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   protected final org.mockito.stubbing.Answer<Void> failureAnswer( @javax.annotation.Nonnull final Throwable error )
   {
     return new <%= repository.gwt.qualified_callback_failure_answer_name %><>( this::queueAsyncActions, error );
+  }
+
+  protected final int randomInt()
+  {
+    return <%= repository.gwt.qualified_value_util_name %>.randomInt();
+  }
+
+  protected final boolean randomBoolean()
+  {
+    return <%= repository.gwt.qualified_value_util_name %>.randomBoolean();
+  }
+
+  protected final int nextID()
+  {
+    return <%= repository.gwt.qualified_value_util_name %>.nextID();
+  }
+
+  @javax.annotation.Nonnull
+  protected final java.util.Date now()
+  {
+    return <%= repository.gwt.qualified_value_util_name %>.now();
+  }
+
+  @javax.annotation.Nonnull
+  protected final String randomString()
+  {
+    return <%= repository.gwt.qualified_value_util_name %>.randomString();
+  }
+
+  @javax.annotation.Nonnull
+  protected final String randomString( final int stringLength )
+  {
+    return <%= repository.gwt.qualified_value_util_name %>.randomString( stringLength );
   }
 }
