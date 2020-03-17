@@ -96,12 +96,6 @@ module Domgen
         self.test_class_content_list << content
       end
 
-     attr_writer :custom_base_ux_client_test
-
-      def custom_base_ux_client_test?
-        @custom_base_ux_client_test.nil? ? false : !!@custom_base_ux_client_test
-      end
-
       attr_writer :client_util_data_type_package
 
       def client_util_data_type_package
