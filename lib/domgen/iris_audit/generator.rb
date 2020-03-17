@@ -27,4 +27,11 @@ Domgen::Generator.define([:iris_audit],
                               'main/java/#{service.iris_audit.qualified_interceptor_impl_name.gsub(".","/")}.java',
                               :guard => 'service.ejb? && service.ejb.generate_boundary?')
   end
+
+  g.template_set(:iris_audit_client) do |template_set|
+    template_set.erb_template(:repository,
+                              'audit_fragment_adapter.java.erb',
+                              'main/java/#{repository.iris_audit.qualified_audit_fragment_adapter_name.gsub(".","/")}.java',
+                              :guard => 'repository.gwt?')
+  end
 end

@@ -20,6 +20,11 @@ module Domgen
 
       java_artifact :audit_resources, :service, :server, :iris_audit, '#{repository.name}JeeAuditResources'
       java_artifact :audit_context_impl, :service, :server, :iris_audit, '#{repository.name}AuditContextImpl'
+      java_artifact :audit_fragment_adapter, :ioc, :client, :iris_audit, '#{repository.name}ToAuditFragment'
+
+      def client_ioc_package
+        repository.gwt.client_ioc_package
+      end
 
       def pre_complete
         if repository.jpa?
@@ -31,6 +36,7 @@ module Domgen
         end
         if repository.gwt?
           repository.gwt.sting_includes << 'iris.audit.client.ioc.AuditFragment'
+          repository.gwt.sting_includes << qualified_audit_fragment_adapter_name
           repository.gwt.sting_test_includes << 'iris.audit.client.test.util.MockAuditGwtRpcServicesFragment'
         end
       end
