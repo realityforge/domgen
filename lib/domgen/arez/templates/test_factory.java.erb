@@ -84,7 +84,7 @@ end.join(', ') -%> );
   @javax.annotation.Nonnull
   public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.primary_key? && a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-    return create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| a.primary_key? ? "nextID()" : "#{Reality::Naming.camelize(a.name)}"}.join(', ') %>);
+    return create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| a.primary_key? ? "nextId()" : "#{Reality::Naming.camelize(a.name)}"}.join(', ') %>);
   }
 <% end -%>
 
@@ -121,9 +121,9 @@ end.join(', ') -%> );
     return <%= data_module.repository.gwt.qualified_value_util_name %>.randomBoolean();
   }
 
-  int nextID()
+  int nextId()
   {
-    return <%= data_module.repository.gwt.qualified_value_util_name %>.nextID();
+    return <%= data_module.repository.gwt.qualified_value_util_name %>.nextId();
   }
 
   @javax.annotation.Nonnull
