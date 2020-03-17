@@ -7,7 +7,7 @@ package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 <% if repository.arez? -%>
 @arez.testng.ActionWrapper( enable = true )
 <% end -%>
-public abstract class <%= repository.gwt.abstract_client_test_name %>
+public abstract class <%= repository.gwt.abstract_client_test_name %><T extends <%= repository.gwt.qualified_abstract_test_sting_injector_name %>>
 <% if repository.arez? -%>
   implements arez.testng.ArezTestSupport
 <% end -%>
@@ -18,16 +18,13 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   @javax.annotation.Nonnull
   protected <%= data_module.arez.qualified_test_factory_name %> <%= data_module.arez.short_test_code %>;
 <% end -%>
-  private <%= repository.gwt.qualified_abstract_test_sting_injector_name %> _injector;
+  private T _injector;
 
   @javax.annotation.Nonnull
-  protected <%= repository.gwt.qualified_abstract_test_sting_injector_name %> createInjector()
-  {
-    return <%= repository.gwt.qualified_default_test_injector_name %>.create();
-  }
+  protected abstract T createInjector();
 
   @javax.annotation.Nonnull
-  protected <%= repository.gwt.qualified_abstract_test_sting_injector_name %> getInjector()
+  protected T getInjector()
   {
     return _injector;
   }
