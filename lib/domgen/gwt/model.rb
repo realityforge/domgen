@@ -69,8 +69,6 @@ module Domgen
       java_artifact :client_test, :test, :client, :gwt, '#{repository.name}ClientTest', :sub_package => 'util'
       java_artifact :callback_success_answer, :test, :client, :gwt, '#{repository.name}CallbackSuccessAnswer', :sub_package => 'util'
       java_artifact :callback_failure_answer, :test, :client, :gwt, '#{repository.name}CallbackFailureAnswer', :sub_package => 'util'
-      java_artifact :abstract_client_ux_test, :test, :client, :gwt, 'Abstract#{repository.name}UserExperienceTest', :sub_package => 'util'
-      java_artifact :client_ux_test, :test, :client, :gwt, '#{repository.name}UserExperienceTest', :sub_package => 'util'
 
       def generate_sync_callbacks?
         repository.gwt_rpc? || repository.imit?
@@ -102,14 +100,6 @@ module Domgen
 
       def custom_base_ux_client_test?
         @custom_base_ux_client_test.nil? ? false : !!@custom_base_ux_client_test
-      end
-
-      def ux_test_class_contents
-        ux_test_class_content_list.dup
-      end
-
-      def add_ux_test_class_content(content)
-        self.ux_test_class_content_list << content
       end
 
       attr_writer :client_util_data_type_package

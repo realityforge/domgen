@@ -57,6 +57,10 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
 <% if repository.arez? -%>
     arez.Arez.context().registerLocator( _injector.getLocator() );
 <% end -%>
+<% if repository.imit? -%>
+    replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), new TestTransport() );
+    pumpAllAsyncActions();
+<% end -%>
   }
 <% if repository.arez? -%>
 
@@ -153,4 +157,27 @@ public abstract class <%= repository.gwt.abstract_client_test_name %>
   {
     return <%= repository.gwt.qualified_value_util_name %>.randomString( stringLength );
   }
+<% if repository.imit? -%>
+
+  public class TestTransport
+    extends replicant.AbstractTransport
+  {
+    @java.lang.Override
+    protected void doConnect()
+    {
+      queueAsyncActions( () -> onMessageReceived( replicant.messages.SessionCreatedMessage.create( randomString() ) ) );
+    }
+
+    @java.lang.Override
+    protected void sendRemoteMessage( @javax.annotation.Nonnull final Object message )
+    {
+    }
+
+    @java.lang.Override
+    protected void doDisconnect()
+    {
+      queueAsyncActions( () -> onDisconnect() );
+    }
+  }
+<% end -%>
 }

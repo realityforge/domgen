@@ -58,18 +58,6 @@ Domgen::Generator.define([:gwt],
     end
   end
 
-  %w(main test).each do |type|
-    g.template_set(:"gwt_client_#{type}_ux_qa_support") do |template_set|
-      template_set.erb_template(:repository,
-                                'client_ux_test.java.erb',
-                                type + '/java/#{repository.gwt.qualified_client_ux_test_name.gsub(".","/")}.java',
-                                :guard => '!repository.gwt.custom_base_ux_client_test?')
-      template_set.erb_template(:repository,
-                                'abstract_client_ux_test.java.erb',
-                                type + '/java/#{repository.gwt.qualified_abstract_client_ux_test_name.gsub(".","/")}.java')
-    end
-  end
-
   g.template_set(:gwt_client_callback) do |template_set|
     template_set.erb_template(:repository,
                               'async_callback.java.erb',
