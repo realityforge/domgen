@@ -41,20 +41,24 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   public void start()
   {
-    preStart();
-<% if repository.arez? -%>
-    setupArezLocator();
-<% end -%>
 <% if repository.appcache? -%>
     setupAppCache();
 <% end -%>
-<% if repository.keycloak? && repository.imit? -%>
-    setupReplicantToken();
+<% if repository.imit? -%>
+    prepareReplicant();
 <% end -%>
     setupUncaughtExceptionHandler();
-    prepareServices();
-    prepareUI();
-    postStart();
+    performStart();
+  }
+
+  protected final void postInjetorSetup()
+  {
+<% if repository.arez? -%>
+    registerArezLocator();
+<% end -%>
+<% if repository.imit? -%>
+    registerReplicantConnector();
+<% end -%>
   }
 
   private void setupUncaughtExceptionHandler()
@@ -70,7 +74,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   }
 <% if repository.arez? -%>
 
-  private void setupArezLocator()
+  private void registerArezLocator()
   {
     arez.Arez.context().registerLocator( ensureInjector().getLocator() );
   }
@@ -102,23 +106,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   protected abstract void onAppcacheUpdateReadyEvent();
 <% end -%>
 
-  protected void postStart()
-  {
-  }
-
-  protected void preStart()
-  {
-  }
-
-  protected void prepareServices()
-  {
-<% if repository.imit? -%>
-    replicant.WebStorageCacheService.install();
-    elemental2.dom.DomGlobal.window.addEventListener( "beforeunload", e -> replicant.Replicant.context().deactivate(), true );
-<% end -%>
-  }
-
-  protected abstract void prepareUI();
+  protected abstract void performStart();
 
   protected void onUncaughtException( @javax.annotation.Nonnull final Throwable e )
   {
@@ -172,19 +160,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   }
 <% if repository.keycloak? -%>
 
-<% if repository.imit? -%>
-  private void updateReplicantToken()
-  {
-    replicant.Replicant.context().setAuthToken( getKeycloak().getToken() );
-  }
-
-  private void setupReplicantToken()
-  {
-    updateReplicantToken();
-    elemental2.dom.DomGlobal.setInterval( e -> getKeycloak().updateToken( 30, this::updateReplicantToken ), 5000 );
-  }
-
-<% end -%>
   @javax.annotation.Nonnull
   public org.realityforge.gwt.keycloak.Keycloak getKeycloak()
   {
@@ -212,6 +187,31 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
         keycloak.login();
       }
     }
+  }
+<% end -%>
+<% if repository.imit? -%>
+<% if repository.keycloak? -%>
+
+  private void updateReplicantToken()
+  {
+    replicant.Replicant.context().setAuthToken( getKeycloak().getToken() );
+  }
+
+<% end -%>
+  private void registerReplicantConnector()
+  {
+    final replicant.WebSocketConfig config = replicant.WebSocketConfig.create( com.google.gwt.core.client.GWT.getHostPageBaseURL() + "api", getKeycloak() );
+    replicant.Replicant.context().registerConnector( ensureInjector().getSystemSchema(), new replicant.WebSocketTransport( config ) );
+  }
+
+  private void prepareReplicant()
+  {
+    replicant.WebStorageCacheService.install();
+    elemental2.dom.DomGlobal.window.addEventListener( "beforeunload", e -> replicant.Replicant.context().deactivate(), true );
+<% if repository.keycloak? -%>
+    updateReplicantToken();
+    elemental2.dom.DomGlobal.setInterval( e -> getKeycloak().updateToken( 30, this::updateReplicantToken ), 5000 );
+<% end -%>
   }
 <% end -%>
 }
