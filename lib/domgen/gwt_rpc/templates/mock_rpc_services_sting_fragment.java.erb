@@ -9,7 +9,7 @@ public interface <%= repository.gwt_rpc.mock_rpc_services_sting_fragment_name %>
   @sting.Named( "<%= repository.name %>.BaseURL")
   default java.lang.String provideBaseURL()
   {
-    return "http://<%= repository.name %>.example.com";
+    return "http://<%= Reality::Naming.underscore(repository.name) %>.example.com";
   }
 
   @javax.annotation.Nonnull
