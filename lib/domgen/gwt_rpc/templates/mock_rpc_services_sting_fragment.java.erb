@@ -11,12 +11,6 @@ public interface <%= repository.gwt_rpc.mock_rpc_services_sting_fragment_name %>
   {
     return "http://<%= Reality::Naming.underscore(repository.name) %>.example.com";
   }
-
-  @javax.annotation.Nonnull
-  default <%= repository.gwt_rpc.qualified_default_callback_name %> provideDefaultAsyncCallback()
-  {
-    return org.mockito.Mockito.mock( <%= repository.gwt_rpc.qualified_default_callback_name %>.class );
-  }
 <%
   repository.data_modules.select{|data_module| data_module.gwt_rpc?}.each do |data_module|
     data_module.services.select{|service| service.gwt_rpc?}.each do |service|
