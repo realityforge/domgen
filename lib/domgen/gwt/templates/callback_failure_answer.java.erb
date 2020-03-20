@@ -3,7 +3,7 @@ package <%= to_package(repository.gwt.qualified_callback_failure_answer_name) %>
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public final class <%= repository.gwt.callback_failure_answer_name %><T>
+final class <%= repository.gwt.callback_failure_answer_name %><T>
   implements org.mockito.stubbing.Answer<Void>
 {
   @javax.annotation.Nonnull
@@ -11,12 +11,12 @@ public final class <%= repository.gwt.callback_failure_answer_name %><T>
   @javax.annotation.Nonnull
   private final Throwable _throwable;
 
-  public <%= repository.gwt.callback_failure_answer_name %>( @javax.annotation.Nonnull final Throwable throwable )
+  <%= repository.gwt.callback_failure_answer_name %>( @javax.annotation.Nonnull final Throwable throwable )
   {
     this( java.lang.Runnable::run, throwable );
   }
 
-  public <%= repository.gwt.callback_failure_answer_name %>( @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> invoker, @javax.annotation.Nonnull final Throwable throwable )
+  <%= repository.gwt.callback_failure_answer_name %>( @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> invoker, @javax.annotation.Nonnull final Throwable throwable )
   {
     _invoker = java.util.Objects.requireNonNull( invoker );
     _throwable = java.util.Objects.requireNonNull( throwable );

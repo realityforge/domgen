@@ -3,7 +3,7 @@ package <%= to_package(repository.gwt.qualified_callback_success_answer_name) %>
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public final class <%= repository.gwt.callback_success_answer_name %><T>
+final class <%= repository.gwt.callback_success_answer_name %><T>
   implements org.mockito.stubbing.Answer<Void>
 {
   @javax.annotation.Nonnull
@@ -11,12 +11,12 @@ public final class <%= repository.gwt.callback_success_answer_name %><T>
   @javax.annotation.Nullable
   private final T _result;
 
-  public <%= repository.gwt.callback_success_answer_name %>( @javax.annotation.Nullable final T result )
+  <%= repository.gwt.callback_success_answer_name %>( @javax.annotation.Nullable final T result )
   {
     this( java.lang.Runnable::run, result );
   }
 
-  public <%= repository.gwt.callback_success_answer_name %>( @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> invoker, @javax.annotation.Nullable final T result )
+  <%= repository.gwt.callback_success_answer_name %>( @javax.annotation.Nonnull final java.util.function.Consumer<java.lang.Runnable> invoker, @javax.annotation.Nullable final T result )
   {
     _invoker = java.util.Objects.requireNonNull( invoker );
     _result = result;
