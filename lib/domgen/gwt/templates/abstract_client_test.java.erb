@@ -98,9 +98,9 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 
   protected final void pumpAllAsyncActions()
   {
-    for ( final java.lang.Runnable action : _asyncActions )
+    while( !_asyncActions.isEmpty() )
     {
-      action.run();
+      _asyncActions.remove( 0 ).run();
     }
     _asyncActions.clear();
   }
