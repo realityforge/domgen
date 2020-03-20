@@ -105,7 +105,7 @@ end.join(', ') -%> );
 <% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
 
   @javax.annotation.Nonnull
-  <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
+  public <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
   {
     return _<%= Reality::Naming.camelize(dao.name) %>;
   }
