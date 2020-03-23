@@ -9,7 +9,7 @@ public class <%= exception.jws.name %>
 {
   private final <%= exception.jws.qualified_fault_info_name %> _faultInfo;
 
-  public <%= exception.jws.name %>( @javax.annotation.Nullable final String message, @javax.annotation.Nonnull final <%= exception.jws.qualified_fault_info_name %> faultInfo)
+  public <%= exception.jws.name %>( @javax.annotation.Nullable final String message, @javax.annotation.Nonnull final <%= exception.jws.qualified_fault_info_name %> faultInfo )
   {
     super( message );
     _faultInfo = faultInfo;
