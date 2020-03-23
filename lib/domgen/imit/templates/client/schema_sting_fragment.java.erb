@@ -41,7 +41,7 @@ public interface <%= repository.imit.schema_sting_fragment_name %>
 <% unless fgraphs.empty? -%>
 
   // TODO: Should be private post Java8
-  static class FilterTools
+  class FilterTools
   {
 <% fgraphs.each do |graph| -%>
     @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )
