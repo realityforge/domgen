@@ -694,6 +694,7 @@ module Domgen
       java_artifact :subscription_constants, :comm, :shared, :imit, '#{repository.name}SubscriptionConstants'
       java_artifact :entity_type_constants, :comm, :shared, :imit, '#{repository.name}EntityTypeConstants'
       java_artifact :schema_sting_fragment, :comm, :client, :imit, '#{repository.name}SystemSchemaFragment'
+      java_artifact :schema_filter_tools, :comm, :client, :imit, '#{repository.name}FilterTools'
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerImpl'
       java_artifact :message_broker_impl, :comm, :server, :imit, '#{repository.name}ReplicantMessageBrokerImpl'
