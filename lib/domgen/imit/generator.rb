@@ -34,7 +34,7 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:repository,
                               'client/schema_filter_tools.java.erb',
                               'main/java/#{repository.imit.qualified_schema_filter_tools_name.gsub(".","/")}.java',
-                              :guards => 'repository.imit.graphs.any?{|g| g.filter_parameter? && !g.filter_parameter.immutable?}')
+                              :guard => 'repository.imit.graphs.any?{|g| g.filter_parameter? && !g.filter_parameter.immutable?}')
     template_set.erb_template(:data_module,
                               'client/mapper.java.erb',
                               'main/java/#{data_module.imit.qualified_mapper_name.gsub(".","/")}.java')
