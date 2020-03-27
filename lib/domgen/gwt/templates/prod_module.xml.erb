@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- DO NOT EDIT: File is auto-generated -->
 <module>
+<% if repository.serviceworker? -%>
+  <set-configuration-property name="serviceworker_log_level" value="0"/>
+<% end -%>
 <% if repository.appcache? -%>
   <inherits name="org.realityforge.gwt.appcache.linker.Linker"/>
 

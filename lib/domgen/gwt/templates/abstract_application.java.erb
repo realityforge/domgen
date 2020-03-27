@@ -41,6 +41,9 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   public void start()
   {
+<% if repository.serviceworker? -%>
+    setupServiceWorker();
+<% end -%>
 <% if repository.appcache? -%>
     setupAppCache();
 <% end -%>
@@ -78,6 +81,37 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   {
     arez.Arez.context().registerLocator( ensureInjector().getLocator() );
   }
+<% end -%>
+<% if repository.serviceworker? -%>
+
+  private void setupServiceWorker()
+  {
+    if ( null != elemental2.dom.DomGlobal.navigator.serviceWorker && com.google.gwt.core.client.GWT.getModuleBaseForStaticFiles().equals( com.google.gwt.core.client.GWT.getModuleBaseURL() ) )
+    {
+      elemental2.dom.DomGlobal.navigator.serviceWorker
+        .register( com.google.gwt.core.client.GWT.getModuleBaseForStaticFiles() + com.google.gwt.core.client.GWT.getModuleName() + "-sw.js" )
+        .then( registration -> {
+          elemental2.dom.DomGlobal.console.log( "ServiceWorker registration successful with scope: " + registration.getScope() );
+
+          // Every minute attempt to update the serviceWorker. If it does update
+          // then the "controllerchange" event will fire.
+          elemental2.dom.DomGlobal.setInterval( v -> registration.update(), 60000 );
+          return null;
+        }, error -> {
+          elemental2.dom.DomGlobal.console.log( "ServiceWorker registration failed: ", error );
+          return null;
+        } );
+      elemental2.dom.DomGlobal.navigator.serviceWorker.addEventListener( "controllerchange", e -> {
+        // This fires when the service worker controlling this page
+        // changes, eg a new worker has skipped waiting and become
+        // the new active worker.
+        elemental2.dom.DomGlobal.console.log( "ServiceWorker updated ", e );
+        onServiceWorkerUpdateReady();
+      } );
+    }
+  }
+
+  protected abstract void onServiceWorkerUpdateReady();
 <% end -%>
 <% if repository.appcache? -%>
 

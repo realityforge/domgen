@@ -188,3 +188,5 @@ require 'domgen/react4j/model'
 
 require 'domgen/giggle/model'
 require 'domgen/giggle/generator'
+
+require 'domgen/serviceworker/model'

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- DO NOT EDIT: File is auto-generated -->
 <module>
+<% if repository.serviceworker? -%>
+  <inherits name="org.realityforge.gwt.serviceworker.Linker"/>
+
+  <add-linker name="serviceworker"/>
+<% end -%>
   <set-configuration-property name="CssResource.enableGss" value="true" />
   <set-configuration-property name="CssResource.conversionMode" value="strict"/>
   <set-configuration-property name="CssResource.gssDefaultInUiBinder" value="true"/>
