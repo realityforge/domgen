@@ -44,9 +44,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% if repository.serviceworker? -%>
     setupServiceWorker();
 <% end -%>
-<% if repository.appcache? -%>
-    setupAppCache();
-<% end -%>
 <% if repository.imit? -%>
     prepareReplicant();
 <% end -%>
@@ -112,32 +109,6 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   }
 
   protected abstract void onServiceWorkerUpdateReady();
-<% end -%>
-<% if repository.appcache? -%>
-
-  private void setupAppCache()
-  {
-    if ( null != elemental2.dom.DomGlobal.applicationCache && elemental2.dom.DomGlobal.document.getElementsByTagName( "html" ).item( 0 ).hasAttribute( "manifest" ) )
-    {
-      elemental2.dom.DomGlobal.applicationCache.addEventListener( "updateready", e -> {
-          if ( elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.UNCACHED &&
-               elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.CHECKING &&
-               elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.DOWNLOADING )
-          {
-            elemental2.dom.DomGlobal.applicationCache.swapCache();
-          }
-          onAppcacheUpdateReadyEvent();
-      } );
-      if ( elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.UNCACHED &&
-           elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.CHECKING &&
-           elemental2.dom.DomGlobal.applicationCache.status != elemental2.dom.ApplicationCache.DOWNLOADING )
-      {
-        elemental2.dom.DomGlobal.applicationCache.update();
-      }
-    }
-  }
-
-  protected abstract void onAppcacheUpdateReadyEvent();
 <% end -%>
 
   protected abstract void performStart();

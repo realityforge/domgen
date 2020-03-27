@@ -4,11 +4,6 @@
 <% if repository.serviceworker? -%>
   <set-configuration-property name="serviceworker_log_level" value="0"/>
 <% end -%>
-<% if repository.appcache? -%>
-  <inherits name="org.realityforge.gwt.appcache.linker.Linker"/>
-
-  <add-linker name="appcache"/>
-<% end -%>
 
   <!-- Disable many checks not needed if code is correct. See https://github.com/gwtproject/gwt/blob/2.8.0/user/super/com/google/gwt/emul/javaemul/internal/InternalPreconditions.java -->
   <set-property name="jre.checks.checkLevel" value="MINIMAL"/>

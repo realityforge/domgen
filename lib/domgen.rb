@@ -145,10 +145,6 @@ require 'domgen/sync/generator'
 # Some caching for gwt apps
 require 'domgen/gwt_cache_filter/model'
 
-# Some appcache generation for gwt apps
-require 'domgen/appcache/model'
-require 'domgen/appcache/generator'
-
 # Keycloak authentication integration
 require 'domgen/keycloak/model'
 require 'domgen/keycloak/generator'

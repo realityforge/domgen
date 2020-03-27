@@ -77,7 +77,6 @@ module Domgen
 
       def disable_deployment_facets
         repository.disable_facet(:robots) if repository.robots?
-        repository.disable_facet(:appcache) if repository.appcache?
         repository.disable_facet(:serviceworker) if repository.serviceworker?
         repository.disable_facet(:gwt_cache_filter) if repository.gwt_cache_filter?
       end
