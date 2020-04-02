@@ -143,7 +143,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
     map.put( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif graph.instance_root? -%>
-<% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) && a.imit.graph_links.all?{|g| g.source_graph.to_s != graph.name.to_s } }.each do |outgoing_link| -%>
+<% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) && a.imit.graph_links.all?{|g| g.always_follow? || g.source_graph.to_s != graph.name.to_s } }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
     {
       final <%= outgoing_link.jpa.java_type %> v = entity.<%= getter_for(outgoing_link) %>;

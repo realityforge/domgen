@@ -352,6 +352,16 @@ module Domgen
         !!@auto
       end
 
+      # Set this to true if this link may link to a different instance of a graph already linked to
+      # the current graph. Current Event/1 instance graph link may graph_link to Event/2. Another example is
+      # Event/1 is linked to from OrgUnit/1 and wants to graph_link to OrgUnit/2. Setting this parameter forces
+      # collection of routing data and allows a later stage to filter already present links
+      attr_writer :always_follow
+
+      def always_follow?
+        @always_follow.nil? ? false : !!@always_follow
+      end
+
       attr_writer :exclude_target
 
       # Should we exclude the target entity from source graph? Typically done for automatically
