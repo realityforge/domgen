@@ -161,7 +161,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
 <% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
-    map.put( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
+    addInstanceRoot( map, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
 <% elsif graph.instance_root? -%>
 <% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
@@ -183,4 +183,9 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
 <% end -%>
+
+  private boolean addInstanceRoot( @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> map, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.Integer id )
+  {
+    return ( (java.util.List<java.lang.Integer>) map.computeIfAbsent( key, v -> new java.util.ArrayList<>() ) ).add( id );
+  }
 }
