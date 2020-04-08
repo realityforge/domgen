@@ -24,14 +24,14 @@ final class <%= repository.imit.schema_filter_tools_name %>
   extra_interest_filter = ''
   if graph.instance_root?
     entity = repository.entity_by_name(graph.instance_root)
-    singular_var_name = Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
-    var_name = Reality::Naming.pluralize(singular_var_name)
-    extra_interest_filter = ", #{singular_var_name}"
+    singular_root_var_name = Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}")
+    root_var_name = Reality::Naming.pluralize(singular_root_var_name)
+    extra_interest_filter = ", #{singular_root_var_name}"
 -%>
       @javax.annotation.Nonnull
       @java.lang.SuppressWarnings( "unchecked" )
-      final java.util.List<<%= entity.primary_key.imit.non_primitive_java_type %>> <%= var_name %> = (java.util.List<<%= entity.primary_key.imit.non_primitive_java_type %>>) route.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
-      assert null != <%= var_name %>;
+      final java.util.List<<%= entity.primary_key.imit.non_primitive_java_type %>> <%= root_var_name %> = (java.util.List<<%= entity.primary_key.imit.non_primitive_java_type %>>) route.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
+      assert null != <%= root_var_name %>;
 <% end -%>
 <%
   if graph.filtered?
@@ -51,7 +51,7 @@ final class <%= repository.imit.schema_filter_tools_name %>
     end
   end
 -%>
-      for( final <%= entity.primary_key.imit.non_primitive_java_type %> <%= singular_var_name %>: <%= var_name %> )
+      for( final <%= entity.primary_key.imit.non_primitive_java_type %> <%= singular_root_var_name %>: <%= root_var_name %> )
       {
         if( context.does<%= graph.name %>MatchEntity( filter, userObject<%= extra_interest_filter %> ) )
         {
