@@ -39,7 +39,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final NoResultCallback getOnLoading()
+  protected NoResultCallback getOnLoading()
   {
     return onLoading();
   }
@@ -50,7 +50,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final ErrorCallback getOnLoadFailed()
+  protected ErrorCallback getOnLoadFailed()
   {
     return onLoadFailed();
   }
@@ -62,14 +62,14 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final TypeResultCallback getOnTypeSubscriptionLoaded()
+  protected TypeResultCallback getOnTypeSubscriptionLoaded()
   {
     return onLoaded();
   }
 <% else -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionLoaded()
+  protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionLoaded()
   {
     return onLoaded();
   }
@@ -83,14 +83,14 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final TypeResultCallback getOnTypeSubscriptionUpdating()
+  protected TypeResultCallback getOnTypeSubscriptionUpdating()
   {
     return onUpdating();
   }
 <% else -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onInstanceSubscriptionUpdating()
+  protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onInstanceSubscriptionUpdating()
   {
     return onUpdating();
   }
@@ -123,7 +123,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final TypeResultCallback getOnTypeSubscriptionUpdated()
+  protected TypeResultCallback getOnTypeSubscriptionUpdated()
   {
     return onUpdated();
   }
@@ -144,14 +144,14 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final TypeResultCallback getOnTypeSubscriptionUnloading()
+  protected TypeResultCallback getOnTypeSubscriptionUnloading()
   {
     return onUnloading();
   }
 <% else -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUnloading()
+  protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUnloading()
   {
     return onUnloading();
   }
@@ -163,7 +163,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final NoResultCallback getOnUnloaded()
+  protected NoResultCallback getOnUnloaded()
   {
     return onUnloaded();
   }
@@ -175,21 +175,21 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final NoResultCallback getOnDeleted()
+  protected NoResultCallback getOnDeleted()
   {
     return onDeleted();
   }
 <% else -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final NoResultCallback getOnDeleted()
+  protected NoResultCallback getOnDeleted()
   {
     return () -> null;
   }
 <% end -%>
   @javax.annotation.Nonnull
   @java.lang.Override
-  protected final replicant.ChannelAddress getAddress()
+  protected replicant.ChannelAddress getAddress()
   {
     return new replicant.ChannelAddress( <%= graph.application.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= graph.application.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, <%= graph.instance_root? ? 'getId()' : 'null' -%> );
   }
