@@ -20,6 +20,7 @@ module Domgen
 
       java_artifact :audit_resources, :service, :server, :iris_audit, '#{repository.name}JeeAuditResources'
       java_artifact :audit_context_impl, :service, :server, :iris_audit, '#{repository.name}AuditContextImpl'
+      java_artifact :audit_context_util, :service, :server, :iris_audit, '#{repository.name}AuditContextHolder'
       java_artifact :audit_fragment_adapter, :ioc, :client, :iris_audit, '#{repository.name}ToAuditFragment'
 
       def client_ioc_package

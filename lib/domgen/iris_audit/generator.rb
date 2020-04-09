@@ -22,6 +22,9 @@ Domgen::Generator.define([:iris_audit],
     template_set.erb_template(:repository,
                               'audit_context_impl.java.erb',
                               'main/java/#{repository.iris_audit.qualified_audit_context_impl_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
+                              'audit_context_util.java.erb',
+                              'main/java/#{repository.iris_audit.qualified_audit_context_util_name.gsub(".","/")}.java')
     template_set.erb_template(:service,
                               'interceptor_impl.java.erb',
                               'main/java/#{service.iris_audit.qualified_interceptor_impl_name.gsub(".","/")}.java',

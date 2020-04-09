@@ -15,7 +15,8 @@ public class <%= repository.iris_audit.audit_context_impl_name %>
   @java.lang.Override
   public String getUsername()
   {
-    return _authService.getUsername();
+    final String username = <%= repository.iris_audit.qualified_audit_context_util_name %>.get();
+    return null != username ? username : _authService.isAuthenticated() ? _authService.getUsername() : super.getUsername();
   }
 <% end -%>
 }
