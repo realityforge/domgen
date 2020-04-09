@@ -7,6 +7,10 @@ public final class <%= repository.iris_audit.audit_context_util_name %>
   @javax.annotation.Nonnull
   private static final ThreadLocal<String> c_context = new ThreadLocal<>();
 
+  private <%= repository.iris_audit.audit_context_util_name %>()
+  {
+  }
+
   /**
    * Specify the user that current action is audited under.
    *
