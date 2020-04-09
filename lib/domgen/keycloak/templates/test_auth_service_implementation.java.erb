@@ -16,6 +16,12 @@ public class <%= repository.keycloak.test_auth_service_implementation_name %>
     return _account;
   }
 
+  @java.lang.Override
+  public boolean isAuthenticated()
+  {
+    return null != _account;
+  }
+
   public void setupAccount( <%= repository.keycloak.default_client.claims.collect {|claim| "@javax.annotation.Nonnull final #{claim.java_type} #{Reality::Naming.camelize(claim.java_accessor_key)}"}.join(', ') -%> )
   {
     _account = new Account();

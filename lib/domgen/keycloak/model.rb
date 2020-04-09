@@ -560,6 +560,9 @@ module Domgen
             s.ejb.bind_in_tests = false
             s.ejb.generate_base_test = false
             s.disable_facets_not_in(:ejb)
+            s.method(:IsAuthenticated) do |m|
+              m.returns(:boolean)
+            end
             self.default_client.claims.each do |claim|
               s.method("Get#{claim.java_accessor_key}") do |m|
                 m.returns(claim.java_type)

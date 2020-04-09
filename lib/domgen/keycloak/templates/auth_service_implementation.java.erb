@@ -11,6 +11,12 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
   @javax.inject.Inject
   private org.realityforge.keycloak.sks.SimpleAuthService _authService;
 
+  @java.lang.Override
+  public boolean isAuthenticated()
+  {
+    return null != _authService.findAccount();
+  }
+
   @javax.annotation.Nonnull
   protected org.keycloak.adapters.OidcKeycloakAccount getAccount()
   {
