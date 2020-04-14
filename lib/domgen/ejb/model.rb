@@ -243,6 +243,10 @@ module Domgen
         !@schedule.nil?
       end
 
+      def boundary_interceptors
+        @boundary_interceptors ||= []
+      end
+
       def generate_base_test?
         @generate_base_test.nil? ? true : !!@generate_base_test
       end

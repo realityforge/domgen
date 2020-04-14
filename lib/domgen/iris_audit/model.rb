@@ -51,10 +51,14 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :interceptor_impl, :service, :server, :iris_audit, '#{service.name}LoggingInterceptor', :sub_package => 'internal'
+    end
+
+    facet.enhance(Method) do
+      include Domgen::Java::BaseJavaGenerator
 
       def pre_complete
-        if service.ejb? && service.ejb.generate_boundary?
-          service.ejb.boundary_interceptors << self.qualified_interceptor_impl_name
+        if method.service.ejb? && method.service.ejb.generate_boundary?
+          method.ejb.boundary_interceptors << method.service.iris_audit.qualified_interceptor_impl_name
         end
       end
     end
