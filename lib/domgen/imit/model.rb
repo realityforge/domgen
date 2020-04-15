@@ -926,7 +926,6 @@ module Domgen
                 if graph.filter_parameter? && !graph.filter_parameter.immutable?
                   s.method("CollectForFilterChange#{graph.name}") do |m|
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                     m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
                     m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                     m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
@@ -945,7 +944,6 @@ module Domgen
                     m.ejb.generate_base_test = false
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
                     m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
-                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                     m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                     m.boolean(:ExplicitSubscribe)
                   end
