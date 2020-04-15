@@ -83,6 +83,8 @@ public final class <%= struct.gwt.name %>
     return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%>this.<%= field.json.name %>.intValue();
 <% elsif field.long? -%>
     return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%>this.<%= field.json.name %>.longValue();
+<% elsif field.reference? -%>
+    return <% if field.nullable? -%>this.<%= field.json.name %> == null ? null : <% end -%>this.<%= field.json.name %><% unless field.nullable? -%>.intValue()<% end -%>;
 <% end -%>
   }
 <% end -%>
