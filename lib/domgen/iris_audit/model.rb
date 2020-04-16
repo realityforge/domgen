@@ -51,6 +51,10 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :interceptor_impl, :service, :server, :iris_audit, '#{service.name}LoggingInterceptor', :sub_package => 'internal'
+
+      def post_verify
+        service.disable_facet(:iris_audit) unless service.methods.any?{|m| m.iris_audit?}
+      end
     end
 
     facet.enhance(Method) do
