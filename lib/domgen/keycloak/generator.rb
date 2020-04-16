@@ -91,7 +91,7 @@ Domgen::Generator.define([:keycloak],
     template_set.erb_template(:repository,
                               'client_definitions.java.erb',
                               'main/java/#{repository.keycloak.qualified_client_definitions_name.gsub(".","/")}.java',
-                              :guard => 'repository.keycloak.has_local_auth_service?')
+                              :guard => 'repository.keycloak.has_local_auth_service? && repository.keycloak.clients.any?{|client|!client.bearer_only?}')
   end
 
   g.template_set(:keycloak_client_config) do |template_set|
