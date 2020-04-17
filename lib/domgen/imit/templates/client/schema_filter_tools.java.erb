@@ -51,13 +51,17 @@ final class <%= repository.imit.schema_filter_tools_name %>
     end
   end
 -%>
+<% if graph.instance_root? -%>
       for( final <%= entity.primary_key.imit.non_primitive_java_type %> <%= singular_root_var_name %>: <%= root_var_name %> )
       {
+<% end -%>
         if( context.does<%= graph.name %>MatchEntity( filter, userObject<%= extra_interest_filter %> ) )
         {
           return true;
         }
+<% if graph.instance_root? -%>
       }
+<% end -%>
       return false;
   }
 <% end -%>
