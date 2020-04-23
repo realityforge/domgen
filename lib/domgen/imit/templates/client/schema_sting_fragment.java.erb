@@ -9,6 +9,7 @@ package <%= to_package(repository.imit.qualified_schema_sting_fragment_name) %>;
 public interface <%= repository.imit.schema_sting_fragment_name %>
 {
   @javax.annotation.Nonnull
+  @sting.Named( "<%= repository.name %>" )
   default replicant.SystemSchema provideSystemSchema( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, <%= entities.collect{|e|"@javax.annotation.Nonnull final #{e.dao.arez.qualified_repository_name} #{Reality::Naming.camelize(e.qualified_name.gsub('.',''))}Repository"}.join(', ') %> )
   {
     final <%= repository.imit.qualified_client_router_name %> router = new <%= repository.imit.qualified_client_router_name %>();
