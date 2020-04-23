@@ -817,6 +817,9 @@ module Domgen
       end
 
       def pre_complete
+        unless repository.application.user_experience? || 1 != repository.imit.schema_id
+          Domgen.error('repository.imit.schema_id must be explicitly set to a value other than 1 as the application expects to be used as a library.')
+        end
         if repository.jaxrs?
           repository.jaxrs.extensions << self.qualified_session_rest_service_name
         end
