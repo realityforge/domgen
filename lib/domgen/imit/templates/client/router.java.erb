@@ -23,13 +23,7 @@ final class <%= repository.imit.client_router_name %>
   private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, final <%= routing_key.target_attribute.imit.non_primitive_java_type %> value )
   {
 <% if routing_key.multivalued? -%>
-    java.util.List<<%= routing_key.target_attribute.imit.non_primitive_java_type %>> keys = (java.util.List<<%= routing_key.target_attribute.imit.non_primitive_java_type %>>) map.get( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
-    if( null == keys )
-    {
-      keys = new java.util.ArrayList<>();
-      map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, keys );
-    }
-    keys.add( value );
+    map.computeIfAbsent( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, k -> new java.util.ArrayList<>() ).add( value );
 <% else -%>
     map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, value );
 <% end -%>
