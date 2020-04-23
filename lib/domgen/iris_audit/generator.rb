@@ -35,6 +35,6 @@ Domgen::Generator.define([:iris_audit],
     template_set.erb_template(:repository,
                               'audit_fragment_adapter.java.erb',
                               'main/java/#{repository.iris_audit.qualified_audit_fragment_adapter_name.gsub(".","/")}.java',
-                              :guard => 'repository.gwt?')
+                              :guard => 'repository.gwt? && repository.application.user_experience?')
   end
 end
