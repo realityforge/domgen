@@ -35,11 +35,9 @@ module Domgen
           resource_name = "#{Reality::Naming.underscore(repository.name)}/jdbc/Audit"
           repository.redfish.persistence_unit('Audit', resource_name)
         end
-        if repository.gwt?
-          if repository.application.user_experience?
-            repository.gwt.sting_includes << 'iris.audit.client.ioc.AuditFragment'
-            repository.gwt.sting_includes << qualified_audit_fragment_adapter_name
-          end
+        if repository.gwt? && repository.application.user_experience?
+          repository.gwt.sting_includes << 'iris.audit.client.ioc.AuditFragment'
+          repository.gwt.sting_includes << qualified_audit_fragment_adapter_name
           repository.gwt.sting_test_includes << 'iris.audit.client.test.util.MockAuditGwtRpcServicesFragment'
         end
       end
