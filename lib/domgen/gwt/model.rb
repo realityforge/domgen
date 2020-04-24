@@ -88,6 +88,12 @@ module Domgen
         @custom_base_client_test.nil? ? false : !!@custom_base_client_test
       end
 
+      attr_writer :custom_default_test_injector
+
+      def custom_default_test_injector?
+        @custom_default_test_injector.nil? ? false : !!@custom_default_test_injector
+      end
+
       def test_class_contents
         test_class_content_list.dup
       end

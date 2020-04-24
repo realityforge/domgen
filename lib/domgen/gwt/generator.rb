@@ -54,7 +54,8 @@ Domgen::Generator.define([:gwt],
                                 type + '/java/#{repository.gwt.qualified_value_util_name.gsub(".","/")}.java')
       template_set.erb_template(:repository,
                                 'default_test_injector.java.erb',
-                                type + '/java/#{repository.gwt.qualified_default_test_injector_name.gsub(".","/")}.java')
+                                type + '/java/#{repository.gwt.qualified_default_test_injector_name.gsub(".","/")}.java',
+                                :guard => '!repository.gwt.custom_default_test_injector?')
     end
   end
 
