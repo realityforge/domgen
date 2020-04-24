@@ -7,6 +7,7 @@ public abstract class <%= repository.gwt.client_test_name %>
   extends <%= repository.gwt.qualified_abstract_client_test_name %><<%= repository.gwt.qualified_default_test_injector_name %>>
 {
   @javax.annotation.Nonnull
+  @java.lang.Override
   protected <%= repository.gwt.qualified_default_test_injector_name %> createInjector()
   {
     return <%= repository.gwt.qualified_default_test_injector_name %>.create();

@@ -57,7 +57,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     registerArezLocator();
 <% end -%>
 <% if repository.imit? -%>
-    registerReplicantConnector();
+    registerReplicantConnector( com.google.gwt.core.client.GWT.getHostPageBaseURL() + "api", ensureInjector().getSystemSchema() );
 <% end -%>
   }
 
@@ -203,10 +203,10 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   }
 
 <% end -%>
-  private void registerReplicantConnector()
+  protected final void registerReplicantConnector( @javax.annotation.Nonnull final String baseURL, @javax.annotation.Nonnull final replicant.SystemSchema schema )
   {
-    final replicant.WebSocketConfig config = replicant.WebSocketConfig.create( com.google.gwt.core.client.GWT.getHostPageBaseURL() + "api", getKeycloak() );
-    replicant.Replicant.context().registerConnector( ensureInjector().getSystemSchema(), new replicant.WebSocketTransport( config ) );
+    final replicant.WebSocketConfig config = replicant.WebSocketConfig.create( baseURL, getKeycloak() );
+    replicant.Replicant.context().registerConnector( schema, new replicant.WebSocketTransport( config ) );
   }
 
   private void prepareReplicant()
