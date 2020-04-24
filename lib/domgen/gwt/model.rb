@@ -74,8 +74,14 @@ module Domgen
         repository.gwt_rpc? || repository.imit?
       end
 
+      # Includes added to the aggregate test fragment
       def sting_test_includes
         (@sting_test_includes ||= [])
+      end
+
+      # Includes added to the default test injector
+      def sting_test_injector_includes
+        (@sting_test_injector_includes ||= [])
       end
 
       def sting_includes
@@ -189,6 +195,7 @@ CONTENT
 
       def post_verify
         self.sting_test_includes << self.qualified_aggregate_sting_fragment_name unless repository.gwt.sting_includes.empty?
+        self.sting_test_injector_includes << self.qualified_test_fragment_name unless repository.gwt.sting_test_includes.empty?
       end
 
       protected
