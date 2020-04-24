@@ -573,7 +573,7 @@ module Domgen
       end
 
       def pre_verify
-        if repository.gwt?
+        if repository.gwt? && repository.application.user_experience?
           repository.gwt.sting_test_includes << repository.keycloak.qualified_mock_keycloak_sting_fragment_name
         end
         if repository.ejb? && self.has_local_auth_service?
