@@ -9,6 +9,7 @@ package <%= to_package(entity.arez.qualified_name) %>;
 <%
   annotation_parameters = []
   annotation_parameters << "name = \"#{entity.data_module.name}_#{entity.name}\""
+  annotation_parameters << "observable = arez.annotations.Feature.ENABLE"
   unless has_arez_elements
     annotation_parameters << 'allowEmpty = true'
   end
