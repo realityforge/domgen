@@ -20,9 +20,9 @@ Domgen::Generator.define([:arez],
                               'entity.java.erb',
                               'main/java/#{entity.arez.qualified_name.gsub(".","/")}.java')
     template_set.erb_template(:dao,
-                              'domgen_repository_extension.java.erb',
-                              'main/java/#{dao.arez.qualified_domgen_repository_extension_name.gsub(".","/")}.java',
-                              :guard => '!dao.entity.abstract? && dao.queries.any?{|q|q.arez?}')
+                              'repository.java.erb',
+                              'main/java/#{dao.arez.qualified_repository_name.gsub(".","/")}.java',
+                              :guard => '!dao.entity.abstract?')
     template_set.erb_template(:repository,
                               'locator_factory.java.erb',
                               'main/java/#{repository.arez.qualified_locator_factory_name.gsub(".","/")}.java')

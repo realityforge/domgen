@@ -8,6 +8,7 @@ package <%= to_package(entity.arez.qualified_name) %>;
 <% has_arez_elements = !entity.arez.referencing_client_side_attributes.empty? || entity.attributes.any?{|a|a.arez? && (!a.immutable? || a.reference?) } -%>
 <%
   annotation_parameters = []
+  annotation_parameters << "name = \"#{entity.data_module.name}_#{entity.name}\""
   unless has_arez_elements
     annotation_parameters << 'allowEmpty = true'
   end
@@ -16,10 +17,7 @@ package <%= to_package(entity.arez.qualified_name) %>;
     annotation_parameters << 'defaultWriteOutsideTransaction = arez.annotations.Feature.ENABLE'
   end
   -%>
-@arez.annotations.ArezComponent<%= annotation_parameters.size == 0 ? '' : "( #{annotation_parameters.join(', ')} )" %>
-<% if entity.dao.arez? -%>
-@arez.annotations.Repository( extensions = {<%= entity.dao.arez.extensions.collect{|e| "#{e}.class"}.join(', ') %>} )
-<% end -%>
+@arez.annotations.ArezComponent( <%= annotation_parameters.join(', ') %> )
 <% end -%>
 public abstract class <%= entity.arez.name %>
 <%= entity.extends ? "  extends #{entity.data_module.entity_by_name(entity.extends).arez.qualified_name}\n" : '' -%>
@@ -48,7 +46,7 @@ public abstract class <%= entity.arez.name %>
    end
 -%>
 
-  <%= entity.subtypes.empty? ? '' : 'protected ' %><%= entity.arez.name %>( <%= entity.attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}.join(', ') %>)
+  <%= entity.subtypes.empty? ? '' : 'protected ' %><%= entity.arez.name %>( <%= entity.attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}.join(', ') %> )
   {
 <% if entity.extends -%>
     super( <%= entity.data_module.entity_by_name(entity.extends).attributes.select{|attribute| attribute.immutable? && !attribute.abstract? && attribute.arez?}.collect {|attribute| Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}.join(', ') %> );

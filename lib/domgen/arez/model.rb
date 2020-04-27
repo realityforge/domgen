@@ -89,8 +89,6 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :repository, :entity, :client, :arez, '#{dao.entity.name}Repository'
-      java_artifact :default_repository_extension, :entity, :client, :arez, '#{dao.entity.name}RepositoryExtension'
-      java_artifact :domgen_repository_extension, :entity, :client, :arez, 'Domgen#{dao.name}Extension'
 
       def extensions
         @extensions ||= []
@@ -101,9 +99,6 @@ module Domgen
       end
 
       def post_verify
-        if !dao.entity.abstract? && dao.queries.any?{|q|q.arez?}
-          self.extensions << qualified_domgen_repository_extension_name
-        end
         # This is needed because sometimes dao construction is deferred until later
         dao.disable_facet(:arez) if !dao.repository? || !dao.entity.arez?
       end

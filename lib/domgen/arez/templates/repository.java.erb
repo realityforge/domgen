@@ -1,0 +1,61 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(dao.arez.qualified_repository_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@arez.annotations.ArezComponent( name = "<%= dao.data_module.name %>_<%= dao.name %>", service = arez.annotations.Feature.ENABLE, sting = arez.annotations.Feature.ENABLE )
+public abstract class <%= dao.arez.repository_name %>
+  extends arez.component.internal.AbstractRepository<java.lang.Integer, <%= dao.entity.arez.qualified_name %>, <%= dao.arez.repository_name %>>
+<% unless dao.arez.extensions.empty? -%>
+  implements <%= dao.arez.extensions.join(', ') %>
+<% end -%>
+{
+  @arez.annotations.Action
+  @javax.annotation.Nonnull
+  public <%= dao.entity.arez.qualified_name %> create( <%= (dao.entity.attributes.select{|attribute| attribute.immutable? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"} + dao.entity.attributes.select{|attribute| !attribute.immutable? && attribute.arez?}.collect { |attribute| "#{annotated_type(attribute, :arez, attribute.reference? ? :transport : :default, :final => true, :assume_generated => true)} #{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}).join(', ') %> )
+  {
+    final <%= dao.entity.arez.qualified_name %> $entity = new <%= dao.entity.arez.qualified_arez_name %>( <%= (dao.entity.attributes.select{|attribute| attribute.immutable? && attribute.arez?}.collect { |attribute| "#{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"} + dao.entity.attributes.select{|attribute| !attribute.immutable? && attribute.arez?}.collect { |attribute| "#{Reality::Naming.camelize(attribute.arez.name(attribute.reference? ? :transport : :default))}"}).join(', ') %> );
+    attach( $entity );
+    return $entity;
+  }
+
+  @javax.annotation.Nullable
+  public <%= dao.entity.arez.qualified_name %> findBy<%= dao.entity.primary_key.name %>( final int id )
+  {
+    return findByArezId( id );
+  }
+
+  @javax.annotation.Nonnull
+  public <%= dao.entity.arez.qualified_name %> getBy<%= dao.entity.primary_key.name %>( final int id )
+  {
+    return getByArezId( id );
+  }
+
+  @java.lang.Override
+  @arez.annotations.Action( reportParameters = false )
+  public void destroy( @javax.annotation.Nonnull final <%= dao.entity.arez.qualified_name %> entity )
+  {
+    super.destroy( entity );
+  }
+<% dao.queries.select{|q|q.arez?}.each do |query| -%>
+
+  <%= nullability_annotation(query.multiplicity == :zero_or_one) %>
+  public <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= query.parameters.collect {|p| "#{p.arez.primitive? ? '' : nullability_annotation(p.nullable?)} final #{p.arez.java_type} #{Reality::Naming.camelize(p.name)}"}.join(', ') %> )
+  {
+<%
+  if query.multiplicity == :zero_or_one
+-%>
+    return findByQuery( e -> <%= lambda_query(query) %> );
+<%
+  elsif query.multiplicity == :one
+-%>
+    return getByQuery( e -> <%= lambda_query(query) %> );
+<%
+  elsif query.multiplicity == :many
+-%>
+    return findAllByQuery( e -> <%= lambda_query(query) %> );
+<%
+  end
+-%>
+  }
+<% end -%>
+}
