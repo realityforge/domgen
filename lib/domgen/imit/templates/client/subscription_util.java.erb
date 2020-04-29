@@ -14,10 +14,15 @@ public final class <%= repository.imit.subscription_util_name %>
     return is<%= graph.name %>GraphSubscribed( replicant.Replicant.context()<%= graph.instance_root? ? ", id " : "" %> );
   }
 
+  @javax.annotation.Nonnull
+  public static replicant.ChannelAddress get<%= graph.name %>GraphAddress(<%= graph.instance_root? ? " final int id " : "" %>)
+  {
+    return new replicant.ChannelAddress( <%= repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><%= graph.instance_root? ? ", id " : "" %> );
+  }
+
   public static boolean is<%= graph.name %>GraphSubscribed( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
   {
-    final replicant.ChannelAddress address = new replicant.ChannelAddress( <%= repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><%= graph.instance_root? ? ", id " : "" %> );
-    return null != context.findSubscription( address );
+    return null != context.findSubscription( get<%= graph.name %>GraphAddress(<%= graph.instance_root? ? " id " : "" %>) );
   }
 <% end -%>
 }
