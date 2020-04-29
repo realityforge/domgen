@@ -54,6 +54,12 @@ Domgen::Generator.define([:sync],
                               'main/java/#{data_module.sync.qualified_abstract_sync_temp_population_impl_name.gsub(".","/")}.java',
                               :guard => 'data_module.sync.master_data_module?')
   end
+  g.template_set(:sync_db_common) do |template_set|
+    template_set.erb_template(:entity,
+                              'import.sql.erb',
+                              '#{entity.data_module.sql.schema}/import/#{entity.data_module.sql.schema}.#{entity.sql.table_name}.sql',
+                              :guard => 'entity.data_module.sync.sync_temp_data_module?')
+  end
   g.template_set(:sync_sql) do |template_set|
     template_set.erb_template(:data_module,
                               'binary_to_base64.sql.erb',
