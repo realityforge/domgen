@@ -453,6 +453,11 @@ module Domgen
     end
 
     facet.enhance(DataModule) do
+      attr_writer :allow_empty_schema
+
+      def allow_empty_schema?
+        @allow_empty_schema.nil? ? false : !!@allow_empty_schema
+      end
 
       def dialect
         data_module.repository.sql.dialect
@@ -484,6 +489,12 @@ module Domgen
 
       def sequence_by_name?(name)
         !!sequence_map[name.to_s]
+      end
+
+      def perform_verify
+        if !data_module.entities.any?{|e|e.sql?} && !data_module.sql.allow_empty_schema?
+          Domgen.error("Data module #{data_module.name} contains no entities/tables but has not configured data_module.sql.allow_empty_schema = true")
+        end
       end
 
       protected
