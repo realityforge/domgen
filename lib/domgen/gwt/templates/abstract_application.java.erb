@@ -51,7 +51,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     performStart();
   }
 
-  protected final void postInjetorSetup()
+  protected void postInjetorSetup()
   {
 <% if repository.arez? -%>
     registerArezLocator();
