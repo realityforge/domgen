@@ -54,7 +54,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   protected void postInjetorSetup()
   {
 <% if repository.arez? -%>
-    registerArezLocator();
+    initializeArez();
 <% end -%>
 <% if repository.imit? -%>
     registerReplicantConnector( com.google.gwt.core.client.GWT.getHostPageBaseURL() + "api", ensureInjector().getSystemSchema() );
@@ -74,8 +74,20 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   }
 <% if repository.arez? -%>
 
-  private void registerArezLocator()
+  protected void onObserverError( @javax.annotation.Nonnull final arez.Observer observer, @javax.annotation.Nonnull final arez.ObserverError error, @javax.annotation.Nullable final java.lang.Throwable throwable )
   {
+    final String message =
+      error + ": Error occurred on observer named " + ( arez.Arez.areNamesEnabled() ? observer.getName() : "?" );
+    elemental2.dom.DomGlobal.console.error( message, throwable );
+    if ( "on".equals( java.lang.System.getProperty( "superdevmode" ) ) )
+    {
+      jsinterop.base.Js.debugger();
+    }
+  }
+
+  private void initializeArez()
+  {
+    arez.Arez.context().addObserverErrorHandler( this::onObserverError );
     arez.Arez.context().registerLocator( ensureInjector().getLocator() );
   }
 <% end -%>
