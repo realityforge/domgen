@@ -211,6 +211,9 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   private void prepareReplicant()
   {
+    // Make sure context and any static initializers have run to avoid
+    // triggering schedulers during injector construction
+    replicant.Replicant.context();
     replicant.WebStorageCacheService.install();
     elemental2.dom.DomGlobal.window.addEventListener( "beforeunload", e -> replicant.Replicant.context().deactivate(), true );
 <% if repository.keycloak? -%>
