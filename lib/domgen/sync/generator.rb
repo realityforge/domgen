@@ -58,7 +58,7 @@ Domgen::Generator.define([:sync],
     template_set.erb_template(:entity,
                               'import.sql.erb',
                               '#{entity.data_module.sql.schema}/import/#{entity.data_module.sql.schema}.#{entity.sql.table_name}.sql',
-                              :guard => 'entity.data_module.sync.sync_temp_data_module?')
+                              :guard => 'entity.data_module.sync.sync_temp_data_module? && !entity.abstract?')
   end
   g.template_set(:sync_sql) do |template_set|
     template_set.erb_template(:data_module,
