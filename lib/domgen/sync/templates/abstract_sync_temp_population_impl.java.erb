@@ -358,7 +358,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     )
 -%>
 
-<% if default_impl_may_work -%>
+<% unless default_impl_may_work -%>
   /*
     Implement this method. The default sql sans filtering looks like
 
