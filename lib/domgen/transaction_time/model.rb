@@ -40,11 +40,6 @@ module Domgen
       end
 
       def post_complete
-        self.entity.unique_constraints.each do |constraint|
-          # Force the creation of the index with filter specified. Parallels behaviours in sql facet.
-          index = self.entity.sql.index(constraint.attribute_names, :unique => true)
-          index.filter = "#{self.entity.sql.dialect.quote(:DeletedAt)} IS NULL"
-        end if self.entity.sql?
         if self.entity.jpa? && !self.entity.abstract?
           self.entity.jpa.default_jpql_criterion = 'this.deletedAt IS NULL'
           self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null')
