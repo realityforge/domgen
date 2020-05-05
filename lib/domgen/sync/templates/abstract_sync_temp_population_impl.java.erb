@@ -208,12 +208,16 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
    column_names = index.attribute_names.collect {|attr_name| a = entity.attribute_by_name(attr_name); entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingId" : a.name).sql.quoted_column_name }
 -%>
       {
+<% if index.partial? %>
+        final String sql = get_<%= entity.data_module.name %>_<%= entity.name %>_<%= index.index_name %>_IndexValidationSql();
+<% else %>
         final String sql =
           "SELECT S.* " +
           "FROM " +
           "<%= j_escape_string("  #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +
           "<%= j_escape_string("JOIN ( SELECT #{ column_names.join(',') } FROM #{ entity.sync.sync_temp_entity.sql.qualified_table_name } GROUP BY #{ column_names.join(',') } HAVING COUNT(*) > 1 ) J ON #{ column_names.collect{|c| "J.#{c} = S.#{c}"}.join(' AND ') } ") %>" +
           "<%= j_escape_string("WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?") %>";
+<% end -%>
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Found duplicate rows for <%= entity.qualified_name.gsub('.','') %> that violate uniqueness across <%= index.attribute_names.join(',') %> defined by index <%= index.index_name %>", recorder ) )
         {
           validationFailed = true;
@@ -338,6 +342,45 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
       throw new IllegalStateException( "Failed to validate <%= entity.qualified_name %> instances for mappingSource " + mappingSourceCode );
     }
   }
+<% entity.sql.indexes.select{|index| index.unique? && index.partial? && !index.attribute_names.any?{|k| %w(CreatedAt DeletedAt).include?(k.to_s)}}.each do |index|
+   column_names = index.attribute_names.collect {|attr_name| a = entity.attribute_by_name(attr_name); entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingId" : a.name).sql.quoted_column_name }
+   # The "X IS NOT NULL" pattern where the included columns are X will be matched because the default sql does a comparison
+   # on the column which will automatically be false ... so we accidentally get the correct answer
+   default_impl_may_work =
+    # DeletedAt IS NULL just indicates table is transaction time
+    (index.filter == '[DeletedAt] IS NULL') ||
+    (
+      index.attribute_names.size == 1 &&
+      (
+        (index.filter =~ /^([^ ]+) IS NOT NULL$/ && $1.gsub(/\[\]"/,'') == index.attribute_names[0].to_s) ||
+        (index.filter =~ /^\(([^ ]+) IS NOT NULL\) AND \[DeletedAt\] IS NULL$/ && $1.gsub('[','').gsub(']','').gsub('"','') == index.attribute_names[0].to_s)
+      )
+    )
+-%>
+
+<% if default_impl_may_work -%>
+  /*
+    Implement this method. The default sql sans filtering looks like
+
+    SELECT S.*
+    FROM
+      <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> AS S
+      JOIN ( SELECT <%= column_names.join(',') %> FROM <%= entity.sync.sync_temp_entity.sql.qualified_table_name %> GROUP BY <%= column_names.join(',') %> HAVING COUNT(*) > 1 ) J ON <%= column_names.collect{|c| "J.#{c} = S.#{c}"}.join(' AND ') %>
+      WHERE S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?
+  */
+<% end -%>
+  @javax.annotation.Nonnull
+  protected <%= default_impl_may_work ? '' : 'abstract ' %>String get_<%= entity.data_module.name %>_<%= entity.name %>_<%= index.index_name %>_IndexValidationSql()<%= default_impl_may_work ? '' : ';' %>
+<% if default_impl_may_work -%>
+  {
+    return "SELECT S.* " +
+           "FROM " +
+           "<%= j_escape_string("  #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +
+           "<%= j_escape_string("JOIN ( SELECT #{ column_names.join(',') } FROM #{ entity.sync.sync_temp_entity.sql.qualified_table_name } GROUP BY #{ column_names.join(',') } HAVING COUNT(*) > 1 ) J ON #{ column_names.collect{|c| "J.#{c} = S.#{c}"}.join(' AND ') } ") %>" +
+           "<%= j_escape_string("WHERE S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = ?") %>";
+  }
+<% end -%>
+<% end -%>
 <% end -%>
 <% end -%>
 
