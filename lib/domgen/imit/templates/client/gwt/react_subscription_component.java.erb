@@ -2,7 +2,7 @@
 package <%= to_package(graph.qualified_react4j_subscription_component_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@react4j.annotations.ReactComponent( type = react4j.annotations.ReactComponent.Type.TRACKING )
+@react4j.annotations.View( type = react4j.annotations.View.Type.TRACKING )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "AOM_ABSTRACT_OVERRIDDEN_METHOD" } )
 public abstract class <%= graph.react4j_subscription_component_name %>
   extends replicant.react4j.ReplicantSubscription<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Void' %>>
@@ -11,10 +11,10 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% unless graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.primitive?(:default, :assume_generated => true) -%>
   @javax.annotation.Nonnull
 <% end -%>
-  @react4j.annotations.Prop
+  @react4j.annotations.Input
   abstract <%= graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.java_type(:default, :assume_generated => true) %> getId();
 
-  @react4j.annotations.OnPropChange
+  @react4j.annotations.OnInputChange
   void onIdChange( <% unless graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.primitive?(:default, :assume_generated => true) %>@javax.annotation.Nonnull <% end %>final <%= graph.application.repository.entity_by_name(graph.instance_root).primary_key.imit.java_type(:default, :assume_generated => true) %> id )
   {
     updateAreaOfInterestOnIdChange();
@@ -23,17 +23,17 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% if graph.filter_parameter? -%>
 
   @javax.annotation.Nonnull
-  @react4j.annotations.Prop( observable = react4j.annotations.Feature.DISABLE )
+  @react4j.annotations.Input( observable = react4j.annotations.Feature.DISABLE )
   abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
 
-  @react4j.annotations.OnPropChange
+  @react4j.annotations.OnInputChange
   void onFilterChange( @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter )
   {
     updateAreaOfInterestOnFilterChange( filter );
   }
 <% end -%>
 
-  @react4j.annotations.Prop( observable = react4j.annotations.Feature.DISABLE )
+  @react4j.annotations.Input( observable = react4j.annotations.Feature.DISABLE )
   @javax.annotation.Nonnull
   abstract NoResultCallback onLoading();
 
@@ -44,7 +44,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
     return onLoading();
   }
 
-  @react4j.annotations.Prop
+  @react4j.annotations.Input
   @javax.annotation.Nonnull
   abstract ErrorCallback onLoadFailed();
 
@@ -55,7 +55,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
     return onLoadFailed();
   }
 
-  @react4j.annotations.Prop
+  @react4j.annotations.Input
   @javax.annotation.Nonnull
   abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback<% if graph.instance_root? -%><<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>><% end -%> onLoaded();
 
@@ -76,7 +76,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% end -%>
 
 <% if graph.filter_parameter?  && !graph.filter_parameter.immutable? -%>
-  @react4j.annotations.Prop
+  @react4j.annotations.Input
   @javax.annotation.Nonnull
   abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback onUpdating();
 
@@ -96,7 +96,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   }
 <% end -%>
 
-  @react4j.annotations.Prop
+  @react4j.annotations.Input
   @javax.annotation.Nonnull
   abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>UpdateErrorCallback onUpdateFailed();
 
@@ -116,7 +116,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   }
 <% end -%>
 
-  @react4j.annotations.Prop
+  @react4j.annotations.Input
   @javax.annotation.Nonnull
   abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback onUpdated();
 
@@ -137,7 +137,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% end -%>
 
 <% end -%>
-  @react4j.annotations.Prop
+  @react4j.annotations.Input
   @javax.annotation.Nonnull
   abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback<% if graph.instance_root? -%><<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>><% end -%> onUnloading();
 
@@ -157,7 +157,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   }
 <% end -%>
 
-  @react4j.annotations.Prop
+  @react4j.annotations.Input
   @javax.annotation.Nonnull
   abstract NoResultCallback onUnloaded();
 
@@ -169,7 +169,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   }
 
 <% if graph.instance_root? -%>
-  @react4j.annotations.Prop
+  @react4j.annotations.Input
   @javax.annotation.Nonnull
   abstract NoResultCallback onDeleted();
 
