@@ -284,6 +284,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
         setParameter( 3, v_MappingId ).
         setParameter( 4, mappingSourceCode ).
         executeUpdate();
+      on<%= entity.qualified_name.gsub('.','') %>Created( entity );
       return true;
     }
     else
@@ -301,6 +302,10 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       throw new java.lang.IllegalStateException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
 <% end -%>
     }
+  }
+
+  protected void on<%= entity.qualified_name.gsub('.','') %>Created( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  {
   }
 
   @java.lang.Override
@@ -390,7 +395,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     query.setParameter( 1, mappingSourceCode );
     return query.executeUpdate();
   }
-<% if entity.sync.supports_bulk_sync? -%>
+<% if entity.sync.enable_bulk_sync? -%>
 
   @java.lang.Override
   public int bulkCreate<%= fn %>( @javax.annotation.Nonnull final String mappingSourceCode )
@@ -405,13 +410,12 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     {
       updateSql = getSqlToMarkInserted<%=fn%>AsSynchronized( mappingSourceCode );
       final javax.persistence.Query updateQuery =_entityManager.createNativeQuery( updateSql );
-      updateQuery.setParameter(1,mappingSourceCode);
+      updateQuery.setParameter( 1, mappingSourceCode );
       final int updateCount = updateQuery.executeUpdate();
 
       if ( updateCount != insertionCount )
       {
-        LOG.severe( "Bulk addition of <%= fn %> failed, " + insertionCount + " vs " + updateCount +
-          "\nSql for insert: \n" + insertSql + "\nSql for update: \n" + updateSql );
+        LOG.severe( "Bulk addition of <%= fn %> failed, " + insertionCount + " vs " + updateCount + "\nSql for insert: \n" + insertSql + "\nSql for update: \n" + updateSql );
         throw new IllegalStateException( "Mismatch between inserted count and update count for <%= fn %>" );
       }
     }

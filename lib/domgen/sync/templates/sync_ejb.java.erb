@@ -80,7 +80,7 @@ public class <%= data_module.sync.sync_ejb_name %>
   }
 <% end -%>
 <% data_module.sync.entities_to_synchronize.each do |entity|
-  bulk_sync = entity.sync.supports_bulk_sync? -%>
+  bulk_sync = entity.sync.enable_bulk_sync? -%>
 
   private void sync<%= entity.data_module.name %><%= entity.name %>Updates(
       @javax.annotation.Nonnull final String mappingSourceCode,
@@ -124,7 +124,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       sync<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
 <% end -%>
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-      sync<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder<% if entity.sync.supports_bulk_sync? -%>, isBulkSync<% end -%> );
+      sync<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder<% if entity.sync.enable_bulk_sync? -%>, isBulkSync<% end -%> );
 <% end -%>
 
       if ( isBulkSync )
@@ -179,14 +179,13 @@ public class <%= data_module.sync.sync_ejb_name %>
     }
   }
 
-<% if entity.sync.supports_bulk_sync? %>
+<% if entity.sync.enable_bulk_sync? %>
   private void bulkSynchronize<%= entity.data_module.name %><%= entity.name %>Additions( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
     try
     {
-      recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount",
-        _context.bulkCreate<%= entity.data_module.name %><%= entity.name %>( mappingSourceCode ) );
+      recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount", _context.bulkCreate<%= entity.data_module.name %><%= entity.name %>( mappingSourceCode ) );
     }
     catch ( final Exception e )
     {
@@ -196,12 +195,10 @@ public class <%= data_module.sync.sync_ejb_name %>
   }
 <% end -%>
 
-  private void synchronize<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode,
-      @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder<% if entity.sync.supports_bulk_sync? -%>,
-      final boolean isBulkSync<% end -%> )
+  private void synchronize<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder<% if entity.sync.enable_bulk_sync? -%>, final boolean isBulkSync<% end -%> )
     throws Exception
   {
-<% if entity.sync.supports_bulk_sync? %>
+<% if entity.sync.enable_bulk_sync? %>
     // First attempt a bulk sync for additions
     if ( isBulkSync )
     {

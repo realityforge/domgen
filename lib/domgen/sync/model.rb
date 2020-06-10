@@ -173,7 +173,7 @@ module Domgen
                 m.returns(:integer, :description => 'The number of records changed')
               end
 
-              if entity.sync.supports_bulk_sync?
+              if entity.sync.enable_bulk_sync?
                 s.method(:"BulkCreate#{entity.data_module.name}#{entity.name}") do |m|
                   m.text(:MappingSourceCode)
                   m.returns(:integer, :description => 'The number of records inserted')
@@ -415,6 +415,12 @@ module Domgen
               a.referenced_entity.sync? && a.referenced_entity.sync.synchronize?
             )
         end.size > 0
+      end
+
+      attr_writer :enable_bulk_sync
+
+      def enable_bulk_sync?
+        @enable_bulk_sync.nil? ? supports_bulk_sync? : !!@enable_bulk_sync
       end
 
       def supports_bulk_sync?
