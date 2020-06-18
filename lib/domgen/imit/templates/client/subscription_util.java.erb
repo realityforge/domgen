@@ -7,12 +7,7 @@ public final class <%= repository.imit.subscription_util_name %>
   private <%= repository.imit.subscription_util_name %>()
   {
   }
-
 <% repository.imit.graphs.each do |graph| -%>
-  public static boolean is<%= graph.name %>GraphSubscribed(<%= graph.instance_root? ? " final int id " : "" %>)
-  {
-    return is<%= graph.name %>GraphSubscribed( replicant.Replicant.context()<%= graph.instance_root? ? ", id " : "" %> );
-  }
 
   @javax.annotation.Nonnull
   public static replicant.ChannelAddress get<%= graph.name %>GraphAddress(<%= graph.instance_root? ? " final int id " : "" %>)
@@ -20,9 +15,41 @@ public final class <%= repository.imit.subscription_util_name %>
     return new replicant.ChannelAddress( <%= repository.imit.qualified_system_constants_name %>.SCHEMA_ID, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><%= graph.instance_root? ? ", id " : "" %> );
   }
 
+  public static boolean is<%= graph.name %>GraphSubscribed(<%= graph.instance_root? ? " final int id " : "" %>)
+  {
+    return is<%= graph.name %>GraphSubscribed( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %> );
+  }
+
   public static boolean is<%= graph.name %>GraphSubscribed( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
   {
-    return null != context.findSubscription( get<%= graph.name %>GraphAddress(<%= graph.instance_root? ? " id " : "" %>) );
+    return null != find<%= graph.name %>Subscription( context<%= graph.instance_root? ? ", id" : "" %> );
   }
+
+  @javax.annotation.Nullable
+  public static replicant.Subscription find<%= graph.name %>Subscription(<%= graph.instance_root? ? " final int id " : "" %>)
+  {
+    return find<%= graph.name %>Subscription( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %> );
+  }
+
+  @javax.annotation.Nullable
+  public static replicant.Subscription find<%= graph.name %>Subscription( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
+  {
+    return context.findSubscription( get<%= graph.name %>GraphAddress(<%= graph.instance_root? ? " id " : "" %>) );
+  }
+<% if graph.instance_root? -%>
+
+  @javax.annotation.Nullable
+  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> find<%= graph.name %>Root( final int id )
+  {
+    return find<%= graph.name %>Root( replicant.Replicant.context(), id );
+  }
+
+  @javax.annotation.Nullable
+  public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> find<%= graph.name %>Root( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id )
+  {
+    final replicant.Subscription subscription = find<%= graph.name %>Subscription( context, id );
+    return null == subscription ? null : (<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>) subscription.getInstanceRoot();
+  }
+<% end -%>
 <% end -%>
 }
