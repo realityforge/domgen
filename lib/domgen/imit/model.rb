@@ -1078,6 +1078,21 @@ module Domgen
           end
         end
         repository.imit.graphs.each(&:post_verify)
+
+        imitations = []
+        repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module|
+          data_module.entities.select{|entity|entity.arez?}.each do |entity|
+            imitations << entity.qualified_name
+          end
+        end
+        repository.imit.graphs.each do |graph|
+          graph.included_entities.each do |included_entity|
+            imitations.delete(included_entity.to_s)
+          end
+        end
+        unless imitations.empty?
+          Domgen.error("Several entities have the arez facet enabled but are not part of any imit replication graph. Entities:\n#{imitations.join("\n")}")
+        end
       end
 
       private
