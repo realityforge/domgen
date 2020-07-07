@@ -76,11 +76,11 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% end -%>
 
 <% if graph.filter_parameter?  && !graph.filter_parameter.immutable? -%>
+<% unless graph.instance_root? -%>
   @react4j.annotations.Input
   @javax.annotation.Nonnull
-  abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback onUpdating();
+  abstract TypeResultCallback onUpdating();
 
-<% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   protected TypeResultCallback getOnTypeSubscriptionUpdating()
@@ -88,19 +88,23 @@ public abstract class <%= graph.react4j_subscription_component_name %>
     return onUpdating();
   }
 <% else -%>
+  @react4j.annotations.Input
+  @javax.annotation.Nonnull
+  abstract InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onUpdating();
+
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onInstanceSubscriptionUpdating()
+  protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdating()
   {
     return onUpdating();
   }
 <% end -%>
+<% unless graph.instance_root? -%>
 
   @react4j.annotations.Input
   @javax.annotation.Nonnull
-  abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>UpdateErrorCallback onUpdateFailed();
+  abstract TypeUpdateErrorCallback onUpdateFailed();
 
-<% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   protected TypeUpdateErrorCallback getOnTypeSubscriptionUpdateFailed()
@@ -108,6 +112,11 @@ public abstract class <%= graph.react4j_subscription_component_name %>
     return onUpdateFailed();
   }
 <% else -%>
+
+  @react4j.annotations.Input
+  @javax.annotation.Nonnull
+  abstract InstanceUpdateErrorCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onUpdateFailed();
+
   @java.lang.Override
   @javax.annotation.Nonnull
   protected InstanceUpdateErrorCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdateFailed()
@@ -115,12 +124,12 @@ public abstract class <%= graph.react4j_subscription_component_name %>
     return onUpdateFailed();
   }
 <% end -%>
+<% unless graph.instance_root? -%>
 
   @react4j.annotations.Input
   @javax.annotation.Nonnull
-  abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback onUpdated();
+  abstract TypeResultCallback onUpdated();
 
-<% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   protected TypeResultCallback getOnTypeSubscriptionUpdated()
@@ -128,6 +137,11 @@ public abstract class <%= graph.react4j_subscription_component_name %>
     return onUpdated();
   }
 <% else -%>
+
+  @react4j.annotations.Input
+  @javax.annotation.Nonnull
+  abstract InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onUpdated();
+
   @java.lang.Override
   @javax.annotation.Nonnull
   protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdated()
