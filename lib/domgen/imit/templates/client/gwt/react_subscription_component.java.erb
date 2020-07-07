@@ -103,14 +103,14 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 <% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final TypeUpdateErrorCallback getOnTypeSubscriptionUpdateFailed()
+  protected TypeUpdateErrorCallback getOnTypeSubscriptionUpdateFailed()
   {
     return onUpdateFailed();
   }
 <% else -%>
   @java.lang.Override
   @javax.annotation.Nonnull
-  protected final InstanceUpdateErrorCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdateFailed()
+  protected InstanceUpdateErrorCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdateFailed()
   {
     return onUpdateFailed();
   }
