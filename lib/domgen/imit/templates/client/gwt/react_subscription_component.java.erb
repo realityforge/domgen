@@ -24,7 +24,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
 
   @javax.annotation.Nonnull
   @react4j.annotations.Input( observable = react4j.annotations.Feature.DISABLE )
-  abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
+  protected abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
 
   @react4j.annotations.OnInputChange
   void onFilterChange( @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter )
