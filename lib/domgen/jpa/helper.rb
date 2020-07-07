@@ -273,52 +273,47 @@ JAVA
 
       def j_simple_attribute(attribute)
         name = attribute.jpa.name
-        field_name = attribute.jpa.field_name
-        non_full_generated = attribute.generated_value? && !attribute.nullable?
-        if non_full_generated
-          type = "#{nullability_annotation(false)} #{attribute.jpa.java_type}"
-        else
-          type = nullable_annotate(attribute, attribute.jpa.java_type, false)
-        end
         java = <<JAVA
-  public #{type} #{getter_for(attribute)}
+  #{annotated_type(attribute, :jpa, :default, :assume_generated => true, :public => true)} #{getter_for(attribute)}
   {
-    #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
 JAVA
+        if attribute.primary_key?
+          java << <<JAVA
+    verifyNotRemoved();
+JAVA
+        end
         if attribute.generated_value? && !attribute.nullable?
           java << <<JAVA
-      if( null == this.#{field_name} )
-      {
-        throw new IllegalStateException("Attempting to access generated value #{name} before it has been flushed to the database.");
-      }
+    if( null == this.#{attribute.jpa.field_name} )
+    {
+      throw new IllegalStateException("Attempting to access generated value #{name} before it has been flushed to the database.");
+    }
 JAVA
-
         end
         if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
-          field_name = attribute.jpa.field_name
           java << <<JAVA
-     final #{type} value = doGet#{name}();
-     if( !#{field_name}Recorded )
-     {
-       #{field_name}Original = #{field_name};
-       #{field_name}Recorded = true;
-     }
-     return value;
+    #{annotated_type(attribute, :jpa, :default, :final => true)} value = doGet#{name}();
+    if( !#{attribute.jpa.field_name}Recorded )
+    {
+      #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
+      #{attribute.jpa.field_name}Recorded = true;
+    }
+    return value;
 JAVA
         else
           java << <<JAVA
-     return doGet#{name}();
+    return doGet#{name}();
 JAVA
         end
         java << <<JAVA
   }
 
-  protected #{non_full_generated ? attribute.jpa.java_type : type} doGet#{name}()
+  #{annotated_type(attribute, :jpa, :default, :protected => true)} doGet#{name}()
   {
 JAVA
         if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
           java << <<JAVA
-    if( null == #{field_name} )
+    if( null == #{attribute.jpa.field_name} )
     {
       throw new IllegalStateException("Attempting to access non-null field #{name} before it has been set.");
     }
@@ -331,7 +326,7 @@ JAVA
 JAVA
         if attribute.updatable?
           java << <<JAVA
-  public void set#{name}( final #{type} value )
+  public void set#{name}( #{annotated_type(attribute, :jpa, :default, :final => true)} value )
   {
 JAVA
           if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
@@ -339,11 +334,11 @@ JAVA
     //noinspection ConstantConditions
     if( null == value )
     {
-      throw new NullPointerException( "#{field_name} parameter is not nullable" );
+      throw new NullPointerException( "#{attribute.jpa.field_name} parameter is not nullable" );
     }
 JAVA
           end
-          java << "    this.#{field_name} = value;\n"
+          java << "    this.#{attribute.jpa.field_name} = value;\n"
           java << <<JAVA
   }
 JAVA

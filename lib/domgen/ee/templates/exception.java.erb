@@ -12,7 +12,7 @@ public class <%= exception.ee.name %> extends <%= exception.extends.nil? ? excep
 <%
 param_desc =
   exception.parameters.collect do |parameter|
-    "#{annotated_type(parameter, :ee, :boundary, :final => true) } #{parameter.name}"
+    "#{annotated_type(parameter, :ee, :boundary, :assume_generated => true, :final => true) } #{parameter.name}"
   end.join(', ')
 param_desc_with_suffix = param_desc + (param_desc.size == 0 ? '' : ', ')
 
@@ -36,15 +36,14 @@ inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? 
 %>    this.<%= parameter.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<>( <%= parameter.name %> ) );
 <%     else
 %>    this.<%= parameter.name %> = <%= parameter.name %>;
-<%   end
-   end
-%>  }
+<%   end -%>
+<% end -%>
+  }
+<% exception.declared_parameters.each do |parameter| -%>
 
-<% exception.declared_parameters.each do |parameter|
-%>
-<%= annotated_type(parameter, :ee, :boundary, :public => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+  <%= annotated_type(parameter, :ee, :boundary, :public => true, :assume_generated => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
   {
-  return <%= parameter.name %>;
+    return <%= parameter.name %>;
+  }
+<% end -%>
 }
-  <% end
-%>}

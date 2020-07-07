@@ -309,7 +309,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
         elements = c.attribute_name_path.collect do |element_name|
           new_attr = current_entity.attribute_by_name(element_name)
           current_entity = new_attr.referenced_entity
-          last_is_primitive = current_entity.primary_key.jpa.primitive?(:default)
+          last_is_primitive = current_entity.primary_key.jpa.primitive?(:default, :assume_generated => true)
           new_attr
         end
 
