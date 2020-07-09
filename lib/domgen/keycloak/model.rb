@@ -162,8 +162,12 @@ module Domgen
 
       attr_writer :client_id
 
+      def env_constant_prefix
+        "#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}#{default_client? ? '' : "_#{Reality::Naming.uppercase_constantize(key)}"}"
+      end
+
       def client_id
-        "{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}#{default_client? ? '' : "_#{Reality::Naming.uppercase_constantize(key)}"}_NAME}}"
+        "{{#{env_constant_prefix}_NAME}}"
       end
 
       def client_constant_prefix
@@ -196,7 +200,7 @@ module Domgen
       attr_writer :origin
 
       def origin
-        @origin || "{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_ORIGIN}}"
+        @origin || "{{#{env_constant_prefix}_ORIGIN}}"
       end
 
       # Local url for clients capabilities
@@ -221,7 +225,7 @@ module Domgen
       attr_writer :admin_url
 
       def admin_url
-        @admin_url || "{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}/#{local_admin_url}"
+        @admin_url || "{{#{env_constant_prefix}_URL}}/#{local_admin_url}"
       end
 
       attr_writer :standard_flow
@@ -287,7 +291,7 @@ module Domgen
       attr_writer :redirect_uris
 
       def redirect_uris
-        @redirect_uris ||= ["{{#{Reality::Naming.uppercase_constantize(keycloak_repository.repository.name)}_URL}}/*"]
+        @redirect_uris ||= ["{{#{env_constant_prefix}_URL}}/*"]
       end
 
       attr_writer :web_origins
