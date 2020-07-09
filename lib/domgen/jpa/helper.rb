@@ -277,7 +277,7 @@ JAVA
   #{annotated_type(attribute, :jpa, :default, :assume_generated => true, :public => true)} #{getter_for(attribute)}
   {
 JAVA
-        if attribute.primary_key?
+        unless attribute.primary_key?
           java << <<JAVA
     verifyNotRemoved();
 JAVA
