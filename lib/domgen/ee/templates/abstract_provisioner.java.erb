@@ -9,16 +9,32 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   private static final String APP_NAME = "<%= Reality::Naming.underscore(repository.name) %>";
 
   private final boolean _usePropertyPrefix;
+<% if repository.jms? -%>
+  private final boolean _setupJmsHost;
+<% end -%>
 
   protected <%= repository.ee.abstract_provisioner_name %>()
   {
     this( false );
   }
 
+<% if repository.jms? -%>
+  protected <%= repository.ee.abstract_provisioner_name %>( final boolean usePropertyPrefix )
+  {
+    this( usePropertyPrefix, !usePropertyPrefix );
+  }
+
+  protected <%= repository.ee.abstract_provisioner_name %>( final boolean usePropertyPrefix, final boolean setupJmsHost )
+  {
+    _usePropertyPrefix = usePropertyPrefix;
+    _setupJmsHost = setupJmsHost;
+  }
+<% else -%>
   protected <%= repository.ee.abstract_provisioner_name %>( final boolean usePropertyPrefix )
   {
     _usePropertyPrefix = usePropertyPrefix;
   }
+<% end -%>
 
   @javax.annotation.Nonnull
   public final String getSiteURL()
@@ -76,11 +92,15 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
 <% if repository.jms? -%>
 
     // JMS Configuration Start
-    // iiop required for JMS
-    glassfish.createLocalIiopListener( "<%= Reality::Naming.underscore(repository.name) %>/iiop_listener" );
-    glassfish.deleteDefaultIiopListeners();
+    if( _setupJmsHost )
+    {
+      // iiop required for JMS
+      glassfish.createLocalIiopListener( "<%= Reality::Naming.underscore(repository.name) %>/iiop_listener" );
+      glassfish.deleteDefaultIiopListeners();
 
-    glassfish.setDefaultJmsHost( "<%= Reality::Naming.underscore(repository.name) %>/jms/host", getOpenMQContainer() );
+      glassfish.setDefaultJmsHost( "<%= Reality::Naming.underscore(repository.name) %>/jms/host", getOpenMQContainer() );
+    }
+
     glassfish.createJmsConnectionFactory( <%= repository.jms.qualified_constants_container_name %>.CONNECTION_FACTORY_RESOURCE_NAME, getOpenMQContainer() );
 
 <% repository.jms.destinations.each do |destination| -%>
