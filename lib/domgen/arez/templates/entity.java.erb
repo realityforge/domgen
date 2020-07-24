@@ -81,7 +81,7 @@ public abstract class <%= entity.arez.name %>
 <% if attribute.reference? -%>
 <% if attribute.immutable? -%>
 
-  @arez.annotations.Reference( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) : Reality::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.multiplicity.to_s.upcase %><% end -%> )
+  @arez.annotations.Reference( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) : Reality::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.arez.multiplicity.to_s.upcase %><% end -%> )
   <%= annotated_type(attribute, :arez, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 
   @arez.annotations.ReferenceId( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
@@ -91,7 +91,7 @@ public abstract class <%= entity.arez.name %>
   }
 <% else -%>
 
-  @arez.annotations.Reference( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) : Reality::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.multiplicity.to_s.upcase %><% end -%> )
+  @arez.annotations.Reference( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) : Reality::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.arez.multiplicity.to_s.upcase %><% end -%> )
   <%= annotated_type(attribute, :arez, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 
   @arez.annotations.Observable( initializer = arez.annotations.Feature.ENABLE )

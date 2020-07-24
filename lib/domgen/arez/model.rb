@@ -247,6 +247,20 @@ module Domgen
         @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.arez?) : @traversable
       end
 
+      def multiplicity
+        return self.inverse.multiplicity if [:many, :zero_or_one].include?(self.inverse.multiplicity) || !self.inverse.imit?
+
+        # If we get here then it is imit enabled. We check whether the other entity is always
+        # part of the same graphs as this entity and if so then we can return false because
+        # we have a :one multiplicity and they are always together on the client. If we potentially
+        # do not have inverse entity because it is not in the same graph then we mark this as zero_or_one
+
+        other_graphs = self.inverse.attribute.referenced_entity.imit.replication_graphs
+        self_graphs = self.inverse.attribute.entity.imit.replication_graphs
+
+        other_graphs.any?{|g|!self_graphs.include?(g)} ? :zero_or_one : :one
+      end
+
       def nullable?
         return false if :many == self.inverse.multiplicity
         return true if :zero_or_one == self.inverse.multiplicity
