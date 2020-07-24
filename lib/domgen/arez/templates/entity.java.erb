@@ -159,7 +159,7 @@ public abstract class <%= entity.arez.name %>
 <% else -%>
 
   @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
-  <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %>
+  <%= nullability_annotation(attribute.inverse.arez.nullable?)  %>
   public abstract <%= type %> <%= getter_prefix(attribute) %><%= name %>();
 <% end -%>
 <% if entity.arez.enable_entity_broker? -%>
