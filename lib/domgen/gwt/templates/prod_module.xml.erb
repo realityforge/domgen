@@ -8,6 +8,8 @@
   <!-- Disable many checks not needed if code is correct. See https://github.com/gwtproject/gwt/blob/2.8.0/user/super/com/google/gwt/emul/javaemul/internal/InternalPreconditions.java -->
   <set-property name="jre.checks.checkLevel" value="MINIMAL"/>
 
-  <!-- This reduces a lot the size of compiled javascript-->
-  <set-property name="compiler.stackMode" value="strip"/>
+  <set-property name="compiler.stackMode" value="native"/>
+
+  <!-- Force symbol maps to make debugging somewhat easier -->
+  <set-property name="compiler.useSymbolMaps" value="true"/>
 </module>
