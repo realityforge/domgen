@@ -1081,7 +1081,7 @@ module Domgen
 
         imitations = []
         repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module|
-          data_module.entities.select{|entity|entity.arez?}.each do |entity|
+          data_module.entities.select{|entity|entity.arez? && entity.concrete?}.each do |entity|
             imitations << entity.qualified_name
           end
         end
