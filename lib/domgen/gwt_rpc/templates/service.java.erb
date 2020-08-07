@@ -242,7 +242,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
   @javax.annotation.Nonnull
   private <T> T getById( @javax.annotation.Nonnull final java.lang.Class<T> type, @javax.annotation.Nonnull final java.lang.Object id )
   {
-    final T result = arez.Arez.context().safeAction( () -> arez.Arez.context().locator().findById( type, id ) );
+    final T result = arez.Arez.context().safeAction( () -> arez.Arez.context().locator().findById( type, id ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
     if( arez.Arez.shouldCheckApiInvariants() )
     {
       org.realityforge.braincheck.Guards.apiInvariant( () -> null != result, () -> "Unable to locate entity of type " + type + " and id " + id );
