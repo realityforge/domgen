@@ -6,7 +6,7 @@ import java.util.Date;
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "MOM_MISLEADING_OVERLOAD_MODEL" )
 @javax.annotation.Generated( "Domgen" )
 public final class <%= repository.gwt.rdate_name %>
-  implements java.lang.Comparable<<%= repository.gwt.rdate_name %>>, java.io.Serializable
+  implements java.lang.Comparable<<%= repository.gwt.rdate_name %>>, java.io.Serializable<%= repository.react4j? ? ", react4j.Keyed" : "" %>
 {
   private static final String[] SHORT_MONTHS =
     { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
@@ -46,8 +46,18 @@ public final class <%= repository.gwt.rdate_name %>
   {
     return _year;
   }
+<% if repository.react4j? -%>
 
-  @Override
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public String getKey()
+  {
+    return toString();
+  }
+<% end -%>
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
   public String toString()
   {
     return _year + "-" + _month + "-" + _day;
