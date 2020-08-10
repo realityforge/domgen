@@ -19,9 +19,9 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   {
     updateAreaOfInterestOnIdChange();
   }
+
 <% end -%>
 <% if graph.filter_parameter? -%>
-
   @javax.annotation.Nonnull
   @react4j.annotations.Input( observable = react4j.annotations.Feature.DISABLE )
   protected abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
@@ -31,8 +31,8 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   {
     updateAreaOfInterestOnFilterChange( filter );
   }
-<% end -%>
 
+<% end -%>
   @react4j.annotations.Input( observable = react4j.annotations.Feature.DISABLE )
   @javax.annotation.Nonnull
   abstract NoResultCallback onLoading();
