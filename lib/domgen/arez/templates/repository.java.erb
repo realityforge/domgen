@@ -67,12 +67,6 @@ public abstract class <%= dao.arez.repository_name %>
     return context().isTrackingTransactionActive();
   }
 
-  @java.lang.Override
-  protected boolean reportWrite()
-  {
-    return context().isTrackingTransactionActive();
-  }
-
   @arez.annotations.ContextRef
   abstract arez.ArezContext context();
 <% end -%>
