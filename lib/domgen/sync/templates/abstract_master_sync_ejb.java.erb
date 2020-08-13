@@ -10,6 +10,19 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
   @javax.inject.Inject
   private <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_service_name %> _syncTempPopulationService;
 
+  protected void syncControl( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+    throws Exception
+  {
+    final String forceSyncFeatureFlag = "ForceSync" + mappingSourceCode;
+    final boolean forceSync = isFeatureEnabled( forceSyncFeatureFlag );
+    recorder.incMetric( forceSyncFeatureFlag, forceSync ? 1 : 0 );
+    syncControl( mappingSourceCode, new java.util.Date(), recorder, forceSync );
+    if ( iris.syncrecord.server.data_type.Status.OK == recorder.getStatus() )
+    {
+      getFeatureFlagService().disableFeature( forceSyncFeatureFlag );
+    }
+  }
+
   protected void syncControl( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final boolean forceSync )
   {
     initMetrics( recorder );
