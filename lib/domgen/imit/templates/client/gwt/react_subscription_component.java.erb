@@ -27,6 +27,7 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   protected abstract <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> getFilter();
 
   @react4j.annotations.OnInputChange
+  @arez.annotations.Action
   void onFilterChange( @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter )
   {
     updateAreaOfInterestOnFilterChange( filter );
