@@ -20,8 +20,8 @@ public enum <%= enumeration.ee.name %>
    index = index + 1
   "#{prefix}#{k.name}"
   end.join(",\n  ") %>;
-
 <% if enumeration.jackson? && enumeration.numeric_values? -%>
+
   @com.fasterxml.jackson.annotation.JsonValue
   public int value()
   {
@@ -49,9 +49,9 @@ public enum <%= enumeration.ee.name %>
       throw new java.io.IOException( "Invalid <%= enumeration.ee.name %> type code: " + typeCode );
     }
   }
-
 <% end -%>
 <% if enumeration.jpa? && enumeration.jpa.requires_converter? -%>
+
   @javax.persistence.Converter
   public static class Converter
     implements javax.persistence.AttributeConverter<<%= enumeration.ee.name %>, java.lang.String>
