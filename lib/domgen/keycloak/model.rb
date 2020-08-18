@@ -288,6 +288,18 @@ module Domgen
         @surrogate_auth_required.nil? ? false : !!@surrogate_auth_required
       end
 
+      attr_writer :always_display_in_console
+
+      def always_display_in_console?
+        @always_display_in_console.nil? ? true : !!@always_display_in_console
+      end
+
+      attr_writer :default_roles
+
+      def default_roles
+        @default_roles ||= []
+      end
+
       attr_writer :redirect_uris
 
       def redirect_uris
@@ -438,6 +450,16 @@ module Domgen
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
+
+      def keycloak_version=(keycloak_version)
+        valid_versions = %w(5 11)
+        raise "Invalid keycloak version #{keycloak_version}. Valid versions include #{valid_versions}" unless valid_versions.include?(keycloak_version.to_s)
+        @keycloak_version = keycloak_version
+      end
+
+      def keycloak_version
+        @keycloak_version.nil? ? '5' : @keycloak_version
+      end
 
       java_artifact :gwt_token_service, :service, :client, :keycloak, '#{repository.name}KeycloakTokenService'
       java_artifact :mock_keycloak_sting_fragment, :test, :client, :keycloak, 'Mock#{repository.name}KeycloakFragment', :sub_package => 'util'

@@ -42,6 +42,11 @@ def generate(client)
     'useTemplateMappers' => false
   }
 
+  if client.keycloak_repository.keycloak_version == '11'
+    data['alwaysDisplayInConsole'] = client.always_display_in_console?
+    data['defaultRoles'] = client.default_roles
+  end
+
   unless client.bearer_only?
     # Bearer only clients do not return any claims as they do not generate token. Thus it makes no sense
     # to configure any as it is the responsibility of the client that generates the token to populate the
