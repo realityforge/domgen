@@ -23,16 +23,7 @@ def generate(client)
     'publicClient' => client.public_client?,
     'frontchannelLogout' => client.frontchannel_logout?,
     'protocol' => 'openid-connect',
-    'attributes' => {
-      'saml.assertion.signature' => 'false',
-      'saml.force.post.binding' => 'false',
-      'saml.multivalued.roles' => 'false',
-      'saml.encrypt' => 'false',
-      'saml_force_name_id_format' => 'false',
-      'saml.client.signature' => 'false',
-      'saml.authnstatement' => 'false',
-      'saml.server.signature' => 'false'
-    },
+    'attributes' => {},
     'fullScopeAllowed' => client.full_scope_allowed?,
     'nodeReRegistrationTimeout' => -1,
     'protocolMappers' => [
@@ -41,6 +32,19 @@ def generate(client)
     'useTemplateScope' => false,
     'useTemplateMappers' => false
   }
+
+  if client.public_client?
+    data['attributes'].merge!(
+      'saml.assertion.signature' => 'false',
+      'saml.force.post.binding' => 'false',
+      'saml.multivalued.roles' => 'false',
+      'saml.encrypt' => 'false',
+      'saml_force_name_id_format' => 'false',
+      'saml.client.signature' => 'false',
+      'saml.authnstatement' => 'false',
+      'saml.server.signature' => 'false'
+    )
+  end
 
   if client.keycloak_repository.keycloak_version == '11'
     data['alwaysDisplayInConsole'] = client.always_display_in_console?
