@@ -503,6 +503,10 @@ module Domgen
         end
       end
 
+      def converters
+        @converters ||= []
+      end
+
       # Should domgen generate template xmls for model?
       def template_xmls?
         repository.application.model_library? && !repository.application.standalone_model_library?

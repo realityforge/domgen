@@ -19,7 +19,7 @@
     <jta-data-source>{{application_scope}}/jdbc/<%= !repository.application.db_deployable? ? '{{applicationScope}}' : repository.jpa.default_persistence_unit.short_name %></jta-data-source>
 
 <%
-converters = []
+converters = repository.jpa.converters.dup
 entities = []
 repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
   entities += data_module.entities.select{|entity| entity.jpa?}

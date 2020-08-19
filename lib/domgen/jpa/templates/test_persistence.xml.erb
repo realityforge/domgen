@@ -20,7 +20,7 @@
     <jta-data-source><%= repository.jpa.resolved_data_source %></jta-data-source>
 
 <%
-converters = []
+converters = repository.jpa.converters.dup
 entities = []
 repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
   entities += data_module.entities.select{|entity| entity.jpa?}
