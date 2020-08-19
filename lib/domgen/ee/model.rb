@@ -30,7 +30,7 @@ module Domgen
       end
 
       def add_custom_jndi_resource(name)
-        custom_jndi_resources << name
+        custom_jndi_resources[name] = Reality::Naming.uppercase_constantize(name.gsub(/^#{Reality::Naming.underscore(repository.name)}\/env\//,'').gsub(/^#{Reality::Naming.underscore(repository.name)}\//,'').gsub('/','_'))
       end
 
       def custom_jndi_resources?
@@ -38,7 +38,7 @@ module Domgen
       end
 
       def custom_jndi_resources
-        (@custom_jndi_resources ||= [])
+        (@custom_jndi_resources ||= {})
       end
 
       def version
