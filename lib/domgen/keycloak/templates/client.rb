@@ -70,5 +70,9 @@ def generate(client)
     end
   end
 
+  data.dup.each_pair do |k, v|
+    data.delete(k) if v == ''
+  end
+
   ::JSON.pretty_generate(data)
 end
