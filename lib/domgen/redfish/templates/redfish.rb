@@ -44,37 +44,6 @@ def generate(repository)
     define_context_service(data, repository.graphql.context_service_jndi_name)
   end
 
-  if repository.keycloak?
-    repository.keycloak.clients.each do |client|
-      prefix = client.jndi_config_base
-      client_prefix = client.client_constant_prefix
-      data['environment_vars']["#{client_prefix}_REALM"] = ''
-      data['environment_vars']["#{client_prefix}_REALM_PUBLIC_KEY"] = ''
-      data['environment_vars']["#{client_prefix}_SERVER_URL"] = ''
-      data['environment_vars']["#{client_prefix}_CLIENT_NAME"] = ''
-
-      define_custom_resource(data, "#{prefix}/realm", "${#{client_prefix}_REALM}")
-      define_custom_resource(data, "#{prefix}/realm-public-key", "${#{client_prefix}_REALM_PUBLIC_KEY}")
-      define_custom_resource(data, "#{prefix}/auth-server-url", "${#{client_prefix}_SERVER_URL}")
-      define_custom_resource(data, "#{prefix}/resource", "${#{client_prefix}_CLIENT_NAME}")
-    end
-    repository.keycloak.remote_clients.each do |remote_client|
-      prefix = remote_client.jndi_config_base
-      client_prefix = remote_client.client_constant_prefix
-      data['environment_vars']["#{client_prefix}_SERVER_URL"] = ''
-      data['environment_vars']["#{client_prefix}_REALM"] = ''
-      data['environment_vars']["#{client_prefix}_CLIENT_NAME"] = ''
-      data['environment_vars']["#{client_prefix}_USERNAME"] = ''
-      data['environment_vars']["#{client_prefix}_PASSWORD"] = ''
-
-      define_custom_resource(data, "#{prefix}/server_url", "${#{client_prefix}_SERVER_URL}")
-      define_custom_resource(data, "#{prefix}/realm", "${#{client_prefix}_REALM}")
-      define_custom_resource(data, "#{prefix}/client", "${#{client_prefix}_CLIENT_NAME}")
-      define_custom_resource(data, "#{prefix}/username", "${#{client_prefix}_USERNAME}")
-      define_custom_resource(data, "#{prefix}/password", "${#{client_prefix}_PASSWORD}")
-    end
-  end
-
   if repository.jms?
     repository.jms.destinations.each do |destination|
       data['jms_resources'][destination.resource_name] = { 'restype' => destination.destination_type, 'properties' => { 'Name' => destination.physical_name } }

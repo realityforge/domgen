@@ -132,18 +132,18 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   property = "getPrefixedProperty( #{property}, \"_\" )" unless client.default_client?
 -%>
     // Client <%= client.key %>
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm", getKeycloakRealm( <%= property %> ) );
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/realm-public-key", getKeycloakPublicKey( <%= property %> ) );
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/auth-server-url", getKeycloakServerURL( <%= property %> ) );
-    glassfish.createCustomResource( "<%= client.jndi_config_base %>/resource", getKeycloakClient( <%= property %> ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{client.jndi_config_base}/realm"] %>, getKeycloakRealm( <%= property %> ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{client.jndi_config_base}/realm-public-key"] %>, getKeycloakPublicKey( <%= property %> ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{client.jndi_config_base}/auth-server-url"] %>, getKeycloakServerURL( <%= property %> ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{client.jndi_config_base}/resource"] %>, getKeycloakClient( <%= property %> ) );
 <% end -%>
 <% repository.keycloak.remote_clients.each do |remote_client| -%>
     // Remote Client <%= remote_client.name %>
-    glassfish.createCustomResource( "<%= remote_client.jndi_config_base %>/server_url", getKeycloakServerURL( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
-    glassfish.createCustomResource( "<%= remote_client.jndi_config_base %>/realm", getKeycloakRealm( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
-    glassfish.createCustomResource( "<%= remote_client.jndi_config_base %>/client", getKeycloakClient( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
-    glassfish.createCustomResource( "<%= remote_client.jndi_config_base %>/username", getKeycloakServiceUsername( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
-    glassfish.createCustomResource( "<%= remote_client.jndi_config_base %>/password", getKeycloakServicePassword( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/server_url"] %>, getKeycloakServerURL( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/realm"] %>, getKeycloakRealm( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/client"] %>, getKeycloakClient( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/username"] %>, getKeycloakServiceUsername( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/password"] %>, getKeycloakServicePassword( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
 <% end -%>
     // Keycloak Configuration Ende
 <% end -%>
