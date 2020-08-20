@@ -30,10 +30,12 @@ Domgen::Generator.define([:keycloak],
                               :guard => '!client.custom_filter? && client.protects_application_urls?')
     template_set.erb_template('keycloak.client',
                               'keycloak_filter.java.erb',
-                              'main/java/#{client.qualified_keycloak_filter_name.gsub(".","/")}.java')
+                              'main/java/#{client.qualified_keycloak_filter_name.gsub(".","/")}.java',
+                              :guard => 'client.protects_application_urls?')
     template_set.erb_template('keycloak.client',
                               'keycloak_config_resolver.java.erb',
-                              'main/java/#{client.qualified_keycloak_config_resolver_name.gsub(".","/")}.java')
+                              'main/java/#{client.qualified_keycloak_config_resolver_name.gsub(".","/")}.java',
+                              :guard => 'client.protects_application_urls?')
     template_set.erb_template('keycloak.remote_client',
                               'ee_remote_client_config.java.erb',
                               'main/java/#{remote_client.qualified_ee_remote_client_config_name.gsub(".","/")}.java')
