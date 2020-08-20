@@ -15,7 +15,7 @@ public class <%= repository.gwt_rpc.code_server_config_name %>
   @javax.annotation.PostConstruct
   public void postConstruct()
   {
-    _codeServerHost = lookup( _applicationKey + "/env/code_server/host", "localhost" );
+    _codeServerHost = lookup( _applicationKey + "/env/code_server/host", "127.0.0.1" );
     _codeServerPort = lookup( _applicationKey + "/env/code_server/port", 0 );
   }
 
