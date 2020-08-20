@@ -203,6 +203,12 @@ module Domgen
         @origin || "{{#{env_constant_prefix}_ORIGIN}}"
       end
 
+      attr_writer :secret
+
+      def secret
+        @secret || "{{#{env_constant_prefix}_SECRET}}"
+      end
+
       # Local url for clients capabilities
       attr_writer :local_client_url
 
@@ -629,6 +635,7 @@ module Domgen
           repository.redfish.custom_resource_from_env("#{remote_client.jndi_config_base}/client", :system_defined => true, :env_key => "#{remote_client.client_constant_prefix}_CLIENT_NAME")
           repository.redfish.custom_resource_from_env("#{remote_client.jndi_config_base}/username", :system_defined => true, :env_key => "#{remote_client.client_constant_prefix}_USERNAME")
           repository.redfish.custom_resource_from_env("#{remote_client.jndi_config_base}/password", :system_defined => true, :env_key => "#{remote_client.client_constant_prefix}_PASSWORD")
+          repository.redfish.custom_resource_from_env("#{remote_client.jndi_config_base}/secret", :system_defined => true, :env_key => "#{remote_client.client_constant_prefix}_SECRET")
         end
       end
 
