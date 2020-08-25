@@ -460,7 +460,7 @@ module Domgen
       def keycloak_version=(keycloak_version)
         valid_versions = %w(5 11)
         raise "Invalid keycloak version #{keycloak_version}. Valid versions include #{valid_versions}" unless valid_versions.include?(keycloak_version.to_s)
-        @keycloak_version = keycloak_version
+        @keycloak_version = keycloak_version.to_s
       end
 
       def keycloak_version
