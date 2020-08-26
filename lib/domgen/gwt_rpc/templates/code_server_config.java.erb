@@ -3,6 +3,7 @@ package <%= to_package(repository.gwt_rpc.qualified_code_server_config_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @javax.enterprise.context.ApplicationScoped
+@java.lang.SuppressWarnings( "PMD.AvoidUsingHardCodedIP" )
 public class <%= repository.gwt_rpc.code_server_config_name %>
 {
   @javax.inject.Named( "GwtRpc.Jndi.Application.Prefix" )
