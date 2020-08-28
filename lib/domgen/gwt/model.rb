@@ -132,6 +132,12 @@ module Domgen
         @enable_entrypoints.nil? ? true : !!@enable_entrypoints
       end
 
+      attr_writer :enable_sting_injectors
+
+      def enable_sting_injectors?
+        @enable_sting_injectors.nil? ? true : !!@enable_sting_injectors
+      end
+
       def default_entrypoint
         key = repository.name.to_s
         entrypoint(key) unless entrypoint_by_name?(key)
