@@ -27,7 +27,7 @@ public class <%= remote_client.ee_remote_client_config_name %>
   @javax.annotation.PostConstruct
   protected void postConstruct()
   {
-    _keycloakConfig = org.realityforge.keycloak.client.authfilter.KeycloakConfig.createPasswordConfig( _keycloakServerURL, _keycloakRealm, _keycloakClient, _keycloakUsername, _keycloakPassword );
+    _keycloakConfig = org.realityforge.keycloak.client.authfilter.KeycloakConfig.createPasswordConfig( _keycloakServerURL, _keycloakRealm, _keycloakClient, _keycloakUsername, _keycloakPassword, "-".equals( _keycloakSecret ) ? null : _keycloakSecret );
     _keycloak = new org.realityforge.keycloak.client.authfilter.Keycloak( _keycloakConfig );
   }
 
