@@ -44,8 +44,6 @@ def generate(client)
       'saml.authnstatement' => 'false',
       'saml.server.signature' => 'false'
     )
-  else
-    data['secret'] = client.secret
   end
 
   if client.keycloak_repository.keycloak_version == '11'
