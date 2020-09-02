@@ -123,12 +123,12 @@ module Domgen
         WHERE
           (
           #{immutable_attributes.collect do |a|
-                      if a.geometry?
-                        "            ST_Equals((NEW.#{a.sql.quoted_column_name}, OLD.#{a.sql.quoted_column_name}) = 0)"
-                      else
-                        "            (NEW.#{a.sql.quoted_column_name} != OLD.#{a.sql.quoted_column_name})"
-                      end
-                    end.join(" OR\n") }
+          if a.geometry?
+            "            ST_Equals((NEW.#{a.sql.quoted_column_name}, OLD.#{a.sql.quoted_column_name}) = 0)"
+          else
+            "            (NEW.#{a.sql.quoted_column_name} != OLD.#{a.sql.quoted_column_name})"
+          end
+        end.join(" OR\n") }
           )
         SQL
       end
@@ -150,7 +150,7 @@ WHERE
     NEW.#{attribute.sql.quoted_column_name} IS NULL OR
     OLD.#{attribute.sql.quoted_column_name} != NEW.#{attribute.sql.quoted_column_name}
   )
-SQL
+        SQL
       end
 
       def validations_trigger_sql(entity, validations, actions)
