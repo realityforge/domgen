@@ -178,5 +178,16 @@ SQL
     end
   end
 
-  FacetManager.facet(:pgsql => [:sql])
+  FacetManager.facet(:pgsql => [:sql]) do |facet|
+    facet.enhance(Repository) do
+      def pre_complete
+        if repository.ee?
+          repository.ee.cdi_scan_excludes << 'org.postgresql.**'
+
+          # Just in case some attributes use spatial types
+          repository.ee.cdi_scan_excludes << 'org.postgis.**'
+        end
+      end
+    end
+  end
 end

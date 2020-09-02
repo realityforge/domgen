@@ -576,6 +576,15 @@ module Domgen
       def base_package
         @base_package || Reality::Naming.underscore(repository.name)
       end
+
+      def pre_complete
+        if repository.ee?
+
+          # Just in case some attributes use spatial types
+          repository.ee.cdi_scan_excludes << 'org.geolatte.**'
+          repository.ee.cdi_scan_excludes << 'com.vividsolutions.**'
+        end
+      end
     end
 
     facet.enhance(Exception) do

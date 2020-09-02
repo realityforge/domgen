@@ -224,6 +224,12 @@ SQL
         %w(2008 2012)
       end
 
+      def pre_complete
+        if repository.ee?
+          repository.ee.cdi_scan_excludes << 'net.sourceforge.jtds.**'
+        end
+      end
+
       def post_complete
         unless supports_sequences?
           repository.data_modules.select { |dm| dm.jpa? }.each do |data_module|
