@@ -144,6 +144,7 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
     glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/client"] %>, getKeycloakClient( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
     glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/username"] %>, getKeycloakServiceUsername( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
     glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/password"] %>, getKeycloakServicePassword( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
+    glassfish.createCustomResource( <%= repository.ee.qualified_jndi_resource_constants_name %>.<%= repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/secret"] %>, getKeycloakSecret( "<%= Reality::Naming.underscore(remote_client.name) %>" ) );
 <% end -%>
     // Keycloak Configuration Ende
 <% end -%>
@@ -189,6 +190,12 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   }
 
   @javax.annotation.Nonnull
+  protected String getKeycloakSecret( @javax.annotation.Nullable final String prefix )
+  {
+    return ensureProperty( prefix, "keycloak.secret", "-" );
+  }
+
+  @javax.annotation.Nonnull
   protected String getKeycloakServiceUsername( @javax.annotation.Nullable final String prefix )
   {
     return ensureProperty( prefix, "keycloak.service_username" );
@@ -209,8 +216,14 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   @javax.annotation.Nonnull
   protected String ensureProperty( @javax.annotation.Nullable final String prefix, @javax.annotation.Nonnull final String key )
   {
+    return ensureProperty( prefix, key, null );
+  }
+
+  @javax.annotation.Nonnull
+  protected String ensureProperty( @javax.annotation.Nullable final String prefix, @javax.annotation.Nonnull final String key, @javax.annotation.Nullable final String defaultValue )
+  {
     final String p = prefix == null ? "" : prefix + ".";
-    final String v = System.getProperties().getProperty( p + key, null );
+    final String v = System.getProperties().getProperty( p + key, defaultValue );
     if( null == v && null != prefix )
     {
       return ensureProperty( null, key );
