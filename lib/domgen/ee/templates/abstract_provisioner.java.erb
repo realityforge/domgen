@@ -170,37 +170,37 @@ public abstract class <%= repository.ee.abstract_provisioner_name %>
   }
 <% if repository.keycloak? -%>
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   protected String getKeycloakServerURL( @javax.annotation.Nullable final String prefix )
   {
     return ensureProperty( prefix, "keycloak.server-url" );
   }
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   protected String getKeycloakPublicKey( @javax.annotation.Nullable final String prefix )
   {
     return ensureProperty( prefix, "keycloak.public-key" );
   }
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   protected String getKeycloakRealm( @javax.annotation.Nullable final String prefix )
   {
     return ensureProperty( prefix, "keycloak.realm" );
   }
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   protected String getKeycloakServiceUsername( @javax.annotation.Nullable final String prefix )
   {
     return ensureProperty( prefix, "keycloak.service_username" );
   }
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   protected String getKeycloakServicePassword( @javax.annotation.Nullable final String prefix )
   {
     return ensureProperty( prefix, "keycloak.service_password" );
   }
 
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   protected String getKeycloakClient( @javax.annotation.Nullable final String prefix )
   {
     return ensureProperty( prefix, "keycloak.client" );
