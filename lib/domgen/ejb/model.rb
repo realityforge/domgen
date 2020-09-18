@@ -62,6 +62,8 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      java_artifact :no_web_interceptor, :service, :server, :ejb, '#{repository.name}NoWebIntereptor'
+      java_artifact :no_web_invoke_annotation, :service, :server, :ejb, '#{repository.name}NoWebInvoke'
       java_artifact :complete_module, :test, :server, :ejb, '#{repository.name}Module', :sub_package => 'util'
       java_artifact :services_module, :test, :server, :ejb, '#{repository.name}ServicesModule', :sub_package => 'util'
       java_artifact :cdi_types_test, :test, :server, :ejb, '#{repository.name}CdiTypesTest', :sub_package => 'util'
@@ -116,6 +118,13 @@ module Domgen
         add_flushable_test_module(self.services_module_name, self.qualified_services_module_name)
       end
 
+      def any_no_web_invoke?
+        self.repository.data_modules.each do |data_module|
+          return true if data_module.services.any?{|service| service.ejb.no_web_invoke?}
+        end
+        return false
+      end
+
       protected
 
       def test_class_content_list
@@ -156,12 +165,22 @@ module Domgen
         "#{service.data_module.repository.name}.#{service.ejb.boundary_name}"
       end
 
-      java_artifact :service, :service, :server, :ee, '#{service.name}'
-      java_artifact :service_implementation, :service, :server, :ee, '#{service.name}Impl'
-      java_artifact :boundary_interface, :service, :server, :ee, 'Local#{service_name}Boundary'
-      java_artifact :remote_service, :service, :server, :ee, 'Remote#{service_name}'
-      java_artifact :boundary_implementation, :service, :server, :ee, '#{service_name}BoundaryImpl', :sub_package => 'internal'
-      java_artifact :service_test, :service, :server, :ee, 'Abstract#{service_name}ImplTest'
+      java_artifact :service, :service, :server, :ejb, '#{service.name}'
+      java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
+      java_artifact :boundary_interface, :service, :server, :ejb, 'Local#{service_name}Boundary'
+      java_artifact :remote_service, :service, :server, :ejb, 'Remote#{service_name}'
+      java_artifact :boundary_implementation, :service, :server, :ejb, '#{service_name}BoundaryImpl', :sub_package => 'internal'
+      java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
+
+      attr_writer :no_web_invoke
+
+      def no_web_invoke!
+        self.no_web_invoke = true
+      end
+
+      def no_web_invoke?
+        @no_web_invoke.nil? ? false : !!@no_web_invoke
+      end
 
       def qualified_concrete_service_test_name
         "#{qualified_service_test_name.gsub(/\.Abstract/,'.')}"
@@ -220,6 +239,13 @@ module Domgen
 
       def generate_base_test=(generate_base_test)
         @generate_base_test = generate_base_test
+      end
+
+      def pre_verify
+        if self.no_web_invoke?
+          self.service.disable_facets(:iris_audit, :gwt, :gwt_rpc, :jaxrs)
+          self.boundary_annotations << self.service.data_module.repository.ejb.qualified_no_web_invoke_annotation_name
+        end
       end
 
       def post_verify

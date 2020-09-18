@@ -25,6 +25,14 @@ Domgen::Generator.define([:ejb],
                               :guard => 'data_module.services.any?{|e|e.ejb?}')
   end
   g.template_set(:ejb_service_facades => [:ejb_services]) do |template_set|
+    template_set.erb_template(:repository,
+                              'no_web_interceptor.java.erb',
+                              'main/java/#{repository.ejb.qualified_no_web_interceptor_name.gsub(".","/")}.java',
+                              :guard => 'repository.ejb.any_no_web_invoke?')
+    template_set.erb_template(:repository,
+                              'no_web_invoke_annotation.java.erb',
+                              'main/java/#{repository.ejb.qualified_no_web_invoke_annotation_name.gsub(".","/")}.java',
+                              :guard => 'repository.ejb.any_no_web_invoke?')
     template_set.erb_template(:service,
                               'boundary_service.java.erb',
                               'main/java/#{service.ejb.qualified_boundary_interface_name.gsub(".","/")}.java',

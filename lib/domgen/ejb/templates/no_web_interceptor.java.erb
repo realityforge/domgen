@@ -1,0 +1,39 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.ejb.qualified_no_web_interceptor_name) %>;
+
+@javax.annotation.Generated( "Domgen" )
+@javax.interceptor.Interceptor
+@javax.annotation.Priority( javax.interceptor.Interceptor.Priority.LIBRARY_BEFORE + 1 )
+@<%= repository.ejb.qualified_no_web_invoke_annotation_name %>
+public class <%= repository.ejb.no_web_interceptor_name %>
+{
+  @javax.inject.Inject
+  private javax.enterprise.inject.Instance<javax.servlet.http.HttpServletRequest> _httpRequest;
+
+  @javax.interceptor.AroundInvoke
+  public Object intercept( final javax.interceptor.InvocationContext context )
+    throws Exception
+  {
+    if ( isServletRequest() )
+    {
+      throw new IllegalStateException( "Method invoked from a servlet request" );
+    }
+    else
+    {
+      return context.proceed();
+    }
+  }
+
+  private boolean isServletRequest()
+  {
+    try
+    {
+      _httpRequest.get().getDispatcherType();
+      return true;
+    }
+    catch ( final Exception ignored )
+    {
+      return false;
+    }
+  }
+}
