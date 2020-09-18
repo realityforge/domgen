@@ -8,7 +8,7 @@ package <%= to_package(data_module.sync.qualified_sync_context_impl_name) %>;
 <code>
 <pre>
 @ApplicationScoped
-@Transactional( Transactional.TxType.REQUIRED )
+@Transactional
 @Typed( <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>.class )
 public class <%= data_module.sync.sync_context_impl_name.gsub(/^Abstract/,'') %>
   extends <%= data_module.sync.sync_context_impl_name %>

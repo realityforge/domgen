@@ -6,7 +6,7 @@ package <%= to_package(repository.imit.qualified_abstract_endpoint_name) %>;
  * <pre><code>
  * {@literal @}ServerEndpoint( <%= repository.jaxrs.abstract_application_name %>.APPLICATION_PATH + SharedConstants.REPLICANT_URL_FRAGMENT )
  * {@literal @}ApplicationScoped
- * {@literal @}Transactional( Transactional.TxType.REQUIRED )
+ * {@literal @}Transactional
  * public class <%= repository.imit.endpoint_name %>
  *   extends <%= repository.imit.abstract_endpoint_name %>
  * {

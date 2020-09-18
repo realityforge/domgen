@@ -6,7 +6,7 @@ package <%= to_package(repository.imit.qualified_abstract_session_context_impl_n
  *
  * <pre>
  * \@ApplicationScoped
- * \@Transactional( Transactional.TxType.REQUIRED )
+ * \@Transactional
  * \@Typed( <%= repository.service_by_name(repository.imit.session_context_service).ejb.service_name %>.class )
  * public class <%= repository.service_by_name(repository.imit.session_context_service).ejb.service_implementation_name %>
  *   extends <%= repository.imit.abstract_session_context_impl_name %>

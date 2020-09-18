@@ -6,7 +6,7 @@ package <%= to_package(repository.graphql.qualified_abstract_schema_service_name
 Define a subclass that looks like:
 
 @ApplicationScoped
-@Transactional( Transactional.TxType.REQUIRED )
+@Transactional
 @Typed( GraphQLSchemaProvider.class )
 public class <%= repository.graphql.schema_service_name %>
   extends <%= repository.graphql.qualified_abstract_schema_service_name %>
