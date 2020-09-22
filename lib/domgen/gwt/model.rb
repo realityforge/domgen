@@ -240,12 +240,6 @@ CONTENT
         @client_data_type_package || resolve_package(:client_data_type_package)
       end
 
-      attr_writer :short_test_code
-
-      def short_test_code
-        @short_test_code || Reality::Naming.split_into_words(data_module.name.to_s).collect { |w| w[0, 1] }.join.downcase
-      end
-
       protected
 
       def facet_key
