@@ -1,19 +1,19 @@
 /* DO NOT EDIT: File is auto-generated */
 <% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
 <% entity.sql.foreign_keys.each do |foreign_key| %>
-ALTER TABLE <%= entity.sql.qualified_table_name %> CHECK CONSTRAINT <%= foreign_key.quoted_foreign_key_name %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT <%= foreign_key.quoted_foreign_key_name %>
 GO
 <%
    end
    entity.sql.constraints.each do |constraint|
 %>
-ALTER TABLE <%= entity.sql.qualified_table_name %> CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
 GO
 <%
    end
   entity.sql.function_constraints.each do |constraint|
 %>
-ALTER TABLE <%= entity.sql.qualified_table_name %> CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
 GO
 <%
    end
