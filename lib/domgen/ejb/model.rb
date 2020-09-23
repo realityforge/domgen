@@ -241,7 +241,7 @@ module Domgen
         @generate_base_test = generate_base_test
       end
 
-      def pre_verify
+      def pre_pre_complete
         if self.no_web_invoke?
           self.service.disable_facets(:iris_audit, :gwt, :gwt_rpc, :jaxrs)
           self.boundary_annotations << self.service.data_module.repository.ejb.qualified_no_web_invoke_annotation_name
