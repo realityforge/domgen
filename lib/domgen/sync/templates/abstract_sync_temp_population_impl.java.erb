@@ -31,7 +31,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @javax.persistence.PersistenceContext( unitName = <%= data_module.repository.jpa.qualified_unit_descriptor_name %>.<%= persistent_unit.short_name.to_s == data_module.repository.name.to_s ? '' : "#{Reality::Naming.uppercase_constantize(persistent_unit.short_name)}_" %>NAME )
   private javax.persistence.EntityManager _entityManager;
 <% persistent_unit.related_database_keys.each do |key| -%>
-  @javax.annotation.Resource( lookup = "<%= persistent_unit.related_database_jndi(key) %>" )
+  @javax.annotation.Resource( lookup = <%= data_module.repository.ee.qualified_jndi_resource_constants_name %>.<%= data_module.repository.ee.custom_jndi_resources[persistent_unit.related_database_jndi(key)] %>  )
   private String _<%= key %>DatabaseName;
 <% end -%>
 
