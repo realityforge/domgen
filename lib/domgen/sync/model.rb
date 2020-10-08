@@ -148,6 +148,14 @@ module Domgen
               s.ejb.generate_base_test = false
             end
 
+            s.method(:PreSync) do |m|
+              m.text(:MappingSourceCode)
+            end
+
+            s.method(:PostSync) do |m|
+              m.text(:MappingSourceCode)
+            end
+
             master_data_module.sync.entities_to_synchronize.each do |entity|
               s.method(:"Query#{entity.data_module.name}#{entity.name}Updates") do |m|
                 m.text(:MappingSourceCode)

@@ -41,6 +41,24 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository;
 <% end -%>
 
+  /**
+   * Hook that can be overriden to perform actions before any sync takes place.
+   * Be very careful not to do anything that may cause sync to fail.
+   */
+  @java.lang.Override
+  protected void preSync( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
+  {
+  }
+
+  /**
+   * Hook that can be overriden to perform actions once sync has completed.
+   * Be very very careful not to do anything that may cause sync to fail.
+   */
+  @java.lang.Override
+  protected void postSync( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
+  {
+  }
+
 <%
             data_module.sync.entities_to_synchronize.collect do |e|
               # Assume that the synchronization process will correctly handle
