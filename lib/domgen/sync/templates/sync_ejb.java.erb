@@ -105,9 +105,9 @@ public class <%= data_module.sync.sync_ejb_name %>
 
   private iris.syncrecord.server.data_type.SyncStatusDTO performSynchronization( @javax.annotation.Nonnull final String mappingSourceCode )
   {
-    _context.preSync( mappingSourceCode );
-
     final iris.syncrecord.server.service.SynchronizationRecorder recorder = startSynchronization( mappingSourceCode );
+
+    _context.preSync( recorder );
 
     resetMetrics( recorder );
 
@@ -149,7 +149,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       final long syncEndAt = System.currentTimeMillis();
       recorder.incMetric( "Duration", (int) ( syncEndAt - syncStartAt ) );
       completeSynchronization( recorder );
-      _context.postSync( mappingSourceCode, iris.syncrecord.server.data_type.Status.OK == recorder.getStatus() );
+      _context.postSync( recorder );
     }
     return toSyncStatus( recorder );
   }

@@ -149,12 +149,11 @@ module Domgen
             end
 
             s.method(:PreSync) do |m|
-              m.text(:MappingSourceCode)
+              m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
             end
 
             s.method(:PostSync) do |m|
-              m.text(:MappingSourceCode)
-              m.boolean(:Successful)
+              m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
             end
 
             master_data_module.sync.entities_to_synchronize.each do |entity|
