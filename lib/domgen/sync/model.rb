@@ -154,7 +154,7 @@ module Domgen
 
             s.method(:PostSync) do |m|
               m.text(:MappingSourceCode)
-              m.boolean(:Successful)
+              m.parameter(:Successul, 'iris.syncrecord.server.service.SynchronizationRecorder')
             end
 
             master_data_module.sync.entities_to_synchronize.each do |entity|
