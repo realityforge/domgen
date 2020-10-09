@@ -46,7 +46,8 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
    * Be very careful not to do anything that may cause sync to fail.
    */
   @java.lang.Override
-  public void preSync( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
+  public void preSync( @javax.annotation.Nonnull final java.lang.String mappingSourceCode,
+                       @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
   }
 
@@ -55,7 +56,8 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
    * Be very very careful not to do anything that may cause sync to fail.
    */
   @java.lang.Override
-  public void postSync( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, final boolean successful )
+  public void postSync( @javax.annotation.Nonnull final java.lang.String mappingSourceCode,
+                        @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
   }
 
