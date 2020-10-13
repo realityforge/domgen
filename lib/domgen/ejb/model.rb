@@ -120,7 +120,7 @@ module Domgen
 
       def any_no_web_invoke?
         self.repository.data_modules.each do |data_module|
-          return true if data_module.services.any?{|service| service.ejb.no_web_invoke?}
+          return true if data_module.services.any?{|service| service.ejb? && service.ejb.no_web_invoke?}
         end
         return false
       end
