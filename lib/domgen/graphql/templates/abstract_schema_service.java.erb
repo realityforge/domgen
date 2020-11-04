@@ -106,7 +106,7 @@ public abstract class <%= repository.graphql.abstract_schema_service_name %>
 <% repository.data_modules.select(&:graphql?).each do |data_module| -%>
 <% data_module.services.select(&:graphql?).each do |service| -%>
 <% service.methods.select{|method| method.graphql? && method.graphql.mutation?}.each do |method| -%>
-  registry.dataFetcher( graphql.schema.FieldCoordinates.coordinates( "Mutation", "<%= method.graphql.name %>" ), wrapInTransaction( "graphql.mutation.<%= method.graphql.name %>", this::<%= method.graphql.name %> ) );
+    registry.dataFetcher( graphql.schema.FieldCoordinates.coordinates( "Mutation", "<%= method.graphql.name %>" ), <% if method.graphql.wrap_in_transaction? %>wrapInTransaction( "graphql.mutation.<%= method.graphql.name %>", <% end %>this::<%= method.graphql.name %><% if method.graphql.wrap_in_transaction? %> )<% end %> );
 <% end -%>
 <% end -%>
 <% end -%>

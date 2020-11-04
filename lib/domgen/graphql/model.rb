@@ -727,6 +727,12 @@ module Domgen
         @mutation.nil? ? true : !!@mutation
       end
 
+      attr_writer :wrap_in_transaction
+
+      def wrap_in_transaction?
+        @wrap_in_transaction.nil? ? true : !!@wrap_in_transaction
+      end
+
       attr_writer :name
 
       def name
