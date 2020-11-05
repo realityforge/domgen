@@ -864,13 +864,16 @@ module Domgen
 
       def pre_verify
         if repository.gwt_rpc?
+          exists = repository.keycloak.client_by_key?(repository.gwt_rpc.keycloak_client)
           client =
-            repository.keycloak.client_by_key?(repository.gwt_rpc.keycloak_client) ?
+            exists ?
               repository.keycloak.client_by_key(repository.gwt_rpc.keycloak_client) :
               repository.keycloak.client(repository.gwt_rpc.keycloak_client)
-          client.bearer_only = true
-          client.redirect_uris.clear
-          client.web_origins.clear
+          unless exists
+            client.bearer_only = true
+            client.redirect_uris.clear
+            client.web_origins.clear
+          end
           prefix = repository.jaxrs? ? "/#{repository.jaxrs.path}" : '/api'
           client.protected_url_patterns << prefix + '/session/*'
         end

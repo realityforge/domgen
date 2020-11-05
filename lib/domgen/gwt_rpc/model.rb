@@ -65,13 +65,16 @@ module Domgen
 
       def pre_verify
         if repository.keycloak.has_local_auth_service?
+          exists = repository.keycloak.client_by_key?(self.keycloak_client)
           client =
-            repository.keycloak.client_by_key?(self.keycloak_client) ?
+            exists ?
               repository.keycloak.client_by_key(self.keycloak_client) :
               repository.keycloak.client(self.keycloak_client)
-          client.bearer_only = true
-          client.redirect_uris.clear
-          client.web_origins.clear
+          unless exists
+            client.bearer_only = true
+            client.redirect_uris.clear
+            client.web_origins.clear
+          end
           client.protected_url_patterns << "/#{base_api_url}/*"
         end
         repository.gwt.sting_test_includes << repository.gwt_rpc.qualified_mock_rpc_services_sting_fragment_name
