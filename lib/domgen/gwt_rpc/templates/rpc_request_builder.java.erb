@@ -22,7 +22,7 @@ public class <%= repository.gwt_rpc.rpc_request_builder_name %>
   {
     super.doFinish( rb );
     final String token = _keycloak.getToken();
-    if( null == token )
+    if ( null == token )
     {
       throw new IllegalStateException( "Missing token" );
     }
