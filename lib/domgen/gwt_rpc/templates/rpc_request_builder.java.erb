@@ -21,7 +21,15 @@ public class <%= repository.gwt_rpc.rpc_request_builder_name %>
   protected void doFinish( final com.google.gwt.http.client.RequestBuilder rb )
   {
     super.doFinish( rb );
-    rb.setHeader( "Authorization", "Bearer " + _keycloak.getToken() );
-    rb.setHeader( MODULE_BASE_HEADER, _baseUrl );
+    final String token = _keycloak.getToken();
+    if( null == token )
+    {
+      throw new IllegalStateException( "Missing token" );
+    }
+    else
+    {
+      rb.setHeader( "Authorization", "Bearer " + _keycloak.getToken() );
+      rb.setHeader( MODULE_BASE_HEADER, _baseUrl );
+    }
   }
 }
