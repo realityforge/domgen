@@ -611,7 +611,7 @@ module Domgen
             e.attribute(name, attribute_type, options)
 
             if a.primary_key?
-              e.sql.index([name], :unique => true, :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL")
+              e.sql.index([name], :unique => true)
             end
 
             if a.reference?
