@@ -36,5 +36,17 @@ Domgen::Generator.define([:sql_analysis],
                               'mssql_perform_checks.sql.erb',
                               '#{repository.sql_analysis.analysis_data_module.sql.schema}/stored-procedures/#{repository.sql_analysis.analysis_data_module.sql.schema}.spPerformChecks.sql',
                               :additional_facets => [:mssql])
+    template_set.erb_template(:repository,
+                              'mssql_find_indexes_not_in_use.sql.erb',
+                              '#{repository.sql_analysis.analysis_data_module.sql.schema}/stored-procedures/#{repository.sql_analysis.analysis_data_module.sql.schema}.spFindIndexesNotInUse.sql',
+                              :additional_facets => [:mssql])
+    template_set.erb_template(:repository,
+                              'mssql_find_missing_indexes.sql.erb',
+                              '#{repository.sql_analysis.analysis_data_module.sql.schema}/stored-procedures/#{repository.sql_analysis.analysis_data_module.sql.schema}.spFindMissingIndexes.sql',
+                              :additional_facets => [:mssql])
+    template_set.erb_template(:repository,
+                              'mssql_find_execution_plans_in_cache.sql.erb',
+                              '#{repository.sql_analysis.analysis_data_module.sql.schema}/stored-procedures/#{repository.sql_analysis.analysis_data_module.sql.schema}.spFindExecutionPlansInCache.sql',
+                              :additional_facets => [:mssql])
   end
 end

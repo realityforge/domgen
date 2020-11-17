@@ -53,6 +53,7 @@ module Domgen
         end
         analysis_data_module = self.analysis_data_module
         analysis_data_module.disable_facets_not_in(Domgen::SqlAnalysis::VALID_ANALYSIS_FACETS)
+        analysis_data_module.jpa.short_test_code = 'sql_analysis'
 
         analysis_data_module.entity(:CorruptionCheck) do |t|
           t.disable_facets_not_in(Domgen::SqlAnalysis::VALID_ANALYSIS_FACETS)
