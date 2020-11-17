@@ -678,6 +678,7 @@ module Domgen
             delete_defaults[:DeletedAt] = 'new java.util.Date()'
             e.jpa.test_update_default(delete_defaults, :force_refresh => true, :factory_method_name => "mark#{e.name}AsDeleted")
             e.query(:CountByMappingSource)
+            e.sql.index([:MappingSource], :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
             e.query(:CountUnsynchronizedByMappingSource,
                     'jpa.standard_query' => true,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
