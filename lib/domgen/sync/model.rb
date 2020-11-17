@@ -681,6 +681,7 @@ module Domgen
             e.query(:CountUnsynchronizedByMappingSource,
                     'jpa.standard_query' => true,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
+            e.sql.index([:MappingSource], :filter => "#{e.sql.dialect.quote(:MasterSynchronized)} IS NULL")
           end
         end
       end
