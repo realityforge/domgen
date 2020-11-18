@@ -627,7 +627,10 @@ module Domgen
                 existing_constraint = self.entity.unique_constraints.find do |uq|
                   uq.attribute_names.length == 1 && uq.attribute_names[0].to_s == a.name.to_s
                 end
-                if existing_constraint.nil?
+                existing_index = self.entity.sql.indexes.find do |i|
+                  i.attribute_names.length == 1 && i.attribute_names[0].to_s == a.name.to_s
+                end
+                if existing_constraint.nil? && existing_index.nil?
                   self.entity.sql.index([a.name], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
                 end
               end
