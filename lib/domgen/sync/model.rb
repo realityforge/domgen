@@ -611,7 +611,9 @@ module Domgen
             e.attribute(name, attribute_type, options)
 
             if a.primary_key?
-              e.sql.index([name], :unique => true)
+              e.sql.index([name], :unique => true, :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL")
+              # Duplicate the index as sometimes want to query where there is no entity in Core
+              e.sql.index([name])
             end
 
             if a.reference?
