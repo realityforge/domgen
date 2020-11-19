@@ -36,28 +36,39 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   @java.lang.Override
   public void postTest()
   {
-    if ( isSqlAnalysisEnabled() && em().isOpen() && em().isJoinedToTransaction() && !em().getTransaction().getRollbackOnly() )
+    try
     {
-      _disableAnalysis = false;
-      em().clear();
-      em().createNativeQuery( "EXEC <%= repository.sql_analysis.analysis_data_module.sql.quoted_schema %>.[spPerformChecks]" ).getResultList();
-      final java.util.List<<%= repository.sql_analysis.analysis_data_module.entity_by_name(:DataIssue).jpa.qualified_name %>> issues = <%= repository.sql_analysis.analysis_data_module.jpa.short_test_code %>.dataIssueRepository().findAll();
-      final java.lang.StringBuilder sb = new java.lang.StringBuilder();
-      if ( !issues.isEmpty() )
+      if ( isSqlAnalysisEnabled() && em().isOpen() && em().isJoinedToTransaction() && !em().getTransaction().getRollbackOnly() )
       {
-        for ( final <%= repository.sql_analysis.analysis_data_module.entity_by_name(:DataIssue).jpa.qualified_name %> issue : issues )
-        {
-          final String header = issue.getCategory() + ":" + issue.getDescription();
-          final String viewSql = issue.getViewSql();
-          final String message = header + ( null == viewSql ? "" : ": SQL\n---" + viewSql + "---" );
-          System.out.println( message );
-          sb.append( "  " );
-          sb.append( message );
-        }
-        org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb.toString() );
+        _disableAnalysis = false;
+        runSqlAnalysisPerformChecks();
       }
     }
-    super.postTest();
+    finally
+    {
+      super.postTest();
+    }
+  }
+
+  protected void runSqlAnalysisPerformChecks()
+  {
+    em().clear();
+    em().createNativeQuery( "EXEC <%= repository.sql_analysis.analysis_data_module.sql.quoted_schema %>.[spPerformChecks]" ).getResultList();
+    final java.util.List<<%= repository.sql_analysis.analysis_data_module.entity_by_name(:DataIssue).jpa.qualified_name %>> issues = <%= repository.sql_analysis.analysis_data_module.jpa.short_test_code %>.dataIssueRepository().findAll();
+    final java.lang.StringBuilder sb = new java.lang.StringBuilder();
+    if ( !issues.isEmpty() )
+    {
+      for ( final <%= repository.sql_analysis.analysis_data_module.entity_by_name(:DataIssue).jpa.qualified_name %> issue : issues )
+      {
+        final String header = issue.getCategory() + ":" + issue.getDescription();
+        final String viewSql = issue.getViewSql();
+        final String message = header + ( null == viewSql ? "" : ": SQL\n---" + viewSql + "---" );
+        System.out.println( message );
+        sb.append( "  " );
+        sb.append( message );
+      }
+      org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb.toString() );
+    }
   }
 
   protected final void disableCorruptionChecks()
