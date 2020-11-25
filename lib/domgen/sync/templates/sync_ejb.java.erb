@@ -16,6 +16,8 @@ public class <%= data_module.sync.sync_ejb_name %>
 
   @javax.inject.Inject
   private <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_boundary_interface_name %> _context;
+@javax.inject.Inject
+  private org.realityforge.replicant.server.transport.ReplicantSessionManager _replicantSessionManager;
 <% if data_module.repository.imit? %>
   @javax.inject.Inject
   private <%= data_module.repository.service_by_name(data_module.repository.imit.subscription_manager).ejb.qualified_service_name %> _sessionManager;
@@ -133,6 +135,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       {
         getFeatureFlagService().disableFeature( bulkSyncFlag );
 <% if data_module.repository.imit? %>
+        _replicantSessionManager.deleteAllCacheEntries();
         _sessionManager.removeAllSessions();
 <% end -%>
       }
