@@ -38,7 +38,9 @@ public class <%= method.ejb.scheduler_name %>
     }
     catch ( final java.lang.Throwable t )
     {
-      LOG.log( java.util.logging.Level.SEVERE, "Error generated processing timed <%= method.ejb.schedule.info %> invocation", t );
+      final java.io.StringWriter sw = new java.io.StringWriter();
+      t.printStackTrace( new java.io.PrintWriter( sw, true ) );
+      LOG.log( java.util.logging.Level.SEVERE, "Error generated processing timed <%= method.ejb.schedule.info %> invocation.\n" + sw );
     }
 <% if method.service.data_module.repository.iris_audit? -%>
     finally
