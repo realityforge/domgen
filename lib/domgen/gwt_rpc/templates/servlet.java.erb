@@ -234,8 +234,29 @@ if has_cookie -%>
   }
 <% end -%>
 
-  protected void doUnexpectedFailure( final java.lang.Throwable e )
+  protected void doUnexpectedFailure( @javax.annotation.Nonnull final java.lang.Throwable e )
   {
-    com.google.gwt.user.server.rpc.RPCServletUtils.writeResponseForUnexpectedFailure( getServletContext(), getThreadLocalResponse(), e );
+    getServletContext().log( "Unexpected exception while dispatching incoming RPC call", e );
+
+    final javax.servlet.http.HttpServletResponse response = getThreadLocalResponse();
+    try
+    {
+      response.setContentType( "text/plain" );
+      response.setStatus( javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
+      final String error = "The call failed on the server";
+      try
+      {
+        response.getOutputStream().write( error.getBytes( java.nio.charset.StandardCharsets.UTF_8 ) );
+      }
+      catch ( final IllegalStateException ise )
+      {
+        // Handle the case where getWriter() was previously used
+        response.getWriter().write( error );
+      }
+    }
+    catch ( final java.io.IOException ignored )
+    {
+      // Ignore as we assume the client has gone away
+    }
   }
 }
