@@ -813,8 +813,9 @@ module Domgen
         end
 
         entity.unique_constraints.each do |c|
-          index = index(c.attribute_names, { :unique => true }, true)
-          index.filter = "#{self.entity.sql.dialect.quote(:DeletedAt)} IS NULL" if self.entity.transaction_time?
+          options = { :unique => true }
+          options[:filter] = "#{self.entity.sql.dialect.quote(:DeletedAt)} IS NULL" if self.entity.transaction_time?
+          index = index(c.attribute_names, options, true)
         end
 
         entity.relationship_constraints.each do |c|
