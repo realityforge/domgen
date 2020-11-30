@@ -42,6 +42,16 @@ module Domgen
         @attribute_names = attribute_names
         @include_attribute_names = []
         super(table, options, &block)
+        self.attribute_names.each do |attribute_name|
+          unless table.entity.attribute_by_name?(attribute_name)
+            Domgen.error("#{self} supplied key '#{attribute_name}' in :attribute_names configuration but no such attribute exists on related entity")
+          end
+        end
+        self.include_attribute_names.each do |attribute_name|
+          unless table.entity.attribute_by_name?(attribute_name)
+            Domgen.error("#{self} supplied key '#{attribute_name}' in :include_attribute_names configuration but no such attribute exists on related entity")
+          end
+        end
       end
 
       def to_s
