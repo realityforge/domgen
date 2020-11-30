@@ -204,7 +204,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
           validationFailed = true;
         }
       }
-<% entity.sql.indexes.select{|index| index.unique? && !index.attribute_names.any?{|k| %w(CreatedAt DeletedAt).include?(k.to_s)}}.each do |index|
+<% entity.sql.indexes.select{|index| index.unique? && !index.attribute_names.any?{|k| %W(#{entity.primary_key.name} CreatedAt DeletedAt, MasterId).include?(k.to_s)}}.each do |index|
    column_names = index.attribute_names.collect {|attr_name| a = entity.attribute_by_name(attr_name); entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingId" : a.name).sql.quoted_column_name }
 -%>
       {
@@ -342,7 +342,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
       throw new IllegalStateException( "Failed to validate <%= entity.qualified_name %> instances for mappingSource " + mappingSourceCode );
     }
   }
-<% entity.sql.indexes.select{|index| index.unique? && index.partial? && !index.attribute_names.any?{|k| %w(CreatedAt DeletedAt).include?(k.to_s)}}.each do |index|
+<% entity.sql.indexes.select{|index| index.unique? && index.partial? && !index.attribute_names.any?{|k| %W(#{entity.primary_key.name} CreatedAt DeletedAt MasterId).include?(k.to_s)}}.each do |index|
    column_names = index.attribute_names.collect {|attr_name| a = entity.attribute_by_name(attr_name); entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingId" : a.name).sql.quoted_column_name }
    # The "X IS NOT NULL" pattern where the included columns are X will be matched because the default sql does a comparison
    # on the column which will automatically be false ... so we accidentally get the correct answer
