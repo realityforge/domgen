@@ -572,6 +572,7 @@ module Domgen
       return 'FindAll' if self.query_type == :select && self.multiplicity == :many
       return 'Find' if self.query_type == :select && self.multiplicity == :zero_or_one
       return 'Count' if self.query_type == :select && self.multiplicity == :one && self.result_type == :long
+      return 'Is' if self.query_type == :select && self.multiplicity == :one && self.result_type == :boolean
       return 'Get' if self.query_type == :select && self.multiplicity == :one
       return 'Update' if self.query_type == :update
       return 'Delete' if self.query_type == :delete
@@ -602,6 +603,12 @@ module Domgen
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :one if @multiplicity.nil?
         @base_name = base_name.gsub(/^[gG]et/, '')
+        return base_name
+      elsif base_name =~ /^[iI]s[A-Z].+$/
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :one if @multiplicity.nil?
+        self.result_type = :boolean if @result_type.nil?
+        @base_name = base_name.gsub(/^[iI]s/, '')
         return base_name
       elsif base_name =~ /^[uU]pdate[A-Z].+$/
         self.query_type = :update if @query_type.nil?
