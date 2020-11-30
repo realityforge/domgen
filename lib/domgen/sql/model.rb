@@ -51,6 +51,17 @@ module Domgen
           unless table.entity.attribute_by_name?(attribute_name)
             Domgen.error("#{self} supplied key '#{attribute_name}' in :include_attribute_names configuration but no such attribute exists on related entity")
           end
+          if self.attribute_names.include?(attribute_name)
+            Domgen.error("#{self} supplied key '#{attribute_name}' in :include_attribute_names configuration but key is present in :attribute_names configuration")
+          end
+        end
+        duplicate_attribute_names = self.attribute_names.detect{ |e| self.attribute_names.count(e) > 1 }
+        if duplicate_attribute_names
+          Domgen.error("#{self} supplied duplicate keys #{duplicate_attribute_names.inspect} in :attribute_names configuration")
+        end
+        duplicate_includes = self.include_attribute_names.detect{ |e| self.include_attribute_names.count(e) > 1 }
+        if duplicate_includes
+          Domgen.error("#{self} supplied duplicate keys #{duplicate_includes.inspect} in :include_attribute_names configuration")
         end
       end
 
