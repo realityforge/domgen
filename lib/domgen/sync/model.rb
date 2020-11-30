@@ -460,8 +460,8 @@ module Domgen
           self.entity.integer(:MasterId,
                               :nullable => true,
                               :immutable => true,
-                              :description => 'Will contain the ID of the entity in the Master Schema from this this entity was synced',
-                              '-facets' => [:sync, :arez, :gwt])
+                              :description => 'Id of the entity from which this entity was synced',
+                              '-facets' => [:sync, :arez, :gwt]) unless self.entity.attribute_by_name?(:MasterId)
           self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync?
           self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time?
         end
