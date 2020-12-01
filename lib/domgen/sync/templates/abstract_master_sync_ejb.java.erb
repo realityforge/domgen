@@ -37,7 +37,22 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 <% end -%>
 
     _syncTempPopulationService.postSync( mappingSourceCode );
+<% if data_module.repository.mssql? -%>
+
+    purgeSyncQueryPlans();
+<% end -%>
   }
+<% if data_module.repository.mssql? -%>
+
+  private void purgeSyncQueryPlans()
+  {
+    // Remove query plans from plan cache as they usually long running and
+    // unoptimized and thus will dominate the "recent expensive queries list"
+    // even through we have no plans to optimize them
+    executeUpdate( "EXEC <%= data_module.repository.data_module_by_name(data_module.repository.sync.sync_temp_data_module).sql.quoted_schema %>.[spRemoveCachedSyncTempQueryPlans]" );
+    executeUpdate( "EXEC <%= data_module.sql.quoted_schema %>.[spRemoveCachedMasterQueryPlans]" );
+  }
+<% end -%>
 
   private void initMetrics( @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {

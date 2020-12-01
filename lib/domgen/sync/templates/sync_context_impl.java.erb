@@ -59,6 +59,26 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   {
   }
 
+  @java.lang.Override
+  public void syncComplete()
+  {
+<% if data_module.repository.mssql? -%>
+    purgeSyncQueryPlans();
+<% end -%>
+  }
+<% if data_module.repository.mssql? -%>
+
+  private void purgeSyncQueryPlans()
+  {
+    // Remove query plans from plan cache as they usually long running and
+    // unoptimized and thus will dominate the "recent expensive queries list"
+    // even through we have no plans to optimize them
+    _entityManager.
+      createNativeQuery( "EXEC <%= data_module.sql.quoted_schema %>.[spRemoveCachedMasterQueryPlans]" ).
+      executeUpdate();
+  }
+<% end -%>
+
 <%
             data_module.sync.entities_to_synchronize.collect do |e|
               # Assume that the synchronization process will correctly handle

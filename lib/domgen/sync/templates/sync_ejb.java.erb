@@ -153,6 +153,7 @@ public class <%= data_module.sync.sync_ejb_name %>
       recorder.incMetric( "Duration", (int) ( syncEndAt - syncStartAt ) );
       completeSynchronization( recorder );
       _context.postSync( recorder );
+      _context.syncComplete();
     }
     return toSyncStatus( recorder );
   }

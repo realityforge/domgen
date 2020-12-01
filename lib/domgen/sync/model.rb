@@ -156,6 +156,8 @@ module Domgen
               m.parameter(:Recorder, 'iris.syncrecord.server.service.SynchronizationRecorder')
             end
 
+            s.method(:SyncComplete)
+
             master_data_module.sync.entities_to_synchronize.each do |entity|
               s.method(:"Query#{entity.data_module.name}#{entity.name}Updates") do |m|
                 m.text(:MappingSourceCode)
