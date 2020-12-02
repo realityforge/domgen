@@ -18,3 +18,10 @@ EXEC('ALTER DATABASE [' + @dbName + '] SET QUOTED_IDENTIFIER ON')
 -- not consider indexed views if the setting is not set.
 EXEC('ALTER DATABASE [' + @dbName + '] SET NUMERIC_ROUNDABORT OFF')
 EXEC('ALTER DATABASE [' + @dbName + '] SET RECURSIVE_TRIGGERS ON')
+<% if repository.mssql.trustworthy? -%>
+-- Database needed to be marked as trusted but AWS does not allow this so we guard against it.
+IF NOT EXISTS( SELECT database_id FROM master.sys.databases WHERE name = 'rdsadmin' )
+BEGIN
+  EXEC('ALTER DATABASE [' + @dbName + '] SET TRUSTWORTHY ON')
+END
+<% end -%>

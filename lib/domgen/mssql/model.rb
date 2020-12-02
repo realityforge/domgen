@@ -216,6 +216,12 @@ SQL
         @version || '2012'
       end
 
+      def trustworthy?
+        @trustworthy.nil? ? repository.sync? : !!@trustworthy
+      end
+
+      attr_writer :trustworthy
+
       def supports_sequences?
         version != '2008'
       end
