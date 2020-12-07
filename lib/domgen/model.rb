@@ -622,7 +622,7 @@ module Domgen
         self.query_type = :insert if @query_type.nil?
         @base_name = base_name.gsub(/^[iI]nsert/, '')
         return base_name
-      elsif base_name =~ /^[cC]ount[A-Z].*$/
+      elsif base_name =~ /^[cC]ount([A-Z].*)?$/
         self.query_type = :select if @query_type.nil?
         self.multiplicity = :one if @multiplicity.nil?
         self.result_type = :long if @result_type.nil?
