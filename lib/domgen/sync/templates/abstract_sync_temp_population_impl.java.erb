@@ -35,11 +35,13 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   private String _<%= key %>DatabaseName;
 <% end -%>
 
+  @javax.annotation.Nonnull
   protected javax.persistence.EntityManager getEntityManager()
   {
     return _entityManager;
   }
 <% else -%>
+  @javax.annotation.Nonnull
   protected abstract javax.persistence.EntityManager getEntityManager();
 <% end -%>
 
