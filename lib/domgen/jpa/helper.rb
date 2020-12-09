@@ -572,19 +572,23 @@ JAVA
         end
       end
 
-      def query_component_result_type(query)
+      def query_component_result_type(query, maybe_primitive)
         query.result_entity? ?
           query.entity.jpa.qualified_name :
           query.result_struct? ?
             query.struct.ee.qualified_name :
+            maybe_primitive && Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.primitive_type? ?
+            Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.primitive_type :
             Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.object_type
       end
 
-      def query_result_type(query)
+      def query_result_type(query, maybe_primitive = true)
         return 'int' if query.query_type != :select
-        name = query_component_result_type(query)
+        try_primitive = maybe_primitive && query.multiplicity == :one
+        name = query_component_result_type(query, try_primitive)
         return "#{nullability_annotation(false)} java.util.List<#{name}>" if query.multiplicity == :many
-        "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{name}"
+        is_primitive = try_primitive && query.multiplicity == :one && !query.result_entity? && !query.result_struct? && maybe_primitive && Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.primitive_type?
+        is_primitive ? name : "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{name}"
       end
 
       def null_guard(nullable, name)

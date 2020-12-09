@@ -38,7 +38,7 @@ public class <%= dao.jpa.dao_name %>
 <% dao.queries.select{|q| q.jpa?}.each do |query| -%>
 <%
   requires_result_conversion = !query.basic_result_type?
-  method_result_java_type = query.result_type? ? query_component_result_type(query) : nil
+  method_result_java_type = query.result_type? ? query_component_result_type(query, false) : nil
   db_result_java_type = method_result_java_type || (dao.repository? ? query.entity.jpa.qualified_name : 'java.lang.Object')
   -%>
   @java.lang.Override
