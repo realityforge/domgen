@@ -155,7 +155,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   protected void onUncaughtException( @javax.annotation.Nonnull final Throwable e )
   {
-    if( org.realityforge.braincheck.BrainCheckConfig.checkInvariants() && com.google.gwt.core.client.GWT.isScript() && com.google.gwt.core.client.GWT.isProdMode() )
+    if( com.google.gwt.core.client.GWT.isScript() && com.google.gwt.core.client.GWT.isProdMode() )
     {
       logThrowable( e  );
     }
