@@ -192,17 +192,35 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   {
     if ( shouldLogThrowableToConsole( e ) )
     {
-      elemental2.dom.DomGlobal.console.error( jsinterop.base.Js.asPropertyMap( e ).nestedGet( "backingJsObject.stack" ) );
-      final Throwable cause = e.getCause();
-      if ( null != cause )
-      {
-        elemental2.dom.DomGlobal.console.groupCollapsed( "Caused By" );
-        logThrowable( cause );
-        elemental2.dom.DomGlobal.console.groupEnd();
-      }
+      elemental2.dom.DomGlobal.console.error( getStackTrace( e ) );
     }
     unwrapThrowable( e ).forEach( this::logThrowable );
   }
+
+  @javax.annotation.Nonnull
+  private java.lang.String getStackTrace( @javax.annotation.Nonnull final java.lang.Throwable throwable )
+  {
+    final java.lang.StringBuilder result = new java.lang.StringBuilder();
+    result.append( throwable.toString() );
+    result.append( '\n' );
+
+    for ( final java.lang.StackTraceElement element : throwable.getStackTrace() )
+    {
+      result.append( "\tat " );
+      result.append( element );
+      result.append( '\n' );
+    }
+
+    final java.lang.Throwable cause = throwable.getCause();
+    if ( null != cause && cause != throwable )
+    {
+      result.append( "Caused by: " );
+      result.append( getStackTrace( cause ) );
+    }
+
+    return result.toString();
+  }
+
 <% if repository.keycloak? -%>
 
   @javax.annotation.Nonnull
