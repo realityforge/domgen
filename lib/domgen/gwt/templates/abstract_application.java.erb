@@ -201,7 +201,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   private java.lang.String getStackTrace( @javax.annotation.Nonnull final java.lang.Throwable throwable )
   {
     final java.lang.StringBuilder result = new java.lang.StringBuilder();
-    result.append( throwable.toString() );
+    result.append( throwable );
     result.append( '\n' );
 
     for ( final java.lang.StackTraceElement element : throwable.getStackTrace() )
