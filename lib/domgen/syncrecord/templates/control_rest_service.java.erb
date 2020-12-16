@@ -9,7 +9,7 @@ package <%= to_package(repository.syncrecord.qualified_control_rest_service_name
 public class <%= repository.syncrecord.control_rest_service_name %>
   extends iris.syncrecord.server.rest.AbstractSyncControlService
 {
-<% repository.syncrecord.sync_methods.collect{|m| m.service}.uniq.each do |service| -%>
+<% repository.syncrecord.sync_methods.select{|method| !method.service.ejb.no_web_invoke? }.collect{|m| m.service}.uniq.each do |service| -%>
   @javax.inject.Inject
   private <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _<%= Reality::Naming.camelize(service.qualified_name.gsub('.','')) %>;
 <% end -%>
