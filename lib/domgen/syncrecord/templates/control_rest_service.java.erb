@@ -23,12 +23,12 @@ public class <%= repository.syncrecord.control_rest_service_name %>
     throws Exception
   {
     return javax.json.Json.createArrayBuilder().
-<% repository.syncrecord.sync_methods.each do |method| -%>
+<% repository.syncrecord.sync_methods.select{|method| !method.service.ejb.no_web_invoke? }.each do |method| -%>
       add( <%= Reality::Naming.camelize(method.qualified_name.gsub(/[#\.]/,'')) %>( filter ) ).
 <% end -%>
       build();
   }
-<% repository.syncrecord.sync_methods.each do |method|
+<% repository.syncrecord.sync_methods.select{|method| !method.service.ejb.no_web_invoke? }.each do |method|
   datasource =
     method.parameters.empty? ?
     "#{method.service.data_module.repository.syncrecord.qualified_datasources_name}.#{Reality::Naming.uppercase_constantize(method.syncrecord.data_source.key)}" :
