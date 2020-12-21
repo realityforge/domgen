@@ -10,6 +10,11 @@ public class <%= service.gwt_rpc.servlet_name %>
   implements <%= service.gwt_rpc.qualified_rpc_service_name %>
 {
   private static final long serialVersionUID = 1;
+  private static final int INITIAL_STATE = 0;
+  private static final int PRE_READ_STATE = 1;
+  private static final int BEFORE_REQUEST_DESERIALIZED = 2;
+  private static final int AFTER_REQUEST_DESERIALIZED = 3;
+  private static final int AFTER_RESPONSE_SERIALIZED = 4;
 <% if service.methods.any?{|method| method.gwt_rpc? && (method.parameters.any?{|p| p.date?} || method.return_value.date?)} -%>
   private static final java.time.format.DateTimeFormatter LOCAL_DATE = new java.time.format.DateTimeFormatterBuilder()
     .appendValue( java.time.temporal.ChronoField.YEAR, 4, 10, java.time.format.SignStyle.EXCEEDS_PAD )
@@ -21,7 +26,8 @@ public class <%= service.gwt_rpc.servlet_name %>
 <% end -%>
   @javax.annotation.Nonnull
   private transient final com.fasterxml.jackson.databind.ObjectMapper _jsonMapper = new com.fasterxml.jackson.databind.ObjectMapper();
-
+  @javax.annotation.Nonnull
+  private transient final java.lang.ThreadLocal<java.lang.Integer> _requestState = java.lang.ThreadLocal.withInitial( () -> INITIAL_STATE );
   @javax.inject.Inject
   private transient <%= service.data_module.repository.gwt_rpc.qualified_code_server_config_name %> _codeServerConfig;
 
@@ -234,9 +240,41 @@ if has_cookie -%>
   }
 <% end -%>
 
+  @java.lang.Override
+  protected java.lang.String readContent( final javax.servlet.http.HttpServletRequest request )
+    throws javax.servlet.ServletException, java.io.IOException
+  {
+    _requestState.set( PRE_READ_STATE );
+    return super.readContent( request );
+  }
+
+  @java.lang.Override
+  protected void onBeforeRequestDeserialized( final String serializedRequest )
+  {
+    _requestState.set( BEFORE_REQUEST_DESERIALIZED );
+    super.onBeforeRequestDeserialized( serializedRequest );
+  }
+
+  @java.lang.Override
+  protected void onAfterRequestDeserialized( final com.google.gwt.user.server.rpc.RPCRequest rpcRequest )
+  {
+    _requestState.set( AFTER_REQUEST_DESERIALIZED );
+    super.onAfterRequestDeserialized( rpcRequest );
+  }
+
+  @java.lang.Override
+  protected void onAfterResponseSerialized( final String serializedResponse )
+  {
+    _requestState.set( AFTER_RESPONSE_SERIALIZED );
+    super.onAfterResponseSerialized( serializedResponse );
+  }
+
   protected void doUnexpectedFailure( @javax.annotation.Nonnull final java.lang.Throwable e )
   {
-    getServletContext().log( "Unexpected exception while dispatching incoming RPC call", e );
+    if( AFTER_REQUEST_DESERIALIZED == _requestState.get() )
+    {
+      getServletContext().log( "Unexpected exception while dispatching incoming RPC call", e );
+    }
 
     final javax.servlet.http.HttpServletResponse response = getThreadLocalResponse();
     try
