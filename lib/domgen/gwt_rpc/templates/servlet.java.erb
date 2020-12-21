@@ -19,6 +19,7 @@ public class <%= service.gwt_rpc.servlet_name %>
     .appendValue( java.time.temporal.ChronoField.DAY_OF_MONTH, 1, 2, java.time.format.SignStyle.NOT_NEGATIVE )
     .toFormatter();
 <% end -%>
+  @javax.annotation.Nonnull
   private transient final com.fasterxml.jackson.databind.ObjectMapper _jsonMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
   @javax.inject.Inject
