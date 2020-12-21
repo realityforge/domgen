@@ -250,7 +250,7 @@ public class <%= data_module.sync.sync_ejb_name %>
         catch ( final Exception e )
         {
           errors.add( result );
-          recordSyncError( recorder, 1, "Error synchronizing <%= entity.qualified_name %> updates", e );
+          recordSyncError( recorder, 1, "Attempt to synchronize create/update of <%= entity.qualified_name %> generated an error.", e );
           lastException = e;
         }
       }
@@ -317,17 +317,23 @@ public class <%= data_module.sync.sync_ejb_name %>
       errors.clear();
       for ( final Object[] result : results )
       {
+        final int mappingId = (Integer) result[ 0 ];
         try
         {
-          if ( _context.remove<%= entity.data_module.name %><%= entity.name %>( (Integer) result[ 0 ], ( <%= entity.primary_key.jpa.java_type(:boundary) %> ) result[ 1 ] ) )
+          if ( _context.remove<%= entity.data_module.name %><%= entity.name %>( mappingId, ( <%= entity.primary_key.jpa.java_type(:boundary) %> ) result[ 1 ] ) )
           {
             recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveCount", 1 );
           }
         }
+        catch ( final UnsupportedOperationException e )
+        {
+          errors.add( result );
+          recordSyncError( recorder, 1, "Attempt to synchronize removal of <%= entity.qualified_name %> with mapping Id " + mappingId + " is not supported. Reason: " + e.getMessage() );
+        }
         catch ( final Exception e )
         {
           errors.add( result );
-          recordSyncError( recorder, 1, "Error synchronizing <%= entity.qualified_name %> removals", e );
+          recordSyncError( recorder, 1, "Attempt to synchronize removal of <%= entity.qualified_name %> with mapping Id " + mappingId + " generated an error.", e );
         }
       }
     }
