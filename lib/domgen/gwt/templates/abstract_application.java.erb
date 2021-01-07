@@ -14,6 +14,12 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   @javax.annotation.Nonnull
   private final org.realityforge.gwt.keycloak.Keycloak _keycloak;
 <% end -%>
+<% if repository.imit? && repository.keycloak? -%>
+  private zemeckis.Cancelable _updateReplicantTokenTask;
+<% end -%>
+<% if repository.serviceworker? -%>
+  private zemeckis.Cancelable _serviceWorkerUpdateTask;
+<% end -%>
 
   protected <%= repository.gwt.abstract_application_name %>(<% if repository.keycloak? -%> @javax.annotation.Nonnull final String keycloakClient <% end -%>)
   {
@@ -26,6 +32,27 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% end -%>
   }
 
+<% if (repository.imit? && repository.keycloak?) || repository.serviceworker? -%>
+  @arez.annotations.PreDispose
+  protected void preDispose()
+  {
+<% if repository.imit? && repository.keycloak? -%>
+    if ( null != _updateReplicantTokenTask )
+    {
+      _updateReplicantTokenTask.cancel();
+      _updateReplicantTokenTask = null;
+    }
+<% end -%>
+<% if repository.serviceworker? -%>
+    if ( null != _serviceWorkerUpdateTask )
+    {
+      _serviceWorkerUpdateTask.cancel();
+      _serviceWorkerUpdateTask = null;
+    }
+<% end -%>
+  }
+
+<% end -%>
   @javax.annotation.Nonnull
   protected final String getApplicationURL()
   {
@@ -132,7 +159,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
           // Every minute attempt to update the serviceWorker. If it does update
           // then the "controllerchange" event will fire.
-          elemental2.dom.DomGlobal.setInterval( v -> registration.update(), 60000 );
+          _serviceWorkerUpdateTask = zemeckis.Zemeckis.periodicTask( registration::update, 60000 );
           return null;
         }, error -> {
           elemental2.dom.DomGlobal.console.log( "ServiceWorker registration failed: ", error );
@@ -276,7 +303,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     elemental2.dom.DomGlobal.window.addEventListener( "beforeunload", e -> replicant.Replicant.context().deactivate(), true );
 <% if repository.keycloak? -%>
     updateReplicantToken();
-    elemental2.dom.DomGlobal.setInterval( e -> getKeycloak().updateToken( 30, this::updateReplicantToken ), 5000 );
+    _updateReplicantTokenTask = zemeckis.Zemeckis.periodicTask( () -> getKeycloak().updateToken( 30, this::updateReplicantToken ), 5000 );
 <% end -%>
   }
 <% end -%>
