@@ -691,6 +691,27 @@ module Domgen
             e.sql.index([:MappingSource], :filter => "#{e.sql.dialect.quote(:MasterSynchronized)} IS NULL")
           end
         end
+
+        unless self.entity.abstract?
+          validation_name = "MasterIdLinkedCorrectly"
+          unless self.entity.sql.validation?(validation_name)
+            guard = "UPDATE(#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name})"
+            suffix = ''
+            if self.entity.transaction_time?
+              guard = "UPDATE(#{self.entity.attribute_by_name(:DeletedAt).sql.quoted_column_name}) OR #{guard}"
+              suffix = " AND I.#{self.entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL"
+            end
+
+            m = self.entity.sync.master_entity
+            sql = <<-SQL
+SELECT I.#{self.entity.primary_key.sql.quoted_column_name}
+FROM inserted I
+LEFT JOIN #{m.sql.qualified_table_name} M ON M.#{m.primary_key.sql.quoted_column_name} = I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name}
+WHERE I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name} IS NOT NULL AND (M.#{m.primary_key.sql.quoted_column_name} IS NULL OR (M.#{m.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = 1 AND M.#{m.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL#{suffix}))
+            SQL
+            self.entity.sql.validation(validation_name, :standard => true, :negative_sql => sql, :guard => guard)
+          end
+        end
       end
 
       def post_verify
