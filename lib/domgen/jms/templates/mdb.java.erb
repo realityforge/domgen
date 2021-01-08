@@ -35,6 +35,7 @@ config_properties.each_pair do |key, value|
 public class <%= method.jms.mdb_name %>
   implements javax.jms.MessageListener
 {
+  @javax.annotation.Nonnull
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.jms.mdb_name %>.class.getName() );
 
   @javax.inject.Inject
@@ -79,7 +80,7 @@ public class <%= method.jms.mdb_name %>
 <% end -%>
 <% end -%>
 
-  public void onMessage( final javax.jms.Message message )
+  public void onMessage( @javax.annotation.Nonnull final javax.jms.Message message )
   {
     try
     {
