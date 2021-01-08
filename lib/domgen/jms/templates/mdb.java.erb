@@ -63,7 +63,7 @@ public class <%= method.jms.mdb_name %>
     @javax.xml.bind.annotation.XmlValue
     <%= boundary_type %> Value;
 <% else -%>
-<% if parameter.referenced_struct.fields.size != 0 %>
+<% if parameter.referenced_struct.fields.size != 0 -%>
   @java.lang.SuppressWarnings( "deprecation" )
   public <%= encoded_type %>()
   {
