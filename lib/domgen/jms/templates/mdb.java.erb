@@ -39,7 +39,6 @@ public class <%= method.jms.mdb_name %>
 
   @javax.inject.Inject
   private <%= method.service.ejb.generate_boundary? ? method.service.ejb.qualified_boundary_interface_name : method.service.ejb.qualified_service_name %> _service;
-
 <%
   parameter = method.parameters.empty? ? nil : method.parameters[0]
   if parameter
@@ -50,6 +49,7 @@ public class <%= method.jms.mdb_name %>
    in_container = !(parameter.struct? && !parameter.collection?)
    unless parameter.non_standard_type?
 -%>
+
   @javax.xml.bind.annotation.XmlRootElement( name = "<%= parameter.xml.name %>" )
   @javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
   @javax.xml.bind.annotation.XmlType( name = "<%= method.name %><%= method.service.name %>_<%= parameter.name %>"<% if in_container %>, propOrder = {"Value"}<% end %> )
