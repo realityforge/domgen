@@ -159,7 +159,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
           // Every minute attempt to update the serviceWorker. If it does update
           // then the "controllerchange" event will fire.
-          _serviceWorkerUpdateTask = zemeckis.Zemeckis.periodicTask( registration::update, 60000 );
+          _serviceWorkerUpdateTask = zemeckis.Zemeckis.periodicTask( zemeckis.Zemeckis.areNamesEnabled() ? "ServiceWorkerUpdateTask" : null, registration::update, 60000 );
           return null;
         }, error -> {
           elemental2.dom.DomGlobal.console.log( "ServiceWorker registration failed: ", error );
@@ -303,7 +303,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     elemental2.dom.DomGlobal.window.addEventListener( "beforeunload", e -> replicant.Replicant.context().deactivate(), true );
 <% if repository.keycloak? -%>
     updateReplicantToken();
-    _updateReplicantTokenTask = zemeckis.Zemeckis.periodicTask( () -> getKeycloak().updateToken( 30, this::updateReplicantToken ), 5000 );
+    _updateReplicantTokenTask = zemeckis.Zemeckis.periodicTask( zemeckis.Zemeckis.areNamesEnabled() ? "ReplicantKeycloakTokenUpdater" : null, () -> getKeycloak().updateToken( 30, this::updateReplicantToken ), 5000 );
 <% end -%>
   }
 <% end -%>
