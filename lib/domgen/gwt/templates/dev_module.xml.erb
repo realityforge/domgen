@@ -4,6 +4,9 @@
 <% if repository.imit? -%>
   <inherits name="org.realityforge.replicant.ReplicantDev"/>
 <% end -%>
+<% if repository.serviceworker? && !repository.arez? -%>
+  <inherits name='zemeckis.ZemeckisDev'/>
+<% end -%>
 
   <set-property name="jre.logging.logLevel" value="ALL"/>
 </module>

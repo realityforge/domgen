@@ -3,6 +3,9 @@
 <module>
 <% if repository.serviceworker? -%>
   <inherits name="org.realityforge.gwt.serviceworker.Linker"/>
+<% if !repository.arez? -%>
+  <inherits name='zemeckis.Zemeckis'/>
+<% end -%>
 
   <add-linker name="serviceworker"/>
 <% end -%>

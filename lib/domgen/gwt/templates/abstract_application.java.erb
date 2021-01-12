@@ -33,7 +33,9 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   }
 
 <% if (repository.imit? && repository.keycloak?) || repository.serviceworker? -%>
+<% if repository.arez? -%>
   @arez.annotations.PreDispose
+<% end -%>
   protected void preDispose()
   {
 <% if repository.imit? && repository.keycloak? -%>

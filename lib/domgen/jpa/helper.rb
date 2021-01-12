@@ -274,7 +274,7 @@ JAVA
       def j_simple_attribute(attribute)
         name = attribute.jpa.name
         java = <<JAVA
-  #{annotated_type(attribute, :jpa, :default, :assume_generated => true, :public => true)} #{getter_for(attribute)}
+  #{annotated_type(attribute, :jpa, :default, :assume_generated => false, :public => true)} #{getter_for(attribute)}
   {
 JAVA
         unless attribute.primary_key?
