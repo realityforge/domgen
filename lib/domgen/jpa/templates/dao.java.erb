@@ -318,7 +318,23 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
   @java.lang.Override
   public void persist( final <%= dao.entity.jpa.qualified_name %> entity )
   {
-    em.persist( entity );
+    try
+    {
+      em.persist( entity );
+    }
+    catch ( final javax.validation.ConstraintViolationException e )
+    {
+      final java.lang.StringBuffer sb = new java.lang.StringBuffer();sb.append( "Pre-persist constraint viloations:\n" );
+      for ( final javax.validation.ConstraintViolation<?> constraintViolation : e.getConstraintViolations() )
+      {
+        sb.append( constraintViolation.getPropertyPath() );
+        sb.append( ' ' );
+        sb.append( constraintViolation.getMessage() );
+        sb.append( '\n' );
+      }
+      throw new RuntimeException( sb.toString(), e );
+    }
+
     em.flush();
   }
 
