@@ -58,6 +58,9 @@ module Domgen
 
       def post_verify
         service.disable_facet(:iris_audit) unless service.methods.any?{|m| m.iris_audit?}
+        if service.iris_audit? && (!service.ejb? || !service.ejb.generate_boundary?)
+          Domgen::error("Service #{service.qualified_name} has iris_audit facet enabled but has no associated ejb boundary so no boundary will be enabled")
+        end
       end
     end
 
