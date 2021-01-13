@@ -325,7 +325,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     }
     catch ( final javax.validation.ConstraintViolationException e )
     {
-      final java.lang.StringBuffer sb = new java.lang.StringBuffer();
+      final java.lang.StringBuilder sb = new java.lang.StringBuilder();
       sb.append( "Pre-persist constraint violations:\n" );
       for ( final javax.validation.ConstraintViolation<?> constraintViolation : e.getConstraintViolations() )
       {
