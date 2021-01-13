@@ -316,7 +316,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 
 <% end -%>
   @java.lang.Override
-  public void persist( final arena.register.server.entity.Dispatch entity )
+  public void persist( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     try
     {
