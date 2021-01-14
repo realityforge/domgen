@@ -65,7 +65,7 @@ module Domgen
             return "varchar(#{column.attribute.length})"
           end
         elsif column.attribute.geometry?
-          spatial_reference_id = column.attribute.geometry.srid || -1
+          spatial_reference_id = column.attribute.geometry.srid || 0
           if column.attribute.geometry.geometry_type == :geometry
             return 'GEOMETRY'
           else
