@@ -44,7 +44,7 @@ module Domgen
       def quote(column_name)
         # Postgres seems to have a maximum size of 64 characters in identifier
         # so lets just shorten the names and hope we never clash
-        "\"#{column_name[0, 64]}\""
+        "\"#{column_name[0, 63]}\""
       end
 
       def quote_string(string)
