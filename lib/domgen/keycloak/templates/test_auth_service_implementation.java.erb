@@ -2,7 +2,7 @@
 package <%= to_package(repository.keycloak.qualified_test_auth_service_implementation_name) %>;
 
 @javax.enterprise.inject.Alternative
-public class <%= repository.keycloak.test_auth_service_implementation_name %>
+public final class <%= repository.keycloak.test_auth_service_implementation_name %>
   extends <%= repository.keycloak.qualified_auth_service_implementation_name %>
 {
   @javax.annotation.Nonnull
@@ -40,7 +40,7 @@ public class <%= repository.keycloak.test_auth_service_implementation_name %>
 <% end -%>
   }
 
-  private class TestPrincipal
+  private static final class TestPrincipal
     implements java.security.Principal
   {
     @javax.annotation.Nonnull
@@ -59,7 +59,7 @@ public class <%= repository.keycloak.test_auth_service_implementation_name %>
     }
   }
 
-  private class Account
+  private final class Account
     implements org.keycloak.adapters.OidcKeycloakAccount
   {
     @javax.annotation.Nonnull
