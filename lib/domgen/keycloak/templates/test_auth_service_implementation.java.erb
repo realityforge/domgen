@@ -4,15 +4,20 @@ package <%= to_package(repository.keycloak.qualified_test_auth_service_implement
 public class <%= repository.keycloak.test_auth_service_implementation_name %>
   extends <%= repository.keycloak.qualified_auth_service_implementation_name %>
 {
+  @javax.annotation.Nonnull
   private final org.keycloak.representations.IDToken _idToken = new org.keycloak.representations.IDToken();
+  @javax.annotation.Nonnull
   private final org.keycloak.representations.AccessToken _token = new org.keycloak.representations.AccessToken();
+  @javax.annotation.Nonnull
   private final java.security.Principal _principal = new TestPrincipal( org.realityforge.guiceyloops.shared.ValueUtil.randomString() );
+  @javax.annotation.Nullable
   private org.keycloak.adapters.OidcKeycloakAccount _account;
 
   @javax.annotation.Nonnull
   @java.lang.Override
   public org.keycloak.adapters.OidcKeycloakAccount getAccount()
   {
+    assert null != _account;
     return _account;
   }
 
@@ -37,14 +42,16 @@ public class <%= repository.keycloak.test_auth_service_implementation_name %>
   private class TestPrincipal
     implements java.security.Principal
   {
+    @javax.annotation.Nonnull
     private final java.lang.String _name;
 
-    TestPrincipal( final java.lang.String name )
+    TestPrincipal( @javax.annotation.Nonnull final java.lang.String name )
     {
-      _name = name;
+      _name = java.util.Objects.requireNonNull( name );
     }
 
     @java.lang.Override
+    @javax.annotation.Nonnull
     public java.lang.String getName()
     {
       return _name;
@@ -54,18 +61,21 @@ public class <%= repository.keycloak.test_auth_service_implementation_name %>
   private class Account
     implements org.keycloak.adapters.OidcKeycloakAccount
   {
+    @javax.annotation.Nonnull
     @java.lang.Override
     public java.security.Principal getPrincipal()
     {
       return _principal;
     }
 
+    @javax.annotation.Nonnull
     @java.lang.Override
     public java.util.Set<java.lang.String> getRoles()
     {
       return new java.util.HashSet<>();
     }
 
+    @javax.annotation.Nonnull
     @Override
     public org.keycloak.KeycloakSecurityContext getKeycloakSecurityContext()
     {
