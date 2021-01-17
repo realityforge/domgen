@@ -711,7 +711,7 @@ WHERE I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name} IS NO
             SQL
             self.entity.sql.validation(validation_name, :standard => true, :negative_sql => sql, :guard => guard)
           end
-        end
+        end if self.entity.mssql?
       end
 
       def post_verify
