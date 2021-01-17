@@ -616,7 +616,7 @@ module Domgen
               e.sql.index([name], :unique => true, :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL")
               # Duplicate the index as sometimes want to query where there is no entity in Core
               e.sql.index([name])
-              e.sql.constraint(:CoreLinkedIfSyncAndNonDeleted, :sql => "MasterSynchronized = 0 OR DeletedAt IS NOT NULL OR #{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL", :standard => true)
+              e.sql.constraint(:CoreLinkedIfSyncAndNonDeleted, :sql => "#{e.sql.dialect.quote(:MasterSynchronized)} = #{e.sql.dialect.quote_value(false)} OR #{e.sql.dialect.quote(:DeletedAt)} IS NOT NULL OR #{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL", :standard => true)
             end
 
             if a.reference?

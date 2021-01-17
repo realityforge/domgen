@@ -47,8 +47,23 @@ module Domgen
         "\"#{column_name[0, 63]}\""
       end
 
+      def quote_value(value)
+        case value
+        when NilClass then
+          'NULL'
+        when String then
+          "'#{quote_string(value.to_s)}'"
+        when TrueClass then
+          '1'
+        when FalseClass then
+          '0'
+        else
+          value
+        end
+      end
+
       def quote_string(string)
-        string.gsub("\'", "''")
+        string.gsub("'", "''")
       end
 
       def disallow_blank_constraint(column_name)
