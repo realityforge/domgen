@@ -54,9 +54,9 @@ module Domgen
         when String then
           "'#{quote_string(value.to_s)}'"
         when TrueClass then
-          '1'
+          'true'
         when FalseClass then
-          '0'
+          'false'
         else
           value
         end
