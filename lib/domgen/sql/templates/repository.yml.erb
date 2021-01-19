@@ -1,7 +1,7 @@
 ---
 modules: !omap
 <% repository.data_modules.select{|data_module| data_module.sql?}.each do |data_module| -%>
-   - <%= data_module.name %>:
+   - <%= data_module.sql.schema %>:
       schema: <%= data_module.sql.schema %>
 <% tables = data_module.entities.select { |entity| entity.sql? && entity.concrete? } -%>
       tables:<%= tables.empty? ? ' []' : '' %>
