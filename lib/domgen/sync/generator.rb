@@ -63,29 +63,29 @@ Domgen::Generator.define([:sync],
   g.template_set(:sync_sql) do |template_set|
     template_set.erb_template(:data_module,
                               'binary_to_base64.sql.erb',
-                              '#{data_module.name}/functions/#{data_module.name}.fnConvertBinaryToBase64.sql',
+                              '#{data_module.sql.schema}/functions/#{data_module.sql.schema}.fnConvertBinaryToBase64.sql',
                               :additional_facets => [:mssql],
                               :guard => 'data_module.sync.sync_temp_data_module?')
     template_set.erb_template(:data_module,
                               'mssql_remove_sync_temp_query_plans.sql.erb',
-                              '#{data_module.name}/stored-procedures/#{data_module.name}.spRemoveCachedSyncTempQueryPlans.sql',
+                              '#{data_module.sql.schema}/stored-procedures/#{data_module.sql.schema}.spRemoveCachedSyncTempQueryPlans.sql',
                               :additional_facets => [:mssql],
                               :guard => 'data_module.sync.sync_temp_data_module?')
     template_set.erb_template(:data_module,
                               'mssql_reseed_procs.sql.erb',
-                              '#{data_module.name}/stored-procedures/reseed_procs.sql',
+                              '#{data_module.sql.schema}/stored-procedures/reseed_procs.sql',
                               :guard => 'data_module.sync.sync_temp_data_module?',
                               :additional_facets => [:mssql])
     template_set.erb_template(:data_module,
                               'mssql_remove_master_query_plans.sql.erb',
-                              '#{data_module.name}/stored-procedures/#{data_module.name}.spRemoveCachedMasterQueryPlans.sql',
+                              '#{data_module.sql.schema}/stored-procedures/#{data_module.sql.schema}.spRemoveCachedMasterQueryPlans.sql',
                               :additional_facets => [:mssql],
                               :guard => 'data_module.sync.master_data_module?')
   end
   g.template_set(:sync_pgsql) do |template_set|
     template_set.erb_template(:data_module,
                               'pg_reseed_procs.sql.erb',
-                              '#{data_module.name}/stored-procedures/reseed_procs.sql',
+                              '#{data_module.sql.schema}/stored-procedures/reseed_procs.sql',
                               :additional_facets => [:pgsql],
                               :guard => 'data_module.sync.sync_temp_data_module?')
   end

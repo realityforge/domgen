@@ -21,9 +21,9 @@ Domgen::Generator.define([:pgsql],
                               'db-hooks/pre/database_setup.sql')
     template_set.erb_template(:data_module,
                               'pgsql_ddl.sql.erb',
-                              '#{data_module.name}/schema.sql')
+                              '#{data_module.sql.schema}/schema.sql')
     template_set.erb_template(:data_module,
                               'pgsql_finalize.sql.erb',
-                              '#{data_module.name}/finalize/schema_finalize.sql')
+                              '#{data_module.sql.schema}/finalize/schema_finalize.sql')
   end
 end
