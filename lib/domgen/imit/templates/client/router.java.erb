@@ -40,7 +40,7 @@ final class <%= repository.imit.client_router_name %>
           next_attribute =
             next_is_inverse ?
             a.entity.arez.referencing_client_side_attributes.select {|attr| attr.inverse.name.to_s == n.to_s}[0] :
-            a.entity.attribute_by_name(n)
+            a.referenced_entity.attribute_by_name(n)
 -%>
   private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= (is_inverse ? a.entity : a.referenced_entity).arez.qualified_name %> value )
   {
