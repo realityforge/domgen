@@ -35,50 +35,21 @@ config_properties.each_pair do |key, value|
 public class <%= method.jms.mdb_name %>
   implements javax.jms.MessageListener
 {
+<% parameter = method.parameters.empty? ? nil : method.parameters[0] -%>
   @javax.annotation.Nonnull
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.jms.mdb_name %>.class.getName() );
-
   @javax.inject.Inject
   private <%= method.service.ejb.generate_boundary? ? method.service.ejb.qualified_boundary_interface_name : method.service.ejb.qualified_service_name %> _service;
 <%
   parameter = method.parameters.empty? ? nil : method.parameters[0]
   if parameter
-   Domgen.error("parameters for #{method.qualified_name} should only have 1 parameter") unless method.parameters.size == 1
-   encoded_type = parameter.non_standard_type? ? parameter.parameter_type : "#{parameter.name}Message"
-   boundary_type = parameter.ejb.java_component_type(:boundary)
-   demarshalled_type = parameter.struct? ? boundary_type : encoded_type
-   in_container = !(parameter.struct? && !parameter.collection?)
-   unless parameter.non_standard_type?
+    Domgen.error("parameters for #{method.qualified_name} should only have 1 parameter") unless method.parameters.size == 1
+    encoded_type = parameter.non_standard_type? ? parameter.parameter_type : "#{parameter.name}Message"
+    boundary_type = parameter.ejb.java_component_type(:boundary)
+    demarshalled_type = parameter.struct? ? boundary_type : encoded_type
+    in_container = !(parameter.struct? && !parameter.collection?)
+  end
 -%>
-
-  @javax.xml.bind.annotation.XmlRootElement( name = "<%= parameter.xml.name %>" )
-  @javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
-  @javax.xml.bind.annotation.XmlType( name = "<%= method.name %><%= method.service.name %>_<%= parameter.name %>"<% if in_container %>, propOrder = {"Value"}<% end %> )
-  public static class <%= encoded_type %>
-<% unless in_container -%>
-      extends <%= parameter.referenced_struct.ee.qualified_name %>
-<% end -%>
-  {
-<% if in_container -%>
-    @javax.xml.bind.annotation.XmlValue
-    <%= boundary_type %> Value;
-<% else -%>
-<% if parameter.referenced_struct.fields.size != 0 -%>
-  @java.lang.SuppressWarnings( "deprecation" )
-  public <%= encoded_type %>()
-  {
-    super();
-  }
-
-  public <%= encoded_type %>( <%= parameter.referenced_struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
-  {
-    super( <%= parameter.referenced_struct.fields.collect {|field| Reality::Naming.camelize(field.name) }.join(', ') %> );
-  }
-<% end -%>
-<% end -%>
-  }
-<% end -%>
-<% end -%>
 
   public void onMessage( @javax.annotation.Nonnull final javax.jms.Message message )
   {
@@ -124,4 +95,35 @@ public class <%= method.jms.mdb_name %>
       throw new RuntimeException( e );
     }
   }
+<%
+  if parameter && !parameter.non_standard_type?
+-%>
+
+  @javax.xml.bind.annotation.XmlRootElement( name = "<%= parameter.xml.name %>" )
+  @javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )
+  @javax.xml.bind.annotation.XmlType( name = "<%= method.name %><%= method.service.name %>_<%= parameter.name %>"<% if in_container %>, propOrder = {"Value"}<% end %> )
+  public static class <%= encoded_type %>
+<% unless in_container -%>
+      extends <%= parameter.referenced_struct.ee.qualified_name %>
+<% end -%>
+  {
+<% if in_container -%>
+    @javax.xml.bind.annotation.XmlValue
+    <%= boundary_type %> Value;
+<% else -%>
+<% if parameter.referenced_struct.fields.size != 0 -%>
+  @java.lang.SuppressWarnings( "deprecation" )
+  public <%= encoded_type %>()
+  {
+    super();
+  }
+
+  public <%= encoded_type %>( <%= parameter.referenced_struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  {
+    super( <%= parameter.referenced_struct.fields.collect {|field| Reality::Naming.camelize(field.name) }.join(', ') %> );
+  }
+<% end -%>
+<% end -%>
+  }
+<% end -%>
 }
