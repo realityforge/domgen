@@ -30,7 +30,7 @@ config_properties.each_pair do |key, value|
 <% end -%>
                             } )
 @javax.ejb.TransactionManagement( javax.ejb.TransactionManagementType.CONTAINER )
-@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRED )
+@javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.NOT_SUPPORTED )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 public class <%= method.jms.mdb_name %>
   implements javax.jms.MessageListener
