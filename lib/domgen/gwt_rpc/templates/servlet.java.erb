@@ -30,6 +30,8 @@ public class <%= service.gwt_rpc.servlet_name %>
   private transient final java.lang.ThreadLocal<java.lang.Integer> _requestState = java.lang.ThreadLocal.withInitial( () -> INITIAL_STATE );
   @javax.inject.Inject
   private transient <%= service.data_module.repository.gwt_rpc.qualified_code_server_config_name %> _codeServerConfig;
+  @javax.inject.Inject
+  private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
   @javax.annotation.Nullable
   @Override
@@ -37,9 +39,6 @@ public class <%= service.gwt_rpc.servlet_name %>
   {
     return _codeServerConfig.getCodeServerPolicyUrl( strongName );
   }
-
-  @javax.inject.Inject
-  private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
 %>  <%= annotated_type(method.return_value, :gwt_rpc, :transport, :public => true) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport, :final => true)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
