@@ -42,41 +42,59 @@ public class <%= service.gwt_rpc.servlet_name %>
 
   @Override
   protected com.google.gwt.user.server.rpc.SerializationPolicy doGetSerializationPolicy( @javax.annotation.Nonnull final javax.servlet.http.HttpServletRequest request,
-                                                                                         @javax.annotation.Nonnull final String moduleBaseURL,
+                                                                                         @javax.annotation.Nonnull final String moduleBase,
                                                                                          @javax.annotation.Nonnull final String strongName )
   {
-    String modulePath = "";
-    if ( null != moduleBaseURL )
+    java.net.URL moduleBaseURL = null;
+    if ( null != moduleBase )
     {
       try
       {
-        modulePath = new java.net.URL( moduleBaseURL ).getPath();
+        moduleBaseURL = new java.net.URL( moduleBase );
       }
       catch ( final java.net.MalformedURLException e )
       {
         // log the information, we will default
-        log( "Malformed moduleBaseURL: " + moduleBaseURL, e );
+        log( "Malformed moduleBaseURL: " + moduleBase, e );
         return null;
       }
     }
 
-    final String contextRelativePath = modulePath.substring( request.getContextPath().length() );
-    final String filePath =
-      com.google.gwt.user.server.rpc.SerializationPolicyLoader.getSerializationPolicyFileName( contextRelativePath + strongName );
-    final java.io.InputStream resourceStream = getServletContext().getResourceAsStream( filePath );
-    if ( null != resourceStream )
+    final String contextPath = request.getContextPath();
+    java.io.InputStream stream = null;
+    String path = strongName;
+    if ( null != moduleBaseURL && moduleBaseURL.getPath().startsWith( contextPath ) )
     {
-      try ( java.io.InputStream input = resourceStream )
+      final String contextRelativePath = moduleBaseURL.getPath().substring( contextPath.length() );
+      path = contextRelativePath + strongName + ".gwt.rpc";
+      stream = getServletContext().getResourceAsStream( path );
+    }
+    else if ( null != moduleBaseURL )
+    {
+      path = moduleBaseURL.toExternalForm() + strongName + ".gwt.rpc";
+      try
+      {
+        stream = new java.net.URL( path ).openStream();
+      }
+      catch ( final java.io.IOException e )
+      {
+        log( "ERROR: Failed to read the remote policy file '" + path + "'", e );
+        return null;
+      }
+    }
+    if ( null != stream )
+    {
+      try ( java.io.InputStream input = stream )
       {
         return com.google.gwt.user.server.rpc.SerializationPolicyLoader.loadFromStream( input, null );
       }
       catch ( final java.text.ParseException e )
       {
-        log( "ERROR: Failed to parse the policy file '" + filePath + "'", e );
+        log( "ERROR: Failed to parse the policy file '" + path + "'", e );
       }
       catch ( final java.io.IOException e )
       {
-        log( "ERROR: Could not read the policy file '" + filePath + "'", e );
+        log( "ERROR: Could not read the policy file '" + path + "'", e );
       }
     }
     // If CodeServerPolicyUrl is available then we are probably in development and thus
@@ -84,7 +102,7 @@ public class <%= service.gwt_rpc.servlet_name %>
     else if ( null == getCodeServerPolicyUrl( strongName ) )
     {
       final String message =
-        "ERROR: The serialization policy file '" + filePath + "' was not found; " +
+        "ERROR: The serialization policy file '" + path + "' was not found; " +
         "did you forget to include it in this deployment?";
       log( message );
     }
