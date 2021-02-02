@@ -51,7 +51,11 @@ public abstract class <%= repository.imit.abstract_endpoint_name %>
       try
       {
         final org.keycloak.adapters.KeycloakDeployment deployment = _resolver.resolve( null );
-        return org.keycloak.RSATokenVerifier.verifyToken( authToken, deployment.getRealmKey(), deployment.getRealmInfoUrl(), true, true );
+<% if repository.keycloak.keycloak_version == '5' -%>
+        return org.keycloak.RSATokenVerifier.verifyToken( authToken, deployment.getRealm<%= repository.keycloak.keycloak_version == '5' ? 'Key' : '' %>(), deployment.getRealmInfoUrl(), true, true );
+<% else -%>
+        return org.keycloak.adapters.rotation.AdapterTokenVerifier.verifyToken( authToken, deployment );
+<% end -%>
       }
       catch ( final org.keycloak.common.VerificationException ve )
       {
