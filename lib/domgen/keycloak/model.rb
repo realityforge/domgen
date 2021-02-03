@@ -303,19 +303,19 @@ module Domgen
       attr_writer :default_roles
 
       def default_roles
-        @default_roles ||= []
+        @default_roles || []
       end
 
       attr_writer :redirect_uris
 
       def redirect_uris
-        @redirect_uris ||= ["{{#{env_constant_prefix}_URL}}/*"]
+        @redirect_uris || ["{{#{env_constant_prefix}_URL}}/*"]
       end
 
       attr_writer :web_origins
 
       def web_origins
-        @web_origins ||= (keycloak_repository.repository.gwt? ? [origin] : [])
+        @web_origins || (keycloak_repository.repository.gwt? ? [origin] : [])
       end
 
       def ssl_required=(ssl_required)
