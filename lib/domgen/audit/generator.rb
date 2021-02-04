@@ -19,22 +19,22 @@ Domgen::Generator.define([:audit],
   g.template_set(:audit_psql) do |template_set|
     template_set.erb_template(:entity,
                               'psql_view.sql.erb',
-                              '#{entity.data_module.name}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql',
+                              '#{entity.data_module.sql.schema}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql',
                               :additional_facets => [:pgsql])
   end
 
   g.template_set(:audit_mssql) do |template_set|
     template_set.erb_template(:entity,
                               'mssql_view.sql.erb',
-                              '#{entity.data_module.name}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql',
+                              '#{entity.data_module.sql.schema}/views/#{entity.data_module.sql.schema}.vw#{entity.name}.sql',
                               :additional_facets => [:mssql])
     template_set.erb_template(:entity,
                               'mssql_finalize.sql.erb',
-                              '#{entity.data_module.name}/finalize/#{entity.data_module.sql.schema}.vw#{entity.name}_finalize.sql',
+                              '#{entity.data_module.sql.schema}/finalize/#{entity.data_module.sql.schema}.vw#{entity.name}_finalize.sql',
                               :additional_facets => [:mssql])
     template_set.erb_template(:entity,
                               'mssql_triggers.sql.erb',
-                              '#{entity.data_module.name}/triggers/#{entity.data_module.sql.schema}.vw#{entity.name}_triggers.sql',
+                              '#{entity.data_module.sql.schema}/triggers/#{entity.data_module.sql.schema}.vw#{entity.name}_triggers.sql',
                               :additional_facets => [:mssql])
   end
 end
