@@ -238,7 +238,7 @@ module Domgen
       end
 
       def interpolate(content)
-        content.gsub(/\{\{([^\}]+)\}\}/) do |m|
+        content.gsub(/{{([^}]+)}}/) do |m|
           self.instance_eval($1)
         end
       end
@@ -412,7 +412,7 @@ module Domgen
       end
 
       def interpolate(content)
-        content.gsub(/\{\{([^\}]+)\}\}/) do |m|
+        content.gsub(/{{([^}]+)}}/) do |m|
           self.instance_eval($1)
         end
       end
