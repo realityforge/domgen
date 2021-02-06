@@ -13,13 +13,13 @@ corruption_check_entity = data_module.repository.sql_analysis.corruption_check_e
 INSERT INTO <%= corruption_check_entity.sql.qualified_table_name %>(<%= corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name%>)
   VALUES ('ID Namespace', 'An ID must not be appear in multiple tables in the <%= entity.qualified_name %> hierarchy','
 SELECT ID, COUNT(*) AS IDCount
-FROM (
+ FROM (
 <%= entity.concrete_subtypes.select{|entity| entity.sql_analysis?}.collect do |subtype|
    "SELECT ID, ''#{subtype.name}'' AS Type FROM #{subtype.sql.qualified_table_name}"
    end.join("\nUNION\n") %>
-) f
-GROUP BY ID
-HAVING COUNT(*) > 1')
+ ) f
+ GROUP BY ID
+ HAVING COUNT(*) > 1')
 GO
 <% end -%>
 <% end -%>
@@ -34,9 +34,9 @@ GO
 INSERT INTO <%= corruption_check_entity.sql.qualified_table_name %>(<%= corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name%>)
   VALUES ('Relationship', 'The attribute <%= attribute.qualified_name %> must reference an object and the object must not be deleted before the <%= attribute.entity.qualified_name %> is deleted','
 SELECT PK.DeletedAt
-FROM
+ FROM
   <%= attribute.entity.sql.qualified_table_name %> PK
-LEFT JOIN <%
+ LEFT JOIN <%
       if attribute.referenced_entity.final?
 %><%= attribute.referenced_entity.sql.qualified_table_name %><%
       else
@@ -47,7 +47,7 @@ LEFT JOIN <%
   )<%
       end
 %> FK ON PK.<%= attribute.sql.column_name %> = FK.<%= attribute.referenced_entity.primary_key.sql.column_name %>
-WHERE
+ WHERE
   PK.<%= attribute.sql.column_name %> IS NOT NULL AND (FK.<%= attribute.entity.primary_key.sql.quoted_column_name %> IS NULL OR (PK.DeletedAt IS NULL AND FK.DeletedAt IS NOT NULL) OR (PK.DeletedAt > FK.DeletedAt))
 ')
 GO
