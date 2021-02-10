@@ -52,6 +52,4 @@ Domgen::Generator.define([:syncrecord],
                               :additional_facets => [:jaxrs],
                               :guard => 'repository.application.code_deployable?')
   end
-
-  g.template_set(:syncrecord => [:syncrecord_datasources, :syncrecord_control_rest_service, :syncrecord_abstract_service])
 end
