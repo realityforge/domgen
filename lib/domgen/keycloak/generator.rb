@@ -62,15 +62,6 @@ Domgen::Generator.define([:keycloak],
                               :guard => 'repository.keycloak.has_local_auth_service?')
   end
 
-  %w(main test).each do |type|
-    g.template_set(:"keycloak_#{type}_integration_qa") do |template_set|
-      template_set.erb_template(:repository,
-                                'integration_test_module.java.erb',
-                                type + '/java/#{repository.keycloak.qualified_integration_test_module_name.gsub(".","/")}.java',
-                                :additional_facets => [:ejb])
-    end
-  end
-
   g.template_set(:keycloak_config_service) do |template_set|
     template_set.erb_template('keycloak.client',
                               'config_service.java.erb',

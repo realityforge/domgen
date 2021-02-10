@@ -81,39 +81,13 @@ Domgen::Generator.define([:jws],
                               'main/webapp/WEB-INF/sun-jaxws.xml')
   end
 
-  g.template_set(:jws_service_integration_test) do |template_set|
-    template_set.erb_template(:service,
-                              'service_integration_test.java.erb',
-                              'test/java/#{service.jws.qualified_service_integration_test_name.gsub(".","/")}.java')
-  end
-
-
   g.template_set(:jws_shared) do |template_set|
     template_set.erb_template(:repository,
                               'constants_container.java.erb',
                               'main/java/#{repository.jws.qualified_constants_container_name.gsub(".","/")}.java')
   end
 
-  g.template_set(:jws_fakes) do |template_set|
-    template_set.erb_template(:service,
-                              'fake_implementation.java.erb',
-                              'main/java/#{service.jws.qualified_fake_implementation_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'fake_server.java.erb',
-                              'main/java/#{repository.jws.qualified_fake_server_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'fake_server_factory.java.erb',
-                              'main/java/#{repository.jws.qualified_fake_server_factory_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'abstract_fake_server_test.java.erb',
-                              'test/java/#{repository.jws.qualified_abstract_fake_server_test_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client_integration_test.java.erb',
-                              'test/java/#{repository.jws.qualified_client_integration_test_name.gsub(".","/")}.java')
-  end
-
   g.template_set(:jws_server => [:jws_server_boundary, :jws_server_service, :jws_wsdl_assets, :xml_xsd_assets])
-  g.template_set(:jws_fake_server => [:jws_fakes, :jws_server_service, :jws_wsdl_resources, :xml_xsd_resources])
   g.template_set(:jws_client => [:jws_wsdl_resources, :xml_xsd_resources, :jws_client_service, :jws_client_handler])
   g.template_set(:jws => [:jws_server, :jws_client])
 end

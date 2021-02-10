@@ -21,13 +21,6 @@ Domgen::Generator.define([:jms],
                               'main/java/#{repository.jms.qualified_constants_container_name.gsub(".","/")}.java')
   end
 
-  g.template_set(:jms_integration_tests) do |template_set|
-    template_set.erb_template('jms.destination',
-                              'message_integration_test.java.erb',
-                              'test/java/#{destination.qualified_message_integration_test_name.gsub(".","/")}.java',
-                              :guard => 'destination.read_permitted? && destination.generate_base_test?')
-  end
-
   g.template_set(:jms_services) do |template_set|
     template_set.erb_template(:method,
                               'mdb.java.erb',

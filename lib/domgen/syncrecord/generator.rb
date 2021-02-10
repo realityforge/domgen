@@ -44,12 +44,4 @@ Domgen::Generator.define([:syncrecord],
                               'main/java/#{repository.syncrecord.qualified_datasources_name.gsub(".","/")}.java',
                               :guard => 'repository.syncrecord.data_sources?')
   end
-
-  g.template_set(:syncrecord_integration_test) do |template_set|
-    template_set.erb_template(:repository,
-                              'status_integration_test.java.erb',
-                              'test/java/#{repository.syncrecord.qualified_status_integration_test_name.gsub(".","/")}.java',
-                              :additional_facets => [:jaxrs],
-                              :guard => 'repository.application.code_deployable?')
-  end
 end

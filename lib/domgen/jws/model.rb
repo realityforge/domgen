@@ -31,10 +31,6 @@ module Domgen
       end
 
       java_artifact :constants_container, nil, :shared, :jws, '#{repository.name}JwsConstants'
-      java_artifact :fake_server, :service, :fake, :jws, 'Fake#{repository.name}Server'
-      java_artifact :fake_server_factory, :service, :fake, :jws, 'Fake#{repository.name}ServerFactory'
-      java_artifact :abstract_fake_server_test, :service, :fake, :jws, 'AbstractFake#{repository.name}ServerTest'
-      java_artifact :client_integration_test, :service, :fake, :jws, '#{repository.name}ClientIntegrationTest'
       java_artifact :handler_resolver, nil, :api, :jws, '#{repository.name}HandlerResolver'
 
       attr_writer :service_name
@@ -109,7 +105,6 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :type_converter, nil, :api, :jws, '#{service.name}TypeConverter'
-      java_artifact :service_integration_test, :api, :integration, :jws, 'Abstract#{service.name}IntegrationTest'
 
       def qualified_api_interface_name
         "#{api_package}.#{web_service_name}"
@@ -206,7 +201,6 @@ module Domgen
       java_artifact :service, :service, :server, :ee, '#{web_service_name}Service'
       java_artifact :java_service, :service, :server, :jws, '#{web_service_name}WS', :sub_package => 'ws'
       java_artifact :boundary_implementation, :service, :server, :jws, '#{web_service_name}WSBoundaryEJB', :sub_package => 'ws.internal'
-      java_artifact :fake_implementation, :service, :fake, :jws, 'Fake#{web_service_name}'
 
       def pre_verify
         jws_active = false

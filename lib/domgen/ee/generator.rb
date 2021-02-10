@@ -87,52 +87,5 @@ Domgen::Generator.define([:ee],
     end
   end
 
-  g.template_set(:ee_integration_provisioner) do |template_set|
-    template_set.erb_template(:repository,
-                              'abstract_provisioner.java.erb',
-                              'main/java/#{repository.ee.qualified_abstract_provisioner_name.gsub(".","/")}.java',
-                              :guard => 'repository.application.code_deployable?')
-    template_set.erb_template(:repository,
-                              'provisioner.java.erb',
-                              'main/java/#{repository.ee.qualified_provisioner_name.gsub(".","/")}.java',
-                              :guard => 'repository.application.code_deployable? && !repository.ee.custom_provisioner?')
-  end
-
-  g.template_set(:ee_integration) do |template_set|
-    template_set.erb_template(:repository,
-                              'abstract_app_server.java.erb',
-                              'main/java/#{repository.ee.qualified_abstract_app_server_name.gsub(".","/")}.java',
-                              :guard => 'repository.application.code_deployable?')
-    template_set.erb_template(:repository,
-                              'app_server.java.erb',
-                              'main/java/#{repository.ee.qualified_app_server_name.gsub(".","/")}.java',
-                              :guard => 'repository.application.code_deployable? && !repository.ee.custom_app_server?')
-    template_set.erb_template(:repository,
-                              'app_server_factory.java.erb',
-                              'main/java/#{repository.ee.qualified_app_server_factory_name.gsub(".","/")}.java',
-                              :guard => 'repository.application.code_deployable?')
-    template_set.erb_template(:repository,
-                              'abstract_integration_test.java.erb',
-                              'main/java/#{repository.ee.qualified_abstract_integration_test_name.gsub(".","/")}.java',
-                              :guard => 'repository.application.code_deployable?')
-    template_set.erb_template(:repository,
-                              'base_integration_test.java.erb',
-                              'main/java/#{repository.ee.qualified_base_integration_test_name.gsub(".","/")}.java',
-                              :guard => 'repository.application.code_deployable? && !repository.ee.custom_base_integration_test?')
-  end
-
-  g.template_set(:ee_aggregate_integration_test) do |template_set|
-    template_set.erb_template(:repository,
-                              'aggregate_integration_test.java.erb',
-                              'test/java/#{repository.ee.qualified_aggregate_integration_test_name.gsub(".","/")}.java')
-  end
-
-  g.template_set(:ee_integration_test) do |template_set|
-    template_set.erb_template(:repository,
-                              'deploy_test.java.erb',
-                              'test/java/#{repository.ee.qualified_deploy_test_name.gsub(".","/")}.java',
-                              :guard => 'repository.application.code_deployable?')
-  end
-
   g.template_set(:ee => [:jaxrs, :jpa, :ejb, :jmx, :jws, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
 end

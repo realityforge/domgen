@@ -15,14 +15,6 @@
 Domgen::Generator.define([:appconfig],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper]) do |g|
-  g.template_set(:appconfig_integration_test) do |template_set|
-    template_set.erb_template(:repository,
-                              'integration_test.java.erb',
-                              'test/java/#{repository.appconfig.qualified_integration_test_name.gsub(".","/")}.java',
-                              :additional_facets => [:jaxrs],
-                              :guard => 'repository.application.code_deployable?')
-  end
-
   g.template_set(:appconfig_feature_flag_container) do |template_set|
     template_set.erb_template(:repository,
                               'feature_flag_container.java.erb',
@@ -48,6 +40,4 @@ Domgen::Generator.define([:appconfig],
                               :additional_facets => [:mssql],
                               :guard => 'repository.appconfig.system_settings?')
   end
-
-  g.template_set(:appconfig => [:appconfig_integration_test])
 end

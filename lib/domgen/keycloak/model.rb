@@ -472,7 +472,6 @@ module Domgen
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
       java_artifact :test_module, :test, :server, :keycloak, '#{repository.name}KeycloakServicesModule', :sub_package => 'util'
       java_artifact :test_auth_service_implementation, :test, :server, :keycloak, 'Test#{repository.keycloak.auth_service_implementation_name}', :sub_package => 'util'
-      java_artifact :integration_test_module, :test, :integration, :keycloak, '#{repository.name}KeycloakTestModule', :sub_package => 'util'
 
       def client_ioc_package
         repository.gwt.client_ioc_package
@@ -584,7 +583,6 @@ module Domgen
           repository.ee.cdi_scan_excludes << 'org.apache.commons.codec.**'
           repository.ee.cdi_scan_excludes << 'org.apache.commons.logging.**'
           repository.ee.cdi_scan_excludes << 'org.apache.http.**'
-          repository.ee.add_integration_test_module(self.integration_test_module_name, self.qualified_integration_test_module_name)
         end
         if repository.ejb? && has_local_auth_service?
           self.repository.service(self.auth_service_name) unless self.repository.service_by_name?(self.auth_service_name)

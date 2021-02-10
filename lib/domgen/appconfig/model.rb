@@ -43,12 +43,6 @@ module Domgen
       def feature_flag?
         @feature_flag.nil? ? false : !!@feature_flag
       end
-
-      attr_writer :disable_in_integration_test
-
-      def disable_in_integration_test?
-        feature_flag? && (@disable_in_integration_test.nil? ? false : !!@disable_in_integration_test)
-      end
     end
   end
 
@@ -59,7 +53,6 @@ module Domgen
 
       java_artifact :feature_flag_container, nil, :shared, :appconfig, '#{repository.name}FeatureFlags'
       java_artifact :system_setting_container, nil, :shared, :appconfig, '#{repository.name}SystemSettings'
-      java_artifact :integration_test, :rest, :integration, :appconfig, '#{repository.name}AppconfigTest'
 
       attr_writer :short_test_code
 
