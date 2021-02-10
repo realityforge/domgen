@@ -235,13 +235,13 @@ module Domgen
 
       def data_source_by_name(data_source)
         syncrecord = method.data_module.repository.syncrecord
-        name = data_source.to_s.gsub(/[#\.]/, '_')
+        name = data_source.to_s.gsub(/[#.]/, '_')
         syncrecord.data_source_by_name?(name) ? syncrecord.data_source_by_name(name) : syncrecord.data_source(name, :key_value => data_source)
       end
 
       def feature_flag_by_name(feature_flag)
         appconfig = method.data_module.repository.appconfig
-        name = feature_flag.to_s.gsub(/[#\.]/, '_')
+        name = feature_flag.to_s.gsub(/[#.]/, '_')
         feature_flag = appconfig.system_setting_by_name?(name) ? appconfig.system_setting_by_name(name) : appconfig.feature_flag(name, :key_value => feature_flag)
         Domgen.error("Feature flag '#{feature_flag}' referenced by #{method.qualified_name} is not a feature flag but a system setting") unless feature_flag.feature_flag?
         feature_flag
