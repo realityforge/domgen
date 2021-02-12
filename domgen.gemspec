@@ -24,5 +24,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'reality-facets', '>= 1.12.0'
   s.add_dependency 'reality-generators', '>= 1.15.0'
   s.add_dependency 'reality-naming', '>= 1.13.0'
-  s.add_dependency 'reality-mash', '>= 1.0.0'
+  s.add_dependency 'reality-mash', '>= 1.1.0'
 end
