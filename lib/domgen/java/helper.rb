@@ -49,7 +49,7 @@ module Domgen
       end
 
       def getter_prefix(attribute)
-        attribute.boolean? ? 'is' : 'get'
+        attribute.boolean? && !attribute.nullable? ? 'is' : 'get'
       end
 
       def getter_for( attribute, name = nil )
