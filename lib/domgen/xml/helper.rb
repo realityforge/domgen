@@ -38,7 +38,7 @@ module Domgen
       end
 
       def xsd_attribute_use(characteristic)
-        characteristic.nullable? ? ' use="optional"' : ' use="required"'
+        characteristic.nullable? ? '' : ' use="required"'
       end
     end
   end

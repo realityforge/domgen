@@ -30,7 +30,7 @@
     <xs:sequence>
 <% struct.fields.each do |field| -%>
 <% if field.collection? -%>
-      <xs:element name="<%= field.xml.name %>" nillable="false">
+      <xs:element name="<%= field.xml.name %>">
         <xs:complexType>
           <xs:sequence>
 <% if field.struct? -%>
@@ -57,7 +57,7 @@
   </xs:complexType>
 <% end -%>
 <% data_module.exceptions.select{|e|e.xml?}.each do |exception| -%>
-  <xs:element name="<%= exception.xml.name %>" nillable="false" type="<%= data_module.xml.prefix %>:<%= exception.name %>"/>
+  <xs:element name="<%= exception.xml.name %>" type="<%= data_module.xml.prefix %>:<%= exception.name %>"/>
   <xs:complexType name="<%= exception.name %>">
 <% if exception.parameters.size > 0 -%>
     <xs:sequence>
