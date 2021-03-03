@@ -52,7 +52,7 @@
     <xs:sequence/>
 <% end -%>
 <% struct.fields.select{|f| !f.collection? && !f.struct? && !f.xml.element?}.each do |field| -%>
-    <xs:attribute name="<%= field.xml.name %>" <%= xsd_type(field) %> <%= xsd_attribute_use(field) %>/>
+    <xs:attribute name="<%= field.xml.name %>" <%= xsd_type(field) %><%= xsd_attribute_use(field) %>/>
 <% end -%>
   </xs:complexType>
 <% end -%>
