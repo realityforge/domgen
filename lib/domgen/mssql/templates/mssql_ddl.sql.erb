@@ -88,8 +88,12 @@ GO
 ALTER TABLE <%= entity.sql.qualified_table_name %>
   WITH NOCHECK ADD CONSTRAINT [<%= foreign_key.foreign_key_name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| entity.attribute_by_name(a).sql.quoted_column_name}.join(', ') %>)
   REFERENCES <%= foreign_key.referenced_entity.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| foreign_key.referenced_entity.attribute_by_name(a).sql.quoted_column_name}.join(', ')  %>)
-<% if foreign_key.on_update != :no_action %>  ON UPDATE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_update] %><% end %>
-<% if foreign_key.on_delete != :no_action %>  ON DELETE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_delete] %><% end %>
+<% if foreign_key.on_update != :no_action -%>
+  ON UPDATE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_update] %>
+<% end -%>
+<% if foreign_key.on_delete != :no_action -%>
+  ON DELETE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_delete] %>
+<% end -%>
 GO
 ALTER TABLE <%= entity.sql.qualified_table_name %> NOCHECK CONSTRAINT [<%= foreign_key.foreign_key_name %>]
 GO
