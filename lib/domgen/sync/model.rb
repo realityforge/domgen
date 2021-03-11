@@ -572,7 +572,7 @@ module Domgen
 
             # For self referential, non-transaction time entities, we have to set sql.on_delete
             # attribute otherwise sync will fail to remove the entity during synchronization
-            if a.reference? && a.referenced_entity.qualified_name == a.entity.qualified_name && !entity.transaction_time?
+            if a.reference? && a.referenced_entity.qualified_name == a.entity.qualified_name && !entity.transaction_time? && entity.sync.support_remove?
               a.sql.on_delete = :set_null
             end
 
