@@ -60,11 +60,15 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
     recorder.incMetric( "<%= entity.qualified_name %>.Total.Original", 0 );
     recorder.incMetric( "<%= entity.qualified_name %>.Total.New", 0 );
     recorder.incMetric( "<%= entity.qualified_name %>.AddCount", 0 );
+<% if entity.sync.support_remove? -%>
     recorder.incMetric( "<%= entity.qualified_name %>.RemoveCount", 0 );
+<% end -%>
     recorder.incMetric( "<%= entity.qualified_name %>.UpdateCount", 0 );
     recorder.incMetric( "<%= entity.qualified_name %>.AddDuration", 0 );
     recorder.incMetric( "<%= entity.qualified_name %>.UpdateDuration", 0 );
+<% if entity.sync.support_remove? -%>
     recorder.incMetric( "<%= entity.qualified_name %>.RemoveDuration", 0 );
+<% end -%>
     recorder.incMetric( "<%= entity.qualified_name %>.DiffCheckDuration", 0 );
     recorder.incMetric( "<%= entity.qualified_name %>.PopulateSyncTempDuration", 0 );
     recorder.incMetric( "<%= entity.qualified_name %>.FinalizeSyncTempDuration", 0 );
@@ -365,6 +369,7 @@ end
       recorder.incMetric( "<%= entity.qualified_name %>.DiffCheckDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 
+<% if entity.sync.support_remove? -%>
     {
       final long entityStartAt = System.currentTimeMillis();
       log( recorder, "Synchronizing deletes for <%= entity.qualified_name %>" );
@@ -375,6 +380,7 @@ end
       recorder.incMetric( "<%= entity.qualified_name %>.RemoveDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 
+<% end %>
 <% if entity.sync.update_via_sync? %>
     {
       final long entityStartAt = System.currentTimeMillis();

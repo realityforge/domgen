@@ -163,9 +163,11 @@ module Domgen
                 m.text(:MappingSourceCode)
                 m.returns('java.lang.Object[]', :collection_type => :sequence)
               end
-              s.method(:"Query#{entity.data_module.name}#{entity.name}Removals") do |m|
-                m.text(:MappingSourceCode)
-                m.returns('java.lang.Object[]', :collection_type => :sequence)
+              if entity.sync.support_remove?
+                s.method(:"Query#{entity.data_module.name}#{entity.name}Removals") do |m|
+                  m.text(:MappingSourceCode)
+                  m.returns('java.lang.Object[]', :collection_type => :sequence)
+                end
               end
 
               s.method(:"CreateOrUpdate#{entity.data_module.name}#{entity.name}") do |m|
@@ -173,14 +175,16 @@ module Domgen
                 m.parameter(:Record, 'java.lang.Object[]')
                 m.returns(:boolean, :description => 'Return true on create, false on update')
               end
-              s.method(:"Remove#{entity.data_module.name}#{entity.name}") do |m|
-                m.integer(:MappingId)
-                m.parameter(:Id, entity.primary_key.jpa.java_type(:boundary), :nullable => true)
-                m.returns(:boolean, :description => 'Return true on remove from non-master, false if not required')
-              end
-              s.method(:"Mark#{entity.data_module.name}#{entity.name}RemovalsPreSync") do |m|
-                m.text(:MappingSourceCode)
-                m.returns(:integer, :description => 'The number of records changed')
+              if entity.sync.support_remove?
+                s.method(:"Remove#{entity.data_module.name}#{entity.name}") do |m|
+                  m.integer(:MappingId)
+                  m.parameter(:Id, entity.primary_key.jpa.java_type(:boundary), :nullable => true)
+                  m.returns(:boolean, :description => 'Return true on remove from non-master, false if not required')
+                end
+                s.method(:"Mark#{entity.data_module.name}#{entity.name}RemovalsPreSync") do |m|
+                  m.text(:MappingSourceCode)
+                  m.returns(:integer, :description => 'The number of records changed')
+                end
               end
 
               if entity.sync.enable_bulk_sync?
@@ -207,13 +211,15 @@ module Domgen
                     m.returns(:text)
                   end
                 end
-                s.method(:"GetSqlToDirectlyDelete#{entity.data_module.name}#{entity.name}") do |m|
-                  m.text(:MappingSourceCode)
-                  m.returns(:text)
-                end
-                s.method(:"GetSqlToMarkDeleted#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
-                  m.text(:MappingSourceCode)
-                  m.returns(:text)
+                if entity.sync.support_remove?
+                  s.method(:"GetSqlToDirectlyDelete#{entity.data_module.name}#{entity.name}") do |m|
+                    m.text(:MappingSourceCode)
+                    m.returns(:text)
+                  end
+                  s.method(:"GetSqlToMarkDeleted#{entity.data_module.name}#{entity.name}AsSynchronized") do |m|
+                    m.text(:MappingSourceCode)
+                    m.returns(:text)
+                  end
                 end
               end
             end
@@ -312,6 +318,12 @@ module Domgen
     end
 
     facet.enhance(Entity) do
+      attr_writer :support_remove
+
+      def support_remove?
+        @support_remove.nil? ? true : !!@support_remove
+      end
+
       def core_entity=(core_entity)
         @core_entity = core_entity
       end
@@ -411,7 +423,7 @@ module Domgen
       attr_writer :delete_via_sync
 
       def delete_via_sync?
-        @delete_via_sync.nil? ? true : !!@delete_via_sync
+        self.support_remove? && (@delete_via_sync.nil? ? true : !!@delete_via_sync)
       end
 
       def update_via_sync?

@@ -84,18 +84,22 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
               # Assume that the synchronization process will correctly handle
               # deletion of referenced entities and thus no special handling required
               e.sync.references_requiring_manual_sync.each do |a|
+                if a.referenced_entity.sync.support_remove?
 -%>
   protected abstract void remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( @javax.annotation.Nonnull final <%= e.jpa.qualified_name %> <%= Reality::Naming.camelize(e.jpa.name) %> );
 
 <%
+                end
               end
               e.sync.managed_references_requiring_manual_sync.each do |a|
+                if a.referenced_entity.sync.support_remove?
 -%>
   protected void removeUnmanaged<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( @javax.annotation.Nonnull final <%= e.jpa.qualified_name %> <%= Reality::Naming.camelize(e.jpa.name) %> )
   {
   }
 
 <%
+                end
               end
             end
 -%>
@@ -221,6 +225,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     return query.getResultList();
   }
 
+<% if entity.sync.support_remove? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   public java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode )
@@ -231,6 +236,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     return query.getResultList();
   }
 
+<% end -%>
   @java.lang.Override
   public boolean createOrUpdate<%= entity.data_module.name %><%= entity.name %>( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final java.lang.Object[] record )
   {
@@ -346,6 +352,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   {
   }
 
+<% if entity.sync.support_remove? -%>
   @java.lang.Override
   @java.lang.SuppressWarnings( "deprecation" )
   public boolean remove<%= entity.data_module.name %><%= entity.name %>( final int mappingId, @javax.annotation.Nullable final <%= entity.primary_key.jpa.java_type(:boundary) %> id )
@@ -433,6 +440,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     query.setParameter( 1, mappingSourceCode );
     return query.executeUpdate();
   }
+<% end -%>
 <% if entity.sync.enable_bulk_sync? -%>
 
   @java.lang.Override
@@ -526,6 +534,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   }
 
 <% end -%>
+<% if entity.sync.support_remove? -%>
   @javax.annotation.Nonnull
   @java.lang.Override
   public String getSqlToDirectlyDelete<%= fn %>( @javax.annotation.Nonnull final String mappingSourceCode )
@@ -558,6 +567,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
   }
 <% end -%>
+<% end -%>
 
   @javax.annotation.Nonnull
   protected String getSqlToRetrieve<%= fn %>ListToUpdate( @javax.annotation.Nonnull final String mappingSourceCode )
@@ -583,6 +593,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% end -%>
   }
 
+<% if entity.sync.support_remove? -%>
   @javax.annotation.Nonnull
   protected String getSqlToRetrieve<%= fn %>ListToRemove( @javax.annotation.Nonnull final String mappingSourceCode )
   {
@@ -606,5 +617,6 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     throw new IllegalStateException( "Override getSqlToRetrieve<%= fn %>ListToRemove() due to multiple recursive attributes." );
 <% end -%>
   }
+<% end -%>
 <% end -%>
 }
