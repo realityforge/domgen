@@ -52,7 +52,9 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
 
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
       iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", getCreateCountFor<%= entity.sync.master_entity.name %>(), 0, 0 );
+<% if entity.sync.support_remove? -%>
       iris.syncrecord.server.test.util.SyncAssert.assertMetric( synchronization, "<%= entity.qualified_name %>.UnsyncRemovals", getUnsyncRemovalsCountFor<%= entity.sync.master_entity.name %>());
+<% end -%>
 <% end -%>
 
       assertNoUnsynchronized( mappingSource );
