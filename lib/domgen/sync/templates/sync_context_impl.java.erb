@@ -572,8 +572,8 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @javax.annotation.Nonnull
   protected String getSqlToRetrieve<%= fn %>ListToUpdate( @javax.annotation.Nonnull final String mappingSourceCode )
   {
-    return
 <% if recursive_attributes.size <= 1 -%>
+    return
 <%= cte -%>
       "SELECT <%= j_escape_string( attr_select ) -%> " +
       "FROM <%= j_escape_string( table ) %> M " +
