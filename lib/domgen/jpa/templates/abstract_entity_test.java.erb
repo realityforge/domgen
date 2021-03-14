@@ -30,25 +30,32 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     s( javax.transaction.TransactionSynchronizationRegistry.class ).putResource( "ReplicationActive", "Test" );
 <% end -%>
   }
-<% if repository.sql_analysis?-%>
 
   @org.testng.annotations.AfterMethod
   @java.lang.Override
   public void postTest()
   {
-    try
+    if ( null != getInjector() )
     {
-      if ( isSqlAnalysisEnabled() && em().isOpen() && em().isJoinedToTransaction() && !em().getTransaction().getRollbackOnly() )
+<% if repository.sql_analysis? -%>
+      try
       {
-        _disableAnalysis = false;
-        runSqlAnalysisPerformChecks();
+        if ( isSqlAnalysisEnabled() && em().isOpen() && em().isJoinedToTransaction() && !em().getTransaction().getRollbackOnly() )
+        {
+          _disableAnalysis = false;
+          runSqlAnalysisPerformChecks();
+        }
       }
-    }
-    finally
-    {
+      finally
+      {
+        super.postTest();
+      }
+<% else -%>
       super.postTest();
+<% end -%>
     }
   }
+<% if repository.sql_analysis? -%>
 
   protected void runSqlAnalysisPerformChecks()
   {
