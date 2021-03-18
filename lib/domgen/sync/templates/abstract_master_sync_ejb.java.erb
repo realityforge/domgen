@@ -110,6 +110,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 
   protected int sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
+    @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
     final String sql =
       "<%= j_escape_string("UPDATE #{entity.sql.dialect.requires_table_name_for_update ? "#{entity.sync.master_entity.sql.qualified_table_name} U" : 'M' }" ) %>" +
       "<%= j_escape_string(" SET #{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} = ?, #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql} ") %>" +
@@ -124,6 +125,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
   protected int sync<%= entity.qualified_name.gsub('.','') %>UpdatesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
 <% reference_index = 0 -%>
+    @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
     final String sql =
       "<%= j_escape_string("UPDATE #{entity.sql.dialect.requires_table_name_for_update ? "#{entity.sync.master_entity.sql.qualified_table_name} U" : 'M' }") %>" +
       "<%= j_escape_string(" SET #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql}, ") %>" +
@@ -236,6 +238,7 @@ end
   protected int sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
 <% reference_index = 0 -%>
+    @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
     final String sql =
       "<%= j_escape_string("INSERT INTO #{ entity.sync.master_entity.sql.qualified_table_name }(#{ entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name }, #{ entity.sync.master_entity.attribute_by_name(:CreatedAt).sql.quoted_column_name }, #{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }, #{ entity.sync.attributes_to_synchronize.collect{|a| a.sql.quoted_column_name }.join(', ') }) ") %>" +
       "<%= j_escape_string(" SELECT #{entity.sql.dialect.false_sql }, ?, T.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }, #{ entity.sync.attributes_to_synchronize.collect{|a|
@@ -413,18 +416,19 @@ end
     recorder.addMessage( message );
   }
 
-  protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String sql )
+  protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
     return executeUpdate( sql.replace( "__MAPPING_SOURCE__", "'" + mappingSourceCode + "'" ) );
   }
 
-  protected int executeUpdate( @javax.annotation.Nonnull final String sql )
+  protected int executeUpdate( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
     return getEntityManager().createNativeQuery( interpolateSql( sql ) ).executeUpdate();
   }
 
+  @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
   @javax.annotation.Nonnull
-  protected String interpolateSql( @javax.annotation.Nonnull final String sql )
+  protected String interpolateSql( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
     return sql;
   }

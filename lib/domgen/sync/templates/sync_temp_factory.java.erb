@@ -36,7 +36,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   }
 
   @javax.annotation.Nonnull
-  private String generate<%= entity.qualified_name.gsub('.','') %>Sql( @javax.annotation.Nonnull final String prefixSql, final boolean prefixContainsWithClause, @javax.annotation.Nonnull final String selectSql )
+  private String generate<%= entity.qualified_name.gsub('.','') %>Sql( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String prefixSql, final boolean prefixContainsWithClause, @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String selectSql )
   {
     return
       prefixSql +
@@ -85,17 +85,17 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   end %>";
   }
 
-  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final String selectSql )
+  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String selectSql )
   {
     return executeUpdate( generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, selectSql ) );
   }
 
-  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String selectSql )
+  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String selectSql )
   {
     return executeUpdate( mappingSourceCode, generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, selectSql ) );
   }
 
-  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String prefixSql, final boolean prefixContainsWithClause, @javax.annotation.Nonnull final String selectSql )
+  public int insert<%= entity.qualified_name.gsub('.','') %>BySql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String prefixSql, final boolean prefixContainsWithClause, @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String selectSql )
   {
     return executeUpdate( mappingSourceCode, generate<%= entity.qualified_name.gsub('.','') %>Sql( prefixSql, prefixContainsWithClause, selectSql ) );
   }
@@ -160,18 +160,18 @@ public class <%= data_module.sync.sync_temp_factory_name %>
                    "<%= j_escape_string("  WHERE 0 = (SELECT COUNT(*) FROM #{data_module.repository.data_module_by_name(data_module.repository.sync.master_data_module).entity_by_name(:MappingSource).sql.qualified_table_name } WHERE #{data_module.sql.dialect.quote(:Code)} = __MAPPING_SOURCE__)") %>" );
   }
 
-  protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String sql )
+  protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
     return executeUpdate( sql.replace( "__MAPPING_SOURCE__", "'" + mappingSourceCode + "'" ) );
   }
 
-  protected int executeUpdate( @javax.annotation.Nonnull final String sql )
+  protected int executeUpdate( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
     return getEntityManager().createNativeQuery( interpolateSql( sql ) ).executeUpdate();
   }
 
   @javax.annotation.Nonnull
-  protected String interpolateSql( @javax.annotation.Nonnull final String sql )
+  protected String interpolateSql( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
     return sql;
   }

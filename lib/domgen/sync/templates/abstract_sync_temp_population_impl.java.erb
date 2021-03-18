@@ -63,7 +63,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     {
       @javax.annotation.Nonnull
       @java.lang.Override
-      protected String interpolateSql( @javax.annotation.Nonnull final String sql )
+      protected String interpolateSql( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
       {
         return <%= data_module.sync.abstract_sync_temp_population_impl_name %>.this.interpolateSql( sql );
       }
@@ -140,7 +140,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   }
 
   @java.lang.SuppressWarnings( "ConstantConditions" )
-  protected boolean verify<%= entity.qualified_name.gsub('.','') %>ViaSql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.lang.String sql, @javax.annotation.Nonnull final java.lang.String validation, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
+  protected boolean verify<%= entity.qualified_name.gsub('.','') %>ViaSql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final java.lang.String sql, @javax.annotation.Nonnull final java.lang.String validation, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
     try ( java.sql.PreparedStatement statement = getEntityManager().unwrap( java.sql.Connection.class ).prepareStatement( sql ) )
@@ -169,6 +169,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   }
 
 <% entity.sql.constraints.select{|constraint| !(constraint.sql =~ /\[CreatedAt\]/ && constraint.sql =~ /\[DeletedAt\]/) }.each do |constraint| %>
+  @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
   @javax.annotation.Nonnull
   protected java.lang.String get<%= constraint.table.entity.data_module.name %><%= constraint.table.entity.name %><%= constraint.name %>Sql()
   {
@@ -195,6 +196,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     try
     {
       {
+        @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
         final String sql =
           "SELECT S.* " +
           " FROM " +
@@ -210,6 +212,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
    column_names = index.attribute_names.collect {|attr_name| a = entity.attribute_by_name(attr_name); entity.sync.sync_temp_entity.attribute_by_name(a.reference? ? "#{a.name}MappingId" : a.name).sql.quoted_column_name }
 -%>
       {
+        @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
 <% if index.partial? %>
         final String sql = get_<%= entity.data_module.name %>_<%= entity.name %>_<%= index.index_name %>_IndexValidationSql();
 <% else %>
@@ -228,6 +231,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% end -%>
 <% entity.attributes.select{|a| a.sync? && a.immutable? && !a.primary_key? && a.name != :CreatedAt}.each do |a| %>
       {
+        @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
         final String sql =
           "SELECT S.* " +
           " FROM " +
@@ -262,6 +266,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% end -%>
 <% entity.attributes.select{|a| a.sync? && a.set_once? && !a.primary_key? && a.name != :DeletedAt}.each do |a| %>
       {
+        @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
         final String sql =
           "SELECT S.* " +
           " FROM " +
@@ -296,6 +301,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% end -%>
 <% entity.sql.constraints.select{|constraint| !(constraint.sql =~ /\[CreatedAt\]/ && constraint.sql =~ /\[DeletedAt\]/) }.each do |constraint| %>
       {
+        @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
         final String sql = get<%= constraint.table.entity.data_module.name %><%= constraint.table.entity.name %><%= constraint.name %>Sql();
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to violate constraint <%= j_escape_string( constraint.qualified_constraint_name ) %>", recorder ) )
         {
@@ -305,6 +311,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% end -%>
 <% entity.attributes.select{|a| a.sync? && a.reference?}.each do |a| -%>
       {
+        @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
         final String sql =
           "SELECT S.* " +
           " FROM " +
@@ -392,18 +399,18 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     recorder.addMessage( message );
   }
 
-  protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final String sql )
+  protected int executeUpdate(  @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
     return executeUpdate( sql.replace( "__MAPPING_SOURCE__", "'" + mappingSourceCode + "'" ) );
   }
 
-  protected int executeUpdate( @javax.annotation.Nonnull final String sql )
+  protected int executeUpdate( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
     return getEntityManager().createNativeQuery( interpolateSql( sql ) ).executeUpdate();
   }
 
   @javax.annotation.Nonnull
-  protected String interpolateSql( @javax.annotation.Nonnull final String sql )
+  protected String interpolateSql( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
 <% if data_module.sync.master_sync_persistent_unit -%>
     return sql<%= persistent_unit.related_database_keys.collect{|key| ".replace( \"@@#{Reality::Naming.uppercase_constantize(key)}@@\", \"[\" + _#{key}DatabaseName + \"]\" )"}.join('') %>;
