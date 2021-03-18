@@ -4,17 +4,15 @@ package <%= to_package(data_module.sync.qualified_sync_temp_factory_name) %>;
 @java.lang.SuppressWarnings( "unused" )
 public class <%= data_module.sync.sync_temp_factory_name %>
 {
+  @javax.annotation.Nonnull
   private final javax.persistence.EntityManager _entityManager;
 
-  public <%= data_module.sync.sync_temp_factory_name %>( final javax.persistence.EntityManager entityManager )
+  public <%= data_module.sync.sync_temp_factory_name %>( @javax.annotation.Nonnull final javax.persistence.EntityManager entityManager )
   {
-    if( null == entityManager )
-    {
-      throw new IllegalArgumentException( "entityManager is null" );
-    }
-    _entityManager = entityManager;
+    _entityManager = java.util.Objects.requireNonNull( entityManager );
   }
 
+  @javax.annotation.Nonnull
   protected final javax.persistence.EntityManager getEntityManager()
   {
     return _entityManager;
