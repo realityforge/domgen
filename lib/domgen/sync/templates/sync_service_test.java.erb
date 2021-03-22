@@ -27,7 +27,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
   protected final void assertNoChanges( @javax.annotation.Nonnull final iris.syncrecord.server.entity.Synchronization synchronization )
   {
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-    iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, 0, 0 );
+    iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, 0<%= entity.sync.support_remove? ? ', 0' : '' %> );
 <% end -%>
   }
 
@@ -41,9 +41,11 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
     final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSourceToDelete = mappingSource;
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
     final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %> = create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.name == a.entity.name ? 'null' : a.referenced_entity.abstract? ? Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name ) : Reality::Naming.camelize( a.referenced_entity.name ) } + ['null']).join(', ') %> );
-    final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>Deleted = create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.name == a.entity.name ? 'null' : a.referenced_entity.abstract? ? Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name ) : Reality::Naming.camelize( a.referenced_entity.name ) } + ['org.realityforge.guiceyloops.shared.ValueUtil.now()']).join(', ') %> );
     final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>Ignored = create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.name == a.entity.name ? 'null' : a.referenced_entity.abstract? ? "#{Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name )}Ignored" : "#{Reality::Naming.camelize( a.referenced_entity.name )}Ignored" } + ['null']).join(', ') %> );
-    final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>ToDelete = create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.abstract? ? "#{Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name )}#{a.referenced_entity.name == a.entity.name ? '' : 'ToDelete'}" : "#{Reality::Naming.camelize( a.referenced_entity.name )}#{a.referenced_entity.name == a.entity.name ? '' : 'ToDelete'}" } + ['null']).join(', ') %> );
+<% if entity.sync.support_remove? -%>
+    final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>Deleted = create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.name == a.entity.name ? 'null' : a.referenced_entity.abstract? ? Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name ) : Reality::Naming.camelize( a.referenced_entity.name ) } + ['org.realityforge.guiceyloops.shared.ValueUtil.now()']).join(', ') %> );
+    final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>ToDelete = create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.abstract? ? "#{Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name )}#{a.referenced_entity.name == a.entity.name ? '' : 'ToDelete'}" : "#{Reality::Naming.camelize( a.referenced_entity.name )}#{a.referenced_entity.name == a.entity.name || (a.referenced_entity.sync.core_entity? && !a.referenced_entity.sync.core_entity.support_remove?) ? '' : 'ToDelete'}" } + ['null']).join(', ') %> );
+<% end -%>
 <% end -%>
     createAdditionalEntities();
 
@@ -51,7 +53,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
       final iris.syncrecord.server.entity.Synchronization synchronization = doSyncAndLoadResults( mappingSource, "OK" );
 
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
-      iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", getCreateCountFor<%= entity.sync.master_entity.name %>(), 0, 0 );
+      iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", getCreateCountFor<%= entity.sync.master_entity.name %>(), 0<%= entity.sync.support_remove? ? ', 0' : '' %> );
 <% if entity.sync.support_remove? -%>
       iris.syncrecord.server.test.util.SyncAssert.assertMetric( synchronization, "<%= entity.qualified_name %>.UnsyncRemovals", getUnsyncRemovalsCountFor<%= entity.sync.master_entity.name %>());
 <% end -%>
@@ -78,9 +80,9 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
 
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
 <% if entity.sync.update_via_sync? -%>
-      iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, getUpdateCountFor<%= entity.sync.master_entity.name %>(), 0 );
+      iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, getUpdateCountFor<%= entity.sync.master_entity.name %>()<%= entity.sync.support_remove? ? ', 0' : '' %> );
 <% else -%>
-      iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, 0, 0 );
+      iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, 0<%= entity.sync.support_remove? ? ', 0' : '' %> );
 <% end -%>
 <% end -%>
 

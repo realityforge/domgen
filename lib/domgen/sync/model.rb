@@ -563,8 +563,9 @@ module Domgen
             e.string(:MappingId, 50, :immutable => true, :description => 'The ID of entity in originating system')
             e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
 
-            e.sql.index([:MappingId, :MappingKey, :MappingSource], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
-            e.sql.index([:MappingSource, :MappingId], :include_attribute_names => [:Id], :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
+            filter = self.entity.sync.support_remove? ? "#{e.sql.dialect.quote(:DeletedAt)} IS NULL" : nil
+            e.sql.index([:MappingId, :MappingKey, :MappingSource], :unique => true, :filter => filter)
+            e.sql.index([:MappingSource, :MappingId], :include_attribute_names => [:Id], :filter => filter)
           end
 
           self.entity.attributes.select {|a| !a.inherited? || a.primary_key?}.each do |a|
@@ -628,7 +629,13 @@ module Domgen
               e.sql.index([name], :unique => true, :filter => "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL")
               # Duplicate the index as sometimes want to query where there is no entity in Core
               e.sql.index([name])
-              e.sql.constraint(:CoreLinkedIfSyncAndNonDeleted, :sql => "#{e.sql.dialect.quote(:MasterSynchronized)} = #{e.sql.dialect.quote_value(false)} OR #{e.sql.dialect.quote(:DeletedAt)} IS NOT NULL OR #{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL", :standard => true)
+
+              link_constraint_sql =
+                self.entity.sync.support_remove? ?
+                  "#{e.sql.dialect.quote(:MasterSynchronized)} = #{e.sql.dialect.quote_value(false)} OR #{e.sql.dialect.quote(:DeletedAt)} IS NOT NULL OR #{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL" :
+                  "#{e.sql.dialect.quote(:MasterSynchronized)} = #{e.sql.dialect.quote_value(false)} OR #{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL"
+
+              e.sql.constraint(:CoreLinkedIfSyncAndNonDeleted, :sql => link_constraint_sql, :standard => true)
             end
 
             if a.reference?
@@ -677,26 +684,36 @@ module Domgen
           unless self.entity.transaction_time?
             e.disable_facet(:transaction_time) if e.transaction_time?
             e.datetime(:CreatedAt, :immutable => true) unless e.attribute_by_name?(:CreatedAt)
-            e.datetime(:DeletedAt, :set_once => true, :nullable => true) unless e.attribute_by_name?(:DeletedAt)
+            if self.entity.sync.support_remove? && !e.attribute_by_name?(:DeletedAt)
+              e.datetime(:DeletedAt, :set_once => true, :nullable => true)
+            end
           end
 
           if e.concrete?
             e.query(:FindByMappingSourceAndMappingId)
             e.query(:GetByMappingSourceAndMappingId)
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()', :DeletedAt => 'null')
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()', :DeletedAt => 'null')
+            if self.entity.sync.support_remove?
+              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()', :DeletedAt => 'null')
+              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()', :DeletedAt => 'null')
+            else
+              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()')
+              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()')
+            end
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId')
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
-            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
-            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
-            #e.jpa.test_update_default({ :CreatedAt => nil, :DeletedAt => nil }, :force_refresh => true)
-            delete_defaults = {}
-            e.attributes.each do |a|
-              delete_defaults[a.name] = nil unless a.generated_value? || a.immutable? || !a.jpa?
+            if self.entity.sync.support_remove?
+              e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :DeletedAt => nil }, :force_refresh => true)
             end
-            delete_defaults[:MasterSynchronized] = 'false'
-            delete_defaults[:DeletedAt] = 'new java.util.Date()'
-            e.jpa.test_update_default(delete_defaults, :force_refresh => true, :factory_method_name => "mark#{e.name}AsDeleted")
+            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
+            if self.entity.sync.support_remove?
+              delete_defaults = {}
+              e.attributes.each do |a|
+                delete_defaults[a.name] = nil unless a.generated_value? || a.immutable? || !a.jpa?
+              end
+              delete_defaults[:MasterSynchronized] = 'false'
+              delete_defaults[:DeletedAt] = 'new java.util.Date()'
+              e.jpa.test_update_default(delete_defaults, :force_refresh => true, :factory_method_name => "mark#{e.name}AsDeleted")
+            end
             e.query(:CountUnsynchronizedByMappingSource,
                     'jpa.standard_query' => true,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
@@ -707,19 +724,19 @@ module Domgen
         unless self.entity.abstract?
           validation_name = "MasterIdLinkedCorrectly"
           unless self.entity.sql.validation?(validation_name)
+            m = self.entity.sync.master_entity
             guard = "UPDATE(#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name})"
             suffix = ''
             if self.entity.transaction_time?
               guard = "UPDATE(#{self.entity.attribute_by_name(:DeletedAt).sql.quoted_column_name}) OR #{guard}"
-              suffix = " AND I.#{self.entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL"
+              suffix = " AND M.#{m.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL AND I.#{self.entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL"
             end
 
-            m = self.entity.sync.master_entity
             sql = <<-SQL
 SELECT I.#{self.entity.primary_key.sql.quoted_column_name}
 FROM inserted I
 LEFT JOIN #{m.sql.qualified_table_name} M ON M.#{m.primary_key.sql.quoted_column_name} = I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name}
-WHERE I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name} IS NOT NULL AND (M.#{m.primary_key.sql.quoted_column_name} IS NULL OR (M.#{m.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{m.sql.dialect.quote_value(true)} AND M.#{m.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL#{suffix}))
+WHERE I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name} IS NOT NULL AND (M.#{m.primary_key.sql.quoted_column_name} IS NULL OR (M.#{m.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{m.sql.dialect.quote_value(true)}#{suffix}))
             SQL
             self.entity.sql.validation(validation_name, :standard => true, :negative_sql => sql, :guard => guard)
           end

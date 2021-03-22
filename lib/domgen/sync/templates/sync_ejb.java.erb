@@ -87,10 +87,7 @@ public class <%= data_module.sync.sync_ejb_name %>
 <% data_module.sync.entities_to_synchronize.each do |entity|
   bulk_sync = entity.sync.enable_bulk_sync? -%>
 
-  private void sync<%= entity.data_module.name %><%= entity.name %>Updates(
-      @javax.annotation.Nonnull final String mappingSourceCode,
-      @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder<% if bulk_sync -%>,
-      final boolean isBulkSync<% end -%> )
+  private void sync<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder<% if bulk_sync -%>, final boolean isBulkSync<% end -%> )
     throws Exception
   {
     final long entityStartAt = System.currentTimeMillis();
