@@ -19,6 +19,12 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
 <% end -%>
   }
 
+  protected final void verifyNoOpSync( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource )
+  {
+    verifyNoChangesSync( mappingSource );
+    assertNoUnsynchronized( mappingSource );
+  }
+
   protected final void verifyNoChangesSync( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource )
   {
     assertNoChanges( doSyncAndLoadResults( mappingSource, "OK" ) );
@@ -29,6 +35,14 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
     iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, 0<%= entity.sync.support_remove? ? ', 0' : '' %> );
 <% end -%>
+  }
+
+  protected final void verifySync( @javax.annotation.Nonnull final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource, final int changeCount, @javax.annotation.Nonnull final java.util.function.Consumer<iris.syncrecord.server.entity.Synchronization> verifySyncAction )
+  {
+    final iris.syncrecord.server.entity.Synchronization synchronization = doSyncAndLoadResults( mappingSource, "OK" );
+    iris.syncrecord.server.test.util.SyncAssert.assertNumberOfChangedEntities( synchronization, changeCount );
+    verifySyncAction.accept( synchronization );
+    assertNoUnsynchronized( mappingSource );
   }
 
   @org.testng.annotations.Test
