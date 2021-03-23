@@ -135,7 +135,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
 
   protected int getCreateCountFor<%= entity.sync.master_entity.name %>()
   {
-    return getSetCountFor<%= entity.sync.master_entity.name %>() * 2;
+    return getSetCountFor<%= entity.sync.master_entity.name %>()<% if entity.sync.support_remove? -%> * 2<% end -%>;
   }
 <% if entity.sync.support_remove? -%>
 
