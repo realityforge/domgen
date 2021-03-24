@@ -163,7 +163,7 @@ end
 <% a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index| -%>
       "<%= j_escape_string(" LEFT JOIN #{ subtype.sql.qualified_table_name } R#{ reference_index }#{ index } ON ") %>" +
       "<%= j_escape_string("     R#{ reference_index }#{ index }.#{ subtype.attribute_by_name(:MappingId).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND ") %>" +
-      "<%= j_escape_string("     R#{ reference_index }#{ index }.#{ subtype.attribute_by_name(:MappingSource).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ") %> AND " +
+      "<%= j_escape_string("     R#{ reference_index }#{ index }.#{ subtype.attribute_by_name(:MappingSource).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ") %> " +
 <% if subtype.sync.support_remove? -%>
       "<%= j_escape_string("     R#{ reference_index }#{ index }.#{ subtype.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ") %>" +
 <% end -%>
@@ -171,7 +171,7 @@ end
 <% else -%>
       "<%= j_escape_string(" #{ a.nullable? ? 'LEFT ' : '' }JOIN #{ a.referenced_entity.sql.qualified_table_name } R#{ reference_index } ON ") %>" +
       "<%= j_escape_string("     R#{ reference_index }.#{ a.referenced_entity.attribute_by_name(:MappingId).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND ") %>" +
-      "<%= j_escape_string("     R#{ reference_index }.#{ a.referenced_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND ") %>" +
+      "<%= j_escape_string("     R#{ reference_index }.#{ a.referenced_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = T.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ") %>" +
 <% if a.referenced_entity.sync.core_entity.support_remove? -%>
       "<%= j_escape_string("     R#{ reference_index }.#{ a.referenced_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ") %>" +
 <% end -%>
