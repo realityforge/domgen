@@ -390,6 +390,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
       WHERE S.<%= entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name %> = ?
   */
 <% end -%>
+  @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
   @javax.annotation.Nonnull
   protected <%= default_impl_may_work ? '' : 'abstract ' %>String get_<%= entity.data_module.name %>_<%= entity.name %>_<%= index.index_name %>_IndexValidationSql()<%= default_impl_may_work ? '' : ';' %>
 <% if default_impl_may_work -%>
