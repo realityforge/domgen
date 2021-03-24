@@ -20,7 +20,23 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     return getInjector().getInstance( com.google.inject.Key.get( javax.persistence.EntityManager.class, com.google.inject.name.Names.named( <%= data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME ) ) );
   }
 <% end -%>
+<% if data_module.sync? && data_module.sync.master_data_module? -%>
 
+  @javax.annotation.Nonnull
+  protected String getDefaultMappingSourceCode()
+  {
+    return "*default*";
+  }
+
+  @javax.annotation.Nonnull
+  protected final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> findOrCreateDefaultMappingSource()
+  {
+    final String code = getDefaultMappingSourceCode();
+    final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource = <%= Reality::Naming.camelize(data_module.entity_by_name(:MappingSource).dao.jpa.dao_service_name) %>().findByCode( code );
+    return null == mappingSource ? createMappingSource( code ) : mappingSource;
+  }
+
+<% end -%>
 <% data_module.repository.data_modules.select{|dm|dm.jpa? && dm.jpa.generate_test_factory? && dm.name != data_module.name}.each do |dm| -%>
 
   @javax.annotation.Nonnull
