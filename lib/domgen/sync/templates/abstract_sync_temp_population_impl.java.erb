@@ -247,13 +247,16 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index|
     refs << "R#{index}.#{subtype.sync.master_entity.primary_key.sql.quoted_column_name}"
 -%>
+<% if subtype.sync.support_remove? -%>
           "<%= j_escape_string(" LEFT JOIN #{ subtype.sync.master_entity.sql.qualified_table_name } AS R#{ index } ON R#{ index }.#{ entity.sync.master_entity.attribute_by_name(:MappingId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND R#{ index }.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND R#{ index }.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ") %>" +
+<% else -%>
+          "<%= j_escape_string(" LEFT JOIN #{ subtype.sync.master_entity.sql.qualified_table_name } AS R#{ index } ON R#{ index }.#{ entity.sync.master_entity.attribute_by_name(:MappingId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND R#{ index }.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ") %>" +
+<% end -%>
 <% end
   ref_id = "COALESCE(#{refs.join(',')})"
 -%>
-
 <% else -%>
-<% if entity.sync.support_remove? -%>
+<% if a.referenced_entity.sync.support_remove? -%>
           "<%= j_escape_string(" LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R ON R.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ") %>" +
 <% else -%>
           "<%= j_escape_string(" LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R ON R.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } ") %>" +
@@ -290,13 +293,21 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   a.referenced_entity.concrete_subtypes.each_with_index do |subtype, index|
     refs << "R#{index}"
 -%>
+<% if entity.sync.support_remove? -%>
           "<%= j_escape_string(" LEFT JOIN #{ subtype.sync.master_entity.sql.qualified_table_name } AS R#{ index } ON R#{ index }.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND R#{ index }.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND R#{ index }.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ") %>" +
+<% else -%>
+          "<%= j_escape_string(" LEFT JOIN #{ subtype.sync.master_entity.sql.qualified_table_name } AS R#{ index } ON R#{ index }.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND R#{ index }.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }") %>" +
+<% end -%>
 <% end
   ref_id = "COALESCE(#{refs.join(',')})"
 -%>
 
 <% else -%>
+<% if entity.sync.support_remove? -%>
           "<%= j_escape_string("LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R ON R.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name } IS NULL ") %>" +
+<% else -%>
+          "<%= j_escape_string("LEFT JOIN #{ a.referenced_entity.sync.master_entity.sql.qualified_table_name } AS R ON R.#{ entity.sync.sync_temp_entity.attribute_by_name(:MappingId).sql.quoted_column_name } = S.#{ entity.sync.sync_temp_entity.attribute_by_name("#{a.name}MappingId").sql.quoted_column_name } AND R.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name } = S.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }") %>" +
+<% end -%>
 <% end -%>
 <% end -%>
 <% if entity.sync.support_remove? -%>
