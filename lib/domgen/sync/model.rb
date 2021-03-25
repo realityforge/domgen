@@ -648,7 +648,8 @@ module Domgen
               # Create an index to speed up validity checking when column is sparsely populated
               e.sql.index([name], :index_name => "IX_#{self.entity.name}_#{name}_ALL", :include_attribute_names => [:MappingKey, :MappingId, :MappingSource])
               prefix = a.nullable? ? "#{e.attribute_by_name(name).sql.quoted_column_name} IS NOT NULL AND " : ''
-              e.sql.index([name], :filter => "#{prefix}#{e.sql.dialect.quote(:DeletedAt)} IS NULL", :include_attribute_names => [:MappingKey, :MappingId, :MappingSource])
+              filter = a.referenced_entity.sync.support_remove? ? "#{prefix}#{e.sql.dialect.quote(:DeletedAt)} IS NULL" : nil
+              e.sql.index([name], :filter => filter, :include_attribute_names => [:MappingKey, :MappingId, :MappingSource])
             end
 
             if a.unique?
