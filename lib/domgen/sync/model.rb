@@ -606,6 +606,11 @@ module Domgen
               options[:min_length] = a.min_length
               options[:allow_blank] = a.allow_blank?
             end
+            if a.reference? && a.inverse.traversable?
+              options['inverse.traversable'] = true
+              options['inverse.name'] = a.inverse.name
+              options['inverse.multiplicity'] = a.inverse.multiplicity
+            end
             options[:collection_type] = a.collection_type
             options[:nullable] = a.nullable? || a.primary_key?
             options[:immutable] = !a.primary_key? && a.immutable?
