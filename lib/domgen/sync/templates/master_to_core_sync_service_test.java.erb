@@ -1,0 +1,51 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.sync.qualified_master_to_core_sync_service_test_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@javax.annotation.Generated( "Domgen" )
+public abstract class <%= data_module.sync.master_to_core_sync_service_test_name %>
+  extends <%= data_module.repository.ejb.qualified_base_service_test_name %>
+{
+  @javax.annotation.Nonnull
+  protected abstract iris.syncrecord.server.data_type.SyncStatusDTO doSync( @javax.annotation.Nonnull String dataSource );
+
+  @javax.annotation.Nonnull
+  protected final iris.syncrecord.server.entity.Synchronization doSyncAndLoadResults( @javax.annotation.Nonnull final String dataSource, @javax.annotation.Nonnull final String statusCode )
+  {
+    return iris.syncrecord.server.test.util.SyncAssert.ensureSynchronization( doSync( dataSource ), dataSource, statusCode, s( iris.syncrecord.server.service.SyncRecordService.class ) );
+  }
+
+  protected final void assertNoUnsynchronized( @javax.annotation.Nonnull final String dataSource )
+  {
+    final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource = s( <%= data_module.entity_by_name(:MappingSource).dao.jpa.qualified_dao_service_name %>.class).getByCode( dataSource );
+<% data_module.sync.entities_to_synchronize.each do |entity| -%>
+    org.testng.Assert.assertEquals( 0L, s( <%= entity.sync.master_entity.dao.jpa.qualified_dao_service_name %>.class ).countUnsynchronizedByMappingSource( mappingSource ) );
+<% end -%>
+  }
+
+  protected final void verifyNoOpSync( @javax.annotation.Nonnull final String dataSource )
+  {
+    verifyNoChangesSync( dataSource );
+    assertNoUnsynchronized( dataSource );
+  }
+
+  protected final void verifyNoChangesSync( @javax.annotation.Nonnull final String dataSource )
+  {
+    assertNoChanges( doSyncAndLoadResults( dataSource, "OK" ) );
+  }
+
+  protected final void assertNoChanges( @javax.annotation.Nonnull final iris.syncrecord.server.entity.Synchronization synchronization )
+  {
+<% data_module.sync.entities_to_synchronize.each do |entity| -%>
+    iris.syncrecord.server.test.util.SyncAssert.assertEntityMetrics( synchronization, "<%= entity.qualified_name %>", 0, 0<%= entity.sync.support_remove? ? ', 0' : '' %> );
+<% end -%>
+  }
+
+  protected final void verifySync( @javax.annotation.Nonnull final String dataSource, final int changeCount, @javax.annotation.Nonnull final java.util.function.Consumer<iris.syncrecord.server.entity.Synchronization> verifySyncAction )
+  {
+    final iris.syncrecord.server.entity.Synchronization synchronization = doSyncAndLoadResults( dataSource, "OK" );
+    iris.syncrecord.server.test.util.SyncAssert.assertNumberOfChangedEntities( synchronization, changeCount );
+    verifySyncAction.accept( synchronization );
+    assertNoUnsynchronized( dataSource );
+  }
+}

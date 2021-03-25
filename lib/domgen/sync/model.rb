@@ -245,7 +245,8 @@ module Domgen
       java_artifact :sync_temp_factory, :service, :server, :sync, 'SyncTempFactory'
       java_artifact :abstract_master_sync_ejb, :service, :server, :sync, 'AbstractMasterSyncServiceImpl'
       java_artifact :abstract_sync_temp_population_impl, :service, :server, :sync, 'AbstractSyncTempPopulationServiceImpl'
-      java_artifact :master_sync_service_test, :service, :server, :sync, 'AbstractMasterSyncServiceImplTest'
+      java_artifact :sync_temp_to_master_sync_service_test, :service, :server, :sync, 'AbstractSyncTempToMasterSyncServiceImplTest'
+      java_artifact :master_to_core_sync_service_test, :service, :server, :sync, 'AbstractMasterToCoreSyncServiceImplTest'
 
       def master_sync_persistent_unit
         raise 'master_sync_persistent_unit invoked when not master_data_module' unless master_data_module?

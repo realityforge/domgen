@@ -53,6 +53,10 @@ Domgen::Generator.define([:sync],
                               'abstract_sync_temp_population_impl.java.erb',
                               'main/java/#{data_module.sync.qualified_abstract_sync_temp_population_impl_name.gsub(".","/")}.java',
                               :guard => 'data_module.sync.master_data_module?')
+    template_set.erb_template(:data_module,
+                              'master_to_core_sync_service_test.java.erb',
+                              'test/java/#{data_module.sync.qualified_master_to_core_sync_service_test_name.gsub(".","/")}.java',
+                              :guard => 'data_module.sync.master_data_module?')
   end
   g.template_set(:sync_db_common) do |template_set|
     template_set.erb_template(:entity,
@@ -92,8 +96,8 @@ Domgen::Generator.define([:sync],
   %w(test main).each do |type|
     g.template_set(:"sync_master_#{type}_qa") do |template_set|
       template_set.erb_template(:data_module,
-                                'master_sync_service_test.java.erb',
-                                type + '/java/#{data_module.sync.qualified_master_sync_service_test_name.gsub(".","/")}.java',
+                                'sync_temp_to_master_sync_service_test.java.erb',
+                                type + '/java/#{data_module.sync.qualified_sync_temp_to_master_sync_service_test_name.gsub(".","/")}.java',
                                 :guard => 'data_module.sync.master_data_module?')
       template_set.erb_template(:repository,
                                 'test_module.java.erb',
