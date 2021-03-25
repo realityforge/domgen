@@ -141,7 +141,7 @@ module Domgen
           (
           #{immutable_attributes.collect do |a|
           if a.geometry?
-            "            ST_Equals((NEW.#{a.sql.quoted_column_name}, OLD.#{a.sql.quoted_column_name}) = 0)"
+            "            (ST_Equals(NEW.#{a.sql.quoted_column_name}, OLD.#{a.sql.quoted_column_name}) = false)"
           else
             "            (NEW.#{a.sql.quoted_column_name} != OLD.#{a.sql.quoted_column_name})"
           end
