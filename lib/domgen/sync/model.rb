@@ -724,6 +724,27 @@ module Domgen
                     'jpa.standard_query' => true,
                     'jpa.jpql' => 'O.mappingSource = :MappingSource AND O.masterSynchronized = false')
             e.sql.index([:MappingSource], :filter => "#{e.sql.dialect.quote(:MasterSynchronized)} = #{e.sql.dialect.quote_value(false)}")
+
+            # no_ql? assumes that it will be defined by a later stage as a standard_query or a build failure will occur
+            self.entity.dao.queries.select { |q| q.jpa.no_ql? }.each do |o|
+              e.query(o.name) do |q|
+                o.parameters.each do |p|
+                  options = {}
+                  if p.enumeration?
+                    options[:enumeration] = p.enumeration
+                    options[:length] = p.length if p.enumeration.textual_values?
+                  end
+                  if p.text?
+                    options[:length] = p.length
+                    options[:min_length] = p.min_length
+                    options[:allow_blank] = p.allow_blank?
+                  end
+                  options[:collection_type] = p.collection_type
+                  options[:nullable] = p.nullable?
+                  q.parameter(p.name, p.parameter_type, options)
+                end
+              end
+            end
           end
         end
 
