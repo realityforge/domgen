@@ -186,6 +186,13 @@ module Domgen
         "#{qualified_service_test_name.gsub(/\.Abstract/,'.')}"
       end
 
+      attr_writer :qualified_base_service_test_name
+
+      def qualified_base_service_test_name
+        @qualified_base_service_test_name.nil? ? self.service.data_module.repository.ejb.qualified_base_service_test_name : @qualified_base_service_test_name
+      end
+
+
       attr_accessor :boundary_extends
 
       def boundary_interceptors
