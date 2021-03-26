@@ -729,7 +729,7 @@ module Domgen
             e.sql.index([:MappingSource], :filter => "#{e.sql.dialect.quote(:MasterSynchronized)} = #{e.sql.dialect.quote_value(false)}")
 
             # no_ql? assumes that it will be defined by a later stage as a standard_query or a build failure will occur
-            self.entity.dao.queries.select { |q| q.jpa.no_ql? }.each do |o|
+            self.entity.dao.queries.select { |q| q.jpa? && q.jpa.no_ql? }.each do |o|
               e.query(o.name) do |q|
                 o.parameters.each do |p|
                   options = {}
