@@ -29,10 +29,15 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 
   @javax.annotation.Nonnull
-  protected final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> findOrCreateDefaultMappingSource()
+  public final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> findOrCreateDefaultMappingSource()
   {
-    final String code = getDefaultMappingSourceCode();
-    final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource = <%= Reality::Naming.camelize(data_module.entity_by_name(:MappingSource).dao.jpa.dao_service_name) %>().findByCode( code );
+    return findOrCreateMappingSource( getDefaultMappingSourceCode() );
+  }
+
+  @javax.annotation.Nonnull
+  public final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> findOrCreateMappingSource( @javax.annotation.Nonnull final String code )
+  {
+    final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource = mappingSourceRepository().findByCode( code );
     return null == mappingSource ? createMappingSource( code ) : mappingSource;
   }
 
