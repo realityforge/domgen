@@ -348,7 +348,7 @@ module Domgen
       end
 
       def core?
-        !self.master? && !self.sync_temp?
+        !self.master? && !self.sync_temp? && self.entity.qualified_name.to_s != "#{self.entity.data_module.repository.sync.master_data_module}.#{self.entity.data_module.repository.sync.mapping_source_attribute}"
       end
 
       def master?
