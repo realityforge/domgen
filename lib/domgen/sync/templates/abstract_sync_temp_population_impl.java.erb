@@ -61,6 +61,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   {
     return (H) new <%= data_module.sync.qualified_sync_temp_factory_name %>( getEntityManager() )
     {
+      @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
       @javax.annotation.Nonnull
       @java.lang.Override
       protected String interpolateSql( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
@@ -433,6 +434,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
     return getEntityManager().createNativeQuery( interpolateSql( sql ) ).executeUpdate();
   }
 
+  @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
   @javax.annotation.Nonnull
   protected String interpolateSql( @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final String sql )
   {
