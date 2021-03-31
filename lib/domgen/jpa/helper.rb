@@ -330,15 +330,10 @@ JAVA
   {
 JAVA
           if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
-            java << <<JAVA
-    //noinspection ConstantConditions
-    if( null == value )
-    {
-      throw new NullPointerException( "#{attribute.jpa.field_name} parameter is not nullable" );
-    }
-JAVA
+            java << "    this.#{attribute.jpa.field_name} = java.util.Objects.requireNonNull( value );\n"
+          else
+            java << "    this.#{attribute.jpa.field_name} = value;\n"
           end
-          java << "    this.#{attribute.jpa.field_name} = value;\n"
           java << <<JAVA
   }
 JAVA
