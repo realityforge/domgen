@@ -465,6 +465,14 @@ module Domgen
 
         self.entity.jpa.detachable = true if self.entity.jpa?
 
+        self.entity.attributes.select { |a| a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.support_remove? }.each do |a|
+          if self.entity.referencing_attributes.empty?
+            # Generate a deletedUnmanagedByX query for Leaf entities so that a reasonable implementation can
+            # be generated in AbstractSynchronizationContext for these types of entities
+            self.entity.query("DeleteUnmanagedBy#{a.name}", 'jpa.jpql' => "O.#{Reality::Naming.camelize(a.name)} = :#{a.name} AND O.masterId IS NULL", :standard_query => true)
+          end
+        end
+
         master_data_module = entity.data_module.repository.data_module_by_name(entity.data_module.repository.sync.master_data_module)
         master_data_module.disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
 

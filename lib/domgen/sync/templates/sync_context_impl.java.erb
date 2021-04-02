@@ -96,6 +96,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 -%>
   protected void removeUnmanaged<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( @javax.annotation.Nonnull final <%= e.jpa.qualified_name %> <%= Reality::Naming.camelize(e.jpa.name) %> )
   {
+<%= a.entity.referencing_attributes.select{|a| !a.entity.sync? || !a.entity.sync.master? }.empty? ? "    _#{Reality::Naming.camelize(a.entity.data_module.name)}#{a.entity.name}Repository.deleteUnmanagedBy#{a.name}( #{Reality::Naming.camelize(e.jpa.name)} );\n" : '' -%>
   }
 
 <%
