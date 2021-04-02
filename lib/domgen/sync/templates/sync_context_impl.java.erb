@@ -92,7 +92,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
                 end
               end
               e.sync.managed_references_requiring_manual_sync.each do |a|
-                if a.referenced_entity.sync.support_remove?
+                if a.referenced_entity.sync.support_remove? && a.entity.sync.support_unmanaged?
 -%>
   protected void removeUnmanaged<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( @javax.annotation.Nonnull final <%= e.jpa.qualified_name %> <%= Reality::Naming.camelize(e.jpa.name) %> )
   {
@@ -373,7 +373,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% entity.sync.references_requiring_manual_sync.each do |a| -%>
         remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( entity );
 <% end -%>
-<% entity.sync.managed_references_requiring_manual_sync.each do |a| -%>
+<% entity.sync.managed_references_requiring_manual_sync.select{|a| a.entity.sync.support_unmanaged? }.each do |a| -%>
         removeUnmanaged<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( entity );
 <% end -%>
 <% if entity.transaction_time? -%>

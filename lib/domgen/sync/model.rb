@@ -325,6 +325,13 @@ module Domgen
         @support_remove.nil? ? true : !!@support_remove
       end
 
+      attr_writer :support_unmanaged
+
+      # Return true if this entity supports entity instances other than those that come through synchronization
+      def support_unmanaged?
+        @support_unmanaged.nil? ? true : !!@support_unmanaged
+      end
+
       def core_entity=(core_entity)
         @core_entity = core_entity
       end
@@ -465,11 +472,12 @@ module Domgen
 
         self.entity.jpa.detachable = true if self.entity.jpa?
 
-        self.entity.attributes.select { |a| a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.support_remove? }.each do |a|
-          if self.entity.referencing_attributes.empty?
-            # Generate a deletedUnmanagedByX query for Leaf entities so that a reasonable implementation can
-            # be generated in AbstractSynchronizationContext for these types of entities
-            self.entity.query("DeleteUnmanagedBy#{a.name}", 'jpa.jpql' => "O.#{Reality::Naming.camelize(a.name)} = :#{a.name} AND O.masterId IS NULL", :standard_query => true)
+        if support_unmanaged?
+          self.entity.attributes.select { |a| a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.support_remove? }.each do |a|
+            if self.entity.referencing_attributes.empty?
+              # Generate a deletedUnmanagedByX query for Leaf entities so that a reasonable implementation can
+              # be generated in AbstractSynchronizationContext for these types of entities
+              self.entity.query("DeleteUnmanagedBy#{a.name}", 'jpa.jpql' => "O.#{Reality::Naming.camelize(a.name)} = :#{a.name} AND O.masterId IS NULL", :standard_query => true).disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
           end
         end
 
