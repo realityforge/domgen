@@ -332,7 +332,7 @@ BEGIN
    end
 %>
 <% entity.sql.validations.select{|validation| !validation.invariant_negative_sql.nil?}.each do |validation| %>
-  ;<%= validation.common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.invariant_negative_sql %>)
+  ;<%= validation.invariant_common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.invariant_negative_sql %>)
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)

@@ -14,6 +14,7 @@ AS
 
   DECLARE @IssueCount INT
   DECLARE @Id INT
+  DECLARE @CommonTableExpression VARCHAR(MAX)
   DECLARE @Sql VARCHAR(MAX)
   DECLARE @FullSql VARCHAR(MAX)
   DECLARE @Description VARCHAR(MAX)
@@ -21,7 +22,7 @@ AS
   SELECT @IssueCount = COUNT(*) FROM <%= data_issue_entity.sql.qualified_table_name %>
 
   DECLARE checkCursor CURSOR LOCAL FORWARD_ONLY READ_ONLY FOR
-	SELECT [Id], [Description], [Sql] FROM <%= corruption_check_entity.sql.qualified_table_name %>
+	SELECT [Id], [Description], [CommonTableExpression], [Sql] FROM <%= corruption_check_entity.sql.qualified_table_name %>
 
   IF (@@error) <> 0 GOTO cfail
 
@@ -30,7 +31,7 @@ AS
 
 cfetchLoop:
 
-  FETCH checkCursor INTO @Id, @Description, @Sql
+  FETCH checkCursor INTO @Id, @Description, @CommonTableExpression, @Sql
   IF (@@error) <> 0 GOTO cfailTECursor
 
   IF @@FETCH_STATUS <> 0 GOTO cendCollect
@@ -38,6 +39,7 @@ cfetchLoop:
   IF @PrintProgress = 1 PRINT 'Checking for corruption: ' + @Description
 
   SET @FullSql =
+    COALESCE(@CommonTableExpression, '') +
     'INSERT INTO <%= data_issue_entity.sql.qualified_table_name %>([Category], [Description], [ViewSql])
       SELECT
         CC.[Category], CC.[Description], CC.[Sql]

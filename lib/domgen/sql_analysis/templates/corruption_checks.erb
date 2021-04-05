@@ -53,3 +53,19 @@ SELECT PK.DeletedAt
 GO
 <% end -%>
 <% end -%>
+
+<%
+  entities_with_validations = data_module.sql_analysis.entities_with_validations
+  unless entities_with_validations.empty?
+-%>
+  --
+  -- Check the declared validations
+  --
+<% entities_with_validations.each do |entity| -%>
+<% entity.sql.validations.select{|v| !v.invariant_negative_sql.nil? }.each do |validation| -%>
+INSERT INTO <%= corruption_check_entity.sql.qualified_table_name %>(<%= corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:CommonTableExpression).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name%>)
+  VALUES ('EntityValidation', 'Enforce the validation <%= entity.sql.qualified_table_name %>.<%= validation.name %>: <%= (validation.description || '').gsub("'","''") %>',<%= cte = validation.invariant_common_table_expression; cte.nil? ? 'NULL' : "'#{cte.strip.gsub("'","''")}\n'" %>,'<%= validation.invariant_negative_sql.gsub("'","''").strip %>')
+GO
+<% end -%>
+<% end -%>
+<% end -%>

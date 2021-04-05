@@ -61,6 +61,7 @@ module Domgen
           t.integer(:Id, :primary_key => true)
           t.string(:Category, 50)
           t.string(:Description, 500, :unique => true)
+          t.text(:CommonTableExpression, :nullable => true)
           t.text(:Sql)
 
           t.query(:GetByDescription)
@@ -87,8 +88,12 @@ module Domgen
           flatten
       end
 
+      def entities_with_validations
+        data_module.entities.select(&:sql_analysis?).select {|entity| !entity.sql.validations.empty?}
+      end
+
       def standard_corruption_checks?
-        !entities_to_analyze_id_namespace.empty? || !references_to_analyze.empty?
+        !entities_to_analyze_id_namespace.empty? || !references_to_analyze.empty? || !entities_with_validations.empty?
       end
     end
   end

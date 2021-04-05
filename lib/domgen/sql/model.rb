@@ -363,8 +363,9 @@ module Domgen
 
     class Validation < SequencedSqlElement
       attr_accessor :negative_sql
-      attr_accessor :invariant_negative_sql
       attr_accessor :common_table_expression
+      attr_writer :invariant_negative_sql
+      attr_accessor :invariant_common_table_expression
       attr_accessor :guard
       attr_writer :priority
 
@@ -378,6 +379,24 @@ module Domgen
 
       def priority
         @priority || 1
+      end
+
+      attr_writer :invariant_derivable
+
+      def invariant_derivable?
+        @invariant_derivable.nil? ? true : !!@invariant_derivable
+      end
+
+      def invariant_negative_sql
+        return @invariant_negative_sql unless @invariant_negative_sql.nil?
+        return nil unless self.invariant_derivable? && !self.negative_sql.nil? && !self.negative_sql.include?(' deleted ')
+        self.negative_sql.gsub(/([ \t\r\n])inserted([ \t\r\n])/, "\\1#{self.table.qualified_table_name}\\2")
+      end
+
+      def invariant_common_table_expression
+        return @invariant_common_table_expression unless @invariant_common_table_expression.nil?
+        return nil unless self.invariant_derivable? && !self.common_table_expression.nil? && !self.common_table_expression.include?(' deleted ')
+        self.common_table_expression.gsub(/([ \t\r\n])inserted([ \t\r\n])/, "\\1#{self.table.qualified_table_name}\\2")
       end
 
       def to_s
