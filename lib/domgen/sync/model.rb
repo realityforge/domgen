@@ -478,6 +478,7 @@ module Domgen
               # Generate a deletedUnmanagedByX query for Leaf entities so that a reasonable implementation can
               # be generated in AbstractSynchronizationContext for these types of entities
               self.entity.query("DeleteUnmanagedBy#{a.name}", 'jpa.jpql' => "O.#{Reality::Naming.camelize(a.name)} = :#{a.name} AND O.masterId IS NULL", :standard_query => true).disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+            end
           end
         end
 
