@@ -728,8 +728,9 @@ module Domgen
             e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
             if self.entity.sync.support_remove?
               e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :DeletedAt => nil }, :force_refresh => true)
+            else
+              e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
             end
-            e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
             if self.entity.sync.support_remove?
               delete_defaults = {}
               e.attributes.each do |a|
