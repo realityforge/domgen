@@ -42,7 +42,7 @@ module Domgen
       def post_complete
         if self.entity.jpa? && !self.entity.abstract?
           self.entity.jpa.default_jpql_criterion = 'this.deletedAt IS NULL'
-          self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null')
+          self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null') if !self.entity.sync? || self.entity.sync.support_unmanaged?
           self.entity.jpa.update_default(:DeletedAt => nil)
           self.entity.jpa.update_defaults.each do |defaults|
             self.entity.jpa.update_default(defaults.values.merge(:DeletedAt => nil)) do |new_default|

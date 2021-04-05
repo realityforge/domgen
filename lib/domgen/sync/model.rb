@@ -489,12 +489,12 @@ module Domgen
 
         unless self.entity.abstract?
           self.entity.integer(:MasterId,
-                              :nullable => true,
+                              :nullable => self.entity.sync.support_unmanaged?,
                               :immutable => true,
                               :description => 'Id of the entity from which this entity was synced',
                               '-facets' => [:sync, :arez, :gwt]) unless self.entity.attribute_by_name?(:MasterId)
-          self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync?
-          self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time?
+          self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync? && self.entity.sync.support_unmanaged?
+          self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time? && self.entity.sync.support_unmanaged?
         end
         # This foreign key can't be added here as the Master schema won't exist during its creation, so it is added in during finalization
         # self.entity.sql.foreign_key([:MasterId], self.entity.sync.master_entity.qualified_name, [:Id])
@@ -779,12 +779,21 @@ module Domgen
               suffix = " AND M.#{m.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL AND I.#{self.entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL"
             end
 
-            sql = <<-SQL
+            if self.entity.sync.support_unmanaged?
+              sql = <<-SQL
 SELECT I.#{self.entity.primary_key.sql.quoted_column_name}
 FROM inserted I
 LEFT JOIN #{m.sql.qualified_table_name} M ON M.#{m.primary_key.sql.quoted_column_name} = I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name}
 WHERE I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name} IS NOT NULL AND (M.#{m.primary_key.sql.quoted_column_name} IS NULL OR (M.#{m.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{m.sql.dialect.quote_value(true)}#{suffix}))
-            SQL
+              SQL
+            else
+              sql = <<-SQL
+SELECT I.#{self.entity.primary_key.sql.quoted_column_name}
+FROM inserted I
+JOIN #{m.sql.qualified_table_name} M ON M.#{m.primary_key.sql.quoted_column_name} = I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name}
+WHERE M.#{m.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{m.sql.dialect.quote_value(true)}#{suffix}
+              SQL
+            end
             self.entity.sql.validation(validation_name, :standard => true, :negative_sql => sql, :guard => guard)
           end
         end if self.entity.mssql?
