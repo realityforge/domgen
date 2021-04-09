@@ -102,7 +102,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     final java.util.List<<%= a.entity.jpa.qualified_name %>> entities = _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllUnmanagedBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> );
     if ( !entities.isEmpty() )
     {
-      throw new java.lang.IllegalStateException( "Unmanaged entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the removeUnmanaged<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle the scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
+      throw new java.lang.IllegalStateException( "Unmanaged entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the removeUnmanaged<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
     }
 <% end -%>
   }
