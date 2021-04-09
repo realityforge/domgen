@@ -105,7 +105,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     final java.util.List<<%= a.entity.jpa.qualified_name %>> entities = _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> );
     if ( !entities.isEmpty() )
     {
-      throw new java.lang.IllegalStateException( "Entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
+      throw new java.lang.UnsupportedOperationException( "Entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
     }
   }
 
@@ -123,7 +123,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     final java.util.List<<%= a.entity.jpa.qualified_name %>> entities = _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllUnmanagedBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> );
     if ( !entities.isEmpty() )
     {
-      throw new java.lang.IllegalStateException( "Unmanaged entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the removeUnmanaged<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
+      throw new java.lang.UnsupportedOperationException( "Unmanaged entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the removeUnmanaged<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
     }
 <% end -%>
   }
@@ -299,7 +299,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% end -%>
       if( null == <%= a.name %>_ref )
       {
-        throw new IllegalStateException( "Unable to locate <%= a.referenced_entity.qualified_name %> referenced by <%= a.qualified_name %> with value " + v_<%= a.name %> );
+        throw new UnsupportedOperationException( "Unable to locate <%= a.referenced_entity.qualified_name %> referenced by <%= a.qualified_name %> with value " + v_<%= a.name %> );
       }
       v_<%= a.name %>_ref = <%= a.name %>_ref;
 <% else -%>
@@ -332,7 +332,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% if entity.sync.update_via_sync? -%>
       entity = _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.getBy<%= entity.primary_key.name %>( v_<%= entity.primary_key.name %> );
 <% else -%>
-      throw new java.lang.IllegalStateException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
+      throw new java.lang.UnsupportedOperationException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
 <% end -%>
     }
 <% attr.select{|a|!a.immutable?}.each do |a| -%>
@@ -372,7 +372,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
         executeUpdate();
       return false;
 <% else -%>
-      throw new java.lang.IllegalStateException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
+      throw new java.lang.UnsupportedOperationException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
 <% end -%>
     }
   }
@@ -618,7 +618,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "WHERE <%= criteria %><%= create_criteria %> " +
       "<%= order_by %>";
      */
-    throw new IllegalStateException( "Override getSqlToRetrieve<%= fn %>ListToUpdate() due to multiple recursive attributes." );
+    throw new UnsupportedOperationException( "Override getSqlToRetrieve<%= fn %>ListToUpdate() due to multiple recursive attributes." );
 <% end -%>
   }
 
@@ -644,7 +644,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "WHERE <%= remove_criteria %> " +
       "<%= order_by %>";
     */
-    throw new IllegalStateException( "Override getSqlToRetrieve<%= fn %>ListToRemove() due to multiple recursive attributes." );
+    throw new UnsupportedOperationException( "Override getSqlToRetrieve<%= fn %>ListToRemove() due to multiple recursive attributes." );
 <% end -%>
   }
 <% end -%>
