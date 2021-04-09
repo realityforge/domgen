@@ -792,12 +792,15 @@ module Domgen
           unless self.entity.sql.validation?(validation_name)
             m = self.entity.sync.master_entity
             guard = "UPDATE(#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name})"
-            suffix = ''
+            suffix = nil
             if self.entity.transaction_time?
               guard = "UPDATE(#{self.entity.attribute_by_name(:DeletedAt).sql.quoted_column_name}) OR #{guard}"
               suffix = " AND M.#{m.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL AND I.#{self.entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL"
+            elsif self.entity.sync.support_remove?
+              suffix = " AND M.#{m.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL"
             end
 
+            sql = nil
             if self.entity.sync.support_unmanaged?
               sql = <<-SQL
 SELECT I.#{self.entity.primary_key.sql.quoted_column_name}
@@ -805,7 +808,7 @@ FROM inserted I
 LEFT JOIN #{m.sql.qualified_table_name} M ON M.#{m.primary_key.sql.quoted_column_name} = I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name}
 WHERE I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name} IS NOT NULL AND (M.#{m.primary_key.sql.quoted_column_name} IS NULL OR (M.#{m.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{m.sql.dialect.quote_value(true)}#{suffix}))
               SQL
-            else
+            elsif suffix
               sql = <<-SQL
 SELECT I.#{self.entity.primary_key.sql.quoted_column_name}
 FROM inserted I
@@ -813,7 +816,7 @@ JOIN #{m.sql.qualified_table_name} M ON M.#{m.primary_key.sql.quoted_column_name
 WHERE M.#{m.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{m.sql.dialect.quote_value(true)}#{suffix}
               SQL
             end
-            self.entity.sql.validation(validation_name, :standard => true, :negative_sql => sql, :guard => guard)
+            self.entity.sql.validation(validation_name, :standard => true, :negative_sql => sql, :guard => guard) if sql
           end
         end if self.entity.mssql?
       end
