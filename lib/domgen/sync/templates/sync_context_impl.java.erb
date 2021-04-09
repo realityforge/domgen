@@ -40,6 +40,20 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository;
 <% end -%>
+<%
+  related_entities = []
+  data_module.repository.data_modules.each do |dm|
+    dm.entities.each do |e|
+      e.attributes.each do |a|
+        related_entities << e if !e.sync? && a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.support_remove? && !related_entities.include?(e)
+      end
+    end
+  end
+  related_entities.each do |entity|
+-%>
+  @javax.inject.Inject
+  private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository;
+<% end -%>
 
   /**
    * Hook that can be overriden to perform actions before any sync takes place.
@@ -86,7 +100,14 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
               e.sync.references_requiring_manual_sync.each do |a|
                 if a.referenced_entity.sync.support_remove?
 -%>
-  protected abstract void remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( @javax.annotation.Nonnull final <%= e.jpa.qualified_name %> <%= Reality::Naming.camelize(e.jpa.name) %> );
+  protected void remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( @javax.annotation.Nonnull final <%= e.jpa.qualified_name %> <%= Reality::Naming.camelize(e.jpa.name) %> )
+  {
+    final java.util.List<<%= a.entity.jpa.qualified_name %>> entities = _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> );
+    if ( !entities.isEmpty() )
+    {
+      throw new java.lang.IllegalStateException( "Entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
+    }
+  }
 
 <%
                 end

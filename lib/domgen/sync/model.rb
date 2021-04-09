@@ -225,6 +225,20 @@ module Domgen
             end
           end unless master_data_module.service_by_name?(:SynchronizationContext)
         end
+
+        self.repository.data_modules.each do |dm|
+          dm.entities.each do |e|
+            e.attributes.each do |a|
+              if !e.sync? && a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.support_remove?
+                # These are attributes on non-synchronized entities that reference synchronized
+                # entities that can be removed. We need to create an appropriate query so that during
+                # sync we can verify that it is ok to synchronize a delete
+                query_name = "FindAllBy#{a.name}"
+                e.dao.query(query_name) unless e.dao.query_by_name?(query_name)
+              end
+            end
+          end
+        end
       end
 
       def pre_verify
