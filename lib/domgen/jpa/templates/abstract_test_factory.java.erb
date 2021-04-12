@@ -72,6 +72,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   {
     final <%= entity.jpa.qualified_name %> entity = <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().create( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? }.collect{|a| a.sync? && a.reference? ? "#{a.referenced_entity.data_module.name != data_module.name ? Reality::Naming.camelize(a.referenced_entity.data_module.name) + "()." : '' }to#{a.referenced_entity.name}( mEntity.#{getter_prefix(a)}#{a.name}() )" : a.name.to_s == 'MasterId' ? 'mEntity.getId()' : !a.sync? && !%w(CreatedAt DeletedAt).include?(a.name.to_s) ? 'null' : "mEntity.#{getter_prefix(a)}#{a.name}()" }.join(', ') %> );
     mEntity.set<%= entity.name %>( entity );
+    <%= Reality::Naming.camelize(entity.sync.master_entity.data_module.name) %>().<%= Reality::Naming.camelize(entity.sync.master_entity.dao.jpa.dao_service_name) %>().persist( mEntity );
     return entity;
   }
 
