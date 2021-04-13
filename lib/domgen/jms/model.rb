@@ -228,8 +228,8 @@ module Domgen
     return "#{repository.name}";
   }
 
-  @org.testng.annotations.BeforeTest
-  public void beforeTest()
+  @org.testng.annotations.BeforeClass
+  public void beforeClass()
     throws Exception
   {
     if( enableBroker() )
@@ -238,8 +238,8 @@ module Domgen
     }
   }
 
-  @org.testng.annotations.AfterTest
-  public void afterTest()
+  @org.testng.annotations.AfterClass
+  public void afterClass()
   {
     if( enableBroker() )
     {
