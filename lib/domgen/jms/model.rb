@@ -151,27 +151,43 @@ module Domgen
         if repository.ejb?
           repository.ejb.add_test_module(self.test_module_name, self.qualified_test_module_name)
           content = <<-JAVA
+
+  protected boolean enableBroker()
+  {
+    return false;
+  }
+
   @org.testng.annotations.BeforeMethod
   @java.lang.Override
   public void preTest()
     throws Exception
   {
-    // This is due to bug in GlassFish/Payara where the habitat is accessed incorrectly
-    org.glassfish.internal.api.Globals.getStaticHabitat();
+    if( enableBroker() )
+    {
+      // This is due to bug in GlassFish/Payara where the habitat is accessed incorrectly
+      org.glassfish.internal.api.Globals.getStaticHabitat();
+    }
     super.preTest();
-    purgeDestinations();
+    if( enableBroker() )
+    {
+      purgeDestinations();
+    }
   }
 
   @org.testng.annotations.AfterMethod
   @java.lang.Override
   public void postTest()
   {
-    shutdownJMSContexts();
+    if( enableBroker() )
+    {
+      shutdownJMSContexts();
+    }
     super.postTest();
   }
 
   protected final void shutdownJMSContexts()
   {
+    assert enableBroker();
     for ( final com.google.inject.Binding<javax.jms.JMSContext> binding : getInjector().findBindingsByType( com.google.inject.TypeLiteral.get( javax.jms.JMSContext.class ) ) )
     {
       binding.getProvider().get().close();
@@ -181,6 +197,8 @@ module Domgen
   protected void purgeDestinations()
     throws Exception
   {
+    assert enableBroker();
+
           JAVA
           self.destinations.each do |destination|
             content += <<-JAVA
