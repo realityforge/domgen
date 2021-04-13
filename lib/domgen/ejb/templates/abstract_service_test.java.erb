@@ -20,6 +20,7 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
 <% repository.ejb.test_modules.each_pair do |name, classname| -%>
+<% if classname -%>
 
   @javax.annotation.Nullable
   protected com.google.inject.Module new<%= name %>()
@@ -27,13 +28,16 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
     return new <%= classname %>();
   }
 <% end -%>
+<% end -%>
 <% repository.ejb.flushable_test_modules.each_pair do |name, classname| -%>
+<% if classname -%>
 
   @javax.annotation.Nullable
   protected com.google.inject.Module new<%= name %>()
   {
     return new <%= classname %>( this );
   }
+<% end -%>
 <% end -%>
 <% repository.ejb.test_class_contents.each do |content| -%>
 <%= content -%>

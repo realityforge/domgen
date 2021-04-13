@@ -149,12 +149,18 @@ module Domgen
 
       def pre_verify
         if repository.ejb?
-          repository.ejb.add_test_module(self.test_module_name, self.qualified_test_module_name)
+          repository.ejb.add_test_module(self.test_module_name, nil)
           content = <<-JAVA
 
   protected boolean enableBroker()
   {
     return false;
+  }
+
+  @javax.annotation.Nullable
+  protected com.google.inject.Module newRoseJmsServerModule()
+  {
+    return enableBroker() ? new #{self.qualified_test_module_name}() : null;
   }
 
   @org.testng.annotations.BeforeMethod
@@ -222,17 +228,23 @@ module Domgen
     return "#{repository.name}";
   }
 
-  @org.testng.annotations.BeforeSuite
-  public void beforeSuite()
+  @org.testng.annotations.BeforeTest
+  public void beforeTest()
     throws Exception
   {
-    #{qualified_test_broker_factory_name}.getBroker().start();
+    if( enableBroker() )
+    {
+      #{qualified_test_broker_factory_name}.getBroker().start();
+    }
   }
 
-  @org.testng.annotations.AfterSuite
-  public void afterSuite()
+  @org.testng.annotations.AfterTest
+  public void afterTest()
   {
-    #{qualified_test_broker_factory_name}.getBroker().stop();
+    if( enableBroker() )
+    {
+      #{qualified_test_broker_factory_name}.getBroker().stop();
+    }
   }
           JAVA
           repository.ejb.add_test_class_content(content)
