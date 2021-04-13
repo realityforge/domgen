@@ -515,8 +515,6 @@ module Domgen
           self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync? && self.entity.sync.support_unmanaged?
           self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time? && self.entity.sync.support_unmanaged?
         end
-        # This foreign key can't be added here as the Master schema won't exist during its creation, so it is added in during finalization
-        # self.entity.sql.foreign_key([:MasterId], self.entity.sync.master_entity.qualified_name, [:Id])
 
         sync_temp_data_module.entity("#{self.entity.sync.entity_prefix}#{self.entity.name}") do |e|
           e.disable_facets_not_in(Domgen::Sync::VALID_SYNC_TEMP_FACETS)
@@ -603,6 +601,8 @@ module Domgen
             e.sql.index([:MappingId, :MappingKey, :MappingSource], :unique => true, :filter => filter)
             e.sql.index([:MappingSource, :MappingId], :include_attribute_names => [:Id], :filter => filter)
           end
+
+          self.entity.sql.foreign_key([:MasterId], e.qualified_name, [:Id], :defer_creation => true, :on_delete => :no_action)
 
           self.entity.attributes.select {|a| !a.inherited? || a.primary_key?}.each do |a|
             next unless a.sync?
