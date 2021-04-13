@@ -625,6 +625,7 @@ module Domgen
               options[:referenced_entity] = a.entity.qualified_name
               options[:nullable] = true
               options['sql.on_delete'] = :set_null
+              options['sql.defer_creation'] = true
               options['inverse.multiplicity'] = :zero_or_one
               options['jpa.persistent'] = true
               options[:abstract] = a.entity.abstract?

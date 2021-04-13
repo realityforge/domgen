@@ -170,6 +170,12 @@ module Domgen
         table.entity.data_module.entity_by_name(referenced_entity_name)
       end
 
+      attr_writer :defer_creation
+
+      def defer_creation?
+        @defer_creation.nil? ? false : !!@defer_creation
+      end
+
       def on_update=(on_update)
         Domgen.error("on_update #{on_update} on #{name} is invalid") unless ACTION_MAP.keys.include?(on_update)
         @on_update = on_update
@@ -1075,7 +1081,7 @@ SQL
           foreign_key([a.name],
                       a.referenced_entity.qualified_name,
                       [a.referenced_entity.primary_key.name],
-                      { :on_update => a.sql.on_update, :on_delete => a.sql.on_delete },
+                      { :on_update => a.sql.on_update, :on_delete => a.sql.on_delete, :defer_creation => a.sql.defer_creation? },
                       true)
         end
 
@@ -1172,6 +1178,15 @@ SQL
 
       def persistent_calculation?
         @persistent_calculation.nil? ? false : @persistent_calculation
+      end
+
+      def defer_creation=(defer_creation)
+        Domgen.error("defer_creation on #{column_name} is invalid as attribute is not a reference") unless attribute.reference?
+        @defer_creation = defer_creation
+      end
+
+      def defer_creation?
+        @defer_creation.nil? ? false : !!@defer_creation
       end
 
       def on_update=(on_update)

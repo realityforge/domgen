@@ -1,6 +1,18 @@
 /* DO NOT EDIT: File is auto-generated */
 <% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
 <% entity.sql.foreign_keys.each do |foreign_key| %>
+<% if foreign_key.defer_creation? -%>
+ALTER TABLE <%= entity.sql.qualified_table_name %>
+  WITH NOCHECK ADD CONSTRAINT [<%= foreign_key.foreign_key_name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| entity.attribute_by_name(a).sql.quoted_column_name}.join(', ') %>)
+  REFERENCES <%= foreign_key.referenced_entity.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| foreign_key.referenced_entity.attribute_by_name(a).sql.quoted_column_name}.join(', ')  %>)
+<% if foreign_key.on_update != :no_action -%>
+  ON UPDATE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_update] %>
+<% end -%>
+<% if foreign_key.on_delete != :no_action -%>
+  ON DELETE <%= Domgen::Sql::ForeignKey::ACTION_MAP[foreign_key.on_delete] %>
+<% end -%>
+GO
+<% end -%>
 ALTER TABLE <%= entity.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT <%= foreign_key.quoted_foreign_key_name %>
 GO
 <%
@@ -31,15 +43,6 @@ IF ( @SeqValue IS NULL )
   BEGIN
     INSERT INTO <%= entity.sql.qualified_table_name %>(Name, Value) VALUES ( '<%= entity.mssql.sequence_key %>', 1 )
   END
-GO
-<%
-   end
-   if entity.sync? && entity.sync.synchronize?
-%>
-ALTER TABLE <%= entity.sql.qualified_table_name %>
-  ADD CONSTRAINT [FK_<%=entity.name%>_MasterId] FOREIGN KEY ([MasterId])
-  REFERENCES <%= entity.sync.master_entity.sql.qualified_table_name%> ([Id])
-  ON DELETE SET NULL
 GO
 <%
    end

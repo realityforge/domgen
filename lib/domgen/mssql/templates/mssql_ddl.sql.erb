@@ -84,7 +84,7 @@ GO
 %>
 
 <%= banner("Foreign Keys for #{entity.sql.qualified_table_name}") %>
-<% entity.sql.foreign_keys.each do |foreign_key| %>
+<% entity.sql.foreign_keys.select{|foreign_key| !foreign_key.defer_creation? }.each do |foreign_key| %>
 ALTER TABLE <%= entity.sql.qualified_table_name %>
   WITH NOCHECK ADD CONSTRAINT [<%= foreign_key.foreign_key_name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| entity.attribute_by_name(a).sql.quoted_column_name}.join(', ') %>)
   REFERENCES <%= foreign_key.referenced_entity.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| foreign_key.referenced_entity.attribute_by_name(a).sql.quoted_column_name}.join(', ')  %>)
