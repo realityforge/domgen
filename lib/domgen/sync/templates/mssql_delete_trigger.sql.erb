@@ -1,0 +1,11 @@
+/* DO NOT EDIT: File is auto-generated */
+<% data_module.entities.select{|e|e.sync? && !e.abstract? && e.name.to_s != 'MappingSource'}.each do |entity| -%>
+
+CREATE TRIGGER [DELETE_<%= entity.name %>] ON <%= entity.sql.qualified_table_name %> INSTEAD OF DELETE AS
+BEGIN
+  SET NOCOUNT ON;
+  DELETE FROM <%= entity.sync.core_entity.entity.sql.qualified_table_name %> WHERE MasterId IN (SELECT Id FROM DELETED)
+  DELETE FROM <%= entity.sql.qualified_table_name %> WHERE Id IN (SELECT Id FROM DELETED)
+END
+GO
+<% end %>

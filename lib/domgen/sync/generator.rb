@@ -67,6 +67,11 @@ Domgen::Generator.define([:sync],
                               :additional_facets => [:mssql],
                               :guard => 'data_module.sync.sync_temp_data_module?')
     template_set.erb_template(:data_module,
+                              'mssql_delete_trigger.sql.erb',
+                              '#{data_module.sql.schema}/finalize/#{data_module.sql.schema}_delete_triggers.sql',
+                              :additional_facets => [:mssql],
+                              :guard => 'data_module.sync.master_data_module?')
+    template_set.erb_template(:data_module,
                               'mssql_remove_sync_temp_query_plans.sql.erb',
                               '#{data_module.sql.schema}/stored-procedures/#{data_module.sql.schema}.spRemoveCachedSyncTempQueryPlans.sql',
                               :additional_facets => [:mssql],
