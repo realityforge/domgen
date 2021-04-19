@@ -158,7 +158,7 @@ module Domgen
   }
 
   @javax.annotation.Nullable
-  protected com.google.inject.Module newRoseJmsServerModule()
+  protected com.google.inject.Module new#{self.repository.name}JmsServerModule()
   {
     return enableBroker() ? new #{self.qualified_test_module_name}() : null;
   }
