@@ -152,7 +152,7 @@ JAVA
         java = java + <<JAVA
   @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
   public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.field_name}"}.join(', ')})
-  {#{undeclared_immutable_attributes.empty? ? '' : "\n    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(', ')});\n"}
+  {#{undeclared_immutable_attributes.empty? ? '' : "\n    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.field_name}.join(', ')});\n"}
 #{declared_immutable_attributes.collect { |a| "    this.#{a.jpa.field_name} = #{!a.nullable? && !a.jpa.primitive? ? "java.util.Objects.requireNonNull( #{a.jpa.field_name} )": a.jpa.field_name};" }.join("\n")}
 #{declared_immutable_attributes.select{|a|a.reference?}.collect { |a| '    ' + j_add_to_inverse(a) }.join("\n")}
   }
