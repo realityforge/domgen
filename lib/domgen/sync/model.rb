@@ -177,7 +177,7 @@ module Domgen
               end
               if entity.sync.support_remove?
                 s.method(:"Remove#{entity.data_module.name}#{entity.name}") do |m|
-                  m.integer(:MappingId)
+                  m.integer(:MasterId)
                   m.parameter(:Id, entity.primary_key.jpa.java_type(:boundary), :nullable => true)
                   m.returns(:boolean, :description => 'Return true on remove from non-master, false if not required')
                 end
