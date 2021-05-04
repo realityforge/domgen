@@ -472,7 +472,7 @@ module Domgen
       end
 
       def default_name
-        type_inset = query.result_entity? ? query.entity.graphql.name : query.struct.graphql.name
+        type_inset = query.result_entity? ? query.entity.graphql.name : query.struct.graphql.output_name
         type_inset = Reality::Naming.pluralize(type_inset) if query.multiplicity == :many
         Reality::Naming.camelize("#{query.name_prefix}#{type_inset}#{query.base_name}")
       end
