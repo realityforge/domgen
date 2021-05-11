@@ -49,20 +49,14 @@ public class <%= struct.ee.name %>
 <% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join( ', ') %>})<% end -%>
   public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
-<% struct.fields.select{|field| !field.nullable? && !field.ee.primitive? }.each do |field| -%>
-    if ( null == <%= Reality::Naming.camelize(field.name) %> )
-    {
-      throw new IllegalArgumentException( "<%= Reality::Naming.camelize(field.name) %> should not be null" );
-    }
-<% end -%>
 <% struct.fields.each do |field|
      null_protection = field.nullable? ? "#{Reality::Naming.camelize(field.name)} == null ? null : " :''
      if :sequence == field.collection_type
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<>( <%= Reality::Naming.camelize(field.name) %> ) );
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableList( new java.util.ArrayList<>( java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(field.name) %> ) ) );
 <%     elsif :set == field.collection_type
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<>( <%= Reality::Naming.camelize(field.name) %> ) );
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= null_protection %>java.util.Collections.unmodifiableSet( new java.util.HashSet<>( java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(field.name) %> ) ) );
   <%     else
-%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= Reality::Naming.camelize(field.name) %>;
+%>    this.<%= Reality::Naming.camelize(field.name) %> = <%= field.nullable? || field.ee.primitive? ? '' : 'java.util.Objects.requireNonNull( ' %><%= Reality::Naming.camelize(field.name) %><%= field.nullable? || field.ee.primitive? ? '' : ' )' %>;
 <%   end
    end
 %>  }
