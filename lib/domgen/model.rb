@@ -574,6 +574,7 @@ module Domgen
       return 'Count' if self.query_type == :select && self.multiplicity == :one && self.result_type == :long
       return 'Is' if self.query_type == :select && self.multiplicity == :one && self.result_type == :boolean
       return 'Get' if self.query_type == :select && self.multiplicity == :one
+      return 'Exec' if self.query_type == :update && !self.result_type? && self.result_type == :void
       return 'Update' if self.query_type == :update
       return 'Delete' if self.query_type == :delete
       return 'Insert' if self.query_type == :insert
@@ -614,6 +615,10 @@ module Domgen
         self.query_type = :update if @query_type.nil?
         self.result_type = :integer if @result_type.nil?
         @base_name = base_name.gsub(/^[uU]pdate/, '')
+        return base_name
+      elsif base_name =~ /^[eE]xec[A-Z].+$/
+        self.query_type = :update if @query_type.nil?
+        @base_name = base_name.gsub(/^[eE]xec/, '')
         return base_name
       elsif base_name =~ /^[dD]elete[A-Z].+$/
         self.query_type = :delete if @query_type.nil?
