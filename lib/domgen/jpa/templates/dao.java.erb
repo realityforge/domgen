@@ -113,7 +113,9 @@ public class <%= dao.jpa.dao_name %>
 <% end -%>
     }
 <% end
-   else -%>
+   elsif query.query_type == :update && !query.result_type? -%>
+    query.executeUpdate();
+<%  else -%>
     return query.executeUpdate();
 <% end -%>
   }

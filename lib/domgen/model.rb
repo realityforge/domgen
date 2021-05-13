@@ -612,14 +612,17 @@ module Domgen
         return base_name
       elsif base_name =~ /^[uU]pdate[A-Z].+$/
         self.query_type = :update if @query_type.nil?
+        self.result_type = :integer if @result_type.nil?
         @base_name = base_name.gsub(/^[uU]pdate/, '')
         return base_name
       elsif base_name =~ /^[dD]elete[A-Z].+$/
         self.query_type = :delete if @query_type.nil?
+        self.result_type = :integer if @result_type.nil?
         @base_name = base_name.gsub(/^[dD]elete/, '')
         return base_name
       elsif base_name =~ /^[iI]nsert[A-Z].+$/
         self.query_type = :insert if @query_type.nil?
+        self.result_type = :integer if @result_type.nil?
         @base_name = base_name.gsub(/^[iI]nsert/, '')
         return base_name
       elsif base_name =~ /^[cC]ount([A-Z].*)?$/
