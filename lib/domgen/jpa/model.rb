@@ -1210,6 +1210,8 @@ FRAGMENT
         hints
       end
 
+      attr_writer :hints
+
       def hints
         @hints ||= default_hints
       end
