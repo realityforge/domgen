@@ -507,11 +507,22 @@ module Domgen
         sync_temp_data_module.disable_facets_not_in(Domgen::Sync::VALID_SYNC_TEMP_FACETS)
 
         unless self.entity.abstract?
-          self.entity.integer(:MasterId,
-                              :nullable => self.entity.sync.support_unmanaged?,
-                              :immutable => true,
-                              :description => 'Id of the entity from which this entity was synced',
-                              '-facets' => [:sync, :arez, :gwt]) unless self.entity.attribute_by_name?(:MasterId)
+          if self.entity.attribute_by_name?(:MasterId)
+            master_id_attribute = self.entity.attribute_by_name(:MasterId)
+            support_unmanaged = self.entity.sync.support_unmanaged?
+            nullable_master_id = master_id_attribute.nullable?
+            if support_unmanaged && !nullable_master_id
+              Domgen.error("Entity #{self.entity.qualified_name} supports un-synchronized entities but does not have a nullable MasterId")
+            elsif !support_unmanaged && nullable_master_id
+              Domgen.error("Entity #{self.entity.qualified_name} does not support un-synchronized entities but does have a nullable MasterId")
+            end
+          else
+            self.entity.integer(:MasterId,
+                                :nullable => self.entity.sync.support_unmanaged?,
+                                :immutable => true,
+                                :description => 'Id of the entity from which this entity was synced',
+                                '-facets' => [:sync, :arez, :gwt])
+          end
           self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync? && self.entity.sync.support_unmanaged?
           self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time? && self.entity.sync.support_unmanaged?
         end
