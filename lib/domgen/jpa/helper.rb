@@ -44,7 +44,7 @@ module Domgen
         converter = attribute.jpa.converter
         s << "  @javax.persistence.Convert( converter = #{converter.gsub('$','.')}.class )\n" if converter
 
-        unless jpa_nullable_annotation?(attribute)
+        if jpa_nullable_annotation?(attribute)
           s << "  #{nullability_annotation(jpa_nullable?(attribute))}\n"
         end
 
@@ -480,7 +480,7 @@ STR
     {
       return true;
     }
-    else if ( o == null || !(o instanceof #{entity.jpa.name}) )
+    else if ( !(o instanceof #{entity.jpa.name}) )
     {
       return false;
     }
@@ -544,7 +544,7 @@ JAVA
       def jpa_nullable_annotation?(attribute)
         # Not sure why PrimaryKeys can not have annotation other than the fact that EclipseLink fails
         # to find ID if it is
-        !(attribute.jpa.primitive? || attribute.primary_key?)
+        !attribute.jpa.primitive? && !attribute.primary_key?
       end
 
       def jpa_nullable?(attribute, inverse_side = false)
