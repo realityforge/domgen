@@ -207,6 +207,12 @@ module Domgen
         @short_name || unit_name
       end
 
+      attr_writer :classes
+
+      def classes
+        @classes ||= []
+      end
+
       attr_writer :provider
 
       def provider
@@ -642,12 +648,20 @@ module Domgen
 <persistence-unit name="#{unit.unit_name}" transaction-type="JTA">
   <jta-data-source>#{unit.data_source}</jta-data-source>
 
+FRAGMENT
+          unit.classes.each do |cls|
+            fragment << <<FRAGMENT
+      <class>#{cls}</class>
+FRAGMENT
+          end
+          fragment << <<FRAGMENT
   <exclude-unlisted-classes>#{unit.exclude_unlisted_classes?}</exclude-unlisted-classes>
   <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
   <validation-mode>AUTO</validation-mode>
 
   <properties>
 FRAGMENT
+
           unit.properties.each_pair do |key, value|
             fragment << "      <property name=\"#{key}\" value=\"#{value}\"/>\n"
           end

@@ -37,6 +37,9 @@ end
   end
 end
 -%>
+<% repository.jpa.default_persistence_unit.classes.each do |cls| -%>
+      <class><%= cls %></class>
+<% end -%>
 <%
   converters = converters.compact.sort.uniq
   if converters.size > 0
