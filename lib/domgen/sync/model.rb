@@ -506,7 +506,7 @@ module Domgen
         sync_temp_data_module = entity.data_module.repository.data_module_by_name(entity.data_module.repository.sync.sync_temp_data_module)
         sync_temp_data_module.disable_facets_not_in(Domgen::Sync::VALID_SYNC_TEMP_FACETS)
 
-        unless self.entity.abstract?
+        if true
           if self.entity.attribute_by_name?(:MasterId)
             master_id_attribute = self.entity.attribute_by_name(:MasterId)
             support_unmanaged = self.entity.sync.support_unmanaged?
@@ -617,7 +617,7 @@ module Domgen
             self.entity.sql.foreign_key([:MasterId], e.qualified_name, [:Id], :defer_creation => true, :on_delete => :no_action)
           end
 
-          self.entity.attributes.select {|a| !a.inherited? || a.primary_key?}.each do |a|
+          self.entity.attributes.select {|a| (!a.inherited? && !a.primary_key?) || (a.primary_key? && self.entity.concrete?)}.each do |a|
             next unless a.sync?
 
             # For self referential, non-transaction time entities, we have to set sql.on_delete
@@ -633,7 +633,7 @@ module Domgen
             attribute_type = a.attribute_type
 
             if a.primary_key?
-              name = a.entity.root_entity.name
+              name = self.entity.name
               attribute_type = :reference
               options[:referenced_entity] = a.entity.qualified_name
               options[:nullable] = true
@@ -641,8 +641,8 @@ module Domgen
               options['sql.defer_creation'] = true
               options['inverse.multiplicity'] = :zero_or_one
               options['jpa.persistent'] = true
-              options[:abstract] = a.entity.abstract?
-              options[:override] = !a.entity.extends.nil?
+              options[:abstract] = false
+              options[:override] = false
             else
               options[:abstract] = a.abstract?
             end
@@ -749,20 +749,20 @@ module Domgen
             e.query(:FindByMappingSourceAndMappingId)
             e.query(:GetByMappingSourceAndMappingId)
             if self.entity.sync.support_remove?
-              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()', :DeletedAt => 'null')
-              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()', :DeletedAt => 'null')
-              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()', :DeletedAt => 'null' )
+              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()', :DeletedAt => 'null')
+              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()', :DeletedAt => 'null')
+              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()', :DeletedAt => 'null' )
             else
-              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()')
-              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()')
-              e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()' )
+              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()')
+              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()')
+              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()' )
             end
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId')
-            e.jpa.test_create_default(e.root_entity.name => 'null', :MasterSynchronized => 'false')
+            e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId')
+            e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false')
             if self.entity.sync.support_remove?
-              e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :DeletedAt => nil }, :force_refresh => true)
+              e.jpa.test_update_default({ e.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :DeletedAt => nil }, :force_refresh => true)
             else
-              e.jpa.test_update_default({ e.root_entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
+              e.jpa.test_update_default({ e.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
             end
             if self.entity.sync.support_remove?
               delete_defaults = {}

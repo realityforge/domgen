@@ -864,14 +864,6 @@ module Domgen
       extends.nil? ? false : data_module.entity_by_name(extends).concrete?
     end
 
-    # Return the root entity in the hierarchy
-    #
-    # This means the current entity if it does not extend any other entity, else it means the root of the inheritance tree.
-    #
-    def root_entity
-      self.extends.nil? ? self : data_module.entity_by_name(self.extends).root_entity
-    end
-
     attr_writer :read_only
 
     def read_only?

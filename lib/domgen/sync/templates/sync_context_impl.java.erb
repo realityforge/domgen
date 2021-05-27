@@ -183,14 +183,14 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   ref_index = 0
   attr_select = (entity.sync.master_entity.attributes.select{|a| (a.primary_key? || entity.attribute_by_name?(a.name)) && !%w(DeletedAt MappingId).include?(a.name.to_s) }.collect do |a|
     if a.primary_key?
-      "M.#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name}"
+      "M.#{entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name}"
     elsif a.reference? && a.referenced_entity.data_module.sync.master_data_module? && a.name.to_s != 'MappingSource'
       ref_index += 1
       if a.referenced_entity.abstract?
         index = -1
-        "COALESCE(#{a.referenced_entity.concrete_subtypes.collect do |subtype| "R#{ref_index}#{index += 1}.#{subtype.attribute_by_name(subtype.root_entity.name).sql.quoted_column_name}" end.join(', ')}) AS #{entity.attribute_by_name(a.name).sql.quoted_column_name}"
+        "COALESCE(#{a.referenced_entity.concrete_subtypes.collect do |subtype| "R#{ref_index}#{index += 1}.#{subtype.attribute_by_name(subtype.name).sql.quoted_column_name}" end.join(', ')}) AS #{entity.attribute_by_name(a.name).sql.quoted_column_name}"
       else
-        "R#{ref_index}.#{a.referenced_entity.attribute_by_name(a.referenced_entity.root_entity.name).sql.quoted_column_name} AS #{entity.attribute_by_name(a.name).sql.quoted_column_name}"
+        "R#{ref_index}.#{a.referenced_entity.attribute_by_name(a.referenced_entity.name).sql.quoted_column_name} AS #{entity.attribute_by_name(a.name).sql.quoted_column_name}"
       end
     else
       "M.#{a.sql.quoted_column_name}"
@@ -351,7 +351,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     {
       _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.persist( entity );
       _entityManager.
-        createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name } = ?, #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('MappingId') } = ? AND #{ data_module.sql.dialect.quote('MappingSource') } = ? AND #{ data_module.sql.dialect.quote('MasterSynchronized') } = #{entity.sql.dialect.false_sql} AND #{ entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name } IS NULL") %>" ).
+        createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name } = ?, #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('MappingId') } = ? AND #{ data_module.sql.dialect.quote('MappingSource') } = ? AND #{ data_module.sql.dialect.quote('MasterSynchronized') } = #{entity.sql.dialect.false_sql} AND #{ entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name } IS NULL") %>" ).
         setParameter( 1, entity.<%= getter_for(entity.primary_key) %> ).
         setParameter( 2, Boolean.TRUE ).
         setParameter( 3, v_MappingId ).
@@ -455,13 +455,13 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "<%= j_escape_string("   FROM #{entity.sync.master_entity.sql.qualified_table_name}") %> " +
       "<%= j_escape_string("   WHERE #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql}") %> AND" +
       "<%= j_escape_string("     #{entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL") %> AND" +
-      "<%= j_escape_string("     #{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name } IS NULL") %> AND" +
+      "<%= j_escape_string("     #{entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name } IS NULL") %> AND" +
       "<%= j_escape_string("     #{data_module.sql.dialect.quote(:MappingSource)} = ?") %>" +
       "<%= j_escape_string("     LIMIT 500 )") %>";
 <%  else -%>
       "<%= j_escape_string(" WHERE #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql}") %> AND" +
       "<%= j_escape_string("   #{entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NOT NULL") %> AND" +
-      "<%= j_escape_string("   #{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name } IS NULL") %> AND" +
+      "<%= j_escape_string("   #{entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name } IS NULL") %> AND" +
       "<%= j_escape_string("   #{data_module.sql.dialect.quote(:MappingSource)} = ?") %>";
 <%  end -%>
 
@@ -509,7 +509,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "INSERT INTO <%= j_escape_string(entity.sql.qualified_table_name) %>(<%= bulk_attrs_insert -%>)\n" +
       "SELECT <%= bulk_attrs_insert %> FROM ( " +
       getSqlToRetrieve<%= fn %>ListToUpdate( mappingSourceCode ) + " AND \n" +
-      "<%= j_escape_string("M.#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name} IS NULL") -%>) X\n";
+      "<%= j_escape_string("M.#{entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name} IS NULL") -%>) X\n";
   }
 
   @javax.annotation.Nonnull
@@ -520,7 +520,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "UPDATE <%= j_escape_string("#{data_module.repository.pgsql? ? table + " " : ""}") -%>M\n" +
       "SET\n" +
       "  <%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql}") -%>, " +
-      "  <%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name} = C.#{entity.primary_key.sql.quoted_column_name}") %>\n" +
+      "  <%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name} = C.#{entity.primary_key.sql.quoted_column_name}") %>\n" +
 <%  if data_module.repository.pgsql? -%>
       "FROM <%= j_escape_string("#{entity.sql.qualified_table_name} C") %> \n" +
       " WHERE C.<%= j_escape_string("#{entity.attribute_by_name(:MasterId).sql.quoted_column_name} = M.#{entity.sync.master_entity.primary_key.sql.quoted_column_name}") -%> AND " +
@@ -529,7 +529,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       " JOIN <%= j_escape_string("#{entity.sql.qualified_table_name} C ON C.#{entity.attribute_by_name(:MasterId).sql.quoted_column_name} = M.#{entity.sync.master_entity.primary_key.sql.quoted_column_name}") %> AND " +
 <%  end -%>
       "M.<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql}") -%> AND " +
-      "M.<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name} IS NULL") -%>\n";
+      "M.<%= j_escape_string("#{entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name} IS NULL") -%>\n";
   }
 
 <% if entity.sync.update_via_sync? -%>
@@ -545,7 +545,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "FROM <%= j_escape_string( entity.sql.qualified_table_name ) %> O \n" +
       "JOIN ( \n" +
       getSqlToRetrieve<%= fn %>ListToUpdate( mappingSourceCode ) + "\n" +
-      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
+      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
   }
 
   @javax.annotation.Nonnull
@@ -559,7 +559,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "FROM <%= j_escape_string( table ) %> O \n" +
       "JOIN ( \n" +
       getSqlToRetrieve<%= fn %>ListToUpdate( mappingSourceCode ) + "\n" +
-      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
+      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
   }
 
 <% end -%>
@@ -579,7 +579,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "FROM <%= j_escape_string( entity.sql.qualified_table_name ) %> O \n" +
       "JOIN ( \n" +
       getSqlToRetrieve<%= fn %>ListToRemove( mappingSourceCode ) + "\n" +
-      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
+      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
   }
 
   @javax.annotation.Nonnull
@@ -593,7 +593,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "FROM <%= j_escape_string( table ) %> O \n" +
       "JOIN ( \n" +
       getSqlToRetrieve<%= fn %>ListToRemove( mappingSourceCode ) + "\n" +
-      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.root_entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
+      ") M ON M.<%= j_escape_string(entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name) %> = O.<%= j_escape_string(entity.primary_key.sql.quoted_column_name) %>";
   }
 <% end -%>
 <% end -%>
@@ -630,15 +630,15 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% if recursive_attributes.size <= 1 -%>
     return
 <%= cte -%>
-      "<%= j_escape_string( "SELECT M.#{ entity.sync.master_entity.primary_key.sql.quoted_column_name }, M.#{ entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name } " ) %>" +
+      "<%= j_escape_string( "SELECT M.#{ entity.sync.master_entity.primary_key.sql.quoted_column_name }, M.#{ entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name } " ) %>" +
       "<%= j_escape_string( "FROM #{ table } M " ) %>" +
-      "<%= j_escape_string( "JOIN #{ entity.sql.qualified_table_name } O ON M.#{ entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name } = O.#{ entity.primary_key.sql.quoted_column_name } " ) %>" +
+      "<%= j_escape_string( "JOIN #{ entity.sql.qualified_table_name } O ON M.#{ entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name } = O.#{ entity.primary_key.sql.quoted_column_name } " ) %>" +
       "<%= j_escape_string( "WHERE #{ remove_criteria } " ) %>" +
       "<%= j_escape_string( "#{ order_by }" ) %>";
 <% else -%>
     /*
     return
-      "SELECT M.<%= entity.sync.master_entity.primary_key.sql.quoted_column_name %>, M.<%= entity.sync.master_entity.attribute_by_name( entity.root_entity.name ).sql.quoted_column_name %> " +
+      "SELECT M.<%= entity.sync.master_entity.primary_key.sql.quoted_column_name %>, M.<%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> " +
       "FROM <%= table %> M " +
       "JOIN <%= entity.sql.qualified_table_name %> O ON M.<%= entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name %> = O.<%= entity.primary_key.sql.quoted_column_name %> " +
       "WHERE <%= remove_criteria %> " +
