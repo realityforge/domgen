@@ -613,7 +613,9 @@ module Domgen
             e.sql.index([:MappingSource, :MappingId], :include_attribute_names => [:Id], :filter => filter)
           end
 
-          self.entity.sql.foreign_key([:MasterId], e.qualified_name, [:Id], :defer_creation => true, :on_delete => :no_action)
+          unless self.entity.abstract?
+            self.entity.sql.foreign_key([:MasterId], e.qualified_name, [:Id], :defer_creation => true, :on_delete => :no_action)
+          end
 
           self.entity.attributes.select {|a| !a.inherited? || a.primary_key?}.each do |a|
             next unless a.sync?
