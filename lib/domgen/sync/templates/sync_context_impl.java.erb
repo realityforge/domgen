@@ -325,7 +325,8 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       v_<%= a.name %>_ctor = <% if a.primary_key? -%>generate<%= entity.qualified_name.to_s.gsub('.','') %>Key( <%= attr.select{|a| !a.primary_key?}.collect{|a| "v_#{a.name}"}.join(', ') %> )<% else -%>v_<%= a.name %><% end -%>;
 <% end -%>
 <% end -%>
-      entity = new <%= entity.jpa.qualified_name %>(<%= attr.select{|a|a.immutable? && !a.generated_value?}.collect{|a| "v_#{a.name}_ctor"}.join(', ') %>);
+
+      entity = new <%= entity.jpa.qualified_name %>(<%= entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent? }.collect{|a| "v_#{a.name}_ctor"}.join(', ') %>);
     }
     else
     {
