@@ -802,7 +802,7 @@ module Domgen
         end
 
         unless self.entity.abstract?
-          validation_name = "MasterIdLinkedCorrectly"
+          validation_name = 'MasterIdLinkedCorrectly'
           unless self.entity.sql.validation?(validation_name)
             m = self.entity.sync.master_entity
             guard = "UPDATE(#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name})"
