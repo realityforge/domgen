@@ -876,7 +876,7 @@ FRAGMENT
       attr_writer :detachable
 
       def detachable?
-        @detachable.nil? ? false : @detachable
+        @detachable.nil? ? false : !!@detachable
       end
 
       def entity_listeners
