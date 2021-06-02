@@ -484,8 +484,6 @@ module Domgen
       def pre_complete
         return unless synchronize?
 
-        self.entity.jpa.detachable = true if self.entity.jpa?
-
         if support_unmanaged?
           self.entity.attributes.select { |a| a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.support_remove? }.each do |a|
             if self.entity.referencing_attributes.empty?
