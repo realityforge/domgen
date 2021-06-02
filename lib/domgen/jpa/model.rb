@@ -891,6 +891,12 @@ FRAGMENT
         @support_delete.nil? ? (self.entity.sync? && self.entity.sync.core? && !self.entity.sync.support_remove? && !self.entity.sync.support_unmanaged? ? false : true) : !!@support_delete
       end
 
+      attr_writer :support_refresh
+
+      def support_refresh?
+        @support_refresh.nil? ? false : !!@support_refresh
+      end
+
       attr_writer :detachable
 
       def detachable?

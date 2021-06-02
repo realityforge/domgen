@@ -63,8 +63,11 @@ public interface <%= dao.jpa.dao_service_name %>
   void persist( <%= dao.entity.jpa.qualified_name %> entity );
 
 <% end -%>
+<% if dao.entity.jpa.support_refresh? -%>
+
   /** Refresh the state of the <%= dao.entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
   void refresh( <%= dao.entity.jpa.qualified_name %> entity );
+<% end -%>
 <% if dao.entity.jpa.support_delete? -%>
 
   /** Remove the <%= dao.entity.jpa.qualified_name %> instance. */

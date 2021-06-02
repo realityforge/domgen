@@ -350,13 +350,15 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
       throw wrap;
     }
   }
-
 <% end -%>
+<% if dao.entity.jpa.support_refresh? -%>
+
   @java.lang.Override
   public void refresh( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.refresh( entity );
   }
+<% end -%>
 <% if dao.entity.jpa.support_delete? -%>
 
   @java.lang.Override
