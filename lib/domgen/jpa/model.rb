@@ -873,6 +873,24 @@ FRAGMENT
         entity.referencing_attributes.empty? && entity.attributes.all? {|a| (a.immutable? || a.primary_key?) && !a.reference?}
       end
 
+      attr_writer :support_create
+
+      def support_create?
+        @support_create.nil? ? (self.entity.sync? && self.entity.sync.core? && !self.entity.sync.support_unmanaged? ? false : !self.entity.sql.load_from_fixture?) : !!@support_create
+      end
+
+      attr_writer :support_update
+
+      def support_update?
+        @support_update.nil? ? (self.entity.sync? && self.entity.sync.core? && !self.entity.sync.support_unmanaged? ? false : !self.entity.sql.load_from_fixture?) : !!@support_update
+      end
+
+      attr_writer :support_delete
+
+      def support_delete?
+        @support_delete.nil? ? (self.entity.sync? && self.entity.sync.core? && !self.entity.sync.support_remove? && !self.entity.sync.support_unmanaged? ? false : true) : !!@support_delete
+      end
+
       attr_writer :detachable
 
       def detachable?

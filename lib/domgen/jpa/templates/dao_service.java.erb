@@ -11,10 +11,13 @@ public interface <%= dao.jpa.dao_service_name %>
 <% end -%>
 <% if dao.repository? -%>
 <% if dao.entity.concrete? -%>
+<% if dao.entity.jpa.support_create? -%>
   /** Create the <%= dao.entity.jpa.qualified_name %> with specified parameters. */
   @javax.annotation.Nonnull
   <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> );
 
+<% end -%>
+<% if dao.entity.jpa.support_delete? -%>
   /** Delete the <%= dao.entity.jpa.qualified_name %>, recursivly nulling references/deleting dependent entities. */
   void delete( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_ );
 <% if dao.entity.transaction_time? -%>
@@ -23,12 +26,16 @@ public interface <%= dao.jpa.dao_service_name %>
    * removing where not possible . */
   void cascadeRemove( <%= dao.entity.jpa.qualified_name %> entity );
 <% end -%>
+<% end -%>
 
+<% if dao.entity.jpa.support_create? -%>
 <% dao.entity.jpa.create_defaults.each do |defaults| -%>
   @javax.annotation.Nonnull
   <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> );
 
 <% end -%>
+<% end -%>
+<% if dao.entity.jpa.support_update? -%>
 <% if dao.entity.attributes.any?{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?} -%>
   /** Update the <%= dao.entity.jpa.qualified_name %> with specified parameters. */
   void update( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_, <%= dao.entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>);
@@ -43,6 +50,7 @@ public interface <%= dao.jpa.dao_service_name %>
 <% end -%>
 <% end -%>
 <% end -%>
+<% end -%>
 <% if dao.entity.jpa.detachable? -%>
   /** Remove the given  <%= dao.entity.jpa.qualified_name %> from the persistence context, causing a managed entity to become detached. */
   void detach( <%= dao.entity.jpa.qualified_name %> entity );
@@ -50,13 +58,17 @@ public interface <%= dao.jpa.dao_service_name %>
   /** Merge the state of the given <%= dao.entity.jpa.qualified_name %> into the current persistence context. */
   <%= dao.entity.jpa.qualified_name %> merge( <%= dao.entity.jpa.qualified_name %> entity );
 <% end -%>
+<% if dao.entity.jpa.support_update? -%>
   /** Make an <%= dao.entity.jpa.qualified_name %> instance managed and persistent. */
   void persist( <%= dao.entity.jpa.qualified_name %> entity );
 
+<% end -%>
   /** Refresh the state of the <%= dao.entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
   void refresh( <%= dao.entity.jpa.qualified_name %> entity );
+<% if dao.entity.jpa.support_delete? -%>
 
   /** Remove the <%= dao.entity.jpa.qualified_name %> instance. */
   void remove( <%= dao.entity.jpa.qualified_name %> entity );
+<% end -%>
 <% end -%>
 }

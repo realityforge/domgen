@@ -350,7 +350,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% end -%>
     if( null == v_<%= entity.primary_key.name %> )
     {
-      _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.persist( entity );
+      _entityManager.persist( entity );
       _entityManager.
         createNativeQuery( "<%= j_escape_string("UPDATE #{ entity.sync.master_entity.sql.qualified_table_name } SET #{ entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name } = ?, #{ data_module.sql.dialect.quote('MasterSynchronized') } = ? WHERE #{ data_module.sql.dialect.quote('MappingId') } = ? AND #{ data_module.sql.dialect.quote('MappingSource') } = ? AND #{ data_module.sql.dialect.quote('MasterSynchronized') } = #{entity.sql.dialect.false_sql} AND #{ entity.sync.master_entity.attribute_by_name( entity.name ).sql.quoted_column_name } IS NULL") %>" ).
         setParameter( 1, entity.<%= getter_for(entity.primary_key) %> ).

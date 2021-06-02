@@ -123,6 +123,7 @@ public class <%= dao.jpa.dao_name %>
 <% end -%>
 <% if dao.repository? -%>
 <% if dao.entity.concrete? -%>
+<% if dao.entity.jpa.support_create? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   public <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
@@ -135,6 +136,8 @@ public class <%= dao.jpa.dao_name %>
     return $_;
   }
 
+<% end -%>
+<% if dao.entity.jpa.support_delete? -%>
   @java.lang.Override
   @java.lang.SuppressWarnings( "deprecation" )
   public void delete( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> $_ )
@@ -269,7 +272,9 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     remove( $_ );
   }
 <% end -%>
+<% end -%>
 
+<% if dao.entity.jpa.support_create? -%>
 <% dao.entity.jpa.create_defaults.each do |defaults| -%>
   @java.lang.Override
   @javax.annotation.Nonnull
@@ -279,6 +284,8 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
   }
 
 <% end -%>
+<% end -%>
+<% if dao.entity.jpa.support_update? -%>
 <% if dao.entity.attributes.any?{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?} -%>
   @java.lang.Override
   public void update( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> $_, <%= dao.entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
@@ -302,6 +309,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% end -%>
 <% end -%>
 <% end -%>
+<% end -%>
 <% if dao.entity.jpa.detachable? -%>
 
   @java.lang.Override
@@ -317,6 +325,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
   }
 
 <% end -%>
+<% if dao.entity.jpa.support_update? -%>
   @java.lang.Override
   public void persist( final <%= dao.entity.jpa.qualified_name %> entity )
   {
@@ -342,11 +351,13 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     }
   }
 
+<% end -%>
   @java.lang.Override
   public void refresh( final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.refresh( entity );
   }
+<% if dao.entity.jpa.support_delete? -%>
 
   @java.lang.Override
   public void remove( final <%= dao.entity.jpa.qualified_name %> entity )
@@ -354,6 +365,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     em.remove( entity );
     em.flush();
   }
+<% end -%>
 <% end -%>
 <% if dao.repository? && dao.entity.transaction_time? -%>
 
