@@ -161,8 +161,8 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% if entity.jpa.support_update? -%>
     <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().update( $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
 <% else -%>
-<% entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
-    $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> );
+<% entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent? && (!defaults.has_attribute?(a.name) || !defaults.value_for(a.name).nil?)}.each do |a| -%>
+    $_.set<%= a.name %>( <%= defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Reality::Naming.camelize(a.name) %> );
 <% end -%>
 <% end -%>
   }
