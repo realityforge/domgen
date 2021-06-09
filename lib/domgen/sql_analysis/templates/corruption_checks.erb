@@ -11,14 +11,14 @@ corruption_check_entity = data_module.repository.sql_analysis.corruption_check_e
 --
 <% data_module.sql_analysis.entities_to_analyze_id_namespace.each do |entity| -%>
 INSERT INTO <%= corruption_check_entity.sql.qualified_table_name %>(<%= corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name%>)
-  VALUES ('ID Namespace', 'An ID must not be appear in multiple tables in the <%= entity.qualified_name %> hierarchy','
-SELECT ID, COUNT(*) AS IDCount
+  VALUES ('Id Namespace', 'An Id must not be appear in multiple tables in the <%= entity.qualified_name %> hierarchy','
+SELECT <%= entity.primary_key.sql.quoted_column_name %>, COUNT(*) AS IDCount
  FROM (
 <%= entity.concrete_subtypes.select{|entity| entity.sql_analysis?}.collect do |subtype|
-   "SELECT ID, ''#{subtype.name}'' AS Type FROM #{subtype.sql.qualified_table_name}"
+   "SELECT #{entity.primary_key.sql.quoted_column_name}, ''#{subtype.name}'' AS Type FROM #{subtype.sql.qualified_table_name}"
    end.join("\nUNION\n") %>
  ) f
- GROUP BY ID
+ GROUP BY <%= entity.primary_key.sql.quoted_column_name %>
  HAVING COUNT(*) > 1')
 GO
 <% end -%>
