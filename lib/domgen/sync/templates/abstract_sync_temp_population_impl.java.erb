@@ -381,12 +381,12 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
    # on the column which will automatically be false ... so we accidentally get the correct answer
    default_impl_may_work =
     # DeletedAt IS NULL just indicates table is transaction time
-    (index.filter == '[DeletedAt] IS NULL') ||
+    (index.filter == '[DeletedAt] IS NULL' || index.filter == 'DeletedAt IS NULL') ||
     (
       index.attribute_names.size == 1 &&
       (
         (index.filter =~ /^([^ ]+) IS NOT NULL$/ && $1.gsub(/\[\]"/,'') == entity.attribute_by_name(index.attribute_names[0]).sql.column_name.to_s) ||
-        (index.filter =~ /^\(([^ ]+) IS NOT NULL\) AND \[DeletedAt\] IS NULL$/ && $1.gsub('[','').gsub(']','').gsub('"','') == entity.attribute_by_name(index.attribute_names[0]).sql.column_name.to_s)
+        (index.filter =~ /^\(([^ ]+) IS NOT NULL\) AND (\[)?DeletedAt(\])? IS NULL$/ && $1.gsub('[','').gsub(']','').gsub('"','') == entity.attribute_by_name(index.attribute_names[0]).sql.column_name.to_s)
       )
     )
 -%>
