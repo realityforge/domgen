@@ -32,6 +32,7 @@ end
 public abstract class <%= data_module.sync.sync_context_impl_name %>
   implements <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>
 {
+  @javax.annotation.Nonnull
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= data_module.sync.sync_context_impl_name %>.class.getName() );
 
   @javax.persistence.PersistenceContext( unitName = <%= data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME )
