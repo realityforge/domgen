@@ -28,7 +28,7 @@ end
 </code>
  */
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "NP_LOAD_OF_KNOWN_NULL_VALUE", "DLS_DEAD_LOCAL_STORE", "CLI_CONSTANT_LIST_INDEX", "ACEM_ABSTRACT_CLASS_EMPTY_METHODS" } )
-@java.lang.SuppressWarnings( { "unchecked", "UnusedParameters", "PMD.AddEmptyString", "PMD.UnusedLocalVariable", "PMD.LocalVariableNamingConventions" } )
+@java.lang.SuppressWarnings( { "unchecked", "UnusedParameters", "PMD.UnusedPrivateField", "PMD.AddEmptyString", "PMD.UnusedLocalVariable", "PMD.LocalVariableNamingConventions" } )
 public abstract class <%= data_module.sync.sync_context_impl_name %>
   implements <%= data_module.service_by_name(:SynchronizationContext).ejb.qualified_service_name %>
 {
