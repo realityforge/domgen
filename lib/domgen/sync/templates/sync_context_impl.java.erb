@@ -46,7 +46,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   data_module.repository.data_modules.each do |dm|
     dm.entities.each do |e|
       e.attributes.each do |a|
-        related_entities << e if !e.sync? && a.reference? && a.referenced_entity.sync? && a.referenced_entity.sync.support_remove? && !related_entities.include?(e)
+        related_entities << e if !e.sync? && a.reference? && a.referenced_entity.sync? && (a.referenced_entity.sync.support_remove? || a.referenced_entity.sync.support_unmanaged?) && !related_entities.include?(e)
       end
     end
   end
