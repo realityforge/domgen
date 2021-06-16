@@ -169,7 +169,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% end -%>
   }
 
-<% entity.sql.constraints.select{|constraint| !(constraint.sql =~ /\[CreatedAt\]/ && constraint.sql =~ /\[DeletedAt\]/ && constraint.sql =~ /[. ]CreatedAt / && constraint.sql =~ /[. ]DeletedAt /) }.each do |constraint| %>
+<% entity.sql.constraints.select{|constraint| !(constraint.sql =~ /\[CreatedAt\]/ && constraint.sql =~ /\[DeletedAt\]/ && constraint.sql =~ /[^A-Za-z]CreatedAt / && constraint.sql =~ /[^A-Za-z]DeletedAt /) }.each do |constraint| %>
   @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
   @javax.annotation.Nonnull
   protected java.lang.String get<%= constraint.table.entity.data_module.name %><%= constraint.table.entity.name %><%= constraint.name %>Sql()

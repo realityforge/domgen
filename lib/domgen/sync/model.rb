@@ -722,7 +722,7 @@ module Domgen
               next if index.cluster?
 
               unless index.attribute_names.include?(:DeletedAt) || index.attribute_names.include?(:CreatedAt)
-                unless index.filter && (index.filter =~ Regexp.new(Regexp.escape(e.sql.dialect.quote(:DeletedAt))) || index.filter =~ Regexp.new(Regexp.escape(e.sql.dialect.quote(:CreatedAt))))
+                unless index.filter && (index.filter =~ Regexp.new(Regexp.escape(e.sql.dialect.quote(:DeletedAt))) || index.filter =~ Regexp.new(Regexp.escape('DeletedAt')) || index.filter =~ Regexp.new(Regexp.escape(e.sql.dialect.quote(:CreatedAt))) || index.filter =~ Regexp.new(Regexp.escape('CreatedAt')))
                   index.filter = (index.filter.nil? ? '' : "(#{index.filter}) AND ") + "#{entity.sql.dialect.quote(:DeletedAt)} IS NULL"
                 end
               end
