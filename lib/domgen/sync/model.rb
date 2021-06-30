@@ -604,7 +604,7 @@ module Domgen
             e.string(:MappingId, 50, :immutable => true, :description => 'The ID of entity in originating system')
             e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
 
-            filter = self.entity.transaction_time? && self.entity.sync.support_remove? ? "#{e.sql.dialect.quote(:DeletedAt)} IS NULL" : nil
+            filter = self.entity.sync.support_remove? ? "#{e.sql.dialect.quote(:DeletedAt)} IS NULL" : nil
             e.sql.index([:MappingId, :MappingKey, :MappingSource], :unique => true, :filter => filter)
             e.sql.index([:MappingSource, :MappingId], :include_attribute_names => [:Id], :filter => filter)
           end
@@ -707,8 +707,7 @@ module Domgen
                   i.attribute_names.length == 1 && i.attribute_names[0].to_s == a.name.to_s
                 end
                 if existing_constraint.nil? && existing_index.nil?
-                  filter = self.entity.transaction_time? && self.entity.sync.support_remove? ? "#{e.sql.dialect.quote(:DeletedAt)} IS NULL" : nil
-                  self.entity.sql.index([a.name], :unique => true, :filter => filter)
+                  self.entity.sql.index([a.name], :unique => true, :filter => "#{e.sql.dialect.quote(:DeletedAt)} IS NULL")
                 end
               end
             end
@@ -727,7 +726,7 @@ module Domgen
                   index.filter = (index.filter.nil? ? '' : "(#{index.filter}) AND ") + "#{entity.sql.dialect.quote(:DeletedAt)} IS NULL"
                 end
               end
-            end if self.entity.transaction_time? && self.entity.sync.support_remove?
+            end
 
             entity.sync.references_not_requiring_manual_sync.each do |a|
               a.entity.query("FindAllBy#{a.name}") unless a.entity.query_by_name?("FindAllBy#{a.name}")
