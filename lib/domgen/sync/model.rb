@@ -745,20 +745,20 @@ module Domgen
             e.query(:FindByMappingSourceAndMappingId)
             e.query(:GetByMappingSourceAndMappingId)
             if self.entity.sync.support_remove?
-              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()', :DeletedAt => 'null')
-              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()', :DeletedAt => 'null')
-              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()', :DeletedAt => 'null' )
+              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()', :DeletedAt => 'null')
+              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()', :DeletedAt => 'null')
+              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()', :DeletedAt => 'null' )
             else
-              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()')
-              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()')
-              e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()' )
+              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()')
+              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()')
+              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()' )
             end
-            e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId')
-            e.jpa.test_create_default(e.name => 'null', :MasterSynchronized => 'false')
+            e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId')
+            e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false')
             if self.entity.sync.support_remove?
-              e.jpa.test_update_default({ e.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :DeletedAt => nil }, :force_refresh => true)
+              e.jpa.test_update_default({ self.entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil, :DeletedAt => nil }, :force_refresh => true)
             else
-              e.jpa.test_update_default({ e.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
+              e.jpa.test_update_default({ self.entity.name => nil, :MasterSynchronized => 'false', :MappingSource => nil, :MappingKey => nil, :MappingId => nil }, :force_refresh => true)
             end
             if self.entity.sync.support_remove?
               delete_defaults = {}

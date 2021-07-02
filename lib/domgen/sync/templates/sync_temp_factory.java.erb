@@ -25,7 +25,7 @@ public class <%= data_module.sync.sync_temp_factory_name %>
 
   public void resetIdentity<%= entity.qualified_name.gsub('.','') %>()
   {
-    getEntityManager().createStoredProcedureQuery( "<%= j_escape_string( "#{entity.sync.sync_temp_entity.data_module.sql.quoted_schema}.#{entity.sync.sync_temp_entity.data_module.sql.dialect.quote("spReseed#{ entity.name }")}") %>" ).execute();
+    getEntityManager().createStoredProcedureQuery( "<%= j_escape_string( "#{entity.sync.sync_temp_entity.data_module.sql.quoted_schema}.#{entity.sync.sync_temp_entity.data_module.sql.dialect.quote("spReseed#{ entity.sync.sync_temp_entity.name }")}") %>" ).execute();
   }
 
   public int deleteAll<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
