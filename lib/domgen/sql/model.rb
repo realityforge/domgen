@@ -396,7 +396,12 @@ module Domgen
       def invariant_negative_sql
         return @invariant_negative_sql unless @invariant_negative_sql.nil?
         return nil unless self.invariant_derivable? && !self.negative_sql.nil? && !self.negative_sql.include?(' deleted ')
-        self.negative_sql.gsub(/([ \t\r\n])inserted([ \t\r\n])/, "\\1#{self.table.qualified_table_name}\\2")
+        self.negative_sql.
+          # For any line that ends in a single line sql server quote (i.e. " -- ...\n" )
+          # try to convert it to multiline quote (i.e. " /* ... */ "). That way when we strip out
+          # whitespace we do not end up with invalid sql
+          gsub(/('[^']*'|"[^"]*")|--(.*)\n/) {|m| $1 || "/*#{$2} */"}.
+          gsub(/([ \t\r\n])inserted([ \t\r\n])/, "\\1#{self.table.qualified_table_name}\\2")
       end
 
       def invariant_common_table_expression
