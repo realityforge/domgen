@@ -374,7 +374,7 @@ end
       recorder.incMetric( "<%= entity.qualified_name %>.Total.New", newCount );
 
       // The change must be less than 10 % unless forceSync is set
-      if ( !forceSync && diff > 0.1 * oldCount )
+      if ( !forceSync && diff > 10 && oldCount > 10 && (diff > 0.1 * oldCount) )
       {
         final String message = "Abnormal update count (Diff = " + diff + ", Old Row Count = " + oldCount + ", New Row Count = " + newCount + ") observed for <%= entity.qualified_name %>. Halting sync process.";
         log( recorder, message );
