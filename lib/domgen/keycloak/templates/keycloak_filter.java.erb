@@ -2,7 +2,7 @@
 package <%= to_package(client.qualified_keycloak_filter_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@javax.servlet.annotation.WebFilter( asyncSupported = true, initParams = { @javax.servlet.annotation.WebInitParam( name = "keycloak.config.resolver", value = "<%= client.qualified_keycloak_config_resolver_name %>" ) }, urlPatterns = { <%= client.protected_url_patterns.collect{|p|"\"#{p}\""}.join( ', ' )  %> } )
+@javax.servlet.annotation.WebFilter( filterName="<%= client.keycloak_filter_name %>", asyncSupported = true, initParams = { @javax.servlet.annotation.WebInitParam( name = "keycloak.config.resolver", value = "<%= client.qualified_keycloak_config_resolver_name %>" ) }, urlPatterns = { <%= client.protected_url_patterns.collect{|p|"\"#{p}\""}.join( ', ' )  %> } )
 public class <%= client.keycloak_filter_name %>
   extends org.keycloak.adapters.servlet.KeycloakOIDCFilter
 {
