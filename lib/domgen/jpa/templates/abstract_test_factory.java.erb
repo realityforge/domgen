@@ -76,7 +76,6 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% end -%>
     em().persist( entity );
     mEntity.set<%= entity.name %>( entity );
-    mEntity.setMasterSynchronized( true );
     em().persist( mEntity );
     em().flush();
     return entity;
