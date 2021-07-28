@@ -157,7 +157,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
       akasha.WindowGlobal.navigator().serviceWorker()
         .register( com.google.gwt.core.client.GWT.getModuleBaseForStaticFiles() + com.google.gwt.core.client.GWT.getModuleName() + "-sw.js" )
         .then( registration -> {
-          akasha.Console.log( "ServiceWorker registration successful with scope: " + registration.getScope() );
+          akasha.Console.log( "ServiceWorker registration successful with scope: " + registration.scope() );
 
           // Every minute attempt to update the serviceWorker. If it does update
           // then the "controllerchange" event will fire.
