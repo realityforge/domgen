@@ -142,7 +142,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
        if parameter.enumeration?
          "entity.#{parameter.enumeration.numeric_values? ? 'ordinal()' : 'name()'}"
        else
-         "elemental2.core.Global.JSON.stringify( entity )"
+         "akasha.core.JSON.stringify( entity )"
        end
     %>
     $<%= Reality::Naming.camelize(parameter.name) %>.add( <%= param_value %> );
@@ -166,7 +166,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
   elsif parameter.date?
     param_value = "#{param_value}.toString()"
   elsif parameter.struct?
-    param_value = "elemental2.core.Global.JSON.stringify( #{param_value} )"
+    param_value = "akasha.core.JSON.stringify( #{param_value} )"
   end
   if parameter.nullable? && !parameter.collection?
     param_value = "null == #{Reality::Naming.camelize(parameter.name)} ? null : #{param_value}"
@@ -187,7 +187,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
      elsif method.return_value.date?
        result_string = "#{repository.gwt.qualified_rdate_name}.parse( result )"
      elsif method.return_value.struct?
-       result_string = "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( elemental2.core.Global.JSON.parse( result ) )"
+       result_string = "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( akasha.core.JSON.parse( result ) )"
      end
      if method.return_value.nullable?
        result_string = "null == result ? null : #{result_string}"
@@ -211,7 +211,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
              "#{method.return_value.gwt_rpc.java_component_type}.valueOf( $item )" :
              "#{method.return_value.gwt_rpc.java_component_type}.values()[ $item ]"
          else
-           "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( elemental2.core.Global.JSON.parse( $item ) )"
+           "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( akasha.core.JSON.parse( $item ) )"
          end
 -%>
             $result.add( <%= param_value %> );

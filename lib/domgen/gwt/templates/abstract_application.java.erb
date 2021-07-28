@@ -135,7 +135,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   {
     final String message =
       error + ": Error occurred on observer named " + ( arez.Arez.areNamesEnabled() ? observer.getName() : "?" );
-    elemental2.dom.DomGlobal.console.error( message, throwable );
+    akasha.Console.error( message, throwable );
     if ( isSuperDevMode() )
     {
       jsinterop.base.Js.debugger();
@@ -152,26 +152,26 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   private void setupServiceWorker()
   {
-    if ( null != elemental2.dom.DomGlobal.navigator.serviceWorker && !isSuperDevMode() )
+    if ( null != akasha.WindowGlobal.navigator().serviceWorker() && !isSuperDevMode() )
     {
-      elemental2.dom.DomGlobal.navigator.serviceWorker
+      akasha.WindowGlobal.navigator().serviceWorker()
         .register( com.google.gwt.core.client.GWT.getModuleBaseForStaticFiles() + com.google.gwt.core.client.GWT.getModuleName() + "-sw.js" )
         .then( registration -> {
-          elemental2.dom.DomGlobal.console.log( "ServiceWorker registration successful with scope: " + registration.getScope() );
+          akasha.Console.log( "ServiceWorker registration successful with scope: " + registration.getScope() );
 
           // Every minute attempt to update the serviceWorker. If it does update
           // then the "controllerchange" event will fire.
           _serviceWorkerUpdateTask = zemeckis.Zemeckis.periodicTask( zemeckis.Zemeckis.areNamesEnabled() ? "ServiceWorkerUpdateTask" : null, registration::update, 60000 );
           return null;
         }, error -> {
-          elemental2.dom.DomGlobal.console.log( "ServiceWorker registration failed: ", error );
+          akasha.Console.log( "ServiceWorker registration failed: ", error );
           return null;
         } );
-      elemental2.dom.DomGlobal.navigator.serviceWorker.addEventListener( "controllerchange", e -> {
+      akasha.WindowGlobal.navigator().serviceWorker().addEventListener( "controllerchange", e -> {
         // This fires when the service worker controlling this page
         // changes, eg a new worker has skipped waiting and become
         // the new active worker.
-        elemental2.dom.DomGlobal.console.log( "ServiceWorker updated ", e );
+        akasha.Console.log( "ServiceWorker updated ", e );
         onServiceWorkerUpdateReady();
       } );
     }
@@ -221,7 +221,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   {
     if ( shouldLogThrowableToConsole( e ) )
     {
-      elemental2.dom.DomGlobal.console.error( getStackTrace( e ) );
+      akasha.Console.error( getStackTrace( e ) );
     }
     unwrapThrowable( e ).forEach( this::logThrowable );
   }
@@ -302,7 +302,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     // triggering schedulers during injector construction
     replicant.Replicant.context();
     replicant.WebStorageCacheService.install();
-    elemental2.dom.DomGlobal.window.addEventListener( "beforeunload", e -> replicant.Replicant.context().deactivate(), true );
+    akasha.WindowGlobal.window().addEventListener( "beforeunload", e -> replicant.Replicant.context().deactivate(), true );
 <% if repository.keycloak? -%>
     updateReplicantToken();
     _updateReplicantTokenTask = zemeckis.Zemeckis.periodicTask( zemeckis.Zemeckis.areNamesEnabled() ? "ReplicantKeycloakTokenUpdater" : null, () -> getKeycloak().updateToken( 30, this::updateReplicantToken ), 5000 );

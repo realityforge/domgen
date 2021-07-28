@@ -13,8 +13,8 @@ public final class <%= entrypoint.entrypoint_name %>
     }
     catch ( final Exception e )
     {
-      elemental2.dom.DomGlobal.console.error( "Unexpected problem initializing the <%= entrypoint.gwt_repository.repository.name %> application", e );
-      elemental2.dom.DomGlobal.window.alert( "Error: " + e.getMessage() );
+      akasha.Console.error( "Unexpected problem initializing the <%= entrypoint.gwt_repository.repository.name %> application", e );
+      akasha.WindowGlobal.window().alert( "Error: " + e.getMessage() );
     }
   }
 }
