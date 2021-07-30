@@ -63,6 +63,14 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   {
     assertEventCount( <%= message.ee.qualified_message_literal_name %>.INSTANCE, messageCount );
   }
+
+  protected void assert<%= message.ee.name %>Event( final int index<%= message.parameters.empty? ? '' : ', ' %><%= message.parameters.collect{|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Reality::Naming.camelize(parameter.name)}" }.join(', ') -%> )
+  {
+    final <%= message.ee.qualified_name %> $event$ = get<%= message.ee.name %>Event( index );
+<% message.parameters.each do |parameter| -%>
+    org.testng.Assert.assertEquals( $event$.<%= getter_for(parameter) %>, <%= Reality::Naming.camelize(parameter.name) %> );
+<% end -%>
+  }
 <% end -%>
 <% end -%>
 }
