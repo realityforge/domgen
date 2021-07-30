@@ -50,4 +50,19 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
     //No default persistence unit so no need to flush
   }
 <% end -%>
+<% repository.data_modules.select{|data_module| data_module.ee?}.each do |data_module| -%>
+<% data_module.messages.select{|message| message.ee?}.each do |message| -%>
+
+  @javax.annotation.Nonnull
+  protected final <%= message.ee.qualified_name %> get<%= message.ee.name %>Event( final int index )
+  {
+    return getEvent( <%= message.ee.qualified_message_literal_name %>.INSTANCE, index );
+  }
+
+  protected final void assert<%= message.ee.name %>EventCount( final int messageCount )
+  {
+    assertEventCount( <%= message.ee.qualified_message_literal_name %>.INSTANCE, messageCount );
+  }
+<% end -%>
+<% end -%>
 }
