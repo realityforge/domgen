@@ -261,6 +261,10 @@ module Domgen
 
         entities = self.included_entities
 
+        if entities.empty?
+          Domgen.error("Graph '#{self.name}' contains no entities to replicate.")
+        end
+
         entities.each do |entity_name|
           entity = application.repository.entity_by_name(entity_name)
           entity.attributes.select { |a| a.reference? && a.imit? }.each do |a|
