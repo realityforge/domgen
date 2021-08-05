@@ -14,7 +14,7 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
   }
 
 <% end -%>
-  protected final void assertInstanceChannel( final int channelId )
+  protected final void assertInstanceChannel( final int channelId, @javax.annotation.Nonnull final Class<?> rootEntityType )
   {
     org.testng.Assert.assertTrue( getChannel( channelId ).isInstanceChannel() );
   }
@@ -32,6 +32,16 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
   protected final void assertExternalChannel( final int channelId )
   {
     org.testng.Assert.assertTrue( getChannel( channelId ).isExternal() );
+  }
+
+  protected final void assertCacheableChannel( final int channelId )
+  {
+    org.testng.Assert.assertTrue( getChannel( channelId ).isCacheable() );
+  }
+
+  protected final void assertNotCacheableChannel( final int channelId )
+  {
+    org.testng.Assert.assertFalse( getChannel( channelId ).isCacheable() );
   }
 
   protected final void assertChannelEntities( final int channelId, final int... entityIds )
