@@ -233,8 +233,8 @@ module Domgen
                 # These are attributes on non-synchronized entities that reference synchronized
                 # entities that can be removed. We need to create an appropriate query so that during
                 # sync we can verify that it is ok to synchronize a delete
-                query_name = "FindAllBy#{a.name}"
-                e.dao.query(query_name) unless e.dao.query_by_name?(query_name)
+                query_name = "CountBy#{a.name}"
+                e.dao.query(query_name).disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS) unless e.dao.query_by_name?(query_name)
               end
             end
           end
@@ -493,7 +493,7 @@ module Domgen
             else
               # Method used in AbstractSynchronizationContext as a reasonable implementation so sync can abort
               # if any exist
-              self.entity.query("FindAllUnmanagedBy#{a.name}", 'jpa.jpql' => "O.#{Reality::Naming.camelize(a.name)} = :#{a.name} AND O.masterId IS NULL", :standard_query => true).disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
+              self.entity.query("CountUnmanagedBy#{a.name}", 'jpa.jpql' => "O.#{Reality::Naming.camelize(a.name)} = :#{a.name} AND O.masterId IS NULL", :standard_query => true).disable_facets_not_in(Domgen::Sync::VALID_MASTER_FACETS)
             end
           end
         end

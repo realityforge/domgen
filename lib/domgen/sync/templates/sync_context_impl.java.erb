@@ -103,8 +103,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 -%>
   protected void remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( @javax.annotation.Nonnull final <%= e.jpa.qualified_name %> <%= Reality::Naming.camelize(e.jpa.name) %> )
   {
-    final java.util.List<<%= a.entity.jpa.qualified_name %>> entities = _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> );
-    if ( !entities.isEmpty() )
+    if ( 0 != _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.countBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> ) )
     {
       throw new java.lang.UnsupportedOperationException( "Entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
     }
@@ -121,8 +120,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% if a.entity.referencing_attributes.select{|a| !a.entity.sync? || !a.entity.sync.master? }.empty? -%>
     _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.deleteUnmanagedBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> );
 <% else -%>
-    final java.util.List<<%= a.entity.jpa.qualified_name %>> entities = _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllUnmanagedBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> );
-    if ( !entities.isEmpty() )
+    if ( 0 != _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.countUnmanagedBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> ) )
     {
       throw new java.lang.UnsupportedOperationException( "Unmanaged entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the removeUnmanaged<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
     }
