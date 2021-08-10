@@ -47,6 +47,10 @@ public abstract class <%= dao.arez.repository_name %>
 -%>
     return findByQuery( e -> <%= lambda_query(query) %> );
 <%
+  elsif query.multiplicity == :one && query.result_type == :long && query.name.to_s =~ /^[cC]ount([A-Z].*)?$/
+-%>
+    return findAllByQuery( e -> <%= lambda_query(query) %> ).size();
+<%
   elsif query.multiplicity == :one
 -%>
     return getByQuery( e -> <%= lambda_query(query) %> );

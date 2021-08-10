@@ -62,16 +62,19 @@ module Domgen
         javaql
       end
 
-      def query_component_result_type(query)
+      def query_component_result_type(query, maybe_primitive)
         query.result_entity? ?
           query.entity.arez.qualified_name :
           query.result_struct? ?
             query.struct.gwt.qualified_name :
-            Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.object_type
+            maybe_primitive && Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.primitive_type? ?
+              Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.primitive_type :
+              Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.object_type
       end
 
-      def query_result_type(query)
-        name = query_component_result_type(query)
+      def query_result_type(query, maybe_primitive = true)
+        try_primitive = maybe_primitive && query.multiplicity == :one
+        name = query_component_result_type(query, maybe_primitive)
         :many == query.multiplicity ? "java.util.List<#{name}>" : name
       end
     end
