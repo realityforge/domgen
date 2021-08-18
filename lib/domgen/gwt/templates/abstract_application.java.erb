@@ -152,9 +152,11 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   private void setupServiceWorker()
   {
-    if ( null != akasha.WindowGlobal.navigator().serviceWorker() && !isSuperDevMode() )
+    final akasha.Navigator navigator = akasha.WindowGlobal.navigator();
+    if ( navigator.isServiceWorkerSupported() && !isSuperDevMode() )
     {
-      akasha.WindowGlobal.navigator().serviceWorker()
+      final akasha.ServiceWorkerContainer serviceWorker = navigator.serviceWorker();
+      serviceWorker
         .register( com.google.gwt.core.client.GWT.getModuleBaseForStaticFiles() + com.google.gwt.core.client.GWT.getModuleName() + "-sw.js" )
         .then( registration -> {
           akasha.Console.log( "ServiceWorker registration successful with scope: " + registration.scope() );
@@ -167,7 +169,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
           akasha.Console.log( "ServiceWorker registration failed: ", error );
           return null;
         } );
-      akasha.WindowGlobal.navigator().serviceWorker().addEventListener( "controllerchange", e -> {
+      serviceWorker.addEventListener( "controllerchange", e -> {
         // This fires when the service worker controlling this page
         // changes, eg a new worker has skipped waiting and become
         // the new active worker.
