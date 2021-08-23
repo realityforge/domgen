@@ -53,6 +53,23 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 <% repository.data_modules.select{|data_module| data_module.ee?}.each do |data_module| -%>
 <% data_module.messages.select{|message| message.ee?}.each do |message| -%>
 
+  protected final void ensure<%= message.ee.name %>Event( @javax.annotation.Nonnull final java.util.function.Predicate<<%= message.ee.qualified_name %>> predicate )
+  {
+    get<%= message.ee.name %>Events().stream().filter( predicate ).findAny().orElseThrow( AssertionError::new );
+  }
+
+  @javax.annotation.Nonnull
+  protected final java.util.List<<%= message.ee.qualified_name %>> get<%= message.ee.name %>Events()
+  {
+    return getEvents( <%= message.ee.qualified_message_literal_name %>.INSTANCE );
+  }
+
+  @javax.annotation.Nonnull
+  protected final java.util.List<<%= message.ee.qualified_name %>> get<%= message.ee.name %>Events( final int messageCount )
+  {
+    return getEvents( <%= message.ee.qualified_message_literal_name %>.INSTANCE, messageCount );
+  }
+
   @javax.annotation.Nonnull
   protected final <%= message.ee.qualified_name %> get<%= message.ee.name %>Event( final int index )
   {
