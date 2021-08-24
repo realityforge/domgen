@@ -80,6 +80,7 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   {
     assertEventCount( <%= message.ee.qualified_message_literal_name %>.INSTANCE, messageCount );
   }
+<% unless message.parameters.empty? -%>
 
   protected void assert<%= message.ee.name %>Event( final int index<%= message.parameters.empty? ? '' : ', ' %><%= message.parameters.collect{|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Reality::Naming.camelize(parameter.name)}" }.join(', ') -%> )
   {
@@ -88,6 +89,7 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
     org.testng.Assert.assertEquals( $event$.<%= getter_for(parameter) %>, <%= Reality::Naming.camelize(parameter.name) %> );
 <% end -%>
   }
+<% end -%>
 <% end -%>
 <% end -%>
 }
