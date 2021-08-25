@@ -155,6 +155,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
     return 1;
   }
 
+  @javax.annotation.Nonnull
   protected <%= entity.sync.master_entity.jpa.qualified_name %> create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| "@javax.annotation.#{a.nullable? ? 'Nullable' : 'Nonnull' } final #{a.referenced_entity.jpa.qualified_name} #{Reality::Naming.camelize( a.name )}" } + ['@javax.annotation.Nullable final java.util.Date deletedAt']).join(', ') %> )
   {
     final String mappingId = org.realityforge.guiceyloops.shared.ValueUtil.randomString();
