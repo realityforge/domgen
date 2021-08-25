@@ -910,7 +910,7 @@ module Domgen
               m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
               m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
               m.parameter(:Filter, 'java.lang.Object', :nullable => true)
-            end
+            end if support_subscription_access_control?
             repository.imit.graphs.select { |graph| graph.filtered? }.each do |graph|
               s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
                 m.ejb.generate_base_test = false
