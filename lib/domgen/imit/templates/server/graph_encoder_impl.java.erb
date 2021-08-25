@@ -14,7 +14,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
 {
   @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_message_generator_name %> _messageGenerator = new <%= repository.imit.qualified_message_generator_name %>();
-<% if repository.imit.requires_session_context? -%>
+<% if repository.imit.requires_programmatic_graph_shaping? -%>
   @javax.inject.Inject
   private <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %> _context;
 <% end -%>

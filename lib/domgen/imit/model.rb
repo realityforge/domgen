@@ -810,7 +810,17 @@ module Domgen
         @imit_control_data_module || (self.repository.data_module_by_name?(self.repository.name) ? self.repository.name : Domgen.error('imit_control_data_module unspecified and unable to derive default.'))
       end
 
+      attr_writer :support_subscription_access_control
+
+      def support_subscription_access_control?
+        @support_subscription_access_control.nil? ? false : @support_subscription_access_control
+      end
+
       def requires_session_context?
+        support_subscription_access_control? || requires_programmatic_graph_shaping?
+      end
+
+      def requires_programmatic_graph_shaping?
         graphs.any? do |graph|
           graph.external_data_load? ||
             graph.bulk_load? ||
@@ -896,6 +906,11 @@ module Domgen
           self.repository.service_by_name(self.session_context_service).tap do |s|
             s.disable_facets_not_in(:ejb)
             s.ejb.generate_boundary = false
+            s.method(:PreSubscribe) do |m|
+              m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+              m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
+              m.parameter(:Filter, 'java.lang.Object', :nullable => true)
+            end
             repository.imit.graphs.select { |graph| graph.filtered? }.each do |graph|
               s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
                 m.ejb.generate_base_test = false
