@@ -14,7 +14,7 @@ public final class <%= entrypoint.entrypoint_name %>
     catch ( final Exception e )
     {
       akasha.Console.error( "Unexpected problem initializing the <%= entrypoint.gwt_repository.repository.name %> application", e );
-      akasha.WindowGlobal.window().alert( "Error: " + e.getMessage() );
+      akasha.WindowGlobal.alert( "Error: " + e.getMessage() );
     }
   }
 }
