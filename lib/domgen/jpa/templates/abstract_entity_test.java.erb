@@ -55,6 +55,25 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% end -%>
     }
   }
+<% entities_to_reset = [] -%>
+<% repository.data_modules.select{|data_module| data_module.sync?}.each do |data_module| -%>
+<% data_module.entities.select{|entity| entity.sync? && entity.sync.core?}.each do |entity| -%>
+<% entities_to_reset << entity if entity.attributes.all?{|a|((a.immutable? || a.generated_value?) && a.jpa? && a.jpa.persistent?) || %w(MasterId CreatedAt DeletedAt).include?(a.name.to_s)} -%>
+<% end -%>
+<% end -%>
+<% unless entities_to_reset.empty? -%>
+
+  @java.lang.Override
+  protected void startDbCleaner()
+  {
+    em().getTransaction().begin();
+<% entities_to_reset.each do |entity| -%>
+    em().createNativeQuery( "UPDATE <%= entity.sync.master_entity.sql.qualified_table_name %> SET MasterSynchronized = 0" ).executeUpdate();
+<% end -%>
+    em().getTransaction().commit();
+    super.startDbCleaner();
+  }
+<% end -%>
 <% if repository.sql_analysis? -%>
 
   protected void runSqlAnalysisPerformChecks()
