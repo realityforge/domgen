@@ -35,6 +35,7 @@ entities.uniq.each do |entity| -%>
   @javax.inject.Inject
   private org.realityforge.replicant.server.transport.ReplicantMessageBroker _replicantMessageBroker;
 
+<% if repository.imit.support_subscription_access_control? -%>
   @java.lang.Override
   public void subscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object filter )
     throws java.lang.InterruptedException
@@ -43,6 +44,7 @@ entities.uniq.each do |entity| -%>
     super.subscribe( session, address, filter );
   }
 
+<% end -%>
   @javax.annotation.Nonnull
   @java.lang.Override
   protected org.realityforge.replicant.server.transport.ReplicantMessageBroker getReplicantMessageBroker()
