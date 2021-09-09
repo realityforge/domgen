@@ -16,14 +16,19 @@ public class <%= repository.jpa.persistent_test_module_name %>
         "\"#{entity.sql.qualified_table_name.gsub('"',"\\\"")}\""
       end
     end.flatten.reverse.join(', ')
--%>
-  private static final String[] TABLES_TO_CLEAN = new String[] {<%= tables %>};
 
+  entities_to_reset = []
+  repository.data_modules.select{|data_module| data_module.sync?}.each do |data_module|
+    data_module.entities.select{|entity| entity.sync? && entity.sync.core?}.each do |entity|
+      entities_to_reset << entity if entity.attributes.all?{|a|((a.immutable? || a.generated_value?) && a.jpa? && a.jpa.persistent?) || %w(MasterId CreatedAt DeletedAt).include?(a.name.to_s)}
+    end
+  end
+  pre_clean_sql = entities_to_reset.collect{|e| "\"UPDATE #{e.sync.master_entity.sql.qualified_table_name} SET MasterSynchronized = 0\""}.join(', ')
+-%>
   @javax.annotation.Nonnull
-  public static java.util.List<String> getTablesToClean()
-  {
-    return java.util.Arrays.asList( TABLES_TO_CLEAN );
-  }
+  private static final String[] TABLES_TO_CLEAN = new String[] {<%= tables %>};
+  @javax.annotation.Nonnull
+  private static final String[] PRE_CLEAN_SQL = new String[] {<%= pre_clean_sql %>};
 
   public <%= repository.jpa.persistent_test_module_name %>()
   {
@@ -52,7 +57,7 @@ public class <%= repository.jpa.persistent_test_module_name %>
 
   public <%= repository.jpa.persistent_test_module_name %>( final boolean cleanTables, @javax.annotation.Nullable final String databasePrefix, @javax.annotation.Nullable final java.util.Properties additionalProperties )
   {
-    super( <%= repository.jpa.qualified_unit_descriptor_name %>.NAME, cleanTables ? TABLES_TO_CLEAN : new String[ 0 ], databasePrefix, mergeProperties( additionalProperties ) );
+    super( <%= repository.jpa.qualified_unit_descriptor_name %>.NAME, cleanTables ? PRE_CLEAN_SQL : new String[ 0 ], new String[ 0 ], cleanTables ? TABLES_TO_CLEAN : new String[ 0 ], databasePrefix, mergeProperties( additionalProperties ) );
   }
 
   @javax.annotation.Nonnull
