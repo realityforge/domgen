@@ -888,7 +888,7 @@ FRAGMENT
       attr_writer :support_delete
 
       def support_delete?
-        @support_delete.nil? ? (self.entity.sync? && self.entity.sync.core? && !self.entity.sync.support_remove? && !self.entity.sync.support_unmanaged? ? false : true) : !!@support_delete
+        self.entity.deletable? && (@support_delete.nil? ? true : !!@support_delete)
       end
 
       attr_writer :support_refresh

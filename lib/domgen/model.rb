@@ -870,6 +870,13 @@ module Domgen
       @read_only.nil? ? false : @read_only
     end
 
+    attr_writer :deletable
+
+    # Can the entities of this type be deleted by application code?
+    def deletable?
+      !self.read_only? && (@deletable.nil? ? (self.sync? && self.sync.core? && !self.sync.support_remove? && !self.sync.support_unmanaged? ? false : true) : !!@deletable)
+    end
+
     def declared_attributes
       declared_characteristics
     end
