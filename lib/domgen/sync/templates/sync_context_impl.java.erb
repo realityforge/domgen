@@ -180,7 +180,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   create_criteria = ''
 
   ref_index = 0
-  attr_select = (entity.sync.master_entity.attributes.select{|a| (a.primary_key? || entity.attribute_by_name?(a.name)) && !%w(DeletedAt MappingId).include?(a.name.to_s) }.collect do |a|
+  attr_select = (entity.sync.master_entity.attributes.select{|a| (a.primary_key? || entity.attribute_by_name?(a.name)) && !%w(MappingId).include?(a.name.to_s) }.collect do |a|
     if a.primary_key?
       "M.#{entity.sync.master_entity.attribute_by_name(entity.name).sql.quoted_column_name}"
     elsif a.reference? && a.referenced_entity.data_module.sync.master_data_module? && a.name.to_s != 'MappingSource'
@@ -268,7 +268,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @java.lang.Override
   public boolean createOrUpdate<%= entity.data_module.name %><%= entity.name %>( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final java.lang.Object[] record )
   {
-<% attr = entity.sync.master_entity.attributes.select{|a| a.name != :DeletedAt && (a.primary_key? || entity.attribute_by_name?(a.name)) }.collect{|a| a.primary_key? ? entity.primary_key : entity.attribute_by_name(a.name)} + [entity.attribute_by_name(:MasterId)] -%>
+<% attr = entity.sync.master_entity.attributes.select{|a| a.primary_key? || entity.attribute_by_name?(a.name) }.collect{|a| a.primary_key? ? entity.primary_key : entity.attribute_by_name(a.name)} + [entity.attribute_by_name(:MasterId)] -%>
 <% attr.each_with_index do |a, i| -%>
 <% if a.enumeration? && a.enumeration.textual_values? -%>
     final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : ''  %><%= a.jpa.java_type(:boundary) %>.valueOf( (java.lang.String) record[ <%= i %> ] );
@@ -503,7 +503,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @java.lang.Override
   public String getSqlToDirectlyInsert<%= fn %>( @javax.annotation.Nonnull final String mappingSourceCode )
   {
-<% bulk_attrs = entity.attributes.select{|a| a.sql? && a.jpa? && (a.sync? || %w(CreatedAt).include?(a.name.to_s)) }
+<% bulk_attrs = entity.attributes.select{|a| a.sql? && a.jpa? && (a.sync? || %w(CreatedAt DeletedAt).include?(a.name.to_s)) }
    bulk_attrs_insert = j_escape_string(bulk_attrs.collect{|a| a.primary_key? ? entity.sql.dialect.quote(:MasterId) : a.sql.quoted_column_name}.join(', '))
   -%>
     return
