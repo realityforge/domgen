@@ -180,6 +180,11 @@ module Domgen
         @reachable_entities ||= []
       end
 
+      def leaf_list
+        Domgen.error("leaf_list invoked for graph #{name} when not instance based") if 0 != @type_roots.size
+        @leaf_list ||= []
+      end
+
       def included_entities
         instance_root? ? reachable_entities : type_roots
       end
@@ -1084,16 +1089,22 @@ module Domgen
           end
         end
         repository.imit.graphs.select(&:instance_root?).each do |graph|
-          entity_list = [repository.entity_by_name(graph.instance_root)]
+          root = repository.entity_by_name(graph.instance_root)
+          entity_list = [root]
+          graph.leaf_list << root.qualified_name.to_s
           while entity_list.size > 0
             entity = entity_list.pop
             unless graph.reachable_entities.include?(entity.qualified_name.to_s)
               graph.reachable_entities << entity.qualified_name.to_s
               entity.referencing_attributes.each do |a|
                 if a.imit? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
+                  graph.leaf_list.delete(entity.qualified_name.to_s)
                   a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
                   Domgen.error("#{a.qualified_name} is not immutable but is on path in graph #{graph.name}") unless a.immutable?
-                  entity_list << a.entity unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
+                  unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
+                    entity_list << a.entity
+                    graph.leaf_list << a.entity.qualified_name.to_s
+                  end
                 end
               end
             end
