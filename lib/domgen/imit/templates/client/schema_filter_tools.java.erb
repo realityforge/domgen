@@ -10,6 +10,71 @@ final class <%= repository.imit.schema_filter_tools_name %>
   private <%= repository.imit.schema_filter_tools_name %>()
   {
   }
+<%
+  # A mapping between entity and any mutable routing keys defined by that entity
+  entity_routing_keys = {}
+  # A mapping between entity and a internal filtered graph
+  entity_internal_graphs = {}
+  repository.imit.graphs.select {|g| g.filtered?}.each do |graph|
+    graph.routing_keys.select{|routing_key| !routing_key.target_attribute.immutable?}.each do |routing_key|
+      (entity_routing_keys[routing_key.target_attribute.entity] ||= []) << routing_key
+    end
+    # We guess that any internal filtering graphs with no parameters may need customization
+    if !graph.filter_parameter? && graph.dynamic_filter?
+      graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity|
+        (entity_internal_graphs[entity] ||= []) << graph
+      end
+    end
+  end
+-%>
+<% unless entity_routing_keys.empty? -%>
+
+  static void onEntityUpdateAction( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final replicant.ReplicantContext replicantContext, @javax.annotation.Nonnull final Object entity )
+  {
+<% entity_routing_keys.keys.each do |entity| -%>
+    if ( entity instanceof <%= entity.arez.qualified_name %> )
+    {
+      final <%= entity.arez.qualified_name %> $entity = (<%= entity.arez.qualified_name %>) entity;
+<% entity_routing_keys[entity].each do |routing_key| -%>
+      on<%= routing_key.graph.name %><%= routing_key.name %>RoutingKeyUpdate( context, replicantContext, $entity );
+<% end -%>
+<% (entity_internal_graphs[entity] || []).each do |graph| -%>
+      context.on<%= graph.name %><%= entity.name %>EntityUpdate( replicantContext, $entity );
+<% end -%>
+    }
+<% end -%>
+<% entity_internal_graphs.keys.select{|e|entity_routing_keys[e].nil?}.each do |entity| -%>
+    if ( entity instanceof <%= entity.arez.qualified_name %> )
+    {
+      final <%= entity.arez.qualified_name %> $entity = (<%= entity.arez.qualified_name %>) entity;
+<% (entity_internal_graphs[entity]).each do |graph| -%>
+      context.on<%= graph.name %><%= entity.name %>EntityUpdate( replicantContext, $entity );
+<% end -%>
+    }
+<% end -%>
+  }
+<% entity_routing_keys.values.each do |routing_keys| -%>
+<% routing_keys.each do |routing_key| -%>
+
+  private static void on<%= routing_key.graph.name %><%= routing_key.name %>RoutingKeyUpdate( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final replicant.ReplicantContext replicantContext, @javax.annotation.Nonnull final <%= routing_key.target_attribute.entity.arez.qualified_name %> entity )
+  {
+    for ( final replicant.Subscription subscription : replicantContext.getInstanceSubscriptions() )
+    {
+      if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(routing_key.graph.name) %> == subscription.getAddress().getChannelId() )
+      {
+        for ( final replicant.Entity replicantEntity : subscription.findAllEntitiesByType( <%= routing_key.imit_attribute.attribute.entity.arez.qualified_name %>.class ) )
+        {
+          if ( context.shouldDelinkOn<%= routing_key.graph.name %><%= routing_key.name %>RoutingKeyUpdate( (<%= routing_key.imit_attribute.attribute.entity.arez.qualified_name %>) replicantEntity.getUserObject(), entity ) )
+          {
+            replicantEntity.delinkFromFilteringSubscription( subscription );
+          }
+        }
+      }
+    }
+  }
+<% end -%>
+<% end -%>
+<% end -%>
 <% repository.imit.graphs.select{|g| g.filter_parameter? && !g.filter_parameter.immutable?}.each do |graph| -%>
 
   @java.lang.SuppressWarnings( { "ConstantConditions", "unchecked" } )

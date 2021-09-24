@@ -35,6 +35,7 @@ public interface <%= repository.imit.schema_sting_fragment_name %>
 
     return new replicant.SystemSchema( <%= repository.imit.qualified_system_constants_name %>.SCHEMA_ID,
                                        replicant.Replicant.areNamesEnabled() ? "<%= repository.name %>" : null,
+                                       <%= repository.imit.graphs.any?{|g| g.filtered? && g.routing_keys.any?{|routing_key| !routing_key.target_attribute.immutable?}} ? "( replicant.ReplicantContext replicantContext, Object entity ) -> #{repository.imit.qualified_schema_filter_tools_name}.onEntityUpdateAction( context, replicantContext, entity )": 'null' %>,
                                        new replicant.ChannelSchema[]{ <%= repository.imit.graphs.collect{|graph| "channel#{graph.name}" }.join(', ') %> },
                                        new replicant.EntitySchema[]{ <%= entities.collect{|entity| "entity#{entity.data_module.name}#{entity.name}"}.join(', ') %> } );
   }

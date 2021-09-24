@@ -25,4 +25,30 @@ public interface <%= repository.imit.gwt_client_session_context_name %>
 -%>
   boolean does<%= graph.name %>MatchEntity( @javax.annotation.Nonnull <%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, @javax.annotation.Nonnull Object entity<%= extra_interest_filter %> );
 <% end -%>
+<%
+  repository.imit.graphs.select{|g| g.filtered?}.each do |graph|
+    graph.routing_keys.select{|routing_key| !routing_key.target_attribute.immutable?}.each do |routing_key|
+-%>
+  boolean shouldDelinkOn<%= graph.name %><%= routing_key.name %>RoutingKeyUpdate( @javax.annotation.Nonnull <%= routing_key.imit_attribute.attribute.entity.arez.qualified_name %> <%= Reality::Naming.camelize(routing_key.imit_attribute.attribute.entity.name) %>, @javax.annotation.Nonnull <%= routing_key.target_attribute.entity.arez.qualified_name %> <%= Reality::Naming.camelize(routing_key.target_attribute.entity.name) %> );
+<%-
+    end
+  end
+-%>
+<%
+  # A mapping between entity and a internal filtered graph
+  entity_internal_graphs = {}
+
+  # We guess that any internal filtering graphs with no parameters may need customization
+  repository.imit.graphs.select{|g| g.filtered? && !g.filter_parameter? && g.dynamic_filter?}.each do |graph|
+    graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity|
+      (entity_internal_graphs[entity] ||= []) << graph
+    end
+  end
+
+  entity_internal_graphs.each_pair do |entity, graphs|
+    graphs.each do |graph|
+-%>
+  void on<%= graph.name %><%= entity.name %>EntityUpdate( @javax.annotation.Nonnull replicant.ReplicantContext context, @javax.annotation.Nonnull Object entity );
+<% end -%>
+<% end -%>
 }

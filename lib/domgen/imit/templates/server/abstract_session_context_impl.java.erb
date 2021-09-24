@@ -51,14 +51,39 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
 repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
   extra_params = ''
   extra_args = ''
-  graph.routing_keys.each do|routing_key|
+  mutable_routing_keys = false
+  graph.routing_keys.each do |routing_key|
     nullable = !graph.instance_root?||!(routing_key.imit_attribute.attribute.entity.qualified_name==graph.instance_root)
+    mutable_routing_keys ||= !routing_key.referenced_attribute.immutable?
     type = Domgen::Java.non_primitive_java_type(routing_key.referenced_attribute, :ee, :boundary)
     type = "java.util.List<#{type}>" if routing_key.multivalued?
     extra_params += ", #{nullability_annotation(nullable)} final #{type} #{Reality::Naming.camelize(routing_key.name)}"
     extra_args += ", #{Reality::Naming.camelize(routing_key.name)}"
   end
   -%>
+<% if mutable_routing_keys -%>
+  @javax.annotation.Nonnull
+  protected abstract org.realityforge.replicant.server.transport.FilterResult test<%= graph.name %>Interesting( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message, @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <% entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> );
+
+  @java.lang.Override
+  @javax.annotation.Nullable
+  public org.realityforge.replicant.server.EntityMessage filterMessageOfInterestIn<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message, @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <%entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> )
+  {
+    final org.realityforge.replicant.server.transport.FilterResult result = test<%= graph.name %>Interesting( message, session<% if graph.instance_root? %>, <% entity = repository.entity_by_name(graph.instance_root) %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><%if graph.filter_parameter? %>, filter <% end %><%= extra_args %> );
+    if ( org.realityforge.replicant.server.transport.FilterResult.KEEP == result )
+    {
+      return message;
+    }
+    else if ( org.realityforge.replicant.server.transport.FilterResult.DELETE == result )
+    {
+      return message.toDelete();
+    }
+    else
+    {
+      return null;
+    }
+  }
+<% else -%>
   protected abstract boolean is<%= graph.name %>Interesting( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message, @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <% entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> );
 
   @java.lang.Override
@@ -74,6 +99,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
       return null;
     }
   }
+<% end -%>
 <% end -%>
 <% repository.imit.graphs.each do |graph| -%>
 <%

@@ -208,6 +208,14 @@ module Domgen
 
       attr_writer :filtered
 
+      def dynamic_filter?
+        filtered? && (filter_parameter? ? !filter_parameter.immutable? : (@dynamic_filter.nil? ? false : !!@dynamic_filter))
+      end
+
+      # This can be set to true for an INTERNAL filter that can not be dynamically interpreted and must be
+      # filtered on the client as well after an update
+      attr_writer :dynamic_filter
+
       def unfiltered?
         !filtered?
       end
@@ -432,7 +440,6 @@ module Domgen
         end
         @name = name
         @graph = repository.imit.graph_by_name(graph)
-        Domgen.error("Routing key '#{name}' on #{imit_attribute.attribute.name} is not immutable") unless imit_attribute.attribute.immutable?
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(graph).send :register_routing_key, self
       end
@@ -543,6 +550,10 @@ module Domgen
       end
 
       def post_verify
+        # The next check could be removed if we were willing to update the client-side session context to walk down and unlink
+        # child entities when an intermediate entity is delinked. In which case the graph would not need to worry about leaf nodes
+        # at all anymore
+        Domgen.error("Routing key '#{self.name}' on #{self.imit_attribute.attribute.name} is not immutable and is not on a leaf entity within the graph") unless self.imit_attribute.attribute.immutable? || self.graph.leaf_list.include?(self.imit_attribute.attribute.entity.qualified_name.to_s)
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that is not filtered.") unless self.graph.filtered?
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that entity is not currently part of.") unless self.graph.included_entities.include?(self.imit_attribute.attribute.entity.qualified_name)
 
