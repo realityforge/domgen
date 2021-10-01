@@ -64,7 +64,7 @@ final class <%= repository.imit.schema_filter_tools_name %>
       {
         for ( final replicant.Entity replicantEntity : subscription.findAllEntitiesByType( <%= routing_key.imit_attribute.attribute.entity.arez.qualified_name %>.class ) )
         {
-          if ( context.shouldDelinkOn<%= routing_key.graph.name %><%= routing_key.name %>RoutingKeyUpdate( (<%= routing_key.imit_attribute.attribute.entity.arez.qualified_name %>) replicantEntity.getUserObject(), entity ) )
+          if ( context.shouldDelinkOn<%= routing_key.graph.name %><%= routing_key.name %>RoutingKeyUpdate( (<%= routing_key.imit_attribute.attribute.entity.arez.qualified_name %>) replicantEntity.getUserObject()<% if routing_key.target_attribute.entity != routing_key.imit_attribute.attribute.entity %>, entity <% end %> ) )
           {
             replicantEntity.delinkFromFilteringSubscription( subscription );
           }

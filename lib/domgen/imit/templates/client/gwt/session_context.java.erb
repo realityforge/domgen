@@ -29,7 +29,7 @@ public interface <%= repository.imit.gwt_client_session_context_name %>
   repository.imit.graphs.select{|g| g.filtered?}.each do |graph|
     graph.routing_keys.select{|routing_key| !routing_key.target_attribute.immutable?}.each do |routing_key|
 -%>
-  boolean shouldDelinkOn<%= graph.name %><%= routing_key.name %>RoutingKeyUpdate( @javax.annotation.Nonnull <%= routing_key.imit_attribute.attribute.entity.arez.qualified_name %> <%= Reality::Naming.camelize(routing_key.imit_attribute.attribute.entity.name) %>, @javax.annotation.Nonnull <%= routing_key.target_attribute.entity.arez.qualified_name %> <%= Reality::Naming.camelize(routing_key.target_attribute.entity.name) %> );
+  boolean shouldDelinkOn<%= graph.name %><%= routing_key.name %>RoutingKeyUpdate( @javax.annotation.Nonnull <%= routing_key.imit_attribute.attribute.entity.arez.qualified_name %> <%= Reality::Naming.camelize(routing_key.imit_attribute.attribute.entity.name) %><% if routing_key.target_attribute.entity != routing_key.imit_attribute.attribute.entity %>, @javax.annotation.Nonnull <%= routing_key.target_attribute.entity.arez.qualified_name %> <%= Reality::Naming.camelize(routing_key.target_attribute.entity.name) %><% end %> );
 <%-
     end
   end
