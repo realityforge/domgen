@@ -76,7 +76,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% end -%>
     em().persist( entity );
     mEntity.set<%= entity.name %>( entity );
-<% if entity.attributes.all?{|a|((a.immutable? || a.generated_value?) && a.jpa? && a.jpa.persistent?) || %w(MasterId CreatedAt).include?(a.name.to_s)} -%>
+<% if entity.attributes.all?{|a|((a.immutable? || a.generated_value?) && a.jpa? && a.jpa.persistent?) || %w(MasterId CreatedAt DeletedAt).include?(a.name.to_s)} -%>
     mEntity.setMasterSynchronized( true );
 <% end -%>
     em().persist( mEntity );
