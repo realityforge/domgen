@@ -242,9 +242,10 @@ CREATE TRIGGER <%= entity.sql.qualified_view_insert_trigger %>
 AS
 <% entity.compatible_concrete_types.each do |subtype|
  columns = subtype.attributes.select{|a|a.sql?}.collect{|a|a.sql.quoted_column_name}
+ column_values = subtype.attributes.select{|a|a.sql?}.collect{|a| a.sql.default_value.nil? ? a.sql.quoted_column_name : "COALESCE(#{a.sql.quoted_column_name}, #{a.sql.default_value})"}
  -%>
   INSERT INTO <%= subtype.sql.qualified_table_name %>(<%= columns.join(', ') %>)
-    SELECT <%= columns.join(', ') %>
+    SELECT <%= column_values.join(', ') %>
     FROM inserted I
     WHERE I.<%= subtype.data_module.repository.sql.dialect.quote('_type_') %> = '<%= subtype.sql.discriminator %>';
 <% end -%>
