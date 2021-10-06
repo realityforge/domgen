@@ -38,6 +38,13 @@ Domgen::Generator.define([:syncrecord],
                               :guard => 'repository.syncrecord.sync_methods? || (repository.sync? && !repository.sync.standalone?)')
   end
 
+  g.template_set(:syncrecord_sql) do |template_set|
+    template_set.erb_template(:repository,
+                              'cleanup_historic.sql.erb',
+                              'import-hooks/post/cleanup_historic_datasources.sql',
+                              :guard => 'repository.syncrecord.data_sources?')
+  end
+
   g.template_set(:syncrecord_datasources) do |template_set|
     template_set.erb_template(:repository,
                               'datasources.java.erb',

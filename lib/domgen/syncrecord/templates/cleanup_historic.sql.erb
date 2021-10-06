@@ -1,0 +1,14 @@
+/* DO NOT EDIT: File is auto-generated */
+
+<% in_clause = repository.syncrecord.data_sources.collect{|data_source| "'#{data_source.key_value}'"}.join(', ') -%>
+DELETE FROM M
+FROM __TARGET__.SyncRecord.tblMetric M
+JOIN __TARGET__.SyncRecord.tblSynchronization S ON S.Id = M.SynchronizationId AND S.DataSourceCode NOT IN (<%= in_clause %>)
+
+DELETE FROM M
+FROM __TARGET__.SyncRecord.tblMessage M
+JOIN __TARGET__.SyncRecord.tblSynchronization S ON S.Id = M.SynchronizationId AND S.DataSourceCode NOT IN (<%= in_clause %>)
+
+DELETE FROM S
+FROM __TARGET__.SyncRecord.tblSynchronization S
+WHERE S.DataSourceCode NOT IN (<%= in_clause %>)
