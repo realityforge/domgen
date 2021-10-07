@@ -515,7 +515,7 @@ module Domgen
       end
 
       def has_local_auth_service?
-        repository.application.code_deployable?
+        repository.application? && repository.application.code_deployable?
       end
 
       # Does this application generate any tokens as part of it's operation?
