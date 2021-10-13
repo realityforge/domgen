@@ -140,6 +140,10 @@ module Domgen
         !@instance_root.nil?
       end
 
+      def type_graph?
+        !instance_root?
+      end
+
       def type_roots
         Domgen.error("type_roots invoked for graph #{name} when instance based") if instance_root?
         @type_roots
@@ -553,7 +557,7 @@ module Domgen
         # The next check could be removed if we were willing to update the client-side session context to walk down and unlink
         # child entities when an intermediate entity is delinked. In which case the graph would not need to worry about leaf nodes
         # at all anymore
-        Domgen.error("Routing key '#{self.name}' on #{self.imit_attribute.attribute.name} is not immutable and is not on a leaf entity within the graph") unless self.imit_attribute.attribute.immutable? || self.graph.leaf_list.include?(self.imit_attribute.attribute.entity.qualified_name.to_s)
+        Domgen.error("Routing key '#{self.name}' on #{self.imit_attribute.attribute.name} is not immutable and is not on a leaf entity within a instance graph") unless self.graph.type_graph? || self.imit_attribute.attribute.immutable? || self.graph.leaf_list.include?(self.imit_attribute.attribute.entity.qualified_name.to_s)
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that is not filtered.") unless self.graph.filtered?
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that entity is not currently part of.") unless self.graph.included_entities.include?(self.imit_attribute.attribute.entity.qualified_name)
 
