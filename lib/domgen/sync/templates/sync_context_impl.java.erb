@@ -371,6 +371,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
         setParameter( 2, v_MappingId ).
         setParameter( 3, mappingSourceCode ).
         executeUpdate();
+      on<%= entity.qualified_name.gsub('.','') %>Updated( entity );
       return false;
 <% else -%>
       throw new java.lang.UnsupportedOperationException( "Attempted to update <%= entity.qualified_name %> entity that has no mutable fields" );
@@ -379,6 +380,10 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   }
 
   protected void on<%= entity.qualified_name.gsub('.','') %>Created( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  {
+  }
+
+  protected void on<%= entity.qualified_name.gsub('.','') %>Updated( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
   {
   }
 
