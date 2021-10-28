@@ -1195,6 +1195,15 @@ FRAGMENT
     end
 
     facet.enhance(Query) do
+      def transaction_type
+        @transaction_type || self.query.dao.jpa.transaction_type
+      end
+
+      def transaction_type=(transaction_type)
+        raise "Attempted to set transaction_type to invalid #{transaction_type}" unless [:mandatory, :required, :requires_new].include?(transaction_type)
+        @transaction_type = transaction_type
+      end
+
       def perform_verify
         query_parameters = self.ql.nil? ? [] : self.ql.scan(/([^:]):([^:\W]+)/).collect { |s| s[1] }
 

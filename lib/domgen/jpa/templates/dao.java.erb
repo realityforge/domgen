@@ -41,6 +41,9 @@ public class <%= dao.jpa.dao_name %>
   method_result_java_type = query.result_type? ? query_component_result_type(query, false) : nil
   db_result_java_type = method_result_java_type || (dao.repository? ? query.entity.jpa.qualified_name : 'java.lang.Object')
   -%>
+<% if query.jpa.transaction_type != dao.jpa.transaction_type -%>
+  @javax.transaction.Transactional( javax.transaction.Transactional.TxType.<%= Reality::Naming.uppercase_constantize(query.jpa.transaction_type.to_s) %> )
+<% end -%>
   @java.lang.Override
   public <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p|  "#{annotated_type(p, :jpa, :default, :final => true)} #{Reality::Naming.camelize(p.name)}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
