@@ -114,9 +114,50 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     initializeArez();
 <% end -%>
 <% if repository.imit? -%>
-    registerReplicantConnector( getApplicationURL() + "api", ensureInjector().getSystemSchema() );
+    initializeReplicant();
 <% end -%>
   }
+<% if repository.imit? -%>
+
+  protected void initializeReplicant()
+  {
+    registerReplicantConnector( getApplicationURL() + "api", ensureInjector().getSystemSchema() );
+    if ( replicant.Replicant.areSpiesEnabled() )
+    {
+      final akasha.Storage storage = akasha.WindowGlobal.isLocalStorageSupported() ? akasha.WindowGlobal.localStorage() : null;
+      if ( null != storage && "true".equals( storage.getItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled" ) ) )
+      {
+        replicant.spy.tools.ReplicantSpyUtil.enableSpyEventLogging();
+        akasha.Console.log( "Enabling Replicant Spy Logger at startup as it was left enabled when this application previously ran" );
+      }
+      akasha.WindowGlobal.document().addEventListener( "keydown", e ->
+      {
+        final akasha.KeyboardEvent event = (akasha.KeyboardEvent) e;
+        if ( event.shiftKey() && event.ctrlKey() && "R".equals( event.key() ) )
+        {
+          if ( replicant.spy.tools.ReplicantSpyUtil.isSpyEventLoggingEnabled() )
+          {
+            if ( null != storage )
+            {
+              storage.removeItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled" );
+            }
+            replicant.spy.tools.ReplicantSpyUtil.disableSpyEventLogging();
+            akasha.Console.log( "Disabled Replicant Spy Logger" );
+          }
+          else
+          {
+            if ( null != storage )
+            {
+              storage.setItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled", "true" );
+            }
+            replicant.spy.tools.ReplicantSpyUtil.enableSpyEventLogging();
+            akasha.Console.log( "Enabled Replicant Spy Logger" );
+          }
+        }
+      } );
+    }
+  }
+<% end -%>
 
   private void setupUncaughtExceptionHandler()
   {
@@ -142,10 +183,44 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     }
   }
 
-  private void initializeArez()
+  protected void initializeArez()
   {
     arez.Arez.context().addObserverErrorHandler( this::onObserverError );
     arez.Arez.context().registerLocator( ensureInjector().getLocator() );
+
+    if ( arez.Arez.areSpiesEnabled() )
+    {
+      final akasha.Storage storage = akasha.WindowGlobal.isLocalStorageSupported() ? akasha.WindowGlobal.localStorage() : null;
+      if ( null != storage && "true".equals( storage.getItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled" ) ) )
+      {
+        arez.spytools.browser.react4j.ReactArezSpyUtil.enableSpyEventLogging();
+      }
+      akasha.WindowGlobal.document().addEventListener( "keydown", e ->
+      {
+        final akasha.KeyboardEvent event = (akasha.KeyboardEvent) e;
+        if ( event.shiftKey() && event.ctrlKey() && "D".equals( event.key() ) )
+        {
+          if ( arez.spytools.browser.react4j.ReactArezSpyUtil.isSpyEventLoggingEnabled() )
+          {
+            if ( null != storage )
+            {
+              storage.removeItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled" );
+            }
+            arez.spytools.browser.react4j.ReactArezSpyUtil.disableSpyEventLogging();
+            akasha.Console.log( "Disabled Arez Spy Logger" );
+          }
+          else
+          {
+            if ( null != storage )
+            {
+              storage.setItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled", "true" );
+            }
+            arez.spytools.browser.react4j.ReactArezSpyUtil.enableSpyEventLogging();
+            akasha.Console.log( "Enabled Arez Spy Logger" );
+          }
+        }
+      } );
+    }
   }
 <% end -%>
 <% if repository.serviceworker? -%>
