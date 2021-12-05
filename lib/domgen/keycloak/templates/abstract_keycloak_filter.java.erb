@@ -54,9 +54,14 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
   @Override
   public boolean shouldProtectRequest( @javax.annotation.Nonnull final javax.servlet.ServletRequest request )
   {
+    return isPathProtected( getApplicationPath( request ) );
+  }
+
+  @javax.annotation.Nonnull
+  protected String getApplicationPath( @javax.annotation.Nonnull final javax.servlet.ServletRequest request )
+  {
     final javax.servlet.http.HttpServletRequest httpRequest = (javax.servlet.http.HttpServletRequest) request;
-    final String path = httpRequest.getRequestURI().substring( httpRequest.getContextPath().length() );
-    return isPathProtected( path );
+    return httpRequest.getRequestURI().substring( httpRequest.getContextPath().length() );
   }
 
   @Override
