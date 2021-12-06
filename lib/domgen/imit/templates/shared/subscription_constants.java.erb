@@ -19,14 +19,15 @@ data += <<DATA
    *
 DATA
     end
+    filter_dynamic_type = g.dynamic_filter? ? 'The filter is dynamic and can be changed at runtime.' : 'The filter is static and can not be changed at runtime.'
     if g.filtered? && !g.filter_parameter?
 data += <<DATA
-   * <p>The graph is filtered but specifies no filter parameter.</p>
+   * <p>The graph is filtered but specifies no filter parameter. #{filter_dynamic_type}</p>
    *
 DATA
     elsif g.filter_parameter?
 data += <<DATA
-   * <p>The graph is filtered using #{g.filter_parameter.struct? ? g.filter_parameter.referenced_struct.qualified_name : g.filter_parameter.reference? ? g.filter_parameter.referenced_entity.qualified_name : g.filter_parameter.filter_type }</p>
+   * <p>The graph is filtered using #{g.filter_parameter.struct? ? g.filter_parameter.referenced_struct.qualified_name : g.filter_parameter.reference? ? g.filter_parameter.referenced_entity.qualified_name : g.filter_parameter.filter_type }. #{filter_dynamic_type}</p>
    *
 DATA
     end
