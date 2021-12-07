@@ -9,12 +9,16 @@ import java.util.Date;
 public final class <%= repository.gwt.rdate_name %>
   implements java.lang.Comparable<<%= repository.gwt.rdate_name %>>, java.io.Serializable<%= repository.react4j? ? ", arez.component.Identifiable<String>" : "" %>
 {
+  @javax.annotation.Nonnull
   private static final String[] SHORT_MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+  @org.jetbrains.annotations.Range( from = 1, to = 2049 )
   private final int _year;
+  @org.jetbrains.annotations.Range( from = 1, to = 12 )
   private final int _month;
+  @org.jetbrains.annotations.Range( from = 1, to = 31 )
   private final int _day;
 
-  public <%= repository.gwt.rdate_name %>( final int year, final int month, final int day )
+  public <%= repository.gwt.rdate_name %>( @org.jetbrains.annotations.Range( from = 1, to = 2049 ) final int year, @org.jetbrains.annotations.Range( from = 1, to = 12 ) final int month, @org.jetbrains.annotations.Range( from = 1, to = 31 ) final int day )
   {
     assert ( year > 0 && year < 2050 );
     assert ( month > 0 && month <= 12 );
@@ -24,11 +28,13 @@ public final class <%= repository.gwt.rdate_name %>
     _day = day;
   }
 
+  @org.jetbrains.annotations.Range( from = 1, to = 31 )
   public int getDay()
   {
     return _day;
   }
 
+  @org.jetbrains.annotations.Range( from = 1, to = 12 )
   public int getMonth()
   {
     return _month;
@@ -40,6 +46,7 @@ public final class <%= repository.gwt.rdate_name %>
     return SHORT_MONTHS[ _month - 1 ];
   }
 
+  @org.jetbrains.annotations.Range( from = 1, to = 2049 )
   public int getYear()
   {
     return _year;
@@ -58,7 +65,7 @@ public final class <%= repository.gwt.rdate_name %>
   @java.lang.Override
   public String toString()
   {
-    return _year + "-" + _month + "-" + _day;
+    return _year + "-" + ( _month < 10 ? "0" : "" ) + _month + "-" + ( _day < 10 ? "0" : "" ) + _day;
   }
 
   @javax.annotation.Nonnull
@@ -127,12 +134,14 @@ public final class <%= repository.gwt.rdate_name %>
   }
 
   @SuppressWarnings( "checkstyle:noNewDate" )
+  @javax.annotation.Nonnull
   public static <%= repository.gwt.rdate_name %> today()
   {
     return fromDate( new java.util.Date() );
   }
 
   @SuppressWarnings( "deprecation" )
+  @javax.annotation.Nonnull
   public static <%= repository.gwt.rdate_name %> fromDate( @javax.annotation.Nonnull final java.util.Date date )
   {
     return new <%= repository.gwt.rdate_name %>( date.getYear() + 1900, date.getMonth() + 1, date.getDate() );
@@ -255,6 +264,7 @@ public final class <%= repository.gwt.rdate_name %>
     }
   }
 
+  @javax.annotation.Nonnull
   public static <%= repository.gwt.rdate_name %> parse( @javax.annotation.Nonnull final String text )
   {
     final int length = text.length();
