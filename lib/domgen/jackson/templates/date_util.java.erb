@@ -36,7 +36,7 @@ public final class <%= repository.jackson.date_util_name %>
     extends JsonDeserializer<Date>
   {
     @Override
-    public Date deserialize( final JsonParser parser, final DeserializationContext context )
+    public Date deserialize( @javax.annotation.Nonnull final JsonParser parser, @javax.annotation.Nonnull final DeserializationContext context )
       throws IOException
     {
       return parse( newDateFormatter(), parser.getText() );
@@ -46,8 +46,9 @@ public final class <%= repository.jackson.date_util_name %>
   public static final class DateListDeserializer
     extends JsonDeserializer<List<Date>>
   {
+    @javax.annotation.Nonnull
     @Override
-    public List<Date> deserialize( final JsonParser parser, final DeserializationContext context )
+    public List<Date> deserialize( @javax.annotation.Nonnull final JsonParser parser, @javax.annotation.Nonnull final DeserializationContext context )
       throws IOException
     {
       return deserializeCollection( parser, context, List.class, new ArrayList<Date>() );
@@ -58,9 +59,9 @@ public final class <%= repository.jackson.date_util_name %>
     extends JsonSerializer<List<Date>>
   {
     @Override
-    public void serialize( final List<Date> dates,
-                           final JsonGenerator generator,
-                           final SerializerProvider provider )
+    public void serialize( @javax.annotation.Nonnull final List<Date> dates,
+                           @javax.annotation.Nonnull final JsonGenerator generator,
+                           @javax.annotation.Nonnull final SerializerProvider provider )
       throws IOException
     {
       generator.writeStartArray();
@@ -73,9 +74,9 @@ public final class <%= repository.jackson.date_util_name %>
     extends JsonSerializer<Date>
   {
     @Override
-    public void serialize( final Date date,
-                           final JsonGenerator generator,
-                           final SerializerProvider provider )
+    public void serialize( @javax.annotation.Nonnull final Date date,
+                           @javax.annotation.Nonnull final JsonGenerator generator,
+                           @javax.annotation.Nonnull final SerializerProvider provider )
       throws IOException
     {
       generator.writeString( newDateFormatter().format( date ) );
@@ -85,8 +86,9 @@ public final class <%= repository.jackson.date_util_name %>
   public static final class DateSetDeserializer
     extends JsonDeserializer<Set<Date>>
   {
+    @javax.annotation.Nonnull
     @Override
-    public Set<Date> deserialize( final JsonParser parser, final DeserializationContext context )
+    public Set<Date> deserialize( @javax.annotation.Nonnull final JsonParser parser, @javax.annotation.Nonnull final DeserializationContext context )
       throws IOException
     {
       return deserializeCollection( parser, context, Set.class, new HashSet<Date>() );
@@ -97,9 +99,9 @@ public final class <%= repository.jackson.date_util_name %>
     extends JsonSerializer<Set<Date>>
   {
     @Override
-    public void serialize( final Set<Date> dates,
-                           final JsonGenerator generator,
-                           final SerializerProvider provider )
+    public void serialize( @javax.annotation.Nonnull final Set<Date> dates,
+                           @javax.annotation.Nonnull final JsonGenerator generator,
+                           @javax.annotation.Nonnull final SerializerProvider provider )
       throws IOException
     {
       generator.writeStartArray();
@@ -108,7 +110,7 @@ public final class <%= repository.jackson.date_util_name %>
     }
   }
 
-  static void writeDates( final Collection<Date> dates, final JsonGenerator generator )
+  static void writeDates( @javax.annotation.Nonnull final Collection<Date> dates, @javax.annotation.Nonnull final JsonGenerator generator )
     throws IOException
   {
     final DateFormat formatter = newDateFormatter();
@@ -118,7 +120,8 @@ public final class <%= repository.jackson.date_util_name %>
     }
   }
 
-  static Date parse( final DateFormat formatter, final String source )
+  @javax.annotation.Nonnull
+  static Date parse( @javax.annotation.Nonnull final DateFormat formatter, @javax.annotation.Nonnull final String source )
     throws IOException
   {
     try
@@ -131,16 +134,18 @@ public final class <%= repository.jackson.date_util_name %>
     }
   }
 
+  @javax.annotation.Nonnull
   static DateFormat newDateFormatter()
   {
     return new SimpleDateFormat( "yyyy-MM-dd" );
   }
 
   @java.lang.SuppressWarnings( "deprecation" )
-  static <T extends Collection<Date>> T deserializeCollection( final JsonParser parser,
-                                                               final DeserializationContext context,
-                                                               final Class<?> type,
-                                                               final T result )
+  @javax.annotation.Nonnull
+  static <T extends Collection<Date>> T deserializeCollection( @javax.annotation.Nonnull final JsonParser parser,
+                                                               @javax.annotation.Nonnull final DeserializationContext context,
+                                                               @javax.annotation.Nonnull final Class<?> type,
+                                                               @javax.annotation.Nonnull final T result )
     throws IOException
   {
     if ( !parser.isExpectedStartArrayToken() )
