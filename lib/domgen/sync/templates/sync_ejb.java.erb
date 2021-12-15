@@ -154,8 +154,11 @@ public class <%= data_module.sync.sync_ejb_name %>
       final long syncEndAt = System.currentTimeMillis();
       recorder.incMetric( "Duration", (int) ( syncEndAt - syncStartAt ) );
       completeSynchronization( recorder );
-      _context.postSync( recorder );
-      _context.syncComplete();
+      if( iris.syncrecord.server.data_type.Status.OK == recorder.getStatus() )
+      {
+        _context.postSync( recorder );
+        _context.syncComplete();
+      }
     }
     return toSyncStatus( recorder );
   }
