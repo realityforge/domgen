@@ -117,6 +117,12 @@ module Domgen
         @unique.nil? ? false : @unique
       end
 
+      attr_writer :covering
+
+      def covering?
+        @covering.nil? ? false : @covering
+      end
+
       attr_writer :allow_page_locks
 
       def allow_page_locks?
@@ -841,6 +847,13 @@ module Domgen
       def post_verify
         if self.partition_scheme && indexes.select { |index| index.cluster? }.empty?
           Domgen.error('Must specify a clustered index if using a partition scheme')
+        end
+
+        self.indexes.select { |index| index.covering? }.each do |index|
+          Domgen.error("Index #{index.qualified_index_name} on entity #{self.entity.qualified_name} is marked as covering and specifies include_attribute_names=#{index.include_attribute_names.inspect} which is not necessary. Missing attributes = #{missing_attribute_names}") unless index.include_attribute_names.empty?
+          index_attribute_names = index.attribute_names.collect{|a|a.to_s}.sort
+          entity_attribute_names = self.entity.attributes.collect{|attribute| attribute.name.to_s}.sort
+          index.include_attribute_names = entity_attribute_names - index_attribute_names
         end
 
         self.indexes.each do |index|
