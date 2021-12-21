@@ -67,14 +67,14 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
 <% entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
-public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
+<% unless entity.jpa.module_local? %>public <% end %><%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
   '' -%>
 <%= (!entity.extends || entity.jpa.interfaces.size > 0) ? '  implements ' : '' -%><%= ((entity.extends ? [] : %w(java.io.Serializable)) + entity.jpa.interfaces).join(", ") %>
 {
 <% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
-  public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
+  <% unless entity.jpa.module_local? %>public <% end %>static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
   private static final long serialVersionUID = 1;
 
@@ -84,7 +84,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   @javax.persistence.Transient
   private transient boolean _removed;
 <% end -%>
-<% entity.queries.select{|q| q.jpa?}.each do |query| %>  public static final String <%= Reality::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
+<% entity.queries.select{|q| q.jpa?}.each do |query| %>  <% unless entity.jpa.module_local? %>public <% end %>static final String <%= Reality::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <%
   end
   entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? }.each do |attribute|
@@ -116,7 +116,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
     return _loaded;
   }
 
-  public final boolean removed()
+  <% unless entity.jpa.module_local? %>public <% end %>final boolean removed()
   {
     return _removed;
   }
@@ -147,7 +147,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   }
 
   @java.lang.SuppressWarnings( { "PMD.CompareObjectsWithEquals" } )
-  public boolean unmodified()
+  <% unless entity.jpa.module_local? %>public <% end %>boolean unmodified()
   {
     return
       loaded() &&
@@ -188,7 +188,7 @@ public <%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
   @java.lang.Deprecated
 <% end -%>
   @javax.persistence.PostRemove
-  <% if entity.transaction_time? -%>public <% else -%>protected<% end -%> void postRemove()
+  <% if entity.transaction_time? && !entity.jpa.module_local? -%>public <% else -%>protected<% end -%> void postRemove()
   {
     if( removed() )
     {

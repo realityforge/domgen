@@ -7,7 +7,7 @@ package <%= to_package(struct.ee.qualified_name) %>;
 <%= jackson_class_annotations(struct) if struct.jackson? -%>
 <%= jaxb_class_annotations(struct) if struct.jaxb? -%>
 
-public class <%= struct.ee.name %>
+<% unless struct.ee.module_local? %>public <% end %>class <%= struct.ee.name %>
   implements java.io.Serializable
 {
   private static final long serialVersionUID = 1;
@@ -33,7 +33,7 @@ public class <%= struct.ee.name %>
 <% end %>
 <% if struct.data_module.jpa? && struct.fields.any?{|field|field.enumeration?} -%>
   // This constructor exists in case the JPA subsystem needs to map struct in result as enumerations are not mapped correctly
-  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, (field.enumeration? ? :transport : :boundary), :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  <% unless struct.ee.module_local? %>public <% end %><%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, (field.enumeration? ? :transport : :boundary), :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
     this( <%= struct.fields.collect {|field|
   name = Reality::Naming.camelize(field.name)
@@ -47,7 +47,7 @@ public class <%= struct.ee.name %>
 <% end -%>
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
 <% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join( ', ') %>})<% end -%>
-  public <%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
+  <% unless struct.ee.module_local? %>public <% end %><%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
 <% struct.fields.each do |field|
      null_protection = field.nullable? ? "#{Reality::Naming.camelize(field.name)} == null ? null : " :''
@@ -62,7 +62,7 @@ public class <%= struct.ee.name %>
 %>  }
 <% struct.fields.each do |field|
 %>
-  <%= annotated_type(field, :ee, :boundary, :public => true, :final => true) %> <%= getter_prefix(field) %><%= field.name %>()
+  <%= annotated_type(field, :ee, :boundary, :public => !struct.ee.module_local?, :final => true) %> <%= getter_prefix(field) %><%= field.name %>()
   {
     return <%= Reality::Naming.camelize(field.name) %>;
   }

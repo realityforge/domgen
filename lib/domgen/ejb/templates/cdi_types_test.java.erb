@@ -13,7 +13,7 @@ public class <%= repository.ejb.cdi_types_test_name %>
   public void ensure<%= data_module.name %><%= service.name %>ImplementationIsCdiType()
     throws java.lang.Exception
   {
-    org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI( <%= service.ejb.qualified_service_implementation_name %>.class );
+    org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI( Class.forName( "<%= service.ejb.qualified_service_implementation_name %>" ) );
   }
 <%
     end

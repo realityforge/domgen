@@ -3,7 +3,7 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FormalParameterNamingConventions" } )
-public interface <%= dao.jpa.dao_service_name %>
+<% unless dao.jpa.module_local? %>public <% end %>interface <%= dao.jpa.dao_service_name %>
 {
 <% dao.queries.select{|q| q.jpa?}.each do |query| -%>
   <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "#{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'int limit': nil] + [query.jpa.offset ? 'int offset': nil]).compact.join(', ') %>);

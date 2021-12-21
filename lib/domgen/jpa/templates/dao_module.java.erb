@@ -3,7 +3,7 @@ package <%= to_package(repository.jpa.qualified_dao_module_name) %>;
 
 <% include_time_service = repository.jpa.use_time_service_for_now? && repository.data_modules.select{|data_module| data_module.jpa? && data_module.daos.any?{|dao| dao.repository? && dao.entity.transaction_time?} } -%>
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "rawtypes", "unchecked" } )
 @javax.annotation.Generated( "Domgen" )
 public class <%= repository.jpa.dao_module_name %>
   extends org.realityforge.guiceyloops.shared.AbstractModule
@@ -31,7 +31,16 @@ public class <%= repository.jpa.dao_module_name %>
 
   protected void bind<%= dao.qualified_name.to_s.gsub('.','') %>()
   {
-    bind( <%= dao.jpa.qualified_dao_service_name %>.class ).to( <%= dao.jpa.qualified_dao_name %>.class ).in( javax.inject.Singleton.class );
+    try
+    {
+      final java.lang.Class iface = Class.forName( "<%= dao.jpa.qualified_dao_service_name %>" );
+      final java.lang.Class impl = Class.forName( "<%= dao.jpa.qualified_dao_name %>" );
+      bind( iface ).to( impl ).in( javax.inject.Singleton.class );
+    }
+    catch ( final java.lang.ClassNotFoundException e )
+    {
+      throw new java.lang.IllegalStateException( e );
+    }
   }
 <%
     end

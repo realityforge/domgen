@@ -178,6 +178,12 @@ module Domgen
       def qualified_name
         "#{struct.data_module.ee.server_data_type_package}.#{self.name}"
       end
+
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? false : !!@module_local
+      end
     end
 
     facet.enhance(StructField) do

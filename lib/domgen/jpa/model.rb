@@ -774,8 +774,10 @@ FRAGMENT
       java_artifact :abstract_test_factory, :test, :server, :jpa, 'Abstract#{data_module.name}Factory', :sub_package => 'util'
 
       def server_util_test_package
-        data_module.repository.jpa.server_util_test_package
+        @server_util_test_package.nil? ? data_module.repository.jpa.server_util_test_package : @server_util_test_package
       end
+
+      attr_writer :server_util_test_package
 
       attr_writer :test_factory_name
 
@@ -800,6 +802,12 @@ FRAGMENT
 
     facet.enhance(DataAccessObject) do
       include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? (dao.repository? ? dao.entity.jpa.module_local? : false) : !!@module_local
+      end
 
       attr_accessor :persistence_unit_name
 
@@ -831,6 +839,12 @@ FRAGMENT
 
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? false : !!@module_local
+      end
 
       def interfaces
         @interfaces ||= []

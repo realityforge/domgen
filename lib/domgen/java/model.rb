@@ -401,6 +401,7 @@ module Domgen
             sub_package_ruby_name = sub_package.split('.').reverse.join('_')
             sub_package_key = scope.nil? ? :"#{sub_package_ruby_name}_#{package_key}_package" : "#{scope}_#{sub_package_ruby_name}_#{package_key}_package"
             idefine_getter(sub_package_key, Proc.new { "#{self.send(key)}.#{sub_package}" })
+            idefine_setter(sub_package_key)
           end
         end
 
