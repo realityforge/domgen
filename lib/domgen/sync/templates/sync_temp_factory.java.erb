@@ -64,6 +64,8 @@ public class <%= data_module.sync.sync_temp_factory_name %>
 <% else -%>
 <% raise 'Unsupported database variant' -%>
 <% end -%>
+<% elsif a.name.to_s =~ /MappingId$/ -%>
+      "    CONVERT(VARCHAR(50), CTE.<%= j_escape_string(a.sql.quoted_column_name) %>)<%= comma %> \n" +
 <% else -%>
       "    CTE.<%= j_escape_string(a.sql.quoted_column_name) %><%= comma %> \n" +
 <% end -%>
@@ -72,12 +74,12 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   if data_module.repository.mssql?
     immutable_sync_attributes.select{|other| other.reference? && other.referenced_entity.sync.master? && (other.referenced_entity.sync.core_entity.entity != entity)}.collect{|other|
       if other.referenced_entity.concrete?
-      "    LEFT JOIN #{other.referenced_entity.sync.core_entity.entity.sync.sync_temp_entity.sql.qualified_table_name} #{other.sql.column_name.to_s}Table ON #{other.sql.column_name.to_s}Table.MappingId = CTE.#{
-      entity.sync.sync_temp_entity.attribute_by_name("#{other.name}MappingId").sql.quoted_column_name} "
+      "    LEFT JOIN #{other.referenced_entity.sync.core_entity.entity.sync.sync_temp_entity.sql.qualified_table_name} #{other.sql.column_name.to_s}Table ON #{other.sql.column_name.to_s}Table.MappingId = CONVERT(VARCHAR(50), CTE.#{
+      entity.sync.sync_temp_entity.attribute_by_name("#{other.name}MappingId").sql.quoted_column_name}) "
       else
         other.referenced_entity.concrete_subtypes.collect do |subtype|
-        "    LEFT JOIN #{subtype.sync.core_entity.entity.sync.sync_temp_entity.sql.qualified_table_name} #{other.sql.column_name.to_s}_#{subtype.name} ON #{other.sql.column_name.to_s}_#{subtype.name}.MappingId = CTE.#{
-        entity.sync.sync_temp_entity.attribute_by_name("#{other.name}MappingId").sql.quoted_column_name} "
+        "    LEFT JOIN #{subtype.sync.core_entity.entity.sync.sync_temp_entity.sql.qualified_table_name} #{other.sql.column_name.to_s}_#{subtype.name} ON #{other.sql.column_name.to_s}_#{subtype.name}.MappingId = CONVERT(VARCHAR(50), CTE.#{
+        entity.sync.sync_temp_entity.attribute_by_name("#{other.name}MappingId").sql.quoted_column_name}) "
         end.join("\" + \n   \"")
       end}.join("\" + \n   \"")
   end %>";
