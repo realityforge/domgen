@@ -9,14 +9,14 @@ package <%= to_package(method.ejb.qualified_scheduler_name) %>;
 public class <%= method.ejb.scheduler_name %>
 {
   @javax.annotation.Nonnull
-  protected static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.ejb.scheduler_name %>.class.getName() );
+  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.ejb.scheduler_name %>.class.getName() );
   @javax.annotation.Resource
   private javax.ejb.TimerService _timerService;
   @javax.inject.Inject
   private <%= method.service.ejb.generate_boundary? ? method.service.ejb.qualified_boundary_interface_name : method.service.ejb.qualified_service_name %> _service;
 
   @javax.ejb.Schedule( info = "<%= method.ejb.schedule.info %>", year = "<%= method.ejb.schedule.year %>", month = "<%= method.ejb.schedule.month %>", dayOfMonth = "<%= method.ejb.schedule.day_of_month %>", dayOfWeek = "<%= method.ejb.schedule.day_of_week %>", hour = "<%= method.ejb.schedule.hour %>", minute = "<%= method.ejb.schedule.minute %>", second = "<%= method.ejb.schedule.second %>", timezone = "<%= method.ejb.schedule.timezone %>", persistent = <%= method.ejb.schedule.persistent? %> )
-  public void trigger()
+  void trigger()
   {
     /*
      * Schedule another timer immediately so that a call to the method has no way of rolling back the transaction and thus removing the timer.
@@ -26,7 +26,7 @@ public class <%= method.ejb.scheduler_name %>
   }
 
   @javax.ejb.Timeout
-  public void processTimeout()
+  void processTimeout()
     throws Exception
   {
     try
