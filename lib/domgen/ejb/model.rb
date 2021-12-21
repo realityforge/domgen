@@ -169,8 +169,14 @@ module Domgen
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
       java_artifact :boundary_interface, :service, :server, :ejb, 'Local#{service_name}Boundary'
       java_artifact :remote_service, :service, :server, :ejb, 'Remote#{service_name}'
-      java_artifact :boundary_implementation, :service, :server, :ejb, '#{service_name}BoundaryImpl', :sub_package => 'internal'
+      java_artifact :boundary_implementation, :service, :server, :ejb, '#{service_name}BoundaryImpl'
       java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
+
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? false : !!@module_local
+      end
 
       attr_writer :no_web_invoke
 
@@ -265,7 +271,7 @@ module Domgen
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :scheduler, :service, :server, :ee, '#{method.service.name}#{method.name}ScheduleEJB', :sub_package => 'internal'
+      java_artifact :scheduler, :service, :server, :ee, '#{method.service.name}#{method.name}ScheduleEJB'
 
       def schedule
         raise "Attempted to access a schedule on #{method.qualified_name} when method has multiple parameters" unless method.parameters.empty?

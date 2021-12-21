@@ -4,7 +4,7 @@ package <%= to_package(service.ejb.qualified_boundary_interface_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.Local
-public interface <%= service.ejb.boundary_interface_name %>
+<% unless service.ejb.module_local? %>public <% end %>interface <%= service.ejb.boundary_interface_name %>
 {
 <% service.methods.each do |method|
 %>

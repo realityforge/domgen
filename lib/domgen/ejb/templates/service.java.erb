@@ -3,7 +3,7 @@ package <%= to_package(service.ejb.qualified_service_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public interface <%= service.ejb.service_name %>
+<% unless service.ejb.module_local? %>public <% end %>interface <%= service.ejb.service_name %>
 {
 <% service.methods.each do |method| -%>
   <%= annotated_type(method.return_value, :ejb, :default) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
