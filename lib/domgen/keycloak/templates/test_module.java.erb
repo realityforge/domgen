@@ -6,7 +6,7 @@ package <%= to_package(repository.keycloak.qualified_test_module_name) %>;
 public class <%= repository.keycloak.test_module_name %>
   extends org.realityforge.guiceyloops.server.FlushingTestModule
 {
-  public <%= repository.keycloak.test_module_name %>( final org.realityforge.guiceyloops.server.Flushable flushable )
+  public <%= repository.keycloak.test_module_name %>( @javax.annotation.Nonnull final org.realityforge.guiceyloops.server.Flushable flushable )
   {
     super( flushable );
   }
