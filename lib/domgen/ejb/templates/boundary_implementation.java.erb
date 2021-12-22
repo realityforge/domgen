@@ -12,7 +12,7 @@ package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 <% service.ejb.boundary_annotations.each do |annotation| -%>
 @<%= annotation %>
 <% end-%>
-<% unless service.ejb.module_local? %>public <% end %>class <%= service.ejb.boundary_implementation_name %>
+class <%= service.ejb.boundary_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}\n" : ''-%>
   implements <%= service.ejb.qualified_boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
 {
