@@ -747,11 +747,11 @@ module Domgen
             if self.entity.sync.support_remove?
               e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()', :DeletedAt => 'null')
               e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()', :DeletedAt => 'null')
-              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()', :DeletedAt => 'null' )
+              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => "java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextId( \"#{e.qualified_name}\") )", :MappingId => "java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextId( \"#{e.qualified_name}\" ) - 1 )", :CreatedAt => 'now()', :DeletedAt => 'null' )
             else
               e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :CreatedAt => 'now()')
               e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId', :CreatedAt => 'now()')
-              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() )', :MappingId => 'java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextID() - 1 )', :CreatedAt => 'now()' )
+              e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingSource => 'findOrCreateDefaultMappingSource()', :MappingKey => "java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextId( \"#{e.qualified_name}\" ) )", :MappingId => "java.lang.String.valueOf( org.realityforge.guiceyloops.shared.ValueUtil.nextId( \"#{e.qualified_name}\" ) - 1 )", :CreatedAt => 'now()' )
             end
             e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false', :MappingKey => 'mappingId')
             e.jpa.test_create_default(self.entity.name => 'null', :MasterSynchronized => 'false')

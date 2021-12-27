@@ -250,7 +250,7 @@ module Domgen
       end
 
       def constraint_name
-        "CK_#{s(table.entity.name)}_#{s(name)}"
+        "CK_#{s(table.entity.name)}_#{s(name)}"[0...127]
       end
 
       def quoted_constraint_name
@@ -301,7 +301,7 @@ module Domgen
       end
 
       def constraint_name
-        "CK_#{s(table.entity.name)}_#{s(name)}"
+        "CK_#{s(table.entity.name)}_#{s(name)}"[0...127]
       end
 
       def quoted_constraint_name
@@ -313,7 +313,7 @@ module Domgen
       end
 
       def function_name
-        "#{table.entity.name}_#{name}"
+        "#{table.entity.name}_#{name}"[0...127]
       end
 
       def quoted_function_name
