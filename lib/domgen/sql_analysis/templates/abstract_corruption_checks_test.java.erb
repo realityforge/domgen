@@ -28,10 +28,4 @@ public abstract class <%= repository.sql_analysis.abstract_corruption_checks_tes
       org.realityforge.guiceyloops.server.DatabaseAsserts.execute( em().unwrap( java.sql.Connection.class ), _corruptionCheckSQL, expectations );
     }
   }
-
-  protected final void disableTrigger( @javax.annotation.Nonnull final String qualifiedTableName, @javax.annotation.Nonnull final String qualifiedTriggerName )
-  {
-    em().createNativeQuery( "DISABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName ).executeUpdate();
-    addPostTestSqlAction( "ENABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName );
-  }
 }
