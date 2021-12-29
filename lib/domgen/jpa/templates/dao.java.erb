@@ -316,13 +316,13 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% if dao.entity.jpa.detachable? -%>
 
   @java.lang.Override
-  public void detach( final <%= dao.entity.jpa.qualified_name %> entity )
+  public void detach( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.detach( entity );
   }
 
   @java.lang.Override
-  public <%= dao.entity.jpa.qualified_name %> merge( final <%= dao.entity.jpa.qualified_name %> entity )
+  public <%= dao.entity.jpa.qualified_name %> merge( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> entity )
   {
     return em.merge( entity );
   }
@@ -330,7 +330,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% end -%>
 <% if dao.entity.jpa.support_update? -%>
   @java.lang.Override
-  public void persist( final <%= dao.entity.jpa.qualified_name %> entity )
+  public void persist( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> entity )
   {
     try
     {
@@ -357,7 +357,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% if dao.entity.jpa.support_refresh? -%>
 
   @java.lang.Override
-  public void refresh( final <%= dao.entity.jpa.qualified_name %> entity )
+  public void refresh( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.refresh( entity );
   }
@@ -365,7 +365,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% if dao.entity.jpa.support_delete? -%>
 
   @java.lang.Override
-  public void remove( final <%= dao.entity.jpa.qualified_name %> entity )
+  public void remove( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> entity )
   {
     em.remove( entity );
     em.flush();

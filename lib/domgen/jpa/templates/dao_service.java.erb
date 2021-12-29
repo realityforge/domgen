@@ -24,7 +24,7 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 
   /** Remove the <%= dao.entity.jpa.qualified_name %> instance, and all associated entities, nulling inbound relationships where possible,
    * removing where not possible . */
-  void cascadeRemove( <%= dao.entity.jpa.qualified_name %> entity );
+  void cascadeRemove( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> entity );
 <% end -%>
 <% end -%>
 
@@ -53,25 +53,25 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 <% end -%>
 <% if dao.entity.jpa.detachable? -%>
   /** Remove the given  <%= dao.entity.jpa.qualified_name %> from the persistence context, causing a managed entity to become detached. */
-  void detach( <%= dao.entity.jpa.qualified_name %> entity );
+  void detach( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> entity );
 
   /** Merge the state of the given <%= dao.entity.jpa.qualified_name %> into the current persistence context. */
-  <%= dao.entity.jpa.qualified_name %> merge( <%= dao.entity.jpa.qualified_name %> entity );
+  <%= dao.entity.jpa.qualified_name %> merge( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> entity );
 <% end -%>
 <% if dao.entity.jpa.support_update? -%>
   /** Make an <%= dao.entity.jpa.qualified_name %> instance managed and persistent. */
-  void persist( <%= dao.entity.jpa.qualified_name %> entity );
+  void persist( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> entity );
 
 <% end -%>
 <% if dao.entity.jpa.support_refresh? -%>
 
   /** Refresh the state of the <%= dao.entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
-  void refresh( <%= dao.entity.jpa.qualified_name %> entity );
+  void refresh( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> entity );
 <% end -%>
 <% if dao.entity.jpa.support_delete? -%>
 
   /** Remove the <%= dao.entity.jpa.qualified_name %> instance. */
-  void remove( <%= dao.entity.jpa.qualified_name %> entity );
+  void remove( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> entity );
 <% end -%>
 <% end -%>
 }
