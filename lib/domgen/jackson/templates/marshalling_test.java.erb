@@ -61,7 +61,7 @@ def create_struct(struct, context)
   result << ")"
 end
 
-    data_module.structs.select{|s|s.jackson?}.each do |struct|
+    data_module.structs.select{|s|s.jackson? && !s.jackson.skip_test?}.each do |struct|
 -%>
   @org.testng.annotations.Test
   public void marshal<%= data_module.name %><%= struct.name %>()

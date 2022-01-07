@@ -19,5 +19,13 @@ module Domgen
 
       java_artifact :marshalling_test, :data_type, :server, :ee, '#{repository.name}JaxbMarshallingTest'
     end
+
+    facet.enhance(Struct) do
+      attr_writer :skip_test
+
+      def skip_test?
+        @skip_test.nil? ? false : !!@skip_test
+      end
+    end
   end
 end

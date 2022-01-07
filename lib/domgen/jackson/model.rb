@@ -28,5 +28,13 @@ module Domgen
         end
       end
     end
+
+    facet.enhance(Struct) do
+      attr_writer :skip_test
+
+      def skip_test?
+        @skip_test.nil? ? false : !!@skip_test
+      end
+    end
   end
 end
