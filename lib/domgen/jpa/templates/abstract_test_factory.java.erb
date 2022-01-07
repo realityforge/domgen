@@ -197,6 +197,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> );
 <% end -%>
 <% end -%>
+    em().flush();
   }
 <% end -%>
 <% if entity.jpa.support_delete? -%>

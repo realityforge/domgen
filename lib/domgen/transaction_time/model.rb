@@ -16,8 +16,15 @@
 module Domgen
   FacetManager.facet(:transaction_time) do |facet|
     facet.enhance(Attribute) do
+
+      attr_writer :verify_reference
+
+      def verify_reference?
+        @verify_reference.nil? ? true : !!@verify_reference
+      end
+
       def post_verify
-        if attribute.reference? && !attribute.referenced_entity.transaction_time? && attribute.referenced_entity.deletable? && !(attribute.entity.sync? && attribute.entity.sync.master? && attribute.referenced_entity.sync? && attribute.referenced_entity.sync.master?)
+        if verify_reference? && attribute.reference? && !attribute.referenced_entity.transaction_time? && attribute.referenced_entity.deletable? && !(attribute.entity.sync? && attribute.entity.sync.master? && attribute.referenced_entity.sync? && attribute.referenced_entity.sync.master?)
           Domgen.error("Transaction time attribute #{attribute.qualified_name} references non-transaction time entity #{attribute.referenced_entity.qualified_name}. This is a problem when the entity is removed.")
         end
       end
