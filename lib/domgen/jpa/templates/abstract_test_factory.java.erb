@@ -131,7 +131,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 
 <% end -%>
-<% if core_entity && !entity.sync.support_unmanaged? -%>
+<% if core_entity && (!entity.sync.support_unmanaged? || !entity.sync.test_factory_defaults_to_unmanaged?) -%>
   @javax.annotation.Nonnull
   public <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.sync? && (!entity.transaction_time? || !%w(CreatedAt DeletedAt).include?(a.name.to_s)) && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
