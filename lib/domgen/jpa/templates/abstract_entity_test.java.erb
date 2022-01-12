@@ -111,6 +111,25 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     return modules.toArray( new com.google.inject.Module[ modules.size() ] );
   }
 
+  protected final void assertFailedToPassValidationCheck( @javax.annotation.Nonnull final java.lang.Throwable exception, @javax.annotation.Nonnull final java.lang.String validationName )
+  {
+    assertMessageAppearsInExceptionChain( exception, "Failed to pass validation check " + validationName );
+  }
+
+  protected final void assertMessageAppearsInExceptionChain( @javax.annotation.Nonnull final java.lang.Throwable exception, @javax.annotation.Nonnull final java.lang.String message )
+  {
+    java.lang.Throwable t = exception;
+    while ( null != t )
+    {
+      if ( t.getMessage().contains( message ) )
+      {
+        return;
+      }
+      t = t.getCause();
+    }
+    org.testng.Assert.fail( "Failed to find any exception containing string " + message );
+  }
+
   protected final void disableTrigger( @javax.annotation.Nonnull final String qualifiedTableName, @javax.annotation.Nonnull final String qualifiedTriggerName )
   {
     em().createNativeQuery( "DISABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName ).executeUpdate();
