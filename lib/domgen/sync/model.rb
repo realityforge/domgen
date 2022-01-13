@@ -526,8 +526,8 @@ module Domgen
                               :description => 'Id of the entity from which this entity was synced',
                               '-facets' => [:sync, :arez, :gwt])
         end
-        self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync? && self.entity.sync.support_unmanaged? && self.entity.sync.test_factory_defaults_to_unmanaged?
-        self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time? && self.entity.sync.support_unmanaged? && self.entity.sync.test_factory_defaults_to_unmanaged?
+        self.entity.jpa.create_default(:MasterId => 'null') if self.entity.sync? && self.entity.sync.support_unmanaged?
+        self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null', :MasterId => 'null') if self.entity.transaction_time? && self.entity.sync.support_unmanaged?
 
         sync_temp_data_module.entity("#{self.entity.sync.entity_prefix}#{self.entity.name}") do |e|
           e.disable_facets_not_in(Domgen::Sync::VALID_SYNC_TEMP_FACETS)
