@@ -231,7 +231,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% end -%>
 <% if service.imit? -%>
 
-  private void request( @javax.annotation.Nonnull final String key, @javax.annotation.Nonnull final java.lang.Runnable action )
+  private void request( @javax.annotation.Nullable final String key, @javax.annotation.Nonnull final java.lang.Runnable action )
   {
     replicant.Replicant.context().request( <%= service.data_module.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, key, action::run );
   }
