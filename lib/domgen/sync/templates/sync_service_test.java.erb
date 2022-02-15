@@ -50,7 +50,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
   public void synchronizeDataSource()
     throws Exception
   {
-    final java.util.Collection<java.lang.Runnable> onDeleteActions = new java.util.ArrayList<java.lang.Runnable>();
+    final java.util.Collection<java.lang.Runnable> onDeleteActions = new java.util.ArrayList<>();
     final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource = <%= data_module.jpa.short_test_code %>.createMappingSource( org.realityforge.guiceyloops.shared.ValueUtil.randomString( <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %>.CODE_MAX_SIZE ) );
     final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSourceIgnored = <%= data_module.jpa.short_test_code %>.createMappingSource( org.realityforge.guiceyloops.shared.ValueUtil.randomString( <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %>.CODE_MAX_SIZE ) );
     final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSourceToDelete = mappingSource;
