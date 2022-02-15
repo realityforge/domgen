@@ -50,6 +50,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
   public void synchronizeDataSource()
     throws Exception
   {
+    final java.util.Collection<java.lang.Runnable> onDeleteActions = new java.util.ArrayList<java.lang.Runnable>();
     final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSource = <%= data_module.jpa.short_test_code %>.createMappingSource( org.realityforge.guiceyloops.shared.ValueUtil.randomString( <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %>.CODE_MAX_SIZE ) );
     final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSourceIgnored = <%= data_module.jpa.short_test_code %>.createMappingSource( org.realityforge.guiceyloops.shared.ValueUtil.randomString( <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %>.CODE_MAX_SIZE ) );
     final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> mappingSourceToDelete = mappingSource;
@@ -58,7 +59,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
     final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>Ignored = create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.name == a.entity.name ? 'null' : a.referenced_entity.abstract? ? "#{Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name )}Ignored" : "#{Reality::Naming.camelize( a.referenced_entity.name )}Ignored" } + ['null']).join(', ') %> );
 <% if entity.sync.support_remove? -%>
     final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>Deleted = create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.name == a.entity.name ? 'null' : a.referenced_entity.abstract? ? Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name ) : Reality::Naming.camelize( a.referenced_entity.name ) + (a.referenced_entity.name.to_s != 'MappingSource' && a.referenced_entity.sync.core_entity.support_remove? ? 'Deleted' : '') } + ['org.realityforge.guiceyloops.shared.ValueUtil.now()']).join(', ') %> );
-    final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>ToDelete = create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.abstract? ? "#{Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name )}#{a.referenced_entity.name == a.entity.name ? '' : 'ToDelete'}" : "#{Reality::Naming.camelize( a.referenced_entity.name )}#{a.referenced_entity.name == a.entity.name || (a.referenced_entity.sync.core_entity? && !a.referenced_entity.sync.core_entity.support_remove?) ? '' : 'ToDelete'}" } + ['null']).join(', ') %> );
+    final <%= entity.sync.master_entity.jpa.qualified_name %> <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>ToDelete = create<%= entity.sync.master_entity.name %>ToDelete( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| a.referenced_entity.abstract? ? "#{Reality::Naming.camelize( a.referenced_entity.concrete_subtypes[0].name )}#{a.referenced_entity.name == a.entity.name ? '' : 'ToDelete'}" : "#{Reality::Naming.camelize( a.referenced_entity.name )}#{a.referenced_entity.name == a.entity.name || (a.referenced_entity.sync.core_entity? && !a.referenced_entity.sync.core_entity.support_remove?) ? '' : 'ToDelete'}" } + ['null']).join(', ') %>, onDeleteActions );
 <% end -%>
 <% end -%>
     createAdditionalEntities();
@@ -104,6 +105,7 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
     }
 
     {
+      onDeleteActions.forEach( java.lang.Runnable::run );
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
 <% if entity.sync.delete_via_sync? -%>
       <%= data_module.jpa.short_test_code %>.mark<%= entity.sync.master_entity.name  %>AsDeleted( <%= Reality::Naming.camelize( entity.sync.master_entity.name ) %>ToDelete );
@@ -160,6 +162,12 @@ public abstract class <%= data_module.sync.sync_service_test_name %>
   {
     final String mappingId = org.realityforge.guiceyloops.shared.ValueUtil.randomString();
     return <%= data_module.jpa.short_test_code %>.create<%= entity.sync.master_entity.name %>( <%= entity.sync.master_entity.attributes.collect{|a| sync_generate_attribute_value(a) }.compact.join(', ') %> );
+  }
+
+  @javax.annotation.Nonnull
+  protected <%= entity.sync.master_entity.jpa.qualified_name %> create<%= entity.sync.master_entity.name %>ToDelete( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| "@javax.annotation.#{a.nullable? ? 'Nullable' : 'Nonnull' } final #{a.referenced_entity.jpa.qualified_name} #{Reality::Naming.camelize( a.name )}" } + ['@javax.annotation.Nullable final java.util.Date deletedAt']).join(', ') %>, @javax.annotation.Nonnull java.util.Collection<java.lang.Runnable> onDelete )
+  {
+    return create<%= entity.sync.master_entity.name %>( <%= (entity.sync.master_entity.attributes.select{|a| a.reference? && a.referenced_entity.data_module.name == a.entity.data_module.name }.collect{|a| Reality::Naming.camelize( a.name ) } + ['deletedAt']).join(', ') %> );
   }
 <% if entity.sync.update_via_sync? -%>
 
