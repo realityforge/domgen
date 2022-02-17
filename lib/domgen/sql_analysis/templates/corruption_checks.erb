@@ -73,14 +73,14 @@ GO
 <% entity.attributes.select{|attribute|attribute.sql? && attribute.reference? && :many != attribute.inverse.multiplicity}.each do |attribute| -%>
 INSERT INTO <%= corruption_check_entity.sql.qualified_table_name %>(<%= corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name%>)
   VALUES ('Reference Multiplicity', 'The reference <%= attribute.qualified_name %> to <%= attribute.referenced_entity.qualified_name %> must be a multiplicity of <%= attribute.inverse.multiplicity %>','
-SELECT O.<%= attribute.referenced_entity.primary_key.sql.quoted_column_name %> AS <%= attribute.referenced_entity.name %><%= attribute.referenced_entity.primary_key.sql.column_name %>, COUNT(O.<%= attribute.inverse.attribute.entity.primary_key.sql.quoted_column_name %>) AS RelatedCount
+SELECT O.<%= attribute.referenced_entity.primary_key.sql.quoted_column_name %> AS <%= attribute.referenced_entity.name %><%= attribute.referenced_entity.primary_key.sql.column_name %>, COUNT(S.<%= attribute.referenced_entity.primary_key.sql.quoted_column_name %>) AS RelatedCount
 FROM <%= attribute.referenced_entity.sql.qualified_table_name %> O
 LEFT JOIN <%= entity.sql.qualified_table_name %> S ON S.<%= attribute.sql.quoted_column_name %> = O.<%= attribute.referenced_entity.primary_key.sql.quoted_column_name %><% if entity.transaction_time? -%> AND S.DeletedAt IS NULL<% end %>
 <% if attribute.referenced_entity.transaction_time? -%>
 WHERE O.DeletedAt IS NULL
 <% end -%>
 GROUP BY O.<%= attribute.referenced_entity.primary_key.sql.quoted_column_name %>
-HAVING COUNT(S.Id) <%= :one == attribute.inverse.multiplicity ? '<> 1' : '> 1' %>')
+HAVING COUNT(S.<%= entity.primary_key.sql.quoted_column_name %>) <%= :one == attribute.inverse.multiplicity ? '<> 1' : '> 1' %>')
 GO
 <% end -%>
 <% end -%>
