@@ -118,6 +118,8 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
 <% end
    elsif query.query_type == :update && !query.result_type? -%>
     query.executeUpdate();
+<% elsif query.query_type == :update && query.result_type == :boolean -%>
+    return 1 == query.executeUpdate();
 <%  else -%>
     return query.executeUpdate();
 <% end -%>

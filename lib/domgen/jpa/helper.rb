@@ -577,6 +577,7 @@ JAVA
 
       def query_result_type(query, maybe_primitive = true)
         return 'void' if query.query_type == :update && !query.result_type?
+        return 'boolean' if query.query_type == :update && query.result_type == :boolean
         return 'int' if query.query_type != :select
         try_primitive = maybe_primitive && query.multiplicity == :one
         name = query_component_result_type(query, try_primitive)
