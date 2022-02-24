@@ -14,7 +14,7 @@
 
 module Domgen
   module SqlAnalysis
-    VALID_ANALYSIS_FACETS = [:sql, :mssql, :pgsql, :ee, :jpa, :sql_analysis]
+    VALID_ANALYSIS_FACETS = [:sql, :mssql, :pgsql, :ee, :ejb, :jpa, :sql_analysis]
   end
 
   FacetManager.facet(:sql_analysis => [:sql]) do |facet|
