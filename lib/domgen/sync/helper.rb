@@ -44,6 +44,8 @@ module Domgen
           return 'org.realityforge.guiceyloops.shared.ValueUtil.now()'
         elsif attribute.enumeration?
           return "#{attribute.enumeration.ee.qualified_name}.values()[ java.lang.Math.abs( org.realityforge.guiceyloops.shared.ValueUtil.randomInt() ) % #{attribute.enumeration.values.size}]"
+        elsif attribute.real?
+          return 'org.realityforge.guiceyloops.shared.ValueUtil.randomFloat()'
         else
           return 'UnhandledType'
         end
