@@ -115,14 +115,14 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
   protected int sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
     @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
-    final String sql =
+    final String $sql =
       "<%= j_escape_string("UPDATE #{entity.sql.dialect.requires_table_name_for_update ? "#{entity.sync.master_entity.sql.qualified_table_name} U" : 'M' }" ) %>" +
       "<%= j_escape_string(" SET #{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} = ?, #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql} ") %>" +
       "<%= j_escape_string(" FROM #{entity.sync.master_entity.sql.qualified_table_name} AS M ") %>" +
       "<%= j_escape_string(" LEFT JOIN #{entity.sync.sync_temp_entity.sql.qualified_table_name} AS S ON M.#{entity.sync.master_entity.attribute_by_name(:MappingKey).sql.quoted_column_name} = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingKey).sql.quoted_column_name} AND M.#{entity.sync.master_entity.attribute_by_name(:MappingId).sql.quoted_column_name} = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingId).sql.quoted_column_name} AND M.#{entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} ") %>" +
       "<%= j_escape_string(" WHERE #{entity.sql.dialect.requires_table_name_for_update ? "U.#{entity.sync.master_entity.attribute_by_name(:Id).sql.quoted_column_name} = M.#{entity.sync.master_entity.attribute_by_name(:Id).sql.quoted_column_name} AND" : '' }") %>" +
       "<%= j_escape_string("   S.#{entity.sync.sync_temp_entity.attribute_by_name(:MappingId).sql.quoted_column_name} IS NULL AND M.#{entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name} = ? AND M.#{entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} IS NULL") %>";
-    return getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, mappingSourceCode ).executeUpdate();
+    return getEntityManager().createNativeQuery( $sql ).setParameter( 1, at ).setParameter( 2, mappingSourceCode ).executeUpdate();
   }
 <% end %>
 <% if entity.sync.update_via_sync? %>

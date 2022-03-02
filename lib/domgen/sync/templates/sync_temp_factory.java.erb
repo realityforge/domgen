@@ -139,9 +139,9 @@ public class <%= data_module.sync.sync_temp_factory_name %>
   end.join(', ')
 %> )
   {
-    final String sql = generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, "<%= j_escape_string("SELECT ?,?,#{entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingId'}.collect{|a| '?'}.join(',')}") %>" );
+    final String $sql = generate<%= entity.qualified_name.gsub('.','') %>Sql( "", false, "<%= j_escape_string("SELECT ?,?,#{entity.sync.attributes_to_synchronize.select{|a| a.name.to_s != 'MappingId'}.collect{|a| '?'}.join(',')}") %>" );
 
-    return getEntityManager().createNativeQuery( sql ).
+    return getEntityManager().createNativeQuery( $sql ).
       setParameter( 1, mappingSourceCode ).
       setParameter( 2, mappingKey ).
       setParameter( 3, mappingId ).
