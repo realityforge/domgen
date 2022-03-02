@@ -46,10 +46,8 @@ def generate(client)
     )
   end
 
-  if client.keycloak_repository.keycloak_version == '11'
-    data['alwaysDisplayInConsole'] = client.always_display_in_console?
-    data['defaultRoles'] = client.default_roles
-  end
+  data['alwaysDisplayInConsole'] = client.always_display_in_console?
+  data['defaultRoles'] = client.default_roles
 
   unless client.bearer_only?
     # Bearer only clients do not return any claims as they do not generate token. Thus it makes no sense

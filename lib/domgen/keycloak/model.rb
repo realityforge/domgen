@@ -457,16 +457,6 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
-      def keycloak_version=(keycloak_version)
-        valid_versions = %w(5 11)
-        raise "Invalid keycloak version #{keycloak_version}. Valid versions include #{valid_versions}" unless valid_versions.include?(keycloak_version.to_s)
-        @keycloak_version = keycloak_version.to_s
-      end
-
-      def keycloak_version
-        @keycloak_version.nil? ? '5' : @keycloak_version
-      end
-
       java_artifact :gwt_token_service, :service, :client, :keycloak, '#{repository.name}KeycloakTokenService'
       java_artifact :mock_keycloak_sting_fragment, :test, :client, :keycloak, 'Mock#{repository.name}KeycloakFragment', :sub_package => 'util'
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
