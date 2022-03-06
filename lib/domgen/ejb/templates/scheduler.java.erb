@@ -6,7 +6,9 @@ package <%= to_package(method.ejb.qualified_scheduler_name) %>;
 @javax.ejb.Startup
 @javax.ejb.Singleton( name = "<%= method.qualified_name.gsub('#','.') %>Scheduler" )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.<%= method.ejb.schedule.concurrency_management_type.to_s.upcase %> )
-class <%= method.ejb.scheduler_name %>
+// Note that this class MUST remain public to cater for an older version of GlassFish that
+// can not load the class if the class is package access
+public class <%= method.ejb.scheduler_name %>
 {
   @javax.annotation.Nonnull
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.ejb.scheduler_name %>.class.getName() );
