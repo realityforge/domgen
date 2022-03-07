@@ -274,6 +274,8 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
     final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : ''  %><%= a.jpa.java_type(:boundary) %>.valueOf( (java.lang.String) record[ <%= i %> ] );
 <% elsif a.enumeration? -%>
     final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : '' %><%= a.jpa.java_type(:boundary) %>.values()[ (java.lang.Integer) record[ <%= i %> ] ];
+<% elsif a.real? -%>
+    final java.lang.Double v_<%= a.name %> = (java.lang.Double) record[ <%= i %> ];
 <% else -%>
     final <%= a.jpa.non_primitive_java_type(:boundary) %> v_<%= a.name %> = (<%= a.jpa.non_primitive_java_type(:boundary) %>) record[ <%= i %> ];
 <% end -%>
@@ -342,6 +344,8 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       entity.set<%= a.name %>( v );
 <% elsif a.reference? -%>
       entity.set<%= a.name %>( v_<%= a.name %>_ref );
+<% elsif a.real? -%>
+      entity.set<%= a.name %>( <%= a.nullable? ? "null == v_#{a.name} ? null : " : '' %>v_<%= a.name %>.floatValue() );
 <% else -%>
       entity.set<%= a.name %>( v_<%= a.name %> );
 <% end -%>
