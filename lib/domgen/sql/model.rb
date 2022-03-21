@@ -416,6 +416,13 @@ module Domgen
         self.common_table_expression.gsub(/([ \t\r\n])inserted([ \t\r\n])/, "\\1#{self.table.qualified_table_name}\\2")
       end
 
+      def post_verify
+        pattern = /([ \t\r\n])inserted([ \t\r\n])/
+        unless self.negative_sql =~ pattern || (self.common_table_expression||'') =~ pattern
+          Domgen.error("Validation named #{self.name} does not include inserted in sql. This is an error.")
+        end
+      end
+
       def to_s
         "Validation[#{self.name}]"
       end
@@ -864,6 +871,10 @@ module Domgen
 
         if indexes.select { |i| i.cluster? }.size > 1
           Domgen.error("#{qualified_table_name} defines multiple clustering indexes")
+        end
+
+        self.validations.each do |v|
+          v.post_verify
         end
 
         entity.unique_constraints.each do |c|
