@@ -179,18 +179,18 @@ end
 <% end -%>
 <% end -%>
 
-  protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= pk_long_name %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement )
+  protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement )
     throws java.sql.SQLException
   {
-    <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement, <%= pk_long_name %>ColumnName );
+    <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement, <%= Reality::Naming.camelize(pk_long_name) %>ColumnName );
   }
 
-  protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= pk_long_name %>ColumnName, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql )
+  protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql )
     throws java.sql.SQLException
   {
     try ( java.sql.Statement statement = connection().createStatement() )
     {
-      <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement.executeQuery( sql ), <%= pk_long_name %>ColumnName );
+      <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement.executeQuery( sql ), <%= Reality::Naming.camelize(pk_long_name) %>ColumnName );
     }
   }
 <% end -%>
