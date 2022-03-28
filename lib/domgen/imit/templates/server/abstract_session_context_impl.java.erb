@@ -18,8 +18,14 @@ package <%= to_package(repository.imit.qualified_abstract_session_context_impl_n
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "PMD.SwitchStmtsShouldHaveDefault" } )
 public abstract class <%= repository.imit.abstract_session_context_impl_name %>
+  extends org.realityforge.replicant.server.ee.AbstractSessionContextImpl
   implements <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>
 {
+<% if repository.imit.graphs.any?{|graph|graph.bulk_load?} -%>
+  @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  private javax.persistence.EntityManager _entityManager;
+
+<% end -%>
 <% if repository.imit.support_subscription_access_control? -%>
   @java.lang.Override
   public void preSubscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object filter )
@@ -27,24 +33,28 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   }
 
 <% end -%>
-<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load?}.each do |graph| -%>
+<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load? && !graph.inline_bulk_operations?}.each do |graph| -%>
   @java.lang.Override
   public void bulkCollectDataFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
   {
     performBulkCollectDataFor<%= graph.name %>( session, addresses<% if graph.filter_parameter -%>, filter<% end %>, explicitSubscribe );
   }
+<% unless graph.instance_root? && graph.bulk_load? %>
 
   protected abstract void performBulkCollectDataFor<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, boolean explicitSubscribe );
+<% end -%>
 
 <% end -%>
-<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load? && graph.filtered? && !graph.filter_parameter.immutable?}.each do |graph| -%>
+<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load? && graph.filtered? && !graph.filter_parameter.immutable? && !graph.inline_bulk_operations?}.each do |graph| -%>
   @java.lang.Override
   public void bulkCollectDataFor<%= graph.name %>Update( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
   {
     performBulkCollectDataFor<%= graph.name %>Update( session, addresses, originalFilter, filter );
   }
+<% unless graph.instance_root? && graph.bulk_load? %>
 
   protected abstract void performBulkCollectDataFor<%= graph.name %>Update( @javax.annotation.Nonnull org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter );
+<% end -%>
 
 <% end -%>
 <%
@@ -130,5 +140,244 @@ graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |
 end
 end
 -%>
+<% end -%>
+<% if repository.imit.graphs.any?{|graph|graph.bulk_load?} -%>
+
+  @javax.annotation.Nonnull
+  protected javax.persistence.EntityManager em()
+  {
+    return _entityManager;
+  }
+
+<% end -%>
+<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load?}.each do |graph|
+  instance_root = repository.entity_by_name(graph.instance_root)
+  pk_long_name = instance_root.primary_key.qualified_name.gsub('.','')
+
+  graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity|
+-%>
+<% unless graph.inline_bulk_operations? -%>
+
+  /**
+   * Implement with code that probably looks something like:
+   *
+   * <code>
+   * <pre>
+   * \@Language( "TSQL" )
+   * final String sql =
+   *   generateTempIdTable( addresses ) +
+   *   "SELECT ... AS <%= entity.name %><%= entity.primary_key.name %>, E.* FROM <%= entity.sql.qualified_table_name %> E ... JOIN \@Ids Inputs ON Inputs.Id = ...";
+   *   addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= entity.name %><%= entity.primary_key.name %>", sql );
+   *
+   * </pre>
+   * </code>
+   */
+  protected abstract void bulkCollectDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+    throws java.sql.SQLException;
+
+<% if graph.filter_parameter && !graph.filter_parameter.immutable? && entity != instance_root -%>
+
+  protected abstract void bulkCollectDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+    throws java.sql.SQLException;
+<% end -%>
+<% end -%>
+
+  protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= pk_long_name %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement )
+    throws java.sql.SQLException
+  {
+    <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement, <%= pk_long_name %>ColumnName );
+  }
+
+  protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= pk_long_name %>ColumnName, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql )
+    throws java.sql.SQLException
+  {
+    try ( java.sql.Statement statement = connection().createStatement() )
+    {
+      <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement.executeQuery( sql ), <%= pk_long_name %>ColumnName );
+    }
+  }
+<% end -%>
+<%
+  candidate_graph_links = graph.outward_graph_links.select{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).bulk_load?  && repository.imit.graph_by_name(graph_link.target_graph).inline_bulk_operations?}
+
+  while graph_link = candidate_graph_links.pop
+    target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+  -%>
+
+  /**
+   * Implement with code that probably looks something like:
+   *
+   * <code>
+   * <pre>
+   * \@Language( "TSQL" )
+   * final String sql =
+   *   generateTempIdTable( addresses ) +
+   *   "SELECT Inputs.Id AS <%= repository.entity_by_name(graph.instance_root).name %><%= repository.entity_by_name(graph.instance_root).primary_key.name %>, E.CalendarId AS <%= repository.entity_by_name(target_graph.instance_root).name %><%= repository.entity_by_name(target_graph.instance_root).primary_key.name %> FROM <%= graph_link.imit_attribute.attribute.entity.sql.qualified_table_name %> E ... JOIN @Ids Inputs ON Inputs.Id = ...";
+   * bulkLinkFromSourceGraphToTargetGraph( session,
+   *                                       filter,
+   *                                       changeSet,
+   *                                       <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>,
+   *                                       "<%= repository.entity_by_name(graph.instance_root).name %><%= repository.entity_by_name(graph.instance_root).primary_key.name %>",
+   *                                       <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>,
+   *                                       "<%= repository.entity_by_name(target_graph.instance_root).name %><%= repository.entity_by_name(target_graph.instance_root).primary_key.name %>",
+   *                                       sql );
+   * </pre>
+   * </code>
+   */
+  protected abstract void bulkLinkFrom<%= graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses )
+    throws java.sql.SQLException;
+
+<% if graph.filter_parameter && !graph.filter_parameter.immutable? -%>
+
+  protected abstract void bulkUpdateLinksFrom<%= graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+    throws java.sql.SQLException;
+
+<% end -%>
+<% target_graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |target_entity| -%>
+
+  /**
+   * Implement with code that probably looks something like:
+   *
+   * <code>
+   * <pre>
+   * \@Language( "TSQL" )
+   * final String sql =
+   *   generateTempIdTable( addresses ) +
+   *   "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* FROM <%= target_entity.sql.qualified_table_name %> E ... JOIN \@Ids Inputs ON Inputs.Id = ...";
+   *   addUpdateFor<%= target_entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= instance_root.name %><%= instance_root.primary_key.name %>", sql );
+   *
+   * </pre>
+   * </code>
+   */
+  protected abstract void bulkCollectDataFor<%= target_entity.qualified_name.gsub('.','') %>In<%= target_graph.name %>GraphFrom<%= graph.name %>Graph( @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+    throws java.sql.SQLException;
+
+<% if graph.filter_parameter && !graph.filter_parameter.immutable? -%>
+  protected abstract void bulkCollectDataUpdateFor<%= target_entity.qualified_name.gsub('.','') %>In<%= target_graph.name %>GraphFrom<%= graph.name %>Graph( @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+    throws java.sql.SQLException;
+
+<% end -%>
+<%
+    end
+  end
+-%>
+<% unless graph.inline_bulk_operations? -%>
+  protected void preBulkCollectDataFor<%= graph.name %>( @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+  {
+  }
+
+  protected void performBulkCollectDataFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> input<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
+  {
+    final org.realityforge.replicant.server.ChangeSet changeSet = org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges();
+
+    final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses = new java.util.ArrayList<>( input );
+    try
+    {
+      // This block deals with non-existent root entities by sending a DELETE channel action
+      // back which is the behaviour expected by the client and implemented in the non-bulk scenario
+      addDeleteForCalendarResourceIn<%= graph.name %>Graph( changeSet, addresses );
+      // Abort if it turns out all addresses were deleted
+      if ( addresses.isEmpty() )
+      {
+        return;
+      }
+      preBulkCollectDataFor<%= graph.name %>( addresses<% if graph.filter_parameter -%>, filter<% end %> );
+      recordSubscriptions( session, changeSet, addresses, <%= graph.filter_parameter? ? 'filter' : 'null' -%>, explicitSubscribe );
+
+<% graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
+      bulkCollectDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( addresses, changeSet<% if graph.filter_parameter -%>, filter<% end %> );
+<% end -%>
+<%
+  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+    target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+    if target_graph.bulk_load?  && target_graph.inline_bulk_operations? -%>
+
+      // Inlined <%= target_graph.name %> graph
+      bulkLinkFrom<%= graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %>( session, changeSet<% if graph.filter_parameter -%>, filter<% end %>, addresses );
+<% target_graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
+      bulkCollectDataFor<%= entity.qualified_name.gsub('.','') %>In<%= target_graph.name %>GraphFrom<%= graph.name %>Graph( addresses, changeSet<% if target_graph.filter_parameter -%>, filter<% end %> );
+<% end -%>
+<% end -%>
+<% end -%>
+    }
+    catch ( final java.sql.SQLException sqle )
+    {
+      throw new java.lang.IllegalStateException( sqle );
+    }
+  }
+<% if graph.filter_parameter && !graph.filter_parameter.immutable? -%>
+
+  protected void performBulkCollectDataFor<%= graph.name %>Update( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> input, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+  {
+    final org.realityforge.replicant.server.ChangeSet changeSet = org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges();
+    final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses = new java.util.ArrayList<>( input );
+    try
+    {
+      // This block deals with non-existent root entities by sending a DELETE channel action
+      // back which is the behaviour expected by the client and implemented in the non-bulk scenario
+      addDeleteForCalendarResourceIn<%= graph.name %>Graph( changeSet, addresses );
+      // Abort if it turns out all addresses were deleted
+      if ( addresses.isEmpty() )
+      {
+        return;
+      }
+
+      // No change on root entity as all we have to do is update the filter
+      for ( final org.realityforge.replicant.server.ChannelAddress address : addresses )
+      {
+        changeSet.mergeAction( address, org.realityforge.replicant.server.ChannelAction.Action.UPDATE, filter );
+        session.getSubscriptionEntry( address ).setFilter( filter );
+      }
+
+<% graph.included_entities.select{|name| graph.instance_root != name}.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
+      bulkCollectDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphUpdate( session, addresses, changeSet, originalFilter, filter );
+<% end -%>
+<%
+  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+    target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+    if target_graph.bulk_load?  && target_graph.inline_bulk_operations? -%>
+
+      // Inlined <%= target_graph.name %> graph
+      bulkUpdateLinksFrom<%= graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %>( session, addresses, changeSet, originalFilter, filter );
+<% target_graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
+      bulkCollectDataUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= target_graph.name %>GraphFrom<%= graph.name %>Graph( addresses, changeSet, originalFilter, filter );
+<% end -%>
+<% end -%>
+<% end -%>
+    }
+    catch ( final java.sql.SQLException sqle )
+    {
+      throw new java.lang.IllegalStateException( sqle );
+    }
+  }
+<% end -%>
+
+  protected void addDeleteForCalendarResourceIn<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses )
+    throws java.sql.SQLException
+  {
+    @org.intellij.lang.annotations.Language( "TSQL" )
+    final String sql =
+      generateTempIdTable( addresses ) +
+      "SELECT Inputs.Id\n" +
+      "FROM @Ids Inputs\n" +
+      "LEFT JOIN <%= repository.entity_by_name(graph.instance_root).sql.qualified_table_name %> E ON E.<%= repository.entity_by_name(graph.instance_root).primary_key.sql.quoted_column_name %> = Inputs.Id\n" +
+      "WHERE E.Id IS NULL\n";
+    try ( java.sql.Statement statement = connection().createStatement( ) )
+    {
+      try ( java.sql.ResultSet resultSet = statement.executeQuery( sql ) )
+      {
+        while ( resultSet.next() )
+        {
+          final int id = resultSet.getInt( "Id" );
+          final org.realityforge.replicant.server.ChannelAddress address =
+            new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, id );
+          changeSet.mergeAction( address, org.realityforge.replicant.server.ChannelAction.Action.DELETE, null );
+          final boolean removed = addresses.remove( address );
+          assert removed;
+        }
+      }
+    }
+  }
+<% end -%>
 <% end -%>
 }

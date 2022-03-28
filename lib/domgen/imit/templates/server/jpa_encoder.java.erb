@@ -27,7 +27,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     }
   }
 
-  private static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nullable final String subChannelColumn )
+  public static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nullable final String subChannelColumn )
     throws java.sql.SQLException
   {
     while ( resultSet.next() )

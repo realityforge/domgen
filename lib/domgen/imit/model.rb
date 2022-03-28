@@ -83,17 +83,19 @@ module Domgen
         !!@cacheable
       end
 
-      def cacheable=(cacheable)
-        @cacheable = cacheable
-      end
+      attr_writer :cacheable
 
       def bulk_load?
         !!@bulk_load
       end
 
-      def bulk_load=(bulk_load)
-        @bulk_load = bulk_load
+      attr_writer :bulk_load
+
+      def inline_bulk_operations?
+        !!@inline_bulk_operations
       end
+
+      attr_writer :inline_bulk_operations
 
       def visibility=(visibility)
         valid_values = [:external, :internal, :universal]
@@ -307,6 +309,19 @@ module Domgen
               end
 
             Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not part of any of the dependent type graphs: #{rtgs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
+          end
+        end
+
+        if !self.bulk_load? && self.inline_bulk_operations?
+          Domgen.error("Graph '#{self.name}' has been marked as inline_bulk_operations = true but bulk_load = false.")
+        elsif self.inline_bulk_operations? && self.visibility != :internal
+          Domgen.error("Graph '#{self.name}' has been marked as inline_bulk_operations = true but is not a graph with internal-only visibility.")
+        elsif self.inline_bulk_operations?
+          self.inward_graph_links.each do |graph_link|
+            source = application.repository.imit.graph_by_name(graph_link.source_graph)
+            unless source.bulk_load?
+              Domgen.error("Graph '#{self.name}' has been marked as inline_bulk_operations = true but is referenced by graph #{source.name} that does not have bulk_load specified.")
+            end
           end
         end
       end
@@ -984,7 +999,7 @@ module Domgen
                   end
                 end
               else
-                if graph.bulk_load?
+                if graph.bulk_load? && !graph.inline_bulk_operations?
                   s.method("BulkCollectDataFor#{graph.name}") do |m|
                     m.ejb.generate_base_test = false
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
@@ -1003,7 +1018,7 @@ module Domgen
                       m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                       m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                     end
-                    if graph.bulk_load?
+                    if graph.bulk_load? && !graph.inline_bulk_operations?
                       s.method("BulkCollectDataFor#{graph.name}Update") do |m|
                         m.ejb.generate_base_test = false
                         m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
