@@ -21,11 +21,9 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   extends org.realityforge.replicant.server.ee.AbstractSessionContextImpl
   implements <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>
 {
-<% if repository.imit.graphs.any?{|graph|graph.bulk_load?} -%>
   @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
   private javax.persistence.EntityManager _entityManager;
 
-<% end -%>
 <% if repository.imit.support_subscription_access_control? -%>
   @java.lang.Override
   public void preSubscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object filter )
@@ -141,7 +139,6 @@ end
 end
 -%>
 <% end -%>
-<% if repository.imit.graphs.any?{|graph|graph.bulk_load?} -%>
 
   @javax.annotation.Nonnull
   protected javax.persistence.EntityManager em()
@@ -149,7 +146,6 @@ end
     return _entityManager;
   }
 
-<% end -%>
 <% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load?}.each do |graph|
   instance_root = repository.entity_by_name(graph.instance_root)
   pk_long_name = instance_root.primary_key.qualified_name.gsub('.','')
