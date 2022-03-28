@@ -983,7 +983,7 @@ module Domgen
                     m.returns(:text)
                   end
                 end
-                if graph.filter_parameter? && !graph.filter_parameter.immutable?
+                if graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.bulk_load?
                   s.method("CollectForFilterChange#{graph.name}") do |m|
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
                     m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
@@ -1010,13 +1010,15 @@ module Domgen
                 end
                 if graph.filter_parameter?
                   unless graph.filter_parameter.immutable?
-                    s.method("CollectForFilterChange#{graph.name}") do |m|
-                      m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                      m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                      m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
-                      m.reference(graph.instance_root, :name => :Entity)
-                      m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                      m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                    unless graph.bulk_load?
+                      s.method("CollectForFilterChange#{graph.name}") do |m|
+                        m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                        m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                        m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
+                        m.reference(graph.instance_root, :name => :Entity)
+                        m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                        m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                      end
                     end
                     if graph.bulk_load? && !graph.inline_bulk_operations?
                       s.method("BulkCollectDataFor#{graph.name}Update") do |m|
