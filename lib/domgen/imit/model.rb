@@ -1000,7 +1000,7 @@ module Domgen
                 end
               else
                 if graph.bulk_load? && !graph.inline_bulk_operations?
-                  s.method("BulkCollectDataFor#{graph.name}") do |m|
+                  s.method("BulkCollectFor#{graph.name}") do |m|
                     m.ejb.generate_base_test = false
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
                     m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
@@ -1021,7 +1021,7 @@ module Domgen
                       end
                     end
                     if graph.bulk_load? && !graph.inline_bulk_operations?
-                      s.method("BulkCollectDataFor#{graph.name}Update") do |m|
+                      s.method("BulkCollectFor#{graph.name}FilterChange") do |m|
                         m.ejb.generate_base_test = false
                         m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
                         m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)

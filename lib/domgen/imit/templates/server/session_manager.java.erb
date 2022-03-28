@@ -225,7 +225,7 @@ entities.uniq.each do |entity| -%>
 <% bulk_subscribe_graphs.each do |graph| -%>
     if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
-      _context.bulkCollectDataFor<%= graph.name %>( session, addresses<% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %>, true );
+      _context.bulkCollectFor<%= graph.name %>( session, addresses<% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %>, true );
       return true;
     }
 <% end -%>
@@ -242,7 +242,7 @@ entities.uniq.each do |entity| -%>
     if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == addresses.get( 0 ).getChannelId() )
     {
       assert null != filter;
-      _context.bulkCollectDataFor<%= graph.name %>Update( session, addresses, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
+      _context.bulkCollectFor<%= graph.name %>FilterChange( session, addresses, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
 <%
   processed = []
   graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
