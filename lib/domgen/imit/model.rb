@@ -1003,6 +1003,7 @@ module Domgen
                   s.method("BulkCollectFor#{graph.name}") do |m|
                     m.ejb.generate_base_test = false
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                     m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
                     m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                     m.boolean(:ExplicitSubscribe)
@@ -1024,6 +1025,7 @@ module Domgen
                       s.method("BulkCollectFor#{graph.name}FilterChange") do |m|
                         m.ejb.generate_base_test = false
                         m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                        m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                         m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
                         m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                         m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
