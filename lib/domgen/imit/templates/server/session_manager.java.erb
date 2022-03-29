@@ -232,7 +232,7 @@ entities.uniq.each do |entity| -%>
     return super.bulkCollectDataForSubscribe( session, addresses, filter );
   }
 <% end -%>
-<% bulk_subscription_update_graphs = repository.imit.graphs.select{|graph| graph.instance_root? && graph.bulk_load? && graph.filtered? && !graph.filter_parameter.immutable? && !graph.inline_bulk_operations?} -%>
+<% bulk_subscription_update_graphs = repository.imit.graphs.select{|graph| graph.instance_root? && graph.bulk_load? && graph.filtered? && graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.inline_bulk_operations?} -%>
 <% unless bulk_subscription_update_graphs.empty? -%>
 
   @java.lang.Override
