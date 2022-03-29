@@ -163,8 +163,8 @@ end
    * \@Language( "TSQL" )
    * final String sql =
    *   generateTempIdTable( addresses ) +
-   *   "SELECT ... AS <%= entity.name %><%= entity.primary_key.name %>, E.* FROM <%= entity.sql.qualified_table_name %> E ... JOIN \@Ids Inputs ON Inputs.Id = ...";
-   *   addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= entity.name %><%= entity.primary_key.name %>", sql );
+   *   "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* FROM <%= entity.sql.qualified_table_name %> E ... JOIN \@Ids Inputs ON Inputs.Id = ...";
+   *   addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= instance_root.name %><%= instance_root.primary_key.name %>", sql );
    *
    * </pre>
    * </code>
