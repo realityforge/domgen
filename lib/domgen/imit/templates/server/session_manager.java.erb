@@ -223,7 +223,7 @@ entities.uniq.each do |entity| -%>
   {
     final org.realityforge.replicant.server.ChannelAddress address = addresses.get( 0 );
 <% bulk_subscribe_graphs.each do |graph| -%>
-    <%= graph == bulk_subscribe_graphs[0] ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
+    <%= bulk_subscribe_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
       _context.bulkCollectFor<%= graph.name %>( session, changeSet<% if graph.instance_root? %>, addresses<% end %><% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %>, true );
     }
@@ -238,10 +238,10 @@ entities.uniq.each do |entity| -%>
 <% unless bulk_subscription_update_graphs.empty? -%>
 
   @java.lang.Override
-  protected boolean bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
+  protected void bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
   {
 <% bulk_subscription_update_graphs.each do |graph| -%>
-    if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == addresses.get( 0 ).getChannelId() )
+    <%= bulk_subscription_update_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == addresses.get( 0 ).getChannelId() )
     {
       assert null != filter;
       _context.bulkCollectFor<%= graph.name %>FilterChange( session, changeSet<% if graph.instance_root? %>, addresses<% end %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
@@ -259,10 +259,12 @@ entities.uniq.each do |entity| -%>
         propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( session, <% if graph.instance_root? %>address.getSubChannelId(), <% end %>(<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter, org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
       }
 <% end -%>
-      return true;
     }
 <% end -%>
-    return super.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter );
+    else
+    {
+      super.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet );
+    }
   }
 <% end -%>
 <% updateable_graphs = repository.imit.graphs.select{|graph| graph.filter_parameter && !graph.filter_parameter.immutable? && !graph.bulk_load?} -%>
