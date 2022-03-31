@@ -308,6 +308,8 @@ module Domgen
                 application.repository.imit.graph_by_name(graph_link.source_graph).included_entities.any? { |e| e == referenced_entity.qualified_name }
               end
 
+            next if a.imit.skip_link_checks.include?(self.name)
+
             Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not part of any of the dependent type graphs: #{rtgs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
           end
         end
@@ -1309,6 +1311,13 @@ module Domgen
     end
 
     facet.enhance(Attribute) do
+
+      def skip_link_checks
+        @skip_link_checks ||= []
+      end
+
+      attr_writer :skip_link_checks
+
       def eager?
         !lazy?
       end
