@@ -993,7 +993,17 @@ module Domgen
                     m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                   end
                 end
-                if graph.external_data_load? || graph.filtered?
+                if graph.bulk_load?
+                  unless graph.inline_bulk_operations?
+                    s.method("BulkCollectFor#{graph.name}") do |m|
+                      m.ejb.generate_base_test = false
+                      m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                      m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                      m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
+                      m.boolean(:ExplicitSubscribe)
+                    end
+                  end
+                elsif graph.external_data_load? || graph.filtered?
                   s.method("Collect#{graph.name}") do |m|
                     m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
                     m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
