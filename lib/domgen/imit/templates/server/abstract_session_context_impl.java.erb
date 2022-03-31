@@ -195,7 +195,7 @@ end
   }
 <% end -%>
 <%
-  candidate_graph_links = graph.outward_graph_links.select{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).bulk_load?  && repository.imit.graph_by_name(graph_link.target_graph).inline_bulk_operations?}
+  candidate_graph_links = graph.outward_graph_links.select{|graph_link| graph_link.source_graph != graph_link.target_graph && graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).bulk_load?  && repository.imit.graph_by_name(graph_link.target_graph).inline_bulk_operations?}
 
   while graph_link = candidate_graph_links.pop
     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
