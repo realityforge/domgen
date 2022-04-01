@@ -74,6 +74,32 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
     return schema().getChannel( channelId );
   }
 
+  protected final void assertOutwardChannelLinkCount( final int channelId, final int count )
+  {
+    final java.util.List<replicant.ChannelLinkSchema> links = schema().getOutwardChannelLinks( channelId );
+    final replicant.ChannelSchema channel = getChannel( channelId );
+    org.testng.Assert.assertEquals( links.size(),
+                                    count,
+                                    "Expected links from channel " + channel + " to other channels" );
+  }
+
+  protected final void assertOutwardChannelLink( final int channelId, final int entityId, final int targetChannelId, final boolean auto, @javax.annotation.Nonnull final java.lang.String... path )
+  {
+    final replicant.ChannelSchema channel = getChannel( channelId );
+    final replicant.EntitySchema entity = channel.findEntityById( entityId );
+    org.testng.Assert.assertNotNull( entity, "Unable to locate entity with id " + entityId + " in channel " + channel );
+    final java.util.List<replicant.ChannelLinkSchema> links = entity.getOutwardChannelLinks( channelId );
+
+    final java.util.List<replicant.ChannelLinkSchema> matches =
+      links
+        .stream()
+        .filter( l -> l.getTargetChannelId() == targetChannelId &&
+                      l.isAuto() == auto &&
+                      java.lang.String.join( ".", l.getPath() ).equals( java.lang.String.join( ".", path ) ) )
+        .collect( java.util.stream.Collectors.toList() );
+    org.testng.Assert.assertEquals( matches.size(), 1, "Expected to match a link to channel " + targetChannelId + " (auto=" + auto + ", path=" + java.util.Arrays.asList( path ) + ")" + " but entity only has the outward links " + links );
+  }
+
   @javax.annotation.Nonnull
   protected final replicant.SystemSchema schema()
   {
