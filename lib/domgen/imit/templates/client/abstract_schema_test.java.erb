@@ -94,13 +94,12 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
 
   protected final void assertInwardChannelLink( final int channelId, final int entityId, final int sourceChannelId, final boolean auto, @javax.annotation.Nonnull final java.lang.String... path )
   {
-    final java.util.List<replicant.ChannelLinkSchema> links = schema().getInwardChannelLinks( channelId );
+    final java.util.List<replicant.ChannelLinkSchema> links = schema().getInwardChannelLinks( channelId, entityId );
 
     final java.util.List<replicant.ChannelLinkSchema> matches =
       links
         .stream()
-        .filter( l -> l.getEntity().getId() == entityId &&
-                      l.getSourceChannelId() == sourceChannelId &&
+        .filter( l -> l.getSourceChannelId() == sourceChannelId &&
                       l.isAuto() == auto &&
                       java.lang.String.join( ".", l.getPath() ).equals( java.lang.String.join( ".", path ) ) )
         .collect( java.util.stream.Collectors.toList() );
