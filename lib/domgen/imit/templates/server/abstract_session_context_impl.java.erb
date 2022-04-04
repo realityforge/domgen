@@ -163,7 +163,7 @@ end
     @Language( "TSQL" )
     final String sql =
       generateTempIdTable( addresses ) +
-      "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* FROM <%= entity.sql.qualified_table_name %> E ... JOIN @Ids Inputs ON Inputs.Id = ...";
+      "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> E ... JOIN @Ids Inputs ON Inputs.Id = ...";
       addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= instance_root.name %><%= instance_root.primary_key.name %>", sql );
 
    * </pre>
@@ -240,7 +240,7 @@ end
      @Language( "TSQL" )
      final String sql =
        generateTempIdTable( addresses ) +
-       "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* FROM <%= target_entity.sql.qualified_table_name %> E ... JOIN @Ids Inputs ON Inputs.Id = ...";
+       "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* FROM <%= target_entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> E ... JOIN @Ids Inputs ON Inputs.Id = ...";
        addUpdateFor<%= target_entity.qualified_name.gsub('.','') %>In<%= target_graph.name %>Graph( changeSet, "<%= instance_root.name %><%= instance_root.primary_key.name %>", sql );
 
    * </pre>
