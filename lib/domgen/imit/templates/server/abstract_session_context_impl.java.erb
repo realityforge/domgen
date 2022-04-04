@@ -209,7 +209,7 @@ end
      @Language( "TSQL" )
      final String sql =
        generateTempIdTable( addresses ) +
-       "SELECT Inputs.Id AS <%= repository.entity_by_name(graph.instance_root).name %><%= repository.entity_by_name(graph.instance_root).primary_key.name %>, E.CalendarId AS <%= repository.entity_by_name(target_graph.instance_root).name %><%= repository.entity_by_name(target_graph.instance_root).primary_key.name %> FROM <%= graph_link.imit_attribute.attribute.entity.sql.qualified_table_name %> E ... JOIN @Ids Inputs ON Inputs.Id = ...";
+       "SELECT Inputs.Id AS <%= repository.entity_by_name(graph.instance_root).name %><%= repository.entity_by_name(graph.instance_root).primary_key.name %>, E.<%= repository.entity_by_name(target_graph.instance_root).name %><%= repository.entity_by_name(target_graph.instance_root).primary_key.name %> AS <%= repository.entity_by_name(target_graph.instance_root).name %><%= repository.entity_by_name(target_graph.instance_root).primary_key.name %> FROM <%= graph_link.imit_attribute.attribute.entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> E ... JOIN @Ids Inputs ON Inputs.Id = ...";
      bulkLinkFromSourceGraphToTargetGraph( session,
                                            <%= graph.filter_parameter? ? 'filter' : 'null' -%>,
                                            changeSet,
