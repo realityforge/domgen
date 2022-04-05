@@ -13,6 +13,8 @@ public class <%= repository.imit.session_manager_name %>
 {
   @javax.annotation.Nonnull
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
+  @javax.annotation.Nonnull
+  private static final java.util.logging.Level SUBSCRIPTION_LOG_LEVEL = java.util.logging.Level.FINE;
   @javax.inject.Inject
   private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
 <%
@@ -211,6 +213,10 @@ entities.uniq.each do |entity| -%>
 <% repository.imit.graphs.select{|graph|!graph.bulk_load?}.each do |graph| -%>
     if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
+      if ( LOG.isLoggable( SUBSCRIPTION_LOG_LEVEL ) )
+      {
+        LOG.log( SUBSCRIPTION_LOG_LEVEL, "collectDataForSubscribe(ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Id=" + address.getSubChannelId() + <% end -%>")" );
+      }
       return collectDataFor<%= graph.name %>( address, changeSet<% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %> );
     }
 <% end -%>
@@ -226,6 +232,10 @@ entities.uniq.each do |entity| -%>
 <% bulk_subscribe_graphs.each do |graph| -%>
     <%= bulk_subscribe_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
+      if ( LOG.isLoggable( SUBSCRIPTION_LOG_LEVEL ) )
+      {
+        LOG.log( SUBSCRIPTION_LOG_LEVEL, "bulkCollectDataForSubscribe(SessionId=" + session.getId() +",ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Ids=" + addresses.stream().map( a -> a.getSubChannelId() ).collect( java.util.stream.Collectors.toList() ) + <% end -%>")" );
+      }
       _context.bulkCollectFor<%= graph.name %>( session, changeSet<% if graph.instance_root? %>, addresses<% end %><% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %>, true );
     }
 <% end -%>
