@@ -195,12 +195,18 @@ end
   }
 <% end -%>
 <%
-  candidate_graph_links = graph.outward_graph_links.select{|graph_link| graph_link.source_graph != graph_link.target_graph && graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).bulk_load?  && repository.imit.graph_by_name(graph_link.target_graph).inline_bulk_operations?}
+  candidate_graph_links = graph.outward_graph_links.select{|graph_link| graph_link.auto?}
+  done = []
 
   while graph_link = candidate_graph_links.pop
+    done << graph_link
     source_graph = repository.imit.graph_by_name(graph_link.source_graph)
     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+    target_graph.outward_graph_links.select{|gl| gl.auto?}.each do |gl|
+      candidate_graph_links += [gl] unless done.include?(gl) || source_graph.inline_bulk_operations?
+    end if target_graph.bulk_load? && target_graph.inline_bulk_operations?
   -%>
+<% if !source_graph.inline_bulk_operations? || source_graph.name != graph.name %>
 
   /**
    * Implement with code that probably looks something like:
@@ -231,6 +237,8 @@ end
     throws java.sql.SQLException;
 
 <% end -%>
+<% end -%>
+<% if target_graph.inline_bulk_operations? && graph.name != target_graph.name && graph.name != source_graph.name -%>
 <% target_graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |target_entity| -%>
 
   /**
@@ -256,6 +264,7 @@ end
 
 <% end -%>
 <%
+      end
     end
   end
 -%>
@@ -284,12 +293,24 @@ end
       bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( addresses, changeSet<% if graph.filter_parameter -%>, filter<% end %> );
 <% end -%>
 <%
-  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+  candidate_graph_links = graph.outward_graph_links.select{|graph_link| graph_link.auto?}
+  done = []
+
+  while graph_link = candidate_graph_links.pop
+    done << graph_link
+    source_graph = repository.imit.graph_by_name(graph_link.source_graph)
     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
-    if target_graph.bulk_load?  && target_graph.inline_bulk_operations? -%>
+    target_graph.outward_graph_links.select{|gl| gl.auto?}.each do |gl|
+      candidate_graph_links += [gl] unless done.include?(gl) || source_graph.inline_bulk_operations?
+    end if target_graph.bulk_load? && target_graph.inline_bulk_operations?
+
+    if !source_graph.inline_bulk_operations? || source_graph.name != graph.name
+-%>
+      bulkLinkFrom<%= source_graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %><%= source_graph.name == graph.name ? '' : "In#{graph.name}Graph" %>( session, changeSet<% if graph.filter_parameter -%>, filter<% end %>, addresses );
+<% end -%>
+<% if target_graph.inline_bulk_operations? && graph.name != target_graph.name && graph.name != source_graph.name -%>
 
       // Inlined <%= target_graph.name %> graph
-      bulkLinkFrom<%= graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %>( session, changeSet<% if graph.filter_parameter -%>, filter<% end %>, addresses );
 <% target_graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
       bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= target_graph.name %>GraphFrom<%= graph.name %>Graph( addresses, changeSet<% if target_graph.filter_parameter -%>, filter<% end %> );
 <% end -%>
@@ -328,12 +349,24 @@ end
       bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( session, addresses, changeSet, originalFilter, filter );
 <% end -%>
 <%
-  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+  candidate_graph_links = graph.outward_graph_links.select{|graph_link| graph_link.auto?}
+  done = []
+
+  while graph_link = candidate_graph_links.pop
+    done << graph_link
+    source_graph = repository.imit.graph_by_name(graph_link.source_graph)
     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
-    if target_graph.bulk_load?  && target_graph.inline_bulk_operations? -%>
+    target_graph.outward_graph_links.select{|gl| gl.auto?}.each do |gl|
+      candidate_graph_links += [gl] unless done.include?(gl) || source_graph.inline_bulk_operations?
+    end if target_graph.bulk_load? && target_graph.inline_bulk_operations?
+
+    if !source_graph.inline_bulk_operations? || source_graph.name != graph.name
+-%>
+      bulkUpdateLinksFrom<%= graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %><%= source_graph.name == graph.name ? '' : "In#{graph.name}Graph" %>( session, addresses, changeSet, originalFilter, filter );
+<% end -%>
+<% if target_graph.inline_bulk_operations? && graph.name != target_graph.name && graph.name != source_graph.name -%>
 
       // Inlined <%= target_graph.name %> graph
-      bulkUpdateLinksFrom<%= graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %>( session, addresses, changeSet, originalFilter, filter );
 <% target_graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
       bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= target_graph.name %>GraphFrom<%= graph.name %>GraphFilterChange( addresses, changeSet, originalFilter, filter );
 <% end -%>
