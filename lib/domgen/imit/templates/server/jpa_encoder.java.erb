@@ -34,6 +34,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     {
       final Integer subChannelId = null != subChannelColumn ? resultSet.getInt( subChannelColumn ) : null;
       final java.util.HashMap<String, java.io.Serializable> attributeValues = new java.util.HashMap<>();
+      @javax.annotation.Nullable final java.util.Set<org.realityforge.replicant.server.ChannelLink> links = new java.util.HashSet<>();
 <% entity.attributes.select{|a| a.imit?}.each do |attribute|
     a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
     type_suffix = 'Object'
@@ -78,6 +79,34 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       attributeValues.put( "<%= attribute.name %>", <%= value_converter %> );
 <% end -%>
 <% end -%>
+<% attribute.imit.auto_graph_links.each do |graph_link| -%>
+      if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %> == channelId )
+      {
+<% if graph_link.path.nil? -%>
+<% if attribute.nullable? -%>
+        final Integer targetId = $<%= attribute.name %>;
+<% else -%>
+        final int targetId = $<%= attribute.name %>;
+<% end -%>
+<% else -%>
+<% target_graph = repository.imit.graph_by_name(graph_link.target_graph) -%>
+<% instance_root = repository.entity_by_name(target_graph.instance_root) -%>
+<% if attribute.nullable? -%>
+        final Integer targetId = resultSet.getInteger( "<%= instance_root.primary_key.sql.column_name %>" );
+<% else -%>
+        final int targetId = resultSet.getInt( "<%= instance_root.primary_key.sql.column_name %>" );
+<% end -%>
+<% end -%>
+<% if attribute.nullable? -%>
+        if( null != targetId )
+        {
+<% end -%>
+        <% if attribute.nullable? -%>  <% end -%>links.add( new org.realityforge.replicant.server.ChannelLink(new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %>, subChannelId ), new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %>, targetId ) ) );
+<% if attribute.nullable? -%>
+        }
+<% end -%>
+      }
+<% end -%>
 <% end -%>
       final org.realityforge.replicant.server.EntityMessage entityMessage =
         new org.realityforge.replicant.server.EntityMessage( $<%= entity.primary_key.name %>,
@@ -85,7 +114,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
                                                              0,
                                                              new java.util.HashMap<>(),
                                                              attributeValues,
-                                                             null );
+                                                             links );
       changeSet.merge( new org.realityforge.replicant.server.Change( entityMessage, channelId, subChannelId ) );
     }
   }
