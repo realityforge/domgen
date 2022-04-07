@@ -14,7 +14,7 @@ public class <%= repository.imit.session_manager_name %>
   @javax.annotation.Nonnull
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
   @javax.annotation.Nonnull
-  private static final java.util.logging.Level SUBSCRIPTION_LOG_LEVEL = java.util.logging.Level.FINE;
+  private static final java.util.logging.Level SUBSCRIPTION_LOG_LEVEL = java.util.logging.Level.INFO;
   @javax.inject.Inject
   private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
 <%
@@ -222,11 +222,11 @@ entities.uniq.each do |entity| -%>
 <% end -%>
     return super.collectDataForSubscribe( address, changeSet, filter );
   }
-<% bulk_subscribe_graphs = repository.imit.graphs.select{|graph| graph.bulk_load? && !graph.inline_bulk_operations?} -%>
+<% bulk_subscribe_graphs = repository.imit.graphs.select{|graph| graph.bulk_load?} -%>
 <% unless bulk_subscribe_graphs.empty? -%>
 
   @java.lang.Override
-  protected void bulkCollectDataForSubscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
+  protected void bulkCollectDataForSubscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final boolean isExplicitSubscribe )
   {
     final org.realityforge.replicant.server.ChannelAddress address = addresses.get( 0 );
 <% bulk_subscribe_graphs.each do |graph| -%>
@@ -234,14 +234,20 @@ entities.uniq.each do |entity| -%>
     {
       if ( LOG.isLoggable( SUBSCRIPTION_LOG_LEVEL ) )
       {
-        LOG.log( SUBSCRIPTION_LOG_LEVEL, "bulkCollectDataForSubscribe(SessionId=" + session.getId() +",ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Ids=" + addresses.stream().map( a -> a.getSubChannelId() ).collect( java.util.stream.Collectors.toList() ) + <% end -%>")" );
+        LOG.log( SUBSCRIPTION_LOG_LEVEL, "bulkCollectDataForSubscribe(SessionId=" + session.getId() +",ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Ids=" + addresses.stream().map( a -> a.getSubChannelId() ).collect( java.util.stream.Collectors.toList() ) + <% end -%>", isExplicitSubscribe=" + isExplicitSubscribe + ")" );
       }
+<% if graph.inline_bulk_operations? -%>
+      if ( isExplicitSubscribe )
+      {
+        throw new java.lang.IllegalStateException( "Attempted to invoke bulkCollectDataForSubscribe via explicitSubscribe for graph that expects to inline bulk operations. Graph name: " + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
+      }
+<% end -%>
       _context.bulkCollectFor<%= graph.name %>( session, changeSet<% if graph.instance_root? %>, addresses<% end %><% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %>, true );
     }
 <% end -%>
     else
     {
-      super.bulkCollectDataForSubscribe( session, addresses, filter, changeSet );
+      super.bulkCollectDataForSubscribe( session, addresses, filter, changeSet, isExplicitSubscribe );
     }
   }
 <% end -%>

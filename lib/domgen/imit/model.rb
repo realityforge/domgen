@@ -997,14 +997,12 @@ module Domgen
                   end
                 end
                 if graph.bulk_load?
-                  unless graph.inline_bulk_operations?
-                    s.method("BulkCollectFor#{graph.name}") do |m|
-                      m.ejb.generate_base_test = false
-                      m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                      m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                      m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-                      m.boolean(:ExplicitSubscribe)
-                    end
+                  s.method("BulkCollectFor#{graph.name}") do |m|
+                    m.ejb.generate_base_test = false
+                    m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                    m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
+                    m.boolean(:ExplicitSubscribe)
                   end
                 elsif graph.external_data_load? || graph.filtered?
                   s.method("Collect#{graph.name}") do |m|
@@ -1014,7 +1012,7 @@ module Domgen
                   end
                 end
               else
-                if graph.bulk_load? && !graph.inline_bulk_operations?
+                if graph.bulk_load?
                   s.method("BulkCollectFor#{graph.name}") do |m|
                     m.ejb.generate_base_test = false
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
@@ -1036,7 +1034,7 @@ module Domgen
                         m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                       end
                     end
-                    if graph.bulk_load? && !graph.inline_bulk_operations?
+                    if graph.bulk_load?
                       s.method("BulkCollectFor#{graph.name}FilterChange") do |m|
                         m.ejb.generate_base_test = false
                         m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')

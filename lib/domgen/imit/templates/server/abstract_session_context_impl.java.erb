@@ -31,7 +31,7 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   }
 
 <% end -%>
-<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load? && !graph.inline_bulk_operations?}.each do |graph| -%>
+<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load?}.each do |graph| -%>
   @java.lang.Override
   public void bulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
   {
@@ -43,7 +43,7 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
 <% end -%>
 
 <% end -%>
-<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load? && graph.filtered? && graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.inline_bulk_operations?}.each do |graph| -%>
+<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load? && graph.filtered? && graph.filter_parameter? && !graph.filter_parameter.immutable?}.each do |graph| -%>
   @java.lang.Override
   public void bulkCollectFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
   {
@@ -153,7 +153,6 @@ end
 
   graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity|
 -%>
-<% unless graph.inline_bulk_operations? -%>
 
   /**
    * Implement with code that probably looks something like:
@@ -176,7 +175,6 @@ end
 
   protected abstract void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
     throws java.sql.SQLException;
-<% end -%>
 <% end -%>
 
   protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement )
@@ -268,7 +266,6 @@ end
     end
   end
 -%>
-<% unless graph.inline_bulk_operations? -%>
   protected void preBulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
   {
   }
@@ -406,6 +403,5 @@ end
       }
     }
   }
-<% end -%>
 <% end -%>
 }
