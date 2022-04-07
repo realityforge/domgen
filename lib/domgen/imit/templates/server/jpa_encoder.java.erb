@@ -32,6 +32,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   {
     while ( resultSet.next() )
     {
+      final Integer subChannelId = null != subChannelColumn ? resultSet.getInt( subChannelColumn ) : null;
       final java.util.HashMap<String, java.io.Serializable> attributeValues = new java.util.HashMap<>();
 <% entity.attributes.select{|a| a.imit?}.each do |attribute|
     a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
@@ -85,7 +86,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
                                                              new java.util.HashMap<>(),
                                                              attributeValues,
                                                              null );
-      changeSet.merge( new org.realityforge.replicant.server.Change( entityMessage, channelId, null != subChannelColumn ? resultSet.getInt( subChannelColumn ) : null ) );
+      changeSet.merge( new org.realityforge.replicant.server.Change( entityMessage, channelId, subChannelId ) );
     }
   }
 <%
