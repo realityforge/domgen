@@ -5,7 +5,6 @@ package <%= to_package(repository.imit.qualified_subscription_constants_name) %>
 public final class <%= repository.imit.subscription_constants_name %>
 {
 <%=
-    index = 0;
     repository.imit.graphs.collect do |g|
     elements = g.instance_root? ? g.reachable_entities.sort : g.type_roots
     data = <<-DATA
@@ -89,14 +88,13 @@ DATA
      data += "   * </ul>\n"
    end
    data += "   */\n"
-   data += "  public static final int #{Reality::Naming.uppercase_constantize(g.name)} = #{index};\n\n"
+   data += "  public static final int #{Reality::Naming.uppercase_constantize(g.name)} = #{g.code};\n\n"
    data += <<JAVADOC
   /**
    * The name of the "#{g.name}" subscription.
    */
 JAVADOC
    data += "  public static final String #{Reality::Naming.uppercase_constantize(g.name)}_NAME = \"#{g.name}\";\n"
-   index = index + 1
    data
   end.join("\n\n") %>
 

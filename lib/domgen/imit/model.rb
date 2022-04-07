@@ -46,8 +46,9 @@ module Domgen
     end
 
     class ReplicationGraph < Domgen.ParentedElement(:application)
-      def initialize(application, name, options, &block)
+      def initialize(application, code, name, options, &block)
         @name = name
+        @code = code
         @type_roots = []
         @required_type_graphs = []
         @dependent_type_graphs = []
@@ -74,6 +75,8 @@ module Domgen
       def qualified_name
         "#{application.repository.qualified_name}.Graphs.#{name}"
       end
+
+      attr_reader :code
 
       def to_s
         "ReplicationGraph[#{qualified_name}]"
@@ -790,7 +793,7 @@ module Domgen
       end
 
       def graph(name, options = {}, &block)
-        Domgen::Imit::ReplicationGraph.new(self, name, options, &block)
+        Domgen::Imit::ReplicationGraph.new(self, graph_map.size, name, options, &block)
       end
 
       def graph_by_name(name)
