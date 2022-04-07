@@ -47,8 +47,6 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 
     db_type = attribute.jpa.java_type(:boundary)
 
-    require_cast = type_suffix == 'Object'
-
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :datetime
           "$#{attribute.name}.getTime()"
@@ -62,7 +60,6 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
           "$#{attribute.name}"
         elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
           db_type = 'java.lang.Integer'
-          require_cast = true
           "$#{attribute.name}"
         else
           Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
