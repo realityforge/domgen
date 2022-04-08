@@ -195,6 +195,7 @@ end
 <%
   candidate_graph_links = graph.outward_graph_links.select{|graph_link| graph_link.auto?}
   done = []
+  generated_methods = []
 
   while graph_link = candidate_graph_links.pop
     done << graph_link
@@ -204,7 +205,7 @@ end
       candidate_graph_links += [gl] unless done.include?(gl) || source_graph.inline_bulk_operations?
     end if target_graph.bulk_load? && target_graph.inline_bulk_operations?
   -%>
-<% if !source_graph.inline_bulk_operations? || source_graph.name != graph.name %>
+<% if (!source_graph.inline_bulk_operations? || source_graph.name != graph.name) && target_graph.inline_bulk_operations? %>
 
   /**
    * Implement with code that probably looks something like:
@@ -236,8 +237,13 @@ end
 
 <% end -%>
 <% end -%>
-<% if target_graph.inline_bulk_operations? && graph.name != target_graph.name && graph.name != source_graph.name -%>
-<% target_graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |target_entity| -%>
+<% if target_graph.inline_bulk_operations? && graph.name != target_graph.name -%>
+<% target_graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |target_entity|
+
+  key = "bulkCollectFor#{target_entity.qualified_name.gsub('.','')}In#{target_graph.name}GraphFrom#{graph.name}Graph"
+  next if generated_methods.include?(key)
+  generated_methods << key
+-%>
 
   /**
    * Implement with code that probably looks something like:
@@ -301,15 +307,19 @@ end
       candidate_graph_links += [gl] unless done.include?(gl) || source_graph.inline_bulk_operations?
     end if target_graph.bulk_load? && target_graph.inline_bulk_operations?
 
+    if target_graph.inline_bulk_operations?
+  -%>
+
+      // Inlined <%= target_graph.name %> graph
+<%
     if !source_graph.inline_bulk_operations? || source_graph.name != graph.name
 -%>
       bulkLinkFrom<%= source_graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %><%= source_graph.name == graph.name ? '' : "In#{graph.name}Graph" %>( session, changeSet<% if graph.filter_parameter -%>, filter<% end %>, addresses );
 <% end -%>
-<% if target_graph.inline_bulk_operations? && graph.name != target_graph.name && graph.name != source_graph.name -%>
-
-      // Inlined <%= target_graph.name %> graph
+<% if graph.name != target_graph.name -%>
 <% target_graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
       bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= target_graph.name %>GraphFrom<%= graph.name %>Graph( addresses, changeSet<% if target_graph.filter_parameter -%>, filter<% end %> );
+<% end -%>
 <% end -%>
 <% end -%>
 <% end -%>
