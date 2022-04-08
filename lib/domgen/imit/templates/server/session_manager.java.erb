@@ -255,7 +255,7 @@ entities.uniq.each do |entity| -%>
 <% unless bulk_subscription_update_graphs.empty? -%>
 
   @java.lang.Override
-  protected void bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
+  protected void bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final boolean isExplicitSubscribe )
   {
 <% bulk_subscription_update_graphs.each do |graph| -%>
     <%= bulk_subscription_update_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == addresses.get( 0 ).getChannelId() )
@@ -280,7 +280,7 @@ entities.uniq.each do |entity| -%>
 <% end -%>
     else
     {
-      super.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet );
+      super.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet, isExplicitSubscribe );
     }
   }
 <% end -%>
