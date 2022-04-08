@@ -92,9 +92,9 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% target_graph = repository.imit.graph_by_name(graph_link.target_graph) -%>
 <% instance_root = repository.entity_by_name(target_graph.instance_root) -%>
 <% if attribute.nullable? -%>
-        final Integer targetId = resultSet.getInteger( "<%= instance_root.primary_key.sql.column_name %>" );
+        final Integer targetId = resultSet.getInteger( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
 <% else -%>
-        final int targetId = resultSet.getInt( "<%= instance_root.primary_key.sql.column_name %>" );
+        final int targetId = resultSet.getInt( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
 <% end -%>
 <% end -%>
 <% if attribute.nullable? -%>
