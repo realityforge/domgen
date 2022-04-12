@@ -10,6 +10,7 @@ public final class <%= repository.imit.subscription_constants_name %>
     data = <<-DATA
   /**
    * #{g.name} is a #{g.universal_visibility? ? 'internally and externally' : g.internal_visibility? ? 'internally' : 'externally'} visible, #{g.instance_root? ? 'instance' : 'type'}-based replication graph#{g.cacheable? ? " that has caching controlled by the #{g.external_cache_management? ? 'developer' : 'system'}" : ''}.
+   * The graph #{g.bulk_load? ? 'supports' : 'does not support'} bulk loads.
    *
 DATA
     if g.instance_root?
