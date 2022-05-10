@@ -1,7 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.graphql.qualified_endpoint_name) %>;
 
-@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.servlet.annotation.WebServlet( name = "<%= repository.name %>.<%= repository.graphql.endpoint_name %>", urlPatterns = { <%= repository.graphql.endpoint_name %>.API_ENDPOINT<% if repository.graphql.graphiql? -%>, <%= repository.graphql.endpoint_name %>.INTERACTIVE_API_ENDPOINT<% end %> }, loadOnStartup = 1 )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "SE_NO_SERIALVERSIONID" } )

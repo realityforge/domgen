@@ -1,7 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.imit.qualified_message_broker_impl_name) %>;
 
-@javax.annotation.Generated( "Domgen" )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.NOT_SUPPORTED )
 @javax.enterprise.inject.Typed( { org.realityforge.replicant.server.transport.ReplicantMessageBroker.class, <%= repository.service_by_name(repository.imit.message_broker).ejb.qualified_service_name %>.class } )

@@ -2,7 +2,6 @@
 package <%= to_package(enumeration.ee.qualified_abstract_enumeration_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.SystemPrintln" } )
-@javax.annotation.Generated( "Domgen" )
 public abstract class <%= enumeration.ee.abstract_enumeration_test_name %>
   extends <%= enumeration.data_module.repository.jpa? ? enumeration.data_module.repository.jpa.qualified_base_entity_test_name : 'org.realityforge.guiceyloops.server.AbstractServerTest' %>
 {

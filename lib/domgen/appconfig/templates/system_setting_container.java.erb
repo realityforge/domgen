@@ -1,7 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.appconfig.qualified_system_setting_container_name) %>;
 
-@javax.annotation.Generated( "Domgen" )
 public final class <%= repository.appconfig.system_setting_container_name %>
 {
 <% repository.appconfig.system_settings.select{|setting| !setting.feature_flag?}.each do |feature_flag| -%>

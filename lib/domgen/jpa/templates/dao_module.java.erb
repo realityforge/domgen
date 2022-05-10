@@ -4,7 +4,6 @@ package <%= to_package(repository.jpa.qualified_dao_module_name) %>;
 <% include_time_service = repository.jpa.use_time_service_for_now? && repository.data_modules.select{|data_module| data_module.jpa? && data_module.daos.any?{|dao| dao.repository? && dao.entity.transaction_time?} } -%>
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "rawtypes", "unchecked" } )
-@javax.annotation.Generated( "Domgen" )
 public class <%= repository.jpa.dao_module_name %>
   extends org.realityforge.guiceyloops.shared.AbstractModule
 {

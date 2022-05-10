@@ -2,7 +2,6 @@
 package <%= to_package(repository.ejb.qualified_cdi_types_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
-@javax.annotation.Generated( "Domgen" )
 public class <%= repository.ejb.cdi_types_test_name %>
 {<%
   repository.data_modules.select{|d|d.ejb?}.each do |data_module|

@@ -2,7 +2,6 @@
 package <%= to_package(repository.imit.qualified_schema_filter_tools_name) %>;
 <% entities = repository.data_modules.select { |data_module| data_module.imit? }.collect{|data_module| data_module.entities.select{|entity| entity.imit? && entity.concrete?} }.flatten -%>
 
-@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "PMD.LocalVariableNamingConventions", "JavaDoc", "PMD.UnusedLocalVariable", "PMD.UnusedFormalParameter" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "LUI_USE_SINGLETON_LIST", "CC_CYCLOMATIC_COMPLEXITY", "DLS_DEAD_LOCAL_STORE", "UP_UNUSED_PARAMETER" } )
 final class <%= repository.imit.schema_filter_tools_name %>

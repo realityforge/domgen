@@ -1,7 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_default_test_injector_name) %>;
 
-@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UseUtilityClass" } )
 @sting.Injector( includes = {<%= repository.gwt.sting_test_injector_includes.collect{|cls| "#{cls}.class"}.join(', ') %>} )
 public interface <%= repository.gwt.default_test_injector_name %>
