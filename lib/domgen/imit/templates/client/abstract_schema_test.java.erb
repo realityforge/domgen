@@ -16,6 +16,7 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
   protected final void assertInstanceChannel( final int channelId, @javax.annotation.Nonnull final Class<?> rootEntityType )
   {
     org.testng.Assert.assertTrue( getChannel( channelId ).isInstanceChannel() );
+    org.testng.Assert.assertEquals( getChannel( channelId ).getInstanceType(), rootEntityType );
   }
 
   protected final void assertTypeChannel( final int channelId )
