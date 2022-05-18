@@ -34,6 +34,11 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
     org.testng.Assert.assertTrue( getChannel( channelId ).isExternal() );
   }
 
+  protected final void assertChannelFilterType( final int channelId, @javax.annotation.Nonnull final replicant.ChannelSchema.FilterType filterType )
+  {
+    org.testng.Assert.assertEquals( getChannel( channelId ).getFilterType(), filterType );
+  }
+
   protected final void assertCacheableChannel( final int channelId )
   {
     org.testng.Assert.assertTrue( getChannel( channelId ).isCacheable() );
