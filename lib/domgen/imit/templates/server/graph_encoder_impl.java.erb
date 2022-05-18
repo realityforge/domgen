@@ -35,7 +35,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository;
 <% end -%>
 <%
-  repository.imit.graphs.select{|graph| graph.instance_root? }.each do |graph|
+  repository.imit.graphs.select{|graph| graph.instance_root? && !graph.bulk_load? }.each do |graph|
     entity = repository.entity_by_name(graph.instance_root)
     filter_param = nil
     if graph.filter_parameter?

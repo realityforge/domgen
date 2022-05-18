@@ -7,7 +7,7 @@ package <%= to_package(repository.imit.qualified_graph_encoder_name) %>;
 public interface <%= repository.imit.graph_encoder_name %>
 {
 <%
-  repository.imit.graphs.select{|graph| graph.instance_root? }.each do |graph|
+  repository.imit.graphs.select{|graph| graph.instance_root? && !graph.bulk_load? }.each do |graph|
     entity = repository.entity_by_name(graph.instance_root)
     p = graph.filter_parameter
 -%>

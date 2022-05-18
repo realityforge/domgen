@@ -110,7 +110,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
 <% end -%>
 <% repository.imit.graphs.each do |graph| -%>
 <%
-  if graph.instance_root? && graph.filtered?
+  if graph.instance_root? && graph.filtered? && !graph.bulk_load?
 graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
   outgoing_links = entity.referencing_attributes.select { |a| a.arez? && a.inverse.arez.traversable? && a.jpa? && a.inverse.jpa.java_traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
   outgoing_links.each do |a|
