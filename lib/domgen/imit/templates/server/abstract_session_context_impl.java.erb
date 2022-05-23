@@ -366,7 +366,7 @@ end
       candidate_graph_links += [gl] unless done.include?(gl) || source_graph.inline_bulk_operations?
     end if target_graph.bulk_load? && target_graph.inline_bulk_operations?
 
-    if !source_graph.inline_bulk_operations? || source_graph.name != graph.name
+    if (!source_graph.inline_bulk_operations? || source_graph.name != graph.name) && target_graph.inline_bulk_operations? && source_graph.filter_parameter && !source_graph.filter_parameter.immutable?
 -%>
       bulkUpdateLinksFrom<%= graph.name %>GraphTo<%= target_graph.name %>GraphVia<%= graph_link.imit_attribute.attribute.entity.name %><%= graph_link.imit_attribute.attribute.name %><%= source_graph.name == graph.name ? '' : "In#{graph.name}Graph" %>( session, addresses, changeSet, originalFilter, filter );
 <% end -%>
