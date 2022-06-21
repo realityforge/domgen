@@ -351,7 +351,7 @@ end
         session.getSubscriptionEntry( address ).setFilter( filter );
       }
 
-<% repository.imit.graphs.select{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? }.each do |graph|
+<%
   processed = []
   graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
@@ -361,7 +361,6 @@ end
      processed << key
 -%>
       bulkPropagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( session, addresses, changeSet, filter );
-<% end -%>
 <% end -%>
 <% graph.included_entities.select{|name| graph.instance_root != name}.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
       bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( session, addresses, changeSet, originalFilter, filter );
