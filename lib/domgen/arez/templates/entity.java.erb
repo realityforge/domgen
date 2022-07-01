@@ -93,11 +93,30 @@ public abstract class <%= entity.arez.name %>
   @arez.annotations.Reference( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) : Reality::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.arez.multiplicity.to_s.upcase %><% end -%> )
   <%= annotated_type(attribute, :arez, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 
-  @arez.annotations.Observable( initializer = arez.annotations.Feature.ENABLE )
+  @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", initializer = arez.annotations.Feature.ENABLE )
   @arez.annotations.ReferenceId( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
   <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>();
 
+<% if entity.arez.enable_entity_broker? -%>
+  void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :final => true, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> )
+  {
+    if ( !java.util.Objects.equals( <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>, <%= getter_prefix(attribute) %><%= attribute.arez.name %>() ) )
+    {
+      $set<%= attribute.arez.name(:transport) %>( <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> );
+      if( isChangeEmitterEnabled() )
+      {
+        getChangeEmitter().attributeChanged( this, <%= Reality::Naming.uppercase_constantize( attribute.name ) %>, <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> );
+      }
+    }
+  }
+
+  @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
+  abstract void $set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> );
+<% else -%>
+
+  @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
   abstract void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> );
+<% end -%>
 <% end -%>
 <% else -%>
 <% if attribute.immutable? -%>
