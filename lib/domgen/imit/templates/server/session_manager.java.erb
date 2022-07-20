@@ -179,7 +179,7 @@ entities.uniq.each do |entity| -%>
     _encoder.encode<%= graph.name %>( messages, entity<%= graph.filter_parameter? ? ', filter' : '' %> );
     changeSet.merge( address, messages );
 <%
-    elsif !graph.external_data_load? && !graph.filtered?
+    elsif !graph.external_data_load?
 -%>
     // Add to a list so that when routing we limit the number of new entities that are loaded during routing
     final java.util.LinkedList<Object> objects = new java.util.LinkedList<>();

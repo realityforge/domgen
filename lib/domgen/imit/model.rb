@@ -125,7 +125,7 @@ module Domgen
       end
 
       def external_data_load?
-        filtered? || (@external_data_load.nil? ? false : !!@external_data_load)
+        @external_data_load.nil? ? false : !!@external_data_load
       end
 
       def external_data_load=(external_data_load)
