@@ -97,6 +97,11 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
                                     "Expected links from channel " + channel + " to other channels" );
   }
 
+  protected final void assertInwardChannelLink( final int channelId, final int entityId, final int sourceChannelId, @javax.annotation.Nonnull final java.lang.String... path )
+  {
+    assertInwardChannelLink( channelId, entityId, sourceChannelId, true, path );
+  }
+
   protected final void assertInwardChannelLink( final int channelId, final int entityId, final int sourceChannelId, final boolean auto, @javax.annotation.Nonnull final java.lang.String... path )
   {
     final java.util.List<replicant.ChannelLinkSchema> links = schema().getInwardChannelLinks( channelId, entityId );
@@ -110,6 +115,12 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
         .collect( java.util.stream.Collectors.toList() );
     org.testng.Assert.assertEquals( matches.size(), 1, "Expected to match a link from channel " + sourceChannelId + " (auto=" + auto + ", path=" + java.util.Arrays.asList( path ) + ")" + " but entity only has the inward links " + links );
   }
+
+  protected final void assertOutwardChannelLink( final int channelId, final int entityId, final int targetChannelId, @javax.annotation.Nonnull final java.lang.String... path )
+  {
+    assertOutwardChannelLink( channelId, entityId, targetChannelId, true, path );
+  }
+
 
   protected final void assertOutwardChannelLink( final int channelId, final int entityId, final int targetChannelId, final boolean auto, @javax.annotation.Nonnull final java.lang.String... path )
   {
