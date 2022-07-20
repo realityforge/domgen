@@ -1160,8 +1160,8 @@ module Domgen
         repository.imit.graphs.each(&:post_verify)
 
         imitations = []
-        repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module|
-          data_module.entities.select{|entity|entity.arez? && entity.concrete?}.each do |entity|
+        repository.data_modules.select { |data_module| data_module.arez? }.each do |data_module|
+          data_module.entities.select { |entity| entity.arez? && entity.concrete? }.each do |entity|
             imitations << entity.qualified_name
           end
         end
