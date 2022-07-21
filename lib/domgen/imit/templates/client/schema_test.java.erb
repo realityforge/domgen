@@ -42,6 +42,15 @@ public final class <%= repository.imit.schema_test_name %>
                              "<%= graph_link.imit_attribute.attribute.name %><%= graph_link.path.nil? ? '' : '.' + [graph_link.path].flatten.compact.collect{|p|p.to_s}.join(".") %>" );
 <% end -%>
 <% end -%>
+<% graph.outward_graph_links.each do |graph_link| -%>
+    assertOutwardChannelLink( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>,
+                              <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.imit_attribute.attribute.entity.qualified_name.gsub('.','_')) %>,
+                              <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %>,
+<% unless graph_link.auto? -%>
+                              true,
+<% end -%>
+                              "<%= graph_link.imit_attribute.attribute.name %><%= graph_link.path.nil? ? '' : '.' + [graph_link.path].flatten.compact.collect{|p|p.to_s}.join(".") %>" );
+<% end -%>
   }
 <% end -%>
 }
