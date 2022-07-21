@@ -583,6 +583,8 @@ module Domgen
 
         if attribute_name?
           Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name when attribute is not a reference or inverse reference") unless reference? || inverse_start?
+
+          puts("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name when attribute is not a reference or inverse reference") unless self.referenced_attribute.immutable?
         end
 
         if self.path.size > 0
@@ -763,6 +765,7 @@ module Domgen
       java_artifact :graph_encoder, :comm, :server, :imit, '#{repository.name}GraphEncoder'
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{graph_encoder_name}Impl'
       java_artifact :abstract_schema_test, :comm, :client, :imit, 'Abstract#{repository.name}SchemaTest'
+      java_artifact :schema_test, :comm, :client, :imit, 'Simple#{repository.name}SchemaTest'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
 
@@ -981,72 +984,54 @@ module Domgen
             end
 
             repository.imit.graphs.each do |graph|
-              if !graph.instance_root?
-                if graph.cacheable? && graph.external_cache_management?
-                  s.method("Get#{graph.name}CacheKey") do |m|
-                    m.ejb.generate_base_test = false
-                    m.returns(:text)
-                  end
+              if graph.bulk_load?
+                s.method("BulkCollectFor#{graph.name}") do |m|
+                  m.ejb.generate_base_test = false
+                  m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+                  m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                  m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence) if graph.instance_root?
+                  m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
+                  m.boolean(:ExplicitSubscribe)
                 end
-                if graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.bulk_load?
-                  s.method("CollectForFilterChange#{graph.name}") do |m|
+                if graph.filter_parameter? && !graph.filter_parameter.immutable?
+                  s.method("BulkCollectFor#{graph.name}FilterChange") do |m|
+                    m.ejb.generate_base_test = false
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                    m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
+                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                    m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence) if graph.instance_root?
                     m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                     m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                   end
                 end
-                if graph.bulk_load?
-                  s.method("BulkCollectFor#{graph.name}") do |m|
-                    m.ejb.generate_base_test = false
-                    m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                    m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-                    m.boolean(:ExplicitSubscribe)
-                  end
-                elsif graph.external_data_load? || graph.filtered?
+              else
+                if graph.external_data_load?
+                  # We only need this
                   s.method("Collect#{graph.name}") do |m|
                     m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
                     m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
                     m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                   end
                 end
-              else
-                if graph.bulk_load?
-                  s.method("BulkCollectFor#{graph.name}") do |m|
-                    m.ejb.generate_base_test = false
+                if graph.filter_parameter? && !graph.filter_parameter.immutable?
+                  s.method("CollectForFilterChange#{graph.name}") do |m|
                     m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                    m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
-                    m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-                    m.boolean(:ExplicitSubscribe)
+                    m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet') if graph.instance_root?
+                    m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
+                    m.reference(graph.instance_root, :name => :Entity) if graph.instance_root?
+                    m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
+                    m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                   end
                 end
-                if graph.filter_parameter?
-                  unless graph.filter_parameter.immutable?
-                    unless graph.bulk_load?
-                      s.method("CollectForFilterChange#{graph.name}") do |m|
-                        m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                        m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                        m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
-                        m.reference(graph.instance_root, :name => :Entity)
-                        m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                        m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                      end
-                    end
-                    if graph.bulk_load?
-                      s.method("BulkCollectFor#{graph.name}FilterChange") do |m|
-                        m.ejb.generate_base_test = false
-                        m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                        m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                        m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence)
-                        m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                        m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                      end
-                    end
+              end
+              if graph.type_graph?
+                if graph.cacheable? && graph.external_cache_management?
+                  s.method("Get#{graph.name}CacheKey") do |m|
+                    m.ejb.generate_base_test = false
+                    m.returns(:text)
                   end
                 end
-                if graph.filtered? && !graph.bulk_load?
+              else
+                if !graph.bulk_load? && graph.filtered?
                   graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
                     outgoing_links = entity.referencing_attributes.select { |a| a.arez? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
                     outgoing_links.each do |a|
