@@ -58,3 +58,8 @@
 ### Sql
 
 * Add UPDATE([X]) guard around generated SetOnce violation checking in triggers for MsSql.  Investigate similar scenarios.
+
+### JPA
+
+* Mark jpa setters as package access ... even if entity has to be visible in other packages. This forces mutations to occur within the package.
+* Mark jpa repository update methods as package access if we can?
