@@ -66,9 +66,11 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     entity = graph_link.imit_attribute.attribute.primary_key? ? graph_link.imit_attribute.attribute.entity : graph_link.imit_attribute.attribute.referenced_entity
     attribute_getter_path = getter_for(graph_link.imit_attribute.attribute)
     getter_path = graph_link.imit_attribute.attribute.reference? ? [attribute_getter_path] : []
+    last_getter_nullable = graph_link.imit_attribute.attribute.nullable?
     if graph_link.path
       graph_link.path.to_s.split.each_with_index do |attribute_name_path_element, i|
         other = entity.attribute_by_name(attribute_name_path_element)
+        last_getter_nullable = other.nullable?
         getter_path << getter_for(other)
         entity = other.referenced_entity
       end
@@ -80,7 +82,14 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
         for( final java.lang.Integer <%= Reality::Naming.camelize(source_graph.name)%>InstanceRootId : <%= Reality::Naming.camelize(source_graph.name)%>InstanceRootIds )
         {
 <% end -%>
-          links.add(new org.realityforge.replicant.server.ChannelLink(new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <% if source_graph.instance_root? -%><%= Reality::Naming.camelize(source_graph.name)%>InstanceRootId<% else -%>null<% end -%> ), new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, entity.<%= (getter_path + [getter_for(entity.primary_key)]).join('.') %> )));
+<% if last_getter_nullable -%>
+<% if source_graph.instance_root? -%>    <% end -%>      if ( null != entity.<%= getter_path.join('.') %> )
+<% if source_graph.instance_root? -%>    <% end -%>      {
+<% end -%>
+<% if source_graph.instance_root? -%>    <% end -%><% if last_getter_nullable -%>  <% end -%>      links.add(new org.realityforge.replicant.server.ChannelLink(new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <% if source_graph.instance_root? -%><%= Reality::Naming.camelize(source_graph.name)%>InstanceRootId<% else -%>null<% end -%> ), new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, entity.<%= (getter_path + [getter_for(entity.primary_key)]).join('.') %> )));
+<% if last_getter_nullable -%>
+<% if source_graph.instance_root? -%>    <% end -%>      }
+<% end -%>
 <% if source_graph.instance_root? -%>
         }
       }
