@@ -10,6 +10,7 @@ public final class <%= repository.imit.schema_test_name %>
 {<% repository.imit.graphs.each do |graph| -%>
 
   @org.testng.annotations.Test
+  @java.lang.Override
   public void <%= Reality::Naming.camelize(graph.name) %>Channel()
   {
 <% if graph.instance_root? -%>
