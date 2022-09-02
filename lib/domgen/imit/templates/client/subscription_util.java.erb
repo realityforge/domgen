@@ -35,6 +35,20 @@ public final class <%= repository.imit.subscription_util_name %>
   {
     return context.findSubscription( get<%= graph.name %>GraphAddress(<%= graph.instance_root? ? " id " : "" %>) );
   }
+<% if graph.external_visibility? -%>
+
+  @javax.annotation.Nullable
+  public static replicant.AreaOfInterest find<%= graph.name %>AreaOfInterest(<%= graph.instance_root? ? " final int id " : "" %>)
+  {
+    return find<%= graph.name %>AreaOfInterest( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %> );
+  }
+
+  @javax.annotation.Nullable
+  public static replicant.AreaOfInterest find<%= graph.name %>AreaOfInterest( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
+  {
+    return context.findAreaOfInterestByAddress( get<%= graph.name %>GraphAddress(<%= graph.instance_root? ? " id " : "" %>) );
+  }
+<% end -%>
 <% if graph.instance_root? -%>
 
   @javax.annotation.Nullable
