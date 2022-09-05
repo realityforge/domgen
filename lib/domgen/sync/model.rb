@@ -630,7 +630,7 @@ module Domgen
 
             options = {}
             Domgen.error("Can not yet synchronize entity structs as in #{a.qualified_name}") if a.struct?
-            options[:referenced_entity] = a.referenced_entity.name if a.reference?
+            options[:referenced_entity] = a.referenced_entity.sync.master_entity.name if a.reference?
             name = a.name
             attribute_type = a.attribute_type
 

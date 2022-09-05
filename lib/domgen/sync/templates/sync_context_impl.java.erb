@@ -189,7 +189,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
         index = -1
         "COALESCE(#{a.referenced_entity.concrete_subtypes.collect do |subtype| "R#{ref_index}#{index += 1}.#{subtype.attribute_by_name(subtype.name).sql.quoted_column_name}" end.join(', ')}) AS #{entity.attribute_by_name(a.name).sql.quoted_column_name}"
       else
-        "R#{ref_index}.#{a.referenced_entity.attribute_by_name(a.referenced_entity.name).sql.quoted_column_name} AS #{entity.attribute_by_name(a.name).sql.quoted_column_name}"
+        "R#{ref_index}.#{a.referenced_entity.attribute_by_name(a.referenced_entity.sync.core_entity.entity.name).sql.quoted_column_name} AS #{entity.attribute_by_name(a.name).sql.quoted_column_name}"
       end
     else
       "M.#{a.sql.quoted_column_name}"
