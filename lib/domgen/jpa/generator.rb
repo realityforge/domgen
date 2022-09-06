@@ -88,7 +88,7 @@ Domgen::Generator.define([:jpa],
     template_set.erb_template(:dao,
                               'dao_test.java.erb',
                               'test/java/#{dao.jpa.qualified_dao_test_name.gsub(".","/")}.java',
-                              :guard => 'dao.queries.any?{|q|q.jpa? && !q.jpa.standard_query?}')
+                              :guard => '!dao.jpa.extensions.empty? || dao.queries.any?{|q|q.jpa? && !q.jpa.standard_query?}')
   end
 
   g.template_set(:jpa_ejb_dao) do |template_set|
