@@ -76,4 +76,8 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
   void remove( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> entity );
 <% end -%>
 <% end -%>
+<% dao.jpa.friend_daos.collect{|name| dao.data_module.dao_by_name(name)}.each do |friend| -%>
+  @javax.annotation.Nonnull
+  <%= friend.jpa.qualified_dao_service_name %> <%= Reality::Naming.camelize(friend.qualified_name.to_s.gsub('.','')) %>();
+<% end -%>
 }

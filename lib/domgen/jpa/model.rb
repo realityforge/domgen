@@ -807,6 +807,10 @@ FRAGMENT
         @extensions ||= []
       end
 
+      def friend_daos
+        @friend_daos ||= []
+      end
+
       attr_writer :module_local
 
       def module_local?
@@ -836,6 +840,11 @@ FRAGMENT
         unless persistence_unit_name.nil?
           unless dao.data_module.repository.jpa.standalone_persistence_unit_by_name?(persistence_unit_name)
             Domgen.error("Defined a dao #{dao.name} that does not reference a standalone_persistence_unit but references non-existent #{persistence_unit_name}")
+          end
+        end
+        self.friend_daos.each do |name|
+          unless dao.data_module.dao_by_name?(name)
+            Domgen.error("On dao #{dao.name} a friend #{name} was defined but this does not refer to a valid DAO")
           end
         end
       end
