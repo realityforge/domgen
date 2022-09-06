@@ -373,6 +373,13 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
   }
 <% end -%>
 <% end -%>
+<% unless dao.jpa.extensions.empty? -%>
+  @javax.annotation.Nonnull
+  public <%= dao.jpa.qualified_dao_service_name %> self()
+  {
+    return this;
+  }
+<% end -%>
 <% if dao.repository? && dao.entity.transaction_time? -%>
 
   @javax.annotation.Nonnull

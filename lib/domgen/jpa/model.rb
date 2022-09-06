@@ -803,6 +803,10 @@ FRAGMENT
     facet.enhance(DataAccessObject) do
       include Domgen::Java::BaseJavaGenerator
 
+      def extensions
+        @extensions ||= []
+      end
+
       attr_writer :module_local
 
       def module_local?
