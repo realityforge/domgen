@@ -21,10 +21,12 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
   private final <%= converter %> _<%= result_type %>Converter = new <%= converter %>();
 <% end -%>
 <% end -%>
+<% created_daos = [] -%>
 <% if dao.repository? -%>
 <% dao.entity.referencing_attributes.select{|a|a.jpa? && a.entity != dao.entity}.collect{|a|a.entity.concrete? ? [a.entity] : [a.entity] + a.entity.subtypes.select{|st|st.concrete? && st.jpa?}}.flatten.uniq.sort{|a,b| a.qualified_name.to_s <=> b.qualified_name.to_s }.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository;
+<% created_daos << entity.dao.qualified_name.to_s -%>
 <% end -%>
 <% end -%>
   @javax.persistence.PersistenceContext( unitName = <%= dao.data_module.repository.jpa.qualified_unit_descriptor_name %>.<%= dao.jpa.persistence_unit_name.nil? ? 'NAME' : "#{Reality::Naming.uppercase_constantize(dao.jpa.persistence_unit_name)}_NAME" %> )
@@ -33,7 +35,7 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
   @javax.inject.Inject
   private org.realityforge.timeservice.TimeService _timeService;
 <% end -%>
-<% dao.jpa.friend_daos.collect{|name| dao.data_module.dao_by_name(name)}.each do |friend| -%>
+<% dao.jpa.friend_daos.collect{|name| dao.data_module.dao_by_name(name)}.select{|d| !created_daos.include?(d.qualified_name)}.each do |friend| -%>
   @javax.inject.Inject
   private <%= friend.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(friend.qualified_name.to_s.gsub('.','')) %>;
 <% end -%>
