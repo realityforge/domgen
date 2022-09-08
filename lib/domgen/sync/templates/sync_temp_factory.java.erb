@@ -54,9 +54,9 @@ public class <%= data_module.sync.sync_temp_factory_name %>
       "    SyncTemp.fnConvertBinaryToBase64(HASHBYTES('SHA1', <%= immutable_sync_attributes.collect{|other|
   is_external_ref = other.reference? && other.referenced_entity.sync.master? && (other.referenced_entity.sync.core_entity.entity != entity)
   is_abstract_ref = is_external_ref && other.referenced_entity.abstract?
-  col_name = other.reference? ? "#{other.name}MappingId" : other.name
+  col_name = other.reference? ? "[#{other.sql.column_name}MappingId]" : other.sql.quoted_column_name
   "COALESCE(CONVERT(VARCHAR(50),#{
-        j_escape_string(is_abstract_ref ? "COALESCE(#{other.referenced_entity.concrete_subtypes.collect{|subtype| "#{other.sql.column_name.to_s}_#{subtype.name}.MappingKey" }.join(', ') })" : is_external_ref ? "#{other.sql.column_name.to_s}Table.MappingKey" : "CTE.#{col_name}")}),'')"
+        j_escape_string(is_abstract_ref ? "COALESCE(#{other.referenced_entity.concrete_subtypes.collect{|subtype| "#{other.sql.column_name.to_s}_#{subtype.name}.[MappingKey]" }.join(', ') })" : is_external_ref ? "#{other.sql.column_name.to_s}Table.[MappingKey]" : "CTE.#{col_name}")}),'')"
   }.join(" + '.' + \" +\n     \"      ") %>))" +
   "<%= comma %> \n"+
 <% elsif data_module.repository.pgsql? -%>
