@@ -15,5 +15,6 @@ package <%= to_package(entity.jpa.qualified_metamodel_name) %>;
 <%
   end
   entity.referencing_attributes.select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.entity.jpa? && attribute.inverse.jpa.traversable? }.each do |attribute| -%>
-  <% unless entity.jpa.module_local? %>public <% end %>static volatile javax.persistence.metamodel.<%= attribute.inverse.multiplicity == :many ? 'List' : 'Singular' %>Attribute<<%= entity.jpa.name %>, <%= attribute.entity.jpa.qualified_name %>> <%= Reality::Naming.camelize(attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name) %>;<% end %>
+  <% unless entity.jpa.module_local? %>public <% end %>static volatile javax.persistence.metamodel.<%= attribute.inverse.multiplicity == :many ? 'List' : 'Singular' %>Attribute<<%= entity.jpa.name %>, <%= attribute.entity.jpa.qualified_name %>> <%= Reality::Naming.camelize(attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(attribute.inverse.name) : attribute.inverse.name) %>;
+<% end -%>
 }
