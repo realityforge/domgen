@@ -1,5 +1,25 @@
 /* DO NOT EDIT: File is auto-generated */
 <% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
+<% entity.sql.indexes.select{|index| index.defer_creation?}.each do |index| %>
+CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.gist? ? 'SPATIAL' : index.cluster? ? 'CLUSTERED' : 'NONCLUSTERED' %> INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %>
+(<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(',') %>
+)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(',') %> )<% end %>
+<% if index.filter %>WHERE <%= index.filter %><% end %>
+WITH (ALLOW_PAGE_LOCKS=<%= index.allow_page_locks? ? 'ON' : 'OFF'%>)
+<%= index.unique? ? 'ON [PRIMARY]' : '' %>
+GO
+<% index.tags.each_pair do |name, value| %>
+EXEC sys.sp_addextendedproperty
+  @name = N'<%= sql_extended_property_key(name) %>',
+  @value = N'<%= sql_extended_property_value(data_module, value) %>',
+  @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
+  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'INDEX',  @level2name = <%= index.quoted_index_name %>;
+GO
+<% end %>
+
+<% end
+%>
 <% entity.sql.foreign_keys.each do |foreign_key| %>
 <% if foreign_key.defer_creation? -%>
 ALTER TABLE <%= entity.sql.qualified_table_name %>

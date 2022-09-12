@@ -133,6 +133,12 @@ module Domgen
         !self.filter.nil?
       end
 
+      attr_writer :defer_creation
+
+      def defer_creation?
+        @defer_creation.nil? ? false : !!@defer_creation
+      end
+
       private
 
       def self.valid_index_types
