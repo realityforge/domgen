@@ -154,6 +154,10 @@ module Domgen
         @type_roots
       end
 
+      def type_graph_transitively_include_entity?(qualified_entity_name)
+        self.required_type_graphs.any? { |g| g.type_roots.include?(qualified_entity_name) || g.type_graph_transitively_include_entity?(qualified_entity_name) }
+      end
+
       def type_roots=(type_roots)
         Domgen.error("Attempted to assign type_roots #{type_roots.inspect} for graph #{name} when instance based on #{@instance_root.inspect}") if instance_root?
         @type_roots = type_roots
@@ -279,8 +283,6 @@ module Domgen
           Domgen.error("Graph '#{self.name}' is a type graph marked with internal visibility but has no dependent type graphs.")
         end
 
-        rtgs = self.required_type_graphs
-
         entities = self.included_entities
 
         if entities.empty?
@@ -303,7 +305,7 @@ module Domgen
             next if entities.any? { |e| e == referenced_entity.qualified_name }
 
             # If entity is part of required type graphs then all is ok
-            next if rtgs.any? { |g| g.type_roots.include?(referenced_entity.qualified_name) }
+            next if self.type_graph_transitively_include_entity?(referenced_entity.qualified_name)
 
             next if self.instance_root? &&
               !self.inward_graph_links.empty? &&
@@ -313,7 +315,7 @@ module Domgen
 
             next if a.imit.skip_link_checks.include?(self.name)
 
-            Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not part of any of the dependent type graphs: #{rtgs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
+            Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not transitively part of any of the dependent type graphs. Immedate graph dependencies include: #{self.required_type_graphs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
           end
         end
 
