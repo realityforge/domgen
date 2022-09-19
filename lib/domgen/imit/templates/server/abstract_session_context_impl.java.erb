@@ -30,6 +30,24 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   }
 
 <% end -%>
+
+<% repository.imit.graphs.select{|graph|graph.type_graph? && graph.bulk_load?}.each do |graph| -%>
+  @java.lang.Override
+  public void bulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
+  {
+    final org.realityforge.replicant.server.ChannelAddress address = new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> );
+    preBulkCollectFor<%= graph.name %>(<% if graph.filter_parameter -%> filter <% end %>);
+    recordSubscription( session, changeSet, address, <%= graph.filter_parameter ? 'filter' : 'null' %>, explicitSubscribe );
+    performBulkCollectFor<%= graph.name %>( session, changeSet<% if graph.filter_parameter -%>, filter<% end %>, explicitSubscribe );
+  }
+
+  protected void preBulkCollectFor<%= graph.name %>(<% if graph.filter_parameter -%> <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %>)
+  {
+  }
+
+  protected abstract void performBulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, boolean explicitSubscribe );
+
+<% end -%>
 <% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load?}.each do |graph| -%>
   @java.lang.Override
   public void bulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
