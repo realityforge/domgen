@@ -318,7 +318,7 @@ module Domgen
 
             next if a.imit.skip_link_checks.include?(self.name)
 
-            Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not transitively part of any of the dependent type graphs. Immedate graph dependencies include: #{self.required_type_graphs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
+            Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not transitively part of any of the dependent type graphs. Immediate graph dependencies include: #{self.required_type_graphs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
           end
         end
 
