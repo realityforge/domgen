@@ -259,6 +259,10 @@ entities.uniq.each do |entity| -%>
 <% bulk_subscription_update_graphs.each do |graph| -%>
     <%= bulk_subscription_update_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == addresses.get( 0 ).getChannelId() )
     {
+      if ( LOG.isLoggable( SUBSCRIPTION_LOG_LEVEL ) )
+      {
+        LOG.log( SUBSCRIPTION_LOG_LEVEL, "bulkCollectDataForSubscriptionUpdate(SessionId=" + session.getId() +",ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Ids=" + addresses.stream().map( a -> a.getSubChannelId() ).collect( java.util.stream.Collectors.toList() ) + <% end -%>", isExplicitSubscribe=" + isExplicitSubscribe + ")" );
+      }
       assert null != filter;
       _context.bulkCollectFor<%= graph.name %>FilterChange( session, changeSet<% if graph.instance_root? %>, addresses<% end %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
 <%
@@ -296,6 +300,10 @@ entities.uniq.each do |entity| -%>
 <% updateable_graphs.each do |graph| -%>
     if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
+      if ( LOG.isLoggable( SUBSCRIPTION_LOG_LEVEL ) )
+      {
+        LOG.log( SUBSCRIPTION_LOG_LEVEL, "collectDataForSubscriptionUpdate(ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Id=" + address.getSubChannelId() + <% end -%>")" );
+      }
       collectDataFor<%= graph.name %>SubscriptionUpdate( session, address, changeSet, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
       return;
     }
