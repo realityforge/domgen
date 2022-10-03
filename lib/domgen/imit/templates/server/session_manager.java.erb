@@ -199,7 +199,7 @@ entities.uniq.each do |entity| -%>
     end
 -%>
 <% if graph.cacheable? -%>
-    final String cacheKey = <% if graph.external_cache_management? -%>_context.get<%= graph.name %>CacheKey()<% else %>java.lang.String.valueOf( java.lang.System.currentTimeMillis() )<% end %>;
+    final String cacheKey = java.lang.String.valueOf( java.lang.System.currentTimeMillis() );
 <% end -%>
     return new org.realityforge.replicant.server.transport.SubscribeResult( false, <%= graph.cacheable? ? 'cacheKey' : 'null' %> );
   }

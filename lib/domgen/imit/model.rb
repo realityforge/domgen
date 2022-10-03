@@ -132,15 +132,6 @@ module Domgen
         @external_data_load = external_data_load
       end
 
-      def external_cache_management?
-        Domgen.error("external_cache_management? invoked on #{qualified_name} when not cacheable") unless cacheable?
-        @external_cache_management.nil? ? false : !!@external_cache_management
-      end
-
-      def external_cache_management=(external_cache_management)
-        @external_cache_management = external_cache_management
-      end
-
       def instance_root?
         !@instance_root.nil?
       end
@@ -887,7 +878,6 @@ module Domgen
           graph.external_data_load? ||
             graph.bulk_load? ||
             graph.filtered? ||
-            (!graph.instance_root? && graph.cacheable? && graph.external_cache_management?) ||
             (graph.instance_root? && graph.inward_graph_links.any? { |graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered? })
         end
       end
@@ -1042,14 +1032,7 @@ module Domgen
                   end
                 end
               end
-              if graph.type_graph?
-                if graph.cacheable? && graph.external_cache_management?
-                  s.method("Get#{graph.name}CacheKey") do |m|
-                    m.ejb.generate_base_test = false
-                    m.returns(:text)
-                  end
-                end
-              else
+              if graph.instance_root?
                 if !graph.bulk_load? && graph.filtered?
                   graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
                     outgoing_links = entity.referencing_attributes.select { |a| a.arez? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
