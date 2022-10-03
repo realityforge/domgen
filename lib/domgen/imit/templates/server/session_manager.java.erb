@@ -14,6 +14,8 @@ public class <%= repository.imit.session_manager_name %>
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
   @javax.annotation.Nonnull
   private static final java.util.logging.Level SUBSCRIPTION_LOG_LEVEL = java.util.logging.Level.FINE;
+  @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  private javax.persistence.EntityManager _entityManager;
   @javax.inject.Inject
   private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
 <%
@@ -186,7 +188,14 @@ entities.uniq.each do |entity| -%>
 <% graph.type_roots.each do |type_root_name|
   type = repository.entity_by_name(type_root_name)
 -%>
-    objects.addAll( _<%= Reality::Naming.camelize("#{type.data_module.name}#{type.name}") %>Repository.findAll() );
+    try ( java.sql.Statement statement = connection().createStatement() )
+    {
+        <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= type.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement.executeQuery( "SELECT * FROM <%= type.sql.qualified_table_name %><%= type.transaction_time? ? 'WHERE DeletedAt IS NULL' : '' %>" ), <%= graph.filter_parameter? ? 'filter' : 'null' -%> );
+    }
+    catch ( final java.sql.SQLException sqle )
+    {
+      throw new java.lang.IllegalStateException( "Failed loading <%= type.name %> in <%= graph.name %>", sqle );
+    }
 <% end -%>
     final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
     _encoder.encodeObjects( messages, objects );
@@ -340,4 +349,9 @@ entities.uniq.each do |entity| -%>
     return super.shouldFollowLink( sourceEntry, target );
   }
 <% end -%>
+  @javax.annotation.Nonnull
+  private java.sql.Connection connection()
+  {
+    return _entityManager.unwrap( java.sql.Connection.class );
+  }
 }
