@@ -286,6 +286,20 @@ module Domgen
           Domgen.error("Graph '#{self.name}' is a type graph marked with internal visibility but has no dependent type graphs.")
         end
 
+        if cacheable?
+          self.required_type_graphs.each do |other|
+            unless other.cacheable?
+              # This scenario is not supported as if the client has cached the type-graph then we will send a "use-cache"
+              # message for the graph. This will be queued immediately. But if we have a non-cacheable required type
+              # graph then it will be gathered and queued on ReplicantSession._pendingSubscriptionPackets ... but this
+              # will be sent to the client after the use-graph message which will mean that the required type graph is
+              # not present when use-cache arrives which will cause errors. The fix is to queue 'use-graph' onto same
+              # queue but this requires some changes to the underlying library.
+              Domgen.error("Graph '#{self.name}' is a cacheable graph but is dependent on a non-cacheable type graph '#{other.name}'.")
+            end
+          end
+        end
+
         entities = self.included_entities
 
         if entities.empty?
