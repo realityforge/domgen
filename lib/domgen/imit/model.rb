@@ -94,12 +94,6 @@ module Domgen
 
       attr_writer :bulk_load
 
-      def inline_bulk_operations?
-        !!@inline_bulk_operations
-      end
-
-      attr_writer :inline_bulk_operations
-
       def visibility=(visibility)
         valid_values = [:external, :internal, :universal]
         Domgen.error("Invalid visibility set on #{qualified_name}. Value: #{visibility}. Valid_values: #{valid_values}") unless valid_values.include?(visibility)
@@ -324,19 +318,6 @@ module Domgen
             next if a.imit.skip_link_checks.include?(self.name)
 
             Domgen.error("Graph '#{self.name}' has a link from '#{a.qualified_name}' to entity '#{referenced_entity.qualified_name}' that is not a instance level graph-link and is not transitively part of any of the dependent type graphs. Immediate graph dependencies include: #{self.required_type_graphs.collect { |e| e.name }.inspect} and not in current graph [#{entities.join(', ')}].")
-          end
-        end
-
-        if !self.bulk_load? && self.inline_bulk_operations?
-          Domgen.error("Graph '#{self.name}' has been marked as inline_bulk_operations = true but bulk_load = false.")
-        elsif self.inline_bulk_operations? && self.visibility != :internal
-          Domgen.error("Graph '#{self.name}' has been marked as inline_bulk_operations = true but is not a graph with internal-only visibility.")
-        elsif self.inline_bulk_operations?
-          self.inward_graph_links.each do |graph_link|
-            source = application.repository.imit.graph_by_name(graph_link.source_graph)
-            unless source.bulk_load?
-              Domgen.error("Graph '#{self.name}' has been marked as inline_bulk_operations = true but is referenced by graph #{source.name} that does not have bulk_load specified.")
-            end
           end
         end
       end
