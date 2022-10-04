@@ -6,7 +6,7 @@ public final class <%= repository.imit.subscription_util_name %>
   private <%= repository.imit.subscription_util_name %>()
   {
   }
-<% repository.imit.graphs.each do |graph| -%>
+<% repository.imit.graphs.select{|graph|graph.external_visibility?}.each do |graph| -%>
 
   @javax.annotation.Nonnull
   public static replicant.ChannelAddress get<%= graph.name %>GraphAddress(<%= graph.instance_root? ? " final int id " : "" %>)
