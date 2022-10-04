@@ -23,13 +23,10 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
   private javax.persistence.EntityManager _entityManager;
 
-<% if repository.imit.support_subscription_access_control? -%>
   @java.lang.Override
   public void preSubscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object filter )
   {
   }
-
-<% end -%>
 
 <% repository.imit.graphs.select{|graph|graph.type_graph? && graph.bulk_load?}.each do |graph| -%>
   @java.lang.Override

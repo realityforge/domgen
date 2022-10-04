@@ -88,6 +88,12 @@ module Domgen
 
       attr_writer :cacheable
 
+      def secure?
+        @secure.nil? ? true : !!@secure
+      end
+
+      attr_writer :secure
+
       def bulk_load?
         !!@bulk_load
       end
@@ -844,16 +850,6 @@ module Domgen
         @imit_control_data_module || (self.repository.data_module_by_name?(self.repository.name) ? self.repository.name : Domgen.error('imit_control_data_module unspecified and unable to derive default.'))
       end
 
-      attr_writer :support_subscription_access_control
-
-      def support_subscription_access_control?
-        @support_subscription_access_control.nil? ? false : @support_subscription_access_control
-      end
-
-      def requires_session_context?
-        support_subscription_access_control? || requires_programmatic_graph_shaping?
-      end
-
       def requires_programmatic_graph_shaping?
         graphs.any? do |graph|
           graph.external_data_load? ||
@@ -934,43 +930,41 @@ module Domgen
           Domgen.error('imit facet enabled but no graphs defined')
         end
 
-        if requires_session_context?
-          self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)
-          self.repository.service_by_name(self.session_context_service).tap do |s|
-            s.disable_facets_not_in(:ejb)
-            s.ejb.generate_boundary = false
-            s.method(:PreSubscribe) do |m|
+        self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)
+        self.repository.service_by_name(self.session_context_service).tap do |s|
+          s.disable_facets_not_in(:ejb)
+          s.ejb.generate_boundary = false
+          s.method(:PreSubscribe) do |m|
+            m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+            m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
+            m.parameter(:Filter, 'java.lang.Object', :nullable => true)
+          end
+          repository.imit.graphs.select { |graph| graph.filtered? }.each do |graph|
+            s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
+              m.ejb.generate_base_test = false
+              m.parameter(:Message, 'org.realityforge.replicant.server.EntityMessage')
               m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-              m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
-              m.parameter(:Filter, 'java.lang.Object', :nullable => true)
-            end if support_subscription_access_control?
-            repository.imit.graphs.select { |graph| graph.filtered? }.each do |graph|
-              s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
-                m.ejb.generate_base_test = false
-                m.parameter(:Message, 'org.realityforge.replicant.server.EntityMessage')
-                m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                if graph.instance_root?
-                  entity = repository.entity_by_name(graph.instance_root)
-                  m.parameter("#{entity.name}#{entity.primary_key.name}", entity.primary_key.jpa.non_primitive_java_type)
-                end
-                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-
-                if graph.filtered?
-                  graph.routing_keys.each do |routing_key|
-                    options =
-                      {
-                        :collection_type => routing_key.multivalued? ? :sequence : :none,
-                        :nullable => !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
-                      }
-                    target_attribute = routing_key.target_attribute
-                    options[:referenced_entity] = target_attribute.referenced_entity if target_attribute.reference?
-                    options[:referenced_struct] = target_attribute.referenced_struct if target_attribute.struct?
-                    m.parameter(routing_key.name.to_s.gsub('_', ''), target_attribute.attribute_type, options)
-                  end
-                end
-
-                m.returns('org.realityforge.replicant.server.EntityMessage', :nullable => true)
+              if graph.instance_root?
+                entity = repository.entity_by_name(graph.instance_root)
+                m.parameter("#{entity.name}#{entity.primary_key.name}", entity.primary_key.jpa.non_primitive_java_type)
               end
+              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
+
+              if graph.filtered?
+                graph.routing_keys.each do |routing_key|
+                  options =
+                    {
+                      :collection_type => routing_key.multivalued? ? :sequence : :none,
+                      :nullable => !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
+                    }
+                  target_attribute = routing_key.target_attribute
+                  options[:referenced_entity] = target_attribute.referenced_entity if target_attribute.reference?
+                  options[:referenced_struct] = target_attribute.referenced_struct if target_attribute.struct?
+                  m.parameter(routing_key.name.to_s.gsub('_', ''), target_attribute.attribute_type, options)
+                end
+              end
+
+              m.returns('org.realityforge.replicant.server.EntityMessage', :nullable => true)
             end
 
             repository.imit.graphs.each do |graph|

@@ -32,9 +32,7 @@ public class <%= repository.imit.server_net_module_name %>
 
   protected void bindSessionContext()
   {
-<% if repository.imit.requires_session_context? -%>
     bind( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>.class ).to( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_implementation_name %>.class ).in( javax.inject.Singleton.class );
-<% end -%>
   }
 
   protected void bindReplicant()

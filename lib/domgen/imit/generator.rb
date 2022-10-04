@@ -130,8 +130,7 @@ Domgen::Generator.define([:imit, :jpa],
                               'main/java/#{repository.imit.qualified_graph_encoder_impl_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'abstract_session_context_impl.java.erb',
-                              'main/java/#{repository.imit.qualified_abstract_session_context_impl_name.gsub(".","/")}.java',
-                              :guard => 'repository.imit.requires_session_context?')
+                              'main/java/#{repository.imit.qualified_abstract_session_context_impl_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'replication_interceptor.java.erb',
                               'main/java/#{repository.imit.qualified_replication_interceptor_name.gsub(".","/")}.java')

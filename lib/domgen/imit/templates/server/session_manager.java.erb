@@ -30,16 +30,13 @@ entities.uniq.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository;
 <% end -%>
-<% if repository.imit.requires_session_context? -%>
   @javax.inject.Inject
   private <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %> _context;
-<% end -%>
   @javax.annotation.Resource
   private javax.transaction.TransactionSynchronizationRegistry _registry;
   @javax.inject.Inject
   private org.realityforge.replicant.server.transport.ReplicantMessageBroker _replicantMessageBroker;
 
-<% if repository.imit.support_subscription_access_control? -%>
   @java.lang.Override
   public void subscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object filter )
     throws java.lang.InterruptedException
@@ -48,7 +45,6 @@ entities.uniq.each do |entity| -%>
     super.subscribe( session, address, filter );
   }
 
-<% end -%>
   @javax.annotation.Nonnull
   @java.lang.Override
   protected org.realityforge.replicant.server.transport.ReplicantMessageBroker getReplicantMessageBroker()
