@@ -23,11 +23,41 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   @javax.persistence.PersistenceContext( unitName = <%= repository.jpa.qualified_unit_descriptor_name %>.NAME )
   private javax.persistence.EntityManager _entityManager;
 
+  @javax.annotation.Nonnull
+  protected java.lang.SecurityException createNotPermittedException()
+  {
+    return new java.lang.SecurityException( "User does not have required permission to perform action" );
+  }
+
   @java.lang.Override
   public void preSubscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object filter )
   {
+<%
+  first = true
+-%>
+<% repository.imit.graphs.select{|graph|graph.secure? && graph.external_visibility?}.each do |graph| -%>
+    <%= first ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
+    {
+      ensureSubscribeTo<%= graph.name %>Permitted( session, address<% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end -%> );
+    }
+<%
+    first = false
+  end
+-%>
   }
 
+<% repository.imit.graphs.select{|graph|graph.secure? && graph.external_visibility?}.each do |graph| -%>
+  protected void ensureSubscribeTo<%= graph.name %>Permitted(@javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+  {
+    if ( !isSubscribeTo<%= graph.name %>Permitted( session, address<% if graph.filter_parameter -%>, filter<% end -%> ) )
+    {
+      throw createNotPermittedException();
+    }
+  }
+
+  protected abstract boolean isSubscribeTo<%= graph.name %>Permitted(@javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> );
+
+<% end -%>
 <% repository.imit.graphs.select{|graph|graph.type_graph? && graph.bulk_load?}.each do |graph| -%>
   @java.lang.Override
   public void bulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
