@@ -19,9 +19,9 @@ AS
 
   DELETE FROM <%= data_issue_entity.sql.qualified_table_name %>
 
-  IF @PrintProgress = 1 PRINT 'Performing Corruption Checks'
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Performing Corruption Checks'
   EXEC <%= analysis_data_module.sql.quoted_schema %>.[spCheckCorruptions] @PrintProgress = @PrintProgress
-  IF @PrintProgress = 1 PRINT 'Corruption Checks Completed'
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Corruption Checks Completed'
 
   DECLARE @ConstraintViolations TABLE (
     SchemaName VARCHAR(500),
@@ -30,12 +30,12 @@ AS
     ViewSql VARCHAR(MAX)
   );
 
-  IF @PrintProgress = 1 PRINT 'Performing Constraint Checks'
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Performing Constraint Checks'
 <% repository.data_modules.select{|data_module| data_module.sql?}.each do |data_module| -%>
-  IF @PrintProgress = 1 PRINT 'Checking constraints in <%= data_module.sql.quoted_schema %>'
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking constraints in <%= data_module.sql.quoted_schema %>'
   INSERT INTO @ConstraintViolations(SchemaName, TableName, ConstraintName, ViewSql) EXEC <%= data_module.sql.quoted_schema %>.[spCheckConstraints] @ShowErrors = @ShowErrors, @PrintProgress = @PrintProgress
 <% end -%>
-  IF @PrintProgress = 1 PRINT 'Constraint Checks Completed'
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Constraint Checks Completed'
 
   INSERT INTO <%= data_issue_entity.sql.qualified_table_name %>([Category], [Description], [ViewSql])
     SELECT 'Constraints', COALESCE(SchemaName,'') + '.' + COALESCE(TableName,'') + '.' + COALESCE(ConstraintName,''), ViewSql FROM @ConstraintViolations
@@ -48,6 +48,6 @@ AS
   -- Best guess and not necessarily right, safest to not run this proc in a session with anything else
   IF @ReadUncommitted = 1 SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 
-  IF @PrintProgress = 1 PRINT 'spPerformChecks Completed'
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - spPerformChecks Completed'
 
   RETURN @Results
