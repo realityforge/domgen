@@ -36,7 +36,7 @@ cfetchLoop:
 
   IF @@FETCH_STATUS <> 0 GOTO cendCollect
 
-  IF @PrintProgress = 1 PRINT 'Checking for corruption: ' + @Description
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking for corruption: ' + @Description
 
   SET @FullSql =
     COALESCE(@CommonTableExpression, '') +
@@ -51,21 +51,21 @@ cfetchLoop:
 
   IF @@ERROR <> 0
   BEGIN
-    IF @PrintProgress = 1 PRINT 'Error running corruption check: ' + @Description
+    IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Error running corruption check: ' + @Description
     RETURN -1
   END
 
-  IF @PrintProgress = 1 PRINT 'Completed corruption check: ' + @Description
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Completed corruption check: ' + @Description
 
   GOTO cfetchLoop
 
 cfail:
-  PRINT 'Failed to open cursor!'
+  PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Failed to open cursor!'
 
   GOTO cdone
 
 cfailTECursor:
-  PRINT 'Failed while fetching from cursor!'
+  PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Failed while fetching from cursor!'
 
 cendCollect:
 

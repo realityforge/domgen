@@ -321,7 +321,7 @@ BEGIN
      end
      check_sql = "SELECT * FROM #{entity.sql.qualified_table_name} E LEFT JOIN #{foreign_key.referenced_entity.sql.qualified_table_name} O ON #{join_cols.join(' AND ')} WHERE O.#{foreign_key.referenced_entity.primary_key.sql.quoted_column_name} IS NULL AND (#{source_cols.join(' AND ')})"
 %>
-  IF @PrintProgress = 1 PRINT 'Checking foreign key <%= foreign_key.quoted_foreign_key_name %>'
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking foreign key <%= foreign_key.quoted_foreign_key_name %>'
   SELECT @Ignored = 1 WHERE EXISTS ( <%= check_sql %> )
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
