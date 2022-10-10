@@ -301,10 +301,10 @@ BEGIN
 <%
    constraints = entity.sql.constraints + entity.sql.function_constraints
    constraints.select{|constraint| constraint.invariant?}.each do |constraint| %>
-  IF @PrintProgress = 1 PRINT 'Checking constraint <%= constraint.quoted_constraint_name %>'
+  IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking constraint <%= constraint.quoted_constraint_name %>'
   IF (SELECT COUNT(*) FROM <%=entity.sql.qualified_table_name %> WHERE NOT (<%= constraint.constraint_sql %>)) > 0
   BEGIN
-    IF @ShowErrors = 1 PRINT 'Constraint <%= constraint.quoted_constraint_name %> has errors'
+    IF @ShowErrors = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Constraint <%= constraint.quoted_constraint_name %> has errors'
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
       VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','<%= constraint.constraint_name %>','DBCC CHECKCONSTRAINTS(''<%= entity.data_module.sql.schema %>.<%= constraint.constraint_name %>'') WITH ALL_ERRORMSGS, NO_INFOMSGS')
   END
