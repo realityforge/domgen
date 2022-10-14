@@ -370,7 +370,7 @@ module Domgen
 
       # The SQL generated in constraint
       def constraint_sql
-        parameter_string = parameters.collect { |parameter_name| "  #{table.entity.attribute_by_name(parameter_name).sql.column_name}" }.join(',')
+        parameter_string = parameters.collect { |parameter_name| "#{table.entity.attribute_by_name(parameter_name).sql.column_name}" }.join(', ')
         function_call = "#{self.qualified_function_name}(#{parameter_string}) = 1"
         (self.or_conditions + [function_call]).join(' OR ')
       end
