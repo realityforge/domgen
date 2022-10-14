@@ -306,7 +306,7 @@ BEGIN
   BEGIN
     IF @ShowErrors = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Constraint <%= constraint.quoted_constraint_name %> has errors'
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
-      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','<%= constraint.constraint_name %>','<%= constraint.bulk_check_sql %>')
+      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','<%= constraint.constraint_name %>','<%= constraint.bulk_check_sql.gsub("'","''") %>')
   END
 <%
    end
