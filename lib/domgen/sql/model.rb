@@ -264,6 +264,13 @@ module Domgen
         @check_constraint_on_finalize.nil? ? !self.table.entity.data_module.sql_analysis? : @check_constraint_on_finalize
       end
 
+      attr_writer :bulk_check_sql
+
+      # Return sql that attempts to efficiently perform bulk checks for constraint.
+      def bulk_check_sql
+        @bulk_check_sql.nil? ? "SELECT * FROM #{self.table.entity.sql.qualified_table_name} WHERE NOT (#{self.constraint_sql})" : @bulk_check_sql
+      end
+
       attr_writer :invariant
 
       # Return true if this constraint should always be true, not just on insert or update.
@@ -321,6 +328,13 @@ module Domgen
       def check_constraint_on_finalize?
         # Don't bother checking if sql_analysis is enabled as the `spCheckConstraints` will be invoked
         @check_constraint_on_finalize.nil? ? !self.table.entity.data_module.sql_analysis? : @check_constraint_on_finalize
+      end
+
+      attr_writer :bulk_check_sql
+
+      # Return sql that attempts to efficiently perform bulk checks for constraint.
+      def bulk_check_sql
+        @bulk_check_sql.nil? ? "SELECT * FROM #{self.table.entity.sql.qualified_table_name} WHERE NOT (#{self.constraint_sql})" : @bulk_check_sql
       end
 
       attr_writer :invariant

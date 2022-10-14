@@ -302,11 +302,11 @@ BEGIN
    constraints = entity.sql.constraints + entity.sql.function_constraints
    constraints.select{|constraint| constraint.invariant?}.each do |constraint| %>
   IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking constraint <%= constraint.quoted_constraint_name %>'
-  IF (SELECT COUNT(*) FROM <%=entity.sql.qualified_table_name %> WHERE NOT (<%= constraint.constraint_sql %>)) > 0
+  IF (SELECT COUNT(*) FROM (<%= constraint.bulk_check_sql %>) F) > 0
   BEGIN
     IF @ShowErrors = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Constraint <%= constraint.quoted_constraint_name %> has errors'
     INSERT INTO @FailedConstraintChecks(SchemaName, TableName, ConstraintName, ViewSQL)
-      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','<%= constraint.constraint_name %>','DBCC CHECKCONSTRAINTS(''<%= entity.data_module.sql.schema %>.<%= constraint.constraint_name %>'') WITH ALL_ERRORMSGS, NO_INFOMSGS')
+      VALUES ('<%= data_module.sql.schema %>','<%= entity.sql.table_name %>','<%= constraint.constraint_name %>','<%= constraint.bulk_check_sql %>')
   END
 <%
    end
@@ -316,10 +316,11 @@ BEGIN
      join_cols = []
      source_cols = []
      foreign_key.attribute_names.each_with_index do |a, index|
-      join_cols << "E.#{entity.attribute_by_name(a).sql.quoted_column_name} = O.#{foreign_key.referenced_entity.attribute_by_name(foreign_key.referenced_attribute_names[index]).sql.quoted_column_name}"
-      source_cols << "E.#{entity.attribute_by_name(a).sql.quoted_column_name} IS NOT NULL"
+      attribute = entity.attribute_by_name(a)
+      join_cols << "E.#{attribute.sql.quoted_column_name} = O.#{foreign_key.referenced_entity.attribute_by_name(foreign_key.referenced_attribute_names[index]).sql.quoted_column_name}"
+      source_cols << "E.#{attribute.sql.quoted_column_name} IS NOT NULL" if attribute.nullable?
      end
-     check_sql = "SELECT * FROM #{entity.sql.qualified_table_name} E LEFT JOIN #{foreign_key.referenced_entity.sql.qualified_table_name} O ON #{join_cols.join(' AND ')} WHERE O.#{foreign_key.referenced_entity.primary_key.sql.quoted_column_name} IS NULL AND (#{source_cols.join(' AND ')})"
+     check_sql = "SELECT * FROM #{entity.sql.qualified_table_name} E LEFT JOIN #{foreign_key.referenced_entity.sql.qualified_table_name} O ON #{join_cols.join(' AND ')} WHERE O.#{foreign_key.referenced_entity.primary_key.sql.quoted_column_name} IS NULL#{source_cols.empty? ? '' : " AND (#{source_cols.join(' AND ')})"}"
 %>
   IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking foreign key <%= foreign_key.quoted_foreign_key_name %>'
   SELECT @Ignored = 1 WHERE EXISTS ( <%= check_sql %> )
