@@ -1062,6 +1062,13 @@ FROM
 WHERE #{comparison_id} = #{next_id} AND C0.#{target_entity.primary_key.sql.quoted_column_name} = @#{start_attribute.sql.column_name}
 SQL
               constraint.positive_sql = sql
+              constraint.bulk_check_sql = <<SQL
+SELECT E.#{self.entity.primary_key.sql.quoted_column_name}
+FROM #{self.entity.sql.qualified_table_name} E
+LEFT JOIN #{target_entity.sql.qualified_table_name} C0 ON C0.#{target_entity.primary_key.sql.quoted_column_name} = E.#{start_attribute.sql.column_name}
+#{joins.join("\n").gsub('@', 'E.')}
+WHERE #{comparison_id} != #{next_id.gsub('@', 'E.')}#{start_attribute.nullable? ? " AND E.#{start_attribute.sql.column_name} IS NOT NULL" : ''}
+SQL
             end
             copy_tags(c, function_constraint_by_name(functional_constraint_name))
           end
