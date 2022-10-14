@@ -182,6 +182,14 @@ module Domgen
         table.entity.data_module.entity_by_name(referenced_entity_name)
       end
 
+      attr_writer :check_constraint_on_finalize
+
+      # Should we check this constraint during finalize phase of database construction?
+      def check_constraint_on_finalize?
+        # Don't bother checking if sql_analysis is enabled as the `spCheckConstraints` will be invoked
+        @check_constraint_on_finalize.nil? ? !self.table.entity.data_module.sql_analysis? : @check_constraint_on_finalize
+      end
+
       attr_writer :defer_creation
 
       def defer_creation?
@@ -248,6 +256,14 @@ module Domgen
         @standard.nil? ? false : @standard
       end
 
+      attr_writer :check_constraint_on_finalize
+
+      # Should we check this constraint during finalize phase of database construction?
+      def check_constraint_on_finalize?
+        # Don't bother checking if sql_analysis is enabled as the `spCheckConstraints` will be invoked
+        @check_constraint_on_finalize.nil? ? !self.table.entity.data_module.sql_analysis? : @check_constraint_on_finalize
+      end
+
       attr_writer :invariant
 
       # Return true if this constraint should always be true, not just on insert or update.
@@ -297,6 +313,14 @@ module Domgen
       # standard constraints do not typically need to be tested
       def standard?
         @standard.nil? ? false : @standard
+      end
+
+      attr_writer :check_constraint_on_finalize
+
+      # Should we check this constraint during finalize phase of database construction?
+      def check_constraint_on_finalize?
+        # Don't bother checking if sql_analysis is enabled as the `spCheckConstraints` will be invoked
+        @check_constraint_on_finalize.nil? ? !self.table.entity.data_module.sql_analysis? : @check_constraint_on_finalize
       end
 
       attr_writer :invariant

@@ -33,19 +33,19 @@ ALTER TABLE <%= entity.sql.qualified_table_name %>
 <% end -%>
 GO
 <% end -%>
-ALTER TABLE <%= entity.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT <%= foreign_key.quoted_foreign_key_name %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> WITH <%= foreign_key.check_constraint_on_finalize? ? '' : 'NO' %>CHECK CHECK CONSTRAINT <%= foreign_key.quoted_foreign_key_name %>
 GO
 <%
    end
    entity.sql.constraints.each do |constraint|
 %>
-ALTER TABLE <%= entity.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> WITH <%= constraint.check_constraint_on_finalize? ? '' : 'NO' %>CHECK CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
 GO
 <%
    end
   entity.sql.function_constraints.each do |constraint|
 %>
-ALTER TABLE <%= entity.sql.qualified_table_name %> WITH CHECK CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
+ALTER TABLE <%= entity.sql.qualified_table_name %> WITH <%= constraint.check_constraint_on_finalize? ? '' : 'NO' %>CHECK CHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
 GO
 <%
    end

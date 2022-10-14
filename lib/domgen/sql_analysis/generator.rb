@@ -48,5 +48,9 @@ Domgen::Generator.define([:sql_analysis],
                               'mssql_find_execution_plans_in_cache.sql.erb',
                               '#{repository.sql_analysis.analysis_data_module.sql.schema}/stored-procedures/#{repository.sql_analysis.analysis_data_module.sql.schema}.spFindExecutionPlansInCache.sql',
                               :additional_facets => [:mssql])
+    template_set.erb_template(:repository,
+                              'mssql_post_create_analyze.sql.erb',
+                              'db-hooks/post/#{repository.name}_post_create_analyze.sql',
+                              :additional_facets => [:mssql])
   end
 end
