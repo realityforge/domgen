@@ -24,9 +24,9 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   private javax.persistence.EntityManager _entityManager;
 
   @javax.annotation.Nonnull
-  protected java.lang.SecurityException createNotPermittedException()
+  protected java.lang.SecurityException createNotPermittedException( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final String action )
   {
-    return new java.lang.SecurityException( "User does not have required permission to perform action" );
+    return new java.lang.SecurityException( "User does not have required permission to perform action: " + action );
   }
 
   @java.lang.Override
@@ -51,7 +51,7 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   {
     if ( !isSubscribeTo<%= graph.name %>Permitted( session, address<% if graph.filter_parameter -%>, filter<% end -%> ) )
     {
-      throw createNotPermittedException();
+      throw createNotPermittedException( session, "SubscribeTo<%= graph.name %>" );
     }
   }
 
