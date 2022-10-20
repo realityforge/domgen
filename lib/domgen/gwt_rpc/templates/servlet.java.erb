@@ -259,35 +259,33 @@ end.join(', ') %>);
     }
 <% end -%>
 <% if method.imit? -%>
-    catch ( final java.lang.RuntimeException e )
+    catch ( final javax.validation.ConstraintViolationException cve )
     {
-      final java.lang.RuntimeException ex;
-      if( e instanceof javax.validation.ConstraintViolationException )
+      final java.lang.StringBuilder sb = new java.lang.StringBuilder();
+      sb.append( "Pre-persist constraint violations:\n" );
+      for ( final javax.validation.ConstraintViolation<?> constraintViolation : cve.getConstraintViolations() )
       {
-        final javax.validation.ConstraintViolationException cve = (javax.validation.ConstraintViolationException) e;
-        final java.lang.StringBuilder sb = new java.lang.StringBuilder();
-        sb.append( "Pre-persist constraint violations:\n" );
-        for ( final javax.validation.ConstraintViolation<?> constraintViolation : cve.getConstraintViolations() )
-        {
-          sb.append( constraintViolation.getPropertyPath() );
-          sb.append( " -> " );
-          sb.append( constraintViolation.getMessage() );
-          sb.append( '\n' );
-        }
-        final javax.validation.ConstraintViolationException wrap = new javax.validation.ConstraintViolationException( sb.toString(), cve.getConstraintViolations() );
-        wrap.initCause( cve );
-        ex = wrap;
+        sb.append( constraintViolation.getPropertyPath() );
+        sb.append( " -> " );
+        sb.append( constraintViolation.getMessage() );
+        sb.append( '\n' );
       }
-      else
-      {
-        ex = e;
-      }
+      final javax.validation.ConstraintViolationException wrap = new javax.validation.ConstraintViolationException( sb.toString(), cve.getConstraintViolations() );
+      wrap.initCause( cve );
 
-      // Assume RuntimeExceptions cause a rollback and if the transaction has rolled back there will be no messages arriving
+      // Assume execption has caused a rollback and if the transaction has rolled back there will be no messages arriving
       getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, "1" );
       headerSet = true;
-      cause = ex;
-      throw ex;
+      cause = wrap;
+      throw wrap;
+    }
+    catch ( final java.lang.RuntimeException e )
+    {
+      // Assume the exception caused a rollback and if the transaction has rolled back there will be no messages arriving
+      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, "1" );
+      headerSet = true;
+      cause = e;
+      throw e;
     }
     finally
     {
