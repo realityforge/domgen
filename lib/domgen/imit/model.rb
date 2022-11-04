@@ -1349,12 +1349,18 @@ module Domgen
         self.routing_keys.each do |routing_key|
           routing_key.post_verify
         end
-        self.attribute.inverse.imit.exclude_edges.each do |graph_name|
-          a = self.attribute
-          repository_imit_facet = a.entity.data_module.repository.imit
-          Domgen.error("#{a.qualified_name} has specified an inverse.imit.exclude_edges value for graph named '#{graph_name}' but no such graph exists") unless repository_imit_facet.graph_by_name?(graph_name)
-          Domgen.error("#{a.qualified_name} has specified an inverse.imit.exclude_edges value for graph named '#{graph_name}' but graph is not an instance graph") unless repository_imit_facet.graph_by_name(graph_name).instance_root?
-        end if self.attribute.reference?
+        if self.attribute.reference?
+          referenced_entity = self.attribute.referenced_entity
+          Domgen.error("#{self.attribute.qualified_name} has specified an inverse.imit.exclude_edges values but the referenced entity has no imit facet enabled") if !self.attribute.inverse.imit.exclude_edges.empty? && !referenced_entity.imit?
+          self.attribute.inverse.imit.exclude_edges.each do |graph_name|
+            a = self.attribute
+            repository_imit_facet = a.entity.data_module.repository.imit
+            Domgen.error("#{a.qualified_name} has specified an inverse.imit.exclude_edges value for graph named '#{graph_name}' but no such graph exists") unless repository_imit_facet.graph_by_name?(graph_name)
+            graph = repository_imit_facet.graph_by_name(graph_name)
+            Domgen.error("#{a.qualified_name} has specified an inverse.imit.exclude_edges value for graph named '#{graph_name}' but graph is not an instance graph") unless graph.instance_root?
+            Domgen.error("#{a.qualified_name} has specified an inverse.imit.exclude_edges value for graph named '#{graph_name}' but referenced entity #{referenced_entity.qualified_name} is not part of the specified graph") unless graph.included_entities.include?(referenced_entity.qualified_name)
+          end
+        end
       end
 
       protected
