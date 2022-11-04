@@ -581,7 +581,7 @@ module Domgen
         if attribute_name?
           Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when attribute is not a reference or inverse reference") unless reference? || inverse_start?
 
-          puts("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when attribute is not a reference or inverse reference") unless self.referenced_attribute.immutable?
+          Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when the attribute is not immutable") if !self.referenced_attribute.immutable? && !self.referenced_attribute.set_once?
         end
 
         if self.path.size > 0
