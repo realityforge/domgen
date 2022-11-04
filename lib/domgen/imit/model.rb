@@ -579,9 +579,9 @@ module Domgen
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that entity is not currently part of.") unless self.graph.included_entities.include?(self.imit_attribute.attribute.entity.qualified_name)
 
         if attribute_name?
-          Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name when attribute is not a reference or inverse reference") unless reference? || inverse_start?
+          Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when attribute is not a reference or inverse reference") unless reference? || inverse_start?
 
-          puts("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name when attribute is not a reference or inverse reference") unless self.referenced_attribute.immutable?
+          puts("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when attribute is not a reference or inverse reference") unless self.referenced_attribute.immutable?
         end
 
         if self.path.size > 0
