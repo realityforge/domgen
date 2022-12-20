@@ -6,6 +6,7 @@ package <%= to_package(repository.jaxrs.qualified_abstract_application_name) %>;
 public abstract class <%= repository.jaxrs.abstract_application_name %>
   extends javax.ws.rs.core.Application
 {
+  @javax.annotation.Nonnull
   public static final String APPLICATION_PATH = "/<%= repository.jaxrs.path %>";
 
   @java.lang.Override
