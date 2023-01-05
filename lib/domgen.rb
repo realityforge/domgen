@@ -169,10 +169,6 @@ require 'domgen/iris_audit/generator'
 require 'domgen/redfish/model'
 require 'domgen/redfish/generator'
 
-require 'domgen/graphql/helper'
-require 'domgen/graphql/model'
-require 'domgen/graphql/generator'
-
 require 'domgen/arez/model'
 require 'domgen/arez/helper'
 require 'domgen/arez/generator'
@@ -181,8 +177,5 @@ require 'domgen/sql_analysis/model'
 require 'domgen/sql_analysis/generator'
 
 require 'domgen/react4j/model'
-
-require 'domgen/giggle/model'
-require 'domgen/giggle/generator'
 
 require 'domgen/serviceworker/model'

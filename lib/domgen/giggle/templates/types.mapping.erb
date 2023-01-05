@@ -1,6 +1,0 @@
-# DO NOT EDIT: File is auto-generated
-<% repository.data_modules.select(&:graphql?).each do |data_module| -%>
-<% data_module.enumerations.select(&:graphql?).each do |enumeration| -%>
-<%= enumeration.graphql.name %>=<%= enumeration.ee.qualified_name %>
-<% end -%>
-<% end -%>

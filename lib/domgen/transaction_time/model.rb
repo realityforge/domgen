@@ -58,12 +58,6 @@ module Domgen
             self.entity.jpa.remove_update_default(defaults)
           end
         end
-        if self.entity.graphql? && self.entity.dao.graphql?
-          self.entity.attribute_by_name(:CreatedAt).graphql.initial_value = 'new java.util.Date()'
-          self.entity.attribute_by_name(:DeletedAt).graphql.initial_value = 'null'
-          self.entity.attribute_by_name(:CreatedAt).graphql.updateable = false
-          self.entity.attribute_by_name(:DeletedAt).graphql.updateable = false
-        end
         if self.entity.imit?
           attributes = self.entity.attributes.select {|a| %w(CreatedAt DeletedAt).include?(a.name.to_s) && a.imit?}.collect {|a| a.name.to_s}
           if attributes.size > 0

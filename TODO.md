@@ -50,11 +50,6 @@
 * Merge multiple update channels into on replicant session. i.e. How to merge AppConfig into ODS stream?
 * Merge identical filters in output format.
 
-### Graphql
-
-* Support DAO queries/mutations that return a scalar.
-* Support queries/mutations that can return a parameter as graphql result (useful during update methods)
-
 ### Sql
 
 * Add UPDATE([X]) guard around generated SetOnce violation checking in triggers for MsSql.  Investigate similar scenarios.
