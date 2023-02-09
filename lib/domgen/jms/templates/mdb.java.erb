@@ -65,10 +65,13 @@ public class <%= method.jms.mdb_name %>
         final String text = textMessage.getText();
         final javax.xml.bind.JAXBContext context = javax.xml.bind.JAXBContext.newInstance( <%= parameter.jms.object_factory ? parameter.jms.object_factory : encoded_type %>.class );
         final javax.xml.bind.Unmarshaller marshaller = context.createUnmarshaller();
-        final java.io.StringReader reader = new java.io.StringReader( text );
 
-        final <%= demarshalled_type %> decoded = (<%= demarshalled_type %>) ( <% if parameter.jms.object_factory %>(javax.xml.bind.JAXBElement)<% end %> marshaller.unmarshal( reader ) )<% if parameter.jms.object_factory %>.getValue()<% end %>;
+        final <%= demarshalled_type %> decoded;
 
+        try ( java.io.StringReader reader = new java.io.StringReader( text ) )
+        {
+          decoded = (<%=demarshalled_type%>)(<%if parameter.jms.object_factory%>(javax.xml.bind.JAXBElement)<%end%>marshaller.unmarshal(reader))<%if parameter.jms.object_factory%>.getValue()<%end%>;
+        }
         final <%= boundary_type %> parameter = <%= ((parameter.struct? || parameter.non_standard_type?) && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
 <% end -%>
 <% if method.service.data_module.repository.iris_audit? -%>
