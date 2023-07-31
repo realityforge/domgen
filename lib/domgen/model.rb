@@ -87,7 +87,7 @@ module Domgen
     end
 
     def attribute_names_to_key(entity, attribute_names)
-      attribute_names.collect {|a| entity.attribute_by_name(a).name.to_s}.sort.join('_')
+      attribute_names.collect { |a| entity.attribute_by_name(a).name.to_s }.sort.join('_')
     end
   end
 
@@ -146,8 +146,12 @@ module Domgen
     attr_reader :rhs_operand
     attr_reader :operator
 
+    def self.derive_name(operator, lhs_operand, rhs_operand)
+      "#{lhs_operand}_#{operator}_#{rhs_operand}"
+    end
+
     def initialize(entity, operator, lhs_operand, rhs_operand, options, &block)
-      @name = "#{lhs_operand}_#{operator}_#{rhs_operand}"
+      @name = RelationshipConstraint.derive_name(operator, lhs_operand, rhs_operand)
       @lhs_operand, @rhs_operand, @operator = lhs_operand, rhs_operand, operator
       super(entity, options, &block)
 
@@ -198,7 +202,7 @@ module Domgen
     attr_accessor :attribute_name_path
 
     def initialize(entity, attribute_name, attribute_name_path, options, &block)
-      @name = ([attribute_name] + attribute_name_path).collect {|a| a.to_s}.sort.join('_')
+      @name = ([attribute_name] + attribute_name_path).collect { |a| a.to_s }.sort.join('_')
       @attribute_name, @attribute_name_path = attribute_name, attribute_name_path
       super(entity, options, &block)
     end
@@ -376,7 +380,7 @@ module Domgen
 
     def max_value_length
       Domgen.error("max_value_length invoked on numeric enumeration #{qualified_name}") if numeric_values?
-      values.inject(0) {|max, value| max > value.value.length ? max : value.value.length}
+      values.inject(0) { |max, value| max > value.value.length ? max : value.value.length }
     end
 
     def self.enumeration_types
@@ -515,7 +519,7 @@ module Domgen
     end
 
     def self.supported_types
-      (self.supported_basic_types + Domgen::TypeDB.characteristic_types.collect {|ct| ct.name}).sort.uniq
+      (self.supported_basic_types + Domgen::TypeDB.characteristic_types.collect { |ct| ct.name }).sort.uniq
     end
 
     def self.supported_basic_types
@@ -939,7 +943,7 @@ module Domgen
     def dependency_constraint(attribute_name, dependent_attribute_names, options = {}, &block)
       constraint = DependencyConstraint.new(self, attribute_name, dependent_attribute_names, options, &block)
       Domgen.error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !attribute_by_name(attribute_name).nullable?
-      dependent_attribute_names.collect {|a| attribute_by_name(a)}.each do |a|
+      dependent_attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
         Domgen.error("Dependency constraint #{constraint.name} on #{self.name} has an illegal non nullable dependent attribute") if !a.nullable?
       end
       add_unique_to_set('dependency', constraint, @dependency_constraints)
@@ -955,6 +959,22 @@ module Domgen
       add_unique_to_set('relationship', constraint, @relationship_constraints)
     end
 
+    def relationship_constraint_by_params(operator, lhs_operand, rhs_operand)
+      relationship_constraint_by_name(RelationshipConstraint.derive_name(operator, lhs_operand, rhs_operand))
+    end
+
+    def relationship_constraint_by_params?(operator, lhs_operand, rhs_operand)
+      relationship_constraint_by_name?(RelationshipConstraint.derive_name(operator, lhs_operand, rhs_operand))
+    end
+
+    def relationship_constraint_by_name(name)
+      set_by_name('relationship constraint', @relationship_constraints, name)
+    end
+
+    def relationship_constraint_by_name?(name)
+      set_by_name?(@relationship_constraints, name)
+    end
+
     def codependent_constraints
       @codependent_constraints.values
     end
@@ -962,7 +982,7 @@ module Domgen
     # Check that either all attributes are null or all are not null
     def codependent_constraint(attribute_names, options = {}, &block)
       constraint = CodependentConstraint.new(self, attribute_names, options, &block)
-      attribute_names.collect {|a| attribute_by_name(a)}.each do |a|
+      attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
         Domgen.error("Codependent constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
       add_unique_to_set('codependent', constraint, @codependent_constraints)
@@ -975,7 +995,7 @@ module Domgen
     # Check that one and only one of the attributes is not null
     def xor_constraint(attribute_names, options = {}, &block)
       constraint = XorConstraint.new(self, attribute_names, options, &block)
-      attribute_names.collect {|a| attribute_by_name(a)}.each do |a|
+      attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
         Domgen.error("Xor constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") unless a.nullable?
       end
       add_unique_to_set('xor', constraint, @xor_constraints)
@@ -988,7 +1008,7 @@ module Domgen
     # Check that at most one of the attributes is not null
     def incompatible_constraint(attribute_names, options = {}, &block)
       constraint = IncompatibleConstraint.new(self, attribute_names, options, &block)
-      attribute_names.collect {|a| attribute_by_name(a)}.each do |a|
+      attribute_names.collect { |a| attribute_by_name(a) }.each do |a|
         Domgen.error("Incompatible constraint #{constraint.name} on #{self.name} has an illegal non nullable attribute") if !a.nullable?
       end
       add_unique_to_set('incompatible', constraint, @incompatible_constraints)
@@ -1024,8 +1044,8 @@ module Domgen
 
     # Assume single column pk
     def primary_key
-      primary_key = attributes.find {|a| a.primary_key?}
-      Domgen.error("Unable to locate primary key for #{self.qualified_name}, attributes: #{attributes.collect {|a| a.name}.inspect}") unless primary_key
+      primary_key = attributes.find { |a| a.primary_key? }
+      Domgen.error("Unable to locate primary key for #{self.qualified_name}, attributes: #{attributes.collect { |a| a.name }.inspect}") unless primary_key
       primary_key
     end
 
@@ -1060,13 +1080,23 @@ module Domgen
         end
       end
 
-      Domgen.error("Entity #{qualified_name} must define exactly one primary key") if attributes.select {|a| a.primary_key?}.size != 1
+      Domgen.error("Entity #{qualified_name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
       attributes.each do |a|
         Domgen.error("Abstract attribute #{a.name} on non abstract object type #{qualified_name}") if concrete? && a.abstract?
       end
     end
 
     private
+
+    def set_by_name?(set, name)
+      !set[name.to_s].nil?
+    end
+
+    def set_by_name(label, set, name)
+      value = set[name.to_s]
+      Domgen.error("Unable to find #{label} named #{name} on type #{self.qualified_name}. Available #{label} set = #{set.collect { |v| v.name }.join(', ')}") unless value
+      value
+    end
 
     def container_kind
       :entity
@@ -1529,7 +1559,7 @@ module Domgen
           package_methods.each do |package_method|
             scopes.each do |scope|
               if package_method =~ /#{scope}_/
-                extension_object.send(package_method, self.repository.send(facet_key).send("#{scope}_package") + ".#{Reality::Naming.underscore(self.name)}" )
+                extension_object.send(package_method, self.repository.send(facet_key).send("#{scope}_package") + ".#{Reality::Naming.underscore(self.name)}")
               end
             end
           end
