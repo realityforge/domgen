@@ -113,7 +113,7 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
     finally
     {
       completeSynchronization( recorder );
-      logSummary( recorder, java.util.logging.Level.INFO );
+      logSummary( recorder, null == recorder.getSynchronizationId() ? java.util.logging.Level.FINE : java.util.logging.Level.INFO );
     }
     return toSyncStatus( recorder );
   }
