@@ -29,7 +29,7 @@ module Domgen #nodoc
       repository_key = options[:repository_key]
       target_dir = options[:target_dir]
       buildr_project = options[:buildr_project]
-
+      clean_generated_files = options[:clean_generated_files].nil? ? true : !!options[:clean_generated_files]
       if buildr_project.nil? && Buildr.application.current_scope.size > 0
         buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
       end
@@ -42,7 +42,11 @@ module Domgen #nodoc
       end
 
       if target_dir.nil? && !buildr_project.nil?
-        target_dir = buildr_project._(:target, :generated, 'domgen', build_key)
+        if clean_generated_files
+          target_dir = buildr_project._(:target, :generated, 'domgen', build_key)
+        else
+          target_dir = buildr_project._(:srcgen, 'domgen', build_key)
+        end
       elsif !target_dir.nil? && !buildr_project.nil?
         Domgen.warn('Domgen::Build.define_generate_task specifies a target directory parameter but it can be be derived from the context. The parameter should be removed.')
       end
@@ -51,7 +55,13 @@ module Domgen #nodoc
         Domgen.error('Domgen::Build.define_generate_task should specify a target directory as it can not be derived from the context.')
       end
 
+      if clean_generated_files && buildr_project
+        buildr_project.clean { rm_rf target_dir }
+      end
+
       Domgen::GenerateTask.new(repository_key, build_key, generator_keys, target_dir, buildr_project, &block)
+
+      target_dir
     end
   end
 
