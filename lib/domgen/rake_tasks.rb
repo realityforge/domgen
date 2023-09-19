@@ -30,6 +30,7 @@ module Domgen #nodoc
       target_dir = options[:target_dir]
       buildr_project = options[:buildr_project]
       clean_generated_files = options[:clean_generated_files].nil? ? true : !!options[:clean_generated_files]
+      keep_file_patterns = options[:keep_file_patterns]
       if buildr_project.nil? && Buildr.application.current_scope.size > 0
         buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
       end
@@ -59,7 +60,17 @@ module Domgen #nodoc
         buildr_project.clean { rm_rf target_dir }
       end
 
-      Domgen::GenerateTask.new(repository_key, build_key, generator_keys, target_dir, buildr_project, &block)
+      Domgen::GenerateTask.new(repository_key, build_key, generator_keys, target_dir, buildr_project) do |g|
+        g.keep_filter = Proc.new do |file|
+          filename = file.to_s
+          result = false
+          keep_file_patterns.each do |keep_file_pattern|
+            result = true if keep_file_pattern =~ filename
+          end
+          result
+        end if keep_file_patterns
+        block.call(g)
+      end
 
       target_dir
     end
@@ -69,6 +80,7 @@ module Domgen #nodoc
     attr_accessor :description
     attr_accessor :namespace_key
     attr_accessor :filter
+    attr_accessor :keep_filter
     attr_writer :verbose
 
     attr_reader :repository_key
@@ -83,6 +95,7 @@ module Domgen #nodoc
         repository_key, key, generator_keys, buildr_project
       @namespace_key = :domgen
       @filter = nil
+      @keep_filter = nil
       @template_map = {}
       # Turn on verbose messages if buildr is turned on tracing
       @verbose = trace?
@@ -131,7 +144,7 @@ module Domgen #nodoc
                                         Reality::Generators::Logger,
                                         Reality::Facets::Logger) do
               Domgen.info "Generator started: Generating #{self.generator_keys.inspect}"
-              Domgen.generator.generate(:repository, repository, self.target_dir, @templates, self.filter)
+              Domgen.generator.generate(:repository, repository, self.target_dir, @templates, self.filter, self.keep_filter)
             end
           rescue Reality::Generators::GeneratorError => e
             puts e.message
