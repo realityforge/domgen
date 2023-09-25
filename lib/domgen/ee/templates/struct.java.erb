@@ -36,8 +36,10 @@ package <%= to_package(struct.ee.qualified_name) %>;
   {
     this( <%= struct.fields.collect {|field|
   name = Reality::Naming.camelize(field.name)
-  if field.enumeration?
-    field.enumeration.numeric_values? ? "#{field.enumeration.ee.qualified_name}.values()[ #{name} ]" : field.nullable? ? "( null == #{name} ? null : #{field.enumeration.ee.qualified_name}.valueOf( #{name} ) )" : "#{field.enumeration.ee.qualified_name}.valueOf( #{name} )"
+    if field.enumeration?
+      field.enumeration.numeric_values? ?
+       ((field.nullable? ? "null == #{name} ? null : " : "") + "#{field.enumeration.ee.qualified_name}.values()[ #{name} ]")
+      : ((field.nullable? ? "null == #{name} ? null : " : "") + "#{field.enumeration.ee.qualified_name}.valueOf( #{name} )")
   else
     name
   end }.join(', ') %> );

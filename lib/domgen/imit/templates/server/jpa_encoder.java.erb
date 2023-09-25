@@ -38,7 +38,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
     type_suffix = 'Object'
     type_suffix = 'Int' if a.integer? && !attribute.nullable?
-    type_suffix = 'Int' if a.imit.transport_characteristic_type_key == :enumeration && a.enumeration.numeric_values?
+    type_suffix = 'Int' if a.imit.transport_characteristic_type_key == :enumeration && a.enumeration.numeric_values? && !a.nullable?
     type_suffix = 'Long' if a.long? && !attribute.nullable?
     type_suffix = 'Boolean' if a.boolean? && !attribute.nullable?
     type_suffix = 'Date' if a.date? || attribute.date?

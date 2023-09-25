@@ -1,8 +1,19 @@
 require 'securerandom'
 
+def uuid_formatted_id(name)
+  # Creates a stable if from client name in "UUID" format
+  #"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  base_uuid = Digest::SHA1.hexdigest(name)[0...36]
+  base_uuid[8] = '-'
+  base_uuid[13] = '-'
+  base_uuid[18] = '-'
+  base_uuid[23] = '-'
+  base_uuid
+end
+
 def generate(client)
   data = {
-    'id' => SecureRandom.uuid.to_s,
+    'id' => uuid_formatted_id(client.name),
     'clientId' => client.client_id,
     'name' => client.name,
     'rootUrl' => client.root_url,
@@ -56,7 +67,7 @@ def generate(client)
 
     client.claims.each do |claim|
       claim_data = {
-        'id' => SecureRandom.uuid.to_s,
+        'id' => uuid_formatted_id("#{client.name}.#{claim.name}"),
         'name' => claim.name,
         'protocol' => claim.protocol,
         'protocolMapper' => claim.protocol_mapper,
