@@ -1128,8 +1128,8 @@ SQL
 
         Domgen::Sql::Trigger::VALID_AFTER.each do |after|
           desc = "Trigger after #{after} on #{self.entity.name}\n\n"
-          validations = self.validations.select { |v| v.after.include?(after) }.sort { |a, b| b.priority <=> a.priority }
-          actions = self.actions.select { |a| a.after.include?(after) }.sort { |a, b| b.priority <=> a.priority }
+          validations = self.validations.select { |v| v.after.include?(after) }.sort_by{ |v| "#{v.priority.to_s.rjust(5, '0')}.#{v.name}" }
+          actions = self.actions.select { |a| a.after.include?(after) }.sort_by{ |v| "#{v.priority.to_s.rjust(5, '0')}.#{v.name}" }
           if !validations.empty? || !actions.empty?
             trigger_name = "After#{after.to_s.capitalize}"
             trigger(trigger_name) do |trigger|
