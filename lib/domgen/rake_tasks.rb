@@ -45,6 +45,8 @@ module Domgen #nodoc
       if target_dir.nil? && !buildr_project.nil?
         if clean_generated_files
           target_dir = buildr_project._(:target, :generated, 'domgen', build_key)
+        elsif buildr_project.inline_generated_source?
+          target_dir = buildr_project._('src')
         else
           target_dir = buildr_project._(:srcgen, 'domgen', build_key)
         end
@@ -70,6 +72,7 @@ module Domgen #nodoc
           result
         end if keep_file_patterns
         block.call(g)
+        #buildr_project.inline_generated_source?
       end
 
       target_dir
@@ -82,6 +85,7 @@ module Domgen #nodoc
     attr_accessor :filter
     attr_accessor :keep_filter
     attr_writer :verbose
+    attr_writer :mark_as_generated_in_ide
 
     attr_reader :repository_key
     attr_reader :key
@@ -103,13 +107,18 @@ module Domgen #nodoc
         buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
       end
       @target_dir = target_dir
+      @mark_as_generated_in_ide = true
       yield self if block_given?
       define
       @templates = Domgen.generator.load_templates_from_template_sets(generator_keys)
-      Reality::Generators::Buildr.configure_buildr_project(buildr_project, task_name, @templates, target_dir)
+      Reality::Generators::Buildr.configure_buildr_project(buildr_project, task_name, @templates, target_dir, mark_as_generated_in_ide?)
     end
 
     private
+
+    def mark_as_generated_in_ide?
+      !!@mark_as_generated_in_ide
+    end
 
     def verbose?
       !!@verbose
