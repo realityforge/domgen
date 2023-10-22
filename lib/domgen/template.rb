@@ -89,7 +89,12 @@ module Domgen
         facets = get_facets(options)
         helpers = get_helpers(options)
         template_filename = get_template_filename(template_filename)
-
+        options[:output_filter] = Proc.new do |content|
+          unless content.include?("DO NOT EDIT: File is auto-generated")
+            Domgen.error("Generator for template #{template_filename} failed to generate content containing text 'DO NOT EDIT: File is auto-generated'")
+          end
+          content
+        end
         Reality::Generators::ErbTemplate.new(self, facets, target.to_sym, template_filename, output_filename_pattern, helpers, options)
       end
 
