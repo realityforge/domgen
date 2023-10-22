@@ -72,7 +72,6 @@ module Domgen #nodoc
           result
         end if keep_file_patterns
         block.call(g)
-        #buildr_project.inline_generated_source?
       end
 
       target_dir
