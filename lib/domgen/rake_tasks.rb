@@ -31,6 +31,7 @@ module Domgen #nodoc
       buildr_project = options[:buildr_project]
       clean_generated_files = options[:clean_generated_files].nil? ? true : !!options[:clean_generated_files]
       keep_file_patterns = options[:keep_file_patterns]
+      keep_file_names = options[:keep_file_names]
       if buildr_project.nil? && Buildr.application.current_scope.size > 0
         buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
       end
@@ -62,15 +63,15 @@ module Domgen #nodoc
         buildr_project.clean { rm_rf target_dir }
       end
 
-      Domgen::GenerateTask.new(repository_key, build_key, generator_keys, target_dir, buildr_project) do |g|
+      Domgen::GenerateTask.new(repository_key, build_key, generator_keys, target_dir, buildr_project, clean_generated_files) do |g|
         g.keep_filter = Proc.new do |file|
           filename = file.to_s
-          result = false
+          result = keep_file_names.include?(filename)
           keep_file_patterns.each do |keep_file_pattern|
             result = true if keep_file_pattern =~ filename
           end
           result
-        end if keep_file_patterns
+        end if !keep_file_patterns.empty? || !keep_file_names.empty?
         block.call(g)
       end
 
@@ -93,7 +94,7 @@ module Domgen #nodoc
 
     attr_reader :task_name
 
-    def initialize(repository_key, key, generator_keys, target_dir, buildr_project = nil)
+    def initialize(repository_key, key, generator_keys, target_dir, buildr_project = nil, clean_generated_files = true)
       @repository_key, @key, @generator_keys, @buildr_project =
         repository_key, key, generator_keys, buildr_project
       @namespace_key = :domgen
@@ -107,16 +108,21 @@ module Domgen #nodoc
       end
       @target_dir = target_dir
       @mark_as_generated_in_ide = true
+      @clean_generated_files = clean_generated_files
       yield self if block_given?
       define
       @templates = Domgen.generator.load_templates_from_template_sets(generator_keys)
-      Reality::Generators::Buildr.configure_buildr_project(buildr_project, task_name, @templates, target_dir, mark_as_generated_in_ide?)
+      Reality::Generators::Buildr.configure_buildr_project(buildr_project, task_name, @templates, target_dir, mark_as_generated_in_ide?, clean_generated_files?)
     end
 
     private
 
     def mark_as_generated_in_ide?
       !!@mark_as_generated_in_ide
+    end
+
+    def clean_generated_files?
+      !!@clean_generated_files
     end
 
     def verbose?
