@@ -23,7 +23,7 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
 <% end -%>
 <% created_daos = [] -%>
 <% if dao.repository? -%>
-<% dao.entity.referencing_attributes.select{|a|a.jpa? && a.entity != dao.entity}.collect{|a|a.entity.concrete? ? [a.entity] : [a.entity] + a.entity.subtypes.select{|st|st.concrete? && st.jpa?}}.flatten.uniq.sort{|a,b| a.qualified_name.to_s <=> b.qualified_name.to_s }.each do |entity| -%>
+<% dao.entity.referencing_attributes.select{|a|a.jpa? && (dao.entity.jpa.support_delete? && a.entity != dao.entity)}.collect{|a|a.entity.concrete? ? [a.entity] : [a.entity] + a.entity.subtypes.select{|st|st.concrete? && st.jpa?}}.flatten.uniq.sort{|a,b| a.qualified_name.to_s <=> b.qualified_name.to_s }.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository;
 <% created_daos << entity.dao.qualified_name.to_s -%>
