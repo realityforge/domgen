@@ -1549,7 +1549,7 @@ module Domgen
       "DataModule[#{self.name}]"
     end
 
-    def force_feature_layout!
+    def force_feature_layout!(base_name = self.name)
       scopes = [:shared, :client, :server, :integration]
       self.enabled_facets.each do |facet_key|
         # Not all facets have an extension object
@@ -1559,7 +1559,7 @@ module Domgen
           package_methods.each do |package_method|
             scopes.each do |scope|
               if package_method =~ /#{scope}_/
-                extension_object.send(package_method, self.repository.send(facet_key).send("#{scope}_package") + ".#{Reality::Naming.underscore(self.name)}")
+                extension_object.send(package_method, self.repository.send(facet_key).send("#{scope}_package") + ".#{Reality::Naming.underscore(base_name)}")
               end
             end
           end
