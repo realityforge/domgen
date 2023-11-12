@@ -9,7 +9,7 @@ package <%= to_package(struct.ee.qualified_name) %>;
 <% unless struct.ee.module_local? %>public <% end %>class <%= struct.ee.name %>
   implements java.io.Serializable
 {
-@java.io.Serial
+  @java.io.Serial
   private static final long serialVersionUID = 1;
 
 <% struct.fields.each do |field| -%>
