@@ -219,7 +219,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     remove( $_ );
 <% end -%>
   }
-<% if dao.repository? && dao.entity.transaction_time? -%>
+<% if dao.repository? && dao.entity.transaction_time? && dao.entity.transaction_time.supports_cascade_remove? -%>
   @java.lang.Override
   @java.lang.SuppressWarnings( "deprecation" )
   public void cascadeRemove( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> $_ )

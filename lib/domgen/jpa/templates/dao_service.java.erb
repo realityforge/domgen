@@ -22,7 +22,7 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 <% if dao.entity.jpa.support_delete? -%>
   /** Delete the <%= dao.entity.jpa.qualified_name %>, recursivly nulling references/deleting dependent entities. */
   void delete( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> $_ );
-<% if dao.entity.transaction_time? -%>
+<% if dao.repository? && dao.entity.transaction_time? && dao.entity.transaction_time.supports_cascade_remove? -%>
 
   /** Remove the <%= dao.entity.jpa.qualified_name %> instance, and all associated entities, nulling inbound relationships where possible,
    * removing where not possible . */

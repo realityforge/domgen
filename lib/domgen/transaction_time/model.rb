@@ -30,7 +30,22 @@ module Domgen
       end
     end
 
+    facet.enhance(Repository) do
+      attr_writer :supports_cascade_remove
+
+      def supports_cascade_remove?
+        @supports_cascade_remove.nil? ? true : !!@supports_cascade_remove
+      end
+    end
+
     facet.enhance(Entity) do
+
+      attr_writer :supports_cascade_remove
+
+      def supports_cascade_remove?
+        @supports_cascade_remove.nil? ? entity.data_module.repository.transaction_time.supports_cascade_remove? : !!@supports_cascade_remove
+      end
+
       def pre_pre_complete
         attribute =
           self.entity.attribute_by_name?(:CreatedAt) ?
