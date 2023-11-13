@@ -440,7 +440,10 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% if entity.transaction_time? -%>
         _entityManager.flush();
 <% else -%>
-        _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.remove( entity );
+        _entityManager.
+          createNativeQuery( "<%= j_escape_string("DELETE FROM #{entity.sql.qualified_table_name} WHERE #{entity.primary_key.sql.quoted_column_name} = ?") %>" ).
+          setParameter( 1, id ).
+          executeUpdate();
 <% end -%>
       }
     }
