@@ -918,6 +918,12 @@ FRAGMENT
         self.entity.deletable? && (@support_delete.nil? ? true : !!@support_delete)
       end
 
+      attr_writer :support_remove
+
+      def support_remove?
+        self.entity.deletable? && (@support_remove.nil? ? true : !!@support_remove)
+      end
+
       attr_writer :support_refresh
 
       def support_refresh?

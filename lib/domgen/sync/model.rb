@@ -77,6 +77,8 @@ module Domgen
           t.sync.synchronize = false
           t.enable_facet(:transaction_time)
           t.string(:Code, 5, :primary_key => true)
+          t.sync.support_remove = false
+          t.jpa.support_delete = false
         end unless master_data_module.entity_by_name?(self.mapping_source_attribute)
       end
 
@@ -597,6 +599,7 @@ module Domgen
           e.abstract = self.entity.abstract?
           e.final = self.entity.final?
           e.extends = self.entity.extends
+          e.jpa.support_delete = false
 
           if self.entity.extends.nil?
             e.integer(:Id,
@@ -662,6 +665,7 @@ module Domgen
               options['inverse.traversable'] = true
               options['inverse.name'] = a.inverse.name
               options['inverse.multiplicity'] = a.inverse.multiplicity
+              options['inverse.jpa.traversable'] = a.inverse.jpa.traversable?
             end
             options[:collection_type] = a.collection_type
             options[:nullable] = a.nullable? || a.primary_key?

@@ -369,7 +369,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     em.refresh( entity );
   }
 <% end -%>
-<% if dao.entity.jpa.support_delete? -%>
+<% if dao.entity.jpa.support_remove? -%>
 
   @java.lang.Override
   public void remove( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> entity )

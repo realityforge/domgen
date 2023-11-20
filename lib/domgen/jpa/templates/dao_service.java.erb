@@ -70,7 +70,7 @@ package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
   /** Refresh the state of the <%= dao.entity.jpa.qualified_name %> instance from the database, overwriting changes made to the entity, if any. */
   void refresh( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> entity );
 <% end -%>
-<% if dao.entity.jpa.support_delete? -%>
+<% if dao.entity.jpa.support_remove? -%>
 
   /** Remove the <%= dao.entity.jpa.qualified_name %> instance. */
   void remove( @javax.annotation.Nonnull <%= dao.entity.jpa.qualified_name %> entity );

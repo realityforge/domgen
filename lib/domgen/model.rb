@@ -878,7 +878,7 @@ module Domgen
 
     # Can the entities of this type be deleted by application code?
     def deletable?
-      !self.read_only? && (@deletable.nil? ? (self.sync? && self.sync.core? && !self.sync.support_remove? && !self.sync.support_unmanaged? ? false : true) : !!@deletable)
+      !self.read_only? && (@deletable.nil? ? (self.sync? && self.sync.core? && !self.sync.support_unmanaged? ? false : true) : !!@deletable)
     end
 
     def declared_attributes
