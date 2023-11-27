@@ -30,8 +30,8 @@ module Domgen #nodoc
       target_dir = options[:target_dir]
       buildr_project = options[:buildr_project]
       clean_generated_files = options[:clean_generated_files].nil? ? true : !!options[:clean_generated_files]
-      keep_file_patterns = options[:keep_file_patterns]
-      keep_file_names = options[:keep_file_names]
+      keep_file_patterns = options[:keep_file_patterns] || []
+      keep_file_names = options[:keep_file_names] || []
       if buildr_project.nil? && Buildr.application.current_scope.size > 0
         buildr_project = Buildr.project(Buildr.application.current_scope.join(':')) rescue nil
       end
