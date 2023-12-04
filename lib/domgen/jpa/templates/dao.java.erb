@@ -156,7 +156,7 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
   repository_prefix = a.entity == dao.entity ? '' : "_#{Reality::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
 -%>
     {
-      final <%= a.entity.jpa.qualified_name %> other = <%= a.inverse.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}findBy#{a.name}( $_ )" -%>;
+      final <%= a.entity.jpa.qualified_name %> other = <%= a.inverse.jpa.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}findBy#{a.name}( $_ )" -%>;
       if( null != other )
       {
 <% if a.nullable? && !a.immutable? && !a.set_once? -%>
