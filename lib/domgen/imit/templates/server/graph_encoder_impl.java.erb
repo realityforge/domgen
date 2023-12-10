@@ -19,7 +19,7 @@ public class <%= repository.imit.graph_encoder_impl_name %>
 <% end -%>
 <%
   entities_requiring_repositories = []
-  repository.imit.graphs.select{|graph| graph.instance_root? && !graph.bulk_load? }.each do |graph|
+  repository.imit.graphs.select{|graph| graph.instance_root? && !graph.bulk_load? && !graph.filtered? }.each do |graph|
     graph.reachable_entities.collect{|n|repository.entity_by_name(n)}.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
       entity.
          referencing_attributes.
