@@ -26,8 +26,10 @@ public class <%= service.gwt_rpc.servlet_name %>
     .appendValue( java.time.temporal.ChronoField.DAY_OF_MONTH, 1, 2, java.time.format.SignStyle.NOT_NEGATIVE )
     .toFormatter();
 <% end -%>
+<% if service.methods.any?{|method| method.return_value.struct? || method.parameters.any?{|p|p.struct?}} %>
   @javax.annotation.Nonnull
   private transient final com.fasterxml.jackson.databind.ObjectMapper _jsonMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+<% end -%>
   @javax.annotation.Nonnull
   private transient final java.lang.ThreadLocal<java.lang.Integer> _requestState = java.lang.ThreadLocal.withInitial( () -> INITIAL_STATE );
   @javax.inject.Inject
