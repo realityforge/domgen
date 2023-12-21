@@ -853,6 +853,12 @@ FRAGMENT
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
+      attr_writer :generate_metamodel
+
+      def generate_metamodel?
+        @generate_metamodel.nil? ? true : !!@generate_metamodel
+      end
+
       attr_writer :module_local
 
       def module_local?

@@ -25,7 +25,8 @@ Domgen::Generator.define([:jpa],
                               'main/java/#{entity.jpa.qualified_name.gsub(".","/")}.java')
     template_set.erb_template(:entity,
                               'metamodel.java.erb',
-                              'main/java/#{entity.jpa.qualified_metamodel_name.gsub(".","/")}.java')
+                              'main/java/#{entity.jpa.qualified_metamodel_name.gsub(".","/")}.java',
+                              :guard => 'entity.jpa.generate_metamodel?')
     template_set.erb_template(:data_module,
                               'entity_package_info.java.erb',
                               'main/java/#{data_module.jpa.server_entity_package.gsub(".","/")}/package-info.java',
