@@ -600,6 +600,7 @@ module Domgen
           e.final = self.entity.final?
           e.extends = self.entity.extends
           e.jpa.support_delete = false
+          e.jpa.generate_metamodel = false
 
           if self.entity.extends.nil?
             e.integer(:Id,
