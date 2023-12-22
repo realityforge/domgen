@@ -22,7 +22,7 @@ Domgen::Generator.define([:ejb],
     template_set.erb_template(:data_module,
                               'service_package_info.java.erb',
                               'main/java/#{data_module.ejb.server_service_package.gsub(".","/")}/package-info.java',
-                              :guard => 'data_module.services.any?{|e|e.ejb?}')
+                              :guard => 'data_module.services.any?{|e|e.ejb?} && data_module.repository.java.generate_package_info?')
   end
   g.template_set(:ejb_service_facades => [:ejb_services]) do |template_set|
     template_set.erb_template(:repository,

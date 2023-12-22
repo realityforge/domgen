@@ -30,7 +30,7 @@ Domgen::Generator.define([:jpa],
     template_set.erb_template(:data_module,
                               'entity_package_info.java.erb',
                               'main/java/#{data_module.jpa.server_entity_package.gsub(".","/")}/package-info.java',
-                              :guard => 'data_module.entities.any?{|e|e.jpa?}')
+                              :guard => 'data_module.services.any?{|e|e.jpa?} && data_module.repository.java.generate_package_info?')
   end
 
   %w(main test).each do |type|
@@ -104,7 +104,7 @@ Domgen::Generator.define([:jpa],
     template_set.erb_template(:data_module,
                               'dao_package_info.java.erb',
                               'main/java/#{data_module.jpa.server_dao_entity_package.gsub(".","/")}/package-info.java',
-                              :guard => 'data_module.entities.any?{|e|e.jpa?}')
+                              :guard => 'data_module.services.any?{|e|e.jpa?} && data_module.repository.java.generate_package_info?')
   end
 
   g.template_set(:jpa_application_persistence_xml) do |template_set|

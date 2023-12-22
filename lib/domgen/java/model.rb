@@ -572,6 +572,12 @@ module Domgen
 
   FacetManager.facet(:java) do |facet|
     facet.enhance(Repository) do
+      attr_writer :generate_package_info
+
+      def generate_package_info?
+        @generate_package_info.nil? ? false : !!@generate_package_info
+      end
+
       attr_writer :base_package
 
       def base_package
