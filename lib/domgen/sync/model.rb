@@ -79,6 +79,7 @@ module Domgen
           t.string(:Code, 5, :primary_key => true)
           t.sync.support_remove = false
           t.jpa.support_delete = false
+          t.jpa.generate_metamodel = false
         end unless master_data_module.entity_by_name?(self.mapping_source_attribute)
       end
 
