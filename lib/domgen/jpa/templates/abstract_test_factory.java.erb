@@ -1,6 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(data_module.jpa.qualified_abstract_test_factory_name) %>;
 
+<% modules_to_expose = (data_module.sync? ? [data_module.repository.sync.master_data_module] : []) + data_module.entities.select{|e| e.jpa?}.collect{|e| e.attributes.select{|a|!a.generated_value? && a.jpa? && a.jpa.persistent? && a.reference? && a.referenced_entity.data_module.name != data_module.name}.collect{|a|a.referenced_entity.data_module.name.to_s}}.flatten.sort.uniq -%>
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FormalParameterNamingConventions", "PMD.LocalVariableNamingConventions" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "CE_CLASS_ENVY" } )
 public abstract class <%= data_module.jpa.abstract_test_factory_name %>
@@ -41,17 +42,9 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 
 <% end -%>
-<% data_module.repository.data_modules.select{|dm|dm.jpa? && dm.jpa.generate_test_factory? && dm.name != data_module.name}.each do |dm| -%>
-
-  @javax.annotation.Nonnull
-  protected final <%= dm.jpa.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
-  {
-    return s( <%= dm.jpa.qualified_test_factory_name %>.class );
-  }
-
-<% end -%>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
 <% if entity.sync? && entity.sync.core? -%>
+
   @org.jetbrains.annotations.Contract( "null -> null" )
   public final <%= entity.jpa.qualified_name %> to<%= entity.name %>( @javax.annotation.Nullable final <%= entity.sync.master_entity.jpa.qualified_name %> mEntity )
   {
@@ -214,6 +207,14 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   public final <%= entity.dao.jpa.qualified_dao_service_name %> <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>()
   {
     return s( <%= entity.dao.jpa.qualified_dao_service_name %>.class );
+  }
+<% end -%>
+<% data_module.repository.data_modules.select{|dm|dm.jpa? && dm.jpa.generate_test_factory? && modules_to_expose.include?(dm.name.to_s)}.each do |dm| -%>
+
+  @javax.annotation.Nonnull
+  protected final <%= dm.jpa.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
+  {
+    return s( <%= dm.jpa.qualified_test_factory_name %>.class );
   }
 <% end -%>
 
