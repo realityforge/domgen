@@ -167,14 +167,15 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
 repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qualified_name.gsub('.',''))}Repository."
   -%>if( other instanceof <%= st.jpa.qualified_name %> )
         {
-          <%= repository_prefix %>delete( (<%= st.jpa.qualified_name %>) other );
+
+          <%= repository_prefix %><%= st.dao.entity.referencing_attributes.any?{|a|a.jpa?} || st.dao.entity.transaction_time? ? 'delete' : 'remove' %>( (<%= st.jpa.qualified_name %>) other );
         }
         else <% end %>
         {
           throw new java.lang.IllegalStateException( "Unknown subtype: " + other.getClass().getName() + " instance: " + other );
         }
 <% else -%>
-        <%= repository_prefix %>delete( other );
+        <%= repository_prefix %><%= a.entity.dao.entity.referencing_attributes.any?{|a|a.jpa?} || a.entity.dao.entity.transaction_time? ? 'delete' : 'remove' %>( other );
 <% end -%>
 <% end -%>
       }
@@ -194,14 +195,14 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qualified_name.gsub('.',''))}Repository."
   -%>if( other instanceof <%= st.jpa.qualified_name %> )
         {
-          <%= repository_prefix %>delete( (<%= st.jpa.qualified_name %>) other );
+          <%= repository_prefix %><%= st.dao.entity.referencing_attributes.any?{|a|a.jpa?} || st.dao.entity.transaction_time? ? 'delete' : 'remove' %>( (<%= st.jpa.qualified_name %>) other );
         }
         else <% end %>
         {
           throw new java.lang.IllegalStateException( "Unknown subtype: " + other.getClass().getName() + " instance: " + other );
         }
 <% else -%>
-        <%= repository_prefix %>delete( other );
+        <%= repository_prefix %><%= a.entity.dao.entity.referencing_attributes.any?{|a|a.jpa?} || a.entity.dao.entity.transaction_time? ? 'delete' : 'remove' %>( other );
 <% end -%>
 <% end -%>
       }
