@@ -32,7 +32,7 @@ public class <%= repository.gwt_rpc.code_server_config_name %>
     }
   }
 
-  @java.lang.SuppressWarnings( "unchecked" )
+  @java.lang.SuppressWarnings( { "unchecked", "BanJNDI" } )
   @javax.annotation.Nonnull
   private static <T> T lookup( @javax.annotation.Nonnull final String key, @javax.annotation.Nonnull final T defaultValue )
   {
