@@ -9,7 +9,7 @@ package <%= to_package(service.syncrecord.qualified_abstract_service_name) %>;
 <pre>
 @ApplicationScoped
 @Typed( <%= service.ejb.service_name %>.class )
-public class <%= service.syncrecord.qualified_abstract_service_name.to_s.gsub(/^Abstract/,'') %>
+class <%= service.syncrecord.qualified_abstract_service_name.to_s.gsub(/^Abstract/,'') %>
   extends <%= service.syncrecord.qualified_abstract_service_name %>
   implements <%= service.ejb.service_name %>
 {

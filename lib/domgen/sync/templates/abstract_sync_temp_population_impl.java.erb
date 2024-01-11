@@ -9,7 +9,7 @@ package <%= to_package(data_module.sync.qualified_abstract_sync_temp_population_
 @Transactional( Transactional.TxType.REQUIRES_NEW )
 @ApplicationScoped
 @Typed( <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_service_name %>.class )
-public class <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_boundary_implementation_name %>
+class <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_boundary_implementation_name %>
   extends <%= data_module.sync.abstract_sync_temp_population_impl_name %><<%= data_module.sync.qualified_sync_temp_factory_name %>>
   implements <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_service_name %>
 {

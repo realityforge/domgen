@@ -6,7 +6,7 @@ package <%= to_package(repository.imit.qualified_session_manager_name) %>;
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
 @javax.enterprise.inject.Typed( { org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
-public class <%= repository.imit.session_manager_name %>
+class <%= repository.imit.session_manager_name %>
   extends org.realityforge.replicant.server.transport.ReplicantSessionManagerImpl
   implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>
 {

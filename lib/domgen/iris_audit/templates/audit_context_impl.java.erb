@@ -3,7 +3,7 @@ package <%= to_package(repository.iris_audit.qualified_audit_context_impl_name) 
 
 @javax.enterprise.context.ApplicationScoped
 @javax.enterprise.inject.Typed( iris.audit.server.service.AuditContext.class )
-public class <%= repository.iris_audit.audit_context_impl_name %>
+class <%= repository.iris_audit.audit_context_impl_name %>
   extends iris.audit.server.service.AbstractAuditContextImpl
 {
 <% if repository.keycloak? && repository.keycloak.has_local_auth_service? && repository.keycloak.default_client.claim_by_name?(:username) -%>

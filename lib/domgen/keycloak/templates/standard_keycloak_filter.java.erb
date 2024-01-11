@@ -3,7 +3,7 @@ package <%= to_package(client.qualified_standard_keycloak_filter_name) %>;
 
 @javax.enterprise.context.ApplicationScoped
 @javax.enterprise.inject.Typed( <%= client.qualified_keycloak_filter_interface_name %>.class )
-public class <%= client.standard_keycloak_filter_name %>
+class <%= client.standard_keycloak_filter_name %>
   extends <%= client.qualified_abstract_keycloak_filter_name %>
 {
 }

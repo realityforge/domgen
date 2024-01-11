@@ -8,7 +8,7 @@ package <%= to_package(repository.imit.qualified_graph_encoder_impl_name) %>;
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "UP_UNUSED_PARAMETER" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.enterprise.inject.Typed( <%= repository.imit.qualified_graph_encoder_name %>.class )
-public class <%= repository.imit.graph_encoder_impl_name %>
+class <%= repository.imit.graph_encoder_impl_name %>
   implements <%= repository.imit.qualified_graph_encoder_name %>
 {
   @javax.annotation.Nonnull

@@ -24,7 +24,7 @@ public class <%= repository.ejb.cdi_types_test_name %>
   public void ensureReplicantSessionManagerImplementationIsCdiType()
     throws java.lang.Exception
   {
-    org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI(<%=repository.imit.qualified_session_manager_name%>.class );
+    org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI( Class.forName( "<%=repository.imit.qualified_session_manager_name%>" ) );
   }
 <% end -%>
 }

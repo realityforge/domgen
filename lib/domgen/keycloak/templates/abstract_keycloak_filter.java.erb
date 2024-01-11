@@ -7,7 +7,7 @@ package <%= to_package(client.qualified_abstract_keycloak_filter_name) %>;
  * <code>
  * @javax.enterprise.context.ApplicationScoped
  * @javax.enterprise.inject.Typed( <%= client.qualified_keycloak_filter_interface_name %>.class )
- * public class <%= client.abstract_keycloak_filter_name.gsub(/^Abstract/,'') %> extends <%= client.abstract_keycloak_filter_name %>
+ * class <%= client.abstract_keycloak_filter_name.gsub(/^Abstract/,'') %> extends <%= client.abstract_keycloak_filter_name %>
  * {
  *   ...
  * }
