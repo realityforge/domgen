@@ -61,6 +61,7 @@ module Domgen
         @custom_application.nil? ? false : !!@custom_application
       end
 
+      java_artifact :constants, :rest, :server, :ee, '#{repository.name}JaxRsConstants'
       java_artifact :abstract_application, :rest, :server, :ee, 'Abstract#{repository.name}JaxRsApplication'
       java_artifact :standard_application, :rest, :server, :ee, '#{repository.name}JaxRsApplication'
 

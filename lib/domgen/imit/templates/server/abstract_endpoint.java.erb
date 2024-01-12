@@ -4,7 +4,7 @@ package <%= to_package(repository.imit.qualified_abstract_endpoint_name) %>;
 /**
  * Base class that should be extended with code that looks like:
  * <pre><code>
- * {@literal @}ServerEndpoint( <%= repository.jaxrs.abstract_application_name %>.APPLICATION_PATH + SharedConstants.REPLICANT_URL_FRAGMENT )
+ * {@literal @}ServerEndpoint( <%= repository.jaxrs.constants_name %>.APPLICATION_PATH + SharedConstants.REPLICANT_URL_FRAGMENT )
  * {@literal @}ApplicationScoped
  * {@literal @}Transactional
  * public class <%= repository.imit.endpoint_name %>

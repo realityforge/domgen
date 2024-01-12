@@ -24,6 +24,9 @@ Domgen::Generator.define([:jaxrs],
                               'abstract_application.java.erb',
                               'main/java/#{repository.jaxrs.qualified_abstract_application_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
+                              'constants.java.erb',
+                              'main/java/#{repository.jaxrs.qualified_constants_name.gsub(".","/")}.java')
+    template_set.erb_template(:repository,
                               'standard_application.java.erb',
                               'main/java/#{repository.jaxrs.qualified_standard_application_name.gsub(".","/")}.java',
                               :guard => '!repository.jaxrs.custom_application?')
