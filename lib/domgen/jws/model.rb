@@ -92,12 +92,16 @@ module Domgen
         @url || "#{data_module.repository.jws.url}/#{data_module.name}"
       end
 
+      attr_writer :server_ws_service_package
+
       def server_ws_service_package
-        "#{server_service_package}.ws"
+        @server_ws_service_package.nil? ? "#{server_service_package}.ws" : @server_ws_service_package
       end
 
+      attr_writer :server_internal_ws_service_package
+
       def server_internal_ws_service_package
-        "#{server_service_package}.ws.internal"
+        @server_internal_ws_service_package.nil? ? "#{server_service_package}.ws.internal" : @server_internal_ws_service_package
       end
     end
 
