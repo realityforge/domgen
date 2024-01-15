@@ -4,7 +4,7 @@ package <%= to_package(repository.mail.qualified_mail_queue_name) %>;
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
 @javax.enterprise.inject.Typed( iris.mail.server.service.MailQueueService.class )
-class <%= repository.mail.mail_queue_name %>
+public class <%= repository.mail.mail_queue_name %>
   extends iris.mail.server.service.AbstractMailQueueServiceImpl
   implements iris.mail.server.service.MailQueueService
 {
