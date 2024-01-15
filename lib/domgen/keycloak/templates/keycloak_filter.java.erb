@@ -12,6 +12,7 @@ public class <%= client.keycloak_filter_name %>
   private boolean _disabled;
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN" } )
+  @java.lang.SuppressWarnings( { "BanJNDI" } )
   @java.lang.Override
   public void init( final javax.servlet.FilterConfig filterConfig )
     throws javax.servlet.ServletException
