@@ -149,6 +149,7 @@ module Domgen
             if s.ejb?
               s.ejb.generate_boundary = true
               s.ejb.generate_base_test = false
+              s.ejb.module_local = true
             end
 
             s.method(:PreSync) do |m|
