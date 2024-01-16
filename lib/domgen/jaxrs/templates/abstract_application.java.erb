@@ -20,7 +20,7 @@ public abstract class <%= repository.jaxrs.abstract_application_name %>
     classes.add( <%= extension %>.class );
 <% end -%>
 <% if repository.jackson? -%>
-    classes.add( org.glassfish.jersey.jackson.JacksonFeature.class );
+    classes.add( com.fasterxml.jackson.core.util.JacksonFeature.class );
 <% end -%>
     collectClasses( classes );
     return classes;
