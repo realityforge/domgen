@@ -24,6 +24,9 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 <% end -%>
 <% if client.keycloak_repository.repository.imit? || client.keycloak_repository.repository.syncrecord? -%>
 
+<% if client.keycloak_repository.repository.imit? -%>
+  @java.lang.SuppressWarnings( "BanJNDI" )
+<% end -%>
   @javax.annotation.PostConstruct
   protected void postConstruct()
   {
