@@ -729,6 +729,10 @@ module Domgen
       @queries[name.to_s] = query
       query
     end
+
+    def post_complete
+      @queries = @queries.sort.to_h
+    end
   end
 
   class Attribute < self.FacetedElement(:entity)
