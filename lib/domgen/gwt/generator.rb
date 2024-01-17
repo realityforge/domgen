@@ -84,22 +84,22 @@ Domgen::Generator.define([:gwt],
   g.template_set(:gwt_client_gwt_model_module) do |template_set|
     template_set.erb_template(:repository,
                               'model_module.xml.erb',
-                              'main/resources/#{repository.gwt.qualified_model_module_name.gsub(".","/")}.gwt.xml')
+                              'main/java/#{repository.gwt.qualified_model_module_name.gsub(".","/")}.gwt.xml')
   end
 
   g.template_set(:gwt_client_gwt_modules) do |template_set|
     template_set.erb_template(:repository,
                               'app_module.xml.erb',
-                              'main/resources/#{repository.gwt.qualified_app_module_name.gsub(".","/")}.gwt.xml')
+                              'main/java/#{repository.gwt.qualified_app_module_name.gsub(".","/")}.gwt.xml')
     template_set.erb_template(:repository,
                               'dev_module.xml.erb',
-                              'main/resources/#{repository.gwt.qualified_dev_module_name.gsub(".","/")}.gwt.xml')
+                              'main/java/#{repository.gwt.qualified_dev_module_name.gsub(".","/")}.gwt.xml')
     template_set.erb_template(:repository,
                               'prod_module.xml.erb',
-                              'main/resources/#{repository.gwt.qualified_prod_module_name.gsub(".","/")}.gwt.xml')
+                              'main/java/#{repository.gwt.qualified_prod_module_name.gsub(".","/")}.gwt.xml')
     template_set.erb_template('gwt.entrypoint',
                               'entrypoint_module.xml.erb',
-                              'main/resources/#{entrypoint.qualified_gwt_module_name.gsub(".","/")}.gwt.xml',
+                              'main/java/#{entrypoint.qualified_gwt_module_name.gsub(".","/")}.gwt.xml',
                               :guard => 'entrypoint.gwt_repository.repository.gwt.enable_entrypoints?')
   end
 
