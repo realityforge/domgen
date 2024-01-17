@@ -1,86 +1,18 @@
-/* DO NOT EDIT: File is auto-generated */
-<%
-corruption_check_entity = data_module.repository.sql_analysis.corruption_check_entity
--%>
-<%
-  entities = data_module.sql_analysis.entities_to_analyze_id_namespace
-  unless entities.empty?
--%>
---
--- Check the uniqueness of IDs across a type hierarchy
---
-<% data_module.sql_analysis.entities_to_analyze_id_namespace.each do |entity| -%>
-INSERT INTO <%= corruption_check_entity.sql.qualified_table_name %>(<%= corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name%>)
-  VALUES ('Id Namespace', 'An Id must not be appear in multiple tables in the <%= entity.qualified_name %> hierarchy','
-SELECT <%= entity.primary_key.sql.quoted_column_name %>, COUNT(*) AS IDCount
- FROM (
-<%= entity.concrete_subtypes.select{|entity| entity.sql_analysis?}.collect do |subtype|
-   "SELECT #{entity.primary_key.sql.quoted_column_name}, ''#{subtype.name}'' AS Type FROM #{subtype.sql.qualified_table_name}"
-   end.join("\nUNION\n") %>
- ) f
- GROUP BY <%= entity.primary_key.sql.quoted_column_name %>
- HAVING COUNT(*) > 1')
-GO
-<% end -%>
-<% end -%>
-<%
-  references_to_analyze = data_module.sql_analysis.references_to_analyze
-  unless references_to_analyze.empty?
--%>
---
--- Check the relationships match
---
-<% references_to_analyze.each do |attribute| -%>
-INSERT INTO <%= corruption_check_entity.sql.qualified_table_name %>(<%= corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name%>)
-  VALUES ('Relationship', 'The attribute <%= attribute.qualified_name %> must reference an object and the object must not be deleted before the <%= attribute.entity.qualified_name %> is deleted','
-SELECT PK.DeletedAt
- FROM
-  <%= attribute.entity.sql.qualified_table_name %> PK
- LEFT JOIN <%
-      if attribute.referenced_entity.final?
-%><%= attribute.referenced_entity.sql.qualified_table_name %><%
-      else
-%>(
-<%=
-    entity_list = attribute.referenced_entity.compatible_concrete_types
-    entity_list.collect do |subtype| "SELECT #{subtype.primary_key.sql.quoted_column_name}, DeletedAt FROM #{subtype.sql.qualified_table_name}" end.join("\nUNION\n") %>
-  )<%
-      end
-%> FK ON PK.<%= attribute.sql.column_name %> = FK.<%= attribute.referenced_entity.primary_key.sql.column_name %>
- WHERE
-  PK.<%= attribute.sql.column_name %> IS NOT NULL AND (FK.<%= attribute.entity.primary_key.sql.quoted_column_name %> IS NULL OR (PK.DeletedAt IS NULL AND FK.DeletedAt IS NOT NULL) OR (PK.DeletedAt > FK.DeletedAt))
-')
-GO
-<% end -%>
-<% end -%>
-
-<%
-  entities_with_validations = data_module.sql_analysis.entities_with_validations
-  unless entities_with_validations.empty?
--%>
+/* DO NOT EDIT: File is auto-generated */<% unless data_module.sql_analysis.sql_id_hierarchy_check.empty? %>
+  --
+  -- Check the uniqueness of IDs across a type hierarchy
+  --
+  <%= data_module.sql_analysis.sql_id_hierarchy_check.join("\n") %>
+<% end %>
+<% unless data_module.sql_analysis.sql_relationships_match_check.empty? %>
+  --
+  -- Check the relationships match
+  --
+  <%= data_module.sql_analysis.sql_relationships_match_check.join("\n") %>
+<% end %>
+<% unless data_module.sql_analysis.sql_declared_validations_check.empty? %>
   --
   -- Check the declared validations
   --
-<% entities_with_validations.each do |entity| -%>
-<% entity.sql.validations.select{|v| !v.invariant_negative_sql.nil? }.each do |validation| -%>
-INSERT INTO <%= corruption_check_entity.sql.qualified_table_name %>(<%= corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:CommonTableExpression).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name%>)
-  VALUES ('EntityValidation', 'Enforce the validation <%= entity.sql.qualified_table_name %>.<%= validation.name %>: <%= (validation.description || '').gsub("'","''") %>',<%= cte = validation.invariant_common_table_expression; cte.nil? ? 'NULL' : "'#{cte.strip.gsub("'","''")}\n'" %>,'<%= validation.invariant_negative_sql.gsub("'","''").strip %>')
-GO
-<% end -%>
-<% end -%>
-<% end -%>
-<% data_module.entities.select{|entity|entity.sql?}.each do |entity| -%>
-<% entity.attributes.select{|attribute|attribute.sql? && attribute.reference? && :many != attribute.inverse.multiplicity}.each do |attribute| -%>
-INSERT INTO <%= corruption_check_entity.sql.qualified_table_name %>(<%= corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name%>,<%= corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name%>)
-  VALUES ('Reference Multiplicity', 'The reference <%= attribute.qualified_name %> to <%= attribute.referenced_entity.qualified_name %> must be a multiplicity of <%= attribute.inverse.multiplicity %>','
-SELECT O.<%= attribute.referenced_entity.primary_key.sql.quoted_column_name %> AS <%= attribute.referenced_entity.name %><%= attribute.referenced_entity.primary_key.sql.column_name %>, COUNT(S.<%= attribute.referenced_entity.primary_key.sql.quoted_column_name %>) AS RelatedCount
-FROM <%= attribute.referenced_entity.sql.qualified_table_name %> O
-LEFT JOIN <%= entity.sql.qualified_table_name %> S ON S.<%= attribute.sql.quoted_column_name %> = O.<%= attribute.referenced_entity.primary_key.sql.quoted_column_name %><% if entity.transaction_time? -%> AND S.DeletedAt IS NULL<% end %>
-<% if attribute.referenced_entity.transaction_time? -%>
-WHERE O.DeletedAt IS NULL
-<% end -%>
-GROUP BY O.<%= attribute.referenced_entity.primary_key.sql.quoted_column_name %>
-HAVING COUNT(S.<%= entity.primary_key.sql.quoted_column_name %>) <%= :one == attribute.inverse.multiplicity ? '<> 1' : '> 1' %>')
-GO
-<% end -%>
-<% end -%>
+  <%= data_module.sql_analysis.sql_declared_validations_check.join("\n") %>
+<% end %>
