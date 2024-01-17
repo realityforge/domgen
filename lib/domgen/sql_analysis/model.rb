@@ -86,6 +86,12 @@ module Domgen
         validation_values.values
       end
 
+      def validation_by_name(name)
+        validation = validation_values[name.to_s]
+        Domgen.error("No validation named #{name} defined on table #{qualified_table_name}") unless validation
+        validation
+      end
+
       def validation?(name)
         !!validation_values[name.to_s]
       end
@@ -192,7 +198,13 @@ GO"
         end
         data_module.entities.select{|entity|entity.sql?}.each do |entity|
           entity.attributes.select{|attribute|attribute.sql? && attribute.reference? && :many != attribute.inverse.multiplicity}.each do |attribute|
-            unless entity.sql_analysis.validation?("DeclaredValidationCheckReferenceMultiplicity")
+            if entity.sql_analysis.validation?("DeclaredValidationCheckReferenceMultiplicity")
+              entity_validation = entity.sql_analysis.validation_by_name("DeclaredValidationCheckReferenceMultiplicity")
+              sql_declared_validations_check <<
+                "INSERT INTO #{corruption_check_entity.sql.qualified_table_name}(#{corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name})
+  VALUES ('Reference Multiplicity', 'The reference #{attribute.qualified_name} to #{attribute.referenced_entity.qualified_name} must be a multiplicity of #{attribute.inverse.multiplicity}','#{entity_validation.negative_sql}')
+GO"
+            else
               sql_declared_validations_check <<
                 "INSERT INTO #{corruption_check_entity.sql.qualified_table_name}(#{corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name})
   VALUES ('Reference Multiplicity', 'The reference #{attribute.qualified_name} to #{attribute.referenced_entity.qualified_name} must be a multiplicity of #{attribute.inverse.multiplicity}','
