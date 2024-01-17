@@ -1,18 +1,22 @@
-/* DO NOT EDIT: File is auto-generated */<% unless data_module.sql_analysis.sql_id_hierarchy_check.empty? %>
-  --
-  -- Check the uniqueness of IDs across a type hierarchy
-  --
-  <%= data_module.sql_analysis.sql_id_hierarchy_check.join("\n") %>
-<% end %>
-<% unless data_module.sql_analysis.sql_relationships_match_check.empty? %>
-  --
-  -- Check the relationships match
-  --
-  <%= data_module.sql_analysis.sql_relationships_match_check.join("\n") %>
-<% end %>
-<% unless data_module.sql_analysis.sql_declared_validations_check.empty? %>
-  --
-  -- Check the declared validations
-  --
-  <%= data_module.sql_analysis.sql_declared_validations_check.join("\n") %>
-<% end %>
+/* DO NOT EDIT: File is auto-generated */
+<% unless data_module.sql_analysis.sql_id_hierarchy_check.empty? -%>
+
+--
+-- Check the uniqueness of IDs across a type hierarchy
+--
+<%= data_module.sql_analysis.sql_id_hierarchy_check.join("\n") %>
+<% end -%>
+<% unless data_module.sql_analysis.sql_relationships_match_check.empty? -%>
+
+--
+-- Check the relationships match
+--
+<%= data_module.sql_analysis.sql_relationships_match_check.join("\n") %>
+<% end -%>
+<% unless data_module.sql_analysis.sql_declared_validations_check.empty? -%>
+
+--
+-- Check the declared validations
+--
+<%= data_module.sql_analysis.sql_declared_validations_check.join("\n") %>
+<% end -%>
