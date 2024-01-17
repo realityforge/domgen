@@ -1031,9 +1031,10 @@ FRAGMENT
 
         entity.attributes.select {|a| a.jpa? && a.reference? && !a.abstract?}.each do |a|
           query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}By#{a.name}"
-          entity.query(query_name) unless entity.query_by_name?(query_name)
+          exists = entity.query_by_name?(query_name)
+          entity.query(query_name) unless exists
           query = entity.dao.query_by_name(query_name)
-          query.disable_facets_not_in(:jpa)
+          query.disable_facets_not_in(:jpa) unless exists
         end
 
         entity.queries.select {|query| query.jpa? && query.jpa.no_ql?}.each do |query|

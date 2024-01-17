@@ -733,6 +733,10 @@ module Domgen
     def post_complete
       @queries = @queries.sort.to_h
     end
+
+    def post_verify
+      @queries = @queries.sort.to_h
+    end
   end
 
   class Attribute < self.FacetedElement(:entity)

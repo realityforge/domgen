@@ -12,7 +12,7 @@ public class <%= repository.jpa.dao_module_name %>
   {
 <%
   repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
-    data_module.daos.select{|dao| dao.jpa? && (!dao.repository? || dao.entity.jpa?)}.each do |dao|
+    data_module.daos.select{|dao| dao.jpa? && (!dao.repository? || dao.entity.jpa?)}.sort_by{|dao| dao.name.to_s}.each do |dao|
 -%>
     bind<%= dao.qualified_name.to_s.gsub('.','') %>();
 <%
@@ -25,7 +25,7 @@ public class <%= repository.jpa.dao_module_name %>
   }
 <%
   repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
-    data_module.daos.select{|dao| dao.jpa? && (!dao.repository? || dao.entity.jpa?)}.each do |dao|
+    data_module.daos.select{|dao| dao.jpa? && (!dao.repository? || dao.entity.jpa?)}.sort_by{|dao| dao.name.to_s}.each do |dao|
 -%>
 
   protected void bind<%= dao.qualified_name.to_s.gsub('.','') %>()

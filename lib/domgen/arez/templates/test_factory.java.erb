@@ -12,17 +12,17 @@ public final class <%= data_module.arez.test_factory_name %>
   @javax.annotation.Nonnull
   private final <%= data_module.repository.arez.qualified_factory_set_name %> _factorySet;
 <% end -%>
-<% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
+<% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.name}.each do |dao| -%>
   @javax.annotation.Nonnull
   private final <%= dao.arez.qualified_repository_name %> _<%= Reality::Naming.camelize(dao.name) %>;
 <% end -%>
 
-  <%= data_module.arez.test_factory_name %>( <% if include_factory_set %>@javax.annotation.Nonnull final <%= data_module.repository.arez.qualified_factory_set_name %> factorySet, <% end -%><%= data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.name)}" }.join(', ') -%>)
+  <%= data_module.arez.test_factory_name %>( <% if include_factory_set %>@javax.annotation.Nonnull final <%= data_module.repository.arez.qualified_factory_set_name %> factorySet, <% end -%><%= data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.name}.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.name)}" }.join(', ') -%>)
   {
 <% if include_factory_set -%>
     _factorySet = java.util.Objects.requireNonNull( factorySet );
 <% end -%>
-<% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
+<% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.name}.each do |dao| -%>
     _<%= Reality::Naming.camelize(dao.name) %> = java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(dao.name) %> );
 <% end -%>
   }
@@ -33,7 +33,7 @@ public final class <%= data_module.arez.test_factory_name %>
     return this;
   }
 
-<% data_module.repository.data_modules.select{|dm|dm.arez? && dm.name != data_module.name}.each do |dm| -%>
+<% data_module.repository.data_modules.select{|dm|dm.arez? && dm.name != data_module.name}.sort_by{|dm| dm.name}.each do |dm| -%>
   @javax.annotation.Nonnull
   <%= dm.arez.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
   {
@@ -106,7 +106,7 @@ end.join(', ') -%> );
 
 <% end -%>
 <% end -%>
-<% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.each do |dao| -%>
+<% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.name}.each do |dao| -%>
 
   @javax.annotation.Nonnull
   public <%= dao.arez.qualified_repository_name %> <%= Reality::Naming.camelize(dao.name) %>()
