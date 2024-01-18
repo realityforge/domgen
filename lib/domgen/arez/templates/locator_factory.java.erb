@@ -7,7 +7,7 @@ public final class <%= repository.arez.locator_factory_name %>
   private <%= repository.arez.locator_factory_name %>()
   {
   }
-<% daos = repository.data_modules.select{|data_module|data_module.arez?}.collect {|data_module| data_module.entities.select{|entity|entity.arez? && entity.concrete?}.collect{|entity|entity.dao}}.flatten.sort_by{|dao| dao.name} -%>
+<% daos = repository.data_modules.select{|data_module|data_module.arez?}.collect {|data_module| data_module.entities.select{|entity|entity.arez? && entity.concrete?}.collect{|entity|entity.dao}}.flatten.sort_by{|dao| dao.name.to_s} -%>
   @javax.annotation.Nonnull
   public static arez.Locator createLocator( <%= daos.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.qualified_name.gsub('.',''))}"}.join(', ') %> )
   {
