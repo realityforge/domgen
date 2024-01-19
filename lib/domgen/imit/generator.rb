@@ -41,9 +41,10 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:repository,
                               'client/router.java.erb',
                               'main/java/#{repository.imit.qualified_client_router_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'client/subscription_util.java.erb',
-                              'main/java/#{repository.imit.qualified_subscription_util_name.gsub(".","/")}.java')
+    template_set.erb_template('imit.graph',
+                              'client/graph_subscription_util.java.erb',
+                              'main/java/#{graph.qualified_subscription_util_name.gsub(".","/")}.java',
+                              :guard => 'graph.external_visibility?')
   end
 
   g.template_set(:imit_client_react4j_support) do |template_set|
