@@ -198,11 +198,11 @@ GO"
         end
         data_module.entities.select{|entity|entity.sql?}.each do |entity|
           entity.attributes.select{|attribute|attribute.sql? && attribute.reference? && :many != attribute.inverse.multiplicity}.each do |attribute|
-            if entity.sql_analysis.validation?("DeclaredValidationCheckReferenceMultiplicity")
-              entity_validation = entity.sql_analysis.validation_by_name("DeclaredValidationCheckReferenceMultiplicity")
+            if entity.sql_analysis.validation?("#{entity.name}ReferenceMultiplicity")
+              entity_validation = entity.sql_analysis.validation_by_name("#{entity.name}ReferenceMultiplicity")
               sql_declared_validations_check <<
-                "INSERT INTO #{corruption_check_entity.sql.qualified_table_name}(#{corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:CommonTableExpression).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name})
-  VALUES ('Reference Multiplicity', 'The reference #{attribute.qualified_name} to #{attribute.referenced_entity.qualified_name} must be a multiplicity of #{attribute.inverse.multiplicity}','#{entity_validation.common_table_expression}','#{entity_validation.negative_sql}')
+                "INSERT INTO #{corruption_check_entity.sql.qualified_table_name}(#{corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name})
+  VALUES ('Reference Multiplicity', 'The reference #{attribute.qualified_name} to #{attribute.referenced_entity.qualified_name} must be a multiplicity of #{attribute.inverse.multiplicity}','#{entity_validation.negative_sql}')
 GO"
             else
               sql_declared_validations_check <<
