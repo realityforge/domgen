@@ -3,7 +3,7 @@ package <%= to_package(repository.imit.qualified_abstract_schema_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 public abstract class <%= repository.imit.abstract_schema_test_name %>
-  extends <%= repository.gwt.qualified_client_test_name %>
+  extends <%= repository.gwt.qualified_client_entity_test_name %>
 {
 <% repository.imit.graphs.each do |graph| -%>
   @org.testng.annotations.Test

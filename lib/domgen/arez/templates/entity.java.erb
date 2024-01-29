@@ -2,7 +2,7 @@
 package <%= to_package(entity.arez.qualified_name) %>;
 
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EI_EXPOSE_REP", "EI_EXPOSE_REP2", "ACEM_ABSTRACT_CLASS_EMPTY_METHODS", "SPP_EQUALS_ON_ENUM" } )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "unchecked", "JavaDoc", "PMD.IfStmtsMustUseBraces", "Arez:UnmanagedComponentReference", "Arez:UnnecessaryDefault" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "unchecked", "JavaDoc", "PMD.IfStmtsMustUseBraces", "Arez:UnmanagedComponentReference", "Arez:UnnecessaryDefault", "RedundantSuppression" } )
 <% unless entity.abstract? -%>
 <% has_arez_elements = !entity.arez.referencing_client_side_attributes.empty? || entity.attributes.any?{|a|a.arez? && (!a.immutable? || a.reference?) } -%>
 <%

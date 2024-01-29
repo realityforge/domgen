@@ -17,7 +17,7 @@ public final class <%= repository.arez.factory_set_name %>
     _<%= Reality::Naming.camelize(data_module.name) %> = java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(data_module.name) %> );
 <% end -%>
   }
-<% repository.data_modules.select{|data_module|data_module.arez?}.sort_by{|dao| dao.name}.each do |data_module| -%>
+<% repository.data_modules.select{|data_module|data_module.arez?}.sort_by{|dao| dao.qualified_name}.each do |data_module| -%>
 
   @javax.annotation.Nonnull
   public <%= data_module.arez.qualified_test_factory_name %> <%= Reality::Naming.camelize(data_module.name) %>()
