@@ -343,6 +343,12 @@ module Domgen
         @support_remove.nil? ? true : !!@support_remove
       end
 
+      attr_writer :support_valid_until
+
+      def support_valid_until?
+        @support_valid_until.nil? ? false : !!@support_valid_until
+      end
+
       attr_writer :support_unmanaged
 
       # Return true if this entity supports entity instances other than those that come through synchronization
@@ -616,7 +622,11 @@ module Domgen
             e.string(:MappingId, 50, :immutable => true, :description => 'The ID of entity in originating system')
             e.boolean(:MasterSynchronized, :description => 'Set to true if synchronized from master tables into the main data area')
 
-            filter = self.entity.sync.support_remove? ? "#{e.sql.dialect.quote(:DeletedAt)} IS NULL" : nil
+            filter = if self.entity.sync.support_remove?
+                       "#{e.sql.dialect.quote(:DeletedAt)} IS NULL"
+                     else
+                       self.entity.sync.support_valid_until? ? "#{e.sql.dialect.quote(:ValidUntil)} IS NULL" : nil
+                     end
             e.sql.index([:MappingId, :MappingKey, :MappingSource], :unique => true, :filter => filter)
             e.sql.index([:MappingSource, :MappingId], :include_attribute_names => [:Id], :filter => filter)
           end
