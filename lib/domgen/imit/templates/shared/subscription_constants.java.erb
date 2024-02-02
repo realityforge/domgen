@@ -8,7 +8,7 @@ public final class <%= repository.imit.subscription_constants_name %>
     elements = g.instance_root? ? g.reachable_entities.sort : g.type_roots
     data = <<-DATA
   /**
-   * #{g.name} is a #{g.universal_visibility? ? 'internally and externally' : g.internal_visibility? ? 'internally' : 'externally'} visible, #{g.instance_root? ? 'instance' : 'type'}-based replication graph#{g.cacheable? ? " that is cached" : ''}.
+   * #{g.name} is an #{g.universal_visibility? ? 'internally and externally' : g.internal_visibility? ? 'internally' : 'externally'} visible, #{g.instance_root? ? 'instance' : 'type'}-based replication graph#{g.cacheable? ? " that is cached" : ''}.
    * The graph #{g.bulk_load? ? 'supports' : 'does not support'} bulk loads.
    *
 DATA
