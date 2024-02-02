@@ -95,7 +95,7 @@ final class <%= repository.imit.server_router_name %>
 <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
   data_module.entities.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
-    outgoing_links = entity.attributes.select {|a| a.reference? && a.arez? && a.inverse.arez.traversable? && a.referenced_entity.arez?}
+    outgoing_links = entity.attributes.select {|a| a.reference? && a.arez? && a.inverse.traversable? && a.referenced_entity.arez?}
  -%>
 
   @javax.annotation.Nonnull
