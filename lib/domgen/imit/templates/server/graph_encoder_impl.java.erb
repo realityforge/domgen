@@ -50,11 +50,11 @@ class <%= repository.imit.graph_encoder_impl_name %>
   {
     _encode<%= graph.name %>_<%= entity.name %>( messages, object<%= filter_param.nil? ? '' : ', filter' %> );
   }
-
 <%
   graph.reachable_entities.collect{|n|repository.entity_by_name(n)}.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
     outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) && !a.imit.graph_links.any?{|g| g.source_graph == graph && !g.exclude_target? }}
 -%>
+
   private void _encode<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", final #{filter_param}" %> )
   {
     encodeObject( messages, object );
