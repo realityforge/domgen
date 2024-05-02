@@ -426,6 +426,7 @@ module Domgen
             Domgen.error("#{prefix} #{attribute_name_path_element} is not a reference") unless other.reference?
             entity = other.referenced_entity
           end
+          Domgen.error("GraphLink from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.name}' with path element does not identify the root of the target graph") if entity.qualified_name != entity.data_module.repository.imit.graph_by_name(self.target_graph).instance_root
         end
 
         repository = imit_attribute.attribute.entity.data_module.repository
