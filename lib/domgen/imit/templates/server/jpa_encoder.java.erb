@@ -93,7 +93,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% if attribute.nullable? -%>
         // findColumn will generate an error if the column has not been supplied in resultset
         resultSet.findColumn( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
-        final Integer targetId = resultSet.getInteger( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
+        final Integer targetId = (java.lang.Integer) resultSet.getObject( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
 <% else -%>
         // findColumn will generate an error if the column has not been supplied in resultset
         resultSet.findColumn( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
