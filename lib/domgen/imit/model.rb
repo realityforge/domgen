@@ -376,7 +376,13 @@ module Domgen
         repository.imit.graph_by_name(source_graph).send(:register_outward_graph_link, self)
         repository.imit.graph_by_name(target_graph).send(:register_inward_graph_link, self)
         self.exclude_target = false unless repository.imit.graph_by_name(target_graph).instance_root?
-        self.imit_attribute.attribute.inverse.imit.exclude_edges << target_graph if self.exclude_target?
+        if self.exclude_target?
+          if self.imit_attribute.attribute.inverse.imit.exclude_edges.include?(target_graph)
+            Domgen.error("#{imit_attribute.attribute.qualified_name} explicitly excludes graph #{target_graph} but also has a graph link named #{name} that references target that implicitly adds exclude. Remove explicit exclude as it is not needed.")
+          else
+            self.imit_attribute.attribute.inverse.imit.implicit_exclude_edges << target_graph
+          end
+        end
       end
 
       attr_reader :name
@@ -1107,7 +1113,7 @@ module Domgen
             unless graph.reachable_entities.include?(entity.qualified_name.to_s)
               graph.reachable_entities << entity.qualified_name.to_s
               entity.referencing_attributes.each do |a|
-                if a.imit? && a.inverse.imit.traversable? && !a.inverse.imit.exclude_edges.include?(graph.name)
+                if a.imit? && a.inverse.imit.traversable? && !a.inverse.imit.all_exclude_edges.include?(graph.name)
                   graph.leaf_list.delete(entity.qualified_name.to_s)
                   a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
                   Domgen.error("#{a.qualified_name} is not immutable but is on path in graph #{graph.name}") unless a.immutable?
@@ -1383,6 +1389,14 @@ module Domgen
 
       def traversable?
         @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.imit?) : @traversable
+      end
+
+      def all_exclude_edges
+        self.implicit_exclude_edges + self.exclude_edges
+      end
+
+      def implicit_exclude_edges
+        @implicit_exclude_edges ||= []
       end
 
       def exclude_edges
