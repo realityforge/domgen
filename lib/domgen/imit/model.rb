@@ -371,10 +371,14 @@ module Domgen
         @name = name
         @source_graph = source_graph
         @target_graph = target_graph
-        @auto = !imit_attribute.attribute.primary_key?
+        @auto = true
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(source_graph).send(:register_outward_graph_link, self)
         repository.imit.graph_by_name(target_graph).send(:register_inward_graph_link, self)
+        configured_auto = options[:auto] || options['auto']
+        if configured_auto
+          Domgen.error("GraphLink on #{imit_attribute.attribute.qualified_name} from #{source_graph} to #{target_graph} specified auto=true property but this is now the default")
+        end
         self.exclude_target = false unless repository.imit.graph_by_name(target_graph).instance_root?
         if self.exclude_target?
           if self.imit_attribute.attribute.inverse.imit.exclude_edges.include?(target_graph)
