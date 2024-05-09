@@ -372,9 +372,14 @@ module Domgen
         @source_graph = source_graph
         @target_graph = target_graph
         @auto = true
+        @exclude_target = nil
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(source_graph).send(:register_outward_graph_link, self)
         repository.imit.graph_by_name(target_graph).send(:register_inward_graph_link, self)
+        configred_exclude_target = options[:exclude_target] || options['exclude_target']
+        if configred_exclude_target && !imit_attribute.attribute.entity.data_module.repository.imit.graph_by_name(target_graph).instance_root?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' marked as exclude_target=true but the target graph is a type graph.")
+        end
         configured_auto = options[:auto] || options['auto']
         if configured_auto
           Domgen.error("GraphLink on #{imit_attribute.attribute.qualified_name} from #{source_graph} to #{target_graph} specified auto=true property but this is now the default")
