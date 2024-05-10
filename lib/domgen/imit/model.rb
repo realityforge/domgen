@@ -384,8 +384,7 @@ module Domgen
         if configured_auto
           Domgen.error("GraphLink on #{imit_attribute.attribute.qualified_name} from #{source_graph} to #{target_graph} specified auto=true property but this is now the default")
         end
-        self.exclude_target = false unless repository.imit.graph_by_name(target_graph).instance_root?
-        if self.exclude_target?
+        if repository.imit.graph_by_name(target_graph).instance_root? && self.exclude_target? && !self.imit_attribute.attribute.primary_key?
           if self.imit_attribute.attribute.inverse.imit.exclude_edges.include?(target_graph)
             Domgen.error("#{imit_attribute.attribute.qualified_name} explicitly excludes graph #{target_graph} but also has a graph link named #{name} that references target that implicitly adds exclude. Remove explicit exclude as it is not needed.")
           else
@@ -421,11 +420,12 @@ module Domgen
       # Should we exclude the target entity from source graph? Typically done for automatically
       # traversing graphs but sometimes you may wish to override this.
       def exclude_target?
+        Domgen.error("Invoked exclude_target? on #{self} which is not an instance graph") unless self.imit_attribute.attribute.entity.data_module.repository.imit.graph_by_name(target_graph).instance_root?
         @exclude_target.nil? ? self.auto? : !!@exclude_target
       end
 
       def to_s
-        "GraphLink[#{source_graph} => #{target_graph}](auto=#{auto?}, exclude_target=#{exclude_target?}, path=#{path.inspect}, name=#{name})"
+        "GraphLink[#{source_graph} => #{target_graph}](auto=#{auto?}, exclude_target=#{@exclude_target.nil? ? self.auto? : !!@exclude_target}, path=#{path.inspect}, name=#{name})"
       end
 
       def post_verify
