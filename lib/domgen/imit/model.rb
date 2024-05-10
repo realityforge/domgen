@@ -1122,13 +1122,19 @@ module Domgen
             unless graph.reachable_entities.include?(entity.qualified_name.to_s)
               graph.reachable_entities << entity.qualified_name.to_s
               entity.referencing_attributes.each do |a|
-                if a.imit? && a.inverse.imit.traversable? && !a.inverse.imit.all_exclude_edges.include?(graph.name)
-                  graph.leaf_list.delete(entity.qualified_name.to_s)
-                  a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
-                  Domgen.error("#{a.qualified_name} is not immutable but is on path in graph #{graph.name}") unless a.immutable?
-                  unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
-                    entity_list << a.entity
-                    graph.leaf_list << a.entity.qualified_name.to_s
+                if a.imit? && a.inverse.imit.traversable?
+                  if a.inverse.imit.all_exclude_edges.include?(graph.name)
+                    # Record the set of edges excluded so that we can later check that the only excluded
+                    # edges configured are those that are necessary
+                    a.inverse.imit.edges_excluded << graph.name
+                  else
+                    graph.leaf_list.delete(entity.qualified_name.to_s)
+                    a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
+                    Domgen.error("#{a.qualified_name} is not immutable but is on path in graph #{graph.name}") unless a.immutable?
+                    unless graph.reachable_entities.include?(a.entity.qualified_name.to_s)
+                      entity_list << a.entity
+                      graph.leaf_list << a.entity.qualified_name.to_s
+                    end
                   end
                 end
               end
@@ -1136,6 +1142,20 @@ module Domgen
           end
         end
         repository.imit.graphs.each(&:post_verify)
+
+        repository.data_modules.select{|dm|dm.imit?}.each do |data_module|
+          data_module.entities.select{|e|e.imit?}.each do |entity|
+            entity.referencing_attributes.each do |a|
+              if a.imit?
+                a.inverse.imit.exclude_edges.each do |edge|
+                  unless a.inverse.imit.edges_excluded.include?(edge)
+                    puts("#{a.qualified_name} defined a 'inverse.imit.exclude_edges' property that includes graph #{edge} that was not used during traversal")
+                  end
+                end
+              end
+            end
+          end
+        end
 
         imitations = []
         repository.data_modules.select { |data_module| data_module.arez? }.each do |data_module|
@@ -1402,6 +1422,10 @@ module Domgen
 
       def all_exclude_edges
         self.implicit_exclude_edges + self.exclude_edges
+      end
+
+      def edges_excluded
+        @edges_excluded ||= []
       end
 
       def implicit_exclude_edges
