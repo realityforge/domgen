@@ -1122,12 +1122,12 @@ module Domgen
             unless graph.reachable_entities.include?(entity.qualified_name.to_s)
               graph.reachable_entities << entity.qualified_name.to_s
               entity.referencing_attributes.each do |a|
-                if a.imit? && a.inverse.imit.traversable?
+                if a.imit?
                   if a.inverse.imit.all_exclude_edges.include?(graph.name)
                     # Record the set of edges excluded so that we can later check that the only excluded
                     # edges configured are those that are necessary
                     a.inverse.imit.edges_excluded << graph.name
-                  else
+                  elsif a.inverse.imit.traversable?
                     graph.leaf_list.delete(entity.qualified_name.to_s)
                     a.inverse.imit.replication_edges = a.inverse.imit.replication_edges + [graph.name]
                     Domgen.error("#{a.qualified_name} is not immutable but is on path in graph #{graph.name}") unless a.immutable?
@@ -1149,7 +1149,7 @@ module Domgen
               if a.imit?
                 a.inverse.imit.exclude_edges.each do |edge|
                   unless a.inverse.imit.edges_excluded.include?(edge)
-                    puts("#{a.qualified_name} defined a 'inverse.imit.exclude_edges' property that includes graph #{edge} that was not used during traversal")
+                    Domgen.error("#{a.qualified_name} defined a 'inverse.imit.exclude_edges' property that includes graph #{edge} that was not used during traversal")
                   end
                 end
               end
