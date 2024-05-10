@@ -1143,14 +1143,12 @@ module Domgen
         end
         repository.imit.graphs.each(&:post_verify)
 
-        repository.data_modules.select{|dm|dm.imit?}.each do |data_module|
-          data_module.entities.select{|e|e.imit?}.each do |entity|
-            entity.referencing_attributes.each do |a|
-              if a.imit?
-                a.inverse.imit.exclude_edges.each do |edge|
-                  unless a.inverse.imit.edges_excluded.include?(edge)
-                    Domgen.error("#{a.qualified_name} defined a 'inverse.imit.exclude_edges' property that includes graph #{edge} that was not used during traversal")
-                  end
+        repository.data_modules.select { |dm| dm.imit? }.each do |data_module|
+          data_module.entities.select { |e| e.imit? }.each do |entity|
+            entity.referencing_attributes.select { |a| a.imit? }.each do |a|
+              a.inverse.imit.exclude_edges.each do |edge|
+                unless a.inverse.imit.edges_excluded.include?(edge)
+                  Domgen.error("#{a.qualified_name} defined a 'inverse.imit.exclude_edges' property that includes graph #{edge} that was not used during traversal")
                 end
               end
             end
