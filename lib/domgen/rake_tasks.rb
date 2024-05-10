@@ -29,6 +29,7 @@ module Domgen #nodoc
       repository_key = options[:repository_key]
       target_dir = options[:target_dir]
       buildr_project = options[:buildr_project]
+      pre_generate_task = options[:pre_generate_task]
       clean_generated_files = options[:clean_generated_files].nil? ? true : !!options[:clean_generated_files]
       keep_file_patterns = options[:keep_file_patterns] || []
       keep_file_names = options[:keep_file_names] || []
@@ -63,7 +64,7 @@ module Domgen #nodoc
         buildr_project.clean { rm_rf target_dir }
       end
 
-      Domgen::GenerateTask.new(repository_key, build_key, generator_keys, target_dir, buildr_project, clean_generated_files) do |g|
+      Domgen::GenerateTask.new(repository_key, build_key, generator_keys, target_dir, buildr_project, clean_generated_files, pre_generate_task) do |g|
         g.keep_filter = Proc.new do |file|
           filename = file.to_s
           result = keep_file_names.include?(filename)
@@ -91,15 +92,17 @@ module Domgen #nodoc
     attr_reader :key
     attr_reader :generator_keys
     attr_reader :target_dir
+    attr_reader :pre_generate_task
 
     attr_reader :task_name
 
-    def initialize(repository_key, key, generator_keys, target_dir, buildr_project = nil, clean_generated_files = true)
+    def initialize(repository_key, key, generator_keys, target_dir, buildr_project = nil, clean_generated_files = true, pre_generate_task = nil)
       @repository_key, @key, @generator_keys, @buildr_project =
         repository_key, key, generator_keys, buildr_project
       @namespace_key = :domgen
       @filter = nil
       @keep_filter = nil
+      @pre_generate_task = pre_generate_task
       @template_map = {}
       # Turn on verbose messages if buildr is turned on tracing
       @verbose = trace?
@@ -127,6 +130,10 @@ module Domgen #nodoc
 
     def verbose?
       !!@verbose
+    end
+
+    def pre_generate_task
+      @pre_generate_task
     end
 
     def full_task_name
@@ -169,6 +176,7 @@ module Domgen #nodoc
             raise e.message
           end
         end
+        t.enhance([self.pre_generate_task]) if self.pre_generate_task
         @task_name = t.name
         Domgen::TaskRegistry.append_to_all_task(self.namespace_key, t.name)
       end
