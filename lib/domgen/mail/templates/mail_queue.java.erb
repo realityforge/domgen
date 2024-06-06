@@ -17,28 +17,36 @@ public class <%= repository.mail.mail_queue_name %>
   {
     return _session;
   }
+<% if repository.mail.persist_on_send? -%>
 
   @java.lang.Override
   protected boolean persistOnSend()
   {
-    return <%= repository.mail.persist_on_send? %>;
+    return true;
   }
+<% end -%>
+<% unless repository.mail.clear_message_on_send? -%>
 
   @java.lang.Override
   protected boolean clearMessageOnSend()
   {
-    return <%= repository.mail.clear_message_on_send? %>;
+    return false;
   }
+<% end -%>
+<% unless repository.mail.persist_on_error? -%>
 
   @java.lang.Override
   protected boolean persistOnError()
   {
-    return <%= repository.mail.persist_on_error? %>;
+    return false;
   }
+<% end -%>
+<% unless repository.mail.clear_error_on_send? -%>
 
   @java.lang.Override
   protected boolean clearErrorOnSend()
   {
-    return <%= repository.mail.clear_error_on_send? %>;
+    return false;
   }
+<% end -%>
 }
