@@ -656,11 +656,6 @@ JAVA
     implements javax.validation.ConstraintValidator<#{validation_name(constraint_name)}, #{entity.jpa.name}>
   {
     @java.lang.Override
-    public void initialize( final #{validation_name(constraint_name)} constraintAnnotation )
-    {
-    }
-
-    @java.lang.Override
     public boolean isValid( final #{entity.jpa.name} object, final javax.validation.ConstraintValidatorContext constraintContext )
     {
       if ( null == object )
