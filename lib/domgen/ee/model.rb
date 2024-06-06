@@ -99,7 +99,6 @@ module Domgen
         @version = version
       end
 
-      java_artifact :abstract_filter, :filter, :server, :ee, 'Abstract#{repository.name}Filter'
       java_artifact :aggregate_data_type_test, :test, :server, :ee, '#{repository.name}AggregateDataTypeTest', :sub_package => 'util'
       java_artifact :jndi_resource_constants, nil, :server, :ee, '#{repository.name}JndiConstants'
       java_artifact :message_module, :test, :server, :ee, '#{repository.name}MessagesModule', :sub_package => 'util'

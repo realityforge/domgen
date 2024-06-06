@@ -67,12 +67,6 @@ Domgen::Generator.define([:ee],
     template_set.erb_template(:repository, 'model_beans.xml.erb', 'main/resources/beans.xml')
   end
 
-  g.template_set(:ee_filter) do |template_set|
-    template_set.erb_template(:repository,
-                              'abstract_filter.java.erb',
-                              'main/java/#{repository.ee.qualified_abstract_filter_name.gsub(".","/")}.java')
-  end
-
   %w(main test).each do |type|
     g.template_set(:"ee_#{type}_qa") do |template_set|
       template_set.erb_template(:enumeration,
