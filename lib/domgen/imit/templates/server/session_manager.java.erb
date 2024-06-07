@@ -156,19 +156,26 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
      key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
      next if processed.include?(key)
      processed << key
-     instance_root = repository.entity_by_name(target_graph.instance_root)
-     entity = repository.entity_by_name(graph.instance_root)
+     target_graph_instance_root = repository.entity_by_name(target_graph.instance_root)
+     source_graph_instance_root = repository.entity_by_name(graph.instance_root)
 -%>
+  @javax.annotation.Nonnull
+  @java.lang.SuppressWarnings( "unused" )
+  protected <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>@javax.annotation.Nonnull final <%= source_graph_instance_root.jpa.qualified_name %> sourceGraphInstanceRoot, <% end %>@javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+  {
+    return filter;
+  }
 
   private void propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final <%= root_type %> id, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
   {
 <% if graph.instance_root? -%>
-    final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
+    final <%= source_graph_instance_root.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{source_graph_instance_root.data_module.name}#{source_graph_instance_root.name}") %>Repository.getBy<%= source_graph_instance_root.primary_key.name %>( id );
 <% end -%>
+    final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> targetFilter = deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>entity, <% end -%>filter );
     // Propagate the filter from <%= graph.name %> to downstream graph <%= target_graph.name %>
-    for ( final <%= instance_root.jpa.qualified_name %> downstreamEntity : _context.getLinksToUpdateFor<%= graph_link.source_graph %>To<%= target_graph.name %>( <% if graph.instance_root? -%>entity, <% end -%>filter ) )
+    for ( final <%= target_graph_instance_root.jpa.qualified_name %> downstreamEntity : _context.getLinksToUpdateFor<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>entity, <% end -%>filter ) )
     {
-      subscribe( session, new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, downstreamEntity.get<%= instance_root.primary_key.name %>() ), true, filter, changeSet );
+      subscribe( session, new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, downstreamEntity.get<%= target_graph_instance_root.primary_key.name %>() ), true, targetFilter, changeSet );
     }
   }
 <% end -%>
