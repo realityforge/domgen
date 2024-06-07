@@ -88,7 +88,11 @@ entities.uniq.each do |entity| -%>
       final Integer subChannelId = address.getSubChannelId();
       assert null != subChannelId;
 <% end -%>
-      return _context.filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, subChannelId<% end %><% if graph.filter_parameter? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%>) session.getSubscriptionEntry( address ).getFilter()<% end %><%= extra_interest_filter %> );
+<% if graph.filter_parameter? -%>
+      final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> filter = (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) session.getSubscriptionEntry( address ).getFilter();
+      assert null != filter;
+<% end -%>
+      return _context.filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, subChannelId<% end %><% if graph.filter_parameter? %>, filter<% end %><%= extra_interest_filter %> );
     }
 <% end -%>
     return super.filterEntityMessage( session, address, message );
@@ -114,7 +118,11 @@ entities.uniq.each do |entity| -%>
     if( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
       assert null != filter;
-      propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( session, <% if graph.instance_root? %>address.getSubChannelId(), <% end %>(<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter, changeSet );
+<% if graph.instance_root? -%>
+      final Integer subChannelId = address.getSubChannelId();
+      assert null != subChannelId;
+<% end -%>
+      propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( session, <% if graph.instance_root? %>subChannelId, <% end %>(<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter, changeSet );
     }
 <% end -%>
 <% end -%>
@@ -163,6 +171,9 @@ entities.uniq.each do |entity| -%>
   }
 <% end -%>
 
+<% unless graph.instance_root? -%>
+  @java.lang.SuppressWarnings( { "SqlNoDataSourceInspection", "resource" } )
+<% end -%>
   @javax.annotation.Nonnull
   private org.realityforge.replicant.server.transport.SubscribeResult collectDataFor<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filter_parameter? -%>, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>)
   {
@@ -242,7 +253,7 @@ entities.uniq.each do |entity| -%>
     {
       if ( LOG.isLoggable( SUBSCRIPTION_LOG_LEVEL ) )
       {
-        LOG.log( SUBSCRIPTION_LOG_LEVEL, "bulkCollectDataForSubscribe(SessionId=" + session.getId() +",ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Ids=" + addresses.stream().map( a -> a.getSubChannelId() ).collect( java.util.stream.Collectors.toList() ) + <% end -%>", isExplicitSubscribe=" + isExplicitSubscribe + ")" );
+        LOG.log( SUBSCRIPTION_LOG_LEVEL, "bulkCollectDataForSubscribe(SessionId=" + session.getId() +",ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Ids=" + addresses.stream().map( org.realityforge.replicant.server.ChannelAddress::getSubChannelId ).toList() + <% end -%>", isExplicitSubscribe=" + isExplicitSubscribe + ")" );
       }
       _context.bulkCollectFor<%= graph.name %>( session, changeSet<% if graph.instance_root? %>, addresses<% end %><% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %>, true );
     }
@@ -264,7 +275,7 @@ entities.uniq.each do |entity| -%>
     {
       if ( LOG.isLoggable( SUBSCRIPTION_LOG_LEVEL ) )
       {
-        LOG.log( SUBSCRIPTION_LOG_LEVEL, "bulkCollectDataForSubscriptionUpdate(SessionId=" + session.getId() +",ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Ids=" + addresses.stream().map( a -> a.getSubChannelId() ).collect( java.util.stream.Collectors.toList() ) + <% end -%>", isExplicitSubscribe=" + isExplicitSubscribe + ")" );
+        LOG.log( SUBSCRIPTION_LOG_LEVEL, "bulkCollectDataForSubscriptionUpdate(SessionId=" + session.getId() +",ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Ids=" + addresses.stream().map( org.realityforge.replicant.server.ChannelAddress::getSubChannelId ).toList() + <% end -%>", isExplicitSubscribe=" + isExplicitSubscribe + ")" );
       }
       assert null != filter;
       _context.bulkCollectFor<%= graph.name %>FilterChange( session, changeSet<% if graph.instance_root? %>, addresses<% end %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
