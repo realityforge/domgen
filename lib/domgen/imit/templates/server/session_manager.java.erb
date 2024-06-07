@@ -1,5 +1,27 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.imit.qualified_session_manager_name) %>;
+<%
+# Collect all graph links that we automatically follow
+auto_follow_graph_links =
+  repository.
+    imit.
+    graphs.
+    select{|g| g.instance_root? }.
+    collect{|g| g.inward_graph_links.select{|graph_link| graph_link.auto?} }.
+    flatten.
+    select do |graph_link|
+      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+      target_graph.filter_parameter? && target_graph.instance_root? && repository.imit.graph_by_name(graph_link.source_graph).instance_root?
+    end
+
+# Collect list of graphs that we propagate filters from
+graphs_that_propagate_filters =
+  repository.
+    imit.
+    graphs.
+    select{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? }.
+    select{|graph| graph.outward_graph_links.select{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered?} }
+-%>
 
 @java.lang.SuppressWarnings( { "unchecked", "PMD.UnusedPrivateField", "PMD.CollapsibleIfStatements", "PMD.UnusedFormalParameter", "PMD.UnusedLocalVariable" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "DLS_DEAD_LOCAL_STORE", "CC_CYCLOMATIC_COMPLEXITY" } )
@@ -19,14 +41,12 @@ public class <%= repository.imit.session_manager_name %>
   @javax.inject.Inject
   private <%= repository.imit.qualified_graph_encoder_name %> _encoder;
 <%
-entities = repository.imit.graphs.select{|g| g.instance_root?}.collect{|g|repository.entity_by_name(g.instance_root)}
-repository.imit.graphs.select{|g| !g.instance_root?}.each do |graph|
-  graph.type_roots.each do |type_root_name|
-    entities << repository.entity_by_name(type_root_name)
-  end
-end
+entities =
+  repository.imit.graphs.select{|g|!g.bulk_load? && g.instance_root?}.collect{|g|repository.entity_by_name(g.instance_root)} +
+  auto_follow_graph_links.collect{|graph_link|repository.entity_by_name(repository.imit.graph_by_name(graph_link.target_graph).instance_root)} +
+  graphs_that_propagate_filters.select{|g| g.instance_root?}.collect{|graph|repository.entity_by_name(graph.instance_root)}
 
-entities.uniq.each do |entity| -%>
+entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository;
 <% end -%>
@@ -336,13 +356,6 @@ entities.uniq.each do |entity| -%>
     super.collectDataForSubscriptionUpdate( session, address, changeSet, originalFilter, filter );
   }
 <% end -%>
-<%
-  auto_follow_graph_links =
-    repository.imit.graphs.select{|g| g.instance_root? }.collect{|g| g.inward_graph_links.select{|graph_link| graph_link.auto?} }.flatten.select do |graph_link|
-      graph = repository.imit.graph_by_name(graph_link.target_graph)
-      graph.filter_parameter? && graph.instance_root? && repository.imit.graph_by_name(graph_link.source_graph).instance_root?
-    end
--%>
 <% if !auto_follow_graph_links.empty? -%>
 
   @java.lang.Override
