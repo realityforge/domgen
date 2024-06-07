@@ -265,8 +265,6 @@ module Domgen
           target_graph = application.repository.imit.graph_by_name(graph_link.target_graph)
           if target_graph.filter_parameter? && self.unfiltered?
             Domgen.error("Graph '#{self.name}' is an unfiltered graph but has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' that requires a filter parameter. This is not supported.")
-          elsif target_graph.filter_parameter? && self.filtered? && !target_graph.filter_parameter.equiv?(self.filter_parameter)
-            Domgen.error("Graph '#{self.name}' has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' but has a different filter parameter. This is not supported.")
           end
         end
 
