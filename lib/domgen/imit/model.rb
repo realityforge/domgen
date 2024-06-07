@@ -1058,6 +1058,7 @@ module Domgen
             key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
             next if processed.include?(key)
             processed << key
+            source_graph_instance_root = repository.entity_by_name(source_graph.instance_root)
             instance_root = repository.entity_by_name(target_graph.instance_root)
 
             if target_graph.filter_parameter?
@@ -1065,6 +1066,12 @@ module Domgen
                 m.reference(instance_root.qualified_name, :name => :Entity)
                 m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
                 m.returns(:boolean)
+              end
+
+              s.method(:"DeriveFilterToPropagateFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
+                m.reference(source_graph_instance_root.qualified_name, :name => :SourceGraphInstanceRoot)
+                m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
+                m.returns(target_graph.filter_parameter.filter_type, filter_options(target_graph))
               end
 
               s.method(:"GetLinksToUpdateFor#{graph_link.source_graph}To#{target_graph.name}") do |m|

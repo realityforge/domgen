@@ -160,21 +160,13 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
      source_graph_instance_root = repository.entity_by_name(graph.instance_root)
      parameters_equiv = target_graph.filter_parameter.equiv?(graph.filter_parameter)
 -%>
-  @javax.annotation.Nonnull
-  @java.lang.SuppressWarnings( "unused" )
-  protected <%= parameters_equiv ? '' : 'abstract ' %><%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>@javax.annotation.Nonnull final <%= source_graph_instance_root.jpa.qualified_name %> sourceGraphInstanceRoot, <% end %>@javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )<%= parameters_equiv ? '' : ';' %>
-<% if parameters_equiv -%>
-  {
-    return filter;
-  }
-<% end -%>
 
   private void propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final <%= root_type %> id, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
   {
 <% if graph.instance_root? -%>
     final <%= source_graph_instance_root.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{source_graph_instance_root.data_module.name}#{source_graph_instance_root.name}") %>Repository.getBy<%= source_graph_instance_root.primary_key.name %>( id );
 <% end -%>
-    final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> targetFilter = deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>entity, <% end -%>filter );
+    final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> targetFilter = _context.deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>entity, <% end -%>filter );
     // Propagate the filter from <%= graph.name %> to downstream graph <%= target_graph.name %>
     for ( final <%= target_graph_instance_root.jpa.qualified_name %> downstreamEntity : _context.getLinksToUpdateFor<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>entity, <% end -%>filter ) )
     {
