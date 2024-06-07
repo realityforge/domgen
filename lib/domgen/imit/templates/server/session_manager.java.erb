@@ -84,7 +84,11 @@ entities.uniq.each do |entity| -%>
 -%>
       final <%= param_type %> <%= var_name %> = (<%= param_type %>) message.getRoutingKeys().get( <%= repository.imit.qualified_server_router_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <% end -%>
-      return _context.filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, address.getSubChannelId()<% end %><% if graph.filter_parameter? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%>) session.getSubscriptionEntry( address ).getFilter()<% end %><%= extra_interest_filter %> );
+<% if graph.instance_root? -%>
+      final Integer subChannelId = address.getSubChannelId();
+      assert null != subChannelId;
+<% end -%>
+      return _context.filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, subChannelId<% end %><% if graph.filter_parameter? %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%>) session.getSubscriptionEntry( address ).getFilter()<% end %><%= extra_interest_filter %> );
     }
 <% end -%>
     return super.filterEntityMessage( session, address, message );
