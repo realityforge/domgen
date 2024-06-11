@@ -20,10 +20,11 @@ public final class <%= data_module.arez.test_factory_name %>
   @javax.annotation.Nonnull
   private final <%= dao.arez.qualified_repository_name %> _<%= Reality::Naming.camelize(dao.name) %>;
 <% end -%>
-
 <% required_factories.each do |dm| -%>
   @javax.annotation.Nonnull
   private final java.util.function.Supplier<<%= dm.arez.qualified_test_factory_name %>> _<%= Reality::Naming.camelize(dm.name) %>;
+<% end -%>
+<% required_factories.each do |dm| -%>
 
   @javax.annotation.Nonnull
   <%= dm.arez.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
