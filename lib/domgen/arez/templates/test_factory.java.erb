@@ -1,29 +1,47 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(data_module.arez.qualified_test_factory_name) %>;
 
+<% required_factories = [] -%>
+<% data_module.entities.select{|e|e.arez?}.each do |entity|
+  entity.declared_attributes.each do |attribute|
+    if attribute.arez? && attribute.reference? && attribute.referenced_entity.data_module.arez? && attribute.referenced_entity.data_module != data_module
+      required_factories << attribute.referenced_entity.data_module unless required_factories.include? attribute.referenced_entity.data_module
+    end
+  end
+end
+-%>
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "CE_CLASS_ENVY", "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS" } )
 @sting.Injectable
 public final class <%= data_module.arez.test_factory_name %>
   implements <%= data_module.arez.qualified_test_factory_extension_name %>
 {
-<% include_factory_set = data_module.repository.data_modules.any?{|dm|dm.arez? && dm.name != data_module.name} -%>
-<% if include_factory_set -%>
-  @javax.annotation.Nonnull
-  private final <%= data_module.repository.arez.qualified_factory_set_name %> _factorySet;
-<% end -%>
 <% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name.to_s}.each do |dao| -%>
   @javax.annotation.Nonnull
   private final <%= dao.arez.qualified_repository_name %> _<%= Reality::Naming.camelize(dao.name) %>;
 <% end -%>
 
-  <%= data_module.arez.test_factory_name %>( <% if include_factory_set %>@javax.annotation.Nonnull final <%= data_module.repository.arez.qualified_factory_set_name %> factorySet, <% end -%><%= data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name}.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.name)}" }.join(', ') -%>)
+<% required_factories.each do |dm| -%>
+  @javax.annotation.Nonnull
+  private final java.util.function.Supplier<<%= dm.arez.qualified_test_factory_name %>> _<%= Reality::Naming.camelize(dm.name) %>;
+
+  @javax.annotation.Nonnull
+  <%= dm.arez.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
   {
-<% if include_factory_set -%>
-    _factorySet = java.util.Objects.requireNonNull( factorySet );
+    return _<%=Reality::Naming.camelize(dm.name) %>.get();
+  }
 <% end -%>
+
+  <%= data_module.arez.test_factory_name %>( <%= data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name}.collect{|dao| "@javax.annotation.Nonnull final #{dao.arez.qualified_repository_name} #{Reality::Naming.camelize(dao.name)}" }.join(', ')-%><%=
+      data_module.daos.any? && required_factories.any? ? ", " : "" -%><%=
+      required_factories.collect{|dm| "@javax.annotation.Nonnull final java.util.function.Supplier<#{dm.arez.qualified_test_factory_name}> #{Reality::Naming.camelize(dm.name)}"}.join(', ')
+  %>)
+  {
 <% data_module.daos.select{|dao| dao.arez? && !dao.entity.abstract?}.sort_by{|dao| dao.qualified_name.to_s}.each do |dao| -%>
     _<%= Reality::Naming.camelize(dao.name) %> = java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(dao.name) %> );
+<% end -%>
+<% required_factories.each do |dm| -%>
+    _<%=Reality::Naming.camelize(dm.name) %> = java.util.Objects.requireNonNull( <%= Reality::Naming.camelize(dm.name) %> );
 <% end -%>
   }
 
@@ -33,16 +51,14 @@ public final class <%= data_module.arez.test_factory_name %>
     return this;
   }
 
-<% data_module.repository.data_modules.select{|dm|dm.arez? && dm.name != data_module.name}.sort_by{|dm| dm.name}.each do |dm| -%>
-  @javax.annotation.Nonnull
-  <%= dm.arez.qualified_test_factory_name %> <%= Reality::Naming.camelize(dm.name) %>()
-  {
-    return _factorySet.<%= Reality::Naming.camelize(dm.name) %>();
-  }
-
-<% end -%>
-<% data_module.entities.select{|e|e.arez?}.each do |entity| -%>
-<% if entity.concrete? -%>
+  <% data_module.entities.select{|e|e.arez?}.each do |entity| -%>
+<%
+  entity.declared_attributes.each do |attribute|
+    if attribute.reference? && attribute.referenced_entity.data_module.arez?
+      required_factories << attribute.referenced_entity.data_module unless required_factories.include? attribute.referenced_entity.data_module
+    end
+  end
+%><% if entity.concrete? -%>
   public void delete<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_ )
   {
     <%= Reality::Naming.camelize(entity.dao.name) %>().destroy( $_ );
