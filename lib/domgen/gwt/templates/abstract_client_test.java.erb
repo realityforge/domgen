@@ -48,7 +48,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 <% end -%>
     _injector = createInjector();
 <% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
-    <%= data_module.arez.short_test_code %> = _injector.getFactorySet().<%= Reality::Naming.camelize(data_module.name) %>();
+    <%= data_module.arez.short_test_code %> = _injector.<%= Reality::Naming.camelize(data_module.name) %>Factory().get();
 <% end -%>
 <% if repository.arez? -%>
     arez.Arez.context().registerLocator( _injector.getLocator() );
