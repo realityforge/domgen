@@ -36,9 +36,6 @@ Domgen::Generator.define([:arez],
       template_set.erb_template(:data_module,
                                 'test_factory.java.erb',
                                 type + '/java/#{data_module.arez.qualified_test_factory_name.gsub(".","/")}.java')
-      template_set.erb_template(:repository,
-                                'factory_set.java.erb',
-                                type + '/java/#{repository.arez.qualified_factory_set_name.gsub(".","/")}.java')
     end
   end
 end
