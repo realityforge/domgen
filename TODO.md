@@ -45,6 +45,7 @@
 
 ### Replicant
 
+* Consider the ability to use filter parameters to propagate changes to downstream filters if the source graph has no filter to propagate?
 * Consider incremental changes. (Or may need both Full and partial updates
   recorded so different messages are routed to different listeners?)
 * Merge multiple update channels into on replicant session. i.e. How to merge AppConfig into ODS stream?

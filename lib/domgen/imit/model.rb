@@ -261,12 +261,6 @@ module Domgen
             Domgen.error("Graph #{self.name} has an instance root #{self.instance_root} that has a primary key that is not an integer")
           end
         end
-        self.outward_graph_links.select { |graph_link| graph_link.auto? }.each do |graph_link|
-          target_graph = application.repository.imit.graph_by_name(graph_link.target_graph)
-          if target_graph.filter_parameter? && self.unfiltered?
-            Domgen.error("Graph '#{self.name}' is an unfiltered graph but has an outward link from '#{graph_link.imit_attribute.attribute.qualified_name}' to a filtered graph '#{target_graph.name}' that requires a filter parameter. This is not supported.")
-          end
-        end
 
         if self.internal_visibility? && self.instance_root? && self.inward_graph_links.empty?
           Domgen.error("Graph '#{self.name}' is marked with internal visibility but has no inward graph links.")
@@ -1057,25 +1051,25 @@ module Domgen
             next if processed.include?(key)
             processed << key
             source_graph_instance_root = repository.entity_by_name(source_graph.instance_root)
-            instance_root = repository.entity_by_name(target_graph.instance_root)
+            target_graph_instance_root = repository.entity_by_name(target_graph.instance_root)
 
             if target_graph.filter_parameter?
               s.method(:"ShouldFollowLinkFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
-                m.reference(instance_root.qualified_name, :name => :Entity)
-                m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
+                m.reference(target_graph_instance_root.qualified_name, :name => "#{target_graph.name}InstanceRoot") if target_graph.instance_root?
+                m.parameter("#{source_graph.name}Filter", source_graph.filter_parameter.filter_type, filter_options(source_graph)) if source_graph.filter_parameter?
                 m.returns(:boolean)
               end
 
               s.method(:"DeriveFilterToPropagateFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
-                m.reference(source_graph_instance_root.qualified_name, :name => :SourceGraphInstanceRoot)
-                m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
+                m.reference(source_graph_instance_root.qualified_name, :name => "#{source_graph.name}InstanceRoot") if source_graph.instance_root?
+                m.parameter("#{source_graph.name}Filter", source_graph.filter_parameter.filter_type, filter_options(source_graph)) if source_graph.filter_parameter?
                 m.returns(target_graph.filter_parameter.filter_type, filter_options(target_graph))
               end
 
               s.method(:"GetLinksToUpdateFor#{graph_link.source_graph}To#{target_graph.name}") do |m|
-                m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => :Entity) if source_graph.instance_root?
-                m.parameter(:Filter, source_graph.filter_parameter.filter_type, filter_options(source_graph))
-                m.returns(:reference, :referenced_entity => instance_root, :collection_type => :sequence)
+                m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => "#{source_graph.name}InstanceRoot") if source_graph.instance_root?
+                m.parameter("#{source_graph.name}Filter", source_graph.filter_parameter.filter_type, filter_options(source_graph)) if source_graph.filter_parameter?
+                m.returns(:reference, :referenced_entity => target_graph_instance_root, :collection_type => :sequence)
               end
             end
           end

@@ -15,7 +15,7 @@ package <%= to_package(repository.imit.qualified_abstract_session_context_impl_n
  * }
  * </pre>
  */
-@java.lang.SuppressWarnings( { "PMD.SwitchStmtsShouldHaveDefault" } )
+@SuppressWarnings( { "PMD.SwitchStmtsShouldHaveDefault", "SqlNoDataSourceInspection" } )
 public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   extends org.realityforge.replicant.server.ee.AbstractSessionContextImpl
   implements <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>
@@ -38,7 +38,11 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
 <% repository.imit.graphs.select{|graph|graph.secure? && graph.external_visibility?}.each do |graph| -%>
     <%= first ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
-      ensureSubscribeTo<%= graph.name %>Permitted( session, address<% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end -%> );
+<% if graph.filter_parameter -%>
+      final var <%= Reality::Naming.camelize("#{graph.name}Filter") %> = (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter;
+      assert null != <%= Reality::Naming.camelize("#{graph.name}Filter") %>;
+<% end -%>
+      ensureSubscribeTo<%= graph.name %>Permitted( session, address<% if graph.filter_parameter -%>, <%= Reality::Naming.camelize("#{graph.name}Filter") %><% end -%> );
     }
 <%
     first = false
@@ -68,6 +72,7 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
     performBulkCollectFor<%= graph.name %>( session, changeSet<% if graph.filter_parameter -%>, filter<% end %>, explicitSubscribe );
   }
 
+  @SuppressWarnings( "unused" )
   protected void preBulkCollectFor<%= graph.name %>(<% if graph.filter_parameter -%> <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %>)
   {
   }
@@ -200,10 +205,10 @@ end
 
   /**
    * Implement with code that probably looks something like:
-   *
+   * <br/>
    * <code>
    * <pre>
-    @Language( "TSQL" )
+   \@Language( "TSQL" )
     final String sql =
       generateTempIdTable( addresses ) +
       "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> E ... JOIN @Ids Inputs ON Inputs.Id = ...";
@@ -221,12 +226,14 @@ end
     throws java.sql.SQLException;
 <% end -%>
 
+  @SuppressWarnings( "unused" )
   protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement )
     throws java.sql.SQLException
   {
     <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement, <%= Reality::Naming.camelize(pk_long_name) %>ColumnName );
   }
 
+  @SuppressWarnings( { "resource", "unused", "SqlSourceToSinkFlow" } )
   protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql )
     throws java.sql.SQLException
   {
@@ -237,6 +244,7 @@ end
   }
 <% end -%>
 
+  @SuppressWarnings( "unused" )
   protected void preBulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
   {
   }
@@ -267,6 +275,8 @@ end
     }
   }
 <% if graph.filter_parameter && !graph.filter_parameter.immutable? -%>
+
+  @SuppressWarnings( "unused" )
   protected void preBulkCollectFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
   {
   }
@@ -316,6 +326,7 @@ end
   }
 <% end -%>
 
+  @SuppressWarnings( { "resource", "unused", "SqlSourceToSinkFlow" } )
   protected void addDeleteForCalendarResourceIn<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses )
     throws java.sql.SQLException
   {
@@ -355,19 +366,20 @@ end
      next if processed.include?(key)
      processed << key
      source_graph_instance_root = repository.entity_by_name(graph.instance_root)
-     parameters_equiv = target_graph.filter_parameter.equiv?(graph.filter_parameter)
+     parameters_equiv = graph.filter_parameter? && target_graph.filter_parameter.equiv?(graph.filter_parameter)
 -%>
 
-  protected abstract void bulkPropagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> filter )
+  protected abstract void bulkPropagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("#{graph.name}Filter") %> )
     throws java.sql.SQLException;
 
-  protected void propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default)%> filter, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql, @javax.annotation.Nonnull final java.lang.String targetGraphIdColumnName )
+  @SuppressWarnings( "unused" )
+  protected void propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet<% if graph.filtered? %>, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("#{target_graph.name}Filter") %><% end %>, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize("#{target_graph.name}IdColumnName") %> )
     throws java.sql.SQLException
   {
-    final java.util.Set<org.realityforge.replicant.server.ChannelAddress> targets = getChannelAddressesForTargetGraph( sql, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, targetGraphIdColumnName );
-    for ( final java.util.Map.Entry<<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%>, java.util.List<org.realityforge.replicant.server.ChannelAddress>> entry : this.<<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%>>partitionGraphsByFilter( session, targets ).entrySet() )
+    final java.util.Set<org.realityforge.replicant.server.ChannelAddress> targets = getChannelAddressesForTargetGraph( sql, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <%= Reality::Naming.camelize("#{target_graph.name}IdColumnName") %> );
+    for ( final var entry : this.<<%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default)%>>partitionGraphsByFilter( session, targets ).entrySet() )
     {
-      bulkCollectFor<%= target_graph.name %>FilterChange( session, changeSet, entry.getValue(), entry.getKey(), filter );
+      bulkCollectFor<%= target_graph.name %>FilterChange( session, changeSet, entry.getValue(), entry.getKey(), <%= Reality::Naming.camelize("#{target_graph.name}Filter") %> );
     }
   }
 <% if parameters_equiv -%>
@@ -375,9 +387,9 @@ end
   @javax.annotation.Nonnull
   @java.lang.SuppressWarnings( "unused" )
   @java.lang.Override
-  public <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>@javax.annotation.Nonnull final <%= source_graph_instance_root.jpa.qualified_name %> sourceGraphInstanceRoot, <% end %>@javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )<%= parameters_equiv ? '' : ';' %>
+  public <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>@javax.annotation.Nonnull final <%= source_graph_instance_root.jpa.qualified_name %> sourceGraphInstanceRoot<% end %><% if graph.filtered? %><%= graph.instance_root? ? ', ' : '' %>@javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{graph.name}Filter") %><% end %> )<%= parameters_equiv ? '' : ';' %>
   {
-    return filter;
+    return <%= Reality::Naming.camelize("#{graph.name}Filter") %>;
   }
 <% end -%>
 <% end -%>
@@ -396,7 +408,7 @@ end
     return map;
   }
 
-  @java.lang.SuppressWarnings( "SameParameterValue" )
+  @SuppressWarnings( { "SameParameterValue", "resource" } )
   @javax.annotation.Nonnull
   private java.util.Set<org.realityforge.replicant.server.ChannelAddress> getChannelAddressesForTargetGraph( @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final String sql, final int targetGraph, @javax.annotation.Nonnull final String targetGraphColumnName )
     throws java.sql.SQLException
