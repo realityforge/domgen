@@ -1,16 +1,15 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(repository.ejb.qualified_aggregate_service_test_name) %>;
+package <%= data_module.ejb.server_service_package %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
-public class <%= repository.ejb.aggregate_service_test_name %>
+public class <%= data_module.ejb.aggregate_service_test_name %>
 {
   @org.testng.annotations.Test
   public void ensureTestsPresent()
     throws java.lang.Exception
   {
 <%
-  repository.data_modules.select{|d|d.ejb?}.each do |data_module|
-    data_module.services.select{|s|s.ejb? && s.ejb.generate_base_test?}.each do |service|
+  data_module.services.select{|s|s.ejb? && s.ejb.generate_base_test?}.each do |service|
 -%>
     org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a concrete class but is abstract" );
 <% service.methods.select{|m|m.ejb? && m.ejb.generate_base_test?}.each do |method| -%>
@@ -20,7 +19,6 @@ public class <%= repository.ejb.aggregate_service_test_name %>
 <% end -%>
 <% end -%>
 <%
-    end
   end
 -%>
   }
