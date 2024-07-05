@@ -86,11 +86,16 @@ Domgen::Generator.define([:ejb],
                                 'cdi_types_test.java.erb',
                                 type + '/java/#{repository.ejb.qualified_cdi_types_test_name.gsub(".","/")}.java')
     end
+    g.template_set(:"ejb_#{type}_qa_aggregate") do |template_set|
+      template_set.erb_template(:repository,
+                                'repository_aggregate_service_test.java.erb',
+                                type + '/java/#{repository.ejb.qualified_aggregate_service_test_name.gsub(".","/")}.java')
+    end
   end
 
-  g.template_set(:ejb_test_qa_aggregate) do |template_set|
+  g.template_set(:ejb_module_test_qa_aggregate) do |template_set|
     template_set.erb_template(:data_module,
-                              'aggregate_service_test.java.erb',
+                              'data_module_aggregate_service_test.java.erb',
                               'test/java/#{data_module.ejb.qualified_aggregate_service_test_name.gsub(".","/")}.java',
                               :guard => 'data_module.services.any?')
   end
