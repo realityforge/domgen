@@ -140,8 +140,8 @@ module Domgen
     end
 
     facet.enhance(DataModule) do
-      include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::EEClientServerJavaPackage
+
       java_artifact :aggregate_service_test, :test, :server, :ejb, '#{data_module.name}AggregateServiceTest'
     end
 
