@@ -1,0 +1,41 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.jpa.qualified_aggregate_entity_test_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+public class <%= data_module.jpa.aggregate_entity_test_name %>
+{
+  @org.testng.annotations.Test
+  public void ensureTestsPresent()
+    throws java.lang.Exception
+  {
+    // DAO tests
+<%
+    data_module.daos.select{|d|d.jpa? && (!d.jpa.extensions.empty? || d.queries.any?{|q|q.jpa? && !q.jpa.standard_query?})}.each do |dao|
+-%>
+    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a concrete class but is abstract" );
+<% dao.queries.select{|q|q.jpa? && !q.jpa.standard_query?}.each do |query| -%>
+    org.testng.Assert.assertNotNull( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(query.name) %>" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(query.name) %> annotated with the org.testng.annotations.Test annotation" );
+<% end -%>
+<%
+  end
+-%>
+
+    // Model tests
+<%
+    data_module.entities.select{|e|e.jpa? && e.jpa.non_standard_model_constraints?}.each do |entity|
+-%>
+    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a concrete class but is abstract" );
+<% entity.sql.constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
+    org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(constraint.name) %>Constraint" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(constraint.name) %>Constraint annotated with the org.testng.annotations.Test annotation" );
+<% end -%>
+<% entity.sql.function_constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
+    org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(constraint.name) %>FunctionConstraint" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(constraint.name) %>FunctionConstraint annotated with the org.testng.annotations.Test annotation" );
+<% end -%>
+<% entity.sql.validations.select{|validation| !validation.standard?}.each do |validation| -%>
+    org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(validation.name) %>Validation" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(validation.name) %>Validation annotated with the org.testng.annotations.Test annotation" );
+<% end -%>
+<%
+    end
+-%>
+  }
+}
