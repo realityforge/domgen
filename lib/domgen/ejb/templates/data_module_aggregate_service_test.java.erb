@@ -1,0 +1,25 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.ejb.qualified_aggregate_service_test_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration" } )
+public class <%= data_module.ejb.aggregate_service_test_name %>
+{
+  @org.testng.annotations.Test
+  public void ensureTestsPresent()
+    throws java.lang.Exception
+  {
+<%
+  data_module.services.select{|s|s.ejb? && s.ejb.generate_base_test?}.each do |service|
+-%>
+    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a concrete class but is abstract" );
+<% service.methods.select{|m|m.ejb? && m.ejb.generate_base_test?}.each do |method| -%>
+    org.testng.Assert.assertNotNull( <%= service.ejb.qualified_concrete_service_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(method.name) %>" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(method.name) %> annotated with the org.testng.annotations.Test annotation" );
+<% method.exceptions.select{|exception|!exception.abstract?}.each do |exception| -%>
+    org.testng.Assert.assertNotNull( <%= service.ejb.qualified_concrete_service_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %>" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %> annotated with the org.testng.annotations.Test annotation" );
+<% end -%>
+<% end -%>
+<%
+  end
+-%>
+  }
+}
