@@ -772,7 +772,7 @@ FRAGMENT
       end
 
       java_artifact :abstract_test_factory, :test, :server, :jpa, 'Abstract#{data_module.name}Factory', :sub_package => 'util'
-      java_artifact :aggregate_entity_test, :test, :server, :jpa, '#{data_module.name}AggregateServiceTest'
+      java_artifact :aggregate_entity_test, :test, :server, :jpa, '#{data_module.name}AggregateEntityTest'
 
       def server_util_test_package
         @server_util_test_package.nil? ? data_module.repository.jpa.server_util_test_package : @server_util_test_package
