@@ -307,6 +307,7 @@ JAVA
         java << <<JAVA
   }
 
+  @SuppressWarnings( "ConstantValue" )
   #{annotated_type(attribute, :jpa, :default, :protected => true)} doGet#{name}()
   {
 JAVA
