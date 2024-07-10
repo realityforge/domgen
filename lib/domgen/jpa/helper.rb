@@ -17,6 +17,7 @@ module Domgen
     module Helper
       def j_jpa_field_attributes(attribute)
         s = ''
+        s << "  @SuppressWarnings( \"NotNullFieldNotInitialized\" )\n" if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
         s << "  @javax.persistence.Id\n" if attribute.primary_key?
         if attribute.jpa.identity?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n"

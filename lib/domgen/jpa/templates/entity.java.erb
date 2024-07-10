@@ -2,7 +2,7 @@
 package <%= to_package(entity.jpa.qualified_name) %>;
 
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EI_EXPOSE_REP", "EI_EXPOSE_REP2", "BC_VACUOUS_INSTANCEOF", "SEO_SUBOPTIMAL_EXPRESSION_ORDER", "CNC_COLLECTION_NAMING_CONFUSION", "SPP_EQUALS_ON_ENUM", "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS", "USBR_UNNECESSARY_STORE_BEFORE_RETURN", "WOC_WRITE_ONLY_COLLECTION_FIELD" } )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "deprecation", "PMD.AvoidFieldNameMatchingTypeName", "PMD.FormalParameterNamingConventions" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "deprecation", "PMD.AvoidFieldNameMatchingTypeName", "PMD.FormalParameterNamingConventions", "JpaDataSourceORMInspection", "SqlNoDataSourceInspection", "RedundantSuppression" } )
 <%
    jpa_queries = entity.queries.select {|q| q.jpa? && !q.jpa.native? }
    if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
@@ -55,17 +55,23 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 <% if entity.data_module.repository.ee.version != '6' %>@javax.enterprise.inject.Vetoed
 <% end -%>
 <% entity.xor_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
-@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %>
+<% end -%>
 <% entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
-@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %>
+<% end -%>
 <% entity.dependency_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
-@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %>
+<% end -%>
 <% entity.incompatible_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
-@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %>
+<% end -%>
 <% entity.relationship_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
-@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end -%>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %>
+<% end -%>
 <% entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
-@<%= entity.jpa.name %>.<%= validation_name(c.name) %><% end %>
+@<%= entity.jpa.name %>.<%= validation_name(c.name) %>
+<% end -%>
 <% unless entity.jpa.module_local? %>public <% end %><%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).jpa.qualified_name}\n" :
@@ -146,7 +152,7 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 <% end -%>
   }
 
-  @java.lang.SuppressWarnings( { "PMD.CompareObjectsWithEquals" } )
+  @SuppressWarnings( { "PMD.CompareObjectsWithEquals", "PointlessBooleanExpression" } )
   <% unless entity.jpa.module_local? %>public <% end %>boolean unmodified()
   {
     return
