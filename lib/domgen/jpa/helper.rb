@@ -449,7 +449,7 @@ STR
 
   public final void remove#{name}( final #{type} value )
   {
-    if ( null != this.#{field_name} && this.#{field_name}.contains( value ) )
+    if ( null != this.#{field_name} )
     {
       this.#{field_name}.remove( value );
     }
