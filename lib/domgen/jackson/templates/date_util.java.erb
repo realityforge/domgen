@@ -145,7 +145,7 @@ public final class <%= repository.jackson.date_util_name %>
     {
       context.reportInputMismatch( type, "Expected collection to be an array" );
       // We will never get here as previous method throws an exception
-      return null;
+      return result;
     }
 
     final DateFormat formatter = newDateFormatter();
@@ -156,7 +156,7 @@ public final class <%= repository.jackson.date_util_name %>
       {
         context.reportInputMismatch( type, "Found null token when expecting a Set" );
         // We will never get here as previous method throws an exception
-        return null;
+        return result;
       }
       result.add( parse( formatter, parser.getText() ) );
     }
