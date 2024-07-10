@@ -472,8 +472,9 @@ STR
         pk = entity.primary_key
         pk_getter = "doGet#{entity.primary_key.jpa.name}()"
         pk_type = nullable_annotate(pk, pk.jpa.java_type, false)
-        equality_comparison = (!pk.jpa.primitive?) ? "null != key && key.equals( that.#{pk_getter} )" : "key == that.#{pk_getter}"
+        equality_comparison = (!pk.jpa.primitive?) ? "java.util.Objects.equals( #{pk_getter}, that.#{pk_getter} )" : "#{pk_getter} == that.#{pk_getter}"
         s = <<JAVA
+  @java.lang.SuppressWarnings( "ConstantValue" )
   @java.lang.Override
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EQ_OVERRIDING_EQUALS_NOT_SYMMETRIC","RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   public boolean equals( final Object o )
@@ -482,22 +483,21 @@ STR
     {
       return true;
     }
-    else if ( !(o instanceof #{entity.jpa.name}) )
+    else if ( !(o instanceof #{entity.jpa.name} that) )
     {
       return false;
     }
     else
     {
-      final #{entity.jpa.name} that = (#{entity.jpa.name}) o;
-      final #{pk_type} key = #{pk_getter};
       return #{equality_comparison};
     }
   }
 JAVA
         s += <<JAVA
+
   @java.lang.Override
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
-  @java.lang.SuppressWarnings( { "PMD.UnnecessaryLocalBeforeReturn" } )
+  @java.lang.SuppressWarnings( { "PMD.UnnecessaryLocalBeforeReturn", "ConstantValue" } )
   public int hashCode()
   {
     final #{pk_type} key = #{pk_getter};
