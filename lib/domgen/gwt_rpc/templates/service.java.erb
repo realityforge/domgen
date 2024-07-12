@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.gwt_rpc.qualified_service_name) %>;
 
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "PMD.UnusedPrivateField", "PMD.AddEmptyString", "rawtypes", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions", "RedundantSuppression" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "PMD.UnusedPrivateField", "PMD.AddEmptyString", "rawtypes", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions", "RedundantSuppression", "CodeBlock2Expr", "DuplicatedCode" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PSC_PRESIZE_COLLECTIONS", "CC_CYCLOMATIC_COMPLEXITY", "WOC_WRITE_ONLY_COLLECTION_LOCAL" } )
 @sting.Injectable
 public final class <%= service.gwt_rpc.service_name %>
@@ -71,49 +71,43 @@ public final class <%= service.gwt_rpc.service_name %>
   elsif parameter.reference?
     param_value = "#{parameter.name}.get#{parameter.referenced_entity.primary_key.imit.name}()"
   end
-  if parameter.nullable? && !parameter.collection?
+  if parameter.nullable? && !parameter.collection? && parameter.name != param_value
     param_value = "null == #{parameter.name} ? null : #{param_value}"
   end
   param_value
-end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.environmental?}.empty? ? '' : ', ' %>new <%= service.data_module.repository.gwt.qualified_async_callback_name %><<%= method.return_value.imit.non_primitive_java_type(:boundary) %>>()
-      {
-        public void onSuccess( final <%= method.return_value.imit.non_primitive_java_type(:boundary) %> result )
-        {
+end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.environmental?}.empty? ? '' : ', ' %> result ->
+    {
 <%
    if !method.return_value.collection?
      result_string = 'result'
      if method.return_value.reference?
-       result_string = "getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, result )"
-     end
-     if method.return_value.nullable?
-       result_string = "null == result ? null : #{result_string}"
+       result_string = "#{method.return_value.nullable? ? 'null == result ? null : ' : ''}getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, result )"
      end
    elsif method.return_value.reference?
      result_string = '$result'
    else
      result_string = 'result'
    end
-%>
-<% if method.return_value.collection? && method.return_value.reference? %>
-          <%= annotated_type(method.return_value, :imit, :default, :final => true) %> $result = <% if method.return_value.nullable? %>null == result ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
-          if( null != result )
+-%>
+<% if method.return_value.collection? && method.return_value.reference? -%>
+        <%= annotated_type(method.return_value, :imit, :default, :final => true) %> $result = <% if method.return_value.nullable? %>null == result ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
+        if( null != result )
+        {
+          for( final <%= method.return_value.gwt_rpc.java_component_type(:boundary) %> id: result )
           {
-            for( final <%= method.return_value.gwt_rpc.java_component_type(:boundary) %> id: result )
-            {
           <%
              param_value =
              if method.return_value.reference?
                "getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, id )"
              end
-          %>
+          -%>
             $result.add( <%= param_value %> );
-            }
           }
-<% end %>
-          if( null != callback )
-          {
-            callback.onSuccess( <%= result_string %> );
-          }
+        }
+<% end -%>
+        if( null != callback )
+        {
+          callback.onSuccess( <%= result_string %> );
         }
     }, errorCallback );
   }
@@ -155,7 +149,8 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
     request( replicant.Replicant.areNamesEnabled() ? "<%= service.qualified_name %>.<%= method.name %>" : null, () -> {
 <% end -%>
     _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect do |parameter|
-  param_value = Reality::Naming.camelize(parameter.name)
+  original_param_value = Reality::Naming.camelize(parameter.name)
+  param_value = original_param_value.dup
   if parameter.collection? && (parameter.enumeration? || parameter.struct? || parameter.date?)
     param_value = "$#{param_value}"
   elsif parameter.enumeration? && parameter.enumeration.numeric_values?
@@ -167,12 +162,13 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
   elsif parameter.struct?
     param_value = "akasha.core.JSON.stringify( #{param_value} )"
   end
-  if parameter.nullable? && !parameter.collection?
+  if parameter.nullable? && !parameter.collection? && original_param_value != param_value
     param_value = "null == #{Reality::Naming.camelize(parameter.name)} ? null : #{param_value}"
   end
   param_value
 end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.empty? ? '' : ', ' %>new <%= service.data_module.repository.gwt_rpc.qualified_async_callback_adapter_name %><<%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %>,<%= method.return_value.gwt_rpc.non_primitive_java_type(:boundary) %>>( <%= service.gwt_rpc.default_callback? ? '_callback' : 'null' -%>, callback, errorCallback )
     {
+      @java.lang.SuppressWarnings( "DataFlowIssue" )
       @java.lang.Override
       <%= annotated_type(method.return_value, :gwt_rpc, :boundary, :non_primitive => true, :protected => true) %> convert( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
       {
@@ -188,7 +184,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
      elsif method.return_value.struct?
        result_string = "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( akasha.core.JSON.parse( result ) )"
      end
-     if method.return_value.nullable?
+     if method.return_value.nullable? && 'result' != result_string
        result_string = "null == result ? null : #{result_string}"
      end
    elsif method.return_value.enumeration? || method.return_value.struct?
@@ -238,6 +234,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.env
 <% end -%>
 <% if service.methods.any?{|m| m.imit? && m.return_value.reference? } -%>
 
+  @java.lang.SuppressWarnings( "SameParameterValue" )
   @javax.annotation.Nonnull
   private <T> T getById( @javax.annotation.Nonnull final java.lang.Class<T> type, @javax.annotation.Nonnull final java.lang.Object id )
   {
