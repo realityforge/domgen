@@ -160,14 +160,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   private void setupUncaughtExceptionHandler()
   {
-    com.google.gwt.core.client.GWT.setUncaughtExceptionHandler( new com.google.gwt.core.client.GWT.UncaughtExceptionHandler()
-    {
-      @Override
-      public void onUncaughtException( final Throwable e )
-      {
-        <%= repository.gwt.abstract_application_name %>.this.onUncaughtException( e );
-      }
-    } );
+    com.google.gwt.core.client.GWT.setUncaughtExceptionHandler( <%= repository.gwt.abstract_application_name %>.this::onUncaughtException );
   }
 <% if repository.arez? -%>
 
