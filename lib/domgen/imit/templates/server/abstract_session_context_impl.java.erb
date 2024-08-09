@@ -255,8 +255,8 @@ end
     try
     {
       // This block deals with non-existent root entities by sending a DELETE channel action
-      // back which is the behaviour expected by the client and implemented in the non-bulk scenario
-      addDeleteForCalendarResourceIn<%= graph.name %>Graph( changeSet, addresses );
+      // back which is the behavior expected by the client and implemented in the non-bulk scenario
+      addDeleteForInstanceRootIn<%= graph.name %>Graph( changeSet, addresses );
       // Abort if it turns out all addresses were deleted
       if ( addresses.isEmpty() )
       {
@@ -287,8 +287,8 @@ end
     try
     {
       // This block deals with non-existent root entities by sending a DELETE channel action
-      // back which is the behaviour expected by the client and implemented in the non-bulk scenario
-      addDeleteForCalendarResourceIn<%= graph.name %>Graph( changeSet, addresses );
+      // back which is the behavior expected by the client and implemented in the non-bulk scenario
+      addDeleteForInstanceRootIn<%= graph.name %>Graph( changeSet, addresses );
       // Abort if it turns out all addresses were deleted
       if ( addresses.isEmpty() )
       {
@@ -327,7 +327,7 @@ end
 <% end -%>
 
   @SuppressWarnings( { "resource", "unused", "SqlSourceToSinkFlow" } )
-  protected void addDeleteForCalendarResourceIn<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses )
+  protected void addDeleteForInstanceRootIn<%= graph.name %>Graph( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses )
     throws java.sql.SQLException
   {
     @org.intellij.lang.annotations.Language( "TSQL" )
