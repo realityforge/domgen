@@ -40,10 +40,8 @@ module Domgen
             'double'
           elsif field.datetime? && field.nullable?
             'java.lang.Double'
-          elsif field.nullable? && field.integer?
+          elsif field.integer?
             'java.lang.Double'
-          elsif !field.nullable? && field.integer?
-            'int'
           elsif field.struct?
             field.gwt.java_component_type(:boundary)
           else
