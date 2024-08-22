@@ -64,6 +64,7 @@ public final class <%= struct.gwt.name %>
         when field.date? then Proc.new {|transport_value| "#{field.struct.data_module.repository.gwt.qualified_rdate_name}.parse( #{transport_value} )"}
         when field.datetime? then Proc.new {|transport_value| "new java.util.Date( (long) #{transport_value} )"}
         when field.enumeration? then Proc.new {|transport_value| "#{field.gwt.java_component_type}.#{field.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{field.nullable? ? "#{transport_value}.intValue()" : transport_value} ]"}"}
+        when field.integer? then Proc.new {|transport_value| "#{transport_value}.intValue()"}
         else nil
       end
 -%>
