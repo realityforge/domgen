@@ -201,6 +201,7 @@ public abstract class <%= entity.arez.name %>
   }
 <% end -%>
 <% end -%>
+<% if entity.arez.extensions.size > 0 -%>
 
   @javax.annotation.Nonnull
   @java.lang.Override
@@ -208,6 +209,7 @@ public abstract class <%= entity.arez.name %>
   {
     return this;
   }
+<% end %>
 <% if entity.extends.nil? && entity.arez.enable_entity_broker? -%>
 
   <%= entity.subtypes.empty? ? 'private' : 'protected final' %> boolean isChangeEmitterEnabled()

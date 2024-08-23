@@ -337,12 +337,14 @@ package <%= to_package(entity.jpa.qualified_name) %>;
         {
           return false;
         }
-<%= validation_suffix() %>
+<%= validation_suffix() -%>
 <% end -%>
+<% if 0 != entity.jpa.interfaces.size -%>
 
   @javax.annotation.Nonnull
   public <%= entity.jpa.name %> self()
   {
     return this;
   }
+<% end -%>
 }

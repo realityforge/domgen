@@ -84,6 +84,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
 
+  @java.lang.Override
   public abstract void populate<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder );
 
   @java.lang.Override

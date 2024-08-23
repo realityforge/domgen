@@ -52,6 +52,7 @@ public class <%= method.jms.mdb_name %>
   end
 -%>
 
+  @java.lang.Override
   public void onMessage( @javax.annotation.Nonnull final javax.jms.Message message )
   {
     try

@@ -7,6 +7,7 @@ public class <%= repository.imit.integration_module_name %>
   public static class NoopChangeRecorderImpl
     implements <%= repository.imit.qualified_change_recorder_name %>
   {
+    @java.lang.Override
     public void recordEntityMessageForEntity( @javax.annotation.Nonnull final Object entity, final boolean isUpdate )
     {
     }

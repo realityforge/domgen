@@ -382,6 +382,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% end -%>
 <% dao.jpa.friend_daos.collect{|name| dao.data_module.dao_by_name(name)}.each do |friend| -%>
   @javax.annotation.Nonnull
+  @java.lang.Override
   public <%= friend.jpa.qualified_dao_service_name %> <%= Reality::Naming.camelize(friend.qualified_name.to_s.gsub('.','')) %>()
   {
     return _<%= Reality::Naming.camelize(friend.qualified_name.to_s.gsub('.','')) %>;
@@ -389,6 +390,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
 <% end -%>
 <% unless dao.jpa.extensions.empty? -%>
   @javax.annotation.Nonnull
+  @java.lang.Override
   public <%= dao.jpa.qualified_dao_service_name %> self()
   {
     return this;

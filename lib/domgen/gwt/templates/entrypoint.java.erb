@@ -4,6 +4,7 @@ package <%= to_package(entrypoint.qualified_entrypoint_name) %>;
 public final class <%= entrypoint.entrypoint_name %>
   implements com.google.gwt.core.client.EntryPoint
 {
+  @java.lang.Override
   public void onModuleLoad()
   {
     try

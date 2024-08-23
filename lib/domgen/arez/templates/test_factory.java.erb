@@ -104,7 +104,6 @@ end.join(', ') -%> );
 <% if entity.primary_key.generated_value? && entity.primary_key.integer? -%>
 
   @javax.annotation.Nonnull
-  @java.lang.Override
   public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.primary_key? && a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
     return create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| a.primary_key? ? "nextId()" : "#{Reality::Naming.camelize(a.name)}"}.join(', ') %>);
