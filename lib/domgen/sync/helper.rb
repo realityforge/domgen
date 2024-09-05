@@ -37,7 +37,11 @@ module Domgen
         elsif attribute.long?
           return 'org.realityforge.guiceyloops.shared.ValueUtil.randomLong()'
         elsif attribute.text?
-          return 'org.realityforge.guiceyloops.shared.ValueUtil.randomString()'
+          if attribute.has_non_max_length?
+            return "org.realityforge.guiceyloops.shared.ValueUtil.randomString(#{attribute.entity.name}.#{Reality::Naming.uppercase_constantize(attribute.name)}_MAX_SIZE)"
+          else
+            return 'org.realityforge.guiceyloops.shared.ValueUtil.randomString()'
+          end
         elsif attribute.boolean?
           return 'org.realityforge.guiceyloops.shared.ValueUtil.randomBoolean()'
         elsif attribute.date? || attribute.datetime?
