@@ -1,3 +1,3 @@
 /* DO NOT EDIT: File is auto-generated */
--- Verify that the data is free of corruptions before create completes
+-- Verify that the data is free of corruptions before the "create" action completes
 EXEC <%= repository.sql_analysis.analysis_data_module.sql.quoted_schema %>.[spPerformChecks] @ShowErrors = 0
