@@ -165,6 +165,6 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 
   private void addInstanceRoot( @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> map, @javax.annotation.Nonnull final java.lang.String key, @javax.annotation.Nonnull final java.lang.Integer id )
   {
-    return ( (java.util.List<java.lang.Integer>) map.computeIfAbsent( key, v -> new java.util.ArrayList<>() ) ).add( id );
+    ( (java.util.List<java.lang.Integer>) map.computeIfAbsent( key, v -> new java.util.ArrayList<>() ) ).add( id );
   }
 }
