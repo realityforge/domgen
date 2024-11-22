@@ -65,6 +65,7 @@ module Domgen
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :react4j_subscription_component, :component, :client, :imit, '#{name}GraphSubscription'
+      java_artifact :react4j_simple_subscription_component, :component, :client, :imit, '#{name}SimpleGraphSubscription'
       java_artifact :subscription_util, :comm, :client, :imit, '#{name}SubscriptionUtil'
 
       Domgen.target_manager.target(:graph, :repository, :facet_key => :imit, :access_method => :graphs)
