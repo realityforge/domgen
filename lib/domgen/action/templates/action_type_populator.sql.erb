@@ -1,8 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
 
 INSERT INTO Action.tblActionClassification(Code)
-  SELECT 'RPC'
-  WHERE 0 = (SELECT COUNT(*) FROM Action.tblActionClassification WHERE [Code] = 'RPC')
+SELECT 'RPC'
+WHERE 0 = ( SELECT COUNT(*) FROM Action.tblActionClassification WHERE [Code] = 'RPC' )
 
 <%
   repository.data_modules.each do |data_module|
@@ -11,22 +11,52 @@ INSERT INTO Action.tblActionClassification(Code)
         userKey = "#{data_module.name}.#{service.name}.#{method.name}"
         code = hashCode(method)
 -%>
-  -- Method: <%= userKey %>
-  insert into [Action].tblActionType(
-    ClassificationId, ParentId, UserKey, Code, ExternalId, RequestSchema, ResponseSchema,
-    PreCompletionUserFeedbackPattern, PostCompletionUserFeedbackPattern, OnErrorUserFeedbackPattern, MaxErrorCount, RetryRate,
-    StoreResponseOnSuccess, GenerateMessageOnSuccess, RetainFailedMessageDuration, StoreErrorMessageOnFailure, PersistOnSuccess,
-    PersistDuration, ClearErrorOnSuccess, Inactive)
-  select
-    C.Id, NULL, '<%= userKey %>', '<%= code%>', 0, '<%= requestSchema(method) %>', '<%= responseSchema(method) %>',
-    '', '', '', 1, 0,
-    1, 1, 1, 1, 1,
-    null, 1, 0
-  from Action.tblActionClassification C
-  where C.Code = 'RPC'
-    and 0 = (SELECT COUNT(*) FROM [Action].tblActionType WHERE [Code] = '<%= code %>')
+-- Method: <%= userKey %>
+INSERT INTO [Action].[tblActionType](ClassificationId,
+                                     ParentId,
+                                     UserKey,
+                                     Code,
+                                     ExternalId,
+                                     RequestSchema,
+                                     ResponseSchema,
+                                     PreCompletionUserFeedbackPattern,
+                                     PostCompletionUserFeedbackPattern,
+                                     OnErrorUserFeedbackPattern,
+                                     MaxErrorCount,
+                                     RetryRate,
+                                     StoreResponseOnSuccess,
+                                     GenerateMessageOnSuccess,
+                                     RetainFailedMessageDuration,
+                                     StoreErrorMessageOnFailure,
+                                     PersistOnSuccess,
+                                     PersistDuration,
+                                     ClearErrorOnSuccess,
+                                     Inactive)
+select C.Id AS ClassificationId,
+       NULL AS ParentId,
+       '<%= userKey %>' AS UserKey,
+       '<%= code %>' AS Code,
+       0 AS ExternalId,
+       '<%= requestSchema(method) %>' AS RequestSchema,
+       '<%= responseSchema(method) %>' AS ResponseSchema,
+       '' AS PreCompletionUserFeedbackPattern,
+       '' AS PostCompletionUserFeedbackPattern,
+       '' AS OnErrorUserFeedbackPattern,
+       1 AS MaxErrorCount,
+       0 AS RetryRate,
+       1 AS StoreResponseOnSuccess,
+       1 AS GenerateMessageOnSuccess,
+       1 AS RetainFailedMessageDuration,
+       1 AS StoreErrorMessageOnFailure,
+       1 AS PersistOnSuccess,
+       null AS PersistDuration,
+       1 AS ClearErrorOnSuccess,
+       0 AS Inactive
+FROM [Action].[tblActionClassification] C
+WHERE C.[Code] = 'RPC' AND
+      0 = ( SELECT COUNT(*) FROM [Action].[tblActionType] WHERE [Code] = '<%= code %>' )
 
-<%
+<%-
       end
     end
   end
