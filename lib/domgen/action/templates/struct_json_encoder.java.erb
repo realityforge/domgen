@@ -1,0 +1,50 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(struct.action.qualified_json_encoder_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public final class <%= struct.action.json_encoder_name %>
+{
+  private <%= struct.action.json_encoder_name %>()
+  {
+  }
+
+  @javax.annotation.Nonnull
+  public static javax.json.JsonArray encode( @javax.annotation.Nonnull final java.util.List<<%= struct.ee.qualified_name %>> structs )
+  {
+    final javax.json.JsonArrayBuilder builder = javax.json.Json.createArrayBuilder();
+    for ( final <%= struct.ee.qualified_name %> struct : structs )
+    {
+      builder.add( encode( struct ) );
+    }
+    return builder.build();
+  }
+
+  @javax.annotation.Nonnull
+  public static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= struct.ee.qualified_name %> struct )
+  {
+    return
+      javax.json.Json
+        .createObjectBuilder()
+<% struct.fields.each do |field|
+    conversion_rule =
+      case
+        when (field.enumeration? and field.nullable? && parameter.enumeration.numeric_values?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.ordinal() )"}
+        when (field.enumeration? and field.nullable? && parameter.enumeration.textual_values?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.value() )"}
+        when (field.enumeration? && field.enumeration.numeric_values?) then Proc.new {|value| "javax.json.Json.createValue( #{value}.ordinal() )"}
+        when (field.enumeration? && field.enumeration.textual_values?) then Proc.new {|value| "javax.json.Json.createValue( #{value}.value() )"}
+        when (field.struct? && field.nullable?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : #{field.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
+        when field.struct? then Proc.new {|value| "#{field.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
+        when (field.date? && field.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : iris.rose.server.service.util.RDate.fromDate( #{value} ).toString()"}
+        when field.date? then Proc.new {|value, type| "iris.rose.server.service.util.RDate.fromDate( #{value} ).toString()"}
+        when (field.datetime? && field.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.getTime() )"}
+        when field.datetime? then Proc.new {|value, type| "javax.json.Json.createValue( #{value}.getTime() )"}
+        when field.nullable? then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value} )"}
+        else Proc.new{|value| value }
+      end
+-%>
+        .add( "<%= field.name %>",<% if field.collection? -%> javax.json.Json.createArrayBuilder(<% end -%>
+ <%= conversion_rule.call( "struct.#{getter_prefix(field)}#{field.name}()" ) %> )<% if field.collection? -%> )<% end %>
+<% end -%>
+        .build();
+  }
+}

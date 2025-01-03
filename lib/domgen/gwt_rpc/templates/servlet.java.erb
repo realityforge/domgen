@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.gwt_rpc.qualified_servlet_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable", "PMD.FieldDeclarationsShouldBeAtStartOfClass", "PMD.UnnecessaryLocalBeforeReturn", "PMD.LocalVariableCouldBeFinal", "PMD.DoNotThrowExceptionInFinally", "PMD.PreserveStackTrace", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "DuplicatedCode", "ReassignedVariable", "PMD.UnusedPrivateField", "PMD.UnusedLocalVariable", "PMD.FieldDeclarationsShouldBeAtStartOfClass", "PMD.UnnecessaryLocalBeforeReturn", "PMD.LocalVariableCouldBeFinal", "PMD.DoNotThrowExceptionInFinally", "PMD.PreserveStackTrace", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "SE_TRANSIENT_FIELD_NOT_RESTORED", "BED_HIERARCHICAL_EXCEPTION_DECLARATION", "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS", "FCBL_FIELD_COULD_BE_LOCAL", "LEST_LOST_EXCEPTION_STACK_TRACE", "NFF_NON_FUNCTIONAL_FIELD", "EXS_EXCEPTION_SOFTENING_HAS_CHECKED", "EXS_EXCEPTION_SOFTENING_NO_CHECKED", "USBR_UNNECESSARY_STORE_BEFORE_RETURN", "PSC_PRESIZE_COLLECTIONS", "UEC_USE_ENUM_COLLECTIONS" } )
 @javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { <%= service.gwt_rpc.servlet_name %>.API_URL } )
 public class <%= service.gwt_rpc.servlet_name %>
@@ -36,6 +36,12 @@ public class <%= service.gwt_rpc.servlet_name %>
   private transient <%= service.data_module.repository.gwt_rpc.qualified_code_server_config_name %> _codeServerConfig;
   @javax.inject.Inject
   private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
+<% if  service.methods.any?{|method| method.action?} -%>
+  @javax.inject.Inject
+  private transient iris.rose.server.action.LocalActionTraceServiceBoundary _actionTraceService;
+  @javax.inject.Inject
+  private transient iris.rose.server.core.RoseAuthService _roseAuthService;
+<% end -%>
 
   @javax.annotation.Nullable
   @Override
@@ -50,30 +56,27 @@ public class <%= service.gwt_rpc.servlet_name %>
                                                                                          @javax.annotation.Nonnull final String strongName )
   {
     java.net.URL moduleBaseURL = null;
-    if ( null != moduleBase )
+    try
     {
-      try
-      {
-        moduleBaseURL = new java.net.URL( moduleBase );
-      }
-      catch ( final java.net.MalformedURLException e )
-      {
-        // log the information, we will default
-        log( "Malformed moduleBaseURL: " + moduleBase, e );
-        return null;
-      }
+      moduleBaseURL = new java.net.URL( moduleBase );
+    }
+    catch ( final java.net.MalformedURLException e )
+    {
+      // log the information, we will default
+      log( "Malformed moduleBaseURL: " + moduleBase, e );
+      return null;
     }
 
     final String contextPath = request.getContextPath();
-    java.io.InputStream stream = null;
-    String path = strongName;
-    if ( null != moduleBaseURL && moduleBaseURL.getPath().startsWith( contextPath ) )
+    java.io.InputStream stream;
+    String path;
+    if ( moduleBaseURL.getPath().startsWith( contextPath ) )
     {
       final String contextRelativePath = moduleBaseURL.getPath().substring( contextPath.length() );
       path = contextRelativePath + strongName + ".gwt.rpc";
       stream = getServletContext().getResourceAsStream( path );
     }
-    else if ( null != moduleBaseURL )
+    else
     {
       path = moduleBaseURL.toExternalForm() + strongName + ".gwt.rpc";
       try
@@ -122,6 +125,8 @@ public class <%= service.gwt_rpc.servlet_name %>
   {
 <% if method.imit? -%>
     boolean headerSet = false;
+    @javax.annotation.Nullable
+    String replicationComplete = null;
 <% end -%>
 <% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| -%>
     final <%= parameter.referenced_struct.ee.qualified_name %> $<%= parameter.name %>;
@@ -129,14 +134,10 @@ public class <%= service.gwt_rpc.servlet_name %>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| -%>
     <%= annotated_type(parameter, :ejb, :boundary, :final => true) %> $<%= parameter.name %>;
 <% end -%>
-<% if method.imit? || method.exceptions.size > 0 -%>
+<% if method.action? || method.imit? || method.exceptions.size > 0 -%>
     java.lang.Throwable cause = null;
     try
     {
-<% end -%>
-<% if method.imit? -%>
-      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER ) );
-      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null );
 <% end -%>
 <% if method.parameters.any?{|p| p.struct?} -%>
       try
@@ -193,17 +194,39 @@ LOOP
         return_postfix = "try {\n #{return_postfix} \n} catch ( final java.io.IOException ioe ) { #{method.imit? || method.exceptions.size > 0 ? 'cause = ioe; ' : ''}throw new IllegalArgumentException( ioe.getMessage(), ioe ); }"
        end
    end
+   methodParamString = method.parameters.collect do |p|
+    if p.gwt_rpc.environmental?
+      value = p.gwt_rpc.environment_value
+    elsif p.struct? || (p.collection? && (p.date? || p.enumeration?|| p.struct?))
+      value = "$#{p.name}"
+    else
+      transform = nil
+      if p.date?
+        transform = "java.sql.Date.valueOf( java.time.LocalDate.parse( #{p.gwt_rpc.name}, LOCAL_DATE ) )"
+      elsif p.enumeration?
+        if p.enumeration.numeric_values?
+          transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt_rpc.name} ]"
+        else
+          transform = "#{p.enumeration.ee.qualified_name}.valueOf( #{p.gwt_rpc.name} )"
+        end
+      end
+      if p.nullable? && transform
+        transform = "(null == #{p.gwt_rpc.name} ? null : #{transform})"
+      end
+      value = transform || p.gwt_rpc.name
+    end
+    value
+  end.join(', ')
 -%>
 <% method.parameters.select{|p|p.struct? && !p.collection?}.each do |parameter| -%>
     $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : "" %>_jsonMapper.readValue( <%= parameter.name %>, <%= parameter.ejb.java_type %>.class );
 <% end -%>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
     $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
-    <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
+    <% if parameter.nullable? -%>if( null != <%= parameter.name %> ) {<% end %>
     for( final <%= parameter.ejb.java_component_type(:transport) %> k: <%= parameter.name %> )
     {
-    <%
-       param_value =
+<% param_value =
          if parameter.date?
             'java.sql.Date.valueOf( java.time.LocalDate.parse( k, LOCAL_DATE ) )'
          elsif parameter.enumeration?
@@ -213,10 +236,10 @@ LOOP
          else
            "_jsonMapper.readValue( k, #{parameter.ejb.java_component_type}.class )"
          end
-    %>
-    $<%= parameter.name %>.add( <%= param_value %> );
+    -%>
+$<%= parameter.name %>.add( <%= param_value %> );
     }
-    <% if parameter.nullable? %>}<% end %>
+    <% if parameter.nullable? %>}<% end -%>
 <% end -%>
 <% if method.parameters.any?{|p| p.struct?} -%>
     }
@@ -228,31 +251,107 @@ LOOP
       throw new IllegalArgumentException( ioe.getMessage(), ioe );
     }
 <% end -%>
-    <%= return_prefix %>_service.<%= method.gwt_rpc.name %>(<%= method.parameters.collect do |p|
-  if p.gwt_rpc.environmental?
-    value = p.gwt_rpc.environment_value
-  elsif p.struct? || (p.collection? && (p.date? || p.enumeration?|| p.struct?))
-    value = "$#{p.name}"
-  else
-    transform = nil
-    if p.date?
-      transform = "java.sql.Date.valueOf( java.time.LocalDate.parse( #{p.gwt_rpc.name}, LOCAL_DATE ) )"
-    elsif p.enumeration?
-      if p.enumeration.numeric_values?
-        transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt_rpc.name} ]"
+
+<% if method.action? -%>
+    // Queue the action
+    final var replicantSessionId = getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER );
+    final var externalId = null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null;
+    final var actionSessionId = _actionTraceService.findOrCreateSession( _roseAuthService.getUsername(),
+                                                                     iris.rose.server.action.ExternalSessionKind.REPLICANT,
+                                                                     replicantSessionId );
+
+    final var startedAt = new java.util.Date();
+    final var actionQueuedFeedback = ""; // TODO: Generate from params, or straight from architecture.rb, via _service
+    final var actionTypeCode = <%= method.action.action_impl_name %>.actionTypeCode();
+    final var requestPayload = <%= method.action.action_impl_name %>.encodeRequestPayload( <%= methodParamString %> );
+
+    final var actionId = _actionTraceService.queueAction( actionSessionId,
+                                                          actionTypeCode,
+                                                          startedAt,
+                                                          String.valueOf( externalId ),
+                                                          requestPayload.toString(),
+                                                          actionQueuedFeedback );
+
+
+    // Start the action, later to be done by pulling from queued action
+    try
+    {
+      final var actionStartedFeedback = ""; // Provide a global action hook which a generated default method on the serviceInterface uses
+      _actionTraceService.actionStarted( actionId, startedAt, actionStartedFeedback );
+<% end -%>
+
+      // Call service
+<% if method.imit? -%>
+<% if method.action? -%>
+      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, replicantSessionId );
+      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, externalId );
+<% else -%>
+      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER ) );
+      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null );
+<% end -%>
+<% end -%>
+      <%= return_prefix %>_service.<%= method.gwt_rpc.name %>(<%= methodParamString -%>);
+<% if method.imit? -%>
+      replicationComplete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.server.ServerConstants.REQUEST_COMPLETE_KEY );
+<% end -%>
+<% if method.action? -%>
+      // Perform post-call action behaviour
+      final var completedAt = new java.util.Date();
+<% if method.return_value.return_type != :void -%>
+      final var encodedResult = <%= method.action.action_impl_name %>.encodeResponsePayload( returnValue );
+<% else -%>
+      final var encodedResult = javax.json.JsonValue.EMPTY_JSON_OBJECT;
+<% end -%>
+      final var actionCompletedFeedback = "";
+      _actionTraceService.actionCompleted( actionId,
+                                           completedAt,
+                                           encodedResult.toString(),
+                                           actionCompletedFeedback );
+       <%= return_postfix %>
+    }
+    catch ( final Exception | Error e )
+    {
+      final var encodedException = <%= method.action.action_impl_name %>.encodeException( e );
+      if ( null != encodedException )
+      {
+        final var completedAt = new java.util.Date();
+        final var actionCompletedFeedback = "";
+        _actionTraceService.actionCompleted( actionId,
+                                             completedAt,
+                                             encodedException.toString(),
+                                             actionCompletedFeedback );
+      }
       else
-        transform = "#{p.enumeration.ee.qualified_name}.valueOf( #{p.gwt_rpc.name} )"
-      end
-    end
-    if p.nullable? && transform
-      transform = "(null == #{p.gwt_rpc.name} ? null : #{transform})"
-    end
-    value = transform || p.gwt_rpc.name
-  end
-  value
-end.join(', ') %>);
-      <%= return_postfix %>
-<% if method.imit? || method.exceptions.size > 0 -%>
+      {
+        // If we get to here, then encodedException returned null, which means it was not one of the expected
+        // exceptions, and thus it is actually an error of some sort.
+        final var errorAt = new java.util.Date();
+        final var actionErrorFeedback = "";
+        final var errorMessage = iris.syncrecord.server.service.ExceptionUtil.emitFilteredStackTrace( e );
+        _actionTraceService.actionErrored( actionId,
+                                           errorAt,
+                                           errorMessage,
+                                           actionErrorFeedback );
+      }
+      throw e;
+    }
+<% else -%>
+       <%= return_postfix %>
+<% end -%>
+
+<% if method.action? || method.imit? || method.exceptions.size > 0 -%>
+    }
+<% end -%>
+<% if method.action? -%>
+  catch ( final iris.rose.server.action.InvalidActionTypeCodeException | iris.rose.server.action.InvalidRequestPayloadException | iris.rose.server.action.ExternalIdTooLongException e )
+  {
+<% if method.imit? -%>
+      // Assume the exception caused a rollback and if the transaction has rolled back there will be no messages arriving
+      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, "1" );
+      headerSet = true;
+      cause = e;
+<% end -%>
+      throw new RuntimeException( e );
     }
 <% end -%>
 <% method.exceptions.each do |exception| -%>
@@ -277,7 +376,7 @@ end.join(', ') %>);
       final javax.validation.ConstraintViolationException wrap = new javax.validation.ConstraintViolationException( sb.toString(), cve.getConstraintViolations() );
       wrap.initCause( cve );
 
-      // Assume execption has caused a rollback and if the transaction has rolled back there will be no messages arriving
+      // Assume exception has caused a rollback and if the transaction has rolled back there will be no messages arriving
       getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, "1" );
       headerSet = true;
       cause = wrap;
@@ -295,10 +394,9 @@ end.join(', ') %>);
     {
       if ( !headerSet )
       {
-        final String complete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.server.ServerConstants.REQUEST_COMPLETE_KEY );
-        if( null != complete )
+        if( null != replicationComplete )
         {
-          getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, complete );
+          getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, replicationComplete );
         }
         else
         {

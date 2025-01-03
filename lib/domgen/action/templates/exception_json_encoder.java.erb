@@ -1,0 +1,40 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(exception.action.qualified_json_encoder_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+public final class <%= exception.action.json_encoder_name %>
+{
+  private <%= exception.action.json_encoder_name %>()
+  {
+  }
+
+  @javax.annotation.Nonnull
+  public static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= exception.ee.qualified_name %> exception )
+  {
+    return
+      javax.json.Json
+        .createObjectBuilder()
+        .add( "$type", "<%= exception.data_module.name %>.<%= exception.name %>" )
+        .add( "$message", exception.getMessage() )
+<% exception.parameters.each do |parameter|
+    conversion_rule =
+      case
+        when (parameter.enumeration? and parameter.nullable? && parameter.enumeration.numeric_values?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.ordinal() )"}
+        when (parameter.enumeration? and parameter.nullable? && parameter.enumeration.textual_values?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.value() )"}
+        when (parameter.enumeration? && parameter.enumeration.numeric_values?) then Proc.new {|value, type| "javax.json.Json.createValue( #{value}.ordinal() )"}
+        when (parameter.enumeration? && parameter.enumeration.textual_values?) then Proc.new {|value, type| "javax.json.Json.createValue( #{value}.value() )"}
+        when (parameter.struct? && parameter.nullable?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : #{struct.action.qualified_json_encoder_name}.encode( #{value} )"}
+        when parameter.struct? then Proc.new {|value| "#{parameter.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
+        when (parameter.date? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : iris.rose.server.service.util.RDate.fromDate( (#{type}) #{value} ).toString()"}
+        when parameter.date? then Proc.new {|value, type| "iris.rose.server.service.util.RDate.fromDate( (#{type}) #{value} ).toString()"}
+        when (parameter.datetime? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( ((#{type}) #{value}).getTime() )"}
+        when parameter.datetime? then Proc.new {|value, type| "javax.json.Json.createValue( ((#{type}) #{value}).getTime() )"}
+        when parameter.nullable? then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value} )"}
+        else Proc.new{|value| value }
+      end
+-%>
+        .add( "<%= parameter.name %>", <%= conversion_rule.call( "exception.#{getter_prefix(parameter)}#{parameter.name}()" ) %> )
+<% end -%>
+        .build();
+  }
+}

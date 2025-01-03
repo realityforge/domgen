@@ -1,0 +1,98 @@
+/* DO NOT EDIT: File is auto-generated */
+/* <%= File.basename(__FILE__) %> */
+package <%= to_package(method.action.qualified_action_impl_name) %>;
+
+@java.lang.SuppressWarnings( "PMD.FormalParameterNamingConventions" )
+public final class <%= method.action.action_impl_name %>
+{
+  private <%= method.action.action_impl_name %>()
+  {
+  }
+
+  @javax.annotation.Nonnull
+  public static String actionTypeCode()
+  {
+    return "<%= hashCode(method) %>";
+  }
+
+  @java.lang.SuppressWarnings( "unchecked" )
+  @javax.annotation.Nonnull
+  public static javax.json.JsonValue encodeRequestPayload( <%=
+    method.parameters.collect{|p|
+          "#{annotated_type(p, :ejb, :boundary, :final => true)} #{p.name}"
+      }.join(', ')
+    %> )
+  {
+    return
+      javax.json.Json
+        .createObjectBuilder()
+    <%
+      method.parameters.each do |parameter|
+        conversion_rule =
+        case
+          when (parameter.enumeration? and parameter.nullable? && parameter.enumeration.numeric_values?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.ordinal() )"}
+          when (parameter.enumeration? and parameter.nullable? && parameter.enumeration.textual_values?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.value() )"}
+          when (parameter.enumeration? && parameter.enumeration.numeric_values?) then Proc.new {|value, type| "javax.json.Json.createValue( #{value}.ordinal() )"}
+          when (parameter.enumeration? && parameter.enumeration.textual_values?) then Proc.new {|value, type| "javax.json.Json.createValue( #{value}.value() )"}
+          when (parameter.struct? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : #{struct.action.qualified_json_encoder_name}.encode( #{value} )"}
+          when parameter.struct? then Proc.new {|value, type| "#{parameter.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
+          when (parameter.date? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( iris.rose.server.service.util.RDate.fromDate( #{value} ).toString() )"}
+          when parameter.date? then Proc.new {|value, type| "javax.json.Json.createValue( iris.rose.server.service.util.RDate.fromDate( #{value} ).toString() )"}
+          when (parameter.datetime? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( (#{value}).getTime() )"}
+          when parameter.datetime? then Proc.new {|value, type| "javax.json.Json.createValue( (#{value}).getTime() )"}
+          when parameter.nullable? then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value} )"}
+          else Proc.new{|value, type| "#{value}" }
+        end
+    -%>
+      .add( "<%= parameter.name %>",<% if parameter.collection? -%> javax.json.Json.createArrayBuilder(
+            <% end -%>
+ <%= conversion_rule.call( parameter.name, parameter.ejb.non_primitive_java_type(:boundary) ) %> )<% if parameter.collection? -%> )<% end %>
+    <% end -%>
+      .build();
+  }
+<% if method.return_value.return_type != :void %>
+
+  @javax.annotation.Nonnull
+  public static javax.json.JsonValue encodeResponsePayload( <%= annotated_type(method.return_value, :ejb, :boundary, :final => true) %> response )
+  {
+    final var builder = javax.json.Json.createObjectBuilder();
+
+<% if method.return_value.nullable? -%>
+    if ( null == response )
+    {
+      builder.add( "data", javax.json.JsonValue.NULL );
+    }
+    else
+<% end -%>
+    {
+<% if method.return_value.struct? -%>
+      builder.add("data",<% if method.return_value.collection? -%> javax.json.Json.createArrayBuilder(<% end -%>
+ <%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>.encode( response<% if method.return_value.collection? -%> )<% end -%>
+ ) );
+<% else -%>
+      builder.add("data",<% if method.return_value.collection? -%> javax.json.Json.createArrayBuilder(
+        <% end -%>
+<% unless method.return_value.collection? -%> javax.json.Json.createValue(<% end -%>
+ response ) );
+<% end -%>
+    }
+    return builder.build();
+  }
+<% end -%>
+
+  @javax.annotation.Nullable
+  public static javax.json.JsonObject encodeException( @javax.annotation.Nonnull final Throwable exception )
+  {
+    <% method.exceptions.each do |exception|
+-%> if ( exception instanceof final <%= exception.ee.qualified_name %> e )
+    {
+      return javax.json.Json.createObjectBuilder().add("error", <%= exception.action.qualified_json_encoder_name %>.encode( e ) ).build();
+    }
+    else<% end -%>
+    {
+      return null;
+    }
+  }
+}
+
+

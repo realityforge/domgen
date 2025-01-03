@@ -75,19 +75,7 @@ public class <%= method.jms.mdb_name %>
         }
         final <%= boundary_type %> parameter = <%= ((parameter.struct? || parameter.non_standard_type?) && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
 <% end -%>
-<% if method.service.data_module.repository.iris_audit? -%>
-        try
-        {
-          <%= method.service.data_module.repository.iris_audit.qualified_audit_context_util_name %>.set( "<system>" );
-<% end -%>
         _service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
-<% if method.service.data_module.repository.iris_audit? -%>
-        }
-        finally
-        {
-          <%= method.service.data_module.repository.iris_audit.qualified_audit_context_util_name %>.clear();
-        }
-<% end -%>
       }
       else
       {

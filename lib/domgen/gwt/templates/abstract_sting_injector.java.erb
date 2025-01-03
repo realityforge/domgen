@@ -4,11 +4,6 @@ package <%= to_package(repository.gwt.qualified_abstract_sting_injector_name) %>
 @sting.InjectorFragment
 public interface <%= repository.gwt.abstract_sting_injector_name %>
 {
-<% if repository.iris_audit? -%>
-
-  @javax.annotation.Nonnull
-  iris.audit.client.ClientExceptionAuditHelper getClientExceptionAuditHelper();
-<% end -%>
 <% if repository.arez? -%>
 
   @sting.Named( "<%= repository.name %>" )

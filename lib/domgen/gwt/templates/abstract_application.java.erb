@@ -263,23 +263,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     {
       logThrowable( e  );
     }
-<% if repository.iris_audit? -%>
-    final iris.audit.client.ClientExceptionAuditHelper helper = getClientExceptionAuditHelper();
-    if ( null != helper )
-    {
-      helper.auditClientException( e, e.getMessage() );
-    }
-<% end -%>
   }
-<% if repository.iris_audit? -%>
-
-  @javax.annotation.Nullable
-  protected final iris.audit.client.ClientExceptionAuditHelper getClientExceptionAuditHelper()
-  {
-    final I injector = getInjector();
-    return null != injector ? injector.getClientExceptionAuditHelper() : null;
-  }
-<% end -%>
 
   @javax.annotation.Nonnull
   protected java.util.Collection<Throwable> unwrapThrowable( @javax.annotation.Nonnull final Throwable e )

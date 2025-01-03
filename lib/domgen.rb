@@ -163,9 +163,6 @@ require 'domgen/application/model'
 require 'domgen/robots/model'
 require 'domgen/robots/generator'
 
-require 'domgen/iris_audit/model'
-require 'domgen/iris_audit/generator'
-
 require 'domgen/redfish/model'
 require 'domgen/redfish/generator'
 
@@ -179,3 +176,7 @@ require 'domgen/sql_analysis/generator'
 require 'domgen/react4j/model'
 
 require 'domgen/serviceworker/model'
+
+require 'domgen/action/model'
+require 'domgen/action/helper'
+require 'domgen/action/generator'

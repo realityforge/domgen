@@ -12,9 +12,6 @@
 <% if repository.keycloak? -%>
   <inherits name='org.realityforge.gwt.keycloak.cache.TokenCache'/>
 <% end -%>
-<% if repository.iris_audit? -%>
-  <inherits name='iris.audit.Audit'/>
-<% end -%>
 <% if repository.arez? -%>
   <set-property name='arez.enable_references' value='true'/>
 <% end -%>

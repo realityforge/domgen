@@ -18,6 +18,7 @@ Domgen::Generator.define([:ce],
   g.template_set(:ce_data_types) do |template_set|
     template_set.erb_template(:enumeration,
                               'enumeration.java.erb',
-                              'main/java/#{enumeration.ce.qualified_name.gsub(".","/")}.java')
+                              'main/java/#{enumeration.ce.qualified_name.gsub(".","/")}.java',
+                              :guard => 'enumeration.gwt?')
   end
 end
