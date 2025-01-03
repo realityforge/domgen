@@ -1,8 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
 
-INSERT INTO Action.tblActionClassification(Code)
-SELECT 'RPC'
-WHERE 0 = ( SELECT COUNT(*) FROM Action.tblActionClassification WHERE [Code] = 'RPC' )
+INSERT INTO [Action].[tblActionClassification]([Code])
+  SELECT 'RPC'
+  WHERE 0 = ( SELECT COUNT(*) FROM [Action].[tblActionClassification] WHERE [Code] = 'RPC' )
+
+DECLARE @Ids TABLE ( Id VARCHAR(MAX) NOT NULL );
 
 <%
   repository.data_modules.each do |data_module|
@@ -11,6 +13,8 @@ WHERE 0 = ( SELECT COUNT(*) FROM Action.tblActionClassification WHERE [Code] = '
         userKey = "#{data_module.name}.#{service.name}.#{method.name}"
         code = hashCode(method)
 -%>
+INSERT INTO @Ids([Id]) SELECT '<%= code %>'
+
 -- Method: <%= userKey %>
 INSERT INTO [Action].[tblActionType](ClassificationId,
                                      ParentId,
@@ -32,7 +36,7 @@ INSERT INTO [Action].[tblActionType](ClassificationId,
                                      PersistDuration,
                                      ClearErrorOnSuccess,
                                      Inactive)
-select C.Id AS ClassificationId,
+SELECT C.Id AS ClassificationId,
        NULL AS ParentId,
        '<%= userKey %>' AS UserKey,
        '<%= code %>' AS Code,
@@ -49,15 +53,39 @@ select C.Id AS ClassificationId,
        1 AS RetainFailedMessageDuration,
        1 AS StoreErrorMessageOnFailure,
        1 AS PersistOnSuccess,
-       null AS PersistDuration,
+       NULL AS PersistDuration,
        1 AS ClearErrorOnSuccess,
        0 AS Inactive
 FROM [Action].[tblActionClassification] C
 WHERE C.[Code] = 'RPC' AND
       0 = ( SELECT COUNT(*) FROM [Action].[tblActionType] WHERE [Code] = '<%= code %>' )
 
+IF @@rowcount = 0 AND @@error = 0
+  UPDATE AT
+  SET PreCompletionUserFeedbackPattern = '',
+      PostCompletionUserFeedbackPattern = '',
+      OnErrorUserFeedbackPattern = '',
+      MaxErrorCount = 1,
+      RetryRate = 0,
+      StoreResponseOnSuccess = 1,
+      GenerateMessageOnSuccess = 1,
+      RetainFailedMessageDuration = 1,
+      StoreErrorMessageOnFailure = 1,
+      PersistOnSuccess = 1,
+      PersistDuration = NULL,
+      ClearErrorOnSuccess = 1
+  FROM [Action].[tblActionType] AT
+  JOIN [Action].[tblActionClassification] AC ON AC.[Id] = AT.[ClassificationId] AND AC.[Code] = 'RPC'
+  WHERE AT.[Code] = '<%= code %>'
+
 <%-
       end
     end
   end
 -%>
+-- Mark as inactive any RPC actions that are currently active but have not been added in this set
+UPDATE AT
+SET [Inactive] = 1
+FROM [Action].[tblActionType] AT
+JOIN [Action].[tblActionClassification] AC ON AC.[Code] = 'RPC' AND AT.[ClassificationId] = AC.[Id]
+WHERE AT.[Code] NOT IN (SELECT [Id] FROM @Ids) AND AT.[Inactive] = 0
