@@ -982,11 +982,11 @@ SQL
         end
 
         entity.attributes.select { |a| a.enumeration? && a.enumeration.numeric_values? }.each do |a|
-          sorted_values = (0..(a.enumeration.values.length)).collect { |v| v }
+          sorted_values = (0...(a.enumeration.values.length)).collect { |v| v }
           constraint_name = "#{a.name}_Enum"
           constraint(constraint_name, :standard => true, :sql => <<SQL) unless constraint_by_name(constraint_name)
 #{a.sql.quoted_column_name} >= #{sorted_values[0]} AND
-#{a.sql.quoted_column_name} <= #{sorted_values[sorted_values.size - 2]}
+#{a.sql.quoted_column_name} <= #{sorted_values[sorted_values.size - 1]}
 SQL
         end
         entity.attributes.select { |a| a.attribute_type == :enumeration && a.enumeration.textual_values? }.each do |a|
