@@ -9,7 +9,7 @@ DECLARE @Ids TABLE ( Id VARCHAR(MAX) NOT NULL );
 <%
   repository.data_modules.each do |data_module|
     data_module.services.select {|s| s.action?}.each do |service|
-      service.methods.select {|m| m.ejb?}.each do |method|
+      service.methods.select {|m| m.action? }.each do |method|
         userKey = "#{data_module.name}.#{service.name}.#{method.name}"
         code = hashCode(method)
 -%>
@@ -46,15 +46,15 @@ SELECT C.Id AS ClassificationId,
        '' AS PreCompletionUserFeedbackPattern,
        '' AS PostCompletionUserFeedbackPattern,
        '' AS OnErrorUserFeedbackPattern,
-       1 AS MaxErrorCount,
-       0 AS RetryRate,
-       1 AS StoreResponseOnSuccess,
-       1 AS GenerateMessageOnSuccess,
-       1 AS RetainFailedMessageDuration,
-       1 AS StoreErrorMessageOnFailure,
-       1 AS PersistOnSuccess,
-       NULL AS PersistDuration,
-       1 AS ClearErrorOnSuccess,
+       <%= method.action.max_error_count %> AS MaxErrorCount,
+       <%= method.action.retry_rate %> AS RetryRate,
+       <%= method.action.store_response_on_success? ? '1' : '0' %> AS StoreResponseOnSuccess,
+       <%= method.action.generate_message_on_success? ? '1' : '0' %> AS GenerateMessageOnSuccess,
+       <%= method.action.retain_failed_message_duration %> AS RetainFailedMessageDuration,
+       <%= method.action.store_error_message_on_failure? ? '1' : '0' %> AS StoreErrorMessageOnFailure,
+       <%= method.action.persist_on_success? ? '1' : '0' %> AS PersistOnSuccess,
+       <%= method.action.persist_duration.nil? ? 'NULL' : method.action.persist_duration %> AS PersistDuration,
+       <%= method.action.clear_error_on_success? ? '1' : '0' %> AS ClearErrorOnSuccess,
        0 AS Inactive
 FROM [Action].[tblActionClassification] C
 WHERE C.[Code] = 'RPC' AND
@@ -65,15 +65,15 @@ IF @@rowcount = 0 AND @@error = 0
   SET PreCompletionUserFeedbackPattern = '',
       PostCompletionUserFeedbackPattern = '',
       OnErrorUserFeedbackPattern = '',
-      MaxErrorCount = 1,
-      RetryRate = 0,
-      StoreResponseOnSuccess = 1,
-      GenerateMessageOnSuccess = 1,
-      RetainFailedMessageDuration = 1,
-      StoreErrorMessageOnFailure = 1,
-      PersistOnSuccess = 1,
-      PersistDuration = NULL,
-      ClearErrorOnSuccess = 1
+      MaxErrorCount = <%= method.action.max_error_count %>,
+      RetryRate = <%= method.action.retry_rate %>,
+      StoreResponseOnSuccess = <%= method.action.store_response_on_success? ? '1' : '0' %>,
+      GenerateMessageOnSuccess = <%= method.action.generate_message_on_success? ? '1' : '0' %>,
+      RetainFailedMessageDuration = <%= method.action.retain_failed_message_duration %>,
+      StoreErrorMessageOnFailure = <%= method.action.store_error_message_on_failure? ? '1' : '0' %>,
+      PersistOnSuccess = <%= method.action.persist_on_success? ? '1' : '0' %>,
+      PersistDuration = <%= method.action.persist_duration.nil? ? 'NULL' : method.action.persist_duration %>,
+      ClearErrorOnSuccess = <%= method.action.clear_error_on_success? ? '1' : '0' %>
   FROM [Action].[tblActionType] AT
   JOIN [Action].[tblActionClassification] AC ON AC.[Id] = AT.[ClassificationId] AND AC.[Code] = 'RPC'
   WHERE AT.[Code] = '<%= code %>'
