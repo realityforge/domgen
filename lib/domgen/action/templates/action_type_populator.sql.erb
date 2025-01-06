@@ -10,8 +10,8 @@ DECLARE @Ids TABLE ( Id VARCHAR(MAX) NOT NULL );
   repository.data_modules.each do |data_module|
     data_module.services.select {|s| s.action?}.each do |service|
       service.methods.select {|m| m.action? }.each do |method|
-        userKey = "#{data_module.name}.#{service.name}.#{method.name}"
-        code = hashCode(method)
+        userKey = method.qualified_name.gsub('#', '.')
+        code = method.action.code
 -%>
 INSERT INTO @Ids([Id]) SELECT '<%= code %>'
 
@@ -41,8 +41,8 @@ SELECT C.Id AS ClassificationId,
        '<%= userKey %>' AS UserKey,
        '<%= code %>' AS Code,
        0 AS ExternalId,
-       '<%= requestSchema(method) %>' AS RequestSchema,
-       '<%= responseSchema(method) %>' AS ResponseSchema,
+       '<%= method.action.json_request_schema %>' AS RequestSchema,
+       '<%= method.action.json_response_schema %>' AS ResponseSchema,
        '' AS PreCompletionUserFeedbackPattern,
        '' AS PostCompletionUserFeedbackPattern,
        '' AS OnErrorUserFeedbackPattern,

@@ -14,7 +14,7 @@
 
 Domgen::Generator.define([:action],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::Java::Helper, Domgen::Action::Helper]) do |g|
+                         [Domgen::Java::Helper]) do |g|
   g.template_set(:action_server) do |template_set|
     template_set.erb_template(:method,
                               'action_impl.java.erb',

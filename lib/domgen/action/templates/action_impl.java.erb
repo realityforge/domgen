@@ -12,7 +12,7 @@ public final class <%= method.action.action_impl_name %>
   @javax.annotation.Nonnull
   public static String actionTypeCode()
   {
-    return "<%= hashCode(method) %>";
+    return "<%= method.action.code %>";
   }
 
   @java.lang.SuppressWarnings( "unchecked" )

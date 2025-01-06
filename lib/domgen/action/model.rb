@@ -15,6 +15,48 @@
 require 'domgen'
 
 module Domgen
+  module Action
+
+    def self.parameter_json_schema(schema, parameter, ignore_null = false)
+      type =
+        case
+        when parameter.enumeration? then 'integer'
+        when parameter.date? then 'string'
+        when parameter.datetime? then 'integer'
+        when parameter.integer? then 'integer'
+        when parameter.reference? then 'integer'
+        when parameter.boolean? then 'boolean'
+        when parameter.struct? then
+          parameter.referenced_struct.action.json_schema(schema)
+          parameter.referenced_struct.action.json_reference
+        else 'string'
+        end
+
+      if parameter.collection?
+        unless parameter.struct?
+          type = {
+            "type": type
+          }
+        end
+        type = {
+          type: 'array',
+          items: type
+        }
+        if parameter.nullable? && !ignore_null
+          type = [type, 'null']
+        end
+      else
+        if parameter.nullable? && !ignore_null
+          type = { type: [type, 'null'] }
+        else
+          unless parameter.struct?
+            type = { type: type }
+          end
+        end
+      end
+      type
+    end
+  end
   FacetManager.facet(:action) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
@@ -57,12 +99,35 @@ module Domgen
       def mark_as_referenced!
         return if referenced?
         @referenced = true
-        self.struct.fields.select{|f|f.enumeration? && f.enumeration.action?}.each do |field|
+        self.struct.fields.select { |f| f.enumeration? && f.enumeration.action? }.each do |field|
           field.enumeration.action.mark_as_referenced!
         end
-        self.struct.fields.select{|f|f.struct? && f.referenced_struct.action?}.each do |field|
+        self.struct.fields.select { |f| f.struct? && f.referenced_struct.action? }.each do |field|
           field.referenced_struct.action.mark_as_referenced!
         end
+      end
+
+      def json_schema(schema)
+        return if schema[:definitions][struct.name]
+
+        struct_schema = {
+          type: "object",
+          properties: {
+          }
+        }
+        schema[:definitions][struct.name] = struct_schema
+
+        struct.fields.each do |parameter|
+          struct_schema[:properties][parameter.name] = Domgen::Action.parameter_json_schema(schema, parameter)
+        end
+        struct_schema[:required] = struct.fields.map { |p| p.name }
+        struct_schema[:additionalProperties] = false
+      end
+
+      def json_reference
+        {
+          "$ref": "#/definitions/#{struct.name}"
+        }
       end
 
       def pre_complete
@@ -82,10 +147,10 @@ module Domgen
       def mark_as_referenced!
         return if referenced?
         @referenced = true
-        self.exception.parameters.select{|f|f.enumeration? && f.enumeration.action?}.each do |field|
+        self.exception.parameters.select { |f| f.enumeration? && f.enumeration.action? }.each do |field|
           field.enumeration.action.mark_as_referenced!
         end
-        self.exception.parameters.select{|f|f.struct? && f.referenced_struct.action?}.each do |field|
+        self.exception.parameters.select { |f| f.struct? && f.referenced_struct.action? }.each do |field|
           field.referenced_struct.action.mark_as_referenced!
         end
       end
@@ -99,7 +164,7 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       def pre_complete
-        service.disable_facet(:action) unless service.methods.any?{|m| m.action?}
+        service.disable_facet(:action) unless service.methods.any? { |m| m.action? }
       end
 
       def post_verify
@@ -114,6 +179,11 @@ module Domgen
 
       java_artifact :interceptor_impl, :service, :server, :action, '#{method.name}ActionInterceptor'
       java_artifact :action_impl, :service, :server, :action, '#{method.name}Action'
+
+      def code
+        content = "#{method.qualified_name.gsub('#', '.')}:#{method.action.json_request_schema}:#{method.action.json_response_schema}"
+        Digest::MD5.hexdigest(content)
+      end
 
       attr_writer :max_error_count
 
@@ -169,16 +239,32 @@ module Domgen
         @clear_error_on_success.nil? ? true : @clear_error_on_success
       end
 
+      def json_request_schema
+        schema = {
+          type: 'object',
+          properties: {
+          },
+          definitions: {
+          }
+        }
+        method.parameters.each do |parameter|
+          schema[:properties][parameter.name] = Domgen::Action.parameter_json_schema(schema, parameter)
+        end
+        schema[:required] = method.parameters.map { |p| p.name }
+        schema[:additionalProperties] = false
+        schema.to_json
+      end
+
       def pre_pre_complete
         unless self.method.ejb? && self.method.gwt_rpc?
           self.method.disable_facet(:action)
           return
         end
 
-        self.method.parameters.select{|p|p.enumeration? && p.enumeration.action?}.each do |parameter|
+        self.method.parameters.select { |p| p.enumeration? && p.enumeration.action? }.each do |parameter|
           parameter.enumeration.action.mark_as_referenced!
         end
-        self.method.parameters.select{|p|p.struct? && p.referenced_struct.action?}.each do |parameter|
+        self.method.parameters.select { |p| p.struct? && p.referenced_struct.action? }.each do |parameter|
           parameter.referenced_struct.action.mark_as_referenced!
         end
         self.method.exceptions.each do |exception|
@@ -189,10 +275,98 @@ module Domgen
         end
       end
 
+      def json_response_schema
+        schema = {
+          oneOf: [
+          ],
+          definitions: {
+          }
+        }
+
+        if method.return_value.return_type != :void
+          if method.return_value.struct? && !method.return_value.collection?
+            method.return_value.referenced_struct.action.json_schema(schema)
+            schema[:oneOf] <<
+              {
+                type: "object",
+                properties: {
+                  data: method.return_value.referenced_struct.action.json_reference
+                },
+                required: ["data"],
+                additionalProperties: false
+              }
+          else
+            schema[:oneOf] <<
+              {
+                type: "object",
+                properties: {
+                  data: Domgen::Action.parameter_json_schema(schema, method.return_value, true)
+                },
+                required: ["data"],
+                additionalProperties: false
+              }
+          end
+        end
+
+        if method.return_value.nullable?
+          schema[:oneOf] << {
+            type: "object",
+            properties: {
+              data: {
+                type: "null"
+              }
+            },
+            required: ["data"],
+            additionalProperties: false
+          }
+        end
+
+        method.exceptions.each do |exception|
+          schema[:oneOf] <<
+            {
+              type: "object",
+              properties: {
+                exception: exception_json_schema(schema, exception)
+              },
+              required: ["exception"],
+              additionalProperties: false
+            }
+        end
+        if method.return_value.return_type == :void
+          schema[:oneOf] << {}
+        end
+        schema.to_json
+      end
+
       def pre_complete
         if method.service.ejb? && method.service.ejb.generate_boundary?
           # method.ejb.boundary_interceptors << method.action.qualified_interceptor_impl_name
         end
+      end
+
+      private
+
+      def exception_json_schema(schema, exception)
+        exception_schema =
+          {
+            type: 'object',
+            properties: {
+              '$type': {
+                type: 'string',
+                const: "#{exception.data_module.name}.#{exception.name}"
+              },
+              '$message': {
+                type: 'string'
+              }
+            },
+            required: ['$type', '$message'],
+          }
+
+        exception.parameters.each do |parameter|
+          exception_schema[:properties][parameter.name] = Domgen::Action.parameter_json_schema(schema, parameter)
+        end
+        exception_schema[:required].push(*exception.parameters.map { |p| p.name })
+        exception_schema
       end
     end
   end

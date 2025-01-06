@@ -15,6 +15,8 @@
 require 'erb'
 require 'fileutils'
 require 'logger'
+require 'json'
+require 'digest/md5'
 
 require 'reality/core'
 require 'reality/facets'
@@ -178,5 +180,4 @@ require 'domgen/react4j/model'
 require 'domgen/serviceworker/model'
 
 require 'domgen/action/model'
-require 'domgen/action/helper'
 require 'domgen/action/generator'
