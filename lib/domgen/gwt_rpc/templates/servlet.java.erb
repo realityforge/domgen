@@ -260,14 +260,13 @@ $<%= parameter.name %>.add( <%= param_value %> );
                                                                      iris.rose.server.action.ExternalSessionKind.REPLICANT,
                                                                      replicantSessionId );
 
-    final var startedAt = new java.util.Date();
     final var actionQueuedFeedback = ""; // TODO: Generate from params, or straight from architecture.rb, via _service
     final var actionTypeCode = <%= method.action.action_impl_name %>.actionTypeCode();
     final var requestPayload = <%= method.action.action_impl_name %>.encodeRequestPayload( <%= methodParamString %> );
 
     final var actionId = _actionTraceService.queueAction( actionSessionId,
                                                           actionTypeCode,
-                                                          startedAt,
+                                                          new java.util.Date(),
                                                           String.valueOf( externalId ),
                                                           requestPayload.toString(),
                                                           actionQueuedFeedback );
@@ -277,7 +276,7 @@ $<%= parameter.name %>.add( <%= param_value %> );
     try
     {
       final var actionStartedFeedback = ""; // Provide a global action hook which a generated default method on the serviceInterface uses
-      _actionTraceService.actionStarted( actionId, startedAt, actionStartedFeedback );
+      _actionTraceService.actionStarted( actionId, new java.util.Date(), actionStartedFeedback );
 <% end -%>
 
       // Call service
