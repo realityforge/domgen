@@ -7,7 +7,11 @@ package <%= to_package(entity.jpa.qualified_name) %>;
    jpa_queries = entity.queries.select {|q| q.jpa? && !q.jpa.native? }
    if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
 <%= jpa_queries.collect do |q|
-  "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\", hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(', ')}} )"
+  r = "  @javax.persistence.NamedQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\""
+unless q.jpa.actual_hints.empty?
+r = "#{r}, hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(', ')}}"
+end
+  "#{r} )"
   end.join(",\n") %>
 } )<% end %>
 <%
@@ -17,10 +21,13 @@ package <%= to_package(entity.jpa.qualified_name) %>;
   result = ''
   result = ", resultClass = #{entity.jpa.name}.class" if q.jpa.native? && :select == q.query_type && q.result_entity?
   result = ", resultSetMapping = \"#{q.qualified_name}\"" if q.jpa.native? && :select == q.query_type && q.result_struct?
-  "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{result}, hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(', ')}} )"
-  }.join(",\n")
-        %>
-} )<% end -%>
+  unless q.jpa.actual_hints.empty?
+    result = "#{result}, hints = {#{q.jpa.actual_hints.collect{|k,v| "@javax.persistence.QueryHint(name = \"#{k}\", value = \"#{v}\")"}.join(', ')}}"
+  end
+  "  @javax.persistence.NamedNativeQuery( name = #{entity.jpa.name}.#{Reality::Naming.uppercase_constantize(q.name)}, query = \"#{q.jpa.query_string.gsub('"',"\\\"")}\"#{result} )"
+  }.join(",\n") %>
+} )
+<% end -%>
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity( name = "<%= entity.jpa.jpql_name %>" )
 <% if entity.extends.nil? -%>
@@ -29,16 +36,18 @@ package <%= to_package(entity.jpa.qualified_name) %>;
 @javax.persistence.DiscriminatorColumn( name = "_type_", discriminatorType = javax.persistence.DiscriminatorType.STRING )
 <% end -%>
 @javax.persistence.Table( name = "<%= entity.jpa.table_name %>",
-                          schema = "<%= entity.data_module.sql.schema %>",
-                          uniqueConstraints = {<%=
+                          schema = "<%= entity.data_module.sql.schema %>"<%
+unless entity.attributes.select{|a|a.unique?}.empty? -%>,
+                          uniqueConstraints = { <%=
   entity.attributes.select{|a|a.unique?}.collect{|a|
-  "@javax.persistence.UniqueConstraint( columnNames = {\"#{a.sql.column_name}\"})"
+  "@javax.persistence.UniqueConstraint( columnNames = {\"#{a.sql.column_name}\"} )"
   }.join(",\n                          ")
-%>},
-                          indexes = {<%= entity.sql.indexes.collect{|index|
+%> }<% end
+unless entity.sql.indexes.empty? -%>,
+                          indexes = { <%= entity.sql.indexes.collect{|index|
         "@javax.persistence.Index(name =\"#{index.index_name}\", columnList = \"#{index.attribute_names.collect{|a| "#{entity.attribute_by_name(a).sql.column_name} ASC"}.join(', ')}\", unique = #{index.unique?} /* cluster = #{index.cluster?}, gist = #{index.gist?}, filter = \"#{index.filter}\", includeColumnList = \"#{index.include_attribute_names.collect{|a| "#{ entity.attribute_by_name( a).sql.column_name} ASC"}.join(', ')}\",  */)"
         }.join(",\n                   ")
-%>})
+%> }<% end -%> )
 <% else -%>
 @javax.persistence.DiscriminatorValue( "<%= entity.sql.discriminator %>" )
 <% end -%>
