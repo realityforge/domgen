@@ -11,11 +11,14 @@ public final class <%= exception.action.json_encoder_name %>
   @javax.annotation.Nonnull
   public static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= exception.ee.qualified_name %> exception )
   {
+    final var jsonBuilder = javax.json.Json.createObjectBuilder().add( "$type", "<%= exception.data_module.name %>.<%= exception.name %>" );
+    final var message = exception.getMessage();
+    if ( null != message )
+    {
+      jsonBuilder.add( "$message", message );
+    }
     return
-      javax.json.Json
-        .createObjectBuilder()
-        .add( "$type", "<%= exception.data_module.name %>.<%= exception.name %>" )
-        .add( "$message", exception.getMessage() )
+      jsonBuilder
 <% exception.parameters.each do |parameter|
     conversion_rule =
       case
