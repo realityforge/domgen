@@ -825,11 +825,15 @@ module Domgen
 
             sql = nil
             if self.entity.sync.support_unmanaged?
+              clause = nil
+              if suffix
+                clause = " OR (M.#{m.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{m.sql.dialect.quote_value(true)}#{suffix})"
+              end
               sql = <<-SQL
 SELECT I.#{self.entity.primary_key.sql.quoted_column_name}
 FROM inserted I
 LEFT JOIN #{m.sql.qualified_table_name} M ON M.#{m.primary_key.sql.quoted_column_name} = I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name}
-WHERE I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name} IS NOT NULL AND (M.#{m.primary_key.sql.quoted_column_name} IS NULL OR (M.#{m.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{m.sql.dialect.quote_value(true)}#{suffix}))
+WHERE I.#{self.entity.attribute_by_name(:MasterId).sql.quoted_column_name} IS NOT NULL AND (M.#{m.primary_key.sql.quoted_column_name} IS NULL#{clause})
               SQL
             elsif suffix
               sql = <<-SQL
