@@ -40,4 +40,54 @@ public final class <%= exception.action.json_encoder_name %>
 <% end -%>
         .build();
   }
+
+  public static void decodeAndThrow( @javax.annotation.Nonnull final javax.json.JsonObject json )<%=
+        "\n    throws #{exception.ee.qualified_name}"
+%>
+  {
+    throw new <%= exception.ee.qualified_name %>( <% exception.parameters.each do |parameter| conversion_rule =
+    case
+    when (parameter.enumeration? && parameter.enumeration.numeric_values?) then Proc.new {|value  | "#{parameter.enumeration.ee.qualified_name}.values()[ json.getInt( #{value} ) ]"}
+    when (parameter.enumeration? && parameter.enumeration.textual_values?) then Proc.new {|value  | "#{parameter.enumeration.ee.qualified_name}.valueOf( json.getString( #{value} ) )"}
+    when parameter.struct? && parameter.collection? then Proc.new {|value  | "json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonObject.class )
+             .stream()
+             .map( o -> #{parameter.referenced_struct.action.qualified_json_encoder_name}.decode( o ) )
+             .collect( java.util.stream.Collectors.toList() )"}
+    when parameter.struct? then Proc.new {|value  | "#{parameter.referenced_struct.action.qualified_json_encoder_name}.decode( json.getJsonObject( #{value} ) )"}
+    when parameter.date? && parameter.collection? then Proc.new {|value  | "json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonString.class )
+             .stream()
+             .map( javax.json.JsonString::getString )
+             .map( s -> iris.rose.server.service.util.RDate.toDate( iris.rose.server.service.util.RDate.parse( s ) ) )
+             .collect( java.util.stream.Collectors.toList() )"}
+    when parameter.date? then Proc.new {|value  | "iris.rose.server.service.util.RDate.toDate( iris.rose.server.service.util.RDate.parse( json.getString( #{value} ) ) )"}
+    when parameter.datetime? && parameter.collection? then Proc.new {|value  | "json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonNumber.class )
+             .stream()
+             .map( javax.json.JsonString::intValue )
+             .map( i -> new java.util.Date( i ) )
+             .collect( java.util.stream.Collectors.toList() )"}
+    when parameter.datetime? then Proc.new {|value  | "new java.util.Date( json.getInt( #{value} ) )"}
+    when (parameter.integer? || parameter.reference?) && parameter.collection? then Proc.new {|value  | "json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonNumber.class )
+             .stream()
+             .map( javax.json.JsonNumber::intValue )
+             .collect( java.util.stream.Collectors.toList() )"}
+    when (parameter.integer? || parameter.reference?) then Proc.new {|value  | "json.getInt( #{value} )"}
+    when parameter.boolean? && parameter.collection? then Proc.new {|value  | "json.getJsonArray( #{value} )
+             .stream()
+             .map( javax.json.JsonValue::getValueType )
+             .map( v -> javax.json.JsonValue.ValueType.TRUE == v )
+             .collect( java.util.stream.Collectors.toList() )"}
+    when parameter.boolean? then Proc.new {|value  | "json.getBoolean( #{value} )"}
+    when parameter.collection? then Proc.new {|value  | "json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonString.class )
+             .stream()
+             .map( javax.json.JsonString::getString )
+             .collect( java.util.stream.Collectors.toList() )"}
+    else Proc.new{|value  | "json.getString( #{value} )" }
+    end -%> <%= conversion_rule.call("\"#{parameter.name}\"") + "," %>
+<% end -%> json.containsKey( "$message" ) ? json.getString( "$message" ) : null );
+  }
 }

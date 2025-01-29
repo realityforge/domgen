@@ -252,96 +252,53 @@ $<%= parameter.name %>.add( <%= param_value %> );
     }
 <% end -%>
 
+<% if method.imit? -%>
+  <% if !method.action? -%>
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER ) );
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null );
+  <% end -%>
+<% end -%>
+
 <% if method.action? -%>
     // Queue the action
     final var replicantSessionId = getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER );
     final var externalId = null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null;
-    final var actionSessionId = _actionTraceService.findOrCreateSession( _roseAuthService.getUsername(),
-                                                                     iris.rose.server.action.ExternalSessionKind.REPLICANT,
-                                                                     replicantSessionId );
+    final var actionSessionId = _actionTraceService.findOrCreateSession( _roseAuthService.getUsername(), iris.rose.server.action.ExternalSessionKind.REPLICANT, replicantSessionId );
 
     final var actionQueuedFeedback = ""; // TODO: Generate from params, or straight from architecture.rb, via _service
     final var actionTypeCode = <%= method.action.action_impl_name %>.actionTypeCode();
     final var requestPayload = <%= method.action.action_impl_name %>.encodeRequestPayload( <%= methodParamString %> );
 
-    final var actionId = _actionTraceService.queueAction( actionSessionId,
-                                                          actionTypeCode,
-                                                          new java.util.Date(),
-                                                          String.valueOf( externalId ),
-                                                          requestPayload.toString(),
-                                                          actionQueuedFeedback );
+    final var action = _actionTraceService.queueAction( actionSessionId,
+                                                        actionTypeCode,
+                                                        new java.util.Date(),
+                                                        null == externalId ? null : String.valueOf( externalId ),
+                                                        requestPayload.toString(),
+                                                        actionQueuedFeedback );
 
-
-    // Start the action, later to be done by pulling from queued action
-    try
-    {
-      final var actionStartedFeedback = ""; // Provide a global action hook which a generated default method on the serviceInterface uses
-      _actionTraceService.actionStarted( actionId, new java.util.Date(), actionStartedFeedback );
-<% end -%>
-
-      // Call service
+    final var response = action.get();
 <% if method.imit? -%>
-<% if method.action? -%>
-      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, replicantSessionId );
-      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, externalId );
-<% else -%>
-      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER ) );
-      org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null );
+    replicationComplete = response.isRpcComplete() ? "1" : "0";
 <% end -%>
-<% end -%>
-      <%= return_prefix %>_service.<%= method.gwt_rpc.name %>(<%= methodParamString -%>);
-<% if method.imit? -%>
-      replicationComplete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.server.ServerConstants.REQUEST_COMPLETE_KEY );
-<% end -%>
-<% if method.action? -%>
-      // Perform post-call action behaviour
-      final var completedAt = new java.util.Date();
 <% if method.return_value.return_type != :void -%>
-      final var encodedResult = <%= method.action.action_impl_name %>.encodeResponsePayload( returnValue );
+    final var returnValue = <%= method.action.action_impl_name %>.decodeResponsePayload( response.getResponsePayload() );
+    <% else -%>
+    // Decode response to check if exception was thrown
+    <%= method.action.action_impl_name %>.decodeResponsePayload( response.getResponsePayload() );
+  <% end -%>
+  <%= return_postfix %>
 <% else -%>
-      final var encodedResult = javax.json.JsonValue.EMPTY_JSON_OBJECT;
-<% end -%>
-      final var actionCompletedFeedback = "";
-      _actionTraceService.actionCompleted( actionId,
-                                           completedAt,
-                                           encodedResult.toString(),
-                                           actionCompletedFeedback );
-       <%= return_postfix %>
-    }
-    catch ( final Exception | Error e )
-    {
-      final var encodedException = <%= method.action.action_impl_name %>.encodeException( e );
-      if ( null != encodedException )
-      {
-        final var completedAt = new java.util.Date();
-        final var actionCompletedFeedback = "";
-        _actionTraceService.actionCompleted( actionId,
-                                             completedAt,
-                                             encodedException.toString(),
-                                             actionCompletedFeedback );
-      }
-      else
-      {
-        // If we get to here, then encodedException returned null, which means it was not one of the expected
-        // exceptions, and thus it is actually an error of some sort.
-        final var errorAt = new java.util.Date();
-        final var actionErrorFeedback = "";
-        final var errorMessage = iris.syncrecord.server.service.ExceptionUtil.emitFilteredStackTrace( e );
-        _actionTraceService.actionErrored( actionId,
-                                           errorAt,
-                                           errorMessage,
-                                           actionErrorFeedback );
-      }
-      throw e;
-    }
-<% else -%>
-       <%= return_postfix %>
+    <%= return_prefix %>_service.<%= method.gwt_rpc.name %>(<%= methodParamString -%>);
+    <% if method.imit? -%>
+      replicationComplete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.server.ServerConstants.REQUEST_COMPLETE_KEY );
+    <% end -%>
+    <%= return_postfix %>
 <% end -%>
 <% if method.action? || method.imit? || method.exceptions.size > 0 -%>
     }
 <% end -%>
 <% if method.action? -%>
-  catch ( final iris.rose.server.action.InvalidActionTypeCodeException | iris.rose.server.action.InvalidRequestPayloadException | iris.rose.server.action.ExternalIdTooLongException e )
+  catch ( final iris.rose.server.action.InvalidActionTypeCodeException | iris.rose.server.action.InvalidRequestPayloadException | iris.rose.server.action.ExternalIdTooLongException | java.lang.InterruptedException | java.util.concurrent.ExecutionException e )
   {
 <% if method.imit? -%>
       // Assume the exception caused a rollback and if the transaction has rolled back there will be no messages arriving

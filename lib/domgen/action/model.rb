@@ -163,6 +163,8 @@ module Domgen
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
+      java_artifact :register_actions, :service, :server, :action, '#{service.name}RegisterActions'
+
       def pre_complete
         service.disable_facet(:action) unless service.methods.any? { |m| m.action? }
       end

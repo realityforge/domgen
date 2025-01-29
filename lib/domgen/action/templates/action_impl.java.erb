@@ -5,6 +5,9 @@ package <%= to_package(method.action.qualified_action_impl_name) %>;
 @java.lang.SuppressWarnings( "PMD.FormalParameterNamingConventions" )
 public final class <%= method.action.action_impl_name %>
 {
+  @javax.annotation.Nonnull
+  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.action.action_impl_name %>.class.getName() );
+
   private <%= method.action.action_impl_name %>()
   {
   }
@@ -13,6 +16,88 @@ public final class <%= method.action.action_impl_name %>
   public static String actionTypeCode()
   {
     return "<%= method.action.code %>";
+  }
+
+  @javax.annotation.Nonnull
+  public static iris.rose.server.action.InvocationResult invokeAction( @javax.annotation.Nonnull final <%= method.service.ejb.boundary_interface_name %> service, @javax.annotation.Nonnull final String actionParameters )
+  {
+    <% if !method.parameters.empty? -%>
+    final var reader = javax.json.Json.createReader( new java.io.StringReader( actionParameters ) );
+    final var json = reader.readObject();
+    reader.close();
+    <% end %>
+    <% method.parameters.each do |param|
+      conversion_rule =
+    case
+    when (param.enumeration? && param.enumeration.numeric_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}#{param.enumeration.ee.qualified_name}.values()[ json.getInt( #{value} ) ];"}
+    when (param.enumeration? && param.enumeration.textual_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}#{param.enumeration.ee.qualified_name}.valueOf( json.getString( #{value} ) );"}
+    when param.struct? && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonObject.class )
+             .stream()
+             .map( o -> #{param.referenced_struct.action.qualified_json_encoder_name}.decode( o ) )
+             .collect( java.util.stream.Collectors.toList() );"}
+    when param.struct? then Proc.new {|value, isNullCheck| "#{isNullCheck}#{param.referenced_struct.action.qualified_json_encoder_name}.decode( json.getJsonObject( #{value} ) );"}
+    when param.date? && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonString.class )
+             .stream()
+             .map( javax.json.JsonString::getString )
+             .map( s -> iris.rose.server.service.util.RDate.toDate( iris.rose.server.service.util.RDate.parse( s ) ) )
+             .collect( java.util.stream.Collectors.toList() );"}
+    when param.date? then Proc.new {|value, isNullCheck| "#{isNullCheck}iris.rose.server.service.util.RDate.toDate( iris.rose.server.service.util.RDate.parse( json.getString( #{value} ) ) );"}
+    when param.datetime? && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonNumber.class )
+             .stream()
+             .map( javax.json.JsonString::longValue )
+             .map( i -> new java.util.Date( i ) )
+             .collect( java.util.stream.Collectors.toList() );"}
+    when param.datetime? then Proc.new {|value, isNullCheck| "#{isNullCheck}new java.util.Date( json.getJsonNumber( #{value} ).longValue() );"}
+    when (param.integer? || param.reference?) && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonNumber.class )
+             .stream()
+             .map( javax.json.JsonNumber::intValue )
+             .collect( java.util.stream.Collectors.toList() );"}
+    when param.integer? || param.reference?  then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getInt( #{value} );"}
+    when param.boolean? && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+             .stream()
+             .map( javax.json.JsonValue::getValueType )
+             .map( v -> javax.json.JsonValue.ValueType.TRUE == v )
+             .collect( java.util.stream.Collectors.toList() );"}
+    when param.boolean? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getBoolean( #{value} );"}
+    when param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonString.class )
+             .stream()
+             .map( javax.json.JsonString::getString )
+             .collect( java.util.stream.Collectors.toList() );"}
+    else Proc.new{|value, isNullCheck| "#{isNullCheck}json.getString( #{value} );" }
+    end
+    -%>
+<%= "final var #{Reality::Naming.camelize(param.name)} = " + conversion_rule.call("\"#{param.name}\"", param.nullable? ? "json.isNull( \"#{param.name}\" ) ? null : " : "") %>
+    <% end -%>
+
+    try
+    {
+<% if method.return_value.return_type != :void %>      final var returnValue = service.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Reality::Naming.camelize(param.name)}.join(", ") %> );
+      final var encodedResult = encodeResponsePayload( returnValue );
+      return new iris.rose.server.action.InvocationResult( true, encodedResult.toString(), "<%= method.action.action_impl_name %> completed successfully" );
+<% else %>      service.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Reality::Naming.camelize(param.name)}.join(", ") %> );
+      return new iris.rose.server.action.InvocationResult( true, "{\"data\": {}}", "<%= method.action.action_impl_name %> completed successfully" );<% end %>
+    }
+    catch ( final Exception | Error e )
+    {
+      final var encodedException = encodeException( e );
+      if ( null != encodedException )
+      {
+         return new iris.rose.server.action.InvocationResult( true, encodedException.toString(), "<%= method.action.action_impl_name %> completed exceptionally: " + e.getMessage() );
+      }
+      else
+      {
+        // If we get to here, then encodedException returned null, which means it was not one of the expected
+        // exceptions, and thus it is actually an error of some sort.
+        final var errorMessage = iris.syncrecord.server.service.ExceptionUtil.emitFilteredStackTrace( e );
+        LOG.warning( errorMessage );
+        return new iris.rose.server.action.InvocationResult( false, errorMessage, "<%= method.action.action_impl_name %> completed with an unexpected exception: " + e.getMessage() );
+      }
+    }
   }
 
   @java.lang.SuppressWarnings( "unchecked" )
@@ -79,6 +164,59 @@ public final class <%= method.action.action_impl_name %>
     return builder.build();
   }
 <% end -%>
+  public static <%= annotated_type(method.return_value, :ejb, :boundary) %> decodeResponsePayload( @javax.annotation.Nonnull final String response )<%=
+  method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
+%>
+  {
+<% if !method.exceptions.empty? || method.return_value.return_type != :void -%>
+    final var reader = javax.json.Json.createReader( new java.io.StringReader( response ) );
+    final var json = reader.readObject();
+    reader.close();
+  <% unless method.exceptions.empty? -%>
+    if ( json.containsKey( "error" ) )
+    {
+      decodeExceptionAndThrow( json );
+    }
+    <%  end-%>
+<% if method.return_value.return_type != :void %>
+  <% if method.return_value.nullable? -%>
+  if ( json.isNull("data") )
+    {
+      return null;
+    }
+<% end-%>
+  <%conversion_rule =
+      case
+      when (method.return_value.integer? || method.return_value.reference?) && method.return_value.collection? then Proc.new {|value| "json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonNumber.class )
+             .stream()
+             .map( javax.json.JsonNumber::intValue )
+             .collect( java.util.stream.Collectors.toList() );"}
+      when method.return_value.integer? || method.return_value.reference?  then Proc.new {|value| "json.getInt( #{value} );"}
+      when method.return_value.boolean? && method.return_value.collection? then Proc.new {|value| "json.getJsonArray( #{value} )
+             .stream()
+             .map( javax.json.JsonValue::getValueType )
+             .map( v -> javax.json.JsonValue.ValueType.TRUE == v )
+             .collect( java.util.stream.Collectors.toList() );"}
+      when method.return_value.boolean? then Proc.new {|value| "json.getBoolean( #{value} );"}
+      when method.return_value.struct? && method.return_value.collection? then Proc.new {|value| "json.getJsonArray( #{value} )
+             .stream()
+             .map( javax.json.JsonValue::asJsonObject )
+             .map( #{method.return_value.referenced_struct.action.qualified_json_encoder_name}::decode )
+             .collect( java.util.stream.Collectors.toList() );"}
+      when method.return_value.struct? then Proc.new {|value| "#{method.return_value.referenced_struct.action.qualified_json_encoder_name}.decode( json.getJsonObject( #{value} ) );"}
+      when method.return_value.collection? then Proc.new {|value| "json.getJsonArray( #{value} )
+             .getValuesAs( javax.json.JsonString.class )
+             .stream()
+             .map( javax.json.JsonString::getString )
+             .collect( java.util.stream.Collectors.toList() );"}
+      else Proc.new{|value| "json.getString( #{value} );" }
+      end
+  -%>
+  <%= "return " + conversion_rule.call("\"data\"") %>
+<% end-%>
+<% end-%>
+}
 
   @javax.annotation.Nullable
   public static javax.json.JsonObject encodeException( @javax.annotation.Nonnull final Throwable exception )
@@ -93,6 +231,24 @@ public final class <%= method.action.action_impl_name %>
       return null;
     }
   }
+<% unless method.exceptions.empty? -%>
+  public static void decodeExceptionAndThrow( @javax.annotation.Nonnull final javax.json.JsonObject json )<%=
+  "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
+%>
+  {
+  final var error = json.getJsonObject( "error" );
+  final var type = error.getString( "$type" );
+  switch ( type )
+  {
+  <% method.exceptions.each do |exception|
+  -%> case "<%= exception.data_module.name %>.<%= exception.name %>":
+    <%= exception.action.qualified_json_encoder_name %>.decodeAndThrow( error );
+    break;
+  <% end -%>
+    default:
+  }
+  }
+<%  end-%>
 }
 
 

@@ -3,6 +3,9 @@
 INSERT INTO [Action].[tblActionClassification]([Code])
   SELECT 'RPC'
   WHERE 0 = ( SELECT COUNT(*) FROM [Action].[tblActionClassification] WHERE [Code] = 'RPC' )
+INSERT INTO [Action].[tblActionClassification]([Code])
+  SELECT 'AppHook'
+  WHERE 0 = ( SELECT COUNT(*) FROM [Action].[tblActionClassification] WHERE [Code] = 'AppHook' )
 
 DECLARE @Ids TABLE ( Id VARCHAR(MAX) NOT NULL );
 
@@ -19,7 +22,10 @@ INSERT INTO @Ids([Id]) SELECT '<%= code %>'
 INSERT INTO [Action].[tblActionType](ClassificationId,
                                      ParentId,
                                      UserKey,
+                                     ApplicationEvent,
+                                     Language,
                                      Code,
+                                     Script,
                                      ExternalId,
                                      RequestSchema,
                                      ResponseSchema,
@@ -39,7 +45,10 @@ INSERT INTO [Action].[tblActionType](ClassificationId,
 SELECT C.Id AS ClassificationId,
        NULL AS ParentId,
        '<%= userKey %>' AS UserKey,
+       NULL AS ApplicationEvent,
+       'Java' as Language,
        '<%= code %>' AS Code,
+       NULL as Script,
        0 AS ExternalId,
        '<%= method.action.json_request_schema %>' AS RequestSchema,
        '<%= method.action.json_response_schema %>' AS ResponseSchema,

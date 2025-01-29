@@ -1,0 +1,28 @@
+/* DO NOT EDIT: File is auto-generated */
+/* <%= File.basename(__FILE__) %> */
+package <%= to_package(service.action.qualified_register_actions_name) %>;
+
+@javax.ejb.Startup
+@javax.ejb.Singleton
+public class <%= service.action.register_actions_name %>
+{
+  @javax.inject.Inject
+  @javax.annotation.Nonnull
+  private <%= service.ejb.boundary_interface_name %> _serviceBoundary;
+
+  @javax.annotation.PostConstruct
+  public void onInit()
+  {
+<% service.methods.select{|method|method.action?}.each do |method| -%>
+    iris.rose.server.action.ActionExecutorRegistry.addActionExecutor( <%= method.action.action_impl_name%>.actionTypeCode(), this::invokeAction<%=method.name %> );
+<% end -%>
+  }
+<% service.methods.select{|method|method.action?}.each do |method| -%>
+
+  @javax.annotation.Nonnull
+  private iris.rose.server.action.InvocationResult invokeAction<%= method.name %>( @javax.annotation.Nonnull final String parameters )
+  {
+    return <%= method.action.action_impl_name%>.invokeAction( _serviceBoundary, parameters );
+  }
+<% end -%>
+}

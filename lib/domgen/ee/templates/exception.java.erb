@@ -6,7 +6,7 @@ package <%= to_package(exception.ee.qualified_name) %>;
 <% unless exception.ee.module_local? %>public <% end %>class <%= exception.ee.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
 {
 <% exception.declared_parameters.each do |parameter| %>
-  <%= annotated_type(parameter, :ee, :boundary, :private => true) %> <%= parameter.name %>;
+  <%= annotated_type(parameter, :ee, :boundary, :final => true, :private => true) %> <%= parameter.name %>;
 <% end %>
 <%
 param_desc =
