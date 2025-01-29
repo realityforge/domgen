@@ -583,6 +583,10 @@ module Domgen
             s.method(:IsAuthenticated) do |m|
               m.returns(:boolean)
             end
+            s.method(:SetUsername) do |m|
+              m.text(:Username)
+            end
+            s.method(:ClearUsername)
             self.default_client.claims.each do |claim|
               s.method("Get#{claim.java_accessor_key}") do |m|
                 m.returns(claim.java_type)

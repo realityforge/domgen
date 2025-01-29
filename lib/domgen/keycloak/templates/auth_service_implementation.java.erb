@@ -10,10 +10,25 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
   @javax.inject.Inject
   private org.realityforge.keycloak.sks.SimpleAuthService _authService;
 
+  @javax.annotation.Nonnull
+  private final java.lang.ThreadLocal<java.lang.String> _username = new java.lang.ThreadLocal<>();
+
+  @java.lang.Override
+  public void setUsername( @javax.annotation.Nonnull final java.lang.String username )
+  {
+    _username.set( java.util.Objects.requireNonNull( username ) );
+  }
+
+  @java.lang.Override
+  public void clearUsername()
+  {
+    _username.remove();
+  }
+
   @java.lang.Override
   public boolean isAuthenticated()
   {
-    return null != _authService.findAccount();
+    return null != _username.get() || null != _authService.findAccount();
   }
 
   @javax.annotation.Nonnull
@@ -35,6 +50,11 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
   @java.lang.Override
   public <%= claim.java_type %> get<%= claim.java_accessor_key %>()
   {
+    final var username = _username.get();
+    if ( null != username )
+    {
+      return username;
+    }
 <% if claim.standard_claim? -%>
     final String value = getAccount().getKeycloakSecurityContext().getToken().get<%= claim.token_accessor_key %>();
 <% else -%>
