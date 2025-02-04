@@ -262,7 +262,7 @@ $<%= parameter.name %>.add( <%= param_value %> );
     // Queue the action
     final var replicantSessionId = getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER );
     final var externalId = null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null;
-    final var actionSessionId = _actionTraceService.findOrCreateSession( _roseAuthService.getUsername(), iris.rose.server.action.ExternalSessionKind.REPLICANT, replicantSessionId );
+    final var actionSessionId = _actionTraceService.findOrCreateSession( _roseAuthService.getUsername(), iris.rose.server.action.SessionKind.REPLICANT, replicantSessionId );
 
     final var actionQueuedFeedback = ""; // TODO: Generate from params, or straight from architecture.rb, via _service
     final var actionTypeCode = <%= method.action.action_impl_name %>.actionTypeCode();

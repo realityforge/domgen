@@ -187,6 +187,8 @@ module Domgen
         Digest::MD5.hexdigest(content)
       end
 
+      attr_accessor :application_event
+
       attr_writer :max_error_count
 
       def max_error_count
