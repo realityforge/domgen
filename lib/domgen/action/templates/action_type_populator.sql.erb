@@ -3,9 +3,6 @@
 INSERT INTO [Action].[tblActionClassification]([Code])
   SELECT 'RPC'
   WHERE 0 = ( SELECT COUNT(*) FROM [Action].[tblActionClassification] WHERE [Code] = 'RPC' )
-INSERT INTO [Action].[tblActionClassification]([Code])
-  SELECT 'AppHook'
-  WHERE 0 = ( SELECT COUNT(*) FROM [Action].[tblActionClassification] WHERE [Code] = 'AppHook' )
 
 DECLARE @Ids TABLE ( Id VARCHAR(MAX) NOT NULL );
 

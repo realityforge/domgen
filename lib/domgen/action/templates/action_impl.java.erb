@@ -100,7 +100,7 @@ public final class <%= method.action.action_impl_name %>
     }
   }
 
-  @java.lang.SuppressWarnings( "unchecked" )
+  @java.lang.SuppressWarnings( { "unchecked", "RedundantSuppression" } )
   @javax.annotation.Nonnull
   public static javax.json.JsonValue encodeRequestPayload( <%=
     method.parameters.collect{|p|
