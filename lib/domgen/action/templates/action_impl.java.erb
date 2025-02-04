@@ -21,12 +21,12 @@ public final class <%= method.action.action_impl_name %>
   @javax.annotation.Nonnull
   public static iris.rose.server.action.InvocationResult invokeAction( @javax.annotation.Nonnull final <%= method.service.ejb.boundary_interface_name %> service, @javax.annotation.Nonnull final String actionParameters )
   {
-    <% if !method.parameters.empty? -%>
+<% if !method.parameters.empty? -%>
     final var reader = javax.json.Json.createReader( new java.io.StringReader( actionParameters ) );
     final var json = reader.readObject();
     reader.close();
-    <% end %>
-    <% method.parameters.each do |param|
+<% end -%>
+<% method.parameters.each do |param|
       conversion_rule =
     case
     when (param.enumeration? && param.enumeration.numeric_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}#{param.enumeration.ee.qualified_name}.values()[ json.getInt( #{value} ) ];"}
@@ -71,8 +71,8 @@ public final class <%= method.action.action_impl_name %>
     else Proc.new{|value, isNullCheck| "#{isNullCheck}json.getString( #{value} );" }
     end
     -%>
-<%= "final var #{Reality::Naming.camelize(param.name)} = " + conversion_rule.call("\"#{param.name}\"", param.nullable? ? "json.isNull( \"#{param.name}\" ) ? null : " : "") %>
-    <% end -%>
+<%= "    final var #{Reality::Naming.camelize(param.name)} = " + conversion_rule.call("\"#{param.name}\"", param.nullable? ? "json.isNull( \"#{param.name}\" ) ? null : " : "") %>
+<% end -%>
 
     try
     {
