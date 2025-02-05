@@ -9,7 +9,7 @@ package <%= to_package(enumeration.ee.qualified_name) %>;
 %>@javax.xml.bind.annotation.XmlRootElement( name = "<%= enumeration.xml.name %>"<%= namespace_annotation_parameter(enumeration.xml) %> )
 <% end -%>
 <% end -%>
-public enum <%= enumeration.ee.name %>
+<% unless enumeration.ee.module_local?  %>public <% end %>enum <%= enumeration.ee.name %>
 <%= (enumeration.ee.interfaces.size > 0) ? "  implements #{enumeration.ee.interfaces.join(', ')}\n" : '' -%>
 {
   <%=

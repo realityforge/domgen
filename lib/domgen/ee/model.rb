@@ -131,6 +131,12 @@ module Domgen
         @generate_test_literal.nil? ? true : !!@generate_test_literal
       end
 
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? false : !!@module_local
+      end
+
       java_artifact :message_literal, :test, :server, :ee, '#{message.name}TypeLiteral', :sub_package => 'util'
     end
 
@@ -165,6 +171,12 @@ module Domgen
 
       java_artifact :abstract_enumeration_test, :data_type, :server, :ee, 'Abstract#{enumeration.name}Test'
       java_artifact :enumeration_test, :data_type, :server, :ee, '#{enumeration.name}Test'
+
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? false : !!@module_local
+      end
     end
 
     facet.enhance(Struct) do

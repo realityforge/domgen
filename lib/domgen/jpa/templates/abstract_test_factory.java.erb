@@ -117,7 +117,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% end -%>
 <% entity.jpa.test_create_defaults.select{|defaults|!defaults.ignore?}.each do |defaults| -%>
   @javax.annotation.Nonnull
-  public final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
+  <% unless entity.jpa.module_local? %>public <% end %>final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
     return create<%= entity.name %>( <%= entity.attributes.select{|a|!a.generated_value? && a.jpa? && a.jpa.persistent?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Reality::Naming.camelize(a.name) }.join(', ') %> );
   }
@@ -125,14 +125,14 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% end -%>
 <% if core_entity && (!entity.sync.support_unmanaged? || !entity.sync.test_factory_defaults_to_unmanaged?) -%>
   @javax.annotation.Nonnull
-  public <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.sync? && (!entity.transaction_time? || !%w(CreatedAt DeletedAt).include?(a.name.to_s)) && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
+  <% unless entity.jpa.module_local? %>public <% end %><%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.sync? && (!entity.transaction_time? || !%w(CreatedAt DeletedAt).include?(a.name.to_s)) && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
     return create<%= entity.name %>( <%= Reality::Naming.camelize(data_module.repository.sync.master_data_module) %>().create<%= entity.sync.entity_prefix %><%= entity.name %>( <%= entity.attributes.select{|a| a.sync? && (!entity.transaction_time? || !%w(CreatedAt DeletedAt).include?(a.name.to_s)) &&!a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| a.reference? ? "#{Reality::Naming.camelize(data_module.repository.sync.master_data_module)}().#{Reality::Naming.camelize(a.referenced_entity.sync.master_entity.dao.jpa.dao_service_name)}().#{a.referenced_entity.abstract? ? 'getById' : "findBy#{a.referenced_entity.name}"}( #{Reality::Naming.camelize(a.name)}#{a.referenced_entity.abstract? ? '.getMasterId()' : ''} )" : Reality::Naming.camelize(a.name)}.join(', ') %> ) );
   }
 
 <% else -%>
   @javax.annotation.Nonnull
-  public <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
+  <% unless entity.jpa.module_local? %>public <% end %><%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
 <% if entity.jpa.support_create? -%>
     return <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().create( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
@@ -152,7 +152,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     non_default_attr = attr.select{|a| !defaults.has_attribute?(a.name)}
   -%>
 
-  public final void <%= defaults.factory_method_name == 'update' ? "update#{entity.name}" : defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
+  <% unless entity.jpa.module_local? %>public <% end %>final void <%= defaults.factory_method_name == 'update' ? "update#{entity.name}" : defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
 <% if entity.jpa.support_update? -%>
     <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().update( $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
@@ -168,7 +168,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
     non_default_attr = attr.select{|a| !defaults.has_attribute?(a.name)}
   -%>
 
-  public final void <%= defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
+  <% unless entity.jpa.module_local? %>public <% end %>final void <%= defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
 <% if defaults.force_refresh? -%>
     em().refresh( $_ );
@@ -180,7 +180,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 <% end -%>
 
-  public final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
+  <% unless entity.jpa.module_local? %>public <% end %>final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
 <% if entity.jpa.support_update? -%>
     <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().update( $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
@@ -194,7 +194,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% end -%>
 <% if entity.jpa.support_delete? -%>
 
-  public final void remove<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  <% unless entity.jpa.module_local? %>public <% end %>final void remove<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
   {
     <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().remove( entity );
   }
@@ -204,7 +204,7 @@ public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
 
   @javax.annotation.Nonnull
-  public final <%= entity.dao.jpa.qualified_dao_service_name %> <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>()
+  <% unless entity.jpa.module_local? %>public <% end %>final <%= entity.dao.jpa.qualified_dao_service_name %> <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>()
   {
     return s( <%= entity.dao.jpa.qualified_dao_service_name %>.class );
   }
