@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.jpa.qualified_abstract_entity_test_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.SystemPrintln" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.LocalVariableNamingConventions", "SameParameterValue" } )
 public abstract class <%= repository.jpa.abstract_entity_test_name %>
   extends org.realityforge.guiceyloops.server.AbstractServerTest
 {
@@ -100,6 +100,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <%= content -%>
 <% end -%>
 
+  @java.lang.SuppressWarnings( "ToArrayCallWithZeroLengthArrayArgument" )
   @java.lang.Override
   protected com.google.inject.Module[] getModules()
   {

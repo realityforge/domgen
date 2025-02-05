@@ -4,6 +4,7 @@ package <%= to_package(repository.jpa.qualified_standalone_entity_test_name) %>;
 public abstract class <%= repository.jpa.standalone_entity_test_name %>
   extends <%= repository.jpa.qualified_base_entity_test_name %>
 {
+  @java.lang.SuppressWarnings( "ToArrayCallWithZeroLengthArrayArgument" )
   @java.lang.Override
   protected com.google.inject.Module[] getModules()
   {

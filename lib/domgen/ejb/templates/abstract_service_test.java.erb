@@ -1,10 +1,11 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.ejb.qualified_abstract_service_test_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.LocalVariableNamingConventions" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.LocalVariableNamingConventions", "SameParameterValue" } )
 public abstract class <%= repository.ejb.abstract_service_test_name %>
   extends <%= repository.jpa? ? repository.jpa.qualified_base_entity_test_name : 'org.realityforge.guiceyloops.server.AbstractServerTest' %>
 {
+  @java.lang.SuppressWarnings( "ToArrayCallWithZeroLengthArrayArgument" )
   @java.lang.Override
   protected com.google.inject.Module[] getModules()
   {
