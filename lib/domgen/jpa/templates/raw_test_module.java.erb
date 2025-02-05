@@ -18,18 +18,6 @@ public class <%= persistence_unit.raw_test_module_name %>
 
   public <%= persistence_unit.raw_test_module_name %>( @javax.annotation.Nullable final String databasePrefix, @javax.annotation.Nullable final java.util.Properties additionalProperties )
   {
-    super( <%= persistence_unit.jpa_repository.repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(persistence_unit.short_name) %>_NAME, new String[ 0 ], databasePrefix, mergeProperties( additionalProperties ) );
-  }
-
-  @javax.annotation.Nonnull
-  private static java.util.Properties mergeProperties( @javax.annotation.Nullable final java.util.Properties additionalProperties )
-  {
-    final java.util.Properties properties = new java.util.Properties();
-    properties.put( "javax.persistence.jdbc.driver", "<%= persistence_unit.jpa_repository.repository.sql.sql_driver %>" );
-    if ( null != additionalProperties )
-    {
-      properties.putAll( additionalProperties );
-    }
-    return properties;
+    super( <%= persistence_unit.jpa_repository.repository.jpa.qualified_unit_descriptor_name %>.<%= Reality::Naming.uppercase_constantize(persistence_unit.short_name) %>_NAME, new String[ 0 ], databasePrefix, <%= persistence_unit.qualified_persistence_unit_test_util_name %>.createExtraPersistenceUnitProperties( additionalProperties ) );
   }
 }
