@@ -57,6 +57,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   }
 <% if repository.sql_analysis? -%>
 
+  @java.lang.SuppressWarnings( "PMD.SystemPrintln" )
   protected void runSqlAnalysisPerformChecks()
   {
     em().clear();
