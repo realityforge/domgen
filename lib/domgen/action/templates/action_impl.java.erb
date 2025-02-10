@@ -238,6 +238,7 @@ public final class <%= method.action.action_impl_name %>
   {
   final var error = json.getJsonObject( "error" );
   final var type = error.getString( "$type" );
+  //noinspection SwitchStatementWithTooFewBranches
   switch ( type )
   {
   <% method.exceptions.each do |exception|
