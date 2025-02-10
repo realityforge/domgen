@@ -13,13 +13,13 @@ public final class <%= method.action.action_impl_name %>
   }
 
   @javax.annotation.Nonnull
-  public static String actionTypeCode()
+  static String actionTypeCode()
   {
     return "<%= method.action.code %>";
   }
 
   @javax.annotation.Nonnull
-  public static iris.rose.server.action.InvocationResult invokeAction( @javax.annotation.Nonnull final <%= method.service.ejb.boundary_interface_name %> service, @javax.annotation.Nonnull final String actionParameters )
+  static iris.rose.server.action.InvocationResult invokeAction( @javax.annotation.Nonnull final <%= method.service.ejb.boundary_interface_name %> service, @javax.annotation.Nonnull final String actionParameters )
   {
 <% if !method.parameters.empty? -%>
     final var reader = javax.json.Json.createReader( new java.io.StringReader( actionParameters ) );
@@ -102,7 +102,7 @@ public final class <%= method.action.action_impl_name %>
 
   @java.lang.SuppressWarnings( { "unchecked", "RedundantSuppression" } )
   @javax.annotation.Nonnull
-  public static javax.json.JsonValue encodeRequestPayload( <%=
+  static javax.json.JsonValue encodeRequestPayload( <%=
     method.parameters.collect{|p|
           "#{annotated_type(p, :ejb, :boundary, :final => true)} #{p.name}"
       }.join(', ')
@@ -138,7 +138,7 @@ public final class <%= method.action.action_impl_name %>
 <% if method.return_value.return_type != :void %>
 
   @javax.annotation.Nonnull
-  public static javax.json.JsonValue encodeResponsePayload( <%= annotated_type(method.return_value, :ejb, :boundary, :final => true) %> response )
+  static javax.json.JsonValue encodeResponsePayload( <%= annotated_type(method.return_value, :ejb, :boundary, :final => true) %> response )
   {
     final var builder = javax.json.Json.createObjectBuilder();
 
@@ -164,7 +164,7 @@ public final class <%= method.action.action_impl_name %>
     return builder.build();
   }
 <% end -%>
-  public static <%= annotated_type(method.return_value, :ejb, :boundary) %> decodeResponsePayload( @javax.annotation.Nonnull final String response )<%=
+  static <%= annotated_type(method.return_value, :ejb, :boundary) %> decodeResponsePayload( @javax.annotation.Nonnull final String response )<%=
   method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %>
   {
@@ -219,7 +219,7 @@ public final class <%= method.action.action_impl_name %>
 }
 
   @javax.annotation.Nullable
-  public static javax.json.JsonObject encodeException( @javax.annotation.Nonnull final Throwable exception )
+  static javax.json.JsonObject encodeException( @javax.annotation.Nonnull final Throwable exception )
   {
     <% method.exceptions.each do |exception|
 -%> if ( exception instanceof final <%= exception.ee.qualified_name %> e )
@@ -232,7 +232,8 @@ public final class <%= method.action.action_impl_name %>
     }
   }
 <% unless method.exceptions.empty? -%>
-  public static void decodeExceptionAndThrow( @javax.annotation.Nonnull final javax.json.JsonObject json )<%=
+
+  static void decodeExceptionAndThrow( @javax.annotation.Nonnull final javax.json.JsonObject json )<%=
   "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %>
   {
