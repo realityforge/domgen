@@ -45,8 +45,8 @@ unless entity.attributes.select{|a|a.unique?}.empty? -%>,
 %> }<% end
 unless entity.sql.indexes.empty? -%>,
                           indexes = { <%= entity.sql.indexes.collect{|index|
-        "@javax.persistence.Index(name =\"#{index.index_name}\", columnList = \"#{index.attribute_names.collect{|a| "#{entity.attribute_by_name(a).sql.column_name} ASC"}.join(', ')}\", unique = #{index.unique?} /* cluster = #{index.cluster?}, gist = #{index.gist?}, filter = \"#{index.filter}\", includeColumnList = \"#{index.include_attribute_names.collect{|a| "#{ entity.attribute_by_name( a).sql.column_name} ASC"}.join(', ')}\",  */)"
-        }.join(",\n                   ")
+        "@javax.persistence.Index(name =\"#{index.index_name}\", columnList = \"#{index.attribute_names.collect{|a| "#{entity.attribute_by_name(a).sql.column_name} ASC"}.join(', ')}\"#{index.unique? ? ', unique = true' : ''} )"
+        }.join(",\n                                      ")
 %> }<% end -%> )
 <% else -%>
 @javax.persistence.DiscriminatorValue( "<%= entity.sql.discriminator %>" )
