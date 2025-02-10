@@ -63,22 +63,22 @@ unless entity.sql.indexes.empty? -%>,
 <% end -%>
 <% if entity.data_module.repository.ee.version != '6' %>@javax.enterprise.inject.Vetoed
 <% end -%>
-<% entity.xor_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+<% entity.xor_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %>
 <% end -%>
-<% entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+<% entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %>
 <% end -%>
-<% entity.dependency_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+<% entity.dependency_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %>
 <% end -%>
-<% entity.incompatible_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+<% entity.incompatible_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %>
 <% end -%>
-<% entity.relationship_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+<% entity.relationship_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %>
 <% end -%>
-<% entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| %>
+<% entity.cycle_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c| -%>
 @<%= entity.jpa.name %>.<%= validation_name(c.name) %>
 <% end -%>
 <% unless entity.jpa.module_local? %>public <% end %><%= entity.abstract? ? 'abstract ' : '' %>class <%= entity.jpa.name %>
