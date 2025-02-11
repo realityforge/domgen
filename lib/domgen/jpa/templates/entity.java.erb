@@ -119,12 +119,11 @@ unless entity.sql.indexes.empty? -%>,
 <% entity.referencing_attributes.
   select { |attribute| !(attribute.abstract? || attribute.inherited?) && attribute.inverse.jpa? && attribute.inverse.jpa.traversable? }.
   each do |attribute| %><%= j_declared_relation(attribute) %>
-<% end %>
-<%= j_constructors(entity) %>
-<%= j_declared_attribute_and_relation_accessors(entity) %>
-<%= j_equals_method(entity) %>
+<% end -%>
+<%= j_constructors(entity) -%>
+<%= j_declared_attribute_and_relation_accessors(entity) -%>
+<%= j_equals_method(entity) -%>
 <%= j_to_string_methods(entity) -%>
-
 <% unless entity.extends -%>
   protected final boolean loaded()
   {

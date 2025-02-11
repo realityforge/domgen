@@ -75,17 +75,18 @@ module Domgen
 
       def gen_column_annotation(attribute)
         parameters = []
+        # nullable = true, updatable = true, unique = false, insertable = true
         parameters << "name = \"#{attribute.sql.column_name}\""
-        parameters << "nullable = #{attribute.nullable?}"
-        parameters << "updatable = #{attribute.updatable?}"
-        parameters << "unique = #{attribute.unique? || attribute.primary_key?}"
-        parameters << "insertable = #{!attribute.generated_value? || attribute.primary_key?}"
+        parameters << "nullable = false" unless attribute.nullable?
+        parameters << "updatable = false" unless attribute.updatable?
+        parameters << "unique = true" if attribute.unique? || attribute.primary_key?
+        parameters << "insertable = false" unless !attribute.generated_value? || attribute.primary_key?
 
         if attribute.reference?
           parameters << "referencedColumnName = \"#{attribute.referenced_entity.primary_key.sql.column_name}\""
         end
 
-        if !attribute.reference? && attribute.has_non_max_length?
+        if !attribute.reference? && attribute.has_non_max_length? && 255 != attribute.length
           parameters << "length = #{attribute.length}"
         end
 
@@ -170,12 +171,11 @@ JAVA
           else
             j_simple_attribute(attribute)
           end
-        end.compact.join("\n")
+        end.compact.join("")
       end
 
       def j_declared_attribute_and_relation_accessors(entity)
         relation_methods = entity.referencing_attributes.collect do |attribute|
-
           if attribute.abstract? || attribute.inherited? || !attribute.entity.jpa? || !attribute.jpa.persistent? || !attribute.inverse.jpa.java_traversable? || attribute.referenced_entity != entity
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
@@ -220,6 +220,7 @@ JAVA
       this.#{field_name} = null;
     }
   }
+
 JAVA
             java
           end
@@ -336,6 +337,7 @@ JAVA
           end
           java << <<JAVA
   }
+
 JAVA
         end
         java
@@ -401,6 +403,7 @@ JAVA
         this.#{attribute.jpa.field_name} = value;
  #{j_add_to_inverse(attribute)}
   }
+
 JAVA
         end
         java
@@ -409,6 +412,7 @@ JAVA
       def j_abstract_attribute(attribute)
         <<JAVA
     public abstract #{attribute.jpa.java_type} #{getter_for(attribute)};
+
 JAVA
       end
 
@@ -438,7 +442,7 @@ STR
     return java.util.Collections.unmodifiableList( safeGet#{plural_name}() );
   }
 
-  #{j_deprecation_warning(attribute)} final void add#{name}( final #{type} value )
+  #{j_deprecation_warning(attribute)}final void add#{name}( @javax.annotation.Nonnull final #{type} value )
   {
     final java.util.List<#{type}> #{field_name}Safe = safeGet#{plural_name}();
     if ( !#{field_name}Safe.contains( value ) )
@@ -447,7 +451,7 @@ STR
     }
   }
 
-  public final void remove#{name}( final #{type} value )
+  public final void remove#{name}( @javax.annotation.Nonnull final #{type} value )
   {
     if ( null != this.#{field_name} )
     {
@@ -455,6 +459,7 @@ STR
     }
   }
 
+  @javax.annotation.Nonnull
   private java.util.List<#{type}> safeGet#{plural_name}()
   {
     if( null == this.#{field_name} )
@@ -463,6 +468,7 @@ STR
     }
     return this.#{field_name};
   }
+
 STR
         java
       end
@@ -492,8 +498,6 @@ STR
       return #{equality_comparison};
     }
   }
-JAVA
-        s += <<JAVA
 
   @java.lang.Override
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
@@ -520,6 +524,7 @@ JAVA
         end
         s += <<JAVA
   }
+
 JAVA
         s
       end
@@ -539,6 +544,7 @@ JAVA
  +
            "]";
   }
+
 JAVA
         s
       end
