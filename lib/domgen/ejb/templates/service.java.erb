@@ -9,4 +9,3 @@ package <%= to_package(service.ejb.qualified_service_name) %>;
     method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %>;
 <% end %>}
-<% "TODO Action: if method.ejb?.feedback  then add a pre & post for the method which builds a string based on parameters & response|exception." -%>
