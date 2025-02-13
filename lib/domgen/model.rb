@@ -1463,6 +1463,22 @@ module Domgen
       @return_type
     end
 
+    def base_exceptions
+      # exception => supertypes
+      exception_map = {}
+      self.exceptions.each do |exception|
+        exception_map[exception] = exception.supertypes
+      end
+
+      exceptions = []
+      self.exceptions.each do |exception|
+        unless exception_map[exception].any?{|st|exception_map.keys.include?(st)}
+          exceptions << exception
+        end
+      end
+      exceptions
+    end
+
     def exceptions
       @exceptions.values
     end
