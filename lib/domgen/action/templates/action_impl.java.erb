@@ -76,27 +76,19 @@ public final class <%= method.action.action_impl_name %>
 
     try
     {
-<% if method.return_value.return_type != :void %>      final var returnValue = service.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Reality::Naming.camelize(param.name)}.join(", ") %> );
-      final var encodedResult = encodeResponsePayload( returnValue );
-      return new iris.rose.server.action.InvocationResult( true, encodedResult.toString(), "<%= method.action.action_impl_name %> completed successfully" );
+<% if method.return_value.return_type != :void %>      service.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Reality::Naming.camelize(param.name)}.join(", ") %> );
+      final var encodedResult = org.realityforge.replicant.server.ee.ReplicantContextHolder.get( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
+      return new iris.rose.server.action.InvocationResult( true, null == encodedResult ? null : encodedResult.toString(), "<%= method.action.action_impl_name %> completed successfully" );
 <% else %>      service.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Reality::Naming.camelize(param.name)}.join(", ") %> );
-      return new iris.rose.server.action.InvocationResult( true, "{\"data\": {}}", "<%= method.action.action_impl_name %> completed successfully" );<% end %>
+      return new iris.rose.server.action.InvocationResult( true, null, "<%= method.action.action_impl_name %> completed successfully" );<% end %>
     }
     catch ( final Exception | Error e )
     {
-      final var encodedException = encodeException( e );
-      if ( null != encodedException )
-      {
-         return new iris.rose.server.action.InvocationResult( true, encodedException.toString(), "<%= method.action.action_impl_name %> completed exceptionally: " + e.getMessage() );
-      }
-      else
-      {
-        // If we get to here, then encodedException returned null, which means it was not one of the expected
-        // exceptions, and thus it is actually an error of some sort.
-        final var errorMessage = iris.syncrecord.server.service.ExceptionUtil.emitFilteredStackTrace( e );
-        LOG.warning( errorMessage );
-        return new iris.rose.server.action.InvocationResult( false, errorMessage, "<%= method.action.action_impl_name %> completed with an unexpected exception: " + e.getMessage() );
-      }
+      // If we get to here, then the Exception will not be one thrown by the service method. Any expected exceptions would've been encoded in the ActionInterceptor
+      // and thus it is actually an error of some sort.
+      final var errorMessage = iris.syncrecord.server.service.ExceptionUtil.emitFilteredStackTrace( e );
+      LOG.warning( errorMessage );
+      return new iris.rose.server.action.InvocationResult( false, errorMessage, "<%= method.action.action_impl_name %> completed with an unexpected exception: " + e.getMessage() );
     }
   }
 
@@ -138,36 +130,42 @@ public final class <%= method.action.action_impl_name %>
 <% if method.return_value.return_type != :void %>
 
   @javax.annotation.Nonnull
-  static javax.json.JsonValue encodeResponsePayload( <%= annotated_type(method.return_value, :ejb, :boundary, :final => true) %> response )
+  static String encodeResponsePayload( @javax.annotation.Nonnull final Object object )
   {
     final var builder = javax.json.Json.createObjectBuilder();
-
-<% if method.return_value.nullable? -%>
-    if ( null == response )
-    {
-      builder.add( "data", javax.json.JsonValue.NULL );
-    }
-    else
-<% end -%>
-    {
-<% if method.return_value.struct? -%>
-      builder.add("data",<% if method.return_value.collection? -%> javax.json.Json.createArrayBuilder(<% end -%>
- <%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>.encode( response<% if method.return_value.collection? -%> )<% end -%>
- ) );
+    final var response =
+<% if method.return_value.struct? && !method.return_value.collection? -%>
+  <%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>.encode(
+    (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object );
+<% elsif method.return_value.collection? && method.return_value.struct? -%>
+      ((<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object)
+      .stream()
+      .map(e -> <%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>.encode(e))
+      .toList();
 <% else -%>
-      builder.add("data",<% if method.return_value.collection? -%> javax.json.Json.createArrayBuilder(
-        <% end -%>
-<% unless method.return_value.collection? -%> javax.json.Json.createValue(<% end -%>
- response ) );
+      (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object;
 <% end -%>
-    }
-    return builder.build();
+<% if method.return_value.collection? -%>
+    builder.add( "data", javax.json.Json.createArrayBuilder(response) );
+<% elsif method.return_value.struct?-%>
+    builder.add( "data", response );
+<% else -%>
+    builder.add( "data", javax.json.Json.createValue(response) );
+<% end -%>
+
+    return builder.build().toString();
   }
 <% end -%>
-  static <%= annotated_type(method.return_value, :ejb, :boundary) %> decodeResponsePayload( @javax.annotation.Nonnull final String response )<%=
+  static <%= annotated_type(method.return_value, :ejb, :boundary) %> decodeResponsePayload( <% if method.return_value.return_type == :void -%> @javax.annotation.Nullable <% else -%> @javax.annotation.Nonnull <% end -%> final String response )<%=
   method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %>
   {
+<% if method.return_value.return_type == :void -%>
+    if ( null == response )
+    {
+      return;
+    }
+<% end-%>
 <% if !method.exceptions.empty? || method.return_value.return_type != :void -%>
     final var reader = javax.json.Json.createReader( new java.io.StringReader( response ) );
     final var json = reader.readObject();
@@ -219,12 +217,12 @@ public final class <%= method.action.action_impl_name %>
 }
 
   @javax.annotation.Nullable
-  static javax.json.JsonObject encodeException( @javax.annotation.Nonnull final Throwable exception )
+  static String encodeException( @javax.annotation.Nonnull final Throwable exception )
   {
     <% method.exceptions.each do |exception|
 -%> if ( exception instanceof final <%= exception.ee.qualified_name %> e )
     {
-      return javax.json.Json.createObjectBuilder().add("error", <%= exception.action.qualified_json_encoder_name %>.encode( e ) ).build();
+      return javax.json.Json.createObjectBuilder().add("error", <%= exception.action.qualified_json_encoder_name %>.encode( e ) ).build().toString();
     }
     else<% end -%>
     {
@@ -241,16 +239,63 @@ public final class <%= method.action.action_impl_name %>
   final var type = error.getString( "$type" );
   //noinspection SwitchStatementWithTooFewBranches
   switch ( type )
-  {
+    {
   <% method.exceptions.each do |exception|
   -%> case "<%= exception.data_module.name %>.<%= exception.name %>":
     <%= exception.action.qualified_json_encoder_name %>.decodeAndThrow( error );
     break;
   <% end -%>
     default:
-  }
+    }
   }
 <%  end-%>
+
+  @java.lang.annotation.Inherited
+  @java.lang.annotation.Target( { java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD } )
+  @java.lang.annotation.Retention( java.lang.annotation.RetentionPolicy.RUNTIME )
+  @javax.interceptor.InterceptorBinding
+  public @interface ActionInterceptorBinding
+  {
+  }
+
+  @javax.interceptor.Interceptor
+  @javax.annotation.Priority( javax.interceptor.Interceptor.Priority.LIBRARY_BEFORE + 110 )
+  @ActionInterceptorBinding
+  public static class ActionInterceptor
+  {
+    @javax.annotation.Resource
+    private javax.transaction.TransactionSynchronizationRegistry _registry;
+
+    @javax.interceptor.AroundInvoke
+    public Object responseIntercept( @javax.annotation.Nonnull final javax.interceptor.InvocationContext context )
+      throws Exception
+    {
+      // This should check if we are being called in a Replicant transaction
+      // This if is probably not what we want
+      final var transactionKey = _registry.getTransactionKey();
+      if ( null == transactionKey )
+      {
+        return context.proceed();
+      }
+      try
+      {
+        final var result = context.proceed();
+<% if method.return_value.return_type != :void -%>
+        final var encodedResponse = encodeResponsePayload( result );
+        // Put in the ThreadLocal in case this request is not going via Replicant (UserService)
+        // Temporary hack as we should have all requests via Replicant
+        org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+        _registry.putResource( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+<% end-%>
+        return result;
+      }
+      catch ( final Exception e  )
+      {
+        final var encodedResponse = encodeException( e );
+        org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+        _registry.putResource( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+        throw e;
+      }
+    }
+  }
 }
-
-

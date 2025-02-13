@@ -341,8 +341,9 @@ module Domgen
         schema.to_json
       end
 
-      def pre_complete
+      def post_complete
         if method.service.ejb? && method.service.ejb.generate_boundary?
+          self.method.ejb.boundary_annotations << "#{self.qualified_action_impl_name}.ActionInterceptorBinding"
         end
       end
 
