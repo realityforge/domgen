@@ -179,7 +179,6 @@ module Domgen
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :interceptor_impl, :service, :server, :action, '#{method.name}ActionInterceptor'
       java_artifact :action_impl, :service, :server, :action, '#{method.name}Action'
 
       def code
@@ -344,7 +343,6 @@ module Domgen
 
       def pre_complete
         if method.service.ejb? && method.service.ejb.generate_boundary?
-          # method.ejb.boundary_interceptors << method.action.qualified_interceptor_impl_name
         end
       end
 
