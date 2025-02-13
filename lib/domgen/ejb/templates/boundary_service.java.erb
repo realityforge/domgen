@@ -3,7 +3,7 @@ package <%= to_package(service.ejb.qualified_boundary_interface_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.Local
-<% unless service.ejb.module_local? %>public <% end %>interface <%= service.ejb.boundary_interface_name %>
+<% unless service.ejb.boundary_module_local? %>public <% end %>interface <%= service.ejb.boundary_interface_name %>
 {
 <% service.methods.each do |method|
 %>

@@ -181,6 +181,12 @@ module Domgen
         @module_local.nil? ? false : !!@module_local
       end
 
+      attr_writer :boundary_module_local
+
+      def boundary_module_local?
+        @boundary_module_local.nil? ? self.module_local? : !!@boundary_module_local
+      end
+
       attr_writer :no_web_invoke
 
       def no_web_invoke!
