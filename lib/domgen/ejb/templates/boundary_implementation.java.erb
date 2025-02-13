@@ -59,6 +59,9 @@ class <%= service.ejb.boundary_implementation_name %>
 <% if method.ejb.boundary_interceptors.size > 0 -%>
   @javax.interceptor.Interceptors( { <%= method.ejb.boundary_interceptors.collect{|i| "#{i}.class"}.join(', ') %> } )
 <% end-%>
+<% method.ejb.boundary_annotations.each do |annotation| -%>
+  @<%= annotation %>
+<% end-%>
   @java.lang.Override
   public <%= annotated_type(method.return_value, :ejb, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :ejb, :boundary)} #{p.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"

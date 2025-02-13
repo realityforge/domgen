@@ -295,6 +295,10 @@ module Domgen
         @boundary_interceptors ||= []
       end
 
+      def boundary_annotations
+        @boundary_annotations ||= []
+      end
+
       def generate_base_test?
         @generate_base_test.nil? ? true : !!@generate_base_test
       end
