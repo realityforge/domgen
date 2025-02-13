@@ -131,6 +131,7 @@ public final class <%= method.action.action_impl_name %>
   @javax.annotation.Nonnull
   static String encodeResponsePayload( @javax.annotation.Nonnull final Object object )
   {
+    @java.lang.SuppressWarnings( { "JavaExistingMethodCanBeUsed", "RedundantSuppression" } )
     final var builder = javax.json.Json.createObjectBuilder();
     final var response =
 <% if method.return_value.struct? && !method.return_value.collection? -%>
@@ -230,6 +231,7 @@ public final class <%= method.action.action_impl_name %>
   }
 <% unless method.exceptions.empty? -%>
 
+  @java.lang.SuppressWarnings( { "SwitchStatementWithTooFewBranches", "RedundantSuppression" } )
   static void decodeExceptionAndThrow( @javax.annotation.Nonnull final javax.json.JsonObject json )<%=
   "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %>
