@@ -6,7 +6,7 @@ package <%= to_package(service.ejb.qualified_service_name) %>;
 {
 <% service.methods.each do |method| -%>
   <%= annotated_type(method.return_value, :ejb, :default) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
-    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
+    method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %>;
 <% end %>}
 <% "TODO Action: if method.ejb?.feedback  then add a pre & post for the method which builds a string based on parameters & response|exception." -%>

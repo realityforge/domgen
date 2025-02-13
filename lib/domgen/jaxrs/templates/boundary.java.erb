@@ -13,7 +13,7 @@ public class <%= service.jaxrs.boundary_name %>
 <% service.methods.select{|method| method.jaxrs?}.each do |method|
 %>
   <%= annotated_type(method.return_value, :jaxrs, :boundary, :public => true) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jaxrs, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
-    exceptions = method.exceptions.collect{|e| e.ee.qualified_name}
+    exceptions = method.base_exceptions.collect{|e| e.ee.qualified_name}
     exceptions.empty? ? '' : "\n    throws #{exceptions.join(', ')}"
 %>
   {

@@ -120,7 +120,7 @@ public class <%= service.gwt_rpc.servlet_name %>
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
 %>  @java.lang.Override
   <%= annotated_type(method.return_value, :gwt_rpc, :transport, :public => true) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport, :final => true)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
-    method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt_rpc.qualified_name}.join(', ')}"
+    method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.gwt_rpc.qualified_name}.join(', ')}"
 %>
   {
 <% if method.imit? -%>

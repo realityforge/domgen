@@ -7,7 +7,7 @@ public interface <%= service.ejb.remote_service_name %>
 {
 <% service.methods.each do |method|
 %>  <%= annotated_type(method.return_value, :ejb, :boundary, :final => true) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :boundary)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
-    exceptions = ['java.rmi.RemoteException'] + method.exceptions.collect{|e| e.ee.qualified_name}
+    exceptions = ['java.rmi.RemoteException'] + method.base_exceptions.collect{|e| e.ee.qualified_name}
     "\n    throws #{exceptions.join(', ')}"
 %>;
 

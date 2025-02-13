@@ -14,7 +14,7 @@ public interface <%= service.jaxrs.service_name %>
 <%= jaxrs_produces(method.jaxrs, '  ') -%>
 <%= jaxrs_consumes(method.jaxrs, '  ') -%>
   <%= annotated_type(method.return_value, :jaxrs, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| jaxrs_paramater(p) }.join(', ') %>)<%=
-    exceptions = method.exceptions.collect{|e| e.ee.qualified_name}
+    exceptions = method.base_exceptions.collect{|e| e.ee.qualified_name}
     exceptions.empty? ? '' : "\n    throws #{exceptions.join(', ')}"
 %>;
 

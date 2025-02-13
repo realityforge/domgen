@@ -10,7 +10,7 @@ public interface <%= service.jmx.service_name %>
 <% service.methods.select{|method| method.jmx?}.each do |method|
 %>
   <%= annotated_type(method.return_value, :jmx, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jmx, :boundary)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
-    exceptions = method.exceptions.collect{|e| e.ee.qualified_name}
+    exceptions = method.base_exceptions.collect{|e| e.ee.qualified_name}
     exceptions.empty? ? '' : "\n    throws #{exceptions.join(', ')}"
 %>;
 
