@@ -163,7 +163,7 @@ module Domgen
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :register_actions, :service, :server, :action, '#{service.name}RegisterActions'
+      java_artifact :service_actions, :service, :server, :action, '#{service.name}Actions'
 
       def pre_complete
         service.disable_facet(:action) unless service.methods.any? { |m| m.action? }
@@ -178,8 +178,6 @@ module Domgen
 
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
-
-      java_artifact :action_impl, :service, :server, :action, '#{method.name}Action'
 
       def code
         content = "#{method.qualified_name.gsub('#', '.')}:#{method.action.json_request_schema}:#{method.action.json_response_schema}"
@@ -343,7 +341,7 @@ module Domgen
 
       def post_complete
         if method.service.ejb? && method.service.ejb.generate_boundary?
-          self.method.ejb.boundary_annotations << "#{self.qualified_action_impl_name}.ActionInterceptorBinding"
+          self.method.ejb.boundary_annotations << "#{self.method.service.action.qualified_service_actions_name}.#{self.method.name}Action.ActionInterceptorBinding"
         end
       end
 

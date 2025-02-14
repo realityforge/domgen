@@ -17,11 +17,8 @@ Domgen::Generator.define([:action],
                          [Domgen::Java::Helper]) do |g|
   g.template_set(:action_server) do |template_set|
     template_set.erb_template(:service,
-                              'register_actions.java.erb',
-                              'main/java/#{service.action.qualified_register_actions_name.gsub(".","/")}.java')
-    template_set.erb_template(:method,
-                              'action_impl.java.erb',
-                              'main/java/#{method.action.qualified_action_impl_name.gsub(".","/")}.java')
+                              'service_actions.java.erb',
+                              'main/java/#{service.action.qualified_service_actions_name.gsub(".","/")}.java')
     template_set.erb_template(:exception,
                               'exception_json_encoder.java.erb',
                               'main/java/#{exception.action.qualified_json_encoder_name.gsub(".","/")}.java')
