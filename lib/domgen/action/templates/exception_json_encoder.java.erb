@@ -2,14 +2,14 @@
 package <%= to_package(exception.action.qualified_json_encoder_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public final class <%= exception.action.json_encoder_name %>
+<% unless exception.ee.module_local? %>public <% end %>final class <%= exception.action.json_encoder_name %>
 {
   private <%= exception.action.json_encoder_name %>()
   {
   }
 
   @javax.annotation.Nonnull
-  public static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= exception.ee.qualified_name %> exception )
+  <% unless exception.ee.module_local? %>public <% end %>static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= exception.ee.qualified_name %> exception )
   {
     final var jsonBuilder = javax.json.Json.createObjectBuilder().add( "$type", "<%= exception.data_module.name %>.<%= exception.name %>" );
     final var message = exception.getMessage();
@@ -41,7 +41,7 @@ public final class <%= exception.action.json_encoder_name %>
         .build();
   }
 
-  public static void decodeAndThrow( @javax.annotation.Nonnull final javax.json.JsonObject json )<%=
+  <% unless exception.ee.module_local? %>public <% end %>static void decodeAndThrow( @javax.annotation.Nonnull final javax.json.JsonObject json )<%=
         "\n    throws #{exception.ee.qualified_name}"
 %>
   {

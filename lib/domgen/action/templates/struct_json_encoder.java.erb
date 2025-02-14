@@ -2,14 +2,14 @@
 package <%= to_package(struct.action.qualified_json_encoder_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public final class <%= struct.action.json_encoder_name %>
+<% unless struct.ee.module_local? %>public <% end %>final class <%= struct.action.json_encoder_name %>
 {
   private <%= struct.action.json_encoder_name %>()
   {
   }
 
   @javax.annotation.Nonnull
-  public static javax.json.JsonArray encode( @javax.annotation.Nonnull final java.util.List<<%= struct.ee.qualified_name %>> structs )
+  <% unless struct.ee.module_local? %>public <% end %>static javax.json.JsonArray encode( @javax.annotation.Nonnull final java.util.List<<%= struct.ee.qualified_name %>> structs )
   {
     final javax.json.JsonArrayBuilder builder = javax.json.Json.createArrayBuilder();
     for ( final <%= struct.ee.qualified_name %> struct : structs )
@@ -20,7 +20,7 @@ public final class <%= struct.action.json_encoder_name %>
   }
 
   @javax.annotation.Nonnull
-  public static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= struct.ee.qualified_name %> struct )
+  <% unless struct.ee.module_local? %>public <% end %>static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= struct.ee.qualified_name %> struct )
   {
     return
       javax.json.Json
@@ -49,7 +49,7 @@ public final class <%= struct.action.json_encoder_name %>
   }
 
   @javax.annotation.Nonnull
-  public static java.util.List<<%= struct.ee.qualified_name %>> decode( @javax.annotation.Nonnull final javax.json.JsonArray jsonArray )
+  <% unless struct.ee.module_local? %>public <% end %>static java.util.List<<%= struct.ee.qualified_name %>> decode( @javax.annotation.Nonnull final javax.json.JsonArray jsonArray )
   {
     final java.util.List<<%= struct.ee.qualified_name %>> array = new java.util.ArrayList<>();
     for ( final javax.json.JsonValue value : jsonArray )
@@ -60,7 +60,7 @@ public final class <%= struct.action.json_encoder_name %>
   }
 
   @javax.annotation.Nonnull
-  public static <%= struct.ee.qualified_name %> decode( @javax.annotation.Nonnull final javax.json.JsonObject json )
+  <% unless struct.ee.module_local? %>public <% end %>static <%= struct.ee.qualified_name %> decode( @javax.annotation.Nonnull final javax.json.JsonObject json )
   {
     return new <%= struct.ee.qualified_name %>(
      <% struct.fields.each_with_index do |field, index|
