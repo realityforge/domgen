@@ -235,6 +235,9 @@ public class <%= service.action.service_actions_name %>
 <% end-%>
   }
 
+<% if method.exceptions.empty? -%>
+    @java.lang.SuppressWarnings( "unused" )
+<% end -%>
     @javax.annotation.Nullable
     private static String encodeException( @javax.annotation.Nonnull final Throwable exception )
     {
@@ -304,15 +307,17 @@ public class <%= service.action.service_actions_name %>
         }
         try
         {
-          final var result = context.proceed();
 <% if method.return_value.return_type != :void -%>
+          final var result = context.proceed();
           final var encodedResponse = encodeResponsePayload( result );
           // Put in the ThreadLocal in case this request is not going via Replicant (UserService)
           // Temporary hack as we should have all requests via Replicant
           org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
           _registry.putResource( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
-<% end -%>
           return result;
+<% else -%>
+          return context.proceed();
+<% end -%>
         }
         catch ( final Exception e  )
         {
