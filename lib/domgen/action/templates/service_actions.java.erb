@@ -50,7 +50,7 @@ public class <%= service.action.service_actions_name %>
       when param.struct? && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
                .getValuesAs( javax.json.JsonObject.class )
                .stream()
-               .map( o -> #{param.referenced_struct.action.qualified_json_encoder_name}.decode( o ) )
+               .map( #{param.referenced_struct.action.qualified_json_encoder_name}::decode )
                .collect( java.util.stream.Collectors.toList() );"}
       when param.struct? then Proc.new {|value, isNullCheck| "#{isNullCheck}#{param.referenced_struct.action.qualified_json_encoder_name}.decode( json.getJsonObject( #{value} ) );"}
       when param.date? && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
@@ -177,7 +177,7 @@ public class <%= service.action.service_actions_name %>
 <% end -%>
 
     <%= annotated_type(method.return_value, :ejb, :boundary, :static => true) %> decodeResponsePayload( <% if method.return_value.return_type == :void -%>@javax.annotation.Nullable <% else -%>@javax.annotation.Nonnull <% end -%>final String response )<%=
-    method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
+    method.exceptions.empty? ? '' : "\n      throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
   %>
     {
 <% if method.return_value.return_type == :void -%>
@@ -233,7 +233,7 @@ public class <%= service.action.service_actions_name %>
       <%= "return #{conversion_rule.call("\"data\"")}\n" %>
 <% end-%>
 <% end-%>
-  }
+    }
 
 <% if method.exceptions.empty? -%>
     @java.lang.SuppressWarnings( "unused" )
@@ -244,12 +244,13 @@ public class <%= service.action.service_actions_name %>
 <% if method.exceptions.empty? -%>
       return null;
 <% else -%>
-<% method.exceptions.each do |exception| -%>
-      if ( exception instanceof final <%= exception.ee.qualified_name %> e )
+     <% method.exceptions.each do |exception| -%>
+ if ( exception instanceof final <%= exception.ee.qualified_name %> e )
       {
         return javax.json.Json.createObjectBuilder().add("error", <%= exception.action.qualified_json_encoder_name %>.encode( e ) ).build().toString();
       }
       else<% end -%>
+
       {
         return null;
       }
