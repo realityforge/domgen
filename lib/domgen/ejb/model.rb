@@ -299,6 +299,12 @@ module Domgen
         @boundary_annotations ||= []
       end
 
+      attr_accessor :generate_boundary
+
+      def generate_boundary?
+        @generate_boundary.nil? ? self.method.service.ejb.generate_boundary? : !!@generate_boundary
+      end
+
       def generate_base_test?
         @generate_base_test.nil? ? true : !!@generate_base_test
       end

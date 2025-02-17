@@ -5,7 +5,7 @@ package <%= to_package(service.ejb.qualified_boundary_interface_name) %>;
 @javax.ejb.Local
 <% unless service.ejb.boundary_module_local? %>public <% end %>interface <%= service.ejb.boundary_interface_name %>
 {
-<% service.methods.each do |method|
+<% service.methods.select{|method | method.ejb.generate_boundary?}.each do |method|
 %>
   <%= annotated_type(method.return_value, :ejb, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :boundary)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"

@@ -48,13 +48,13 @@ class <%= service.ejb.boundary_implementation_name %>
   }
 
 <% end -%>
-<% service.methods.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
+<% service.methods.select{|method | method.ejb.generate_boundary?}.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>;
 <% end -%>
   @javax.inject.Inject
   private <%= service.ejb.qualified_service_name %> _service;
-<% service.methods.each do |method|
+<% service.methods.select{|method | method.ejb.generate_boundary?}.each do |method|
 %>
 <% if method.ejb.boundary_interceptors.size > 0 -%>
   @javax.interceptor.Interceptors( { <%= method.ejb.boundary_interceptors.collect{|i| "#{i}.class"}.join(', ') %> } )
