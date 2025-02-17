@@ -4,10 +4,10 @@ package <%= to_package(service.gwt_rpc.qualified_rpc_service_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public interface <%= service.gwt_rpc.rpc_service_name %>
   extends com.google.gwt.user.client.rpc.RemoteService
-{
-<% service.methods.select{|method| method.gwt_rpc?}.each do |method|
-%>  <%= annotated_type(method.return_value, :gwt_rpc, :transport) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport)} #{Reality::Naming.camelize(p.gwt_rpc.name(:transport))}" }.join(', ') %>)<%=
+{<% service.methods.select{|method| method.gwt_rpc?}.each do |method| -%>
+
+  <%= annotated_type(method.return_value, :gwt_rpc, :transport) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport)} #{Reality::Naming.camelize(p.gwt_rpc.name(:transport))}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.gwt_rpc.qualified_name}.join(', ')}"
 %>;
-
-<% end %>}
+<% end -%>
+}
