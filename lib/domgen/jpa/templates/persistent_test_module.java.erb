@@ -59,6 +59,7 @@ public class <%= repository.jpa.persistent_test_module_name %>
     super( <%= repository.jpa.qualified_unit_descriptor_name %>.NAME, cleanTables ? PRE_CLEAN_SQL : new String[ 0 ], new String[ 0 ], cleanTables ? TABLES_TO_CLEAN : new String[ 0 ], databasePrefix, mergeProperties( additionalProperties ) );
   }
 
+  @java.lang.SuppressWarnings( "JavaExistingMethodCanBeUsed" )
   @javax.annotation.Nonnull
   private static java.util.Properties mergeProperties( @javax.annotation.Nullable final java.util.Properties additionalProperties )
   {
