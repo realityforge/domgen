@@ -154,18 +154,12 @@ public class <%= service.action.service_actions_name %>
       final var builder = javax.json.Json.createObjectBuilder();
       @java.lang.SuppressWarnings( "unchecked" )
       final var response =
-<% if method.return_value.struct? && !method.return_value.collection? -%>
-    <%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>.encode(
-      (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object );
-<% elsif method.return_value.collection? && method.return_value.struct? -%>
-        ((<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object)
-        .stream()
-        .map( <%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>::encode )
-        .toList();
+<% if method.return_value.struct?-%>
+        <%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>.encode( (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object );
 <% else -%>
         (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object;
 <% end -%>
-<% if method.return_value.collection? -%>
+<% if method.return_value.collection? && !method.return_value.struct? -%>
       builder.add( "data", javax.json.Json.createArrayBuilder( response ) );
 <% elsif method.return_value.struct?-%>
       builder.add( "data", response );
