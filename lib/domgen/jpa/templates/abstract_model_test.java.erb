@@ -4,32 +4,31 @@ package <%= to_package(entity.jpa.qualified_abstract_model_test_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 <% unless entity.jpa.module_local? %>public <% end %>abstract class <%= entity.jpa.abstract_model_test_name %>
   extends <%= entity.data_module.repository.jpa.qualified_standalone_entity_test_name %>
-{
-<% entity.sql.constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
+{<% entity.sql.constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
+
   @org.testng.annotations.Test
   public void <%= Reality::Naming.camelize(constraint.name) %>Constraint()
     throws Exception
   {
     org.testng.Assert.fail( "Test not yet implemented" );
   }
-
 <% end -%>
 <% entity.sql.function_constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
+
   @org.testng.annotations.Test
   public void <%= Reality::Naming.camelize(constraint.name) %>FunctionConstraint()
     throws Exception
   {
     org.testng.Assert.fail( "Test not yet implemented" );
   }
-
 <% end -%>
 <% entity.sql.validations.select{|validation| !validation.standard?}.each do |validation| -%>
+
   @org.testng.annotations.Test
   public void <%= Reality::Naming.camelize(validation.name) %>Validation()
     throws Exception
   {
     org.testng.Assert.fail( "Test not yet implemented" );
   }
-
 <% end -%>
 }
