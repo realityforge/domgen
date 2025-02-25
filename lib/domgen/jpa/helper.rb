@@ -141,7 +141,6 @@ module Domgen
         immutable_attributes = entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent? }
         declared_attribute_names = entity.declared_attributes.collect{|a| a.name}
         declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
-        undeclared_immutable_attributes = immutable_attributes.select{ |a| !declared_attribute_names.include?(a.name) }
         java = <<JAVA
   @java.lang.SuppressWarnings( { "PMD.UnnecessaryConstructor" } )
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" } )
@@ -154,9 +153,11 @@ JAVA
         java = java + <<JAVA
   @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
   public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.field_name}"}.join(', ')})
-  {#{undeclared_immutable_attributes.empty? ? '' : "\n    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.field_name}.join(', ')});\n"}
-#{declared_immutable_attributes.collect { |a| "    this.#{a.jpa.field_name} = #{!a.nullable? && !a.jpa.primitive? ? "java.util.Objects.requireNonNull( #{a.jpa.field_name} )": a.jpa.field_name};" }.join("\n")}
-#{declared_immutable_attributes.select{|a|a.reference?}.collect { |a| '    ' + j_add_to_inverse(a) }.join("\n")}
+  {
+JAVA
+        java += declared_immutable_attributes.collect{|a| "    this.#{a.jpa.field_name} = #{!a.nullable? && !a.jpa.primitive? ? "java.util.Objects.requireNonNull( #{a.jpa.field_name} )": a.jpa.field_name};\n" }.join('')
+        java += declared_immutable_attributes.select{|a|a.reference? && a.inverse.jpa.java_traversable?}.collect{|a| '    ' + j_add_to_inverse(a) + "\n" }.join('')
+        java = java + <<JAVA
   }
 JAVA
         java
@@ -346,7 +347,7 @@ JAVA
       def j_add_to_inverse(attribute)
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.name
-        if !attribute.inverse.jpa.java_traversable?
+        unless attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(attribute.nullable?, field_name) { "this.#{field_name}.add#{inverse_name}( this );" }
