@@ -1035,16 +1035,16 @@ module Domgen
       entity = self
       constraint.attribute_name_path.each_with_index do |attribute_name_path_element, i|
         other = entity.attribute_by_name(attribute_name_path_element)
-        Domgen.error("Path element #{attribute_name_path_element} is nullable") if other.nullable? && i != 0
-        Domgen.error("Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
-        Domgen.error("Path element #{attribute_name_path_element} is not a reference") if !other.reference?
+        Domgen.error("On Entity #{entity.qualified_name} for cycle constraint starting at attribute #{attribute_name} with path #{attribute_name_path.inspect}: Path element #{attribute_name_path_element} is nullable") if other.nullable? && i != 0
+        Domgen.error("On Entity #{entity.qualified_name} for cycle constraint starting at attribute #{attribute_name} with path #{attribute_name_path.inspect}: Path element #{attribute_name_path_element} is not immutable") if !other.immutable?
+        Domgen.error("On Entity #{entity.qualified_name} for cycle constraint starting at attribute #{attribute_name} with path #{attribute_name_path.inspect}: Path element #{attribute_name_path_element} is not a reference") if !other.reference?
         entity = other.referenced_entity
       end
       local_reference = attribute_by_name(attribute_name)
-      Domgen.error("Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
+      Domgen.error("On Entity #{entity.qualified_name} for cycle constraint starting at attribute #{attribute_name} with path #{attribute_name_path.inspect}: Attribute named #{attribute_name} is not a reference") if !local_reference.reference?
       scoping_attribute = local_reference.referenced_entity.attribute_by_name(constraint.scoping_attribute)
       if entity.name.to_s != scoping_attribute.referenced_entity.name.to_s
-        Domgen.error("Attribute in cycle references #{scoping_attribute.referenced_entity.name} while last reference in path is #{entity.name}")
+        Domgen.error("On Entity #{entity.qualified_name} for cycle constraint starting at attribute #{attribute_name} with path #{attribute_name_path.inspect}: Attribute in cycle references #{scoping_attribute.referenced_entity.name} while last reference in path is #{entity.name}")
       end
 
       add_unique_to_set('cycle', constraint, @cycle_constraints)
