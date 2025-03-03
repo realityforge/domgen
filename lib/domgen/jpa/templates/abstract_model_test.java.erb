@@ -31,7 +31,7 @@ package <%= to_package(entity.jpa.qualified_abstract_model_test_name) %>;
     org.testng.Assert.fail( "Test not yet implemented" );
   }
 <% end -%>
-<% if entity.sql.constraints.empty? && entity.sql.function_constraints.empty? && entity.sql.validations.empty? %>
+<% unless entity.jpa.non_standard_model_constraints? -%>
 
 <% end -%>
 }
