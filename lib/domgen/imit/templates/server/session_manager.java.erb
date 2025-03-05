@@ -172,9 +172,9 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% end -%>
     final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{target_graph.name}Filter") %> = _context.deriveFilterToPropagateFrom<%= source_graph.name %>To<%= target_graph.name %>( <% if source_graph.instance_root? -%><%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %><% end -%><% if source_graph.filter_parameter %>, <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end %> );
     // Propagate the filter from <%= source_graph.name %> to downstream graph <%= target_graph.name %>
-    for ( final <%= target_graph_instance_root.jpa.qualified_name %> <%= Reality::Naming.camelize("#{target_graph.name}InstanceRoot") %> : _context.getLinksToUpdateFor<%= source_graph.name %>To<%= target_graph.name %>( <% if source_graph.instance_root? -%><%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %><% end -%><% if source_graph.filter_parameter %>, <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end -%> ) )
+    for ( final var <%= Reality::Naming.camelize("#{target_graph.name}InstanceRootId") %> : _context.getLinksToUpdateFor<%= source_graph.name %>To<%= target_graph.name %>( <% if source_graph.instance_root? -%><%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %><% end -%><% if source_graph.filter_parameter %>, <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end -%> ) )
     {
-      subscribe( session, new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <%= Reality::Naming.camelize("#{target_graph.name}InstanceRoot") %>.get<%= target_graph_instance_root.primary_key.name %>() ), true, <%= Reality::Naming.camelize("#{target_graph.name}Filter") %>, changeSet );
+      subscribe( session, new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <%= Reality::Naming.camelize("#{target_graph.name}InstanceRootId") %> ), true, <%= Reality::Naming.camelize("#{target_graph.name}Filter") %>, changeSet );
     }
   }
 <% end -%>

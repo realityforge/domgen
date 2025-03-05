@@ -1082,7 +1082,7 @@ module Domgen
               s.method(:"GetLinksToUpdateFor#{graph_link.source_graph}To#{target_graph.name}") do |m|
                 m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => "#{source_graph.name}InstanceRoot") if source_graph.instance_root?
                 m.parameter("#{source_graph.name}Filter", source_graph.filter_parameter.filter_type, filter_options(source_graph)) if source_graph.filter_parameter?
-                m.returns(:reference, :referenced_entity => target_graph_instance_root, :collection_type => :sequence)
+                m.returns(:Integer, :collection_type => :sequence)
               end
             end
           end
