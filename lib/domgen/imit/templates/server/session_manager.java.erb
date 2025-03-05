@@ -152,27 +152,27 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% end -%>
 <% end -%>
   }
-<% repository.imit.graphs.select{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? }.each do |graph|
-  root_type = graph.instance_root? ? Domgen::Java.java_type(repository.entity_by_name(graph.instance_root).primary_key, :ee, :default) : nil
+<% repository.imit.graphs.select{|graph| graph.unfiltered? || (graph.filter_parameter && !graph.filter_parameter.immutable?) }.each do |source_graph|
+  root_type = source_graph.instance_root? ? Domgen::Java.java_type(repository.entity_by_name(source_graph.instance_root).primary_key, :ee, :default) : nil
   processed = []
-  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+  source_graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
-     next unless target_graph.filtered?
+     next unless target_graph.filter_parameter
      key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
      next if processed.include?(key)
      processed << key
      target_graph_instance_root = repository.entity_by_name(target_graph.instance_root)
-     source_graph_instance_root = repository.entity_by_name(graph.instance_root)
+     source_graph_instance_root = repository.entity_by_name(source_graph.instance_root)
 -%>
 
-  private void propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final <%= root_type %> <%= Reality::Naming.camelize("#{graph.name}Id") %>, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{graph.name}Filter") %>, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
+  private void propagateFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final <%= root_type %> <%= Reality::Naming.camelize("#{source_graph.name}Id") %><% if source_graph.filter_parameter %>, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end %>, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
   {
-<% if graph.instance_root? -%>
-    final <%= source_graph_instance_root.jpa.qualified_name %> <%= Reality::Naming.camelize("#{graph.name}InstanceRoot") %> = _<%= Reality::Naming.camelize("#{source_graph_instance_root.data_module.name}#{source_graph_instance_root.name}") %>Repository.getBy<%= source_graph_instance_root.primary_key.name %>( <%= Reality::Naming.camelize("#{graph.name}Id") %> );
+<% if source_graph.instance_root? -%>
+    final <%= source_graph_instance_root.jpa.qualified_name %> <%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %> = _<%= Reality::Naming.camelize("#{source_graph_instance_root.data_module.name}#{source_graph_instance_root.name}") %>Repository.getBy<%= source_graph_instance_root.primary_key.name %>( <%= Reality::Naming.camelize("#{source_graph.name}Id") %> );
 <% end -%>
-    final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{target_graph.name}Filter") %> = _context.deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%><%= Reality::Naming.camelize("#{graph.name}InstanceRoot") %>, <% end -%><%= Reality::Naming.camelize("#{graph.name}Filter") %> );
-    // Propagate the filter from <%= graph.name %> to downstream graph <%= target_graph.name %>
-    for ( final <%= target_graph_instance_root.jpa.qualified_name %> <%= Reality::Naming.camelize("#{target_graph.name}InstanceRoot") %> : _context.getLinksToUpdateFor<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%><%= Reality::Naming.camelize("#{graph.name}InstanceRoot") %>, <% end -%><%= Reality::Naming.camelize("#{graph.name}Filter") %> ) )
+    final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{target_graph.name}Filter") %> = _context.deriveFilterToPropagateFrom<%= source_graph.name %>To<%= target_graph.name %>( <% if source_graph.instance_root? -%><%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %><% end -%><% if source_graph.filter_parameter %>, <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end %> );
+    // Propagate the filter from <%= source_graph.name %> to downstream graph <%= target_graph.name %>
+    for ( final <%= target_graph_instance_root.jpa.qualified_name %> <%= Reality::Naming.camelize("#{target_graph.name}InstanceRoot") %> : _context.getLinksToUpdateFor<%= source_graph.name %>To<%= target_graph.name %>( <% if source_graph.instance_root? -%><%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %><% end -%><% if source_graph.filter_parameter %>, <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end -%> ) )
     {
       subscribe( session, new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <%= Reality::Naming.camelize("#{target_graph.name}InstanceRoot") %>.get<%= target_graph_instance_root.primary_key.name %>() ), true, <%= Reality::Naming.camelize("#{target_graph.name}Filter") %>, changeSet );
     }
