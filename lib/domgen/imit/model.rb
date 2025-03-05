@@ -80,6 +80,18 @@ module Domgen
 
       attr_reader :code
 
+      attr_writer :generate_react4j_subscription_component
+
+      def generate_react4j_subscription_component?
+        external_visibility? && (@generate_react4j_subscription_component.nil? ? true : !!@generate_react4j_subscription_component)
+      end
+
+      attr_writer :generate_react4j_simple_subscription_component
+
+      def generate_react4j_simple_subscription_component?
+        external_visibility? && (@generate_react4j_simple_subscription_component.nil? ? true : !!@generate_react4j_simple_subscription_component)
+      end
+
       def to_s
         "ReplicationGraph[#{qualified_name}]"
       end

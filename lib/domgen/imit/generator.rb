@@ -52,12 +52,12 @@ Domgen::Generator.define([:imit],
                               'client/gwt/react_subscription_component.java.erb',
                               'main/java/#{graph.qualified_react4j_subscription_component_name.gsub(".","/")}.java',
                               :additional_facets => [:react4j],
-                              :guard => 'graph.external_visibility?')
+                              :guard => 'graph.generate_react4j_subscription_component?')
     template_set.erb_template('imit.graph',
                               'client/gwt/react_simple_subscription_component.java.erb',
                               'main/java/#{graph.qualified_react4j_simple_subscription_component_name.gsub(".","/")}.java',
                               :additional_facets => [:react4j],
-                              :guard => 'graph.external_visibility?')
+                              :guard => 'graph.generate_react4j_simple_subscription_component?')
   end
 
   g.template_set(:imit_client_entity_gwt) do |template_set|

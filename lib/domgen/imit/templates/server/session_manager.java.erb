@@ -126,16 +126,17 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
                                                  @javax.annotation.Nullable final java.lang.Object filter,
                                                  @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
   {
+<% first = true -%>
 <% repository.imit.graphs.select{|graph| graph.unfiltered? || (graph.filter_parameter && !graph.filter_parameter.immutable?) }.each do |source_graph|
-  processed = []
-  source_graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
-     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
-     next unless target_graph.filter_parameter
-     key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
-     next if processed.include?(key)
-     processed << key
+    processed = []
+    source_graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+      next unless target_graph.filter_parameter
+      key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+      next if processed.include?(key)
+      processed << key
 -%>
-    if( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %> == address.getChannelId() )
+    <%= first ? '' : 'else ' %>if( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %> == address.getChannelId() )
     {
 <% if source_graph.instance_root? -%>
       final Integer sourceGraphSubChannelId = address.getSubChannelId();
@@ -147,6 +148,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% end -%>
       propagateFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( session, <% if source_graph.instance_root? %>sourceGraphSubChannelId, <% end %><% if source_graph.filtered? %>sourceGraphFilter, <% end %>changeSet );
     }
+<% first = false -%>
 <% end -%>
 <% end -%>
   }
