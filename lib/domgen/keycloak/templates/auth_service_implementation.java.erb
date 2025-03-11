@@ -50,11 +50,13 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
   @java.lang.Override
   public <%= claim.java_type %> get<%= claim.java_accessor_key %>()
   {
+<% if claim.java_accessor_key == "Username" -%>
     final var username = _username.get();
     if ( null != username )
     {
       return username;
     }
+<% end -%>
 <% if claim.standard_claim? -%>
     final String value = getAccount().getKeycloakSecurityContext().getToken().get<%= claim.token_accessor_key %>();
 <% else -%>
