@@ -91,10 +91,12 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   @javax.annotation.Nullable
   protected org.realityforge.replicant.server.EntityMessage filterEntityMessage( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress address, @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessage message )
   {
+<% first = true -%>
 <% repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph| -%>
-    if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
+<% if first -%>   <% end -%> if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
 <%
+  first = false
   extra_interest_filter = ''
   graph.routing_keys.each do |routing_key|
     var_name = Reality::Naming.camelize("#{graph.name}_#{routing_key.name}")
@@ -114,8 +116,10 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% end -%>
       return _context.filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, subChannelId<% end %><% if graph.filter_parameter? %>, filter<% end %><%= extra_interest_filter %> );
     }
-<% end -%>
-    return super.filterEntityMessage( session, address, message );
+    else<% end %>
+    {
+      return super.filterEntityMessage( session, address, message );
+    }
   }
 <% end -%>
 <% if repository.imit.graphs.any?{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.outward_graph_links.empty? && graph.outward_graph_links.any?{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered?} } -%>
