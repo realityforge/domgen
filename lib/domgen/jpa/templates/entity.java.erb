@@ -35,19 +35,7 @@ end
 @javax.persistence.Inheritance( strategy = javax.persistence.InheritanceType.SINGLE_TABLE )
 @javax.persistence.DiscriminatorColumn( name = "_type_", discriminatorType = javax.persistence.DiscriminatorType.STRING )
 <% end -%>
-@javax.persistence.Table( name = "<%= entity.jpa.table_name %>",
-                          schema = "<%= entity.data_module.sql.schema %>"<%
-unless entity.attributes.select{|a|a.unique?}.empty? -%>,
-                          uniqueConstraints = { <%=
-  entity.attributes.select{|a|a.unique?}.collect{|a|
-  "@javax.persistence.UniqueConstraint( columnNames = {\"#{a.sql.column_name}\"} )"
-  }.join(",\n                          ")
-%> }<% end
-unless entity.sql.indexes.empty? -%>,
-                          indexes = { <%= entity.sql.indexes.collect{|index|
-        "@javax.persistence.Index(name =\"#{index.index_name}\", columnList = \"#{index.attribute_names.collect{|a| "#{entity.attribute_by_name(a).sql.column_name} ASC"}.join(', ')}\"#{index.unique? ? ', unique = true' : ''} )"
-        }.join(",\n                                      ")
-%> }<% end -%> )
+@javax.persistence.Table( name = "<%= entity.jpa.table_name %>", schema = "<%= entity.data_module.sql.schema %>" )
 <% else -%>
 @javax.persistence.DiscriminatorValue( "<%= entity.sql.discriminator %>" )
 <% end -%>
