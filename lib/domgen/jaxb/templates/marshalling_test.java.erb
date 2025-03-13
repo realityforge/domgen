@@ -2,12 +2,12 @@
 package <%= to_package(repository.jaxb.qualified_marshalling_test_name) %>;
 
 @java.lang.SuppressWarnings( "deprecation" )
-public class <%= repository.jaxb.marshalling_test_name %>
-{
-<%
+public final class <%= repository.jaxb.marshalling_test_name %>
+{<%
   repository.data_modules.select{|dm|dm.jaxb?}.each do |data_module|
     data_module.enumerations.select{|e|e.jaxb?}.each do |enumeration|
 -%>
+
   @org.testng.annotations.Test
   public void marshal<%= data_module.name %><%= enumeration.name %>()
     throws Exception
