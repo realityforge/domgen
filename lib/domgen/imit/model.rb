@@ -109,7 +109,7 @@ module Domgen
       attr_writer :secure
 
       def bulk_load?
-        !!@bulk_load
+        @bulk_load.nil? ? true : !!@bulk_load
       end
 
       attr_writer :bulk_load
