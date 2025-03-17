@@ -134,7 +134,9 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
       }
       t = t.getCause();
     }
-    org.testng.Assert.fail( "Failed to find any exception containing string " + message );
+    final var out = new java.io.StringWriter();
+    exception.printStackTrace( new java.io.PrintWriter( out ) );
+    org.testng.Assert.fail( "Failed to find any exception containing string " + message + "in:\n" + out );
   }
 
   protected final void disableTrigger( @javax.annotation.Nonnull final String qualifiedTableName, @javax.annotation.Nonnull final String qualifiedTriggerName )
