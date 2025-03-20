@@ -305,13 +305,8 @@ end
       }
 
 <%
-  processed = []
-  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+  graph.filtered_outward_auto_graph_links.each do |graph_link|
      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
-     next unless target_graph.filtered?
-     key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
-     next if processed.include?(key)
-     processed << key
 -%>
       bulkPropagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( session, addresses, changeSet, filter );
 <% end -%>
@@ -359,12 +354,8 @@ end
 <% repository.imit.graphs.select{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? }.each do |graph|
   root_type = graph.instance_root? ? Domgen::Java.java_type(repository.entity_by_name(graph.instance_root).primary_key, :ee, :default) : nil
   processed = []
-  graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+  graph.filtered_outward_auto_graph_links.each do |graph_link|
      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
-     next unless target_graph.filtered?
-     key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
-     next if processed.include?(key)
-     processed << key
      source_graph_instance_root = repository.entity_by_name(graph.instance_root)
      parameters_equiv = graph.filter_parameter? && target_graph.filter_parameter.equiv?(graph.filter_parameter)
 -%>

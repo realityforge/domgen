@@ -182,6 +182,24 @@ module Domgen
         @outward_graph_links.values
       end
 
+      # GraphLinks from this graph to graphs that have filters and are auto linked.
+      # It is assumed that if this graph links to another graph multiple times,
+      # then all these links will have the same filter
+      def filtered_outward_auto_graph_links
+        processed = []
+        result = []
+        self.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+           target_graph = self.application.graph_by_name(graph_link.target_graph)
+           next unless target_graph.filtered?
+           key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+           next if processed.include?(key)
+           processed << key
+           result << graph_link
+        end
+        result
+      end
+
+
       def inward_graph_links
         Domgen.error("inward_graph_links invoked for graph #{name} when not instance based") if 0 != @type_roots.size
         @inward_graph_links.values
