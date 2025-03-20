@@ -62,15 +62,4 @@ public abstract class <%= dao.arez.repository_name %>
 -%>
   }
 <% end -%>
-<% if dao.entity.arez.enable_entity_broker? && dao.entity.imit? -%>
-
-  @java.lang.Override
-  protected boolean reportRead()
-  {
-    return context().isTrackingTransactionActive();
-  }
-
-  @arez.annotations.ContextRef
-  abstract arez.ArezContext context();
-<% end -%>
 }

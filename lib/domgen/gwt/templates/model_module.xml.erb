@@ -15,8 +15,5 @@
 <% if repository.arez? -%>
   <set-property name='arez.enable_references' value='true'/>
 <% end -%>
-<% if repository.imit? && repository.imit.enable_entity_broker? -%>
-  <set-property name='replicant.enable_change_broker' value='true'/>
-<% end -%>
   <source path='ignored'/>
 </module>

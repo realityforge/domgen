@@ -78,10 +78,6 @@ public final class <%= data_module.arez.test_factory_name %>
   public <%= entity.arez.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.arez?}.collect{|a| "#{annotated_type(a, :arez, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
 <% needsLink = entity.attributes.any?{|a| a.reference?} -%>
-<% if needsLink && entity.arez.enable_entity_broker? && entity.imit? -%>
-    final replicant.EntityChangeBroker $changeBroker = replicant.Replicant.context().getChangeBroker();
-    final replicant.EntityBrokerLock $lock = $changeBroker.isPaused() ? null : $changeBroker.pause();
-<% end -%>
 <% attributes = entity.attributes.select{|a|a.arez? && a.immutable?} + entity.attributes.select{|a|a.arez? && !a.immutable?} -%>
     <% if needsLink %>final <%= entity.arez.qualified_name %> $_ =<% else %>return<% end %> <%= Reality::Naming.camelize(entity.dao.name) %>().create( <%= attributes.select{|a|a.arez?}.collect do |a|
 if a.reference?
@@ -92,12 +88,6 @@ else
 end.join(', ') -%> );
 <% if needsLink -%>
     arez.Arez.context().safeAction( () -> arez.component.Linkable.link( $_ ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
-<% if entity.imit? && entity.arez.enable_entity_broker? -%>
-    if ( null != $lock )
-    {
-      $lock.release();
-    }
-<% end -%>
     return $_;
 <% end -%>
   }

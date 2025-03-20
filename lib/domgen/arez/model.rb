@@ -169,16 +169,10 @@ module Domgen
       java_artifact :arez, :entity, :client, :arez, 'Arez_#{entity.name}'
 
       def access_entities_outside_transaction?
-        @access_entities_outside_transaction.nil? ? self.enable_entity_broker? : !!@access_entities_outside_transaction
+        @access_entities_outside_transaction.nil? ? false : !!@access_entities_outside_transaction
       end
 
       attr_writer :access_entities_outside_transaction
-
-      def enable_entity_broker?
-        entity.imit? && (@enable_entity_broker.nil? ? entity.data_module.repository.imit.enable_entity_broker? : !!@enable_entity_broker)
-      end
-
-      attr_writer :enable_entity_broker
 
       def extensions
         @extensions ||= []

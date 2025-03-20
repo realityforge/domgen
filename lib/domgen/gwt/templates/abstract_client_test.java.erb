@@ -40,10 +40,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     arez.testng.ArezTestSupport.super.preTest();
 <% if repository.imit? -%>
     replicant.ReplicantTestUtil.resetConfig( false );
-<% if repository.imit.enable_entity_broker? -%>
-    replicant.ReplicantTestUtil.enableChangeBroker();
-    replicant.ReplicantTestUtil.resetState();
-<% end -%>
 <% end -%>
 <% end -%>
     _injector = createInjector();

@@ -723,12 +723,6 @@ module Domgen
 
       attr_writer :secured
 
-      def enable_entity_broker?
-        @enable_entity_broker.nil? ? false : !!@enable_entity_broker
-      end
-
-      attr_writer :enable_entity_broker
-
       def generate_standard_endpoint?
         @generate_standard_endpoint.nil? ? true : !!@generate_standard_endpoint
       end
