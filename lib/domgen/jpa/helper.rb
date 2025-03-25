@@ -326,7 +326,7 @@ JAVA
   }
 
 JAVA
-        if attribute.updatable?
+        if attribute.updatable? || (attribute.generated_value? && :identity != attribute.sql.generator_type)
           java << <<JAVA
   public void set#{name}( #{annotated_type(attribute, :jpa, :default, :final => true)} value )
   {
