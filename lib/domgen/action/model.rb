@@ -257,7 +257,7 @@ module Domgen
       end
 
       def pre_pre_complete
-        unless self.method.ejb? && self.method.gwt_rpc?
+        unless self.method.ejb?
           self.method.disable_facet(:action)
           return
         end
