@@ -144,8 +144,11 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
 <% end -%>
 <% if method.imit? -%>
     final <%= method.name %>RequestParams $params = new <%= method.name %>RequestParams();
-    <%= parameters.collect{|p| p.nullable? ? "if ( null != #{Reality::Naming.camelize(p.name)}) $params.#{p.name} = #{p.gwt_rpc.to_characteristic_transport_type}" : "$params.#{p.name} = #{p.gwt_rpc.to_characteristic_transport_type}" }.join(';
-    ') %>;
+    <%= parameters.collect{|p| p.nullable? ? "if ( null != #{Reality::Naming.camelize(p.name)})
+    {
+      $params.#{p.name} = #{p.gwt_rpc.to_characteristic_transport_type};
+    }" : "$params.#{p.name} = #{p.gwt_rpc.to_characteristic_transport_type};" }.join('
+    ') %>
 
     replicant.Replicant.context()
       .exec( <%= service.data_module.repository.imit.qualified_system_constants_name %>.SCHEMA_ID,
@@ -163,7 +166,10 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
           return;
         }
 <%- end -%>
+<%- unless method.return_value.return_type == :void && method.base_exceptions.empty?-%>
         final jsinterop.base.JsPropertyMap<Object> $responsePropertyMap = $response.asPropertyMap();
+<%- end -%>
+<%- unless method.return_value.return_type == :void -%>
         if ( $responsePropertyMap.has( "data") )
         {
           final jsinterop.base.Any $responseData = $responsePropertyMap.getAsAny( "data" );
@@ -219,6 +225,7 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
           return;
 <%- end -%>
         }
+<%- end -%>
 <% unless method.base_exceptions.empty? -%>
 
         if ( $responsePropertyMap.has( "error" ) && null != errorCallback )
@@ -227,9 +234,11 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
           switch ( exceptionType )
           {
             <%= method.base_exceptions.collect{|e| "case \"#{e.data_module.name}.#{e.name}\":
-              errorCallback.onFailure( new #{e.imit.qualified_name}( #{e.parameters.collect{|exception_param| "#{exception_param.imit.get_from_json_extension("$responsePropertyMap")}"}.join(', ')} ) );"}.join('
-              break;
+              errorCallback.onFailure( new #{e.imit.qualified_name}( #{e.parameters.collect{|exception_param| "#{exception_param.imit.get_from_json_extension("$responsePropertyMap")}"}.join(', ')} ) );
+              break;"}.join('
             ') %>
+            default:
+              break;
           }
         }
 <% end -%>
@@ -243,14 +252,6 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
     <%= parameters.collect{|p| "#{p.gwt_rpc.characteristic_transport_type} #{p.name}" }.join(';
     ') %>;
   }
-<% end -%>
-<% if service.imit? -%>
-
-  private void request( @javax.annotation.Nullable final String key, @javax.annotation.Nonnull final java.lang.Runnable action )
-  {
-    replicant.Replicant.context().request( <%= service.data_module.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, key, action::run, null );
-  }
-
 <% end -%>
 <% if service.methods.any?{|m| m.imit? && m.return_value.reference? } -%>
 
