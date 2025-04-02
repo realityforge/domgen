@@ -253,15 +253,15 @@ $<%= parameter.name %>.add( <%= param_value %> );
 <% end -%>
 <% if method.imit? -%>
 <% if !method.action? -%>
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER ) );
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null );
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.GwtRpcConstants.CONNECTION_ID_HEADER ) );
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_ID_KEY, null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.GwtRpcConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.GwtRpcConstants.REQUEST_ID_HEADER ) : null );
 <% end -%>
 <% end -%>
 
 <% if method.action? -%>
     // Queue the action
-    final var replicantSessionId = getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.CONNECTION_ID_HEADER );
-    final var externalId = null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_ID_HEADER ) : null;
+    final var replicantSessionId = getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.GwtRpcConstants.CONNECTION_ID_HEADER );
+    final var externalId = null != getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.GwtRpcConstants.REQUEST_ID_HEADER ) ? getThreadLocalRequest().getIntHeader( org.realityforge.replicant.shared.GwtRpcConstants.REQUEST_ID_HEADER ) : null;
     final var actionSessionId = _actionTraceService.findOrCreateSession( _roseAuthService.getUsername(), iris.rose.server.action.SessionKind.REPLICANT, replicantSessionId );
 
     final var actionQueuedFeedback = ""; // TODO: Generate from params, or straight from architecture.rb, via _service
@@ -301,7 +301,7 @@ $<%= parameter.name %>.add( <%= param_value %> );
   {
 <% if method.imit? -%>
       // Assume the exception caused a rollback and if the transaction has rolled back there will be no messages arriving
-      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, "1" );
+      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.GwtRpcConstants.REQUEST_COMPLETE_HEADER, "1" );
       headerSet = true;
       cause = e;
 <% end -%>
@@ -331,7 +331,7 @@ $<%= parameter.name %>.add( <%= param_value %> );
       wrap.initCause( cve );
 
       // Assume exception has caused a rollback and if the transaction has rolled back there will be no messages arriving
-      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, "1" );
+      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.GwtRpcConstants.REQUEST_COMPLETE_HEADER, "1" );
       headerSet = true;
       cause = wrap;
       throw wrap;
@@ -339,7 +339,7 @@ $<%= parameter.name %>.add( <%= param_value %> );
     catch ( final java.lang.RuntimeException e )
     {
       // Assume the exception caused a rollback and if the transaction has rolled back there will be no messages arriving
-      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, "1" );
+      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.GwtRpcConstants.REQUEST_COMPLETE_HEADER, "1" );
       headerSet = true;
       cause = e;
       throw e;
@@ -350,7 +350,7 @@ $<%= parameter.name %>.add( <%= param_value %> );
       {
         if( null != replicationComplete )
         {
-          getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.SharedConstants.REQUEST_COMPLETE_HEADER, replicationComplete );
+          getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.GwtRpcConstants.REQUEST_COMPLETE_HEADER, replicationComplete );
         }
         else
         {

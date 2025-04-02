@@ -1160,6 +1160,10 @@ module Domgen
       "#{data_module.name}.#{self.name}"
     end
 
+    def sequence?
+      self.generator_type == :sequence
+    end
+
     attr_writer :top_level
 
     def top_level?

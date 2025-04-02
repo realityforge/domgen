@@ -165,6 +165,64 @@ module Domgen
     end
 
     facet.enhance(Parameter) do
+      def characteristic_transport_type
+        if parameter.collection?
+          collection_transport_type
+        elsif parameter.datetime? || parameter.integer? || parameter.reference?
+          'double'
+        elsif parameter.struct?
+          parameter.gwt_rpc.java_component_type(:boundary)
+        else
+          parameter.gwt_rpc.java_component_type(:transport)
+        end
+      end
+
+      def collection_transport_type
+        base_type =
+          if parameter.datetime? || parameter.integer? || parameter.reference?
+            'double'
+          elsif parameter.struct?
+            parameter.gwt_rpc.java_component_type(:boundary)
+          else
+            parameter.gwt_rpc.java_component_type(:transport)
+          end
+
+        "#{base_type}[]"
+      end
+
+      def to_characteristic_transport_type
+        param = Reality::Naming.camelize(parameter.name)
+        if parameter.collection?
+          to_collection_transport_type
+        elsif parameter.datetime?
+          "#{param}.getTime()"
+        elsif parameter.enumeration?
+          "#{param}.ordinal()"
+        elsif parameter.date?
+          "#{param}.toString()"
+        else
+          param
+        end
+      end
+
+      def to_collection_transport_type
+        param = Reality::Naming.camelize(parameter.name)
+        if parameter.integer? || parameter.reference?
+          "#{param}.stream().mapToDouble(Integer::intValue).toArray()"
+        elsif parameter.datetime?
+          "#{param}.stream().map(d -> d.getTime()).toArray()"
+        elsif parameter.enumeration?
+          "#{param}.stream().map(e -> e.ordinal()).toArray()"
+        elsif parameter.date?
+          "#{param}.stream().map(d -> d.toString()).toArray()"
+        else
+          "#{param}.toArray( new #{parameter.imit.java_component_type}[ 0 ])"
+        end
+
+      end
+    end
+
+    facet.enhance(Parameter) do
       include Domgen::Java::ImitJavaCharacteristic
 
       # Does the parameter come from the environment?

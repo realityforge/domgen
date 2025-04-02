@@ -142,93 +142,113 @@ end.join(', ') %><%= method.parameters.select{|parameter| !parameter.imit.enviro
     }
     <% if parameter.nullable? %>}<% end %>
 <% end -%>
-<% if method.keycloak? -%>
-  _keycloak.updateTokenAndExecute( () -> {
-<% end -%>
 <% if method.imit? -%>
-    request( replicant.Replicant.areNamesEnabled() ? "<%= service.qualified_name %>.<%= method.name %>" : null, () -> {
-<% end -%>
-    _service.<%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect do |parameter|
-  original_param_value = Reality::Naming.camelize(parameter.name)
-  param_value = original_param_value.dup
-  if parameter.collection? && (parameter.enumeration? || parameter.struct? || parameter.date?)
-    param_value = "$#{param_value}"
-  elsif parameter.enumeration? && parameter.enumeration.numeric_values?
-    param_value = "#{param_value}.ordinal()"
-  elsif parameter.enumeration? && parameter.enumeration.textual_values?
-    param_value = "#{param_value}.name()"
-  elsif parameter.date?
-    param_value = "#{param_value}.toString()"
-  elsif parameter.struct?
-    param_value = "akasha.core.JSON.stringify( #{param_value} )"
-  end
-  if parameter.nullable? && !parameter.collection? && original_param_value != param_value
-    param_value = "null == #{Reality::Naming.camelize(parameter.name)} ? null : #{param_value}"
-  end
-  param_value
-end.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.empty? ? '' : ', ' %>new <%= service.data_module.repository.gwt_rpc.qualified_async_callback_adapter_name %><<%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %>,<%= method.return_value.gwt_rpc.non_primitive_java_type(:boundary) %>>( <%= service.gwt_rpc.default_callback? ? '_callback' : 'null' -%>, callback, errorCallback )
-    {
-      @java.lang.SuppressWarnings( "DataFlowIssue" )
-      @java.lang.Override
-      <%= annotated_type(method.return_value, :gwt_rpc, :boundary, :non_primitive => true, :protected => true) %> convert( final <%= method.return_value.gwt_rpc.non_primitive_java_type(:transport) %> result )
-      {
-<%
-   if !method.return_value.collection?
-     result_string = 'result'
-     if method.return_value.enumeration? && method.return_value.enumeration.numeric_values?
-       result_string = "#{method.return_value.gwt_rpc.java_type}.values()[ result ]"
-     elsif method.return_value.enumeration? && method.return_value.enumeration.textual_values?
-       result_string = "#{method.return_value.gwt_rpc.java_type}.valueOf( result )"
-     elsif method.return_value.date?
-       result_string = "#{repository.gwt.qualified_rdate_name}.parse( result )"
-     elsif method.return_value.struct?
-       result_string = "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( akasha.core.JSON.parse( result ) )"
-     end
-     if method.return_value.nullable? && 'result' != result_string
-       result_string = "null == result ? null : #{result_string}"
-     end
-   elsif method.return_value.enumeration? || method.return_value.struct?
-     result_string = '$result'
-   else
-     result_string = 'result'
-   end
--%>
-<% if method.return_value.collection? && (method.return_value.enumeration? || method.return_value.struct?) -%>
-        <%= annotated_type(method.return_value, :gwt_rpc, :boundary, :final => true) %> $result = <% if method.return_value.nullable? %>result == null ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
-        if ( null != result )
+    final <%= method.name %>RequestParams $params = new <%= method.name %>RequestParams();
+    <%= parameters.collect{|p| p.nullable? ? "if ( null != #{Reality::Naming.camelize(p.name)}) $params.#{p.name} = #{p.gwt_rpc.to_characteristic_transport_type}" : "$params.#{p.name} = #{p.gwt_rpc.to_characteristic_transport_type}" }.join(';
+    ') %>;
+
+    replicant.Replicant.context()
+      .exec( <%= service.data_module.repository.imit.qualified_system_constants_name %>.SCHEMA_ID,
+             "<%= method.action.code %>",
+             $params,
+             $response -> {
+<%- if method.return_value.return_type == :void -%>
+        if ( jsinterop.base.Js.isTripleEqual( $response, jsinterop.base.Js.undefined() ) )
         {
-          for( final <%= method.return_value.gwt_rpc.java_component_type(:transport) %> $item: result )
+          if ( null == callback )
           {
-<%
-         param_value =
-         if method.return_value.enumeration?
-           method.return_value.enumeration.textual_values? ?
-             "#{method.return_value.gwt_rpc.java_component_type}.valueOf( $item )" :
-             "#{method.return_value.gwt_rpc.java_component_type}.values()[ $item ]"
-         else
-           "jsinterop.base.Js.<#{method.return_value.referenced_struct.gwt.qualified_name}>cast( akasha.core.JSON.parse( $item ) )"
-         end
--%>
-            $result.add( <%= param_value %> );
+            return;
+          }
+          callback.onSuccess( null );
+          return;
+        }
+<%- end -%>
+        final jsinterop.base.JsPropertyMap<Object> $responsePropertyMap = $response.asPropertyMap();
+        if ( $responsePropertyMap.has( "data") )
+        {
+          final jsinterop.base.Any $responseData = $responsePropertyMap.getAsAny( "data" );
+
+<%- if method.return_value.nullable? -%>
+          if ( null == $responseData )
+          {
+            if ( null == callback )
+            {
+              return;
+            }
+            callback.onSuccess( null );
+            return;
+          }
+<%- end -%>
+<%- if method.return_value.return_type != :void -%>
+<%- if method.return_value.collection? -%>
+        final <%=method.return_value.gwt_rpc.non_primitive_java_type(:boundary) %> $result = new java.util.ArrayList<>();
+        for ( final jsinterop.base.Any $row : $responseData.asArray() )
+        {
+          final <%=method.return_value.gwt_rpc.java_component_type(:boundary) %> $transformedRow = <%- if method.return_value.date? -%>
+  iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $row.asString() ) );
+<%- elsif method.return_value.datetime? -%>
+  new Date( $row.asLong() );
+<%- elsif method.return_value.struct? -%>
+  $row.cast();
+<%- elsif method.return_value.integer? || method.return_value.reference? -%>
+  $row.asInt();
+<%- else -%>
+  $row.asInt();
+<%- end -%>
+          $result.add( $transformedRow );
+        }
+<%- else -%>
+          final <%=method.return_value.gwt_rpc.non_primitive_java_type(:boundary) %> $result = <%- if method.return_value.date? -%>
+ iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $responseData.asString() ) );
+<%- elsif method.return_value.datetime? -%>
+ new Date( $responseData.asLong() );
+<%- elsif method.return_value.struct? -%>
+ $responseData.cast();
+<%- elsif method.return_value.integer? || method.return_value.reference? -%>
+ $responseData.asInt();
+<%- else -%>
+ $responseData.asInt();
+<%- end -%>
+<%- end -%>
+
+          if ( null != callback )
+          {
+            callback.onSuccess( $result );
+            return;
+          }
+          return;
+<%- end -%>
+        }
+<% unless method.base_exceptions.empty? -%>
+
+        if ( $responsePropertyMap.has( "error" ) && null != errorCallback )
+        {
+          final String exceptionType = $responsePropertyMap.nestedGetAsAny( "$type" ).asString();
+          switch ( exceptionType )
+          {
+            <%= method.base_exceptions.collect{|e| "case \"#{e.data_module.name}.#{e.name}\":
+              errorCallback.onFailure( new #{e.imit.qualified_name}( #{e.parameters.collect{|exception_param| "#{exception_param.imit.get_from_json_extension("$responsePropertyMap")}"}.join(', ')} ) );"}.join('
+              break;
+            ') %>
           }
         }
 <% end -%>
-        return <%= result_string %>;
-      }
-    } );
-<% if method.imit? -%>
     } );
 <% end -%>
-<% if method.keycloak? -%>
-    } );
-<% end -%>
+  }
+
+  @jsinterop.annotations.JsType( isNative = true, namespace = jsinterop.annotations.JsPackage.GLOBAL, name = "Object" )
+  private static class <%= method.name %>RequestParams
+  {
+    <%= parameters.collect{|p| "#{p.gwt_rpc.characteristic_transport_type} #{p.name}" }.join(';
+    ') %>;
   }
 <% end -%>
 <% if service.imit? -%>
 
   private void request( @javax.annotation.Nullable final String key, @javax.annotation.Nonnull final java.lang.Runnable action )
   {
-    replicant.Replicant.context().request( <%= service.data_module.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, key, action::run );
+    replicant.Replicant.context().request( <%= service.data_module.repository.imit.qualified_system_constants_name %>.SCHEMA_ID, key, action::run, null );
   }
 
 <% end -%>

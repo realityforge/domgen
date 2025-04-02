@@ -189,12 +189,12 @@ module Domgen
         processed = []
         result = []
         self.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
-           target_graph = self.application.graph_by_name(graph_link.target_graph)
-           next unless target_graph.filtered?
-           key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
-           next if processed.include?(key)
-           processed << key
-           result << graph_link
+          target_graph = self.application.graph_by_name(graph_link.target_graph)
+          next unless target_graph.filtered?
+          key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+          next if processed.include?(key)
+          processed << key
+          result << graph_link
         end
         result
       end
@@ -1260,9 +1260,33 @@ module Domgen
     end
 
     facet.enhance(Exception) do
-      include Domgen::Java::BaseJavaGenerator
+      def name
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+      end
 
-      java_artifact :name, :service, :client, :imit, '#{exception.name}Exception'
+      def qualified_name
+        "#{exception.data_module.imit.client_service_package}.#{name}"
+      end
+
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? false : !!@module_local
+      end
+    end
+
+    facet.enhance(ExceptionParameter) do
+      def get_from_json_extension(json)
+        case
+        when parameter.enumeration? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
+        when parameter.date? then "iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( #{map}.nestedGetAsAny( #{parameter.name} ).asString() )"
+        when parameter.datetime? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
+        when parameter.integer? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
+        when parameter.reference? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
+        when parameter.boolean? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asBoolean()"
+        else "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asString()"
+        end
+      end
     end
 
     facet.enhance(Entity) do

@@ -135,6 +135,14 @@ module Domgen
       @collection_type || :none
     end
 
+    def sequence?
+      self.collection_type == :sequence
+    end
+
+    def set?
+      self.collection_type == :set
+    end
+
     def collection_type=(collection_type)
       Domgen.error("collection_type #{collection_type} is invalid") unless [:none, :sequence, :set].include?(collection_type)
       @collection_type = collection_type

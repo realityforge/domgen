@@ -92,7 +92,7 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
     }
 <% end -%>
 <% if client.keycloak_repository.repository.imit? -%>
-    if ( _disableSessionServiceProtection && path.startsWith( <%= base_path %>  + org.realityforge.replicant.shared.SharedConstants.CONNECTION_URL_FRAGMENT ) )
+    if ( _disableSessionServiceProtection && path.startsWith( <%= base_path %>  + replicant.shared.SharedConstants.CONNECTION_URL_FRAGMENT ) )
     {
       return false;
     }
