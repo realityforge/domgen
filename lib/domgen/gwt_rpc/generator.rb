@@ -15,17 +15,6 @@
 Domgen::Generator.define([:gwt_rpc],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::Java::Helper]) do |g|
-  g.template_set(:gwt_rpc_shared_service) do |template_set|
-    template_set.erb_template(:service,
-                              'rpc_service.java.erb',
-                              'main/java/#{service.gwt_rpc.qualified_rpc_service_name.gsub(".","/")}.java')
-    template_set.erb_template(:service,
-                              'async_rpc_service.java.erb',
-                              'main/java/#{service.gwt_rpc.qualified_async_rpc_service_name.gsub(".","/")}.java')
-    template_set.erb_template(:exception,
-                              'exception.java.erb',
-                              'main/java/#{exception.gwt_rpc.qualified_name.gsub(".","/")}.java')
-  end
 
   g.template_set(:gwt_rpc_client_service) do |template_set|
     template_set.erb_template(:repository,
@@ -44,31 +33,4 @@ Domgen::Generator.define([:gwt_rpc],
                               'async_callback_adapter.java.erb',
                               'main/java/#{repository.gwt_rpc.qualified_async_callback_adapter_name.gsub(".","/")}.java')
   end
-
-  %w(main test).each do |type|
-    g.template_set(:"gwt_rpc_#{type}_qa_external") do |template_set|
-      template_set.erb_template(:repository,
-                                'mock_rpc_services_sting_fragment.java.erb',
-                                type + '/java/#{repository.gwt_rpc.qualified_mock_rpc_services_sting_fragment_name.gsub(".","/")}.java')
-    end
-  end
-
-  g.template_set(:gwt_rpc_server_service) do |template_set|
-    template_set.erb_template(:service,
-                              'servlet.java.erb',
-                              'main/java/#{service.gwt_rpc.qualified_servlet_name.gsub(".","/")}.java',
-                              :additional_facets => [:ejb])
-    template_set.erb_template(:repository,
-                              'code_server_config.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_code_server_config_name.gsub(".","/")}.java',
-                              :additional_facets => [:ejb])
-    template_set.erb_template(:repository,
-                              'code_server_config_resources.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_code_server_config_resources_name.gsub(".","/")}.java',
-                              :additional_facets => [:ejb],
-                              :guard => 'repository.application.code_deployable?')
-  end
-
-  g.template_set(:gwt_rpc_shared => [:gwt_rpc_shared_service])
-  g.template_set(:gwt_rpc_server => [:gwt_rpc_server_service])
 end
