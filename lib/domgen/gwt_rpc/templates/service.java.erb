@@ -6,27 +6,6 @@ package <%= to_package(service.gwt_rpc.qualified_service_name) %>;
 @sting.Injectable
 public final class <%= service.gwt_rpc.service_name %>
 {
-<% if service.keycloak? -%>
-  @javax.annotation.Nonnull
-  private final org.realityforge.gwt.keycloak.Keycloak _keycloak;
-<% end -%>
-  @javax.annotation.Nonnull
-  private final <%= service.gwt_rpc.qualified_async_rpc_service_name %> _service;
-<% if service.gwt_rpc.default_callback? -%>
-  @javax.annotation.Nonnull
-  private final <%= service.data_module.repository.gwt_rpc.qualified_default_callback_name %> _callback;
-<% end -%>
-
-  <%= service.gwt_rpc.service_name %>( @javax.annotation.Nonnull final <%= service.gwt_rpc.qualified_async_rpc_service_name %> service<% if service.gwt_rpc.default_callback? -%>, @javax.annotation.Nonnull final <%= service.data_module.repository.gwt_rpc.qualified_default_callback_name %> callback <% end %><% if service.keycloak? -%>, @javax.annotation.Nonnull final org.realityforge.gwt.keycloak.Keycloak keycloak<% end -%>)
-  {
-    _service = java.util.Objects.requireNonNull( service );
-<% if service.gwt_rpc.default_callback? -%>
-    _callback = java.util.Objects.requireNonNull( callback );
-<% end -%>
-<% if service.keycloak? -%>
-    _keycloak = java.util.Objects.requireNonNull( keycloak );
-<% end -%>
-  }
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
    method_name = Reality::Naming.camelize(method.name)
    parameters = method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}

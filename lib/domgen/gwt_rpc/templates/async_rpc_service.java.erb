@@ -1,9 +1,0 @@
-/* DO NOT EDIT: File is auto-generated */
-package <%= to_package(service.gwt_rpc.qualified_async_rpc_service_name) %>;
-
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public interface <%= service.gwt_rpc.async_rpc_service_name %>
-{
-<% service.methods.select{|method| method.gwt_rpc?}.each do |method|
-%>  <%= method.gwt_rpc.cancelable? ? 'com.google.gwt.http.client.Request' : 'void' %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport)} #{Reality::Naming.camelize(p.gwt_rpc.name(:transport))}" }.join(', ') %><%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.empty? ? '' :', '%>com.google.gwt.user.client.rpc.AsyncCallback<<%= method.return_value.return_type == :void ? 'Void': method.return_value.gwt_rpc.non_primitive_java_type(:transport) %>> callback );
-<% end %>}

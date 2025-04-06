@@ -200,22 +200,22 @@ module Domgen
         elsif parameter.date?
           "#{param}.toString()"
         else
-          param
+            param
         end
       end
 
       def to_collection_transport_type
         param = Reality::Naming.camelize(parameter.name)
-        if parameter.integer? || parameter.reference?
-          "#{param}.stream().mapToDouble(Integer::intValue).toArray()"
-        elsif parameter.datetime?
-          "#{param}.stream().map(d -> d.getTime()).toArray()"
-        elsif parameter.enumeration?
-          "#{param}.stream().map(e -> e.ordinal()).toArray()"
-        elsif parameter.date?
-          "#{param}.stream().map(d -> d.toString()).toArray()"
-        else
-          "#{param}.toArray( new #{parameter.imit.java_component_type}[ 0 ])"
+          if parameter.integer? || parameter.reference?
+            "#{param}.stream().mapToDouble(Integer::intValue).toArray()"
+          elsif parameter.datetime?
+            "#{param}.stream().map(d -> d.getTime()).toArray()"
+          elsif parameter.enumeration?
+            "#{param}.stream().map(e -> e.ordinal()).toArray()"
+          elsif parameter.date?
+            "#{param}.stream().map(d -> d.toString()).toArray()"
+          else
+            "#{param}.toArray( new #{parameter.imit.java_component_type}[ 0 ])"
         end
 
       end

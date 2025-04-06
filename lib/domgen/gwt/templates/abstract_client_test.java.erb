@@ -105,18 +105,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     _asyncActions.add( action );
   }
 
-  @javax.annotation.Nonnull
-  protected final <T> org.mockito.stubbing.Answer<Void> successAnswer( @javax.annotation.Nullable final T result )
-  {
-    return new <%= repository.gwt.qualified_callback_success_answer_name %><>( this::queueAsyncActions, result );
-  }
-
-  @javax.annotation.Nonnull
-  protected final org.mockito.stubbing.Answer<Void> failureAnswer( @javax.annotation.Nonnull final Throwable error )
-  {
-    return new <%= repository.gwt.qualified_callback_failure_answer_name %><>( this::queueAsyncActions, error );
-  }
-
   protected final int randomInt()
   {
     return <%= repository.gwt.qualified_value_util_name %>.randomInt();

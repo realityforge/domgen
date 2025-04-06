@@ -17,20 +17,9 @@ Domgen::Generator.define([:gwt_rpc],
                          [Domgen::Java::Helper]) do |g|
 
   g.template_set(:gwt_rpc_client_service) do |template_set|
-    template_set.erb_template(:repository,
-                              'rpc_request_builder.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_rpc_request_builder_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'rpc_services_sting_fragment.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_rpc_services_sting_fragment_name.gsub(".","/")}.java')
     template_set.erb_template(:service,
                               'service.java.erb',
                               'main/java/#{service.gwt_rpc.qualified_service_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'default_callback.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_default_callback_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'async_callback_adapter.java.erb',
-                              'main/java/#{repository.gwt_rpc.qualified_async_callback_adapter_name.gsub(".","/")}.java')
   end
+
 end

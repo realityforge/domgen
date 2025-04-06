@@ -12,7 +12,7 @@ public final class <%= struct.gwt.name %>
 <% elsif !field.datetime? && !field.gwt.primitive?(:transport) -%>
   @javax.annotation.Nonnull
 <% end -%>
-private <%= characteristic_transport_type(field) %> <%= field.name %>;
+  private <%= characteristic_transport_type(field) %> <%= field.name %>;
 <% end -%>
 
   @jsinterop.annotations.JsOverlay
@@ -48,7 +48,7 @@ private <%= characteristic_transport_type(field) %> <%= field.name %>;
 
   cv = converted_value.call(Reality::Naming.camelize(field.name))
 -%>
-$$element$$.<%= field.name %> = <%= !cv.nil? && field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? null : " : '' %><%= cv.nil? ? Reality::Naming.camelize(field.name) : cv %>;
+    $$element$$.<%= field.name %> = <%= !cv.nil? && field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? null : " : '' %><%= cv.nil? ? Reality::Naming.camelize(field.name) : cv %>;
 <% end -%>
     return $$element$$;
   }
@@ -68,23 +68,23 @@ $$element$$.<%= field.name %> = <%= !cv.nil? && field.nullable? ? "null == #{Rea
         else nil
       end
 -%>
-  return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%>java.util.Arrays.stream( this.<%= field.name %> )<%= conversion_rule.nil? ? '' : ".map( e -> #{conversion_rule.call('e')} )" %>.collect( java.util.stream.Collectors.to<%= field.collection_type == :set ? 'Set' : 'List' %>() );
+    return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%>java.util.Arrays.stream( this.<%= field.name %> )<%= conversion_rule.nil? ? '' : ".map( e -> #{conversion_rule.call('e')} )" %>.collect( java.util.stream.Collectors.to<%= field.collection_type == :set ? 'Set' : 'List' %>() );
 <% elsif field.nullable? && field.datetime? -%>
-  return null == this.<%= field.name %> ? null : new java.util.Date( this.<%= field.name %>.longValue() );
+    return null == this.<%= field.name %> ? null : new java.util.Date( this.<%= field.name %>.longValue() );
 <% elsif field.datetime? -%>
-  return new java.util.Date( (long) this.<%= field.name %> );
+    return new java.util.Date( (long) this.<%= field.name %> );
 <% elsif field.date? -%>
-  return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%><%= struct.data_module.repository.gwt.qualified_rdate_name %>.parse( this.<%= field.name %> );
+    return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%><%= struct.data_module.repository.gwt.qualified_rdate_name %>.parse( this.<%= field.name %> );
 <% elsif field.enumeration? -%>
-  return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%><%= field.gwt.java_type %>.<%= field.enumeration.textual_values? ? "valueOf( this.#{field.name} )" : "values()[ #{field.nullable? ? "#{field.name}.intValue()" : field.name} ]" %>;
+    return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%><%= field.gwt.java_type %>.<%= field.enumeration.textual_values? ? "valueOf( this.#{field.name} )" : "values()[ #{field.nullable? ? "#{field.name}.intValue()" : field.name} ]" %>;
 <% elsif field.struct? || field.text? || field.real? || field.boolean? || (field.integer? && !field.nullable?) -%>
-  return this.<%= field.name %>;
+    return this.<%= field.name %>;
 <% elsif field.integer? && field.nullable? -%>
-  return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%>this.<%= field.name %>.intValue();
+    return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%>this.<%= field.name %>.intValue();
 <% elsif field.long? -%>
-  return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%>this.<%= field.name %>.longValue();
+    return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%>this.<%= field.name %>.longValue();
 <% elsif field.reference? -%>
-  return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%>this.<%= field.name %><% unless field.nullable? -%>.intValue()<% end -%>;
+    return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%>this.<%= field.name %><% unless field.nullable? -%>.intValue()<% end -%>;
 <% end -%>
   }
 <% end -%>

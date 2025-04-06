@@ -29,14 +29,6 @@ Domgen::Generator.define([:gwt],
   %w(main test).each do |type|
     g.template_set(:"gwt_client_#{type}_jso_qa_support") do |template_set|
       template_set.erb_template(:repository,
-                                'callback_success_answer.java.erb',
-                                type + '/java/#{repository.gwt.qualified_callback_success_answer_name.gsub(".","/")}.java',
-                                :guard => 'repository.gwt.generate_sync_callbacks?')
-      template_set.erb_template(:repository,
-                                'callback_failure_answer.java.erb',
-                                type + '/java/#{repository.gwt.qualified_callback_failure_answer_name.gsub(".","/")}.java',
-                                :guard => 'repository.gwt.generate_sync_callbacks?')
-      template_set.erb_template(:repository,
                                 'client_test.java.erb',
                                 type + '/java/#{repository.gwt.qualified_client_test_name.gsub(".","/")}.java',
                                 :guard => '!repository.gwt.custom_base_client_test?')
