@@ -43,7 +43,7 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
       end
 -%>
         .add( "<%= field.name %>",<% if field.collection? -%> javax.json.Json.createArrayBuilder(<% end -%>
- <%= conversion_rule.call( "struct.#{getter_prefix(field)}#{field.name}()" ) %> )<% if field.collection? -%> )<% end %>
+ <%= conversion_rule.call( "struct.#{getter_prefix(field)}#{field.name}()#{field.set? ? ".stream().toList()" : ""}" ) %> )<% if field.collection? -%> )<% end %>
 <% end -%>
         .build();
   }
@@ -64,7 +64,7 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
   {
     return new <%= struct.ee.qualified_name %>(
      <% struct.fields.each_with_index do |field, index|
-     conversion_rule =
+    conversion_rule =
        case
          when (field.enumeration? && field.enumeration.numeric_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}#{field.enumeration.ee.qualified_name}.values()[ json.getInt( #{value} ) ]"}
          when (field.enumeration? && field.enumeration.textual_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}#{field.enumeration.ee.qualified_name}.valueOf( json.getString( #{value} ) )"}
@@ -72,39 +72,39 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
              .getValuesAs( javax.json.JsonObject.class )
              .stream()
              .map( o -> #{field.referenced_struct.action.qualified_json_encoder_name}.decode( o ) )
-             .collect( java.util.stream.Collectors.toList() )"}
+             .collect( #{field.sequence? ? "java.util.stream.Collectors.toList()" : "java.util.stream.Collectors.toSet()"} )"}
          when field.struct? then Proc.new {|value, isNullCheck| "#{isNullCheck}#{field.referenced_struct.action.qualified_json_encoder_name}.decode( json.getJsonObject( #{value} ) )"}
          when field.date? && field.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
              .getValuesAs( javax.json.JsonString.class )
              .stream()
              .map( javax.json.JsonString::getString )
              .map( s -> iris.rose.server.service.util.RDate.toDate( iris.rose.server.service.util.RDate.parse( s ) ) )
-             .collect( java.util.stream.Collectors.toList() )"}
+             .collect( #{field.sequence? ? "java.util.stream.Collectors.toList()" : "java.util.stream.Collectors.toSet()"} )"}
          when field.date? then Proc.new {|value, isNullCheck| "#{isNullCheck}iris.rose.server.service.util.RDate.toDate( iris.rose.server.service.util.RDate.parse( json.getString( #{value} ) ) )"}
          when field.datetime? && field.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
              .getValuesAs( javax.json.JsonNumber.class )
              .stream()
              .map( javax.json.JsonString::intValue )
              .map( i -> new java.util.Date( i ) )
-             .collect( java.util.stream.Collectors.toList() )"}
+             .collect( #{field.sequence? ? "java.util.stream.Collectors.toList()" : "java.util.stream.Collectors.toSet()"} )"}
          when field.datetime? then Proc.new {|value, isNullCheck| "#{isNullCheck}new java.util.Date( json.getInt( #{value} ) )"}
          when field.integer? && field.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
              .getValuesAs( javax.json.JsonNumber.class )
              .stream()
              .map( javax.json.JsonNumber::intValue )
-             .collect( java.util.stream.Collectors.toList() )"}
+             .collect( #{field.sequence? ? "java.util.stream.Collectors.toList()" : "java.util.stream.Collectors.toSet()"} )"}
          when field.integer? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getInt( #{value} )"}
          when field.boolean? && field.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
              .stream()
              .map( javax.json.JsonValue::getValueType )
              .map( v -> javax.json.JsonValue.ValueType.TRUE == v )
-             .collect( java.util.stream.Collectors.toList() )"}
+             .collect( #{field.sequence? ? "java.util.stream.Collectors.toList()" : "java.util.stream.Collectors.toSet()"} )"}
          when field.boolean? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getBoolean( #{value} )"}
          when field.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
              .getValuesAs( javax.json.JsonString.class )
              .stream()
              .map( javax.json.JsonString::getString )
-             .collect( java.util.stream.Collectors.toList() )"}
+             .collect( #{field.sequence? ? "java.util.stream.Collectors.toList()" : "java.util.stream.Collectors.toSet()"} )"}
          else Proc.new{|value, isNullCheck| "#{isNullCheck}json.getString( #{value} )" }
        end
 -%>
