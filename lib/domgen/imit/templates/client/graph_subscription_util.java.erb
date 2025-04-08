@@ -57,6 +57,13 @@ public final class <%= graph.subscription_util_name %>
     return findAreaOfInterest( root.<%= getter_for(graph.application.repository.entity_by_name(graph.instance_root).primary_key) %> );
   }
 
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> root )
+  {
+    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest( root );
+    return null == areaOfInterest ? replicant.AreaOfInterest.Status.NOT_ASKED : areaOfInterest.getStatus();
+  }
+
 <% end -%>
 
   @javax.annotation.Nullable
@@ -65,10 +72,24 @@ public final class <%= graph.subscription_util_name %>
     return findAreaOfInterest( replicant.Replicant.context()<%= graph.instance_root? ? ", id" : "" %> );
   }
 
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus(<%= graph.instance_root? ? " final int id " : "" %>)
+  {
+    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest(<%= graph.instance_root? ? " id " : "" %>);
+    return null == areaOfInterest ? replicant.AreaOfInterest.Status.NOT_ASKED : areaOfInterest.getStatus();
+  }
+
   @javax.annotation.Nullable
   public static replicant.AreaOfInterest findAreaOfInterest( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
   {
     return context.findAreaOfInterestByAddress( getGraphAddress(<%= graph.instance_root? ? " id " : "" %>) );
+  }
+
+  @javax.annotation.Nonnull
+  public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
+  {
+    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest( context<%= graph.instance_root? ? ", id" : "" %> );
+    return null == areaOfInterest ? replicant.AreaOfInterest.Status.NOT_ASKED : areaOfInterest.getStatus();
   }
 <% end -%>
 <% if graph.instance_root? -%>
