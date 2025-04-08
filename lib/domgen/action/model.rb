@@ -251,7 +251,7 @@ module Domgen
         method.parameters.each do |parameter|
           schema[:properties][parameter.name] = Domgen::Action.parameter_json_schema(schema, parameter)
         end
-        schema[:required] = method.parameters.map { |p| p.name }
+        schema[:required] = method.parameters.reject{ |p| p.nullable? }.map { |p| p.name }
         schema[:additionalProperties] = false
         schema.to_json
       end
