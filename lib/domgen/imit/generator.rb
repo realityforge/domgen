@@ -115,8 +115,6 @@ Domgen::Generator.define([:imit, :jpa],
                               'main/java/#{repository.imit.qualified_message_generator_name.gsub(".","/")}.java')
   end
 
-  g.template_set(:imit_server_entity => [:imit_server_entity_listener, :imit_server_entity_replication])
-
   g.template_set(:imit_server_service) do |template_set|
     template_set.erb_template(:repository,
                               'endpoint.java.erb',
@@ -159,9 +157,4 @@ Domgen::Generator.define([:imit, :jpa],
                               'net_module.java.erb',
                               'test/java/#{repository.imit.qualified_server_net_module_name.gsub(".","/")}.java')
   end
-
-  g.template_set(:imit_shared => [:imit_metadata])
-  g.template_set(:imit_server => [:imit_server_service, :imit_server_entity, :imit_server_qa])
-  g.template_set(:imit_client => [:imit_client_service, :imit_client_entity, :imit_client_entity_gwt])
-  g.template_set(:imit => [:imit_client, :imit_server, :imit_shared, :imit_server_test_qa])
 end
