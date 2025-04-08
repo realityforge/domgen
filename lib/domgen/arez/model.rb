@@ -80,8 +80,8 @@ module Domgen
       java_artifact :test_factory, :entity, :client, :arez, '#{data_module.name}Factory'
       java_artifact :test_factory_extension, :entity, :client, :arez, '#{data_module.name}FactoryExtension'
 
-      def post_verify
-        data_module.disable_facet(:arez) unless data_module.daos.any?{|dao| dao.arez?} || data_module.entities.any?{|entity| entity.arez?}
+      def factory_required?
+        data_module.daos.any?{|dao| dao.arez?} || data_module.entities.any?{|entity| entity.arez?}
       end
     end
 

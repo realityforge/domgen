@@ -3,12 +3,11 @@ package <%= to_package(repository.gwt.qualified_abstract_test_sting_injector_nam
 
 public interface <%= repository.gwt.abstract_test_sting_injector_name %>
   extends <%= repository.gwt.qualified_abstract_sting_injector_name %>
-{
-<% if repository.arez? -%>
-  <% repository.data_modules.select{|data_module|data_module.arez?}.sort_by{|data_module| data_module.name}.each do |data_module| -%>
+{<% if repository.arez? -%>
+<% repository.data_modules.select{|data_module|data_module.arez? && data_module.arez.factory_required?}.sort_by{|data_module| data_module.name}.each do |data_module| -%>
 
   @javax.annotation.Nonnull
   java.util.function.Supplier<<%= data_module.arez.qualified_test_factory_name %>> <%= Reality::Naming.camelize(data_module.name) %>Factory();
-  <% end -%>
+<% end -%>
 <% end -%>
 }

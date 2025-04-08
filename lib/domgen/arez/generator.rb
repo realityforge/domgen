@@ -35,7 +35,8 @@ Domgen::Generator.define([:arez],
     g.template_set(:"arez_#{type}_qa_external") do |template_set|
       template_set.erb_template(:data_module,
                                 'test_factory.java.erb',
-                                type + '/java/#{data_module.arez.qualified_test_factory_name.gsub(".","/")}.java')
+                                type + '/java/#{data_module.arez.qualified_test_factory_name.gsub(".","/")}.java',
+                                :guard => 'data_module.arez.factory_required?')
     end
   end
 end

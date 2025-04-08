@@ -13,7 +13,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 {
   @javax.annotation.Nonnull
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
-<% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
+<% repository.data_modules.select{|data_module|data_module.arez? && data_module.arez.factory_required?}.each do |data_module| -%>
   @javax.annotation.Nonnull
   protected <%= data_module.arez.qualified_test_factory_name %> <%= data_module.arez.short_test_code %>;
 <% end -%>
@@ -43,7 +43,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 <% end -%>
 <% end -%>
     _injector = createInjector();
-<% repository.data_modules.select{|data_module|data_module.arez?}.each do |data_module| -%>
+<% repository.data_modules.select{|data_module|data_module.arez? && data_module.arez.factory_required?}.each do |data_module| -%>
     <%= data_module.arez.short_test_code %> = _injector.<%= Reality::Naming.camelize(data_module.name) %>Factory().get();
 <% end -%>
 <% if repository.arez? -%>
