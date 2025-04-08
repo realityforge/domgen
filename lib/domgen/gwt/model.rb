@@ -70,7 +70,7 @@ module Domgen
       java_artifact :client_entity_test, :test, :client, :gwt, '#{repository.name}EntityClientTest', :sub_package => 'util'
 
       def generate_sync_callbacks?
-        repository.gwt_rpc? || repository.imit?
+        repository.imit?
       end
 
       # Includes added to the aggregate test fragment

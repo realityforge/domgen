@@ -265,7 +265,7 @@ module Domgen
 
       def pre_pre_complete
         if self.no_web_invoke?
-          self.service.disable_facets(:gwt, :gwt_rpc, :jaxrs)
+          self.service.disable_facets(:gwt, :jaxrs)
           self.boundary_annotations << self.service.data_module.repository.ejb.qualified_no_web_invoke_annotation_name
         end
       end
