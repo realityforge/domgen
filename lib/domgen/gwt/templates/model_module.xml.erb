@@ -4,10 +4,6 @@
 <% if repository.imit? -%>
   <inherits name='org.realityforge.replicant.Replicant'/>
 <% end -%>
-<% if repository.gwt_rpc? && !repository.imit? -%>
-  <inherits name='com.google.gwt.user.RemoteService'/>
-  <inherits name='org.realityforge.braincheck.BrainCheck'/>
-<% end -%>
   <inherits name='sting.Sting'/>
 <% if repository.keycloak? -%>
   <inherits name='org.realityforge.gwt.keycloak.cache.TokenCache'/>
