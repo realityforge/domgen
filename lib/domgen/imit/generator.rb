@@ -45,6 +45,9 @@ Domgen::Generator.define([:imit],
                               'client/graph_subscription_util.java.erb',
                               'main/java/#{graph.qualified_subscription_util_name.gsub(".","/")}.java',
                               :guard => 'graph.external_visibility?')
+    template_set.erb_template(:repository,
+                              'client/gwt/session_context.java.erb',
+                              'main/java/#{repository.imit.qualified_gwt_client_session_context_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_client_react4j_support) do |template_set|
@@ -58,12 +61,6 @@ Domgen::Generator.define([:imit],
                               'main/java/#{graph.qualified_react4j_simple_subscription_component_name.gsub(".","/")}.java',
                               :additional_facets => [:react4j],
                               :guard => 'graph.generate_react4j_simple_subscription_component?')
-  end
-
-  g.template_set(:imit_client_entity_gwt) do |template_set|
-    template_set.erb_template(:repository,
-                              'client/gwt/session_context.java.erb',
-                              'main/java/#{repository.imit.qualified_gwt_client_session_context_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_client_service) do |template_set|
