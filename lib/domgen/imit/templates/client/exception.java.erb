@@ -1,11 +1,47 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(exception.imit.qualified_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FormalParameterNamingConventions" } )
 public class <%= exception.imit.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).imit.qualified_name %>
 {
-  public <%= exception.imit.name %>() {}
-  public <%= exception.imit.name %>( final String message ) { super( message ); }
-  public <%= exception.imit.name %>( final Throwable cause ) { super( null, cause ); }
-  public <%= exception.imit.name %>( final String message, final Throwable cause ) { super( message, cause ); }
+<% exception.declared_parameters.each do |parameter| %>
+  <%= annotated_type(parameter, :ee, :transport, :final => true, :private => true) %> <%= parameter.name %>;
+<% end %>
+<%
+param_desc =
+exception.parameters.collect do |parameter|
+  "#{annotated_type(parameter, :ee, :transport, :assume_generated => true, :final => true) } #{parameter.name}"
+  end.join(', ')
+param_desc_with_suffix = param_desc + (param_desc.size == 0 ? '' : ', ')
+
+param_values = exception.parameters.collect{ |parameter| parameter.name}.join(', ')
+param_values_with_suffix = param_values + (param_values.size == 0 ? '' : ', ')
+
+inherited_params = exception.inherited_parameters.collect{ |parameter| parameter.name}.join(', ')
+inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? '' : ', ')
+
+  -%>
+public <%= exception.imit.name %>( <%= param_desc %> ) { this( <%= param_values_with_suffix %>null, null ); }
+public <%= exception.imit.name %>( <%= param_desc_with_suffix %>final String message ) { this( <%= param_values_with_suffix %>message, null ); }
+public <%= exception.imit.name %>( <%= param_desc_with_suffix %>final Throwable cause ) { this( <%= param_values_with_suffix %>null, cause ); }
+public <%= exception.imit.name %>( <%= param_desc_with_suffix %>final String message, final Throwable cause )
+  {
+  super( <%= inherited_params_with_suffix %>message, cause );
+  <% exception.declared_parameters.each do |parameter|
+  if :sequence == parameter.collection_type
+%>    this.<%= parameter.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<>( <%= parameter.name %> ) );
+<%     elsif :set == parameter.collection_type
+%>    this.<%= parameter.name %> = java.util.Collections.unmodifiableSet( new java.util.HashSet<>( <%= parameter.name %> ) );
+<%     else
+  %>    this.<%= parameter.name %> = <%= parameter.name %>;
+<%   end -%>
+<% end -%>
+  }
+<% exception.declared_parameters.each do |parameter| -%>
+
+  <%= annotated_type(parameter, :ee, :transport, :public => true, :assume_generated => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+  {
+  return <%= parameter.name %>;
+  }
+<% end -%>
 }
