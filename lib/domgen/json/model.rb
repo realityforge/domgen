@@ -46,5 +46,9 @@ module Domgen
     facet.enhance(StructField) do
       Domgen::JSON.include_json(self, :field)
     end
+
+    facet.enhance(ExceptionParameter) do
+      Domgen::JSON.include_json(self, :parameter)
+    end
   end
 end
