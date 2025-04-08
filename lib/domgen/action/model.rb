@@ -147,6 +147,9 @@ module Domgen
         self.exception.parameters.select { |f| f.struct? && f.referenced_struct.action? }.each do |field|
           field.referenced_struct.action.mark_as_referenced!
         end
+        unless self.exception.extends.nil?
+          exception.data_module.exception_by_name(exception.extends).action.mark_as_referenced!
+        end
       end
 
       def pre_complete
