@@ -32,7 +32,7 @@ def generate(repository)
       }
   end
 
-  if repository.gwt_rpc? && repository.application.code_deployable?
+  if repository.gwt? && repository.application.code_deployable?
     data['environment_vars']["#{constant_prefix}_CODE_SERVER_HOST"] = '127.0.0.1'
     data['environment_vars']["#{constant_prefix}_CODE_SERVER_PORT"] = '0'
 
