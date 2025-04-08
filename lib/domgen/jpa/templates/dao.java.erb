@@ -6,7 +6,7 @@ package <%= to_package(dao.jpa.qualified_dao_name) %>;
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.<%= Reality::Naming.uppercase_constantize(dao.jpa.transaction_type.to_s) %> )
 @javax.enterprise.inject.Typed( <%= dao.jpa.qualified_dao_service_name %>.class )
-<% unless dao.jpa.module_local? %>public <% end %>class <%= dao.jpa.dao_name %>
+class <%= dao.jpa.dao_name %>
   implements <%= dao.jpa.qualified_dao_service_name %>
 {
 <% unless dao.repository? -%>
