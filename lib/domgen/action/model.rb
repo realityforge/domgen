@@ -65,12 +65,6 @@ module Domgen
 
     facet.enhance(DataModule) do
       include Domgen::Java::EEClientServerJavaPackage
-
-      def pre_complete
-        self.data_module.entities.each do |e|
-          e.disable_facet(:action) if e.action?
-        end
-      end
     end
 
     facet.enhance(EnumerationSet) do
