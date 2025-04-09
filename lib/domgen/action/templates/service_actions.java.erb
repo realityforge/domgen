@@ -152,6 +152,14 @@ public class <%= service.action.service_actions_name %>
     {
       @java.lang.SuppressWarnings( { "JavaExistingMethodCanBeUsed", "RedundantSuppression" } )
       final var builder = javax.json.Json.createObjectBuilder();
+<% if method.return_value.nullable?-%>
+      if ( null == object )
+      {
+        builder.add( "data", javax.json.JsonValue.NULL );
+        return builder.build().toString();
+      }
+
+<% end -%>
       @java.lang.SuppressWarnings( { "unchecked", "RedundantSuppression" } )
       final var response =
 <% if method.return_value.struct?-%>
