@@ -265,5 +265,19 @@ CONTENT
         field
       end
     end
+
+    facet.enhance(ExceptionParameter) do
+      include Domgen::Java::ImitJavaCharacteristic
+
+      def name
+        parameter.name
+      end
+
+      protected
+
+      def characteristic
+        parameter
+      end
+    end
   end
 end
