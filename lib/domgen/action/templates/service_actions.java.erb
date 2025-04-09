@@ -163,6 +163,8 @@ public class <%= service.action.service_actions_name %>
       builder.add( "data", javax.json.Json.createArrayBuilder( response ) );
 <% elsif method.return_value.struct?-%>
       builder.add( "data", response );
+<% elsif method.return_value.boolean?-%>
+      builder.add( "data", response ? javax.json.JsonValue.TRUE : javax.json.JsonValue.FALSE );
 <% else -%>
       builder.add( "data", javax.json.Json.createValue( response ) );
 <% end -%>
