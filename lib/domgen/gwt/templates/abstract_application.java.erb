@@ -218,7 +218,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
               {
                 storage.setItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled", "true" );
               }
-              arez.spytools.browser.BrowserSpyUtil.enableSpyEventLogging();
+              arez.spytools.browser.BrowserSpyUtil.enableSpyEventLogging( createArezSpyEventHandler() );
               akasha.Console.log( "Enabled Arez Spy Logger" );
             }
           }
