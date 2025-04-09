@@ -1238,10 +1238,6 @@ module Domgen
     facet.enhance(Parameter) do
       include Domgen::Java::ImitJavaCharacteristic
 
-      def environmental?
-        parameter.gwt_rpc? && parameter.gwt_rpc.environmental?
-      end
-
       protected
 
       def characteristic
