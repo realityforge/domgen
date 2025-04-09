@@ -87,7 +87,7 @@ public class <%= service.action.service_actions_name %>
       else Proc.new{|value, isNullCheck| "#{isNullCheck}json.getString( #{value} );" }
       end
       -%>
-<%= "      final var #{Reality::Naming.camelize(param.name)} = " + conversion_rule.call("\"#{param.name}\"", param.nullable? ? "json.isNull( \"#{param.name}\" ) ? null : " : "") %>
+<%= "      final var #{Reality::Naming.camelize(param.name)} = " + conversion_rule.call("\"#{param.name}\"", param.nullable? ? "null == json.get( \"#{param.name}\" ) ? null : " : "") %>
 <% end -%>
 
       try
@@ -148,7 +148,7 @@ public class <%= service.action.service_actions_name %>
 <% if method.return_value.return_type != :void %>
 
     @javax.annotation.Nonnull
-    private static String encodeResponsePayload( @javax.annotation.Nonnull final Object object )
+    private static String encodeResponsePayload( <%= method.return_value.nullable? ? "@javax.annotation.Nullable" : "@javax.annotation.Nonnull"-%> final Object object )
     {
       @java.lang.SuppressWarnings( { "JavaExistingMethodCanBeUsed", "RedundantSuppression" } )
       final var builder = javax.json.Json.createObjectBuilder();
@@ -161,11 +161,10 @@ public class <%= service.action.service_actions_name %>
 
 <% end -%>
       @java.lang.SuppressWarnings( { "unchecked", "RedundantSuppression" } )
-      final var response =
-<% if method.return_value.struct?-%>
-        <%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>.encode( (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object );
+      final var response = <% if method.return_value.struct?-%>
+<%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>.encode( (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object );
 <% else -%>
-        (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object;
+ (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object;
 <% end -%>
 <% if method.return_value.collection? && !method.return_value.struct? -%>
       builder.add( "data", javax.json.Json.createArrayBuilder( response ) );
