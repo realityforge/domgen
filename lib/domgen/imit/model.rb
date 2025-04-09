@@ -706,7 +706,7 @@ module Domgen
     end
   end
 
-  FacetManager.facet(:imit => [:ce, :arez, :gwt_rpc]) do |facet|
+  FacetManager.facet(:imit => [:ce, :arez, :action]) do |facet|
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
@@ -729,8 +729,14 @@ module Domgen
 
       attr_writer :generate_standard_endpoint
 
+      attr_writer :keycloak_client_key
+
+      def keycloak_client_key
+        @keycloak_client_key || (repository.application? && !repository.application.user_experience? ? repository.keycloak.default_client.key : :api)
+      end
+
       def keycloak_client
-        repository.keycloak.client_by_key(repository.gwt_rpc.keycloak_client)
+        repository.keycloak.client_by_key(self.keycloak_client_key)
       end
 
       attr_writer :client_component_package
@@ -939,12 +945,12 @@ module Domgen
       end
 
       def pre_verify
-        if repository.gwt_rpc?
-          exists = repository.keycloak.client_by_key?(repository.gwt_rpc.keycloak_client)
+        if repository.keycloak.has_local_auth_service?
+          exists = repository.keycloak.client_by_key?(self.keycloak_client_key)
           client =
             exists ?
-              repository.keycloak.client_by_key(repository.gwt_rpc.keycloak_client) :
-              repository.keycloak.client(repository.gwt_rpc.keycloak_client)
+              repository.keycloak.client_by_key(self.keycloak_client_key) :
+              repository.keycloak.client(self.keycloak_client_key)
           unless exists
             client.bearer_only = true
             client.redirect_uris.clear
@@ -1233,6 +1239,17 @@ module Domgen
 
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :service_name
+
+      def service_name
+        @service_name || service.name
+      end
+
+      def qualified_service_name
+        "#{service.data_module.imit.client_service_package}.#{service_name}"
+      end
+
     end
 
     facet.enhance(Parameter) do
@@ -1242,6 +1259,62 @@ module Domgen
 
       def characteristic
         parameter
+      end
+    end
+
+    facet.enhance(Parameter) do
+      def characteristic_transport_type
+        if parameter.collection?
+          collection_transport_type
+        elsif parameter.datetime? || parameter.integer? || parameter.reference?
+          'double'
+        elsif parameter.struct?
+          parameter.imit.java_component_type(:boundary)
+        else
+          parameter.imit.java_component_type(:transport)
+        end
+      end
+
+      def collection_transport_type
+        base_type =
+          if parameter.datetime? || parameter.integer? || parameter.reference?
+            'double'
+          elsif parameter.struct?
+            parameter.imit.java_component_type(:boundary)
+          else
+            parameter.imit.java_component_type(:transport)
+          end
+        "#{base_type}[]"
+      end
+
+      def to_characteristic_transport_type
+        param = Reality::Naming.camelize(parameter.name)
+        if parameter.collection?
+          to_collection_transport_type
+        elsif parameter.datetime?
+          "#{param}.getTime()"
+        elsif parameter.enumeration?
+          "#{param}.ordinal()"
+        elsif parameter.date?
+          "#{param}.toString()"
+        else
+          param
+        end
+      end
+
+      def to_collection_transport_type
+        param = Reality::Naming.camelize(parameter.name)
+        if parameter.integer? || parameter.reference?
+          "#{param}.stream().mapToDouble(Integer::intValue).toArray()"
+        elsif parameter.datetime?
+          "#{param}.stream().map(d -> d.getTime()).toArray()"
+        elsif parameter.enumeration?
+          "#{param}.stream().map(e -> e.ordinal()).toArray()"
+        elsif parameter.date?
+          "#{param}.stream().map(d -> d.toString()).toArray()"
+        else
+          "#{param}.toArray( new #{parameter.imit.java_component_type}[ 0 ])"
+        end
       end
     end
 
@@ -1256,9 +1329,33 @@ module Domgen
     end
 
     facet.enhance(Exception) do
-      include Domgen::Java::BaseJavaGenerator
+      def name
+        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+      end
 
-      java_artifact :name, :service, :client, :imit, '#{exception.name}Exception'
+      def qualified_name
+        "#{exception.data_module.imit.client_service_package}.#{name}"
+      end
+
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? false : !!@module_local
+      end
+    end
+
+    facet.enhance(ExceptionParameter) do
+      def get_from_json_extension(json)
+          case
+          when parameter.enumeration? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
+          when parameter.date? then "iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( #{map}.nestedGetAsAny( #{parameter.name} ).asString() )"
+          when parameter.datetime? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
+          when parameter.integer? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
+          when parameter.reference? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
+          when parameter.boolean? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asBoolean()"
+          else "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asString()"
+          end
+      end
     end
 
     facet.enhance(Entity) do
