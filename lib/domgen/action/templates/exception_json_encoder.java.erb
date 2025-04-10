@@ -29,9 +29,9 @@ package <%= to_package(exception.action.qualified_json_encoder_name) %>;
         when (parameter.struct? && parameter.nullable?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : #{struct.action.qualified_json_encoder_name}.encode( #{value} )"}
         when parameter.struct? then Proc.new {|value| "#{parameter.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
         when (parameter.date? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : iris.rose.server.service.util.RDate.fromDate( (#{type}) #{value} ).toString()"}
-        when parameter.date? then Proc.new {|value, type| "iris.rose.server.service.util.RDate.fromDate( (#{type}) #{value} ).toString()"}
+        when parameter.date? then Proc.new {|value| "iris.rose.server.service.util.RDate.fromDate( #{value} ).toString()"}
         when (parameter.datetime? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( ((#{type}) #{value}).getTime() )"}
-        when parameter.datetime? then Proc.new {|value, type| "javax.json.Json.createValue( ((#{type}) #{value}).getTime() )"}
+        when parameter.datetime? then Proc.new {|value| "javax.json.Json.createValue( #{value}.getTime() )"}
         when parameter.nullable? then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value} )"}
         else Proc.new{|value| value }
       end

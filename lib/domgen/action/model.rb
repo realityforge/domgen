@@ -150,6 +150,9 @@ module Domgen
         unless self.exception.extends.nil?
           exception.data_module.exception_by_name(exception.extends).action.mark_as_referenced!
         end
+        self.exception.direct_subtypes.each do |e|
+          e.action.mark_as_referenced! if e.action?
+        end
       end
 
       def pre_complete
