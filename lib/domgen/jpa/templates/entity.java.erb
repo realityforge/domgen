@@ -42,7 +42,7 @@ end
 <% if entity.read_only? && entity.data_module.repository.jpa.provider == :eclipselink %>
 @org.eclipse.persistence.annotations.ReadOnly
 <% end -%>
-<% if entity.jpa.entity_listeners.size > 0 %>
+<% if entity.jpa.entity_listeners.size > 0 -%>
 @javax.persistence.EntityListeners( { <%= entity.jpa.entity_listeners.collect{|l| "#{l}.class"}.join( ', ' ) %> } )
 <% end -%>
 @javax.persistence.Cacheable( <%= entity.jpa.cacheable? ? 'true' : 'false' %> )
