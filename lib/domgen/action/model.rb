@@ -61,6 +61,18 @@ module Domgen
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
+
+      def pre_pre_complete
+        if self.repository.imit?
+          self.repository.imit.graphs.select{|graph|!graph.filter_parameter.nil?}.each do |graph|
+            if graph.filter_parameter.enumeration? && graph.filter_parameter.enumeration.action?
+              graph.filter_parameter.enumeration.action.mark_as_referenced!
+            elsif graph.filter_parameter.struct? && graph.filter_parameter.referenced_struct.action?
+              graph.filter_parameter.referenced_struct.action.mark_as_referenced!
+            end
+          end
+        end
+      end
     end
 
     facet.enhance(DataModule) do

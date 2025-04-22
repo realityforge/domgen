@@ -1235,6 +1235,12 @@ module Domgen
       include Domgen::Java::ImitJavaPackage
 
       java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
+
+      attr_writer :support_default_parameters
+
+      def support_default_parameters?
+        @support_default_parameters.nil? ? false : !!@support_default_parameters
+      end
     end
 
     facet.enhance(Service) do
@@ -1341,6 +1347,12 @@ module Domgen
 
       def module_local?
         @module_local.nil? ? false : !!@module_local
+      end
+
+      attr_writer :support_default_parameters
+
+      def support_default_parameters?
+        @support_default_parameters.nil? ? exception.data_module.imit.support_default_parameters? : !!@support_default_parameters
       end
     end
 
