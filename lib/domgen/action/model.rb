@@ -368,11 +368,8 @@ module Domgen
                 type: 'string',
                 const: "#{exception.data_module.name}.#{exception.name}"
               },
-              '$message': {
-                type: 'string'
-              }
             },
-            required: ['$type', '$message'],
+            required: ['$type'],
           }
 
         exception.parameters.each do |parameter|

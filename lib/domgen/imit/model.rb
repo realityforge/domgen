@@ -1255,7 +1255,6 @@ module Domgen
       def qualified_service_name
         "#{service.data_module.imit.client_service_package}.#{service_name}"
       end
-
     end
 
     facet.enhance(Parameter) do

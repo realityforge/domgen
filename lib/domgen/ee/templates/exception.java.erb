@@ -1,13 +1,13 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(exception.ee.qualified_name) %>;
+package <%= to_package( exception.ee.qualified_name ) %>;
 
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2", "DLS_DEAD_LOCAL_STORE"})
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FormalParameterNamingConventions" } )
 <% unless exception.ee.module_local? %>public <% end %>class <%= exception.ee.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
 {
-<% exception.declared_parameters.each do |parameter| %>
+<% exception.declared_parameters.each do |parameter| -%>
   <%= annotated_type(parameter, :ee, :boundary, :final => true, :private => true) %> <%= parameter.name %>;
-<% end %>
+<% end -%>
 <%
 param_desc =
   exception.parameters.collect do |parameter|
@@ -21,14 +21,21 @@ param_values_with_suffix = param_values + (param_values.size == 0 ? '' : ', ')
 inherited_params = exception.inherited_parameters.collect{ |parameter| parameter.name}.join(', ')
 inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? '' : ', ')
 
-      -%>
+if exception.ee.support_default_parameters? -%>
+
   public <%= exception.ee.name %>( <%= param_desc %> ) { this( <%= param_values_with_suffix %>null, null ); }
+
   public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final String message ) { this( <%= param_values_with_suffix %>message, null ); }
+
   public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final Throwable cause ) { this( <%= param_values_with_suffix %>null, cause ); }
-  public <%= exception.ee.name %>( <%= param_desc_with_suffix %>final String message, final Throwable cause )
+<% end -%>
+
+  public <%= exception.ee.name %>( <% if exception.ee.support_default_parameters? -%><%= param_desc_with_suffix %>final String message, final Throwable cause<% else %><%= param_desc %><% end %> )
   {
+<% if exception.ee.support_default_parameters? -%>
     super( <%= inherited_params_with_suffix %>message, cause );
-  <% exception.declared_parameters.each do |parameter|
+<% end -%>
+<% exception.declared_parameters.each do |parameter|
      if :sequence == parameter.collection_type
 %>    this.<%= parameter.name %> = java.util.Collections.unmodifiableList( new java.util.ArrayList<>( <%= parameter.name %> ) );
 <%     elsif :set == parameter.collection_type

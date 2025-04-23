@@ -12,11 +12,6 @@ package <%= to_package(exception.action.qualified_json_encoder_name) %>;
   <% unless exception.ee.module_local? %>public <% end %>static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= exception.ee.qualified_name %> exception )
   {
     final var jsonBuilder = javax.json.Json.createObjectBuilder().add( "$type", "<%= exception.data_module.name %>.<%= exception.name %>" );
-    final var message = exception.getMessage();
-    if ( null != message )
-    {
-      jsonBuilder.add( "$message", message );
-    }
     return
       jsonBuilder
 <% exception.parameters.each do |parameter|
@@ -45,7 +40,9 @@ package <%= to_package(exception.action.qualified_json_encoder_name) %>;
         "\n    throws #{exception.ee.qualified_name}"
 %>
   {
-    throw new <%= exception.ee.qualified_name %>( <% exception.parameters.each do |parameter| conversion_rule =
+    throw new <%= exception.ee.qualified_name %>(<%
+      add_comma = false
+    exception.parameters.each do |parameter| conversion_rule =
     case
     when (parameter.enumeration? && parameter.enumeration.numeric_values?) then Proc.new {|value  | "#{parameter.enumeration.ee.qualified_name}.values()[ json.getInt( #{value} ) ]"}
     when (parameter.enumeration? && parameter.enumeration.textual_values?) then Proc.new {|value  | "#{parameter.enumeration.ee.qualified_name}.valueOf( json.getString( #{value} ) )"}
@@ -87,7 +84,9 @@ package <%= to_package(exception.action.qualified_json_encoder_name) %>;
              .map( javax.json.JsonString::getString )
              .collect( java.util.stream.Collectors.toList() )"}
     else Proc.new{|value  | "json.getString( #{value} )" }
-    end -%> <%= conversion_rule.call("\"#{parameter.name}\"") + "," %>
-<% end -%> json.containsKey( "$message" ) ? json.getString( "$message" ) : null );
+    end -%><% if add_comma %>,<% else add_comma = true %><% end %>
+      <%= conversion_rule.call("\"#{parameter.name}\"") %>
+<% end -%>
+    );
   }
 }

@@ -112,6 +112,12 @@ module Domgen
       def server_event_package
         @server_event_package || resolve_package(:server_event_package)
       end
+
+      attr_writer :support_default_parameters
+
+      def support_default_parameters?
+        @support_default_parameters.nil? ? false : !!@support_default_parameters
+      end
     end
 
     facet.enhance(Message) do
@@ -224,6 +230,12 @@ module Domgen
 
       def module_local?
         @module_local.nil? ? false : !!@module_local
+      end
+
+      attr_writer :support_default_parameters
+
+      def support_default_parameters?
+        @support_default_parameters.nil? ? exception.data_module.ee.support_default_parameters? : !!@support_default_parameters
       end
     end
 
