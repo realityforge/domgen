@@ -68,6 +68,9 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:exception,
                               'client/exception.java.erb',
                               'main/java/#{exception.imit.qualified_name.gsub(".","/")}.java')
+    template_set.erb_template(:exception,
+                              'client/exception_json_decoder.java.erb',
+                              'main/java/#{exception.imit.qualified_json_decoder_name.gsub(".","/")}.java')
     template_set.erb_template(:service,
                               'client/service.java.erb',
                               'main/java/#{service.imit.qualified_service_name.gsub(".","/")}.java')

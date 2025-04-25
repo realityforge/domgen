@@ -25,7 +25,7 @@ public final class <%= struct.gwt.name %>
     case
       when field.date? then "#{var}.toString()"
       when field.datetime? then "(double) #{var}.getTime()"
-      when field.enumeration? then "#{var}.#{field.enumeration.textual_values? ? 'name()' : 'ordinal()' }"
+      when field.enumeration? then "(double) #{var}.#{field.enumeration.textual_values? ? 'name()' : 'ordinal()' }"
       when field.nullable? && field.integer? then "#{var}.doubleValue()"
       when field.nullable? && field.boolean? then "#{var}"
       when field.nullable? && field.real? then "#{var}.doubleValue()"
@@ -63,8 +63,7 @@ public final class <%= struct.gwt.name %>
       case
         when field.date? then Proc.new {|transport_value| "#{field.struct.data_module.repository.gwt.qualified_rdate_name}.parse( #{transport_value} )"}
         when field.datetime? then Proc.new {|transport_value| "new java.util.Date( (long) #{transport_value} )"}
-        when field.enumeration? then Proc.new {|transport_value| "#{field.gwt.java_component_type}.#{field.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{field.nullable? ? "#{transport_value}.intValue()" : transport_value} ]"}"}
-        when field.integer? then Proc.new {|transport_value| "#{transport_value}.intValue()"}
+        when field.enumeration? then Proc.new {|transport_value| "#{field.gwt.java_component_type}.#{field.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{field.nullable? ? "#{field.name}.intValue()" : "(int) #{field.name}"} ]"}"}        when field.integer? then Proc.new {|transport_value| "#{transport_value}.intValue()"}
         else nil
       end
 -%>
@@ -76,9 +75,9 @@ public final class <%= struct.gwt.name %>
 <% elsif field.date? -%>
     return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%><%= struct.data_module.repository.gwt.qualified_rdate_name %>.parse( this.<%= field.name %> );
 <% elsif field.enumeration? -%>
-    return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%><%= field.gwt.java_type %>.<%= field.enumeration.textual_values? ? "valueOf( this.#{field.name} )" : "values()[ #{field.nullable? ? "#{field.name}.intValue()" : field.name} ]" %>;
+    return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%><%= field.gwt.java_type %>.<%= field.enumeration.textual_values? ? "valueOf( this.#{field.name} )" : "values()[ #{field.nullable? ? "#{field.name}.intValue()" : "(int) #{field.name}"} ]" %>;
 <% elsif field.struct? || field.text? || field.real? || field.boolean? || (field.integer? && !field.nullable?) -%>
-    return this.<%= field.name %>;
+  return this.<%= field.name %>;
 <% elsif field.integer? && field.nullable? -%>
     return <% if field.nullable? -%>this.<%= field.name %> == null ? null : <% end -%>this.<%= field.name %>.intValue();
 <% elsif field.long? -%>

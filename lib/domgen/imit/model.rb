@@ -1334,12 +1334,21 @@ module Domgen
     end
 
     facet.enhance(Exception) do
+      include Domgen::Java::ImitJavaCharacteristic
       def name
         exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
       end
 
       def qualified_name
         "#{exception.data_module.imit.client_service_package}.#{name}"
+      end
+
+      def json_decoder_name
+        "#{name}JsonDecoder"
+      end
+
+      def qualified_json_decoder_name
+        "#{exception.data_module.imit.client_service_package}.#{json_decoder_name}"
       end
 
       attr_writer :module_local
@@ -1356,16 +1365,20 @@ module Domgen
     end
 
     facet.enhance(ExceptionParameter) do
+      include Domgen::Java::ImitJavaCharacteristic
       def get_from_json_extension(json)
           case
-          when parameter.enumeration? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
-          when parameter.date? then "iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( #{map}.nestedGetAsAny( #{parameter.name} ).asString() )"
-          when parameter.datetime? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
-          when parameter.integer? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
-          when parameter.reference? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asInt()"
-          when parameter.boolean? then "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asBoolean()"
-          else "#{json}.nestedGetAsAny( \"#{parameter.name}\" ).asString()"
+          when parameter.enumeration? then "#{json}.getAsAny( \"#{parameter.name}\" ).asInt()"
+          when parameter.datetime? then "new java.util.Date( #{json}.getAsAny( \"#{parameter.name}\" ).asLong() )"
+          when parameter.integer? then "#{json}.getAsAny( \"#{parameter.name}\" ).asInt()"
+          when parameter.reference? then "#{json}.getAsAny( \"#{parameter.name}\" ).asInt()"
+          when parameter.boolean? then "#{json}.getAsAny( \"#{parameter.name}\" ).asBoolean()"
+          else "#{json}.getAsAny( \"#{parameter.name}\" ).asString()"
           end
+      end
+
+      def characteristic
+        parameter
       end
     end
 

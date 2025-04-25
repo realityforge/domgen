@@ -206,17 +206,53 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
 <%- end -%>
 <% unless method.base_exceptions.empty? -%>
 
-        if ( $responsePropertyMap.has( "error" ) && null != errorCallback )
+        if ( $responsePropertyMap.has( "exception" ) && null != errorCallback )
         {
-          final String exceptionType = $responsePropertyMap.nestedGetAsAny( "$type" ).asString();
+          final jsinterop.base.JsPropertyMap<Object> $exceptionData = $responsePropertyMap.getAsAny( "exception" ).asPropertyMap();
+          final String exceptionType = $exceptionData.getAsAny( "$type" ).asString();
           switch ( exceptionType )
           {
-            <%= method.base_exceptions.collect{|e| "case \"#{e.data_module.name}.#{e.name}\":
-              errorCallback.onFailure( new #{e.imit.qualified_name}( #{e.parameters.collect{|exception_param| "#{exception_param.imit.get_from_json_extension("$responsePropertyMap")}"}.join(', ')} ) );
+<% exceptions_with_subtypes = method.exceptions.select { |e| e.direct_subtypes.any? } -%>
+<% if exceptions_with_subtypes.size != 1 -%>
+<%
+    declared_exceptions = []
+-%>
+<%=
+            method.exceptions.map do |e|
+                                      declared_exceptions << e
+            cases = ["            case \"#{e.data_module.name}.#{e.name}\""]
+            cases += e.direct_subtypes
+              .select { |s| !declared_exceptions.include?(s) }
+               .tap { |new_s| declared_exceptions.concat(new_s) }
+               .map { |s| "            case \"#{s.data_module.name}.#{s.name}\"" }
+
+            (
+              cases.join(":\n") + ":\n" +
+              "              errorCallback.onFailure(#{e.imit.qualified_json_decoder_name}.decode($exceptionData) );\n" +
+              "              break;"
+            )
+            end.join("\n")
+            -%>
+<%=
+            "default:
+              akasha.Console.error( \"Method #{low_level_method_name} threw an exception which was not recognized by the decoder\", $exceptionData );
+              errorCallback.onFailure( new java.lang.Throwable() );
+              break;"
+-%>
+<% else -%>
+<% multiple_subtype_exception = exceptions_with_subtypes.first -%>
+<%= method.exceptions.select{|e| e != multiple_subtype_exception}.collect{|e| "            case \"#{e.data_module.name}.#{e.name}\":
+              errorCallback.onFailure( #{e.imit.qualified_json_decoder_name}.decode( $exceptionData ) );
               break;"}.join('
-            ') %>
-            default:
-              break;
+    ') %>
+<%=
+"            default:
+               // Falling back on #{multiple_subtype_exception.name} as this method can throw an exception extending this one
+               // If a method has multiple abstract exceptions, we will generate a case for each one and not fallback via the default
+               errorCallback.onFailure( #{multiple_subtype_exception.imit.qualified_json_decoder_name}.decode( $exceptionData ) );
+               break;"
+%>
+<% end %>
           }
         }
 <% end -%>
