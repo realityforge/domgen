@@ -206,9 +206,10 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
 <%- end -%>
 <% unless method.base_exceptions.empty? -%>
 
-        if ( $responsePropertyMap.has( "error" ) && null != errorCallback )
+        if ( $responsePropertyMap.has( "exception" ) && null != errorCallback )
         {
-          final String exceptionType = $responsePropertyMap.nestedGetAsAny( "$type" ).asString();
+          final jsinterop.base.JsPropertyMap<Object> $exceptionData = $responsePropertyMap.getAsAny( "exception" ).asPropertyMap();
+          final String exceptionType = $exceptionData.getAsAny( "$type" ).asString();
           switch ( exceptionType )
           {
             <%= method.base_exceptions.collect{|e| "case \"#{e.data_module.name}.#{e.name}\":
