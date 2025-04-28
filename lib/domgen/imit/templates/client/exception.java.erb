@@ -5,12 +5,12 @@ package <%= to_package(exception.imit.qualified_name) %>;
 public class <%= exception.imit.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).imit.qualified_name %>
 {
 <% exception.declared_parameters.each do |parameter| -%>
-  <%= annotated_type(parameter, :ee, :transport, :final => true, :private => true) %> <%= parameter.name %>;
+  <%= annotated_type(parameter, :imit, :transport, :private => true, :final => true, :assume_generated => true) %> <%= parameter.name %>;
 <% end -%>
 <%
 param_desc =
 exception.parameters.collect do |parameter|
-  "#{annotated_type(parameter, :ee, :transport, :assume_generated => true, :final => true) } #{parameter.name}"
+  "#{annotated_type(parameter, :imit, :transport, :final => true, :assume_generated => true) } #{parameter.name}"
   end.join(', ')
 param_desc_with_suffix = param_desc + (param_desc.size == 0 ? '' : ', ')
 
@@ -44,11 +44,38 @@ if exception.imit.support_default_parameters? -%>
 <%   end -%>
 <% end -%>
   }
+
 <% exception.declared_parameters.each do |parameter| -%>
 
-  <%= annotated_type(parameter, :ee, :transport, :public => true, :assume_generated => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+  <%= annotated_type(parameter, :imit, :boundary, :public => true, :assume_generated => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
   {
-  return <%= parameter.name %>;
+<%-
+  if parameter.collection?
+conversion_rule =
+  case
+when parameter.date? then Proc.new {|transport_value| "#{parameter.struct.data_module.repository.gwt.qualified_rdate_name}.parse( #{transport_value} )"}
+when parameter.enumeration? then Proc.new {|transport_value| "#{parameter.gwt.java_component_type}.#{parameter.enumeration.textual_values? ? "valueOf( #{transport_value} )" : "values()[ #{parameter.nullable? ? "#{transport_value}.intValue()" : transport_value} ]"}"}
+  else nil
+  end
+-%>
+  return <% if parameter.nullable? -%>this.<%= parameter.name %> == null ? null : <% end -%>java.util.Arrays.stream( this.<%= parameter.name %> )<%= conversion_rule.nil? ? '' : ".map( e -> #{conversion_rule.call('e')} )" %>.collect( java.util.stream.Collectors.to<%= parameter.collection_type == :set ? 'Set' : 'List' %>() );
+<% elsif parameter.nullable? && parameter.datetime? -%>
+  return null == this.<%= parameter.name %> ? null : new java.util.Date( this.<%= parameter.name %>.longValue() );
+<% elsif parameter.datetime? -%>
+  return  this.<%= parameter.name %>;
+<% elsif parameter.date? -%>
+  return <% if parameter.nullable? -%>this.<%= parameter.name %> == null ? null : <% end -%><%= struct.data_module.repository.gwt.qualified_rdate_name %>.parse( this.<%= parameter.name %> );
+<% elsif parameter.enumeration? -%>
+  return <% if parameter.nullable? -%>this.<%= parameter.name %> == null ? null : <% end -%><%= parameter.gwt.java_type %>.<%= parameter.enumeration.textual_values? ? "valueOf( this.#{parameter.name} )" : "values()[ #{parameter.nullable? ? "#{parameter.name}.intValue()" : parameter.name} ]" %>;
+<% elsif parameter.struct? || parameter.text? || parameter.real? || parameter.boolean? || (parameter.integer? && !parameter.nullable?) -%>
+  return this.<%= parameter.name %>;
+<% elsif parameter.integer? && parameter.nullable? -%>
+  return <% if parameter.nullable? -%>this.<%= parameter.name %> == null ? null : <% end -%>this.<%= parameter.name %>.intValue();
+<% elsif parameter.long? -%>
+  return <% if parameter.nullable? -%>this.<%= parameter.name %> == null ? null : <% end -%>this.<%= parameter.name %>.longValue();
+<% elsif parameter.reference? -%>
+  return <% if parameter.nullable? -%>this.<%= parameter.name %> == null ? null : <% end -%>this.<%= parameter.name %><% unless parameter.nullable? -%><% end -%>;
+<% end -%>
   }
 <% end -%>
 }

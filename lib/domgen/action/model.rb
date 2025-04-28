@@ -144,10 +144,14 @@ module Domgen
     facet.enhance(Exception) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :json_encoder, :service, :server, :action, '#{exception.name}JsonEncoder'
+      java_artifact :json_encoder, :service, :server, :action, '#{exception.name}ExceptionJsonEncoder'
 
       def referenced?
         @referenced.nil? ? false : !!@referenced
+      end
+
+      def json_encoder_qualified_name
+        "#{exception.data_module.ee.server_service_package}.#{json_encoder_name}"
       end
 
       def mark_as_referenced!
@@ -344,6 +348,17 @@ module Domgen
               required: ["exception"],
               additionalProperties: false
             }
+          exception.direct_subtypes.each do |subtype_exception|
+            schema[:oneOf] <<
+              {
+                type: "object",
+                properties: {
+                  exception: exception_json_schema(schema, subtype_exception)
+                },
+                required: ["exception"],
+                additionalProperties: false
+              }
+          end
         end
         if method.return_value.return_type == :void
           schema[:oneOf] << {}

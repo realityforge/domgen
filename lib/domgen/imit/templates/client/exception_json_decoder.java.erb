@@ -1,0 +1,20 @@
+/* DO NOT EDIT: File is auto-generated*/
+package <%= to_package(exception.imit.qualified_name) %>;
+
+public abstract class <%= exception.imit.json_decoder_name %>
+{
+  @javax.annotation.Nonnull
+  public static <%= exception.imit.name %> decode( @javax.annotation.Nonnull final jsinterop.base.JsPropertyMap<Object> json )
+  {
+    final String exceptionType = json.getAsAny( "$type" ).asString();
+    switch ( exceptionType )
+    {
+      <% exception.direct_subtypes.select{|e|e.imit?}.each do |e| -%>
+case "<%= e.data_module.name %>.<%= e.name %>":
+        return new <%= "#{e.imit.qualified_name}( #{e.parameters.collect{|exception_param| "#{exception_param.imit.get_from_json_extension("json")}"}.join(', ')} );"%>
+      <% end %>
+      default:
+        return new <%= "#{exception.imit.qualified_name}( #{exception.parameters.collect{|exception_param| "#{exception_param.imit.get_from_json_extension("json")}"}.join(', ')} );"%>
+    }
+  }
+}
