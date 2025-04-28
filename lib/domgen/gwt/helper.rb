@@ -19,11 +19,9 @@ module Domgen
       def characteristic_transport_type(field)
         if field.collection?
           collection_transport_type(field)
-        elsif field.datetime? && !field.nullable?
+        elsif (field.datetime? || field.enumeration? )&& !field.nullable?
           'double'
-        elsif field.datetime? && field.nullable?
-          'java.lang.Double'
-        elsif field.nullable? && field.integer?
+        elsif field.nullable? && (field.datetime? || field.integer? || field.enumeration?)
           'java.lang.Double'
         elsif !field.nullable? && field.integer?
           'int'
