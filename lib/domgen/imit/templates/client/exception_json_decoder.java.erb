@@ -1,20 +1,41 @@
 /* DO NOT EDIT: File is auto-generated*/
-package <%= to_package(exception.imit.qualified_name) %>;
+package <%= to_package( exception.imit.qualified_name ) %>;
 
-public abstract class <%= exception.imit.json_decoder_name %>
+public final class <%= exception.imit.json_decoder_name %>
 {
-  @javax.annotation.Nonnull
-  public static <%= exception.imit.name %> decode( @javax.annotation.Nonnull final jsinterop.base.JsPropertyMap<Object> json )
+  private <%= exception.imit.json_decoder_name %>()
   {
-    final String exceptionType = json.getAsAny( "$type" ).asString();
+  }
+
+  @javax.annotation.Nonnull
+  public static <%= exception.imit.non_module_local_parent_qualified_name %> decode( @javax.annotation.Nonnull final jsinterop.base.JsPropertyMap<Object> json )
+  {
+<% if exception.direct_subtypes.empty? -%>
+    return new <%= "#{exception.imit.qualified_name}( #{exception.parameters.collect{|exception_param| "#{exception_param.imit.get_from_json_extension("json")}"}.join(', ')} );"%>
+<% else -%>
+    return decode( json, json.getAsAny( "$type" ).asString() );
+<% end -%>
+  }
+<% unless exception.direct_subtypes.empty? -%>
+
+  @javax.annotation.Nonnull
+  public static <%= exception.imit.non_module_local_parent_qualified_name %> decode( @javax.annotation.Nonnull final jsinterop.base.JsPropertyMap<Object> json, @javax.annotation.Nonnull final String exceptionType )
+  {
     switch ( exceptionType )
-    {
-      <% exception.direct_subtypes.select{|e|e.imit?}.each do |e| -%>
-case "<%= e.data_module.name %>.<%= e.name %>":
-        return new <%= "#{e.imit.qualified_name}( #{e.parameters.collect{|exception_param| "#{exception_param.imit.get_from_json_extension("json")}"}.join(', ')} );"%>
-      <% end %>
-      default:
+    {<% exception.direct_subtypes.select{|e|e.imit?}.each do |e| -%>
+
+      case "<%= e.data_module.name %>.<%= e.name %>":
+        return <%= e.imit.qualified_json_decoder_name %>.decode( json<%= e.direct_subtypes.empty? ? '' : ', exceptionType' %> );
+<% end -%>
+<% unless exception.abstract? -%>
+
+      case "<%= exception.data_module.name %>.<%= exception.name %>":
         return new <%= "#{exception.imit.qualified_name}( #{exception.parameters.collect{|exception_param| "#{exception_param.imit.get_from_json_extension("json")}"}.join(', ')} );"%>
+<% end -%>
+
+      default:
+        throw new IllegalArgumentException( json.toString() );
     }
   }
+<% end -%>
 }

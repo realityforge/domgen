@@ -1357,6 +1357,15 @@ module Domgen
         @module_local.nil? ? false : !!@module_local
       end
 
+      def non_module_local_parent_qualified_name
+        e = self.exception
+        while e
+          return e.imit.qualified_name unless module_local?
+          e = e.extends.nil? ? nil : e.data_module.exception_by_name(e.extends)
+        end
+        return self.exception.java.standard_extends
+      end
+
       attr_writer :support_default_parameters
 
       def support_default_parameters?
