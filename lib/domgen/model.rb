@@ -1490,7 +1490,11 @@ module Domgen
     def exception(name, options = {}, &block)
       Domgen.error("Attempting to redefine exception #{name} on #{self.qualified_name}") if @exceptions[name.to_s]
       exception = service.data_module.exception_by_name(name, true)
-      exception = service.data_module.exception(name, options, &block) if exception.nil?
+      if exception.nil?
+        exception = service.data_module.exception(name, options, &block)
+      else
+        exception.options = options
+      end
       @exceptions[name.to_s] = exception
     end
 
@@ -1642,7 +1646,7 @@ module Domgen
         post_exception_create(local_name)
         exception
       else
-        dm.exception(name, options = {}, &block)
+        dm.exception(name, options, &block)
       end
     end
 
