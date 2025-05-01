@@ -335,6 +335,12 @@ module Domgen
     end
 
     facet.enhance(Exception) do
+      attr_writer :skip_test
+
+      def skip_test?
+        @skip_test.nil? ? false : !!@skip_test
+      end
+
       attr_writer :rollback
 
       def rollback?

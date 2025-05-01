@@ -13,7 +13,7 @@ public abstract class <%= service.ejb.service_test_name %>
     org.testng.Assert.fail( "Test not yet implemented" );
   }
 
-<% method.exceptions.select{|exception|!exception.abstract?}.each do |exception| -%>
+<% method.exceptions.select{|exception|!exception.abstract? && !exception.ejb.skip_test?}.each do |exception| -%>
   @org.testng.annotations.Test
   public void <%= Reality::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %>()
     throws Exception
