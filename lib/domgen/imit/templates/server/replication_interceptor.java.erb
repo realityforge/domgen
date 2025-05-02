@@ -4,7 +4,7 @@ package <%= to_package(repository.imit.qualified_replication_interceptor_name) %
 @javax.interceptor.Interceptor
 @javax.annotation.Priority( javax.interceptor.Interceptor.Priority.LIBRARY_BEFORE + 100 )
 @org.realityforge.replicant.server.ee.Replicate
-public class <%= repository.imit.replication_interceptor_name %>
+class <%= repository.imit.replication_interceptor_name %>
   extends org.realityforge.replicant.server.ee.AbstractReplicationInterceptor
 {
   @javax.inject.Inject
