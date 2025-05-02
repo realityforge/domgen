@@ -24,13 +24,13 @@ public abstract class <%= service.ejb.service_test_name %>
 <% end -%>
 <% end -%>
   @javax.annotation.Nonnull
-  protected final <%= service.ejb.qualified_service_name %> service()
+  final <%= service.ejb.qualified_service_name %> service()
   {
     return s( <%= service.ejb.qualified_service_name %>.class );
   }
 
   @javax.annotation.Nonnull
-  protected final <%= service.ejb.qualified_service_implementation_name %> impl()
+  final <%= service.ejb.qualified_service_implementation_name %> impl()
   {
     return toObject( <%= service.ejb.qualified_service_implementation_name %>.class, service() );
   }
