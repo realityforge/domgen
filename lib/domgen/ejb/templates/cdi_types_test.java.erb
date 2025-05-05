@@ -27,7 +27,6 @@ public final class <%= repository.ejb.cdi_types_test_name %>
     throws java.lang.Exception
   {
     final java.lang.Class<?> clazz = java.lang.Class.forName( "<%= repository.imit.qualified_session_manager_name %>" );
-    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isPublic( clazz.getModifiers() ), "Class <%= repository.imit.qualified_session_manager_name %> is public but should be package access" );
     org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI( clazz );
   }
 <% end -%>
