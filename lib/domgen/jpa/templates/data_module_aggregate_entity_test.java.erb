@@ -13,7 +13,7 @@ public final class <%= data_module.jpa.aggregate_entity_test_name %>
     data_module.daos.select{|d|d.jpa? && (!d.jpa.extensions.empty? || d.queries.any?{|q|q.jpa? && !q.jpa.standard_query?})}.each do |dao|
 -%>
     org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a concrete class but is abstract" );
-    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isFinal( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a final class but is not" );
+    org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isFinal( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getModifiers() ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to be a final class but is not" );
 <% dao.queries.select{|q|q.jpa? && !q.jpa.standard_query?}.each do |query| -%>
     org.testng.Assert.assertNotNull( <%= dao.jpa.qualified_concrete_dao_test_name %>.class.getMethod( "<%= Reality::Naming.camelize(query.name) %>" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= dao.jpa.qualified_concrete_dao_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(query.name) %> annotated with the org.testng.annotations.Test annotation" );
 <% end -%>
