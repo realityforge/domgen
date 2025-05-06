@@ -43,10 +43,10 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% end -%>
 <%
   related_entities = []
-  data_module.repository.data_modules.each do |dm|
-    dm.entities.each do |e|
-      e.attributes.each do |a|
-        related_entities << e if !e.sync? && a.reference? && a.referenced_entity.sync? && (a.referenced_entity.sync.support_remove? || a.referenced_entity.sync.support_unmanaged?) && !related_entities.include?(e)
+  data_module.sync.entities_to_synchronize.collect do |e|
+    e.sync.references_requiring_manual_sync.each do |a|
+      if !a.entity.sync? && a.referenced_entity.sync.support_remove? && !a.entity.dao.jpa.module_local?
+        related_entities << a.entity unless related_entities.include?(a.entity)
       end
     end
   end
@@ -97,16 +97,20 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <%
             data_module.sync.entities_to_synchronize.collect do |e|
               # Assume that the synchronization process will correctly handle
-              # deletion of referenced entities and thus no special handling required
+              # deletion of referenced synchronized entities and thus no special handling required
               e.sync.references_requiring_manual_sync.each do |a|
                 if a.referenced_entity.sync.support_remove?
 -%>
   protected void remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %>( @javax.annotation.Nonnull final <%= e.jpa.qualified_name %> <%= Reality::Naming.camelize(e.jpa.name) %> )
   {
+<% if a.entity.dao.jpa.module_local? -%>
+    throw new java.lang.UnsupportedOperationException( "Entities of type <%= a.entity.qualified_name %> may be related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
+<% else -%>
     if ( 0 != _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.countBy<%= a.name %>( <%= Reality::Naming.camelize(e.jpa.name) %> ) )
     {
       throw new java.lang.UnsupportedOperationException( "Entities of type <%= a.entity.qualified_name %> are related to <%= a.referenced_entity.qualified_name %> instance via the <%= a.name %> attribute and synchronization is attempting to remove the <%= a.referenced_entity.qualified_name %> instance. Please correct the underlying data or override the remove<%= a.entity.qualified_name.gsub('.','') %>RelatedTo<%= a.referenced_entity.qualified_name.gsub('.','') %>Via<%= a.name %> method to correctly handle this scenario. Entity: " + <%= Reality::Naming.camelize(e.jpa.name) %> );
     }
+<% end -%>
   }
 
 <%
