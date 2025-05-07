@@ -328,7 +328,7 @@ JAVA
 JAVA
         if attribute.updatable? || (attribute.generated_value? && :identity != attribute.sql.generator_type)
           java << <<JAVA
-  public void set#{name}( #{annotated_type(attribute, :jpa, :default, :final => true)} value )
+  #{attribute.entity.jpa.module_local_mutators? ? '' : 'public '}void set#{name}( #{annotated_type(attribute, :jpa, :default, :final => true)} value )
   {
 JAVA
           if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
@@ -397,7 +397,7 @@ JAVA
         if attribute.updatable?
           java << <<JAVA
   @java.lang.SuppressWarnings( { "deprecation" } )
-  public void set#{attribute.jpa.name}( final #{type} value )
+  #{attribute.entity.jpa.module_local_mutators? ? '' : 'public '}void set#{attribute.jpa.name}( final #{type} value )
   {
  #{j_return_if_value_same(attribute, attribute.jpa.field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
         #{j_remove_from_inverse(attribute)}

@@ -866,6 +866,12 @@ FRAGMENT
         @module_local.nil? ? false : !!@module_local
       end
 
+      attr_writer :module_local_mutators
+
+      def module_local_mutators?
+        self.module_local? || (@module_local_mutators.nil? ? module_local? : !!@module_local_mutators)
+      end
+
       def interfaces
         @interfaces ||= []
       end
