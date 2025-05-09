@@ -361,9 +361,13 @@ module Domgen
           end
         end
         if method.return_value.return_type == :void
-          schema[:oneOf] << {}
+          schema[:oneOf] << {"type": "object", "maxProperties": 0}
         end
-        schema.to_json
+        if 1 == schema[:oneOf].size && schema[:definitions].empty?
+          return schema[:oneOf][0].to_json
+        else
+          schema.to_json
+        end
       end
 
       def post_complete
