@@ -88,7 +88,7 @@ public final class <%= graph.subscription_util_name %>
   @javax.annotation.Nonnull
   public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nonnull final replicant.ReplicantContext context<%= graph.instance_root? ? ", final int id " : "" %> )
   {
-    final var areaOfInterest = findAreaOfInterest( context<%= graph.instance_root? ? ", id" : "" %> );
+    final replicant.AreaOfInterest areaOfInterest = findAreaOfInterest( context<%= graph.instance_root? ? ", id" : "" %> );
     return null == areaOfInterest ? replicant.AreaOfInterest.Status.NOT_ASKED : areaOfInterest.getStatus();
   }
 <% end -%>
@@ -103,7 +103,7 @@ public final class <%= graph.subscription_util_name %>
   @javax.annotation.Nullable
   public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id )
   {
-    final var subscription = findSubscription( context, id );
+    final replicant.Subscription subscription = findSubscription( context, id );
     return null == subscription ? null : (<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>) subscription.getInstanceRoot();
   }
 <% end -%>

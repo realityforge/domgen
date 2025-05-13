@@ -151,7 +151,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
 <%- unless method.return_value.return_type == :void -%>
         if ( $responsePropertyMap.has( "data") )
         {
-          final var $responseData = $responsePropertyMap.getAsAny( "data" );
+          final jsinterop.base.Any $responseData = $responsePropertyMap.getAsAny( "data" );
 <%- if method.return_value.nullable? -%>
           if ( null == $responseData )
           {
@@ -165,7 +165,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
 <%- if method.return_value.return_type != :void -%>
 <%- if method.return_value.collection? -%>
         final <%=method.return_value.imit.non_primitive_java_type(:boundary) %> $result = new java.util.ArrayList<>();
-        for ( final var $row : $responseData.asArray() )
+        for ( final jsinterop.base.Any $row : $responseData.asArray() )
         {
           final <%=method.return_value.imit.java_component_type(:boundary) %> $transformedRow = <%- if method.return_value.date? -%>
   iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $row.asString() ) );
@@ -208,8 +208,8 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
 
         if ( $responsePropertyMap.has( "exception" ) && null != errorCallback )
         {
-          final var $exceptionData = $responsePropertyMap.getAsAny( "exception" ).asPropertyMap();
-          final var exceptionType = $exceptionData.getAsAny( "$type" ).asString();
+          final jsinterop.base.JsPropertyMap<Object> $exceptionData = $responsePropertyMap.getAsAny( "exception" ).asPropertyMap();
+          final String exceptionType = $exceptionData.getAsAny( "$type" ).asString();
           switch ( exceptionType )
           {
 <% exceptions_with_subtypes = method.exceptions.select { |e| e.direct_subtypes.any? } -%>
@@ -273,7 +273,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
   @javax.annotation.Nonnull
   private <T> T getById( @javax.annotation.Nonnull final java.lang.Class<T> type, @javax.annotation.Nonnull final java.lang.Object id )
   {
-    final var result = arez.Arez.context().safeAction( () -> arez.Arez.context().locator().findById( type, id ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
+    final T result = arez.Arez.context().safeAction( () -> arez.Arez.context().locator().findById( type, id ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
     if( arez.Arez.shouldCheckApiInvariants() )
     {
       org.realityforge.braincheck.Guards.apiInvariant( () -> null != result, () -> "Unable to locate entity of type " + type + " and id " + id );

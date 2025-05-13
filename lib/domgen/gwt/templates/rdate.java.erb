@@ -88,7 +88,7 @@ public final class <%= repository.gwt.rdate_name %>
   @Override
   public int hashCode()
   {
-    var h = getDay() * 31;
+    int h = getDay() * 31;
     h *= getMonth() * 13;
     h *= getYear() * 7;
     return h;
@@ -216,7 +216,7 @@ public final class <%= repository.gwt.rdate_name %>
       year += 1;
     }
 
-    final var daysInMonth = getDaysInMonth( year, month );
+    final int daysInMonth = getDaysInMonth( year, month );
     final int day = Math.min( date.getDay(), daysInMonth );
 
     return new <%= repository.gwt.rdate_name %>( year, month, day );
@@ -272,18 +272,18 @@ public final class <%= repository.gwt.rdate_name %>
   @javax.annotation.Nonnull
   public static <%= repository.gwt.rdate_name %> parse( @javax.annotation.Nonnull final String text )
   {
-    final var length = text.length();
-    var i = 0;
+    final int length = text.length();
+    int i = 0;
 
     try
     {
-      final var sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
       while ( i < length && Character.isDigit( text.charAt( i ) ) )
       {
         sb.append( text.charAt( i ) );
         i++;
       }
-      final var year = Integer.parseInt( sb.toString() );
+      final int year = Integer.parseInt( sb.toString() );
       sb.setLength( 0 );
 
       //skip the -
@@ -294,7 +294,7 @@ public final class <%= repository.gwt.rdate_name %>
         sb.append( text.charAt( i ) );
         i++;
       }
-      final var month = Integer.parseInt( sb.toString() );
+      final int month = Integer.parseInt( sb.toString() );
       sb.setLength( 0 );
 
       //skip the -
@@ -305,7 +305,7 @@ public final class <%= repository.gwt.rdate_name %>
         sb.append( text.charAt( i ) );
         i++;
       }
-      final var day = Integer.parseInt( sb.toString() );
+      final int day = Integer.parseInt( sb.toString() );
 
       if ( i != length )
       {

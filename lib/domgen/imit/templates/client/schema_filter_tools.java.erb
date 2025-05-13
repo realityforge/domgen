@@ -57,7 +57,7 @@ final class <%= repository.imit.schema_filter_tools_name %>
 
   private static void on<%= routing_key.graph.name %><%= routing_key.name %>RoutingKeyUpdate( @javax.annotation.Nonnull final <%= repository.imit.qualified_gwt_client_session_context_name %> context, @javax.annotation.Nonnull final replicant.ReplicantContext replicantContext, @javax.annotation.Nonnull final <%= routing_key.target_attribute.entity.arez.qualified_name %> entity )
   {
-    for ( final var subscription : replicantContext.getInstanceSubscriptions() )
+    for ( final replicant.Subscription subscription : replicantContext.getInstanceSubscriptions() )
     {
       if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(routing_key.graph.name) %> == subscription.getAddress().getChannelId() )
       {
