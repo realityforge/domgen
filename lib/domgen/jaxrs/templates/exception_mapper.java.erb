@@ -24,8 +24,8 @@ public class <%= exception.jaxrs.exception_mapper_name %>
   @java.lang.Override
   public javax.ws.rs.core.Response toResponse( final <%= exception.ee.qualified_name %> e )
   {
-    final java.io.StringWriter writer = new java.io.StringWriter();
-    final javax.json.stream.JsonGenerator g = javax.json.Json.createGenerator( writer );
+    final var writer = new java.io.StringWriter();
+    final var g = javax.json.Json.createGenerator( writer );
 
     g.writeStartObject();
     g.write( "code", <%= exception.jaxrs.http_code %> );
@@ -41,7 +41,7 @@ public class <%= exception.jaxrs.exception_mapper_name %>
 <% parameters.each do |p| -%>
 <% if p.collection? -%>
     g.writeStartArray( "<%= Reality::Naming.camelize(p.name) %>" );
-    for ( final <%= p.ee.java_component_type %> v : e.<%= getter_for(p) %> )
+    for ( final var v : e.<%= getter_for(p) %> )
     {
       g.write( <% if p.jackson? && p.struct? -%>toJsonValue( <% end %>v<%= p.enumeration? ? '.name()' : '' %><% if p.jackson? && p.struct? -%> )<% end %> );
     }

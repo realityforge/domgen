@@ -104,14 +104,14 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     param_type = routing_key.target_attribute.jpa.non_primitive_java_type
     param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
 -%>
-      final <%= param_type %> <%= var_name %> = (<%= param_type %>) message.getRoutingKeys().get( <%= repository.imit.qualified_server_router_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+      final var <%= var_name %> = (<%= param_type %>) message.getRoutingKeys().get( <%= repository.imit.qualified_server_router_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <% end -%>
 <% if graph.instance_root? -%>
-      final Integer subChannelId = address.getSubChannelId();
+      final var subChannelId = address.getSubChannelId();
       assert null != subChannelId;
 <% end -%>
 <% if graph.filter_parameter? -%>
-      final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> filter = (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) session.getSubscriptionEntry( address ).getFilter();
+      final var filter = (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) session.getSubscriptionEntry( address ).getFilter();
       assert null != filter;
 <% end -%>
       return _context.filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, subChannelId<% end %><% if graph.filter_parameter? %>, filter<% end %><%= extra_interest_filter %> );
@@ -143,7 +143,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     <%= first ? '' : 'else ' %>if( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %> == address.getChannelId() )
     {
 <% if source_graph.instance_root? -%>
-      final Integer sourceGraphSubChannelId = address.getSubChannelId();
+      final var sourceGraphSubChannelId = address.getSubChannelId();
       assert null != sourceGraphSubChannelId;
 <% end -%>
 <% if source_graph.filter_parameter -%>
@@ -172,9 +172,9 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   private void propagateFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final <%= root_type %> <%= Reality::Naming.camelize("#{source_graph.name}Id") %><% if source_graph.filter_parameter %>, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end %>, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet )
   {
 <% if source_graph.instance_root? -%>
-    final <%= source_graph_instance_root.jpa.qualified_name %> <%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %> = _<%= Reality::Naming.camelize("#{source_graph_instance_root.data_module.name}#{source_graph_instance_root.name}") %>Repository.getBy<%= source_graph_instance_root.primary_key.name %>( <%= Reality::Naming.camelize("#{source_graph.name}Id") %> );
+    final var <%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %> = _<%= Reality::Naming.camelize("#{source_graph_instance_root.data_module.name}#{source_graph_instance_root.name}") %>Repository.getBy<%= source_graph_instance_root.primary_key.name %>( <%= Reality::Naming.camelize("#{source_graph.name}Id") %> );
 <% end -%>
-    final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{target_graph.name}Filter") %> = _context.deriveFilterToPropagateFrom<%= source_graph.name %>To<%= target_graph.name %>( <% if source_graph.instance_root? -%><%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %><% end -%><% if source_graph.filter_parameter %>, <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end %> );
+    final var <%= Reality::Naming.camelize("#{target_graph.name}Filter") %> = _context.deriveFilterToPropagateFrom<%= source_graph.name %>To<%= target_graph.name %>( <% if source_graph.instance_root? -%><%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %><% end -%><% if source_graph.filter_parameter %>, <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end %> );
     // Propagate the filter from <%= source_graph.name %> to downstream graph <%= target_graph.name %>
     for ( final var <%= Reality::Naming.camelize("#{target_graph.name}InstanceRootId") %> : _context.getLinksToUpdateFor<%= source_graph.name %>To<%= target_graph.name %>( <% if source_graph.instance_root? -%><%= Reality::Naming.camelize("#{source_graph.name}InstanceRoot") %><% end -%><% if source_graph.filter_parameter %>, <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end -%> ) )
     {
@@ -193,9 +193,9 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     if graph.instance_root?
       entity = repository.entity_by_name(graph.instance_root)
 -%>
-    final <%= entity.primary_key.jpa.java_type %> id = address.getSubChannelId();
+    final var id = address.getSubChannelId();
     assert null != id;
-    final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
+    final var entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
 <% end %>
     _context.collectForFilterChange<%= graph.name %>( session, changeSet, address, <%= graph.instance_root? ? 'entity, ' : '' %>originalFilter, filter );
   }
@@ -211,25 +211,25 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     if graph.instance_root?
       entity = repository.entity_by_name(graph.instance_root)
 -%>
-    final <%= entity.primary_key.jpa.java_type %> id = address.getSubChannelId();
+    final var id = address.getSubChannelId();
     assert null != id;
-    final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.findBy<%= entity.primary_key.name %>( id );
+    final var entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.findBy<%= entity.primary_key.name %>( id );
     if ( null == entity )
     {
       return new org.realityforge.replicant.server.transport.SubscribeResult( true, null );
     }
-    final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
+    final var messages = new org.realityforge.replicant.server.EntityMessageSet();
     _encoder.encode<%= graph.name %>( messages, entity<%= graph.filter_parameter? ? ', filter' : '' %> );
     changeSet.merge( address, messages );
 <%
     elsif !graph.external_data_load?
 -%>
     // Add to a list so that when routing we limit the number of new entities that are loaded during routing
-    final java.util.LinkedList<Object> objects = new java.util.LinkedList<>();
+    final var objects = new java.util.LinkedList<>();
 <% graph.type_roots.each do |type_root_name|
   type = repository.entity_by_name(type_root_name)
 -%>
-    try ( java.sql.Statement statement = connection().createStatement() )
+    try ( var statement = connection().createStatement() )
     {
         <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= type.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement.executeQuery( "SELECT * FROM <%= type.sql.qualified_table_name %><%= type.transaction_time? ? 'WHERE DeletedAt IS NULL' : '' %>" ), <%= graph.filter_parameter? ? 'filter' : 'null' -%> );
     }
@@ -238,7 +238,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
       throw new java.lang.IllegalStateException( "Failed loading <%= type.name %> in <%= graph.name %>", sqle );
     }
 <% end -%>
-    final org.realityforge.replicant.server.EntityMessageSet messages = new org.realityforge.replicant.server.EntityMessageSet();
+    final var messages = new org.realityforge.replicant.server.EntityMessageSet();
     _encoder.encodeObjects( messages, objects );
     changeSet.merge( address, messages );
 <%
@@ -249,7 +249,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     end
 -%>
 <% if graph.cacheable? -%>
-    final String cacheKey = java.lang.String.valueOf( java.lang.System.currentTimeMillis() );
+    final var cacheKey = java.lang.String.valueOf( java.lang.System.currentTimeMillis() );
 <% end -%>
     return new org.realityforge.replicant.server.transport.SubscribeResult( false, <%= graph.cacheable? ? 'cacheKey' : 'null' %> );
   }
@@ -280,7 +280,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   @java.lang.Override
   protected void bulkCollectDataForSubscribe( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<org.realityforge.replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final boolean isExplicitSubscribe )
   {
-    final org.realityforge.replicant.server.ChannelAddress address = addresses.get( 0 );
+    final var address = addresses.get( 0 );
 <% bulk_subscribe_graphs.each do |graph| -%>
     <%= bulk_subscribe_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.getChannelId() )
     {
@@ -325,10 +325,10 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
      next if processed.include?(key)
      processed << key
 -%>
-      for ( final org.realityforge.replicant.server.ChannelAddress address : addresses )
+      for ( final var address : addresses )
       {
 <% if graph.instance_root? -%>
-        final Integer subChannelId = address.getSubChannelId();
+        final var subChannelId = address.getSubChannelId();
         assert null != subChannelId;
 <% end -%>
         propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( session, <% if graph.instance_root? %>subChannelId, <% end %>(<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter, org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getSessionChanges() );
@@ -372,9 +372,9 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   protected boolean shouldFollowLink( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.SubscriptionEntry sourceEntry, @javax.annotation.Nonnull final org.realityforge.replicant.server.ChannelAddress target )
   {
 <% if auto_follow_graph_links.any? -%>
-    final org.realityforge.replicant.server.ChannelAddress source = sourceEntry.getAddress();
-    final int sourceChannelId = source.getChannelId();
-    final int targetChannelId = target.getChannelId();
+    final var source = sourceEntry.getAddress();
+    final var sourceChannelId = source.getChannelId();
+    final var targetChannelId = target.getChannelId();
 <% end -%>
 <% auto_follow_graph_links.each do |graph_link|
                                     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
@@ -384,14 +384,14 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %> == sourceChannelId && <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %> == targetChannelId )
     {
 <% if target_graph.instance_root? -%>
-      final Integer targetSubChannelId = target.getSubChannelId();
+      final var targetSubChannelId = target.getSubChannelId();
       assert null != targetSubChannelId;
 <% end -%>
 <% if source_graph.filter_parameter? -%>
-      final <%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default)%> sourceGraphFilter = (<%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %>) sourceEntry.getFilter();
+      final var sourceGraphFilter = (<%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %>) sourceEntry.getFilter();
       assert null != sourceGraphFilter;
 <% end -%>
-      final <%= target_graph_instance_root.jpa.qualified_name %> targetGraphInstanceRoot = _<%= Reality::Naming.camelize("#{target_graph_instance_root.data_module.name}#{target_graph_instance_root.name}") %>Repository.getBy<%= target_graph_instance_root.primary_key.name %>( targetSubChannelId );
+      final var targetGraphInstanceRoot = _<%= Reality::Naming.camelize("#{target_graph_instance_root.data_module.name}#{target_graph_instance_root.name}") %>Repository.getBy<%= target_graph_instance_root.primary_key.name %>( targetSubChannelId );
       return _context.shouldFollowLinkFrom<%= graph_link.source_graph %>To<%= target_graph.name %>( targetGraphInstanceRoot<% if source_graph.filter_parameter? -%>, sourceGraphFilter<% end -%> );
     }
 <% end -%>

@@ -37,7 +37,7 @@ public class <%= method.ejb.scheduler_name %>
     }
     catch ( final java.lang.Throwable t )
     {
-      final java.io.StringWriter sw = new java.io.StringWriter();
+      final var sw = new java.io.StringWriter();
       t.printStackTrace( new java.io.PrintWriter( sw, true ) );
       LOG.log( java.util.logging.Level.SEVERE, "Error generated processing timed <%= method.ejb.schedule.info %> invocation.\n" + sw );
     }

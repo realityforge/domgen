@@ -72,15 +72,15 @@ class <%= service.ejb.boundary_implementation_name %>
      if method.return_value.ejb.java_type == method.return_value.ejb.java_type(:boundary)
        return_prefix = 'return '
      else
-       return_prefix = "#{annotated_type(method.return_value, :ejb)} value = "
+       return_prefix = "final var value = "
        if !method.return_value.collection?
          transform = "return #{modality_default_to_transport('value', method.return_value, :ejb)};"
        else
-         return_prefix = "#{annotated_type(method.return_value, :ejb)} result = "
+         return_prefix = "final var result = "
          transform = method.return_value.nullable? ? "if ( null == result ) { return null; }\n" : ''
          transform = transform + <<-JAVA
-        #{annotated_type(method.return_value, :ejb, :boundary, :final => true)} $result = new java.util.#{method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' }<>();
-        for( final #{method.return_value.ejb.java_component_type} k: result )
+        final var $result = new java.util.#{method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' }<#{method.return_value.ejb.java_component_type(:boundary)}>();
+        for( final var k: result )
         {
           $result.add( #{
          method.return_value.reference? ? "k.get#{method.return_value.referenced_entity.primary_key.name}()" :
@@ -96,8 +96,8 @@ JAVA
 %>
   {
 <% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| -%>
-    <%= annotated_type(parameter, :ejb, :default, :final => true) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
-    for( final <%= parameter.ejb.java_component_type(:boundary) %> id: <%= parameter.name %> )
+    final var $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.ejb.java_component_type(:default) %>>();
+    for( final var id: <%= parameter.name %> )
     {
       $<%= parameter.name %>.add( _<%= Reality::Naming.camelize(parameter.referenced_entity.dao.jpa.dao_service_name) %>.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
     }

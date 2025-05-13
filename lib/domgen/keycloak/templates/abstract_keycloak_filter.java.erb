@@ -62,7 +62,7 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
   @javax.annotation.Nonnull
   protected String getApplicationPath( @javax.annotation.Nonnull final javax.servlet.ServletRequest request )
   {
-    final javax.servlet.http.HttpServletRequest httpRequest = (javax.servlet.http.HttpServletRequest) request;
+    final var httpRequest = (javax.servlet.http.HttpServletRequest) request;
     return httpRequest.getRequestURI().substring( httpRequest.getContextPath().length() );
   }
 

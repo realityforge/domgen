@@ -52,7 +52,7 @@ public class <%= repository.imit.change_listener_name %>
     }
     catch ( final javax.naming.NamingException ne )
     {
-      final String message = "Unable to locate element at " + key + " due to " + ne;
+      final var message = "Unable to locate element at " + key + " due to " + ne;
       throw new IllegalStateException( message, ne );
     }
   }
@@ -71,8 +71,8 @@ public class <%= repository.imit.change_listener_name %>
     if ( null == _recorder )
     {
       final javax.enterprise.inject.spi.BeanManager beanManager = lookup( "java:comp/BeanManager" );
-      final javax.enterprise.inject.spi.Bean<?> bean = beanManager.getBeans( <%= repository.imit.qualified_change_recorder_name %>.class ).iterator().next();
-      final javax.enterprise.context.spi.CreationalContext<?> creationalContext = beanManager.createCreationalContext( bean );
+      final var bean = beanManager.getBeans( <%= repository.imit.qualified_change_recorder_name %>.class ).iterator().next();
+      final var creationalContext = beanManager.createCreationalContext( bean );
       _recorder = (<%= repository.imit.qualified_change_recorder_name %>) beanManager.getReference( bean, <%= repository.imit.qualified_change_recorder_name %>.class, creationalContext );
     }
     return _recorder;

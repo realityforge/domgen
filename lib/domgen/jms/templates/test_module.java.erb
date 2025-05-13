@@ -9,7 +9,7 @@ public final class <%= repository.jms.test_module_name %>
   {
     try
     {
-      final org.realityforge.guiceyloops.server.glassfish.OpenMQContainer broker = <%= repository.jms.qualified_test_broker_factory_name %>.getBroker().getOpenMQContainer();
+      final var broker = <%= repository.jms.qualified_test_broker_factory_name %>.getBroker().getOpenMQContainer();
       bindResource( org.realityforge.guiceyloops.server.glassfish.OpenMQContainer.class, "<%= repository.name %>", broker );
 
       bind( javax.jms.JMSContext.class ).

@@ -58,9 +58,9 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
     }
 <% end -%>
 <% if claim.standard_claim? -%>
-    final String value = getAccount().getKeycloakSecurityContext().getToken().get<%= claim.token_accessor_key %>();
+    final var value = getAccount().getKeycloakSecurityContext().getToken().get<%= claim.token_accessor_key %>();
 <% else -%>
-    final <%= claim.java_type %> value = (<%= claim.java_type %>) getAccount().getKeycloakSecurityContext().getToken().getOtherClaims().get( "<%= Reality::Naming.camelize(claim.token_accessor_key) %>" );
+    final var value = (<%= claim.java_type %>) getAccount().getKeycloakSecurityContext().getToken().getOtherClaims().get( "<%= Reality::Naming.camelize(claim.token_accessor_key) %>" );
 <% end -%>
     assert null != value;
     return value;

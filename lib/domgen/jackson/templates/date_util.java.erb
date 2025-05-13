@@ -110,8 +110,8 @@ public final class <%= repository.jackson.date_util_name %>
   static void writeDates( final Collection<Date> dates, final JsonGenerator generator )
     throws IOException
   {
-    final DateFormat formatter = newDateFormatter();
-    for ( final Date date : dates )
+    final var formatter = newDateFormatter();
+    for ( final var date : dates )
     {
       generator.writeString( formatter.format( date ) );
     }
@@ -148,7 +148,7 @@ public final class <%= repository.jackson.date_util_name %>
       return result;
     }
 
-    final DateFormat formatter = newDateFormatter();
+    final var formatter = newDateFormatter();
     JsonToken token;
     while ( JsonToken.END_ARRAY != ( token = parser.nextToken() ) )
     {

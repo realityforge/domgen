@@ -9,7 +9,7 @@ public abstract class <%= repository.sync.remote_sync_service_impl_name %>
   public iris.syncrecord.server.data_type.SyncResultDTO syncMasterToCore( @javax.annotation.Nonnull final String dataSourceCode )
     throws Exception
   {
-    final String url = getRemoteApplicationUrl() + "/api/sync/master/" + dataSourceCode;
+    final var url = getRemoteApplicationUrl() + "/api/sync/master/" + dataSourceCode;
 <% if repository.keycloak? -%>
     return new iris.syncrecord.client.rest.SecureSyncRestClient( getKeycloak() ).get( url );
 <% else -%>

@@ -11,7 +11,7 @@ public abstract class <%= repository.jms.abstract_test_broker_name %>
   {
 <% repository.jms.destinations.each do |destination| -%>
     {
-      final javax.management.AttributeList attrList = new javax.management.AttributeList();
+      final var attrList = new javax.management.AttributeList();
       //TODO: set the schema and other relevant properties
       //attrList.add( new Attribute( DestinationAttributes.XML_SCHEMA_URI_LIST, "http://..." ) );
       getOpenMQContainer().create<%= destination.is_queue? ? 'Queue' : 'Topic' %>( <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME, attrList );

@@ -52,8 +52,7 @@ class <%= dao.jpa.dao_name %>
   @java.lang.Override
   public <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p|  "#{annotated_type(p, :jpa, :default, :final => true)} #{Reality::Naming.camelize(p.name)}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
-    final javax.persistence.TypedQuery<<%= db_result_java_type %>> query =
-      em.createNamedQuery( <%= dao.repository? ? "#{query.entity.jpa.qualified_name}." : '' %><%= Reality::Naming.uppercase_constantize(query.name) %>, <%= db_result_java_type %>.class );
+    final var query = em.createNamedQuery( <%= dao.repository? ? "#{query.entity.jpa.qualified_name}." : '' %><%= Reality::Naming.uppercase_constantize(query.name) %>, <%= db_result_java_type %>.class );
 <%
    if !query.jpa.native?
     query.parameters.each do |p|
@@ -108,7 +107,7 @@ class <%= dao.jpa.dao_name %>
 <% end -%>
 <% else -%>
     query.setMaxResults( 1 );
-    final java.util.List<<%= db_result_java_type %>> resultList = query.getResultList();
+    final var resultList = query.getResultList();
     if ( resultList.isEmpty() )
     {
       return null;
@@ -138,7 +137,7 @@ class <%= dao.jpa.dao_name %>
   @javax.annotation.Nonnull
   public <%= dao.entity.jpa.qualified_name %> create( <%= dao.entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
-    final <%= dao.entity.jpa.qualified_name %> $_ = new <%= dao.entity.jpa.qualified_name %>( <%= dao.entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
+    final var $_ = new <%= dao.entity.jpa.qualified_name %>( <%= dao.entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
 <% dao.entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
     $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> );
 <% end -%>
@@ -156,7 +155,7 @@ class <%= dao.jpa.dao_name %>
   repository_prefix = a.entity == dao.entity ? '' : "_#{Reality::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
 -%>
     {
-      final <%= a.entity.jpa.qualified_name %> other = <%= a.inverse.jpa.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}findBy#{a.name}( $_ )" -%>;
+      final var other = <%= a.inverse.jpa.traversable? ? "$_.#{getter_for(a, a.inverse.name)}" : "#{repository_prefix}findBy#{a.name}( $_ )" -%>;
       if( null != other )
       {
 <% if a.nullable? && !a.immutable? && !a.set_once? -%>
@@ -185,7 +184,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
   repository_prefix = a.entity == dao.entity ? '' : "_#{Reality::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
 -%>
     {
-      for ( final <%= a.entity.jpa.qualified_name %> other : new java.util.ArrayList<>( <%= a.inverse.jpa.java_traversable? ? "$_.#{getter_for(a, Reality::Naming.pluralize(a.inverse.name))}" : "#{repository_prefix}findAllBy#{a.name}( $_ )" -%> ) )
+      for ( final var other : new java.util.ArrayList<>( <%= a.inverse.jpa.java_traversable? ? "$_.#{getter_for(a, Reality::Naming.pluralize(a.inverse.name))}" : "#{repository_prefix}findAllBy#{a.name}( $_ )" -%> ) )
       {
 <% if a.nullable? && !a.immutable? && !a.set_once? -%>
         other.set<%= a.name %>( null );
@@ -257,7 +256,7 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
   repository_prefix = a.entity == dao.entity ? '' : "_#{Reality::Naming.camelize(a.entity.qualified_name.gsub('.',''))}Repository."
 -%>
     {
-      for ( final <%= a.entity.jpa.qualified_name %> other : new java.util.ArrayList<>( <%= a.inverse.jpa.java_traversable? ? "$_.#{getter_for(a, Reality::Naming.pluralize(a.inverse.name))}" : "#{repository_prefix}findAllBy#{a.name}( $_ )" -%> ) )
+      for ( final var other : new java.util.ArrayList<>( <%= a.inverse.jpa.java_traversable? ? "$_.#{getter_for(a, Reality::Naming.pluralize(a.inverse.name))}" : "#{repository_prefix}findAllBy#{a.name}( $_ )" -%> ) )
       {
 <% if a.nullable? && !a.immutable? && !a.set_once? -%>
         other.set<%= a.name %>( null );
@@ -347,16 +346,16 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
     }
     catch ( final javax.validation.ConstraintViolationException e )
     {
-      final java.lang.StringBuilder sb = new java.lang.StringBuilder();
+      final var sb = new java.lang.StringBuilder();
       sb.append( "Pre-persist constraint violations:\n" );
-      for ( final javax.validation.ConstraintViolation<?> constraintViolation : e.getConstraintViolations() )
+      for ( final var constraintViolation : e.getConstraintViolations() )
       {
         sb.append( constraintViolation.getPropertyPath() );
         sb.append( " -> " );
         sb.append( constraintViolation.getMessage() );
         sb.append( '\n' );
       }
-      final javax.validation.ConstraintViolationException wrap = new javax.validation.ConstraintViolationException( sb.toString(), e.getConstraintViolations() );
+      final var wrap = new javax.validation.ConstraintViolationException( sb.toString(), e.getConstraintViolations() );
       wrap.initCause( e );
       throw wrap;
     }

@@ -63,7 +63,7 @@ public class <%= repository.jpa.persistent_test_module_name %>
   @javax.annotation.Nonnull
   private static java.util.Properties mergeProperties( @javax.annotation.Nullable final java.util.Properties additionalProperties )
   {
-    final java.util.Properties properties = new java.util.Properties();
+    final var properties = new java.util.Properties();
     properties.put( "javax.persistence.jdbc.driver", "<%= repository.sql.sql_driver %>" );
     if ( null != additionalProperties )
     {

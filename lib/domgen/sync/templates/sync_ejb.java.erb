@@ -72,13 +72,13 @@ class <%= data_module.sync.sync_ejb_name %>
   private void sync<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
-    final long entityStartAt = System.currentTimeMillis();
+    final var entityStartAt = System.currentTimeMillis();
     log( mappingSourceCode, "Synchronizing <%= entity.data_module.name %>.<%= entity.name %> removals" );
     mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( mappingSourceCode, recorder );
     synchronize<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
-    final int removeCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveCount" ).get();
+    final var removeCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveCount" ).get();
     log( mappingSourceCode, "Removed " + removeCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
-    final long entityEndAt = System.currentTimeMillis();
+    final var entityEndAt = System.currentTimeMillis();
     log( mappingSourceCode, "Synchronization of <%= entity.qualified_name %> removals completed in " + ( entityEndAt - entityStartAt ) + "ms" );
     recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.RemoveDuration", (int) ( entityEndAt - entityStartAt ) );
   }
@@ -90,38 +90,39 @@ class <%= data_module.sync.sync_ejb_name %>
   private void sync<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder<% if bulk_sync -%>, final boolean isBulkSync<% end -%> )
     throws Exception
   {
-    final long entityStartAt = System.currentTimeMillis();
+    final var entityStartAt = System.currentTimeMillis();
     log( mappingSourceCode, <% if bulk_sync -%>( isBulkSync ? "Bulk " : "" ) + <% end -%>"Synchronizing <%= entity.qualified_name %> adds and updates" );
     synchronize<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder<% if bulk_sync -%>, isBulkSync<% end -%> );
-    final int addCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount" ).get();
+    final var addCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.AddCount" ).get();
     log( mappingSourceCode, "Added " + addCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
 <% if entity.sync.update_via_sync? -%>
-    final int updateCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount" ).get();
+    final var updateCount = recorder.getMetricValue( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateCount" ).get();
     log( mappingSourceCode, "Updated " + updateCount + " <%= entity.data_module.name %>.<%= entity.name %> instances" );
 <% end -%>
-    final long entityEndAt = System.currentTimeMillis();
+    final var entityEndAt = System.currentTimeMillis();
     log( mappingSourceCode, "Synchronization of <%= entity.qualified_name %> adds and updated completed in " + ( entityEndAt - entityStartAt ) + "ms" );
     recorder.incMetric( "<%= entity.data_module.name %>.<%= entity.name %>.UpdateDuration", (int) ( entityEndAt - entityStartAt ) );
   }
 <% end -%>
 
+  @javax.annotation.Nonnull
   private iris.syncrecord.server.data_type.SyncStatusDTO performSynchronization( @javax.annotation.Nonnull final String mappingSourceCode )
   {
-    final iris.syncrecord.server.service.SynchronizationRecorder recorder = startSynchronization( mappingSourceCode );
+    final var recorder = startSynchronization( mappingSourceCode );
 
     _context.preSync( recorder );
 
     resetMetrics( recorder );
 
-    final String bulkSyncFlag = mappingSourceCode + ".nextSyncIsBulk";
-    final boolean isBulkSync = isFeatureEnabled( bulkSyncFlag );
+    final var bulkSyncFlag = mappingSourceCode + ".nextSyncIsBulk";
+    final var isBulkSync = isFeatureEnabled( bulkSyncFlag );
     if ( isBulkSync )
     {
       recorder.incMetric( mappingSourceCode + ".syncWasBulk", 1 );
     }
 
     log( mappingSourceCode, "Synchronizing data" + ( isBulkSync ? " in bulk" : "" ) );
-    final long syncStartAt = System.currentTimeMillis();
+    final var syncStartAt = System.currentTimeMillis();
     try
     {
 <% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
@@ -151,7 +152,7 @@ class <%= data_module.sync.sync_ejb_name %>
     }
     finally
     {
-      final long syncEndAt = System.currentTimeMillis();
+      final var syncEndAt = System.currentTimeMillis();
       recorder.incMetric( "Duration", (int) ( syncEndAt - syncStartAt ) );
       completeSynchronization( recorder );
       if( iris.syncrecord.server.data_type.Status.OK == recorder.getStatus() )
@@ -170,7 +171,7 @@ class <%= data_module.sync.sync_ejb_name %>
 
   private void log( final String mappingSourceCode, final String message, final Throwable t )
   {
-    final String prefix = mappingSourceCode + ": ";
+    final var prefix = mappingSourceCode + ": ";
     LOG.log( java.util.logging.Level.INFO, prefix + message, t );
   }
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
@@ -220,11 +221,11 @@ class <%= data_module.sync.sync_ejb_name %>
     Exception lastException = null;
     // loop until no unprocessed entities or only entities
     // unprocessed are those with errors
-    final java.util.ArrayList<Object[]> errors = new java.util.ArrayList<>();
+    final var errors = new java.util.ArrayList<Object[]>();
     while( true )
     {
       // Consider allowing chunking/limits to limit memory pressure of large syncs
-      final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
+      final var results = query<%= entity.data_module.name %><%= entity.name %>Updates( mappingSourceCode, recorder );
       if ( results.isEmpty() || errors.size() == results.size() )
       {
         if ( null != lastException )
@@ -234,7 +235,7 @@ class <%= data_module.sync.sync_ejb_name %>
         return;
       }
       errors.clear();
-      for ( final Object[] result : results )
+      for ( final var result : results )
       {
         try
         {
@@ -288,10 +289,10 @@ class <%= data_module.sync.sync_ejb_name %>
   {
     try
     {
-      int count = 0;
+      var count = 0;
       while ( true )
       {
-        final int stepCount =_context.mark<%=entity.data_module.name%><%=entity.name%>RemovalsPreSync(mappingSourceCode);
+        final var stepCount =_context.mark<%=entity.data_module.name%><%=entity.name%>RemovalsPreSync(mappingSourceCode);
         if ( 0 == stepCount )
         {
           return count;
@@ -312,17 +313,17 @@ class <%= data_module.sync.sync_ejb_name %>
   {
     // loop until no unprocessed entities or only entities
     // unprocessed are those with errors
-    final java.util.ArrayList<Object[]> errors = new java.util.ArrayList<>();
+    final var errors = new java.util.ArrayList<Object[]>();
     while( true )
     {
       // Consider allowing chunking/limits to limit memory pressure of large syncs
-      final java.util.List<Object[]> results = query<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
+      final var results = query<%= entity.data_module.name %><%= entity.name %>Removals( mappingSourceCode, recorder );
       if ( results.isEmpty() || errors.size() == results.size() )
       {
         return;
       }
       errors.clear();
-      for ( final Object[] result : results )
+      for ( final var result : results )
       {
         final int masterId = (Integer) result[ 0 ];
         try

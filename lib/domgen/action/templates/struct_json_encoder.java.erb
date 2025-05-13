@@ -11,8 +11,8 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
   @javax.annotation.Nonnull
   <% unless struct.ee.module_local? %>public <% end %>static javax.json.JsonArray encode( @javax.annotation.Nonnull final java.util.List<<%= struct.ee.qualified_name %>> structs )
   {
-    final javax.json.JsonArrayBuilder builder = javax.json.Json.createArrayBuilder();
-    for ( final <%= struct.ee.qualified_name %> struct : structs )
+    final var builder = javax.json.Json.createArrayBuilder();
+    for ( final var struct : structs )
     {
       builder.add( encode( struct ) );
     }
@@ -52,7 +52,7 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
   <% unless struct.ee.module_local? %>public <% end %>static java.util.List<<%= struct.ee.qualified_name %>> decode( @javax.annotation.Nonnull final javax.json.JsonArray jsonArray )
   {
     final java.util.List<<%= struct.ee.qualified_name %>> array = new java.util.ArrayList<>();
-    for ( final javax.json.JsonValue value : jsonArray )
+    for ( final var value : jsonArray )
     {
       array.add( decode( value.asJsonObject() ) );
     }

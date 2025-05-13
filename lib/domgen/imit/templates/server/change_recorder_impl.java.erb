@@ -20,7 +20,7 @@ class <%= repository.imit.change_recorder_impl_name %>
   @Override
   public void recordEntityMessageForEntity( @javax.annotation.Nonnull final Object entity, final boolean isUpdate )
   {
-    final org.realityforge.replicant.server.EntityMessage entityMessage = _messageGenerator.convertToEntityMessage( entity, isUpdate, false );
+    final var entityMessage = _messageGenerator.convertToEntityMessage( entity, isUpdate, false );
     if ( null != entityMessage )
     {
       org.realityforge.replicant.server.ee.EntityMessageCacheUtil.getEntityMessageSet( _registry ).merge( entityMessage );

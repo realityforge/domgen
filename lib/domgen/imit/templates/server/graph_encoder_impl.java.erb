@@ -62,7 +62,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
     outgoing_links.each do |a|
       if a.inverse.multiplicity == :many
 -%>
-    for ( final <%= a.entity.jpa.qualified_name %> o : <% if graph.filtered? %>_context.get<%= a.inverse.attribute.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( object<% if graph.filter_parameter? %>, filter<% end %> )<% elsif !a.inverse.jpa.java_traversable? %>_<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllBy<%= a.name %>( object )<% else %>object.get<%= Reality::Naming.pascal_case(Reality::Naming.pluralize(a.inverse.name)) %>()<% end %> )
+    for ( final var o : <% if graph.filtered? %>_context.get<%= a.inverse.attribute.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( object<% if graph.filter_parameter? %>, filter<% end %> )<% elsif !a.inverse.jpa.java_traversable? %>_<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllBy<%= a.name %>( object )<% else %>object.get<%= Reality::Naming.pascal_case(Reality::Naming.pluralize(a.inverse.name)) %>()<% end %> )
     {
       if( !messages.containsEntityMessage( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(a.entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(a.entity.name.to_s) %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
       {
@@ -73,7 +73,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
       elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
 -%>
     {
-      final <%= a.entity.jpa.qualified_name %> o = <% if filter_param %>_context.get<%= a.inverse.attribute.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( object, filter )<% elsif !a.inverse.jpa.java_traversable? %>_<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.<%= a.inverse.multiplicity == :zero_or_one ? 'find' : 'get' %>By<%= a.name %>( object )<% else %>object.get<%= a.inverse.name %>()<% end %>;
+      final var o = <% if filter_param %>_context.get<%= a.inverse.attribute.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( object, filter )<% elsif !a.inverse.jpa.java_traversable? %>_<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.<%= a.inverse.multiplicity == :zero_or_one ? 'find' : 'get' %>By<%= a.name %>( object )<% else %>object.get<%= a.inverse.name %>()<% end %>;
       <% if a.inverse.multiplicity == :zero_or_one %>if( null != o )<% end %>
       {
         if( !messages.containsEntityMessage( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(a.entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(a.entity.name.to_s) %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
@@ -109,7 +109,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
 
   public void encodeObjects( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final java.util.List<?> objects )
   {
-    for ( final Object object : objects )
+    for ( final var object : objects )
     {
       encodeObject( messages, object );
     }
@@ -119,7 +119,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
   {
     if ( null != object )
     {
-      final org.realityforge.replicant.server.EntityMessage message = _messageGenerator.convertToEntityMessage( object, true, true );
+      final var message = _messageGenerator.convertToEntityMessage( object, true, true );
       if ( null != message )
       {
         messages.merge( message, true );

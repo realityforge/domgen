@@ -9,7 +9,7 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
   @java.lang.Override
   protected com.google.inject.Module[] getModules()
   {
-    final java.util.ArrayList<com.google.inject.Module> modules = new java.util.ArrayList<>();
+    final var modules = new java.util.ArrayList<com.google.inject.Module>();
     java.util.Collections.addAll( modules, super.getModules() );
 <% repository.ejb.test_modules.keys.each do |name| -%>
     addModule( modules, new<%= name %>() );
@@ -84,7 +84,7 @@ public abstract class <%= repository.ejb.abstract_service_test_name %>
 
   protected void assert<%= message.ee.name %>Event( final int index<%= message.parameters.empty? ? '' : ', ' %><%= message.parameters.collect{|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Reality::Naming.camelize(parameter.name)}" }.join(', ') -%> )
   {
-    final <%= message.ee.qualified_name %> $event$ = get<%= message.ee.name %>Event( index );
+    final var $event$ = get<%= message.ee.name %>Event( index );
 <% message.parameters.each do |parameter| -%>
     org.testng.Assert.assertEquals( $event$.<%= getter_for(parameter) %>, <%= Reality::Naming.camelize(parameter.name) %> );
 <% end -%>

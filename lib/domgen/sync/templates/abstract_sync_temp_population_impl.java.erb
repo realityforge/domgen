@@ -98,7 +98,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @java.lang.Override
   public int count<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode )
   {
-    final int transactionIsolationLevel = getTransactionIsolation();
+    final var transactionIsolationLevel = getTransactionIsolation();
     try
     {
       setTransactionIsolation( java.sql.Connection.TRANSACTION_READ_UNCOMMITTED );
@@ -124,8 +124,8 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   protected boolean printInvalid<%= entity.qualified_name.gsub('.','') %>Rows( @javax.annotation.Nonnull final java.lang.String banner, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
-    boolean validationFailed = false;
-    try ( java.sql.ResultSet resultSet = statement.executeQuery() )
+    var validationFailed = false;
+    try ( var resultSet = statement.executeQuery() )
     {
       while( resultSet.next() )
       {
@@ -145,7 +145,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   protected boolean verify<%= entity.qualified_name.gsub('.','') %>ViaSql( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" ) @javax.annotation.Nonnull final java.lang.String sql, @javax.annotation.Nonnull final java.lang.String validation, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
     throws Exception
   {
-    try ( java.sql.PreparedStatement statement = getEntityManager().unwrap( java.sql.Connection.class ).prepareStatement( sql ) )
+    try ( var statement = getEntityManager().unwrap( java.sql.Connection.class ).prepareStatement( sql ) )
     {
       statement.setString( 1, mappingSourceCode );
       return !printInvalid<%= entity.qualified_name.gsub('.','') %>Rows( "Failed to validate " + validation + " for entity <%= entity.qualified_name %>.", statement, recorder );
@@ -157,7 +157,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   {
 <% unless data_module.repository.pgsql? -%>
 <%# Revisit this block if Postgres will support dirty reads in the future -%>
-    final int transactionIsolationLevel = getTransactionIsolation();
+    final var transactionIsolationLevel = getTransactionIsolation();
     try
     {
       setTransactionIsolation( java.sql.Connection.TRANSACTION_READ_UNCOMMITTED );
@@ -194,12 +194,12 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
   @java.lang.SuppressWarnings( "ConstantConditions" )
   private void doVerify<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
-    boolean validationFailed = false;
+    var validationFailed = false;
     try
     {
       {
         @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
-        final String sql =
+        final var sql =
           "SELECT S.* " +
           " FROM " +
           "<%= j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +
@@ -216,9 +216,9 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
       {
         @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
 <% if index.partial? %>
-        final String sql = get_<%= entity.data_module.name %>_<%= entity.name %>_<%= index.index_name %>_IndexValidationSql();
+        final var sql = get_<%= entity.data_module.name %>_<%= entity.name %>_<%= index.index_name %>_IndexValidationSql();
 <% else %>
-        final String sql =
+        final var sql =
           "SELECT S.* " +
           "FROM " +
           "<%= j_escape_string("  #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +
@@ -234,7 +234,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% entity.attributes.select{|a| a.sync? && a.immutable? && !a.primary_key? && a.name != :CreatedAt}.each do |a| %>
       {
         @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
-        final String sql =
+        final var sql =
           "SELECT S.* " +
           " FROM " +
           "<%= j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +
@@ -280,7 +280,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% entity.attributes.select{|a| a.sync? && a.set_once? && !a.primary_key? && a.name != :DeletedAt}.each do |a| %>
       {
         @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
-        final String sql =
+        final var sql =
           "SELECT S.* " +
           " FROM " +
           "<%= j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +
@@ -327,7 +327,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% entity.sql.constraints.select{|constraint| !(constraint.sql =~ /\[CreatedAt\]/ && constraint.sql =~ /\[DeletedAt\]/) }.each do |constraint| %>
       {
         @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
-        final String sql = get<%= constraint.table.entity.data_module.name %><%= constraint.table.entity.name %><%= constraint.name %>Sql();
+        final var sql = get<%= constraint.table.entity.data_module.name %><%= constraint.table.entity.name %><%= constraint.name %>Sql();
         if ( !verify<%= entity.qualified_name.gsub('.','') %>ViaSql( mappingSourceCode, sql, "Attempted to violate constraint <%= j_escape_string( constraint.qualified_constraint_name ) %>", recorder ) )
         {
           validationFailed = true;
@@ -337,7 +337,7 @@ public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_na
 <% entity.attributes.select{|a| a.sync? && a.reference?}.each do |a| -%>
       {
         @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
-        final String sql =
+        final var sql =
           "SELECT S.* " +
           " FROM " +
           "<%= j_escape_string("   #{ entity.sync.sync_temp_entity.sql.qualified_table_name } AS S ") %>" +

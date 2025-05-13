@@ -8,7 +8,7 @@ public class <%= repository.jws.handler_resolver_name %>
   @Override
   public java.util.List<javax.xml.ws.handler.Handler> getHandlerChain( final javax.xml.ws.handler.PortInfo portInfo )
   {
-    final java.util.ArrayList<javax.xml.ws.handler.Handler> chain = new java.util.ArrayList<>();
+    final var chain = new java.util.ArrayList<javax.xml.ws.handler.Handler>();
 <% repository.jws.handlers.each do |handler| -%>
     chain.add( new <%= handler %>() );
 <% end -%>

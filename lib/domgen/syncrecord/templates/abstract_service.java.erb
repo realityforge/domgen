@@ -78,18 +78,17 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
     }
     else
     {
-      final java.util.ArrayList<String> messages = new java.util.ArrayList<>();
-      final java.util.Date syncStart = _currentSyncStartTime;
-      final iris.syncrecord.server.service.SynchronizationRecorder recorder = _recorder;
-      messages.add( "Synchronization currently active, started at " +
-        ( ( null != syncStart ) ? syncStart.toString() : "unknown" ) );
+      final var messages = new java.util.ArrayList<java.lang.String>();
+      final var syncStart = _currentSyncStartTime;
+      final var recorder = _recorder;
+      messages.add( "Synchronization currently active, started at " + ( ( null != syncStart ) ? syncStart.toString() : "unknown" ) );
       if ( null != recorder )
       {
-        final java.util.List<iris.syncrecord.server.service.SynchronizationRecorder.MessageRecord> records = recorder.getMessageRecords();
+        final var records = recorder.getMessageRecords();
         messages.add( "Sync is running for " + recorder.getDataSourceCode() );
         if ( !records.isEmpty() )
         {
-          final iris.syncrecord.server.service.SynchronizationRecorder.MessageRecord last = records.get(records.size() - 1);
+          final var last = records.get( records.size() - 1 );
           messages.add( "Last Message: " + last.getMessage() + " at " + new java.util.Date( last.getTime() ) );
         }
       }
@@ -99,7 +98,7 @@ public abstract class <%= service.syncrecord.abstract_service_name %>
 
   <%= annotated_type(method.return_value, :ejb, :default, :private => true) %> do<%= method.name %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)
   {
-    final iris.syncrecord.server.service.SynchronizationRecorder recorder = startSynchronization( <%= datasource %> );
+    final var recorder = startSynchronization( <%= datasource %> );
     _recorder = recorder;
     prepare<%= method.name %>( recorder );
     try

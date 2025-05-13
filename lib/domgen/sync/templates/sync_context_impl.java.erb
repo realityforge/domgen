@@ -251,8 +251,8 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @javax.annotation.Nonnull
   public java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Updates( @javax.annotation.Nonnull final String mappingSourceCode )
   {
-    final String sql = getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToUpdate( mappingSourceCode );
-    final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
+    final var sql = getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToUpdate( mappingSourceCode );
+    final var query = _entityManager.createNativeQuery( sql );
     query.setParameter( 1, mappingSourceCode );
     return query.getResultList();
   }
@@ -262,8 +262,8 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @javax.annotation.Nonnull
   public java.util.List<Object[]> query<%= entity.data_module.name %><%= entity.name %>Removals( @javax.annotation.Nonnull final String mappingSourceCode )
   {
-    final String sql = getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToRemove( mappingSourceCode );
-    final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
+    final var sql = getSqlToRetrieve<%= entity.data_module.name %><%= entity.name %>ListToRemove( mappingSourceCode );
+    final var query = _entityManager.createNativeQuery( sql );
     query.setParameter( 1, mappingSourceCode );
     return query.getResultList();
   }
@@ -275,13 +275,13 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% attr = entity.sync.master_entity.attributes.select{|a| a.primary_key? || entity.attribute_by_name?(a.name) }.collect{|a| a.primary_key? ? entity.primary_key : entity.attribute_by_name(a.name)} + [entity.attribute_by_name(:MasterId)] -%>
 <% attr.each_with_index do |a, i| -%>
 <% if a.enumeration? && a.enumeration.textual_values? -%>
-    final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : ''  %><%= a.jpa.java_type(:boundary) %>.valueOf( (java.lang.String) record[ <%= i %> ] );
+    final var v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : ''  %><%= a.jpa.java_type(:boundary) %>.valueOf( (java.lang.String) record[ <%= i %> ] );
 <% elsif a.enumeration? -%>
-    final <%= a.jpa.java_type(:boundary) %> v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : '' %><%= a.jpa.java_type(:boundary) %>.values()[ (java.lang.Integer) record[ <%= i %> ] ];
+    final var v_<%= a.name %> = <%= a.nullable? ? "null == record[ #{i} ] ? null : " : '' %><%= a.jpa.java_type(:boundary) %>.values()[ (java.lang.Integer) record[ <%= i %> ] ];
 <% elsif a.real? -%>
-    final java.lang.Double v_<%= a.name %> = (java.lang.Double) record[ <%= i %> ];
+    final var v_<%= a.name %> = (java.lang.Double) record[ <%= i %> ];
 <% else -%>
-    final <%= a.jpa.non_primitive_java_type(:boundary) %> v_<%= a.name %> = (<%= a.jpa.non_primitive_java_type(:boundary) %>) record[ <%= i %> ];
+    final var v_<%= a.name %> = (<%= a.jpa.non_primitive_java_type(:boundary) %>) record[ <%= i %> ];
 <% end -%>
 <% end -%>
 <% attr.select{|a|a.reference?}.each do |a| -%>
@@ -315,7 +315,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% end -%>
 <% end -%>
 
-    final String v_MappingId = (String) record[ <%= attr.size %> ];
+    final var v_MappingId = (String) record[ <%= attr.size %> ];
 
     final <%= entity.jpa.qualified_name %> entity;
     if( null == v_<%= entity.primary_key.name %> )
@@ -400,10 +400,10 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @java.lang.SuppressWarnings( "deprecation" )
   public boolean remove<%= entity.data_module.name %><%= entity.name %>( final int masterId, @javax.annotation.Nullable final <%= entity.primary_key.jpa.java_type(:boundary) %> id )
   {
-    boolean deleted = false;
+    var deleted = false;
     if( null != id )
     {
-      final <%= entity.jpa.qualified_name %> entity = _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.findBy<%= entity.primary_key.name %>( id );
+      final var entity = _<%= Reality::Naming.camelize(entity.data_module.name) %><%= entity.name %>Repository.findBy<%= entity.primary_key.name %>( id );
       if( null != entity )
       {
         deleted = true;
@@ -422,8 +422,8 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
 <% if entity.transaction_time? -%>
 <% entity.sync.references_not_requiring_manual_sync.select{|a| a.entity.qualified_name == entity.qualified_name }.each do |a| -%>
         {
-          final java.util.List<<%= a.entity.jpa.qualified_name %>> incomingReferences = _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllBy<%= a.name %>( entity );
-          for ( final <%= a.entity.jpa.qualified_name %> other : incomingReferences )
+          final var incomingReferences = _<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllBy<%= a.name %>( entity );
+          for ( final var other : incomingReferences )
           {
 <% if a.nullable? -%>
             other.set<%= a.name %>( null );
@@ -463,7 +463,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @java.lang.Override
   public int mark<%= entity.data_module.name %><%= entity.name %>RemovalsPreSync( @javax.annotation.Nonnull final String mappingSourceCode )
   {
-    final String sql =
+    final var sql =
       "<%= j_escape_string("UPDATE #{data_module.repository.pgsql? ? "" : "TOP (500)"} #{entity.sync.master_entity.sql.qualified_table_name}") %>" +
       "<%= j_escape_string(" SET #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.true_sql}") %>" +
 <%  if data_module.repository.pgsql? -%>
@@ -482,7 +482,7 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
       "<%= j_escape_string("   #{data_module.sql.dialect.quote(:MappingSource)} = ?") %>";
 <%  end -%>
 
-    final javax.persistence.Query query = _entityManager.createNativeQuery( sql );
+    final var query = _entityManager.createNativeQuery( sql );
     query.setParameter( 1, mappingSourceCode );
     return query.executeUpdate();
   }
@@ -492,18 +492,17 @@ public abstract class <%= data_module.sync.sync_context_impl_name %>
   @java.lang.Override
   public int bulkCreate<%= fn %>( @javax.annotation.Nonnull final String mappingSourceCode )
   {
-    final String insertSql = getSqlToDirectlyInsert<%= fn %>( mappingSourceCode );
-    final javax.persistence.Query insertQuery = _entityManager.createNativeQuery( insertSql );
+    final var insertSql = getSqlToDirectlyInsert<%= fn %>( mappingSourceCode );
+    final var insertQuery = _entityManager.createNativeQuery( insertSql );
     insertQuery.setParameter( 1, mappingSourceCode );
-    final int insertionCount = insertQuery.executeUpdate();
+    final var insertionCount = insertQuery.executeUpdate();
 
-    final String updateSql;
     if ( insertionCount > 0 )
     {
-      updateSql = getSqlToMarkInserted<%=fn%>AsSynchronized( mappingSourceCode );
-      final javax.persistence.Query updateQuery =_entityManager.createNativeQuery( updateSql );
+      final var updateSql = getSqlToMarkInserted<%=fn%>AsSynchronized( mappingSourceCode );
+      final var updateQuery =_entityManager.createNativeQuery( updateSql );
       updateQuery.setParameter( 1, mappingSourceCode );
-      final int updateCount = updateQuery.executeUpdate();
+      final var updateCount = updateQuery.executeUpdate();
 
       if ( updateCount != insertionCount )
       {

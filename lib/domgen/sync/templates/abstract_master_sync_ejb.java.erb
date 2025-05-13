@@ -12,8 +12,8 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 
   protected void syncControl( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
-    final String forceSyncFeatureFlag = "ForceSync" + mappingSourceCode;
-    final boolean forceSync = isFeatureEnabled( forceSyncFeatureFlag );
+    final var forceSyncFeatureFlag = "ForceSync" + mappingSourceCode;
+    final var forceSync = isFeatureEnabled( forceSyncFeatureFlag );
     recorder.incMetric( forceSyncFeatureFlag, forceSync ? 1 : 0 );
     syncControl( mappingSourceCode, new java.util.Date(), recorder, forceSync );
     if ( iris.syncrecord.server.data_type.Status.OK == recorder.getStatus() )
@@ -80,10 +80,10 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 <% data_module.sync.entities_to_synchronize.reverse.each do |entity| -%>
   private void reset<%= entity.data_module.name %><%= entity.name %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder )
   {
-    final long entityStartAt = System.currentTimeMillis();
+    final var entityStartAt = System.currentTimeMillis();
     log( recorder, "Reset SyncTemp for <%= entity.qualified_name %>" );
     _syncTempPopulationService.reset<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, at, recorder );
-    final long entityEndAt = System.currentTimeMillis();
+    final var entityEndAt = System.currentTimeMillis();
     log( recorder, "Reset SyncTemp for <%= entity.qualified_name %> completed in " + ( entityEndAt - entityStartAt ) + "ms" );
     recorder.incMetric( "<%= entity.qualified_name %>.ResetSyncTempDuration", (int) ( entityEndAt - entityStartAt ) );
   }
@@ -92,9 +92,9 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
 <% data_module.sync.entities_to_synchronize.each do |entity| -%>
   private void syncEntity<%= entity.data_module.name %><%= entity.name %>( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at, @javax.annotation.Nonnull final iris.syncrecord.server.service.SynchronizationRecorder recorder, final boolean forceSync )
   {
-    final long entityStartAt = System.currentTimeMillis();
+    final var entityStartAt = System.currentTimeMillis();
     sync<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, at, recorder, forceSync );
-    final long entityEndAt = System.currentTimeMillis();
+    final var entityEndAt = System.currentTimeMillis();
     recorder.incMetric( "<%= entity.qualified_name %>.TotalSyncDuration", (int) ( entityEndAt - entityStartAt ) );
   }
 <% end -%>
@@ -115,7 +115,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
   protected int sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( @javax.annotation.Nonnull final java.lang.String mappingSourceCode, @javax.annotation.Nonnull final java.util.Date at )
   {
     @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
-    final String $sql =
+    final var $sql =
       "<%= j_escape_string("UPDATE #{entity.sql.dialect.requires_table_name_for_update ? "#{entity.sync.master_entity.sql.qualified_table_name} U" : 'M' }" ) %>" +
       "<%= j_escape_string(" SET #{ entity.sync.master_entity.attribute_by_name(:DeletedAt).sql.quoted_column_name} = ?, #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql} ") %>" +
       "<%= j_escape_string(" FROM #{entity.sync.master_entity.sql.qualified_table_name} AS M ") %>" +
@@ -131,7 +131,7 @@ public abstract class <%= data_module.sync.abstract_master_sync_ejb_name %>
   {
 <% reference_index = 0 -%>
     @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
-    final String sql =
+    final var sql =
       "<%= j_escape_string("UPDATE #{entity.sql.dialect.requires_table_name_for_update ? "#{entity.sync.master_entity.sql.qualified_table_name} U" : 'M' }") %>" +
       "<%= j_escape_string(" SET #{entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name} = #{entity.sql.dialect.false_sql}, ") %>" +
       "<%= j_escape_string("     #{entity.sync.attributes_to_update.select{|a| ![:MappingKey, :MappingId].include?(a.name)}.collect{|a| "#{entity.sync.master_entity.attribute_by_name(a.name).sql.quoted_column_name} = #{
@@ -230,8 +230,8 @@ end
 <% java_command = 'getEntityManager().createNativeQuery( sql ).setParameter( 1, mappingSourceCode ).executeUpdate()' -%>
 <% if entity.sync.recursive? -%>
     // Handle recursive tables
-    int count = <%= java_command -%>;
-    int total = count;
+    var count = <%= java_command -%>;
+    var total = count;
     while( count  > 0 )
     {
       count = <%= java_command -%>;
@@ -248,7 +248,7 @@ end
   {
 <% reference_index = 0 -%>
     @org.intellij.lang.annotations.Language( "<%= data_module.mssql? ? 'TSQL' : 'PostgreSQL' %>" )
-    final String sql =
+    final var sql =
       "<%= j_escape_string("INSERT INTO #{ entity.sync.master_entity.sql.qualified_table_name }(#{ entity.sync.master_entity.attribute_by_name(:MasterSynchronized).sql.quoted_column_name }, #{ entity.sync.master_entity.attribute_by_name(:CreatedAt).sql.quoted_column_name }, #{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }, #{ entity.sync.attributes_to_synchronize.collect{|a| a.sql.quoted_column_name }.join(', ') }) ") %>" +
       "<%= j_escape_string(" SELECT #{entity.sql.dialect.false_sql }, ?, T.#{ entity.sync.master_entity.attribute_by_name(:MappingSource).sql.quoted_column_name }, #{ entity.sync.attributes_to_synchronize.collect{|a|
 if a.reference?
@@ -320,8 +320,8 @@ end
 <% java_command ='getEntityManager().createNativeQuery( sql ).setParameter( 1, at ).setParameter( 2, mappingSourceCode ).executeUpdate()'-%>
 <% if entity.sync.recursive? -%>
     // Handle recursive tables
-    int count = <%= java_command -%>;
-    int total = count;
+    var count = <%= java_command -%>;
+    var total = count;
     while( count  > 0 )
     {
       count = <%= java_command -%>;
@@ -338,37 +338,37 @@ end
     log( recorder, "Beginning synchronization of <%= entity.qualified_name %>" );
 
     {
-      final long entityStartAt = System.currentTimeMillis();
+      final var entityStartAt = System.currentTimeMillis();
       log( recorder, "Populating SyncTemp for <%= entity.qualified_name %>" );
       _syncTempPopulationService.populate<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, at, recorder );
-      final long entityEndAt = System.currentTimeMillis();
+      final var entityEndAt = System.currentTimeMillis();
       log( recorder, "Reset SyncTemp for <%= entity.qualified_name %> completed in " + ( entityEndAt - entityStartAt ) + "ms" );
       recorder.incMetric( "<%= entity.qualified_name %>.PopulateSyncTempDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 
     {
-      final long entityStartAt = System.currentTimeMillis();
+      final var entityStartAt = System.currentTimeMillis();
       log( recorder, "Finalizing SyncTemp for <%= entity.qualified_name %>" );
       _syncTempPopulationService.finalize<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, at, recorder );
-      final long entityEndAt = System.currentTimeMillis();
+      final var entityEndAt = System.currentTimeMillis();
       log( recorder, "Finalizing SyncTemp for <%= entity.qualified_name %> completed in " + ( entityEndAt - entityStartAt ) + "ms" );
       recorder.incMetric( "<%= entity.qualified_name %>.FinalizeSyncTempDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 
     {
-      final long entityStartAt = System.currentTimeMillis();
+      final var entityStartAt = System.currentTimeMillis();
       log( recorder, "Verifying SyncTemp for <%= entity.qualified_name %>" );
       _syncTempPopulationService.verify<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode, recorder );
-      final long entityEndAt = System.currentTimeMillis();
+      final var entityEndAt = System.currentTimeMillis();
       log( recorder, "Verifying SyncTemp for <%= entity.qualified_name %> completed in " + ( entityEndAt - entityStartAt ) + "ms" );
       recorder.incMetric( "<%= entity.qualified_name %>.VerifySyncTempDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 
     {
-      final long entityStartAt = System.currentTimeMillis();
-      final int newCount = _syncTempPopulationService.count<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode );
-      final int oldCount = count<%= entity.qualified_name.gsub('.','') %>Master( mappingSourceCode );
-      final int diff = Math.abs( newCount - oldCount );
+      final var entityStartAt = System.currentTimeMillis();
+      final var newCount = _syncTempPopulationService.count<%= entity.qualified_name.gsub('.','') %>( mappingSourceCode );
+      final var oldCount = count<%= entity.qualified_name.gsub('.','') %>Master( mappingSourceCode );
+      final var diff = Math.abs( newCount - oldCount );
 
       recorder.incMetric( "<%= entity.qualified_name %>.Total.Original", oldCount );
       recorder.incMetric( "<%= entity.qualified_name %>.Total.New", newCount );
@@ -376,22 +376,22 @@ end
       // The change must be less than 10 % unless forceSync is set
       if ( !forceSync && diff > 10 && oldCount > 10 && (diff > 0.1 * oldCount) )
       {
-        final String message = "Abnormal update count (Diff = " + diff + ", Old Row Count = " + oldCount + ", New Row Count = " + newCount + ") observed for <%= entity.qualified_name %>. Halting sync process.";
+        final var message = "Abnormal update count (Diff = " + diff + ", Old Row Count = " + oldCount + ", New Row Count = " + newCount + ") observed for <%= entity.qualified_name %>. Halting sync process.";
         log( recorder, message );
         throw new IllegalStateException( message );
       }
-      final long entityEndAt = System.currentTimeMillis();
+      final var entityEndAt = System.currentTimeMillis();
       log( recorder, "DiffCheck for <%= entity.qualified_name %> completed in " + ( entityEndAt - entityStartAt ) + "ms" );
       recorder.incMetric( "<%= entity.qualified_name %>.DiffCheckDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 
 <% if entity.sync.support_remove? -%>
     {
-      final long entityStartAt = System.currentTimeMillis();
+      final var entityStartAt = System.currentTimeMillis();
       log( recorder, "Synchronizing deletes for <%= entity.qualified_name %>" );
-      final int deleteCount = sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( mappingSourceCode, at );
+      final var deleteCount = sync<%= entity.qualified_name.gsub('.','') %>DeletesToMaster( mappingSourceCode, at );
       recorder.incMetric( "<%= entity.qualified_name %>.RemoveCount", deleteCount );
-      final long entityEndAt = System.currentTimeMillis();
+      final var entityEndAt = System.currentTimeMillis();
       log( recorder, "Deleted " + deleteCount + " records for <%= entity.qualified_name %> in " + ( entityEndAt - entityStartAt ) + "ms" );
       recorder.incMetric( "<%= entity.qualified_name %>.RemoveDuration", (int) ( entityEndAt - entityStartAt ) );
     }
@@ -399,22 +399,22 @@ end
 <% end %>
 <% if entity.sync.update_via_sync? %>
     {
-      final long entityStartAt = System.currentTimeMillis();
+      final var entityStartAt = System.currentTimeMillis();
       log( recorder, "Synchronizing updates for <%= entity.qualified_name %>" );
-      final int updateCount = sync<%= entity.qualified_name.gsub('.','') %>UpdatesToMaster( mappingSourceCode, at );
+      final var updateCount = sync<%= entity.qualified_name.gsub('.','') %>UpdatesToMaster( mappingSourceCode, at );
       recorder.incMetric( "<%= entity.qualified_name %>.UpdateCount", updateCount );
-      final long entityEndAt = System.currentTimeMillis();
+      final var entityEndAt = System.currentTimeMillis();
       log( recorder, "Updated " + updateCount + " records for <%= entity.qualified_name %> in " + ( entityEndAt - entityStartAt ) + "ms" );
       recorder.incMetric( "<%= entity.qualified_name %>.UpdateDuration", (int) ( entityEndAt - entityStartAt ) );
     }
 
 <% end %>
     {
-      final long entityStartAt = System.currentTimeMillis();
+      final var entityStartAt = System.currentTimeMillis();
       log( recorder, "Synchronizing creates for <%= entity.qualified_name %>" );
-      final int createCount = sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( mappingSourceCode, at );
+      final var createCount = sync<%= entity.qualified_name.gsub('.','') %>CreatesToMaster( mappingSourceCode, at );
       recorder.incMetric( "<%= entity.qualified_name %>.AddCount", createCount );
-      final long entityEndAt = System.currentTimeMillis();
+      final var entityEndAt = System.currentTimeMillis();
       log( recorder, "Created " + createCount + " records for <%= entity.qualified_name %> in " + ( entityEndAt - entityStartAt ) + "ms" );
       recorder.incMetric( "<%= entity.qualified_name %>.AddDuration", (int) ( entityEndAt - entityStartAt ) );
     }

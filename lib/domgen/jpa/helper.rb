@@ -445,7 +445,7 @@ STR
 
   #{j_deprecation_warning(attribute)}final void add#{name}( @javax.annotation.Nonnull final #{type} value )
   {
-    final java.util.List<#{type}> #{field_name}Safe = safeGet#{plural_name}();
+    final var #{field_name}Safe = safeGet#{plural_name}();
     if ( !#{field_name}Safe.contains( value ) )
     {
       #{field_name}Safe.add( value );
@@ -505,7 +505,7 @@ STR
   @java.lang.SuppressWarnings( { "PMD.UnnecessaryLocalBeforeReturn", "ConstantValue" } )
   public int hashCode()
   {
-    final #{pk_type} key = #{pk_getter};
+    final var key = #{pk_getter};
 JAVA
         if pk.jpa.primitive?
           s += <<JAVA

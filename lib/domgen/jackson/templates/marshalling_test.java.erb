@@ -12,12 +12,12 @@ public final class <%= repository.jackson.marshalling_test_name %>
   public void marshal<%= data_module.name %><%= enumeration.name %>()
     throws Exception
   {
-    final java.io.StringWriter json = new java.io.StringWriter();
-    final <%= enumeration.ee.qualified_name %> input = <%= enumeration.ee.qualified_name %>.<%= enumeration.values[0].name %>;
+    final var json = new java.io.StringWriter();
+    final var input = <%= enumeration.ee.qualified_name %>.<%= enumeration.values[0].name %>;
     new com.fasterxml.jackson.databind.ObjectMapper().writeValue( json, input );
-    final String data = json.toString();
+    final var data = json.toString();
     org.testng.Assert.assertEquals( data, "<%= enumeration.numeric_values? ? '0' : "\\\"#{enumeration.values[0].name}\\\"" %>" );
-    final <%= enumeration.ee.qualified_name %> output = new com.fasterxml.jackson.databind.ObjectMapper().readValue( data, <%= enumeration.ee.qualified_name %>.class );
+    final var output = new com.fasterxml.jackson.databind.ObjectMapper().readValue( data, <%= enumeration.ee.qualified_name %>.class );
     org.testng.Assert.assertEquals( output, input );
   }
 <%
@@ -67,11 +67,11 @@ end
   public void marshal<%= data_module.name %><%= struct.name %>()
     throws Exception
   {
-    final java.io.StringWriter json = new java.io.StringWriter();
-    final <%= struct.ee.qualified_name %> input = <%= create_struct(struct, nil) %>;
+    final var json = new java.io.StringWriter();
+    final var input = <%= create_struct(struct, nil) %>;
     new com.fasterxml.jackson.databind.ObjectMapper().writeValue( json, input );
-    final String data = json.toString();
-    final <%= struct.ee.qualified_name %> output = new com.fasterxml.jackson.databind.ObjectMapper().readValue( data, <%= struct.ee.qualified_name %>.class );
+    final var data = json.toString();
+    final var output = new com.fasterxml.jackson.databind.ObjectMapper().readValue( data, <%= struct.ee.qualified_name %>.class );
     org.testng.Assert.assertEquals( output, input );
   }
 <%

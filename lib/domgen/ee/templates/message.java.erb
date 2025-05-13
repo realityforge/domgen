@@ -60,7 +60,7 @@ package <%= to_package(message.ee.qualified_name) %>;
       return false;
     }
 
-    final <%= message.ee.name %> that = (<%= message.ee.name %>) o;
+    final var that = (<%= message.ee.name %>) o;
 <% message.parameters.select{|f|!f.collection?}.each do |parameter| -%>
     if ( <%= parameter.ee.primitive?(:default) ? "#{Reality::Naming.camelize(parameter.name)} != that.#{Reality::Naming.camelize(parameter.name)}" : "#{parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? null != that.#{Reality::Naming.camelize(parameter.name)} : " : ''}!#{Reality::Naming.camelize(parameter.name)}.equals( that.#{Reality::Naming.camelize(parameter.name)} )" %> )
     {
@@ -80,7 +80,7 @@ package <%= to_package(message.ee.qualified_name) %>;
       {
         return false;
       }
-      for ( final <%= parameter.ee.java_component_type %> v : <%= Reality::Naming.camelize(parameter.name) %> )
+      for ( final var v : <%= Reality::Naming.camelize(parameter.name) %> )
       {
         if ( !that.<%= Reality::Naming.camelize(parameter.name) %>.contains( v ) )
         {
@@ -95,7 +95,7 @@ package <%= to_package(message.ee.qualified_name) %>;
   @java.lang.Override
   public int hashCode()
   {
-    int $result = 0;
+    var $result = 0;
 <% message.parameters.each do |parameter| -%>
     $result = 31 * $result + (<%= parameter.ee.primitive?(:default) ? (parameter.boolean? ? "#{Reality::Naming.camelize(parameter.name)} ? 1 : 0": parameter.real? ? "Float.floatToIntBits(#{Reality::Naming.camelize(parameter.name)})" : parameter.long? ? "(int)(#{Reality::Naming.camelize(parameter.name)})" : Reality::Naming.camelize(parameter.name)) : "#{parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? 0 : " : ''}#{Reality::Naming.camelize(parameter.name)}.hashCode()" %>);
 <% end -%>

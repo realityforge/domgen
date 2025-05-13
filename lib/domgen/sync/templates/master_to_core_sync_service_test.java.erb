@@ -42,7 +42,7 @@ public abstract class <%= data_module.sync.master_to_core_sync_service_test_name
 
   protected final void verifySync( @javax.annotation.Nonnull final String dataSource, final int changeCount, @javax.annotation.Nonnull final java.util.function.Consumer<iris.syncrecord.server.entity.Synchronization> verifySyncAction )
   {
-    final iris.syncrecord.server.entity.Synchronization synchronization = doSyncAndLoadResults( dataSource, "OK" );
+    final var synchronization = doSyncAndLoadResults( dataSource, "OK" );
     iris.syncrecord.server.test.util.SyncAssert.assertNumberOfChangedEntities( synchronization, changeCount );
     verifySyncAction.accept( synchronization );
     assertNoUnsynchronized( dataSource );

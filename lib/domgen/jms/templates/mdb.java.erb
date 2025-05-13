@@ -62,18 +62,18 @@ public class <%= method.jms.mdb_name %>
 <%
   if parameter
 -%>
-        final javax.jms.TextMessage textMessage = (javax.jms.TextMessage) message;
-        final String text = textMessage.getText();
-        final javax.xml.bind.JAXBContext context = javax.xml.bind.JAXBContext.newInstance( <%= parameter.jms.object_factory ? parameter.jms.object_factory : encoded_type %>.class );
-        final javax.xml.bind.Unmarshaller marshaller = context.createUnmarshaller();
+        final var textMessage = (javax.jms.TextMessage) message;
+        final var text = textMessage.getText();
+        final var context = javax.xml.bind.JAXBContext.newInstance( <%= parameter.jms.object_factory ? parameter.jms.object_factory : encoded_type %>.class );
+        final var marshaller = context.createUnmarshaller();
 
         final <%= demarshalled_type %> decoded;
 
-        try ( java.io.StringReader reader = new java.io.StringReader( text ) )
+        try ( var reader = new java.io.StringReader( text ) )
         {
           decoded = (<%=demarshalled_type%>)(<%if parameter.jms.object_factory%>(javax.xml.bind.JAXBElement)<%end%>marshaller.unmarshal(reader))<%if parameter.jms.object_factory%>.getValue()<%end%>;
         }
-        final <%= boundary_type %> parameter = <%= ((parameter.struct? || parameter.non_standard_type?) && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
+        final var parameter = <%= ((parameter.struct? || parameter.non_standard_type?) && !parameter.collection?) ? 'decoded' : 'decoded.Value' %>;
 <% end -%>
         _service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.empty? ? '' : ' parameter ' %>);
       }

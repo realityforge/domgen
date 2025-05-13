@@ -62,15 +62,15 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   {
     em().clear();
     em().createNativeQuery( "EXEC <%= repository.sql_analysis.analysis_data_module.sql.quoted_schema %>.[spPerformChecks]" ).getResultList();
-    final java.util.List<<%= repository.sql_analysis.analysis_data_module.entity_by_name(:DataIssue).jpa.qualified_name %>> issues = <%= repository.sql_analysis.analysis_data_module.jpa.short_test_code %>.dataIssueRepository().findAll();
-    final java.lang.StringBuilder sb = new java.lang.StringBuilder();
+    final var issues = <%= repository.sql_analysis.analysis_data_module.jpa.short_test_code %>.dataIssueRepository().findAll();
+    final var sb = new java.lang.StringBuilder();
     if ( !issues.isEmpty() )
     {
-      for ( final <%= repository.sql_analysis.analysis_data_module.entity_by_name(:DataIssue).jpa.qualified_name %> issue : issues )
+      for ( final var issue : issues )
       {
-        final String header = issue.getCategory() + ":" + issue.getDescription();
-        final String viewSql = issue.getViewSql();
-        final String message = header + ( null == viewSql ? "" : ": SQL\n---\n" + viewSql + "\n---" );
+        final var header = issue.getCategory() + ":" + issue.getDescription();
+        final var viewSql = issue.getViewSql();
+        final var message = header + ( null == viewSql ? "" : ": SQL\n---\n" + viewSql + "\n---" );
         System.out.println( message );
         sb.append( "  " );
         sb.append( message );
@@ -105,7 +105,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   @java.lang.Override
   protected com.google.inject.Module[] getModules()
   {
-    final java.util.ArrayList<com.google.inject.Module> modules = new java.util.ArrayList<>();
+    final var modules = new java.util.ArrayList<com.google.inject.Module>();
     java.util.Collections.addAll( modules, super.getModules() );
 <% repository.jpa.test_modules.keys.each do |name| -%>
     addModule( modules, new<%= name %>() );
@@ -125,7 +125,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 
   protected final void assertMessageAppearsInExceptionChain( @javax.annotation.Nonnull final java.lang.Throwable exception, @javax.annotation.Nonnull final java.lang.String message )
   {
-    java.lang.Throwable t = exception;
+    var t = exception;
     while ( null != t )
     {
       if ( t.getMessage().contains( message ) )

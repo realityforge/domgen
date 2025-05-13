@@ -79,7 +79,7 @@ public final class <%= data_module.arez.test_factory_name %>
   {
 <% needsLink = entity.attributes.any?{|a| a.reference?} -%>
 <% attributes = entity.attributes.select{|a|a.arez? && a.immutable?} + entity.attributes.select{|a|a.arez? && !a.immutable?} -%>
-    <% if needsLink %>final <%= entity.arez.qualified_name %> $_ =<% else %>return<% end %> <%= Reality::Naming.camelize(entity.dao.name) %>().create( <%= attributes.select{|a|a.arez?}.collect do |a|
+    <% if needsLink %>final var $_ =<% else %>return<% end %> <%= Reality::Naming.camelize(entity.dao.name) %>().create( <%= attributes.select{|a|a.arez?}.collect do |a|
 if a.reference?
   "#{a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : ''}#{Reality::Naming.camelize(a.name) }.get#{a.referenced_entity.primary_key.name}()"
 else

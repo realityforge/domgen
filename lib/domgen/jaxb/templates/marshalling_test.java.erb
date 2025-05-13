@@ -12,18 +12,18 @@ public final class <%= repository.jaxb.marshalling_test_name %>
   public void marshal<%= data_module.name %><%= enumeration.name %>()
     throws Exception
   {
-    final java.io.StringWriter xml = new java.io.StringWriter();
-    final <%= enumeration.ee.qualified_name %> input = <%= enumeration.ee.qualified_name %>.<%= enumeration.values[0].name %>;
+    final var xml = new java.io.StringWriter();
+    final var input = <%= enumeration.ee.qualified_name %>.<%= enumeration.values[0].name %>;
     javax.xml.bind.JAXB.marshal( input, xml );
-    final String data = xml.toString();
+    final var data = xml.toString();
     org.testng.Assert.assertTrue( data.contains( "><%= enumeration.numeric_values? ? '0' : enumeration.values[0].name %><" ) );
 <% if enumeration.top_level? -%>
-    final javax.xml.validation.SchemaFactory schemaFactory = javax.xml.validation.SchemaFactory.newInstance( javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI );
-    final java.net.URL resource = getClass().getResource( "/<%= data_module.xml.resource_xsd_name %>" );
+    final var schemaFactory = javax.xml.validation.SchemaFactory.newInstance( javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI );
+    final var resource = getClass().getResource( "/<%= data_module.xml.resource_xsd_name %>" );
     org.testng.Assert.assertNotNull( resource );
     schemaFactory.newSchema( resource ).newValidator().validate( new javax.xml.transform.stream.StreamSource( new java.io.StringReader( data ) ) );
 <% end -%>
-    final <%= enumeration.ee.qualified_name %> output = javax.xml.bind.JAXB.unmarshal( new java.io.StringReader( data ), <%= enumeration.ee.qualified_name %>.class );
+    final var output = javax.xml.bind.JAXB.unmarshal( new java.io.StringReader( data ), <%= enumeration.ee.qualified_name %>.class );
     org.testng.Assert.assertEquals( output, input );
   }
 <%
@@ -74,18 +74,18 @@ end
   public void marshal<%= data_module.name %><%= struct.name %>()
     throws Exception
   {
-    final java.io.StringWriter xml = new java.io.StringWriter();
-    final <%= struct.ee.qualified_name %> input = <%= create_struct(struct, nil) %>;
+    final var xml = new java.io.StringWriter();
+    final var input = <%= create_struct(struct, nil) %>;
     javax.xml.bind.JAXB.marshal( input, xml );
-    final String data = xml.toString();
+    final var data = xml.toString();
 <% if struct.top_level? -%>
-    final javax.xml.validation.SchemaFactory schemaFactory = javax.xml.validation.SchemaFactory.newInstance( javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI );
-    final java.net.URL resource = getClass().getResource( "/<%= data_module.xml.resource_xsd_name %>" );
+    final var schemaFactory = javax.xml.validation.SchemaFactory.newInstance( javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI );
+    final var resource = getClass().getResource( "/<%= data_module.xml.resource_xsd_name %>" );
     org.testng.Assert.assertNotNull( resource );
     schemaFactory.setResourceResolver( new TestLSResourceResolver() );
     schemaFactory.newSchema( resource ).newValidator().validate( new javax.xml.transform.stream.StreamSource( new java.io.StringReader( data ) ) );
 <% end -%>
-    final <%= struct.ee.qualified_name %> output = javax.xml.bind.JAXB.unmarshal( new java.io.StringReader( data ), <%= struct.ee.qualified_name %>.class );
+    final var output = javax.xml.bind.JAXB.unmarshal( new java.io.StringReader( data ), <%= struct.ee.qualified_name %>.class );
     org.testng.Assert.assertEquals( output, input );
   }
 <%
@@ -112,7 +112,7 @@ end
       {
         try
         {
-          final java.io.InputStream inputStream = getClass().getResourceAsStream( "/<%= data_module.xml.resource_xsd_name %>" );
+          final var inputStream = getClass().getResourceAsStream( "/<%= data_module.xml.resource_xsd_name %>" );
           org.testng.Assert.assertNotNull( inputStream );
           return new TestLSInput( "<%= data_module.xml.namespace %>", "<%= data_module.xml.namespace %>", inputStream );
         }
@@ -170,7 +170,7 @@ end
       {
         try
         {
-          final byte[] input = new byte[ _inputStream.available() ];
+          final var input = new byte[ _inputStream.available() ];
           _inputStream.read( input );
           return new String( input );
         }

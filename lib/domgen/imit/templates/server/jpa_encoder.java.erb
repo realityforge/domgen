@@ -20,7 +20,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   public static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nullable final String subChannelColumn )
     throws java.sql.SQLException
   {
-    try ( java.sql.ResultSet resultSet = statement.executeQuery() )
+    try ( var resultSet = statement.executeQuery() )
     {
       encode<%= entity.qualified_name.gsub('.','') %>( changeSet, channelId, resultSet, subChannelColumn );
     }
@@ -31,8 +31,8 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   {
     while ( resultSet.next() )
     {
-      final Integer subChannelId = null != subChannelColumn ? resultSet.getInt( subChannelColumn ) : null;
-      final java.util.HashMap<String, java.io.Serializable> attributeValues = new java.util.HashMap<>();
+      final var subChannelId = null != subChannelColumn ? resultSet.getInt( subChannelColumn ) : null;
+      final var attributeValues = new java.util.HashMap<String, java.io.Serializable>();
       @javax.annotation.Nullable final java.util.Set<org.realityforge.replicant.server.ChannelLink> links = new java.util.HashSet<>();
 <% entity.attributes.select{|a| a.imit?}.each do |attribute|
     a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
@@ -67,7 +67,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
         end
 
 -%>
-      final <%= db_type %> $<%= attribute.name %> = <%= type_suffix == 'Object' ? "(#{db_type}) " : '' %>resultSet.get<%= type_suffix %>( "<%= attribute.sql.column_name %>" );
+      final var $<%= attribute.name %> = <%= type_suffix == 'Object' ? "(#{db_type}) " : '' %>resultSet.get<%= type_suffix %>( "<%= attribute.sql.column_name %>" );
 <% unless attribute.primary_key? -%>
 <% if attribute.nullable? -%>
       if ( null != $<%= attribute.name %> )
@@ -82,22 +82,18 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %> == channelId )
       {
 <% if graph_link.path.nil? -%>
-<% if attribute.nullable? -%>
-        final Integer targetId = $<%= attribute.name %>;
-<% else -%>
-        final int targetId = $<%= attribute.name %>;
-<% end -%>
+        final var targetId = $<%= attribute.name %>;
 <% else -%>
 <% target_graph = repository.imit.graph_by_name(graph_link.target_graph) -%>
 <% instance_root = repository.entity_by_name(target_graph.instance_root) -%>
 <% if attribute.nullable? -%>
         // findColumn will generate an error if the column has not been supplied in resultset
         resultSet.findColumn( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
-        final Integer targetId = (java.lang.Integer) resultSet.getObject( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
+        final var targetId = (java.lang.Integer) resultSet.getObject( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
 <% else -%>
         // findColumn will generate an error if the column has not been supplied in resultset
         resultSet.findColumn( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
-        final int targetId = resultSet.getInt( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
+        final var targetId = resultSet.getInt( "<%= instance_root.name %><%= instance_root.primary_key.sql.column_name %>" );
 <% end -%>
 <% end -%>
 <% if attribute.nullable? -%>
@@ -111,7 +107,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       }
 <% end -%>
 <% end -%>
-      final org.realityforge.replicant.server.EntityMessage entityMessage =
+      final var entityMessage =
         new org.realityforge.replicant.server.EntityMessage( $<%= entity.primary_key.name %>,
                                                              <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>,
                                                              0,
@@ -162,7 +158,7 @@ end
         end
 -%>
 <% unless attribute.primary_key? -%>
-    final <%= nullable_annotate(attribute, attribute.jpa.java_type, false) %> $<%= attribute.name %> = entity.<%= getter_for(attribute) %>;
+    final var $<%= attribute.name %> = entity.<%= getter_for(attribute) %>;
 <% if attribute.nullable? -%>
     if ( null != $<%= attribute.name %> )
     {

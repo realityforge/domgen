@@ -22,7 +22,7 @@ final class <%= repository.imit.server_router_name %>
   private void put_<%= graph.name %>_<%= routing_key.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, final <%= routing_key.target_attribute.jpa.non_primitive_java_type %> value )
   {
 <% if routing_key.multivalued? -%>
-    java.util.ArrayList<<%= routing_key.target_attribute.jpa.non_primitive_java_type %>> keys = (java.util.ArrayList<<%= routing_key.target_attribute.jpa.non_primitive_java_type %>>) map.get( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+    var keys = (java.util.ArrayList<<%= routing_key.target_attribute.jpa.non_primitive_java_type %>>) map.get( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
     if( null == keys )
     {
       keys = new java.util.ArrayList<>();
@@ -57,7 +57,7 @@ final class <%= repository.imit.server_router_name %>
     route_<%= graph.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value );
     route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(next_attribute) %> );
 <% elsif next_is_inverse -%>
-    for( final <%= next_attribute.entity.jpa.qualified_name %> v : value.get<%= next_attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(next_attribute.inverse.name) : next_attribute.inverse.name %>() )
+    for( final var v : value.get<%= next_attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(next_attribute.inverse.name) : next_attribute.inverse.name %>() )
     {
       route_<%= graph.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, v );
     }
@@ -101,7 +101,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   @javax.annotation.Nonnull
   java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
   {
-    final java.util.HashMap<String, java.io.Serializable> map = new java.util.HashMap<>();
+    final var map = new java.util.HashMap<String, java.io.Serializable>();
 <% entity.imit.replication_graphs.each do |graph| -%>
     _route<%= graph.name %>_<%= entity.name %>( map, entity );
 <% end -%>
@@ -145,7 +145,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) && a.imit.graph_links.all?{|g| g.always_follow? || g.source_graph.to_s != graph.name.to_s } }.each do |outgoing_link| -%>
 <% if outgoing_link.nullable? -%>
     {
-      final <%= outgoing_link.jpa.java_type %> v = entity.<%= getter_for(outgoing_link) %>;
+      final var v = entity.<%= getter_for(outgoing_link) %>;
       if( null != v )
       {
         _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, v );

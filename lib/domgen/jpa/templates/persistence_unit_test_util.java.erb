@@ -15,7 +15,7 @@ public final class <%= persistence_unit.persistence_unit_test_util_name %>
   @javax.annotation.Nonnull
   public static String get<%= Reality::Naming.pascal_case(key) %>DatabaseName()
   {
-    final String databaseName = org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( <%= Reality::Naming.uppercase_constantize(key) %>_TEST_DB_NAME );
+    final var databaseName = org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( <%= Reality::Naming.uppercase_constantize(key) %>_TEST_DB_NAME );
     org.testng.Assert.assertNotNull( databaseName, "org.realityforge.guiceyloops.server.DatabaseUtil.getDatabaseProperties().getProperty( \"" + <%= Reality::Naming.uppercase_constantize(key) %>_TEST_DB_NAME + "\" )" );
     return databaseName;
   }
@@ -24,7 +24,7 @@ public final class <%= persistence_unit.persistence_unit_test_util_name %>
   @javax.annotation.Nonnull
   public static java.util.Properties createExtraPersistenceUnitProperties( @javax.annotation.Nullable final java.util.Properties additionalProperties )
   {
-    final java.util.Properties properties = new java.util.Properties();
+    final var properties = new java.util.Properties();
     properties.put( "javax.persistence.jdbc.driver", "<%= persistence_unit.jpa_repository.repository.sql.sql_driver %>" );
     if ( null != additionalProperties )
     {

@@ -83,7 +83,7 @@ package <%= to_package(struct.ee.qualified_name) %>;
       return false;
     }
 
-    final <%= struct.ee.name %> that = (<%= struct.ee.name %>) o;
+    final var that = (<%= struct.ee.name %>) o;
 <% struct.fields.select{|f|!f.collection?}.each do |field| -%>
     if ( <%= field.ee.primitive?(:boundary) ? "#{Reality::Naming.camelize(field.name)} != that.#{Reality::Naming.camelize(field.name)}" : "#{field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? null != that.#{Reality::Naming.camelize(field.name)} : " : ''}!#{Reality::Naming.camelize(field.name)}.equals( that.#{Reality::Naming.camelize(field.name)} )" %> )
     {
@@ -103,7 +103,7 @@ package <%= to_package(struct.ee.qualified_name) %>;
       {
         return false;
       }
-      for ( final <%= field.ee.java_component_type %> v : <%= Reality::Naming.camelize(field.name) %> )
+      for ( final var v : <%= Reality::Naming.camelize(field.name) %> )
       {
         if ( !that.<%= Reality::Naming.camelize(field.name) %>.contains( v ) )
         {
@@ -118,7 +118,7 @@ package <%= to_package(struct.ee.qualified_name) %>;
   @java.lang.Override
   public int hashCode()
   {
-    int $result = 0;
+    var $result = 0;
 <% struct.fields.each do |field| -%>
     $result = 31 * $result + (<%= field.ee.primitive?(:boundary) ? (field.boolean? ? "#{Reality::Naming.camelize(field.name)} ? 1 : 0": field.real? ? "Float.floatToIntBits(#{Reality::Naming.camelize(field.name)})" : field.long? ? "(int)(#{Reality::Naming.camelize(field.name)})" : Reality::Naming.camelize(field.name)) : "#{field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? 0 : " : ''}#{Reality::Naming.camelize(field.name)}.hashCode()" %>);
 <% end -%>

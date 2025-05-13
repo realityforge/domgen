@@ -37,7 +37,7 @@ package <%= to_package(enumeration.ee.qualified_name) %>;
     public <%= enumeration.ee.name %> deserialize( final com.fasterxml.jackson.core.JsonParser parser, final com.fasterxml.jackson.databind.DeserializationContext context )
       throws java.io.IOException
     {
-      final int typeCode = parser.getValueAsInt();
+      final var typeCode = parser.getValueAsInt();
       for( final <%= enumeration.ee.name %> c: <%= enumeration.ee.name %>.values() )
       {
         if( c.ordinal() == typeCode )

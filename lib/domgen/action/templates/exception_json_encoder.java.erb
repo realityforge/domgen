@@ -12,7 +12,7 @@ public final class <%= exception.action.json_encoder_name %>
   public static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= exception.ee.module_local? ? "#{exception.ee.non_module_local_parent_qualified_name} baseException" : "#{exception.ee.qualified_name} exception" %> )
   {
 <% if exception.ee.module_local? -%>
-    @javax.annotation.Nonnull final <%= exception.ee.qualified_name %> exception = (<%= exception.ee.qualified_name %>) baseException;
+    @javax.annotation.Nonnull final var exception = (<%= exception.ee.qualified_name %>) baseException;
 <% end -%>
     switch ( exception.getClass().getName() )
     {

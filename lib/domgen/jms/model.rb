@@ -194,7 +194,7 @@ module Domgen
   protected final void shutdownJMSContexts()
   {
     assert enableBroker();
-    for ( final com.google.inject.Binding<javax.jms.JMSContext> binding : getInjector().findBindingsByType( com.google.inject.TypeLiteral.get( javax.jms.JMSContext.class ) ) )
+    for ( final var binding : getInjector().findBindingsByType( com.google.inject.TypeLiteral.get( javax.jms.JMSContext.class ) ) )
     {
       binding.getProvider().get().close();
     }

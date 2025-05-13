@@ -40,7 +40,7 @@ public abstract class <%= repository.imit.abstract_endpoint_name %>
   @javax.annotation.Nullable
   protected org.keycloak.representations.AccessToken toAccessToken( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession replicantSession )
   {
-    final String authToken = replicantSession.getAuthToken();
+    final var authToken = replicantSession.getAuthToken();
     if ( null == authToken )
     {
       return null;

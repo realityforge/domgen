@@ -12,7 +12,7 @@ public final class <%= repository.ejb.cdi_types_test_name %>
   public void ensure<%= data_module.name %><%= service.name %>ImplementationIsCdiType()
     throws java.lang.Exception
   {
-    final java.lang.Class<?> clazz = java.lang.Class.forName( "<%= service.ejb.qualified_service_implementation_name %>" );
+    final var clazz = java.lang.Class.forName( "<%= service.ejb.qualified_service_implementation_name %>" );
     org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isPublic( clazz.getModifiers() ), "Class <%= service.ejb.qualified_service_implementation_name %> is public but should be package access" );
     org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI( clazz );
   }
@@ -26,7 +26,7 @@ public final class <%= repository.ejb.cdi_types_test_name %>
   public void ensureReplicantSessionManagerImplementationIsCdiType()
     throws java.lang.Exception
   {
-    final java.lang.Class<?> clazz = java.lang.Class.forName( "<%= repository.imit.qualified_session_manager_name %>" );
+    final var clazz = java.lang.Class.forName( "<%= repository.imit.qualified_session_manager_name %>" );
     org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI( clazz );
   }
 <% end -%>

@@ -47,17 +47,17 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       return null;
     }
 <% end -%>
-    final int id = entity.<%= getter_for(entity.primary_key) %>;
-    @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> attributes = isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? <%= entity.data_module.repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.name %>( entity ) : null;
-    final int transportID = <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>;
-    @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> routingKeys = _router.route<%= entity.name %>( entity );
+    final var id = entity.<%= getter_for(entity.primary_key) %>;
+    @javax.annotation.Nonnull final var attributes = isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? <%= entity.data_module.repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.name %>( entity ) : null;
+    final var transportID = <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>;
+    @javax.annotation.Nonnull final var routingKeys = _router.route<%= entity.name %>( entity );
     @javax.annotation.Nullable final java.util.Set<org.realityforge.replicant.server.ChannelLink> links = <%= links.size == 0 ? 'null' : 'new java.util.HashSet<>()' %>;
 <% if links.size > 0 -%>
     if( null != attributes )
     {
 <% entity.imit.replication_graphs.select{|graph| graph.instance_root? && links.any?{|graph_link| graph_link.source_graph == graph.name} }.each do |graph| -%>
       @java.lang.SuppressWarnings( "unchecked" )
-      final java.util.List<java.lang.Integer> <%= Reality::Naming.camelize(graph.name)%>InstanceRootIds = (java.util.List<java.lang.Integer>) routingKeys.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
+      final var <%= Reality::Naming.camelize(graph.name)%>InstanceRootIds = (java.util.List<java.lang.Integer>) routingKeys.get( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME );
 <% end -%>
 <%
   links.each do |graph_link|
@@ -79,7 +79,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% if source_graph.instance_root? -%>
       if( null != <%= Reality::Naming.camelize(source_graph.name)%>InstanceRootIds <% if graph_link.imit_attribute.attribute.nullable? -%>&& null != entity.<%= getter_for(graph_link.imit_attribute.attribute)%> && null != entity.<%= getter_path.join('.') %><% end -%>)
       {
-        for( final java.lang.Integer <%= Reality::Naming.camelize(source_graph.name)%>InstanceRootId : <%= Reality::Naming.camelize(source_graph.name)%>InstanceRootIds )
+        for( final var <%= Reality::Naming.camelize(source_graph.name)%>InstanceRootId : <%= Reality::Naming.camelize(source_graph.name)%>InstanceRootIds )
         {
 <% end -%>
 <% if last_getter_nullable -%>

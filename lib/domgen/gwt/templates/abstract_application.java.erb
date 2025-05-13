@@ -81,7 +81,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   @javax.annotation.Nonnull
   protected final I ensureInjector()
   {
-    final I injector = getInjector();
+    final var injector = getInjector();
     assert null != injector;
     return injector;
   }
@@ -123,7 +123,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
     registerReplicantConnector( getApplicationURL() + "api", ensureInjector().getSystemSchema() );
     if ( replicant.Replicant.areSpiesEnabled() )
     {
-      final akasha.Storage storage = akasha.WindowGlobal.isLocalStorageSupported() ? akasha.WindowGlobal.localStorage() : null;
+      final var storage = akasha.WindowGlobal.isLocalStorageSupported() ? akasha.WindowGlobal.localStorage() : null;
       if ( null != storage && "true".equals( storage.getItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Replicant.Spy.Enabled" ) ) )
       {
         replicant.spy.tools.ReplicantSpyUtil.enableSpyEventLogging();
@@ -133,7 +133,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
       {
         if ( e instanceof akasha.KeyboardEvent )
         {
-          final akasha.KeyboardEvent event = (akasha.KeyboardEvent) e;
+          final var event = (akasha.KeyboardEvent) e;
           if ( event.shiftKey() && event.ctrlKey() && "R".equals( event.key() ) )
           {
             if ( replicant.spy.tools.ReplicantSpyUtil.isSpyEventLoggingEnabled() )
@@ -175,7 +175,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   protected void onObserverError( @javax.annotation.Nonnull final arez.Observer observer, @javax.annotation.Nonnull final arez.ObserverError error, @javax.annotation.Nullable final java.lang.Throwable throwable )
   {
-    final String message =
+    final var message =
       error + ": Error occurred on observer named " + ( arez.Arez.areNamesEnabled() ? observer.getName() : "?" );
     akasha.Console.error( message, throwable );
     if ( isSuperDevMode() )
@@ -191,7 +191,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
     if ( arez.Arez.areSpiesEnabled() )
     {
-      final akasha.Storage storage = akasha.WindowGlobal.isLocalStorageSupported() ? akasha.WindowGlobal.localStorage() : null;
+      final var storage = akasha.WindowGlobal.isLocalStorageSupported() ? akasha.WindowGlobal.localStorage() : null;
       if ( null != storage && "true".equals( storage.getItem( "<%= Reality::Naming.pascal_case(repository.name) %>.Arez.Spy.Enabled" ) ) )
       {
         arez.spytools.browser.BrowserSpyUtil.enableSpyEventLogging( createArezSpyEventHandler() );
@@ -200,7 +200,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
       {
         if ( e instanceof akasha.KeyboardEvent )
         {
-          final akasha.KeyboardEvent event = (akasha.KeyboardEvent) e;
+          final var event = (akasha.KeyboardEvent) e;
           if ( event.shiftKey() && event.ctrlKey() && "A".equals( event.key() ) )
           {
             if ( arez.spytools.browser.react4j.ReactArezSpyUtil.isSpyEventLoggingEnabled() )
@@ -231,10 +231,10 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 
   private void setupServiceWorker()
   {
-    final akasha.Navigator navigator = akasha.WindowGlobal.navigator();
+    final var navigator = akasha.WindowGlobal.navigator();
     if ( navigator.isServiceWorkerSupported() && !isSuperDevMode() )
     {
-      final akasha.ServiceWorkerContainer serviceWorker = navigator.serviceWorker();
+      final var serviceWorker = navigator.serviceWorker();
       serviceWorker
         .register( com.google.gwt.core.client.GWT.getModuleBaseForStaticFiles() + com.google.gwt.core.client.GWT.getModuleName() + "-sw.js" )
         .then( registration -> {
@@ -296,18 +296,18 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   @javax.annotation.Nonnull
   private java.lang.String getStackTrace( @javax.annotation.Nonnull final java.lang.Throwable throwable )
   {
-    final java.lang.StringBuilder result = new java.lang.StringBuilder();
+    final var result = new java.lang.StringBuilder();
     result.append( throwable );
     result.append( '\n' );
 
-    for ( final java.lang.StackTraceElement element : throwable.getStackTrace() )
+    for ( final var element : throwable.getStackTrace() )
     {
       result.append( "\tat " );
       result.append( element );
       result.append( '\n' );
     }
 
-    final java.lang.Throwable cause = throwable.getCause();
+    final var cause = throwable.getCause();
     if ( null != cause && cause != throwable )
     {
       result.append( "Caused by: " );
@@ -359,7 +359,7 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
 <% end -%>
   protected final void registerReplicantConnector( @javax.annotation.Nonnull final String baseURL, @javax.annotation.Nonnull final replicant.SystemSchema schema )
   {
-    final replicant.WebSocketConfig config = replicant.WebSocketConfig.create( baseURL, getKeycloak() );
+    final var config = replicant.WebSocketConfig.create( baseURL, getKeycloak() );
     replicant.Replicant.context().registerConnector( schema, new replicant.WebSocketTransport( config ) );
   }
 

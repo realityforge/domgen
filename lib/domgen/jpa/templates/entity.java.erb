@@ -246,7 +246,7 @@ end
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
 -%>
 <%= validation_prefix(c.name, entity) %>
-        int count = 0;
+        var count = 0;
 <% attributes.each do |a| -%>
         count += (object.<%= getter_for(a) %> == null ? 0 : 1);
 <% end -%>

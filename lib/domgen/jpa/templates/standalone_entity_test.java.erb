@@ -8,7 +8,7 @@ public abstract class <%= repository.jpa.standalone_entity_test_name %>
   @java.lang.Override
   protected com.google.inject.Module[] getModules()
   {
-    final java.util.ArrayList<com.google.inject.Module> modules = new java.util.ArrayList<>();
+    final var modules = new java.util.ArrayList<com.google.inject.Module>();
     java.util.Collections.addAll( modules, super.getModules() );
 <% if repository.imit? && repository.imit.include_standard_integration_test_module? -%>
     modules.add( new <%= repository.imit.qualified_integration_module_name %>() );
