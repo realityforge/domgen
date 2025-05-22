@@ -62,8 +62,6 @@ when parameter.enumeration? then Proc.new {|transport_value| "#{parameter.gwt.ja
   end
 -%>
   return <% if parameter.nullable? -%>this.<%= parameter.name %> == null ? null : <% end -%>java.util.Arrays.stream( this.<%= parameter.name %> )<%= conversion_rule.nil? ? '' : ".map( e -> #{conversion_rule.call('e')} )" %>.collect( java.util.stream.Collectors.to<%= parameter.collection_type == :set ? 'Set' : 'List' %>() );
-<% elsif parameter.nullable? && parameter.datetime? -%>
-  return null == this.<%= parameter.name %> ? null : new java.util.Date( this.<%= parameter.name %>.longValue() );
 <% elsif parameter.datetime? -%>
   return  this.<%= parameter.name %>;
 <% elsif parameter.date? -%>
