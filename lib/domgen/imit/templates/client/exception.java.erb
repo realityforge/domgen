@@ -3,7 +3,7 @@ package <%= to_package(exception.imit.qualified_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FormalParameterNamingConventions", "GwtInconsistentSerializableClass", "PMD.UnnecessaryConstructor" } )
 <% unless exception.ee.module_local? %>public <% end %><% if exception.abstract? %>abstract <% end %>class <%= exception.imit.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).imit.qualified_name %>
-  {
+{
 <% exception.declared_parameters.each do |parameter| -%>
   <%= annotated_type(parameter, :imit, :transport, :private => true, :final => true, :assume_generated => true) %> <%= parameter.name %>;
 <% end -%>
@@ -22,7 +22,7 @@ inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? 
 
 constructor_access = exception.ee.module_local? ? '' : exception.abstract? ? 'protected ' : 'public '
 
-  if exception.imit.support_default_parameters? -%>
+if exception.imit.support_default_parameters? -%>
 
   <%= constructor_access %><%= exception.imit.name %>( <%= param_desc %> ) { this( <%= param_values_with_suffix %>null, null ); }
 
@@ -46,7 +46,7 @@ constructor_access = exception.ee.module_local? ? '' : exception.abstract? ? 'pr
   %>    this.<%= parameter.name %> = <%= parameter.name %>;
 <%   end -%>
 <% end -%>
-  }
+}
 
 <% exception.declared_parameters.each do |parameter| -%>
 
