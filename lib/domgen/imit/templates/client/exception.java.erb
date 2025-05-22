@@ -35,7 +35,7 @@ if exception.imit.support_default_parameters? -%>
   <%= constructor_access %><%= exception.imit.name %>( <% if exception.imit.support_default_parameters? -%><%= param_desc_with_suffix %>final String message, final Throwable cause<% else %><%= param_desc %><% end -%> )
   {
 <% if exception.imit.support_default_parameters? -%>
-  super( <%= inherited_params_with_suffix %>message, cause );
+    super( <%= inherited_params_with_suffix %>message, cause );
 <% end -%>
 <% exception.declared_parameters.each do |parameter|
   if :sequence == parameter.collection_type
@@ -46,7 +46,7 @@ if exception.imit.support_default_parameters? -%>
   %>    this.<%= parameter.name %> = <%= parameter.name %>;
 <%   end -%>
 <% end -%>
-}
+  }
 
 <% exception.declared_parameters.each do |parameter| -%>
 
@@ -80,4 +80,4 @@ when parameter.enumeration? then Proc.new {|transport_value| "#{parameter.gwt.ja
   }
 <% end -%>
 <% end -%>
-  }
+}
