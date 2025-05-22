@@ -146,6 +146,10 @@ public class <%= service.action.service_actions_name %>
       builder.add( "data", response );
 <% elsif method.return_value.boolean?-%>
       builder.add( "data", response ? javax.json.JsonValue.TRUE : javax.json.JsonValue.FALSE );
+<% elsif method.return_value.enumeration? && method.return_value.enumeration.textual_values? -%>
+      builder.add( "data", javax.json.Json.createValue( response.name() ) );
+<% elsif method.return_value.enumeration? && method.return_value.enumeration.numeric_values? -%>
+      builder.add( "data", javax.json.Json.createValue( response.ordinal() ) );
 <% else -%>
       builder.add( "data", javax.json.Json.createValue( response ) );
 <% end -%>

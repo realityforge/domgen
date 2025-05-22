@@ -20,7 +20,8 @@ module Domgen
     def self.parameter_json_schema(schema, parameter, ignore_null = false)
       type =
         case
-        when parameter.enumeration? then 'integer'
+        when parameter.enumeration? && parameter.enumeration.textual_values? then 'string'
+        when parameter.enumeration? && parameter.enumeration.numeric_values? then 'integer'
         when parameter.date? then 'string'
         when parameter.datetime? then 'integer'
         when parameter.integer? then 'integer'
