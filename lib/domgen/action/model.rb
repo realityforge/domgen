@@ -151,6 +151,12 @@ module Domgen
         @referenced.nil? ? false : !!@referenced
       end
 
+      def public_encoder?
+        return true unless exception.ee.module_local?
+        return false unless exception.extends
+        exception.data_module.exception_by_name(exception.extends).action.public_encoder?
+      end
+
       def json_encoder_qualified_name
         "#{exception.data_module.ee.server_service_package}.#{json_encoder_name}"
       end

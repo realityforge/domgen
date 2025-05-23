@@ -2,14 +2,14 @@
 package <%= to_package(exception.action.qualified_json_encoder_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public final class <%= exception.action.json_encoder_name %>
+<%= exception.action.public_encoder? ? 'public ' : '' %>final class <%= exception.action.json_encoder_name %>
 {
   private <%= exception.action.json_encoder_name %>()
   {
   }
 
   @javax.annotation.Nonnull
-  public static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= exception.ee.module_local? ? "#{exception.ee.non_module_local_parent_qualified_name} baseException" : "#{exception.ee.qualified_name} exception" %> )
+  <%= exception.action.public_encoder? ? 'public ' : '' %>static javax.json.JsonObject encode( @javax.annotation.Nonnull final <%= exception.ee.module_local? ? "#{exception.ee.non_module_local_parent_qualified_name} baseException" : "#{exception.ee.qualified_name} exception" %> )
   {
 <% if exception.ee.module_local? -%>
     @javax.annotation.Nonnull final var exception = (<%= exception.ee.qualified_name %>) baseException;
