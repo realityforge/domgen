@@ -11,7 +11,7 @@ public class <%= service.jws.boundary_implementation_name %>
   private <%= service.ejb.qualified_boundary_interface_name %> _service;
 
 <% service.methods.select{|m| m.jws?}.each do |method|
-%>  public <%= annotated_type(method.return_value, :jws, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jws, :boundary, :final => true, :nullable => (p.collection? ? false : p.nullable?))} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
+%>  <%= annotated_type(method.return_value, :jws, :boundary, :public => true) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jws, :boundary, :final => true, :nullable => (p.collection? ? false : p.nullable?))} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.jws.qualified_name}.join(', ')}"
 %><%
   return_prefix = method.return_value.return_type == :void ? '' : 'return '

@@ -1,8 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.imit.qualified_service_name) %>;
 
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "PMD.UnusedPrivateField", "PMD.AddEmptyString", "rawtypes", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions", "RedundantSuppression", "CodeBlock2Expr", "DuplicatedCode" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "PSC_PRESIZE_COLLECTIONS", "CC_CYCLOMATIC_COMPLEXITY", "WOC_WRITE_ONLY_COLLECTION_LOCAL" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "rawtypes", "RedundantSuppression", "CodeBlock2Expr", "DuplicatedCode" } )
 @sting.Injectable
 public final class <%= service.imit.service_name %>
 {
@@ -21,12 +20,12 @@ public final class <%= service.imit.service_name %>
   }
 <% end -%>
 
-  public void <%= method_name %>(<%= (parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback"]).join(', ') %>)
   {
     <%= method_name %>(<%= (parameters.collect{|p| p.name } + ['callback','null']).join(', ') %>);
   }
 
-  public void <%= method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback","final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
+  public void <%= method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
   {
 <% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| -%>
     <%= annotated_type(parameter, :imit, :boundary, :final => true) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
@@ -97,12 +96,12 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
     <%= low_level_method_name %>(<%= (parameters.collect{|p| Reality::Naming.camelize(p.name) } + ['null']).join(', ') %>);
   }
 
-  public void <%= low_level_method_name %>(<%= (parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
+  public void <%= low_level_method_name %>(<%= (parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback"]).join(', ') %>)
   {
     <%= low_level_method_name %>(<%= (parameters.collect{|p| Reality::Naming.camelize(p.name) } + ['callback','null']).join(', ') %>);
   }
 
-  public void <%= low_level_method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" } + ["final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback","final @javax.annotation.Nullable #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
+  public void <%= low_level_method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
   {
 <% method.parameters.select{|parameter| (parameter.enumeration? || parameter.struct?) && parameter.collection?}.each do |parameter| -%>
     <%= annotated_type(parameter, :imit, :transport, :final => true) %> $<%= Reality::Naming.camelize(parameter.name) %> = <%= parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();

@@ -1,14 +1,14 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(dao.jpa.qualified_dao_service_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FormalParameterNamingConventions" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% unless dao.jpa.module_local? %>public <% end %>interface <%= dao.jpa.dao_service_name %>
 <% unless dao.jpa.extensions.empty? -%>
   extends <%= dao.jpa.extensions.join(', ') %>
 <% end -%>
 {
 <% dao.queries.select{|q| q.jpa?}.each do |query| -%>
-  <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "#{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'int limit': nil] + [query.jpa.offset ? 'int offset': nil]).compact.join(', ') %>);
+  <%= query_result_type(query, '') %> <%= Reality::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p| "#{p.jpa.primitive? ? '' : nullability_annotation(p.nullable?)} #{p.jpa.java_type} #{p.name}"} + [query.jpa.limit ? 'int limit': nil] + [query.jpa.offset ? 'int offset': nil]).compact.join(', ') %>);
 
 <% end -%>
 <% if dao.repository? -%>

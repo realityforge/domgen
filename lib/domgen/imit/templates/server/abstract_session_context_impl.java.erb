@@ -15,7 +15,7 @@ package <%= to_package(repository.imit.qualified_abstract_session_context_impl_n
  * }
  * </pre>
  */
-@SuppressWarnings( { "PMD.SwitchStmtsShouldHaveDefault", "SqlNoDataSourceInspection" } )
+@SuppressWarnings( "SqlNoDataSourceInspection" )
 public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   extends org.realityforge.replicant.server.ee.AbstractSessionContextImpl
   implements <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>

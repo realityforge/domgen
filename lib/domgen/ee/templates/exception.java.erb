@@ -1,8 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package( exception.ee.qualified_name ) %>;
 
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2", "DLS_DEAD_LOCAL_STORE"})
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FormalParameterNamingConventions", "PMD.UnnecessaryConstructor" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% unless exception.ee.module_local? %>public <% end %><% if exception.abstract? %>abstract <% end %>class <%= exception.ee.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).ee.qualified_name %>
 {
 <% exception.declared_parameters.each do |parameter| -%>

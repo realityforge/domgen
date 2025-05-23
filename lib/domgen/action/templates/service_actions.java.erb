@@ -18,7 +18,6 @@ public class <%= service.action.service_actions_name %>
   }
 <% service.methods.select{|method|method.action?}.each do |method| -%>
 
-  @java.lang.SuppressWarnings( "PMD.FormalParameterNamingConventions" )
   public static final class <%= method.name %>Action
   {
     @javax.annotation.Nonnull

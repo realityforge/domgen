@@ -27,8 +27,6 @@ package <%= to_package(enumeration.ee.qualified_name) %>;
     return super.ordinal();
   }
 
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "SIC_INNER_SHOULD_BE_STATIC" } )
-  @java.lang.SuppressWarnings( { "PMD.UnusedModifier" } )
   // Needs to be public static as jackson was unable to instantiate if not
   public static class Deserializer
     extends com.fasterxml.jackson.databind.JsonDeserializer<<%= enumeration.ee.name %>>

@@ -1,8 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(struct.ee.qualified_name) %>;
 
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EI_EXPOSE_REP", "EI_EXPOSE_REP2", "DLS_DEAD_LOCAL_STORE", "USBR_UNNECESSARY_STORE_BEFORE_RETURN", "SPP_EQUALS_ON_ENUM", "CC_CYCLOMATIC_COMPLEXITY" } )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UselessParentheses", "PMD.UnusedLocalVariable", "PMD.UnnecessaryLocalBeforeReturn", "PMD.UnnecessaryConstructor", "PMD.LocalVariableCouldBeFinal", "PMD.LocalVariableNamingConventions" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <%= jackson_class_annotations(struct) if struct.jackson? -%>
 <%= jaxb_class_annotations(struct) if struct.jaxb? -%>
 
@@ -22,10 +21,9 @@ package <%= to_package(struct.ee.qualified_name) %>;
   /**
    * This constructor is present for deserialization mechanisms and should not be called directly.
    *
-   * @deprecated
+   * @deprecated This constructor is present for deserialization mechanisms and should not be called directly.
    */
   @java.lang.Deprecated
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
   public <%= struct.name %>()
   {
   }
@@ -47,7 +45,6 @@ package <%= to_package(struct.ee.qualified_name) %>;
   }
 
 <% end -%>
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
 <% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join( ', ') %>})<% end -%>
   <% unless struct.ee.module_local? %>public <% end %><%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {

@@ -73,7 +73,6 @@ module Domgen
       end
 
       def query_result_type(query, maybe_primitive = true)
-        try_primitive = maybe_primitive && query.multiplicity == :one
         name = query_component_result_type(query, maybe_primitive)
         :many == query.multiplicity ? "java.util.List<#{name}>" : name
       end

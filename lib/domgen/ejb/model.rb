@@ -169,11 +169,19 @@ module Domgen
       end
 
       java_artifact :service, :service, :server, :ejb, '#{service.name}'
+      # The local service is the service exposed to other modules in the application
+      java_artifact :local_service, :service, :server, :ejb, 'Local#{service.name}'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
       java_artifact :boundary_interface, :service, :server, :ejb, 'Local#{service_name}Boundary'
       java_artifact :remote_service, :service, :server, :ejb, 'Remote#{service_name}'
       java_artifact :boundary_implementation, :service, :server, :ejb, '#{service_name}BoundaryImpl'
       java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
+
+      attr_writer :generate_local_service
+
+      def generate_local_service?
+        @generate_local_service.nil? ? service.methods.any?{|method| method.ejb.local_service?} : !!@generate_local_service
+      end
 
       attr_writer :module_local
 
@@ -282,6 +290,13 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :scheduler, :service, :server, :ee, '#{method.service.name}#{method.name}ScheduleEJB'
+
+      # Should the method be added to the local service, exposed to other modules in the application
+      def local_service?
+        @local_service.nil? ? false : !!@local_service
+      end
+
+      attr_writer :local_service
 
       def schedule
         raise "Attempted to access a schedule on #{method.qualified_name} when method has multiple parameters" unless method.parameters.empty?

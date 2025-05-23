@@ -1,8 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(dao.jpa.qualified_dao_name) %>;
 
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "FCBL_FIELD_COULD_BE_LOCAL", "CE_CLASS_ENVY", "CC_CYCLOMATIC_COMPLEXITY" } )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.UnusedPrivateField", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions" } )
+@java.lang.SuppressWarnings( "UnusedDeclaration" )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.<%= Reality::Naming.uppercase_constantize(dao.jpa.transaction_type.to_s) %> )
 @javax.enterprise.inject.Typed( <%= dao.jpa.qualified_dao_service_name %>.class )
@@ -50,7 +49,7 @@ class <%= dao.jpa.dao_name %>
   @javax.transaction.Transactional( javax.transaction.Transactional.TxType.<%= Reality::Naming.uppercase_constantize(query.jpa.transaction_type.to_s) %> )
 <% end -%>
   @java.lang.Override
-  public <%= query_result_type(query) %> <%= Reality::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p|  "#{annotated_type(p, :jpa, :default, :final => true)} #{Reality::Naming.camelize(p.name)}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
+  <%= query_result_type(query, 'public ') %> <%= Reality::Naming.camelize(query.name) %>(<%= (query.parameters.collect {|p|  "#{annotated_type(p, :jpa, :default, :final => true)} #{Reality::Naming.camelize(p.name)}"} + [query.jpa.limit ? 'final int limit': nil] + [query.jpa.offset ? 'final int offset': nil]).compact.join(', ') %>)
   {
     final var query = em.createNamedQuery( <%= dao.repository? ? "#{query.entity.jpa.qualified_name}." : '' %><%= Reality::Naming.uppercase_constantize(query.name) %>, <%= db_result_java_type %>.class );
 <%

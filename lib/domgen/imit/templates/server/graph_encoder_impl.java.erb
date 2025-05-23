@@ -4,8 +4,7 @@ package <%= to_package(repository.imit.qualified_graph_encoder_impl_name) %>;
 /**
  * Utility class that encodes a graph of entities as a set of messages for "<%= repository.name %>" repository.
  */
-@java.lang.SuppressWarnings( { "PMD.UnusedPrivateField", "UnusedDeclaration", "JavaDoc", "PMD.CollapsibleIfStatements", "PMD.UnusedFormalParameter" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "UP_UNUSED_PARAMETER" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.enterprise.inject.Typed( <%= repository.imit.qualified_graph_encoder_name %>.class )
 class <%= repository.imit.graph_encoder_impl_name %>
@@ -40,13 +39,13 @@ class <%= repository.imit.graph_encoder_impl_name %>
     filter_param = nil
     if graph.filter_parameter?
       p = graph.filter_parameter
-      java_type = "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)}"
+      java_type = "#{nullability_annotation(p.nullable?)} final #{Domgen::Java.java_type(p, :ee, :default)}"
       filter_param = "#{java_type} filter"
     end
 
 %>
   @java.lang.Override
-  public void encode<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", final #{filter_param}" %> )
+  public void encode<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
   {
     _encode<%= graph.name %>_<%= entity.name %>( messages, object<%= filter_param.nil? ? '' : ', filter' %> );
   }
@@ -55,7 +54,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
     outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.inverse.traversable? && a.inverse.imit.replication_edges.include?(graph.name) && !a.imit.graph_links.any?{|g| g.source_graph == graph && !g.exclude_target? }}
 -%>
 
-  private void _encode<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", final #{filter_param}" %> )
+  private void _encode<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
   {
     encodeObject( messages, object );
 <%

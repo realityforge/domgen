@@ -142,8 +142,6 @@ module Domgen
         declared_attribute_names = entity.declared_attributes.collect{|a| a.name}
         declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
         java = <<JAVA
-  @java.lang.SuppressWarnings( { "PMD.UnnecessaryConstructor" } )
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" } )
   #{immutable_attributes.empty? ? 'public' : 'protected'} #{entity.jpa.name}()
   {
   }
@@ -152,7 +150,7 @@ JAVA
         return java if immutable_attributes.empty?
         java = java + <<JAVA
   @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
-  public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.field_name}"}.join(', ')})
+  public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "#{nullable_annotate(a, "final #{a.jpa.java_type}", false)} #{a.jpa.field_name}"}.join(', ')})
   {
 JAVA
         java += declared_immutable_attributes.collect{|a| "    this.#{a.jpa.field_name} = #{!a.nullable? && !a.jpa.primitive? ? "java.util.Objects.requireNonNull( #{a.jpa.field_name} )": a.jpa.field_name};\n" }.join('')
@@ -187,16 +185,15 @@ JAVA
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
             name = attribute.inverse.name
             field_name = Reality::Naming.camelize( name )
-            type = nullable_annotate(attribute, attribute.entity.jpa.qualified_name, false, true)
 
             java = <<JAVA
-  public #{type} #{getter_for(attribute, name)}
+  #{nullable_annotate(attribute, "public #{attribute.entity.jpa.qualified_name}", false, true)} #{getter_for(attribute, name)}
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     return #{field_name};
   }
 
-  #{j_deprecation_warning(attribute)}final void add#{name}( final #{type} value )
+  #{j_deprecation_warning(attribute)}final void add#{name}( #{nullable_annotate(attribute, "final #{attribute.entity.jpa.qualified_name}", false, true)} value )
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     if( null != this.#{field_name} )
@@ -209,7 +206,7 @@ JAVA
     }
   }
 
-  public final void remove#{name}( final #{type} value )
+  public final void remove#{name}( #{nullable_annotate(attribute, "final #{attribute.entity.jpa.qualified_name}", false, true)} value )
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     if( null != this.#{field_name} && value != this.#{field_name} )
@@ -365,15 +362,14 @@ JAVA
       end
 
       def j_reference_attribute(attribute)
-        type = nullable_annotate(attribute, attribute.jpa.java_type, false)
         java = <<JAVA
-  public #{type} #{getter_for(attribute)}
+  #{nullable_annotate(attribute, "public #{attribute.jpa.java_type}", false)} #{getter_for(attribute)}
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     return doGet#{attribute.jpa.name}();
   }
 
-  protected #{attribute.jpa.java_type} doGet#{attribute.jpa.name}()
+  #{nullable_annotate(attribute, "protected #{attribute.jpa.java_type}", false)} doGet#{attribute.jpa.name}()
   {
 JAVA
         if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
@@ -397,7 +393,7 @@ JAVA
         if attribute.updatable?
           java << <<JAVA
   @java.lang.SuppressWarnings( { "deprecation" } )
-  #{attribute.entity.jpa.module_local_mutators? ? '' : 'public '}void set#{attribute.jpa.name}( final #{type} value )
+  #{attribute.entity.jpa.module_local_mutators? ? '' : 'public '}void set#{attribute.jpa.name}( #{nullable_annotate(attribute, "final #{attribute.jpa.java_type}", false)} value )
   {
  #{j_return_if_value_same(attribute, attribute.jpa.field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
         #{j_remove_from_inverse(attribute)}
@@ -422,7 +418,8 @@ JAVA
           <<STR
   /**
    * This method should not be called directly. It is called from the constructor of #{attribute.entity.jpa.qualified_name}.
-   * @deprecated
+   *
+   * @deprecated This method should not be called directly. It is called from the constructor of #{attribute.entity.jpa.qualified_name}.
    */
   @java.lang.Deprecated public
 STR
@@ -483,7 +480,6 @@ STR
         s = <<JAVA
   @java.lang.SuppressWarnings( "ConstantValue" )
   @java.lang.Override
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"EQ_OVERRIDING_EQUALS_NOT_SYMMETRIC","RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   public boolean equals( final Object o )
   {
     if ( this == o )
@@ -501,8 +497,7 @@ STR
   }
 
   @java.lang.Override
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
-  @java.lang.SuppressWarnings( { "PMD.UnnecessaryLocalBeforeReturn", "ConstantValue" } )
+  @java.lang.SuppressWarnings( "ConstantValue" )
   public int hashCode()
   {
     final var key = #{pk_getter};
@@ -584,15 +579,15 @@ JAVA
             Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.object_type
       end
 
-      def query_result_type(query, maybe_primitive = true)
-        return 'void' if query.query_type == :update && !query.result_type?
-        return 'boolean' if query.query_type == :update && query.result_type == :boolean
-        return 'int' if query.query_type != :select
-        try_primitive = maybe_primitive && query.multiplicity == :one
+      def query_result_type(query, qualifier)
+        return "#{qualifier}void" if query.query_type == :update && !query.result_type?
+        return "#{qualifier}boolean" if query.query_type == :update && query.result_type == :boolean
+        return "#{qualifier}int" if query.query_type != :select
+        try_primitive = query.multiplicity == :one
         name = query_component_result_type(query, try_primitive)
-        return "#{nullability_annotation(false)} java.util.List<#{name}>" if query.multiplicity == :many
-        is_primitive = try_primitive && query.multiplicity == :one && !query.result_entity? && !query.result_struct? && maybe_primitive && Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.primitive_type?
-        is_primitive ? name : "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{name}"
+        return "#{nullability_annotation(false)} #{qualifier}java.util.List<#{name}>" if query.multiplicity == :many
+        is_primitive = try_primitive && query.multiplicity == :one && !query.result_entity? && !query.result_struct? && Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.primitive_type?
+        is_primitive ? "#{qualifier}#{name}" : "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{qualifier}#{name}"
       end
 
       def null_guard(nullable, name)
@@ -660,7 +655,6 @@ JAVA
     Class<? extends javax.validation.Payload>[] payload() default { };
   }
 
-  @java.lang.SuppressWarnings( { "PMD.UselessParentheses", "PMD.AvoidMultipleUnaryOperators" } )
   public static class #{constraint_name}Validator
     implements javax.validation.ConstraintValidator<#{validation_name(constraint_name)}, #{entity.jpa.name}>
   {

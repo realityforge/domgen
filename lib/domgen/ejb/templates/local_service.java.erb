@@ -1,10 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(service.ejb.qualified_service_name) %>;
+package <%= to_package(service.ejb.qualified_local_service_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-<% unless service.ejb.module_local? %>public <% end %>interface <%= service.ejb.service_name %>
+public interface <%= service.ejb.local_service_name %>
 {
-<% service.methods.select{|method| !method.ejb.local_service?}.each do |method| -%>
+<% service.methods.select{|method| method.ejb.local_service?}.each do |method| -%>
   <%= annotated_type(method.return_value, :ejb, :default) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %>;

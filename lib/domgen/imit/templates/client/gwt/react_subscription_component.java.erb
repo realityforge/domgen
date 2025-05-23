@@ -2,7 +2,6 @@
 package <%= to_package(graph.qualified_react4j_subscription_component_name) %>;
 
 @react4j.annotations.View( type = react4j.annotations.View.Type.TRACKING )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "AOM_ABSTRACT_OVERRIDDEN_METHOD" } )
 public abstract class <%= graph.react4j_subscription_component_name %>
   extends replicant.react4j.ReplicantSubscription<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Void' %>>
 {

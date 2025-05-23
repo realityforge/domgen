@@ -1,8 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.LocalVariableCouldBeFinal", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "BED_HIERARCHICAL_EXCEPTION_DECLARATION", "PSC_PRESIZE_COLLECTIONS", "WOC_WRITE_ONLY_COLLECTION_LOCAL" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRES_NEW )
 @javax.enterprise.inject.Typed( <%= service.ejb.qualified_boundary_interface_name %>.class )
@@ -63,7 +62,7 @@ class <%= service.ejb.boundary_implementation_name %>
   @<%= annotation %>
 <% end-%>
   @java.lang.Override
-  public <%= annotated_type(method.return_value, :ejb, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "final #{annotated_type(p, :ejb, :boundary)} #{p.name}" }.join(', ') %>)<%=
+  <%= annotated_type(method.return_value, :ejb, :boundary, :public => true) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :boundary, :final => true)} #{p.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %><%
    return_prefix = ''

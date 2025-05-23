@@ -6,8 +6,7 @@ package <%= to_package(data_module.imit.qualified_mapper_name) %>;
  *
  * NOTE: This must be in the same package as the entities otherwise you will not be able to access the setters.
  */
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", "UP_UNUSED_PARAMETER", "CE_CLASS_ENVY" } )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "PMD.CollapsibleIfStatements", "PMD.SingularField", "PMD.UnusedFormalParameter" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public final class <%= data_module.imit.mapper_name %>
 {
 <% data_module.entities.select{ |entity| entity.imit?  }.each do |entity|

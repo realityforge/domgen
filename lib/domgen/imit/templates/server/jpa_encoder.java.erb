@@ -4,8 +4,7 @@ package <%= to_package(repository.imit.qualified_jpa_encoder_name) %>;
 /**
  * Utility class that encodes payloads from JPA entities for the repository "<%= repository.name %>".
  */
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", "JVR_JDBC_VENDOR_RELIANCE", "CE_CLASS_ENVY" } )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.LocalVariableNamingConventions" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public final class <%= repository.imit.jpa_encoder_name %>
 {
   private <%= repository.imit.jpa_encoder_name %>()

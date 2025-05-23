@@ -1,8 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(message.ee.qualified_name) %>;
 
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EI_EXPOSE_REP", "EI_EXPOSE_REP2", "DLS_DEAD_LOCAL_STORE", "SE_BAD_FIELD", "USBR_UNNECESSARY_STORE_BEFORE_RETURN", "SPP_EQUALS_ON_ENUM" } )
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UselessParentheses", "PMD.UnusedLocalVariable", "PMD.UnnecessaryConstructor", "PMD.LocalVariableCouldBeFinal", "PMD.UnnecessaryLocalBeforeReturn", "PMD.LocalVariableNamingConventions" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <% unless message.ee.module_local?  %>public <% end %>class <%= message.ee.name %>
   implements java.io.Serializable
 {
@@ -17,10 +16,9 @@ package <%= to_package(message.ee.qualified_name) %>;
   /**
    * This constructor is present for deserialization mechanisms and should not be called directly.
    *
-   * @deprecated
+   * @deprecated This constructor is present for deserialization mechanisms and should not be called directly.
    */
   @java.lang.Deprecated
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
   public <%= message.name %>()
   {
   }

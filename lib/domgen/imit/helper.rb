@@ -69,14 +69,6 @@ module Domgen
             query.struct.gwt.qualified_name :
             Domgen::TypeDB.characteristic_type_by_name(query.result_type).java.object_type
       end
-
-      def query_result_type(query)
-        return 'int' if query.query_type != :select
-        name = query_component_result_type(query)
-        return "#{nullability_annotation(false)} java.util.List<#{name}>" if query.multiplicity == :many
-        "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{name}"
-      end
-
     end
   end
 end

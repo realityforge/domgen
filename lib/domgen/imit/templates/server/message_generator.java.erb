@@ -4,8 +4,7 @@ package <%= to_package(repository.imit.qualified_message_generator_name) %>;
 /**
  * Utility class that encodes RPC payloads from JPA entities for the repository "<%= repository.name %>".
  */
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.CollapsibleIfStatements", "PMD.UnusedFormalParameter" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "UCF_USELESS_CONTROL_FLOW", "NP_LOAD_OF_KNOWN_NULL_VALUE", "UP_UNUSED_PARAMETER", "CC_CYCLOMATIC_COMPLEXITY", "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public final class <%= repository.imit.message_generator_name %>
 {
   @javax.annotation.Nonnull

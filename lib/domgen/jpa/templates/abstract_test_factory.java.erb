@@ -2,8 +2,7 @@
 package <%= to_package(data_module.jpa.qualified_abstract_test_factory_name) %>;
 
 <% modules_to_expose = (data_module.sync? ? [data_module.repository.sync.master_data_module] : []) -%>
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.FormalParameterNamingConventions", "PMD.LocalVariableNamingConventions", "DuplicatedCode", "SameParameterValue" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "CE_CLASS_ENVY" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "DuplicatedCode", "SameParameterValue" } )
 public abstract class <%= data_module.jpa.abstract_test_factory_name %>
 {
   private final com.google.inject.Injector _injector;

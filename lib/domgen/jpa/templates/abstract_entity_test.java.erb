@@ -1,13 +1,12 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.jpa.qualified_abstract_entity_test_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "PMD.LocalVariableNamingConventions", "SameParameterValue" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "SameParameterValue" } )
 public abstract class <%= repository.jpa.abstract_entity_test_name %>
   extends org.realityforge.guiceyloops.server.AbstractServerTest
 {
 <% repository.jpa.test_factories.each do |short_code, classname| -%>
   @javax.annotation.Nonnull
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" )
   protected <%= classname %> <%= short_code %>;
 <% end -%>
 <% if repository.sql_analysis?-%>
@@ -57,7 +56,6 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   }
 <% if repository.sql_analysis? -%>
 
-  @java.lang.SuppressWarnings( "PMD.SystemPrintln" )
   protected void runSqlAnalysisPerformChecks()
   {
     em().clear();

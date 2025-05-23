@@ -1,29 +1,28 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(exception.jws.qualified_fault_info_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnnecessaryConstructor" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 <%= jaxb_exception_annotations(exception) %>
 public class <%= exception.jws.fault_info_name %>
 {
 <% exception.parameters.each do |parameter| %>
   <%= jaxb_field_annotation(parameter) -%>
-  private <%= annotated_type(parameter, :ee, :boundary) %> _<%= Reality::Naming.camelize(parameter.name) %>;
+  <%= annotated_type(parameter, :ee, :boundary, :private => true) %> _<%= Reality::Naming.camelize(parameter.name) %>;
 <% end %>
 
 <% if exception.parameters.size != 0 %>
   /**
    * This constructor is present for deserialization mechanisms and should not be called directly.
    *
-   * @deprecated
+   * @deprecated This constructor is present for deserialization mechanisms and should not be called directly.
    */
   @java.lang.Deprecated
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
   public <%= exception.jws.fault_info_name %>()
   {
   }
 <% end %>
 
-  public <%= exception.jws.fault_info_name %>( <%= exception.parameters.collect {|parameter| "final #{annotated_type(parameter, :ee, :boundary)} #{Reality::Naming.camelize(parameter.name)}" }.join(', ') %> )
+  public <%= exception.jws.fault_info_name %>( <%= exception.parameters.collect {|parameter| "#{annotated_type(parameter, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(parameter.name)}" }.join(', ') %> )
   {
 <% exception.parameters.each do |parameter|
      null_protection = parameter.nullable? ? "#{Reality::Naming.camelize(parameter.name)} == null ? null : " : ''
@@ -38,7 +37,7 @@ public class <%= exception.jws.fault_info_name %>
 %>  }
 <% exception.parameters.each do |parameter|
 %>
-  public <%= annotated_type(parameter, :ee, :boundary) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+  <%= annotated_type(parameter, :ee, :boundary, :public => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
   {
     return _<%= Reality::Naming.camelize(parameter.name) %>;
   }

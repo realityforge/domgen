@@ -19,7 +19,6 @@ public abstract class <%= service.jms.abstract_router_name %>
 <% end -%>
 
 <% service.methods.select{|m|m.jms? && m.jms.router?}.each do |method| -%>
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "EXS_EXCEPTION_SOFTENING_NO_CHECKED" )
   <%=
 
   parameter = method.parameters.empty? ? nil : method.parameters[0]
@@ -48,7 +47,6 @@ public abstract class <%= service.jms.abstract_router_name %>
   }
 
 <% if parameter -%>
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS" )
   protected String convert<%= method.name %>ToText( <%= annotated_type(parameter, :ejb, :default, :final => true) %> <%= Reality::Naming.camelize(parameter.name) %> )
   {
     try

@@ -10,8 +10,7 @@ package <%= to_package(data_module.arez.qualified_test_factory_name) %>;
   end
 end
 -%>
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.LocalVariableNamingConventions", "PMD.FormalParameterNamingConventions" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "CE_CLASS_ENVY", "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @sting.Injectable
 public final class <%= data_module.arez.test_factory_name %>
   implements <%= data_module.arez.qualified_test_factory_extension_name %>

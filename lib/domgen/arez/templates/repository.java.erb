@@ -2,7 +2,7 @@
 package <%= to_package(dao.arez.qualified_repository_name) %>;
 
 @arez.annotations.ArezComponent( name = "<%= dao.data_module.name %>_<%= dao.name %>", service = arez.annotations.Feature.ENABLE, sting = arez.annotations.Feature.ENABLE )
-@java.lang.SuppressWarnings( { "PMD.LocalVariableNamingConventions", "JavaDoc" } )
+@java.lang.SuppressWarnings( "JavaDoc" )
 public abstract class <%= dao.arez.repository_name %>
   extends arez.component.internal.AbstractRepository<java.lang.Integer, <%= dao.entity.arez.qualified_name %>, <%= dao.arez.repository_name %>>
 <% unless dao.arez.extensions.empty? -%>

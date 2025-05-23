@@ -18,7 +18,6 @@ class <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_
 </pre>
 </code>
  */
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS" } )
 public abstract class <%= data_module.sync.abstract_sync_temp_population_impl_name %><H extends <%= data_module.sync.qualified_sync_temp_factory_name %>>
   extends iris.syncrecord.server.service.StandardSyncService
   implements <%= data_module.service_by_name(:SyncTempPopulationService).ejb.qualified_service_name %>

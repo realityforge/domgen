@@ -4,8 +4,6 @@ package <%= to_package(repository.jpa.qualified_persistent_test_module_name) %>;
 /**
  * A PersistenceTestModule used to test <%= repository.name %> entities.
  */
-@SuppressWarnings( "PMD.UseUtilityClass" )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( "LUI_USE_SINGLETON_LIST" )
 public class <%= repository.jpa.persistent_test_module_name %>
   extends org.realityforge.guiceyloops.server.PersistenceTestModule
 {

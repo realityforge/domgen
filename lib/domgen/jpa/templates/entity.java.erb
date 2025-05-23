@@ -1,8 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(entity.jpa.qualified_name) %>;
 
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "EI_EXPOSE_REP", "EI_EXPOSE_REP2", "BC_VACUOUS_INSTANCEOF", "SEO_SUBOPTIMAL_EXPRESSION_ORDER", "CNC_COLLECTION_NAMING_CONFUSION", "SPP_EQUALS_ON_ENUM", "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS", "USBR_UNNECESSARY_STORE_BEFORE_RETURN", "WOC_WRITE_ONLY_COLLECTION_FIELD" } )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UnusedPrivateField", "deprecation", "PMD.AvoidFieldNameMatchingTypeName", "PMD.FormalParameterNamingConventions", "JpaDataSourceORMInspection", "SqlNoDataSourceInspection", "RedundantSuppression" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "deprecation", "JpaDataSourceORMInspection", "SqlNoDataSourceInspection", "RedundantSuppression" } )
 <%
    jpa_queries = entity.queries.select {|q| q.jpa? && !q.jpa.native? }
    if !jpa_queries.empty? %>@javax.persistence.NamedQueries( value = {
@@ -148,7 +147,7 @@ end
 <% end -%>
   }
 
-  @SuppressWarnings( { "PMD.CompareObjectsWithEquals", "PointlessBooleanExpression" } )
+  @SuppressWarnings( "PointlessBooleanExpression" )
   <% unless entity.jpa.module_local? %>public <% end %>boolean unmodified()
   {
     return
@@ -185,7 +184,8 @@ end
 <% if entity.transaction_time? -%>
   /**
    * This method should not be called directly. It is called from the repository during delete.
-   * @deprecated
+   *
+   * @deprecated This method should not be called directly. It is called from the repository during delete.
    */
   @java.lang.Deprecated
 <% end -%>
@@ -211,7 +211,8 @@ end
 
   /**
    * This method should not be called directly. It is called from the repository during delete
-   * @deprecated
+   *
+   * @deprecated This method should not be called directly. It is called from the repository during delete
    */
   @java.lang.Deprecated
   public<% else -%>private<% end -%> void delinkDuringPreRemove()

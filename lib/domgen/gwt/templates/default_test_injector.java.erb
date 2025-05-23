@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_default_test_injector_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "PMD.UseUtilityClass" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @sting.Injector( includes = {<%= repository.gwt.sting_test_injector_includes.collect{|cls| "#{cls}.class"}.join(', ') %>} )
 public interface <%= repository.gwt.default_test_injector_name %>
   extends <%= repository.gwt.qualified_abstract_test_sting_injector_name %>

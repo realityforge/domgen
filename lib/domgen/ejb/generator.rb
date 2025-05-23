@@ -19,6 +19,10 @@ Domgen::Generator.define([:ejb],
     template_set.erb_template(:service,
                               'service.java.erb',
                               'main/java/#{service.ejb.qualified_service_name.gsub(".","/")}.java')
+    template_set.erb_template(:service,
+                              'local_service.java.erb',
+                              'main/java/#{service.ejb.qualified_local_service_name.gsub(".","/")}.java',
+                              :guard => 'service.ejb.generate_local_service?')
     template_set.erb_template(:data_module,
                               'service_package_info.java.erb',
                               'main/java/#{data_module.ejb.server_service_package.gsub(".","/")}/package-info.java',

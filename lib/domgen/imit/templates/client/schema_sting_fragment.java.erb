@@ -3,8 +3,6 @@ package <%= to_package(repository.imit.qualified_schema_sting_fragment_name) %>;
 <% entities = repository.data_modules.select { |data_module| data_module.imit? }.collect{|data_module| data_module.entities.select{|entity| entity.imit? && entity.concrete?} }.flatten -%>
 
 @sting.Fragment
-@java.lang.SuppressWarnings( "PMD.UnusedLocalVariable" )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "LUI_USE_SINGLETON_LIST", "CC_CYCLOMATIC_COMPLEXITY", "DLS_DEAD_LOCAL_STORE", "UP_UNUSED_PARAMETER" } )
 public interface <%= repository.imit.schema_sting_fragment_name %>
 {
   @javax.annotation.Nonnull

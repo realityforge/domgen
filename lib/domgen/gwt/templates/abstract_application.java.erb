@@ -1,8 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_abstract_application_name) %>;
 
-@SuppressWarnings( { "PMD.ConstructorCallsOverridableMethod" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "STT_STRING_PARSING_A_FIELD", "PRMC_POSSIBLY_REDUNDANT_METHOD_CALLS", "PCOA_PARTIALLY_CONSTRUCTED_OBJECT_ACCESS", "ACEM_ABSTRACT_CLASS_EMPTY_METHODS" } )
 public abstract class <%= repository.gwt.abstract_application_name %><I extends <%= repository.gwt.qualified_abstract_sting_injector_name %>>
 {
 <% if repository.keycloak? || repository.imit? -%>

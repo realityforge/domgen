@@ -4,8 +4,7 @@ package <%= to_package(data_module.sync.qualified_sync_ejb_name) %>;
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.NOT_SUPPORTED )
 @javax.enterprise.inject.Typed( <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_name %>.class )
-@SuppressWarnings( { "ConstantConditions", "PMD.GuardLogStatement" } )
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings( { "NP_ALWAYS_NULL", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE", "NP_LOAD_OF_KNOWN_NULL_VALUE", "CLI_CONSTANT_LIST_INDEX" } )
+@SuppressWarnings( "ConstantConditions" )
 class <%= data_module.sync.sync_ejb_name %>
   extends iris.syncrecord.server.service.StandardSyncService
   implements <%= data_module.service_by_name(:SynchronizationService).ejb.qualified_service_name %>
