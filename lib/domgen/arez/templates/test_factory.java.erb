@@ -177,12 +177,12 @@ end.join(', ') -%> );
     return arez.Arez.context().safeAction( action );
   }
 
-  void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action, @org.intellij.lang.annotationsMagicConstant( flagsFromClass = arez.ActionFlags.class ) final int flags )
+  void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action, @org.intellij.lang.annotations.MagicConstant( flagsFromClass = arez.ActionFlags.class ) final int flags )
   {
     arez.Arez.context().safeAction( action, flags );
   }
 
-  <T> T safeAction( @javax.annotation.Nonnull final arez.SafeFunction<T> action, @org.intellij.lang.annotationsMagicConstant( flagsFromClass = arez.ActionFlags.class ) final int flags )
+  <T> T safeAction( @javax.annotation.Nonnull final arez.SafeFunction<T> action, @org.intellij.lang.annotations.MagicConstant( flagsFromClass = arez.ActionFlags.class ) final int flags )
   {
     return arez.Arez.context().safeAction( action, flags );
   }
