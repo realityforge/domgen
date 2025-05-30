@@ -86,7 +86,7 @@ else
   end
 end.join(', ') -%> );
 <% if needsLink -%>
-    arez.Arez.context().safeAction( () -> arez.component.Linkable.link( $_ ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
+    safeAction( () -> arez.component.Linkable.link( $_ ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
     return $_;
 <% end -%>
   }
@@ -104,10 +104,10 @@ end.join(', ') -%> );
   public void set<%= a.name %>( @javax.annotation.Nonnull final <%= entity.arez.qualified_name %> $_, <%= annotated_type(a, :arez, :default, :final => true) %> <%= Reality::Naming.camelize(a.name) %> )
   {
 <% if a.reference? -%>
-    arez.Arez.context().safeAction( () -> $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() ) );
-    arez.Arez.context().safeAction( () -> arez.component.Linkable.link( $_ ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
+    safeAction( () -> $_.set<%= a.referencing_link_name %>( <%= a.nullable? ? "null == #{Reality::Naming.camelize(a.name)} ? null :" : '' %><%= Reality::Naming.camelize(a.name) %>.get<%= a.referenced_entity.primary_key.name %>() ) );
+    safeAction( () -> arez.component.Linkable.link( $_ ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
 <% else -%>
-    arez.Arez.context().safeAction( () -> $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> ) );
+    safeAction( () -> $_.set<%= a.name %>( <%= Reality::Naming.camelize(a.name) %> ) );
 <% end -%>
   }
 
@@ -153,5 +153,37 @@ end.join(', ') -%> );
   String randomString( final int stringLength )
   {
     return <%= data_module.repository.gwt.qualified_value_util_name %>.randomString( stringLength );
+  }
+
+  void action( @javax.annotation.Nonnull final arez.Procedure action )
+    throws java.lang.Throwable
+  {
+    arez.Arez.context().action( action );
+  }
+
+  <T> T action( @javax.annotation.Nonnull final arez.Function<T> action )
+    throws java.lang.Throwable
+  {
+    return arez.Arez.context().action( action );
+  }
+
+  void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action )
+  {
+    arez.Arez.context().safeAction( action );
+  }
+
+  <T> T safeAction( @javax.annotation.Nonnull final arez.SafeFunction<T> action )
+  {
+    return arez.Arez.context().safeAction( action );
+  }
+
+  void safeAction( @javax.annotation.Nonnull final arez.SafeProcedure action, @org.intellij.lang.annotationsMagicConstant( flagsFromClass = arez.ActionFlags.class ) final int flags )
+  {
+    arez.Arez.context().safeAction( action, flags );
+  }
+
+  <T> T safeAction( @javax.annotation.Nonnull final arez.SafeFunction<T> action, @org.intellij.lang.annotationsMagicConstant( flagsFromClass = arez.ActionFlags.class ) final int flags )
+  {
+    return arez.Arez.context().safeAction( action, flags );
   }
 }
