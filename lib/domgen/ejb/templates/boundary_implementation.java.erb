@@ -47,9 +47,19 @@ class <%= service.ejb.boundary_implementation_name %>
   }
 
 <% end -%>
-<% service.methods.select{|method | method.ejb.generate_boundary?}.collect {|method|method.parameters.select{|parameter|parameter.reference?}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
+<% service.methods.select{|method | method.ejb.generate_boundary?}.collect {|method|method.parameters.select{|parameter|parameter.reference? && (!parameter.referenced_entity.dao.jpa.module_local? || service.data_module.name.to_s == parameter.referenced_entity.data_module.name.to_s)}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>;
+<% end -%>
+<%
+  created_persistent_context = false
+  service.methods.select{|method | method.ejb.generate_boundary?}.collect {|method|method.parameters.select{|parameter|parameter.reference? && parameter.referenced_entity.dao.jpa.module_local? && service.data_module.name.to_s != parameter.referenced_entity.data_module.name.to_s}.collect{|parameter|parameter.referenced_entity}}.flatten.each do |entity|
+    unless created_persistent_context
+      created_persistent_context = true
+  -%>
+  @javax.persistence.PersistenceContext( unitName = <%= service.data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME )
+  private javax.persistence.EntityManager em;
+<% end -%>
 <% end -%>
   @javax.inject.Inject
   private <%= service.ejb.qualified_service_name %> _service;
@@ -94,6 +104,20 @@ JAVA
    transform = transform.size > 0 ? "    #{transform}\n" : transform
 %>
   {
+<% method.parameters.select{|parameter|parameter.reference? && parameter.referenced_entity.dao.jpa.module_local? && service.data_module.name.to_s != parameter.referenced_entity.data_module.name.to_s}.each do |parameter|
+  pk_query_name = "#{parameter.nullable? ? 'FindBy' : 'GetBy'}#{parameter.referenced_entity.primary_key.name}"
+  query = parameter.referenced_entity.dao.queries.select{|q| q.jpa? && q.name.to_s == pk_query_name}[0]
+-%>
+    final var $<%= Reality::Naming.camelize(parameter.name) %>Query = em.createNamedQuery( <%= "#{query.entity.jpa.qualified_name}." %><%= Reality::Naming.uppercase_constantize(query.name) %>, <%= query.entity.jpa.qualified_name %>.class );
+    $<%= Reality::Naming.camelize(parameter.name) %>Query.setParameter( <%= "\"#{parameter.referenced_entity.primary_key.name}\"" %>, <%= parameter.name %> );
+<% if parameter.nullable? -%>
+    $<%= Reality::Naming.camelize(parameter.name) %>Query.setMaxResults( 1 );
+    final var $<%= Reality::Naming.camelize(parameter.name) %>ResultList = $<%= Reality::Naming.camelize(parameter.name) %>Query.getResultList();
+    final var $<%= Reality::Naming.camelize(parameter.name) %> = $<%= Reality::Naming.camelize(parameter.name) %>ResultList.isEmpty() ? null : $<%= Reality::Naming.camelize(parameter.name) %>ResultList.get( 0 );
+<% else -%>
+    final var $<%= Reality::Naming.camelize(parameter.name) %> = $<%= Reality::Naming.camelize(parameter.name) %>Query.getSingleResult();
+<% end -%>
+<% end -%>
 <% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| -%>
     final var $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><<%= parameter.ejb.java_component_type(:default) %>>();
     for( final var id: <%= parameter.name %> )
@@ -101,7 +125,7 @@ JAVA
       $<%= parameter.name %>.add( _<%= Reality::Naming.camelize(parameter.referenced_entity.dao.jpa.dao_service_name) %>.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );
     }
 <% end -%>
-    <%= return_prefix  %>_service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
+    <%= return_prefix  %>_service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| parameter.reference? && parameter.referenced_entity.dao.jpa.module_local? && service.data_module.name.to_s != parameter.referenced_entity.data_module.name.to_s ? "$#{Reality::Naming.camelize(parameter.name)}" : "#{modality_boundary_to_default(parameter.name, parameter, :ejb)}" }.join(', ') %>);
 <%= transform -%>
   }
 <% end -%>
