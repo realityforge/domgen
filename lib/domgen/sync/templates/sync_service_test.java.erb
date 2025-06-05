@@ -46,7 +46,7 @@ abstract class <%= data_module.sync.sync_service_test_name %>
 
   @org.testng.annotations.Test
   @java.lang.Override
-  public void synchronizeDataSource()
+  void synchronizeDataSource()
     throws Exception
   {
     final var onDeleteActions = new java.util.ArrayList<java.lang.Runnable>();
