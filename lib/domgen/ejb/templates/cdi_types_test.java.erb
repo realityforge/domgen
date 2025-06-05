@@ -2,7 +2,7 @@
 package <%= to_package(repository.ejb.qualified_cdi_types_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
-public final class <%= repository.ejb.cdi_types_test_name %>
+final class <%= repository.ejb.cdi_types_test_name %>
 {<%
   repository.data_modules.select{|d|d.ejb?}.each do |data_module|
     data_module.services.select{|s|s.ejb? && s.ejb.generate_base_test?}.each do |service|

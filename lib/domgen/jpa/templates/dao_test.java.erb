@@ -2,12 +2,12 @@
 package <%= to_package(dao.jpa.qualified_dao_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "RedundantThrows" } )
-public abstract class <%= dao.jpa.dao_test_name %>
+abstract class <%= dao.jpa.dao_test_name %>
   extends <%= dao.data_module.repository.jpa.qualified_standalone_entity_test_name %>
 {
 <% dao.queries.select{|q|q.jpa? && !q.jpa.standard_query?}.each do |query| -%>
   @org.testng.annotations.Test
-  public void <%= Reality::Naming.camelize(query.name) %>()
+  void <%= Reality::Naming.camelize(query.name) %>()
     throws Exception
   {
     org.testng.Assert.fail( "Test not yet implemented" );

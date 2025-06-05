@@ -2,12 +2,12 @@
 package <%= to_package(service.ejb.qualified_service_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "RedundantThrows" } )
-public abstract class <%= service.ejb.service_test_name %>
+abstract class <%= service.ejb.service_test_name %>
   extends <%= service.ejb.qualified_base_service_test_name %>
 {
 <% service.methods.select{|m|m.ejb? && m.ejb.generate_base_test?}.each do |method| -%>
   @org.testng.annotations.Test
-  public void <%= Reality::Naming.camelize(method.name) %>()
+  void <%= Reality::Naming.camelize(method.name) %>()
     throws Exception
   {
     org.testng.Assert.fail( "Test not yet implemented" );
@@ -15,7 +15,7 @@ public abstract class <%= service.ejb.service_test_name %>
 
 <% method.exceptions.select{|exception|!exception.abstract? && !exception.ejb.skip_test?}.each do |exception| -%>
   @org.testng.annotations.Test
-  public void <%= Reality::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %>()
+  void <%= Reality::Naming.camelize(method.name) %>_throws_<%= exception.data_module.name %>_<%= exception.name %>()
     throws Exception
   {
     org.testng.Assert.fail( "Test not yet implemented" );

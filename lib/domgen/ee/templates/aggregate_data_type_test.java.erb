@@ -2,10 +2,10 @@
 package <%= to_package(repository.ee.qualified_aggregate_data_type_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
-public final class <%= repository.ee.aggregate_data_type_test_name %>
+final class <%= repository.ee.aggregate_data_type_test_name %>
 {
   @org.testng.annotations.Test
-  public void ensureTestsPresent()
+  void ensureTestsPresent()
     throws java.lang.Exception
   {
     // Enumeration tests
@@ -13,6 +13,7 @@ public final class <%= repository.ee.aggregate_data_type_test_name %>
   repository.data_modules.select(&:ee?).each do |data_module|
     data_module.enumerations.select{|enumeration|enumeration.ee? && !enumeration.ee.interfaces.empty?}.each do |enumeration|
 -%>
+    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isPublic( <%= enumeration.ee.qualified_enumeration_test_name %>.class.getModifiers() ), "The <%= enumeration.ee.qualified_enumeration_test_name %> class is expected to be a concrete class but is public" );
     org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= enumeration.ee.qualified_enumeration_test_name %>.class.getModifiers() ), "The <%= enumeration.ee.qualified_enumeration_test_name %> class is expected to be a concrete class but is abstract" );
     org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isFinal( <%= enumeration.ee.qualified_enumeration_test_name %>.class.getModifiers() ), "The <%= enumeration.ee.qualified_enumeration_test_name %> class is expected to be a final class but is not" );
 <%

@@ -2,14 +2,14 @@
 package <%= to_package(repository.jaxb.qualified_marshalling_test_name) %>;
 
 @java.lang.SuppressWarnings( "deprecation" )
-public final class <%= repository.jaxb.marshalling_test_name %>
+final class <%= repository.jaxb.marshalling_test_name %>
 {<%
   repository.data_modules.select{|dm|dm.jaxb?}.each do |data_module|
     data_module.enumerations.select{|e|e.jaxb?}.each do |enumeration|
 -%>
 
   @org.testng.annotations.Test
-  public void marshal<%= data_module.name %><%= enumeration.name %>()
+  void marshal<%= data_module.name %><%= enumeration.name %>()
     throws Exception
   {
     final var xml = new java.io.StringWriter();
@@ -71,7 +71,7 @@ end
 %>
 
   @org.testng.annotations.Test
-  public void marshal<%= data_module.name %><%= struct.name %>()
+  void marshal<%= data_module.name %><%= struct.name %>()
     throws Exception
   {
     final var xml = new java.io.StringWriter();

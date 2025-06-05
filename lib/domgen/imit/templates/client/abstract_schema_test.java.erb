@@ -2,54 +2,54 @@
 package <%= to_package(repository.imit.qualified_abstract_schema_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "RedundantThrows" } )
-public abstract class <%= repository.imit.abstract_schema_test_name %>
+abstract class <%= repository.imit.abstract_schema_test_name %>
   extends <%= repository.gwt.qualified_client_entity_test_name %>
 {
 <% repository.imit.graphs.each do |graph| -%>
   @org.testng.annotations.Test
-  public void <%= Reality::Naming.camelize(graph.name) %>Channel()
+  void <%= Reality::Naming.camelize(graph.name) %>Channel()
   {
     org.testng.Assert.fail( "Test not yet implemented" );
   }
 
 <% end -%>
-  protected final void assertInstanceChannel( final int channelId, @javax.annotation.Nonnull final Class<?> rootEntityType )
+  final void assertInstanceChannel( final int channelId, @javax.annotation.Nonnull final Class<?> rootEntityType )
   {
     org.testng.Assert.assertTrue( getChannel( channelId ).isInstanceChannel() );
     org.testng.Assert.assertEquals( getChannel( channelId ).getInstanceType(), rootEntityType );
   }
 
-  protected final void assertTypeChannel( final int channelId )
+  final void assertTypeChannel( final int channelId )
   {
     org.testng.Assert.assertTrue( getChannel( channelId ).isTypeChannel() );
   }
 
-  protected final void assertInternalChannel( final int channelId )
+  final void assertInternalChannel( final int channelId )
   {
     org.testng.Assert.assertFalse( getChannel( channelId ).isExternal() );
   }
 
-  protected final void assertExternalChannel( final int channelId )
+  final void assertExternalChannel( final int channelId )
   {
     org.testng.Assert.assertTrue( getChannel( channelId ).isExternal() );
   }
 
-  protected final void assertChannelFilterType( final int channelId, @javax.annotation.Nonnull final replicant.ChannelSchema.FilterType filterType )
+  final void assertChannelFilterType( final int channelId, @javax.annotation.Nonnull final replicant.ChannelSchema.FilterType filterType )
   {
     org.testng.Assert.assertEquals( getChannel( channelId ).getFilterType(), filterType );
   }
 
-  protected final void assertCacheableChannel( final int channelId )
+  final void assertCacheableChannel( final int channelId )
   {
     org.testng.Assert.assertTrue( getChannel( channelId ).isCacheable() );
   }
 
-  protected final void assertNotCacheableChannel( final int channelId )
+  final void assertNotCacheableChannel( final int channelId )
   {
     org.testng.Assert.assertFalse( getChannel( channelId ).isCacheable() );
   }
 
-  protected final void assertChannelEntities( final int channelId, final int... entityIds )
+  final void assertChannelEntities( final int channelId, final int... entityIds )
   {
     final replicant.ChannelSchema channel = getChannel( channelId );
     for ( final int entityId : entityIds )
@@ -60,13 +60,13 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
   }
 
   @javax.annotation.Nonnull
-  protected final replicant.EntitySchema ensureEntity( final int channelId, final int entityId )
+  final replicant.EntitySchema ensureEntity( final int channelId, final int entityId )
   {
     return ensureEntity( getChannel( channelId ), entityId );
   }
 
   @javax.annotation.Nonnull
-  protected final replicant.EntitySchema ensureEntity( @javax.annotation.Nonnull final replicant.ChannelSchema channel, final int entityId )
+  final replicant.EntitySchema ensureEntity( @javax.annotation.Nonnull final replicant.ChannelSchema channel, final int entityId )
   {
     final replicant.EntitySchema entity = channel.findEntityById( entityId );
     org.testng.Assert.assertNotNull( entity, "Expected Entity with Id " + entityId + " in channel " + channel );
@@ -79,7 +79,7 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
     return schema().getChannel( channelId );
   }
 
-  protected final void assertInwardChannelLinkCount( final int channelId, final int count )
+  final void assertInwardChannelLinkCount( final int channelId, final int count )
   {
     final java.util.List<replicant.ChannelLinkSchema> links = schema().getInwardChannelLinks( channelId );
     final replicant.ChannelSchema channel = getChannel( channelId );
@@ -88,7 +88,7 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
                                     "Expected links to channel " + channel + " from other channels" );
   }
 
-  protected final void assertOutwardChannelLinkCount( final int channelId, final int count )
+  final void assertOutwardChannelLinkCount( final int channelId, final int count )
   {
     final java.util.List<replicant.ChannelLinkSchema> links = schema().getOutwardChannelLinks( channelId );
     final replicant.ChannelSchema channel = getChannel( channelId );
@@ -97,12 +97,12 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
                                     "Expected links from channel " + channel + " to other channels" );
   }
 
-  protected final void assertInwardChannelLink( final int channelId, final int entityId, final int sourceChannelId, @javax.annotation.Nonnull final java.lang.String... path )
+  final void assertInwardChannelLink( final int channelId, final int entityId, final int sourceChannelId, @javax.annotation.Nonnull final java.lang.String... path )
   {
     assertInwardChannelLink( channelId, entityId, sourceChannelId, true, path );
   }
 
-  protected final void assertInwardChannelLink( final int channelId, final int entityId, final int sourceChannelId, final boolean auto, @javax.annotation.Nonnull final java.lang.String... path )
+  final void assertInwardChannelLink( final int channelId, final int entityId, final int sourceChannelId, final boolean auto, @javax.annotation.Nonnull final java.lang.String... path )
   {
     final java.util.List<replicant.ChannelLinkSchema> links = schema().getInwardChannelLinks( channelId, entityId );
 
@@ -116,13 +116,13 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
     org.testng.Assert.assertEquals( matches.size(), 1, "Expected to match a link from channel " + sourceChannelId + " (auto=" + auto + ", path=" + java.util.Arrays.asList( path ) + ")" + " but entity only has the inward links " + links );
   }
 
-  protected final void assertOutwardChannelLink( final int channelId, final int entityId, final int targetChannelId, @javax.annotation.Nonnull final java.lang.String... path )
+  final void assertOutwardChannelLink( final int channelId, final int entityId, final int targetChannelId, @javax.annotation.Nonnull final java.lang.String... path )
   {
     assertOutwardChannelLink( channelId, entityId, targetChannelId, true, path );
   }
 
 
-  protected final void assertOutwardChannelLink( final int channelId, final int entityId, final int targetChannelId, final boolean auto, @javax.annotation.Nonnull final java.lang.String... path )
+  final void assertOutwardChannelLink( final int channelId, final int entityId, final int targetChannelId, final boolean auto, @javax.annotation.Nonnull final java.lang.String... path )
   {
     final replicant.ChannelSchema channel = getChannel( channelId );
     final replicant.EntitySchema entity = channel.findEntityById( entityId );
@@ -140,7 +140,7 @@ public abstract class <%= repository.imit.abstract_schema_test_name %>
   }
 
   @javax.annotation.Nonnull
-  protected final replicant.SystemSchema schema()
+  final replicant.SystemSchema schema()
   {
     return getInjector().getSystemSchema();
   }
