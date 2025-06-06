@@ -379,7 +379,7 @@ module Domgen
 
       def post_complete
         if method.service.ejb? && method.service.ejb.generate_boundary?
-          self.method.ejb.boundary_annotations << "#{self.method.service.action.qualified_service_actions_name}.#{self.method.name}Action.ActionInterceptorBinding"
+          self.method.ejb.boundary_annotations << "#{self.method.service.action.qualified_service_actions_name}.#{self.method.name}ActionInterceptor.ActionInterceptorBinding"
         end
       end
 
