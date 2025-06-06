@@ -818,6 +818,12 @@ FRAGMENT
         @module_local.nil? ? (dao.repository? ? dao.entity.jpa.module_local? : false) : !!@module_local
       end
 
+      attr_writer :support_update
+
+      def support_update?
+        (dao.repository? ? dao.entity.jpa.support_update? : false) && (@support_update.nil? ? false : !!@support_update)
+      end
+
       attr_accessor :persistence_unit_name
 
       def transaction_type

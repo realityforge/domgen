@@ -155,7 +155,7 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
 
   <% unless entity.jpa.module_local? %>public <% end %>final void <%= defaults.factory_method_name == 'update' ? "update#{entity.name}" : defaults.factory_method_name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
-<% if entity.jpa.support_update? -%>
+<% if entity.dao.jpa.support_update? -%>
     <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().update( $_<%= non_default_attr.empty? ? '' : ', ' %><%= non_default_attr.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
 <% else -%>
 <% entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent? && (!defaults.has_attribute?(a.name) || !defaults.value_for(a.name).nil?)}.each do |a| -%>
@@ -183,7 +183,7 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
 
   <% unless entity.jpa.module_local? %>public <% end %>final void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-<% if entity.jpa.support_update? -%>
+<% if entity.dao.jpa.support_update? -%>
     <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().update( $_, <%= entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
 <% else -%>
 <% entity.attributes.select{|a| !a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
