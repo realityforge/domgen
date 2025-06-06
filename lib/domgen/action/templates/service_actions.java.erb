@@ -10,7 +10,7 @@ public class <%= service.action.service_actions_name %>
   private <%= service.ejb.boundary_interface_name %> _service;
 
   @javax.annotation.PostConstruct
-  public void onInit()
+  void onInit()
   {
 <% service.methods.select{|method|method.action?}.each do |method| -%>
     iris.rose.server.action.ActionExecutorRegistry.register( <%= method.name %>ActionInterceptor.actionTypeCode(), request -> <%= method.name %>ActionInterceptor.invokeAction( _service, request ) );
@@ -18,7 +18,7 @@ public class <%= service.action.service_actions_name %>
   }
 <% service.methods.select{|method|method.action?}.each do |method| -%>
 
-  public static final class <%= method.name %>ActionInterceptor
+  static final class <%= method.name %>ActionInterceptor
   {
     @javax.annotation.Nonnull
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.name %>ActionInterceptor.class.getName() );
@@ -182,7 +182,7 @@ public class <%= service.action.service_actions_name %>
     @java.lang.annotation.Target( { java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD } )
     @java.lang.annotation.Retention( java.lang.annotation.RetentionPolicy.RUNTIME )
     @javax.interceptor.InterceptorBinding
-    public @interface ActionInterceptorBinding
+    @interface ActionInterceptorBinding
     {
     }
 
@@ -190,13 +190,13 @@ public class <%= service.action.service_actions_name %>
     @javax.interceptor.Interceptor
     @javax.annotation.Priority( javax.interceptor.Interceptor.Priority.LIBRARY_BEFORE + 110 )
     @ActionInterceptorBinding
-    public static class ActionInterceptor
+    static class ActionInterceptor
     {
       @javax.annotation.Resource
       private javax.transaction.TransactionSynchronizationRegistry _registry;
 
       @javax.interceptor.AroundInvoke
-      public Object responseIntercept( @javax.annotation.Nonnull final javax.interceptor.InvocationContext context )
+      Object responseIntercept( @javax.annotation.Nonnull final javax.interceptor.InvocationContext context )
         throws Exception
       {
         // This should check if we are being called in a Replicant transaction
