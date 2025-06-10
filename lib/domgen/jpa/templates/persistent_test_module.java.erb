@@ -13,19 +13,11 @@ public class <%= repository.jpa.persistent_test_module_name %>
         "\"#{entity.sql.qualified_table_name.gsub('"',"\\\"")}\""
       end
     end.flatten.reverse.join(', ')
-
-  entities_to_reset = []
-  repository.data_modules.select{|data_module| data_module.sync?}.each do |data_module|
-    data_module.entities.select{|entity| entity.sync? && entity.sync.core?}.each do |entity|
-      entities_to_reset << entity if entity.attributes.all?{|a|((a.immutable? || a.generated_value?) && a.jpa? && a.jpa.persistent?) || %w(MasterId CreatedAt DeletedAt).include?(a.name.to_s)}
-    end
-  end
-  pre_clean_sql = entities_to_reset.collect{|e| "\"UPDATE #{e.sync.master_entity.sql.qualified_table_name} SET MasterSynchronized = 0\""}.join(', ')
 -%>
   @javax.annotation.Nonnull
   private static final String[] TABLES_TO_CLEAN = new String[] {<%= tables %>};
   @javax.annotation.Nonnull
-  private static final String[] PRE_CLEAN_SQL = new String[] {<%= pre_clean_sql %>};
+  private static final String[] PRE_CLEAN_SQL = new String[ 0 ];
 
   public <%= repository.jpa.persistent_test_module_name %>()
   {

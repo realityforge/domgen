@@ -922,13 +922,13 @@ FRAGMENT
       attr_writer :support_create
 
       def support_create?
-        @support_create.nil? ? (self.entity.sync? && self.entity.sync.core? && !self.entity.sync.support_unmanaged? ? false : !self.entity.sql.load_from_fixture?) : !!@support_create
+        @support_create.nil? ? !self.entity.sql.load_from_fixture? : !!@support_create
       end
 
       attr_writer :support_update
 
       def support_update?
-        @support_update.nil? ? (self.entity.sync? && self.entity.sync.core? && !self.entity.sync.support_unmanaged? ? false : !self.entity.sql.load_from_fixture?) : !!@support_update
+        @support_update.nil? ? !self.entity.sql.load_from_fixture? : !!@support_update
       end
 
       attr_writer :support_delete

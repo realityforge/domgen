@@ -24,7 +24,7 @@ module Domgen
       end
 
       def post_verify
-        if verify_reference? && attribute.reference? && !attribute.referenced_entity.transaction_time? && attribute.referenced_entity.deletable? && !(attribute.entity.sync? && attribute.entity.sync.master? && attribute.referenced_entity.sync? && attribute.referenced_entity.sync.master?)
+        if verify_reference? && attribute.reference? && !attribute.referenced_entity.transaction_time? && attribute.referenced_entity.deletable?
           Domgen.error("Transaction time attribute #{attribute.qualified_name} references non-transaction time entity #{attribute.referenced_entity.qualified_name}. This is a problem when the entity is removed.")
         end
       end
@@ -47,24 +47,14 @@ module Domgen
       end
 
       def pre_pre_complete
-        attribute =
-          self.entity.attribute_by_name?(:CreatedAt) ?
-            self.entity.attribute_by_name(:CreatedAt) :
-            self.entity.datetime(:CreatedAt, :immutable => true)
-
-        attribute.disable_facet(:sync) if attribute.sync?
-
-        attribute =
-          self.entity.attribute_by_name?(:DeletedAt) ?
-            self.entity.attribute_by_name(:DeletedAt) :
-            self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true)
-        attribute.disable_facet(:sync) if attribute.sync?
+        self.entity.datetime(:CreatedAt, :immutable => true) unless self.entity.attribute_by_name?(:CreatedAt)
+        self.entity.datetime(:DeletedAt, :set_once => true, :nullable => true) unless self.entity.attribute_by_name?(:DeletedAt)
       end
 
       def post_complete
         if self.entity.jpa? && !self.entity.abstract?
           self.entity.jpa.default_jpql_criterion = 'this.deletedAt IS NULL'
-          self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null') if !self.entity.sync? || self.entity.sync.support_unmanaged?
+          self.entity.jpa.create_default(:CreatedAt => 'now()', :DeletedAt => 'null')
           self.entity.jpa.update_default(:DeletedAt => nil)
           self.entity.jpa.update_defaults.each do |defaults|
             self.entity.jpa.update_default(defaults.values.merge(:DeletedAt => nil)) do |new_default|

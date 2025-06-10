@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(data_module.jpa.qualified_abstract_test_factory_name) %>;
 
-<% modules_to_expose = (data_module.sync? ? [data_module.repository.sync.master_data_module] : []) -%>
+<% modules_to_expose = [] -%>
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "DuplicatedCode", "SameParameterValue", "UnusedReturnValue" } )
 abstract class <%= data_module.jpa.abstract_test_factory_name %>
 {
@@ -19,88 +19,14 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
     return getInjector().getInstance( com.google.inject.Key.get( javax.persistence.EntityManager.class, com.google.inject.name.Names.named( <%= data_module.repository.jpa.qualified_unit_descriptor_name %>.NAME ) ) );
   }
 <% end -%>
-<% if data_module.sync? && data_module.sync.master_data_module? -%>
-
-  @javax.annotation.Nonnull
-  protected String getDefaultMappingSourceCode()
-  {
-    return "*def*";
-  }
-
-  @javax.annotation.Nonnull
-  public final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> findOrCreateDefaultMappingSource()
-  {
-    return findOrCreateMappingSource( getDefaultMappingSourceCode() );
-  }
-
-  @javax.annotation.Nonnull
-  public final <%= data_module.entity_by_name(:MappingSource).jpa.qualified_name %> findOrCreateMappingSource( @javax.annotation.Nonnull final String code )
-  {
-    final var mappingSource = mappingSourceRepository().findByCode( code );
-    return null == mappingSource ? createMappingSource( code ) : mappingSource;
-  }
-
-<% end -%>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
-<% if entity.sync? && entity.sync.core? -%>
-
-  @org.jetbrains.annotations.Contract( "null -> null" )
-  public final <%= entity.jpa.qualified_name %> to<%= entity.name %>( @javax.annotation.Nullable final <%= entity.sync.master_entity.jpa.qualified_name %> mEntity )
-  {
-    return null != mEntity ? findOrCreate<%= entity.name %>( mEntity ) : null;
-  }
-
 <% if entity.concrete? -%>
-  @javax.annotation.Nonnull
-  public final <%= entity.jpa.qualified_name %> findOrCreate<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.sync.master_entity.jpa.qualified_name %> mEntity )
-  {
-    final var entity = mEntity.get<%= entity.name %>();
-    return null != entity ? entity : create<%= entity.name %>( mEntity );
-  }
-
-  @javax.annotation.Nonnull
-  public <%= entity.jpa.qualified_name %> create<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.sync.master_entity.jpa.qualified_name %> mEntity )
-  {
-    final var entity = new <%= entity.jpa.qualified_name %>( <%= entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| a.sync? && a.reference? ? "#{a.referenced_entity.data_module.name != data_module.name ? (modules_to_expose << a.referenced_entity.data_module.name.to_s; Reality::Naming.camelize(a.referenced_entity.data_module.name) + "().") : '' }to#{a.referenced_entity.name}( mEntity.#{getter_prefix(a)}#{a.name}() )" : a.name.to_s == 'MasterId' ? 'mEntity.getId()' : !a.sync? && !%w(CreatedAt).include?(a.name.to_s) ? 'null' : "mEntity.#{getter_prefix(a)}#{a.name}()" }.join(', ') %> );
-<% entity.attributes.select{|a|!a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.each do |a| -%>
-    entity.set<%= a.name %>( <%= a.sync? && a.reference? ? "#{a.referenced_entity.data_module.name != data_module.name ? Reality::Naming.camelize(a.referenced_entity.data_module.name) + "()." : '' }to#{a.referenced_entity.name}( mEntity.#{getter_prefix(a)}#{a.name}() )" : a.name.to_s == 'MasterId' ? 'mEntity.getId()' : !a.sync? && !%w(CreatedAt).include?(a.name.to_s) ? 'null' : "mEntity.#{getter_prefix(a)}#{a.name}()" %> );
-<% end -%>
-    em().persist( entity );
-    mEntity.set<%= entity.name %>( entity );
-<% if entity.attributes.all?{|a|((a.immutable? || a.generated_value?) && a.jpa? && a.jpa.persistent?) || %w(MasterId CreatedAt DeletedAt).include?(a.name.to_s)} -%>
-    mEntity.setMasterSynchronized( true );
-<% end -%>
-    em().persist( mEntity );
-    em().flush();
-    return entity;
-  }
-
-<% else -%>
-  @javax.annotation.Nonnull
-  public final <%= entity.jpa.qualified_name %> findOrCreate<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.sync.master_entity.jpa.qualified_name %> mEntity )
-  {
-   <% entity.subtypes.select{|st|st.concrete? && st.jpa?}.each do |st| -%> if ( mEntity instanceof <%= st.sync.master_entity.jpa.qualified_name %> )
-    {
-      return findOrCreate<%= st.name %>( (<%= st.sync.master_entity.jpa.qualified_name %>) mEntity );
-    }
-    else<% end -%>
-    {
-      throw new java.lang.AssertionError( "Unexpected subtype: " + mEntity.getClass().getName() );
-    }
-  }
-
-<% end -%>
-<% end -%>
-<% if entity.concrete? -%>
-<% core_entity = entity.sync? && entity.sync.core? -%>
 <% entity.jpa.create_defaults.select{|d| !entity.jpa.test_create_defaults.any?{|v| v.values.keys.sort == d.values.keys.sort}}.each do |defaults| -%>
-<% unless defaults.values.keys.include?('MasterId') %>
+
   @javax.annotation.Nonnull
-  public <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| (!core_entity || 'MasterId' != a.name.to_s) && !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
+  public <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
   {
-<% if core_entity -%>
-    return create<%= entity.name %>( <%= Reality::Naming.camelize(data_module.repository.sync.master_data_module) %>().create<%= entity.sync.entity_prefix %><%= entity.name %>( <%= entity.attributes.select{|a| !%w(CreatedAt).include?(a.name.to_s) && a.sync? &&!a.generated_value? && a.jpa? && a.jpa.persistent? && a.name.to_s != 'MasterId'}.collect{|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : a.reference? ? "#{Reality::Naming.camelize(data_module.repository.sync.master_data_module)}().#{Reality::Naming.camelize(a.referenced_entity.sync.master_entity.dao.jpa.dao_service_name)}().#{a.referenced_entity.abstract? ? 'getById' : "findBy#{a.referenced_entity.name}"}( #{Reality::Naming.camelize(a.name)}#{a.referenced_entity.abstract? ? '.getMasterId()' : ''} )" : Reality::Naming.camelize(a.name)}.join(', ') %> ) );
-<% elsif entity.jpa.support_create? -%>
+<% if entity.jpa.support_create? -%>
     return create<%= entity.name %>( <%= entity.attributes.select{|a|!a.generated_value? && a.jpa? && a.jpa.persistent?}.collect {|a| defaults.has_attribute?(a.name) ? defaults.value_for(a.name) : Reality::Naming.camelize(a.name) }.join(', ') %> );
 <% else -%>
     final var $_ = new <%= entity.jpa.qualified_name %>( <%= entity.attributes.select{|a| a.immutable? && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| Reality::Naming.camelize(a.name)}.join(', ') %> );
@@ -114,7 +40,6 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 
 <% end -%>
-<% end -%>
 <% entity.jpa.test_create_defaults.select{|defaults|!defaults.ignore?}.each do |defaults| -%>
   @javax.annotation.Nonnull
   <% unless entity.jpa.module_local? %>public <% end %>final <%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent? && !defaults.has_attribute?(a.name) }.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %>)
@@ -123,14 +48,6 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
   }
 
 <% end -%>
-<% if core_entity && (!entity.sync.support_unmanaged? || !entity.sync.test_factory_defaults_to_unmanaged?) -%>
-  @javax.annotation.Nonnull
-  <% unless entity.jpa.module_local? %>public <% end %><%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| a.sync? && (!entity.transaction_time? || !%w(CreatedAt DeletedAt).include?(a.name.to_s)) && !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
-  {
-    return create<%= entity.name %>( <%= Reality::Naming.camelize(data_module.repository.sync.master_data_module) %>().create<%= entity.sync.entity_prefix %><%= entity.name %>( <%= entity.attributes.select{|a| a.sync? && (!entity.transaction_time? || !%w(CreatedAt DeletedAt).include?(a.name.to_s)) &&!a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| a.reference? ? "#{Reality::Naming.camelize(data_module.repository.sync.master_data_module)}().#{Reality::Naming.camelize(a.referenced_entity.sync.master_entity.dao.jpa.dao_service_name)}().#{a.referenced_entity.abstract? ? 'getById' : "findBy#{a.referenced_entity.name}"}( #{Reality::Naming.camelize(a.name)}#{a.referenced_entity.abstract? ? '.getMasterId()' : ''} )" : Reality::Naming.camelize(a.name)}.join(', ') %> ) );
-  }
-
-<% else -%>
   @javax.annotation.Nonnull
   <% unless entity.jpa.module_local? %>public <% end %><%= entity.jpa.qualified_name %> create<%= entity.name %>( <%= entity.attributes.select{|a| !a.generated_value? && a.jpa? && a.jpa.persistent?}.collect{|a| "#{annotated_type(a, :jpa, :default, :final => true)} #{Reality::Naming.camelize(a.name)}"}.join(', ') %> )
   {
@@ -199,7 +116,6 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
   {
     <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>().remove( entity );
   }
-<% end -%>
 <% end -%>
 <% end -%>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>

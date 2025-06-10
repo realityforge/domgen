@@ -232,7 +232,7 @@ SQL
       end
 
       def trustworthy?
-        @trustworthy.nil? ? repository.sync? : !!@trustworthy
+        @trustworthy.nil? ? false : !!@trustworthy
       end
 
       attr_writer :trustworthy

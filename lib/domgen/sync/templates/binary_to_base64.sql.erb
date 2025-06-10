@@ -1,9 +1,0 @@
-/* DO NOT EDIT: File is auto-generated */
-CREATE FUNCTION <%= data_module.sql.quoted_schema %>.[fnConvertBinaryToBase64]( @bin VARBINARY(MAX) )
-  RETURNS VARCHAR(MAX)
-AS
-  BEGIN
-    DECLARE @Base64 VARCHAR(MAX)
-    SET @Base64 = CAST(N'' AS XML).value('xs:base64Binary(xs:hexBinary(sql:variable("@bin")))', 'VARCHAR(MAX)')
-    RETURN @Base64
-  END

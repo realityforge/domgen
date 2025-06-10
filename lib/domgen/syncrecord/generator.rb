@@ -35,7 +35,7 @@ Domgen::Generator.define([:syncrecord],
                               'control_rest_service.java.erb',
                               'main/java/#{repository.syncrecord.qualified_control_rest_service_name.gsub(".","/")}.java',
                               :additional_facets => [:jaxrs],
-                              :guard => 'repository.syncrecord.sync_methods? || (repository.sync? && !repository.sync.standalone?)')
+                              :guard => 'repository.syncrecord.sync_methods?')
   end
 
   g.template_set(:syncrecord_sql) do |template_set|

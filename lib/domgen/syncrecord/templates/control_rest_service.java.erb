@@ -12,10 +12,6 @@ public class <%= repository.syncrecord.control_rest_service_name %>
   @javax.inject.Inject
   private <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _<%= Reality::Naming.camelize(service.qualified_name.gsub('.','')) %>;
 <% end -%>
-<% if repository.sync? && !repository.sync.standalone? && repository.sync.sync_out_of_master? -%>
-  @javax.inject.Inject
-  private <%= repository.data_module_by_name(repository.sync.master_data_module).service_by_name(:SynchronizationService).ejb.qualified_service_name %> $_masterToCoreSynchronizationService;
-<% end -%>
 
   @javax.ws.rs.GET
   public javax.json.JsonArray syncAll( @javax.ws.rs.QueryParam( "fields" ) @javax.ws.rs.DefaultValue( DEFAULT_FIELDS ) @javax.annotation.Nonnull final org.realityforge.rest.field_filter.FieldFilter filter )
@@ -40,16 +36,6 @@ public class <%= repository.syncrecord.control_rest_service_name %>
     throws Exception
   {
     return emitSynchronizationStatus( _<%= Reality::Naming.camelize(method.service.qualified_name.gsub('.','')) %>.<%= Reality::Naming.camelize(method.name) %>(), filter );
-  }
-<% end -%>
-<% if repository.sync? && !repository.sync.standalone? && repository.sync.sync_out_of_master? -%>
-
-  @javax.ws.rs.GET
-  @javax.ws.rs.Path( "/master/{dataSourceCode}" )
-  public javax.json.JsonObject masterToCore( @javax.ws.rs.QueryParam( "fields" ) @javax.ws.rs.DefaultValue( DEFAULT_FIELDS ) @javax.annotation.Nonnull final org.realityforge.rest.field_filter.FieldFilter filter, @javax.ws.rs.PathParam( "dataSourceCode" ) final String dataSourceCode )
-    throws Exception
-  {
-    return emitSynchronizationStatus( $_masterToCoreSynchronizationService.synchronizeDataSource( dataSourceCode ), filter );
   }
 <% end -%>
 }
