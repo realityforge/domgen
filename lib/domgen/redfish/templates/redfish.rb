@@ -19,19 +19,6 @@ def generate(repository)
 
   data = Reality::Mash.from(repository.redfish.data.to_h)
 
-  if repository.mail?
-    data['environment_vars']["#{constant_prefix}_MAIL_HOST"] = ''
-    data['environment_vars']["#{constant_prefix}_MAIL_USER"] = ''
-    data['environment_vars']["#{constant_prefix}_MAIL_FROM"] = ''
-
-    data['javamail_resources'][repository.mail.resource_name] =
-      {
-        'host' => "${#{constant_prefix}_MAIL_HOST}",
-        'user' => "${#{constant_prefix}_MAIL_USER}",
-        'from' => "${#{constant_prefix}_MAIL_FROM}"
-      }
-  end
-
   if repository.gwt? && repository.application.code_deployable?
     data['environment_vars']["#{constant_prefix}_CODE_SERVER_HOST"] = '127.0.0.1'
     data['environment_vars']["#{constant_prefix}_CODE_SERVER_PORT"] = '0'
