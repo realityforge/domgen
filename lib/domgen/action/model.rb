@@ -202,6 +202,8 @@ module Domgen
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
 
+      java_artifact :method_actions, :service, :server, :action, '#{method.service.name}#{method.name}Action'
+
       def code
         content = "#{method.qualified_name.gsub('#', '.')}:#{method.action.json_request_schema}:#{method.action.json_response_schema}"
         Digest::MD5.hexdigest(content)
@@ -231,6 +233,12 @@ module Domgen
 
       def generate_message_on_success?
         @generate_message_on_success.nil? ? true : @generate_message_on_success
+      end
+
+      attr_writer :generate_serverside_action
+
+      def generate_serverside_action?
+        @generate_serverside_action.nil? ? false : @generate_serverside_action
       end
 
       attr_writer :retain_failed_message_duration

@@ -1,0 +1,57 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(method.action.qualified_method_actions_name) %>;
+
+<% unless method.service.ejb.module_local? %>public <% end %>class <%= method.action.method_actions_name %>
+{
+  private <%= method.action.method_actions_name %>()
+  {
+  }
+
+  <% unless method.service.ejb.module_local? %>public <% end %>static String actionTypeCode()
+  {
+    return <%= method.service.action.service_actions_name %>.<%= method.name %>ActionInterceptor.actionTypeCode();
+  }
+
+  @java.lang.SuppressWarnings( { "unchecked", "RedundantSuppression" } )
+  @javax.annotation.Nonnull
+  <% unless method.service.ejb.module_local? %>public <% end %>static String encode( <%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ')%> )
+  {
+    return javax.json.Json.createObjectBuilder()
+      <%
+method.parameters.each do |parameter|
+conversion_rule =
+  case
+when (parameter.enumeration? && parameter.nullable? && parameter.collection? && parameter.enumeration.numeric_values?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createArrayBuilder( #{value}.stream().map(Enum::ordinal).toList() ).build()"}
+when (parameter.enumeration? && parameter.nullable? && parameter.enumeration.numeric_values?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.ordinal() )"}
+when (parameter.enumeration? && parameter.nullable? && parameter.collection? && parameter.enumeration.textual_values?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createArrayBuilder( #{value}.stream().map(Enum::name).toList() ).build()"}
+when (parameter.enumeration? && parameter.collection? && parameter.enumeration.numeric_values?) then Proc.new {|value, type| "javax.json.Json.createArrayBuilder( #{value}.stream().map(Enum::ordinal).toList() ).build()"}
+when (parameter.enumeration? && parameter.collection? && parameter.enumeration.textual_values?) then Proc.new {|value, type| "javax.json.Json.createArrayBuilder( #{value}.stream().map(Enum::name).toList() ).build()"}
+when (parameter.enumeration? && parameter.nullable? && parameter.enumeration.numeric_values?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.ordinal() )"}
+when (parameter.enumeration? && parameter.nullable? && parameter.enumeration.textual_values?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.name() )"}
+when (parameter.enumeration? && parameter.enumeration.numeric_values?) then Proc.new {|value, type| "javax.json.Json.createValue( #{value}.ordinal() )"}
+when (parameter.enumeration? && parameter.enumeration.textual_values?) then Proc.new {|value, type| "javax.json.Json.createValue( #{value}.name() )"}
+when (parameter.struct? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : #{parameter.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
+when parameter.struct? then Proc.new {|value, type| "#{parameter.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
+when (parameter.date? && parameter.collection? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createArrayBuilder( #{value}.stream().map( iris.rose.server.service.util.RDate::fromDate ).toList() ).build()"}
+when (parameter.date? && parameter.collection?) then Proc.new {|value, type| "javax.json.Json.createArrayBuilder( #{value}.stream().map( iris.rose.server.service.util.RDate::fromDate ).toList() ).build()"}
+when (parameter.date? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( iris.rose.server.service.util.RDate.fromDate( #{value} ).toString() )"}
+when parameter.date? then Proc.new {|value, type| "javax.json.Json.createValue( iris.rose.server.service.util.RDate.fromDate( #{value} ).toString() )"}
+when (parameter.datetime? && parameter.collection? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createArrayBuilder( #{value}.stream().map( java.util.Date::getTime ).toList() ).build()"}
+when (parameter.datetime? && parameter.collection?) then Proc.new {|value, type| "javax.json.Json.createArrayBuilder( #{value}.stream().map( java.util.Date::getTime ).toList() ).build()"}
+when (parameter.datetime? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( (#{value}).getTime() )"}
+when parameter.datetime? then Proc.new {|value, type| "javax.json.Json.createValue( (#{value}).getTime() )"}
+when (parameter.reference? && parameter.collection? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createArrayBuilder( #{value}.stream().map( r -> r.getId() ).toList() ).build()"}
+when (parameter.reference? && parameter.collection?) then Proc.new {|value, type| "javax.json.Json.createArrayBuilder( #{value}.stream().map( r -> r.getId() ).toList() ).build()"}
+when (parameter.reference? && parameter.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.getId() )"}
+when parameter.reference? then Proc.new {|value, type| "#{value}.getId()"}
+when parameter.nullable? && parameter.collection? then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createArrayBuilder( #{value} ).build()"}
+when parameter.collection? then Proc.new {|value, type| "javax.json.Json.createArrayBuilder( #{value} ).build()"}
+when parameter.nullable? then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value} )"}
+  else Proc.new{|value, type| "#{value}" }
+end
+      -%>
+      .add( "<%= parameter.name %>", <%= conversion_rule.call( Reality::Naming.camelize(parameter.name), parameter.ejb.non_primitive_java_type(:boundary) ) %> )
+      <% end -%>
+  .build().toString();
+  }
+}

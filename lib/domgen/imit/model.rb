@@ -1298,8 +1298,10 @@ module Domgen
           to_collection_transport_type
         elsif parameter.datetime?
           "#{param}.getTime()"
-        elsif parameter.enumeration?
+        elsif parameter.enumeration? && parameter.enumeration.numeric_values?
           "#{param}.ordinal()"
+        elsif parameter.enumeration? && parameter.enumeration.textual_values?
+          "#{param}.name()"
         elsif parameter.date?
           "#{param}.toString()"
         else
@@ -1312,11 +1314,15 @@ module Domgen
         if parameter.integer? || parameter.reference?
           "#{param}.stream().mapToDouble(Integer::intValue).toArray()"
         elsif parameter.datetime?
-          "#{param}.stream().map(d -> d.getTime()).toArray()"
-        elsif parameter.enumeration?
-          "#{param}.stream().map(e -> e.ordinal()).toArray()"
+          "#{param}.stream().mapToDouble(d -> d.getTime()).toArray()"
+        elsif parameter.enumeration? && parameter.enumeration.numeric_values? && parameter.nullable?
+          "#{param}.stream().map(e -> e.ordinal()).toArray( Integer[]::new )"
+        elsif parameter.enumeration? && parameter.enumeration.numeric_values?
+          "#{param}.stream().mapToInt(e -> e.ordinal()).toArray()"
+        elsif parameter.enumeration? && parameter.enumeration.textual_values?
+          "#{param}.stream().map(e -> e.name()).toArray( String[]::new )"
         elsif parameter.date?
-          "#{param}.stream().map(d -> d.toString()).toArray()"
+          "#{param}.stream().map(d -> d.toString()).toArray(String[]::new)"
         else
           "#{param}.toArray( new #{parameter.imit.java_component_type}[ 0 ])"
         end

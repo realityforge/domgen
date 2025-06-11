@@ -44,8 +44,20 @@ public class <%= service.action.service_actions_name %>
 <% method.parameters.each do |param|
         conversion_rule =
       case
-      when (param.enumeration? && param.enumeration.numeric_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}#{param.enumeration.ee.qualified_name}.values()[ json.getInt( #{value} ) ];"}
-      when (param.enumeration? && param.enumeration.textual_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}#{param.enumeration.ee.qualified_name}.valueOf( json.getString( #{value} ) );"}
+      when (param.enumeration? && param.enumeration.numeric_values? && param.collection?) then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+        .getValuesAs( javax.json.JsonNumber.class )
+        .stream()
+        .map( javax.json.JsonNumber::intValue )
+        .map( i -> #{param.enumeration.ee.qualified_name}.values()[ i ] )
+        .collect( java.util.stream.Collectors.toList() );"}
+      when (param.enumeration? && param.enumeration.textual_values? && param.collection?) then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+          .getValuesAs( javax.json.JsonString.class )
+          .stream()
+          .map( javax.json.JsonString::getString )
+          .map( #{param.enumeration.ee.qualified_name}::valueOf )
+          .collect( java.util.stream.Collectors.toList() );"}
+      when param.enumeration? && param.enumeration.numeric_values? then Proc.new {|value, isNullCheck| "#{isNullCheck}#{param.enumeration.ee.qualified_name}.values()[ json.getInt( #{value} ) ];"}
+      when param.enumeration? && param.enumeration.textual_values? then Proc.new {|value, isNullCheck| "#{isNullCheck}#{param.enumeration.ee.qualified_name}.valueOf( json.getString( #{value} ) );"}
       when param.struct? && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
                .getValuesAs( javax.json.JsonObject.class )
                .stream()
@@ -62,8 +74,8 @@ public class <%= service.action.service_actions_name %>
       when param.datetime? && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
                .getValuesAs( javax.json.JsonNumber.class )
                .stream()
-               .map( javax.json.JsonString::longValue )
-               .map( i -> new java.util.Date( i ) )
+               .map( javax.json.JsonNumber::longValue )
+               .map( java.util.Date::new )
                .collect( java.util.stream.Collectors.toList() );"}
       when param.datetime? then Proc.new {|value, isNullCheck| "#{isNullCheck}new java.util.Date( json.getJsonNumber( #{value} ).longValue() );"}
       when (param.integer? || param.reference?) && param.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
