@@ -244,7 +244,7 @@ module Domgen
       attr_writer :retain_failed_message_duration
 
       def retain_failed_message_duration
-        @retain_failed_message_duration.nil? ? 1 : @retain_failed_message_duration
+        @retain_failed_message_duration.nil? ? 1000 : @retain_failed_message_duration
       end
 
       attr_writer :store_error_message_on_failure
