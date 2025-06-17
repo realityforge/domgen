@@ -310,8 +310,14 @@ public final class <%= repository.gwt.rdate_name %>
       {
         throw new IllegalArgumentException( text );
       }
-
-      return new <%= repository.gwt.rdate_name %>( year, month, day );
+      if( ( year > 0 && year < 2050 ) && ( month > 0 && month <= 12 )&&  ( day > 0 && day <= 31 ) )
+      {
+        return new <%= repository.gwt.rdate_name %>( year, month, day );
+      }
+      else
+      {
+        throw new IllegalArgumentException( text );
+      }
     }
     catch ( final NumberFormatException nfe )
     {
