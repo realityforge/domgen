@@ -76,7 +76,7 @@ public final class <%= graph.subscription_util_name %>
   @javax.annotation.Nonnull
   public static replicant.AreaOfInterest.Status findAreaOfInterestStatus( @javax.annotation.Nullable final java.lang.Integer id )
   {
-    return null == id ? replicant.AreaOfInterest.Status.NOT_ASKED : findAreaOfInterestStatus( id );
+    return null == id ? replicant.AreaOfInterest.Status.NOT_ASKED : findAreaOfInterestStatus( (int) id );
   }
 <% end -%>
 
