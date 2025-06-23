@@ -54,6 +54,12 @@ public final class <%= repository.gwt.value_util_name %>
     return null != c_now ? c_now : new java.util.Date();
   }
 
+  @javax.annotation.Nullable
+  public static String randomNullableString()
+  {
+    return randomBoolean() ? randomString() : null;
+  }
+
   @javax.annotation.Nonnull
   public static String randomString()
   {
