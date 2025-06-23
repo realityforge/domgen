@@ -241,6 +241,8 @@ module Domgen
         @generate_serverside_action.nil? ? false : @generate_serverside_action
       end
 
+      attr_accessor :result_encoder
+
       attr_writer :retain_failed_message_duration
 
       def retain_failed_message_duration

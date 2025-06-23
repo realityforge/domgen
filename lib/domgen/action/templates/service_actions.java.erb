@@ -146,14 +146,18 @@ public class <%= service.action.service_actions_name %>
 
 <% end -%>
       @java.lang.SuppressWarnings( { "unchecked", "RedundantSuppression" } )
-      final var response = <% if method.return_value.struct?-%>
+      final var response = <% if !method.action.result_encoder.nil? -%>
+<%= method.action.result_encoder %>.encode( (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object );
+<% else -%>
+<% if method.return_value.struct?-%>
 <%= method.return_value.referenced_struct.action.qualified_json_encoder_name %>.encode( (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object );
 <% else -%>
  (<%= method.return_value.ejb.non_primitive_java_type(:boundary) %>) object;
 <% end -%>
+<% end -%>
 <% if method.return_value.collection? && !method.return_value.struct? -%>
       builder.add( "data", javax.json.Json.createArrayBuilder( response ) );
-<% elsif method.return_value.struct?-%>
+<% elsif method.return_value.struct? || !method.action.result_encoder.nil? -%>
       builder.add( "data", response );
 <% elsif method.return_value.boolean?-%>
       builder.add( "data", response ? javax.json.JsonValue.TRUE : javax.json.JsonValue.FALSE );
