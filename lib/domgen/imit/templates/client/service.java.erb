@@ -103,23 +103,6 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
 
   public void <%= low_level_method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
   {
-<% method.parameters.select{|parameter| (parameter.enumeration? || parameter.struct?) && parameter.collection?}.each do |parameter| -%>
-    <%= annotated_type(parameter, :imit, :transport, :final => true) %> $<%= Reality::Naming.camelize(parameter.name) %> = <%= parameter.nullable? ? "null == #{Reality::Naming.camelize(parameter.name)} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
-    <% if parameter.nullable? %>if( null != <%= Reality::Naming.camelize(parameter.name) %> ) {<% end %>
-    for( final <%= parameter.imit.java_component_type %> entity: <%= Reality::Naming.camelize(parameter.name) %> )
-    {
-    <%
-       param_value =
-       if parameter.enumeration?
-         "entity.#{parameter.enumeration.numeric_values? ? 'ordinal()' : 'name()'}"
-       else
-         "akasha.core.JSON.stringify( entity )"
-       end
-    %>
-    $<%= Reality::Naming.camelize(parameter.name) %>.add( <%= param_value %> );
-    }
-    <% if parameter.nullable? %>}<% end %>
-<% end -%>
 <% if method.imit? -%>
     final <%= method.name %>RequestParams $params = new <%= method.name %>RequestParams();
     <%= parameters.collect{|p| p.nullable? ? "if ( null != #{Reality::Naming.camelize(p.name)})
@@ -197,9 +180,10 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
           if ( null != callback )
           {
             callback.onSuccess( $result );
-            return;
           }
+<% unless method.base_exceptions.empty? -%>
           return;
+<%- end -%>
 <%- end -%>
         }
 <%- end -%>
@@ -208,8 +192,8 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
         if ( $responsePropertyMap.has( "exception" ) && null != errorCallback )
         {
           final jsinterop.base.JsPropertyMap<Object> $exceptionData = $responsePropertyMap.getAsAny( "exception" ).asPropertyMap();
-          final String exceptionType = $exceptionData.getAsAny( "$type" ).asString();
-          switch ( exceptionType )
+          //noinspection SwitchStatementWithTooFewBranches
+          switch ( $exceptionData.getAsAny( "$type" ).asString() )
           {
 <% exceptions_with_subtypes = method.exceptions.select { |e| e.direct_subtypes.any? } -%>
 <% if exceptions_with_subtypes.size != 1 -%>
@@ -228,12 +212,12 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
             (
               cases.join(":\n") + ":\n" +
               "              errorCallback.onFailure(#{e.imit.qualified_json_decoder_name}.decode($exceptionData) );\n" +
-              "              break;"
+              "              break;\n"
             )
             end.join("\n")
             -%>
 <%=
-            "default:
+            "            default:
               akasha.Console.error( \"Method #{low_level_method_name} threw an exception which was not recognized by the decoder\", $exceptionData );
               errorCallback.onFailure( new java.lang.Throwable() );
               break;"
