@@ -802,6 +802,7 @@ module Domgen
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{graph_encoder_name}Impl'
       java_artifact :abstract_schema_test, :comm, :client, :imit, 'Abstract#{repository.name}SchemaTest'
       java_artifact :schema_test, :comm, :client, :imit, 'Simple#{repository.name}SchemaTest'
+      java_artifact :aggregate_remote_service_sting_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesFragment'
       java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
 
@@ -896,6 +897,14 @@ module Domgen
             graph.filtered? ||
             (graph.instance_root? && graph.inward_graph_links.any? { |graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered? })
         end
+      end
+
+      def generate_aggregate_remote_service_sting_fragment?
+        !remote_service_sting_fragments.empty?
+      end
+
+      def remote_service_sting_fragments
+        self.repository.data_modules.select{|dm|dm.imit? && dm.imit.generate_remote_service_sting_fragment?}
       end
 
       def pre_complete
@@ -1249,12 +1258,6 @@ module Domgen
 
       def support_default_parameters?
         @support_default_parameters.nil? ? false : !!@support_default_parameters
-      end
-
-      def pre_verify
-        if data_module.repository.gwt? && generate_remote_service_sting_fragment?
-          data_module.repository.gwt.sting_includes << qualified_remote_service_sting_fragment_name
-        end
       end
     end
 
