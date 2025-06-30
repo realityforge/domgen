@@ -1,0 +1,15 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(data_module.imit.qualified_remote_service_sting_test_fragment_name) %>;
+
+@java.lang.SuppressWarnings( "JavaDoc" )
+@sting.Fragment
+public interface <%= data_module.imit.remote_service_sting_test_fragment_name %>
+{<% data_module.imit.remote_service_implementations.each do |service| -%>
+
+  @javax.annotation.Nonnull
+  default <%= service.imit.qualified_service_name %> provide<%= service.name %>()
+  {
+    return org.mockito.Mockito.mock( <%= service.imit.qualified_service_name %>.class );
+  }
+<% end -%>
+}
