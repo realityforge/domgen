@@ -74,6 +74,14 @@ Domgen::Generator.define([:imit],
     template_set.erb_template(:service,
                               'client/service.java.erb',
                               'main/java/#{service.imit.qualified_service_name.gsub(".","/")}.java')
+    template_set.erb_template(:service,
+                              'client/service_impl.java.erb',
+                              'main/java/#{service.imit.qualified_service_impl_name.gsub(".","/")}.java')
+    template_set.erb_template(:data_module,
+                              'client/remote_service_sting_fragment.java.erb',
+                              'main/java/#{data_module.imit.qualified_remote_service_sting_fragment_name.gsub(".","/")}.java',
+                              :guard => 'data_module.imit.generate_remote_service_sting_fragment?')
+
   end
 
   %w(main test).each do |type|

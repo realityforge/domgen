@@ -1235,11 +1235,26 @@ module Domgen
       include Domgen::Java::ImitJavaPackage
 
       java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
+      java_artifact :remote_service_sting_fragment, :service, :client, :imit, '#{data_module.name}RemoteServiceFragment'
+
+      def generate_remote_service_sting_fragment?
+        !remote_service_implementations.empty?
+      end
+
+      def remote_service_implementations
+        data_module.services.select{|service| service.imit?}
+      end
 
       attr_writer :support_default_parameters
 
       def support_default_parameters?
         @support_default_parameters.nil? ? false : !!@support_default_parameters
+      end
+
+      def pre_verify
+        if data_module.repository.gwt? && generate_remote_service_sting_fragment?
+          data_module.repository.gwt.sting_includes << qualified_remote_service_sting_fragment_name
+        end
       end
     end
 
@@ -1254,6 +1269,16 @@ module Domgen
 
       def qualified_service_name
         "#{service.data_module.imit.client_service_package}.#{service_name}"
+      end
+
+      attr_writer :service_impl_name
+
+      def service_impl_name
+        @service_impl_name || "#{service.name}RemoteImpl"
+      end
+
+      def qualified_service_impl_name
+        "#{service.data_module.imit.client_service_package}.#{service_impl_name}"
       end
     end
 

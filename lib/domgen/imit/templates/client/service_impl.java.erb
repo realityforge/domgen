@@ -1,0 +1,248 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(service.imit.qualified_service_impl_name) %>;
+
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "Convert2Diamond", "rawtypes", "RedundantSuppression", "CodeBlock2Expr", "DuplicatedCode" } )
+@sting.Injectable
+@sting.Typed( <%= service.imit.service_name %>.class )
+final class <%= service.imit.service_impl_name %>
+  implements <%= service.imit.service_name %>
+{<% service.methods.select{|method| method.imit?}.each do |method|
+   method_name = Reality::Naming.camelize(method.name)
+   parameters = method.parameters.dup
+   has_reference_parameters = parameters.any?{|p| p.reference? }
+   low_level_method_name = ((method.return_value.reference? && !parameters.any?{|p| p.reference?}) || parameters.any?{|p| p.collection? }) && method.imit? && (method.return_value.reference? || has_reference_parameters) ? "_#{method_name}" : method_name
+ -%>
+<% if method.imit? && (has_reference_parameters || method.return_value.reference?) -%>
+
+  @java.lang.Override
+  public void <%= method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :default, :final => true)} #{p.name}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
+  {
+<% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| -%>
+    <%= annotated_type(parameter, :imit, :boundary, :final => true) %> $<%= parameter.name %> = <%= parameter.nullable? ? "null == #{parameter.name} ? null : " : '' %>new java.util.<%=  parameter.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
+    <% if parameter.nullable? %>if( null != <%= parameter.name %> ) {<% end %>
+    for( final <%= parameter.imit.java_component_type %> entity: <%= parameter.name %> )
+    {
+    <%
+       param_value =
+       if parameter.reference?
+         "entity.get#{parameter.referenced_entity.primary_key.imit.name}()"
+       end
+    %>
+    $<%= parameter.name %>.add( <%= param_value %> );
+    }
+    <% if parameter.nullable? %>}<% end %>
+<% end -%>
+    <%= low_level_method_name %>(<%= method.parameters.collect do |parameter|
+  param_value = parameter.name
+  if parameter.collection? && parameter.reference?
+    param_value = "$#{parameter.name}"
+  elsif parameter.reference?
+    param_value = "#{parameter.name}.get#{parameter.referenced_entity.primary_key.imit.name}()"
+  end
+  if parameter.nullable? && !parameter.collection? && parameter.name != param_value
+    param_value = "null == #{parameter.name} ? null : #{param_value}"
+  end
+  param_value
+end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
+    {
+<%
+   if !method.return_value.collection?
+     result_string = 'result'
+     if method.return_value.reference?
+       result_string = "#{method.return_value.nullable? ? 'null == result ? null : ' : ''}getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, result )"
+     end
+   elsif method.return_value.reference?
+     result_string = '$result'
+   else
+     result_string = 'result'
+   end
+-%>
+<% if method.return_value.collection? && method.return_value.reference? -%>
+        <%= annotated_type(method.return_value, :imit, :default, :final => true) %> $result = <% if method.return_value.nullable? %>null == result ? null : <% end %>new java.util.<%=  method.return_value.collection_type == :set ? 'HashSet' : 'ArrayList' %><>();
+        if( null != result )
+        {
+          for( final <%= method.return_value.imit.java_component_type(:boundary) %> id: result )
+          {
+          <%
+             param_value =
+             if method.return_value.reference?
+               "getById( #{method.return_value.referenced_entity.arez.qualified_name}.class, id )"
+             end
+          -%>
+            $result.add( <%= param_value %> );
+          }
+        }
+<% end -%>
+        if( null != callback )
+        {
+          callback.onSuccess( <%= result_string %> );
+        }
+    }, errorCallback );
+  }
+<% end -%>
+
+  @java.lang.Override
+  public void <%= low_level_method_name %>(<%= (method.parameters.collect{|p| "#{annotated_type(p, :imit, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" } + ["@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_callback_name}<#{method.return_value.imit.non_primitive_java_type(:boundary)}> callback","@javax.annotation.Nullable final #{service.data_module.repository.gwt.qualified_async_error_callback_name} errorCallback"]).join(', ') %>)
+  {
+<% if method.imit? -%>
+    final <%= method.name %>RequestParams $params = new <%= method.name %>RequestParams();
+    <%= parameters.collect{|p| p.nullable? ? "if ( null != #{Reality::Naming.camelize(p.name)})
+    {
+      $params.#{p.name} = #{p.imit.to_characteristic_transport_type};
+    }" : "$params.#{p.name} = #{p.imit.to_characteristic_transport_type};" }.join('
+    ') %>
+
+    replicant.Replicant.context()
+      .exec( <%= service.data_module.repository.imit.qualified_system_constants_name %>.SCHEMA_ID,
+             "<%= method.action.code %>",
+             $params,
+             $response -> {
+<%- if method.return_value.return_type == :void -%>
+        if ( jsinterop.base.Js.isTripleEqual( $response, jsinterop.base.Js.undefined() ) )
+        {
+          if ( null == callback )
+          {
+            return;
+          }
+          callback.onSuccess( null );
+          return;
+        }
+<%- end -%>
+<%- unless method.return_value.return_type == :void && method.base_exceptions.empty?-%>
+        final jsinterop.base.JsPropertyMap<Object> $responsePropertyMap = $response.asPropertyMap();
+<%- end -%>
+<%- unless method.return_value.return_type == :void -%>
+        if ( $responsePropertyMap.has( "data") )
+        {
+          final jsinterop.base.Any $responseData = $responsePropertyMap.getAsAny( "data" );
+<%- if method.return_value.nullable? -%>
+          if ( null == $responseData )
+          {
+            if ( null != callback )
+            {
+              callback.onSuccess( null );
+            }
+            return;
+          }
+<%- end -%>
+<%- if method.return_value.return_type != :void -%>
+<%- if method.return_value.collection? -%>
+        final <%=method.return_value.imit.non_primitive_java_type(:boundary) %> $result = new java.util.ArrayList<>();
+        for ( final jsinterop.base.Any $row : $responseData.asArray() )
+        {
+          final <%=method.return_value.imit.java_component_type(:boundary) %> $transformedRow = <%- if method.return_value.date? -%>
+  iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $row.asString() ) );
+<%- elsif method.return_value.datetime? -%>
+  new Date( $row.asLong() );
+<%- elsif method.return_value.struct? -%>
+  $row.cast();
+<%- elsif method.return_value.integer? || method.return_value.reference? -%>
+  $row.asInt();
+<%- else -%>
+  $row.asInt();
+<%- end -%>
+          $result.add( $transformedRow );
+        }
+<%- else -%>
+          final <%=method.return_value.imit.non_primitive_java_type(:boundary) %> $result = <%- if method.return_value.date? -%>
+ iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $responseData.asString() ) );
+<%- elsif method.return_value.datetime? -%>
+ new Date( $responseData.asLong() );
+<%- elsif method.return_value.struct? -%>
+ $responseData.cast();
+<%- elsif method.return_value.integer? || method.return_value.reference? -%>
+ $responseData.asInt();
+<%- elsif method.return_value.boolean? -%>
+ $responseData.asBoolean();
+<%- else -%>
+ $responseData.asInt();
+<%- end -%>
+<%- end -%>
+          if ( null != callback )
+          {
+            callback.onSuccess( $result );
+          }
+<% unless method.base_exceptions.empty? -%>
+          return;
+<%- end -%>
+<%- end -%>
+        }
+<%- end -%>
+<% unless method.base_exceptions.empty? -%>
+
+        if ( $responsePropertyMap.has( "exception" ) && null != errorCallback )
+        {
+          final jsinterop.base.JsPropertyMap<Object> $exceptionData = $responsePropertyMap.getAsAny( "exception" ).asPropertyMap();
+          //noinspection SwitchStatementWithTooFewBranches
+          switch ( $exceptionData.getAsAny( "$type" ).asString() )
+          {
+<% exceptions_with_subtypes = method.exceptions.select { |e| e.direct_subtypes.any? } -%>
+<% if exceptions_with_subtypes.size != 1 -%>
+<%
+    declared_exceptions = []
+-%>
+<%=
+            method.exceptions.map do |e|
+                                      declared_exceptions << e
+            cases = ["            case \"#{e.data_module.name}.#{e.name}\""]
+            cases += e.direct_subtypes
+              .select { |s| !declared_exceptions.include?(s) }
+               .tap { |new_s| declared_exceptions.concat(new_s) }
+               .map { |s| "            case \"#{s.data_module.name}.#{s.name}\"" }
+
+            (
+              cases.join(":\n") + ":\n" +
+              "              errorCallback.onFailure(#{e.imit.qualified_json_decoder_name}.decode($exceptionData) );\n" +
+              "              break;\n"
+            )
+            end.join("\n")
+            -%>
+<%=
+            "            default:
+              errorCallback.onFailure( new java.lang.Throwable() );
+              break;"
+-%>
+<% else -%>
+<% multiple_subtype_exception = exceptions_with_subtypes.first -%>
+<%= method.exceptions.select{|e| e != multiple_subtype_exception}.collect{|e| "            case \"#{e.data_module.name}.#{e.name}\":
+              errorCallback.onFailure( #{e.imit.qualified_json_decoder_name}.decode( $exceptionData ) );
+              break;"}.join('
+    ') %>
+<%=
+"            default:
+               // Falling back on #{multiple_subtype_exception.name} as this method can throw an exception extending this one
+               // If a method has multiple abstract exceptions, we will generate a case for each one and not fallback via the default
+               errorCallback.onFailure( #{multiple_subtype_exception.imit.qualified_json_decoder_name}.decode( $exceptionData ) );
+               break;"
+%>
+<% end %>
+          }
+        }
+<% end -%>
+    } );
+<% end -%>
+  }
+
+  @jsinterop.annotations.JsType( isNative = true, namespace = jsinterop.annotations.JsPackage.GLOBAL, name = "Object" )
+  private static class <%= method.name %>RequestParams
+  {
+    <%= parameters.collect{|p| "#{p.imit.characteristic_transport_type} #{p.name}" }.join(';
+    ') %>;
+  }
+<% end -%>
+<% if service.methods.any?{|m| m.imit? && m.return_value.reference? } -%>
+
+  @java.lang.SuppressWarnings( "SameParameterValue" )
+  @javax.annotation.Nonnull
+  private <T> T getById( @javax.annotation.Nonnull final java.lang.Class<T> type, @javax.annotation.Nonnull final java.lang.Object id )
+  {
+    final T result = arez.Arez.context().safeAction( () -> arez.Arez.context().locator().findById( type, id ), arez.ActionFlags.NO_VERIFY_ACTION_REQUIRED );
+    if( arez.Arez.shouldCheckApiInvariants() )
+    {
+      org.realityforge.braincheck.Guards.apiInvariant( () -> null != result, () -> "Unable to locate entity of type " + type + " and id " + id );
+    }
+    assert null != result;
+    return result;
+  }
+<% end -%>
+}
