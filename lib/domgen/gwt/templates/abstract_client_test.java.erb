@@ -13,6 +13,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   @javax.annotation.Nonnull
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
 <% repository.data_modules.select{|data_module|data_module.arez? && data_module.arez.factory_required?}.each do |data_module| -%>
+  @SuppressWarnings( "NotNullFieldNotInitialized" )
   @javax.annotation.Nonnull
   protected <%= data_module.arez.qualified_test_factory_name %> <%= data_module.arez.short_test_code %>;
 <% end -%>
@@ -96,7 +97,6 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     {
       _asyncActions.remove( 0 ).run();
     }
-    _asyncActions.clear();
   }
 
   protected final void queueAsyncActions( @javax.annotation.Nonnull final java.lang.Runnable action )
@@ -155,7 +155,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     @java.lang.Override
     protected void doDisconnect()
     {
-      queueAsyncActions( () -> onDisconnect() );
+      queueAsyncActions( this::onDisconnect );
     }
   }
 <% end -%>

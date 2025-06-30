@@ -191,9 +191,9 @@ module Domgen
         add_test_class_content(<<CONTENT) if repository.gwt.generate_sync_callbacks?
 
   @java.lang.SuppressWarnings( { "unchecked", "UnusedParameters" } )
-  protected final <T> java.lang.Class<#{repository.gwt.qualified_async_callback_name}<T>> asyncResultType( @javax.annotation.Nonnull final java.lang.Class<T> type )
+  protected final <MT> java.lang.Class<#{repository.gwt.qualified_async_callback_name}<MT>> asyncResultType( @javax.annotation.Nonnull final java.lang.Class<MT> type )
   {
-    return (Class) #{repository.gwt.qualified_async_callback_name}.class;
+    return (java.lang.Class<#{repository.gwt.qualified_async_callback_name}<MT>>) (Object) #{repository.gwt.qualified_async_callback_name}.class;
   }
 CONTENT
       end
