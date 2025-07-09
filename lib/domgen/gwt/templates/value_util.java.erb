@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_value_util_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "NonJREEmulationClassesInClientCode" } )
 public final class <%= repository.gwt.value_util_name %>
 {
   @javax.annotation.Nonnull
@@ -85,5 +85,120 @@ public final class <%= repository.gwt.value_util_name %>
   public static void setSeed( final int seed )
   {
     c_seed = seed;
+  }
+
+  /**
+   * Current time as a calendar.
+   */
+  @javax.annotation.Nonnull
+  public static java.util.Calendar nowAsCalendar()
+  {
+    final java.util.Calendar calendar = java.util.Calendar.getInstance();
+    calendar.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
+    calendar.setTime( now() );
+    return calendar;
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date today()
+  {
+    final java.util.Calendar calendar = nowAsCalendar();
+    calendar.set( java.util.Calendar.HOUR_OF_DAY, 0 );
+    calendar.set( java.util.Calendar.MINUTE, 0 );
+    calendar.set( java.util.Calendar.SECOND, 0 );
+    calendar.set( java.util.Calendar.MILLISECOND, 0 );
+    return calendar.getTime();
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date tomorrow()
+  {
+    return addDays( today(), 1 );
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date yesterday()
+  {
+    return addDays( today(), -1 );
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date addDays( @javax.annotation.Nonnull final java.util.Date time, final int dayCount )
+  {
+    final java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
+    cal.setTime( time );
+    cal.add( java.util.Calendar.DAY_OF_YEAR, dayCount );
+    return cal.getTime();
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date minusDays( @javax.annotation.Nonnull final java.util.Date time, final int count )
+  {
+    return addDays( time, -count );
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date addMonths( @javax.annotation.Nonnull final java.util.Date time, final int monthCount )
+  {
+    final java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
+    cal.setTime( time );
+    cal.add( java.util.Calendar.MONTH, monthCount );
+    return cal.getTime();
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date minusMonths( @javax.annotation.Nonnull final java.util.Date time, final int count )
+  {
+    return addMonths( time, -count );
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date addHours( @javax.annotation.Nonnull final java.util.Date time, final int count )
+  {
+    final java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
+    cal.setTime( time );
+    cal.add( java.util.Calendar.HOUR, count );
+    return cal.getTime();
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date minusHours( @javax.annotation.Nonnull final java.util.Date time, final int count )
+  {
+    return addHours( time, -count );
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date addMinutes( @javax.annotation.Nonnull final java.util.Date time, final int count )
+  {
+    final java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
+    cal.setTime( time );
+    cal.add( java.util.Calendar.MINUTE, count );
+    return cal.getTime();
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date minusMinutes( @javax.annotation.Nonnull final java.util.Date time, final int count )
+  {
+    return addMonths( time, -count );
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date addSeconds( @javax.annotation.Nonnull final java.util.Date time, final int count )
+  {
+    final java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.setTimeZone( java.util.TimeZone.getTimeZone( "Australia/Melbourne" ) );
+    cal.setTime( time );
+    cal.add( java.util.Calendar.SECOND, count );
+    return cal.getTime();
+  }
+
+  @javax.annotation.Nonnull
+  public static java.util.Date minusSeconds( @javax.annotation.Nonnull final java.util.Date time, final int count )
+  {
+    return addSeconds( time, -count );
   }
 }
