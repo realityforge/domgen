@@ -138,6 +138,19 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   }
 <% if repository.imit? -%>
 
+  @javax.annotation.Nonnull
+  protected final org.mockito.ArgumentCaptor<<%= repository.gwt.qualified_async_error_callback_name %>> onFailureCaptor()
+  {
+    return org.mockito.ArgumentCaptor.forClass( <%= repository.gwt.qualified_async_error_callback_name %>.class );
+  }
+
+  @java.lang.SuppressWarnings( "unchecked" )
+  @javax.annotation.Nonnull
+  protected final <M> org.mockito.ArgumentCaptor<<%= repository.gwt.qualified_async_callback_name %><M>> onSuccessCaptor( @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final java.lang.Class<M> type )
+  {
+    return org.mockito.ArgumentCaptor.forClass( <%= repository.gwt.qualified_async_callback_name %>.class );
+  }
+
   public class TestTransport
     extends replicant.AbstractTransport
   {
