@@ -36,6 +36,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     throws Exception
   {
     <%= repository.gwt.qualified_value_util_name %>.reset();
+    <%= repository.gwt.qualified_value_util_name %>.setNow( new java.util.Date() )
 <% if repository.arez? -%>
     arez.testng.ArezTestSupport.super.preTest();
 <% if repository.imit? -%>
