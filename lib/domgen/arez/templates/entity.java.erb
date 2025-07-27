@@ -19,14 +19,14 @@ package <%= to_package(entity.arez.qualified_name) %>;
   -%>
 @arez.annotations.ArezComponent( <%= annotation_parameters.join(', ') %> )
 <% end -%>
-public abstract class <%= entity.arez.name %>
+<%= entity.arez.module_local? ? '' : 'public ' %>abstract class <%= entity.arez.name %>
 <%= entity.extends ? "  extends #{entity.data_module.entity_by_name(entity.extends).arez.qualified_name}\n" : '' -%>
 <% if entity.arez.extensions.size > 0 -%>
   implements <%= entity.arez.extensions.join(", ") %>
 <% end -%>
 {
 <% entity.declared_attributes.select { |a| !a.abstract? && a.arez? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
-  public static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
+  <%= entity.arez.module_local? ? '' : 'public ' %>static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
 <% entity.declared_attributes.select{ |attribute| attribute.immutable? && !attribute.abstract? && attribute.arez? }.each do |attribute|
   if attribute.reference? -%>
@@ -52,10 +52,10 @@ public abstract class <%= entity.arez.name %>
 <% if attribute.immutable? -%>
 
   @arez.annotations.Reference( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", load = arez.annotations.LinkType.<%= attribute.arez.lazy? ? 'LAZY' : 'EXPLICIT' %><% if attribute.inverse.arez.traversable? %>, inverseName = "<%= attribute.inverse.multiplicity == :many ? Reality::Naming.camelize(Reality::Naming.pluralize(attribute.inverse.name)) : Reality::Naming.camelize(attribute.inverse.name) %>", inverseMultiplicity = arez.annotations.Multiplicity.<%= attribute.inverse.arez.multiplicity.to_s.upcase %><% end -%> )
-  <%= annotated_type(attribute, :arez, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
+  <%= annotated_type(attribute, :arez, :default, :public => !entity.arez.module_local?, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 
   @arez.annotations.ReferenceId( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
-  <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>()
+  <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :public => !entity.arez.module_local?) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>()
   {
     return _<%= Reality::Naming.camelize(attribute.arez.name(:transport)) %>;
   }
@@ -66,7 +66,7 @@ public abstract class <%= entity.arez.name %>
 
   @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", initializer = arez.annotations.Feature.ENABLE )
   @arez.annotations.ReferenceId( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
-  <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>();
+  <%= annotated_type(attribute, :arez, :transport, :assume_generated => true, :public => !entity.arez.module_local?, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>();
 
   @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
   abstract void set<%= attribute.arez.name(:transport) %>( <%= annotated_type(attribute, :arez, :transport, :assume_generated => true) %> <%= Reality::Naming.camelize(attribute.arez.name(:transport)) %> );
@@ -77,14 +77,14 @@ public abstract class <%= entity.arez.name %>
 <% if attribute.primary_key? -%>
   @arez.annotations.ComponentId
 <% end -%>
-  <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>()
+  <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :public => !entity.arez.module_local?) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>()
   {
     return _<%= Reality::Naming.camelize(attribute.arez.name) %>;
   }
 <% else -%>
 
   @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>", initializer = arez.annotations.Feature.ENABLE )
-  <%= annotated_type(attribute, :arez, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
+  <%= annotated_type(attribute, :arez, :default, :public => !entity.arez.module_local?, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 
   @arez.annotations.Observable( name = "<%= Reality::Naming.camelize(attribute.arez.name) %>" )
   abstract void set<%= attribute.arez.name %>( <%= annotated_type(attribute, :arez, :default) %> <%= Reality::Naming.camelize(attribute.arez.name) %> );
@@ -92,7 +92,7 @@ public abstract class <%= entity.arez.name %>
 <% end -%>
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.arez? }.each do |attribute|
-%>  <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
+%>  <%= annotated_type(attribute, :arez, :default, :assume_generated => true, :public => !entity.arez.module_local?, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name %>();
 <% if attribute.attribute_type == :reference
   %>  abstract <%= attribute.arez.java_type(:transport, :assume_generated => true) %> <%= getter_prefix(attribute) %><%= attribute.arez.name(:transport) %>();
 <% end -%>
@@ -109,12 +109,12 @@ public abstract class <%= entity.arez.name %>
 
   @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
   @javax.annotation.Nonnull
-  public abstract java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= name %>();
+  <%= attribute.inverse.arez.module_local? ? '' : 'public ' %>abstract java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= name %>();
 <% else -%>
 
   @arez.annotations.Inverse( name = "<%= Reality::Naming.camelize(name) %>", referenceName = "<%= Reality::Naming.camelize(attribute.name) %>" )
   <%= nullability_annotation(attribute.inverse.arez.nullable?)  %>
-  public abstract <%= type %> <%= getter_prefix(attribute) %><%= name %>();
+  <%= entity.arez.module_local? ? '' : 'public ' %>abstract <%= type %> <%= getter_prefix(attribute) %><%= name %>();
 <% end -%>
 <% end -%>
 <% if entity.arez.extensions.size > 0 -%>

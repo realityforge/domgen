@@ -168,6 +168,12 @@ module Domgen
       java_artifact :name, :entity, :client, :arez, '#{entity.name}'
       java_artifact :arez, :entity, :client, :arez, 'Arez_#{entity.name}'
 
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? false : !!@module_local
+      end
+
       def access_entities_outside_transaction?
         @access_entities_outside_transaction.nil? ? false : !!@access_entities_outside_transaction
       end
@@ -232,6 +238,12 @@ module Domgen
     end
 
     facet.enhance(InverseElement) do
+      attr_writer :module_local
+
+      def module_local?
+        @module_local.nil? ? self.inverse.attribute.entity.arez.module_local? : !!@module_local
+      end
+
       def traversable=(traversable)
         Domgen.error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
         @traversable = traversable
