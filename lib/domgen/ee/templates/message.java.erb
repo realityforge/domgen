@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(message.ee.qualified_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "NotNullFieldNotInitialized" } )
 <% unless message.ee.module_local?  %>public <% end %>class <%= message.ee.name %>
   implements java.io.Serializable
 {
@@ -46,6 +46,7 @@ package <%= to_package(message.ee.qualified_name) %>;
 <% end
 %>
 
+  @java.lang.SuppressWarnings( { "RedundantIfStatement", "RedundantSuppression" } )
   @java.lang.Override
   public boolean equals( final Object o )
   {

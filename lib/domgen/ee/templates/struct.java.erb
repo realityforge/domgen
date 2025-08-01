@@ -1,10 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(struct.ee.qualified_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "NotNullFieldNotInitialized" } )
 <%= jackson_class_annotations(struct) if struct.jackson? -%>
 <%= jaxb_class_annotations(struct) if struct.jaxb? -%>
-
 <% unless struct.ee.module_local? %>public <% end %>class <%= struct.ee.name %>
   implements java.io.Serializable
 {
@@ -65,51 +64,70 @@ package <%= to_package(struct.ee.qualified_name) %>;
   {
     return <%= Reality::Naming.camelize(field.name) %>;
   }
-<% end
-%>
+<% end -%>
 
-  @java.lang.Override
+  @java.lang.SuppressWarnings( { "RedundantIfStatement", "RedundantSuppression" } )
   public boolean equals( final Object o )
   {
     if ( this == o )
     {
       return true;
     }
-    if ( o == null || getClass() != o.getClass() )
+    else if ( o == null || getClass() != o.getClass() )
     {
       return false;
     }
-
-    final var that = (<%= struct.ee.name %>) o;
-<% struct.fields.select{|f|!f.collection?}.each do |field| -%>
-    if ( <%= field.ee.primitive?(:boundary) ? "#{Reality::Naming.camelize(field.name)} != that.#{Reality::Naming.camelize(field.name)}" : "#{field.nullable? ? "null == #{Reality::Naming.camelize(field.name)} ? null != that.#{Reality::Naming.camelize(field.name)} : " : ''}!#{Reality::Naming.camelize(field.name)}.equals( that.#{Reality::Naming.camelize(field.name)} )" %> )
+<% if struct.fields.empty? %>
+    else
     {
-      return false;
+      return true;
     }
-<% end -%>
-<% struct.fields.select{|f|f.collection?}.each do |field| -%>
-<% if field.nullable? -%>
-    if ( (null ==  <%= Reality::Naming.camelize(field.name) %> && null !=  that.<%= Reality::Naming.camelize(field.name) %>) || (null !=  <%= Reality::Naming.camelize(field.name) %> && null ==  that.<%= Reality::Naming.camelize(field.name) %>) )
+<% else -%>
+    else
     {
-      return false;
-    }
-    else if ( null != <%= Reality::Naming.camelize(field.name) %> )
-<% end -%>
-    {
-      if ( <%= Reality::Naming.camelize(field.name) %>.size() != that.<%= Reality::Naming.camelize(field.name) %>.size() )
+      final var that = (<%= struct.ee.name %>) o;
+<%
+    need_else = false
+    struct.fields.select{|f|!f.collection?}.each do |field|
+-%>
+      <%= need_else ? 'else ' : '' %>if ( <%= field.ee.primitive?(:boundary) ? "#{Reality::Naming.camelize(field.name)} != that.#{Reality::Naming.camelize(field.name)}" : "!java.util.Objects.equals( #{Reality::Naming.camelize(field.name)}, that.#{Reality::Naming.camelize(field.name)} )" %> )
       {
         return false;
       }
-      for ( final var v : <%= Reality::Naming.camelize(field.name) %> )
+<%
+      need_else = true
+    end
+-%>
+<% struct.fields.select{|f|f.collection?}.each do |field| -%>
+<% if field.nullable? -%>
+      <%= need_else ? 'else ' : '' %>if ( (null ==  <%= Reality::Naming.camelize(field.name) %> && null !=  that.<%= Reality::Naming.camelize(field.name) %>) || (null !=  <%= Reality::Naming.camelize(field.name) %> && null ==  that.<%= Reality::Naming.camelize(field.name) %>) )
       {
-        if ( !that.<%= Reality::Naming.camelize(field.name) %>.contains( v ) )
+        return false;
+      }
+      else if ( null != <%= Reality::Naming.camelize(field.name) %> )
+<% else -%>
+      else
+<% end -%>
+      {
+        if ( <%= Reality::Naming.camelize(field.name) %>.size() != that.<%= Reality::Naming.camelize(field.name) %>.size() )
         {
           return false;
         }
+        for ( final var v : <%= Reality::Naming.camelize(field.name) %> )
+        {
+          if ( !that.<%= Reality::Naming.camelize(field.name) %>.contains( v ) )
+          {
+            return false;
+          }
+        }
       }
+<%
+      need_else = true
+    end
+-%>
+      return true;
     }
 <% end -%>
-    return true;
   }
 
   @java.lang.Override
