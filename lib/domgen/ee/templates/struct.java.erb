@@ -105,8 +105,6 @@ package <%= to_package(struct.ee.qualified_name) %>;
         return false;
       }
       else if ( null != <%= Reality::Naming.camelize(field.name) %> )
-<% else -%>
-      else
 <% end -%>
       {
         if ( <%= Reality::Naming.camelize(field.name) %>.size() != that.<%= Reality::Naming.camelize(field.name) %>.size() )
