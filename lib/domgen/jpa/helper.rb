@@ -108,7 +108,7 @@ module Domgen
           parameters << "optional = #{attribute.nullable?}"
           parameters << "targetEntity = #{attribute.referenced_entity.jpa.qualified_name}.class" if attribute.referenced_entity.jpa.qualified_name.to_s != attribute.jpa.java_type.to_s
         else
-          parameters << "orphanRemoval = #{attribute.inverse.jpa.orphan_removal?}"
+          parameters << "orphanRemoval = true" if attribute.inverse.jpa.orphan_removal?
           parameters << "mappedBy = \"#{attribute.jpa.field_name}\""
           parameters << "targetEntity = #{attribute.entity.jpa.qualified_name}.class" if attribute.referenced_entity.jpa.qualified_name.to_s != attribute.jpa.java_type.to_s
         end
