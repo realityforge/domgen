@@ -102,7 +102,7 @@ module Domgen
         parameters << "fetch = javax.persistence.FetchType.#{fetch_type.to_s.upcase}"
 
         if declaring_relationship
-          parameters << "optional = #{attribute.nullable?}"
+          parameters << "optional = false" unless attribute.nullable?
           parameters << "targetEntity = #{attribute.referenced_entity.jpa.qualified_name}.class" if attribute.referenced_entity.jpa.qualified_name.to_s != attribute.jpa.java_type.to_s
         else
           parameters << "orphanRemoval = true" if attribute.inverse.jpa.orphan_removal?
@@ -195,7 +195,7 @@ JAVA
     {
       throw new IllegalStateException("Attempted to add value when non null value exists.");
     }
-    if( value != this.#{field_name} )
+    else if( value != this.#{field_name} )
     {
       this.#{field_name} = value;
     }
@@ -208,7 +208,7 @@ JAVA
     {
       throw new IllegalStateException("Attempted to remove value that was not the same.");
     }
-    if( null != this.#{field_name} )
+    else if( null != this.#{field_name} )
     {
       this.#{field_name} = null;
     }
@@ -222,46 +222,6 @@ JAVA
       end
 
       def j_return_if_value_same(attribute, field_name, primitive, nullable)
-        accessor = "this.#{field_name}"
-        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy
-          accessor = "doGet#{attribute.name}()"
-        end
-        if primitive
-          return <<JAVA
-     if( #{accessor} == value )
-     {
-       return;
-     }
-JAVA
-        elsif !nullable
-          return <<JAVA
-     //noinspection ConstantConditions
-     if( null == value )
-     {
-       throw new NullPointerException( "#{field_name} parameter is not nullable" );
-     }
-
-     if( value.equals( #{accessor} ) )
-     {
-       return;
-     }
-JAVA
-        else
-          return <<JAVA
-     if( null != #{accessor} && #{accessor}.equals( value ) )
-     {
-       return;
-     }
-     else if( null != value && value.equals( #{accessor} ) )
-     {
-       return;
-     }
-     else if( null == #{accessor} && null == value )
-     {
-       return;
-     }
-JAVA
-        end
       end
 
       def j_simple_attribute(attribute)
@@ -283,33 +243,20 @@ JAVA
     }
 JAVA
         end
-        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
-          java << <<JAVA
-    #{annotated_type(attribute, :jpa, :default, :final => true)} value = doGet#{name}();
-    if( !#{attribute.jpa.field_name}Recorded )
-    {
-      #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
-      #{attribute.jpa.field_name}Recorded = true;
-    }
-    return value;
-JAVA
-        else
-          java << <<JAVA
-    return doGet#{name}();
-JAVA
-        end
-        java << <<JAVA
-  }
-
-  @SuppressWarnings( "ConstantValue" )
-  #{annotated_type(attribute, :jpa, :default, :protected => true)} doGet#{name}()
-  {
-JAVA
         if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
           java << <<JAVA
     if( null == #{attribute.jpa.field_name} )
     {
       throw new IllegalStateException("Attempting to access non-null field #{name} before it has been set.");
+    }
+JAVA
+        end
+        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
+          java << <<JAVA
+    if( !#{attribute.jpa.field_name}Recorded )
+    {
+      #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
+      #{attribute.jpa.field_name}Recorded = true;
     }
 JAVA
         end
@@ -361,20 +308,15 @@ JAVA
   #{nullable_annotate(attribute, "public #{attribute.jpa.java_type}", false)} #{getter_for(attribute)}
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
-    return doGet#{attribute.jpa.name}();
-  }
-
-  #{nullable_annotate(attribute, "protected #{attribute.jpa.java_type}", false)} doGet#{attribute.jpa.name}()
-  {
 JAVA
         if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
           java << <<JAVA
-     if( !#{attribute.jpa.field_name}Recorded )
-     {
-       #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
-       #{attribute.jpa.field_name}Recorded = true;
-     }
-     return #{attribute.jpa.field_name};
+    if( !#{attribute.jpa.field_name}Recorded )
+    {
+      #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
+      #{attribute.jpa.field_name}Recorded = true;
+    }
+    return #{attribute.jpa.field_name};
 JAVA
         else
           java << <<JAVA
@@ -387,13 +329,51 @@ JAVA
 JAVA
         if attribute.updatable?
           java << <<JAVA
-  @java.lang.SuppressWarnings( { "deprecation" } )
+  @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
   #{attribute.entity.jpa.module_local_mutators? ? '' : 'public '}void set#{attribute.jpa.name}( #{nullable_annotate(attribute, "final #{attribute.jpa.java_type}", false)} value )
   {
- #{j_return_if_value_same(attribute, attribute.jpa.field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
-        #{j_remove_from_inverse(attribute)}
-        this.#{attribute.jpa.field_name} = value;
- #{j_add_to_inverse(attribute)}
+JAVA
+          accessor = attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy ? "get#{attribute.name}()" : "this.#{attribute.jpa.field_name}"
+          if attribute.referenced_entity.primary_key.jpa.primitive?
+            java << <<JAVA
+     if( #{accessor} != value )
+     {
+JAVA
+          elsif !attribute.nullable?
+            java <<  <<JAVA
+     if( null == value )
+     {
+       throw new NullPointerException( "#{attribute.jpa.field_name} parameter is not nullable" );
+     }
+     else if( !value.equals( #{accessor} ) )
+     {
+JAVA
+          else
+            java <<  <<JAVA
+     final var originalValue = #{accessor};
+     if( !( null != originalValue && originalValue.equals( value ) ) &&
+         !( null != value && value.equals( originalValue ) ) &&
+         !( null == originalValue && null == value ) )
+     {
+JAVA
+          end
+          java << <<JAVA
+JAVA
+          if attribute.inverse.jpa.java_traversable?
+            java << <<JAVA
+       #{j_remove_from_inverse(attribute)}
+JAVA
+          end
+          java << <<JAVA
+       this.#{attribute.jpa.field_name} = value;
+JAVA
+          if attribute.inverse.jpa.java_traversable?
+            java << <<JAVA
+       #{j_add_to_inverse(attribute)}
+JAVA
+          end
+          java << <<JAVA
+     }
   }
 
 JAVA
@@ -498,14 +478,7 @@ JAVA
 JAVA
         else
           s += <<JAVA
-    if( null == #{pk.jpa.field_name} )
-    {
-      return System.identityHashCode( this );
-    }
-    else
-    {
-      return #{pk.jpa.field_name}.hashCode();
-    }
+    return null == #{pk.jpa.field_name} ? System.identityHashCode( this ) : #{pk.jpa.field_name}.hashCode();
 JAVA
         end
         s += <<JAVA

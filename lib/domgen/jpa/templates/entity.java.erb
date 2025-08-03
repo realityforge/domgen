@@ -80,15 +80,17 @@ end
   @java.io.Serial
   private static final long serialVersionUID = 1;
 
+<% need_public_query_constants = to_package(entity.dao.jpa.qualified_dao_name) != to_package(entity.jpa.qualified_name) -%>
+<% entity.queries.select{|q| q.jpa?}.each do |query| %>  <% if need_public_query_constants %>public <% end %>static final String <%= Reality::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
+<% end -%>
 <% unless entity.extends -%>
+
   @javax.persistence.Transient
   private transient boolean _loaded;
   @javax.persistence.Transient
   private transient boolean _removed;
 <% end -%>
-<% entity.queries.select{|q| q.jpa?}.each do |query| %>  <% unless entity.jpa.module_local? %>public <% end %>static final String <%= Reality::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <%
-  end
   entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? }.each do |attribute|
     type = attribute.jpa.java_type
     field_name = attribute.jpa.field_name
@@ -215,7 +217,7 @@ end
    * @deprecated This method should not be called directly. It is called from the repository during delete
    */
   @java.lang.Deprecated
-  public<% else -%>private<% end -%> void delinkDuringPreRemove()
+  public void delinkDuringPreRemove()
   {
 <% attributes_to_delink_in_remove.each do |attribute| -%>
     if ( null != <%= attribute.jpa.field_name %> )
@@ -224,17 +226,26 @@ end
     }
 <% end -%>
   }
+<% end -%>
 
   @javax.persistence.PreRemove
   protected void preRemove()
   {
-    delinkDuringPreRemove();
+<% unless entity.transaction_time? -%>
+<% attributes_to_delink_in_remove.each do |attribute| -%>
+    if ( null != <%= attribute.jpa.field_name %> )
+    {
+      <%= attribute.jpa.field_name %>.remove<%= attribute.inverse.name %>( this );
+    }
+<% end -%>
+<% end -%>
   }
 <% end -%>
 <%
       entity.codependent_constraints.select {|c| jpa_validation_in_jpa?(c) }.each do |c|
         attributes = c.attribute_names.collect {|attribute_name| entity.attribute_by_name(attribute_name)}
 -%>
+
 <%= validation_prefix(c.name, entity) %>
         if( !(( <%= attributes.collect {|a| "object.#{getter_for(a)} == null"}.join(' && ') %> ) || (<%= attributes.collect {|a| "object.#{getter_for(a)} != null"}.join(' && ') %>) ) )
         {
@@ -335,9 +346,9 @@ end
           return false;
         }
 <%= validation_suffix() -%>
+
 <% end -%>
 <% if 0 != entity.jpa.interfaces.size -%>
-
   @javax.annotation.Nonnull
   public <%= entity.jpa.name %> self()
   {
