@@ -524,11 +524,7 @@ JAVA
     return "#{entity.name}[" +
 JAVA
         s += entity.attributes.select{|a| a.jpa? && a.jpa.persistent?}.collect do |a|
-          if a.primary_key?
             "           \"#{a.jpa.name} = \" + #{a.jpa.field_name}"
-          else
-            "           \"#{a.jpa.name} = \" + doGet#{a.jpa.name}()"
-          end
         end.join(" + \", \" +\n")
         s += <<JAVA
  +
