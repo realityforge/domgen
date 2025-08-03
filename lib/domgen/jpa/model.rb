@@ -1248,6 +1248,13 @@ FRAGMENT
     end
 
     facet.enhance(Query) do
+
+      attr_writer :direct_query_access
+
+      def direct_query_access?
+        @direct_query_access.nil? ? false : !!@direct_query_access
+      end
+
       def transaction_type
         @transaction_type || self.query.dao.jpa.transaction_type
       end

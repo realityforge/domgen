@@ -215,7 +215,6 @@ module Domgen
         @qualified_base_service_test_name.nil? ? self.service.data_module.repository.ejb.qualified_base_service_test_name : @qualified_base_service_test_name
       end
 
-
       attr_accessor :boundary_extends
 
       def boundary_interceptors
@@ -282,6 +281,16 @@ module Domgen
       def post_verify
         if generate_base_test? && !service.methods.any?{|m| m.ejb? && m.ejb.generate_base_test?}
           self.generate_base_test = false
+        end
+        if generate_boundary?
+          self.service.methods.select{|method| method.ejb.generate_boundary?}.each do |method|
+            method.parameters.select{|parameter| parameter.reference? && parameter.referenced_entity.dao.jpa.module_local? && service.data_module.name.to_s != parameter.referenced_entity.data_module.name.to_s}.each do |parameter|
+              parameter.
+                referenced_entity.
+                query_by_name("#{parameter.nullable? ? 'FindBy' : 'GetBy'}#{parameter.referenced_entity.primary_key.name}").
+                jpa.direct_query_access = true
+            end
+          end
         end
       end
     end
