@@ -17,7 +17,6 @@ module Domgen
     module Helper
       def j_jpa_field_attributes(attribute)
         s = ''
-        s << "  @SuppressWarnings( \"NotNullFieldNotInitialized\" )\n" if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
         s << "  @javax.persistence.Id\n" if attribute.primary_key?
         if attribute.jpa.identity?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n"
@@ -44,10 +43,6 @@ module Domgen
         s << "  @javax.validation.constraints.NotNull\n" if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
         converter = attribute.jpa.converter
         s << "  @javax.persistence.Convert( converter = #{converter.gsub('$','.')}.class )\n" if converter
-
-        if jpa_nullable_annotation?(attribute)
-          s << "  #{nullability_annotation(jpa_nullable?(attribute))}\n"
-        end
 
         if attribute.text?
           unless attribute.length.nil? && attribute.min_length.nil?
@@ -147,7 +142,7 @@ module Domgen
 JAVA
         return java if immutable_attributes.empty?
         java = java + <<JAVA
-  @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
+  @java.lang.SuppressWarnings( "deprecation" )
   public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "#{nullable_annotate(a, "final #{a.jpa.java_type}", false)} #{a.jpa.field_name}"}.join(', ')})
   {
 JAVA
@@ -472,11 +467,8 @@ STR
       def j_equals_method(entity)
         return '' if entity.abstract?
         pk = entity.primary_key
-        pk_getter = "doGet#{entity.primary_key.jpa.name}()"
-        pk_type = nullable_annotate(pk, pk.jpa.java_type, false)
-        equality_comparison = (!pk.jpa.primitive?) ? "java.util.Objects.equals( #{pk_getter}, that.#{pk_getter} )" : "#{pk_getter} == that.#{pk_getter}"
+        equality_comparison = (!pk.jpa.primitive?) ? "java.util.Objects.equals( #{pk.jpa.field_name}, that.#{pk.jpa.field_name} )" : "#{pk.jpa.field_name} == that.#{pk.jpa.field_name}"
         s = <<JAVA
-  @java.lang.SuppressWarnings( "ConstantValue" )
   @java.lang.Override
   public boolean equals( final Object o )
   {
@@ -495,24 +487,22 @@ STR
   }
 
   @java.lang.Override
-  @java.lang.SuppressWarnings( "ConstantValue" )
   public int hashCode()
   {
-    final var key = #{pk_getter};
 JAVA
         if pk.jpa.primitive?
           s += <<JAVA
-    return key;
+    return #{pk.jpa.field_name};
 JAVA
         else
           s += <<JAVA
-    if( null == key )
+    if( null == #{pk.jpa.field_name} )
     {
       return System.identityHashCode( this );
     }
     else
     {
-      return key.hashCode();
+      return #{pk.jpa.field_name}.hashCode();
     }
 JAVA
         end
@@ -532,7 +522,11 @@ JAVA
     return "#{entity.name}[" +
 JAVA
         s += entity.attributes.select{|a| a.jpa? && a.jpa.persistent?}.collect do |a|
-          "           \"#{a.jpa.name} = \" + doGet#{a.jpa.name}()"
+          if a.primary_key?
+            "           \"#{a.jpa.name} = \" + #{a.jpa.field_name}"
+          else
+            "           \"#{a.jpa.name} = \" + doGet#{a.jpa.name}()"
+          end
         end.join(" + \", \" +\n")
         s += <<JAVA
  +
