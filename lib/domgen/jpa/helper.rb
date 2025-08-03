@@ -45,11 +45,13 @@ module Domgen
         s << "  @javax.persistence.Convert( converter = #{converter.gsub('$','.')}.class )\n" if converter
 
         if attribute.text?
-          unless attribute.length.nil? && attribute.min_length.nil?
+          non_default_min_length = attribute.has_non_default_min_length?
+          non_default_max_length = attribute.has_non_default_max_length?
+          unless !non_default_min_length && !non_default_max_length
             s << '  @javax.validation.constraints.Size( '
-            s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
-            s << ', ' unless attribute.min_length.nil? || !attribute.has_non_max_length?
-            s << "max = #{attribute.length} " if attribute.has_non_max_length?
+            s << "min = #{attribute.min_length} " if non_default_min_length
+            s << ', ' if non_default_min_length && non_default_max_length
+            s << "max = #{attribute.length} " if non_default_max_length
             s << " )\n"
           end
         end
@@ -81,7 +83,7 @@ module Domgen
           parameters << "referencedColumnName = \"#{attribute.referenced_entity.primary_key.sql.column_name}\""
         end
 
-        if !attribute.reference? && attribute.has_non_max_length? && 255 != attribute.length
+        if !attribute.reference? && attribute.has_non_default_max_length? && 255 != attribute.length
           parameters << "length = #{attribute.length}"
         end
 

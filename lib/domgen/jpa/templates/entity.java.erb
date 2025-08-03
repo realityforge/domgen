@@ -74,7 +74,7 @@ end
   '' -%>
 <%= (!entity.extends || entity.jpa.interfaces.size > 0) ? '  implements ' : '' -%><%= ((entity.extends ? [] : %w(java.io.Serializable)) + entity.jpa.interfaces).join(", ") %>
 {
-<% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
+<% entity.declared_attributes.select { |a| !a.abstract? && a.jpa? && a.jpa.persistent? && a.text? && a.has_non_default_max_length? }.each do |attribute| -%>
   <% unless entity.jpa.module_local? %>public <% end %>static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
   @java.io.Serial
