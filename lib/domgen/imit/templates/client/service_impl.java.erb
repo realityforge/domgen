@@ -132,14 +132,11 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
         {
           final <%=method.return_value.imit.java_component_type(:boundary) %> $transformedRow = <%- if method.return_value.date? -%>
   iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $row.asString() ) );
-<%- elsif method.return_value.datetime? -%>
-  new Date( $row.asLong() );
-<%- elsif method.return_value.struct? -%>
-  $row.cast();
-<%- elsif method.return_value.integer? || method.return_value.reference? -%>
-  $row.asInt();
-<%- else -%>
-  $row.asInt();
+<%- elsif method.return_value.datetime? -%>new Date( $row.asLong() );
+<%- elsif method.return_value.struct? -%>$row.cast();
+<%- elsif method.return_value.integer? || method.return_value.reference? -%>$row.asInt();
+<%- elsif method.return_value.text? -%>$row.asString();
+<%- else -%> $row.asInt();
 <%- end -%>
           $result.add( $transformedRow );
         }
