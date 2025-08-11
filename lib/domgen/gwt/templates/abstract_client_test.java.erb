@@ -51,7 +51,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     arez.Arez.context().registerLocator( _injector.getLocator() );
 <% end -%>
 <% if repository.imit? -%>
-    replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), new TestTransport() );
+    replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), createReplicantTransport() );
     pumpAllAsyncActions();
 <% end -%>
   }
@@ -150,6 +150,12 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   protected final <M> org.mockito.ArgumentCaptor<<%= repository.gwt.qualified_async_callback_name %><M>> onSuccessCaptor( @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final java.lang.Class<M> type )
   {
     return org.mockito.ArgumentCaptor.forClass( <%= repository.gwt.qualified_async_callback_name %>.class );
+  }
+
+  @javax.annotation.Nonnull
+  protected replicant.Transport createReplicantTransport()
+  {
+    return new TestTransport();
   }
 
   public class TestTransport
