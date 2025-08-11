@@ -19,7 +19,7 @@ class <%= service.syncrecord.qualified_abstract_service_name.to_s.gsub(/^Abstrac
 </code>
  */
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public abstract class <%= service.syncrecord.abstract_service_name %>
+<%= service.ejb.module_local? ? '' : 'public ' %>abstract class <%= service.syncrecord.abstract_service_name %>
   extends <%= service.syncrecord.extends %>
   implements <%= service.ejb.service_name %>
 {
