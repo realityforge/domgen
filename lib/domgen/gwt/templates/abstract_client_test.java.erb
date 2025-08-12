@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 
-@java.lang.SuppressWarnings( "UnusedDeclaration" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "StaticImportCanBeUsed" } )
 <% if repository.arez? -%>
 @arez.testng.ActionWrapper( enable = true )
 <% end -%>
@@ -22,6 +22,10 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   protected <%= data_module.arez.qualified_test_factory_name %> <%= data_module.arez.short_test_code %>;
 <% end -%>
   private T _injector;
+<% if repository.imit? -%>
+  @javax.annotation.Nullable
+  private arez.Disposable _connector;
+<% end -%>
 
   @javax.annotation.Nonnull
   protected abstract T createInjector();
@@ -70,6 +74,8 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   {
 <% if repository.arez? -%>
 <% if repository.imit? -%>
+    arez.Disposable.dispose( _connector );
+    _connector = null;
     replicant.ReplicantTestUtil.resetConfig( false );
 <% end -%>
     arez.testng.ArezTestSupport.super.postTest();
@@ -163,7 +169,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     return _replicantTransport;
   }
 
-  @java.lang.SuppressWarnings( "NonJREEmulationClassesInClientCode" )
+  @java.lang.SuppressWarnings( { "NonJREEmulationClassesInClientCode", "StaticImportCanBeUsed" } )
   public final class TestTransport
     extends replicant.AbstractTransport
   {
@@ -195,13 +201,13 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     }
 
     @javax.annotation.Nullable
-    public final replicant.TransportContext transportContext()
+    public replicant.TransportContext transportContext()
     {
       return getTransportContext();
     }
 
     @java.lang.SuppressWarnings( "NonJREEmulationClassesInClientCode" )
-    public final <T> T expectRemoteMessage( final int index, @javax.annotation.Nonnull final java.lang.Class<T> type )
+    public <M> M expectRemoteMessage( final int index, @javax.annotation.Nonnull final java.lang.Class<M> type )
     {
       org.testng.Assert.assertTrue( _remoteMessages.size() > index, "No message at index " + index + ". Max messages " + _remoteMessages.size() + " Messages=" + _remoteMessages );
       final java.lang.Object message = _remoteMessages.get( index );
@@ -209,7 +215,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
       return type.cast( message );
     }
 
-    public final void assertRemoveMessageCount( final int count )
+    public void assertRemoveMessageCount( final int count )
     {
       org.testng.Assert.assertEquals( _remoteMessages.size(), count );
     }
