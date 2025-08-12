@@ -158,9 +158,19 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     return new TestTransport();
   }
 
+  @java.lang.SuppressWarnings( "NonJREEmulationClassesInClientCode" )
   public class TestTransport
     extends replicant.AbstractTransport
   {
+    @javax.annotation.Nonnull
+    private final java.util.List<java.lang.Object> _remoteMessages = new java.util.ArrayList<>();
+
+    public void reset()
+    {
+      unbind();
+      _remoteMessages.clear();
+    }
+
     @java.lang.Override
     protected void doConnect()
     {
@@ -170,12 +180,33 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     @java.lang.Override
     protected void sendRemoteMessage( @javax.annotation.Nonnull final Object message )
     {
+      _remoteMessages.add( message );
     }
 
     @java.lang.Override
     protected void doDisconnect()
     {
       queueAsyncActions( this::onDisconnect );
+    }
+
+    @javax.annotation.Nullable
+    public final replicant.TransportContext transportContext()
+    {
+      return getTransportContext();
+    }
+
+    @java.lang.SuppressWarnings( "NonJREEmulationClassesInClientCode" )
+    public final <T> T expectRemoteMessage( final int index, @javax.annotation.Nonnull final java.lang.Class<T> type )
+    {
+      org.testng.Assert.assertTrue( _remoteMessages.size() > index, "No message at index " + index + ". Max messages " + _remoteMessages.size() + " Messages=" + _remoteMessages );
+      final java.lang.Object message = _remoteMessages.get( index );
+      org.testng.Assert.assertTrue( type.isInstance( message ), "Message at index " + index + " is not of type " + type );
+      return type.cast( message );
+    }
+
+    public final void assertRemoveMessageCount( final int count )
+    {
+      org.testng.Assert.assertEquals( _remoteMessages.size(), count );
     }
   }
 <% end -%>
