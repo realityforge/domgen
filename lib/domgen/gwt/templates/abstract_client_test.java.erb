@@ -179,6 +179,11 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     public void reset()
     {
       unbind();
+      resetRemoteMessages();
+    }
+
+    public void resetRemoteMessages()
+    {
       _remoteMessages.clear();
     }
 
@@ -206,6 +211,11 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
       return getTransportContext();
     }
 
+    public void onExecResponseMessage( final int requestId, @javax.annotation.Nonnull final Object response )
+    {
+      onReplicantMessage( replicant.messages.UpdateMessage.create( requestId, null, null, null, null, response ) );
+    }
+
     public void onReplicantMessage( @javax.annotation.Nonnull final replicant.messages.ServerToClientMessage message )
     {
       final replicant.TransportContext transportContext = replicantTransport().transportContext();
@@ -214,11 +224,11 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     }
 
     @javax.annotation.Nonnull
-    public replicant.messages.ExecMessage expecExecMessage( final int index,@javax.annotation.Nonnull final String command, final int requestId )
+    public replicant.messages.ExecMessage expecExecMessage( final int index, @javax.annotation.Nonnull final String command, final int requestId )
     {
       final replicant.messages.ExecMessage execMessage = replicantTransport().expectRemoteMessage( index, replicant.messages.ExecMessage.class );
-      org.testng.Assert.assertEquals( execMessage.getCommand(), command );
-      org.testng.Assert.assertEquals( execMessage.getRequestId(), requestId );
+      org.testng.Assert.assertEquals( execMessage.getCommand(), command, "Expected request command " + command + " but was " + execMessage.getCommand() + " at index " + index );
+      org.testng.Assert.assertEquals( execMessage.getRequestId(), requestId, "Expected request id " + requestId + " but was " + execMessage.getRequestId() + " at index " + index );
       return execMessage;
     }
 
