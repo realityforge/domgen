@@ -109,7 +109,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
         }
 <%- end -%>
 <%- unless method.return_value.return_type == :void && method.base_exceptions.empty?-%>
-        final jsinterop.base.JsPropertyMap<Object> $responsePropertyMap = $response.asPropertyMap();
+        final jsinterop.base.JsPropertyMap<Object> $responsePropertyMap = jsinterop.base.Js.asPropertyMap( $response );
 <%- end -%>
 <%- unless method.return_value.return_type == :void -%>
         if ( $responsePropertyMap.has( "data") )
