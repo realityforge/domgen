@@ -12,6 +12,10 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 {
   @javax.annotation.Nonnull
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
+<% if repository.imit? -%>
+  @javax.annotation.Nonnull
+  private final TestTransport _replicantTransport = new TestTransport();
+<% end -%>
 <% repository.data_modules.select{|data_module|data_module.arez? && data_module.arez.factory_required?}.each do |data_module| -%>
   @SuppressWarnings( "NotNullFieldNotInitialized" )
   @javax.annotation.Nonnull
@@ -41,6 +45,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     arez.testng.ArezTestSupport.super.preTest();
 <% if repository.imit? -%>
     replicant.ReplicantTestUtil.resetConfig( false );
+    _replicantTransport.reset();
 <% end -%>
 <% end -%>
     _injector = createInjector();
@@ -51,7 +56,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     arez.Arez.context().registerLocator( _injector.getLocator() );
 <% end -%>
 <% if repository.imit? -%>
-    replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), createReplicantTransport() );
+    replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), _replicantTransport );
     pumpAllAsyncActions();
 <% end -%>
   }
@@ -153,13 +158,13 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   }
 
   @javax.annotation.Nonnull
-  protected replicant.Transport createReplicantTransport()
+  protected final TestTransport replicantTransport()
   {
-    return new TestTransport();
+    return _replicantTransport;
   }
 
   @java.lang.SuppressWarnings( "NonJREEmulationClassesInClientCode" )
-  public class TestTransport
+  public final class TestTransport
     extends replicant.AbstractTransport
   {
     @javax.annotation.Nonnull
