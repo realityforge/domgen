@@ -151,10 +151,21 @@ module Domgen
         @referenced.nil? ? false : !!@referenced
       end
 
+      attr_writer :force_public_encoder
+
+      def force_public_encoder?
+        @force_public_encoder.nil? ? false : !!@force_public_encoder
+      end
+
       def public_encoder?
-        return true unless exception.ee.module_local?
-        return false unless exception.extends
-        exception.data_module.exception_by_name(exception.extends).action.public_encoder?
+        return true if force_public_encoder?
+        return false if exception.extends.nil? && exception.ee.module_local?
+        unless exception.extends.nil?
+          extends_exception = self.exception.data_module.exception_by_name(exception.extends)
+          return true if extends_exception.data_module.qualified_name != exception.data_module.qualified_name
+        end
+        return false
+        # force_public_encoder? || (exception.extends.nil? ? !exception.ee.module_local? : (exception.data_module.qualified_name != exception.data_module.exception_by_name(exception.extends).data_module.qualified_name && exception.data_module.exception_by_name(exception.extends).action.public_encoder?))
       end
 
       def json_encoder_qualified_name
@@ -195,6 +206,13 @@ module Domgen
       def post_verify
         if service.action? && (!service.ejb? || !service.ejb.generate_boundary?)
           Domgen::error("Service #{service.qualified_name} has action facet enabled but has no associated ejb boundary so the interceptor can not be applied")
+        end
+        service.methods.select { |m| m.action? }.each do |method|
+          method.exceptions.select { |e| e.action? }.each do |exception|
+            if !exception.ee.module_local? && exception.data_module.qualified_name != service.data_module.qualified_name
+              exception.action.force_public_encoder = true
+            end
+          end
         end
       end
     end
