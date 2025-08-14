@@ -1,20 +1,21 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(method.action.qualified_method_actions_name) %>;
 
-<% unless method.service.ejb.module_local? %>public <% end %>class <%= method.action.method_actions_name %>
+<% unless method.action.serverside_action_module_local? %>public <% end %>final class <%= method.action.method_actions_name %>
 {
   private <%= method.action.method_actions_name %>()
   {
   }
 
-  <% unless method.service.ejb.module_local? %>public <% end %>static String actionTypeCode()
+  @javax.annotation.Nonnull
+  <% unless method.action.serverside_action_module_local? %>public <% end %>static String actionTypeCode()
   {
     return <%= method.service.action.service_actions_name %>.<%= method.name %>ActionInterceptor.actionTypeCode();
   }
 
   @java.lang.SuppressWarnings( { "unchecked", "RedundantSuppression", "DuplicatedCode" } )
   @javax.annotation.Nonnull
-  <% unless method.service.ejb.module_local? %>public <% end %>static String encode( <%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ')%> )
+  <% unless method.action.serverside_action_module_local? %>public <% end %>static String encode( <%= method.parameters.collect{|p| "#{annotated_type(p, :ejb)} #{Reality::Naming.camelize(p.name)}" }.join(', ')%> )
   {
     final var builder = javax.json.Json.createObjectBuilder();
       <%- method.parameters.each do |parameter|

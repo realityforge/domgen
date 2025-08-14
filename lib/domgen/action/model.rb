@@ -253,6 +253,12 @@ module Domgen
         @generate_message_on_success.nil? ? true : @generate_message_on_success
       end
 
+      attr_writer :serverside_action_module_local
+
+      def serverside_action_module_local?
+        @serverside_action_module_local.nil? ? self.method.service.ejb.module_local? : @serverside_action_module_local
+      end
+
       attr_writer :generate_serverside_action
 
       def generate_serverside_action?
