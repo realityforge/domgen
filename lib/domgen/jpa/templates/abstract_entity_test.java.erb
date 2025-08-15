@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.jpa.qualified_abstract_entity_test_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "SameParameterValue" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "SameParameterValue", "NotNullFieldNotInitialized", "StaticImportCanBeUsed" } )
 public abstract class <%= repository.jpa.abstract_entity_test_name %>
   extends org.realityforge.guiceyloops.server.AbstractServerTest
 {
@@ -101,7 +101,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
         sb.append( "  " );
         sb.append( message );
       }
-      org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb.toString() );
+      org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb );
     }
   }
 
@@ -165,6 +165,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     org.testng.Assert.fail( "Failed to find any exception containing string " + message + "in:\n" + out );
   }
 
+  @java.lang.SuppressWarnings( "SqlSourceToSinkFlow" )
   protected final void disableTrigger( @javax.annotation.Nonnull final String qualifiedTableName, @javax.annotation.Nonnull final String qualifiedTriggerName )
   {
     em().createNativeQuery( "DISABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName ).executeUpdate();
