@@ -409,6 +409,12 @@ module Domgen
         end
       end
 
+      def post_verify
+        if method.action? && (!method.ejb? || !method.ejb.generate_boundary?)
+          Domgen::error("Method #{method.qualified_name} has action facet enabled but is not part of the ejb boundary so the interceptor can not be applied")
+        end
+      end
+
       def post_complete
         if method.service.ejb? && method.service.ejb.generate_boundary?
           self.method.ejb.boundary_annotations << "#{self.method.service.action.qualified_service_actions_name}.#{self.method.name}ActionInterceptor.ActionInterceptorBinding"
