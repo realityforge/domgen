@@ -137,7 +137,7 @@ module Domgen
         declared_attribute_names = entity.declared_attributes.collect{|a| a.name}
         declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
         java = <<JAVA
-  #{immutable_attributes.empty? ? 'public' : 'protected'} #{entity.jpa.name}()
+  #{!entity.jpa.module_local? && immutable_attributes.empty? ? 'public ' : 'protected '}#{entity.jpa.name}()
   {
   }
 
@@ -145,7 +145,7 @@ JAVA
         return java if immutable_attributes.empty?
         java = java + <<JAVA
   @java.lang.SuppressWarnings( "deprecation" )
-  public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "#{nullable_annotate(a, "final #{a.jpa.java_type}", false)} #{a.jpa.field_name}"}.join(', ')})
+  #{entity.jpa.module_local? ? '' : 'public '}#{entity.jpa.name}(#{immutable_attributes.collect{|a| "#{nullable_annotate(a, "final #{a.jpa.java_type}", false)} #{a.jpa.field_name}"}.join(', ')})
   {
 JAVA
         java += declared_immutable_attributes.collect{|a| "    this.#{a.jpa.field_name} = #{!a.nullable? && !a.jpa.primitive? ? "java.util.Objects.requireNonNull( #{a.jpa.field_name} )": a.jpa.field_name};\n" }.join('')
@@ -182,7 +182,7 @@ JAVA
             field_name = Reality::Naming.camelize( name )
 
             java = <<JAVA
-  #{nullable_annotate(attribute, "public #{attribute.entity.jpa.qualified_name}", false, true)} #{getter_for(attribute, name)}
+  #{nullable_annotate(attribute, "#{attribute.entity.jpa.module_local? ? '' : 'public '}#{attribute.entity.jpa.qualified_name}", false, true)} #{getter_for(attribute, name)}
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     return #{field_name};
@@ -201,7 +201,7 @@ JAVA
     }
   }
 
-  public final void remove#{name}( #{nullable_annotate(attribute, "final #{attribute.entity.jpa.qualified_name}", false, true)} value )
+  #{attribute.entity.jpa.module_local? ? '' : 'public '}final void remove#{name}( #{nullable_annotate(attribute, "final #{attribute.entity.jpa.qualified_name}", false, true)} value )
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     if( null != this.#{field_name} && value != this.#{field_name} )
@@ -227,7 +227,7 @@ JAVA
       def j_simple_attribute(attribute)
         name = attribute.jpa.name
         java = <<JAVA
-  #{annotated_type(attribute, :jpa, :default, :assume_generated => true, :public => true)} #{getter_for(attribute)}
+  #{annotated_type(attribute, :jpa, :default, :assume_generated => true, :public => !attribute.entity.jpa.module_local?)} #{getter_for(attribute)}
   {
 JAVA
         unless attribute.primary_key?
@@ -286,7 +286,7 @@ JAVA
       def j_add_to_inverse(attribute)
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.name
-        unless attribute.inverse.jpa.java_traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(attribute.nullable?, field_name) { "this.#{field_name}.add#{inverse_name}( this );" }
@@ -305,7 +305,7 @@ JAVA
 
       def j_reference_attribute(attribute)
         java = <<JAVA
-  #{nullable_annotate(attribute, "public #{attribute.jpa.java_type}", false)} #{getter_for(attribute)}
+  #{nullable_annotate(attribute, "#{attribute.entity.jpa.module_local? ? '' : 'public '}#{attribute.jpa.java_type}", false)} #{getter_for(attribute)}
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
 JAVA
@@ -383,7 +383,7 @@ JAVA
 
       def j_abstract_attribute(attribute)
         <<JAVA
-    public abstract #{attribute.jpa.java_type} #{getter_for(attribute)};
+    #{attribute.entity.jpa.module_local? ? '' : 'public '}abstract #{attribute.jpa.java_type} #{getter_for(attribute)};
 
 JAVA
       end
@@ -409,7 +409,8 @@ STR
         field_name = Reality::Naming.camelize(plural_name)
         type = attribute.entity.jpa.qualified_name
         java = <<STR
-  public java.util.List<#{type}> get#{plural_name}()
+  @javax.annotation.Nonnull
+  #{attribute.entity.jpa.module_local? ? '' : 'public '}java.util.List<#{type}> get#{plural_name}()
   {
     verifyNotRemoved();
     return java.util.Collections.unmodifiableList( safeGet#{plural_name}() );
@@ -424,7 +425,7 @@ STR
     }
   }
 
-  public final void remove#{name}( @javax.annotation.Nonnull final #{type} value )
+  #{attribute.entity.jpa.module_local? ? '' : 'public '}final void remove#{name}( @javax.annotation.Nonnull final #{type} value )
   {
     if ( null != this.#{field_name} )
     {
