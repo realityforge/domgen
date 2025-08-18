@@ -1139,8 +1139,13 @@ module Domgen
         repository.data_modules.select { |data_module| data_module.ejb? }.each do |data_module|
           data_module.services.select { |service| service.ejb? && service.ejb.generate_boundary? }.each do |service|
             service.methods.each do |method|
-              if method.service.ejb? && method.service.ejb.generate_boundary?
-                method.ejb.boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
+              if method.service.ejb?
+                if method.ejb.generate_boundary?
+                  method.ejb.boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
+                end
+                if method.ejb.internal_service?
+                  method.ejb.internal_boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
+                end
               end
             end
           end
