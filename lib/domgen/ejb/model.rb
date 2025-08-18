@@ -165,7 +165,6 @@ module Domgen
       java_artifact :local_service, :service, :server, :ejb, 'Local#{service.name}'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
       java_artifact :boundary_interface, :service, :server, :ejb, '#{service_name}Boundary'
-      java_artifact :remote_service, :service, :server, :ejb, 'Remote#{service_name}'
       java_artifact :boundary_implementation, :service, :server, :ejb, '#{boundary_interface_name}Impl'
       java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
 
