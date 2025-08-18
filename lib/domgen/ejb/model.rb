@@ -160,18 +160,23 @@ module Domgen
         "#{service.data_module.repository.name}.#{service.ejb.name}"
       end
 
+      def boundary_service_suffix
+        generate_internal_service? ? 'External' : ''
+      end
+
       java_artifact :service, :service, :server, :ejb, '#{service.name}'
       # The local service is the service exposed to other modules in the application
-      java_artifact :local_service, :service, :server, :ejb, 'Local#{service.name}'
+      java_artifact :internal_boundary_service, :service, :server, :ejb, '#{service.name}Internal'
+      java_artifact :internal_boundary_implementation, :service, :server, :ejb, '#{internal_boundary_service_name}Impl'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
-      java_artifact :boundary_interface, :service, :server, :ejb, '#{service_name}Boundary'
+      java_artifact :boundary_interface, :service, :server, :ejb, '#{service_name}#{boundary_service_suffix}Boundary'
       java_artifact :boundary_implementation, :service, :server, :ejb, '#{boundary_interface_name}Impl'
       java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
 
-      attr_writer :generate_local_service
+      attr_writer :generate_internal_service
 
-      def generate_local_service?
-        @generate_local_service.nil? ? service.methods.any?{|method| method.ejb.local_service?} : !!@generate_local_service
+      def generate_internal_service?
+        @generate_internal_service.nil? ? service.methods.any?{|method| method.ejb.internal_service?} : !!@generate_internal_service
       end
 
       attr_writer :module_local
@@ -214,6 +219,16 @@ module Domgen
 
       def boundary_annotations
         @boundary_annotations ||= []
+      end
+
+      attr_accessor :internal_boundary_extends
+
+      def internal_boundary_interceptors
+        @internal_boundary_interceptors ||= []
+      end
+
+      def internal_boundary_annotations
+        @internal_boundary_annotations ||= []
       end
 
       attr_accessor :generate_boundary
@@ -277,13 +292,6 @@ module Domgen
 
       java_artifact :scheduler, :service, :server, :ee, '#{method.service.name}#{method.name}ScheduleEJB'
 
-      # Should the method be added to the local service, exposed to other modules in the application
-      def local_service?
-        @local_service.nil? ? false : !!@local_service
-      end
-
-      attr_writer :local_service
-
       def schedule
         raise "Attempted to access a schedule on #{method.qualified_name} when method has multiple parameters" unless method.parameters.empty?
         @schedule ||= Domgen::Ejb::Schedule.new(method)
@@ -306,6 +314,21 @@ module Domgen
       def generate_boundary?
         @generate_boundary.nil? ? self.method.service.ejb.generate_boundary? : !!@generate_boundary
       end
+
+      def internal_boundary_interceptors
+        @internal_boundary_interceptors ||= []
+      end
+
+      def internal_boundary_annotations
+        @internal_boundary_annotations ||= []
+      end
+
+      # Should the method be added to the internal service and thus exposed to other modules in the application
+      def internal_service?
+        @internal_service.nil? ? false : !!@internal_service
+      end
+
+      attr_writer :internal_service
 
       def generate_base_test?
         @generate_base_test.nil? ? true : !!@generate_base_test

@@ -23,6 +23,9 @@ public class <%= repository.ejb.services_module_name %>
         if service.ejb.generate_boundary?
 -%>
     bindService( "<%= service.ejb.qualified_boundary_interface_name %>", "<%= service.ejb.qualified_boundary_implementation_name %>" );
+<% if service.ejb.generate_internal_service? -%>
+    bindService( "<%= service.ejb.qualified_internal_boundary_service_name %>", "<%= service.ejb.qualified_internal_boundary_implementation_name %>" );
+<% end -%>
 <%
         end
       end
@@ -39,10 +42,6 @@ public class <%= repository.ejb.services_module_name %>
   protected void bind<%= service.qualified_name.to_s.gsub('.','') %>()
   {
     bindService( "<%= service.ejb.qualified_service_name %>", "<%= service.ejb.qualified_service_implementation_name %>" );
-<% # TODO: Should do a multibind so that we do not instantiate implementation multiple times but this will require guiceyloops updates.  -%>
-<% if service.ejb.generate_local_service? -%>
-    bindService( "<%= service.ejb.qualified_local_service_name %>", "<%= service.ejb.qualified_service_implementation_name %>" );
-<% end -%>
   }
 <%
       end
