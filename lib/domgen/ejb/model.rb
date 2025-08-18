@@ -161,7 +161,7 @@ module Domgen
       end
 
       def boundary_service_suffix
-        generate_internal_service? ? 'External' : ''
+        generate_internal_service? ? 'External' : 'Boundary'
       end
 
       java_artifact :service, :service, :server, :ejb, '#{service.name}'
@@ -169,7 +169,7 @@ module Domgen
       java_artifact :internal_boundary_service, :service, :server, :ejb, '#{service.name}Internal'
       java_artifact :internal_boundary_implementation, :service, :server, :ejb, '#{internal_boundary_service_name}Impl'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
-      java_artifact :boundary_interface, :service, :server, :ejb, '#{service_name}#{boundary_service_suffix}Boundary'
+      java_artifact :boundary_interface, :service, :server, :ejb, '#{service_name}#{boundary_service_suffix}'
       java_artifact :boundary_implementation, :service, :server, :ejb, '#{boundary_interface_name}Impl'
       java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
 
