@@ -13,7 +13,7 @@ package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 <% end-%>
 class <%= service.ejb.boundary_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}\n" : ''-%>
-  implements <%= service.ejb.qualified_boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
+  implements <%= service.ejb.qualified_boundary_interface_name %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
 {
 <% if service.jmx? -%>
   private javax.management.ObjectName _objectName;

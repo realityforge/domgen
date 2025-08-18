@@ -42,10 +42,6 @@ Domgen::Generator.define([:ejb],
                               'main/java/#{service.ejb.qualified_boundary_interface_name.gsub(".","/")}.java',
                               :guard => 'service.ejb.generate_boundary?')
     template_set.erb_template(:service,
-                              'remote_service.java.erb',
-                              'main/java/#{service.ejb.qualified_remote_service_name.gsub(".","/")}.java',
-                              :guard => 'service.ejb.generate_boundary? && service.ejb.remote?')
-    template_set.erb_template(:service,
                               'boundary_implementation.java.erb',
                               'main/java/#{service.ejb.qualified_boundary_implementation_name.gsub(".","/")}.java',
                               :guard => 'service.ejb.generate_boundary?')

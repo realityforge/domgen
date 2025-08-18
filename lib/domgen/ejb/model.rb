@@ -160,21 +160,13 @@ module Domgen
         "#{service.data_module.repository.name}.#{service.ejb.name}"
       end
 
-      def boundary_name
-        "#{name}Boundary"
-      end
-
-      def boundary_ejb_name
-        "#{service.data_module.repository.name}.#{service.ejb.boundary_name}"
-      end
-
       java_artifact :service, :service, :server, :ejb, '#{service.name}'
       # The local service is the service exposed to other modules in the application
       java_artifact :local_service, :service, :server, :ejb, 'Local#{service.name}'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
-      java_artifact :boundary_interface, :service, :server, :ejb, 'Local#{service_name}Boundary'
+      java_artifact :boundary_interface, :service, :server, :ejb, '#{service_name}Boundary'
       java_artifact :remote_service, :service, :server, :ejb, 'Remote#{service_name}'
-      java_artifact :boundary_implementation, :service, :server, :ejb, '#{service_name}BoundaryImpl'
+      java_artifact :boundary_implementation, :service, :server, :ejb, '#{boundary_interface_name}Impl'
       java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
 
       attr_writer :generate_local_service
@@ -223,20 +215,6 @@ module Domgen
 
       def boundary_annotations
         @boundary_annotations ||= []
-      end
-
-      attr_writer :local
-
-      def local?
-        @local.nil? ? true : @local
-      end
-
-      def remote=(remote)
-        self.local = !remote
-      end
-
-      def remote?
-        !local?
       end
 
       attr_accessor :generate_boundary
