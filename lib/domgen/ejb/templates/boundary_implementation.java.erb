@@ -13,40 +13,8 @@ package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 <% end-%>
 class <%= service.ejb.boundary_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}\n" : ''-%>
-  implements <%= service.ejb.qualified_boundary_interface_name %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
+  implements <%= service.ejb.qualified_boundary_interface_name %>
 {
-<% if service.jmx? -%>
-  private javax.management.ObjectName _objectName;
-
-  @javax.annotation.PostConstruct
-  public void registerInJMX()
-  {
-    try
-    {
-      _objectName = new javax.management.ObjectName( <%= service.jmx.qualified_service_name %>.OBJECT_NAME );
-      //noinspection EjbThisExpressionInspection
-      java.lang.management.ManagementFactory.getPlatformMBeanServer().registerMBean( this, _objectName );
-    }
-    catch( final Exception e )
-    {
-      throw new IllegalStateException( "Unable to register <%= service.qualified_name %> service in JMX registry due to: " + e, e );
-    }
-  }
-
-  @javax.annotation.PreDestroy
-  public void unregisterFromJMX()
-  {
-    try
-    {
-      java.lang.management.ManagementFactory.getPlatformMBeanServer().unregisterMBean( _objectName );
-    }
-    catch( final Exception e )
-    {
-      throw new IllegalStateException( "Unable to unregister <%= service.qualified_name %> service from JMX registry due to: " + e, e );
-    }
-  }
-
-<% end -%>
 <% service.methods.select{|method | method.ejb.generate_boundary?}.collect {|method|method.parameters.select{|parameter|parameter.reference? && (!parameter.referenced_entity.dao.jpa.module_local? || service.data_module.name.to_s == parameter.referenced_entity.data_module.name.to_s)}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>;

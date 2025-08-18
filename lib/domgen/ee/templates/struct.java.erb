@@ -44,7 +44,6 @@ package <%= to_package(struct.ee.qualified_name) %>;
   }
 
 <% end -%>
-<% if struct.data_module.jmx? -%>  @java.beans.ConstructorProperties({<%= struct.fields.collect {|field| "\"#{javabean_property_name(field.name)}\""}.join( ', ') %>})<% end -%>
   <% unless struct.ee.module_local? %>public <% end %><%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, :boundary, :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
 <% struct.fields.each do |field|

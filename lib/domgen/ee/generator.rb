@@ -81,5 +81,5 @@ Domgen::Generator.define([:ee],
     end
   end
 
-  g.template_set(:ee => [:jaxrs, :jpa, :ejb, :jmx, :jws, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
+  g.template_set(:ee => [:jaxrs, :jpa, :ejb, :jws, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
 end

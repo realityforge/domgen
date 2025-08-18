@@ -104,10 +104,6 @@ require 'domgen/jws/wsimport_template'
 require 'domgen/jws/helper'
 require 'domgen/jws/generator'
 
-# JMX
-require 'domgen/jmx/model'
-require 'domgen/jmx/generator'
-
 # JaxRS
 require 'domgen/jaxrs/model'
 require 'domgen/jaxrs/helper'
