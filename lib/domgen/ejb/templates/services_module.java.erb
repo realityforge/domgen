@@ -19,13 +19,11 @@ public class <%= repository.ejb.services_module_name %>
       if service.ejb.bind_in_tests?
 -%>
     bind<%= service.qualified_name.to_s.gsub('.','') %>();
-<%
-        if service.ejb.generate_boundary?
--%>
-    bindService( "<%= service.ejb.qualified_boundary_interface_name %>", "<%= service.ejb.qualified_boundary_implementation_name %>" );
 <% if service.ejb.generate_internal_service? -%>
-    bindService( "<%= service.ejb.qualified_internal_boundary_service_name %>", "<%= service.ejb.qualified_internal_boundary_implementation_name %>" );
+    bind<%= service.qualified_name.to_s.gsub('.','') %>Internal();
 <% end -%>
+<% if service.ejb.generate_boundary? -%>
+    bindService( "<%= service.ejb.qualified_boundary_interface_name %>", "<%= service.ejb.qualified_boundary_implementation_name %>" );
 <%
         end
       end
@@ -38,6 +36,13 @@ public class <%= repository.ejb.services_module_name %>
     data_module.services.select{|service| service.ejb?}.each do |service|
       if service.ejb.bind_in_tests?
 -%>
+<% if service.ejb.generate_internal_service? -%>
+
+  protected void bind<%= service.qualified_name.to_s.gsub('.','') %>Internal()
+  {
+    bindService( "<%= service.ejb.qualified_internal_boundary_service_name %>", "<%= service.ejb.qualified_internal_boundary_implementation_name %>" );
+  }
+<% end -%>
 
   protected void bind<%= service.qualified_name.to_s.gsub('.','') %>()
   {
