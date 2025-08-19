@@ -799,6 +799,10 @@ FRAGMENT
       def generate_test_factory?
         data_module.entities.any? {|e| e.jpa?}
       end
+
+      def expect_aggregate_test?
+        self.data_module.daos.any?{|d| d.jpa? && d.jpa.expect_test?} || self.data_module.entities.any? {|e| e.jpa? && e.jpa.expect_test?}
+      end
     end
 
     facet.enhance(DataAccessObject) do
@@ -843,6 +847,10 @@ FRAGMENT
         "#{qualified_dao_test_name.gsub(/\.Abstract/, '.')}"
       end
 
+      def expect_test?
+        !self.extensions.empty? || self.dao.queries.any?{|q|q.jpa? && !q.jpa.standard_query?}
+      end
+
       def perform_verify
         unless persistence_unit_name.nil?
           unless dao.data_module.repository.jpa.standalone_persistence_unit_by_name?(persistence_unit_name)
@@ -859,6 +867,10 @@ FRAGMENT
 
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
+
+      def expect_test?
+        self.non_standard_model_constraints? || !self.interfaces.empty?
+      end
 
       attr_writer :generate_metamodel
 

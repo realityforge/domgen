@@ -78,7 +78,7 @@ Domgen::Generator.define([:jpa],
       template_set.erb_template(:data_module,
                                 'data_module_aggregate_entity_test.java.erb',
                                 type + '/java/#{data_module.jpa.qualified_aggregate_entity_test_name.gsub(".","/")}.java',
-                                :guard => 'data_module.daos.any? || data_module.entities.any?')
+                                :guard => 'data_module.jpa.expect_aggregate_test?')
     end
   end
 

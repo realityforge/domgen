@@ -2,7 +2,7 @@
 package <%= to_package(data_module.ejb.qualified_aggregate_service_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
-final class <%= data_module.ejb.aggregate_service_test_name %>
+public final class <%= data_module.ejb.aggregate_service_test_name %>
 {
   @org.testng.annotations.Test
   public void ensureTestsPresent()
@@ -13,6 +13,7 @@ final class <%= data_module.ejb.aggregate_service_test_name %>
 -%>
     org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a concrete class but is abstract" );
     org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isFinal( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a final class but is not" );
+    org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isPublic( <%= service.ejb.qualified_concrete_service_test_name %>.class.getModifiers() ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to be a public class but is not" );
 <% service.methods.select{|m|m.ejb? && m.ejb.generate_base_test?}.each do |method| -%>
     org.testng.Assert.assertNotNull( <%= service.ejb.qualified_concrete_service_test_name %>.class.getDeclaredMethod( "<%= Reality::Naming.camelize(method.name) %>" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= service.ejb.qualified_concrete_service_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(method.name) %> annotated with the org.testng.annotations.Test annotation" );
 <% method.exceptions.select{|exception|!exception.abstract?}.each do |exception| -%>
