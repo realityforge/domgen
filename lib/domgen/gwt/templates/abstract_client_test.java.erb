@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "StaticImportCanBeUsed" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "StaticImportCanBeUsed", "NonJREEmulationClassesInClientCode" } )
 <% if repository.arez? -%>
 @arez.testng.ActionWrapper( enable = true )
 <% end -%>
@@ -43,6 +43,13 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     return _injector;
   }
 <% if repository.arez? -%>
+
+  @javax.annotation.Nonnull
+  protected final java.lang.String currentMethod()
+  {
+    org.testng.Assert.assertNotNull( _currentMethod, "currentMethod() called before test method was invoked" );
+    return _currentMethod;
+  }
 
   protected final void captureObserverErrors()
   {
