@@ -22,6 +22,13 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   protected <%= data_module.arez.qualified_test_factory_name %> <%= data_module.arez.short_test_code %>;
 <% end -%>
   private T _injector;
+<% if repository.arez? -%>
+  @javax.annotation.Nonnull
+  private final java.util.List<java.lang.String> _observerErrors = new java.util.ArrayList<>();
+  private boolean _captureObserverErrors;
+  @javax.annotation.Nullable
+  private java.lang.String _currentMethod;
+<% end -%>
 <% if repository.imit? -%>
   @javax.annotation.Nullable
   private arez.Disposable _connector;
@@ -35,6 +42,51 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   {
     return _injector;
   }
+<% if repository.arez? -%>
+
+  protected final void captureObserverErrors()
+  {
+    _captureObserverErrors = true;
+  }
+
+  protected final void noCaptureObserverErrors()
+  {
+    _captureObserverErrors = false;
+  }
+
+  @org.testng.annotations.BeforeMethod
+  public void handleTestMethodName( @javax.annotation.Nonnull final java.lang.reflect.Method method )
+  {
+    _currentMethod = method.getName();
+    _captureObserverErrors = false;
+    _observerErrors.clear();
+    arez.Arez.context().addObserverErrorHandler( this::onObserverError );
+  }
+
+  private void onObserverError( @javax.annotation.Nonnull final arez.Observer observer, @javax.annotation.Nonnull final arez.ObserverError error, @javax.annotation.Nullable final java.lang.Throwable throwable )
+  {
+    final var message = "Observer: " + observer.getName() + " Error: " + error + " " + throwable;
+    _observerErrors.add( message );
+    if ( !_captureObserverErrors )
+    {
+      java.lang.System.out.println( message );
+      if ( null != throwable )
+      {
+        throwable.printStackTrace( java.lang.System.out );
+      }
+    }
+  }
+
+  @org.testng.annotations.AfterMethod
+  protected void afterTest()
+  {
+    arez.ArezTestUtil.resetConfig( true );
+    if ( !_captureObserverErrors && !_observerErrors.isEmpty() )
+    {
+      org.testng.Assert.fail( "Unexpected Observer Errors: " + java.lang.String.join( "\n", _observerErrors ) );
+    }
+  }
+  <% end -%>
 
   @org.testng.annotations.BeforeMethod
 <% if repository.arez? -%>
