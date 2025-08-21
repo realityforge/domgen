@@ -64,7 +64,7 @@ module Domgen
       end
 
       def disallow_blank_constraint(column_name)
-        "LEN( #{quote(column_name)} ) > 0"
+        "LEN(#{quote(column_name)}) > 0"
       end
 
       def column_type(column)
