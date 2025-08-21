@@ -1002,7 +1002,7 @@ SQL
         end
         entity.attributes.select { |a| a.allows_length? && a.has_non_default_min_length? }.each do |a|
           constraint_name = "#{a.name}_MinLength"
-          sql = (a.nullable? ? "#{self.dialect.quote(a.sql.column_name)} IS NULL OR " : '') + self.dialect.min_length_constraint(a.sql.column_name, a.min_length)
+          sql = (a.nullable? ? "#{self.dialect.quote(a.sql.column_name)} IS NULL OR " : '') + self.dialect.min_length_constraint(a.sql.column_name, a.min_length - 1)
           constraint(constraint_name, :standard => true, :sql => sql) unless constraint_by_name(constraint_name)
         end
 
