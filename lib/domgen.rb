@@ -42,10 +42,6 @@ require 'domgen/buildr_integration'
 # Json
 require 'domgen/json/model'
 
-# Xml
-require 'domgen/xml/model'
-require 'domgen/xml/helper'
-
 # Java
 require 'domgen/java/model'
 require 'domgen/java/helper'
@@ -79,9 +75,6 @@ require 'domgen/jpa/generator'
 # JMS
 require 'domgen/jms/model'
 require 'domgen/jms/generator'
-
-# Docbook
-require 'domgen/xml/generator'
 
 # Rake Tasks
 require 'domgen/rake_tasks'
