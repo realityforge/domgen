@@ -220,7 +220,7 @@ module Domgen
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :method_actions, :service, :server, :action, '#{method.service.name}#{method.name}Action'
+      java_artifact :serverside_action, :service, :server, :action, '#{method.service.name}#{method.name}Action'
 
       def code
         content = "#{method.qualified_name.gsub('#', '.')}:#{method.action.json_request_schema}:#{method.action.json_response_schema}"

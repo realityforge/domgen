@@ -21,7 +21,7 @@ Domgen::Generator.define([:action],
                               'main/java/#{service.action.qualified_service_actions_name.gsub(".","/")}.java')
     template_set.erb_template(:method,
                               'serverside_action.java.erb',
-                              'main/java/#{method.action.qualified_method_actions_name.gsub(".","/")}.java',
+                              'main/java/#{method.action.qualified_serverside_action_name.gsub(".","/")}.java',
                               :guard => 'method.action.generate_serverside_action?')
     template_set.erb_template(:exception,
                               'exception_json_encoder.java.erb',
