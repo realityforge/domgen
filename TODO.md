@@ -35,7 +35,6 @@
 
 * Convert service layer to using json+http services.
 * Add Validation annotations to all service interfaces, including DAO/repositories
-* JWS: Add ability to document wsdl
 * Swaggerize new json service API. Possibly wait until OpenAPI is established? http://swagger.io/
 
 ### Sync

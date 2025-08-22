@@ -5,31 +5,6 @@
          xsi:schemaLocation=" http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          metadata-complete="<%= repository.ee.web_metadata_complete? %>">
 
-<%
-  repository.data_modules.each do |data_module|
-    data_module.services.select{|s| s.ejb? && s.jws?}.each do |service|
--%>
-  <servlet>
-    <servlet-name><%= service.jws.servlet_name %></servlet-name>
-    <servlet-class><%= service.jws.qualified_boundary_implementation_name %></servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-<%
-    end
-  end
--%>
-<%
-  repository.data_modules.each do |data_module|
-    data_module.services.select{|s| s.ejb? && s.jws?}.each do |service|
--%>
-  <servlet-mapping>
-    <servlet-name><%= service.jws.servlet_name %></servlet-name>
-    <url-pattern><%= service.jws.url %></url-pattern>
-  </servlet-mapping>
-<%
-    end
-  end
--%>
 <% repository.ee.web_xml_content_fragments.each do |fragment| -%>
 <%= fragment -%>
 <% end -%>

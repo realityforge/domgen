@@ -97,18 +97,6 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
       return false;
     }
 <% end -%>
-<%
-  client.keycloak_repository.repository.data_modules.each do |data_module|
-    data_module.services.select{|s| s.ejb? && s.jws?}.each do |service|
--%>
-    if ( path.startsWith( "<%= service.jws.url %>" ) )
-    {
-      return false;
-    }
-<%
-    end
-  end
--%>
     return true;
   }
 }

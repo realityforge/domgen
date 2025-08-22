@@ -98,12 +98,6 @@ require 'domgen/xmi_generator'
 require 'domgen/ejb/model'
 require 'domgen/ejb/generator'
 
-# JWS
-require 'domgen/jws/model'
-require 'domgen/jws/wsimport_template'
-require 'domgen/jws/helper'
-require 'domgen/jws/generator'
-
 # JaxRS
 require 'domgen/jaxrs/model'
 require 'domgen/jaxrs/helper'

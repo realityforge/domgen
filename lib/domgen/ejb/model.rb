@@ -235,8 +235,7 @@ module Domgen
 
       def generate_boundary?
         if @generate_boundary.nil?
-          return service.jws? ||
-            service.jms? ||
+          return service.jms? ||
             service.jaxrs? ||
             service.action? ||
             service.imit? ||
