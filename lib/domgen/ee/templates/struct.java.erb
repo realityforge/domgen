@@ -3,7 +3,6 @@ package <%= to_package(struct.ee.qualified_name) %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "NotNullFieldNotInitialized" } )
 <%= jackson_class_annotations(struct) if struct.jackson? -%>
-<%= jaxb_class_annotations(struct) if struct.jaxb? -%>
 <% unless struct.ee.module_local? %>public <% end %>class <%= struct.ee.name %>
   implements java.io.Serializable
 {
@@ -12,7 +11,6 @@ package <%= to_package(struct.ee.qualified_name) %>;
 
 <% struct.fields.each do |field| -%>
 <%= '  ' + jackson_field_annotation(field) if field.jackson? -%>
-<%= '  ' + jaxb_field_annotation(field) if field.jaxb? -%>
   <%= annotated_type(field, :ee, :boundary, :private => true) %> <%= Reality::Naming.camelize(field.name) %>;
 <% end -%>
 

@@ -88,8 +88,6 @@ module Domgen
   end
 
   FacetManager.facet(:jms => [:ejb, :ee]) do |facet|
-    facet.suggested_facets << :jaxb
-
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication

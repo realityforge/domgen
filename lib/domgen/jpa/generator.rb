@@ -14,7 +14,7 @@
 
 Domgen::Generator.define([:jpa],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::JAXB::Helper]) do |g|
+                         [Domgen::JPA::Helper, Domgen::Java::Helper]) do |g|
   g.template_set(:jpa_model) do |template_set|
     template_set.erb_template(:repository,
                               'unit_descriptor.java.erb',

@@ -14,7 +14,7 @@
 
 Domgen::Generator.define([:ee],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::JAXB::Helper, Domgen::Jackson::Helper]) do |g|
+                         [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::Jackson::Helper]) do |g|
 
 
   g.template_set(:ee_data_types) do |template_set|

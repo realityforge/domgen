@@ -14,7 +14,7 @@
 
 Domgen::Generator.define([:ejb],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::Java::Helper, Domgen::JAXB::Helper]) do |g|
+                         [Domgen::Java::Helper]) do |g|
   g.template_set(:ejb_services) do |template_set|
     template_set.erb_template(:service,
                               'service.java.erb',

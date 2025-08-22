@@ -14,7 +14,7 @@
 
 Domgen::Generator.define([:jms],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::Java::Helper, Domgen::JAXB::Helper]) do |g|
+                         [Domgen::Java::Helper]) do |g|
   g.template_set(:jms_model) do |template_set|
     template_set.erb_template(:repository,
                               'constants_container.java.erb',

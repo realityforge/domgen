@@ -2,22 +2,14 @@
 package <%= to_package(enumeration.ee.qualified_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-<% if enumeration.jaxb?
-%>@javax.xml.bind.annotation.XmlType( name = "<%= enumeration.name %>Type"<%= namespace_annotation_parameter(enumeration.xml) %> )
-@javax.xml.bind.annotation.XmlEnum( <% if enumeration.numeric_values? %>java.lang.Integer.class<% else %>java.lang.String.class<% end %> )
-<% if enumeration.top_level?
-%>@javax.xml.bind.annotation.XmlRootElement( name = "<%= enumeration.xml.name %>"<%= namespace_annotation_parameter(enumeration.xml) %> )
-<% end -%>
-<% end -%>
 <% unless enumeration.ee.module_local?  %>public <% end %>enum <%= enumeration.ee.name %>
 <%= (enumeration.ee.interfaces.size > 0) ? "  implements #{enumeration.ee.interfaces.join(', ')}\n" : '' -%>
 {
   <%=
   index = 0
   enumeration.values.collect do |k|
-   prefix = enumeration.jaxb? ? "@javax.xml.bind.annotation.XmlEnumValue( \"#{enumeration.numeric_values? ? index : k.name}\" ) " : ''
    index = index + 1
-  "#{prefix}#{k.name}"
+  "#{k.name}"
   end.join(",\n  ") %>;
 <% if enumeration.jackson? && enumeration.numeric_values? -%>
 
