@@ -83,6 +83,10 @@ module Domgen
         end.flatten
       end
 
+      def generate_rest_control_service?
+        repository.syncrecord.sync_methods.any?{|method| !method.service.ejb.no_web_invoke? }
+      end
+
       attr_writer :keycloak_client
 
       def keycloak_client
@@ -92,7 +96,7 @@ module Domgen
       def pre_complete
         if repository.jaxrs?
           repository.jaxrs.extensions << 'iris.syncrecord.server.rest.SyncStatusService'
-          if repository.syncrecord.sync_methods?
+          if repository.syncrecord.generate_rest_control_service?
             repository.jaxrs.extensions << repository.syncrecord.qualified_control_rest_service_name
           end
         end
