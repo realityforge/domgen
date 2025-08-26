@@ -165,7 +165,6 @@ module Domgen
       end
 
       java_artifact :service, :service, :server, :ejb, '#{service.name}'
-      # The local service is the service exposed to other modules in the application
       java_artifact :internal_service, :service, :server, :ejb, '#{service.name}Internal'
       java_artifact :internal_service_implementation, :service, :server, :ejb, '#{internal_service_name}Impl'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
