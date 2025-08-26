@@ -20,12 +20,12 @@ Domgen::Generator.define([:ejb],
                               'service.java.erb',
                               'main/java/#{service.ejb.qualified_service_name.gsub(".","/")}.java')
     template_set.erb_template(:service,
-                              'internal_boundary_service.java.erb',
-                              'main/java/#{service.ejb.qualified_internal_boundary_service_name.gsub(".","/")}.java',
+                              'internal_service.java.erb',
+                              'main/java/#{service.ejb.qualified_internal_service_name.gsub(".","/")}.java',
                               :guard => 'service.ejb.generate_internal_service?')
     template_set.erb_template(:service,
-                              'internal_boundary_implementation.java.erb',
-                              'main/java/#{service.ejb.qualified_internal_boundary_implementation_name.gsub(".","/")}.java',
+                              'internal_service_implementation.java.erb',
+                              'main/java/#{service.ejb.qualified_internal_service_implementation_name.gsub(".","/")}.java',
                               :guard => 'service.ejb.generate_internal_service?')
     template_set.erb_template(:data_module,
                               'service_package_info.java.erb',

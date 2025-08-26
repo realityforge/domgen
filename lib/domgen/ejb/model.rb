@@ -166,8 +166,8 @@ module Domgen
 
       java_artifact :service, :service, :server, :ejb, '#{service.name}'
       # The local service is the service exposed to other modules in the application
-      java_artifact :internal_boundary_service, :service, :server, :ejb, '#{service.name}Internal'
-      java_artifact :internal_boundary_implementation, :service, :server, :ejb, '#{internal_boundary_service_name}Impl'
+      java_artifact :internal_service, :service, :server, :ejb, '#{service.name}Internal'
+      java_artifact :internal_service_implementation, :service, :server, :ejb, '#{internal_service_name}Impl'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
       java_artifact :boundary_interface, :service, :server, :ejb, '#{service_name}#{boundary_service_suffix}'
       java_artifact :boundary_implementation, :service, :server, :ejb, '#{boundary_interface_name}Impl'

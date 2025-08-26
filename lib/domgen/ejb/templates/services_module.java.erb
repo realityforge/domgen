@@ -20,7 +20,7 @@ public class <%= repository.ejb.services_module_name %>
 -%>
     bind<%= service.qualified_name.to_s.gsub('.','') %>();
 <% if service.ejb.generate_internal_service? -%>
-    bind<%= service.data_module.name %><%= service.ejb.internal_boundary_service_name %>();
+    bind<%= service.data_module.name %><%= service.ejb.internal_service_name %>();
 <% end -%>
 <% if service.ejb.generate_boundary? -%>
     bind<%= service.data_module.name %><%= service.ejb.boundary_interface_name %>();
@@ -45,9 +45,9 @@ public class <%= repository.ejb.services_module_name %>
 <% end -%>
 <% if service.ejb.generate_internal_service? -%>
 
-  protected void bind<%= service.data_module.name %><%= service.ejb.internal_boundary_service_name %>()
+  protected void bind<%= service.data_module.name %><%= service.ejb.internal_service_name %>()
   {
-    bindService( "<%= service.ejb.qualified_internal_boundary_service_name %>", "<%= service.ejb.qualified_internal_boundary_implementation_name %>" );
+    bindService( "<%= service.ejb.qualified_internal_service_name %>", "<%= service.ejb.qualified_internal_service_implementation_name %>" );
   }
 <% end -%>
 

@@ -1,19 +1,19 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(service.ejb.qualified_internal_boundary_implementation_name) %>;
+package <%= to_package(service.ejb.qualified_internal_service_implementation_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
-@javax.enterprise.inject.Typed( <%= service.ejb.qualified_internal_boundary_service_name %>.class )
+@javax.enterprise.inject.Typed( <%= service.ejb.qualified_internal_service_name %>.class )
 <% if service.ejb.internal_boundary_interceptors.size > 0 -%>
 @javax.interceptor.Interceptors( { <%= service.ejb.internal_boundary_interceptors.collect{|i| "#{i}.class"}.join(', ') %> } )
 <% end-%>
 <% service.ejb.internal_boundary_annotations.each do |annotation| -%>
 @<%= annotation %>
 <% end-%>
-class <%= service.ejb.internal_boundary_implementation_name %>
+class <%= service.ejb.internal_service_implementation_name %>
 <%= service.ejb.internal_boundary_extends ? "  extends #{service.ejb.internal_boundary_extends}\n" : ''-%>
-  implements <%= service.ejb.qualified_internal_boundary_service_name %>
+  implements <%= service.ejb.qualified_internal_service_name %>
 {
   @javax.inject.Inject
   private <%= service.ejb.qualified_service_name %> _service;
