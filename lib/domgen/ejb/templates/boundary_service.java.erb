@@ -2,7 +2,6 @@
 package <%= to_package(service.ejb.qualified_boundary_interface_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.ejb.Local
 <% unless service.ejb.boundary_module_local? %>public <% end %>interface <%= service.ejb.boundary_interface_name %>
 {
 <% service.methods.select{|method | method.ejb.generate_boundary?}.each do |method|

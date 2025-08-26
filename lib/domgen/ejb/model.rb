@@ -157,6 +157,8 @@ module Domgen
       java_artifact :service, :service, :server, :ejb, '#{service.name}'
       java_artifact :internal_service, :service, :server, :ejb, '#{service.name}Internal'
       java_artifact :internal_service_implementation, :service, :server, :ejb, '#{internal_service_name}Impl'
+      java_artifact :internal_boundary_service, :service, :server, :ejb, '#{service.name}InternalBoundary'
+      java_artifact :internal_boundary_service_implementation, :service, :server, :ejb, '#{internal_boundary_service_name}Impl'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
       java_artifact :boundary_interface, :service, :server, :ejb, '#{service_name}#{boundary_service_suffix}'
       java_artifact :boundary_implementation, :service, :server, :ejb, '#{boundary_interface_name}Impl'
@@ -166,6 +168,12 @@ module Domgen
 
       def generate_internal_service?
         @generate_internal_service.nil? ? service.methods.any?{|method| method.ejb.internal_service?} : !!@generate_internal_service
+      end
+
+      attr_writer :generate_internal_boundary_service
+
+      def generate_internal_boundary_service?
+        @generate_internal_boundary_service.nil? ? service.methods.any?{|method| method.ejb.internal_boundary_service?} : !!@generate_internal_boundary_service
       end
 
       attr_writer :module_local
@@ -209,8 +217,6 @@ module Domgen
       def boundary_annotations
         @boundary_annotations ||= []
       end
-
-      attr_accessor :internal_boundary_extends
 
       def internal_boundary_interceptors
         @internal_boundary_interceptors ||= []
@@ -316,6 +322,13 @@ module Domgen
       end
 
       attr_writer :internal_service
+
+      # Should the method be added to the internal boundary service and thus exposed to other modules in the application
+      def internal_boundary_service?
+        @internal_boundary_service.nil? ? false : !!@internal_boundary_service
+      end
+
+      attr_writer :internal_boundary_service
 
       def generate_base_test?
         @generate_base_test.nil? ? true : !!@generate_base_test

@@ -1,0 +1,35 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(service.ejb.qualified_internal_boundary_service_implementation_name) %>;
+
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.enterprise.context.ApplicationScoped
+@javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
+@javax.enterprise.inject.Typed( <%= service.ejb.qualified_internal_boundary_service_name %>.class )
+<% if service.ejb.internal_boundary_interceptors.size > 0 -%>
+@javax.interceptor.Interceptors( { <%= service.ejb.internal_boundary_interceptors.collect{|i| "#{i}.class"}.join(', ') %> } )
+<% end-%>
+<% service.ejb.internal_boundary_annotations.each do |annotation| -%>
+@<%= annotation %>
+<% end-%>
+class <%= service.ejb.internal_boundary_service_implementation_name %>
+  implements <%= service.ejb.qualified_internal_boundary_service_name %>
+{
+  @javax.inject.Inject
+  private <%= service.ejb.qualified_service_name %> _service;
+<% service.methods.select{|method | method.ejb.internal_boundary_service?}.each do |method|
+%>
+<% if method.ejb.internal_boundary_interceptors.size > 0 -%>
+  @javax.interceptor.Interceptors( { <%= method.ejb.internal_boundary_interceptors.collect{|i| "#{i}.class"}.join(', ') %> } )
+<% end-%>
+<% method.ejb.internal_boundary_annotations.each do |annotation| -%>
+  @<%= annotation %>
+<% end-%>
+  @java.lang.Override
+  <%= annotated_type(method.return_value, :ejb, :default, :public => true) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :default, :final => true)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
+    method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
+%>
+  {
+    <%= method.return_value.return_type != :void ? 'return ' : '' %>_service.<%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|parameter| Reality::Naming.camelize(parameter.name) }.join(', ') %>);
+  }
+<% end -%>
+}
