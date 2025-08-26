@@ -150,16 +150,6 @@ module Domgen
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
-      attr_writer :name
-
-      def name
-        @name || service.qualified_name
-      end
-
-      def service_ejb_name
-        "#{service.data_module.repository.name}.#{service.ejb.name}"
-      end
-
       def boundary_service_suffix
         generate_internal_service? ? 'External' : 'Boundary'
       end
