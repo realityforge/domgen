@@ -78,6 +78,16 @@ module Domgen
 
     facet.enhance(DataModule) do
       include Domgen::Java::EEClientServerJavaPackage
+
+      def post_complete
+        self.data_module.services.select { |service| service.action? }.each do |service|
+          service.methods.select { |method| method.action? }.each do |method|
+            if !method.imit? && !method.action.generate_serverside_action? && !method.action.schedule? && !method.action.dynamic_invoke? && method.action.application_event.nil?
+              Domgen.error("Service method #{method.qualified_name} is an action but is not exposed to the client-side, nor is it a serverside action, nor is it expected to be scheduled and nor is it expected to be dynamically invoked. Disable the action facet.")
+            end
+          end
+        end
+      end
     end
 
     facet.enhance(EnumerationSet) do
@@ -233,6 +243,19 @@ module Domgen
 
       def max_error_count
         @max_error_count.nil? ? 1 : @max_error_count
+      end
+
+      attr_writer :schedule
+
+      def schedule?
+        @schedule.nil? ? false : !!@schedule
+      end
+
+      attr_writer :dynamic_invoke
+
+      # Can the action be invoked dynamically. Possibly vai an analysis task
+      def dynamic_invoke?
+        @dynamic_invoke.nil? ? false : !!@dynamic_invoke
       end
 
       attr_writer :retry_rate
