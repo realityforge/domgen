@@ -308,6 +308,10 @@ module Domgen
         @generate_boundary.nil? ? self.method.service.ejb.generate_boundary? : !!@generate_boundary
       end
 
+      def generate_boundary_set?
+        !@generate_boundary.nil?
+      end
+
       def internal_boundary_interceptors
         @internal_boundary_interceptors ||= []
       end
