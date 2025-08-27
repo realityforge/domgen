@@ -9,7 +9,7 @@ public class <%= service.jaxrs.boundary_name %>
   implements <%= service.jaxrs.qualified_service_name %>
 {
   @javax.inject.Inject
-  private <%= service.ejb.qualified_boundary_interface_name %> _service;
+  private <%= service.ejb.qualified_boundary_service_name %> _service;
 <% service.methods.select{|method| method.jaxrs?}.each do |method|
 %>
   <%= annotated_type(method.return_value, :jaxrs, :boundary, :public => true) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :jaxrs, :boundary, :final => true)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=

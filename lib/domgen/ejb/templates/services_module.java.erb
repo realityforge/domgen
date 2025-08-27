@@ -23,7 +23,7 @@ public class <%= repository.ejb.services_module_name %>
     bind<%= service.data_module.name %><%= service.ejb.internal_service_name %>();
 <% end -%>
 <% if service.ejb.generate_boundary? -%>
-    bind<%= service.data_module.name %><%= service.ejb.boundary_interface_name %>();
+    bind<%= service.data_module.name %><%= service.ejb.boundary_service_name %>();
 <%
         end
       end
@@ -38,9 +38,9 @@ public class <%= repository.ejb.services_module_name %>
 -%>
 <% if service.ejb.generate_boundary? -%>
 
-  protected void bind<%= service.data_module.name %><%= service.ejb.boundary_interface_name %>()
+  protected void bind<%= service.data_module.name %><%= service.ejb.boundary_service_name %>()
   {
-    bindService( "<%= service.ejb.qualified_boundary_interface_name %>", "<%= service.ejb.qualified_boundary_implementation_name %>" );
+    bindService( "<%= service.ejb.qualified_boundary_service_name %>", "<%= service.ejb.qualified_boundary_service_implementation_name %>" );
   }
 <% end -%>
 <% if service.ejb.generate_internal_service? -%>

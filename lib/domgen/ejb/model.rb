@@ -160,8 +160,8 @@ module Domgen
       java_artifact :internal_boundary_service, :service, :server, :ejb, '#{service.name}InternalBoundary'
       java_artifact :internal_boundary_service_implementation, :service, :server, :ejb, '#{internal_boundary_service_name}Impl'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
-      java_artifact :boundary_interface, :service, :server, :ejb, '#{service_name}#{boundary_service_suffix}'
-      java_artifact :boundary_implementation, :service, :server, :ejb, '#{boundary_interface_name}Impl'
+      java_artifact :boundary_service, :service, :server, :ejb, '#{service_name}#{boundary_service_suffix}'
+      java_artifact :boundary_service_implementation, :service, :server, :ejb, '#{boundary_service_name}Impl'
       java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
 
       attr_writer :generate_internal_service

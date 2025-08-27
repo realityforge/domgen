@@ -15,7 +15,7 @@ public class <%= method.ejb.scheduler_name %>
   @javax.annotation.Resource
   private javax.ejb.TimerService _timerService;
   @javax.inject.Inject
-  private <%= method.service.ejb.generate_boundary? ? method.service.ejb.qualified_boundary_interface_name : method.service.ejb.qualified_service_name %> _service;
+  private <%= method.service.ejb.generate_boundary? ? method.service.ejb.qualified_boundary_service_name : method.service.ejb.qualified_service_name %> _service;
 
   @javax.ejb.Schedule( info = "<%= method.ejb.schedule.info %>", year = "<%= method.ejb.schedule.year %>", month = "<%= method.ejb.schedule.month %>", dayOfMonth = "<%= method.ejb.schedule.day_of_month %>", dayOfWeek = "<%= method.ejb.schedule.day_of_week %>", hour = "<%= method.ejb.schedule.hour %>", minute = "<%= method.ejb.schedule.minute %>", second = "<%= method.ejb.schedule.second %>", timezone = "<%= method.ejb.schedule.timezone %>", persistent = <%= method.ejb.schedule.persistent? %> )
   void trigger()

@@ -7,7 +7,7 @@ public class <%= service.action.service_actions_name %>
 {
   @javax.inject.Inject
   @javax.annotation.Nonnull
-  private <%= service.ejb.boundary_interface_name %> _service;
+  private <%= service.ejb.boundary_service_name %> _service;
 
   @javax.annotation.PostConstruct
   void onInit()
@@ -34,7 +34,7 @@ public class <%= service.action.service_actions_name %>
     }
 
     @javax.annotation.Nonnull
-    static iris.rose.server.action.InvocationResult invokeAction( @javax.annotation.Nonnull final <%= method.service.ejb.boundary_interface_name %> service, @javax.annotation.Nonnull final String actionParameters )
+    static iris.rose.server.action.InvocationResult invokeAction( @javax.annotation.Nonnull final <%= method.service.ejb.boundary_service_name %> service, @javax.annotation.Nonnull final String actionParameters )
     {
 <% if !method.parameters.empty? -%>
       final var reader = javax.json.Json.createReader( new java.io.StringReader( actionParameters ) );

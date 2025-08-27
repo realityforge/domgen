@@ -1,19 +1,19 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
+package <%= to_package(service.ejb.qualified_boundary_service_implementation_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRES_NEW )
-@javax.enterprise.inject.Typed( <%= service.ejb.qualified_boundary_interface_name %>.class )
+@javax.enterprise.inject.Typed( <%= service.ejb.qualified_boundary_service_name %>.class )
 <% if service.ejb.boundary_interceptors.size > 0 -%>
 @javax.interceptor.Interceptors( { <%= service.ejb.boundary_interceptors.collect{|i| "#{i}.class"}.join(', ') %> } )
 <% end-%>
 <% service.ejb.boundary_annotations.each do |annotation| -%>
 @<%= annotation %>
 <% end-%>
-class <%= service.ejb.boundary_implementation_name %>
+class <%= service.ejb.boundary_service_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}\n" : ''-%>
-  implements <%= service.ejb.qualified_boundary_interface_name %>
+  implements <%= service.ejb.qualified_boundary_service_name %>
 {
 <% service.methods.select{|method | method.ejb.generate_boundary?}.collect {|method|method.parameters.select{|parameter|parameter.reference? && (!parameter.referenced_entity.dao.jpa.module_local? || service.data_module.name.to_s == parameter.referenced_entity.data_module.name.to_s)}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
   @javax.inject.Inject

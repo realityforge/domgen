@@ -10,7 +10,7 @@ public class <%= repository.syncrecord.control_rest_service_name %>
 {
 <% repository.syncrecord.sync_methods.select{|method| !method.service.ejb.no_web_invoke? }.collect{|m| m.service}.uniq.each do |service| -%>
   @javax.inject.Inject
-  private <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _<%= Reality::Naming.camelize(service.qualified_name.gsub('.','')) %>;
+  private <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_service_name : service.ejb.qualified_service_name %> _<%= Reality::Naming.camelize(service.qualified_name.gsub('.','')) %>;
 <% end -%>
 
   @javax.ws.rs.GET

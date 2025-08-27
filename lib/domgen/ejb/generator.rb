@@ -49,11 +49,11 @@ Domgen::Generator.define([:ejb],
                               :guard => 'repository.ejb.any_no_web_invoke?')
     template_set.erb_template(:service,
                               'boundary_service.java.erb',
-                              'main/java/#{service.ejb.qualified_boundary_interface_name.gsub(".","/")}.java',
+                              'main/java/#{service.ejb.qualified_boundary_service_name.gsub(".","/")}.java',
                               :guard => 'service.ejb.generate_boundary?')
     template_set.erb_template(:service,
-                              'boundary_implementation.java.erb',
-                              'main/java/#{service.ejb.qualified_boundary_implementation_name.gsub(".","/")}.java',
+                              'boundary_service_implementation.java.erb',
+                              'main/java/#{service.ejb.qualified_boundary_service_implementation_name.gsub(".","/")}.java',
                               :guard => 'service.ejb.generate_boundary?')
     template_set.erb_template(:method,
                               'scheduler.java.erb',
