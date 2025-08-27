@@ -150,17 +150,13 @@ module Domgen
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
-      def boundary_service_suffix
-        generate_internal_service? ? 'External' : 'Boundary'
-      end
-
       java_artifact :service, :service, :server, :ejb, '#{service.name}'
       java_artifact :internal_service, :service, :server, :ejb, '#{service.name}Internal'
       java_artifact :internal_service_implementation, :service, :server, :ejb, '#{internal_service_name}Impl'
       java_artifact :internal_boundary_service, :service, :server, :ejb, '#{service.name}InternalBoundary'
       java_artifact :internal_boundary_service_implementation, :service, :server, :ejb, '#{internal_boundary_service_name}Impl'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
-      java_artifact :boundary_service, :service, :server, :ejb, '#{service_name}#{boundary_service_suffix}'
+      java_artifact :boundary_service, :service, :server, :ejb, '#{service_name}Boundary'
       java_artifact :boundary_service_implementation, :service, :server, :ejb, '#{boundary_service_name}Impl'
       java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
 
