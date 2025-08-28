@@ -1143,7 +1143,7 @@ module Domgen
                 if method.ejb.generate_boundary?
                   method.ejb.boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
                 end
-                if method.ejb.internal_service?
+                if method.ejb.internal_boundary_service?
                   method.ejb.internal_boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
                 end
               end
