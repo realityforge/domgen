@@ -24,6 +24,7 @@ public final class <%= data_module.jpa.aggregate_entity_test_name %>
 
     // Model tests
 <% data_module.entities.select{|e|e.jpa? && e.jpa.non_standard_model_constraints? || !e.jpa.interfaces.empty?}.each do |entity| -%>
+    org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isPublic( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a public class but it is not" );
     org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isAbstract( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a concrete class but is abstract" );
     org.testng.Assert.assertTrue( java.lang.reflect.Modifier.isFinal( <%= entity.jpa.qualified_model_test_name %>.class.getModifiers() ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to be a final class but is not" );
 <% entity.sql.constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
