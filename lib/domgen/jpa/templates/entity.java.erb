@@ -81,7 +81,8 @@ end
   private static final long serialVersionUID = 1;
 
 <% need_public_query_constants = to_package(entity.dao.jpa.qualified_dao_name) != to_package(entity.jpa.qualified_name) -%>
-<% entity.queries.select{|q| q.jpa?}.each do |query| %>  <% if need_public_query_constants || query.jpa.direct_query_access? %>public <% end %>static final String <%= Reality::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
+<% entity.queries.select{|q| q.jpa?}.each do |query| %>  @javax.annotation.Nonnull
+  <% if need_public_query_constants || query.jpa.direct_query_access? %>public <% end %>static final String <%= Reality::Naming.uppercase_constantize(query.name) %> = "<%= query.qualified_name %>";
 <% end -%>
 <% unless entity.extends -%>
 
