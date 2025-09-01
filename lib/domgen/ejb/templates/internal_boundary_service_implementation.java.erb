@@ -14,7 +14,7 @@ package <%= to_package(service.ejb.qualified_internal_boundary_service_implement
 class <%= service.ejb.internal_boundary_service_implementation_name %>
   implements <%= service.ejb.qualified_internal_boundary_service_name %>
 {
-<% service.methods.select{|method | method.ejb.generate_boundary?}.collect {|method|method.parameters.select{|parameter|parameter.reference? && (!parameter.referenced_entity.dao.jpa.module_local? || service.data_module.name.to_s == parameter.referenced_entity.data_module.name.to_s)}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
+<% service.methods.select{|method | method.ejb.internal_boundary_service?}.collect {|method|method.parameters.select{|parameter|parameter.reference? && (!parameter.referenced_entity.dao.jpa.module_local? || service.data_module.name.to_s == parameter.referenced_entity.data_module.name.to_s)}.collect{|parameter|parameter.referenced_entity}}.flatten.sort{|a,b| a.name.to_s <=> b.name.to_s }.uniq.each do |entity| -%>
   @javax.inject.Inject
   private <%= entity.dao.jpa.qualified_dao_service_name %> _<%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>;
 <% end -%>
