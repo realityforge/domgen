@@ -5,21 +5,29 @@ package <%= to_package(repository.jpa.qualified_unit_descriptor_name) %>;
 public final class <%= repository.jpa.unit_descriptor_name %>
 {
 <% if repository.jpa.include_default_unit? -%>
+  @javax.annotation.Nonnull
   public static final String NAME = "<%= repository.jpa.unit_name %>";
 <% if repository.jpa.application_xmls? || repository.jpa.model_xmls? -%>
+  @javax.annotation.Nonnull
   public static final String RESOURCE_NAME = "<%= repository.jpa.resolved_data_source %>";
+  @javax.annotation.Nonnull
   public static final String KEY = "<%= Reality::Naming.underscore(repository.jpa.default_persistence_unit.short_name) %>";
 <% repository.jpa.default_persistence_unit.related_database_keys.each do |key| -%>
+  @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(repository.jpa.default_persistence_unit.short_name) %>_<%= Reality::Naming.uppercase_constantize(key) %>_DATABASE_NAME_JNDI_KEY = "<%= repository.jpa.default_persistence_unit.related_database_jndi(key) %>";
 <% end -%>
 <% end -%>
 <% end -%>
 <% repository.jpa.standalone_persistence_units.each do |unit| -%>
+  @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_NAME = "<%= unit.unit_name %>";
 <% if repository.jpa.application_xmls? || repository.jpa.model_xmls? -%>
+  @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_RESOURCE_NAME = "<%= unit.resolved_data_source %>";
+  @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_KEY = "<%= Reality::Naming.underscore(unit.short_name) %>";
 <% unit.related_database_keys.each do |key| -%>
+  @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(unit.short_name) %>_<%= Reality::Naming.uppercase_constantize(key) %>_DATABASE_NAME_JNDI_KEY = "<%= unit.related_database_jndi(key) %>";
 <% end -%>
 <% end -%>

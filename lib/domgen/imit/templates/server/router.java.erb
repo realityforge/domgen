@@ -8,6 +8,7 @@ final class <%= repository.imit.server_router_name %>
   repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
     graph.routing_keys.each do |routing_key|
 -%>
+  @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY = "<%= repository.name %>.<%= graph.name %>.<%= routing_key.name %>";
 <%
     end

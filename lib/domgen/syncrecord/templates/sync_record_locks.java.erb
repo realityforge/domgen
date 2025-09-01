@@ -6,6 +6,7 @@ public final class <%= repository.syncrecord.sync_record_locks_name %>
 {
 <% repository.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
 -%>
+  @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(lock_name.to_s.gsub('.','_')) %> = "<%= lock_name %>";
 <% end %>
 <% repository.syncrecord.sync_methods.collect{|m|m.syncrecord.lock_name}.uniq.each do |lock_name|
