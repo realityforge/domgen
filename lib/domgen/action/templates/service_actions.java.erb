@@ -1,16 +1,14 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.action.qualified_service_actions_name) %>;
 
-@javax.ejb.Startup
-@javax.ejb.Singleton
-public class <%= service.action.service_actions_name %>
+@javax.enterprise.context.ApplicationScoped
+class <%= service.action.service_actions_name %>
 {
   @javax.inject.Inject
   @javax.annotation.Nonnull
   private <%= service.ejb.boundary_service_name %> _service;
 
-  @javax.annotation.PostConstruct
-  void onInit()
+  void onStartup( @javax.enterprise.event.Observes @javax.enterprise.context.Initialized(javax.enterprise.context.ApplicationScoped.class) final Object init )
   {
 <% service.methods.select{|method|method.action?}.each do |method| -%>
     iris.rose.server.action.ActionExecutorRegistry.register( <%= method.name %>ActionInterceptor.actionTypeCode(), request -> <%= method.name %>ActionInterceptor.invokeAction( _service, request ) );
