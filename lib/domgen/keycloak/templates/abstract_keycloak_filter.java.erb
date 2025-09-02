@@ -19,10 +19,7 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 <% if client.keycloak_repository.repository.imit? -%>
   private boolean _disableSessionServiceProtection;
 <% end -%>
-<% if client.keycloak_repository.repository.syncrecord? -%>
-  private boolean _disableSyncServiceProtection;
-<% end -%>
-<% if client.keycloak_repository.repository.imit? || client.keycloak_repository.repository.syncrecord? -%>
+<% if client.keycloak_repository.repository.imit? -%>
 
 <% if client.keycloak_repository.repository.imit? -%>
   @java.lang.SuppressWarnings( "BanJNDI" )
@@ -34,16 +31,6 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
     try
     {
       _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
-    }
-    catch ( final java.lang.Exception ignored )
-    {
-      //Ignored.
-    }
-<% end -%>
-<% if client.keycloak_repository.repository.syncrecord? -%>
-    try
-    {
-      _disableSyncServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_sync_service_protection" ).equals( Boolean.TRUE );
     }
     catch ( final java.lang.Exception ignored )
     {
@@ -77,16 +64,6 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 <% base_path = client.keycloak_repository.repository.jaxrs? ? "#{client.keycloak_repository.repository.jaxrs.qualified_constants_name}.APPLICATION_PATH" : '"api"' -%>
 <% if client.keycloak_repository.repository.appconfig? -%>
     if ( path.startsWith( <%= base_path %> + '/' + iris.appconfig.server.rest.SystemSettingRestService.PATH_PREFIX ) )
-    {
-      return false;
-    }
-<% end -%>
-<% if client.keycloak_repository.repository.syncrecord? -%>
-    if ( path.startsWith( <%= base_path %> + '/' + iris.syncrecord.server.rest.SyncStatusService.PATH_PREFIX ) )
-    {
-      return false;
-    }
-    if ( _disableSyncServiceProtection && path.startsWith( <%= base_path %> + "/sync" ) )
     {
       return false;
     }

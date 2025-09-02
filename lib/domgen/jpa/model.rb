@@ -441,7 +441,7 @@ module Domgen
       #   model jar and only generated if repository.application.model_library?
       # * Application Variant: This includes everything from the template variant, with the interpolated values
       #   replaced with actual values. It may also include other fragments required for the application to run
-      #   such as appconfig and syncrecord fragments. These must be specifically added. It is typically generated
+      #   such as appconfig fragment. These must be specifically added. It is typically generated
       #   in the server jar if !repository.application.service_library?
       # * Test Variant: This is used to add test specific dependencies or if application is a service library.
       #   If repository.application.service_library? is true it will also include the complete contents the

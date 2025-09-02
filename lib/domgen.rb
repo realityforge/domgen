@@ -123,9 +123,6 @@ require 'domgen/keycloak/generator'
 require 'domgen/appconfig/model'
 require 'domgen/appconfig/generator'
 
-require 'domgen/syncrecord/model'
-require 'domgen/syncrecord/generator'
-
 require 'domgen/application/model'
 
 require 'domgen/robots/model'
