@@ -122,7 +122,7 @@ class <%= service.action.service_actions_name %>
       {
         // If we get to here, then the Exception will not be one thrown by the service method. Any expected exceptions would've been encoded in the ActionInterceptor
         // and thus it is actually an error of some sort.
-        final var errorMessage = iris.syncrecord.server.service.ExceptionUtil.emitFilteredStackTrace( e );
+        final var errorMessage = <%= service.data_module.repository.ee.qualified_exception_util_name %>.emitFilteredStackTrace( e );
         LOG.warning( errorMessage );
         return new iris.rose.server.action.InvocationResult( false, errorMessage, "<%= method.qualified_name %> completed with an unexpected exception: " + e.getMessage() );
       }

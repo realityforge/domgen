@@ -39,6 +39,12 @@ Domgen::Generator.define([:ee],
                               'main/java/#{message.ee.qualified_name.gsub(".","/")}.java')
   end
 
+  g.template_set(:ee_exception_util) do |template_set|
+    template_set.erb_template(:repository,
+                              'exception_util.java.erb',
+                              'main/java/#{repository.ee.qualified_exception_util_name.gsub(".","/")}.java')
+  end
+
   g.template_set(:ee_messages_qa) do |template_set|
     template_set.erb_template(:repository,
                               'message_module.java.erb',

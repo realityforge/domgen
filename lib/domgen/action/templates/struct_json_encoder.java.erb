@@ -29,9 +29,9 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
     conversion_rule =
       case
         when (field.enumeration? and field.nullable? && field.enumeration.numeric_values?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.ordinal() )"}
-        when (field.enumeration? and field.nullable? && field.enumeration.textual_values?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.value() )"}
+        when (field.enumeration? and field.nullable? && field.enumeration.textual_values?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.name() )"}
         when (field.enumeration? && field.enumeration.numeric_values?) then Proc.new {|value| "javax.json.Json.createValue( #{value}.ordinal() )"}
-        when (field.enumeration? && field.enumeration.textual_values?) then Proc.new {|value| "javax.json.Json.createValue( #{value}.value() )"}
+        when (field.enumeration? && field.enumeration.textual_values?) then Proc.new {|value| "javax.json.Json.createValue( #{value}.name() )"}
         when (field.struct? && field.nullable?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : #{field.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
         when field.struct? then Proc.new {|value| "#{field.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
         when (field.date? && field.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : iris.rose.server.service.util.RDate.fromDate( #{value} ).toString()"}

@@ -20,6 +20,8 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
+      java_artifact :exception_util, :service, :server, :ee, 'ExceptionUtil'
+
       def add_custom_jndi_resource(name)
         custom_jndi_resources[name] = Reality::Naming.uppercase_constantize(name.gsub(/^#{Reality::Naming.underscore(repository.name)}\/env\//,'').gsub(/^#{Reality::Naming.underscore(repository.name)}\//,'').gsub('/','_'))
       end
