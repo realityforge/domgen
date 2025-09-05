@@ -865,6 +865,16 @@ FRAGMENT
       end
     end
 
+    facet.enhance(Struct) do
+      attr_writer :generate_jpa_constructor
+
+      def generate_jpa_constructor?
+        @generate_jpa_constructor.nil? ? false : @generate_jpa_constructor
+      end
+
+      include Domgen::Java::BaseJavaGenerator
+    end
+
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
 
@@ -1472,6 +1482,12 @@ FRAGMENT
           statement = true if ql =~ /^UPDATE\s/ix
           statement = true if ql =~ /\sUPDATE\s/ix
           self.query_spec = statement ? :statement : :criteria
+        end
+      end
+
+      def post_verify
+        if query.result_struct?
+          query.struct.jpa.generate_jpa_constructor = true
         end
       end
     end

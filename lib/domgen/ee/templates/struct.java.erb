@@ -26,19 +26,37 @@ package <%= to_package(struct.ee.qualified_name) %>;
   }
 
 <% end %>
-<% if struct.data_module.jpa? && struct.fields.any?{|field|field.enumeration?} -%>
+<% if struct.data_module.jpa? && struct.fields.any?{|field|field.enumeration?} && struct.jpa? && struct.jpa.generate_jpa_constructor? -%>
   // This constructor exists in case the JPA subsystem needs to map struct in result as enumerations are not mapped correctly
   <% unless struct.ee.module_local? %>public <% end %><%= struct.name %>( <%= struct.fields.collect {|field| "#{annotated_type(field, :ee, (field.enumeration? ? :transport : :boundary), :final => true)} #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
     this( <%= struct.fields.collect {|field|
   name = Reality::Naming.camelize(field.name)
     if field.enumeration?
-      field.enumeration.numeric_values? ?
-       ((field.nullable? ? "null == #{name} ? null : " : "") + "#{field.enumeration.ee.qualified_name}.values()[ #{name} ]")
-      : ((field.nullable? ? "null == #{name} ? null : " : "") + "#{field.enumeration.ee.qualified_name}.valueOf( #{name} )")
+       enum_class = field.enumeration.ee.qualified_name
+
+    if field.enumeration.numeric_values?
+       if field.collection?
+          expr = "#{name}.stream().map(e -> #{enum_class}.values()[ e ]).toList()"
+    else
+    expr = "#{enum_class}.values()[ #{name} ]"
+          end
   else
+    if field.collection?
+       expr = "#{name}.stream().map(e -> #{enum_class}.valueOf( e ) ).toList()"
+       else
+    expr = "#{enum_class}.valueOf( #{name} )"
+       end
+    end
+
+    if field.nullable?
+       "null == #{name} ? null : #{expr}"
+  else
+    expr
+      end
+else
     name
-  end }.join(', ') %> );
+    end }.join(', ') %> );
   }
 
 <% end -%>
