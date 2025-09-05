@@ -1136,6 +1136,9 @@ module Domgen
           s.method(:ProcessPendingSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '*')
         end
 
+        # It seems reasonable to restrict the set of methods that are annotated with replicate to those that are replication
+        # enabled. Unfortunately, Rose does not configure this explicitly yet, and we have not had time to fix it. When we
+        # fix rose then only add @Replicate when imit enabled...
         repository.data_modules.select { |data_module| data_module.ejb? }.each do |data_module|
           data_module.services.select { |service| service.ejb? && service.ejb.generate_boundary? }.each do |service|
             service.methods.each do |method|
