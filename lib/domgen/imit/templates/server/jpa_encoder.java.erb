@@ -125,7 +125,8 @@ end
 <% data_module.entities.select { |entity| entity.imit?  }.each do |entity| -%>
 <% if entity.concrete? -%>
 
-  public static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( final <%= entity.jpa.qualified_name %> entity )
+  @javax.annotation.Nonnull
+  public static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
   {
     final java.util.Map<String, java.io.Serializable> attributes = new java.util.HashMap<>();
     encode<%= entity.name %>( entity, attributes );
@@ -133,7 +134,7 @@ end
   }
 <% end -%>
 
-  private static void encode<%= entity.name %>( final <%= entity.jpa.qualified_name %> entity, final java.util.Map<String, java.io.Serializable> attributes )
+  private static void encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, final java.util.Map<String, java.io.Serializable> attributes )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends) -%>
@@ -159,10 +160,7 @@ end
 <% unless attribute.primary_key? -%>
     final var $<%= attribute.name %> = entity.<%= getter_for(attribute) %>;
 <% if attribute.nullable? -%>
-    if ( null != $<%= attribute.name %> )
-    {
-      attributes.put( "<%= attribute.name %>", <%= "#{value_converter}" %> );
-    }
+    attributes.put( "<%= attribute.name %>", null != $<%= attribute.name %> ? <%= "#{value_converter}" %> : null );
 <% else -%>
     attributes.put( "<%= attribute.name %>", <%= "#{value_converter}" %> );
 <% end -%>
