@@ -3,7 +3,7 @@ package <%= to_package(service.ejb.qualified_internal_service_implementation_nam
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.enterprise.context.ApplicationScoped
-@javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
+@javax.transaction.Transactional
 @javax.enterprise.inject.Typed( <%= service.ejb.qualified_internal_service_name %>.class )
 class <%= service.ejb.internal_service_implementation_name %>
   implements <%= service.ejb.qualified_internal_service_name %>

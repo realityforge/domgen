@@ -25,7 +25,7 @@ graphs_that_propagate_filters =
 
 @java.lang.SuppressWarnings( "unchecked" )
 @javax.enterprise.context.ApplicationScoped
-@javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
+@javax.transaction.Transactional
 @javax.enterprise.inject.Typed( { org.realityforge.replicant.server.EntityMessageEndpoint.class, org.realityforge.replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
 public class <%= repository.imit.session_manager_name %>
   extends org.realityforge.replicant.server.transport.ReplicantSessionManagerImpl

@@ -4,7 +4,7 @@ package <%= to_package(repository.imit.qualified_session_rest_service_name) %>;
 @javax.ws.rs.Path( replicant.shared.SharedConstants.CONNECTION_URL_FRAGMENT )
 @javax.ws.rs.Produces( javax.ws.rs.core.MediaType.APPLICATION_JSON )
 @javax.enterprise.context.ApplicationScoped
-@javax.transaction.Transactional( javax.transaction.Transactional.TxType.REQUIRED )
+@javax.transaction.Transactional
 public class <%= repository.imit.session_rest_service_name %>
   extends org.realityforge.replicant.server.ee.rest.Abstract<%= repository.imit.secured? ? 'Secured' : '' %>SessionRestService
 {
