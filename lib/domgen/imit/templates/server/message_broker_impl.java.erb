@@ -25,6 +25,7 @@ public class <%= repository.imit.message_broker_impl_name %>
     if ( null != _future )
     {
       _future.cancel( true );
+      _future = null;
     }
   }
 
