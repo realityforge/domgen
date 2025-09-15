@@ -9,7 +9,7 @@ public class <%= repository.imit.message_broker_impl_name %>
 {
   @javax.inject.Inject
   private replicant.server.transport.ReplicantSessionManager _sessionManager;
-  @javax.inject.Inject
+  @javax.annotation.Resource( lookup = "java:comp/DefaultManagedScheduledExecutorService" )
   private javax.enterprise.concurrent.ManagedScheduledExecutorService _executor;
   private java.util.concurrent.ScheduledFuture<?> _future;
 
