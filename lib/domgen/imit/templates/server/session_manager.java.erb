@@ -111,43 +111,12 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   {
     return <%= repository.imit.qualified_system_metadata_name %>.getSchemaMetaData();
   }
-<% filtered_instance_graphs = repository.imit.graphs.select{|graph| graph.filtered?} -%>
-<% unless filtered_instance_graphs.empty? -%>
 
   @javax.annotation.Nullable
   protected replicant.server.EntityMessage filterEntityMessage( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address, @javax.annotation.Nonnull final replicant.server.EntityMessage message )
   {
-<% first = true -%>
-<% repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph| -%>
-<% if first -%>   <% end -%> if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
-    {
-<%
-  first = false
-  extra_interest_filter = ''
-  graph.routing_keys.each do |routing_key|
-    var_name = Reality::Naming.camelize("#{graph.name}_#{routing_key.name}")
-    extra_interest_filter << ", #{var_name}"
-    param_type = routing_key.target_attribute.jpa.non_primitive_java_type
-    param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
--%>
-      final var <%= var_name %> = (<%= param_type %>) message.getRoutingKeys().get( <%= repository.imit.qualified_server_router_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
-<% end -%>
-<% if graph.instance_root? -%>
-      final var subChannelId = address.rootId();
-      assert null != subChannelId;
-<% end -%>
-<% if graph.filter_parameter? -%>
-      final var filter = (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) session.getSubscriptionEntry( address ).getFilter();
-      assert null != filter;
-<% end -%>
-      return _context.filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, subChannelId<% end %><% if graph.filter_parameter? %>, filter<% end %><%= extra_interest_filter %> );
-    }
-    else<% end %>
-    {
-      return super.filterEntityMessage( session, address, message );
-    }
+    return _context.filterEntityMessage( session, address, message );
   }
-<% end -%>
 <% if repository.imit.graphs.any?{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.outward_graph_links.empty? && graph.outward_graph_links.any?{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered?} } -%>
 
   @java.lang.Override

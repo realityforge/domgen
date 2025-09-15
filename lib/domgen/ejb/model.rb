@@ -252,6 +252,14 @@ module Domgen
         @generate_base_test = generate_base_test
       end
 
+      def add_to_aggregate_test?
+        @add_to_aggregate_test.nil? ? self.generate_base_test? : !!@add_to_aggregate_test
+      end
+
+      def add_to_aggregate_test=(add_to_aggregate_test)
+        @add_to_aggregate_test = add_to_aggregate_test
+      end
+
       def pre_pre_complete
         if self.no_web_invoke?
           self.service.disable_facets(:gwt, :jaxrs)

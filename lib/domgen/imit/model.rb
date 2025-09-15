@@ -805,7 +805,7 @@ module Domgen
       java_artifact :schema_test, :comm, :client, :imit, 'Simple#{repository.name}SchemaTest'
       java_artifact :aggregate_remote_service_sting_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesFragment'
       java_artifact :aggregate_remote_service_sting_test_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesTestFragment'
-      java_artifact :server_net_module, :test, :server, :imit, '#{repository.name}ImitNetModule', :sub_package => 'util'
+      java_artifact :server_net_module, :comm, :server, :imit, '#{repository.name}ImitNetModule'
       java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
 
       attr_writer :include_standard_integration_test_module
@@ -965,41 +965,24 @@ module Domgen
         self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)
         self.repository.service_by_name(self.session_context_service).tap do |s|
           s.disable_facets_not_in(:ejb)
+          s.ejb.add_to_aggregate_test = false
+          s.ejb.bind_in_tests = false
+          s.ejb.qualified_service_name = "#{self.repository.imit.server_comm_package}.#{s.ejb.service_name}"
+          s.ejb.qualified_service_implementation_name = "#{self.repository.imit.server_comm_package}.#{s.ejb.service_name}Impl"
+          s.ejb.qualified_service_test_name = "#{self.repository.imit.server_comm_package}.Abstract#{s.ejb.service_name}ImplTest"
+
           s.ejb.generate_boundary = false
           s.method(:PreSubscribe) do |m|
             m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
             m.parameter(:Address, 'replicant.server.ChannelAddress')
             m.parameter(:Filter, 'java.lang.Object', :nullable => true)
           end
-          repository.imit.graphs.select { |graph| graph.filtered? }.each do |graph|
-            s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
-              m.ejb.generate_base_test = false
-              m.parameter(:Message, 'replicant.server.EntityMessage')
-              m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
-              if graph.instance_root?
-                entity = repository.entity_by_name(graph.instance_root)
-                m.parameter("#{entity.name}#{entity.primary_key.name}", entity.primary_key.jpa.non_primitive_java_type)
-              end
-              m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-
-              if graph.filtered?
-                graph.routing_keys.each do |routing_key|
-                  options =
-                    {
-                      :collection_type => routing_key.multivalued? ? :sequence : :none,
-                      :nullable => !graph.instance_root? || !(routing_key.imit_attribute.attribute.entity.qualified_name == graph.instance_root)
-                    }
-                  target_attribute = routing_key.target_attribute
-                  options[:referenced_entity] = target_attribute.referenced_entity if target_attribute.reference?
-                  options[:referenced_struct] = target_attribute.referenced_struct if target_attribute.struct?
-                  m.parameter(routing_key.name.to_s.gsub('_', ''), target_attribute.attribute_type, options)
-                end
-              end
-
-              m.returns('replicant.server.EntityMessage', :nullable => true)
-            end
+          s.method(:FilterEntityMessage) do |m|
+            m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
+            m.parameter(:Address, 'replicant.server.ChannelAddress')
+            m.parameter(:Message, 'replicant.server.EntityMessage')
+            m.returns('replicant.server.EntityMessage', :nullable => true)
           end
-
           repository.imit.graphs.each do |graph|
             if graph.bulk_load?
               s.method("BulkCollectFor#{graph.name}") do |m|

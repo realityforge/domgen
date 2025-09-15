@@ -50,6 +50,46 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
 -%>
   }
 
+  @java.lang.SuppressWarnings( "unchecked" )
+  @javax.annotation.Nullable
+  @java.lang.Override
+  public replicant.server.EntityMessage filterEntityMessage( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address, @javax.annotation.Nonnull final replicant.server.EntityMessage message )
+  {
+<% if repository.imit.graphs.select{|graph| graph.filtered?}.empty? -%>
+    throw new java.lang.IllegalStateException( "filterEntityMessage called for unfiltered channel " + address );
+<% else -%>
+    <% first = true -%>
+<% repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph| -%>
+<% if first -%>   <% end -%> if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
+    {
+<%
+  first = false
+  extra_interest_filter = ''
+  graph.routing_keys.each do |routing_key|
+    var_name = Reality::Naming.camelize("#{graph.name}_#{routing_key.name}")
+    extra_interest_filter << ", #{var_name}"
+    param_type = routing_key.target_attribute.jpa.non_primitive_java_type
+    param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
+-%>
+      final var <%= var_name %> = (<%= param_type %>) message.getRoutingKeys().get( <%= repository.imit.qualified_server_router_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+<% end -%>
+<% if graph.instance_root? -%>
+      final var rootId = address.rootId();
+      assert null != rootId;
+<% end -%>
+<% if graph.filter_parameter? -%>
+      final var filter = (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) session.getSubscriptionEntry( address ).getFilter();
+      assert null != filter;
+<% end -%>
+      return filterMessageOfInterestIn<%= graph.name %>Graph( message, session<% if graph.instance_root? %>, rootId<% end %><% if graph.filter_parameter? %>, filter<% end %><%= extra_interest_filter %> );
+    }
+    else<% end %>
+    {
+      throw new java.lang.IllegalStateException( "filterEntityMessage called for unfiltered channel " + address );
+    }
+<% end -%>
+  }
+
 <% repository.imit.graphs.select{|graph|graph.secure? && graph.external_visibility?}.each do |graph| -%>
   protected void ensureSubscribeTo<%= graph.name %>Permitted(@javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
   {
@@ -122,9 +162,8 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
   @javax.annotation.Nonnull
   protected abstract replicant.server.transport.FilterResult test<%= graph.name %>Interesting( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <% entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> );
 
-  @java.lang.Override
   @javax.annotation.Nullable
-  public replicant.server.EntityMessage filterMessageOfInterestIn<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <%entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> )
+  replicant.server.EntityMessage filterMessageOfInterestIn<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <%entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> )
   {
     final var result = test<%= graph.name %>Interesting( message, session<% if graph.instance_root? %>, <% entity = repository.entity_by_name(graph.instance_root) %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><%if graph.filter_parameter? %>, filter <% end %><%= extra_args %> );
     if ( replicant.server.transport.FilterResult.KEEP == result )
@@ -143,9 +182,8 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
 <% else -%>
   protected abstract boolean is<%= graph.name %>Interesting( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <% entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> );
 
-  @java.lang.Override
   @javax.annotation.Nullable
-  public replicant.server.EntityMessage filterMessageOfInterestIn<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <%entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> )
+  replicant.server.EntityMessage filterMessageOfInterestIn<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <%entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> )
   {
     if ( is<%= graph.name %>Interesting( message, session<% if graph.instance_root? %>, <% entity = repository.entity_by_name(graph.instance_root) %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><%if graph.filter_parameter? %>, filter <% end %><%= extra_args %> ) )
     {
@@ -251,11 +289,11 @@ end
 
   protected void performBulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
   {
-    final var addresses = new java.util.ArrayList<replicant.server.ChannelAddress>( input );
+    final var addresses = new java.util.ArrayList<>( input );
     try
     {
       // This block deals with non-existent root entities by sending a DELETE channel action
-      // back which is the behavior expected by the client and implemented in the non-bulk scenario
+      // backback, which is the behavior expected by the client and implemented in the non-bulk scenario
       addDeleteForInstanceRootIn<%= graph.name %>Graph( changeSet, addresses );
       // Abort if it turns out all addresses were deleted
       if ( addresses.isEmpty() )
@@ -283,7 +321,7 @@ end
 
   protected void performBulkCollectFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
   {
-    final var addresses = new java.util.ArrayList<replicant.server.ChannelAddress>( input );
+    final var addresses = new java.util.ArrayList<>( input );
     try
     {
       // This block deals with non-existent root entities by sending a DELETE channel action
