@@ -848,15 +848,6 @@ module Domgen
         !!graph_map[name.to_s]
       end
 
-      def subscription_manager=(subscription_manager)
-        Domgen.error('subscription_manager invalid. Expected to be in format DataModule.ServiceName') if self.subscription_manager.to_s.split('.').length != 2
-        @subscription_manager = subscription_manager
-      end
-
-      def subscription_manager
-        @subscription_manager || "#{self.imit_control_data_module}.#{repository.name}SubscriptionService"
-      end
-
       def message_broker=(message_broker)
         Domgen.error('message_broker invalid. Expected to be in format DataModule.ServiceName') if self.message_broker.to_s.split('.').length != 2
         @message_broker = message_broker
@@ -1106,16 +1097,6 @@ module Domgen
               end
             end
           end
-        end
-
-        self.repository.service(self.subscription_manager) unless self.repository.service_by_name?(self.subscription_manager)
-        self.repository.service_by_name(self.subscription_manager).tap do |s|
-          s.disable_facets_not_in(:ejb)
-          s.ejb.bind_in_tests = false
-          s.ejb.generate_base_test = false
-
-          s.method(:RemoveClosedSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30')
-          s.method(:PingSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '15,45')
         end
 
         # It seems reasonable to restrict the set of methods that are annotated with replicate to those that are replication

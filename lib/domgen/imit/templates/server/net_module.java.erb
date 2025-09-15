@@ -39,8 +39,7 @@ public class <%= repository.imit.server_net_module_name %>
   {
     multiBind( toClass( "<%= repository.imit.qualified_session_manager_name %>" ),
                toClass( "replicant.server.EntityMessageEndpoint.class" ),
-               toClass( "replicant.server.transport.ReplicantSessionManager" ),
-               toClass( "<%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>" ) );
+               toClass( "replicant.server.transport.ReplicantSessionManager" ) );
   }
 
   @SuppressWarnings( "unchecked" )

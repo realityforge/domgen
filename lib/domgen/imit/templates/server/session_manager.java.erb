@@ -26,10 +26,9 @@ graphs_that_propagate_filters =
 @java.lang.SuppressWarnings( "unchecked" )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional
-@javax.enterprise.inject.Typed( { replicant.server.EntityMessageEndpoint.class, replicant.server.transport.ReplicantSessionManager.class, <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class } )
+@javax.enterprise.inject.Typed( { replicant.server.EntityMessageEndpoint.class, replicant.server.transport.ReplicantSessionManager.class } )
 public class <%= repository.imit.session_manager_name %>
   extends replicant.server.transport.ReplicantSessionManagerImpl
-  implements <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>
 {
   @javax.annotation.Nonnull
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
@@ -55,6 +54,34 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   private javax.transaction.TransactionSynchronizationRegistry _registry;
   @javax.inject.Inject
   private replicant.server.transport.ReplicantMessageBroker _replicantMessageBroker;
+  @javax.annotation.Resource( lookup = "java:comp/DefaultManagedScheduledExecutorService" )
+  private javax.enterprise.concurrent.ManagedScheduledExecutorService _executor;
+  @javax.annotation.Nullable
+  private java.util.concurrent.ScheduledFuture<?> _removeClosedSessionsFuture;
+  @javax.annotation.Nullable
+  private java.util.concurrent.ScheduledFuture<?> _pingSessionsFuture;
+
+  @javax.annotation.PostConstruct
+  public void postConstruct()
+  {
+    _removeClosedSessionsFuture = _executor.scheduleAtFixedRate( this::removeClosedSessions, 2, 1, java.util.concurrent.TimeUnit.MINUTES );
+    _pingSessionsFuture = _executor.scheduleAtFixedRate( this::pingSessions, 2, 1, java.util.concurrent.TimeUnit.MINUTES );
+  }
+
+  @javax.annotation.PreDestroy
+  public void preDestroy()
+  {
+    if ( null != _removeClosedSessionsFuture )
+    {
+      _removeClosedSessionsFuture.cancel( true );
+      _removeClosedSessionsFuture = null;
+    }
+    if ( null != _pingSessionsFuture )
+    {
+      _pingSessionsFuture.cancel( true );
+      _pingSessionsFuture = null;
+    }
+  }
 
   @java.lang.Override
   public void subscribe( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object filter )
