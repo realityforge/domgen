@@ -875,15 +875,6 @@ module Domgen
         @session_context_service || "#{self.imit_control_data_module}.#{repository.name}SessionContext"
       end
 
-      def client_converger_service=(client_converger_service)
-        Domgen.error('client_converger_service invalid. Expected to be in format DataModule.SessionContext') if client_converger_service.to_s.split('.').length != 2
-        @client_converger_service = client_converger_service
-      end
-
-      def client_converger_service
-        @client_converger_service || "#{self.imit_control_data_module}.#{repository.name}ContextConvergerService"
-      end
-
       def imit_control_data_module=(imit_control_data_module)
         @imit_control_data_module = imit_control_data_module
       end
