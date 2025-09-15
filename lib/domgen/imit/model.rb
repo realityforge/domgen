@@ -1115,7 +1115,6 @@ module Domgen
           s.ejb.generate_base_test = false
 
           s.method(:RemoveClosedSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '30')
-          s.method(:RemoveAllSessions)
           s.method(:PingSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '15,45')
         end
 
