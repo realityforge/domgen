@@ -45,7 +45,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
 
 %>
   @java.lang.Override
-  public void encode<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
+  public void encode<%= graph.name %>( @javax.annotation.Nonnull final replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
   {
     _encode<%= graph.name %>_<%= entity.name %>( messages, object<%= filter_param.nil? ? '' : ', filter' %> );
   }
@@ -54,7 +54,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
     outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.inverse.traversable? && a.inverse.imit.replication_edges.include?(graph.name) && !a.imit.graph_links.any?{|g| g.source_graph == graph && !g.exclude_target? }}
 -%>
 
-  private void _encode<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
+  private void _encode<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
   {
     encodeObject( messages, object );
 <%
@@ -96,7 +96,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
         graph = repository.imit.graph_by_name(subgraph_root)
         p = graph.filter_parameter
 -%>
-  public void encode<%= graph.name %><%= entity.name %>SubGraph( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= p.nil? ? '' : ", #{nullability_annotation(p.nullable?)} final #{Domgen::Java.java_type(p, :ee, :default)} filter" %> )
+  public void encode<%= graph.name %><%= entity.name %>SubGraph( @javax.annotation.Nonnull final replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= p.nil? ? '' : ", #{nullability_annotation(p.nullable?)} final #{Domgen::Java.java_type(p, :ee, :default)} filter" %> )
   {
     _encode<%= graph.name %>_<%= entity.name %>( messages, object<%= p.nil? ? '' : ', filter' %> );
   }
@@ -106,7 +106,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
   end
 -%>
 
-  public void encodeObjects( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final java.util.List<?> objects )
+  public void encodeObjects( @javax.annotation.Nonnull final replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final java.util.List<?> objects )
   {
     for ( final var object : objects )
     {
@@ -114,7 +114,7 @@ class <%= repository.imit.graph_encoder_impl_name %>
     }
   }
 
-  private void encodeObject( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nullable final Object object )
+  private void encodeObject( @javax.annotation.Nonnull final replicant.server.EntityMessageSet messages, @javax.annotation.Nullable final Object object )
   {
     if ( null != object )
     {

@@ -14,7 +14,7 @@ package <%= to_package(repository.imit.qualified_abstract_endpoint_name) %>;
  * </code></pre>
  */
 public abstract class <%= repository.imit.abstract_endpoint_name %>
-  extends org.realityforge.replicant.server.ee.AbstractEeReplicantEndpoint
+  extends replicant.server.ee.AbstractEeReplicantEndpoint
 {
 <% if repository.imit.secured? -%>
   @javax.annotation.Nonnull
@@ -32,13 +32,13 @@ public abstract class <%= repository.imit.abstract_endpoint_name %>
 <% if repository.imit.secured? -%>
 
   @Override
-  protected boolean isAuthorized( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession replicantSession )
+  protected boolean isAuthorized( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession replicantSession )
   {
     return null != toAccessToken( replicantSession );
   }
 
   @javax.annotation.Nullable
-  protected org.keycloak.representations.AccessToken toAccessToken( @javax.annotation.Nonnull final org.realityforge.replicant.server.transport.ReplicantSession replicantSession )
+  protected org.keycloak.representations.AccessToken toAccessToken( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession replicantSession )
   {
     final var authToken = replicantSession.getAuthToken();
     if ( null == authToken )

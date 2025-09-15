@@ -11,7 +11,7 @@ public final class <%= repository.imit.message_generator_name %>
   private final <%= repository.imit.qualified_server_router_name %> _router = new <%= repository.imit.qualified_server_router_name %>();
 
   @javax.annotation.Nullable
-  public org.realityforge.replicant.server.EntityMessage convertToEntityMessage( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isInitialLoad )
+  public replicant.server.EntityMessage convertToEntityMessage( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isInitialLoad )
   {
     <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
@@ -38,7 +38,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       links = entity.attributes.collect{|a| a.imit? ? a.imit.auto_graph_links : [] }.flatten -%>
 
   @javax.annotation.Nullable
-  private org.realityforge.replicant.server.EntityMessage convert<%= data_module.name %><%= entity.name %>ToEntityMessage( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, final boolean isUpdate, final boolean isInitialLoad )
+  private replicant.server.EntityMessage convert<%= data_module.name %><%= entity.name %>ToEntityMessage( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, final boolean isUpdate, final boolean isInitialLoad )
   {
 <% if entity.jpa.track_changes? -%>
     if( !isInitialLoad && isUpdate && entity.unmodified() )
@@ -50,7 +50,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     @javax.annotation.Nonnull final var attributes = isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? <%= entity.data_module.repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.name %>( entity ) : null;
     final var transportID = <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>;
     @javax.annotation.Nonnull final var routingKeys = _router.route<%= entity.name %>( entity );
-    @javax.annotation.Nullable final java.util.Set<org.realityforge.replicant.server.ChannelLink> links = <%= links.size == 0 ? 'null' : 'new java.util.HashSet<>()' %>;
+    @javax.annotation.Nullable final java.util.Set<replicant.server.ChannelLink> links = <%= links.size == 0 ? 'null' : 'new java.util.HashSet<>()' %>;
 <% if links.size > 0 -%>
     if( null != attributes )
     {
@@ -85,7 +85,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% if source_graph.instance_root? -%>    <% end -%>      if ( null != entity.<%= getter_path.join('.') %> )
 <% if source_graph.instance_root? -%>    <% end -%>      {
 <% end -%>
-<% if source_graph.instance_root? -%>    <% end -%><% if last_getter_nullable -%>  <% end -%>      links.add(new org.realityforge.replicant.server.ChannelLink(new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <% if source_graph.instance_root? -%><%= Reality::Naming.camelize(source_graph.name)%>InstanceRootId<% else -%>null<% end -%> ), new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, entity.<%= (getter_path + [getter_for(entity.primary_key)]).join('.') %> )));
+<% if source_graph.instance_root? -%>    <% end -%><% if last_getter_nullable -%>  <% end -%>      links.add(new replicant.server.ChannelLink(new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <% if source_graph.instance_root? -%><%= Reality::Naming.camelize(source_graph.name)%>InstanceRootId<% else -%>null<% end -%> ), new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, entity.<%= (getter_path + [getter_for(entity.primary_key)]).join('.') %> )));
 <% if last_getter_nullable -%>
 <% if source_graph.instance_root? -%>    <% end -%>      }
 <% end -%>
@@ -98,7 +98,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% if links.size > 0 -%>
     }
 <% end -%>
-    return new org.realityforge.replicant.server.EntityMessage( id, transportID, System.currentTimeMillis(), routingKeys, attributes, links );
+    return new replicant.server.EntityMessage( id, transportID, System.currentTimeMillis(), routingKeys, attributes, links );
   }
 <%
     end

@@ -103,7 +103,7 @@ class <%= service.action.service_actions_name %>
       {
 <% if method.return_value.return_type != :void -%>
         service.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Reality::Naming.camelize(param.name)}.join(", ") %> );
-        final var encodedResult = org.realityforge.replicant.server.ee.ReplicantContextHolder.get( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
+        final var encodedResult = replicant.server.ee.ReplicantContextHolder.get( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
         return new iris.rose.server.action.InvocationResult( true, null == encodedResult ? null : encodedResult.toString(), "<%= method.qualified_name %> completed successfully" );
 <% else -%>
         service.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Reality::Naming.camelize(param.name)}.join(", ") %> );
@@ -113,7 +113,7 @@ class <%= service.action.service_actions_name %>
       <%- method.exceptions.each do |e| %>
       catch ( final <%= e.ee.qualified_name %> exception )
         {
-          final var encodedResult = org.realityforge.replicant.server.ee.ReplicantContextHolder.get( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
+          final var encodedResult = replicant.server.ee.ReplicantContextHolder.get( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
           return new iris.rose.server.action.InvocationResult( true, null == encodedResult ? null : encodedResult.toString(), "<%= method.qualified_name %> completed with <%= e.name %>Exception" );
         }
 <% end %>
@@ -131,7 +131,7 @@ class <%= service.action.service_actions_name %>
 <% if method.return_value.return_type != :void %>
 
     @javax.annotation.Nonnull
-    private static String encodeResponsePayload( <%= method.return_value.nullable? ? "@javax.annotation.Nullable" : "@javax.annotation.Nonnull"-%> final Object object )
+    private static javax.json.JsonValue encodeResponsePayload( <%= method.return_value.nullable? ? "@javax.annotation.Nullable" : "@javax.annotation.Nonnull"-%> final Object object )
     {
       @java.lang.SuppressWarnings( { "JavaExistingMethodCanBeUsed", "RedundantSuppression" } )
       final var builder = javax.json.Json.createObjectBuilder();
@@ -139,7 +139,7 @@ class <%= service.action.service_actions_name %>
       if ( null == object )
       {
         builder.add( "data", javax.json.JsonValue.NULL );
-        return builder.build().toString();
+        return builder.build();
       }
 
 <% end -%>
@@ -162,7 +162,7 @@ class <%= service.action.service_actions_name %>
 <% else -%>
       builder.add( "data", javax.json.Json.createValue( response ) );
 <% end -%>
-      return builder.build().toString();
+      return builder.build();
     }
 <% end -%>
 
@@ -170,7 +170,7 @@ class <%= service.action.service_actions_name %>
     @java.lang.SuppressWarnings( "unused" )
 <% end -%>
     @javax.annotation.Nullable
-    private static String encodeException( @javax.annotation.Nonnull final Throwable exception )
+    private static javax.json.JsonValue encodeException( @javax.annotation.Nonnull final Throwable exception )
     {
 <% if method.exceptions.empty? -%>
       return null;
@@ -178,7 +178,7 @@ class <%= service.action.service_actions_name %>
      <% method.exceptions.each do |exception| -%>
  if ( exception instanceof final <%= exception.ee.qualified_name %> e )
       {
-        return javax.json.Json.createObjectBuilder().add("exception", <%= exception.action.qualified_json_encoder_name %>.encode( e ) ).build().toString();
+        return javax.json.Json.createObjectBuilder().add("exception", <%= exception.action.qualified_json_encoder_name %>.encode( e ) ).build();
       }
       else<% end -%>
 
@@ -223,8 +223,8 @@ class <%= service.action.service_actions_name %>
           final var encodedResponse = encodeResponsePayload( result );
           // Put in the ThreadLocal in case this request is not going via Replicant (UserService)
           // Temporary hack as we should have all requests via Replicant
-          org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
-          _registry.putResource( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          replicant.server.ee.ReplicantContextHolder.put( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          _registry.putResource( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
           return result;
 <% else -%>
           return context.proceed();
@@ -233,8 +233,8 @@ class <%= service.action.service_actions_name %>
         catch ( final Exception e  )
         {
           final var encodedResponse = encodeException( e );
-          org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
-          _registry.putResource( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          replicant.server.ee.ReplicantContextHolder.put( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          _registry.putResource( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
           throw e;
         }
       }

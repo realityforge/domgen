@@ -17,30 +17,30 @@ public class <%= repository.imit.server_net_module_name %>
 
   protected void bindGraphEncoder()
   {
-    bind( <%= repository.imit.qualified_graph_encoder_name %>.class ).to( toClass( "<%= repository.imit.qualified_graph_encoder_impl_name %>" ) ).in( javax.inject.Singleton.class );
+    bind( toClass( "<%= repository.imit.qualified_graph_encoder_name %>" ) ).to( toClass( "<%= repository.imit.qualified_graph_encoder_impl_name %>" ) ).in( javax.inject.Singleton.class );
   }
 
   protected void bindReplicantMessageBroker()
   {
-    bind( org.realityforge.replicant.server.transport.ReplicantMessageBroker.class ).to( toClass( "<%= repository.imit.qualified_message_broker_impl_name %>" ) ).in( javax.inject.Singleton.class );
+    bind( toClass( "replicant.server.transport.ReplicantMessageBroker" ) ).to( toClass( "<%= repository.imit.qualified_message_broker_impl_name %>" ) ).in( javax.inject.Singleton.class );
   }
 
   protected void bindChangeRecorder()
   {
-    bind( <%= repository.imit.qualified_change_recorder_name %>.class ).to( toClass( "<%= repository.imit.qualified_change_recorder_impl_name %>" ) ).in( javax.inject.Singleton.class );
+    bind( toClass( "<%= repository.imit.qualified_change_recorder_name %>" ) ).to( toClass( "<%= repository.imit.qualified_change_recorder_impl_name %>" ) ).in( javax.inject.Singleton.class );
   }
 
   protected void bindSessionContext()
   {
-    bind( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>.class ).to( toClass( "<%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_implementation_name %>" ) ).in( javax.inject.Singleton.class );
+    bind( toClass( "<%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>" ) ).to( toClass( "<%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_implementation_name %>" ) ).in( javax.inject.Singleton.class );
   }
 
   protected void bindReplicant()
   {
     multiBind( toClass( "<%= repository.imit.qualified_session_manager_name %>" ),
-               org.realityforge.replicant.server.EntityMessageEndpoint.class,
-               org.realityforge.replicant.server.transport.ReplicantSessionManager.class,
-               <%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>.class );
+               toClass( "replicant.server.EntityMessageEndpoint.class" ),
+               toClass( "replicant.server.transport.ReplicantSessionManager" ),
+               toClass( "<%= repository.service_by_name(repository.imit.subscription_manager).ejb.qualified_service_name %>" ) );
   }
 
   @SuppressWarnings( "unchecked" )

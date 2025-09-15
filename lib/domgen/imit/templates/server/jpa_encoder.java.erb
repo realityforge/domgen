@@ -16,7 +16,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     if entity.imit? && entity.concrete?
 -%>
 
-  public static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nullable final String subChannelColumn )
+  public static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nullable final String subChannelColumn )
     throws java.sql.SQLException
   {
     try ( var resultSet = statement.executeQuery() )
@@ -25,14 +25,14 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     }
   }
 
-  public static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nullable final String subChannelColumn )
+  public static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nullable final String subChannelColumn )
     throws java.sql.SQLException
   {
     while ( resultSet.next() )
     {
       final var subChannelId = null != subChannelColumn ? resultSet.getInt( subChannelColumn ) : null;
       final var attributeValues = new java.util.HashMap<String, java.io.Serializable>();
-      @javax.annotation.Nullable final java.util.Set<org.realityforge.replicant.server.ChannelLink> links = new java.util.HashSet<>();
+      @javax.annotation.Nullable final java.util.Set<replicant.server.ChannelLink> links = new java.util.HashSet<>();
 <% entity.attributes.select{|a| a.imit?}.each do |attribute|
     a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
     type_suffix = 'Object'
@@ -99,7 +99,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
         if( null != targetId )
         {
 <% end -%>
-        <% if attribute.nullable? -%>  <% end -%>links.add( new org.realityforge.replicant.server.ChannelLink(new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %>, subChannelId ), new org.realityforge.replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %>, targetId ) ) );
+        <% if attribute.nullable? -%>  <% end -%>links.add( new replicant.server.ChannelLink(new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %>, subChannelId ), new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %>, targetId ) ) );
 <% if attribute.nullable? -%>
         }
 <% end -%>
@@ -107,13 +107,13 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
       final var entityMessage =
-        new org.realityforge.replicant.server.EntityMessage( $<%= entity.primary_key.name %>,
+        new replicant.server.EntityMessage( $<%= entity.primary_key.name %>,
                                                              <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>,
                                                              0,
                                                              new java.util.HashMap<>(),
                                                              attributeValues,
                                                              links );
-      changeSet.merge( new org.realityforge.replicant.server.Change( entityMessage, channelId, subChannelId ) );
+      changeSet.merge( new replicant.server.Change( entityMessage, channelId, subChannelId ) );
     }
   }
 <%

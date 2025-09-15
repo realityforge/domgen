@@ -227,6 +227,7 @@ module Domgen
 
       def filter(filter_type, options = {}, &block)
         Domgen.error("Attempting to redefine filter on graph #{self.name}") if @filter
+        Domgen.error("Filter on graph #{self.name} is not of type :struct which is the only decoder supported at this time") if :struct != filter_type
         @filter ||= FilterParameter.new(self, filter_type, options, &block)
       end
 
@@ -917,7 +918,7 @@ module Domgen
         end
         if repository.ee?
           repository.ee.cdi_scan_excludes << 'replicant.**'
-          repository.ee.cdi_scan_excludes << 'org.realityforge.replicant.**'
+          repository.ee.cdi_scan_excludes << 'replicant.**'
         end
         toprocess = []
         self.graphs.each do |graph|
@@ -984,15 +985,15 @@ module Domgen
           s.disable_facets_not_in(:ejb)
           s.ejb.generate_boundary = false
           s.method(:PreSubscribe) do |m|
-            m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-            m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
+            m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
+            m.parameter(:Address, 'replicant.server.ChannelAddress')
             m.parameter(:Filter, 'java.lang.Object', :nullable => true)
           end
           repository.imit.graphs.select { |graph| graph.filtered? }.each do |graph|
             s.method("FilterMessageOfInterestIn#{graph.name}Graph") do |m|
               m.ejb.generate_base_test = false
-              m.parameter(:Message, 'org.realityforge.replicant.server.EntityMessage')
-              m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
+              m.parameter(:Message, 'replicant.server.EntityMessage')
+              m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
               if graph.instance_root?
                 entity = repository.entity_by_name(graph.instance_root)
                 m.parameter("#{entity.name}#{entity.primary_key.name}", entity.primary_key.jpa.non_primitive_java_type)
@@ -1013,7 +1014,7 @@ module Domgen
                 end
               end
 
-              m.returns('org.realityforge.replicant.server.EntityMessage', :nullable => true)
+              m.returns('replicant.server.EntityMessage', :nullable => true)
             end
           end
 
@@ -1021,18 +1022,18 @@ module Domgen
             if graph.bulk_load?
               s.method("BulkCollectFor#{graph.name}") do |m|
                 m.ejb.generate_base_test = false
-                m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence) if graph.instance_root?
+                m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
+                m.parameter(:ChangeSet, 'replicant.server.ChangeSet')
+                m.parameter(:Address, 'replicant.server.ChannelAddress', :collection_type => :sequence) if graph.instance_root?
                 m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                 m.boolean(:ExplicitSubscribe)
               end
               if graph.filter_parameter? && !graph.filter_parameter.immutable?
                 s.method("BulkCollectFor#{graph.name}FilterChange") do |m|
                   m.ejb.generate_base_test = false
-                  m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                  m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
-                  m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress', :collection_type => :sequence) if graph.instance_root?
+                  m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
+                  m.parameter(:ChangeSet, 'replicant.server.ChangeSet')
+                  m.parameter(:Address, 'replicant.server.ChannelAddress', :collection_type => :sequence) if graph.instance_root?
                   m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                   m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
                 end
@@ -1041,16 +1042,16 @@ module Domgen
               if graph.external_data_load?
                 # We only need this
                 s.method("Collect#{graph.name}") do |m|
-                  m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
-                  m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet')
+                  m.parameter(:Address, 'replicant.server.ChannelAddress')
+                  m.parameter(:ChangeSet, 'replicant.server.ChangeSet')
                   m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
                 end
               end
               if graph.filter_parameter? && !graph.filter_parameter.immutable?
                 s.method("CollectForFilterChange#{graph.name}") do |m|
-                  m.parameter(:Session, 'org.realityforge.replicant.server.transport.ReplicantSession')
-                  m.parameter(:ChangeSet, 'org.realityforge.replicant.server.ChangeSet') if graph.instance_root?
-                  m.parameter(:Address, 'org.realityforge.replicant.server.ChannelAddress')
+                  m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
+                  m.parameter(:ChangeSet, 'replicant.server.ChangeSet') if graph.instance_root?
+                  m.parameter(:Address, 'replicant.server.ChannelAddress')
                   m.reference(graph.instance_root, :name => :Entity) if graph.instance_root?
                   m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
                   m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
@@ -1127,15 +1128,6 @@ module Domgen
           s.method(:PingSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '15,45')
         end
 
-        self.repository.service(self.message_broker) unless self.repository.service_by_name?(self.message_broker)
-        self.repository.service_by_name(self.message_broker).tap do |s|
-          s.disable_facets_not_in(:ejb)
-          s.ejb.bind_in_tests = false
-          s.ejb.generate_base_test = false
-
-          s.method(:ProcessPendingSessions, 'ejb.schedule.hour' => '*', 'ejb.schedule.minute' => '*', 'ejb.schedule.second' => '*')
-        end
-
         # It seems reasonable to restrict the set of methods that are annotated with replicate to those that are replication
         # enabled. Unfortunately, Rose does not configure this explicitly yet, and we have not had time to fix it. When we
         # fix rose then only add @Replicate when imit enabled...
@@ -1144,10 +1136,10 @@ module Domgen
             service.methods.each do |method|
               if method.service.ejb?
                 if method.ejb.generate_boundary?
-                  method.ejb.boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
+                  method.ejb.boundary_annotations << 'replicant.server.ee.Replicate'
                 end
                 if method.ejb.internal_boundary_service?
-                  method.ejb.internal_boundary_annotations << 'org.realityforge.replicant.server.ee.Replicate'
+                  method.ejb.internal_boundary_annotations << 'replicant.server.ee.Replicate'
                 end
               end
             end

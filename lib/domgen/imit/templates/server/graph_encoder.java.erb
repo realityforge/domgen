@@ -11,7 +11,7 @@ public interface <%= repository.imit.graph_encoder_name %>
     entity = repository.entity_by_name(graph.instance_root)
     p = graph.filter_parameter
 -%>
-  void encode<%= graph.name %>( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> object<%= p.nil? ? '' : ", #{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter" %> );
+  void encode<%= graph.name %>( @javax.annotation.Nonnull replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> object<%= p.nil? ? '' : ", #{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter" %> );
 
 <% end -%>
 <%
@@ -21,7 +21,7 @@ public interface <%= repository.imit.graph_encoder_name %>
         graph = repository.imit.graph_by_name(subgraph_root)
         p = graph.filter_parameter
 -%>
-  void encode<%= graph.name %><%= entity.name %>SubGraph( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> object<%= p.nil? ? '' : ", #{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter" %> );
+  void encode<%= graph.name %><%= entity.name %>SubGraph( @javax.annotation.Nonnull replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull <%= entity.jpa.qualified_name %> object<%= p.nil? ? '' : ", #{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)} filter" %> );
 
 <%
       end
@@ -31,5 +31,5 @@ public interface <%= repository.imit.graph_encoder_name %>
   /**
    * Helper method useful when manually creating bulk loads.
    */
-  void encodeObjects( @javax.annotation.Nonnull org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull java.util.List<?> objects );
+  void encodeObjects( @javax.annotation.Nonnull replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull java.util.List<?> objects );
 }
