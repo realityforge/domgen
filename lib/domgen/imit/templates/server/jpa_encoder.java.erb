@@ -5,7 +5,7 @@ package <%= to_package(repository.imit.qualified_jpa_encoder_name) %>;
  * Utility class that encodes payloads from JPA entities for the repository "<%= repository.name %>".
  */
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public final class <%= repository.imit.jpa_encoder_name %>
+final class <%= repository.imit.jpa_encoder_name %>
 {
   private <%= repository.imit.jpa_encoder_name %>()
   {
@@ -16,7 +16,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     if entity.imit? && entity.concrete?
 -%>
 
-  public static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nullable final String subChannelColumn )
+  static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.PreparedStatement statement, @javax.annotation.Nullable final String subChannelColumn )
     throws java.sql.SQLException
   {
     try ( var resultSet = statement.executeQuery() )
@@ -25,7 +25,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     }
   }
 
-  public static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nullable final String subChannelColumn )
+  static void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, final int channelId, @javax.annotation.Nonnull final java.sql.ResultSet resultSet, @javax.annotation.Nullable final String subChannelColumn )
     throws java.sql.SQLException
   {
     while ( resultSet.next() )
@@ -126,7 +126,7 @@ end
 <% if entity.concrete? -%>
 
   @javax.annotation.Nonnull
-  public static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
   {
     final java.util.Map<String, java.io.Serializable> attributes = new java.util.HashMap<>();
     encode<%= entity.name %>( entity, attributes );

@@ -806,7 +806,7 @@ module Domgen
       java_artifact :aggregate_remote_service_sting_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesFragment'
       java_artifact :aggregate_remote_service_sting_test_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesTestFragment'
       java_artifact :server_net_module, :comm, :server, :imit, '#{repository.name}ImitNetModule'
-      java_artifact :integration_module, :test, :server, :imit, '#{repository.name}IntegrationModule', :sub_package => 'util'
+      java_artifact :integration_module, :comm, :server, :imit, '#{repository.name}IntegrationModule'
 
       attr_writer :include_standard_integration_test_module
 
@@ -967,6 +967,7 @@ module Domgen
           s.disable_facets_not_in(:ejb)
           s.ejb.add_to_aggregate_test = false
           s.ejb.bind_in_tests = false
+          s.ejb.module_local = true
           s.ejb.qualified_service_name = "#{self.repository.imit.server_comm_package}.#{s.ejb.service_name}"
           s.ejb.qualified_service_implementation_name = "#{self.repository.imit.server_comm_package}.#{s.ejb.service_name}Impl"
           s.ejb.qualified_service_test_name = "#{self.repository.imit.server_comm_package}.Abstract#{s.ejb.service_name}ImplTest"

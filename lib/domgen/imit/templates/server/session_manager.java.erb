@@ -23,7 +23,6 @@ graphs_that_propagate_filters =
     select{|graph| graph.outward_graph_links.any?{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filter_parameter?} }
 -%>
 
-@java.lang.SuppressWarnings( "unchecked" )
 @javax.enterprise.context.ApplicationScoped
 @javax.transaction.Transactional
 @javax.enterprise.inject.Typed( { replicant.server.EntityMessageEndpoint.class, replicant.server.transport.ReplicantSessionManager.class } )
@@ -62,7 +61,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   private java.util.concurrent.ScheduledFuture<?> _pingSessionsFuture;
 
   @javax.annotation.PostConstruct
-  public void postConstruct()
+  void postConstruct()
   {
     _removeClosedSessionsFuture = _executor.scheduleAtFixedRate( this::removeClosedSessions, 2, 1, java.util.concurrent.TimeUnit.MINUTES );
     _pingSessionsFuture = _executor.scheduleAtFixedRate( this::pingSessions, 2, 1, java.util.concurrent.TimeUnit.MINUTES );
@@ -81,6 +80,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
       _pingSessionsFuture.cancel( true );
       _pingSessionsFuture = null;
     }
+    super.preDestroy();
   }
 
   @java.lang.Override

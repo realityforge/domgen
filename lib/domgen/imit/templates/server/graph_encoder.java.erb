@@ -4,7 +4,7 @@ package <%= to_package(repository.imit.qualified_graph_encoder_name) %>;
 /**
  * Interface for class that encodes a graph of entities as a set of messages for "<%= repository.name %>" repository.
  */
-public interface <%= repository.imit.graph_encoder_name %>
+interface <%= repository.imit.graph_encoder_name %>
 {
 <%
   repository.imit.graphs.select{|graph| graph.instance_root? && !graph.bulk_load? }.each do |graph|

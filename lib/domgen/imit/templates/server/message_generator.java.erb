@@ -5,13 +5,13 @@ package <%= to_package(repository.imit.qualified_message_generator_name) %>;
  * Utility class that encodes RPC payloads from JPA entities for the repository "<%= repository.name %>".
  */
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public final class <%= repository.imit.message_generator_name %>
+final class <%= repository.imit.message_generator_name %>
 {
   @javax.annotation.Nonnull
   private final <%= repository.imit.qualified_server_router_name %> _router = new <%= repository.imit.qualified_server_router_name %>();
 
   @javax.annotation.Nullable
-  public replicant.server.EntityMessage convertToEntityMessage( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isInitialLoad )
+  replicant.server.EntityMessage convertToEntityMessage( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isInitialLoad )
   {
     <%
 repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|

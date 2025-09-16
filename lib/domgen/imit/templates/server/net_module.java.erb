@@ -3,7 +3,7 @@ package <%= to_package(repository.imit.qualified_server_net_module_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 public class <%= repository.imit.server_net_module_name %>
-  extends org.realityforge.guiceyloops.shared.AbstractModule
+  extends com.google.inject.AbstractModule
 {
   @java.lang.Override
   protected void configure()
@@ -11,48 +11,34 @@ public class <%= repository.imit.server_net_module_name %>
     bindGraphEncoder();
     bindChangeRecorder();
     bindSessionContext();
-    bindReplicant();
+    bindSessionManger();
     bindReplicantMessageBroker();
   }
 
   protected void bindGraphEncoder()
   {
-    bind( toClass( "<%= repository.imit.qualified_graph_encoder_name %>" ) ).to( toClass( "<%= repository.imit.qualified_graph_encoder_impl_name %>" ) ).in( javax.inject.Singleton.class );
+    bind( <%= repository.imit.qualified_graph_encoder_name %>.class ).to( <%= repository.imit.qualified_graph_encoder_impl_name %>.class ).in( javax.inject.Singleton.class );
   }
 
   protected void bindReplicantMessageBroker()
   {
-    bind( toClass( "replicant.server.transport.ReplicantMessageBroker" ) ).to( toClass( "<%= repository.imit.qualified_message_broker_impl_name %>" ) ).in( javax.inject.Singleton.class );
+    bind( replicant.server.transport.ReplicantMessageBroker.class ).to( <%= repository.imit.qualified_message_broker_impl_name %>.class ).in( javax.inject.Singleton.class );
   }
 
   protected void bindChangeRecorder()
   {
-    bind( toClass( "<%= repository.imit.qualified_change_recorder_name %>" ) ).to( toClass( "<%= repository.imit.qualified_change_recorder_impl_name %>" ) ).in( javax.inject.Singleton.class );
+    bind( <%= repository.imit.qualified_change_recorder_name %>.class ).to( <%= repository.imit.qualified_change_recorder_impl_name %>.class ).in( javax.inject.Singleton.class );
   }
 
   protected void bindSessionContext()
   {
-    bind( toClass( "<%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>" ) ).to( toClass( "<%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_implementation_name %>" ) ).in( javax.inject.Singleton.class );
+    bind( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>.class ).to( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_implementation_name %>.class ).in( javax.inject.Singleton.class );
   }
 
-  protected void bindReplicant()
+  protected void bindSessionManger()
   {
-    multiBind( toClass( "<%= repository.imit.qualified_session_manager_name %>" ),
-               toClass( "replicant.server.EntityMessageEndpoint.class" ),
-               toClass( "replicant.server.transport.ReplicantSessionManager" ) );
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @javax.annotation.Nonnull
-  private static <T> Class<T> toClass( @javax.annotation.Nonnull final String classname )
-  {
-    try
-    {
-      return (Class<T>) Class.forName( classname );
-    }
-    catch ( final ClassNotFoundException cnfe )
-    {
-      throw new RuntimeException( cnfe );
-    }
+    bind( <%= repository.imit.qualified_session_manager_name %>.class ).in( javax.inject.Singleton.class );
+    bind( replicant.server.EntityMessageEndpoint.class ).to( <%= repository.imit.qualified_session_manager_name %>.class );
+    bind( replicant.server.transport.ReplicantSessionManager.class ).to( <%= repository.imit.qualified_session_manager_name %>.class );
   }
 }
