@@ -984,16 +984,20 @@ module Domgen
             m.parameter(:Message, 'replicant.server.EntityMessage')
             m.returns('replicant.server.EntityMessage', :nullable => true)
           end
+          s.method(:BulkCollectDataForSubscribe) do |m|
+            m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
+            m.parameter(:Address, 'replicant.server.ChannelAddress', :collection_type => :sequence)
+            m.parameter(:Filter, 'java.lang.Object', :nullable => true)
+            m.parameter(:ChangeSet, 'replicant.server.ChangeSet')
+            m.boolean(:IsExplicitSubscribe)
+          end
+          s.method(:ShouldFollowLink) do |m|
+            m.parameter(:SourceEntry, 'replicant.server.transport.SubscriptionEntry')
+            m.parameter(:Target, 'replicant.server.ChannelAddress')
+            m.returns(:boolean)
+          end
           repository.imit.graphs.each do |graph|
             if graph.bulk_load?
-              s.method("BulkCollectFor#{graph.name}") do |m|
-                m.ejb.generate_base_test = false
-                m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
-                m.parameter(:ChangeSet, 'replicant.server.ChangeSet')
-                m.parameter(:Address, 'replicant.server.ChannelAddress', :collection_type => :sequence) if graph.instance_root?
-                m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-                m.boolean(:ExplicitSubscribe)
-              end
               if graph.filter_parameter? && !graph.filter_parameter.immutable?
                 s.method("BulkCollectFor#{graph.name}FilterChange") do |m|
                   m.ejb.generate_base_test = false
@@ -1059,15 +1063,8 @@ module Domgen
             next if processed.include?(key)
             processed << key
             source_graph_instance_root = repository.entity_by_name(source_graph.instance_root)
-            target_graph_instance_root = repository.entity_by_name(target_graph.instance_root)
 
             if target_graph.filter_parameter?
-              s.method(:"ShouldFollowLinkFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
-                m.reference(target_graph_instance_root.qualified_name, :name => "#{target_graph.name}InstanceRoot") if target_graph.instance_root?
-                m.parameter("#{source_graph.name}Filter", source_graph.filter_parameter.filter_type, filter_options(source_graph)) if source_graph.filter_parameter?
-                m.returns(:boolean)
-              end
-
               s.method(:"DeriveFilterToPropagateFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
                 m.reference(source_graph_instance_root.qualified_name, :name => "#{source_graph.name}InstanceRoot") if source_graph.instance_root?
                 m.parameter("#{source_graph.name}Filter", source_graph.filter_parameter.filter_type, filter_options(source_graph)) if source_graph.filter_parameter?
