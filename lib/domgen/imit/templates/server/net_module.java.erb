@@ -8,37 +8,27 @@ public class <%= repository.imit.server_net_module_name %>
   @java.lang.Override
   protected void configure()
   {
-    bindGraphEncoder();
-    bindChangeRecorder();
     bindSessionContext();
     bindSessionManger();
     bindReplicantMessageBroker();
   }
 
-  protected void bindGraphEncoder()
-  {
-    bind( <%= repository.imit.qualified_graph_encoder_name %>.class ).to( <%= repository.imit.qualified_graph_encoder_impl_name %>.class ).in( javax.inject.Singleton.class );
-  }
-
   protected void bindReplicantMessageBroker()
   {
-    bind( replicant.server.transport.ReplicantMessageBroker.class ).to( <%= repository.imit.qualified_message_broker_impl_name %>.class ).in( javax.inject.Singleton.class );
-  }
-
-  protected void bindChangeRecorder()
-  {
-    bind( <%= repository.imit.qualified_change_recorder_name %>.class ).to( <%= repository.imit.qualified_change_recorder_impl_name %>.class ).in( javax.inject.Singleton.class );
+    bind( replicant.server.transport.ReplicantMessageBroker.class ).to( replicant.server.transport.ReplicantMessageBrokerImpl.class ).in( javax.inject.Singleton.class );
   }
 
   protected void bindSessionContext()
   {
-    bind( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>.class ).to( <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_implementation_name %>.class ).in( javax.inject.Singleton.class );
+    bind( <%= repository.imit.qualified_session_context_impl_name %>.class ).in( javax.inject.Singleton.class );
+    bind( replicant.server.transport.ReplicantSessionContext.class ).to( <%= repository.imit.qualified_session_context_impl_name %>.class );
+    bind( replicant.server.transport.ReplicantChangeRecorder.class ).to( <%= repository.imit.qualified_session_context_impl_name %>.class );
   }
 
   protected void bindSessionManger()
   {
-    bind( <%= repository.imit.qualified_session_manager_name %>.class ).in( javax.inject.Singleton.class );
-    bind( replicant.server.EntityMessageEndpoint.class ).to( <%= repository.imit.qualified_session_manager_name %>.class );
-    bind( replicant.server.transport.ReplicantSessionManager.class ).to( <%= repository.imit.qualified_session_manager_name %>.class );
+    bind( replicant.server.transport.ReplicantSessionManagerImpl.class ).in( javax.inject.Singleton.class );
+    bind( replicant.server.EntityMessageEndpoint.class ).to( replicant.server.transport.ReplicantSessionManagerImpl.class );
+    bind( replicant.server.transport.ReplicantSessionManager.class ).to( replicant.server.transport.ReplicantSessionManagerImpl.class );
   }
 }

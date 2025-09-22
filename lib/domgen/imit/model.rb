@@ -790,17 +790,11 @@ module Domgen
       java_artifact :schema_filter_tools, :comm, :client, :imit, '#{repository.name}FilterTools'
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
       java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerImpl'
-      java_artifact :message_broker_impl, :comm, :server, :imit, '#{repository.name}ReplicantMessageBrokerImpl'
+      java_artifact :session_context_impl, :comm, :server, :imit, '#{repository.name}SessionContextImpl'
+      java_artifact :abstract_session_context_impl, :comm, :server, :imit, 'Abstract#{session_context_impl_name}'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
-      java_artifact :server_router, :comm, :server, :imit, '#{repository.name}Router'
-      java_artifact :jpa_encoder, :comm, :server, :imit, '#{repository.name}JpaEncoder'
-      java_artifact :message_generator, :comm, :server, :imit, '#{repository.name}EntityMessageGenerator'
-      java_artifact :change_recorder, :comm, :server, :imit, '#{repository.name}ChangeRecorder'
-      java_artifact :change_recorder_impl, :comm, :server, :imit, '#{change_recorder_name}Impl'
       java_artifact :change_listener, :comm, :server, :imit, '#{repository.name}EntityChangeListener'
       java_artifact :replication_interceptor, :comm, :server, :imit, '#{repository.name}ReplicationInterceptor'
-      java_artifact :graph_encoder, :comm, :server, :imit, '#{repository.name}GraphEncoder'
-      java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{graph_encoder_name}Impl'
       java_artifact :abstract_schema_test, :comm, :client, :imit, 'Abstract#{repository.name}SchemaTest'
       java_artifact :schema_test, :comm, :client, :imit, 'Simple#{repository.name}SchemaTest'
       java_artifact :aggregate_remote_service_sting_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesFragment'
@@ -812,14 +806,6 @@ module Domgen
 
       def include_standard_integration_test_module?
         @include_standard_integration_test_module.nil? ? true : !!@include_standard_integration_test_module
-      end
-
-      def abstract_session_context_impl_name
-        qualified_abstract_session_context_impl_name.gsub(/^.*\.([^.]+)$/, '\1')
-      end
-
-      def qualified_abstract_session_context_impl_name
-        "#{repository.service_by_name(self.session_context_service).ejb.qualified_service_name.gsub(/^(.*)\.([^.]+$)/, '\1.Abstract\2Impl')}"
       end
 
       def auto_register_change_listener=(auto_register_change_listener)
@@ -855,15 +841,6 @@ module Domgen
 
       def message_broker
         @message_broker || "#{self.imit_control_data_module}.#{repository.name}ReplicantMessageBroker"
-      end
-
-      def session_context_service=(session_context_service)
-        Domgen.error('session_context_service invalid. Expected to be in format DataModule.SessionContext') if session_context_service.to_s.split('.').length != 2
-        @session_context_service = session_context_service
-      end
-
-      def session_context_service
-        @session_context_service || "#{self.imit_control_data_module}.#{repository.name}SessionContext"
       end
 
       def imit_control_data_module=(imit_control_data_module)
@@ -960,124 +937,6 @@ module Domgen
         repository.ejb.add_test_module(self.server_net_module_name, self.qualified_server_net_module_name) if repository.ejb?
         if self.graphs.size == 0
           Domgen.error('imit facet enabled but no graphs defined')
-        end
-
-        self.repository.service(self.session_context_service) unless self.repository.service_by_name?(self.session_context_service)
-        self.repository.service_by_name(self.session_context_service).tap do |s|
-          s.disable_facets_not_in(:ejb)
-          s.ejb.add_to_aggregate_test = false
-          s.ejb.bind_in_tests = false
-          s.ejb.module_local = true
-          s.ejb.qualified_service_name = "#{self.repository.imit.server_comm_package}.#{s.ejb.service_name}"
-          s.ejb.qualified_service_implementation_name = "#{self.repository.imit.server_comm_package}.#{s.ejb.service_name}Impl"
-          s.ejb.qualified_service_test_name = "#{self.repository.imit.server_comm_package}.Abstract#{s.ejb.service_name}ImplTest"
-
-          s.ejb.generate_boundary = false
-          s.method(:PreSubscribe) do |m|
-            m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
-            m.parameter(:Address, 'replicant.server.ChannelAddress')
-            m.parameter(:Filter, 'java.lang.Object', :nullable => true)
-          end
-          s.method(:FilterEntityMessage) do |m|
-            m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
-            m.parameter(:Address, 'replicant.server.ChannelAddress')
-            m.parameter(:Message, 'replicant.server.EntityMessage')
-            m.returns('replicant.server.EntityMessage', :nullable => true)
-          end
-          s.method(:BulkCollectDataForSubscribe) do |m|
-            m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
-            m.parameter(:Address, 'replicant.server.ChannelAddress', :collection_type => :sequence)
-            m.parameter(:Filter, 'java.lang.Object', :nullable => true)
-            m.parameter(:ChangeSet, 'replicant.server.ChangeSet')
-            m.boolean(:IsExplicitSubscribe)
-          end
-          s.method(:ShouldFollowLink) do |m|
-            m.parameter(:SourceEntry, 'replicant.server.transport.SubscriptionEntry')
-            m.parameter(:Target, 'replicant.server.ChannelAddress')
-            m.returns(:boolean)
-          end
-          repository.imit.graphs.each do |graph|
-            if graph.bulk_load?
-              if graph.filter_parameter? && !graph.filter_parameter.immutable?
-                s.method("BulkCollectFor#{graph.name}FilterChange") do |m|
-                  m.ejb.generate_base_test = false
-                  m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
-                  m.parameter(:ChangeSet, 'replicant.server.ChangeSet')
-                  m.parameter(:Address, 'replicant.server.ChannelAddress', :collection_type => :sequence) if graph.instance_root?
-                  m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                  m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                end
-              end
-            else
-              if graph.external_data_load?
-                # We only need this
-                s.method("Collect#{graph.name}") do |m|
-                  m.parameter(:Address, 'replicant.server.ChannelAddress')
-                  m.parameter(:ChangeSet, 'replicant.server.ChangeSet')
-                  m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-                end
-              end
-              if graph.filter_parameter? && !graph.filter_parameter.immutable?
-                s.method("CollectForFilterChange#{graph.name}") do |m|
-                  m.parameter(:Session, 'replicant.server.transport.ReplicantSession')
-                  m.parameter(:ChangeSet, 'replicant.server.ChangeSet') if graph.instance_root?
-                  m.parameter(:Address, 'replicant.server.ChannelAddress')
-                  m.reference(graph.instance_root, :name => :Entity) if graph.instance_root?
-                  m.parameter(:OriginalFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                  m.parameter(:CurrentFilter, graph.filter_parameter.filter_type, filter_options(graph))
-                end
-              end
-            end
-            if graph.instance_root?
-              if !graph.bulk_load? && graph.filtered?
-                graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
-                  outgoing_links = entity.referencing_attributes.select { |a| a.arez? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name) }
-                  outgoing_links.each do |a|
-                    if a.inverse.multiplicity == :many
-                      s.method("Get#{a.inverse.attribute.qualified_name.gsub('.', '')}In#{graph.name}Graph") do |m|
-                        m.ejb.generate_base_test = false
-                        m.reference(a.referenced_entity.qualified_name, :name => :Entity)
-                        m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-                        m.returns(:reference, :referenced_entity => a.entity.qualified_name, :collection_type => :sequence)
-                      end
-                    elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
-                      s.method("Get#{a.inverse.attribute.qualified_name.gsub('.', '')}In#{graph.name}Graph") do |m|
-                        m.ejb.generate_base_test = false
-                        m.reference(a.referenced_entity.qualified_name, :name => :Entity)
-                        m.parameter(:Filter, graph.filter_parameter.filter_type, filter_options(graph)) if graph.filter_parameter?
-                        m.returns(:reference, :referenced_entity => a.entity.qualified_name, :nullable => (a.inverse.multiplicity == :zero_or_one))
-                      end
-                    end
-                  end
-                end
-              end
-            end
-          end
-
-          processed = []
-          repository.imit.graphs.select { |g| g.instance_root? }.collect { |g| g.inward_graph_links.select { |graph_link| graph_link.auto? } }.flatten.each do |graph_link|
-            source_graph = repository.imit.graph_by_name(graph_link.source_graph)
-            target_graph = repository.imit.graph_by_name(graph_link.target_graph)
-            next unless target_graph.filtered?
-            key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
-            next if processed.include?(key)
-            processed << key
-            source_graph_instance_root = repository.entity_by_name(source_graph.instance_root)
-
-            if target_graph.filter_parameter?
-              s.method(:"DeriveFilterToPropagateFrom#{graph_link.source_graph}To#{target_graph.name}") do |m|
-                m.reference(source_graph_instance_root.qualified_name, :name => "#{source_graph.name}InstanceRoot") if source_graph.instance_root?
-                m.parameter("#{source_graph.name}Filter", source_graph.filter_parameter.filter_type, filter_options(source_graph)) if source_graph.filter_parameter?
-                m.returns(target_graph.filter_parameter.filter_type, filter_options(target_graph))
-              end
-
-              s.method(:"GetLinksToUpdateFor#{graph_link.source_graph}To#{target_graph.name}") do |m|
-                m.reference(repository.entity_by_name(source_graph.instance_root).qualified_name, :name => "#{source_graph.name}InstanceRoot") if source_graph.instance_root?
-                m.parameter("#{source_graph.name}Filter", source_graph.filter_parameter.filter_type, filter_options(source_graph)) if source_graph.filter_parameter?
-                m.returns(:Integer, :collection_type => :sequence)
-              end
-            end
-          end
         end
 
         # It seems reasonable to restrict the set of methods that are annotated with replicate to those that are replication
@@ -1423,6 +1282,10 @@ module Domgen
 
       def test_create_defaults
         @test_create_defaults.nil? ? [] : @test_create_defaults.dup
+      end
+
+      def outgoing_links_from(graph)
+        entity.referencing_attributes.select{|a| a.imit? && a.inverse.traversable? && a.inverse.imit.replication_edges.include?(graph.name) && !a.imit.graph_links.any?{|g| g.source_graph == graph && !g.exclude_target? }}
       end
 
       #

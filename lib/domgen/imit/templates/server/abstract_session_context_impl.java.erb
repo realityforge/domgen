@@ -21,6 +21,18 @@ graphs_that_propagate_filters =
     graphs.
     select{|graph| graph.unfiltered? || (graph.filter_parameter? && !graph.filter_parameter.immutable?) }.
     select{|graph| graph.outward_graph_links.any?{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filter_parameter?} }
+
+  # Entities required by graph encoder infrastructure
+  entity_repositories_used_in_graph_encoding = []
+  repository.imit.graphs.select{|graph| graph.instance_root? && !graph.bulk_load? && !graph.filtered? }.each do |graph|
+    graph.reachable_entities.collect{|n|repository.entity_by_name(n)}.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
+      entity.
+         referencing_attributes.
+         select{|a| a.imit? && a.inverse.traversable? && a.inverse.imit.replication_edges.include?(graph.name) && !a.imit.graph_links.any?{|g| g.source_graph == graph && !g.exclude_target? }}.
+         select{|a| !a.inverse.jpa.java_traversable?}.
+         each {|a| entity_repositories_used_in_graph_encoding << a.entity }
+    end
+  end
 -%>
 
 /**
@@ -29,28 +41,34 @@ graphs_that_propagate_filters =
  * <pre>
  * \@ApplicationScoped
  * \@Transactional
- * \@Typed( <%= repository.service_by_name(repository.imit.session_context_service).ejb.service_name %>.class )
- * class <%= repository.service_by_name(repository.imit.session_context_service).ejb.service_implementation_name %>
+ * \@Typed( replicant.server.transport.ReplicantSessionContext.class )
+ * class <%= repository.imit.session_context_impl_name %>
  *   extends <%= repository.imit.abstract_session_context_impl_name %>
  * {
  * ...
  * }
  * </pre>
  */
-@SuppressWarnings( "SqlNoDataSourceInspection" )
-abstract class <%= repository.imit.abstract_session_context_impl_name %>
+@java.lang.SuppressWarnings( { "SqlNoDataSourceInspection", "DataFlowIssue" } )
+public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   extends replicant.server.ee.AbstractSessionContextImpl
-  implements <%= repository.service_by_name(repository.imit.session_context_service).ejb.qualified_service_name %>
+  implements replicant.server.transport.ReplicantSessionContext
 {
-  @javax.annotation.Nonnull
-  private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= repository.imit.session_manager_name %>.class.getName() );
-  @javax.annotation.Nonnull
-  private static final java.util.logging.Level SUBSCRIPTION_LOG_LEVEL = java.util.logging.Level.FINE;
 <%
+  repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
+    graph.routing_keys.each do |routing_key|
+-%>
+  @javax.annotation.Nonnull
+  private static final String <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY = "<%= repository.name %>.<%= graph.name %>.<%= routing_key.name %>";
+<%
+    end
+  end
+
 entities =
   repository.imit.graphs.select{|g|!g.bulk_load? && g.instance_root?}.collect{|g|repository.entity_by_name(g.instance_root)} +
   auto_follow_graph_links.collect{|graph_link|repository.entity_by_name(repository.imit.graph_by_name(graph_link.target_graph).instance_root)} +
-  graphs_that_propagate_filters.select{|g| g.instance_root?}.collect{|graph|repository.entity_by_name(graph.instance_root)}
+  graphs_that_propagate_filters.select{|g| g.instance_root?}.collect{|graph|repository.entity_by_name(graph.instance_root)} +
+  entity_repositories_used_in_graph_encoding
 
 entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   @javax.inject.Inject
@@ -60,9 +78,16 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   private javax.persistence.EntityManager _entityManager;
 
   @javax.annotation.Nonnull
-  protected java.lang.SecurityException createNotPermittedException( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final String action )
+  java.lang.SecurityException createNotPermittedException( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final String action )
   {
     return new java.lang.SecurityException( "User does not have required permission to perform action: " + action );
+  }
+
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public replicant.server.transport.SchemaMetaData getSchemaMetaData()
+  {
+    return iris.rose.server.net.RoseMetaData.getSchemaMetaData();
   }
 
   @java.lang.Override
@@ -107,7 +132,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     param_type = routing_key.target_attribute.jpa.non_primitive_java_type
     param_type = "java.util.List<#{param_type}>" if routing_key.multivalued?
 -%>
-      final var <%= var_name %> = (<%= param_type %>) message.getRoutingKeys().get( <%= repository.imit.qualified_server_router_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
+      final var <%= var_name %> = (<%= param_type %>) message.getRoutingKeys().get( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY );
 <% end -%>
 <% if graph.instance_root? -%>
       final var rootId = address.rootId();
@@ -130,28 +155,114 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   public void bulkCollectDataForSubscribe( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, final boolean isExplicitSubscribe )
   {
     final var address = addresses.get( 0 );
+    try
+    {
 <% bulk_subscribe_graphs = repository.imit.graphs.select{|graph| graph.bulk_load?} -%>
 <% bulk_subscribe_graphs.each do |graph| -%>
-    <%= bulk_subscribe_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
-    {
-      if ( LOG.isLoggable( SUBSCRIPTION_LOG_LEVEL ) )
+      <%= bulk_subscribe_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
       {
-        LOG.log( SUBSCRIPTION_LOG_LEVEL, "bulkCollectDataForSubscribe(SessionId=" + session.getId() +",ChangeSet=" + System.identityHashCode( changeSet ) + ",Channel=" + <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME + <% if graph.instance_root? -%>",Ids=" + addresses.stream().map( replicant.server.ChannelAddress::rootId ).toList() + <% end -%>", isExplicitSubscribe=" + isExplicitSubscribe + ")" );
-      }
 <% if graph.filter_parameter -%>
-      assert null != filter;
+        assert null != filter;
 <% end -%>
-      bulkCollectFor<%= graph.name %>( session, changeSet<% if graph.instance_root? %>, addresses<% end %><% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %>, true );
+        bulkCollectFor<%= graph.name %>( session, changeSet<% if graph.instance_root? %>, addresses<% end %><% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %>, isExplicitSubscribe );
+      }
+<% end -%>
+      else
+      {
+        throw new java.lang.IllegalStateException( "bulkCollectDataForSubscribe called for unsupported channel " + address );
+      }
+    }
+    catch ( final java.sql.SQLException sqle )
+    {
+      throw new java.lang.IllegalStateException( sqle );
+    }
+  }
+<% bulk_subscription_update_graphs = repository.imit.graphs.select{|graph| graph.bulk_load? && graph.filtered? && graph.filter_parameter? && !graph.filter_parameter.immutable?} -%>
+
+  @java.lang.Override
+  public void bulkCollectDataForSubscriptionUpdate( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet )
+  {
+<% if !bulk_subscription_update_graphs.empty? -%>
+    try
+    {
+<% bulk_subscription_update_graphs.each do |graph| -%>
+      <%= bulk_subscription_update_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == addresses.get( 0 ).channelId() )
+      {
+        assert null != filter;
+        assert null != originalFilter;
+        bulkCollectFor<%= graph.name %>FilterChange( session, changeSet<% if graph.instance_root? %>, addresses<% end %>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
+      }
+<% end -%>
+      else
+      {
+        throw new java.lang.IllegalStateException( "bulkCollectDataForSubscriptionUpdate called for unknown channel " + addresses.get( 0 ) );
+      }
+    }
+    catch ( final java.sql.SQLException sqle )
+    {
+      throw new java.lang.IllegalStateException( sqle );
+    }
+<% else -%>
+    throw new java.lang.IllegalStateException( "bulkCollectDataForSubscriptionUpdate called for unknown channel " + addresses.get( 0 ) );
+<% end -%>
+  }
+
+  @java.lang.Override
+  @javax.annotation.Nonnull
+  public replicant.server.transport.SubscribeResult collectDataForSubscribe( @javax.annotation.Nonnull final replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet )
+  {
+<% non_bulk_graphs = repository.imit.graphs.select{|graph|!graph.bulk_load?} -%>
+<% if !non_bulk_graphs.empty? -%>
+    try
+    {
+<% non_bulk_graphs.each do |graph| -%>
+      <% non_bulk_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
+      {
+<% if graph.filter_parameter -%>
+        assert null != filter;
+<% end -%>
+        return collectDataFor<%= graph.name %>( address, changeSet<% if graph.filter_parameter -%>, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter<% end %> );
+      }
+<% end -%>
+      else
+      {
+        throw new java.lang.IllegalStateException( "collectDataForSubscribe called for unsupported channel " + address );
+      }
+    }
+    catch ( final java.sql.SQLException sqle )
+    {
+      throw new java.lang.IllegalStateException( sqle );
+    }
+    <% else -%>
+    throw new java.lang.IllegalStateException( "collectDataForSubscribe called for unsupported channel " + address );;
+<% end -%>
+  }
+<% updateable_graphs = repository.imit.graphs.select{|graph| graph.filter_parameter && !graph.filter_parameter.immutable? && !graph.bulk_load?} -%>
+
+  @java.lang.Override
+  public void collectDataForSubscriptionUpdate( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address, @javax.annotation.Nullable final Object originalFilter, @javax.annotation.Nullable final Object filter, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet )
+  {
+<% unless updateable_graphs.empty? -%>
+<% updateable_graphs.each do |graph| -%>
+    <% updateable_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
+    {
+      assert null != filter;
+      assert null != originalFilter;
+      collectDataFor<%= graph.name %>SubscriptionUpdate( session, address, changeSet, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) originalFilter, (<%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %>) filter );
     }
 <% end -%>
     else
     {
-      throw new java.lang.IllegalStateException( "bulkCollectDataForSubscribe called for unsupported channel " + address );
+      throw new java.lang.IllegalStateException( "collectDataForSubscriptionUpdate called for unsupported channel " + address );
     }
+<% else -%>
+    throw new java.lang.IllegalStateException( "collectDataForSubscriptionUpdate called for unsupported channel " + address );
+  }
+<% end -%>
   }
 
   @java.lang.Override
-  public boolean shouldFollowLink( @javax.annotation.Nonnull final replicant.server.transport.SubscriptionEntry sourceEntry, @javax.annotation.Nonnull final replicant.server.ChannelAddress target )
+  public boolean shouldFollowLink( @javax.annotation.Nonnull final replicant.server.transport.SubscriptionEntry sourceEntry, @javax.annotation.Nonnull final replicant.server.ChannelAddress target, @javax.annotation.Nullable final java.lang.Object filter )
   {
 <% if auto_follow_graph_links.any? -%>
     final var source = sourceEntry.address();
@@ -184,6 +295,81 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     throw new java.lang.IllegalStateException( "shouldFollowLink called for link between channel " + sourceEntry.address() + " and " + target + " and the target has no filter or the link is unknown." );
 <% end -%>
   }
+<% repository.imit.graphs.select{|graph|!graph.bulk_load?}.each do |graph| -%>
+<% if graph.filter_parameter? && !graph.filter_parameter.immutable? -%>
+
+  private void collectDataFor<%= graph.name %>SubscriptionUpdate( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+  {
+<%
+    if graph.instance_root?
+      entity = repository.entity_by_name(graph.instance_root)
+-%>
+    final var id = address.rootId();
+    assert null != id;
+    final var entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.getBy<%= entity.primary_key.name %>( id );
+<% end %>
+    collectForFilterChange<%= graph.name %>( session, changeSet, address, <%= graph.instance_root? ? 'entity, ' : '' %>originalFilter, filter );
+  }
+
+  abstract void collectForFilterChange<%= graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final replicant.server.ChannelAddress address, <%= graph.instance_root? ? "#{repository.entity_by_name(graph.instance_root).jpa.qualified_name} #{Reality::Naming.camelize(repository.entity_by_name(graph.instance_root).name)}, " : '' %>@javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter );
+
+<% end -%>
+
+<% unless graph.instance_root? -%>
+  @java.lang.SuppressWarnings( { "SqlNoDataSourceInspection", "resource" } )
+<% end -%>
+  @javax.annotation.Nonnull
+  private replicant.server.transport.SubscribeResult collectDataFor<%= graph.name %>( @javax.annotation.Nonnull final replicant.server.ChannelAddress address, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter? -%>, final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>)
+    throws java.sql.SQLException
+  {
+<%
+    if graph.instance_root?
+      entity = repository.entity_by_name(graph.instance_root)
+-%>
+    final var id = address.rootId();
+    assert null != id;
+    final var entity = _<%= Reality::Naming.camelize("#{entity.data_module.name}#{entity.name}") %>Repository.findBy<%= entity.primary_key.name %>( id );
+    if ( null == entity )
+    {
+      return new replicant.server.transport.SubscribeResult( true, null );
+    }
+    final var messages = new replicant.server.EntityMessageSet();
+    encode<%= graph.name %>( messages, entity<%= graph.filter_parameter? ? ', filter' : '' %> );
+    changeSet.merge( address, messages );
+<%
+    elsif !graph.external_data_load?
+-%>
+<% graph.type_roots.each do |type_root_name|
+  type = repository.entity_by_name(type_root_name)
+  has_links = type.attributes.any?{|a| a.imit? && !a.imit.auto_graph_links.empty?}
+  in_instance_graph = type.imit.replication_graphs.any?{|g| g.instance_root?}
+  in_single_graph = 1 == type.imit.replication_graphs.size
+  require_channelRootIdColumn = has_links || in_instance_graph
+
+-%>
+    try ( var statement = connection().prepareStatement( "SELECT * FROM <%= type.sql.qualified_table_name %><%= type.transaction_time? ? ' WHERE DeletedAt IS NULL' : '' %>" ) )
+    {
+        encode<%= type.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement<%= require_channelRootIdColumn ? (graph.filter_parameter? ? ', filter' : ', null') : '' %> );
+    }
+<% end -%>
+    // Add to a list so that when routing we limit the number of new entities that are loaded during routing
+    final var objects = new java.util.LinkedList<>();
+    final var messages = new replicant.server.EntityMessageSet();
+    encodeObjects( messages, objects );
+    changeSet.merge( address, messages );
+<%
+    else
+-%>
+    collect<%= graph.name %>( address, changeSet<%= graph.filter_parameter.nil? ? '' : ', filter' %> );
+<%
+    end
+-%>
+<% if graph.cacheable? -%>
+    final var cacheKey = java.lang.String.valueOf( java.lang.System.currentTimeMillis() );
+<% end -%>
+    return new replicant.server.transport.SubscribeResult( false, <%= graph.cacheable? ? 'cacheKey' : 'null' %> );
+  }
+<% end -%>
 
 <%
 processed = []
@@ -198,14 +384,14 @@ repository.imit.graphs.select { |g| g.instance_root? }.collect { |g| g.inward_gr
   source_graph_instance_root = repository.entity_by_name(source_graph.instance_root)
 
   if target_graph.filter_parameter? -%>
-  protected abstract boolean shouldFollowLinkFrom<%= "#{graph_link.source_graph}To#{target_graph.name}" %>(<%= target_graph.instance_root? || source_graph.filter_parameter? ? ' ' : '' %><%= target_graph.instance_root? ? "@javax.annotation.Nonnull #{target_graph_instance_root.jpa.qualified_name} #{target_graph.name}InstanceRoot" : '' %><%= target_graph.instance_root? && source_graph.filter_parameter? ? ', ' : '' %><%= source_graph.filter_parameter? ? "@javax.annotation.Nonnull #{source_graph.filter_parameter.referenced_struct.ee.qualified_name} #{source_graph.name}Filter" : '' %><%= target_graph.instance_root? || source_graph.filter_parameter? ? ' ' : '' %>);
+  abstract boolean shouldFollowLinkFrom<%= "#{graph_link.source_graph}To#{target_graph.name}" %>(<%= target_graph.instance_root? || source_graph.filter_parameter? ? ' ' : '' %><%= target_graph.instance_root? ? "@javax.annotation.Nonnull #{target_graph_instance_root.jpa.qualified_name} #{target_graph.name}InstanceRoot" : '' %><%= target_graph.instance_root? && source_graph.filter_parameter? ? ', ' : '' %><%= source_graph.filter_parameter? ? "@javax.annotation.Nonnull #{source_graph.filter_parameter.referenced_struct.ee.qualified_name} #{source_graph.name}Filter" : '' %><%= target_graph.instance_root? || source_graph.filter_parameter? ? ' ' : '' %>);
 
 <%
   end
 end
 -%>
 <% repository.imit.graphs.select{|graph|graph.secure? && graph.external_visibility?}.each do |graph| -%>
-  protected void ensureSubscribeTo<%= graph.name %>Permitted(@javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+  void ensureSubscribeTo<%= graph.name %>Permitted(@javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
   {
     if ( !isSubscribeTo<%= graph.name %>Permitted( session, address<% if graph.filter_parameter -%>, filter<% end -%> ) )
     {
@@ -213,47 +399,19 @@ end
     }
   }
 
-  protected abstract boolean isSubscribeTo<%= graph.name %>Permitted( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> );
+  abstract boolean isSubscribeTo<%= graph.name %>Permitted( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChannelAddress address<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> );
 
 <% end -%>
 <% repository.imit.graphs.select{|graph|graph.type_graph? && graph.bulk_load?}.each do |graph| -%>
+  @java.lang.SuppressWarnings( "SameParameterValue" )
   private void bulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
   {
     final var address = new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> );
-    preBulkCollectFor<%= graph.name %>(<% if graph.filter_parameter -%> filter <% end %>);
     recordSubscription( session, changeSet, address, <%= graph.filter_parameter ? 'filter' : 'null' %>, explicitSubscribe );
     performBulkCollectFor<%= graph.name %>( session, changeSet<% if graph.filter_parameter -%>, filter<% end %>, explicitSubscribe );
   }
 
-  @SuppressWarnings( "unused" )
-  protected void preBulkCollectFor<%= graph.name %>(<% if graph.filter_parameter -%> <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %>)
-  {
-  }
-
-  protected abstract void performBulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, boolean explicitSubscribe );
-
-<% end -%>
-<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load?}.each do |graph| -%>
-  private void bulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
-  {
-    performBulkCollectFor<%= graph.name %>( session, changeSet, addresses<% if graph.filter_parameter -%>, filter<% end %>, explicitSubscribe );
-  }
-<% unless graph.instance_root? && graph.bulk_load? %>
-
-  protected abstract void performBulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull java.util.List<replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, boolean explicitSubscribe );
-<% end -%>
-
-<% end -%>
-<% repository.imit.graphs.select{|graph|graph.instance_root? && graph.bulk_load? && graph.filtered? && graph.filter_parameter? && !graph.filter_parameter.immutable?}.each do |graph| -%>
-  @java.lang.Override
-  public void bulkCollectFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
-  {
-    performBulkCollectFor<%= graph.name %>FilterChange( session, changeSet, addresses, originalFilter, filter );
-  }
-<% unless graph.instance_root? && graph.bulk_load? %>
-
-  protected abstract void performBulkCollectFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull java.util.List<replicant.server.ChannelAddress> addresses, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter );
-<% end -%>
+  abstract void performBulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, boolean explicitSubscribe );
 
 <% end -%>
 <%
@@ -272,7 +430,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
   -%>
 <% if mutable_routing_keys -%>
   @javax.annotation.Nonnull
-  protected abstract replicant.server.transport.FilterResult test<%= graph.name %>Interesting( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <% entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> );
+  abstract replicant.server.transport.FilterResult test<%= graph.name %>Interesting( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <% entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> );
 
   @javax.annotation.Nullable
   private replicant.server.EntityMessage filterMessageOfInterestIn<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <%entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> )
@@ -292,7 +450,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
     }
   }
 <% else -%>
-  protected abstract boolean is<%= graph.name %>Interesting( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <% entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> );
+  abstract boolean is<%= graph.name %>Interesting( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <% entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> );
 
   @javax.annotation.Nullable
   private replicant.server.EntityMessage filterMessageOfInterestIn<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.EntityMessage message, @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session <% if graph.instance_root? %>, @javax.annotation.Nonnull final <%entity = repository.entity_by_name(graph.instance_root) %> <%= entity.primary_key.jpa.non_primitive_java_type %> <%= Reality::Naming.camelize("#{entity.name}#{entity.primary_key.name}") %> <% end %><% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter <% end %><%= extra_params %> )
@@ -317,8 +475,8 @@ graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |
     if a.inverse.multiplicity == :many
  -%>
 
-  @java.lang.Override
-  public java.util.List<<%= a.entity.jpa.qualified_name %>> get<%= a.inverse.attribute.qualified_name.gsub('.', '') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final <%= a.referenced_entity.jpa.qualified_name %> entity<% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+  @javax.annotation.Nonnull
+  java.util.List<<%= a.entity.jpa.qualified_name %>> get<%= a.inverse.attribute.qualified_name.gsub('.', '') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final <%= a.referenced_entity.jpa.qualified_name %> entity<% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
   {
     return entity.get<%= Reality::Naming.pascal_case(Reality::Naming.pluralize(a.inverse.name)) %>();
   }
@@ -326,8 +484,8 @@ graph.reachable_entities.collect { |n| repository.entity_by_name(n) }.select { |
     elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
  -%>
 
-  @java.lang.Override
-  public <%= a.entity.jpa.qualified_name %> get<%= a.inverse.attribute.qualified_name.gsub('.', '') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final <%= a.referenced_entity.jpa.qualified_name %> entity<% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+  @javax.annotation.Nonnull
+  <%= a.entity.jpa.qualified_name %> get<%= a.inverse.attribute.qualified_name.gsub('.', '') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final <%= a.referenced_entity.jpa.qualified_name %> entity<% if graph.filter_parameter? %>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
   {
     return entity.get<%= Reality::Naming.pascal_case(a.inverse.name) %>();
   }
@@ -351,128 +509,106 @@ end
   pk_long_name = instance_root.primary_key.qualified_name.gsub('.','')
 
   graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity|
+    in_single_graph = 1 == entity.imit.replication_graphs.size
 -%>
 
   /**
-   * Implement with code that probably looks something like:
-   * <br/>
-   * <code>
-   * <pre>
-   \@Language( "TSQL" )
-    final var sql =
-      generateTempIdTable( addresses ) +
-      "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> E ... JOIN @Ids Inputs ON Inputs.Id = ...";
-      addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= instance_root.name %><%= instance_root.primary_key.name %>", sql );
-
-   * </pre>
-   * </code>
+   * Collect data for PlannedMovements.PlannedMovementTargetOrgUnit that are part of the graph. Example implementation:
+   * <pre>{@code
+   * @Language("TSQL")
+   * final var sql =
+   *     generateTempIdTable( addresses ) +
+   *     "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* " +
+   *     "FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> E ... " +
+   *     "JOIN @Ids Inputs ON Inputs.Id = ...";
+   * addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= instance_root.name %><%= instance_root.primary_key.name %>", sql );
+   * }</pre>
+      *
+   * @param addresses A non-null list of channel addresses that are used to identify the roots of the <%= graph.name %> graph.
+   * @param changeSet A non-null {@code ChangeSet} objects representing the changes generated as part of the bulk operation.
+   * @throws java.sql.SQLException If a database access error occurs or the method encounters an issue during the operation.
    */
-  protected abstract void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+  abstract void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
     throws java.sql.SQLException;
 
 <% if graph.filter_parameter && !graph.filter_parameter.immutable? && entity != instance_root -%>
 
-  protected abstract void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+  abstract void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
     throws java.sql.SQLException;
 <% end -%>
 
-  @SuppressWarnings( "unused" )
-  protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement )
+  @java.lang.SuppressWarnings( { "unused", "SameParameterValue" } )
+  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement )
     throws java.sql.SQLException
   {
-    <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement, <%= Reality::Naming.camelize(pk_long_name) %>ColumnName );
+    encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement, <%= Reality::Naming.camelize(pk_long_name) %>ColumnName );
   }
 
-  @SuppressWarnings( { "resource", "unused", "SqlSourceToSinkFlow" } )
-  protected void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql )
+  @java.lang.SuppressWarnings( { "resource", "unused", "SqlSourceToSinkFlow", "SameParameterValue" } )
+  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql )
     throws java.sql.SQLException
   {
     try ( var statement = connection().createStatement() )
     {
-      <%= repository.imit.qualified_jpa_encoder_name %>.encode<%= entity.qualified_name.gsub('.','') %>( changeSet, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>, statement.executeQuery( sql ), <%= Reality::Naming.camelize(pk_long_name) %>ColumnName );
+      encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement.executeQuery( sql ), <%= Reality::Naming.camelize(pk_long_name) %>ColumnName );
     }
   }
 <% end -%>
 
-  @SuppressWarnings( "unused" )
-  protected void preBulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
-  {
-  }
-
-  protected void performBulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
+  private void bulkCollectFor<%= graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %>, final boolean explicitSubscribe )
+    throws java.sql.SQLException
   {
     final var addresses = new java.util.ArrayList<>( input );
-    try
+    // This block deals with non-existent root entities by sending a DELETE channel action
+    // backback, which is the behavior expected by the client and implemented in the non-bulk scenario
+    addDeleteForInstanceRootIn<%= graph.name %>Graph( changeSet, addresses );
+    // Abort if it turns out all addresses were deleted
+    if ( addresses.isEmpty() )
     {
-      // This block deals with non-existent root entities by sending a DELETE channel action
-      // backback, which is the behavior expected by the client and implemented in the non-bulk scenario
-      addDeleteForInstanceRootIn<%= graph.name %>Graph( changeSet, addresses );
-      // Abort if it turns out all addresses were deleted
-      if ( addresses.isEmpty() )
-      {
-        return;
-      }
-      preBulkCollectFor<%= graph.name %>( addresses<% if graph.filter_parameter -%>, filter<% end %> );
-      recordSubscriptions( session, changeSet, addresses, <%= graph.filter_parameter? ? 'filter' : 'null' -%>, explicitSubscribe );
+      return;
+    }
+    recordSubscriptions( session, changeSet, addresses, <%= graph.filter_parameter? ? 'filter' : 'null' -%>, explicitSubscribe );
 
 <% graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
-      bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( addresses, changeSet<% if graph.filter_parameter -%>, filter<% end %> );
+    bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( addresses, changeSet<% if graph.filter_parameter -%>, filter<% end %> );
 <% end -%>
-    }
-    catch ( final java.sql.SQLException sqle )
-    {
-      throw new java.lang.IllegalStateException( sqle );
-    }
   }
 <% if graph.filter_parameter && !graph.filter_parameter.immutable? -%>
 
-  @SuppressWarnings( "unused" )
-  protected void preBulkCollectFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
-  {
-  }
-
-  protected void performBulkCollectFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+  private void bulkCollectFor<%= graph.name %>FilterChange( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> input, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> originalFilter, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter )
+    throws java.sql.SQLException
   {
     final var addresses = new java.util.ArrayList<>( input );
-    try
+    // This block deals with non-existent root entities by sending a DELETE channel action
+    // back which is the behavior expected by the client and implemented in the non-bulk scenario
+    addDeleteForInstanceRootIn<%= graph.name %>Graph( changeSet, addresses );
+    // Abort if it turns out all addresses were deleted
+    if ( addresses.isEmpty() )
     {
-      // This block deals with non-existent root entities by sending a DELETE channel action
-      // back which is the behavior expected by the client and implemented in the non-bulk scenario
-      addDeleteForInstanceRootIn<%= graph.name %>Graph( changeSet, addresses );
-      // Abort if it turns out all addresses were deleted
-      if ( addresses.isEmpty() )
-      {
-        return;
-      }
+      return;
+    }
 
-      preBulkCollectFor<%= graph.name %>FilterChange( addresses<% if graph.filter_parameter -%>, filter<% end %> );
-
-      // No change on root entity as all we have to do is update the filter
-      for ( final var address : addresses )
-      {
-        changeSet.mergeAction( address, replicant.server.ChannelAction.Action.UPDATE, filter );
-        session.getSubscriptionEntry( address ).setFilter( filter );
-      }
+    // No change on root entity as all we have to do is update the filter
+    for ( final var address : addresses )
+    {
+      changeSet.mergeAction( address, replicant.server.ChannelAction.Action.UPDATE, filter );
+      session.getSubscriptionEntry( address ).setFilter( filter );
+    }
 
 <%
   graph.filtered_outward_auto_graph_links.each do |graph_link|
      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
 -%>
-      bulkPropagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( session, addresses, changeSet, filter );
+    bulkPropagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( session, addresses, changeSet, filter );
 <% end -%>
 <% graph.included_entities.select{|name| graph.instance_root != name}.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
-      bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( session, addresses, changeSet, originalFilter, filter );
+    bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( session, addresses, changeSet, originalFilter, filter );
 <% end -%>
-    }
-    catch ( final java.sql.SQLException sqle )
-    {
-      throw new java.lang.IllegalStateException( sqle );
-    }
   }
 <% end -%>
 
-  @SuppressWarnings( { "resource", "unused", "SqlSourceToSinkFlow" } )
-  protected void addDeleteForInstanceRootIn<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses )
+  @java.lang.SuppressWarnings( { "resource", "unused", "SqlSourceToSinkFlow", "SameParameterValue" } )
+  void addDeleteForInstanceRootIn<%= graph.name %>Graph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses )
     throws java.sql.SQLException
   {
     @org.intellij.lang.annotations.Language( "TSQL" )
@@ -498,8 +634,56 @@ end
     }
   }
 <% end -%>
-<% if repository.imit.graphs.any?{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.outward_graph_links.empty? && graph.outward_graph_links.any?{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered?} } -%>
 
+  @javax.annotation.Nonnull
+  @java.lang.Override
+  public java.util.Collection<replicant.server.ChannelLink> propagateSubscriptionFilterUpdate( @javax.annotation.Nonnull final replicant.server.ChannelAddress source, @javax.annotation.Nullable final Object sourceFilter )
+  {
+    final var results = new java.util.ArrayList<replicant.server.ChannelLink>();
+<% first = true -%>
+<% repository.imit.graphs.select{|graph| graph.unfiltered? || (graph.filter_parameter && !graph.filter_parameter.immutable?) }.each do |source_graph|
+    processed = []
+    source_graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+      next unless target_graph.filter_parameter
+      key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+      next if processed.include?(key)
+      processed << key
+-%>
+    <%= first ? '' : 'else ' %>if( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %> == source.channelId() )
+    {
+<% if source_graph.filter_parameter -%>
+      final var sourceGraphFilter = (<%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %>) sourceFilter;
+      assert null != sourceGraphFilter;
+<% end -%>
+      results.addAll( propagateFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( source<% if source_graph.filtered? %>, sourceGraphFilter<% end %> ) );
+    }
+<% first = false -%>
+<% end -%>
+<% end -%>
+    return results;
+  }
+<% if repository.imit.graphs.any?{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.outward_graph_links.empty? && graph.outward_graph_links.any?{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered?} } -%>
+<% repository.imit.graphs.select{|graph| graph.unfiltered? || (graph.filter_parameter && !graph.filter_parameter.immutable?) }.each do |source_graph|
+  root_type = source_graph.instance_root? ? Domgen::Java.java_type(repository.entity_by_name(source_graph.instance_root).primary_key, :ee, :default) : nil
+  processed = []
+  source_graph.outward_graph_links.select{|graph_link| graph_link.auto?}.each do |graph_link|
+     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+     next unless target_graph.filter_parameter
+     key = "#{graph_link.source_graph}=>#{graph_link.target_graph}"
+     next if processed.include?(key)
+     processed << key
+     target_graph_instance_root = repository.entity_by_name(target_graph.instance_root)
+     source_graph_instance_root = repository.entity_by_name(source_graph.instance_root)
+-%>
+
+  @javax.annotation.Nonnull
+  abstract java.util.Collection<replicant.server.ChannelLink> propagateFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final replicant.server.ChannelAddress source<% if source_graph.filter_parameter %>, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{source_graph.name}Filter") %><% end %> );
+
+<% end -%>
+<% end -%>
+<% end -%>
+<% if repository.imit.graphs.any?{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? && !graph.outward_graph_links.empty? && graph.outward_graph_links.any?{|graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered?} } -%>
 <% repository.imit.graphs.select{|graph| graph.filter_parameter? && !graph.filter_parameter.immutable? }.each do |graph|
   root_type = graph.instance_root? ? Domgen::Java.java_type(repository.entity_by_name(graph.instance_root).primary_key, :ee, :default) : nil
   processed = []
@@ -509,11 +693,10 @@ end
      parameters_equiv = graph.filter_parameter? && target_graph.filter_parameter.equiv?(graph.filter_parameter)
 -%>
 
-  protected abstract void bulkPropagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("#{graph.name}Filter") %> )
+  abstract void bulkPropagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("#{graph.name}Filter") %> )
     throws java.sql.SQLException;
 
-  @SuppressWarnings( "unused" )
-  protected void propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filtered? %>, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("#{target_graph.name}Filter") %><% end %>, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize("#{target_graph.name}IdColumnName") %> )
+  void propagateFilterFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filtered? %>, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("#{target_graph.name}Filter") %><% end %>, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize("#{target_graph.name}IdColumnName") %> )
     throws java.sql.SQLException
   {
     final var targets = getChannelAddressesForTargetGraph( sql, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <%= Reality::Naming.camelize("#{target_graph.name}IdColumnName") %> );
@@ -525,9 +708,7 @@ end
 <% if parameters_equiv -%>
 
   @javax.annotation.Nonnull
-  @java.lang.SuppressWarnings( "unused" )
-  @java.lang.Override
-  public <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>@javax.annotation.Nonnull final <%= source_graph_instance_root.jpa.qualified_name %> sourceGraphInstanceRoot<% end %><% if graph.filtered? %><%= graph.instance_root? ? ', ' : '' %>@javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{graph.name}Filter") %><% end %> )<%= parameters_equiv ? '' : ';' %>
+  <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> deriveFilterToPropagateFrom<%= graph.name %>To<%= target_graph.name %>( <% if graph.instance_root? -%>@java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final <%= source_graph_instance_root.jpa.qualified_name %> sourceGraphInstanceRoot<% end %><% if graph.filtered? %><%= graph.instance_root? ? ', ' : '' %>@javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> <%= Reality::Naming.camelize("#{graph.name}Filter") %><% end %> )<%= parameters_equiv ? '' : ';' %>
   {
     return <%= Reality::Naming.camelize("#{graph.name}Filter") %>;
   }
@@ -548,7 +729,7 @@ end
     return map;
   }
 
-  @SuppressWarnings( { "SameParameterValue", "resource" } )
+  @java.lang.SuppressWarnings( { "SameParameterValue", "resource" } )
   @javax.annotation.Nonnull
   private java.util.Set<replicant.server.ChannelAddress> getChannelAddressesForTargetGraph( @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final String sql, final int targetGraph, @javax.annotation.Nonnull final String targetGraphColumnName )
     throws java.sql.SQLException
@@ -567,4 +748,525 @@ end
     return targets;
   }
 <% end -%>
-}
+<%
+  repository.imit.graphs.select{|graph| graph.instance_root? && !graph.bulk_load? }.each do |graph|
+    entity = repository.entity_by_name(graph.instance_root)
+    filter_param = nil
+    if graph.filter_parameter?
+      p = graph.filter_parameter
+      java_type = "#{nullability_annotation(p.nullable?)} final #{Domgen::Java.java_type(p, :ee, :default)}"
+      filter_param = "#{java_type} filter"
+    end
+%>
+  void encode<%= graph.name %>( @javax.annotation.Nonnull final replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", #{filter_param}" %> )
+  {
+    _encode<%= graph.name %>_<%= entity.name %>( messages, object<%= entity.imit.outgoing_links_from(graph).empty? || filter_param.nil? ? '' : ', filter' %> );
+  }
+
+<%
+  graph.reachable_entities.collect{|n|repository.entity_by_name(n)}.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
+    outgoing_links = entity.imit.outgoing_links_from(graph)
+-%>
+  private void _encode<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= outgoing_links.empty? || filter_param.nil? ? '' : ", #{filter_param}" %> )
+  {
+    encodeObject( messages, object );
+<%
+    outgoing_links.each do |a|
+      if a.inverse.multiplicity == :many
+-%>
+    for ( final var o : <% if graph.filtered? %>get<%= a.inverse.attribute.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( object<% if graph.filter_parameter? %>, filter<% end %> )<% elsif !a.inverse.jpa.java_traversable? %>_<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.findAllBy<%= a.name %>( object )<% else %>object.get<%= Reality::Naming.pascal_case(Reality::Naming.pluralize(a.inverse.name)) %>()<% end %> )
+    {
+      if( !messages.containsEntityMessage( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(a.entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(a.entity.name.to_s) %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
+      {
+        _encode<%= graph.name %>_<%= a.entity.name %>( messages, o<%= a.entity.imit.outgoing_links_from(graph).empty? || filter_param.nil? ? '' : ', filter' %> );
+      }
+    }
+<% elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one -%>
+    {
+      final var o = <% if graph.filtered? %>get<%= a.inverse.attribute.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( object, filter )<% elsif !a.inverse.jpa.java_traversable? %>_<%= Reality::Naming.camelize(a.entity.data_module.name) %><%= a.entity.name %>Repository.<%= a.inverse.multiplicity == :zero_or_one ? 'find' : 'get' %>By<%= a.name %>( object )<% else %>object.get<%= a.inverse.name %>()<% end %>;
+<% if a.inverse.multiplicity == :zero_or_one %>      if( null != o )
+<% end -%>
+      {
+        if( !messages.containsEntityMessage( <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(a.entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(a.entity.name.to_s) %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
+        {
+          _encode<%= graph.name %>_<%= a.entity.name %>( messages, o<%= a.entity.imit.outgoing_links_from(graph).empty? || filter_param.nil? ? '' :', filter'%> );
+        }
+      }
+    }
+<%
+      end
+    end
+-%>
+  }
+
+<%
+    outgoing_links.each do |a|
+      if graph.filtered?
+-%>
+  @javax.annotation.Nonnull
+  abstract java.util.List<<%= a.entity.jpa.qualified_name %>> get<%= a.inverse.attribute.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", #{filter_param}" %> );
+
+<%
+      end
+    end
+-%>
+<% end -%>
+<% end -%>
+<%
+  repository.data_modules.select {|dm| dm.imit?}.each do |data_module|
+    data_module.entities.select {|e| e.imit? && !e.imit.subgraph_roots.empty?}.each do |entity|
+      entity.imit.subgraph_roots.each do |subgraph_root|
+        graph = repository.imit.graph_by_name(subgraph_root)
+        p = graph.filter_parameter
+-%>
+  void encode<%= graph.name %><%= entity.name %>SubGraph( @javax.annotation.Nonnull final replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= entity.imit.outgoing_links_from(graph).empty? || p.nil? ? '' : ", #{nullability_annotation(p.nullable?)} final #{Domgen::Java.java_type(p, :ee, :default)} filter" %> )
+  {
+    _encode<%= graph.name %>_<%= entity.name %>( messages, object<%= entity.imit.outgoing_links_from(graph).empty? || p.nil? ? '' : ', filter' %> );
+  }
+
+<%
+      end
+    end
+  end
+-%>
+  @java.lang.SuppressWarnings( "DataFlowIssue" )
+  @javax.annotation.Nullable
+  protected replicant.server.EntityMessage convertToEntityMessage( @javax.annotation.Nonnull final Object object, final boolean isUpdate, final boolean isInitialLoad )
+  {
+   <%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.each do |entity|
+    if entity.imit? && entity.concrete?
+-%> if( object instanceof <%= entity.jpa.qualified_name %> entity<% if entity.jpa.track_changes? -%> && ( isInitialLoad || !isUpdate || !entity.unmodified() )<% end -%> )
+    {
+      return convert<%= data_module.name %><%= entity.name %>ToEntityMessage( entity, isUpdate );
+    }
+    else<%
+    end
+  end
+end
+%>
+    {
+      return null;
+    }
+  }
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.each do |entity|
+    if entity.imit? && entity.concrete?
+
+      links = entity.attributes.collect{|a| a.imit? ? a.imit.auto_graph_links : [] }.flatten -%>
+
+  @javax.annotation.Nonnull
+  private replicant.server.EntityMessage convert<%= data_module.name %><%= entity.name %>ToEntityMessage( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, final boolean isUpdate )
+  {
+<% if links.size > 0 -%>
+    @javax.annotation.Nullable final var attributes = isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null;
+    @javax.annotation.Nonnull final var routingKeys = route<%= entity.name %>( entity );
+    @javax.annotation.Nonnull final java.util.Set<replicant.server.ChannelLink> links = new java.util.HashSet<>();
+    if( null != attributes )
+    {
+<%
+  links.each do |graph_link|
+    source_graph = repository.imit.graph_by_name(graph_link.source_graph)
+    target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+    entity = graph_link.imit_attribute.attribute.primary_key? ? graph_link.imit_attribute.attribute.entity : graph_link.imit_attribute.attribute.referenced_entity
+    attribute_getter_path = getter_for(graph_link.imit_attribute.attribute)
+    getter_path = graph_link.imit_attribute.attribute.reference? ? [attribute_getter_path] : []
+    last_getter_nullable = false
+    if graph_link.path
+      last_getter_nullable = graph_link.imit_attribute.attribute.nullable?
+      graph_link.path.to_s.split.each_with_index do |attribute_name_path_element, i|
+        other = entity.attribute_by_name(attribute_name_path_element)
+        last_getter_nullable = other.nullable? && graph_link.imit_attribute.attribute != other
+        getter_path << getter_for(other)
+        entity = other.referenced_entity
+      end
+    end
+-%>
+<% if source_graph.instance_root? -%>
+      addChannelLinks( routingKeys, links, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>_NAME, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <% if graph_link.imit_attribute.attribute.nullable? -%>null ==  entity.<%= getter_for(graph_link.imit_attribute.attribute)%> <% if last_getter_nullable %>|| null == entity.<%= getter_path.join('.') %> <% end -%> ? null : <% end -%>entity.<%= (getter_path + [getter_for(entity.primary_key)]).join('.') %> );
+<% else -%>
+      addChannelLink( links, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <% if graph_link.imit_attribute.attribute.nullable? -%>null ==  entity.<%= getter_for(graph_link.imit_attribute.attribute)%> <% if last_getter_nullable %>|| null == entity.<%= getter_path.join('.') %> <% end -%> ? null : <% end -%>entity.<%= (getter_path + [getter_for(entity.primary_key)]).join('.') %> );
+<% end -%>
+<% end -%>
+<% end -%>
+<% if links.size > 0 -%>
+    }
+<% end -%>
+    return new replicant.server.EntityMessage( entity.<%= getter_for(entity.primary_key) %>, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, System.currentTimeMillis(), <% if links.size > 0 %>routingKeys<% else %>route<%= entity.name %>( entity )<% end %>, <% if links.size > 0 %>attributes<% else %>isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null<% end %>, <%= links.size == 0 ? 'null' : 'links' %> );
+  }
+<%
+    end
+  end
+end
+-%>
+<%
+  repository.imit.graphs.select{|graph|graph.filtered?}.each do |graph|
+    graph.routing_keys.each do |routing_key|
+      unless routing_key.target_nullsafe?
+        index = 0
+        a = routing_key.imit_attribute.attribute
+        is_inverse = routing_key.inverse_start?
+        routing_key.path.each do |path_element|
+          next_is_inverse = routing_key.is_inverse_path_element?(path_element)
+          n = routing_key.get_attribute_name_from_path_element?(path_element)
+          next_attribute =
+            next_is_inverse ?
+            a.entity.arez.referencing_client_side_attributes.select {|attr| attr.inverse.name.to_s == n.to_s}[0] :
+            a.entity.attribute_by_name(n)
+-%>
+
+  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= (is_inverse ? a.entity : a.referenced_entity).jpa.qualified_name %> value )
+  {
+<% if a.nullable? -%>
+    if( null != value )
+    {
+<% end -%>
+<% if routing_key.is_path_element_recursive?(path_element) -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value );
+    route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( map, value.<%= getter_for(next_attribute) %> );
+<% elsif next_is_inverse -%>
+    for( final var v : value.get<%= next_attribute.inverse.multiplicity == :many ? Reality::Naming.pluralize(next_attribute.inverse.name) : next_attribute.inverse.name %>() )
+    {
+      route_<%= graph.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, v );
+    }
+<% else -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_<%= index + 1 %>( map, value.<%= getter_for(next_attribute) %> );
+<% end -%>
+<% if a.nullable? -%>
+    }
+<% end -%>
+  }
+<%
+          a = next_attribute
+          is_inverse = next_is_inverse
+          index = index + 1
+        end
+-%>
+
+  private void route_<%= graph.name %>_<%= routing_key.name %>_<%= index %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, <%= nullability_annotation(a.nullable?) %> final <%= (is_inverse ? a.entity : a.referenced_entity).jpa.qualified_name %> value )
+  {
+<% if a.nullable? -%>
+    if( null != value )
+    {
+<% end -%>
+<% attr = (is_inverse ? a.entity : a.referenced_entity).attribute_by_name(routing_key.attribute_name) -%>
+<% if routing_key.multivalued? -%>
+    addInstanceRootRouterKey( map, <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
+<% else -%>
+    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, value.<%= getter_for(attr) %> );
+<% end -%>
+<% if a.nullable? -%>
+    }
+<% end -%>
+  }
+<%
+      end
+    end
+  end
+-%>
+<%
+# graph => entity
+routes_to_keep = {}
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
+    entity.imit.replication_graphs.each do |graph|
+      entity.attributes.select {|a| a.reference? &&
+        a.arez? &&
+        a.inverse.traversable? &&
+        a.referenced_entity.arez? &&
+        graph.instance_root? &&
+        a.referenced_entity.imit.replication_graphs.include?(graph) &&
+        a.imit.graph_links.all?{|g| g.always_follow? || g.source_graph.to_s != graph.name.to_s}}.
+       each do |a|
+        (routes_to_keep[graph] ||= []) << a.referenced_entity
+      end
+    end
+  end
+end
+ -%>
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.select { |entity| entity.imit? && entity.concrete? }.each do |entity|
+    outgoing_links = entity.attributes.select {|a| a.reference? && a.arez? && a.inverse.traversable? && a.referenced_entity.arez?}
+ -%>
+
+  @javax.annotation.Nonnull
+  private java.util.Map<String, java.io.Serializable> route<%= entity.name %>( @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  {
+    final var map = new java.util.HashMap<String, java.io.Serializable>();
+<% entity.imit.replication_graphs.each do |graph| -%>
+<% if (routes_to_keep[graph] ||= []).include?(entity) -%>
+    _route<%= graph.name %>_<%= entity.name %>( map, entity );
+<% else -%>
+<% if graph.filtered? -%>
+<%
+  graph.routing_keys.select{|rk| rk.imit_attribute.attribute.entity.name == entity.name}.each do |routing_key|
+    initial_attr = routing_key.imit_attribute.attribute
+    if !routing_key.reference?
+-%>
+<% if routing_key.multivalued? -%>
+    addInstanceRootRouterKey( map, <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% else -%>
+    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% end -%>
+<% elsif routing_key.target_nullsafe?
+    a = initial_attr
+    v = ''
+    path = initial_attr.primary_key? ? ['entity'] : ["entity.#{getter_for(a)}"]
+    v = "#{path.join('.')} == null ? null : " if a.nullable?
+    routing_key.path.each do |path_element|
+      a = a.referenced_entity.attribute_by_name(routing_key.get_attribute_name_from_path_element?(path_element))
+      path << getter_for(a)
+      if a.nullable?
+        v = "#{v}#{path.join('.')} == null ? null : "
+      end
+    end
+    path << getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name))
+    v = "#{v}#{path.join('.')}"
+-%>
+<% if routing_key.multivalued? -%>
+    addInstanceRootRouterKey( map, <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% else -%>
+    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% end -%>
+<% else -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_0( map, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% end -%>
+<% end -%>
+<% end -%>
+<% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
+    addInstanceRootRouterKey( map, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
+<% elsif graph.instance_root? -%>
+<% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) && a.imit.graph_links.all?{|g| g.always_follow? || g.source_graph.to_s != graph.name.to_s } }.each do |outgoing_link| -%>
+<% if outgoing_link.nullable? -%>
+    {
+      final var v = entity.<%= getter_for(outgoing_link) %>;
+      if( null != v )
+      {
+        _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, v );
+      }
+    }
+<% else -%>
+    _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, entity.<%= getter_for(outgoing_link) %> );
+<% end -%>
+<% end -%>
+<% else -%>
+    map.put( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, Boolean.TRUE );
+<% end -%>
+<% end -%>
+<% end -%>
+    return map;
+  }
+<% entity.imit.replication_graphs.select{|graph| (routes_to_keep[graph] ||= []).include?(entity)}.each do |graph| -%>
+
+  private void _route<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> map, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  {
+<% if graph.filtered? -%>
+<%
+  graph.routing_keys.select{|rk| rk.imit_attribute.attribute.entity.name == entity.name}.each do |routing_key|
+    initial_attr = routing_key.imit_attribute.attribute
+    if !routing_key.reference?
+-%>
+<% if routing_key.multivalued? -%>
+    addInstanceRootRouterKey( map, <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% else -%>
+    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% end -%>
+<% elsif routing_key.target_nullsafe?
+    a = initial_attr
+    v = ''
+    path = initial_attr.primary_key? ? ['entity'] : ["entity.#{getter_for(a)}"]
+    v = "#{path.join('.')} == null ? null : " if a.nullable?
+    routing_key.path.each do |path_element|
+      a = a.referenced_entity.attribute_by_name(routing_key.get_attribute_name_from_path_element?(path_element))
+      path << getter_for(a)
+      if a.nullable?
+        v = "#{v}#{path.join('.')} == null ? null : "
+      end
+    end
+    path << getter_for(a.referenced_entity.attribute_by_name(routing_key.attribute_name))
+    v = "#{v}#{path.join('.')}"
+-%>
+<% if routing_key.multivalued? -%>
+    addInstanceRootRouterKey( map, <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% else -%>
+    map.put( <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+<% end -%>
+<% else -%>
+    route_<%= graph.name %>_<%= routing_key.name %>_0( map, entity<% unless initial_attr.primary_key? %>.<%= getter_for(initial_attr) %><% end %> );
+<% end -%>
+<% end -%>
+<% end -%>
+<% if graph.instance_root? && graph.instance_root.to_s == entity.qualified_name.to_s -%>
+    addInstanceRootRouterKey( map, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, entity.<%= getter_for(entity.primary_key) %> );
+<% elsif graph.instance_root? -%>
+<% outgoing_links.select{|a| a.referenced_entity.imit.replication_graphs.include?(graph) && a.imit.graph_links.all?{|g| g.always_follow? || g.source_graph.to_s != graph.name.to_s } }.each do |outgoing_link| -%>
+<% if outgoing_link.nullable? -%>
+    {
+      final var v = entity.<%= getter_for(outgoing_link) %>;
+      if( null != v )
+      {
+        _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, v );
+      }
+    }
+<% else -%>
+    _route<%= graph.name %>_<%= outgoing_link.referenced_entity.name %>( map, entity.<%= getter_for(outgoing_link) %> );
+<% end -%>
+<% end -%>
+<% else -%>
+    map.put( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_NAME, Boolean.TRUE );
+<% end -%>
+  }
+<% end -%>
+<% end -%>
+<% end -%>
+<%
+repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module|
+  data_module.entities.each do |entity|
+    if entity.imit? && entity.concrete? && entity.imit.replication_graphs.any?{|g| g.bulk_load? || g.type_graph?}
+      has_links = entity.attributes.any?{|a| a.imit? && !a.imit.auto_graph_links.empty?}
+      in_instance_graph = entity.imit.replication_graphs.any?{|g| g.instance_root?}
+      in_type_graph = entity.imit.replication_graphs.any?{|g| g.type_graph?}
+      in_single_graph = 1 == entity.imit.replication_graphs.size
+      require_channelRootIdColumn = has_links || in_instance_graph
+      channelId = in_single_graph ? "#{repository.imit.qualified_subscription_constants_name}.#{Reality::Naming.uppercase_constantize(entity.imit.replication_graphs[0].name)}" : 'channelId'
+-%>
+
+  void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% unless in_single_graph %>, @java.lang.SuppressWarnings( "SameParameterValue" ) final int channelId<% end %>, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<% if require_channelRootIdColumn %>, @javax.annotation.<%= in_type_graph ? 'Nullable' : 'Nonnull' %> final String channelRootIdColumn<% end %> )
+    throws java.sql.SQLException
+  {
+    try ( var resultSet = statement.executeQuery() )
+    {
+      encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, channelId<% end %>, resultSet<% if require_channelRootIdColumn %>, channelRootIdColumn<% end %> );
+    }
+  }
+
+  void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% unless in_single_graph %>, final int channelId<% end %>, @javax.annotation.Nonnull final java.sql.ResultSet resultSet<% if require_channelRootIdColumn %>, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.<%= in_type_graph ? 'Nullable' : 'Nonnull' %> final String channelRootIdColumn<% end %> )
+    throws java.sql.SQLException
+  {
+    while ( resultSet.next() )
+    {
+<% if in_instance_graph -%>
+<% if in_type_graph -%>
+      assert null != channelRootIdColumn || getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isTypeGraph();
+<% end -%>
+      final var rootId = <%= in_type_graph ? 'null == channelRootIdColumn ? null : ' : '' %>resultSet.getInt( channelRootIdColumn );
+<% end -%>
+      final var attributeValues = new java.util.HashMap<String, java.io.Serializable>();
+<% if has_links -%>
+      @javax.annotation.Nullable final var links = new java.util.HashSet<replicant.server.ChannelLink>();
+<% end -%>
+<% entity.attributes.select{|a| a.imit?}.each do |attribute|
+    a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
+    type_suffix = 'Object'
+    type_suffix = 'Int' if a.integer?
+    type_suffix = 'Int' if a.imit.transport_characteristic_type_key == :enumeration && a.enumeration.numeric_values?
+    type_suffix = 'Long' if a.long? && !attribute.nullable?
+    type_suffix = 'Boolean' if a.boolean?
+    type_suffix = 'Date' if a.date?
+    type_suffix = 'Timestamp' if a.datetime?
+    type_suffix = 'String' if a.text?
+    type_suffix = 'String' if a.imit.transport_characteristic_type_key == :enumeration && a.enumeration.textual_values?
+    type_suffix = 'Double' if a.real?
+
+    db_type = attribute.jpa.java_type(:boundary)
+
+    if attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
+      db_type = 'java.lang.String'
+    elsif attribute.imit.transport_characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
+      db_type = 'java.lang.Integer'
+    end
+
+-%>
+<% if attribute.primary_key? -%>
+      final var entityId = resultSet.getInt( "<%= attribute.sql.column_name %>" );
+<% else -%>
+<%
+if [:date, :datetime, :text, :integer, :enumeration, :boolean].include?(attribute.imit.transport_characteristic_type_key)
+-%>
+      <% unless attribute.imit.auto_graph_links.select{|graph_link| graph_link.path.nil? && !attribute.primary_key?}.empty? %>final var attribute<%= attribute.name %> = <% end -%>decode<%= attribute.nullable? ? 'Nullable' : '' %><%= type_suffix %>Attribute( resultSet, attributeValues, "<%= attribute.name %>", "<%= attribute.sql.column_name %>" );
+<%
+else
+  Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
+end -%>
+<% end -%>
+<% attribute.imit.auto_graph_links.each do |graph_link| -%>
+<% unless in_single_graph -%>
+      if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %> == <%= channelId %> )
+      {
+<% end -%>
+<%
+  instance_root = graph_link.path.nil? ? nil : repository.entity_by_name(repository.imit.graph_by_name(graph_link.target_graph).instance_root)
+  source_graph = repository.imit.graph_by_name(graph_link.source_graph)
+  targetId = nil
+  targetId = "(java.lang.Integer) resultSet.getObject( \"#{instance_root.name}#{instance_root.primary_key.sql.column_name}\" )" if instance_root && attribute.nullable?
+  targetId = "resultSet.getInt( \"#{instance_root.name}#{instance_root.primary_key.sql.column_name}\" )" if instance_root && !attribute.nullable?
+  targetId = 'entityId' if instance_root.nil? && attribute.primary_key?
+  targetId = "attribute#{attribute.name}" if instance_root.nil? && !attribute.primary_key?
+-%>
+<% unless in_single_graph %>  <% end %>      addChannelLink( links, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %>, <%= source_graph.instance_root? ? 'java.util.Objects.requireNonNull( rootId ), ' : '' %><%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %>, <%= targetId %> );
+<% unless in_single_graph -%>
+      }
+<% end -%>
+<% end -%>
+<% end -%>
+      changeSet.merge( new replicant.server.Change( new replicant.server.EntityMessage( entityId, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, 0, new java.util.HashMap<>(), attributeValues, <%= has_links ? 'links' : 'null' %> ), <%= channelId %>, <%= in_instance_graph ? 'rootId' : 'null' %> ) );
+    }
+  }
+<%
+    end
+  end
+end
+-%>
+<% repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module| -%>
+<% data_module.entities.select { |entity| entity.imit?  }.each do |entity| -%>
+<% if entity.concrete? -%>
+
+  @javax.annotation.Nonnull
+  java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  {
+    final var attributes = new java.util.HashMap<String, java.io.Serializable>();
+    encode<%= entity.name %>( entity, attributes );
+    return attributes;
+  }
+<% end -%>
+
+  private void encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> attributes )
+  {
+<% if entity.extends
+   other = entity.data_module.entity_by_name(entity.extends) -%>
+    encode<%= other.name %>( entity, attributes );
+<% end -%>
+<% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.abstract? }.each do |attribute|
+    characteristic_type_key = attribute.imit.transport_characteristic_type_key
+    requires_var = attribute.nullable? && [:reference, :datetime, :date, :enumeration].include?(characteristic_type_key)
+    accessor = "entity.#{getter_for(attribute)}"
+    varname = "$#{attribute.name}"
+    value = requires_var ? varname : accessor
+    transformed_data =
+        if characteristic_type_key == :datetime
+          "#{value}.getTime()"
+        elsif characteristic_type_key == :date
+          "toDateString( #{value} )"
+        elsif [:reference].include?(characteristic_type_key)
+          "#{value}.#{getter_for(attribute.referenced_entity.primary_key)}"
+        elsif characteristic_type_key == :enumeration && attribute.enumeration.textual_values?
+          "#{value}.name()"
+        elsif characteristic_type_key == :enumeration && attribute.enumeration.numeric_values?
+          "#{value}.ordinal()"
+        else
+          value
+        end
+-%>
+<% unless attribute.primary_key? -%>
+<% if requires_var -%>
+    final var <%= varname %> = <%= accessor %>;
+<% end -%>
+    attributes.put( "<%= attribute.name %>", <%= transformed_data != value && attribute.nullable? ? "null == #{varname} ? null : #{transformed_data}" : value %> );
+<% end -%>
+<% end -%>
+  }
+<% end -%>
+<% end -%>}

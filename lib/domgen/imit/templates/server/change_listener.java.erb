@@ -4,6 +4,16 @@ package <%= to_package(repository.imit.qualified_change_listener_name) %>;
 @java.lang.SuppressWarnings( "BanJNDI" )
 public class <%= repository.imit.change_listener_name %>
 {
+  /*
+   * The registry and recorder are actually accessed via JNDI. The @Resource/@Inject annotations are ignored in production as JPA 2.0 does not
+   * support it. However our Guice based test infrastructure uses it to populate and avoid instantiation of JNDI
+   * resources.
+   */
+  @javax.annotation.Resource
+  private javax.transaction.TransactionSynchronizationRegistry _registry;
+  @javax.inject.Inject
+  private replicant.server.transport.ReplicantChangeRecorder _recorder;
+
   @javax.persistence.PostUpdate
   @javax.persistence.PostPersist
   public void postUpdate( final Object object )
@@ -32,17 +42,8 @@ public class <%= repository.imit.change_listener_name %>
     }
   }
 
-  /*
-   * The registry and recorder are actually accessed via JNDI. The @Resource/@Inject annotations is ignored in production as JPA 2.0 does not
-   * support it. However our Guice based test infrastructure uses it to populate and avoid instantiation of JNDI
-   * resources.
-   */
-  @javax.annotation.Resource
-  private javax.transaction.TransactionSynchronizationRegistry _registry;
-  @javax.inject.Inject
-  private <%= repository.imit.qualified_change_recorder_name %> _recorder;
-
   @java.lang.SuppressWarnings( "unchecked" )
+  @javax.annotation.Nonnull
   private static <T> T lookup( final String key )
   {
     try
@@ -56,6 +57,7 @@ public class <%= repository.imit.change_listener_name %>
     }
   }
 
+  @javax.annotation.Nonnull
   private javax.transaction.TransactionSynchronizationRegistry getRegistry()
   {
     if ( null == _registry )
@@ -65,14 +67,15 @@ public class <%= repository.imit.change_listener_name %>
     return _registry;
   }
 
-  private <%= repository.imit.qualified_change_recorder_name %> getRecorder()
+  @javax.annotation.Nonnull
+  private replicant.server.transport.ReplicantChangeRecorder getRecorder()
   {
     if ( null == _recorder )
     {
       final javax.enterprise.inject.spi.BeanManager beanManager = lookup( "java:comp/BeanManager" );
-      final var bean = beanManager.getBeans( <%= repository.imit.qualified_change_recorder_name %>.class ).iterator().next();
+      final var bean = beanManager.getBeans( replicant.server.transport.ReplicantChangeRecorder.class ).iterator().next();
       final var creationalContext = beanManager.createCreationalContext( bean );
-      _recorder = (<%= repository.imit.qualified_change_recorder_name %>) beanManager.getReference( bean, <%= repository.imit.qualified_change_recorder_name %>.class, creationalContext );
+      _recorder = (replicant.server.transport.ReplicantChangeRecorder) beanManager.getReference( bean, replicant.server.transport.ReplicantChangeRecorder.class, creationalContext );
     }
     return _recorder;
   }

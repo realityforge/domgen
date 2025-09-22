@@ -5,7 +5,7 @@ public final class <%= repository.imit.integration_module_name %>
   extends com.google.inject.AbstractModule
 {
   public static class NoopChangeRecorderImpl
-    implements <%= repository.imit.qualified_change_recorder_name %>
+    implements replicant.server.transport.ReplicantChangeRecorder
   {
     @java.lang.Override
     public void recordEntityMessageForEntity( @javax.annotation.Nonnull final Object entity, final boolean isUpdate )
@@ -16,6 +16,6 @@ public final class <%= repository.imit.integration_module_name %>
   @java.lang.Override
   protected void configure()
   {
-    bind( <%= repository.imit.qualified_change_recorder_name %>.class ).to( NoopChangeRecorderImpl.class ).in( javax.inject.Singleton.class );
+    bind( replicant.server.transport.ReplicantChangeRecorder.class ).to( NoopChangeRecorderImpl.class ).in( javax.inject.Singleton.class );
   }
 }
