@@ -793,7 +793,6 @@ module Domgen
       java_artifact :session_context_impl, :comm, :server, :imit, '#{repository.name}SessionContextImpl'
       java_artifact :abstract_session_context_impl, :comm, :server, :imit, 'Abstract#{session_context_impl_name}'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
-      java_artifact :change_listener, :comm, :server, :imit, '#{repository.name}EntityChangeListener'
       java_artifact :replication_interceptor, :comm, :server, :imit, '#{repository.name}ReplicationInterceptor'
       java_artifact :abstract_schema_test, :comm, :client, :imit, 'Abstract#{repository.name}SchemaTest'
       java_artifact :schema_test, :comm, :client, :imit, 'Simple#{repository.name}SchemaTest'
@@ -1317,7 +1316,7 @@ module Domgen
 
       def pre_verify
         if entity.data_module.repository.imit.auto_register_change_listener? && entity.jpa?
-          entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_listener_name
+          entity.jpa.entity_listeners << 'replicant.server.ee.ReplicantEntityChangeListener'
         end
       end
     end

@@ -117,12 +117,6 @@ Domgen::Generator.define([:imit, :jpa],
                          "#{File.dirname(__FILE__)}/templates/server",
                          [Domgen::JPA::Helper, Domgen::Java::Helper]) do |g|
 
-  g.template_set(:imit_server_entity_listener) do |template_set|
-    template_set.erb_template(:repository,
-                              'change_listener.java.erb',
-                              'main/java/#{repository.imit.qualified_change_listener_name.gsub(".","/")}.java')
-  end
-
   g.template_set(:imit_server_service) do |template_set|
     template_set.erb_template(:repository,
                               'endpoint.java.erb',
