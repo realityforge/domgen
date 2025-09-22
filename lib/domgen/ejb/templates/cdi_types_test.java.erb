@@ -2,7 +2,7 @@
 package <%= to_package(repository.ejb.qualified_cdi_types_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
-final class <%= repository.ejb.cdi_types_test_name %>
+public final class <%= repository.ejb.cdi_types_test_name %>
 {<%
   repository.data_modules.select{|d|d.ejb?}.each do |data_module|
     data_module.services.select{|s|s.ejb? && s.ejb.generate_base_test?}.each do |service|
@@ -20,16 +20,6 @@ final class <%= repository.ejb.cdi_types_test_name %>
     end
   end
 -%>
-<% if repository.imit? -%>
-
-  @org.testng.annotations.Test
-  public void ensureReplicantSessionManagerImplementationIsCdiType()
-    throws java.lang.Exception
-  {
-    final var clazz = java.lang.Class.forName( "<%= repository.imit.qualified_session_manager_name %>" );
-    assertNoFinalMethodsForCDI( clazz );
-  }
-<% end -%>
 
   private void assertNoFinalMethodsForCDI( @javax.annotation.Nonnull final java.lang.Class<?> clazz )
   {

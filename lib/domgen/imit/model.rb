@@ -789,7 +789,6 @@ module Domgen
       java_artifact :schema_sting_fragment, :comm, :client, :imit, '#{repository.name}SystemSchemaFragment'
       java_artifact :schema_filter_tools, :comm, :client, :imit, '#{repository.name}FilterTools'
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
-      java_artifact :session_manager, :comm, :server, :imit, '#{repository.name}SessionManagerImpl'
       java_artifact :session_context_impl, :comm, :server, :imit, '#{repository.name}SessionContextImpl'
       java_artifact :abstract_session_context_impl, :comm, :server, :imit, 'Abstract#{session_context_impl_name}'
       java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
