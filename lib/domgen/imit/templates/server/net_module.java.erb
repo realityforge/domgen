@@ -28,7 +28,6 @@ public class <%= repository.imit.server_net_module_name %>
   protected void bindSessionManger()
   {
     bind( replicant.server.transport.ReplicantSessionManagerImpl.class ).in( javax.inject.Singleton.class );
-    bind( replicant.server.EntityMessageEndpoint.class ).to( replicant.server.transport.ReplicantSessionManagerImpl.class );
     bind( replicant.server.transport.ReplicantSessionManager.class ).to( replicant.server.transport.ReplicantSessionManagerImpl.class );
   }
 }

@@ -724,12 +724,6 @@ module Domgen
 
       attr_writer :secured
 
-      def generate_standard_endpoint?
-        @generate_standard_endpoint.nil? ? true : !!@generate_standard_endpoint
-      end
-
-      attr_writer :generate_standard_endpoint
-
       attr_writer :keycloak_client_key
 
       def keycloak_client_key
@@ -778,8 +772,6 @@ module Domgen
         @server_web_package || "#{server_package}.web"
       end
 
-      java_artifact :endpoint, :web, :server, :imit, '#{repository.name}ReplicantEndpoint'
-      java_artifact :abstract_endpoint, :web, :server, :imit, 'Abstract#{repository.name}ReplicantEndpoint'
       java_artifact :gwt_client_session_context, :comm, :client, :imit, '#{repository.name}GwtSessionContext'
       java_artifact :gwt_client_session_context_impl, :comm, :client, :imit, '#{gwt_client_session_context_name}Impl'
       java_artifact :client_router, :comm, :client, :imit, '#{repository.name}ClientRouter'
@@ -791,8 +783,6 @@ module Domgen
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
       java_artifact :session_context_impl, :comm, :server, :imit, '#{repository.name}SessionContextImpl'
       java_artifact :abstract_session_context_impl, :comm, :server, :imit, 'Abstract#{session_context_impl_name}'
-      java_artifact :session_rest_service, :rest, :server, :imit, '#{repository.name}SessionRestService'
-      java_artifact :replication_interceptor, :comm, :server, :imit, '#{repository.name}ReplicationInterceptor'
       java_artifact :abstract_schema_test, :comm, :client, :imit, 'Abstract#{repository.name}SchemaTest'
       java_artifact :schema_test, :comm, :client, :imit, 'Simple#{repository.name}SchemaTest'
       java_artifact :aggregate_remote_service_sting_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesFragment'
@@ -869,9 +859,6 @@ module Domgen
       def pre_complete
         unless repository.application.user_experience? || 1 != repository.imit.schema_id
           Domgen.error('repository.imit.schema_id must be explicitly set to a value other than 1 as the application expects to be used as a library.')
-        end
-        if repository.jaxrs?
-          repository.jaxrs.extensions << self.qualified_session_rest_service_name
         end
         if repository.ee?
           repository.ee.cdi_scan_excludes << 'replicant.**'

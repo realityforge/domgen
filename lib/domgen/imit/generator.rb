@@ -119,24 +119,11 @@ Domgen::Generator.define([:imit, :jpa],
 
   g.template_set(:imit_server_service) do |template_set|
     template_set.erb_template(:repository,
-                              'endpoint.java.erb',
-                              'main/java/#{repository.imit.qualified_endpoint_name.gsub(".","/")}.java',
-                              :guard => 'repository.imit.generate_standard_endpoint?')
-    template_set.erb_template(:repository,
-                              'abstract_endpoint.java.erb',
-                              'main/java/#{repository.imit.qualified_abstract_endpoint_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
                               'abstract_session_context_impl.java.erb',
                               'main/java/#{repository.imit.qualified_abstract_session_context_impl_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'replication_interceptor.java.erb',
-                              'main/java/#{repository.imit.qualified_replication_interceptor_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
                               'system_metadata.java.erb',
                               'main/java/#{repository.imit.qualified_system_metadata_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'session_rest_service.java.erb',
-                              'main/java/#{repository.imit.qualified_session_rest_service_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_server_qa) do |template_set|

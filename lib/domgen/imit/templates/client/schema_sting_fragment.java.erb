@@ -16,7 +16,7 @@ public interface <%= repository.imit.schema_sting_fragment_name %>
                                   replicant.Replicant.areNamesEnabled() ? <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>_NAME : null,
                                   <%= entity.arez.qualified_name %>.class,
                                   (id, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.create<%= entity.name %>( <%= Reality::Naming.camelize(entity.qualified_name.gsub('.','')) %>Repository, id, data ),
-                                  (entity, data) -> <%= entity.data_module.imit.qualified_mapper_name %>.update<%= entity.name %>( entity, data ),
+                                  <%= entity.data_module.imit.qualified_mapper_name %>::update<%= entity.name %>,
                                   new replicant.ChannelLinkSchema[]{ <%= entity.attributes.select{|a| a.imit?}.collect{|a| a.imit.graph_links.collect{|g| "new replicant.ChannelLinkSchema(#{repository.imit.qualified_subscription_constants_name}.#{Reality::Naming.uppercase_constantize(g.source_graph)}, #{repository.imit.qualified_subscription_constants_name}.#{Reality::Naming.uppercase_constantize(g.target_graph)}, #{g.auto?}, new java.lang.String[]{#{([a.name] + ([g.path])).flatten.compact.collect{|p| "\"#{p.to_s}\""}.join(', ')}} )" }}.flatten.join(', ') %>} );
 <% end %>
 <% repository.imit.graphs.each do |graph| -%>
