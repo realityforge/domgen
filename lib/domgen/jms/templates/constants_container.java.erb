@@ -3,12 +3,15 @@ package <%= to_package(repository.jms.qualified_constants_container_name) %>;
 
 public final class <%= repository.jms.constants_container_name %>
 {
+  @javax.annotation.Nonnull
   public static final java.lang.String CONNECTION_FACTORY_RESOURCE_NAME = "<%= repository.jms.connection_factory_resource_name %>";
 <%
   repository.jms.destinations.each do |destination|
    constant_prefix = Reality::Naming.uppercase_constantize(destination.name)
 -%>
+  @javax.annotation.Nonnull
   public static final java.lang.String <%= constant_prefix %>_PHYSICAL_NAME = "<%= destination.physical_name %>";
+  @javax.annotation.Nonnull
   public static final java.lang.String <%= constant_prefix %>_RESOURCE_NAME = "<%= destination.resource_name %>";
 <% end -%>
 
