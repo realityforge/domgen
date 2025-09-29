@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(struct.gwt.qualified_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "RedundantSuppression" } )
 @jsinterop.annotations.JsType( isNative = true, namespace = jsinterop.annotations.JsPackage.GLOBAL, name = "Object" )
 public final class <%= struct.gwt.name %>
 {
@@ -15,6 +15,7 @@ public final class <%= struct.gwt.name %>
 <% end -%>
 
   @jsinterop.annotations.JsOverlay
+  @javax.annotation.Nonnull
   public static <%= struct.gwt.name %> create( <%= struct.fields.collect {|field| "#{annotated_type(field, :gwt, :boundary, :final => true) } #{Reality::Naming.camelize(field.name)}" }.join(', ') %> )
   {
     final <%= struct.gwt.name %> $$element$$ = new <%= struct.gwt.name %>();
