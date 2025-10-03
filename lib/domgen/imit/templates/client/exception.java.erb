@@ -50,7 +50,7 @@ if exception.imit.support_default_parameters? -%>
 
 <% exception.declared_parameters.each do |parameter| -%>
 
-  <%= annotated_type(parameter, :imit, :boundary, :public => !exception.ee.module_local?, :assume_generated => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+  <%= annotated_type(parameter, :imit, :boundary, :public => !exception.imit.module_local?, :assume_generated => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
   {
 <%-
   if parameter.collection?
