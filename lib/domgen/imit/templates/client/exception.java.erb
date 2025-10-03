@@ -2,7 +2,7 @@
 package <%= to_package(exception.imit.qualified_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "GwtInconsistentSerializableClass" } )
-<% unless exception.ee.module_local? %>public <% end %><% if exception.abstract? %>abstract <% end %>class <%= exception.imit.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).imit.qualified_name %>
+<% unless exception.imit.module_local? %>public <% end %><% if exception.abstract? %>abstract <% end %>class <%= exception.imit.name %> extends <%= exception.extends.nil? ? exception.java.standard_extends : exception.data_module.exception_by_name(exception.extends).imit.qualified_name %>
 {
 <% exception.declared_parameters.each do |parameter| -%>
   <%= annotated_type(parameter, :imit, :transport, :private => true, :final => true, :assume_generated => true) %> <%= parameter.name %>;
@@ -20,7 +20,7 @@ param_values_with_suffix = param_values + (param_values.size == 0 ? '' : ', ')
 inherited_params = exception.inherited_parameters.collect{ |parameter| parameter.name}.join(', ')
 inherited_params_with_suffix = inherited_params + (inherited_params.size == 0 ? '' : ', ')
 
-constructor_access = exception.ee.module_local? ? '' : exception.abstract? ? 'protected ' : 'public '
+constructor_access = exception.imit.module_local? ? '' : exception.abstract? ? 'protected ' : 'public '
 
 if exception.imit.support_default_parameters? -%>
 
@@ -30,7 +30,7 @@ if exception.imit.support_default_parameters? -%>
 
   <%= constructor_access %><%= exception.imit.name %>( <%= param_desc_with_suffix %>final Throwable cause ) { this( <%= param_values_with_suffix %>null, cause ); }
 <% end -%>
-<% unless exception.parameters.empty? && !exception.ee.support_default_parameters? -%>
+<% unless exception.parameters.empty? -%>
 
   <%= constructor_access %><%= exception.imit.name %>( <% if exception.imit.support_default_parameters? -%><%= param_desc_with_suffix %>final String message, final Throwable cause<% else %><%= param_desc %><% end -%> )
   {
