@@ -622,7 +622,9 @@ module Domgen
         if self.attribute_name?
           Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when attribute is not a reference or inverse reference") unless reference? || inverse_start?
 
-          Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when the attribute is not immutable") if !self.referenced_attribute.immutable? && !self.referenced_attribute.set_once?
+          if 0 == self.path.size
+            Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when the attribute is not immutable") if !self.referenced_attribute.immutable? && !self.referenced_attribute.set_once?
+          end
         end
 
         if self.path.size > 0
@@ -631,6 +633,7 @@ module Domgen
           path.each do |path_key|
             is_inverse = is_inverse_path_element?(path_key)
             path_element = get_attribute_name_from_path_element?(path_key)
+            last_path_attribute = path.last == path_key
 
             if is_inverse
               candidates = e.arez.referencing_client_side_attributes.select { |attr| attr.inverse.name.to_s == path_element.to_s }
@@ -645,6 +648,10 @@ module Domgen
               Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not a reference #{a.qualified_name}") unless a.reference?
               Domgen.error("Path element '#{path_key}' specified for routing key #{name} on #{imit_attribute.attribute.name} references an attribute that is not immutable #{a.qualified_name}") unless a.immutable?
               e = a.referenced_entity
+            end
+
+            if self.attribute_name? && last_path_attribute
+              Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when the attribute is not immutable") if !self.referenced_attribute.immutable? && !self.referenced_attribute.set_once?
             end
           end
         end
