@@ -533,7 +533,7 @@ module Domgen
       end
 
       def is_inverse_path_element?(path_element)
-        path_element.to_s =~ /^<.*/
+        !!(path_element.to_s =~ /^<.*/)
       end
 
       def get_attribute_name_from_path_element?(path_element)
@@ -619,7 +619,7 @@ module Domgen
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that is not filtered.") unless self.graph.filtered?
         Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies graph '#{self.graph.name}' that entity is not currently part of.") unless self.graph.included_entities.include?(self.imit_attribute.attribute.entity.qualified_name)
 
-        if attribute_name?
+        if self.attribute_name?
           Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when attribute is not a reference or inverse reference") unless reference? || inverse_start?
 
           Domgen.error("Routing key #{self.name} on #{self.imit_attribute.attribute.qualified_name} specifies attribute_name '#{attribute_name}' when the attribute is not immutable") if !self.referenced_attribute.immutable? && !self.referenced_attribute.set_once?
