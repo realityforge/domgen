@@ -14,7 +14,7 @@
 
 Domgen::Generator.define([:jpa],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::JAXB::Helper]) do |g|
+                         [Domgen::JPA::Helper, Domgen::Java::Helper]) do |g|
   g.template_set(:jpa_model) do |template_set|
     template_set.erb_template(:repository,
                               'unit_descriptor.java.erb',
@@ -78,7 +78,7 @@ Domgen::Generator.define([:jpa],
       template_set.erb_template(:data_module,
                                 'data_module_aggregate_entity_test.java.erb',
                                 type + '/java/#{data_module.jpa.qualified_aggregate_entity_test_name.gsub(".","/")}.java',
-                                :guard => 'data_module.daos.any? || data_module.entities.any?')
+                                :guard => 'data_module.jpa.expect_aggregate_test?')
     end
   end
 

@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.jpa.qualified_abstract_entity_test_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "SameParameterValue" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "SameParameterValue", "NotNullFieldNotInitialized", "StaticImportCanBeUsed", "RedundantSuppression" } )
 public abstract class <%= repository.jpa.abstract_entity_test_name %>
   extends org.realityforge.guiceyloops.server.AbstractServerTest
 {
@@ -30,28 +30,56 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
 <% end -%>
   }
 
+  protected final void ensureFinishDbCleaner( @javax.annotation.Nonnull final java.util.List<com.google.inject.Binding<org.realityforge.guiceyloops.server.DbCleaner>> bindings )
+  {
+    try
+    {
+      for ( final var binding : bindings )
+      {
+        final var cleaner = binding.getProvider().get();
+        if ( cleaner.isActive() )
+        {
+          cleaner.finish();
+        }
+      }
+    }
+    catch ( final com.google.inject.ConfigurationException e )
+    {
+      // Ignore this as we assume that if DbCleaner is unable to be located
+      // then we are probably using a mock EntityManager
+    }
+  }
+
   @org.testng.annotations.AfterMethod
   @java.lang.Override
   public void postTest()
   {
     if ( null != getInjector() )
     {
-<% if repository.sql_analysis? -%>
+      final var bindings = getInjector().findBindingsByType( com.google.inject.TypeLiteral.get( org.realityforge.guiceyloops.server.DbCleaner.class ) );
       try
       {
-        if ( isSqlAnalysisEnabled() && em().isOpen() && em().isJoinedToTransaction() && !em().getTransaction().getRollbackOnly() )
+<% if repository.sql_analysis? -%>
+        try
         {
-          _disableAnalysis = false;
-          runSqlAnalysisPerformChecks();
+          if ( isSqlAnalysisEnabled() && em().isOpen() && em().isJoinedToTransaction() && !em().getTransaction().getRollbackOnly() )
+          {
+            _disableAnalysis = false;
+            runSqlAnalysisPerformChecks();
+          }
         }
+        finally
+        {
+          super.postTest();
+        }
+<% else -%>
+        super.postTest();
+<% end -%>
       }
       finally
       {
-        super.postTest();
+        ensureFinishDbCleaner( bindings );
       }
-<% else -%>
-      super.postTest();
-<% end -%>
     }
   }
 <% if repository.sql_analysis? -%>
@@ -73,7 +101,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
         sb.append( "  " );
         sb.append( message );
       }
-      org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb.toString() );
+      org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb );
     }
   }
 
@@ -137,6 +165,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     org.testng.Assert.fail( "Failed to find any exception containing string " + message + "in:\n" + out );
   }
 
+  @java.lang.SuppressWarnings( "SqlSourceToSinkFlow" )
   protected final void disableTrigger( @javax.annotation.Nonnull final String qualifiedTableName, @javax.annotation.Nonnull final String qualifiedTriggerName )
   {
     em().createNativeQuery( "DISABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName ).executeUpdate();

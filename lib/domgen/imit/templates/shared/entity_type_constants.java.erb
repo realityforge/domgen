@@ -18,6 +18,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
    * To ensure these constants are removed in production code, the constants should only be used when
    * guarded by <code>replicant.Replicant.areNamesEnabled()</code>.
    */
+  @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>_NAME = "<%= entity.qualified_name %>";
 
 <%

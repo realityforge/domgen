@@ -5,6 +5,7 @@ package <%= to_package(repository.keycloak.qualified_client_definitions_name) %>
 public final class <%= repository.keycloak.client_definitions_name %>
 {
 <% repository.keycloak.clients.select{|client|!client.bearer_only?}.each do |client| -%>
+  @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(client.name) %>_NAME = "<%= client.name %>";
 <% end -%>
 

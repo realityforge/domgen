@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(message.ee.qualified_name) %>;
 
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "NotNullFieldNotInitialized", "RedundantSuppression" } )
 <% unless message.ee.module_local?  %>public <% end %>class <%= message.ee.name %>
   implements java.io.Serializable
 {
@@ -19,12 +19,12 @@ package <%= to_package(message.ee.qualified_name) %>;
    * @deprecated This constructor is present for deserialization mechanisms and should not be called directly.
    */
   @java.lang.Deprecated
-  public <%= message.name %>()
+  <% unless message.ee.module_local?  %>public <% end %><%= message.name %>()
   {
   }
 <% end %>
 
-  public <%= message.name %>( <%= message.parameters.collect {|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Reality::Naming.camelize(parameter.name)}" }.join(', ') %> )
+  <% unless message.ee.module_local?  %>public <% end %><%= message.name %>(<%= message.parameters.empty? ? '' : ' ' + message.parameters.collect {|parameter| "#{annotated_type(parameter, :ee, :default, :final => true)} #{Reality::Naming.camelize(parameter.name)}" }.join(', ') + ' ' %>)
   {
 <% message.parameters.each do |parameter|
      null_protection = parameter.nullable? ? "#{Reality::Naming.camelize(parameter.name)} == null ? null : " : ''
@@ -39,13 +39,14 @@ package <%= to_package(message.ee.qualified_name) %>;
 %>  }
 <% message.parameters.each do |parameter|
 %>
-  <%= annotated_type(parameter, :ee, :default, :public => true, :final => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
+  <%= annotated_type(parameter, :ee, :default, :public => !message.ee.module_local?, :final => true) %> <%= getter_prefix(parameter) %><%= parameter.name %>()
   {
     return <%= Reality::Naming.camelize(parameter.name) %>;
   }
 <% end
 %>
 
+  @java.lang.SuppressWarnings( { "RedundantIfStatement", "RedundantSuppression" } )
   @java.lang.Override
   public boolean equals( final Object o )
   {

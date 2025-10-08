@@ -14,7 +14,7 @@
 
 Domgen::Generator.define([:ee],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::JAXB::Helper, Domgen::Jackson::Helper]) do |g|
+                         [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::Jackson::Helper]) do |g|
 
 
   g.template_set(:ee_data_types) do |template_set|
@@ -37,6 +37,12 @@ Domgen::Generator.define([:ee],
     template_set.erb_template(:message,
                               'message.java.erb',
                               'main/java/#{message.ee.qualified_name.gsub(".","/")}.java')
+  end
+
+  g.template_set(:ee_exception_util) do |template_set|
+    template_set.erb_template(:repository,
+                              'exception_util.java.erb',
+                              'main/java/#{repository.ee.qualified_exception_util_name.gsub(".","/")}.java')
   end
 
   g.template_set(:ee_messages_qa) do |template_set|
@@ -81,5 +87,5 @@ Domgen::Generator.define([:ee],
     end
   end
 
-  g.template_set(:ee => [:jaxrs, :jpa, :ejb, :jmx, :jws, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
+  g.template_set(:ee => [:jaxrs, :jpa, :ejb, :jms, :ee_exceptions, :ee_data_types, :ee_messages])
 end

@@ -17,7 +17,6 @@ module Domgen
     module Helper
       def j_jpa_field_attributes(attribute)
         s = ''
-        s << "  @SuppressWarnings( \"NotNullFieldNotInitialized\" )\n" if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
         s << "  @javax.persistence.Id\n" if attribute.primary_key?
         if attribute.jpa.identity?
           s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n"
@@ -38,23 +37,21 @@ module Domgen
         end
         s << gen_relation_annotation(attribute, true) if attribute.reference?
         s << gen_column_annotation(attribute)
-        s << "  @javax.persistence.Basic( optional = #{attribute.nullable?}, fetch = javax.persistence.FetchType.#{attribute.jpa.fetch_type.to_s.upcase} )\n" unless attribute.reference? || attribute.primary_key?
+        s << "  @javax.persistence.Basic( #{attribute.nullable? ? '' : 'optional = false, '}fetch = javax.persistence.FetchType.#{attribute.jpa.fetch_type.to_s.upcase} )\n" unless attribute.reference? || attribute.primary_key?
         s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? 'ORDINAL' : 'STRING'} )\n" if attribute.enumeration?
         s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? 'TIMESTAMP' : 'DATE'} )\n" if attribute.datetime? || attribute.date?
         s << "  @javax.validation.constraints.NotNull\n" if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
         converter = attribute.jpa.converter
         s << "  @javax.persistence.Convert( converter = #{converter.gsub('$','.')}.class )\n" if converter
 
-        if jpa_nullable_annotation?(attribute)
-          s << "  #{nullability_annotation(jpa_nullable?(attribute))}\n"
-        end
-
         if attribute.text?
-          unless attribute.length.nil? && attribute.min_length.nil?
+          non_default_min_length = attribute.has_non_default_min_length?
+          non_default_max_length = attribute.has_non_default_max_length?
+          unless !non_default_min_length && !non_default_max_length
             s << '  @javax.validation.constraints.Size( '
-            s << "min = #{attribute.min_length} " unless attribute.min_length.nil?
-            s << ', ' unless attribute.min_length.nil? || !attribute.has_non_max_length?
-            s << "max = #{attribute.length} " if attribute.has_non_max_length?
+            s << "min = #{attribute.min_length} " if non_default_min_length
+            s << ', ' if non_default_min_length && non_default_max_length
+            s << "max = #{attribute.length} " if non_default_max_length
             s << " )\n"
           end
         end
@@ -86,7 +83,7 @@ module Domgen
           parameters << "referencedColumnName = \"#{attribute.referenced_entity.primary_key.sql.column_name}\""
         end
 
-        if !attribute.reference? && attribute.has_non_max_length? && 255 != attribute.length
+        if !attribute.reference? && attribute.has_non_default_max_length? && 255 != attribute.length
           parameters << "length = #{attribute.length}"
         end
 
@@ -105,14 +102,12 @@ module Domgen
         parameters << "fetch = javax.persistence.FetchType.#{fetch_type.to_s.upcase}"
 
         if declaring_relationship
-          parameters << "optional = #{attribute.nullable?}"
-          parameters << "targetEntity = #{attribute.referenced_entity.jpa.qualified_name}.class"
-        end
-
-        if !declaring_relationship
-          parameters << "orphanRemoval = #{attribute.inverse.jpa.orphan_removal?}"
+          parameters << "optional = false" unless attribute.nullable?
+          parameters << "targetEntity = #{attribute.referenced_entity.jpa.qualified_name}.class" if attribute.referenced_entity.jpa.qualified_name.to_s != attribute.jpa.java_type.to_s
+        else
+          parameters << "orphanRemoval = true" if attribute.inverse.jpa.orphan_removal?
           parameters << "mappedBy = \"#{attribute.jpa.field_name}\""
-          parameters << "targetEntity = #{attribute.entity.jpa.qualified_name}.class"
+          parameters << "targetEntity = #{attribute.entity.jpa.qualified_name}.class" if attribute.referenced_entity.jpa.qualified_name.to_s != attribute.jpa.java_type.to_s
         end
 
         #noinspection RubyUnusedLocalVariable
@@ -142,15 +137,15 @@ module Domgen
         declared_attribute_names = entity.declared_attributes.collect{|a| a.name}
         declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
         java = <<JAVA
-  #{immutable_attributes.empty? ? 'public' : 'protected'} #{entity.jpa.name}()
+  #{!entity.jpa.module_local? && immutable_attributes.empty? ? 'public ' : 'protected '}#{entity.jpa.name}()
   {
   }
 
 JAVA
         return java if immutable_attributes.empty?
         java = java + <<JAVA
-  @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
-  public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "#{nullable_annotate(a, "final #{a.jpa.java_type}", false)} #{a.jpa.field_name}"}.join(', ')})
+  @java.lang.SuppressWarnings( "deprecation" )
+  #{entity.jpa.module_local? ? '' : 'public '}#{entity.jpa.name}(#{immutable_attributes.collect{|a| "#{nullable_annotate(a, "final #{a.jpa.java_type}", false)} #{a.jpa.field_name}"}.join(', ')})
   {
 JAVA
         java += declared_immutable_attributes.collect{|a| "    this.#{a.jpa.field_name} = #{!a.nullable? && !a.jpa.primitive? ? "java.util.Objects.requireNonNull( #{a.jpa.field_name} )": a.jpa.field_name};\n" }.join('')
@@ -187,7 +182,7 @@ JAVA
             field_name = Reality::Naming.camelize( name )
 
             java = <<JAVA
-  #{nullable_annotate(attribute, "public #{attribute.entity.jpa.qualified_name}", false, true)} #{getter_for(attribute, name)}
+  #{nullable_annotate(attribute, "#{attribute.entity.jpa.module_local? ? '' : 'public '}#{attribute.entity.jpa.qualified_name}", false, true)} #{getter_for(attribute, name)}
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     return #{field_name};
@@ -200,20 +195,20 @@ JAVA
     {
       throw new IllegalStateException("Attempted to add value when non null value exists.");
     }
-    if( value != this.#{field_name} )
+    else if( value != this.#{field_name} )
     {
       this.#{field_name} = value;
     }
   }
 
-  public final void remove#{name}( #{nullable_annotate(attribute, "final #{attribute.entity.jpa.qualified_name}", false, true)} value )
+  #{attribute.entity.jpa.module_local? ? '' : 'public '}final void remove#{name}( #{nullable_annotate(attribute, "final #{attribute.entity.jpa.qualified_name}", false, true)} value )
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     if( null != this.#{field_name} && value != this.#{field_name} )
     {
       throw new IllegalStateException("Attempted to remove value that was not the same.");
     }
-    if( null != this.#{field_name} )
+    else if( null != this.#{field_name} )
     {
       this.#{field_name} = null;
     }
@@ -227,52 +222,12 @@ JAVA
       end
 
       def j_return_if_value_same(attribute, field_name, primitive, nullable)
-        accessor = "this.#{field_name}"
-        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy
-          accessor = "doGet#{attribute.name}()"
-        end
-        if primitive
-          return <<JAVA
-     if( #{accessor} == value )
-     {
-       return;
-     }
-JAVA
-        elsif !nullable
-          return <<JAVA
-     //noinspection ConstantConditions
-     if( null == value )
-     {
-       throw new NullPointerException( "#{field_name} parameter is not nullable" );
-     }
-
-     if( value.equals( #{accessor} ) )
-     {
-       return;
-     }
-JAVA
-        else
-          return <<JAVA
-     if( null != #{accessor} && #{accessor}.equals( value ) )
-     {
-       return;
-     }
-     else if( null != value && value.equals( #{accessor} ) )
-     {
-       return;
-     }
-     else if( null == #{accessor} && null == value )
-     {
-       return;
-     }
-JAVA
-        end
       end
 
       def j_simple_attribute(attribute)
         name = attribute.jpa.name
         java = <<JAVA
-  #{annotated_type(attribute, :jpa, :default, :assume_generated => true, :public => true)} #{getter_for(attribute)}
+  #{annotated_type(attribute, :jpa, :default, :assume_generated => true, :public => !attribute.entity.jpa.module_local?)} #{getter_for(attribute)}
   {
 JAVA
         unless attribute.primary_key?
@@ -288,33 +243,20 @@ JAVA
     }
 JAVA
         end
-        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
-          java << <<JAVA
-    #{annotated_type(attribute, :jpa, :default, :final => true)} value = doGet#{name}();
-    if( !#{attribute.jpa.field_name}Recorded )
-    {
-      #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
-      #{attribute.jpa.field_name}Recorded = true;
-    }
-    return value;
-JAVA
-        else
-          java << <<JAVA
-    return doGet#{name}();
-JAVA
-        end
-        java << <<JAVA
-  }
-
-  @SuppressWarnings( "ConstantValue" )
-  #{annotated_type(attribute, :jpa, :default, :protected => true)} doGet#{name}()
-  {
-JAVA
         if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
           java << <<JAVA
     if( null == #{attribute.jpa.field_name} )
     {
       throw new IllegalStateException("Attempting to access non-null field #{name} before it has been set.");
+    }
+JAVA
+        end
+        if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
+          java << <<JAVA
+    if( !#{attribute.jpa.field_name}Recorded )
+    {
+      #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
+      #{attribute.jpa.field_name}Recorded = true;
     }
 JAVA
         end
@@ -344,7 +286,7 @@ JAVA
       def j_add_to_inverse(attribute)
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.name
-        unless attribute.inverse.jpa.java_traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(attribute.nullable?, field_name) { "this.#{field_name}.add#{inverse_name}( this );" }
@@ -363,23 +305,18 @@ JAVA
 
       def j_reference_attribute(attribute)
         java = <<JAVA
-  #{nullable_annotate(attribute, "public #{attribute.jpa.java_type}", false)} #{getter_for(attribute)}
+  #{nullable_annotate(attribute, "#{attribute.entity.jpa.module_local? ? '' : 'public '}#{attribute.jpa.java_type}", false)} #{getter_for(attribute)}
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
-    return doGet#{attribute.jpa.name}();
-  }
-
-  #{nullable_annotate(attribute, "protected #{attribute.jpa.java_type}", false)} doGet#{attribute.jpa.name}()
-  {
 JAVA
         if attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy && !attribute.immutable?
           java << <<JAVA
-     if( !#{attribute.jpa.field_name}Recorded )
-     {
-       #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
-       #{attribute.jpa.field_name}Recorded = true;
-     }
-     return #{attribute.jpa.field_name};
+    if( !#{attribute.jpa.field_name}Recorded )
+    {
+      #{attribute.jpa.field_name}Original = #{attribute.jpa.field_name};
+      #{attribute.jpa.field_name}Recorded = true;
+    }
+    return #{attribute.jpa.field_name};
 JAVA
         else
           java << <<JAVA
@@ -392,13 +329,51 @@ JAVA
 JAVA
         if attribute.updatable?
           java << <<JAVA
-  @java.lang.SuppressWarnings( { "deprecation" } )
+  @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
   #{attribute.entity.jpa.module_local_mutators? ? '' : 'public '}void set#{attribute.jpa.name}( #{nullable_annotate(attribute, "final #{attribute.jpa.java_type}", false)} value )
   {
- #{j_return_if_value_same(attribute, attribute.jpa.field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
-        #{j_remove_from_inverse(attribute)}
-        this.#{attribute.jpa.field_name} = value;
- #{j_add_to_inverse(attribute)}
+JAVA
+          accessor = attribute.entity.jpa.track_changes? && attribute.jpa.fetch_type == :lazy ? "get#{attribute.name}()" : "this.#{attribute.jpa.field_name}"
+          if attribute.referenced_entity.primary_key.jpa.primitive?
+            java << <<JAVA
+     if( #{accessor} != value )
+     {
+JAVA
+          elsif !attribute.nullable?
+            java <<  <<JAVA
+     if( null == value )
+     {
+       throw new NullPointerException( "#{attribute.jpa.field_name} parameter is not nullable" );
+     }
+     else if( !value.equals( #{accessor} ) )
+     {
+JAVA
+          else
+            java <<  <<JAVA
+     final var originalValue = #{accessor};
+     if( !( null != originalValue && originalValue.equals( value ) ) &&
+         !( null != value && value.equals( originalValue ) ) &&
+         !( null == originalValue && null == value ) )
+     {
+JAVA
+          end
+          java << <<JAVA
+JAVA
+          if attribute.inverse.jpa.java_traversable?
+            java << <<JAVA
+       #{j_remove_from_inverse(attribute)}
+JAVA
+          end
+          java << <<JAVA
+       this.#{attribute.jpa.field_name} = value;
+JAVA
+          if attribute.inverse.jpa.java_traversable?
+            java << <<JAVA
+       #{j_add_to_inverse(attribute)}
+JAVA
+          end
+          java << <<JAVA
+     }
   }
 
 JAVA
@@ -408,7 +383,7 @@ JAVA
 
       def j_abstract_attribute(attribute)
         <<JAVA
-    public abstract #{attribute.jpa.java_type} #{getter_for(attribute)};
+    #{attribute.entity.jpa.module_local? ? '' : 'public '}abstract #{attribute.jpa.java_type} #{getter_for(attribute)};
 
 JAVA
       end
@@ -434,7 +409,8 @@ STR
         field_name = Reality::Naming.camelize(plural_name)
         type = attribute.entity.jpa.qualified_name
         java = <<STR
-  public java.util.List<#{type}> get#{plural_name}()
+  @javax.annotation.Nonnull
+  #{attribute.entity.jpa.module_local? ? '' : 'public '}java.util.List<#{type}> get#{plural_name}()
   {
     verifyNotRemoved();
     return java.util.Collections.unmodifiableList( safeGet#{plural_name}() );
@@ -449,7 +425,7 @@ STR
     }
   }
 
-  public final void remove#{name}( @javax.annotation.Nonnull final #{type} value )
+  #{attribute.entity.jpa.module_local? ? '' : 'public '}final void remove#{name}( @javax.annotation.Nonnull final #{type} value )
   {
     if ( null != this.#{field_name} )
     {
@@ -474,11 +450,8 @@ STR
       def j_equals_method(entity)
         return '' if entity.abstract?
         pk = entity.primary_key
-        pk_getter = "doGet#{entity.primary_key.jpa.name}()"
-        pk_type = nullable_annotate(pk, pk.jpa.java_type, false)
-        equality_comparison = (!pk.jpa.primitive?) ? "java.util.Objects.equals( #{pk_getter}, that.#{pk_getter} )" : "#{pk_getter} == that.#{pk_getter}"
+        equality_comparison = (!pk.jpa.primitive?) ? "java.util.Objects.equals( #{pk.jpa.field_name}, that.#{pk.jpa.field_name} )" : "#{pk.jpa.field_name} == that.#{pk.jpa.field_name}"
         s = <<JAVA
-  @java.lang.SuppressWarnings( "ConstantValue" )
   @java.lang.Override
   public boolean equals( final Object o )
   {
@@ -497,25 +470,16 @@ STR
   }
 
   @java.lang.Override
-  @java.lang.SuppressWarnings( "ConstantValue" )
   public int hashCode()
   {
-    final var key = #{pk_getter};
 JAVA
         if pk.jpa.primitive?
           s += <<JAVA
-    return key;
+    return #{pk.jpa.field_name};
 JAVA
         else
           s += <<JAVA
-    if( null == key )
-    {
-      return System.identityHashCode( this );
-    }
-    else
-    {
-      return key.hashCode();
-    }
+    return null == #{pk.jpa.field_name} ? System.identityHashCode( this ) : #{pk.jpa.field_name}.hashCode();
 JAVA
         end
         s += <<JAVA
@@ -534,7 +498,7 @@ JAVA
     return "#{entity.name}[" +
 JAVA
         s += entity.attributes.select{|a| a.jpa? && a.jpa.persistent?}.collect do |a|
-          "           \"#{a.jpa.name} = \" + doGet#{a.jpa.name}()"
+            "           \"#{a.jpa.name} = \" + #{a.jpa.field_name}"
         end.join(" + \", \" +\n")
         s += <<JAVA
  +

@@ -28,7 +28,11 @@ module Domgen
       @length = length
     end
 
-    def has_non_max_length?
+    def has_non_default_min_length?
+      0 != self.min_length
+    end
+
+    def has_non_default_max_length?
       !@length.nil? && @length != :max
     end
 

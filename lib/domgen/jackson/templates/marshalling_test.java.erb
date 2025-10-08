@@ -2,11 +2,10 @@
 package <%= to_package(repository.jackson.qualified_marshalling_test_name) %>;
 
 @java.lang.SuppressWarnings( "deprecation" )
-final class <%= repository.jackson.marshalling_test_name %>
+public final class <%= repository.jackson.marshalling_test_name %>
 {<%
   repository.data_modules.select{|dm|dm.jackson?}.each do |data_module|
-    data_module.enumerations.select{|e|e.jackson?}.each do |enumeration|
--%>
+    data_module.enumerations.select{|e|e.jackson?}.each do |enumeration| %>
 
   @org.testng.annotations.Test
   void marshal<%= data_module.name %><%= enumeration.name %>()
@@ -63,6 +62,7 @@ end
 
     data_module.structs.select{|s|s.jackson? && !s.jackson.skip_test?}.each do |struct|
 -%>
+
   @org.testng.annotations.Test
   void marshal<%= data_module.name %><%= struct.name %>()
     throws Exception

@@ -117,62 +117,13 @@ Domgen::Generator.define([:imit, :jpa],
                          "#{File.dirname(__FILE__)}/templates/server",
                          [Domgen::JPA::Helper, Domgen::Java::Helper]) do |g|
 
-  g.template_set(:imit_server_entity_listener) do |template_set|
-    template_set.erb_template(:repository,
-                              'change_listener.java.erb',
-                              'main/java/#{repository.imit.qualified_change_listener_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'change_recorder.java.erb',
-                              'main/java/#{repository.imit.qualified_change_recorder_name.gsub(".","/")}.java')
-  end
-
-  g.template_set(:imit_server_entity_replication) do |template_set|
-    template_set.erb_template(:repository,
-                              'change_recorder_impl.java.erb',
-                              'main/java/#{repository.imit.qualified_change_recorder_impl_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'router.java.erb',
-                              'main/java/#{repository.imit.qualified_server_router_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'message_generator.java.erb',
-                              'main/java/#{repository.imit.qualified_message_generator_name.gsub(".","/")}.java')
-  end
-
   g.template_set(:imit_server_service) do |template_set|
-    template_set.erb_template(:repository,
-                              'endpoint.java.erb',
-                              'main/java/#{repository.imit.qualified_endpoint_name.gsub(".","/")}.java',
-                              :guard => 'repository.imit.generate_standard_endpoint?')
-    template_set.erb_template(:repository,
-                              'abstract_endpoint.java.erb',
-                              'main/java/#{repository.imit.qualified_abstract_endpoint_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'jpa_encoder.java.erb',
-                              'main/java/#{repository.imit.qualified_jpa_encoder_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'graph_encoder.java.erb',
-                              'main/java/#{repository.imit.qualified_graph_encoder_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'graph_encoder_impl.java.erb',
-                              'main/java/#{repository.imit.qualified_graph_encoder_impl_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
                               'abstract_session_context_impl.java.erb',
                               'main/java/#{repository.imit.qualified_abstract_session_context_impl_name.gsub(".","/")}.java')
     template_set.erb_template(:repository,
-                              'replication_interceptor.java.erb',
-                              'main/java/#{repository.imit.qualified_replication_interceptor_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
                               'system_metadata.java.erb',
                               'main/java/#{repository.imit.qualified_system_metadata_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'session_manager.java.erb',
-                              'main/java/#{repository.imit.qualified_session_manager_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'message_broker_impl.java.erb',
-                              'main/java/#{repository.imit.qualified_message_broker_impl_name.gsub(".","/")}.java')
-    template_set.erb_template(:repository,
-                              'session_rest_service.java.erb',
-                              'main/java/#{repository.imit.qualified_session_rest_service_name.gsub(".","/")}.java')
   end
 
   g.template_set(:imit_server_qa) do |template_set|

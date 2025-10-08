@@ -109,7 +109,7 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
         }
 <%- end -%>
 <%- unless method.return_value.return_type == :void && method.base_exceptions.empty?-%>
-        final jsinterop.base.JsPropertyMap<Object> $responsePropertyMap = $response.asPropertyMap();
+        final jsinterop.base.JsPropertyMap<Object> $responsePropertyMap = jsinterop.base.Js.asPropertyMap( $response );
 <%- end -%>
 <%- unless method.return_value.return_type == :void -%>
         if ( $responsePropertyMap.has( "data") )
@@ -132,14 +132,11 @@ end.join(', ') %><%= method.parameters.empty? ? '' : ', ' %> result ->
         {
           final <%=method.return_value.imit.java_component_type(:boundary) %> $transformedRow = <%- if method.return_value.date? -%>
   iris.rose.client.data_type.util.RDate.toDate( iris.rose.client.data_type.util.RDate.parse( $row.asString() ) );
-<%- elsif method.return_value.datetime? -%>
-  new Date( $row.asLong() );
-<%- elsif method.return_value.struct? -%>
-  $row.cast();
-<%- elsif method.return_value.integer? || method.return_value.reference? -%>
-  $row.asInt();
-<%- else -%>
-  $row.asInt();
+<%- elsif method.return_value.datetime? -%>new Date( $row.asLong() );
+<%- elsif method.return_value.struct? -%>$row.cast();
+<%- elsif method.return_value.integer? || method.return_value.reference? -%>$row.asInt();
+<%- elsif method.return_value.text? -%>$row.asString();
+<%- else -%> $row.asInt();
 <%- end -%>
           $result.add( $transformedRow );
         }

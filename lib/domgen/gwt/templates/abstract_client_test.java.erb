@@ -1,7 +1,7 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(repository.gwt.qualified_abstract_client_test_name) %>;
 
-@java.lang.SuppressWarnings( "UnusedDeclaration" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "StaticImportCanBeUsed", "NonJREEmulationClassesInClientCode" } )
 <% if repository.arez? -%>
 @arez.testng.ActionWrapper( enable = true )
 <% end -%>
@@ -12,12 +12,27 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
 {
   @javax.annotation.Nonnull
   private final java.util.List<java.lang.Runnable> _asyncActions = new java.util.ArrayList<>();
+<% if repository.imit? -%>
+  @javax.annotation.Nonnull
+  private final TestTransport _replicantTransport = new TestTransport();
+<% end -%>
 <% repository.data_modules.select{|data_module|data_module.arez? && data_module.arez.factory_required?}.each do |data_module| -%>
   @SuppressWarnings( "NotNullFieldNotInitialized" )
   @javax.annotation.Nonnull
   protected <%= data_module.arez.qualified_test_factory_name %> <%= data_module.arez.short_test_code %>;
 <% end -%>
   private T _injector;
+<% if repository.arez? -%>
+  @javax.annotation.Nonnull
+  private final java.util.List<java.lang.String> _observerErrors = new java.util.ArrayList<>();
+  private boolean _captureObserverErrors;
+  @javax.annotation.Nullable
+  private java.lang.String _currentMethod;
+<% end -%>
+<% if repository.imit? -%>
+  @javax.annotation.Nullable
+  private arez.Disposable _connector;
+<% end -%>
 
   @javax.annotation.Nonnull
   protected abstract T createInjector();
@@ -27,6 +42,58 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   {
     return _injector;
   }
+<% if repository.arez? -%>
+
+  @javax.annotation.Nonnull
+  protected final java.lang.String currentMethod()
+  {
+    org.testng.Assert.assertNotNull( _currentMethod, "currentMethod() called before test method was invoked" );
+    return _currentMethod;
+  }
+
+  protected final void captureObserverErrors()
+  {
+    _captureObserverErrors = true;
+  }
+
+  protected final void noCaptureObserverErrors()
+  {
+    _captureObserverErrors = false;
+  }
+
+  @org.testng.annotations.BeforeMethod
+  public void handleTestMethodName( @javax.annotation.Nonnull final java.lang.reflect.Method method )
+  {
+    _currentMethod = method.getName();
+    _captureObserverErrors = false;
+    _observerErrors.clear();
+    arez.Arez.context().addObserverErrorHandler( this::onObserverError );
+  }
+
+  private void onObserverError( @javax.annotation.Nonnull final arez.Observer observer, @javax.annotation.Nonnull final arez.ObserverError error, @javax.annotation.Nullable final java.lang.Throwable throwable )
+  {
+    final var message = "Observer: " + observer.getName() + " Error: " + error + " " + throwable;
+    _observerErrors.add( message );
+    if ( !_captureObserverErrors )
+    {
+      java.lang.System.out.println( message );
+      if ( null != throwable )
+      {
+        throwable.printStackTrace( java.lang.System.out );
+      }
+    }
+  }
+
+  @org.testng.annotations.AfterMethod
+  protected void afterTest()
+  {
+    arez.ArezTestUtil.resetConfig( true );
+    if ( !_captureObserverErrors && !_observerErrors.isEmpty() )
+    {
+      org.testng.Assert.fail( "Unexpected Observer Errors: " + java.lang.String.join( "\n", _observerErrors ) );
+    }
+  }
+<% end -%>
 
   @org.testng.annotations.BeforeMethod
 <% if repository.arez? -%>
@@ -41,6 +108,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     arez.testng.ArezTestSupport.super.preTest();
 <% if repository.imit? -%>
     replicant.ReplicantTestUtil.resetConfig( false );
+    _replicantTransport.reset();
 <% end -%>
 <% end -%>
     _injector = createInjector();
@@ -51,7 +119,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     arez.Arez.context().registerLocator( _injector.getLocator() );
 <% end -%>
 <% if repository.imit? -%>
-    replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), new TestTransport() );
+    replicant.Replicant.context().registerConnector( getInjector().getSystemSchema(), _replicantTransport );
     pumpAllAsyncActions();
 <% end -%>
   }
@@ -65,6 +133,8 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
   {
 <% if repository.arez? -%>
 <% if repository.imit? -%>
+    arez.Disposable.dispose( _connector );
+    _connector = null;
     replicant.ReplicantTestUtil.resetConfig( false );
 <% end -%>
     arez.testng.ArezTestSupport.super.postTest();
@@ -152,9 +222,30 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     return org.mockito.ArgumentCaptor.forClass( <%= repository.gwt.qualified_async_callback_name %>.class );
   }
 
-  public class TestTransport
+  @javax.annotation.Nonnull
+  protected final TestTransport replicantTransport()
+  {
+    return _replicantTransport;
+  }
+
+  @java.lang.SuppressWarnings( { "NonJREEmulationClassesInClientCode", "StaticImportCanBeUsed" } )
+  public final class TestTransport
     extends replicant.AbstractTransport
   {
+    @javax.annotation.Nonnull
+    private final java.util.List<java.lang.Object> _remoteMessages = new java.util.ArrayList<>();
+
+    public void reset()
+    {
+      unbind();
+      resetRemoteMessages();
+    }
+
+    public void resetRemoteMessages()
+    {
+      _remoteMessages.clear();
+    }
+
     @java.lang.Override
     protected void doConnect()
     {
@@ -164,12 +255,54 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     @java.lang.Override
     protected void sendRemoteMessage( @javax.annotation.Nonnull final Object message )
     {
+      _remoteMessages.add( message );
     }
 
     @java.lang.Override
     protected void doDisconnect()
     {
       queueAsyncActions( this::onDisconnect );
+    }
+
+    @javax.annotation.Nullable
+    public replicant.TransportContext transportContext()
+    {
+      return getTransportContext();
+    }
+
+    public void onExecResponseMessage( final int requestId, @javax.annotation.Nonnull final Object response )
+    {
+      onReplicantMessage( replicant.messages.UpdateMessage.create( requestId, null, null, null, null, response ) );
+    }
+
+    public void onReplicantMessage( @javax.annotation.Nonnull final replicant.messages.ServerToClientMessage message )
+    {
+      final replicant.TransportContext transportContext = replicantTransport().transportContext();
+      org.testng.Assert.assertNotNull( transportContext );
+      transportContext.onMessageReceived( message );
+    }
+
+    @javax.annotation.Nonnull
+    public replicant.messages.ExecMessage expecExecMessage( final int index, @javax.annotation.Nonnull final String command, final int requestId )
+    {
+      final replicant.messages.ExecMessage execMessage = replicantTransport().expectRemoteMessage( index, replicant.messages.ExecMessage.class );
+      org.testng.Assert.assertEquals( execMessage.getCommand(), command, "Expected request command " + command + " but was " + execMessage.getCommand() + " at index " + index );
+      org.testng.Assert.assertEquals( execMessage.getRequestId(), requestId, "Expected request id " + requestId + " but was " + execMessage.getRequestId() + " at index " + index );
+      return execMessage;
+    }
+
+    @java.lang.SuppressWarnings( "NonJREEmulationClassesInClientCode" )
+    public <M> M expectRemoteMessage( final int index, @javax.annotation.Nonnull final java.lang.Class<M> type )
+    {
+      org.testng.Assert.assertTrue( _remoteMessages.size() > index, "No message at index " + index + ". Max messages " + _remoteMessages.size() + " Messages=" + _remoteMessages );
+      final java.lang.Object message = _remoteMessages.get( index );
+      org.testng.Assert.assertTrue( type.isInstance( message ), "Message at index " + index + " is not of type " + type );
+      return type.cast( message );
+    }
+
+    public void assertRemoteMessageCount( final int count )
+    {
+      org.testng.Assert.assertEquals( _remoteMessages.size(), count );
     }
   }
 <% end -%>

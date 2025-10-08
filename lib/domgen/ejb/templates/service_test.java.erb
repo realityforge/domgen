@@ -28,14 +28,6 @@ abstract class <%= service.ejb.service_test_name %>
   {
     return s( <%= service.ejb.qualified_service_name %>.class );
   }
-<% if service.ejb.generate_local_service? -%>
-
-  @javax.annotation.Nonnull
-  final <%= service.ejb.qualified_local_service_name %> localService()
-  {
-    return s( <%= service.ejb.qualified_local_service_name %>.class );
-  }
-<% end -%>
 
   @javax.annotation.Nonnull
   final <%= service.ejb.qualified_service_implementation_name %> impl()

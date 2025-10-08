@@ -19,10 +19,7 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
 <% if client.keycloak_repository.repository.imit? -%>
   private boolean _disableSessionServiceProtection;
 <% end -%>
-<% if client.keycloak_repository.repository.syncrecord? -%>
-  private boolean _disableSyncServiceProtection;
-<% end -%>
-<% if client.keycloak_repository.repository.imit? || client.keycloak_repository.repository.syncrecord? -%>
+<% if client.keycloak_repository.repository.imit? -%>
 
 <% if client.keycloak_repository.repository.imit? -%>
   @java.lang.SuppressWarnings( "BanJNDI" )
@@ -34,16 +31,6 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
     try
     {
       _disableSessionServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_session_service_protection" ).equals( Boolean.TRUE );
-    }
-    catch ( final java.lang.Exception ignored )
-    {
-      //Ignored.
-    }
-<% end -%>
-<% if client.keycloak_repository.repository.syncrecord? -%>
-    try
-    {
-      _disableSyncServiceProtection = new javax.naming.InitialContext().lookup( "<%= Reality::Naming.underscore(client.keycloak_repository.repository.name) -%>/env/disable_sync_service_protection" ).equals( Boolean.TRUE );
     }
     catch ( final java.lang.Exception ignored )
     {
@@ -81,34 +68,12 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
       return false;
     }
 <% end -%>
-<% if client.keycloak_repository.repository.syncrecord? -%>
-    if ( path.startsWith( <%= base_path %> + '/' + iris.syncrecord.server.rest.SyncStatusService.PATH_PREFIX ) )
-    {
-      return false;
-    }
-    if ( _disableSyncServiceProtection && path.startsWith( <%= base_path %> + "/sync" ) )
-    {
-      return false;
-    }
-<% end -%>
 <% if client.keycloak_repository.repository.imit? -%>
     if ( _disableSessionServiceProtection && path.startsWith( <%= base_path %>  + replicant.shared.SharedConstants.CONNECTION_URL_FRAGMENT ) )
     {
       return false;
     }
 <% end -%>
-<%
-  client.keycloak_repository.repository.data_modules.each do |data_module|
-    data_module.services.select{|s| s.ejb? && s.jws?}.each do |service|
--%>
-    if ( path.startsWith( "<%= service.jws.url %>" ) )
-    {
-      return false;
-    }
-<%
-    end
-  end
--%>
     return true;
   }
 }

@@ -1,0 +1,109 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.ee.qualified_exception_util_name) %>;
+
+public final class <%= repository.ee.exception_util_name %>
+{
+  private <%= repository.ee.exception_util_name %>()
+  {
+  }
+
+  @javax.annotation.Nonnull
+  private static java.util.regex.Pattern[] getStandardIncludes()
+  {
+    return new java.util.regex.Pattern[ 0 ];
+  }
+
+  @javax.annotation.Nonnull
+  private static java.util.regex.Pattern[] getStandardExcludes()
+  {
+    return new java.util.regex.Pattern[]
+      {
+        java.util.regex.Pattern.compile( "^org\\.glassfish\\..*" ),
+        java.util.regex.Pattern.compile( "^org\\.apache\\.catalina\\..*" ),
+        java.util.regex.Pattern.compile( "^java\\..*" ),
+        java.util.regex.Pattern.compile( "^javax\\..*" ),
+        java.util.regex.Pattern.compile( "^sun\\..*" ),
+        java.util.regex.Pattern.compile( "^org\\.jboss\\..*" ),
+        java.util.regex.Pattern.compile( "^org\\.eclipse\\.persistence\\..*" ),
+        java.util.regex.Pattern.compile( "^com\\.sun\\..*" ),
+        java.util.regex.Pattern.compile( ".*\\$Proxy\\$\\_\\$\\$\\_WeldClientProxy$" ),
+        java.util.regex.Pattern.compile( ".*\\.\\_\\_EJB31_Generated\\_\\_[^.]+\\_\\_Intf\\_\\_\\_\\_Bean\\_\\_$" ),
+        java.util.regex.Pattern.compile( ".*\\$Proxy\\$_\\$\\$_WeldSubclass$" ),
+        java.util.regex.Pattern.compile( ".*\\$Proxy\\$\\_\\$\\$\\_Weld\\$EnterpriseProxy\\$$" )
+      };
+  }
+
+  @javax.annotation.Nonnull
+  public static String emitFilteredStackTrace( @javax.annotation.Nonnull final java.lang.Throwable t )
+  {
+    return emitFilteredStackTrace( t, getStandardIncludes(), getStandardExcludes() );
+  }
+
+  @javax.annotation.Nonnull
+  public static String emitFilteredStackTrace( @javax.annotation.Nonnull final java.lang.Throwable t, @javax.annotation.Nonnull final java.util.regex.Pattern[] includes, @javax.annotation.Nonnull final java.util.regex.Pattern[] excludes )
+  {
+    final var sb = new java.lang.StringBuilder();
+    emitStackTrace( sb, t, includes, excludes );
+    return sb.toString();
+  }
+
+  private static void emitStackTrace( @javax.annotation.Nonnull final java.lang.StringBuilder sb, @javax.annotation.Nonnull final java.lang.Throwable t, @javax.annotation.Nonnull final java.util.regex.Pattern[] includes, @javax.annotation.Nonnull final java.util.regex.Pattern[] excludes )
+  {
+    sb.append( t.getClass().getName() );
+    final var message = t.getMessage();
+    if ( null != message )
+    {
+      sb.append( ": " );
+      sb.append( message );
+    }
+    sb.append( '\n' );
+    final var elements = filterStackTraceElements( t, includes, excludes );
+    for ( final var element : elements )
+    {
+      sb.append( "\tat " );
+      sb.append( element );
+      sb.append( '\n' );
+    }
+    final var cause = t.getCause();
+    if ( null != cause )
+    {
+      sb.append( "Caused by: " );
+      emitStackTrace( sb, cause, includes, excludes );
+    }
+  }
+
+  @javax.annotation.Nonnull
+  private static java.lang.StackTraceElement[] filterStackTraceElements( @javax.annotation.Nonnull final java.lang.Throwable t, @javax.annotation.Nonnull final java.util.regex.Pattern[] includes, @javax.annotation.Nonnull final java.util.regex.Pattern[] excludes )
+  {
+    final var elements = t.getStackTrace();
+    final var elementsToKeep = new java.util.ArrayList<java.lang.StackTraceElement>( elements.length );
+    for ( final var element : elements )
+    {
+      var handled = false;
+      final var className = element.getClassName();
+      for ( final var include : includes )
+      {
+        if ( include.matcher( className ).matches() )
+        {
+          elementsToKeep.add( element );
+          handled = true;
+          break;
+        }
+      }
+      for ( final var exclude : excludes )
+      {
+        if ( exclude.matcher( className ).matches() )
+        {
+          handled = true;
+          break;
+        }
+      }
+      // Neither included nor excluded so let's keep it
+      if ( !handled )
+      {
+        elementsToKeep.add( element );
+      }
+    }
+    return elementsToKeep.toArray( new java.lang.StackTraceElement[ 0 ] );
+  }
+}

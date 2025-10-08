@@ -25,7 +25,7 @@ package <%= to_package(entity.arez.qualified_name) %>;
   implements <%= entity.arez.extensions.join(", ") %>
 <% end -%>
 {
-<% entity.declared_attributes.select { |a| !a.abstract? && a.arez? && a.text? && a.has_non_max_length? }.each do |attribute| -%>
+<% entity.declared_attributes.select { |a| !a.abstract? && a.arez? && a.text? && a.has_non_default_max_length? }.each do |attribute| -%>
   <%= entity.arez.module_local? ? '' : 'public ' %>static final int <%= Reality::Naming.uppercase_constantize(attribute.name) -%>_MAX_SIZE = <%= attribute.length -%>;
 <% end -%>
 <% entity.declared_attributes.select{ |attribute| attribute.immutable? && !attribute.abstract? && attribute.arez? }.each do |attribute|

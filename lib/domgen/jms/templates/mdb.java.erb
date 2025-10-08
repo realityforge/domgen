@@ -40,7 +40,7 @@ public class <%= method.jms.mdb_name %>
   @javax.annotation.Nonnull
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= method.jms.mdb_name %>.class.getName() );
   @javax.inject.Inject
-  private <%= method.service.ejb.generate_boundary? ? method.service.ejb.qualified_boundary_interface_name : method.service.ejb.qualified_service_name %> _service;
+  private <%= method.service.ejb.generate_boundary? ? method.service.ejb.qualified_boundary_service_name : method.service.ejb.qualified_service_name %> _service;
 <%
   parameter = method.parameters.empty? ? nil : method.parameters[0]
   if parameter

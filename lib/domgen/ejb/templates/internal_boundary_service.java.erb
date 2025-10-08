@@ -1,9 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(service.ejb.qualified_boundary_service_name) %>;
+package <%= to_package(service.ejb.qualified_internal_boundary_service_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-<% unless service.ejb.boundary_module_local? %>public <% end %>interface <%= service.ejb.boundary_service_name %>
-{<% service.methods.select{|method | method.ejb.generate_boundary?}.each do |method| %>
+public interface <%= service.ejb.internal_boundary_service_name %>
+{<% service.methods.select{|method| method.ejb.internal_boundary_service?}.each do |method| -%>
   <%= annotated_type(method.return_value, :ejb, :boundary) %> <%= Reality::Naming.camelize(method.name) %>(<%= method.parameters.collect{|p| "#{annotated_type(p, :ejb, :boundary)} #{Reality::Naming.camelize(p.name)}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.base_exceptions.collect{|e| e.ee.qualified_name}.join(', ')}"
 %>;

@@ -42,10 +42,6 @@ require 'domgen/buildr_integration'
 # Json
 require 'domgen/json/model'
 
-# Xml
-require 'domgen/xml/model'
-require 'domgen/xml/helper'
-
 # Java
 require 'domgen/java/model'
 require 'domgen/java/helper'
@@ -66,11 +62,6 @@ require 'domgen/mssql/generator'
 require 'domgen/pgsql/model'
 require 'domgen/pgsql/generator'
 
-# JAXB
-require 'domgen/jaxb/model'
-require 'domgen/jaxb/helper'
-require 'domgen/jaxb/generator'
-
 # Jackson (JSon deserialization)
 require 'domgen/jackson/model'
 require 'domgen/jackson/helper'
@@ -85,9 +76,6 @@ require 'domgen/jpa/generator'
 require 'domgen/jms/model'
 require 'domgen/jms/generator'
 
-# Docbook
-require 'domgen/xml/generator'
-
 # Rake Tasks
 require 'domgen/rake_tasks'
 
@@ -97,16 +85,6 @@ require 'domgen/xmi_generator'
 # EJB
 require 'domgen/ejb/model'
 require 'domgen/ejb/generator'
-
-# JWS
-require 'domgen/jws/model'
-require 'domgen/jws/wsimport_template'
-require 'domgen/jws/helper'
-require 'domgen/jws/generator'
-
-# JMX
-require 'domgen/jmx/model'
-require 'domgen/jmx/generator'
 
 # JaxRS
 require 'domgen/jaxrs/model'
@@ -144,9 +122,6 @@ require 'domgen/keycloak/generator'
 
 require 'domgen/appconfig/model'
 require 'domgen/appconfig/generator'
-
-require 'domgen/syncrecord/model'
-require 'domgen/syncrecord/generator'
 
 require 'domgen/application/model'
 

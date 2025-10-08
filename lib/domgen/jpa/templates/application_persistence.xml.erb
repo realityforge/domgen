@@ -14,7 +14,7 @@
 <% if repository.jpa.include_default_unit? -%>
   <persistence-unit name="<%= repository.jpa.unit_name %>" transaction-type="JTA">
 <% if repository.jpa.provider_class
-%>    <provider><%= repository.jpa.repository.jpa.provider_class %></provider>
+%>    <provider><%= repository.jpa.provider_class %></provider>
 <% end %>
     <jta-data-source><%= repository.jpa.resolved_data_source %></jta-data-source>
 

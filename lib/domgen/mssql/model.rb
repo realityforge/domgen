@@ -63,8 +63,8 @@ module Domgen
         string.gsub("'", "''")
       end
 
-      def disallow_blank_constraint(column_name)
-        "LEN( #{quote(column_name)} ) > 0"
+      def min_length_constraint(column_name, length)
+        "LEN(#{quote(column_name)}) > #{length}"
       end
 
       def column_type(column)

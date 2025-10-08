@@ -14,21 +14,31 @@
 
 Domgen::Generator.define([:ejb],
                          "#{File.dirname(__FILE__)}/templates",
-                         [Domgen::Java::Helper, Domgen::JAXB::Helper]) do |g|
+                         [Domgen::Java::Helper]) do |g|
   g.template_set(:ejb_services) do |template_set|
     template_set.erb_template(:service,
                               'service.java.erb',
                               'main/java/#{service.ejb.qualified_service_name.gsub(".","/")}.java')
     template_set.erb_template(:service,
-                              'local_service.java.erb',
-                              'main/java/#{service.ejb.qualified_local_service_name.gsub(".","/")}.java',
-                              :guard => 'service.ejb.generate_local_service?')
+                              'internal_service.java.erb',
+                              'main/java/#{service.ejb.qualified_internal_service_name.gsub(".","/")}.java',
+                              :guard => 'service.ejb.generate_internal_service?')
+    template_set.erb_template(:service,
+                              'internal_service_implementation.java.erb',
+                              'main/java/#{service.ejb.qualified_internal_service_implementation_name.gsub(".","/")}.java',
+                              :guard => 'service.ejb.generate_internal_service?')
+    template_set.erb_template(:service,
+                              'internal_boundary_service.java.erb',
+                              'main/java/#{service.ejb.qualified_internal_boundary_service_name.gsub(".","/")}.java',
+                              :guard => 'service.ejb.generate_internal_boundary_service?')
+    template_set.erb_template(:service,
+                              'internal_boundary_service_implementation.java.erb',
+                              'main/java/#{service.ejb.qualified_internal_boundary_service_implementation_name.gsub(".","/")}.java',
+                              :guard => 'service.ejb.generate_internal_boundary_service?')
     template_set.erb_template(:data_module,
                               'service_package_info.java.erb',
                               'main/java/#{data_module.ejb.server_service_package.gsub(".","/")}/package-info.java',
                               :guard => 'data_module.services.any?{|e|e.ejb?} && data_module.repository.java.generate_package_info?')
-  end
-  g.template_set(:ejb_service_facades => [:ejb_services]) do |template_set|
     template_set.erb_template(:repository,
                               'no_web_interceptor.java.erb',
                               'main/java/#{repository.ejb.qualified_no_web_interceptor_name.gsub(".","/")}.java',
@@ -39,15 +49,11 @@ Domgen::Generator.define([:ejb],
                               :guard => 'repository.ejb.any_no_web_invoke?')
     template_set.erb_template(:service,
                               'boundary_service.java.erb',
-                              'main/java/#{service.ejb.qualified_boundary_interface_name.gsub(".","/")}.java',
+                              'main/java/#{service.ejb.qualified_boundary_service_name.gsub(".","/")}.java',
                               :guard => 'service.ejb.generate_boundary?')
     template_set.erb_template(:service,
-                              'remote_service.java.erb',
-                              'main/java/#{service.ejb.qualified_remote_service_name.gsub(".","/")}.java',
-                              :guard => 'service.ejb.generate_boundary? && service.ejb.remote?')
-    template_set.erb_template(:service,
-                              'boundary_implementation.java.erb',
-                              'main/java/#{service.ejb.qualified_boundary_implementation_name.gsub(".","/")}.java',
+                              'boundary_service_implementation.java.erb',
+                              'main/java/#{service.ejb.qualified_boundary_service_implementation_name.gsub(".","/")}.java',
                               :guard => 'service.ejb.generate_boundary?')
     template_set.erb_template(:method,
                               'scheduler.java.erb',
@@ -105,5 +111,5 @@ Domgen::Generator.define([:ejb],
                               :guard => 'service.ejb.generate_base_test?')
   end
 
-  g.template_set(:ejb => [:ejb_service_facades, :jpa_ejb_dao])
+  g.template_set(:ejb => [:ejb_services, :jpa_ejb_dao])
 end

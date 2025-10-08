@@ -2,7 +2,7 @@
 package <%= to_package(repository.ejb.qualified_cdi_types_test_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
-final class <%= repository.ejb.cdi_types_test_name %>
+public final class <%= repository.ejb.cdi_types_test_name %>
 {<%
   repository.data_modules.select{|d|d.ejb?}.each do |data_module|
     data_module.services.select{|s|s.ejb? && s.ejb.generate_base_test?}.each do |service|
@@ -14,20 +14,27 @@ final class <%= repository.ejb.cdi_types_test_name %>
   {
     final var clazz = java.lang.Class.forName( "<%= service.ejb.qualified_service_implementation_name %>" );
     org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isPublic( clazz.getModifiers() ), "Class <%= service.ejb.qualified_service_implementation_name %> is public but should be package access" );
-    org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI( clazz );
+    assertNoFinalMethodsForCDI( clazz );
   }
 <%
     end
   end
 -%>
-<% if repository.imit? -%>
 
-  @org.testng.annotations.Test
-  public void ensureReplicantSessionManagerImplementationIsCdiType()
-    throws java.lang.Exception
+  private void assertNoFinalMethodsForCDI( @javax.annotation.Nonnull final java.lang.Class<?> clazz )
   {
-    final var clazz = java.lang.Class.forName( "<%= repository.imit.qualified_session_manager_name %>" );
-    org.realityforge.guiceyloops.server.AssertUtil.assertNoFinalMethodsForCDI( clazz );
+    for ( final var method : clazz.getDeclaredMethods() )
+    {
+      if ( java.lang.Object.class != method.getDeclaringClass() )
+      {
+        final var message = "Method " + method.getName() + " on " + clazz.getName() + " is final and thus not compatible with CDI";
+        org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isFinal( method.getModifiers() ), message );
+      }
+    }
+    final var parent = clazz.getSuperclass();
+    if ( null != parent )
+    {
+      assertNoFinalMethodsForCDI( parent );
+    }
   }
-<% end -%>
 }

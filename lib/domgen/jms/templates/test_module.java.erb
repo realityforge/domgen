@@ -2,7 +2,7 @@
 package <%= to_package(repository.jms.qualified_test_module_name) %>;
 
 public final class <%= repository.jms.test_module_name %>
-  extends org.realityforge.guiceyloops.shared.AbstractModule
+  extends com.google.inject.AbstractModule
 {
   @Override
   protected void configure()
@@ -10,15 +10,13 @@ public final class <%= repository.jms.test_module_name %>
     try
     {
       final var broker = <%= repository.jms.qualified_test_broker_factory_name %>.getBroker().getOpenMQContainer();
-      bindResource( org.realityforge.guiceyloops.server.glassfish.OpenMQContainer.class, "<%= repository.name %>", broker );
+      bind( org.realityforge.guiceyloops.server.glassfish.OpenMQContainer.class ).annotatedWith( com.google.inject.name.Names.named( "<%= repository.name %>" ) ).toInstance( broker );
 
       bind( javax.jms.JMSContext.class ).
         annotatedWith( new org.realityforge.guiceyloops.server.JMSConnectionFactoryImpl( <%= repository.jms.qualified_constants_container_name %>.CONNECTION_FACTORY_RESOURCE_NAME ) ).
         toInstance( new com.sun.messaging.jmq.jmsclient.JMSContextImpl( broker.getConnectionFactory(), com.sun.messaging.jmq.jmsclient.ContainerType.JavaEE_Web_or_EJB ) );
 <% repository.jms.destinations.each do |destination| -%>
-      bindResource( <%= destination.destination_type %>.class,
-                    <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_RESOURCE_NAME,
-                    broker.create<%= destination.is_queue? ? 'Queue' : 'Topic' %>Reference( <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME ) );
+      bind( <%= destination.destination_type %>.class ).annotatedWith( com.google.inject.name.Names.named( <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_RESOURCE_NAME ) ).toInstance( broker.create<%= destination.is_queue? ? 'Queue' : 'Topic' %>Reference( <%= repository.jms.qualified_constants_container_name %>.<%= Reality::Naming.uppercase_constantize(destination.name) %>_PHYSICAL_NAME ) );
 <% end -%>
     }
     catch ( final Exception e )

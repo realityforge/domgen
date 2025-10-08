@@ -447,7 +447,12 @@ module Domgen
             sub_package_prefix = options[:sub_package] ? "#{sub_package.split('.').reverse.join('_')}_" : ''
             package_key_suffix = "#{sub_package_prefix}#{artifact_type.nil? ? '' : "#{artifact_type}_"}package"
             idefine_getter(method_name, default_value)
+            idefine_method("qualified_#{method_name}=") do |value|
+              instance_variable_set("@qualified_#{method_name}", value)
+            end
             idefine_method("qualified_#{method_name}") do
+              qualified_name = instance_variable_get("@qualified_#{method_name}")
+              return qualified_name if qualified_name
               facet_parent = parent
               while !facet_parent.is_a?(DataModule) && !facet_parent.is_a?(Repository)
                 facet_parent = facet_parent.parent

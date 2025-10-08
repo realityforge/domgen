@@ -150,37 +150,26 @@ module Domgen
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
 
-      attr_writer :name
-
-      def name
-        @name || service.qualified_name
-      end
-
-      def service_ejb_name
-        "#{service.data_module.repository.name}.#{service.ejb.name}"
-      end
-
-      def boundary_name
-        "#{name}Boundary"
-      end
-
-      def boundary_ejb_name
-        "#{service.data_module.repository.name}.#{service.ejb.boundary_name}"
-      end
-
       java_artifact :service, :service, :server, :ejb, '#{service.name}'
-      # The local service is the service exposed to other modules in the application
-      java_artifact :local_service, :service, :server, :ejb, 'Local#{service.name}'
+      java_artifact :internal_service, :service, :server, :ejb, '#{service.name}Internal'
+      java_artifact :internal_service_implementation, :service, :server, :ejb, '#{internal_service_name}Impl'
+      java_artifact :internal_boundary_service, :service, :server, :ejb, '#{service.name}InternalBoundary'
+      java_artifact :internal_boundary_service_implementation, :service, :server, :ejb, '#{internal_boundary_service_name}Impl'
       java_artifact :service_implementation, :service, :server, :ejb, '#{service.name}Impl'
-      java_artifact :boundary_interface, :service, :server, :ejb, 'Local#{service_name}Boundary'
-      java_artifact :remote_service, :service, :server, :ejb, 'Remote#{service_name}'
-      java_artifact :boundary_implementation, :service, :server, :ejb, '#{service_name}BoundaryImpl'
+      java_artifact :boundary_service, :service, :server, :ejb, '#{service_name}Boundary'
+      java_artifact :boundary_service_implementation, :service, :server, :ejb, '#{boundary_service_name}Impl'
       java_artifact :service_test, :service, :server, :ejb, 'Abstract#{service_name}ImplTest'
 
-      attr_writer :generate_local_service
+      attr_writer :generate_internal_service
 
-      def generate_local_service?
-        @generate_local_service.nil? ? service.methods.any?{|method| method.ejb.local_service?} : !!@generate_local_service
+      def generate_internal_service?
+        @generate_internal_service.nil? ? service.methods.any?{|method| method.ejb.internal_service?} : !!@generate_internal_service
+      end
+
+      attr_writer :generate_internal_boundary_service
+
+      def generate_internal_boundary_service?
+        @generate_internal_boundary_service.nil? ? service.methods.any?{|method| method.ejb.internal_boundary_service?} : !!@generate_internal_boundary_service
       end
 
       attr_writer :module_local
@@ -215,7 +204,6 @@ module Domgen
         @qualified_base_service_test_name.nil? ? self.service.data_module.repository.ejb.qualified_base_service_test_name : @qualified_base_service_test_name
       end
 
-
       attr_accessor :boundary_extends
 
       def boundary_interceptors
@@ -226,27 +214,19 @@ module Domgen
         @boundary_annotations ||= []
       end
 
-      attr_writer :local
-
-      def local?
-        @local.nil? ? true : @local
+      def internal_boundary_interceptors
+        @internal_boundary_interceptors ||= []
       end
 
-      def remote=(remote)
-        self.local = !remote
-      end
-
-      def remote?
-        !local?
+      def internal_boundary_annotations
+        @internal_boundary_annotations ||= []
       end
 
       attr_accessor :generate_boundary
 
       def generate_boundary?
         if @generate_boundary.nil?
-          return service.jmx? ||
-            service.jws? ||
-            service.jms? ||
+          return service.jms? ||
             service.jaxrs? ||
             service.action? ||
             service.imit? ||
@@ -272,6 +252,14 @@ module Domgen
         @generate_base_test = generate_base_test
       end
 
+      def add_to_aggregate_test?
+        @add_to_aggregate_test.nil? ? self.generate_base_test? : !!@add_to_aggregate_test
+      end
+
+      def add_to_aggregate_test=(add_to_aggregate_test)
+        @add_to_aggregate_test = add_to_aggregate_test
+      end
+
       def pre_pre_complete
         if self.no_web_invoke?
           self.service.disable_facets(:gwt, :jaxrs)
@@ -283,6 +271,16 @@ module Domgen
         if generate_base_test? && !service.methods.any?{|m| m.ejb? && m.ejb.generate_base_test?}
           self.generate_base_test = false
         end
+        if generate_boundary?
+          self.service.methods.select{|method| method.ejb.generate_boundary?}.each do |method|
+            method.parameters.select{|parameter| parameter.reference? && parameter.referenced_entity.dao.jpa.module_local? && service.data_module.name.to_s != parameter.referenced_entity.data_module.name.to_s}.each do |parameter|
+              parameter.
+                referenced_entity.
+                query_by_name("#{parameter.nullable? ? 'FindBy' : 'GetBy'}#{parameter.referenced_entity.primary_key.name}").
+                jpa.direct_query_access = true
+            end
+          end
+        end
       end
     end
 
@@ -290,13 +288,6 @@ module Domgen
       include Domgen::Java::BaseJavaGenerator
 
       java_artifact :scheduler, :service, :server, :ee, '#{method.service.name}#{method.name}ScheduleEJB'
-
-      # Should the method be added to the local service, exposed to other modules in the application
-      def local_service?
-        @local_service.nil? ? false : !!@local_service
-      end
-
-      attr_writer :local_service
 
       def schedule
         raise "Attempted to access a schedule on #{method.qualified_name} when method has multiple parameters" unless method.parameters.empty?
@@ -320,6 +311,32 @@ module Domgen
       def generate_boundary?
         @generate_boundary.nil? ? self.method.service.ejb.generate_boundary? : !!@generate_boundary
       end
+
+      def generate_boundary_set?
+        !@generate_boundary.nil?
+      end
+
+      def internal_boundary_interceptors
+        @internal_boundary_interceptors ||= []
+      end
+
+      def internal_boundary_annotations
+        @internal_boundary_annotations ||= []
+      end
+
+      # Should the method be added to the internal service and thus exposed to other modules in the application
+      def internal_service?
+        @internal_service.nil? ? false : !!@internal_service
+      end
+
+      attr_writer :internal_service
+
+      # Should the method be added to the internal boundary service and thus exposed to other modules in the application
+      def internal_boundary_service?
+        @internal_boundary_service.nil? ? false : !!@internal_boundary_service
+      end
+
+      attr_writer :internal_boundary_service
 
       def generate_base_test?
         @generate_base_test.nil? ? true : !!@generate_base_test

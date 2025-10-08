@@ -1,16 +1,14 @@
 /* DO NOT EDIT: File is auto-generated */
 package <%= to_package(service.action.qualified_service_actions_name) %>;
 
-@javax.ejb.Startup
-@javax.ejb.Singleton
-public class <%= service.action.service_actions_name %>
+@javax.enterprise.context.ApplicationScoped
+class <%= service.action.service_actions_name %>
 {
   @javax.inject.Inject
   @javax.annotation.Nonnull
-  private <%= service.ejb.boundary_interface_name %> _service;
+  private <%= service.ejb.boundary_service_name %> _service;
 
-  @javax.annotation.PostConstruct
-  void onInit()
+  void onStartup( @javax.enterprise.event.Observes @javax.enterprise.context.Initialized(javax.enterprise.context.ApplicationScoped.class) final Object init )
   {
 <% service.methods.select{|method|method.action?}.each do |method| -%>
     iris.rose.server.action.ActionExecutorRegistry.register( <%= method.name %>ActionInterceptor.actionTypeCode(), request -> <%= method.name %>ActionInterceptor.invokeAction( _service, request ) );
@@ -34,7 +32,7 @@ public class <%= service.action.service_actions_name %>
     }
 
     @javax.annotation.Nonnull
-    static iris.rose.server.action.InvocationResult invokeAction( @javax.annotation.Nonnull final <%= method.service.ejb.boundary_interface_name %> service, @javax.annotation.Nonnull final String actionParameters )
+    static iris.rose.server.action.InvocationResult invokeAction( @javax.annotation.Nonnull final <%= method.service.ejb.boundary_service_name %> service, @javax.annotation.Nonnull final String actionParameters )
     {
 <% if !method.parameters.empty? -%>
       final var reader = javax.json.Json.createReader( new java.io.StringReader( actionParameters ) );
@@ -105,7 +103,7 @@ public class <%= service.action.service_actions_name %>
       {
 <% if method.return_value.return_type != :void -%>
         service.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Reality::Naming.camelize(param.name)}.join(", ") %> );
-        final var encodedResult = org.realityforge.replicant.server.ee.ReplicantContextHolder.get( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
+        final var encodedResult = replicant.server.ee.ReplicantContextHolder.get( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
         return new iris.rose.server.action.InvocationResult( true, null == encodedResult ? null : encodedResult.toString(), "<%= method.qualified_name %> completed successfully" );
 <% else -%>
         service.<%= Reality::Naming.camelize(method.name) %>( <%= method.parameters.map {|param| Reality::Naming.camelize(param.name)}.join(", ") %> );
@@ -115,7 +113,7 @@ public class <%= service.action.service_actions_name %>
       <%- method.exceptions.each do |e| %>
       catch ( final <%= e.ee.qualified_name %> exception )
         {
-          final var encodedResult = org.realityforge.replicant.server.ee.ReplicantContextHolder.get( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
+          final var encodedResult = replicant.server.ee.ReplicantContextHolder.get( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY );
           return new iris.rose.server.action.InvocationResult( true, null == encodedResult ? null : encodedResult.toString(), "<%= method.qualified_name %> completed with <%= e.name %>Exception" );
         }
 <% end %>
@@ -124,7 +122,7 @@ public class <%= service.action.service_actions_name %>
       {
         // If we get to here, then the Exception will not be one thrown by the service method. Any expected exceptions would've been encoded in the ActionInterceptor
         // and thus it is actually an error of some sort.
-        final var errorMessage = iris.syncrecord.server.service.ExceptionUtil.emitFilteredStackTrace( e );
+        final var errorMessage = <%= service.data_module.repository.ee.qualified_exception_util_name %>.emitFilteredStackTrace( e );
         LOG.warning( errorMessage );
         return new iris.rose.server.action.InvocationResult( false, errorMessage, "<%= method.qualified_name %> completed with an unexpected exception: " + e.getMessage() );
       }
@@ -133,7 +131,7 @@ public class <%= service.action.service_actions_name %>
 <% if method.return_value.return_type != :void %>
 
     @javax.annotation.Nonnull
-    private static String encodeResponsePayload( <%= method.return_value.nullable? ? "@javax.annotation.Nullable" : "@javax.annotation.Nonnull"-%> final Object object )
+    private static javax.json.JsonValue encodeResponsePayload( <%= method.return_value.nullable? ? "@javax.annotation.Nullable" : "@javax.annotation.Nonnull"-%> final Object object )
     {
       @java.lang.SuppressWarnings( { "JavaExistingMethodCanBeUsed", "RedundantSuppression" } )
       final var builder = javax.json.Json.createObjectBuilder();
@@ -141,7 +139,7 @@ public class <%= service.action.service_actions_name %>
       if ( null == object )
       {
         builder.add( "data", javax.json.JsonValue.NULL );
-        return builder.build().toString();
+        return builder.build();
       }
 
 <% end -%>
@@ -164,7 +162,7 @@ public class <%= service.action.service_actions_name %>
 <% else -%>
       builder.add( "data", javax.json.Json.createValue( response ) );
 <% end -%>
-      return builder.build().toString();
+      return builder.build();
     }
 <% end -%>
 
@@ -172,7 +170,7 @@ public class <%= service.action.service_actions_name %>
     @java.lang.SuppressWarnings( "unused" )
 <% end -%>
     @javax.annotation.Nullable
-    private static String encodeException( @javax.annotation.Nonnull final Throwable exception )
+    private static javax.json.JsonValue encodeException( @javax.annotation.Nonnull final Throwable exception )
     {
 <% if method.exceptions.empty? -%>
       return null;
@@ -180,7 +178,7 @@ public class <%= service.action.service_actions_name %>
      <% method.exceptions.each do |exception| -%>
  if ( exception instanceof final <%= exception.ee.qualified_name %> e )
       {
-        return javax.json.Json.createObjectBuilder().add("exception", <%= exception.action.qualified_json_encoder_name %>.encode( e ) ).build().toString();
+        return javax.json.Json.createObjectBuilder().add("exception", <%= exception.action.qualified_json_encoder_name %>.encode( e ) ).build();
       }
       else<% end -%>
 
@@ -225,8 +223,8 @@ public class <%= service.action.service_actions_name %>
           final var encodedResponse = encodeResponsePayload( result );
           // Put in the ThreadLocal in case this request is not going via Replicant (UserService)
           // Temporary hack as we should have all requests via Replicant
-          org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
-          _registry.putResource( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          replicant.server.ee.ReplicantContextHolder.put( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          _registry.putResource( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
           return result;
 <% else -%>
           return context.proceed();
@@ -235,8 +233,8 @@ public class <%= service.action.service_actions_name %>
         catch ( final Exception e  )
         {
           final var encodedResponse = encodeException( e );
-          org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
-          _registry.putResource( org.realityforge.replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          replicant.server.ee.ReplicantContextHolder.put( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
+          _registry.putResource( replicant.server.ServerConstants.REQUEST_RESPONSE_KEY, encodedResponse );
           throw e;
         }
       }

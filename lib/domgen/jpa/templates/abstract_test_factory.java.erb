@@ -5,11 +5,12 @@ package <%= to_package(data_module.jpa.qualified_abstract_test_factory_name) %>;
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "DuplicatedCode", "SameParameterValue", "UnusedReturnValue" } )
 abstract class <%= data_module.jpa.abstract_test_factory_name %>
 {
+  @javax.annotation.Nonnull
   private final com.google.inject.Injector _injector;
 
   protected <%= data_module.jpa.abstract_test_factory_name %>( @javax.annotation.Nonnull final com.google.inject.Injector injector )
   {
-    _injector = injector;
+    _injector = java.util.Objects.requireNonNull( injector );
   }
 <% if data_module.repository.jpa.include_default_unit? -%>
 
@@ -156,5 +157,20 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
   protected java.util.Date now()
   {
     return org.realityforge.guiceyloops.shared.ValueUtil.now();
+  }
+
+  @javax.annotation.Nonnull
+  protected final java.util.Date latest( @javax.annotation.Nonnull final java.util.Date t1, @javax.annotation.Nonnull final java.util.Date t2 )
+  {
+    return t1.after( t2 ) ? t1 : t2;
+  }
+
+  @javax.annotation.Nullable
+  protected final java.util.Date earliest( @javax.annotation.Nullable final java.util.Date t1, @javax.annotation.Nullable final java.util.Date t2 )
+  {
+    return
+      null == t1 ? t2 :
+      null == t2 ? t1 :
+      t1.after( t2 ) ? t2 : t1;
   }
 }

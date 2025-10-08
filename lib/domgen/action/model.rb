@@ -78,6 +78,16 @@ module Domgen
 
     facet.enhance(DataModule) do
       include Domgen::Java::EEClientServerJavaPackage
+
+      def post_complete
+        self.data_module.services.select { |service| service.action? }.each do |service|
+          service.methods.select { |method| method.action? }.each do |method|
+            if !method.imit? && !method.action.generate_serverside_action? && !method.action.schedule? && !method.action.dynamic_invoke? && method.action.application_event.nil?
+              Domgen.error("Service method #{method.qualified_name} is an action but is not exposed to the client-side, nor is it a serverside action, nor is it expected to be scheduled and nor is it expected to be dynamically invoked. Disable the action facet.")
+            end
+          end
+        end
+      end
     end
 
     facet.enhance(EnumerationSet) do
@@ -151,10 +161,21 @@ module Domgen
         @referenced.nil? ? false : !!@referenced
       end
 
+      attr_writer :force_public_encoder
+
+      def force_public_encoder?
+        @force_public_encoder.nil? ? false : !!@force_public_encoder
+      end
+
       def public_encoder?
-        return true unless exception.ee.module_local?
-        return false unless exception.extends
-        exception.data_module.exception_by_name(exception.extends).action.public_encoder?
+        return true if force_public_encoder?
+        return false if exception.extends.nil? && exception.ee.module_local?
+        unless exception.extends.nil?
+          extends_exception = self.exception.data_module.exception_by_name(exception.extends)
+          return true if extends_exception.data_module.qualified_name != exception.data_module.qualified_name
+        end
+        return false
+        # force_public_encoder? || (exception.extends.nil? ? !exception.ee.module_local? : (exception.data_module.qualified_name != exception.data_module.exception_by_name(exception.extends).data_module.qualified_name && exception.data_module.exception_by_name(exception.extends).action.public_encoder?))
       end
 
       def json_encoder_qualified_name
@@ -198,13 +219,20 @@ module Domgen
         if service.action? && (!service.ejb? || !service.ejb.generate_boundary?)
           Domgen::error("Service #{service.qualified_name} has action facet enabled but has no associated ejb boundary so the interceptor can not be applied")
         end
+        service.methods.select { |m| m.action? }.each do |method|
+          method.exceptions.select { |e| e.action? }.each do |exception|
+            if !exception.ee.module_local? && exception.data_module.qualified_name != service.data_module.qualified_name
+              exception.action.force_public_encoder = true
+            end
+          end
+        end
       end
     end
 
     facet.enhance(Method) do
       include Domgen::Java::BaseJavaGenerator
 
-      java_artifact :method_actions, :service, :server, :action, '#{method.service.name}#{method.name}Action'
+      java_artifact :serverside_action, :service, :server, :action, '#{method.service.name}#{method.name}Action'
 
       def code
         content = "#{method.qualified_name.gsub('#', '.')}:#{method.action.json_request_schema}:#{method.action.json_response_schema}"
@@ -229,6 +257,19 @@ module Domgen
         @max_error_count.nil? ? 1 : @max_error_count
       end
 
+      attr_writer :schedule
+
+      def schedule?
+        @schedule.nil? ? false : !!@schedule
+      end
+
+      attr_writer :dynamic_invoke
+
+      # Can the action be invoked dynamically. Possibly vai an analysis task
+      def dynamic_invoke?
+        @dynamic_invoke.nil? ? false : !!@dynamic_invoke
+      end
+
       attr_writer :retry_rate
 
       def retry_rate
@@ -245,6 +286,12 @@ module Domgen
 
       def generate_message_on_success?
         @generate_message_on_success.nil? ? true : @generate_message_on_success
+      end
+
+      attr_writer :serverside_action_module_local
+
+      def serverside_action_module_local?
+        @serverside_action_module_local.nil? ? self.method.service.ejb.module_local? : @serverside_action_module_local
       end
 
       attr_writer :generate_serverside_action
@@ -394,6 +441,12 @@ module Domgen
           return schema[:oneOf][0].to_json
         else
           schema.to_json
+        end
+      end
+
+      def post_verify
+        if method.action? && (!method.ejb? || !method.ejb.generate_boundary?)
+          Domgen::error("Method #{method.qualified_name} has action facet enabled but is not part of the ejb boundary so the interceptor can not be applied")
         end
       end
 

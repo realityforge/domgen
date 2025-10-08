@@ -441,7 +441,7 @@ module Domgen
       #   model jar and only generated if repository.application.model_library?
       # * Application Variant: This includes everything from the template variant, with the interpolated values
       #   replaced with actual values. It may also include other fragments required for the application to run
-      #   such as appconfig and syncrecord fragments. These must be specifically added. It is typically generated
+      #   such as appconfig fragment. These must be specifically added. It is typically generated
       #   in the server jar if !repository.application.service_library?
       # * Test Variant: This is used to add test specific dependencies or if application is a service library.
       #   If repository.application.service_library? is true it will also include the complete contents the
@@ -799,6 +799,10 @@ FRAGMENT
       def generate_test_factory?
         data_module.entities.any? {|e| e.jpa?}
       end
+
+      def expect_aggregate_test?
+        self.data_module.daos.any?{|d| d.jpa? && d.jpa.expect_test?} || self.data_module.entities.any? {|e| e.jpa? && e.jpa.expect_test?}
+      end
     end
 
     facet.enhance(DataAccessObject) do
@@ -843,6 +847,10 @@ FRAGMENT
         "#{qualified_dao_test_name.gsub(/\.Abstract/, '.')}"
       end
 
+      def expect_test?
+        !self.extensions.empty? || self.dao.queries.any?{|q|q.jpa? && !q.jpa.standard_query?}
+      end
+
       def perform_verify
         unless persistence_unit_name.nil?
           unless dao.data_module.repository.jpa.standalone_persistence_unit_by_name?(persistence_unit_name)
@@ -857,8 +865,22 @@ FRAGMENT
       end
     end
 
+    facet.enhance(Struct) do
+      attr_writer :generate_jpa_constructor
+
+      def generate_jpa_constructor?
+        @generate_jpa_constructor.nil? ? false : @generate_jpa_constructor
+      end
+
+      include Domgen::Java::BaseJavaGenerator
+    end
+
     facet.enhance(Entity) do
       include Domgen::Java::BaseJavaGenerator
+
+      def expect_test?
+        self.non_standard_model_constraints? || !self.interfaces.empty?
+      end
 
       attr_writer :generate_metamodel
 
@@ -1248,6 +1270,13 @@ FRAGMENT
     end
 
     facet.enhance(Query) do
+
+      attr_writer :direct_query_access
+
+      def direct_query_access?
+        @direct_query_access.nil? ? false : !!@direct_query_access
+      end
+
       def transaction_type
         @transaction_type || self.query.dao.jpa.transaction_type
       end
@@ -1453,6 +1482,12 @@ FRAGMENT
           statement = true if ql =~ /^UPDATE\s/ix
           statement = true if ql =~ /\sUPDATE\s/ix
           self.query_spec = statement ? :statement : :criteria
+        end
+      end
+
+      def post_verify
+        if query.result_struct?
+          query.struct.jpa.generate_jpa_constructor = true
         end
       end
     end

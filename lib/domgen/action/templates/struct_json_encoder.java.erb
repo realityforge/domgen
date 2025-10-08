@@ -29,9 +29,11 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
     conversion_rule =
       case
         when (field.enumeration? and field.nullable? && field.enumeration.numeric_values?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.ordinal() )"}
-        when (field.enumeration? and field.nullable? && field.enumeration.textual_values?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.value() )"}
+        when (field.enumeration? && field.collection? && field.enumeration.numeric_values?) then Proc.new {|value| "#{value}.stream().map( Enum::ordinal ).toList()"}
         when (field.enumeration? && field.enumeration.numeric_values?) then Proc.new {|value| "javax.json.Json.createValue( #{value}.ordinal() )"}
-        when (field.enumeration? && field.enumeration.textual_values?) then Proc.new {|value| "javax.json.Json.createValue( #{value}.value() )"}
+        when (field.enumeration? and field.nullable? && field.enumeration.textual_values?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.name() )"}
+        when (field.enumeration? && field.collection? && field.enumeration.textual_values?) then Proc.new {|value| "#{value}.stream().map( Enum::name ).toList()"}
+        when (field.enumeration? && field.enumeration.textual_values?) then Proc.new {|value| "javax.json.Json.createValue( #{value}.name() )"}
         when (field.struct? && field.nullable?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : #{field.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
         when field.struct? then Proc.new {|value| "#{field.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
         when (field.date? && field.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : iris.rose.server.service.util.RDate.fromDate( #{value} ).toString()"}
@@ -66,7 +68,19 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
      <% struct.fields.each_with_index do |field, index|
     conversion_rule =
        case
+         when (field.enumeration? && field.collection? && field.enumeration.numeric_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+          .getValuesAs( javax.json.JsonNumber.class )
+          .stream()
+          .map( javax.json.JsonNumber::intValue )
+          .map( i -> #{field.enumeration.ee.qualified_name}.values()[ i ] )
+          .collect( #{field.sequence? ? "java.util.stream.Collectors.toList()" : "java.util.stream.Collectors.toSet()"} )"}
          when (field.enumeration? && field.enumeration.numeric_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}#{field.enumeration.ee.qualified_name}.values()[ json.getInt( #{value} ) ]"}
+         when (field.enumeration? && field.collection? && field.enumeration.textual_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
+          .getValuesAs( javax.json.JsonString.class )
+          .stream()
+          .map( javax.json.JsonString::getString )
+          .map( i -> #{field.enumeration.ee.qualified_name}.valueOf( i ) )
+          .collect( #{field.sequence? ? "java.util.stream.Collectors.toList()" : "java.util.stream.Collectors.toSet()"} )"}
          when (field.enumeration? && field.enumeration.textual_values?) then Proc.new {|value, isNullCheck| "#{isNullCheck}#{field.enumeration.ee.qualified_name}.valueOf( json.getString( #{value} ) )"}
          when field.struct? && field.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
              .getValuesAs( javax.json.JsonObject.class )
@@ -84,10 +98,10 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
          when field.datetime? && field.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
              .getValuesAs( javax.json.JsonNumber.class )
              .stream()
-             .map( javax.json.JsonString::intValue )
+             .map( javax.json.JsonNumber::longValueExact )
              .map( i -> new java.util.Date( i ) )
              .collect( #{field.sequence? ? "java.util.stream.Collectors.toList()" : "java.util.stream.Collectors.toSet()"} )"}
-         when field.datetime? then Proc.new {|value, isNullCheck| "#{isNullCheck}new java.util.Date( json.getInt( #{value} ) )"}
+         when field.datetime? then Proc.new {|value, isNullCheck| "#{isNullCheck}new java.util.Date( json.getJsonNumber( #{value} ).longValueExact() )"}
          when field.integer? && field.collection? then Proc.new {|value, isNullCheck| "#{isNullCheck}json.getJsonArray( #{value} )
              .getValuesAs( javax.json.JsonNumber.class )
              .stream()
