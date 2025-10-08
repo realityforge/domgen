@@ -209,6 +209,8 @@ module Domgen
 
       java_artifact :service_actions, :service, :server, :action, '#{service.name}Actions'
 
+      attr_accessor :priority
+
       def pre_complete
         service.disable_facet(:action) unless service.methods.any? { |m| m.action? }
       end
@@ -238,6 +240,16 @@ module Domgen
       end
 
       attr_accessor :application_event
+
+      attr_accessor :priority
+
+      def priority
+        if @priority.nil?
+          method.service.action.priority.nil? ? 100 : method.service.action.priority
+        else
+          @priority
+        end
+      end
 
       attr_writer :max_error_count
 
