@@ -816,7 +816,7 @@ module Domgen
       end
 
       def graph(name, options = {}, &block)
-        Domgen::Imit::ReplicationGraph.new(self, graph_map.size, name, options, &block)
+        Domgen::Imit::ReplicationGraph.new(self, options.delete(:code) || graph_map.size, name, options, &block)
       end
 
       def graph_by_name(name)
@@ -907,6 +907,15 @@ module Domgen
       end
 
       def pre_verify
+        code_to_graph_map = {}
+        repository.imit.graphs.each do |graph|
+          (code_to_graph_map[graph.code] ||= []) << graph
+        end
+        code_to_graph_map.each do |code, graphs|
+          if graphs.size > 1
+            Domgen.error("Multiple ReplicantGraphs map to the same code #{code} : #{graphs.collect{|g|g.name}.inspect}")
+          end
+        end
         if repository.keycloak.has_local_auth_service?
           exists = repository.keycloak.client_by_key?(self.keycloak_client_key)
           client =
