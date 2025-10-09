@@ -815,6 +815,20 @@ module Domgen
         graph_map.values
       end
 
+      def graphs_code_spaced
+        graphs = self.graphs
+        max_code = graphs.max_by {|g| g.code}.code
+        code_to_graph = {}
+        graphs.each do |g|
+          code_to_graph[g.code] = g
+        end
+        result = []
+        (max_code + 1).times do |i|
+          result << code_to_graph[i]
+        end
+        result
+      end
+
       def graph(name, options = {}, &block)
         Domgen::Imit::ReplicationGraph.new(self, options.delete(:code) || graph_map.size, name, options, &block)
       end
