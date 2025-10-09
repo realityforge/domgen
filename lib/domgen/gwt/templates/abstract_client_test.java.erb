@@ -283,7 +283,7 @@ public abstract class <%= repository.gwt.abstract_client_test_name %><T extends 
     }
 
     @javax.annotation.Nonnull
-    public replicant.messages.ExecMessage expecExecMessage( final int index, @javax.annotation.Nonnull final String command, final int requestId )
+    public replicant.messages.ExecMessage expectExecMessage( final int index, @javax.annotation.Nonnull final String command, final int requestId )
     {
       final replicant.messages.ExecMessage execMessage = replicantTransport().expectRemoteMessage( index, replicant.messages.ExecMessage.class );
       org.testng.Assert.assertEquals( execMessage.getCommand(), command, "Expected request command " + command + " but was " + execMessage.getCommand() + " at index " + index );
