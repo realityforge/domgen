@@ -122,7 +122,7 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
          else Proc.new{|value, isNullCheck| "#{isNullCheck}json.getString( #{value} )" }
        end
 -%>
-      <%= conversion_rule.call("\"#{field.name}\"", field.nullable? ? "json.isNull( \"#{field.name}\" ) ? null : " : "") %><%= ',' unless index == struct.fields.size - 1 %>
+      <%= conversion_rule.call("\"#{field.name}\"", field.nullable? ? "!json.containsKey( \"#{field.name}\" ) || json.isNull( \"#{field.name}\" ) ? null : " : "") %><%= ',' unless index == struct.fields.size - 1 %>
      <% end -%>
     );
   }

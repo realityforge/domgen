@@ -96,7 +96,7 @@ class <%= service.action.service_actions_name %>
       else Proc.new{|value, isNullCheck| "#{isNullCheck}json.getString( #{value} );" }
       end
       -%>
-<%= "      final var #{Reality::Naming.camelize(param.name)} = " + conversion_rule.call("\"#{param.name}\"", param.nullable? ? "null == json.get( \"#{param.name}\" ) ? null : " : "") %>
+<%= "      final var #{Reality::Naming.camelize(param.name)} = " + conversion_rule.call("\"#{param.name}\"", param.nullable? ? "!json.containsKey( \"#{param.name}\" ) || json.isNull( \"#{param.name}\" ) ? null : " : "") %>
 <% end -%>
 
       try

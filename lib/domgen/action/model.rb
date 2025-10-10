@@ -137,7 +137,7 @@ module Domgen
         struct.fields.each do |parameter|
           struct_schema[:properties][parameter.name] = Domgen::Action.parameter_json_schema(schema, parameter)
         end
-        struct_schema[:required] = struct.fields.map { |p| p.name }
+        struct_schema[:required] = struct.fields.select{|f| !f.nullable? }.map { |p| p.name }
         struct_schema[:additionalProperties] = false
       end
 
