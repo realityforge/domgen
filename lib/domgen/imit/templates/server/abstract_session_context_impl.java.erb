@@ -959,16 +959,17 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
     last_getter_nullable = false
     if graph_link.path
       last_getter_nullable = graph_link.imit_attribute.attribute.nullable?
-      graph_link.path.to_s.split.each_with_index do |attribute_name_path_element, i|
+      graph_link.path.to_s.split.each do |attribute_name_path_element|
         other = rentity.attribute_by_name(attribute_name_path_element)
-        last_getter_nullable = other.nullable? && graph_link.imit_attribute.attribute != other
+        last_getter_nullable = other.nullable?
         getter_path << getter_for(other)
         rentity = other.referenced_entity
       end
     end
+    nullcheck_required = graph_link.imit_attribute.attribute.nullable? || last_getter_nullable
 -%>
 <% if source_graph.instance_root? -%>
-      addChannelLinks( routingKeys, links, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>_NAME, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <% if graph_link.imit_attribute.attribute.nullable? -%>null ==  entity.<%= getter_for(graph_link.imit_attribute.attribute)%> <% if last_getter_nullable %>|| null == entity.<%= getter_path.join('.') %> <% end -%> ? null : <% end -%>entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %> );
+      addChannelLinks( routingKeys, links, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>_NAME, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <% if graph_link.imit_attribute.attribute.nullable? -%>null == entity.<%= getter_for(graph_link.imit_attribute.attribute)%> <% end %><% if graph_link.imit_attribute.attribute.nullable? && last_getter_nullable %>|| <% end %><% if last_getter_nullable %>null == entity.<%= getter_path.join('.') %> <% end -%><% if nullcheck_required -%>? null : <% end -%>entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %> );
 <% else -%>
       addChannelLink( links, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, <% if graph_link.imit_attribute.attribute.nullable? -%>null ==  entity.<%= getter_for(graph_link.imit_attribute.attribute)%> <% if last_getter_nullable %>|| null == entity.<%= getter_path.join('.') %> <% end -%> ? null : <% end -%>entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %> );
 <% end -%>
