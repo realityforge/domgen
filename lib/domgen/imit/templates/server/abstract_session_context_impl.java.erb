@@ -67,7 +67,6 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
 entities =
   repository.imit.graphs.select{|g|!g.bulk_load? && g.instance_root?}.collect{|g|repository.entity_by_name(g.instance_root)} +
   auto_follow_graph_links.collect{|graph_link|repository.entity_by_name(repository.imit.graph_by_name(graph_link.target_graph).instance_root)} +
-  graphs_that_propagate_filters.select{|g| g.instance_root?}.collect{|graph|repository.entity_by_name(graph.instance_root)} +
   entity_repositories_used_in_graph_encoding
 
 entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
