@@ -790,7 +790,6 @@ module Domgen
       java_artifact :system_metadata, :comm, :server, :imit, '#{repository.name}MetaData'
       java_artifact :session_context_impl, :comm, :server, :imit, '#{repository.name}SessionContextImpl'
       java_artifact :abstract_session_context_impl, :comm, :server, :imit, 'Abstract#{session_context_impl_name}'
-      java_artifact :abstract_schema_test, :comm, :client, :imit, 'Abstract#{repository.name}SchemaTest'
       java_artifact :schema_test, :comm, :client, :imit, 'Simple#{repository.name}SchemaTest'
       java_artifact :aggregate_remote_service_sting_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesFragment'
       java_artifact :aggregate_remote_service_sting_test_fragment, :ioc, :client, :imit, '#{repository.name}RemoteServicesTestFragment'
