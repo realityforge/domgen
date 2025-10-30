@@ -209,6 +209,24 @@ module Domgen
 
       java_artifact :service_actions, :service, :server, :action, '#{service.name}Actions'
 
+      attr_writer :priority
+
+      def priority
+        @priority.nil? ? 100 : @priority
+      end
+
+      attr_accessor :categories
+
+      def categories
+        @categories ||= []
+      end
+
+      attr_accessor :incompatible_categories
+
+      def incompatible_categories
+        @incompatible_categories ||= []
+      end
+
       def pre_complete
         service.disable_facet(:action) unless service.methods.any? { |m| m.action? }
       end
@@ -238,6 +256,42 @@ module Domgen
       end
 
       attr_accessor :application_event
+
+      attr_accessor :priority
+
+      def priority
+        @priority.nil? ? method.service.action.priority : @priority
+      end
+
+      attr_accessor :category
+
+      def category
+        if @category.nil?
+          method.service.action.category.nil? ? [] : method.service.action.category
+        else
+          @category
+        end
+      end
+
+      attr_accessor :categories
+
+      def categories
+        if @categories.nil?
+          method.service.action.categories.nil? ? [] : method.service.action.categories
+        else
+          @categories
+        end
+      end
+
+      attr_accessor :incompatible_categories
+
+      def incompatible_categories
+        if @incompatible_categories.nil?
+          method.service.action.incompatible_categories.nil? ? [] : method.service.action.incompatible_categories
+        else
+          @incompatible_categories
+        end
+      end
 
       attr_writer :max_error_count
 

@@ -3,6 +3,29 @@
 INSERT INTO [Action].[tblActionClassification]([Code])
   SELECT 'RPC'
   WHERE 0 = ( SELECT COUNT(*) FROM [Action].[tblActionClassification] WHERE [Code] = 'RPC' )
+<%-
+  categories = repository.data_modules.flat_map do |data_module|
+    data_module.services.flat_map do |service|
+      next [] unless service.action?
+
+      service_categories = []
+      service_categories.concat(service.action.categories)
+      service_categories.concat(service.action.incompatible_categories)
+
+      service.methods.each do |method|
+        next unless method.action?
+        service_categories.concat(method.action.categories)
+        service_categories.concat(method.action.incompatible_categories)
+      end
+
+      service_categories
+    end
+  end.flatten.compact.sort.uniq
+%> <%- if categories.any? %>
+INSERT INTO [Action].[tblActionTypeCategory]([Code])
+<%= categories.map { |c| "  SELECT '#{c}'
+  WHERE 0 = (SELECT COUNT(*) FROM [Action].[tblActionTypeCategory] WHERE [Code] = '#{c}' )" }.join("\nUNION\n")
+%>;<%- end %>
 
 DECLARE @Ids TABLE ( Id VARCHAR(MAX) NOT NULL );
 
@@ -10,12 +33,14 @@ DECLARE @Ids TABLE ( Id VARCHAR(MAX) NOT NULL );
   repository.data_modules.each do |data_module|
     data_module.services.select {|s| s.action?}.each do |service|
       service.methods.select {|m| m.action? }.each do |method|
-        userKey = method.qualified_name.gsub('#', '.')
+        method_key = method.qualified_name.gsub('#', '.')
         code = method.action.code
+        categories = method.action.categories
+        incompatible_categories = method.action.incompatible_categories
 -%>
 INSERT INTO @Ids([Id]) SELECT '<%= code %>'
 
--- Method: <%= userKey %>
+-- Method: <%= method_key %>
 INSERT INTO [Action].[tblActionType](ClassificationId,
                                      ParentId,
                                      UserKey,
@@ -24,6 +49,7 @@ INSERT INTO [Action].[tblActionType](ClassificationId,
                                      Code,
                                      Script,
                                      ExternalId,
+                                     Priority,
                                      RequestSchema,
                                      ResponseSchema,
                                      PreCompletionUserFeedbackPattern,
@@ -41,12 +67,13 @@ INSERT INTO [Action].[tblActionType](ClassificationId,
                                      Inactive)
 SELECT C.Id AS ClassificationId,
        NULL AS ParentId,
-       '<%= userKey %>' AS UserKey,
+       '<%= method_key %>' AS UserKey,
        <%= !method.action.application_event.nil? ? "'#{method.action.application_event}'" : 'NULL' %> AS ApplicationEvent,
        0 as Language,
        '<%= code %>' AS Code,
        NULL as Script,
        0 AS ExternalId,
+       <%= method.action.priority %> as Priority,
        '<%= method.action.json_request_schema %>' AS RequestSchema,
        '<%= method.action.json_response_schema %>' AS ResponseSchema,
        '' AS PreCompletionUserFeedbackPattern,
@@ -83,6 +110,37 @@ IF @@rowcount = 0 AND @@error = 0
   FROM [Action].[tblActionType] AT
   JOIN [Action].[tblActionClassification] AC ON AC.[Id] = AT.[ClassificationId] AND AC.[Code] = 'RPC'
   WHERE AT.[Code] = '<%= code %>'
+
+<%- categories.each do |categories| -%>
+INSERT INTO Action.tblActionTypeCategoryMembership(ActionTypeId, CategoryId) SELECT AT.Id, '<%= categories %>' FROM Action.tblActionType AT WHERE AT.Code = '<%= categories %>'
+<% end -%>
+<%- if categories.any? -%>
+DELETE ATCIM
+FROM Action.tblActionType AT
+JOIN Action.tblActionTypeCategoryMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
+JOIN Action.tblActionTypeCategory ATC ON ATCIM.CategoryId = ATC.Id AND ATC.Code NOT IN (<%= categories.map { |c| "'#{c}'" }.join(', ') %>)
+WHERE AT.Code = '<%= code %>'
+<%- else -%>
+DELETE ATCIM
+FROM Action.tblActionType AT
+JOIN Action.tblActionTypeCategoryMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
+WHERE AT.Code = '<%= code %>'
+<%- end -%>
+<%- incompatible_categories.each do |incompatible_category| -%>
+INSERT INTO Action.tblActionTypeCategoryIncompatibilityMembership(ActionTypeId, CategoryId) SELECT AT.Id, '<%= incompatible_category %>' FROM Action.tblActionType AT WHERE AT.Code = '<%= incompatible_category %>'
+<% end -%>
+<%- if incompatible_categories.any? -%>
+DELETE ATCIM
+FROM Action.tblActionType AT
+JOIN Action.tblActionTypeCategoryIncompatibilityMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
+JOIN Action.tblActionTypeCategory ATC ON ATCIM.CategoryId = ATC.Id AND ATC.Code NOT IN (<%= incompatible_categories.map { |c| "'#{c}'" }.join(', ') %>)
+WHERE AT.Code = '<%= code %>'
+<%- else -%>
+DELETE ATCIM
+FROM Action.tblActionType AT
+JOIN Action.tblActionTypeCategoryIncompatibilityMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
+WHERE AT.Code = '<%= code %>'
+<%- end -%>
 
 <%-
       end

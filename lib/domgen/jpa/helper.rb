@@ -152,6 +152,7 @@ JAVA
         java += declared_immutable_attributes.select{|a|a.reference? && a.inverse.jpa.java_traversable?}.collect{|a| '    ' + j_add_to_inverse(a) + "\n" }.join('')
         java = java + <<JAVA
   }
+
 JAVA
         java
       end

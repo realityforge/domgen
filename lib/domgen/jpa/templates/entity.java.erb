@@ -115,7 +115,7 @@ end
 <%= j_equals_method(entity) -%>
 <%= j_to_string_methods(entity) -%>
 <% unless entity.extends -%>
-  protected final boolean loaded()
+  <%= entity.extends.nil? ? 'private ' : 'final ' -%>boolean loaded()
   {
     return _loaded;
   }
@@ -125,18 +125,18 @@ end
     return _removed;
   }
 
-  protected final void verifyNotRemoved()
+  <%= entity.extends.nil? ? 'private ' : 'final ' -%>void verifyNotRemoved()
   {
     if( removed() )
     {
       throw new IllegalStateException( "Attempting to manipulate entity that has been removed" );
     }
   }
-<% end -%>
 
+<% end -%>
 <% if entity.jpa.track_changes? -%>
   @javax.persistence.PostLoad
-  protected void postLoad()
+  <%= entity.extends.nil? ? 'private ' : 'final ' -%>void postLoad()
   {
 <% if entity.extends -%>
     super.postLoad();
@@ -182,8 +182,8 @@ end
 <% end -%>
       true;
   }
-<% end -%>
 
+<% end -%>
 <% if entity.transaction_time? -%>
   /**
    * This method should not be called directly. It is called from the repository during delete.
@@ -193,7 +193,7 @@ end
   @java.lang.Deprecated
 <% end -%>
   @javax.persistence.PostRemove
-  <% if entity.transaction_time? && !entity.jpa.module_local? -%>public <% else -%>protected<% end -%> void postRemove()
+  <% if entity.transaction_time? && !entity.jpa.module_local? -%>public <% end -%> void postRemove()
   {
     if( removed() )
     {
@@ -230,7 +230,7 @@ end
 <% end -%>
 
   @javax.persistence.PreRemove
-  protected void preRemove()
+  <%= entity.extends.nil? ? 'private ' : '' -%>void preRemove()
   {
 <% unless entity.transaction_time? -%>
 <% attributes_to_delink_in_remove.each do |attribute| -%>
