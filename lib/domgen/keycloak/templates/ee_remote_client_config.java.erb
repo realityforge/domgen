@@ -8,17 +8,17 @@ public class <%= remote_client.ee_remote_client_config_name %>
   public static final String KEYCLOAK_NAME = "<%= remote_client.name %>.Keycloak";
   @javax.annotation.Nonnull
   public static final String KEYCLOAK_CONFIG_NAME = "<%= remote_client.name %>.KeycloakConfig";
-  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/server_url"] %> )
+  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/server_url"].constant_name %> )
   private String _keycloakServerURL;
-  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/realm"] %> )
+  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/realm"].constant_name %> )
   private String _keycloakRealm;
-  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/client"] %> )
+  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/client"].constant_name %> )
   private String _keycloakClient;
-  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/username"] %> )
+  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/username"].constant_name %> )
   private String _keycloakUsername;
-  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/password"] %> )
+  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/password"].constant_name %> )
   private String _keycloakPassword;
-  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/secret"] %> )
+  @javax.annotation.Resource( lookup = <%= remote_client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= remote_client.keycloak_repository.repository.ee.custom_jndi_resources["#{remote_client.jndi_config_base}/secret"].constant_name %> )
   private String _keycloakSecret;
   private org.realityforge.keycloak.client.authfilter.KeycloakConfig _keycloakConfig;
   private org.realityforge.keycloak.client.authfilter.Keycloak _keycloak;

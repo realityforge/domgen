@@ -16,7 +16,7 @@ public class <%= persistence_unit.persistence_unit_module_name %>
 
   protected void bind<%= persistence_unit.name %>PersistentUnitRelatedDatabase<%= Reality::Naming.pascal_case(key) %>()
   {
-    bind( java.lang.String.class ).annotatedWith( com.google.inject.name.Names.named( <%= persistence_unit.jpa_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= persistence_unit.jpa_repository.repository.ee.custom_jndi_resources[persistence_unit.related_database_jndi(key)] %> ) ).toInstance( <%= persistence_unit.qualified_persistence_unit_test_util_name %>.get<%= Reality::Naming.pascal_case(key) %>DatabaseName() );
+    bind( java.lang.String.class ).annotatedWith( com.google.inject.name.Names.named( <%= persistence_unit.jpa_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= persistence_unit.jpa_repository.repository.ee.custom_jndi_resources[persistence_unit.related_database_jndi(key)].constant_name %> ) ).toInstance( <%= persistence_unit.qualified_persistence_unit_test_util_name %>.get<%= Reality::Naming.pascal_case(key) %>DatabaseName() );
   }
 <% end -%>
 }

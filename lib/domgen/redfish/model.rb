@@ -31,7 +31,7 @@ module Domgen
         self.data['custom_resources'][name]['properties']['value'] = value
         self.data['custom_resources'][name]['restype'] = restype if restype
         if repository.ee? && (options[:register_jndi_constant].nil? || options[:register_jndi_constant])
-          repository.ee.add_custom_jndi_resource(name)
+          repository.ee.add_custom_jndi_resource(name, :generate_constant => options[:generate_constant])
         end
       end
 
@@ -51,7 +51,7 @@ module Domgen
           components = [components.first] + components[2..components.size] if components.size > 2 && components[1] == 'env'
           env_key = components.join('_').upcase if env_key.nil?
         end
-        custom_resource(qualified_name, "${#{env_key}}", options[:restype])
+        custom_resource(qualified_name, "${#{env_key}}", options[:restype], options)
         environment_variable(env_key, 'UNSPECIFIED', options[:default_value])
       end
 

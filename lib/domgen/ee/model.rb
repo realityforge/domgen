@@ -16,18 +16,33 @@ module Domgen
   FacetManager.facet(:ee => [:application, :java]) do |facet|
     facet.suggested_facets << :redfish
 
+    class CustomJndiResource < Domgen.ParentedElement(:repository)
+      def initialize(repository, name, constant_name, options = {}, &block)
+        @name = name
+        @constant_name = constant_name
+        super(repository, options, &block)
+      end
+
+      attr_reader :name
+      attr_reader :constant_name
+
+      attr_writer :generate_constant
+
+      def generate_constant?
+        @generate_constant.nil? ? true : !!@generate_constant
+      end
+    end
+
     facet.enhance(Repository) do
       include Domgen::Java::BaseJavaGenerator
       include Domgen::Java::JavaClientServerApplication
 
       java_artifact :exception_util, :service, :server, :ee, 'ExceptionUtil'
 
-      def add_custom_jndi_resource(name)
-        custom_jndi_resources[name] = Reality::Naming.uppercase_constantize(name.gsub(/^#{Reality::Naming.underscore(repository.name)}\/env\//,'').gsub(/^#{Reality::Naming.underscore(repository.name)}\//,'').gsub('/','_'))
-      end
-
-      def custom_jndi_resources?
-        !custom_jndi_resources.empty?
+      def add_custom_jndi_resource(name, options = {}, &block)
+        Domgen.error("Custom JNDI resource '#{name}' already defined") if custom_jndi_resources.key?(name)
+        path = Reality::Naming.uppercase_constantize(name.gsub(/^#{Reality::Naming.underscore(repository.name)}\/env\//, '').gsub(/^#{Reality::Naming.underscore(repository.name)}\//, '').gsub('/', '_'))
+        custom_jndi_resources[name] = CustomJndiResource.new(self, name, path, options, &block)
       end
 
       def custom_jndi_resources

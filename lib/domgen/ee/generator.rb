@@ -30,7 +30,7 @@ Domgen::Generator.define([:ee],
     template_set.erb_template(:repository,
                               'jndi_resource_constants.java.erb',
                               'main/java/#{repository.ee.qualified_jndi_resource_constants_name.gsub(".","/")}.java',
-                              :guard => 'repository.ee.custom_jndi_resources?')
+                              :guard => 'repository.ee.custom_jndi_resources.values.any?{|r| r.generate_constant?}')
   end
 
   g.template_set(:ee_messages) do |template_set|
