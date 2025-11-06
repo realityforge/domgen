@@ -332,6 +332,12 @@ module Domgen
         @enable_cors.nil? ? true : !!@enable_cors
       end
 
+      attr_writer :enable_js
+
+      def enable_js?
+        self.keycloak_repository.repository.application.user_experience? && (@enable_js.nil? ? self.keycloak_repository.default_client == self : !!@enable_js)
+      end
+
       attr_writer :enable_cors
 
       attr_accessor :cors_max_age

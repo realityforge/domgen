@@ -73,11 +73,11 @@ Domgen::Generator.define([:keycloak],
     template_set.erb_template('keycloak.client',
                               'js_service.java.erb',
                               'main/java/#{client.qualified_js_service_name.gsub(".","/")}.java',
-                              :guard => 'client.keycloak_repository.repository.application.user_experience?')
+                              :guard => 'client.enable_js?')
     template_set.erb_template('keycloak.client',
                               'js_min_service.java.erb',
                               'main/java/#{client.qualified_js_min_service_name.gsub(".","/")}.java',
-                              :guard => 'client.keycloak_repository.repository.application.user_experience?')
+                              :guard => 'client.enable_js?')
   end
 
   g.template_set(:keycloak_client_definitions) do |template_set|
