@@ -9,7 +9,7 @@ public class <%= client.js_min_service_name %>
   @java.io.Serial
   private static final long serialVersionUID = 1;
 
-  @javax.annotation.Resource( lookup = "<%= client.jndi_config_base %>/auth-server-url" )
+  @javax.annotation.Resource( lookup = <%= client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= client.keycloak_repository.repository.ee.custom_jndi_resources["#{client.jndi_config_base}/auth-server-url"] %> )
   private String _authServer;
 
   @java.lang.Override
