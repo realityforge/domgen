@@ -111,8 +111,13 @@ IF @@rowcount = 0 AND @@error = 0
   JOIN [Action].[tblActionClassification] AC ON AC.[Id] = AT.[ClassificationId] AND AC.[Code] = 'RPC'
   WHERE AT.[Code] = '<%= code %>'
 
-<%- categories.each do |categories| -%>
-INSERT INTO Action.tblActionTypeCategoryMembership(ActionTypeId, CategoryId) SELECT AT.Id, '<%= categories %>' FROM Action.tblActionType AT WHERE AT.Code = '<%= categories %>'
+<%- categories.each do |category| -%>
+INSERT INTO Action.tblActionTypeCategoryMembership(ActionTypeId, CategoryId)
+SELECT AT.Id, ATC.Id
+FROM Action.tblActionType AT
+JOIN Action.tblActionTypeCategory ATC ON ATC.Code = '<%= category %>' AND AT.Code = '<%= code %>'
+LEFT JOIN Action.tblActionTypeCategoryMembership ATCM ON ATCM.ActionTypeId = AT.Id AND ATCM.CategoryId = ATC.Id
+WHERE ATCM.ActionTypeId IS NULL
 <% end -%>
 <%- if categories.any? -%>
 DELETE ATCIM
@@ -126,8 +131,13 @@ FROM Action.tblActionType AT
 JOIN Action.tblActionTypeCategoryMembership ATCIM ON ATCIM.ActionTypeId = AT.Id
 WHERE AT.Code = '<%= code %>'
 <%- end -%>
-<%- incompatible_categories.each do |incompatible_category| -%>
-INSERT INTO Action.tblActionTypeCategoryIncompatibilityMembership(ActionTypeId, CategoryId) SELECT AT.Id, '<%= incompatible_category %>' FROM Action.tblActionType AT WHERE AT.Code = '<%= incompatible_category %>'
+<%- incompatible_categories.each do |category| -%>
+INSERT INTO Action.tblActionTypeCategoryIncompatibilityMembership(ActionTypeId, CategoryId)
+SELECT AT.Id, ATC.Id
+FROM Action.tblActionType AT
+JOIN Action.tblActionTypeCategory ATC ON ATC.Code = '<%= category %>' AND AT.Code = '<%= code %>'
+LEFT JOIN Action.tblActionTypeCategoryIncompatibilityMembership ATCM ON ATCM.ActionTypeId = AT.Id AND ATCM.CategoryId = ATC.Id
+WHERE ATCM.ActionTypeId IS NULL
 <% end -%>
 <%- if incompatible_categories.any? -%>
 DELETE ATCIM
