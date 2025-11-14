@@ -454,7 +454,16 @@ module Domgen
           }
         end
 
+        exception_map = {}
         method.exceptions.each do |exception|
+          exception_map[exception.qualified_name] = exception
+          exception.direct_subtypes.each do |subtype_exception|
+            exception_map[subtype_exception.qualified_name] = subtype_exception
+          end
+        end
+        exceptions = exception_map.keys.collect{|exception_qualified_name| exception_map[exception_qualified_name]}
+
+        exceptions.each do |exception|
           schema[:oneOf] <<
             {
               type: "object",
@@ -464,17 +473,6 @@ module Domgen
               required: ["exception"],
               additionalProperties: false
             }
-          exception.direct_subtypes.each do |subtype_exception|
-            schema[:oneOf] <<
-              {
-                type: "object",
-                properties: {
-                  exception: exception_json_schema(schema, subtype_exception)
-                },
-                required: ["exception"],
-                additionalProperties: false
-              }
-          end
         end
         if method.return_value.return_type == :void
           schema[:oneOf] << {"type": "object", "maxProperties": 0}
