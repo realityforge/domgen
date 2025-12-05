@@ -289,7 +289,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
     try
     {
 <% non_bulk_graphs.each do |graph| -%>
-      <% non_bulk_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
+      <%= non_bulk_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
       {
 <% if graph.filter_parameter -%>
         assert null != filter;
@@ -317,7 +317,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   {
 <% unless updateable_graphs.empty? -%>
 <% updateable_graphs.each do |graph| -%>
-    <% updateable_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
+    <%= updateable_graphs[0] == graph ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == address.channelId() )
     {
       assert null != filter;
       assert null != originalFilter;
