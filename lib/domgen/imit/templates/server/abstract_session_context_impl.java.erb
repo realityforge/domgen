@@ -642,7 +642,21 @@ end
     {
       return;
     }
+<% if graph.required_type_graphs.empty? -%>
     recordSubscriptions( session, changeSet, addresses, <%= graph.filter_parameter? ? 'filter' : 'null' -%>, explicitSubscribe );
+<% else -%>
+<% # The assumption is that these graphs are already scubscribed so that getSubscriptionEntry works -%>
+<% graph.required_type_graphs.each do |graph| -%>
+    final var <%= Reality::Naming.camelize(graph.name) %>Graph = new replicant.server.ChannelAddress( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> );
+<% end -%>
+    for ( final var address : addresses )
+    {
+      final var sourceEntry = recordSubscription( session, changeSet, address, <%= graph.filter_parameter? ? 'filter' : 'null' -%>, explicitSubscribe );
+<% graph.required_type_graphs.each do |graph| -%>
+      linkSubscriptionEntries( sourceEntry, session.getSubscriptionEntry( <%= Reality::Naming.camelize(graph.name) %>Graph ) );
+<% end -%>
+    }
+<% end -%>
 
 <% graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
     bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( addresses, changeSet<% if graph.filter_parameter -%>, filter<% end %> );
