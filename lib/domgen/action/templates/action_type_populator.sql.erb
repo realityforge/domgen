@@ -95,7 +95,8 @@ WHERE C.[Code] = 'RPC' AND
 
 IF @@rowcount = 0 AND @@error = 0
   UPDATE AT
-  SET PreCompletionUserFeedbackPattern = '',
+  SET Priority = <%= method.action.priority %>,
+      PreCompletionUserFeedbackPattern = '',
       PostCompletionUserFeedbackPattern = '',
       OnErrorUserFeedbackPattern = '',
       MaxErrorCount = <%= method.action.max_error_count %>,
@@ -163,3 +164,12 @@ SET [Inactive] = 1
 FROM [Action].[tblActionType] AT
 JOIN [Action].[tblActionClassification] AC ON AC.[Code] = 'RPC' AND AT.[ClassificationId] = AC.[Id]
 WHERE AT.[Code] NOT IN (SELECT [Id] FROM @Ids) AND AT.[Inactive] = 0
+
+-- Patch any actions that are in flight but whose priority has changed
+UPDATE A
+SET A.Priority = AT.Priority
+FROM [Action].[tblAction] A
+JOIN [Action].[tblActionType] AT ON A.[ActionTypeId] = AT.[Id]
+WHERE
+  A.Priority <> AT.Priority AND
+  A.CompleteAt IS NULL
