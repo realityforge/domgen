@@ -590,13 +590,13 @@ end
   /**
    * Collect data for PlannedMovements.PlannedMovementTargetOrgUnit that are part of the graph. Example implementation:
    * <pre>{@code
-   * @Language("TSQL")
-   * final var sql =
-   *     generateTempIdTable( addresses ) +
-   *     "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* " +
-   *     "FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> E ... " +
-   *     "JOIN @Ids Inputs ON Inputs.Id = ...";
-   * addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= instance_root.name %><%= instance_root.primary_key.name %>", sql );
+     @Language("TSQL")
+     final var sql =
+         generateTempIdTable( addresses ) +
+         "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* " +
+         "FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> E ... " +
+         "JOIN @Ids Inputs ON Inputs.Id = ...";
+     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= instance_root.name %><%= instance_root.primary_key.name %>", sql );
    * }</pre>
       *
    * @param addresses A non-null list of channel addresses that are used to identify the roots of the <%= graph.name %> graph.
