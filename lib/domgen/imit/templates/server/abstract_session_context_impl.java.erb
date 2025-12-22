@@ -585,6 +585,8 @@ end
 
   graph.included_entities.collect{|name| repository.entity_by_name(name)}.each do |entity|
     in_single_graph = 1 == entity.imit.replication_graphs.size
+    id_key = entity.name.to_s.gsub(/[a-z]/, '')
+    is_instance = instance_root == entity
 -%>
 
   /**
@@ -593,10 +595,8 @@ end
      @Language("TSQL")
      final var sql =
          generateTempIdTable( addresses ) +
-         "SELECT ... AS <%= instance_root.name %><%= instance_root.primary_key.name %>, E.* " +
-         "FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> E ... " +
-         "JOIN @Ids Inputs ON Inputs.Id = ...";
-     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= instance_root.name %><%= instance_root.primary_key.name %>", sql );
+         "SELECT <%= is_instance ? '' : "?#{id_key}.#{instance_root.name}#{instance_root.primary_key.name}, " %><%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %> JOIN @Ids Inputs ON Inputs.Id = <%= is_instance ? "#{id_key}.#{instance_root.primary_key.name}" : "?#{id_key}.#{instance_root.name}#{instance_root.primary_key.name}" %>";
+     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= is_instance ? "#{instance_root.primary_key.name}" : "#{instance_root.name}#{instance_root.primary_key.name}" %>", sql );
    * }</pre>
       *
    * @param addresses A non-null list of channel addresses that are used to identify the roots of the <%= graph.name %> graph.
