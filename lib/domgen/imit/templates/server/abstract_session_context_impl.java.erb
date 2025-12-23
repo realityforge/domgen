@@ -587,10 +587,15 @@ end
     in_single_graph = 1 == entity.imit.replication_graphs.size
     id_key = entity.name.to_s.gsub(/[a-z]/, '')
     is_instance = instance_root == entity
+    add_default_impl =
+       graph.bulk_load? &&
+       graph.unfiltered? &&
+       is_instance &&
+       !entity.attributes.filter{|attribute| attribute.imit?}.any?{|attribute| !attribute.imit.auto_graph_links.filter{|graph_link| !graph_link.path.nil? && repository.imit.graph_by_name(graph_link.target_graph).instance_root? && repository.imit.graph_by_name(graph_link.target_graph).instance_root != graph.instance_root}.empty?}
 -%>
 
   /**
-   * Collect data for PlannedMovements.PlannedMovementTargetOrgUnit that are part of the graph. Example implementation:
+   * Collect data for <%= entity.qualified_name %> that are part of the graph. Example implementation:
    * <pre>{@code
      @Language("TSQL")
      final var sql =
@@ -603,8 +608,17 @@ end
    * @param changeSet A non-null {@code ChangeSet} objects representing the changes generated as part of the bulk operation.
    * @throws java.sql.SQLException If a database access error occurs or the method encounters an issue during the operation.
    */
-  abstract void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
-    throws java.sql.SQLException;
+  <%= add_default_impl ? '' : 'abstract ' %>void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+    throws java.sql.SQLException<%= add_default_impl ? '' : ';' %>
+<% if add_default_impl -%>
+  {
+     @org.intellij.lang.annotations.Language("TSQL")
+     final var sql =
+         generateTempIdTable( addresses ) +
+         "SELECT <%= is_instance ? '' : "?#{id_key}.#{instance_root.name}#{instance_root.primary_key.name}, " %><%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %> JOIN @Ids Inputs ON Inputs.Id = <%= is_instance ? "#{id_key}.#{instance_root.primary_key.name}" : "?#{id_key}.#{instance_root.name}#{instance_root.primary_key.name}" %>";
+     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= is_instance ? "#{instance_root.primary_key.name}" : "#{instance_root.name}#{instance_root.primary_key.name}" %>", sql );
+  }
+<% end -%>
 
 <% if graph.filter_parameter && !graph.filter_parameter.immutable? && entity != instance_root -%>
 
