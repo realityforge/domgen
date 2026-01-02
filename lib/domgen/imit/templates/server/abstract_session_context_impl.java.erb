@@ -524,6 +524,9 @@ end
    * @param changeSet A non-null {@code ChangeSet} objects representing the changes generated as part of the bulk operation.
    * @throws java.sql.SQLException If a database access error occurs or the method encounters an issue during the operation.
    */
+<% if add_default_impl -%>
+  @java.lang.SuppressWarnings( "resource" )
+<% end -%>
   <%= add_default_impl ? '' : 'abstract ' %>void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %><%= graph.unfiltered? ? '' : 'Filtered' %>TypeGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
     throws java.sql.SQLException<%= add_default_impl ? '' : ';' %>
 <% if add_default_impl -%>
@@ -637,20 +640,41 @@ end
     in_single_graph = 1 == entity.imit.replication_graphs.size
     id_key = entity.name.to_s.gsub(/[a-z]/, '')
     is_instance = instance_root == entity
+
+    graph_links_to_other_entities = false
+    entity.attributes.filter{|attribute| attribute.imit?}.each do |attribute|
+      attribute.imit.auto_graph_links.each do |graph_link|
+        source_graph = repository.imit.graph_by_name(graph_link.source_graph)
+        target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+        if source_graph == graph
+          if target_graph.instance_root? && target_graph.instance_root != graph.instance_root && !graph_link.path.nil?
+            if 'EventShiftsInTimePeriod' == graph.name.to_s
+              $stderr.puts( "#{graph.name} graph links from #{attribute.name} target_root #{target_graph.instance_root} instance_root=#{graph.instance_root} #{graph_link.path.inspect}")
+            end
+            graph_links_to_other_entities = true
+          end
+        end
+      end
+    end
+    # Set to attribute that references instance root. Best guess at how to achieve root id but may not always work
+    instance_root_references =
+      entity.attributes.select{|attribute| attribute.imit? && attribute.reference? && attribute.referenced_entity == instance_root}
+    instance_root_reference = instance_root_references.size == 1 ? instance_root_references[0] : nil;
+    root_id_column = is_instance ? entity.primary_key.name : instance_root_reference ? "#{instance_root_reference.sql.column_name}" : "?#{instance_root.name}#{instance_root.primary_key.sql.column_name}"
+    require_root_id_column = !is_instance && instance_root_reference.nil?
     add_default_impl =
-       graph.bulk_load? &&
        graph.unfiltered? &&
-       is_instance &&
-       !entity.attributes.filter{|attribute| attribute.imit?}.any?{|attribute| !attribute.imit.auto_graph_links.filter{|graph_link| !graph_link.path.nil? && repository.imit.graph_by_name(graph_link.target_graph).instance_root? && repository.imit.graph_by_name(graph_link.target_graph).instance_root != graph.instance_root}.empty?}
+       (is_instance || !instance_root_reference.nil?) &&
+       !graph_links_to_other_entities
 -%>
 
   /**
-   * Collect data for <%= entity.qualified_name %> that are part of the instance graph. Example implementation:
+   * Collect data for <%= entity.qualified_name %> that are part of the <%= graph.name %> instance graph. Example implementation:
    * <pre>{@code
      @Language("TSQL")
      final var sql =
          generateTempIdTable( addresses ) +
-         "SELECT <%= is_instance ? '' : "?#{id_key}.#{instance_root.name}#{instance_root.primary_key.name}, " %><%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %> JOIN @Ids Inputs ON Inputs.Id = <%= is_instance ? "#{id_key}.#{instance_root.primary_key.name}" : "?#{id_key}.#{instance_root.name}#{instance_root.primary_key.name}" %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>";
+         "SELECT <%= !require_root_id_column ? '' : "#{root_id_column}, " %><%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %> JOIN @Ids Inputs ON Inputs.Id = <%= "#{id_key}.#{root_id_column}" %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>";
      addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= is_instance ? "#{instance_root.primary_key.name}" : "#{instance_root.name}#{instance_root.primary_key.name}" %>", sql );
    * }</pre>
       *
@@ -665,8 +689,8 @@ end
      @org.intellij.lang.annotations.Language("TSQL")
      final var sql =
          generateTempIdTable( addresses ) +
-         "SELECT <%= is_instance ? '' : "?#{id_key}.#{instance_root.name}#{instance_root.primary_key.name}, " %><%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %> JOIN @Ids Inputs ON Inputs.Id = <%= is_instance ? "#{id_key}.#{instance_root.primary_key.name}" : "?#{id_key}.#{instance_root.name}#{instance_root.primary_key.name}" %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>";
-     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= is_instance ? "#{instance_root.primary_key.name}" : "#{instance_root.name}#{instance_root.primary_key.name}" %>", sql );
+         "SELECT <%= !require_root_id_column ? '' : "#{root_id_column}, " %><%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %> JOIN @Ids Inputs ON Inputs.Id = <%= "#{id_key}.#{root_id_column}" %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>";
+     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>Graph( changeSet, "<%= root_id_column %>", sql );
   }
 <% end -%>
 
@@ -1371,11 +1395,21 @@ end -%>
   instance_root = graph_link.path.nil? ? nil : repository.entity_by_name(repository.imit.graph_by_name(graph_link.target_graph).instance_root)
   source_graph = repository.imit.graph_by_name(graph_link.source_graph)
   targetId = nil
-  targetId = "(java.lang.Integer) resultSet.getObject( \"#{instance_root.name}#{instance_root.primary_key.sql.column_name}\" )" if instance_root && attribute.nullable?
-  targetId = "resultSet.getInt( \"#{instance_root.name}#{instance_root.primary_key.sql.column_name}\" )" if instance_root && !attribute.nullable?
+  check_column = nil
+  if instance_root && attribute.nullable?
+    targetId = "(java.lang.Integer) resultSet.getObject( \"#{instance_root.name}#{instance_root.primary_key.sql.column_name}\" )"
+    check_column = "resultSet.findColumn( \"#{instance_root.name}#{instance_root.primary_key.sql.column_name}\" )"
+  end
+  if instance_root && !attribute.nullable?
+    targetId = "resultSet.getInt( \"#{instance_root.name}#{instance_root.primary_key.sql.column_name}\" )"
+    check_column = "resultSet.findColumn( \"#{instance_root.name}#{instance_root.primary_key.sql.column_name}\" )"
+  end
   targetId = 'entityId' if instance_root.nil? && attribute.primary_key?
   targetId = "attribute#{attribute.name}" if instance_root.nil? && !attribute.primary_key?
 -%>
+<% if check_column -%>
+<% unless in_single_graph %>  <% end %>      <%= check_column %>;
+<% end -%>
 <% unless in_single_graph %>  <% end %>      addChannelLink( links, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %>, <%= source_graph.instance_root? ? 'rootId, ' : '' %><%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %>, <%= targetId %> );
 <% unless in_single_graph -%>
       }
