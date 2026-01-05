@@ -1317,6 +1317,7 @@ module Domgen
           Domgen.error("subgraph_roots specifies a non graph #{subgraph_root}") unless graph
           Domgen.error("subgraph_roots specifies a non-instance graph #{subgraph_root}") unless graph.instance_root?
           Domgen.error("subgraph_roots specifies a non-filtered graph #{subgraph_root}") unless graph.filtered?
+          Domgen.error("subgraph_roots specifies a bulk-loaded graph #{subgraph_root}") if graph.bulk_load?
         end
         @subgraph_roots = subgraph_roots
       end
