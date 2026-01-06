@@ -108,12 +108,6 @@ module Domgen
 
       attr_writer :secure
 
-      def bulk_load?
-        @bulk_load.nil? ? true : !!@bulk_load
-      end
-
-      attr_writer :bulk_load
-
       def visibility=(visibility)
         valid_values = [:external, :internal, :universal]
         Domgen.error("Invalid visibility set on #{qualified_name}. Value: #{visibility}. Valid_values: #{valid_values}") unless valid_values.include?(visibility)
@@ -859,15 +853,6 @@ module Domgen
         @imit_control_data_module || (self.repository.data_module_by_name?(self.repository.name) ? self.repository.name : Domgen.error('imit_control_data_module unspecified and unable to derive default.'))
       end
 
-      def requires_programmatic_graph_shaping?
-        graphs.any? do |graph|
-          graph.external_data_load? ||
-            graph.bulk_load? ||
-            graph.filtered? ||
-            (graph.instance_root? && graph.inward_graph_links.any? { |graph_link| graph_link.auto? && repository.imit.graph_by_name(graph_link.target_graph).filtered? })
-        end
-      end
-
       def generate_aggregate_remote_service_sting_fragment?
         !remote_service_sting_fragments.empty?
       end
@@ -1300,26 +1285,6 @@ module Domgen
 
       def outgoing_links_from(graph)
         entity.referencing_attributes.select{|a| a.imit? && a.inverse.traversable? && a.inverse.imit.replication_edges.include?(graph.name) && !a.imit.graph_links.any?{|g| g.source_graph == graph && !g.exclude_target? }}
-      end
-
-      #
-      # subgraph_roots are parts of the graph that are exposed by encoder
-      # Useful when collecting entities when a filter is present
-      #
-      def subgraph_roots
-        @subgraph_roots || []
-      end
-
-      def subgraph_roots=(subgraph_roots)
-        Domgen.error('subgraph_roots expected to be an array') unless subgraph_roots.is_a?(Array)
-        subgraph_roots.each do |subgraph_root|
-          graph = entity.data_module.repository.imit.graph_by_name(subgraph_root)
-          Domgen.error("subgraph_roots specifies a non graph #{subgraph_root}") unless graph
-          Domgen.error("subgraph_roots specifies a non-instance graph #{subgraph_root}") unless graph.instance_root?
-          Domgen.error("subgraph_roots specifies a non-filtered graph #{subgraph_root}") unless graph.filtered?
-          Domgen.error("subgraph_roots specifies a bulk-loaded graph #{subgraph_root}") if graph.bulk_load?
-        end
-        @subgraph_roots = subgraph_roots
       end
 
       def replication_graphs
