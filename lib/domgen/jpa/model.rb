@@ -1060,17 +1060,8 @@ FRAGMENT
       end
 
       def pre_verify
-        entity.query(:FindAll, :standard_query => true)
         entity.query("FindBy#{entity.primary_key.name}")
         entity.query("GetBy#{entity.primary_key.name}")
-
-        entity.attributes.select {|a| a.jpa? && a.reference? && !a.abstract?}.each do |a|
-          query_name = "Find#{a.inverse.multiplicity == :many ? 'All' : ''}By#{a.name}"
-          exists = entity.query_by_name?(query_name)
-          entity.query(query_name) unless exists
-          query = entity.dao.query_by_name(query_name)
-          query.disable_facets_not_in(:jpa) unless exists
-        end
 
         entity.queries.select {|query| query.jpa? && query.jpa.no_ql?}.each do |query|
           tmp_query_name = query.name.to_s

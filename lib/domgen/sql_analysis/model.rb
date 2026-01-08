@@ -74,6 +74,8 @@ module Domgen
           t.string(:Category, 50)
           t.string(:Description, 500, :unique => true)
           t.text(:ViewSql, :nullable => true)
+
+          t.query(:FindAll, :standard_query => true).disable_facets_not_in(:jpa)
         end
       end
     end

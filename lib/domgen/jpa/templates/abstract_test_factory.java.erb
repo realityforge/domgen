@@ -121,6 +121,7 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
 <% end -%>
 <% data_module.entities.select{|e|e.jpa?}.each do |entity| -%>
 
+  @org.jetbrains.annotations.Contract( pure = true )
   @javax.annotation.Nonnull
   <% unless entity.jpa.module_local? %>public <% end %>final <%= entity.dao.jpa.qualified_dao_service_name %> <%= Reality::Naming.camelize(entity.dao.jpa.dao_service_name) %>()
   {
@@ -172,5 +173,17 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
       null == t1 ? t2 :
       null == t2 ? t1 :
       t1.after( t2 ) ? t2 : t1;
+  }
+
+  @javax.annotation.Nonnull
+  protected final <T> javax.persistence.TypedQuery<T> createQuery( @org.intellij.lang.annotations.Language( "JPAQL" ) @javax.annotation.Nonnull java.lang.String sql, @javax.annotation.Nonnull java.lang.Class<T> type )
+  {
+    return em().createQuery( sql, type );
+  }
+
+  @javax.annotation.Nonnull
+  protected final <T> java.util.List<T> query( @org.intellij.lang.annotations.Language( "JPAQL" ) @javax.annotation.Nonnull java.lang.String sql, @javax.annotation.Nonnull java.lang.Class<T> type )
+  {
+    return createQuery( sql, type ).getResultList();
   }
 }

@@ -278,9 +278,6 @@ module Domgen
         if cacheable? && (filter_parameter || instance_root?)
           Domgen.error("Graph #{self.name} can not be marked as cacheable as cacheable graphs are not supported for instance based or filterable graphs")
         end
-        if cacheable? && bulk_load?
-          Domgen.error("Graph #{self.name} is marked as bulk load and cacheable but replicant library has not implemented scenario")
-        end
         if self.instance_root?
           instance_root = self.application.repository.entity_by_name(self.instance_root)
           unless instance_root.primary_key.integer?

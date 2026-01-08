@@ -171,4 +171,16 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     em().createNativeQuery( "DISABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName ).executeUpdate();
     addPostTestSqlAction( "ENABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName );
   }
+
+  @javax.annotation.Nonnull
+  protected final <T> javax.persistence.TypedQuery<T> createQuery( @org.intellij.lang.annotations.Language( "JPAQL" ) @javax.annotation.Nonnull java.lang.String sql, @javax.annotation.Nonnull java.lang.Class<T> type )
+  {
+    return em().createQuery( sql, type );
+  }
+
+  @javax.annotation.Nonnull
+  protected final <T> java.util.List<T> query( @org.intellij.lang.annotations.Language( "JPAQL" ) @javax.annotation.Nonnull java.lang.String sql, @javax.annotation.Nonnull java.lang.Class<T> type )
+  {
+    return createQuery( sql, type ).getResultList();
+  }
 }
