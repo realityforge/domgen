@@ -175,6 +175,7 @@ abstract class <%= data_module.jpa.abstract_test_factory_name %>
       t1.after( t2 ) ? t2 : t1;
   }
 
+  @java.lang.SuppressWarnings( "SqlSourceToSinkFlow" )
   @javax.annotation.Nonnull
   protected final <T> javax.persistence.TypedQuery<T> createQuery( @org.intellij.lang.annotations.Language( "JPAQL" ) @javax.annotation.Nonnull java.lang.String sql, @javax.annotation.Nonnull java.lang.Class<T> type )
   {

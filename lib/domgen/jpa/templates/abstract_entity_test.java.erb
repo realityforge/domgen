@@ -172,6 +172,7 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
     addPostTestSqlAction( "ENABLE TRIGGER " + qualifiedTriggerName + " ON " + qualifiedTableName );
   }
 
+  @java.lang.SuppressWarnings( "SqlSourceToSinkFlow" )
   @javax.annotation.Nonnull
   protected final <T> javax.persistence.TypedQuery<T> createQuery( @org.intellij.lang.annotations.Language( "JPAQL" ) @javax.annotation.Nonnull java.lang.String sql, @javax.annotation.Nonnull java.lang.Class<T> type )
   {
