@@ -334,9 +334,12 @@ repository_prefix = st == dao.entity ? '' : "_#{Reality::Naming.camelize(st.qual
   }
 
 <% end -%>
+<% need_persist = dao.entity.concrete? && (dao.entity.jpa.support_create? || dao.entity.jpa.support_update?) -%>
+<% if need_persist -%>
 <% if dao.entity.jpa.support_update? -%>
   @java.lang.Override
-  public void persist( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> entity )
+<% end -%>
+  <%= dao.entity.jpa.support_update? ? 'public' : 'private' %> void persist( @javax.annotation.Nonnull final <%= dao.entity.jpa.qualified_name %> entity )
   {
     try
     {
