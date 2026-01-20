@@ -1,8 +1,8 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= to_package(graph.qualified_react4j_subscription_component_name) %>;
+package <%= to_package(graph.qualified_react4j_subscription_view_name) %>;
 
 @react4j.annotations.View( type = react4j.annotations.View.Type.TRACKING )
-public abstract class <%= graph.react4j_subscription_component_name %>
+public abstract class <%= graph.react4j_subscription_view_name %>
   extends replicant.react4j.ReplicantSubscription<<%= graph.instance_root? ? graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name : 'java.lang.Void' %>>
 {
 <% if graph.instance_root? -%>
@@ -33,165 +33,120 @@ public abstract class <%= graph.react4j_subscription_component_name %>
   }
 
 <% end -%>
-  @react4j.annotations.Input( observable = react4j.annotations.Feature.DISABLE )
-  @javax.annotation.Nonnull
-  abstract NoResultCallback onLoading();
-
   @java.lang.Override
   @javax.annotation.Nonnull
   protected NoResultCallback getOnLoading()
   {
-    return onLoading();
+    return () -> null;
   }
-
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract ErrorCallback onLoadFailed();
 
   @java.lang.Override
   @javax.annotation.Nonnull
   protected ErrorCallback getOnLoadFailed()
   {
-    return onLoadFailed();
+    return t -> null;
   }
-
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback<% if graph.instance_root? -%><<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>><% end -%> onLoaded();
 
 <% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   protected TypeResultCallback getOnTypeSubscriptionLoaded()
   {
-    return onLoaded();
+    return s -> null;
   }
 <% else -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionLoaded()
   {
-    return onLoaded();
+    return ( s, e ) -> null;
   }
 <% end -%>
 
 <% if graph.filter_parameter?  && !graph.filter_parameter.immutable? -%>
 <% unless graph.instance_root? -%>
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract TypeResultCallback onUpdating();
 
   @java.lang.Override
   @javax.annotation.Nonnull
   protected TypeResultCallback getOnTypeSubscriptionUpdating()
   {
-    return onUpdating();
+    return s -> null;
   }
 <% else -%>
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onUpdating();
 
   @java.lang.Override
   @javax.annotation.Nonnull
   protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdating()
   {
-    return onUpdating();
+    return ( s, e ) -> null;
   }
 <% end -%>
 <% unless graph.instance_root? -%>
-
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract TypeUpdateErrorCallback onUpdateFailed();
 
   @java.lang.Override
   @javax.annotation.Nonnull
   protected TypeUpdateErrorCallback getOnTypeSubscriptionUpdateFailed()
   {
-    return onUpdateFailed();
+    return ( s, t ) -> null;
   }
 <% else -%>
-
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract InstanceUpdateErrorCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onUpdateFailed();
 
   @java.lang.Override
   @javax.annotation.Nonnull
   protected InstanceUpdateErrorCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdateFailed()
   {
-    return onUpdateFailed();
+    return ( s, e, t ) -> null;
   }
 <% end -%>
 <% unless graph.instance_root? -%>
-
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract TypeResultCallback onUpdated();
 
   @java.lang.Override
   @javax.annotation.Nonnull
   protected TypeResultCallback getOnTypeSubscriptionUpdated()
   {
-    return onUpdated();
+    return s -> null;
   }
 <% else -%>
-
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> onUpdated();
 
   @java.lang.Override
   @javax.annotation.Nonnull
   protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUpdated()
   {
-    return onUpdated();
+    return ( s, e ) -> null;
   }
 <% end -%>
 
 <% end -%>
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract <% if graph.instance_root? -%>Instance<% else -%>Type<% end -%>ResultCallback<% if graph.instance_root? -%><<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>><% end -%> onUnloading();
 
 <% unless graph.instance_root? -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   protected TypeResultCallback getOnTypeSubscriptionUnloading()
   {
-    return onUnloading();
+    return s -> null;
   }
 <% else -%>
   @java.lang.Override
   @javax.annotation.Nonnull
   protected InstanceResultCallback<<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>> getOnInstanceSubscriptionUnloading()
   {
-    return onUnloading();
+    return ( s, e ) -> null;
   }
 <% end -%>
-
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract NoResultCallback onUnloaded();
 
   @java.lang.Override
   @javax.annotation.Nonnull
   protected NoResultCallback getOnUnloaded()
   {
-    return onUnloaded();
+    return () -> null;
   }
 
 <% if graph.instance_root? -%>
-  @react4j.annotations.Input
-  @javax.annotation.Nonnull
-  abstract NoResultCallback onDeleted();
-
   @java.lang.Override
   @javax.annotation.Nonnull
   protected NoResultCallback getOnDeleted()
   {
-    return onDeleted();
+    return () -> null;
   }
 <% else -%>
   @java.lang.Override

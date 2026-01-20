@@ -53,8 +53,8 @@ Domgen::Generator.define([:imit],
 
   g.template_set(:imit_client_react4j_support) do |template_set|
     template_set.erb_template('imit.graph',
-                              'client/gwt/react_simple_subscription_component.java.erb',
-                              'main/java/#{graph.qualified_react4j_simple_subscription_component_name.gsub(".","/")}.java',
+                              'client/gwt/react4j_subscription_view.java.erb',
+                              'main/java/#{graph.qualified_react4j_subscription_view_name.gsub(".","/")}.java',
                               :additional_facets => [:react4j],
                               :guard => 'graph.external_visibility?')
   end
