@@ -111,8 +111,9 @@ public final class <%= graph.subscription_util_name %>
   @javax.annotation.Nullable
   public static <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> findRoot( @javax.annotation.Nonnull final replicant.ReplicantContext context, final int id )
   {
+    final replicant.AreaOfInterest.Status status = findAreaOfInterestStatus( context, id );
     final replicant.Subscription subscription = findSubscription( context, id );
-    return null == subscription ? null : (<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>) subscription.getInstanceRoot();
+    return null == subscription || !status.shouldDataBePresent() ? null : (<%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %>) subscription.getInstanceRoot();
   }
 <% end -%>
 }
