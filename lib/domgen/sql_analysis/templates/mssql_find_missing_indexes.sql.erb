@@ -12,7 +12,7 @@ CREATE PROCEDURE <%= repository.sql_analysis.analysis_data_module.sql.quoted_sch
 AS
 SELECT S.name                                                              AS [Schema],
        T.name                                                              AS TableName,
-       (avg_total_user_cost * avg_user_impact) * (user_seeks + user_scans) AS Impact,
+       CAST((avg_total_user_cost * avg_user_impact) * (user_seeks + user_scans) AS BIGINT) AS Impact,
        mid.equality_columns                                                AS EqualityColumns,
        mid.inequality_columns                                              AS InequalityColumns,
        mid.included_columns                                                AS IncludedColumns,
