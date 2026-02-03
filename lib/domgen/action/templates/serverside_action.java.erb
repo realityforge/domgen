@@ -10,7 +10,7 @@ package <%= to_package(method.action.qualified_serverside_action_name) %>;
   @javax.annotation.Nonnull
   <% unless method.action.serverside_action_module_local? %>public <% end %>static String actionTypeCode()
   {
-    return <%= method.service.action.service_actions_name %>.<%= method.name %>ActionInterceptor.actionTypeCode();
+    return "<%= method.action.code %>";
   }
 
   @java.lang.SuppressWarnings( { "unchecked", "RedundantSuppression", "DuplicatedCode" } )
