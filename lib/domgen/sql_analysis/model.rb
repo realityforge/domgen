@@ -188,7 +188,7 @@ GO"
         entities_with_validations = data_module.sql_analysis.entities_with_validations
         unless entities_with_validations.empty?
           entities_with_validations.each do |entity|
-            entity.sql.validations.select{|v| !v.invariant_negative_sql.nil? }.each do |validation|
+            entity.sql.validations.sort_by{|validation|validation.name.to_s}.select{|v| !v.invariant_negative_sql.nil? }.each do |validation|
               unless entity.sql_analysis.validation?("DeclaredValidationCheck" + validation.name.to_s)
                 sql_declared_validations_check <<
                   "INSERT INTO #{corruption_check_entity.sql.qualified_table_name}(#{corruption_check_entity.attribute_by_name(:Category).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Description).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:CommonTableExpression).sql.quoted_column_name},#{corruption_check_entity.attribute_by_name(:Sql).sql.quoted_column_name})

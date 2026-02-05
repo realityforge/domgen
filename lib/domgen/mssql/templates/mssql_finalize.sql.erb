@@ -49,7 +49,7 @@ ALTER TABLE <%= entity.sql.qualified_table_name %> WITH <%= constraint.check_con
 GO
 <%
    end
-   entity.sql.triggers.each do |trigger|
+   entity.sql.triggers.sort_by{|trigger|trigger.trigger_name}.each do |trigger|
 %>
 ENABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified_table_name %>
 GO

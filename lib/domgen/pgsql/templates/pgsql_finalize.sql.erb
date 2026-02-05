@@ -1,6 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 <% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
-<% entity.sql.triggers.each do |trigger| %>
+<% entity.sql.triggers.sort_by{|trigger|trigger.trigger_name}.each do |trigger| %>
 ALTER TABLE <%= entity.sql.qualified_table_name %> ENABLE TRIGGER <%= trigger.quoted_trigger_name %>;
 <%
    end

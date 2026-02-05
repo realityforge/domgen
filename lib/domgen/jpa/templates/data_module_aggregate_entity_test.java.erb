@@ -33,7 +33,7 @@ public final class <%= data_module.jpa.aggregate_entity_test_name %>
 <% entity.sql.function_constraints.select{|constraint| !constraint.standard?}.each do |constraint| -%>
     org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getDeclaredMethod( "<%= Reality::Naming.camelize(constraint.name) %>FunctionConstraint" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(constraint.name) %>FunctionConstraint annotated with the org.testng.annotations.Test annotation" );
 <% end -%>
-<% entity.sql.validations.select{|validation| !validation.standard?}.each do |validation| -%>
+<% entity.sql.validations.sort_by{|validation|validation.name.to_s}.select{|validation| !validation.standard?}.each do |validation| -%>
     org.testng.Assert.assertNotNull( <%= entity.jpa.qualified_model_test_name %>.class.getDeclaredMethod( "<%= Reality::Naming.camelize(validation.name) %>Validation" ).getAnnotation( org.testng.annotations.Test.class ), "The <%= entity.jpa.qualified_model_test_name %> class is expected to have a method named <%= Reality::Naming.camelize(validation.name) %>Validation annotated with the org.testng.annotations.Test annotation" );
 <% end -%>
 <%

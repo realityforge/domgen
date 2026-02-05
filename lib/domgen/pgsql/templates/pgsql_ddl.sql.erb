@@ -85,7 +85,7 @@ ALTER TABLE <%= entity.sql.qualified_table_name %>
    if entity.sql.triggers.size > 0 %><%=
     banner("Triggers for #{entity.sql.qualified_table_name}")
 %><%
-      entity.sql.triggers.each do |trigger|
+      entity.sql.triggers.sort_by{|trigger|trigger.trigger_name}.each do |trigger|
    function_name = "#{trigger.table.entity.data_module.sql.quoted_schema}.#{data_module.sql.dialect.quote(trigger.trigger_name + 'Function')}"
 %>
 CREATE OR REPLACE FUNCTION <%= function_name %>() RETURNS

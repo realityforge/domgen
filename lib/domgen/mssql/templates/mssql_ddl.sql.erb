@@ -169,7 +169,7 @@ GO
    if entity.sql.triggers.size > 0 %><%=
     banner("Triggers for #{entity.sql.qualified_table_name}")
 %><%
-      entity.sql.triggers.each do |trigger|
+      entity.sql.triggers.sort_by{|trigger|trigger.trigger_name}.each do |trigger|
 %>
 CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified_table_name %>
 <%
@@ -333,7 +333,7 @@ BEGIN
 <%
    end
 %>
-<% entity.sql.validations.select{|validation| !validation.invariant_negative_sql.nil?}.each do |validation| %>
+<% entity.sql.validations.sort_by{|validation|validation.name.to_s}.select{|validation| !validation.invariant_negative_sql.nil?}.each do |validation| %>
   ;<%= validation.invariant_common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.invariant_negative_sql %>)
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
