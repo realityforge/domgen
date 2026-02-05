@@ -1,6 +1,6 @@
 /* DO NOT EDIT: File is auto-generated */
 <% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
-<% entity.sql.indexes.select{|index| index.defer_creation?}.each do |index| %>
+<% entity.sql.indexes.sort_by{|s| s.index_name}.select{|index| index.defer_creation?}.each do |index| %>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.gist? ? 'SPATIAL' : index.cluster? ? 'CLUSTERED' : 'NONCLUSTERED' %> INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %>
 (<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(',') %>
 )<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(',') %> )<% end %>
