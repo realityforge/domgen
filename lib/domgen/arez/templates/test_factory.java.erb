@@ -10,7 +10,7 @@ package <%= to_package(data_module.arez.qualified_test_factory_name) %>;
   end
 end
 -%>
-@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "UnusedReturnValue", "SameParameterValue" } )
 @sting.Injectable
 public final class <%= data_module.arez.test_factory_name %>
   implements <%= data_module.arez.qualified_test_factory_extension_name %>
