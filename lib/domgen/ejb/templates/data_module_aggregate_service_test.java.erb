@@ -5,7 +5,7 @@ package <%= to_package(data_module.ejb.qualified_aggregate_service_test_name) %>
 public final class <%= data_module.ejb.aggregate_service_test_name %>
 {
   @org.testng.annotations.Test
-  public void ensureTestsPresent()
+  void ensureTestsPresent()
     throws java.lang.Exception
   {
 <% data_module.services.select{|s|s.ejb? && s.ejb.add_to_aggregate_test?}.each do |service| -%>

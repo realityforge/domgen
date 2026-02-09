@@ -120,9 +120,6 @@ require 'domgen/gwt_cache_filter/model'
 require 'domgen/keycloak/model'
 require 'domgen/keycloak/generator'
 
-require 'domgen/appconfig/model'
-require 'domgen/appconfig/generator'
-
 require 'domgen/application/model'
 
 require 'domgen/robots/model'
