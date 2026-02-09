@@ -62,12 +62,6 @@ public abstract class <%= client.abstract_keycloak_filter_name %>
   protected boolean isPathProtected( @javax.annotation.Nonnull final String path )
   {
 <% base_path = client.keycloak_repository.repository.jaxrs? ? "#{client.keycloak_repository.repository.jaxrs.qualified_constants_name}.APPLICATION_PATH" : '"api"' -%>
-<% if client.keycloak_repository.repository.appconfig? -%>
-    if ( path.startsWith( <%= base_path %> + '/' + iris.appconfig.server.rest.SystemSettingRestService.PATH_PREFIX ) )
-    {
-      return false;
-    }
-<% end -%>
 <% if client.keycloak_repository.repository.imit? -%>
     if ( _disableSessionServiceProtection && path.startsWith( <%= base_path %>  + replicant.shared.SharedConstants.CONNECTION_URL_FRAGMENT ) )
     {
