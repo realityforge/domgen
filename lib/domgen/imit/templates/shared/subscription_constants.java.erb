@@ -93,6 +93,7 @@ DATA
    * The name of the "#{g.name}" subscription.
    */
 JAVADOC
+   data += "  @javax.annotation.Nonnull\n"
    data += "  public static final String #{Reality::Naming.uppercase_constantize(g.name)}_NAME = \"#{g.name}\";\n"
    data
   end.join("\n\n") %>
