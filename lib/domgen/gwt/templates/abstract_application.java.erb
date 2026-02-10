@@ -12,9 +12,11 @@ public abstract class <%= repository.gwt.abstract_application_name %><I extends 
   private final org.realityforge.gwt.keycloak.Keycloak _keycloak;
 <% end -%>
 <% if repository.imit? && repository.keycloak? -%>
+  @javax.annotation.Nullable
   private zemeckis.Cancelable _updateReplicantTokenTask;
 <% end -%>
 <% if repository.serviceworker? -%>
+  @javax.annotation.Nullable
   private zemeckis.Cancelable _serviceWorkerUpdateTask;
 <% end -%>
 

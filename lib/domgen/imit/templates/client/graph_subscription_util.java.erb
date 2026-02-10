@@ -31,6 +31,7 @@ public final class <%= graph.subscription_util_name %>
   }
 
 <% if graph.instance_root? -%>
+  @javax.annotation.Nullable
   public static replicant.Subscription findSubscription( @javax.annotation.Nonnull final <%= graph.application.repository.entity_by_name(graph.instance_root).arez.qualified_name %> root )
   {
     return findSubscription( root.<%= getter_for(graph.application.repository.entity_by_name(graph.instance_root).primary_key) %> );
