@@ -2,7 +2,9 @@
 package <%= to_package(repository.imit.qualified_aggregate_remote_service_sting_fragment_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@sting.Fragment( includes = {<%= repository.imit.remote_service_sting_fragments.collect{|dm| "#{dm.imit.qualified_remote_service_sting_fragment_name}.class"}.join(', ') %>} )
+@sting.Fragment( includes = {
+<%= repository.imit.remote_service_sting_fragments.collect{|dm| "  #{dm.imit.qualified_remote_service_sting_fragment_name}.class"}.sort.join(",\n") %>
+} )
 public interface <%= repository.imit.aggregate_remote_service_sting_fragment_name %>
 {
 }

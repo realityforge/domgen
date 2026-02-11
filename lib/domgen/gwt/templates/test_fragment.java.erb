@@ -2,7 +2,9 @@
 package <%= to_package(repository.gwt.qualified_test_fragment_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@sting.Fragment( includes = {<%= repository.gwt.sting_test_includes.collect{|cls| "#{cls}.class"}.join(', ') %>} )
+@sting.Fragment( includes = {
+<%= repository.gwt.sting_test_includes.collect{|cls| "  #{cls}.class"}.sort.join(",\n") %>
+} )
 public interface <%= repository.gwt.test_fragment_name %>
 {
 }
