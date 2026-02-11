@@ -101,6 +101,13 @@ module Domgen
         @visibility = visibility
       end
 
+      # Is this graph instanced. i.e. Is it filtered with the potential of multiple instances of subscription with different filters
+      def instanced?
+        @instanced.nil? ? false : !!@instanced
+      end
+
+      attr_writer :instanced
+
       def visibility
         @visibility
       end
@@ -179,7 +186,6 @@ module Domgen
         end
         result
       end
-
 
       def inward_graph_links
         Domgen.error("inward_graph_links invoked for graph #{name} when not instance based") if 0 != @type_roots.size
@@ -272,6 +278,9 @@ module Domgen
           end
         end
 
+        if !self.filter_parameter? && self.instanced?
+          Domgen.error("Graph '#{self.name}' is marked as instanced but has no filter parameter.")
+        end
         if self.internal_visibility? && self.instance_root? && self.inward_graph_links.empty?
           Domgen.error("Graph '#{self.name}' is marked with internal visibility but has no inward graph links.")
         end
