@@ -96,7 +96,7 @@ JAVADOC
    data += "  @javax.annotation.Nonnull\n"
    data += "  public static final String #{Reality::Naming.uppercase_constantize(g.name)}_NAME = \"#{g.name}\";\n"
    data
-  end.join("\n\n") %>
+  end.join("\n") %>
 
   private <%= repository.imit.subscription_constants_name %>()
   {
