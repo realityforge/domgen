@@ -45,5 +45,5 @@ def generate(repository)
       }
   end
 
-  ::JSON.pretty_generate(data.to_h)
+  ::JSON.pretty_generate(data.to_h) + "\n"
 end

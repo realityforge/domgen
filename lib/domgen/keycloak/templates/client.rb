@@ -83,5 +83,5 @@ def generate(client)
     data.delete(k) if v == ''
   end
 
-  ::JSON.pretty_generate(data)
+  ::JSON.pretty_generate(data) + "\n"
 end
