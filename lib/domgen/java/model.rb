@@ -592,9 +592,21 @@ module Domgen
       def pre_complete
         if repository.ee?
 
-          # Just in case some attributes use spatial types
-          repository.ee.cdi_scan_excludes << 'org.geolatte.**'
-          repository.ee.cdi_scan_excludes << 'com.vividsolutions.**'
+          spatial_types = [:point, :multipoint, :linestring, :multilinestring, :polygon, :multipolygon, :geometry, :pointm, :multipointm, :linestringm, :multilinestringm, :polygonm, :multipolygonm]
+          has_spatial_attributes =
+            repository.data_modules.any? do |data_module|
+              data_module.entities.any? do |entity|
+                entity.attributes.any? do |attribute|
+                  spatial_types.include?(attribute.attribute_type)
+                end
+              end
+            end
+          if has_spatial_attributes
+            # Just in case some attributes use spatial types
+            repository.ee.cdi_scan_excludes << 'org.realityforge.jeo.geolatte.**'
+            repository.ee.cdi_scan_excludes << 'org.geolatte.**'
+            repository.ee.cdi_scan_excludes << 'com.vividsolutions.**'
+          end
         end
       end
     end

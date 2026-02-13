@@ -639,10 +639,6 @@ module Domgen
       end
 
       def pre_complete
-        if repository.ee?
-          # Just in case some attributes use spatial types
-          repository.ee.cdi_scan_excludes << 'org.realityforge.jeo.geolatte.**'
-        end
         self.standalone_persistence_units.each do |unit|
           fragment = <<FRAGMENT
 <persistence-unit name="#{unit.unit_name}" transaction-type="JTA">
