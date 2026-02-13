@@ -172,7 +172,7 @@ WHERE
 
       def validations_trigger_sql(entity, validations, actions)
         sql = ''
-        if !validations.empty?
+        unless validations.empty?
           validations.each do |validation|
             sql += <<SQL
 #{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
