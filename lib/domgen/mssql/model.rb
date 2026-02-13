@@ -201,6 +201,7 @@ module Domgen
             #{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
+    -- noinspection SqlTransactionStatementInTrigger
     ROLLBACK
     #{entity.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
     RETURN

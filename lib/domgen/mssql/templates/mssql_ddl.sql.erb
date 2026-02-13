@@ -1,90 +1,86 @@
 /* DO NOT EDIT: File is auto-generated */
-<%= banner("DDL for Data Module '#{data_module.name}'") %>
-
+<%= banner("DDL for Data Module '#{data_module.name}'") -%>
 <% if data_module.repository.mssql.supports_sequences? -%>
 <% data_module.sql.sequences.each do |sequence| -%>
 CREATE SEQUENCE <%= sequence.qualified_sequence_name %> AS <%= sequence.sql_type %> start with 1 increment by 1;
-<% end -%>
-<% end -%>
 GO
-<% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
-<% if entity.sql.partition_scheme %>
+<% end -%>
+<% end -%>
+<% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| -%>
+<% if entity.sql.partition_scheme -%>
 IF CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Enterprise Edition%' OR CONVERT(VARCHAR,SERVERPROPERTY('Edition')) LIKE 'Developer Edition%'
 BEGIN
 
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
 %>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : a.sql.sequence? ? "DEFAULT (NEXT value FOR #{entity.data_module.sql.quoted_schema}.#{data_module.sql.dialect.quote(a.sql.sequence_name)}) " : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
-<% end
-%>
-    CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC) ON [PRIMARY]
+<% end %>  CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC) ON [PRIMARY]
 ) ON <%= entity.sql.partition_scheme %>
 
 END
 ELSE
 BEGIN
-<% end %>
 
+<% end -%>
 CREATE TABLE <%= entity.sql.qualified_table_name %>(
 <% entity.attributes.each do |a|
 %>  <%= a.sql.quoted_column_name %> <%= a.sql.sql_type %> <%= a.sql.identity? ? 'IDENTITY(1,1) ' : a.sql.sequence? ? "DEFAULT (NEXT value FOR #{entity.data_module.sql.quoted_schema}.#{data_module.sql.dialect.quote(a.sql.sequence_name)}) " : '' %><%= a.sql.sparse? ? 'SPARSE ' : ''%><%= a.nullable? ? '': 'NOT '%>NULL,
 <% end
 %>  CONSTRAINT PK_<%= entity.name %> PRIMARY KEY <%= (entity.sql.indexes.select{|i| i.cluster?}.size == 0) ? '' : 'NON' %>CLUSTERED (<%= entity.primary_key.sql.quoted_column_name %> ASC)
 )
+<% if entity.sql.partition_scheme -%>
 
-<% if entity.sql.partition_scheme %>
 END
-<% end %>
+<% end -%>
 GO
-<% entity.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
+<% entity.tags.each_pair do |name, value| -%>
+EXEC [sys].[sp_addextendedproperty]
   @name = N'<%= sql_extended_property_key(name) %>',
   @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
-  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>;
+  @level1type = N'TABLE', @level1name = <%= entity.sql.quoted_table_name %>
 GO
-<% end %>
-<% entity.attributes.select {|a| !a.tags.empty?}.each do |a| %>
-<% a.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
+<% end -%>
+<% entity.attributes.select {|a| !a.tags.empty?}.each do |a| -%>
+<% a.tags.each_pair do |name, value| -%>
+EXEC [sys].[sp_addextendedproperty]
   @name = N'<%= sql_extended_property_key(name) %>',
   @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
-  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
-  @level2type = N'COLUMN', @level2name = <%= a.sql.quoted_column_name %>;
+  @level1type = N'TABLE', @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'COLUMN', @level2name = <%= a.sql.quoted_column_name %>
 GO
-<% end %>
-<% end %>
-<% if !entity.sql.force_overflow_for_large_objects.nil? %>
+<% end -%>
+<% end -%>
+<% unless entity.sql.force_overflow_for_large_objects.nil? -%>
 EXEC sp_tableoption '<%= entity.sql.qualified_table_name %>', 'large value types out of row', <%= entity.sql.force_overflow_for_large_objects ? '1' : '0' %>
-<% end %>
-<% entity.attributes.select {|a| !a.sql.default_value.nil?}.each do |a| %>
+<% end -%>
+<% entity.attributes.select {|a| !a.sql.default_value.nil?}.each do |a| -%>
 ALTER TABLE <%= entity.sql.qualified_table_name %> ADD CONSTRAINT [DF_<%= entity.name %>_<%= a.name %>] DEFAULT (<%= a.sql.default_value %>) FOR <%= a.sql.quoted_column_name %>
 GO
-<% end %>
-<% entity.sql.indexes.sort_by{|s| s.index_name}.select{|index| !index.defer_creation?}.each do |index| %>
+<% end -%>
+<% entity.sql.indexes.sort_by{|s| s.index_name}.select{|index| !index.defer_creation?}.each do |index| -%>
 CREATE <%= index.unique? ? 'UNIQUE ' : '' %><%= index.gist? ? 'SPATIAL' : index.cluster? ? 'CLUSTERED' : 'NONCLUSTERED' %> INDEX <%= index.quoted_index_name %> ON <%= entity.sql.qualified_table_name %>
 (<%= index.attribute_names.collect {|a| "\n  #{entity.attribute_by_name(a).sql.quoted_column_name} #{index.ordered? ? 'ASC' : '' }" }.join(',') %>
-)<% if !index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(',') %> )<% end %>
-<% if index.filter %>WHERE <%= index.filter %><% end %>
-WITH (ALLOW_PAGE_LOCKS=<%= index.allow_page_locks? ? 'ON' : 'OFF'%>)
-<%= index.unique? ? 'ON [PRIMARY]' : '' %>
+)<% unless index.include_attribute_names.empty? %> INCLUDE ( <%= index.include_attribute_names.collect {|a| entity.attribute_by_name(a).sql.quoted_column_name }.join(',') %> )<% end %>
+<% if index.filter %>  WHERE <%= index.filter %>
+<% end -%>
+  WITH (ALLOW_PAGE_LOCKS=<%= index.allow_page_locks? ? 'ON' : 'OFF'%>)
+<%= index.unique? ? "  ON [PRIMARY]\n" : '' -%>
 GO
-<% index.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
+<% index.tags.each_pair do |name, value| -%>
+EXEC [sys].[sp_addextendedproperty]
   @name = N'<%= sql_extended_property_key(name) %>',
   @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
-  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
-  @level2type = N'INDEX',  @level2name = <%= index.quoted_index_name %>;
+  @level1type = N'TABLE', @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'INDEX', @level2name = <%= index.quoted_index_name %>
 GO
-<% end %>
-
-<% end
-%>
-
-<%= banner("Foreign Keys for #{entity.sql.qualified_table_name}") %>
-<% entity.sql.foreign_keys.select{|foreign_key| !foreign_key.defer_creation? }.each do |foreign_key| %>
+<% end -%>
+<% end -%>
+<% if entity.sql.foreign_keys.any? -%>
+<%= banner("Foreign Keys for #{entity.sql.qualified_table_name}") -%>
+<% entity.sql.foreign_keys.select{|foreign_key| !foreign_key.defer_creation? }.each do |foreign_key| -%>
 ALTER TABLE <%= entity.sql.qualified_table_name %>
   WITH NOCHECK ADD CONSTRAINT [<%= foreign_key.foreign_key_name %>] FOREIGN KEY (<%= foreign_key.attribute_names.collect{|a| entity.attribute_by_name(a).sql.quoted_column_name}.join(', ') %>)
   REFERENCES <%= foreign_key.referenced_entity.sql.qualified_table_name %> (<%= foreign_key.referenced_attribute_names.collect{|a| foreign_key.referenced_entity.attribute_by_name(a).sql.quoted_column_name}.join(', ')  %>)
@@ -99,32 +95,29 @@ ALTER TABLE <%= entity.sql.qualified_table_name %> NOCHECK CONSTRAINT [<%= forei
 GO
 <%
   end
+  end
   if entity.sql.constraints.size > 0 %><%=
     banner("Constraints for #{entity.sql.qualified_table_name}")
-%><%
-      entity.sql.constraints.each do |constraint|
-%>
+%><%  entity.sql.constraints.each do |constraint| -%>
 ALTER TABLE <%= entity.sql.qualified_table_name %>
   WITH NOCHECK ADD CONSTRAINT <%= constraint.quoted_constraint_name %> CHECK ( <%= s(constraint.sql) %> )
 GO
 ALTER TABLE <%= entity.sql.qualified_table_name %> NOCHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
 GO
-<% constraint.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
+<% constraint.tags.each_pair do |name, value| -%>
+EXEC [sys].[sp_addextendedproperty]
   @name = N'<%= sql_extended_property_key(name) %>',
   @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
-  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
-  @level2type = N'CONSTRAINT',  @level2name = <%= constraint.quoted_constraint_name %>;
+  @level1type = N'TABLE', @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'CONSTRAINT', @level2name = <%= constraint.quoted_constraint_name %>
 GO
-<% end %>
+<% end -%>
 <%    end
    end
    if entity.sql.function_constraints.size > 0 %><%=
     banner("Function Constraints for #{entity.sql.qualified_table_name}")
-%><%
-    entity.sql.function_constraints.each do |constraint|
-%>
+%><% entity.sql.function_constraints.each do |constraint| -%>
 CREATE FUNCTION <%= constraint.qualified_function_name %>
 (
 <%= constraint.parameters.collect{|parameter_name| a = entity.attribute_by_name(parameter_name); "  @#{a.sql.column_name} #{a.sql.sql_type}"}.join(",\n") %>
@@ -139,14 +132,14 @@ BEGIN
   RETURN @Result
 END
 GO
-<% constraint.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
+<% constraint.tags.each_pair do |name, value| -%>
+EXEC [sys].[sp_addextendedproperty]
   @name = N'<%= sql_extended_property_key(name) %>',
   @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
-  @level1type = N'FUNCTION',  @level1name = [<%= s(entity.name) %>_<%= s(constraint.name) %>];
+  @level1type = N'FUNCTION', @level1name = <%= constraint.quoted_function_name %>
 GO
-<% end %>
+<% end -%>
 ALTER TABLE <%= entity.sql.qualified_table_name %>
   WITH NOCHECK ADD CONSTRAINT
   <%= constraint.quoted_constraint_name %>
@@ -154,23 +147,21 @@ ALTER TABLE <%= entity.sql.qualified_table_name %>
 GO
 ALTER TABLE <%= entity.sql.qualified_table_name %> NOCHECK CONSTRAINT <%= constraint.quoted_constraint_name %>
 GO
-<% constraint.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
+<% constraint.tags.each_pair do |name, value| -%>
+EXEC [sys].[sp_addextendedproperty]
   @name = N'<%= sql_extended_property_key(name) %>',
   @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
-  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
-  @level2type = N'CONSTRAINT',  @level2name = <%= constraint.quoted_constraint_name %>;
+  @level1type = N'TABLE', @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'CONSTRAINT', @level2name = <%= constraint.quoted_constraint_name %>
 GO
-<% end %>
+<% end -%>
     <%
     end
    end
    if entity.sql.triggers.size > 0 %><%=
     banner("Triggers for #{entity.sql.qualified_table_name}")
-%><%
-      entity.sql.triggers.sort_by{|trigger|trigger.trigger_name}.each do |trigger|
-%>
+%><% entity.sql.triggers.sort_by{|trigger|trigger.trigger_name}.each do |trigger| -%>
 CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified_table_name %>
 <%
   if trigger.after && !trigger.after.empty?
@@ -191,22 +182,22 @@ CREATE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified
   SET ROWCOUNT 0; -- in case the client has modified the rowcount
 <%= trigger.sql %>
 GO
-<% trigger.tags.each_pair do |name, value| %>
-EXEC sys.sp_addextendedproperty
+<% trigger.tags.each_pair do |name, value| -%>
+EXEC [sys].[sp_addextendedproperty]
   @name = N'<%= sql_extended_property_key(name) %>',
   @value = N'<%= sql_extended_property_value(data_module, value) %>',
   @level0type = N'SCHEMA', @level0name = <%= data_module.sql.quoted_schema %>,
-  @level1type = N'TABLE',  @level1name = <%= entity.sql.quoted_table_name %>,
-  @level2type = N'TRIGGER',  @level2name = <%= trigger.quoted_trigger_name %>;
+  @level1type = N'TABLE', @level1name = <%= entity.sql.quoted_table_name %>,
+  @level2type = N'TRIGGER', @level2name = <%= trigger.quoted_trigger_name %>
 GO
-<% end %>
+<% end -%>
 DISABLE TRIGGER <%= trigger.qualified_trigger_name %> ON <%= entity.sql.qualified_table_name %>
 GO
 <%    end
     end
   end
-%>
-<% data_module.entities.select{|entity| entity.direct_subtypes.size != 0 && entity.sql?}.each do |entity| %>
+-%>
+<% data_module.entities.select{|entity| entity.direct_subtypes.size != 0 && entity.sql?}.each do |entity| -%>
 CREATE VIEW <%= entity.sql.qualified_view_name %>
 WITH SCHEMABINDING
 AS
@@ -229,13 +220,12 @@ UNION ALL
 SELECT
   '<%= subtype.sql.discriminator %>' AS <%= subtype.data_module.repository.sql.dialect.quote('_type_') %>, <%= columns.collect do |name, column|
     a = subtype.attribute_by_name?(name) ? subtype.attribute_by_name(name) : nil
-    a = nil unless a && a.sql?
+    a = nil unless a&.sql?
     a.nil? ? "NULL AS #{column}" : column
   end.join(', ') %>
 FROM <%= subtype.sql.qualified_table_name %>
 <% end -%>
 GO
-
 CREATE TRIGGER <%= entity.sql.qualified_view_insert_trigger %>
   ON <%= entity.sql.qualified_view_name %>
   INSTEAD OF INSERT
@@ -250,7 +240,6 @@ AS
     WHERE I.<%= subtype.data_module.repository.sql.dialect.quote('_type_') %> = '<%= subtype.sql.discriminator %>';
 <% end -%>
 GO
-
 CREATE TRIGGER <%= entity.sql.qualified_view_update_trigger %>
   ON <%= entity.sql.qualified_view_name %>
   INSTEAD OF UPDATE
@@ -264,22 +253,18 @@ AS
     WHERE I.<%= subtype.data_module.repository.sql.dialect.quote('_type_') %> = '<%= subtype.sql.discriminator %>' AND <%= subtype.sql.qualified_table_name %>.<%= subtype.primary_key.sql.quoted_column_name %> = I.<%= subtype.primary_key.sql.quoted_column_name %>;
 <% end -%>
 GO
-
 CREATE TRIGGER <%= entity.sql.qualified_view_delete_trigger %>
   ON <%= entity.sql.qualified_view_name %>
   INSTEAD OF DELETE
 AS
-<% entity.compatible_concrete_types.each do |subtype|
- columns = subtype.attributes.select{|a|a.sql?}.collect{|a|a.sql.quoted_column_name}
- -%>
+<% entity.compatible_concrete_types.each do |subtype| -%>
   DELETE <%= subtype.sql.qualified_table_name %>
     FROM <%= subtype.sql.qualified_table_name %>
     JOIN inserted I ON <%= subtype.sql.qualified_table_name %>.<%= subtype.primary_key.sql.quoted_column_name %> = I.<%= subtype.primary_key.sql.quoted_column_name %>
     WHERE I.<%= subtype.data_module.repository.sql.dialect.quote('_type_') %> = '<%= subtype.sql.discriminator %>';
 <% end -%>
 GO
-<% end %>
-
+<% end -%>
 CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.[spCheckConstraints]
 (
   @ShowErrors INT = 1,
@@ -297,10 +282,10 @@ BEGIN
     ConstraintName VARCHAR(500),
     ViewSQL VARCHAR(MAX) NULL
   );
-<% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| %>
+<% data_module.entities.select{|entity| entity.concrete? && entity.sql?}.each do |entity| -%>
 <%
    constraints = entity.sql.constraints + entity.sql.function_constraints
-   constraints.select{|constraint| constraint.invariant?}.each do |constraint| %>
+   constraints.select{|constraint| constraint.invariant?}.each do |constraint| -%>
   IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking constraint <%= constraint.quoted_constraint_name %>'
   IF (SELECT COUNT(*) FROM (<%= constraint.bulk_check_sql %>) F) > 0
   BEGIN
@@ -310,7 +295,7 @@ BEGIN
   END
 <%
    end
-%>
+-%>
 <%
    entity.sql.foreign_keys.each do |foreign_key|
      join_cols = []
@@ -321,7 +306,7 @@ BEGIN
       source_cols << "E.#{attribute.sql.quoted_column_name} IS NOT NULL" if attribute.nullable?
      end
      check_sql = "SELECT * FROM #{entity.sql.qualified_table_name} E LEFT JOIN #{foreign_key.referenced_entity.sql.qualified_table_name} O ON #{join_cols.join(' AND ')} WHERE O.#{foreign_key.referenced_entity.primary_key.sql.quoted_column_name} IS NULL#{source_cols.empty? ? '' : " AND (#{source_cols.join(' AND ')})"}"
-%>
+-%>
   IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking foreign key <%= foreign_key.quoted_foreign_key_name %>'
   SELECT @Ignored = 1 WHERE EXISTS ( <%= check_sql %> )
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
@@ -332,8 +317,8 @@ BEGIN
   END
 <%
    end
-%>
-<% entity.sql.validations.sort_by{|validation|validation.name.to_s}.select{|validation| !validation.invariant_negative_sql.nil?}.each do |validation| %>
+-%>
+<% entity.sql.validations.sort_by{|validation|validation.name.to_s}.select{|validation| !validation.invariant_negative_sql.nil?}.each do |validation| -%>
   ;<%= validation.invariant_common_table_expression %> SELECT @Ignored = 1 WHERE EXISTS (<%= validation.invariant_negative_sql %>)
   IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
   BEGIN
@@ -343,7 +328,7 @@ BEGIN
 <%
    end
   end
-%>
-  SELECT * FROM @FailedConstraintChecks
+-%>
+  SELECT SchemaName, TableName, ConstraintName, ViewSQL  FROM @FailedConstraintChecks
 END
 GO
