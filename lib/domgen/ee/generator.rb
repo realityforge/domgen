@@ -16,7 +16,6 @@ Domgen::Generator.define([:ee],
                          "#{File.dirname(__FILE__)}/templates",
                          [Domgen::JPA::Helper, Domgen::Java::Helper, Domgen::Jackson::Helper]) do |g|
 
-
   g.template_set(:ee_data_types) do |template_set|
     template_set.erb_template(:enumeration,
                               'enumeration.java.erb',

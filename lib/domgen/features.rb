@@ -426,7 +426,6 @@ module Domgen
       supertypes
     end
 
-
     def subtypes
       if subtypes_obsolete? || @subtypes.nil?
         @subtypes = []

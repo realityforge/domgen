@@ -25,8 +25,6 @@ Relevant code or config:
 
 What you did:
 
-
-
 What happened:
 
 <!-- Please provide the full error message/screenshots/anything -->
@@ -41,7 +39,5 @@ https://stackoverflow.com/help/mcve
 -->
 
 Problem description:
-
-
 
 Suggested solution:
