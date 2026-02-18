@@ -53,7 +53,7 @@ public abstract class <%= repository.imit.abstract_session_context_impl_name %>
   end
 
 entities =
-  auto_follow_graph_links.collect{|graph_link|repository.entity_by_name(repository.imit.graph_by_name(graph_link.target_graph).instance_root)}
+  auto_follow_graph_links.select{|graph_link| graph_link.imit_attribute.attribute.primary_key?}.collect{|graph_link|repository.entity_by_name(repository.imit.graph_by_name(graph_link.target_graph).instance_root)}
 
 entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   @javax.inject.Inject
@@ -137,7 +137,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 
   @javax.annotation.Nonnull
   @java.lang.Override
-  public String deriveFilterInstanceId( @javax.annotation.Nonnull final replicant.server.EntityMessage entityMessage, @javax.annotation.Nonnull final replicant.server.ChannelLink link, @javax.annotation.Nullable final java.lang.Object sourceFilter, @javax.annotation.Nullable final java.lang.Object targetFilter )
+  public String deriveTargetFilterInstanceId( @javax.annotation.Nonnull final replicant.server.EntityMessage entityMessage, @javax.annotation.Nonnull final replicant.server.ChannelLink link, @javax.annotation.Nullable final java.lang.Object sourceFilter, @javax.annotation.Nullable final java.lang.Object targetFilter )
   {
    <% instanced_graphs.select{|graph|graph.instance_root?}.each do |graph| -%> if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %> == link.target().channelId() )
     {
@@ -152,19 +152,19 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% target_graph = repository.imit.graph_by_name(graph_link.target_graph) -%>
         final var <%=Reality::Naming.camelize(target_graph.name) %>Filter = (<%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %>) targetFilter;
         assert null != <%=Reality::Naming.camelize(target_graph.name) %>Filter;
-        return deriveFilterInstanceIdForLinkFrom_<%= graph_link.source_graph %>_To_<%= graph_link.target_graph %>_Via_<%= graph_link.imit_attribute.attribute.qualified_name.gsub(/[#.]/,'_') %>( entityMessage, link<% if source_graph.filter_parameter -%>, <%=Reality::Naming.camelize(source_graph.name) %>Filter<% end %>, <%=Reality::Naming.camelize(target_graph.name) %>Filter );
+        return deriveTargetFilterInstanceIdForLinkFrom_<%= graph_link.source_graph %>_To_<%= graph_link.target_graph %>_Via_<%= graph_link.imit_attribute.attribute.qualified_name.gsub(/[#.]/,'_') %>( entityMessage, link<% if source_graph.filter_parameter -%>, <%=Reality::Naming.camelize(source_graph.name) %>Filter<% end %>, <%=Reality::Naming.camelize(target_graph.name) %>Filter );
       }
       else<% end -%>
 
       {
-        return super.deriveFilterInstanceId( entityMessage, link, sourceFilter, targetFilter );
+        return super.deriveTargetFilterInstanceId( entityMessage, link, sourceFilter, targetFilter );
       }
 <% end -%>
     }
     else<% end -%>
 
     {
-      return super.deriveFilterInstanceId( entityMessage, link, sourceFilter, targetFilter );
+      return super.deriveTargetFilterInstanceId( entityMessage, link, sourceFilter, targetFilter );
     }
   }
 <% instanced_graphs.select{|graph|graph.instance_root?}.each do |graph| -%>
@@ -174,7 +174,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 -%>
 
   @javax.annotation.Nonnull
-  protected String deriveFilterInstanceIdForLinkFrom_<%= graph_link.source_graph %>_To_<%= graph_link.target_graph %>_Via_<%= graph_link.imit_attribute.attribute.qualified_name.gsub(/[#.]/,'_') %>( @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final replicant.server.EntityMessage <%= Reality::Naming.camelize(graph_link.imit_attribute.attribute.name) %>EntityMessage, @javax.annotation.Nonnull final replicant.server.ChannelLink link<% if source_graph.filter_parameter -%>, @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final <%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %> <%=Reality::Naming.camelize(source_graph.name) %>Filter<% end -%>, @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> <%=Reality::Naming.camelize(target_graph.name) %>Filter )
+  protected String deriveTargetFilterInstanceIdForLinkFrom_<%= graph_link.source_graph %>_To_<%= graph_link.target_graph %>_Via_<%= graph_link.imit_attribute.attribute.qualified_name.gsub(/[#.]/,'_') %>( @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final replicant.server.EntityMessage <%= Reality::Naming.camelize(graph_link.imit_attribute.attribute.name) %>EntityMessage, @javax.annotation.Nonnull final replicant.server.ChannelLink link<% if source_graph.filter_parameter -%>, @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final <%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %> <%=Reality::Naming.camelize(source_graph.name) %>Filter<% end -%>, @java.lang.SuppressWarnings( "unused" ) @javax.annotation.Nonnull final <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> <%=Reality::Naming.camelize(target_graph.name) %>Filter )
   {
     return link.source()<% if target_graph.instance_root? %> + "~" + link.target().rootId()<% end %>;
   }
@@ -329,6 +329,7 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
  -%>
     <%= auto_follow_graph_links[0] == graph_link ? '' : 'else ' %>if ( <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(source_graph.name) %> == sourceChannelId && <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %> == targetChannelId )
     {
+<% if graph_link.imit_attribute.attribute.primary_key? -%>
 <% if target_graph.instance_root? -%>
       final var targetRootId = target.rootId();
       assert null != targetRootId;
@@ -339,6 +340,9 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
 <% end -%>
       final var targetGraphInstanceRoot = _<%= Reality::Naming.camelize("#{target_graph_instance_root.data_module.name}#{target_graph_instance_root.name}") %>Repository.getBy<%= target_graph_instance_root.primary_key.name %>( targetRootId );
       return shouldFollowLinkFrom<%= graph_link.source_graph %>To<%= target_graph.name %>( targetGraphInstanceRoot<% if source_graph.filter_parameter? -%>, sourceGraphFilter<% end -%> );
+<% else -%>
+      return true;
+<% end -%>
     }
 <% end -%>
     else
@@ -361,6 +365,7 @@ repository.imit.graphs.select { |g| g.instance_root? }.collect { |g| g.inward_gr
   processed << key
   target_graph_instance_root = target_graph.instance_root? ? repository.entity_by_name(target_graph.instance_root) : nil
   source_graph_instance_root = repository.entity_by_name(source_graph.instance_root)
+  next unless graph_link.imit_attribute.attribute.primary_key?
 
   if target_graph.filter_parameter? -%>
   abstract boolean shouldFollowLinkFrom<%= "#{graph_link.source_graph}To#{target_graph.name}" %>(<%= target_graph.instance_root? || source_graph.filter_parameter? ? ' ' : '' %><%= target_graph.instance_root? ? "@javax.annotation.Nonnull #{target_graph_instance_root.jpa.qualified_name} #{target_graph.name}InstanceRoot" : '' %><%= target_graph.instance_root? && source_graph.filter_parameter? ? ', ' : '' %><%= source_graph.filter_parameter? ? "@javax.annotation.Nonnull #{source_graph.filter_parameter.referenced_struct.ee.qualified_name} #{source_graph.name}Filter" : '' %><%= target_graph.instance_root? || source_graph.filter_parameter? ? ' ' : '' %>);

@@ -383,6 +383,9 @@ module Domgen
         @source_graph = source_graph
         @target_graph = target_graph
         @auto = true
+        @always_follow = source_graph.to_s != target_graph.to_s
+        default_always_follow = false
+        @always_follow = default_always_follow
         @exclude_target = nil
         super(imit_attribute, options, &block)
         repository.imit.graph_by_name(source_graph).send(:register_outward_graph_link, self)
@@ -395,6 +398,11 @@ module Domgen
         if configured_auto
           Domgen.error("GraphLink on #{imit_attribute.attribute.qualified_name} from #{source_graph} to #{target_graph} specified auto=true property but this is now the default")
         end
+        configured_always_follow = options[:always_follow] || options['always_follow']
+        if !configured_always_follow.nil? && (!!configured_always_follow == default_always_follow)
+          Domgen.error("GraphLink on #{imit_attribute.attribute.qualified_name} from #{source_graph} to #{target_graph} specified always_follow=#{configured_always_follow} property but this matched the default value")
+        end
+
         if repository.imit.graph_by_name(target_graph).instance_root? && self.exclude_target? && !self.imit_attribute.attribute.primary_key?
           if self.imit_attribute.attribute.inverse.imit.exclude_edges.include?(target_graph)
             Domgen.error("#{imit_attribute.attribute.qualified_name} explicitly excludes graph #{target_graph} but also has a graph link named #{name} that references target that implicitly adds exclude. Remove explicit exclude as it is not needed.")
@@ -423,7 +431,7 @@ module Domgen
       attr_writer :always_follow
 
       def always_follow?
-        @always_follow.nil? ? false : !!@always_follow
+        !!@always_follow
       end
 
       attr_writer :exclude_target
