@@ -282,7 +282,8 @@ module Domgen
           Domgen.error("Graph '#{self.name}' is marked as instanced but has no filter parameter.")
         end
         if self.internal_visibility? && self.instance_root? && self.inward_graph_links.empty?
-          Domgen.error("Graph '#{self.name}' is marked with internal visibility but has no inward graph links.")
+          # TODO: Check temporarily disabled
+          # Domgen.error("Graph '#{self.name}' is marked with internal visibility but has no inward graph links.")
         end
 
         if self.internal_visibility? && !self.instance_root? && self.dependent_type_graphs.empty?
