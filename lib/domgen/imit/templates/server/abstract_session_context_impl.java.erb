@@ -1191,7 +1191,7 @@ end -%>
 <% if check_column -%>
 <% unless in_single_graph %>  <% end %>      <%= check_column %>;
 <% end -%>
-<% unless in_single_graph %>  <% end %>      addChannelLink( links, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %>, <%= source_graph.instance_root? ? 'rootId, ' : '' %><%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %>, <%= targetId %> );
+<% unless in_single_graph %>  <% end %>      <%= attribute.nullable? ? 'maybeAddChannelLink' : 'addChannelLink' -%>( links, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %>, <%= source_graph.instance_root? ? 'rootId, ' : '' %><%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %>, <%= targetId %> );
 <% unless in_single_graph -%>
       }
 <% end -%>
