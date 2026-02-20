@@ -1197,7 +1197,7 @@ end -%>
 <% end -%>
 <% end -%>
 <% end -%>
-      changeSet.merge( new replicant.server.Change( new replicant.server.EntityMessage( entityId, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, 0, new java.util.HashMap<>(), attributeValues, <%= has_links ? 'links' : 'null' %> ), <%= channelId %>, <%= in_instance_graph ? 'rootId' : 'null' %> ) );
+      changeSet.merge( new replicant.server.Change( new replicant.server.EntityMessage( entityId, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, 0, new java.util.HashMap<>(), attributeValues, <%= has_links ? 'links' : 'null' %> ), new replicant.server.ChannelAddress( <%= channelId %><%= in_instance_graph ? ', rootId' : '' %> ) ) );
     }
   }
 <%
