@@ -430,6 +430,7 @@ end
   require_channelRootIdColumn = has_links || in_instance_graph
   add_default_impl =
     !entity.attributes.filter{|attribute| attribute.imit?}.any?{|attribute| !attribute.imit.auto_graph_links.filter{|graph_link| !graph_link.path.nil? && repository.imit.graph_by_name(graph_link.target_graph).instance_root? && repository.imit.graph_by_name(graph_link.target_graph).instance_root != graph.instance_root}.empty?}
+  filterInstanceIdColumnParameter = graph.instanced? ? ', @javax.annotation.Nonnull java.lang.String filterInstanceIdColumnNameColumn' : ''
 
  -%>
 
@@ -450,7 +451,7 @@ end
 <% if add_default_impl -%>
   @java.lang.SuppressWarnings( "resource" )
 <% end -%>
-  <%= add_default_impl ? '' : 'abstract ' %>void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %><%= graph.unfiltered? ? '' : 'Filtered' %>TypeGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %> )
+  <%= add_default_impl ? '' : 'abstract ' %>void bulkCollectFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %><%= graph.unfiltered? ? '' : 'Filtered' %>TypeGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% if graph.filter_parameter -%>, <%= nullability_annotation(graph.filter_parameter.nullable?) %> final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default) %> filter<% end %><%= filterInstanceIdColumnParameter %> )
     throws java.sql.SQLException<%= add_default_impl ? '' : ';' %>
 <% if add_default_impl -%>
   {
@@ -458,7 +459,7 @@ end
     final var sql = "SELECT <%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>";
     try ( var statement = connection().prepareStatement( sql ) )
     {
-        encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement<% if require_channelRootIdColumn %>, null<% end %> );
+        encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement<% if require_channelRootIdColumn %>, null<% end %><%= graph.instanced? ? 'filterInstanceIdColumnName' : '' %> );
     }
   }
 <% end -%>
@@ -531,22 +532,24 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
        in_instance_graph = entity.imit.replication_graphs.any?{|g| g.instance_root?}
        has_links = entity.attributes.any?{|a| a.imit? && !a.imit.auto_graph_links.empty?}
        require_channelRootIdColumn = has_links || in_instance_graph
+       entity_ever_in_instanced_graph = entity.imit.replication_graphs.any?{|g| g.instanced?}
+       filterInstanceIdColumnParameter = graph.instanced? ? ", @javax.annotation.Nonnull java.lang.String filterInstanceIdColumnName" : ''
 -%>
 
   @java.lang.SuppressWarnings( { "unused", "SameParameterValue" } )
-  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>TypeGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.sql.PreparedStatement statement )
+  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>TypeGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<%= filterInstanceIdColumnParameter %> )
     throws java.sql.SQLException
   {
-    encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement<% if require_channelRootIdColumn %>, null<% end %> );
+    encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement<% if require_channelRootIdColumn %>, null<% end %><%= entity_ever_in_instanced_graph ? ", #{graph.instanced? ? 'filterInstanceIdColumnName' : 'null'}" : '' %> );
   }
 
   @java.lang.SuppressWarnings( { "resource", "unused", "SqlSourceToSinkFlow", "SameParameterValue" } )
-  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>TypeGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql )
+  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>TypeGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql<%= filterInstanceIdColumnParameter %> )
     throws java.sql.SQLException
   {
     try ( var statement = connection().prepareStatement( sql ) )
     {
-      addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>TypeGraph( changeSet, statement );
+      addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>TypeGraph( changeSet, statement<%= entity_ever_in_instanced_graph ? ", #{graph.instanced? ? 'filterInstanceIdColumnName' : 'null'}" : '' %> );
     }
   }
 <%   end -%>
@@ -559,6 +562,8 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
     in_single_graph = 1 == entity.imit.replication_graphs.size
     id_key = entity.name.to_s.gsub(/[a-z]/, '')
     is_instance = instance_root == entity
+    entity_ever_in_instanced_graph = entity.imit.replication_graphs.any?{|g| g.instanced?}
+    filterInstanceIdColumnParameter = graph.instanced? ? ', @javax.annotation.Nonnull java.lang.String filterInstanceIdColumnName' : ''
 
     graph_links_to_other_entities = false
     entity.attributes.filter{|attribute| attribute.imit?}.each do |attribute|
@@ -594,7 +599,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
      final var sql =
          generateTempIdTable( addresses ) +
          "SELECT <%= !require_root_id_column ? '' : "#{root_id_column}, " %><%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %> JOIN @Ids Inputs ON Inputs.Id = <%= "#{id_key}.#{root_id_column}" %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>";
-     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>InstanceGraph( changeSet, "<%= is_instance ? "#{instance_root.primary_key.name}" : "#{instance_root.name}#{instance_root.primary_key.name}" %>", sql );
+     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>InstanceGraph( changeSet, "<%= is_instance ? "#{instance_root.primary_key.name}" : "#{instance_root.name}#{instance_root.primary_key.name}" %>", sql<%= entity_ever_in_instanced_graph ? ", #{graph.instanced? ? 'filterInstanceIdColumnName' : 'null'}" : '' %> );
    * }</pre>
    *
    * @param addresses A non-null list of channel addresses that are used to identify the roots of the <%= graph.name %> graph.
@@ -609,7 +614,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
      final var sql =
          generateTempIdTable( addresses ) +
          "SELECT <%= !require_root_id_column ? '' : "#{root_id_column}, " %><%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %> JOIN @Ids Inputs ON Inputs.Id = <%= "#{id_key}.#{root_id_column}" %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>";
-     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>InstanceGraph( changeSet, "<%= root_id_column %>", sql );
+     addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>InstanceGraph( changeSet, "<%= root_id_column %>", sql<%= graph.instanced? ? ', filterInstanceIdColumnName' : '' %> );
   }
 <% end -%>
 
@@ -620,19 +625,19 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
 <% end -%>
 
   @java.lang.SuppressWarnings( { "unused", "SameParameterValue" } )
-  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>InstanceGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement )
+  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>InstanceGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<%= filterInstanceIdColumnParameter %> )
     throws java.sql.SQLException
   {
-    encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement, <%= Reality::Naming.camelize(pk_long_name) %>ColumnName );
+    encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement, <%= Reality::Naming.camelize(pk_long_name) %>ColumnName<%= entity_ever_in_instanced_graph ? ", #{graph.instanced? ? 'filterInstanceIdColumnName' : 'null'}" : '' %> );
   }
 
   @java.lang.SuppressWarnings( { "resource", "unused", "SqlSourceToSinkFlow", "SameParameterValue" } )
-  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>InstanceGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql )
+  void addUpdateFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>InstanceGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.lang.String <%= Reality::Naming.camelize(pk_long_name) %>ColumnName, @org.intellij.lang.annotations.Language( "TSQL" ) @javax.annotation.Nonnull final java.lang.String sql<%= filterInstanceIdColumnParameter %> )
     throws java.sql.SQLException
   {
     try ( var statement = connection().createStatement() )
     {
-      encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement.executeQuery( sql ), <%= Reality::Naming.camelize(pk_long_name) %>ColumnName );
+      encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, <%= repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement.executeQuery( sql ), <%= Reality::Naming.camelize(pk_long_name) %>ColumnName<%= entity_ever_in_instanced_graph ? ", #{graph.instanced? ? 'filterInstanceIdColumnName' : 'null'}" : '' %> );
     }
   }
 <% end -%>
@@ -1106,27 +1111,65 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
       in_type_graph = entity.imit.replication_graphs.any?{|g| g.type_graph?}
       in_single_graph = 1 == entity.imit.replication_graphs.size
       require_channelRootIdColumn = has_links || in_instance_graph
+      require_filterInstanceId = entity.imit.replication_graphs.any?{|g| g.instanced?}
+      all_require_filterInstanceId = entity.imit.replication_graphs.all?{|g| g.instanced?}
+      filterInstanceIdColumnParameter = require_filterInstanceId ? ", @javax.annotation.#{all_require_filterInstanceId ? 'Nonnull' : 'Nullable'} java.lang.String filterInstanceIdColumnName" : ''
       channelId = in_single_graph ? "#{repository.imit.qualified_subscription_constants_name}.#{Reality::Naming.uppercase_constantize(entity.imit.replication_graphs[0].name)}" : 'channelId'
 -%>
 
-  private void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% unless in_single_graph %>, @java.lang.SuppressWarnings( "SameParameterValue" ) final int channelId<% end %>, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<% if require_channelRootIdColumn %>, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.<%= in_type_graph ? 'Nullable' : 'Nonnull' %> final String channelRootIdColumn<% end %> )
+  private void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% unless in_single_graph %>, @java.lang.SuppressWarnings( "SameParameterValue" ) final int channelId<% end %>, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<% if require_channelRootIdColumn %>, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.<%= in_type_graph ? 'Nullable' : 'Nonnull' %> final String channelRootIdColumn<% end %><%= filterInstanceIdColumnParameter %> )
     throws java.sql.SQLException
   {
+<% if in_single_graph -%>
+<% if in_instance_graph -%>
+    assert null != channelRootIdColumn;
+<% end -%>
+<% else -%>
+<% if all_require_filterInstanceId -%>
+    assert getSchemaMetaData().getChannelMetaData( <%= channelId %> ).requiresFilterInstanceId();
+<% elsif require_filterInstanceId -%>
+    assert ( null == filterInstanceIdColumnName && !getSchemaMetaData().getChannelMetaData( <%= channelId %> ).requiresFilterInstanceId() ) || ( null != filterInstanceIdColumnName && getSchemaMetaData().getChannelMetaData( <%= channelId %> ).requiresFilterInstanceId() );
+<% end -%>
+<% if in_instance_graph && !in_type_graph -%>
+    assert getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isInstanceGraph();
+<% elsif !in_instance_graph && in_type_graph -%>
+    assert getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isTypeGraph();
+<% end -%>
+<% end -%>
+<% if in_instance_graph && in_type_graph -%>
+    assert ( null == channelRootIdColumn && getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isTypeGraph() ) || ( null != channelRootIdColumn && getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isInstanceGraph() );
+<% end -%>
     try ( var resultSet = statement.executeQuery() )
     {
-      encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, channelId<% end %>, resultSet<% if require_channelRootIdColumn %>, channelRootIdColumn<% end %> );
+      encode<%= entity.qualified_name.gsub('.','') %>( changeSet<% unless in_single_graph %>, channelId<% end %>, resultSet<% if require_channelRootIdColumn %>, channelRootIdColumn<% end %><%= require_filterInstanceId ? ', filterInstanceIdColumnName' : '' %> );
     }
   }
 
-  private void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% unless in_single_graph %>, final int channelId<% end %>, @javax.annotation.Nonnull final java.sql.ResultSet resultSet<% if require_channelRootIdColumn %>, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.<%= in_type_graph ? 'Nullable' : 'Nonnull' %> final String channelRootIdColumn<% end %> )
+  private void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% unless in_single_graph %>, final int channelId<% end %>, @javax.annotation.Nonnull final java.sql.ResultSet resultSet<% if require_channelRootIdColumn %>, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.<%= in_type_graph ? 'Nullable' : 'Nonnull' %> final String channelRootIdColumn<% end %><%= filterInstanceIdColumnParameter %> )
     throws java.sql.SQLException
   {
+<% if in_single_graph -%>
+<% if in_instance_graph -%>
+    assert null != channelRootIdColumn;
+<% end -%>
+<% else -%>
+<% if all_require_filterInstanceId -%>
+    assert getSchemaMetaData().getChannelMetaData( <%= channelId %> ).requiresFilterInstanceId();
+<% elsif require_filterInstanceId -%>
+    assert ( null == filterInstanceIdColumnName && !getSchemaMetaData().getChannelMetaData( <%= channelId %> ).requiresFilterInstanceId() ) || ( null != filterInstanceIdColumnName && getSchemaMetaData().getChannelMetaData( <%= channelId %> ).requiresFilterInstanceId() );
+<% end -%>
+<% if in_instance_graph && !in_type_graph -%>
+    assert getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isInstanceGraph();
+<% elsif !in_instance_graph && in_type_graph -%>
+    assert getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isTypeGraph();
+<% end -%>
+<% end -%>
+<% if in_instance_graph && in_type_graph -%>
+    assert ( null == channelRootIdColumn && getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isTypeGraph() ) || ( null != channelRootIdColumn && getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isInstanceGraph() );
+<% end -%>
     while ( resultSet.next() )
     {
 <% if in_instance_graph -%>
-<% if in_type_graph -%>
-      assert null != channelRootIdColumn || getSchemaMetaData().getChannelMetaData( <%= channelId %> ).isTypeGraph();
-<% end -%>
       final var rootId = <%= in_type_graph ? 'null == channelRootIdColumn ? null : ' : '' %>resultSet.getInt( channelRootIdColumn );
 <% end -%>
       final var attributeValues = new java.util.HashMap<String, java.io.Serializable>();
@@ -1197,7 +1240,10 @@ end -%>
 <% end -%>
 <% end -%>
 <% end -%>
-      changeSet.merge( new replicant.server.Change( new replicant.server.EntityMessage( entityId, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, 0, new java.util.HashMap<>(), attributeValues, <%= has_links ? 'links' : 'null' %> ), new replicant.server.ChannelAddress( <%= channelId %><%= in_instance_graph ? ', rootId' : '' %> ) ) );
+<% if require_filterInstanceId -%>
+      final var filterInstanceId = <% unless all_require_filterInstanceId %>null == filterInstanceIdColumnName ? null : <% end -%>resultSet.getString( filterInstanceIdColumnName );
+<% end -%>
+      changeSet.merge( new replicant.server.Change( new replicant.server.EntityMessage( entityId, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, 0, new java.util.HashMap<>(), attributeValues, <%= has_links ? 'links' : 'null' %> ), new replicant.server.ChannelAddress( <%= channelId %><%= in_instance_graph ? ', rootId' : '' %><%= require_filterInstanceId ? ', filterInstanceId' : '' %> ) ) );
     }
   }
 <%
