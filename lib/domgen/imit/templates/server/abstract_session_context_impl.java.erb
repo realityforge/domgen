@@ -202,7 +202,9 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
       final var sourceGraphFilter = (<%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %>) sourceFilter;
       assert null != sourceGraphFilter;
 <% end -%>
-      return deriveTargetFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( entityMessage, source<% if source_graph.filter_parameter? %>, sourceGraphFilter<% end %> );
+      final var attributeValues = entityMessage.getAttributeValues();
+      assert null != attributeValues;
+      return deriveTargetFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( attributeValues, source<% if source_graph.filter_parameter? %>, sourceGraphFilter<% end %> );
     }
     else<% end %>
     {
@@ -214,10 +216,16 @@ entities.uniq.sort_by{|e|e.qualified_name}.each do |entity| -%>
   auto_follow_graph_links.each do |graph_link|
     target_graph = repository.imit.graph_by_name(graph_link.target_graph)
     source_graph = repository.imit.graph_by_name(graph_link.source_graph)
+    filters_match = source_graph.filter_parameter? && Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) == Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default)
 -%>
 
   @javax.annotation.Nonnull
-  abstract <%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> deriveTargetFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final replicant.server.EntityMessage entityMessage, @javax.annotation.Nonnull final replicant.server.ChannelAddress source<% if source_graph.filter_parameter? %>, @javax.annotation.Nonnull <%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %> sourceGraphFilter<% end %> );
+  <%= filters_match ? '' : 'abstract ' %><%= Domgen::Java.java_type(target_graph.filter_parameter, :ee, :default) %> deriveTargetFilterFrom<%= source_graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final java.util.Map<java.lang.String, java.io.Serializable> attributeValues, @javax.annotation.Nonnull final replicant.server.ChannelAddress source<% if source_graph.filter_parameter? %>, @javax.annotation.Nonnull <%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %> sourceGraphFilter<% end %> )<%= filters_match ? '' : ';' %>
+<% if filters_match -%>
+  {
+    return sourceGraphFilter;
+  }
+<% end -%>
 <% end -%>
 
   @java.lang.SuppressWarnings( "unchecked" )
