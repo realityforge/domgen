@@ -7,9 +7,11 @@ public final class <%= repository.imit.integration_module_name %>
   public static class NoopChangeRecorderImpl
     implements replicant.server.transport.ReplicantChangeRecorder
   {
+    @javax.annotation.Nullable
     @java.lang.Override
-    public void recordEntityMessageForEntity( @javax.annotation.Nonnull final Object entity, final boolean isUpdate )
+    public replicant.server.EntityMessage convertToEntityMessage( @javax.annotation.Nonnull final java.lang.Object object, final boolean isUpdate )
     {
+      return null;
     }
   }
 
