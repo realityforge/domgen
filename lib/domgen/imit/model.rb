@@ -57,6 +57,7 @@ module Domgen
         @inward_graph_links = {}
         @routing_keys = {}
         @visibility = :universal
+        @target_filter_uses_source_filter = false
         application.send :register_graph, name, self
         super(application, options, &block)
       end
@@ -282,8 +283,7 @@ module Domgen
           Domgen.error("Graph '#{self.name}' is marked as instanced but has no filter parameter.")
         end
         if self.internal_visibility? && self.instance_root? && self.inward_graph_links.empty?
-          # TODO: Check temporarily disabled
-          # Domgen.error("Graph '#{self.name}' is marked with internal visibility but has no inward graph links.")
+          Domgen.error("Graph '#{self.name}' is marked with internal visibility but has no inward graph links.")
         end
 
         if self.internal_visibility? && !self.instance_root? && self.dependent_type_graphs.empty?
@@ -444,6 +444,12 @@ module Domgen
         @exclude_target.nil? ? self.auto? : !!@exclude_target
       end
 
+      attr_writer :target_filter_uses_source_filter
+
+      def target_filter_uses_source_filter?
+        !!@target_filter_uses_source_filter
+      end
+
       def to_s
         "GraphLink[#{source_graph} => #{target_graph}](auto=#{auto?}, exclude_target=#{@exclude_target.nil? ? self.auto? : !!@exclude_target}, path=#{path.inspect}, name=#{name})"
       end
@@ -486,6 +492,11 @@ module Domgen
         elements = (target_graph.instance_root? ? target_graph.reachable_entities.sort : target_graph.type_roots)
         unless elements.include?(entity.qualified_name)
           Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' attempts to link to a graph when the target entity is not part of the target graph - #{elements.inspect}")
+        end
+
+        if self.target_filter_uses_source_filter?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_uses_source_filter=true but the source graph is not filtered") unless source_graph.filter_parameter?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_uses_source_filter=true but the target graph is not filtered") unless target_graph.filter_parameter?
         end
       end
     end
