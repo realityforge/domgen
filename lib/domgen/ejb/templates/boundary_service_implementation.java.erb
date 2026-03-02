@@ -76,13 +76,23 @@ JAVA
   pk_query_name = "#{parameter.nullable? ? 'FindBy' : 'GetBy'}#{parameter.referenced_entity.primary_key.name}"
   query = parameter.referenced_entity.dao.queries.select{|q| q.jpa? && q.name.to_s == pk_query_name}[0]
 -%>
+<% if parameter.nullable? -%>
+    <%= annotated_type(parameter, :ejb, :default, :final => true) %> $<%= Reality::Naming.camelize(parameter.name) %>;
+    if ( null != <%= parameter.name %> )
+    {
+      final var $<%= Reality::Naming.camelize(parameter.name) %>Query = em.createNamedQuery( <%= "#{query.entity.jpa.qualified_name}." %><%= Reality::Naming.uppercase_constantize(query.name) %>, <%= query.entity.jpa.qualified_name %>.class );
+      $<%= Reality::Naming.camelize(parameter.name) %>Query.setParameter( <%= "\"#{parameter.referenced_entity.primary_key.name}\"" %>, <%= parameter.name %> );
+      $<%= Reality::Naming.camelize(parameter.name) %>Query.setMaxResults( 1 );
+      final var $<%= Reality::Naming.camelize(parameter.name) %>ResultList = $<%= Reality::Naming.camelize(parameter.name) %>Query.getResultList();
+      $<%= Reality::Naming.camelize(parameter.name) %> = $<%= Reality::Naming.camelize(parameter.name) %>ResultList.isEmpty() ? null : $<%= Reality::Naming.camelize(parameter.name) %>ResultList.get( 0 );
+    }
+    else
+    {
+      $<%= Reality::Naming.camelize(parameter.name) %> = null;
+    }
+<% else -%>
     final var $<%= Reality::Naming.camelize(parameter.name) %>Query = em.createNamedQuery( <%= "#{query.entity.jpa.qualified_name}." %><%= Reality::Naming.uppercase_constantize(query.name) %>, <%= query.entity.jpa.qualified_name %>.class );
     $<%= Reality::Naming.camelize(parameter.name) %>Query.setParameter( <%= "\"#{parameter.referenced_entity.primary_key.name}\"" %>, <%= parameter.name %> );
-<% if parameter.nullable? -%>
-    $<%= Reality::Naming.camelize(parameter.name) %>Query.setMaxResults( 1 );
-    final var $<%= Reality::Naming.camelize(parameter.name) %>ResultList = $<%= Reality::Naming.camelize(parameter.name) %>Query.getResultList();
-    final var $<%= Reality::Naming.camelize(parameter.name) %> = $<%= Reality::Naming.camelize(parameter.name) %>ResultList.isEmpty() ? null : $<%= Reality::Naming.camelize(parameter.name) %>ResultList.get( 0 );
-<% else -%>
     final var $<%= Reality::Naming.camelize(parameter.name) %> = $<%= Reality::Naming.camelize(parameter.name) %>Query.getSingleResult();
 <% end -%>
 <% end -%>
