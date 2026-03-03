@@ -31,7 +31,7 @@ AS
   );
 
   IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Performing Constraint Checks'
-<% repository.data_modules.select{|data_module| data_module.sql?}.each do |data_module| -%>
+<% repository.data_modules.select{|data_module| data_module.mssql? && data_module.mssql.generate_check_constraints?}.each do |data_module| -%>
   IF @PrintProgress = 1 PRINT CONVERT(VARCHAR, GETDATE(), 25) + ' - Checking constraints in <%= data_module.sql.quoted_schema %>'
   INSERT INTO @ConstraintViolations(SchemaName, TableName, ConstraintName, ViewSql) EXEC <%= data_module.sql.quoted_schema %>.[spCheckConstraints] @ShowErrors = @ShowErrors, @PrintProgress = @PrintProgress
 <% end -%>

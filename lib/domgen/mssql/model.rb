@@ -289,6 +289,20 @@ SQL
       end
     end
 
+    facet.enhance(DataModule) do
+      def generate_check_constraints?
+        self.data_module.entities.select{|entity| entity.sql?}.each do |entity|
+          return true if entity.sql.validations.any?{|validation| !validation.invariant_negative_sql.nil?}
+          return true unless entity.sql.foreign_keys.empty?
+          if entity.concrete?
+            return true if entity.sql.constraints.any? { |constraint| constraint.invariant? }
+            return true if entity.sql.function_constraints.any? { |constraint| constraint.invariant? }
+          end
+        end
+        return false
+      end
+    end
+
     facet.enhance(Entity) do
       def sequence_table?
         !!@sequence_key

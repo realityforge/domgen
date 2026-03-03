@@ -265,6 +265,7 @@ AS
 <% end -%>
 GO
 <% end -%>
+<% if data_module.mssql.generate_check_constraints? -%>
 CREATE PROCEDURE <%= data_module.sql.quoted_schema %>.[spCheckConstraints]
 (
   @ShowErrors INT = 1,
@@ -332,3 +333,4 @@ BEGIN
   SELECT SchemaName, TableName, ConstraintName, ViewSQL  FROM @FailedConstraintChecks
 END
 GO
+<% end -%>
