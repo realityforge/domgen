@@ -84,24 +84,28 @@ public abstract class <%= repository.jpa.abstract_entity_test_name %>
   }
 <% if repository.sql_analysis? -%>
 
+  @java.lang.SuppressWarnings( { "ConstantValue", "SqlNoDataSourceInspection", "SqlResolve" } )
   protected void runSqlAnalysisPerformChecks()
   {
     em().clear();
     em().createNativeQuery( "EXEC <%= repository.sql_analysis.analysis_data_module.sql.quoted_schema %>.[spPerformChecks]" ).getResultList();
-    final var issues = <%= repository.sql_analysis.analysis_data_module.jpa.short_test_code %>.dataIssueRepository().findAll();
-    final var sb = new java.lang.StringBuilder();
-    if ( !issues.isEmpty() )
+    if ( null != <%= repository.sql_analysis.analysis_data_module.jpa.short_test_code %> )
     {
-      for ( final var issue : issues )
+      final var issues = <%= repository.sql_analysis.analysis_data_module.jpa.short_test_code %>.dataIssueRepository().findAll();
+      if ( !issues.isEmpty() )
       {
-        final var header = issue.getCategory() + ":" + issue.getDescription();
-        final var viewSql = issue.getViewSql();
-        final var message = header + ( null == viewSql ? "" : ": SQL\n---\n" + viewSql + "\n---" );
-        System.out.println( message );
-        sb.append( "  " );
-        sb.append( message );
+        final var sb = new java.lang.StringBuilder();
+        for ( final var issue : issues )
+        {
+          final var header = issue.getCategory() + ":" + issue.getDescription();
+          final var viewSql = issue.getViewSql();
+          final var message = header + ( null == viewSql ? "" : ": SQL\n---\n" + viewSql + "\n---" );
+          System.out.println( message );
+          sb.append( "  " );
+          sb.append( message );
+        }
+        org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb );
       }
-      org.testng.Assert.fail( "Database left in inconsistent state:\n" + sb );
     }
   }
 
