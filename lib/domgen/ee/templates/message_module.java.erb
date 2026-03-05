@@ -3,7 +3,7 @@ package <%= to_package(repository.ee.qualified_message_module_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration" } )
 public class <%= repository.ee.message_module_name %>
-  extends org.realityforge.guiceyloops.shared.AbstractModule
+  extends com.google.inject.AbstractModule
 {
   @Override
   protected void configure()

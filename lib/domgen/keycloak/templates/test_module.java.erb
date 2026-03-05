@@ -13,23 +13,8 @@ public class <%= repository.keycloak.test_module_name %>
   @java.lang.Override
   protected void configure()
   {
-    bindHttpServletRequest();
-    bindKeycloakAuthService();
-    bindSimpleAuthService();
-  }
-
-  protected void bindKeycloakAuthService()
-  {
+    bind( javax.servlet.http.HttpServletRequest.class ).toInstance( org.mockito.Mockito.mock( javax.servlet.http.HttpServletRequest.class ) );
     bindService( <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>.class, <%= repository.keycloak.qualified_test_auth_service_implementation_name %>.class );
-  }
-
-  protected void bindSimpleAuthService()
-  {
     bindService( org.realityforge.keycloak.sks.SimpleAuthService.class, org.realityforge.keycloak.sks.SimplAuthServiceImpl.class );
-  }
-
-  protected void bindHttpServletRequest()
-  {
-    bindMock( javax.servlet.http.HttpServletRequest.class );
   }
 }

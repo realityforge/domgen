@@ -70,4 +70,11 @@ public class <%= repository.ejb.services_module_name %>
     end
   end
 -%>
+
+  protected final <T> T bindMock( final java.lang.Class<T> type )
+  {
+    final T mock = org.mockito.Mockito.mock( type );
+    bind( type ).toInstance( mock );
+    return mock;
+  }
 }

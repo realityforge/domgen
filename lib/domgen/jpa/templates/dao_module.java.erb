@@ -5,7 +5,7 @@ package <%= to_package(repository.jpa.qualified_dao_module_name) %>;
 
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "rawtypes", "unchecked" } )
 public class <%= repository.jpa.dao_module_name %>
-  extends org.realityforge.guiceyloops.shared.AbstractModule
+  extends com.google.inject.AbstractModule
 {
   @java.lang.Override
   protected void configure()
@@ -62,4 +62,11 @@ public class <%= repository.jpa.dao_module_name %>
     }
   }
 <% end -%>
+
+  protected final <T> T bindMock( final java.lang.Class<T> type )
+  {
+    final T mock = org.mockito.Mockito.mock( type );
+    bind( type ).toInstance( mock );
+    return mock;
+  }
 }
