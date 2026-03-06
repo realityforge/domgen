@@ -15,6 +15,5 @@ public class <%= repository.keycloak.test_module_name %>
   {
     bind( javax.servlet.http.HttpServletRequest.class ).toInstance( org.mockito.Mockito.mock( javax.servlet.http.HttpServletRequest.class ) );
     bindService( <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>.class, <%= repository.keycloak.qualified_test_auth_service_implementation_name %>.class );
-    bindService( org.realityforge.keycloak.sks.SimpleAuthService.class, org.realityforge.keycloak.sks.SimplAuthServiceImpl.class );
   }
 }

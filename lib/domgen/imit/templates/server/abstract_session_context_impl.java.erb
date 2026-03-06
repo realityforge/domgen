@@ -692,7 +692,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
   graph.filtered_outward_auto_graph_links.each do |graph_link|
      target_graph = repository.imit.graph_by_name(graph_link.target_graph)
 -%>
-    bulkPropagateFilterChangeFrom<%= graph.name %>To<%= target_graph.name %>( session, addresses, changeSet, originalFilter, filter );
+    propagateFilterChangeFrom<%= graph.name %>To<%= target_graph.name %>( session, addresses, changeSet, originalFilter, filter );
 <% end -%>
 <% graph.included_entities.select{|name| graph.instance_root != name}.collect{|name| repository.entity_by_name(name)}.each do |entity| -%>
     collectChannelDataFor<%= entity.qualified_name.gsub('.','') %>In<%= graph.name %>GraphFilterChange( session, addresses, changeSet, originalFilter, filter );
@@ -754,7 +754,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
    * @param <%= Reality::Naming.camelize(graph.name) %>Filter the filter that was applied to the <%= graph.name %>.
    * @throws java.sql.SQLException if an error occurs during the propagation of the filter change.
    */
-  abstract void bulkPropagateFilterChangeFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("Original#{graph.name}Filter") %>, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("#{graph.name}Filter") %> )
+  abstract void propagateFilterChangeFrom<%= graph.name %>To<%= target_graph.name %>( @javax.annotation.Nonnull final replicant.server.transport.ReplicantSession session, @javax.annotation.Nonnull final java.util.List<replicant.server.ChannelAddress> addresses, @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("Original#{graph.name}Filter") %>, @javax.annotation.Nonnull final <%= Domgen::Java.java_type(graph.filter_parameter, :ee, :default)%> <%= Reality::Naming.camelize("#{graph.name}Filter") %> )
     throws java.sql.SQLException;
 <% if graph_link.target_filter_uses_source_filter? -%>
 

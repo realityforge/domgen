@@ -8,8 +8,7 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
   implements <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>
 {
   @javax.inject.Inject
-  private org.realityforge.keycloak.sks.SimpleAuthService _authService;
-
+  private javax.servlet.http.HttpServletRequest _httpRequest;
   @javax.annotation.Nonnull
   private final java.lang.ThreadLocal<java.lang.String> _username = new java.lang.ThreadLocal<>();
 
@@ -28,13 +27,18 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
   @java.lang.Override
   public boolean isAuthenticated()
   {
-    return null != _username.get() || null != _authService.findAccount();
+    return null != _username.get() || null != findAccount();
   }
 
   @javax.annotation.Nonnull
   protected org.keycloak.adapters.OidcKeycloakAccount getAccount()
   {
-    return _authService.getAccount();
+    final org.keycloak.adapters.OidcKeycloakAccount account = findAccount();
+    if ( null == account )
+    {
+      throw new MissingKeycloakAccountException();
+    }
+    return account;
   }
 <% repository.keycloak.default_client.claims.each do |claim| -%>
 
@@ -66,4 +70,32 @@ public class <%= repository.keycloak.auth_service_implementation_name %>
     return value;
   }
 <% end -%>
+
+  @javax.annotation.Nullable
+  private org.keycloak.adapters.OidcKeycloakAccount findAccount()
+  {
+    final org.keycloak.adapters.OidcKeycloakAccount account =
+      (org.keycloak.adapters.OidcKeycloakAccount) _httpRequest.getAttribute( org.keycloak.adapters.spi.KeycloakAccount.class.getName() );
+    if ( null == account )
+    {
+      final javax.servlet.http.HttpSession session = _httpRequest.getSession( false );
+      if ( null != session )
+      {
+        return (org.keycloak.adapters.OidcKeycloakAccount) session.getAttribute( org.keycloak.adapters.spi.KeycloakAccount.class.getName() );
+      }
+      else
+      {
+        return null;
+      }
+    }
+    else
+    {
+      return account;
+    }
+  }
+
+  public static final class MissingKeycloakAccountException
+    extends java.lang.RuntimeException
+  {
+  }
 }
