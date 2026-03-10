@@ -12,6 +12,7 @@ public class <%= client.js_service_name %>
   @javax.annotation.Resource( lookup = <%= client.keycloak_repository.repository.ee.qualified_jndi_resource_constants_name %>.<%= client.keycloak_repository.repository.ee.custom_jndi_resources["#{client.jndi_config_base}/auth-server-url"].constant_name %> )
   private String _authServer;
 
+  @javax.annotation.Nonnull
   @java.lang.Override
   protected String getProxyURL()
   {
