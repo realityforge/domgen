@@ -927,7 +927,7 @@ module Domgen
             Domgen.error("Multiple ReplicantGraphs map to the same code #{code} : #{graphs.collect{|g|g.name}.inspect}")
           end
         end
-        if repository.keycloak.has_local_auth_service?
+        if repository.keycloak? && repository.keycloak.has_local_auth_service?
           exists = repository.keycloak.client_by_key?(self.keycloak_client_key)
           client =
             exists ?
