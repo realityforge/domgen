@@ -4,7 +4,7 @@ package <%= to_package(repository.keycloak.qualified_auth_service_implementation
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc", "unchecked", "RedundantSuppression" } )
 @javax.enterprise.context.ApplicationScoped
 @javax.enterprise.inject.Typed( <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>.class )
-public class <%= repository.keycloak.auth_service_implementation_name %>
+class <%= repository.keycloak.auth_service_implementation_name %>
   implements <%= repository.service_by_name(repository.keycloak.auth_service_name).ejb.qualified_service_name %>
 {
   @javax.inject.Inject

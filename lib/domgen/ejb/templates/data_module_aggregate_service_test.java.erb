@@ -20,4 +20,38 @@ public final class <%= data_module.ejb.aggregate_service_test_name %>
 <% end -%>
 <% end -%>
   }
+<%
+  has_service = false
+  data_module.services.select{|s|s.ejb?}.each do |service|
+    has_service = true
+-%>
+
+  @org.testng.annotations.Test
+  public void ensure<%= service.name %>ImplementationIsCdiType()
+    throws java.lang.Exception
+  {
+    final var clazz = java.lang.Class.forName( "<%= service.ejb.qualified_service_implementation_name %>" );
+    org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isPublic( clazz.getModifiers() ), "Class <%= service.ejb.qualified_service_implementation_name %> is public but should be package access" );
+    assertNoFinalMethodsForCDI( clazz );
+  }
+<% end -%>
+<% if has_service -%>
+
+  private void assertNoFinalMethodsForCDI( final java.lang.Class<?> clazz )
+  {
+    for ( final var method : clazz.getDeclaredMethods() )
+    {
+      if ( java.lang.Object.class != method.getDeclaringClass() )
+      {
+        final var message = "Method " + method.getName() + " on " + clazz.getName() + " is final and thus not compatible with CDI";
+        org.testng.Assert.assertFalse( java.lang.reflect.Modifier.isFinal( method.getModifiers() ), message );
+      }
+    }
+    final var parent = clazz.getSuperclass();
+    if ( null != parent )
+    {
+      assertNoFinalMethodsForCDI( parent );
+    }
+  }
+<% end -%>
 }

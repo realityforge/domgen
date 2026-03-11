@@ -92,9 +92,6 @@ Domgen::Generator.define([:ejb],
                                 'base_service_test.java.erb',
                                 type + '/java/#{repository.ejb.qualified_base_service_test_name.gsub(".","/")}.java',
                                 :guard => '!repository.ejb.custom_base_service_test?')
-      template_set.erb_template(:repository,
-                                'cdi_types_test.java.erb',
-                                type + '/java/#{repository.ejb.qualified_cdi_types_test_name.gsub(".","/")}.java')
     end
     g.template_set(:"ejb_#{type}_qa_aggregate") do |template_set|
       template_set.erb_template(:data_module,

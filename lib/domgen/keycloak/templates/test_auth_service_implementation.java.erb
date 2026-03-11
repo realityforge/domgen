@@ -40,22 +40,14 @@ public class <%= repository.keycloak.test_auth_service_implementation_name %>
 <% end -%>
   }
 
-  private static final class TestPrincipal
+  private record TestPrincipal(@javax.annotation.Nonnull java.lang.String name)
     implements java.security.Principal
   {
-    @javax.annotation.Nonnull
-    private final java.lang.String _name;
-
-    TestPrincipal( @javax.annotation.Nonnull final java.lang.String name )
-    {
-      _name = java.util.Objects.requireNonNull( name );
-    }
-
     @java.lang.Override
     @javax.annotation.Nonnull
     public java.lang.String getName()
     {
-      return _name;
+      return name;
     }
   }
 

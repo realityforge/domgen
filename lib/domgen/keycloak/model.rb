@@ -467,10 +467,17 @@ module Domgen
       java_artifact :mock_keycloak_sting_fragment, :test, :client, :keycloak, 'Mock#{repository.name}KeycloakFragment', :sub_package => 'util'
       java_artifact :client_definitions, nil, :shared, :keycloak, '#{repository.name}KeycloakClients'
       java_artifact :test_module, :test, :server, :keycloak, '#{repository.name}KeycloakServicesModule', :sub_package => 'util'
-      java_artifact :test_auth_service_implementation, :test, :server, :keycloak, 'Test#{repository.keycloak.auth_service_implementation_name}', :sub_package => 'util'
 
       def client_ioc_package
         repository.gwt.client_ioc_package
+      end
+
+      def test_auth_service_implementation_name
+        "Test#{repository.keycloak.auth_service_implementation_name}"
+      end
+
+      def qualified_test_auth_service_implementation_name
+        "#{self.qualified_auth_service_implementation_name.gsub(/^(.*)\.[^.]+$/,'\1')}.#{self.test_auth_service_implementation_name}"
       end
 
       def auth_service_implementation_name
