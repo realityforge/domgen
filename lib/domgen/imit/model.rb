@@ -1308,6 +1308,10 @@ module Domgen
         end
       end
 
+      def requires_updater?
+        !self.entity.extends.nil? || self.entity.declared_attributes.any?{|attribute| attribute.imit? && !attribute.immutable?}
+      end
+
       def pre_verify
         if entity.data_module.repository.imit.auto_register_change_listener? && entity.jpa?
           entity.jpa.entity_listeners << 'replicant.server.ee.ReplicantEntityChangeListener'

@@ -59,6 +59,7 @@ public final class <%= data_module.imit.mapper_name %>
     return repository.create( <%= attributes.collect{|attribute| Reality::Naming.camelize(attribute.name)}.join(', ') %> );
   }
 <% end -%>
+<% if entity.imit.requires_updater? -%>
 
   public static void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.name %> entity, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
   {
@@ -92,5 +93,6 @@ public final class <%= data_module.imit.mapper_name %>
     entity.set<%= attribute.imit.name(:transport) %>( <%= attribute.nullable? ? "( !data.containsKey( #{key} ) || data.isNull( #{key} ) ? null : #{value_converter} )" : value_converter %> );
 <% end -%>
   }
+<% end -%>
 <% end -%>
 }
