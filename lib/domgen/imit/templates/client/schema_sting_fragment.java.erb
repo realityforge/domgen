@@ -28,7 +28,7 @@ public interface <%= repository.imit.schema_sting_fragment_name %>
                                    <% if graph.filter_parameter? && !graph.filter_parameter.immutable? %>(<%= Domgen::Java.java_type(graph.filter_parameter, :gwt, :default) %> filter, replicant.Entity entity) -> <%= repository.imit.qualified_schema_filter_tools_name %>.doesEntityMatch<%= graph.name %>Filter( context, router, filter, entity )<% else %>null<% end %>,
                                    <%= graph.cacheable? %>,
                                    <%= graph.external_visibility? %>,
-                                   java.util.Arrays.asList( <%= (graph.instance_root? ? graph.reachable_entities : graph.type_roots).sort.collect{|name| repository.entity_by_name(name)}.collect{|entity| "entity#{entity.data_module.name}#{entity.name}"}.join(', ') %> ) );
+                                   java.util.<%= 1 == graph.included_entities.size ? 'Collections.singletonList' : 'Arrays.asList' %>( <%= graph.included_entities.sort.collect{|name| repository.entity_by_name(name)}.collect{|entity| "entity#{entity.data_module.name}#{entity.name}"}.join(', ') %> ) );
 <% end -%>
 
     return new replicant.SystemSchema( <%= repository.imit.qualified_system_constants_name %>.SCHEMA_ID,
