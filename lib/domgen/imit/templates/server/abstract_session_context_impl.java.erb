@@ -843,7 +843,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 -%> if( object instanceof <%= entity.jpa.qualified_name %> entity<% if entity.jpa.track_changes? -%> && ( isInitialLoad || !isUpdate || !entity.unmodified() )<% end -%> )
     {
 <% if 0 == links.size -%>
-      return new replicant.server.EntityMessage( entity.<%= getter_for(entity.primary_key) %>, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, System.currentTimeMillis(), route<%= entity.name %>( entity ), isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null );
+      return new replicant.server.EntityMessage( entity.<%= getter_for(entity.primary_key) %>, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, System.currentTimeMillis(), route<%= entity.name %>( entity ), isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.qualified_name.gsub('.','') %>( entity ) : null );
 <% else -%>
       return convert<%= data_module.name %><%= entity.name %>ToEntityMessage( entity, isUpdate );
 <% end -%>
@@ -921,7 +921,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <% end -%>
 <% end -%>
     }
-    return new replicant.server.EntityMessage( entity.<%= getter_for(entity.primary_key) %>, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, System.currentTimeMillis(), <% if links.size > 0 %>routingKeys<% else %>route<%= entity.name %>( entity )<% end %>, isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null, <%= links.size == 0 ? 'null' : 'links' %> );
+    return new replicant.server.EntityMessage( entity.<%= getter_for(entity.primary_key) %>, <%= repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, System.currentTimeMillis(), <% if links.size > 0 %>routingKeys<% else %>route<%= entity.name %>( entity )<% end %>, isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.qualified_name.gsub('.','') %>( entity ) : null, <%= links.size == 0 ? 'null' : 'links' %> );
   }
 <%
     end
@@ -1262,7 +1262,7 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
 <%
 if [:date, :datetime, :text, :integer, :enumeration, :boolean].include?(attribute.imit.transport_characteristic_type_key)
 -%>
-      <% unless attribute.imit.auto_graph_links.select{|graph_link| graph_link.path.nil? && !attribute.primary_key?}.empty? %>final var attribute<%= attribute.name %> = <% end -%>decode<%= attribute.nullable? ? 'Nullable' : '' %><%= type_suffix %>Attribute( resultSet, attributeValues, "<%= attribute.name %>", "<%= attribute.sql.column_name %>" );
+      <% unless attribute.imit.auto_graph_links.select{|graph_link| graph_link.path.nil? && !attribute.primary_key?}.empty? %>final var attribute<%= attribute.name %> = <% end -%>decode<%= attribute.nullable? ? 'Nullable' : '' %><%= type_suffix %>Attribute( resultSet, attributeValues, <%= "#{repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name.to_s)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY" %>, "<%= attribute.sql.column_name %>" );
 <%
 else
   Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
@@ -1288,7 +1288,6 @@ if !graph_links.empty? && in_single_graph
 <% end -%>
 <%
   instance_root = graph_link.path.nil? ? nil : repository.entity_by_name(repository.imit.graph_by_name(graph_link.target_graph).instance_root)
-  source_graph = repository.imit.graph_by_name(graph_link.source_graph)
   targetId = nil
   check_column = nil
   if instance_root
@@ -1342,21 +1341,22 @@ end
 <% if entity.concrete? -%>
 
   @javax.annotation.Nonnull
-  private java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
+  private java.util.Map<String, java.io.Serializable> encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity )
   {
     final var attributes = new java.util.HashMap<String, java.io.Serializable>();
-    encode<%= entity.name %>( entity, attributes );
+    encode<%= entity.qualified_name.gsub('.','') %>( entity, attributes );
     return attributes;
   }
 <% end -%>
 
-  private void encode<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> attributes )
+  private void encode<%= entity.qualified_name.gsub('.','') %>( @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> entity, @javax.annotation.Nonnull final java.util.Map<String, java.io.Serializable> attributes )
   {
 <% if entity.extends
    other = entity.data_module.entity_by_name(entity.extends) -%>
     encode<%= other.name %>( entity, attributes );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.abstract? }.each do |attribute|
+    key = "#{repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name.to_s)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
     characteristic_type_key = attribute.imit.transport_characteristic_type_key
     requires_var = attribute.nullable? && ([:datetime, :date, :enumeration].include?(characteristic_type_key) || attribute.reference?)
     accessor = "entity.#{getter_for(attribute)}"
@@ -1381,7 +1381,7 @@ end
 <% if requires_var -%>
     final var <%= varname %> = <%= accessor %>;
 <% end -%>
-    attributes.put( "<%= attribute.name %>", <%= transformed_data != value && attribute.nullable? ? "null == #{varname} ? null : #{transformed_data}" : transformed_data %> );
+    attributes.put( <%= key %>, <%= transformed_data != value && attribute.nullable? ? "null == #{varname} ? null : #{transformed_data}" : transformed_data %> );
 <% end -%>
 <% end -%>
   }

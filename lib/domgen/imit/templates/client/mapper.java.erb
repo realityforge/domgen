@@ -9,17 +9,6 @@ package <%= to_package(data_module.imit.qualified_mapper_name) %>;
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public final class <%= data_module.imit.mapper_name %>
 {
-<% data_module.entities.select{ |entity| entity.imit?  }.each do |entity|
-  entity_prefix = "#{Reality::Naming.uppercase_constantize(entity.name)}_"
--%>
-<% entity.attributes.select{ |attribute| attribute.arez?  }.each do |attribute| -%>
-  private static final String <%= entity_prefix %><%= Reality::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
-<% end -%>
-<% entity.referencing_attributes.select{ |attribute| attribute.arez? && !attribute.abstract? && attribute.inverse.arez? && attribute.inverse.arez.traversable?}.each do |attribute| -%>
-  private static final String <%= entity_prefix %><%= Reality::Naming.uppercase_constantize(attribute.inverse.name) %> = "<%= attribute.inverse.name %>";
-<% end -%>
-<% end -%>
-
   private <%= data_module.imit.mapper_name %>()
   {
   }
@@ -31,7 +20,7 @@ public final class <%= data_module.imit.mapper_name %>
   public static <%= entity.arez.name %> create<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.dao.arez.qualified_repository_name %> repository, final int <%= Reality::Naming.camelize(entity.primary_key.name) %>, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
   {
 <% entity.attributes.select{|attribute| attribute.imit? && !attribute.primary_key?}.each do |attribute|
-    key = "#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}"
+    key = "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name.to_s)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :date
           "#{entity.data_module.repository.gwt.qualified_rdate_name}.parse( data.getStringValue( #{key} ) )"
@@ -68,7 +57,7 @@ public final class <%= data_module.imit.mapper_name %>
     update<%= other.name %>( entity, data );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.immutable?}.each do |attribute|
-    key = "#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}"
+    key = "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name.to_s)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :date
           "#{entity.data_module.repository.gwt.qualified_rdate_name}.parse( data.getStringValue( #{key} ) )"

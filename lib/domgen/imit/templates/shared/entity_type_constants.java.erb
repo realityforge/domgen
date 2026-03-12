@@ -21,6 +21,11 @@ repository.data_modules.select { |data_module| data_module.imit? }.each do |data
   @javax.annotation.Nonnull
   public static final String <%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>_NAME = "<%= entity.qualified_name %>";
 
+<% entity.attributes.select{ |attribute| attribute.arez?  }.each do |attribute| -%>
+  @javax.annotation.Nonnull
+  public static final String <%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name) %>_<%= Reality::Naming.uppercase_constantize( attribute.name ) %>_ATTRIBUTE_KEY = "<%= attribute.name %>";
+<% end -%>
+
 <%
     end
   end
