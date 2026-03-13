@@ -72,8 +72,7 @@ module Domgen
 
       def gen_column_annotation(attribute)
         parameters = []
-        # nullable = true, updatable = true, unique = false, insertable = true
-        parameters << "name = \"#{attribute.sql.column_name}\""
+        parameters << "name = #{Reality::Naming.uppercase_constantize(attribute.name)}_COLUMN_NAME"
         parameters << "nullable = false" unless attribute.nullable?
         parameters << "updatable = false" unless attribute.updatable?
         parameters << "unique = true" if attribute.unique? || attribute.primary_key?
