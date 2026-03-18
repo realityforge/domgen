@@ -36,7 +36,7 @@ package <%= to_package(struct.action.qualified_json_encoder_name) %>;
         when (field.enumeration? && field.enumeration.textual_values?) then Proc.new {|value| "javax.json.Json.createValue( #{value}.name() )"}
         when (field.struct? && field.nullable?) then Proc.new {|value| "null == #{value} ? javax.json.JsonValue.NULL : #{field.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
         when field.struct? then Proc.new {|value| "#{field.referenced_struct.action.qualified_json_encoder_name}.encode( #{value} )"}
-        when (field.date? && field.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : iris.rose.server.service.util.RDate.fromDate( #{value} ).toString()"}
+        when (field.date? && field.nullable?) then Proc.new {|value, type| "null == #{value} ? null : iris.rose.server.service.util.RDate.fromDate( #{value} ).toString()"}
         when field.date? then Proc.new {|value, type| "iris.rose.server.service.util.RDate.fromDate( #{value} ).toString()"}
         when (field.datetime? && field.nullable?) then Proc.new {|value, type| "null == #{value} ? javax.json.JsonValue.NULL : javax.json.Json.createValue( #{value}.getTime() )"}
         when field.datetime? then Proc.new {|value, type| "javax.json.Json.createValue( #{value}.getTime() )"}
