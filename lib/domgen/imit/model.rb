@@ -127,14 +127,6 @@ module Domgen
         self.visibility == :universal
       end
 
-      def external_data_load?
-        @external_data_load.nil? ? false : !!@external_data_load
-      end
-
-      def external_data_load=(external_data_load)
-        @external_data_load = external_data_load
-      end
-
       def instance_root?
         !@instance_root.nil?
       end
