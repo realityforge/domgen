@@ -95,6 +95,15 @@ DATA
 JAVADOC
    data += "  @javax.annotation.Nonnull\n"
    data += "  public static final String #{Reality::Naming.uppercase_constantize(g.name)}_NAME = \"#{g.name}\";\n"
+
+   if g.filtered?
+     g.routing_keys.each do |routing_key|
+       data += "\n"
+       data += "  @javax.annotation.Nonnull\n"
+       data += "  public static final String #{Reality::Naming.uppercase_constantize(g.name)}_#{Reality::Naming.uppercase_constantize(routing_key.name)}_KEY = \"#{repository.name}.#{g.name}.#{routing_key.name}\";\n"
+     end
+   end
+
    data
   end.join("\n") %>
 

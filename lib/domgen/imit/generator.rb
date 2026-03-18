@@ -116,6 +116,10 @@ Domgen::Generator.define([:imit, :jpa],
     template_set.erb_template(:repository,
                               'system_metadata.java.erb',
                               'main/java/#{repository.imit.qualified_system_metadata_name.gsub(".","/")}.java')
+    template_set.erb_template(:data_module,
+                              'encoder.java.erb',
+                              'main/java/#{data_module.imit.qualified_encoder_name.gsub(".","/")}.java',
+                              :guard => 'data_module.imit.replicated_entities?')
   end
 
   g.template_set(:imit_server_qa) do |template_set|

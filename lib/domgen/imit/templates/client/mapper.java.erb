@@ -23,7 +23,7 @@ public final class <%= data_module.imit.mapper_name %>
     key = "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name.to_s)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :date
-          "#{entity.data_module.repository.gwt.qualified_rdate_name}.parse( data.getStringValue( #{key} ) )"
+          "#{data_module.repository.gwt.qualified_rdate_name}.parse( data.getStringValue( #{key} ) )"
         elsif attribute.imit.transport_characteristic_type_key == :datetime
           "new java.util.Date( new java.math.BigDecimal( data.getStringValue( #{key} ) ).longValueExact() )"
         elsif attribute.imit.transport_characteristic_type_key == :integer
@@ -53,14 +53,14 @@ public final class <%= data_module.imit.mapper_name %>
   public static void update<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.arez.name %> entity, @javax.annotation.Nonnull final replicant.messages.EntityChangeData data )
   {
 <% if entity.extends
-   other = entity.data_module.entity_by_name(entity.extends) -%>
+   other = data_module.entity_by_name(entity.extends) -%>
     update<%= other.name %>( entity, data );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.immutable?}.each do |attribute|
     key = "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name.to_s)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :date
-          "#{entity.data_module.repository.gwt.qualified_rdate_name}.parse( data.getStringValue( #{key} ) )"
+          "#{data_module.repository.gwt.qualified_rdate_name}.parse( data.getStringValue( #{key} ) )"
         elsif attribute.imit.transport_characteristic_type_key == :datetime
           "new java.util.Date( new java.math.BigDecimal( data.getStringValue( #{key} ) ).longValueExact() )"
         elsif attribute.imit.transport_characteristic_type_key == :integer

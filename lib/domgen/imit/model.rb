@@ -57,7 +57,7 @@ module Domgen
         @inward_graph_links = {}
         @routing_keys = {}
         @visibility = :universal
-        @target_filter_uses_source_filter = false
+        @target_filter_derived_from_source_filter = false
         application.send :register_graph, name, self
         super(application, options, &block)
       end
@@ -444,10 +444,33 @@ module Domgen
         @exclude_target.nil? ? self.auto? : !!@exclude_target
       end
 
-      attr_writer :target_filter_uses_source_filter
+      attr_writer :target_filter_copied_from_source_filter
 
-      def target_filter_uses_source_filter?
-        !!@target_filter_uses_source_filter
+      def target_filter_copied_from_source_filter?
+        !!@target_filter_copied_from_source_filter
+      end
+
+      attr_writer :target_filter_derived_from_source_filter
+
+      def target_filter_derived_from_source_filter?
+        !!@target_filter_derived_from_source_filter
+      end
+
+      def target_filter_requires_source_filter?
+        self.target_filter_derived_from_source_filter? || self.target_filter_copied_from_source_filter?
+      end
+
+      attr_writer :target_filter_requires_source_entity
+
+      def target_filter_requires_source_entity?
+        !!@target_filter_requires_source_entity
+      end
+
+      attr_writer :target_filter_requires_source_graph
+
+      # This indicates that the source graph should be an instance graph and we use the id of the root when deriving the target filter
+      def target_filter_requires_source_graph?
+        !!@target_filter_requires_source_graph
       end
 
       def to_s
@@ -494,9 +517,29 @@ module Domgen
           Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' attempts to link to a graph when the target entity is not part of the target graph - #{elements.inspect}")
         end
 
-        if self.target_filter_uses_source_filter?
-          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_uses_source_filter=true but the source graph is not filtered") unless source_graph.filter_parameter?
-          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_uses_source_filter=true but the target graph is not filtered") unless target_graph.filter_parameter?
+        if self.target_filter_copied_from_source_filter?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_copied_from_source_filter=true but the source graph is not filtered") unless source_graph.filter_parameter?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_copied_from_source_filter=true but the target graph is not filtered") unless target_graph.filter_parameter?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_copied_from_source_filter=true but has also set target_filter_requires_source_entity=true. Remove one setting.") if self.target_filter_requires_source_entity?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_copied_from_source_filter=true but has also set target_filter_requires_source_graph=true. Remove one setting.") if self.target_filter_requires_source_graph?
+        end
+
+        if self.target_filter_derived_from_source_filter?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_derived_from_source_filter=true but the source graph is not filtered") unless source_graph.filter_parameter?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_derived_from_source_filter=true but the target graph is not filtered") unless target_graph.filter_parameter?
+        end
+
+        if self.target_filter_requires_source_entity?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_requires_source_entity=true but the target graph is not filtered") unless target_graph.filter_parameter?
+        end
+
+        if self.target_filter_requires_source_graph?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_requires_source_graph=true but the target graph is not filtered") unless target_graph.filter_parameter?
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has set target_filter_requires_source_graph=true but the source graph is not an instance graph") unless source_graph.instance_root?
+        end
+
+        if target_graph.filter_parameter? && (!self.target_filter_requires_source_entity? && !self.target_filter_copied_from_source_filter? && !self.target_filter_derived_from_source_filter? && !self.target_filter_requires_source_graph?)
+          Domgen.error("Graph link from '#{self.source_graph}' to '#{self.target_graph}' via '#{self.imit_attribute.attribute.qualified_name}' has a target graph with a filter but has not specified a strategy for deriving the target filter. Please specify one of: target_filter_requires_source_entity, target_filter_copied_from_source_filter, target_filter_derived_from_source_filter, target_filter_requires_source_graph")
         end
       end
     end
@@ -1068,6 +1111,7 @@ module Domgen
       include Domgen::Java::ImitJavaPackage
 
       java_artifact :mapper, :entity, :client, :imit, '#{data_module.name}Mapper'
+      java_artifact :encoder, :entity, :server, :imit, '#{data_module.name}Encoder'
       java_artifact :remote_service_sting_fragment, :service, :client, :imit, '#{data_module.name}RemoteServiceFragment'
       java_artifact :remote_service_sting_test_fragment, :service, :client, :imit, '#{data_module.name}RemoteServiceTestFragment'
 
@@ -1077,6 +1121,14 @@ module Domgen
 
       def remote_service_implementations
         data_module.services.select{|service| service.imit?}
+      end
+
+      def replicated_entities
+        data_module.entities.select{|service| service.imit?}
+      end
+
+      def replicated_entities?
+        !self.replicated_entities.empty?
       end
 
       attr_writer :support_default_parameters
