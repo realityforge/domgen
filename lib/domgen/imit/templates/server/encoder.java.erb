@@ -95,7 +95,7 @@ public final class <%= data_module.imit.encoder_name %>
 -%>
 
   @java.lang.SuppressWarnings( { "unused", "SameParameterValue" } )
-  public static void addUpdateFor<%= entity.name %>In<%= graph.name %><%= graph.instanced? ? 'Instanced' : '' %><%= graph.instanced? ? 'Instanced' : '' %>TypeGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<%= filterInstanceIdColumnParameter %><%= filterParameter %> )
+  public static void addUpdateFor<%= entity.name %>In<%= graph.name %><%= graph.instanced? ? 'Instanced' : '' %>TypeGraph( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<%= filterInstanceIdColumnParameter %><%= filterParameter %> )
     throws java.sql.SQLException
   {
     encode<%= entity.name %>( changeSet<% unless in_single_graph %>, <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %><% end %>, statement<% if require_channelRootIdColumn %>, null<% end %><%= entity_ever_in_instanced_graph ? ", #{graph.instanced? ? 'filterInstanceIdColumnName' : 'null'}" : '' %><%= filterParameterArg %> );
@@ -623,7 +623,7 @@ end
 -%>
 <% if routing_key.multivalued? -%>
 <% generate_addInstanceRootRouterKey = true -%>
-    addInstanceRootRouterKey( map, <%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
+    addInstanceRootRouterKey( map, <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% else -%>
     map.put( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph.name) %>_<%= Reality::Naming.uppercase_constantize(routing_key.name) %>_KEY, <%= v %> );
 <% end -%>
