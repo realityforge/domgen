@@ -1461,7 +1461,7 @@ module Domgen
       end
 
       def traversable?
-        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.imit?) : @traversable
+        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.imit?) : !!@traversable
       end
 
       def all_exclude_edges
