@@ -107,7 +107,7 @@ end
 
 Domgen::Generator.define([:imit, :jpa],
                          "#{File.dirname(__FILE__)}/templates/server",
-                         [Domgen::JPA::Helper, Domgen::Java::Helper]) do |g|
+                         [Domgen::JPA::Helper, Domgen::Imit::Helper, Domgen::Java::Helper]) do |g|
 
   g.template_set(:imit_server_service) do |template_set|
     template_set.erb_template(:repository,

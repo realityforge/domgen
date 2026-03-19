@@ -20,6 +20,28 @@ module Domgen
         getter_for(a)
       end
 
+      def derive_filter_instance_id(graph_link, source_graph_variable, entity_id_variable)
+        attribute = graph_link.imit_attribute.attribute
+        entity = attribute.entity
+        data_module = entity.data_module
+        repository = data_module.repository
+        target_graph = repository.imit.graph_by_name(graph_link.target_graph)
+        Domgen.error("derive_filter_instance_id(#{attribute.qualified_name}, #{graph_link}) invoked but target graph is not instanced") unless target_graph.instanced?
+
+        # S3 (requires source graph & source graph = type graph)
+        # S3.4 (requires source graph & source graph = instance graph)
+        # E56.222 (requires source entity)
+        # S3.4E56.222 (requires source graph & requires source entity & source graph = instance graph)
+
+        channel_prefix = graph_link.target_filter_requires_source_graph? || graph_link.target_filter_requires_source_graph? ? "\"S\" + #{source_graph_variable}" : ''
+        if graph_link.target_filter_requires_source_entity?
+          source_entity_suffix = "\"E\" + #{repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name)}_#{Reality::Naming.uppercase_constantize(entity.name)} + \".\" + #{entity_id_variable}"
+          '' == channel_prefix ? source_entity_suffix : "#{channel_prefix} + #{source_entity_suffix}"
+        else
+          channel_prefix
+        end
+      end
+
       def process_parameter(entity, parameter_name, javaql, prefix)
         if entity.attribute_by_name?(parameter_name)
           a = entity.attribute_by_name(parameter_name)
