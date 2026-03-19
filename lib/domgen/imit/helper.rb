@@ -33,7 +33,7 @@ module Domgen
         # E56.222 (requires source entity)
         # S3.4E56.222 (requires source graph & requires source entity & source graph = instance graph)
 
-        channel_prefix = graph_link.target_filter_requires_source_graph? ? "\"S\" + #{source_graph_variable}" : ''
+        channel_prefix = graph_link.target_filter_requires_source_graph? || graph_link.target_filter_requires_source_filter? ? "\"S\" + #{source_graph_variable}" : ''
         if graph_link.target_filter_requires_source_entity?
           source_entity_suffix = "\"E\" + #{repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name)}_#{Reality::Naming.uppercase_constantize(entity.name)} + \".\" + #{entity_id_variable}"
           '' == channel_prefix ? source_entity_suffix : "#{channel_prefix} + #{source_entity_suffix}"
