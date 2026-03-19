@@ -323,13 +323,15 @@ if !graph_links.empty? && in_single_graph
 <% end -%>
 <% source_graph = data_module.repository.imit.graph_by_name(graph_link.source_graph) -%>
 <% target_graph = data_module.repository.imit.graph_by_name(graph_link.target_graph) -%>
-<% targetFilterVariable = Reality::Naming.camelize("#{target_graph.name}Filter") -%>
+<% targetFilterVariable = graph_link.target_filter_copied_from_source_filter? || in_single_graph ? 'sourceGraphFilter' : Reality::Naming.camelize("#{target_graph.name}Filter") -%>
 <% if graph_link.target_filter_copied_from_source_filter? -%>
 <% if in_single_graph -%>
 <% targetFilterVariable = "sourceGraphFilter" if in_single_graph -%>
 <% unless in_single_graph %>  <% end %>      assert null != <%= targetFilterVariable %>;
 <% else -%>
+<% unless graph_link.target_filter_copied_from_source_filter?-%>
 <% unless in_single_graph %>  <% end %>      final var <%= targetFilterVariable %> = <% unless in_single_graph -%>(<%= Domgen::Java.java_type(source_graph.filter_parameter, :ee, :default) %>) <% end -%>sourceGraphFilter;
+<% end -%>
 <% unless in_single_graph %>  <% end %>      assert null != <%= targetFilterVariable %>;
 <% end -%>
 <% else -%>
