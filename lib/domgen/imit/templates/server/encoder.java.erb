@@ -183,7 +183,19 @@ public final class <%= data_module.imit.encoder_name %>
       parameters = filtered_source_graph_links.collect{|graph_link| Domgen::Java.java_type(data_module.repository.imit.graph_by_name(graph_link.source_graph).filter_parameter, :ee, :default)}.sort.uniq
 
       source_filter = require_source_filter ? ", @javax.annotation.#{all_source_graphs_have_filter_parameter ? 'Nonnull' : 'Nullable'} #{parameters.size == 1 ? parameters[0] : 'java.lang.Object'} sourceGraphFilter" : ''
+
+      entity.attributes.select{|a| a.imit?}.collect{|attribute| attribute.imit.auto_graph_links }.flatten.select do|graph_link|
+        target_graph = data_module.repository.imit.graph_by_name(graph_link.target_graph)
+        target_graph.instanced?
+      end.each do |graph_link|
 -%>
+
+  @javax.annotation.Nonnull
+  public static String deriveFilterInstanceIdForGraphLinkFrom<%= graph_link.source_graph %>To<%= graph_link.target_graph %>( <% if graph_link.target_filter_requires_source_graph? %>@javax.annotation.Nonnull final replicant.server.ChannelAddress <%= "#{Reality::Naming.camelize(graph_link.source_graph)}Address" %><% end %><% if graph_link.target_filter_requires_source_graph? && graph_link.target_filter_requires_source_entity? %>, <% end %><% if graph_link.target_filter_requires_source_entity? %>final int <%= "#{Reality::Naming.camelize(entity.name)}#{entity.primary_key.name}" %><% end %> )
+  {
+    return <%= derive_filter_instance_id(graph_link, "#{Reality::Naming.camelize(graph_link.source_graph)}Address", "#{Reality::Naming.camelize(entity.name)}#{entity.primary_key.name}") %>;
+  }
+<% end -%>
 
   public static void encode<%= entity.name %>( @javax.annotation.Nonnull final replicant.server.ChangeSet changeSet<% unless in_single_graph %>, @java.lang.SuppressWarnings( "SameParameterValue" ) final int channelId<% end %>, @javax.annotation.Nonnull final java.sql.PreparedStatement statement<% if require_channelRootIdColumn %>, @java.lang.SuppressWarnings( "SameParameterValue" ) @javax.annotation.<%= any_type_graph ? 'Nullable' : 'Nonnull' %> final java.lang.String channelRootIdColumn<% end %><%= filterInstanceIdColumnParameter %><%= source_filter %> )
     throws java.sql.SQLException
@@ -332,7 +344,7 @@ if !graph_links.empty? && in_single_graph
 <% end -%>
 <% unless in_single_graph %><% if attribute.nullable? %>  <% end %>        final var source = new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %><% if source_graph.instance_root? || source_graph.instanced? %><%= source_graph.instance_root? ? ', rootId' : ', null' %><%= source_graph.instanced? ? ', sourceFilterInstanceId' : '' %><% end %> );
 <% end -%>
-<% if attribute.nullable? %>  <% end %><% unless in_single_graph %>  <% end %>      links.add( new replicant.server.ChannelLink( source, new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %><% if target_graph.instance_root? || target_graph.instanced? %><%= target_graph.instance_root? ? ", #{targetId}" : ', null' %><%= target_graph.instanced? ? ", #{derive_filter_instance_id(graph_link, 'source', 'entityId')}" : '' %><% end %> ), <%= target_graph.filter_parameter? ? targetFilterVariable : 'null' -%> ) );
+<% if attribute.nullable? %>  <% end %><% unless in_single_graph %>  <% end %>      links.add( new replicant.server.ChannelLink( source, new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %><% if target_graph.instance_root? || target_graph.instanced? %><%= target_graph.instance_root? ? ", #{targetId}" : ', null' %><%= target_graph.instanced? ? ", deriveFilterInstanceIdForGraphLinkFrom#{graph_link.source_graph}To#{graph_link.target_graph}( #{graph_link.target_filter_requires_source_graph? ? 'source' : ''}#{graph_link.target_filter_requires_source_graph? && graph_link.target_filter_requires_source_entity? ? ', ': ''}#{graph_link.target_filter_requires_source_entity? ? 'entityId' : ''}" : '' %><% end %> ), <%= target_graph.filter_parameter? ? targetFilterVariable : 'null' -%> ) );
 <% if attribute.nullable? -%>
 <% unless in_single_graph %>  <% end %>      }
 <% end -%>
@@ -417,10 +429,10 @@ end
         final var targetRootId = <% if graph_link.imit_attribute.attribute.nullable? -%>null == entity.<%= getter_for(graph_link.imit_attribute.attribute)%> <% end %><% if graph_link.imit_attribute.attribute.nullable? %>|| <% end %>null == entity.<%= getter_path.join('.') %> ? null : entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %>;
         if ( null != targetRootId )
         {
-          links.add( new replicant.server.ChannelLink( source, new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, targetRootId<%= target_graph.instanced? ? ", #{derive_filter_instance_id(graph_link, 'source', "entity.#{getter_for(graph_link.imit_attribute.attribute.entity.primary_key)}")}" : '' %> ), <%= target_graph.filter_parameter? ? '/* Filter patched in createChannelLinkEntryIfRequired */ ' : '' %>null ) );
+          links.add( new replicant.server.ChannelLink( source, new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, targetRootId<%= target_graph.instanced? ? ", deriveFilterInstanceIdForGraphLinkFrom#{graph_link.source_graph}To#{graph_link.target_graph}( #{graph_link.target_filter_requires_source_graph? ? 'source' : ''}#{graph_link.target_filter_requires_source_graph? && graph_link.target_filter_requires_source_entity? ? ', ': ''}#{graph_link.target_filter_requires_source_entity? ? "entity.#{getter_for(graph_link.imit_attribute.attribute.entity.primary_key)}" : ''}" : '' %> ), <%= target_graph.filter_parameter? ? '/* Filter patched in createChannelLinkEntryIfRequired */ ' : '' %>null ) );
         }
 <% else -%>
-        links.add( new replicant.server.ChannelLink( source, new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %><%= target_graph.instanced? ? ", #{derive_filter_instance_id(graph_link, 'source', "entity.#{getter_for(graph_link.imit_attribute.attribute.entity.primary_key)}")}" : '' %> ), <%= target_graph.filter_parameter? ? '/* Filter patched in createChannelLinkEntryIfRequired */ ' : '' %>null ) );
+        links.add( new replicant.server.ChannelLink( source, new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(target_graph.name) %>, entity.<%= (getter_path + [getter_for(rentity.primary_key)]).join('.') %><%= target_graph.instanced? ? ", deriveFilterInstanceIdForGraphLinkFrom#{graph_link.source_graph}To#{graph_link.target_graph}( #{graph_link.target_filter_requires_source_graph? ? 'source' : ''}#{graph_link.target_filter_requires_source_graph? && graph_link.target_filter_requires_source_entity? ? ', ': ''}#{graph_link.target_filter_requires_source_entity? ? "entity.#{getter_for(graph_link.imit_attribute.attribute.entity.primary_key)}" : ''}" : '' %> ), <%= target_graph.filter_parameter? ? '/* Filter patched in createChannelLinkEntryIfRequired */ ' : '' %>null ) );
 <% end -%>
 <% else -%>
 <% if nullcheck_required -%>
