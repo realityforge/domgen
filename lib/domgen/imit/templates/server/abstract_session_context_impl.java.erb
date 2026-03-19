@@ -511,7 +511,7 @@ repository.imit.graphs.select{|graph| graph.filtered?}.each do |graph|
      final var sql =
          generateTempIdTable( addresses ) +
          "SELECT <%= !require_root_id_column ? '' : "#{root_id_column}, " %><%= id_key %>.* FROM <%= entity.sql.qualified_table_name.gsub('[','').gsub(']','') %> <%= id_key %> JOIN @Ids Inputs ON Inputs.Id = <%= "#{id_key}.#{root_id_column}" %><%= entity.transaction_time? ? " WHERE #{id_key}.DeletedAt IS NULL" : '' %>";
-     <%= entity.data_module.imit.qualified_encoder_name %>.addUpdateFor<%= entity.name %>In<%= graph.name %><%= graph.instanced? ? 'Instanced' : '' %>InstanceGraph( connection(), changeSet, <%= root_id_ref %>, sql<%= entity_ever_in_instanced_graph ? ", #{graph.instanced? ? 'filterInstanceIdColumnName' : 'null'}" : '' %> );
+     <%= entity.data_module.imit.qualified_encoder_name %>.addUpdateFor<%= entity.name %>In<%= graph.name %><%= graph.instanced? ? 'Instanced' : '' %>InstanceGraph( connection(), changeSet, <%= root_id_ref %>, sql<%= entity_ever_in_instanced_graph ? ", #{graph.instanced? ? 'filterInstanceIdColumnName' : ''}" : '' %> );
    * }</pre>
    *
    * @param addresses A non-null list of channel addresses that are used to identify the roots of the <%= graph.name %> graph.
