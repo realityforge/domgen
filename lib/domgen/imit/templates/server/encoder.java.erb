@@ -263,12 +263,12 @@ public final class <%= data_module.imit.encoder_name %>
     generate_decodeNullableTimestampAttribute = true if 'Timestamp' == type_suffix && attribute.nullable?
 -%>
 <% if attribute.primary_key? -%>
-      final var entityId = resultSet.getInt( <%= "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name.to_s)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY" %> );
+      final var entityId = resultSet.getInt( <%= "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY" %> );
 <% else -%>
 <%
 if [:date, :datetime, :text, :integer, :enumeration, :boolean].include?(attribute.imit.transport_characteristic_type_key)
 -%>
-      <% unless attribute.imit.auto_graph_links.select{|graph_link| graph_link.path.nil? && !attribute.primary_key?}.empty? %>final var attribute<%= attribute.name %> = <% end -%>decode<%= attribute.nullable? ? 'Nullable' : '' %><%= type_suffix %>Attribute( resultSet, attributeValues, <%= "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name.to_s)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY" %>, <%= entity.jpa.qualified_name %>.<%= Reality::Naming.uppercase_constantize(attribute.name) %>_COLUMN_NAME );
+      <% unless attribute.imit.auto_graph_links.select{|graph_link| graph_link.path.nil? && !attribute.primary_key?}.empty? %>final var attribute<%= attribute.name %> = <% end -%>decode<%= attribute.nullable? ? 'Nullable' : '' %><%= type_suffix %>Attribute( resultSet, attributeValues, <%= "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY" %>, <%= entity.jpa.qualified_name %>.<%= Reality::Naming.uppercase_constantize(attribute.name) %>_COLUMN_NAME );
 <%
 else
   Domgen.error("Unable to convert data type #{attribute.imit.transport_characteristic_type_key} on #{attribute.qualified_name}")
@@ -344,7 +344,7 @@ if !graph_links.empty? && in_single_graph
 <% if any_instanced_graph -%>
       final var filterInstanceId = <% unless all_instanced_graphs %>null == filterInstanceIdColumnName ? null : <% end -%>resultSet.getString( filterInstanceIdColumnName );
 <% end -%>
-      changeSet.merge( new replicant.server.Change( new replicant.server.EntityMessage( entityId, <%= data_module.repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, 0, new java.util.HashMap<>(), attributeValues, <%= has_links ? 'links' : 'null' %> ), new replicant.server.ChannelAddress( <%= channelId %><%= any_instance_graph ? ', rootId' : '' %><%= any_instanced_graph ? ', filterInstanceId' : '' %> ) ) );
+      changeSet.merge( new replicant.server.Change( new replicant.server.EntityMessage( entityId, <%= data_module.repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name) %>_<%= Reality::Naming.uppercase_constantize(entity.name) %>, 0, new java.util.HashMap<>(), attributeValues, <%= has_links ? 'links' : 'null' %> ), new replicant.server.ChannelAddress( <%= channelId %><%= any_instance_graph ? ', rootId' : '' %><%= any_instanced_graph ? ', filterInstanceId' : '' %> ) ) );
     }
   }
 <%
@@ -362,7 +362,7 @@ if !graph_links.empty? && in_single_graph
 -%> if( object instanceof <%= entity.jpa.qualified_name %> entity<% if entity.jpa.track_changes? -%> && ( isInitialLoad || !isUpdate || !entity.unmodified() )<% end -%> )
     {
 <% if 0 == links.size -%>
-      return new replicant.server.EntityMessage( entity.<%= getter_for(entity.primary_key) %>, <%= data_module.repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, System.currentTimeMillis(), route<%= entity.name %>( entity ), isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null );
+      return new replicant.server.EntityMessage( entity.<%= getter_for(entity.primary_key) %>, <%= data_module.repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name) %>_<%= Reality::Naming.uppercase_constantize(entity.name) %>, System.currentTimeMillis(), route<%= entity.name %>( entity ), isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null );
 <% else -%>
       return convert<%= entity.name %>ToEntityMessage( entity, isUpdate );
 <% end -%>
@@ -439,7 +439,7 @@ end
 <% end -%>
 <% end -%>
     }
-    return new replicant.server.EntityMessage( entity.<%= getter_for(entity.primary_key) %>, <%= data_module.repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name.to_s) %>_<%= Reality::Naming.uppercase_constantize(entity.name.to_s) %>, System.currentTimeMillis(), <% if links.size > 0 %>routingKeys<% else %>route<%= entity.name %>( entity )<% end %>, isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null, <%= links.size == 0 ? 'null' : 'links' %> );
+    return new replicant.server.EntityMessage( entity.<%= getter_for(entity.primary_key) %>, <%= data_module.repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name) %>_<%= Reality::Naming.uppercase_constantize(entity.name) %>, System.currentTimeMillis(), <% if links.size > 0 %>routingKeys<% else %>route<%= entity.name %>( entity )<% end %>, isUpdate <% if entity.transaction_time? -%>&& null == entity.getDeletedAt() <% end -%>? encode<%= entity.name %>( entity ) : null, <%= links.size == 0 ? 'null' : 'links' %> );
   }
 <%
     end
@@ -464,7 +464,7 @@ end
     encode<%= other.name %>( entity, attributes );
 <% end -%>
 <% entity.declared_attributes.select{|attribute| attribute.imit? && !attribute.abstract? }.each do |attribute|
-    key = "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name.to_s)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
+    key = "#{data_module.repository.imit.qualified_entity_type_constants_name}.#{Reality::Naming.uppercase_constantize(data_module.name)}_#{Reality::Naming.uppercase_constantize(entity.name)}_#{Reality::Naming.uppercase_constantize(attribute.name)}_ATTRIBUTE_KEY"
     characteristic_type_key = attribute.imit.transport_characteristic_type_key
     requires_var = attribute.nullable? && ([:datetime, :date, :enumeration].include?(characteristic_type_key) || attribute.reference?)
     accessor = "entity.#{getter_for(attribute)}"
