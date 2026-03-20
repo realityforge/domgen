@@ -184,10 +184,8 @@ public final class <%= data_module.imit.encoder_name %>
 
       source_filter = require_source_filter ? ", @javax.annotation.#{all_source_graphs_have_filter_parameter ? 'Nonnull' : 'Nullable'} #{parameters.size == 1 ? parameters[0] : 'java.lang.Object'} sourceGraphFilter" : ''
 
-      entity.attributes.select{|a| a.imit?}.collect{|attribute| attribute.imit.auto_graph_links }.flatten.select do|graph_link|
-        target_graph = data_module.repository.imit.graph_by_name(graph_link.target_graph)
-        target_graph.instanced?
-      end.each do |graph_link|
+      graph_links = entity.attributes.select{|a| a.imit?}.collect{|attribute| attribute.imit.auto_graph_links }.flatten
+      graph_links.select {|graph_link| data_module.repository.imit.graph_by_name(graph_link.target_graph).instanced? }.each do |graph_link|
 -%>
 
   @javax.annotation.Nonnull
@@ -295,6 +293,9 @@ if !graph_links.empty? && in_single_graph
 -%>
       final var source = new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %><% if source_graph.instance_root? || source_graph.instanced? %><%= source_graph.instance_root? ? ', rootId' : ', null' %><%= source_graph.instanced? ? ', sourceFilterInstanceId' : '' %><% end %> );
 <% end -%>
+<% if any_instanced_graph -%>
+      final var filterInstanceId = <% unless all_instanced_graphs %>null == filterInstanceIdColumnName ? null : <% end -%>resultSet.getString( filterInstanceIdColumnName );
+<% end -%>
 <% entity.attributes.select{|a| a.imit?}.each do |attribute|
     a = attribute.reference? ? attribute.referenced_entity.primary_key : attribute
 -%>
@@ -344,7 +345,11 @@ if !graph_links.empty? && in_single_graph
 <% unless in_single_graph %>  <% end %>      if ( null != <%= targetId %> )
 <% unless in_single_graph %>  <% end %>      {
 <% end -%>
-<% unless in_single_graph %><% if attribute.nullable? %>  <% end %>        final var source = new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %><% if source_graph.instance_root? || source_graph.instanced? %><%= source_graph.instance_root? ? ', rootId' : ', null' %><%= source_graph.instanced? ? ', sourceFilterInstanceId' : '' %><% end %> );
+<% if source_graph.instanced? -%>
+<% unless in_single_graph %><% if attribute.nullable? %>  <% end %>        assert null != filterInstanceId;
+<% end -%>
+<% end -%>
+<% unless in_single_graph %><% if attribute.nullable? %>  <% end %>        final var source = new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.source_graph) %><% if source_graph.instance_root? || source_graph.instanced? %><%= source_graph.instance_root? ? ', rootId' : ', null' %><%= source_graph.instanced? ? ', filterInstanceId' : '' %><% end %> );
 <% end -%>
 <% if attribute.nullable? %>  <% end %><% unless in_single_graph %>  <% end %>      links.add( new replicant.server.ChannelLink( source, new replicant.server.ChannelAddress( <%= data_module.repository.imit.qualified_subscription_constants_name %>.<%= Reality::Naming.uppercase_constantize(graph_link.target_graph) %><% if target_graph.instance_root? || target_graph.instanced? %><%= target_graph.instance_root? ? ", #{targetId}" : ', null' %><%= target_graph.instanced? ? ", deriveFilterInstanceIdForGraphLinkFrom#{graph_link.source_graph}To#{graph_link.target_graph}( #{graph_link.target_filter_requires_source_graph? || graph_link.target_filter_requires_source_filter? ? 'source' : ''}#{(graph_link.target_filter_requires_source_graph? || graph_link.target_filter_requires_source_filter?) && graph_link.target_filter_requires_source_entity? ? ', ': ''}#{graph_link.target_filter_requires_source_entity? ? 'entityId' : ''} )" : '' %><% end %> ), <%= target_graph.filter_parameter? ? targetFilterVariable : 'null' -%> ) );
 <% if attribute.nullable? -%>
@@ -354,9 +359,6 @@ if !graph_links.empty? && in_single_graph
       }
 <% end -%>
 <% end -%>
-<% end -%>
-<% if any_instanced_graph -%>
-      final var filterInstanceId = <% unless all_instanced_graphs %>null == filterInstanceIdColumnName ? null : <% end -%>resultSet.getString( filterInstanceIdColumnName );
 <% end -%>
       changeSet.merge( new replicant.server.Change( new replicant.server.EntityMessage( entityId, <%= data_module.repository.imit.qualified_entity_type_constants_name %>.<%= Reality::Naming.uppercase_constantize(entity.data_module.name) %>_<%= Reality::Naming.uppercase_constantize(entity.name) %>, 0, new java.util.HashMap<>(), attributeValues, <%= has_links ? 'links' : 'null' %> ), new replicant.server.ChannelAddress( <%= channelId %><%= any_instance_graph ? ', rootId' : '' %><%= any_instanced_graph ? ', filterInstanceId' : '' %> ) ) );
     }
