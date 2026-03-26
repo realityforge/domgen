@@ -136,7 +136,7 @@ module Domgen
         declared_attribute_names = entity.declared_attributes.collect{|a| a.name}
         declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
         java = <<JAVA
-  #{!entity.jpa.module_local? && immutable_attributes.empty? ? 'public ' : 'protected '}#{entity.jpa.name}()
+  #{!entity.jpa.module_local_mutators? && immutable_attributes.empty? ? 'public ' : 'protected '}#{entity.jpa.name}()
   {
   }
 
@@ -144,7 +144,7 @@ JAVA
         return java if immutable_attributes.empty?
         java = java + <<JAVA
   @java.lang.SuppressWarnings( "deprecation" )
-  #{entity.jpa.module_local? ? '' : 'public '}#{entity.jpa.name}(#{immutable_attributes.collect{|a| "#{nullable_annotate(a, "final #{a.jpa.java_type}", false)} #{a.jpa.field_name}"}.join(', ')})
+  #{entity.jpa.module_local_mutators? ? '' : 'public '}#{entity.jpa.name}(#{immutable_attributes.collect{|a| "#{nullable_annotate(a, "final #{a.jpa.java_type}", false)} #{a.jpa.field_name}"}.join(', ')})
   {
 JAVA
         java += declared_immutable_attributes.collect{|a| "    this.#{a.jpa.field_name} = #{!a.nullable? && !a.jpa.primitive? ? "java.util.Objects.requireNonNull( #{a.jpa.field_name} )": a.jpa.field_name};\n" }.join('')
@@ -181,8 +181,10 @@ JAVA
             name = attribute.inverse.name
             field_name = Reality::Naming.camelize( name )
 
+            local_getter = attribute.entity.jpa.module_local? || (attribute.reference? && (!attribute.referenced_entity.jpa? || attribute.referenced_entity.jpa.module_local?))
+
             java = <<JAVA
-  #{nullable_annotate(attribute, "#{attribute.entity.jpa.module_local? ? '' : 'public '}#{attribute.entity.jpa.qualified_name}", false, true)} #{getter_for(attribute, name)}
+  #{nullable_annotate(attribute, "#{local_getter ? '' : 'public '}#{attribute.entity.jpa.qualified_name}", false, true)} #{getter_for(attribute, name)}
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     return #{field_name};
@@ -201,7 +203,7 @@ JAVA
     }
   }
 
-  #{attribute.entity.jpa.module_local? ? '' : 'public '}final void remove#{name}( #{nullable_annotate(attribute, "final #{attribute.entity.jpa.qualified_name}", false, true)} value )
+  #{local_getter ? '' : 'public '}final void remove#{name}( #{nullable_annotate(attribute, "final #{attribute.entity.jpa.qualified_name}", false, true)} value )
   {
     #{attribute.primary_key? ? '' :'verifyNotRemoved();'}
     if( null != this.#{field_name} && value != this.#{field_name} )
@@ -221,13 +223,11 @@ JAVA
         j_declared_attribute_accessors(entity) + relation_methods.compact.join("\n")
       end
 
-      def j_return_if_value_same(attribute, field_name, primitive, nullable)
-      end
-
       def j_simple_attribute(attribute)
         name = attribute.jpa.name
+        local_getter = attribute.entity.jpa.module_local? || (attribute.reference? && (!attribute.referenced_entity.jpa? || attribute.referenced_entity.jpa.module_local?))
         java = <<JAVA
-  #{annotated_type(attribute, :jpa, :default, :assume_generated => true, :public => !attribute.entity.jpa.module_local?)} #{getter_for(attribute)}
+  #{annotated_type(attribute, :jpa, :default, :assume_generated => true, :public => !local_getter)} #{getter_for(attribute)}
   {
 JAVA
         unless attribute.primary_key?
